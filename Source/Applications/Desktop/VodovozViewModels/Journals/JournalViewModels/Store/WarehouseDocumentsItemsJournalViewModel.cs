@@ -226,8 +226,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.IncomingInvoice)
 				&& FilterViewModel.Driver is null)
 			{
-				invoiceQuery.Where(FilterViewModel.GetWarehouseSpecification<IncomingInvoice>().IsSatisfiedBy())
-					.And(FilterViewModel.GetPeriodSpecification<IncomingInvoice>().IsSatisfiedBy());
+				invoiceQuery.Where(FilterViewModel.GetPeriodSpecification<IncomingInvoice>().IsSatisfiedBy());
+					//.And(FilterViewModel.GetWarehouseSpecification<IncomingInvoice>().IsSatisfiedBy());
 			}
 			else
 			{
@@ -287,8 +287,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.IncomingWater)
 				&& FilterViewModel.Driver == null)
 			{
-				waterQuery.Where(FilterViewModel.GetTwoWarhousesSpecification<IncomingWater>().IsSatisfiedBy())
-					.And(FilterViewModel.GetPeriodSpecification<IncomingWater>().IsSatisfiedBy());
+				waterQuery.Where(FilterViewModel.GetPeriodSpecification<IncomingWater>().IsSatisfiedBy());
+					//.And(FilterViewModel.GetTwoWarhousesSpecification<IncomingWater>().IsSatisfiedBy());
 			}
 			else
 			{
@@ -343,8 +343,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
 				&& FilterViewModel.Driver == null)
 			{
-				movementQuery.Where(FilterViewModel.GetTwoWarhousesSpecification<MovementDocument>().IsSatisfiedBy())
-					.And(FilterViewModel.GetPeriodSpecification<MovementDocument>().IsSatisfiedBy());
+				movementQuery.Where(FilterViewModel.GetPeriodSpecification<MovementDocument>().IsSatisfiedBy());
+				// .And(FilterViewModel.GetTwoWarhousesSpecification<MovementDocument>().IsSatisfiedBy());
 			}
 			else
 			{
@@ -409,8 +409,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.WriteoffDocument) &&
 				 FilterViewModel.Driver == null)
 			{
-				writeoffQuery.Where(FilterViewModel.GetWarehouseSpecification<WriteoffDocument>().IsSatisfiedBy())
-					.And(FilterViewModel.GetPeriodSpecification<WriteoffDocument>().IsSatisfiedBy());
+				writeoffQuery.Where(FilterViewModel.GetPeriodSpecification<WriteoffDocument>().IsSatisfiedBy());
+				// .And(FilterViewModel.GetWarehouseSpecification<WriteoffDocument>().IsSatisfiedBy())
 			}
 			else
 			{
@@ -473,8 +473,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.SelfDeliveryDocument)
 				&& FilterViewModel.Driver == null)
 			{
-				selfDeliveryQuery.Where(FilterViewModel.GetWarehouseSpecification<SelfDeliveryDocument>().IsSatisfiedBy())
-					.And(FilterViewModel.GetPeriodSpecification<SelfDeliveryDocument>().IsSatisfiedBy());
+				selfDeliveryQuery.Where(FilterViewModel.GetPeriodSpecification<SelfDeliveryDocument>().IsSatisfiedBy());
+					//.And(FilterViewModel.GetWarehouseSpecification<SelfDeliveryDocument>().IsSatisfiedBy());
 			}
 			else
 			{
@@ -536,8 +536,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					carLoadQuery.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
 				}
 
-				carLoadQuery.Where(FilterViewModel.GetWarehouseSpecification<CarLoadDocument>().IsSatisfiedBy())
-					.And(FilterViewModel.GetPeriodSpecification<CarLoadDocument>().IsSatisfiedBy());
+				carLoadQuery.Where(FilterViewModel.GetPeriodSpecification<CarLoadDocument>().IsSatisfiedBy());
+					//.And(FilterViewModel.GetWarehouseSpecification<CarLoadDocument>().IsSatisfiedBy());
 			}
 			else
 			{
@@ -601,8 +601,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if(FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarUnloadDocument)
 			{
-				carUnloadQuery.Where(FilterViewModel.GetWarehouseSpecification<CarUnloadDocument>().IsSatisfiedBy())
-					.And(FilterViewModel.GetPeriodSpecification<CarUnloadDocument>().IsSatisfiedBy());
+				carUnloadQuery.Where(FilterViewModel.GetPeriodSpecification<CarUnloadDocument>().IsSatisfiedBy());
+					//.And(FilterViewModel.GetWarehouseSpecification<CarUnloadDocument>().IsSatisfiedBy());
 
 				if(FilterViewModel.Driver != null)
 				{
@@ -667,8 +667,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.InventoryDocument) &&
 				FilterViewModel.Driver == null)
 			{
-				inventoryQuery.Where(FilterViewModel.GetWarehouseSpecification<InventoryDocument>().IsSatisfiedBy())
-					.And(FilterViewModel.GetPeriodSpecification<InventoryDocument>().IsSatisfiedBy());
+				inventoryQuery.Where(FilterViewModel.GetPeriodSpecification<InventoryDocument>().IsSatisfiedBy());
+					//.And(FilterViewModel.GetWarehouseSpecification<InventoryDocument>().IsSatisfiedBy());
 			}
 			else
 			{
@@ -719,8 +719,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.ShiftChangeDocument) &&
 				FilterViewModel.Driver == null)
 			{
-				shiftchangeQuery.Where(FilterViewModel.GetWarehouseSpecification<ShiftChangeWarehouseDocument>().IsSatisfiedBy())
-					.And(FilterViewModel.GetPeriodSpecification<ShiftChangeWarehouseDocument>().IsSatisfiedBy());
+				shiftchangeQuery.Where(FilterViewModel.GetPeriodSpecification<ShiftChangeWarehouseDocument>().IsSatisfiedBy());
+					//.And(FilterViewModel.GetWarehouseSpecification<ShiftChangeWarehouseDocument>().IsSatisfiedBy());
 			}
 			else
 			{
@@ -771,8 +771,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument) &&
 				FilterViewModel.Driver == null)
 			{
-				regrandingQuery.Where(FilterViewModel.GetWarehouseSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy())
-					.And(FilterViewModel.GetPeriodSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
+				regrandingQuery.Where(FilterViewModel.GetPeriodSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
+					//.And(FilterViewModel.GetWarehouseSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
 			}
 			else
 			{
@@ -823,8 +823,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument) &&
 				FilterViewModel.Driver == null)
 			{
-				regrandingQuery.Where(FilterViewModel.GetWarehouseSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy())
-					.And(FilterViewModel.GetPeriodSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
+				regrandingQuery.Where(FilterViewModel.GetPeriodSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
+					//.And(FilterViewModel.GetWarehouseSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
 			}
 			else
 			{

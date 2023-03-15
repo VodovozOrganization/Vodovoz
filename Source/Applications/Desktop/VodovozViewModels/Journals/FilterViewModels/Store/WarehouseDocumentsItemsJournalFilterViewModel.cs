@@ -1,15 +1,23 @@
-﻿using QS.DomainModel.Entity;
+﻿using NHibernate.Transform;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Project.Filter;
 using QS.Services;
 using System;
+using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Logistics;
 using Vodovoz.Specifications;
 using Vodovoz.Specifications.Store.Documents;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
@@ -32,6 +40,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private Employee _driver;
 		private Employee _restrictDriver;
 		private DocumentType? _documentType;
+		private TargetSource _targetSource;
+		private SelectableParameterReportFilterViewModel _filterViewModel;
+		private readonly SelectableParametersReportFilter _filter;
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
 			IWarehouseJournalFactory warehouseJournalFactory,
@@ -47,10 +58,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
-			Warehouse = _userRepository.GetCurrentUserSettings(UoW).DefaultWarehouse;
-
 			StartDate = DateTime.Today.AddDays(-7);
 			EndDate = DateTime.Today.AddDays(1);
+
+			_filter = new SelectableParametersReportFilter(UoW);
+			ConfigureFilter();
 		}
 
 		public IWarehouseJournalFactory WarehouseJournalFactory { get; }
@@ -75,23 +87,17 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			return new TimestampBetweenSpecification<TDocument>(StartDate, EndDate.Value.AddDays(1));
 		}
 
-		public Warehouse Warehouse
-		{
-			get => _warehouse;
-			set => UpdateFilterField(ref _warehouse, value);
-		}
+		//public ISpecification<TDocument> GetTwoWarhousesSpecification<TDocument>()
+		//	where TDocument : ITwoWarhousesBindedDocument
+		//{
+		//	return new DocumentTwoWarehousesBoundedIdSpecification<TDocument>(Warehouse?.Id);
+		//}
 
-		public ISpecification<TDocument> GetTwoWarhousesSpecification<TDocument>()
-			where TDocument : ITwoWarhousesBindedDocument
-		{
-			return new DocumentTwoWarehousesBoundedIdSpecification<TDocument>(Warehouse?.Id);
-		}
-
-		public ISpecification<TDocument> GetWarehouseSpecification<TDocument>()
-			where TDocument : IWarehouseBoundedDocument
-		{
-			return new DocumentOneWarehouseBoundedIdSpecification<TDocument>(Warehouse?.Id);
-		}
+		//public ISpecification<TDocument> GetWarehouseSpecification<TDocument>()
+		//	where TDocument : IWarehouseBoundedDocument
+		//{
+		//	return new DocumentOneWarehouseBoundedIdSpecification<TDocument>(Warehouse?.Id);
+		//}
 
 		public Employee Driver
 		{
@@ -109,6 +115,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		{
 			get => _movementDocumentStatus;
 			set => UpdateFilterField(ref _movementDocumentStatus, value);
+		}
+
+		public TargetSource TargetSource
+		{
+			get => _targetSource;
+			set => UpdateFilterField(ref _targetSource, value);
 		}
 
 		[PropertyChangedAlso(nameof(CanChangeDatePeriod))]
@@ -133,19 +145,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				if(UpdateFilterField(ref _restrictEndDate, value) && value != null)
 				{
 					EndDate = value.Value;
-				}
-			}
-		}
-
-		[PropertyChangedAlso(nameof(CanChangeWarehouse))]
-		public Warehouse RestrictWarehouse
-		{
-			get => _restrictWarehouse;
-			set
-			{
-				if(UpdateFilterField(ref _restrictWarehouse, value) && value != null)
-				{
-					Warehouse = value;
 				}
 			}
 		}
@@ -189,9 +188,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			}
 		}
 
+		public virtual SelectableParameterReportFilterViewModel FilterViewModel
+		{
+			get => _filterViewModel;
+			set => SetField(ref _filterViewModel, value);
+		}
+
 		public bool CanChangeDatePeriod => RestrictStartDate is null && RestrictEndDate is null;
 
-		public bool CanChangeWarehouse => CanReadWarehouse && (RestrictWarehouse is null);
+		//public bool CanChangeWarehouse => CanReadWarehouse && (RestrictWarehouse is null);
 
 		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(_haveAccessOnlyToWarehouseAndComplaintsPermissionName) || _userService.GetCurrentUser(UoW).IsAdmin;
 
@@ -204,5 +209,145 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		public bool CanChangeMovementDocumentStatus => RestrictMovementStatus is null;
 
 		public bool CanChangeDriver => RestrictDriver is null;
+
+
+		private void ConfigureFilter()
+		{
+			_filter.CreateParameterSet(
+				"Контрагент",
+				nameof(Counterparty),
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<Counterparty> resultAlias = null;
+					var query = UoW.Session.QueryOver<Counterparty>()
+						.Where(x => !x.IsArchive);
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(x => x.FullName).WithAlias(() => resultAlias.EntityTitle)
+					);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Counterparty>>());
+					return query.List<SelectableParameter>();
+				}));
+
+			_filter.CreateParameterSet(
+				"Склад",
+				nameof(Warehouse),
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<Warehouse> resultAlias = null;
+					var query = UoW.Session.QueryOver<Warehouse>()
+						.Where(x => !x.IsArchive);
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+					);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Warehouse>>());
+					return query.List<SelectableParameter>();
+				}));
+
+			_filter.CreateParameterSet(
+				"Сотрудник",
+				nameof(Employee),
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<Employee> resultAlias = null;
+					var query = UoW.Session.QueryOver<Employee>()
+						.Where(x => x.Status != EmployeeStatus.IsFired);
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+					);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+					return query.List<SelectableParameter>();
+				}));
+
+			_filter.CreateParameterSet(
+				"Автомобиль",
+				nameof(Car),
+				new ParametersFactory(UoW, (filters) =>
+				{
+					Car carAlias = null;
+					CarModel carModelAlias = null;
+					CarManufacturer carManufacturerAlias = null;
+					Employee driverAlias = null;
+
+					SelectableEntityParameter<Car> resultAlias = null;
+					var query = UoW.Session.QueryOver(() => carAlias)
+						.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+						.Left.JoinAlias(() => carModelAlias.CarManufacturer, () => carManufacturerAlias)
+						.Left.JoinAlias(() => carAlias.Driver, () => driverAlias)
+						.Where(x => !x.IsArchive);
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(CarProjections.GetCarTitleProjection()).WithAlias(() => resultAlias.EntityTitle)
+					);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Car>>());
+					return query.List<SelectableParameter>();
+				}));
+
+			_filter.CreateParameterSet(
+				"Фура",
+				nameof(MovementWagon),
+				new ParametersFactory(UoW, (filters) =>
+				{
+					SelectableEntityParameter<MovementWagon> resultAlias = null;
+					var query = UoW.Session.QueryOver<MovementWagon>();
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+					);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<MovementWagon>>());
+					return query.List<SelectableParameter>();
+				}));
+
+			FilterViewModel = new SelectableParameterReportFilterViewModel(_filter);
+		}
+	}
+
+	public enum TargetSource
+	{
+		Source,
+		Target,
+		Both
 	}
 }
