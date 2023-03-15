@@ -45,7 +45,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object>()
 				.AddColumn("Ответственный")
 					.AddTextRenderer(n => GetNodeText(n))
-					.AddSetter((c ,n) => c.Alignment = GetAlignment(n))
+					.AddSetter((c, n) => c.Alignment = n is ComplaintGuiltyNode ? Pango.Alignment.Left : Pango.Alignment.Right)
 					.WrapWidth(150).WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Кол-во")
 					.AddTextRenderer(n => GetCount(n))
@@ -68,11 +68,6 @@ namespace Vodovoz.SidePanel.InfoViews
 					.AddTextRenderer(n => n.Count.ToString())
 					.WrapWidth(50).WrapMode(Pango.WrapMode.WordChar)
 				.Finish();
-		}
-
-		private Pango.Alignment GetAlignment(object node)
-		{
-			return node is ComplaintGuiltyNode ? Pango.Alignment.Left : Pango.Alignment.Right;
 		}
 
 		private string GetNodeText(object node)
@@ -397,5 +392,13 @@ namespace Vodovoz.SidePanel.InfoViews
 		}
 
 		#endregion
+
+		public override void Destroy()
+		{
+			yTreeView?.Destroy();
+			yTVComplaintsResultsOfCounterparty?.Destroy();
+			yTVComplaintsResultsOfEmployees?.Destroy();
+			base.Destroy();
+		}
 	}
 }
