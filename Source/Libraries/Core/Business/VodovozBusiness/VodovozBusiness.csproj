@@ -584,6 +584,7 @@
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
+    <Compile Include="NHibernateProjections\Contacts\PhoneProjections.cs" />
     <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
@@ -1462,5 +1463,8 @@
       <Project>{445C399F-F7F9-43FF-8278-E0392A792F03}</Project>
       <Name>Vodovoz.Settings</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="NHibernateProjections\Counterparty\" />
   </ItemGroup>
 </Project>
