@@ -1,6 +1,5 @@
 ﻿using NHibernate.Transform;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Project.Filter;
 using QS.Services;
 using System;
@@ -12,8 +11,8 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.NHibernateProjections.Logistics;
-using Vodovoz.Specifications;
 using Vodovoz.Specifications.Store.Documents;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -210,7 +209,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public bool CanChangeDriver => RestrictDriver is null;
 
-
 		private void ConfigureFilter()
 		{
 			_filter.CreateParameterSet(
@@ -262,13 +260,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				}));
 
 			_filter.CreateParameterSet(
-				"Сотрудник",
+				"Водитель",
 				nameof(Employee),
 				new ParametersFactory(UoW, (filters) =>
 				{
+					Employee driverAlias = null;
+
 					SelectableEntityParameter<Employee> resultAlias = null;
-					var query = UoW.Session.QueryOver<Employee>()
-						.Where(x => x.Status != EmployeeStatus.IsFired);
+					var query = UoW.Session.QueryOver(() => driverAlias)
+						.Where(x => x.Category == EmployeeCategory.driver);
 					if(filters != null && filters.Any())
 					{
 						foreach(var f in filters)
@@ -279,7 +279,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 					query.SelectList(list => list
 						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+						.Select(EmployeeProjections.GetDriverFullNamePojection()).WithAlias(() => resultAlias.EntityTitle)
 					);
 					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
 					return query.List<SelectableParameter>();

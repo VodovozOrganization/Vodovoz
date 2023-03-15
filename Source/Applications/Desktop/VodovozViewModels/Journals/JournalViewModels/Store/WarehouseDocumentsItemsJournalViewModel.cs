@@ -208,6 +208,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			dataLoader.MergeInOrderBy(node => node.Date, true);
 		}
 
+		#region IQueryOver<Document> Functions
+
 		private IQueryOver<IncomingInvoiceItem> GetQueryIncomingInvoiceItem(IUnitOfWork unitOfWork)
 		{
 			WarehouseDocumentsItemsJournalNode<IncomingInvoiceItem> resultAlias = null;
@@ -856,5 +858,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.OrderBy(x => x.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<RegradingOfGoodsDocumentItem>>());
 		}
+
+		#endregion
 	}
 }
