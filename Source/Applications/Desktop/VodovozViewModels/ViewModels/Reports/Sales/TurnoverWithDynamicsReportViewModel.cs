@@ -1082,7 +1082,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => counterpartyAlias.Id).WithAlias(() => resultNodeAlias.CounterpartyId)
 						.Select(() => counterpartyAlias.FullName).WithAlias(() => resultNodeAlias.CounterpartyFullName)
 						.SelectSubQuery(counterpartyPhonesSubquery).WithAlias(() => resultNodeAlias.CounterpartyPhones)
-						.Select(PhoneProjections.GetOrderContactDigitNumberLeadsWith8()).WithAlias(() => resultNodeAlias.OrderContactPhone)
+						.Select(Projections.Conditional(
+							Restrictions.IsNull(Projections.Property(() => orderAlias.ContactPhone)),
+							Projections.Constant(string.Empty),
+							PhoneProjections.GetOrderContactDigitNumberLeadsWith8())).WithAlias(() => resultNodeAlias.OrderContactPhone)
 						.Select(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName)
 						.Select(() => orderAlias.Id).WithAlias(() => resultNodeAlias.OrderId)
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate)

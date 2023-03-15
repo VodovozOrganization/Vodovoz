@@ -505,7 +505,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				public string OrderContactPhone { get; set; }
 
-				public string Phones => OrderContactPhone == "8" ? CounterpartyPhones : OrderContactPhone + ",\n" + CounterpartyPhones;
+				public string Phones => string.IsNullOrWhiteSpace(OrderContactPhone)
+					|| (CounterpartyPhones != null && CounterpartyPhones.Contains(OrderContactPhone))
+					? CounterpartyPhones
+					: string.IsNullOrWhiteSpace(CounterpartyPhones)
+						? OrderContactPhone
+						: OrderContactPhone + ",\n" + CounterpartyPhones;
 			}
 		}
 	}
