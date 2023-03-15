@@ -62,6 +62,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
@@ -172,6 +173,7 @@ public partial class MainWindow : Gtk.Window
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 	private readonly IComplaintNotificationController _complaintNotificationController;
 	private readonly bool _hasAccessToSalariesForLogistics;
+	public readonly int _currentUserSubdivisionId;
 
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
@@ -318,11 +320,10 @@ public partial class MainWindow : Gtk.Window
 
 		#region Уведомление об отправленных перемещениях для подразделения
 		
-		int employeeSubdivisionId;
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			employeeSubdivisionId = GetEmployeeSubdivisionId(uow);
-			_movementsNotificationsController = autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), employeeSubdivisionId));
+			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
+			_movementsNotificationsController = autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
@@ -342,7 +343,7 @@ public partial class MainWindow : Gtk.Window
 
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			_complaintNotificationController = autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), employeeSubdivisionId));
+			_complaintNotificationController = autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
 
 			var notificationDetails = _complaintNotificationController.GetNotificationDetails(uow);
 			hboxComplaintsNotification.Visible = notificationDetails.NeedNotify;
@@ -456,7 +457,17 @@ public partial class MainWindow : Gtk.Window
 
 	private void OnBtnOpenComplaintClicked(object sender, EventArgs e)
 	{
-		//#TODO открытие рекламации
+		int oldestComplaintIdWithNoComments;
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			oldestComplaintIdWithNoComments = _complaintNotificationController.GetSendedComplaintIdsBySubdivision(uow).Min();
+		}
+
+		NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
+				null, 
+				EntityUoWBuilder.ForOpen(oldestComplaintIdWithNoComments), 
+				OpenPageOptions.None
+				);
 	}
 	#endregion
 
