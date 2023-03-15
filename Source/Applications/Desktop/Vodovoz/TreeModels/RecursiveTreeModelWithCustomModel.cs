@@ -265,13 +265,13 @@ namespace Gamma.Binding
 				node_hash[node] = gch;
 			}
 			var result = TreeIter.Zero;
-			result.UserData = (IntPtr)gch;
+			result.UserData = GCHandle.ToIntPtr(gch);
 			return result;
 		}
 
 		public object NodeFromIter(TreeIter iter)
 		{
-			var gch = (GCHandle)iter.UserData;
+			var gch = GCHandle.FromIntPtr(iter.UserData);
 			return gch.Target;
 		}
 
@@ -315,7 +315,7 @@ namespace Gamma.Binding
 			} while (true);
 		}
 		
-	#region Privates
+		#region Privates
 
 		private bool GetCacheNext(ref TreeIter iter)
 		{
@@ -356,6 +356,14 @@ namespace Gamma.Binding
 			return 	_modelConfig.SingleOrDefault(x => x.Type == node.GetType());
 		}
 
-	#endregion
+		#endregion
+
+		public override void Dispose()
+		{
+			foreach(GCHandle item in node_hash.Values)
+			{
+				item.Free();
+			}
+		}
 	}
 }

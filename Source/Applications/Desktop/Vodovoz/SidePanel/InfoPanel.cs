@@ -138,6 +138,7 @@ namespace Vodovoz.SidePanel
 				foreach (var view in views.Where(c=>!c.Pinned))
 				{
 					content.Remove(view);
+					view.Unpinned -= OnContainerUnpinned;
 					view.Widget?.Destroy();
 					view.Dispose();
 				}

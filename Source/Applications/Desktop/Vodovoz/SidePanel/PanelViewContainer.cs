@@ -86,6 +86,12 @@ namespace Vodovoz.SidePanel
 			if(!buttonPin.Active && Unpinned!=null)
 				Unpinned(this, EventArgs.Empty);
 		}
+
+		public override void Dispose()
+		{
+			buttonPin.Toggled -= OnButtonPinToggled;
+			base.Dispose();
+		}
 	}
 }
 
