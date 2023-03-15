@@ -585,6 +585,7 @@
     <Compile Include="Models\RoboatsFileStorage.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
     <Compile Include="NHibernateProjections\Contacts\PhoneProjections.cs" />
+    <Compile Include="NHibernateProjections\Employees\EmployeeProjections.cs" />
     <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
