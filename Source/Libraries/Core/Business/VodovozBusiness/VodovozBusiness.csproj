@@ -149,6 +149,7 @@
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\Employees\EmployeeRegistration.cs" />
     <Compile Include="Domain\Employees\EmployeeRegistrationVersion.cs" />
+    <Compile Include="Domain\EntityFactories\INomenclatureFixedPriceFactory.cs" />
     <Compile Include="Domain\FastPayments\FastPayment.cs" />
     <Compile Include="Domain\FastPayments\FastPaymentPayType.cs" />
     <Compile Include="Domain\FastPayments\FastPaymentStatus.cs" />
