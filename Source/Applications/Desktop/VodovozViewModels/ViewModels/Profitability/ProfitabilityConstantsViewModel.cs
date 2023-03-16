@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModels.Profitability
 		private const string _recalculated = "Завершили перерасчет";
 		
 		private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-		private readonly ProfitabilityConstantsViewModelHandler _profitabilityConstantsViewModelHandler;
+		private readonly IProfitabilityConstantsViewModelHandler _profitabilityConstantsViewModelHandler;
 		private readonly IUserService _userService;
 		private readonly IProfitabilityConstantsRepository _profitabilityConstantsRepository;
 		private readonly IEmployeeService _employeeService;
@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.Profitability
 		private bool _isIdleState = true;
 		
 		public ProfitabilityConstantsViewModel(
-			ProfitabilityConstantsViewModelHandler profitabilityConstantsViewModelHandler,
+			IProfitabilityConstantsViewModelHandler profitabilityConstantsViewModelHandler,
 			IUserService userService,
 			INavigationManager navigationManager,
 			IProfitabilityConstantsRepository profitabilityConstantsRepository,
