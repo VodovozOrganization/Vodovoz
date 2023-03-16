@@ -1,5 +1,4 @@
 ﻿using NHibernate.Transform;
-using QS.DomainModel.Entity;
 using QS.Project.Filter;
 using QS.Services;
 using System;
@@ -102,19 +101,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => SetField(ref _filterViewModel, value);
 		}
 
-		public bool CanChangeDatePeriod => RestrictStartDate is null && RestrictEndDate is null;
-
 		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(_haveAccessOnlyToWarehouseAndComplaintsPermissionName) || _userService.GetCurrentUser(UoW).IsAdmin;
 
 		public bool CanUpdateWarehouse => CanReadWarehouse;
 
 		public bool ShowMovementDocumentFilterDetails => DocumentType.HasValue && (DocumentType.Value == Domain.Documents.DocumentType.MovementDocument);
-
-		public bool CanChangeDocumentType => RestrictDocumentType is null;
-
-		public bool CanChangeMovementDocumentStatus => RestrictMovementStatus is null;
-
-		public bool CanChangeDriver => RestrictDriver is null;
 
 		private void ConfigureFilter()
 		{

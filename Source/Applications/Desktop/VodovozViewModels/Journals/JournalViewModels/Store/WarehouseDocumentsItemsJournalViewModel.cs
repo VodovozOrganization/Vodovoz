@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 	public class WarehouseDocumentsItemsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<WarehouseDocumentsItemsJournalNode, WarehouseDocumentsItemsJournalFilterViewModel>
 	{
 		private readonly Type[] _documentItemsTypes;
+		private readonly Type[] _documentTypes;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 
 		public WarehouseDocumentsItemsJournalViewModel(
@@ -58,13 +59,27 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				typeof(RegradingOfGoodsDocumentItem),
 			};
 
+			_documentTypes = new[]
+			{
+				typeof(IncomingInvoice),
+				typeof(IncomingWater),
+				typeof(MovementDocument),
+				typeof(WriteoffDocument),
+				typeof(SelfDeliveryDocument),
+				typeof(CarLoadDocument),
+				typeof(CarUnloadDocument),
+				typeof(InventoryDocument),
+				typeof(ShiftChangeWarehouseDocument),
+				typeof(RegradingOfGoodsDocument),
+			};
+
 			SearchEnabled = false;
 
 			UseSlider = false;
 
 			RegisterDocumentItems(_documentItemsTypes);
 
-			UpdateOnChanges(_documentItemsTypes);
+			UpdateOnChanges(_documentItemsTypes.Concat(_documentTypes).ToArray());
 
 			UpdateAllEntityPermissions();
 			CreateNodeActions();

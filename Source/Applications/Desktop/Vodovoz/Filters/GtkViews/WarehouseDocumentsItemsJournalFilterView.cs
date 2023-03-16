@@ -19,7 +19,6 @@ namespace Vodovoz.Filters.GtkViews
 			Build();
 
 			dateperiodDocs.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanChangeDatePeriod, w => w.Sensitive)
 				.AddBinding(vm => vm.StartDate, w => w.StartDate)
 				.AddBinding(vm => vm.EndDate, w => w.EndDate)
 				.InitializeFromSource();
@@ -34,20 +33,17 @@ namespace Vodovoz.Filters.GtkViews
 			};
 
 			enumcomboDocumentType.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanChangeDocumentType, w => w.Sensitive)
 				.AddBinding(vm => vm.DocumentType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.CanChangeDriver, w => w.Sensitive)
 				.AddBinding(vm => vm.Driver, w => w.Subject)
 				.InitializeFromSource();
 
 			comboMovementStatus.ItemsEnum = typeof(MovementDocumentStatus);
 			comboMovementStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowMovementDocumentFilterDetails, w => w.Visible)
-				.AddBinding(vm => vm.CanChangeMovementDocumentStatus, w => w.Sensitive)
 				.AddBinding(vm => vm.MovementDocumentStatus, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
