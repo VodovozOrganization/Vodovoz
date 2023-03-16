@@ -1,12 +1,12 @@
 stage('Checkout'){
 	parallel (
-		"Desktop" : {
-			node('DESKTOP_BUILD'){
+		"Win" : {
+			node('WIN_BUILD'){
 				PrepareSources("${JENKINS_HOME_WIN}")
 			}
 		},
-		"WCF" : {
-			node('WCF_BUILD'){
+		"Linux" : {
+			node('LINUX_BUILD'){
 				PrepareSources("${JENKINS_HOME}")
 			}						
 		}
@@ -14,13 +14,13 @@ stage('Checkout'){
 }
 stage('Restore'){
 	parallel (
-		"Desktop" : {
-			node('DESKTOP_BUILD'){
+		"Win" : {
+			node('WIN_BUILD'){
 				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86 -maxcpucount:2'
 			}
 		},
-		"WCF" : {
-			node('WCF_BUILD'){
+		"Linux" : {
+			node('LINUX_BUILD'){
 				sh 'nuget restore Vodovoz/Source/Vodovoz.sln'
 				sh 'nuget restore Vodovoz/Source/Libraries/External/QSProjects/QSProjectsLib.sln'
 				sh 'nuget restore Vodovoz/Source/Libraries/External/My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
@@ -29,8 +29,8 @@ stage('Restore'){
 	)				
 }
 parallel (
-	"Desktop" : {
-		node('DESKTOP_BUILD'){
+	"Win" : {
+		node('WIN_BUILD'){
 			stage('Build Desktop'){
 				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=WinDesktop -p:Platform=x86 -maxcpucount:2'
 
@@ -42,31 +42,31 @@ parallel (
 			stage('Build WEB'){
 				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 				{				
-					PublishBuildWebService('DriversAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj', 
+					PublishBuildWebServiceToFolder('DriversAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebService('FastPaymentsAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj', 
+					PublishBuildWebServiceToFolder('FastPaymentsAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebService('PayPageAPI', 'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj', 
+					PublishBuildWebServiceToFolder('PayPageAPI', 'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj', 
 						'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebService('MailjetEventsDistributorAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj', 
+					PublishBuildWebServiceToFolder('MailjetEventsDistributorAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0_publish')
 						
-					PublishBuildWebService('UnsubscribePage', 'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj', 
+					PublishBuildWebServiceToFolder('UnsubscribePage', 'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj', 
 						'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebService('DeliveryRulesService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj', 
+					PublishBuildWebServiceToFolder('DeliveryRulesService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebService('RoboatsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\RoboatsService.csproj', 
+					PublishBuildWebServiceToFolder('RoboatsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\RoboatsService.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebService('TrueMarkAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj', 
+					PublishBuildWebServiceToFolder('TrueMarkAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebService('TaxcomEdoApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\TaxcomEdoApi.csproj', 
+					PublishBuildWebServiceToFolder('TaxcomEdoApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\TaxcomEdoApi.csproj', 
 						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\bin\\Release\\net5.0_publish')
 				}
 				else
@@ -78,8 +78,8 @@ parallel (
 			
 		}
 	},
-	"WCF" : {
-		node('WCF_BUILD'){
+	"Linux" : {
+		node('LINUX_BUILD'){
 			stage('Build WCF'){
 				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:2'
 
@@ -121,8 +121,8 @@ parallel (
 			}		
 		}
 	},
-	"WCF" : {
-		node('WCF_RUNTIME'){
+	"Linux" : {
+		node('LINUX_RUNTIME'){
 			stage('Deploy WCF'){
 				script{					
 					if(env.BRANCH_NAME == 'master')
@@ -155,7 +155,6 @@ parallel (
 					DeployWebService('TaxcomEdoApi')
 					DeployWebService('TrueMarkAPI')
 					DeployWebService('PayPageAPI')
-					
 				}
 				else
 				{
@@ -191,7 +190,7 @@ def UnzipArtifact(serviceName) {
 	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH 
 }
 
-def PublishBuildWebService(serviceName, csprojPath, outputPath) {
+def PublishBuildWebServiceToFolder(serviceName, csprojPath, outputPath) {
 	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
 	
 	echo "Publish ${serviceName} to folder (${env.BRANCH_NAME})"
@@ -201,6 +200,11 @@ def PublishBuildWebService(serviceName, csprojPath, outputPath) {
 	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}.zip")])
 	zip zipFile: "${serviceName}.zip", archive: false, dir: outputPath
 	archiveArtifacts artifacts: "${serviceName}.zip", onlyIfSuccessful: true
+}
+
+def PublishBuildWebServiceToDockerRegistry(serviceName, csprojPath) {	
+	echo "Publish ${serviceName} to docker registry"
+	sh 'msbuild ' + csprojPath + ' /p:Configuration=Web /p:Platform=x86 /p:DeployOnBuild=true /p:PublishProfile=DockerRegistry -maxcpucount:2'
 }
 
 def DeployWebService(serviceName) {

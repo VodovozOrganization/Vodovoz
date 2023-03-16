@@ -134,7 +134,7 @@ namespace Vodovoz.Additions.Logistic
 		protected NumericPointMarker(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
-			this.type = Extensions.GetStruct<NumericPointMarkerType>(info, "type", NumericPointMarkerType.none);
+			this.type = GMap.NET.Extensions.GetStruct<NumericPointMarkerType>(info, "type", NumericPointMarkerType.none);
 		}
 
 		#endregion

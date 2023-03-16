@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Reflection;
@@ -51,6 +51,7 @@ using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
+using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 using Vodovoz.Views.Logistic;
 using Vodovoz.Views.Users;
 using VodovozInfrastructure.Configuration;
@@ -219,7 +220,7 @@ namespace Vodovoz.Configuration
 
 			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
             OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
-            OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentDlg>();
+			OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentViewModel>();
             OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();
             OrmMain.AddObjectDescription<RegradingOfGoodsDocument>().Dialog<RegradingOfGoodsDocumentDlg>();
             OrmMain.AddObjectDescription<SelfDeliveryDocument>().Dialog<SelfDeliveryDocumentDlg>();
@@ -282,15 +283,6 @@ namespace Vodovoz.Configuration
                 .Column("Код", x => x.Id.ToString())
                 .SearchColumn("Ф.И.О.", x => x.FullName)
                 .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
-                .End();
-            OrmMain.AddObjectDescription<DeliveryPriceRule>().Dialog<DeliveryPriceRuleDlg>().DefaultTableView()
-                .Column("< 19л б.", x => x.Water19LCount.ToString())
-                .Column("< 6л б.", x => x.Water6LCount)
-                .Column("< 1,5л б.", x => x.Water1500mlCount)
-                .Column("< 0,6л б.", x => x.Water600mlCount)
-                .Column("< 0,5л б.", x => x.Water500mlCount)
-                .Column("Минимальная сумма заказа", x => x.OrderMinSumEShopGoods.ToString())
-                .SearchColumn("Описание правила", x => x.Title)
                 .End();
             OrmMain.AddObjectDescription<Certificate>().Dialog<CertificateDlg>().DefaultTableView()
                 .SearchColumn("Имя", x => x.Name)

@@ -14,7 +14,6 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities;
-using QS.Utilities.Text;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -193,17 +192,7 @@ namespace Vodovoz.Domain.Client
 		[StringLength(10)]
 		public virtual string TypeOfOwnership {
 			get => typeOfOwnership;
-			set
-			{
-				if(SetField(ref typeOfOwnership, value))
-				{
-					var personFullName = GetPersonFullName();
-					if(value == "ИП" && !string.IsNullOrEmpty(personFullName))
-					{
-						Name = FullName = personFullName;
-					}
-				}
-			}
+			set => SetField(ref typeOfOwnership, value);
 		}
 
 		string fullName;
@@ -298,11 +287,6 @@ namespace Vodovoz.Domain.Client
 				if(value == PersonType.natural)
 				{
 					PaymentMethod = PaymentType.cash;
-					var personFullName = GetPersonFullName();
-					if(!string.IsNullOrEmpty(personFullName))
-					{
-						Name = FullName = personFullName;
-					}
 				}
 			}
 		}
@@ -759,51 +743,21 @@ namespace Vodovoz.Domain.Client
 		public virtual string Surname
 		{
 			get => _surname;
-			set
-			{
-				if(SetField(ref _surname, value))
-				{
-					var personFullName = GetPersonFullName();
-					if(!string.IsNullOrEmpty(personFullName))
-					{
-						Name = FullName = personFullName;
-					}
-				}
-			}
+			set => SetField(ref _surname, value);
 		}
 
 		[Display(Name = "Имя")]
 		public virtual string FirstName
 		{
 			get => _firstName;
-			set
-			{
-				if(SetField(ref _firstName, value))
-				{
-					var personFullName = GetPersonFullName();
-					if(!string.IsNullOrEmpty(personFullName))
-					{
-						Name = FullName = personFullName;
-					}
-				}
-			}
+			set => SetField(ref _firstName, value);
 		}
 
 		[Display(Name = "Отчество")]
 		public virtual string Patronymic
 		{
 			get => _patronymic;
-			set
-			{
-				if(SetField(ref _patronymic, value))
-				{
-					var personFullName = GetPersonFullName();
-					if(!string.IsNullOrEmpty(personFullName))
-					{
-						Name = FullName = personFullName;
-					}
-				}
-			}
+			set => SetField(ref _patronymic, value);
 		}
 
 		[Display(Name = "Не смешивать в одном заказе маркированные и немаркированные товары")]
@@ -981,6 +935,7 @@ namespace Vodovoz.Domain.Client
 				StringBuilder sb = new StringBuilder(value);
 				sb.Replace("\n", "");
 				JurAddress = sb.ToString();
+				OnPropertyChanged(nameof(RawJurAddress));
 			}
 		}
 
@@ -1251,7 +1206,12 @@ namespace Vodovoz.Domain.Client
 						new[] { this.GetPropertyName(o => o.KPP) });
 			}
 			if(PersonType == PersonType.legal) {
-				if(KPP.Length != 9 && KPP.Length != 0 && TypeOfOwnership != "ИП")
+				if(TypeOfOwnership == null || TypeOfOwnership.Length == 0)
+				{
+					yield return new ValidationResult("Не заполнена Форма собственности.",
+						new[] { nameof(TypeOfOwnership) });
+				}
+				if(KPP?.Length != 9 && KPP?.Length != 0 && TypeOfOwnership != "ИП")
 					yield return new ValidationResult("Длина КПП должна равнятся 9-ти.",
 						new[] { this.GetPropertyName(o => o.KPP) });
 				if(INN.Length != 10 && INN.Length != 0 && TypeOfOwnership != "ИП")
@@ -1266,7 +1226,7 @@ namespace Vodovoz.Domain.Client
 				if(string.IsNullOrWhiteSpace(INN))
 					yield return new ValidationResult("Для организации необходимо заполнить ИНН.",
 						new[] { this.GetPropertyName(o => o.INN) });
-				if(!Regex.IsMatch(KPP, "^[0-9]*$") && TypeOfOwnership != "ИП")
+				if(KPP != null && !Regex.IsMatch(KPP, "^[0-9]*$") && TypeOfOwnership != "ИП")
 					yield return new ValidationResult("КПП может содержать только цифры.",
 						new[] { this.GetPropertyName(o => o.KPP) });
 				if(!Regex.IsMatch(INN, "^[0-9]*$"))
@@ -1420,20 +1380,6 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
-
-		private string GetPersonFullName()
-		{
-			StringBuilder personFullName = new StringBuilder();
-
-			if(TypeOfOwnership == "ИП" && PersonType == PersonType.legal)
-			{
-				personFullName.Append("ИП ");
-			}
-
-			personFullName.Append(PersonHelper.PersonFullName(Surname, FirstName, Patronymic));
-
-			return personFullName.ToString();
-		}
 	}
 
 	public enum PersonType

@@ -16,9 +16,9 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    orders.id AS order_id,
-    DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date,
-    DATE_FORMAT(orders.bill_date,'%d.%m.%y') AS bill_date,
+    o.id AS order_id,
+    DATE_FORMAT(o.delivery_date,'%d.%m.%y') AS order_date,
+    DATE_FORMAT(o.bill_date,'%d.%m.%y') AS bill_date,
     c.full_name AS client_name,
     c.jur_address AS client_address,
     c.inn,
@@ -32,6 +32,7 @@
     c.payer_special_kpp,
     c.special_gov_contract,
     c.special_delivery_address,
+    p.`number` AS contact_phone,
     (
         Select
             GROUP_CONCAT(
@@ -70,15 +71,17 @@
     )AS client_contact,
     CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author
 FROM
-    orders
+    orders o
         LEFT JOIN
-    counterparty c ON orders.client_id = c.id
+    counterparty c ON o.client_id = c.id
         LEFT JOIN
-    delivery_points dp ON dp.id = orders.delivery_point_id
+    delivery_points dp ON dp.id = o.delivery_point_id
         LEFT JOIN
-    employees ON employees.id = orders.author_employee_id
+    employees ON employees.id = o.author_employee_id
+    	LEFT JOIN
+    phones p ON o.contact_phone_id = p.id
 WHERE
-        orders.id = @order_id;</CommandText>
+        o.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -152,6 +155,10 @@ WHERE
         </Field>
         <Field Name="special_delivery_address">
           <DataField>special_delivery_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contact_phone">
+          <DataField>contact_phone</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -565,7 +572,7 @@ WHERE o.id = @order_id
         <Value>Внимание! Оплата данного счета означает согласие с условиями поставки товара. Уведомление об оплате обязательно, в противном случае не гарантируется наличие товара на складе. Товар отпускается по факту прихода денег на р/с Поставщика.</Value>
         <ZIndex>1</ZIndex>
         <Left>208.7pt</Left>
-        <Top>24.2pt</Top>
+        <Top>36.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1610,6 +1617,9 @@ WHERE o.id = @order_id
             <Style>
               <TextAlign>Right</TextAlign>
               <FontFamily>Calibri</FontFamily>
+              <BorderStyle/>
+              <BorderColor/>
+              <BorderWidth/>
             </Style>
           </Textbox>
         </ReportItems>
@@ -1841,6 +1851,18 @@ Iif(
           <FontSize>12pt</FontSize>
           <TextAlign>Center</TextAlign>
           <PaddingTop>1pt</PaddingTop>
+          <FontFamily>Calibri</FontFamily>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.73pt</Height>
+        <Width>420.89pt</Width>
+        <Value>="Номер для связи: +7" + First({contact_phone}, 'Order')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>120.0pt</Left>
+        <Top>23.2pt</Top>
+        <Style>
+          <TextAlign>Right</TextAlign>
           <FontFamily>Calibri</FontFamily>
         </Style>
       </Textbox>

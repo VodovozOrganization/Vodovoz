@@ -5,7 +5,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Models
 {
-	public class NomenclaturePurchasePriceModel
+	public class NomenclaturePurchasePriceModel : INomenclaturePurchasePriceModel
 	{
 		private readonly ICurrentPermissionService _permissionService;
 
@@ -57,14 +57,14 @@ namespace Vodovoz.Models
 			{
 				throw new ArgumentNullException(nameof(nomenclature));
 			}
-			
+
 			var activePrice = GetActivePrice(nomenclature);
 			if(activePrice != null && activePrice.StartDate >= startDate)
 			{
 				return false;
 			}
 
-			if(newPrice == 0 || (activePrice != null && activePrice.PurchasePrice == newPrice)) 
+			if(newPrice == 0 || (activePrice != null && activePrice.PurchasePrice == newPrice))
 			{
 				return false;
 			}

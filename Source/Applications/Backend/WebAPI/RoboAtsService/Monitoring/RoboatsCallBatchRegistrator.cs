@@ -16,13 +16,13 @@ namespace RoboatsService.Monitoring
 		private readonly ILogger<RoboatsCallRegistrator> _logger;
 		private readonly IRoboatsCallFactory _roboatsCallFactory;
 		private readonly IRoboatsRepository _roboatsRepository;
-		private readonly RoboatsSettings _roboatsSettings;
+		private readonly IRoboatsSettings _roboatsSettings;
 
 		public RoboatsCallBatchRegistrator(
 			ILogger<RoboatsCallRegistrator> logger,
 			IRoboatsCallFactory roboatsCallFactory,
 			IRoboatsRepository roboatsRepository,
-			RoboatsSettings roboatsSettings)
+			IRoboatsSettings roboatsSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsCallFactory = roboatsCallFactory ?? throw new ArgumentNullException(nameof(roboatsCallFactory));

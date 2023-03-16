@@ -15,10 +15,10 @@ namespace Vodovoz.ViewModels.Journals.JournalFactories
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICommonServices _commonServices;
-		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 
-		public RoboatsJournalsFactory(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, RoboatsViewModelFactory roboatsViewModelFactory, INomenclatureJournalFactory nomenclatureJournalFactory)
+		public RoboatsJournalsFactory(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IRoboatsViewModelFactory roboatsViewModelFactory, INomenclatureJournalFactory nomenclatureJournalFactory)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

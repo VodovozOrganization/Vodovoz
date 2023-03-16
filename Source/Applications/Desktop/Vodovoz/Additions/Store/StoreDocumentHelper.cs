@@ -8,7 +8,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Additions.Store
 {
-	public class StoreDocumentHelper
+	public class StoreDocumentHelper : IStoreDocumentHelper
 	{
 		private CurrentWarehousePermissions WarehousePermissions { get; }
 
@@ -18,7 +18,8 @@ namespace Vodovoz.Additions.Store
 		}
 		public Warehouse GetDefaultWarehouse(IUnitOfWork uow, WarehousePermissionsType edit)
 		{
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null) {
+			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+			{
 				var warehouse = uow.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 				var warehouses = WarehousePermissions.WarehousePermissions.Where(x => x.Warehouse.Id == warehouse.Id);
 				var permission = warehouses
@@ -36,7 +37,7 @@ namespace Vodovoz.Additions.Store
 			{
 				var warehouse =
 					WarehousePermissions.WarehousePermissions.First(x => x.WarehousePermissionType == edit).Warehouse;
-				
+
 				return uow.GetById<Warehouse>(warehouse.Id);
 			}
 
@@ -65,14 +66,14 @@ namespace Vodovoz.Additions.Store
 			foreach(var warehouse in warehouses)
 			{
 				var matchPermission = permission.FirstOrDefault(y => y.Warehouse.Id == warehouse.Id);
-				
+
 				if(matchPermission?.PermissionValue != null && matchPermission.PermissionValue.Value)
 				{
 					return false;
 				}
 
 				var matchPermissionEdit = permissionEdit.FirstOrDefault(y => y.Warehouse.Id == warehouse.Id);
-				
+
 				if(matchPermissionEdit?.PermissionValue != null && matchPermissionEdit.PermissionValue.Value)
 				{
 					return false;
@@ -160,7 +161,7 @@ namespace Vodovoz.Additions.Store
 						return warehousePermission.PermissionValue.Value;
 					}
 				}
-				
+
 				return false;
 			}
 
@@ -174,11 +175,12 @@ namespace Vodovoz.Additions.Store
 			var query = QueryOver.Of<Warehouse>().WhereNot(w => w.IsArchive);
 			var disjunction = new Disjunction();
 
-			foreach(var p in permissions) {
+			foreach(var p in permissions)
+			{
 				disjunction.Add<Warehouse>(
 					w => w.Id.IsIn(
 						WarehousePermissions.WarehousePermissions
-							.Where(x=>x.WarehousePermissionType == p && x.PermissionValue == true)
+							.Where(x => x.WarehousePermissionType == p && x.PermissionValue == true)
 							.Select(x => x.Warehouse.Id)
 							.ToArray()));
 			}
@@ -191,17 +193,17 @@ namespace Vodovoz.Additions.Store
 			var result = GetRestrictedWarehouses(permissions)
 				.GetExecutableCriteria(uow.Session)
 				.List<Warehouse>();
-				
+
 			return result;
 		}
-		
+
 		public IEnumerable<int> GetRestrictedWarehousesIds(IUnitOfWork uow, params WarehousePermissionsType[] permissions)
 		{
 			var result = GetRestrictedWarehouses(permissions)
 				.GetExecutableCriteria(uow.Session)
 				.SetProjection(Projections.Property(nameof(Warehouse.Id)))
 				.List<int>();
-				
+
 			return result;
 		}
 
@@ -213,7 +215,7 @@ namespace Vodovoz.Additions.Store
 			return QueryOver.Of<Warehouse>()
 							.Where(w => w.Id.IsIn(
 								WarehousePermissions.WarehousePermissions
-									.Where(x=>x.PermissionValue == true)
+									.Where(x => x.PermissionValue == true)
 									.Select(x => x.Warehouse.Id).ToArray()))
 							.AndNot(w => w.IsArchive);
 		}

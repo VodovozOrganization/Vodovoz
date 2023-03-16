@@ -8,6 +8,8 @@ namespace Vodovoz.EntityRepositories.Sale
 {
 	public interface IScheduleRestrictionRepository
 	{
+		int GetDistrictsForFastDeliveryCurrentVersionId(IUnitOfWork uow);
+		int GetDistrictsForFastDeliveryHistoryVersionId(IUnitOfWork unitOfWork, DateTime dateTime);
 		QueryOver<District> GetDistrictsWithBorder();
 		IList<District> GetDistrictsWithBorder(IUnitOfWork uow);
 		IList<District> GetDistrictsWithBorderForFastDelivery(IUnitOfWork uow);

@@ -2434,10 +2434,15 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
-        <CommandText>SELECT
+        <CommandText>WITH orders_route_list_ids as 
+(SELECT rla.order_id as order_id, rla.route_list_id as route_list_id FROM route_list_addresses rla
+LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
+WHERE rl.`date` &gt;= @StartDate
+AND rl.`date`&lt;= @EndDate)
+SELECT
     route_lists.id AS number,
     route_lists.date,
     SUM(route_list_addresses.extra_cash) AS extra_cash,
@@ -2479,7 +2484,8 @@ FROM
                          JOIN route_list_addresses ON route_list_addresses.order_id = orders.id
                  WHERE
                          orders.payment_type IN ('cash','BeveragesWorld')
-                   AND route_list_addresses.was_transfered = 0
+                   		AND route_list_addresses.was_transfered = 0
+                   		AND orders.id  IN (SELECT DISTINCT order_id FROM orders_route_list_ids)
                  GROUP BY route_list_addresses.route_list_id
                  UNION
                  SELECT
@@ -2492,6 +2498,7 @@ FROM
                  WHERE
                          orders.payment_type IN ('cash','BeveragesWorld')
                    AND route_list_addresses.was_transfered = 0
+                   		AND orders.id  IN (SELECT DISTINCT order_id FROM orders_route_list_ids)
                  GROUP BY route_list_addresses.route_list_id
                 ) AS OrdersSum
             GROUP BY rl_id
@@ -2509,6 +2516,8 @@ FROM
             FROM
                 cash_income
                     LEFT JOIN employees ON employees.id = cash_income.casher_employee_id
+            WHERE 
+            		route_list_id IN (SELECT DISTINCT route_list_id FROM orders_route_list_ids)
             GROUP BY
                 route_list_id
         ) AS CashIncomeDocument ON CashIncomeDocument.route_list_id = route_lists.id
@@ -2522,6 +2531,7 @@ FROM
                 cash_expense
             WHERE
                     type_operation NOT IN ('EmployeeAdvance' , 'Advance','Salary')
+            		AND route_list_id IN (SELECT DISTINCT route_list_id FROM orders_route_list_ids)
             GROUP BY route_list_id
         ) AS CashExpenceDocument ON CashExpenceDocument.route_list_id = route_lists.id
 
@@ -2620,7 +2630,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2682,10 +2692,16 @@ GROUP BY route_lists.id
       </Fields>
     </DataSet>
     <DataSet Name="IncomeAllStatus">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>75</Timeout>
-        <CommandText>SELECT
+        <Timeout>600</Timeout>
+        <CommandText>WITH orders_route_list_ids as 
+(SELECT rla.id as rla_id, rla.order_id as order_id, rla.route_list_id as route_list_id 
+FROM route_lists rl
+LEFT JOIN route_list_addresses rla ON rla.route_list_id = rl.id
+WHERE rl.`date` &gt;= @StartDate 
+AND rl.`date`&lt;= @EndDate)
+SELECT
     route_lists.id as number,
     route_lists.closing_comment,
     route_lists.cashier_review_comment,
@@ -2736,6 +2752,7 @@ FROM
                 LEFT JOIN route_list_addresses AS tranfer_from_route_list ON tranfer_from_route_list.transfered_to_id = route_list_addresses.id
         WHERE
                 orders.payment_type = 'cash'
+        		AND orders.id IN (SELECT order_id FROM orders_route_list_ids)            
         GROUP BY
             tranfer_to_route_list.route_list_id , tranfer_from_route_list.route_list_id
     ) AS transferML ON transferML.id = route_list_addresses.id
@@ -2747,6 +2764,7 @@ FROM
             IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))),2),0) as TotalOrdersSum
         FROM orders
                  LEFT JOIN order_items ON order_items.order_id = orders.id AND orders.payment_type = 'cash'
+        WHERE order_id IN (SELECT order_id FROM orders_route_list_ids)
         GROUP BY orders.id
     ) as Orders ON Orders.order_id = route_list_addresses.order_id
 #Недовозы
@@ -2769,6 +2787,7 @@ FROM
                     orders.order_status in ('Canceled', 'NotDelivered', 'DeliveryCanceled')
                 AND route_list_addresses.status != 'transfered'
             )
+  			AND route_list_addresses.id IN (SELECT rla_id FROM orders_route_list_ids)
         GROUP BY route_list_addresses.route_list_id
     ) as nedovoz ON nedovoz.route_list_id = route_lists.id
 #Переносы
@@ -2795,8 +2814,8 @@ FROM
                      LEFT JOIN orders On orders.id = route_list_addresses.order_id
                      LEFT JOIN order_items ON order_items.order_id = orders.id AND orders.payment_type = 'cash'
              WHERE
-                 (status = 'transfered'
-                     OR was_transfered = true)
+                 	(status = 'transfered' OR was_transfered = true)
+  					AND route_list_addresses.id IN (SELECT rla_id FROM orders_route_list_ids)
             ) as internal_trans
         GROUP BY internal_trans.route_list_id HAVING TotalOrdersSum != 0
     ) as Transfered ON Transfered.route_list_id = route_lists.id
@@ -2819,6 +2838,7 @@ FROM
             GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%y' ) SEPARATOR ', ') as CashIncomeDates
         FROM cash_income
                  LEFT JOIN employees ON employees.id = cash_income.employee_id
+        WHERE route_list_id IN (SELECT route_list_id FROM orders_route_list_ids)
         GROUP BY
             route_list_id
     ) AS CI ON CI.route_list_id = route_lists.id
@@ -2829,6 +2849,7 @@ FROM
             SUM(IFNULL(cash_expense.money, 0)) as MoneyExpence
         FROM cash_expense
         WHERE type_operation NOT IN('EmployeeAdvance', 'Advance')
+        	AND route_list_id IN (SELECT route_list_id FROM orders_route_list_ids)
         GROUP BY
             route_list_id
     ) AS CE ON CE.route_list_id = route_lists.id
@@ -2836,7 +2857,8 @@ WHERE
         route_lists.status NOT IN ('Closed', 'MileageCheck')
   AND route_lists.date &gt;= @StartDate AND route_lists.date &lt;= @EndDate
 GROUP BY route_lists.id
-;</CommandText>
+;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -2846,7 +2868,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.Int32</TypeName>

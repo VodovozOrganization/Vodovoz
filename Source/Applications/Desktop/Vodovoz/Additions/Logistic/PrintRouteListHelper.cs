@@ -41,11 +41,13 @@ namespace Vodovoz.Additions.Logistic
 
 			string documentName = "RouteList";
 			bool isClosed = false;
+			var commentColSpanCount = 8; // число столбцов для объединения в строке с комментарием
 
 			if(routeList.PrintAsClosed())
 			{
 				documentName = "ClosedRouteList";
 				isClosed = true;
+				commentColSpanCount = 9;
 			}
 
 			string RdlText = string.Empty;
@@ -54,7 +56,7 @@ namespace Vodovoz.Additions.Logistic
 				RdlText = rdr.ReadToEnd();
 			}
 			//Для уникальности номеров Textbox.
-			int TextBoxNumber = 100;
+			int TextBoxNumber = 1000;
 
 			//Расширяем требуемые колонки на нужную ширину
 			RdlText = RdlText.Replace("<!--colspan-->", $"<ColSpan>{ RouteColumns.Count }</ColSpan>");
@@ -63,8 +65,7 @@ namespace Vodovoz.Additions.Logistic
 			string columnsXml = "<TableColumn><Width>21pt</Width></TableColumn>";
 			string columns = string.Empty;
 
-			columns += "<TableColumn><Width>85pt</Width></TableColumn>"; // Первая колонка шире тк кк это коммент
-			for(int i = 1; i < RouteColumns.Count; i++)
+			for(int i = 0; i < RouteColumns.Count; i++)
 			{
 				columns += columnsXml;
 			}
@@ -86,72 +87,55 @@ namespace Vodovoz.Additions.Logistic
 			{
 				CellColumnHeader += GetColumnHeader(TextBoxNumber++, column.Name);
 
-				if(isFirstColumn)
+				if(isClosed)
 				{
 					CellColumnValue += GetCellTag(
-							TextBoxNumber++,
-							$"=Iif({{{ _orderPrioritizedTagName }}}, \'Приоритет! \', \"\") + {{{ _orderCommentTagName }}}",
-							"0",
-							isClosed,
-							true
-						);
+						TextBoxNumber++,
+						$"=Iif(" +
+							$"{{{_waterTagNamePrefix}{column.Id}}} + {{{_waterFactTagPrefix}{column.Id}}} = 0," +
+							$" \"\"," +
+							$" Iif(" +
+								$"{{{_waterTagNamePrefix}{column.Id}}} = {{{_waterFactTagPrefix}{column.Id}}}," +
+								$" Format({{{_waterTagNamePrefix}{column.Id}}}, '0')," +
+								$" '' + {{{_waterFactTagPrefix}{column.Id}}} +" +
+									$" '(' + Iif(" +
+										$"{{{_waterFactTagPrefix}{column.Id}}} - {{{_waterTagNamePrefix}{column.Id}}} > 0," +
+										$" '+'," +
+										$" '') + ({{{_waterFactTagPrefix}{column.Id}}} - {{{_waterTagNamePrefix}{column.Id}}}) + ')'))",
+						$"=Iif({{{_waterTagNamePrefix}{column.Id}}} = {{{_waterFactTagPrefix}{column.Id}}}, \"0\", \"\")",
+						isClosed
+					);
 				}
 				else
 				{
-					if(isClosed)
-					{
-						CellColumnValue += GetCellTag(
-							TextBoxNumber++,
-							$"=Iif(" +
-								$"{{{ _waterTagNamePrefix }{ column.Id }}} + {{{ _waterFactTagPrefix }{ column.Id }}} = 0," +
-								$" \"\"," +
-								$" Iif(" +
-									$"{{{ _waterTagNamePrefix }{ column.Id }}} = {{{ _waterFactTagPrefix }{ column.Id }}}," +
-									$" Format({{{ _waterTagNamePrefix }{ column.Id }}}, '0')," +
-									$" '' + {{{ _waterFactTagPrefix }{ column.Id }}} +" +
-										$" '(' + Iif(" +
-											$"{{{ _waterFactTagPrefix }{column.Id}}} - {{{ _waterTagNamePrefix }{ column.Id }}} > 0," +
-											$" '+'," +
-											$" '') + ({{{ _waterFactTagPrefix }{column.Id}}} - {{{ _waterTagNamePrefix }{ column.Id }}}) + ')'))",
-							$"=Iif({{{ _waterTagNamePrefix }{ column.Id }}} = {{{ _waterFactTagPrefix }{ column.Id }}}, \"0\", \"\")",
-							isClosed
-						);
-					}
-					else
-					{
-						CellColumnValue += GetCellTag(
-							TextBoxNumber++, $"=Iif({{{ _waterTagNamePrefix }{ column.Id }}} = 0, \"\", {{{ _waterTagNamePrefix }{ column.Id }}})",
-							"C",
-							isClosed);
-					}
+					CellColumnValue += GetCellTag(
+						TextBoxNumber++, $"=Iif({{{_waterTagNamePrefix}{column.Id}}} = 0, \"\", {{{_waterTagNamePrefix}{column.Id}}})",
+						"C",
+						isClosed);
 				}
+
 				//Ячейка с запасом. Пока там пусто
 				CellColumnStock += GetCellTag(TextBoxNumber++, "", "0", isClosed);
 
 				//Ячейка с суммой по бутылям.
-				if(isFirstColumn)
+
+				string formula;
+				if(isClosed)
 				{
-					CellColumnTotal += GetCellTag(TextBoxNumber++, "", "0", isClosed);
+					formula = $"=Iif(Sum({{{_waterFactTagPrefix}{column.Id}}}) = 0, \"\", Sum({{{_waterFactTagPrefix}{column.Id}}}))";
 				}
 				else
 				{
-					string formula;
-					if(isClosed)
-					{
-						formula = $"=Iif(Sum({{{ _waterFactTagPrefix }{ column.Id }}}) = 0, \"\", Sum({{{ _waterFactTagPrefix }{ column.Id }}}))";
-					}
-					else
-					{
-						formula = $"=Iif(Sum({{{ _waterTagNamePrefix }{ column.Id }}}) = 0, \"\", Sum({{{ _waterTagNamePrefix }{ column.Id }}}))";
-					}
-
-					CellColumnTotal += GetCellTag(TextBoxNumber++, formula, "0", isClosed);
+					formula = $"=Iif(Sum({{{_waterTagNamePrefix}{column.Id}}}) = 0, \"\", Sum({{{_waterTagNamePrefix}{column.Id}}}))";
 				}
+
+				CellColumnTotal += GetCellTag(TextBoxNumber++, formula, "0", isClosed);
+
 
 				//Запрос..
 				if(isFirstColumn)
 				{
-					SqlSelect += $", CONCAT_WS('\\n',orders.comment, CONCAT('Сдача с: ', orders.trifle, ' руб.')) AS { _orderCommentTagName }" +
+					SqlSelect += $", CONCAT_WS(' ', REPLACE(orders.comment,'\n',' '), CONCAT('Сдача с: ', orders.trifle, ' руб.')) AS { _orderCommentTagName }" +
 						$", (SELECT EXISTS (" +
 						$" SELECT * FROM guilty_in_undelivered_orders giuo" +
 						$" INNER JOIN undelivered_orders uo ON giuo.undelivery_id = uo.id" +
@@ -160,49 +144,48 @@ namespace Vodovoz.Additions.Logistic
 						$")) AS { _orderPrioritizedTagName }";
 
 					Fields +=
-						$"<Field Name=\"{ _orderPrioritizedTagName }\">" +
-						$"<DataField>{ _orderPrioritizedTagName }</DataField>" +
+						$"<Field Name=\"{_orderPrioritizedTagName}\">" +
+						$"<DataField>{_orderPrioritizedTagName}</DataField>" +
 						"<TypeName>System.Boolean</TypeName>" +
 						"</Field>";
 
 					Fields +=
-						$"<Field Name=\"{ _orderCommentTagName }\">" +
-						$"<DataField>{ _orderCommentTagName }</DataField>" +
+						$"<Field Name=\"{_orderCommentTagName}\">" +
+						$"<DataField>{_orderCommentTagName}</DataField>" +
 						"<TypeName>System.String</TypeName>" +
 						"</Field>";
 
 					isFirstColumn = false;
 				}
-				else
+
+				SqlSelect += $", IFNULL(wt_qry.{_waterTagNamePrefix}{column.Id}, 0) AS {_waterTagNamePrefix}{column.Id}";
+				SqlSelectSubquery += $", SUM(IF(nomenclature_route_column.id = {column.Id}," +
+					$" cast(order_items.count as DECIMAL), 0)) AS {_waterTagNamePrefix}{column.Id}";
+
+				if(isClosed)
 				{
-					SqlSelect += $", IFNULL(wt_qry.{ _waterTagNamePrefix }{ column.Id }, 0) AS { _waterTagNamePrefix }{ column.Id }";
-					SqlSelectSubquery += $", SUM(IF(nomenclature_route_column.id = { column.Id }," +
-						$" cast(order_items.count as DECIMAL), 0)) AS { _waterTagNamePrefix }{ column.Id }";
+					SqlSelect +=
+						$", IF(route_list_addresses.status = '{RouteListItemStatus.Transfered}', 0," +
+						$" cast(IFNULL(wt_qry.{_waterFactTagPrefix}{column.Id}, 0) as DECIMAL)) AS {_waterFactTagPrefix}{column.Id}";
+					SqlSelectSubquery += $", SUM(IF(nomenclature_route_column.id = {column.Id}, cast(IFNULL(order_items.actual_count, 0) as DECIMAL)," +
+						$" 0)) AS {_waterFactTagPrefix}{column.Id}";
+				}
 
-					if(isClosed)
-					{
-						SqlSelect +=
-							$", IF(route_list_addresses.status = '{ RouteListItemStatus.Transfered }', 0," +
-							$" cast(IFNULL(wt_qry.{_waterFactTagPrefix}{ column.Id }, 0) as DECIMAL)) AS { _waterFactTagPrefix }{ column.Id }";
-						SqlSelectSubquery += $", SUM(IF(nomenclature_route_column.id = { column.Id }, cast(IFNULL(order_items.actual_count, 0) as DECIMAL)," +
-							$" 0)) AS { _waterFactTagPrefix }{ column.Id }";
-					}
-
-					//Линкуем запрос на переменные RDL
+				//Линкуем запрос на переменные RDL
+				Fields +=
+					$"<Field Name=\"{_waterTagNamePrefix}{column.Id}\">" +
+					$"<DataField>{_waterTagNamePrefix}{column.Id}</DataField>" +
+					$"<TypeName>System.Decimal</TypeName>" +
+					$"</Field>";
+				if(isClosed)
+				{
 					Fields +=
-						$"<Field Name=\"{ _waterTagNamePrefix }{ column.Id }\">" +
-						$"<DataField>{ _waterTagNamePrefix }{ column.Id }</DataField>" +
+						$"<Field Name=\"{_waterFactTagPrefix}{column.Id}\">" +
+						$"<DataField>{_waterFactTagPrefix}{column.Id}</DataField>" +
 						$"<TypeName>System.Decimal</TypeName>" +
 						$"</Field>";
-					if(isClosed)
-					{
-						Fields +=
-							$"<Field Name=\"{ _waterFactTagPrefix }{ column.Id }\">" +
-							$"<DataField>{ _waterFactTagPrefix }{ column.Id }</DataField>" +
-							$"<TypeName>System.Decimal</TypeName>" +
-							$"</Field>";
-					}
 				}
+
 				//Формула итоговой суммы по всем бутылям.
 				if(_routeColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == NomenclatureCategory.water && x.TareVolume == TareVolume.Vol19L))
 				{
@@ -216,8 +199,10 @@ namespace Vodovoz.Additions.Logistic
 					}
 				}
 			}
+
 			RdlText = RdlText.Replace("<!--table_cell_name-->", CellColumnHeader);
 			RdlText = RdlText.Replace("<!--table_cell_value-->", CellColumnValue);
+			RdlText = RdlText.Replace("<!--comment_colspan-->", $"<ColSpan>{RouteColumns.Count + commentColSpanCount}</ColSpan>");
 			RdlText = RdlText.Replace("<!--table_cell_stock-->", CellColumnStock);
 			RdlText = RdlText.Replace("<!--table_cell_total-->", CellColumnTotal);
 			RdlText = RdlText.Replace("<!--sql_select-->", SqlSelect);

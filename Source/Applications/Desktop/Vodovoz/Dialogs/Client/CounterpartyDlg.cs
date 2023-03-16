@@ -1,7 +1,6 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
-using Gdk;
 using Gtk;
 using NHibernate;
 using NHibernate.Transform;
@@ -29,6 +28,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Services;
@@ -84,7 +84,13 @@ using TrueMarkApi.Library.Converters;
 using TrueMarkApi.Library.Dto;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
 using QS.Attachments.Domain;
+using QS.Utilities.Text;
 using Vodovoz.Core;
+using Autofac;
+using RevenueService.Client;
+using RevenueService.Client.Dto;
+using Vodovoz.ViewModels.ViewModels.Counterparty;
+using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz
 {
@@ -106,7 +112,8 @@ namespace Vodovoz
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
-		private readonly IContactsParameters _contactsParameters = new ContactParametersProvider(new ParametersProvider());
+		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
+		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
@@ -126,10 +133,12 @@ namespace Vodovoz
 		private double _emailLastScrollPosition;
 		private EdoLightsMatrixViewModel _edoLightsMatrixViewModel;
 		private IContactListService _contactListService;
-		private TrueMarkApi.Library.TrueMarkApiClient _trueMarkApiClient;
+		private TrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings = new EdoSettings(new ParametersProvider());
+		private ICounterpartySettings _counterpartySettings = new CounterpartySettings(new ParametersProvider());
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
+		private IRevenueServiceClient _revenueServiceClient;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -307,7 +316,7 @@ namespace Vodovoz
 			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
-			
+
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
 
@@ -480,12 +489,17 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.Patronymic, w => w.Text)
 				.InitializeFromSource();
 
-			datalegalname1.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
-			datalegalname1.Binding.AddSource(Entity)
-				.AddBinding(s => s.Name, t => t.OwnName)
-				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
-				.AddFuncBinding(s => s.TypeOfOwnership != "ИП", t => t.EntryName.Sensitive)
-				.InitializeFromSource();
+			yentrySurname.Changed += OnEntryPersonNamePartChanged;
+			yentryFirstName.Changed += OnEntryPersonNamePartChanged;
+			yentryPatronymic.Changed += OnEntryPersonNamePartChanged;
+
+			comboboxOpf.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			FillComboboxOpf();
+			comboboxOpf.Changed += ComboboxOpfChanged;
+
+			yentryOrganizationName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
+			yentryOrganizationName.Binding.AddBinding(Entity, s => s.Name, t => t.Text).InitializeFromSource();
+			yentryOrganizationName.Binding.AddFuncBinding(Entity, s => s.TypeOfOwnership != "ИП", t => t.Sensitive).InitializeFromSource();
 
 			entryFullName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			entryFullName.Binding
@@ -727,6 +741,16 @@ namespace Vodovoz
 
 		private void ConfigureTabRequisites()
 		{
+			_revenueServiceClient = new RevenueServiceClient(_counterpartySettings.RevenueServiceClientAccessToken);
+
+			btnRequestByInn.Binding
+				.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.INN), w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnRequestByInnAndKpp.Binding
+				.AddFuncBinding(Entity, e => !string.IsNullOrWhiteSpace(e.INN) && !string.IsNullOrWhiteSpace(e.KPP), w => w.Sensitive)
+				.InitializeFromSource();
+
 			validatedOGRN.ValidationMode = validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			
 			validatedOGRN.Binding
@@ -1299,40 +1323,14 @@ namespace Vodovoz
 
 		private void ComplaintViewOnActivated(object sender, EventArgs e)
 		{
-			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+			Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.Counterparty = Entity;
 
-			var filter = new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices, SubdivisionRepository, new EmployeeJournalFactory(), CounterpartySelectorFactory, _subdivisionParametersProvider);
-			filter.SetAndRefilterAtOnce(x => x.Counterparty = Entity);
+			var filter = MainClass.AppDIContainer.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
 
-			var complaintsJournalViewModel = new ComplaintsJournalViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				UndeliveredOrdersJournalOpener,
-				_employeeService,
-				CounterpartySelectorFactory,
-				RouteListItemRepository,
-				_subdivisionParametersProvider,
-				filter,
-				FilePickerService,
-				SubdivisionRepository,
-				new GtkTabsOpener(),
-				NomenclatureRepository,
-				_userRepository,
-				new OrderSelectorFactory(),
-				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(),
-				new DeliveryPointJournalFactory(),
-				subdivisionJournalFactory,
-				new SalesPlanJournalFactory(),
-				new NomenclatureJournalFactory(),
-				new EmployeeSettings(new ParametersProvider()),
-				new UndeliveredOrdersRepository(),
-				new ComplaintParametersProvider(new ParametersProvider()),
-				MainClass.AppDIContainer.BeginLifetimeScope()
-			);
-
-			TabParent.AddTab(complaintsJournalViewModel, this, false);
+			MainClass.MainWin.NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
+			   null,
+			   filter,
+			   OpenPageOptions.IgnoreHash);
 		}
 
 		private bool _canClose = true;
@@ -1543,7 +1541,7 @@ namespace Vodovoz
 		protected void OnEnumPersonTypeChanged(object sender, EventArgs e)
 		{
 			labelFIO.Visible = entryFIO.Visible = Entity.PersonType == PersonType.natural;
-			labelShort.Visible = datalegalname1.Visible =
+			labelShort.Visible = labelShort1.Visible = comboboxOpf.Visible = yentryOrganizationName.Visible = 
 				labelFullName.Visible = entryFullName.Visible =
 					entryMainCounterparty.Visible = labelMainCounterparty.Visible =
 						radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible =
@@ -1552,6 +1550,15 @@ namespace Vodovoz
 			if(Entity.PersonType != PersonType.legal && Entity.TaxType != TaxType.None)
 			{
 				Entity.TaxType = TaxType.None;
+			}
+
+			if(Entity.PersonType == PersonType.natural)
+			{
+				var personFullName = GetPersonFullName();
+				if(!string.IsNullOrEmpty(personFullName))
+				{
+					Entity.Name = personFullName;
+				}
 			}
 		}
 
@@ -1633,6 +1640,11 @@ namespace Vodovoz
 		protected void OnDatalegalname1OwnershipChanged(object sender, EventArgs e)
 		{
 			validatedKPP.Sensitive = Entity.TypeOfOwnership != "ИП";
+			var personFullName = GetPersonFullName();
+			if(Entity.TypeOfOwnership == "ИП" && !string.IsNullOrEmpty(personFullName))
+			{
+				Entity.Name = Entity.FullName = personFullName;
+			}
 		}
 
 		protected void OnChkNeedNewBottlesToggled(object sender, EventArgs e)
@@ -1643,6 +1655,29 @@ namespace Vodovoz
 		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)
 		{
 			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
+		}
+
+		private void OnEntryPersonNamePartChanged(object sender, EventArgs e)
+		{
+			var personFullName = GetPersonFullName();
+			if(!string.IsNullOrEmpty(personFullName))
+			{
+				Entity.Name = Entity.FullName = personFullName;
+			}
+		}
+
+		private string GetPersonFullName()
+		{
+			StringBuilder personFullName = new StringBuilder();
+
+			if(Entity.TypeOfOwnership == "ИП" && Entity.PersonType == PersonType.legal)
+			{
+				personFullName.Append("ИП ");
+			}
+
+			personFullName.Append(PersonHelper.PersonFullName(Entity.Surname, Entity.FirstName, Entity.Patronymic));
+
+			return personFullName.ToString();
 		}
 
 		#region CloseDelivery //Переделать на PermissionCommentView
@@ -2110,6 +2145,209 @@ namespace Vodovoz
 		{
 			_cancellationTokenSource.Cancel();
 			base.Dispose();
+		}
+
+		protected void OnButtonRequestByInnClicked(object sender, EventArgs e)
+		{
+			var dadataRequestDto = new DadataRequestDto
+			{
+				Inn = Entity.INN
+			};
+
+			OpenRevenueServicePage(dadataRequestDto);
+		}
+
+		protected void OnButtonRequestByInnAndKppClicked(object sender, EventArgs e)
+		{
+			var dadataRequestDto = new DadataRequestDto
+			{
+				Inn = Entity.INN, 
+				Kpp = Entity.KPP
+			};
+
+			OpenRevenueServicePage(dadataRequestDto);
+		}
+
+		private void OpenRevenueServicePage(DadataRequestDto dadataRequestDto)
+		{
+			var revenueServicePage = MainClass.MainWin.NavigationManager.OpenViewModel<CounterpartyDetailsFromRevenueServiceViewModel, DadataRequestDto,
+				IRevenueServiceClient, CancellationToken>(null, dadataRequestDto, _revenueServiceClient, _cancellationTokenSource.Token);
+
+			revenueServicePage.ViewModel.OnSelectResult += (o, a) =>
+			{
+				if(a.IsActive
+				   || _commonServices.InteractiveService.Question("Вы действительно хотите подгрузить недействующие реквизиты?"))
+				{
+					FillEntityDetailsFromRevenueService(a);
+				}
+			};
+		}
+
+		private void FillEntityDetailsFromRevenueService(CounterpartyRevenueServiceDto revenueServiceRow)
+		{
+			Entity.KPP = revenueServiceRow.Kpp;
+			Entity.Name = revenueServiceRow.ShortName ?? revenueServiceRow.FullName;
+			Entity.FullName = revenueServiceRow.FullName ?? Entity.Name;
+			Entity.RawJurAddress = revenueServiceRow.Address;
+
+			if((revenueServiceRow.Opf ?? String.Empty).Length > 0 && (revenueServiceRow.OpfFull ?? String.Empty).Length > 0)
+			{
+				Entity.TypeOfOwnership = revenueServiceRow.Opf;
+				
+				if(!GetAllComboboxOpfValues().Any(t => t == revenueServiceRow.Opf))
+				{
+					AddNewOrganizationOwnershipType(revenueServiceRow.Opf, revenueServiceRow.OpfFull);
+				}
+				SetActiveComboboxOpfValue(Entity.TypeOfOwnership);
+			}
+
+			if(revenueServiceRow.Opf == "ИП")
+			{
+				Entity.SignatoryFIO = string.Empty;
+
+				Entity.Surname = revenueServiceRow.PersonSurname ?? string.Empty;
+				Entity.FirstName = revenueServiceRow.PersonName ?? string.Empty;
+				Entity.Patronymic = revenueServiceRow.PersonPatronymic ?? string.Empty;
+			}
+			else
+			{
+				Entity.SignatoryFIO = revenueServiceRow.TitlePersonFullName;
+
+				Entity.Surname = string.Empty;
+				Entity.FirstName = string.Empty;
+				Entity.Patronymic = string.Empty;
+			}
+
+			if(revenueServiceRow.Phones != null)
+			{
+				foreach(var number in revenueServiceRow.Phones)
+				{
+					if(Entity.Phones.All(x => x.Number != number))
+					{
+						_phonesViewModel.PhonesList.Add(new Phone
+						{
+							Counterparty = Entity,
+							Number = number
+						});
+					}
+				}
+			}
+
+			if(revenueServiceRow.Emails != null)
+			{
+				foreach(var email in revenueServiceRow.Emails)
+				{
+					if(Entity.Emails.All(x => x.Address != email))
+					{
+						emailsView.EmailsList.Add(new Email
+						{
+							Counterparty = Entity,
+							Address = email
+						});
+					}
+				}
+			}
+		}
+
+		private void AddNewOrganizationOwnershipType(string abbreviation, string fullName)
+		{
+			if (!GetAllOrganizationOwnershipTypes().Any(t => t.Abbreviation == abbreviation))
+			{
+				var newOrganizationOwnershipType = new OrganizationOwnershipType()
+				{
+					Abbreviation = abbreviation,
+					FullName = fullName,
+					IsArchive = false
+				};
+
+				using(var uowOrganization = UnitOfWorkFactory.CreateWithNewRoot(newOrganizationOwnershipType))
+				{
+					uowOrganization.Save(newOrganizationOwnershipType);
+				}
+			}
+			FillComboboxOpf();
+		}
+
+		private List<OrganizationOwnershipType> GetAllOrganizationOwnershipTypes()
+		{
+			return _organizationRepository
+				.GetAllOrganizationOwnershipTypes(UoW)
+				.OrderBy(t => t.Id)
+				.ToList();
+		}
+
+		private List<string> GetAvailableOrganizationOwnershipTypes()
+		{
+			return GetAllOrganizationOwnershipTypes()
+					.Where(t => !t.IsArchive || (Entity.TypeOfOwnership != null && t.Abbreviation == Entity.TypeOfOwnership))
+					.Select(t => t.Abbreviation)
+					.ToList<string>();
+		}
+
+		private void ComboboxOpfChanged(object sender, EventArgs e)
+		{
+			Entity.TypeOfOwnership = comboboxOpf.ActiveText;
+		}
+
+		private void FillComboboxOpf()
+		{
+			var availableOrganizationOwnershipTypes = GetAvailableOrganizationOwnershipTypes();
+			var currentOwnershipType = Entity.TypeOfOwnership;
+			
+			while(GetAllComboboxOpfValues().Count() > 0)
+			{
+				comboboxOpf.RemoveText(0);
+			}
+
+			comboboxOpf.AppendText("");
+
+			foreach(var ownershipType in availableOrganizationOwnershipTypes)
+			{
+				comboboxOpf.AppendText(ownershipType);
+			}
+
+			Entity.TypeOfOwnership = SetActiveComboboxOpfValue(currentOwnershipType) ? currentOwnershipType : String.Empty;
+		}
+
+		private List<string> GetAllComboboxOpfValues()
+		{
+			List<string> values = new List<string>();
+			TreeIter iter;
+			comboboxOpf.Model.GetIterFirst(out iter);
+			do
+			{
+				GLib.Value thisRow = new GLib.Value();
+				comboboxOpf.Model.GetValue(iter, 0, ref thisRow);
+				if(((thisRow.Val as string) ?? String.Empty).Length > 0)
+				{
+					values.Add(thisRow.Val as string);
+				}
+			} while(comboboxOpf.Model.IterNext(ref iter));
+
+			return values;
+		}
+
+		private bool SetActiveComboboxOpfValue(string value)
+		{
+			if (string.IsNullOrEmpty(value))
+			{
+				return false;
+			}
+
+			TreeIter iter;
+			comboboxOpf.Model.GetIterFirst(out iter);
+			do
+			{
+				GLib.Value thisRow = new GLib.Value();
+				comboboxOpf.Model.GetValue(iter, 0, ref thisRow);
+				if(((thisRow.Val as string) ?? String.Empty) == value)
+				{
+					comboboxOpf.SetActiveIter(iter);
+					return true;
+				}
+			} while(comboboxOpf.Model.IterNext(ref iter));
+
+			return false;
 		}
 	}
 

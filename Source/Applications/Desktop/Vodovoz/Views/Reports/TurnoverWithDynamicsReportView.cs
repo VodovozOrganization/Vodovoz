@@ -20,6 +20,7 @@ namespace Vodovoz.ReportsParameters.Sales
 		private const string _sliceRadioButtonGroupPrefix = "Slice";
 		private const string _measurementUnitRadioButtonGroupPrefix = "MeasurementUnit";
 		private const string _dynamicsInRadioButtonGroupPrefix = "DynamicsIn";
+		private const string _groupingRadioButtonPrefix = "Grouping";
 		private Task _generationTask;
 
 		public TurnoverWithDynamicsReportView(TurnoverWithDynamicsReportViewModel viewModel) : base(viewModel)
@@ -59,6 +60,16 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
+			foreach(RadioButton radioButton in yrbtnGroupingCounterparty.Group)
+			{
+				if(radioButton.Active)
+				{
+					GroupingSelectionChanged(radioButton, EventArgs.Empty);
+				}
+
+				radioButton.Toggled += GroupingSelectionChanged;
+			}
+
 			foreach(RadioButton radioButton in yrbtnSliceDay.Group)
 			{
 				if(radioButton.Active)
@@ -97,7 +108,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				.InitializeFromSource();
 			ychkbtnShowResidueForNomenclaturesWithoutSales.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowResidueForNomenclaturesWithoutSales, w => w.Active)
-				.AddBinding(vm => vm.ShowLastSale, w => w.Sensitive)
+				.AddBinding(vm => vm.CanShowResidueForNomenclaturesWithoutSales, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ShowFilter();
@@ -106,21 +117,32 @@ namespace Vodovoz.ReportsParameters.Sales
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 		}
 
+		private void GroupingSelectionChanged(object sender, EventArgs empty)
+		{
+			if(sender is RadioButton rbtn && rbtn.Active)
+			{
+				var trimmedName = rbtn.Name
+					.Replace(_radioButtonPrefix, string.Empty)
+					.Replace(_groupingRadioButtonPrefix, string.Empty);
+
+				ViewModel.GroupingBy = (GroupingByEnum)Enum.Parse(typeof(GroupingByEnum), trimmedName);
+			}
+		}
+
 		private void OnButtonAbortCreateReportClicked(object sender, EventArgs e)
 		{
 			ViewModel.ReportGenerationCancelationTokenSource.Cancel();
 		}
 
-		private void DynamicsInGroupSelectionChanged(object s, EventArgs e)
+		private void DynamicsInGroupSelectionChanged(object sender, EventArgs e)
 		{
-			if(s is RadioButton rbtn && rbtn.Active)
+			if(sender is RadioButton rbtn && rbtn.Active)
 			{
 				var trimmedName = rbtn.Name
 					.Replace(_radioButtonPrefix, string.Empty)
 					.Replace(_dynamicsInRadioButtonGroupPrefix, string.Empty);
 
 				ViewModel.DynamicsIn = (DynamicsInEnum)Enum.Parse(typeof(DynamicsInEnum), trimmedName);
-
 			}
 		}
 
@@ -177,8 +199,15 @@ namespace Vodovoz.ReportsParameters.Sales
 			columnsConfig.AddColumn("")
 				.AddTextRenderer(row => row.IsSubheaderRow ? "<b>№</b>" : row.Index, useMarkup: true);
 
-			columnsConfig.AddColumn("Периоды продаж").AddTextRenderer(row =>
+			var firstColumnTitle = ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty ? "Контрагент" : "Периоды продаж";
+
+			columnsConfig.AddColumn(firstColumnTitle).AddTextRenderer(row =>
 				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true);
+
+			if(ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty)
+			{
+				columnsConfig.AddColumn("Телефоны").AddTextRenderer(row => row.Phones);
+			}
 
 			if(ViewModel.Report.ShowDynamics)
 			{
@@ -233,10 +262,14 @@ namespace Vodovoz.ReportsParameters.Sales
 				columnsConfig.AddColumn("Кол-во дней с момента последней отгрузки")
 					.AddTextRenderer(row => row.IsSubheaderRow ? "" :
 						row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
-				columnsConfig
-					.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}")
-					.AddTextRenderer(row => row.IsSubheaderRow ? "" :
-						row.LastSaleDetails.WarhouseResidue.ToString("0"));
+
+				if(ViewModel.Report.GroupingBy == GroupingByEnum.Nomenclature)
+				{
+					columnsConfig
+						.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}")
+						.AddTextRenderer(row => row.IsSubheaderRow ? "" :
+							row.LastSaleDetails.WarhouseResidue.ToString("0"));
+				}
 			}
 			
 			columnsConfig.AddColumn("");

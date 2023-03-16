@@ -79,6 +79,8 @@ namespace Vodovoz.Domain.Orders
 			new OrderItemComparerForCopyingFromUndelivery();
 		private readonly double _futureDeliveryDaysLimit = 30;
 
+		private bool _isBottleStockDiscrepancy;
+
 		#region Платная доставка
 
 		private int paidDeliveryNomenclatureId;
@@ -685,7 +687,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isBottleStock, value, () => IsBottleStock);
 		}
 
-        private bool isSelfDeliveryPaid;
+		[Display(Name = "Расхождение между кол-вом фактически сданных и ожидаемых бутылей по акции \"Бутыль\"")]
+		public virtual bool IsBottleStockDiscrepancy
+		{
+			get => _isBottleStockDiscrepancy;
+			set => SetField(ref _isBottleStockDiscrepancy, value);
+		}
+
+		private bool isSelfDeliveryPaid;
 
         [Display(Name = "Самовывоз оплачен")]
         public virtual bool IsSelfDeliveryPaid
@@ -1872,17 +1881,27 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddEquipmentNomenclatureFromClient(Nomenclature nomenclature, IUnitOfWork UoW)
+		public virtual void AddEquipmentNomenclatureFromClient(
+			Nomenclature nomenclature,
+			IUnitOfWork UoW,
+			int count = 0,
+			Direction direction = Direction.PickUp,
+			DirectionReason directionReason = DirectionReason.None,
+			OwnTypes ownType = OwnTypes.None,
+			Reason reason = Reason.Service)
 		{
 			ObservableOrderEquipments.Add(
 				new OrderEquipment {
 					Order = this,
-					Direction = Direction.PickUp,
+					Direction = direction,
 					Equipment = null,
 					OrderItem = null,
-					Reason = Reason.Service,
+					OwnType = ownType,
+					DirectionReason = directionReason,
+					Reason = reason,
 					Confirmed = true,
-					Nomenclature = nomenclature
+					Nomenclature = nomenclature,
+					Count = count
 				}
 			);
 			UpdateDocuments();

@@ -10,6 +10,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
@@ -17,16 +18,18 @@ namespace Vodovoz.ReportsParameters.Logistic
 	{
 		private readonly IEntityAutocompleteSelectorFactory _driverSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory _officeSelectorFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IInteractiveService _interactiveService;
 
 		public AddressesOverpaymentsReport(
-			IEntityAutocompleteSelectorFactory driverSelectorFactory,
-			IEntityAutocompleteSelectorFactory officeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			IInteractiveService interactiveService)
 		{
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+				
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_driverSelectorFactory = driverSelectorFactory ?? throw new ArgumentNullException(nameof(driverSelectorFactory));
-			_officeSelectorFactory = officeSelectorFactory ?? throw new ArgumentNullException(nameof(officeSelectorFactory));
+			_driverSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			_officeSelectorFactory = _employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Configure();

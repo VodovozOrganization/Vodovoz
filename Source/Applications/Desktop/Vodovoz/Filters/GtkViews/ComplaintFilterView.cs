@@ -1,6 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels;
+using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -39,6 +40,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.ComplaintObject, w => w.SelectedItem).InitializeFromSource();
 
+			entryComplaintDetalization.ViewModel = ViewModel.ComplaintDetalizationEntiryEntryViewModel;
+			entryComplaintDetalization.Binding.AddBinding(ViewModel, vm => vm.CanReadDetalization, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
+
 			//FIXME заменить на evme когда будут новые журналы с рекурсией
 			yCmbCurrentSubdivision.ItemsList = ViewModel.AllDepartments;
 			yCmbCurrentSubdivision.Binding.AddBinding(ViewModel, s => s.CurrentUserSubdivision, w => w.SelectedItem).InitializeFromSource();
@@ -48,8 +53,11 @@ namespace Vodovoz.Filters.GtkViews
 			yentryreferenceSubdivision.SubjectType = typeof(Subdivision);
 			yentryreferenceSubdivision.Binding.AddBinding(ViewModel, x => x.Subdivision, w => w.Subject).InitializeFromSource();
 
-			daterangepicker.Binding.AddBinding(ViewModel, x => x.StartDate, w => w.StartDateOrNull).InitializeFromSource();
-			daterangepicker.Binding.AddBinding(ViewModel, x => x.EndDate, w => w.EndDateOrNull).InitializeFromSource();
+			daterangepicker.Binding
+				.AddSource(ViewModel)
+				.AddBinding(x => x.StartDate, w => w.StartDateOrNull)
+				.AddBinding(x => x.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
 
 			yenumcomboboxDateType.ItemsEnum = typeof(DateFilterType);
 			yenumcomboboxDateType.Binding.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem).InitializeFromSource();
@@ -57,6 +65,19 @@ namespace Vodovoz.Filters.GtkViews
 			ybuttonMyComplaint.Clicked += (sender, e) => ViewModel.SelectMyComplaint();
 
 			guiltyItemView.ViewModel = ViewModel.GuiltyItemVM;
+		}
+
+		public override void Destroy()
+		{
+			yenumcomboboxType.Destroy();
+			yenumcomboboxStatus.Destroy();
+			yenumcomboboxCurrentSubdivisionStatus.Destroy();
+			cmbComplaintKind.Destroy();
+			yspeccomboboxComplaintObject.Destroy();
+			yCmbCurrentSubdivision.Destroy();
+			yenumcomboboxDateType.Destroy();
+			guiltyItemView.Destroy();
+			base.Destroy();
 		}
 	}
 }

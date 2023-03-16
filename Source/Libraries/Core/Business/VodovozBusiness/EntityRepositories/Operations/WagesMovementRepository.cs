@@ -1,5 +1,6 @@
 ﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using System;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.EntityRepositories.Operations
@@ -10,6 +11,24 @@ namespace Vodovoz.EntityRepositories.Operations
 		{
 			return uow.Session.QueryOver<WagesMovementOperations>()
 				.Where(w => w.Employee.Id == employeeId)
+				.Select(Projections.Sum<WagesMovementOperations>(w => w.Money))
+				.SingleOrDefault<decimal>();
+		}
+
+		public decimal GetDriverWageBalanceWithoutFutureFines(IUnitOfWork uow, int employeeId)
+		{
+			return uow.Session.QueryOver<WagesMovementOperations>()
+				.Where(w => w.Employee.Id == employeeId)
+				.Where(w => w.OperationTime.Date <= DateTime.Now.Date)
+				.Select(Projections.Sum<WagesMovementOperations>(w => w.Money))
+				.SingleOrDefault<decimal>();
+		}
+
+		public decimal GetDriverFutureFinesBalance(IUnitOfWork uow, int employeeId)
+		{
+			return uow.Session.QueryOver<WagesMovementOperations>()
+				.Where(w => w.Employee.Id == employeeId)
+				.Where(w => w.OperationTime.Date > DateTime.Now.Date)
 				.Select(Projections.Sum<WagesMovementOperations>(w => w.Money))
 				.SingleOrDefault<decimal>();
 		}
