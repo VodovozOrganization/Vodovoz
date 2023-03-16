@@ -339,7 +339,7 @@ public partial class MainWindow : Gtk.Window
 
 		#endregion
 
-		#region Уведомление о наличии незакрытых рекламаций без комментариев отдела
+		#region Уведомление о наличии незакрытых рекламаций без комментариев в добавленной дискуссии для отдела
 
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
@@ -450,24 +450,30 @@ public partial class MainWindow : Gtk.Window
 	#endregion
 
 	#region Методы для уведомления о наличии незакрытых рекламаций без комментариев для подразделения
-	private void UpdateSendedComplaintsNotification(string notification)
+	private void UpdateSendedComplaintsNotification(SendedComplaintNotificationDetails notificationDetails)
 	{
-		lblComplaintsNotification.Markup = notification;
+		lblComplaintsNotification.Markup = notificationDetails.NotificationMessage;
 	}
 
 	private void OnBtnOpenComplaintClicked(object sender, EventArgs e)
 	{
-		int oldestComplaintIdWithNoComments;
+		SendedComplaintNotificationDetails notificationDetails;
+
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			oldestComplaintIdWithNoComments = _complaintNotificationController.GetSendedComplaintIdsBySubdivision(uow).Min();
+			notificationDetails = _complaintNotificationController.GetNotificationDetails(uow);
 		}
 
-		NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
-				null, 
-				EntityUoWBuilder.ForOpen(oldestComplaintIdWithNoComments), 
+		UpdateSendedComplaintsNotification(notificationDetails);
+
+		if(notificationDetails.SendedComplaintsCount > 0)
+		{
+			NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
+				null,
+				EntityUoWBuilder.ForOpen(notificationDetails.SendedComplaintsIds.Min()),
 				OpenPageOptions.None
 				);
+		}
 	}
 	#endregion
 
