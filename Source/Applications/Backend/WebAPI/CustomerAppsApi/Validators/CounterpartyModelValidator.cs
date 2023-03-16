@@ -24,7 +24,8 @@ namespace CustomerAppsApi.Validators
 		public string CounterpartyContactInfoDtoValidate(CounterpartyContactInfoDto counterpartyContactInfoDto)
 		{
 			_sb.Clear();
-			ValidateContactInfo(counterpartyContactInfoDto.ExternalCounterpartyId, counterpartyContactInfoDto.PhoneNumber);
+			ValidateContactInfo(counterpartyContactInfoDto.PhoneNumber);
+			ValidateCameFromProperty(counterpartyContactInfoDto.CameFromId);
 
 			return _sb.ToString();
 		}
@@ -33,8 +34,8 @@ namespace CustomerAppsApi.Validators
 		{
 			_sb.Clear();
 
-			ValidateContactInfo(counterpartyDto.ExternalCounterpartyId, counterpartyDto.PhoneNumber);
-			ValidateCameFromProperty(counterpartyDto.CounterpartyFrom, counterpartyDto.CameFromId);
+			ValidateContactInfo(counterpartyDto.PhoneNumber);
+			ValidateCameFromProperty(counterpartyDto.CameFromId);
 			//Валидация электронной почты
 			
 			switch(counterpartyDto.PersonType)
@@ -50,13 +51,8 @@ namespace CustomerAppsApi.Validators
 			return _sb.ToString();
 		}
 
-		private void ValidateContactInfo(int externalCounterpartyId, string counterpartyNumber)
+		private void ValidateContactInfo(string counterpartyNumber)
 		{
-			if(externalCounterpartyId == 0)
-			{
-				_sb.AppendLine($"Нельзя идентифицировать пользователя {nameof(externalCounterpartyId)} = 0");
-			}
-
 			var phoneNumber = _phoneFormatter.FormatString(counterpartyNumber);
 			if(string.IsNullOrWhiteSpace(phoneNumber))
 			{
@@ -104,28 +100,13 @@ namespace CustomerAppsApi.Validators
 			}
 		}
 
-		private void ValidateCameFromProperty(CounterpartyFrom counterpartyFrom, int cameFromId)
+		private void ValidateCameFromProperty(int cameFromId)
 		{
-			if(cameFromId == default(int))
+			if(cameFromId == default(int)
+				|| (cameFromId != _counterpartySettings.GetMobileAppCounterpartyCameFromId
+					&& cameFromId != _counterpartySettings.GetWebSiteCounterpartyCameFromId))
 			{
 				_sb.AppendLine(_wrongCameFromId);
-				return;
-			}
-			
-			switch(counterpartyFrom)
-			{
-				case CounterpartyFrom.MobileApp:
-					if(cameFromId != _counterpartySettings.GetMobileAppCounterpartyCameFromId)
-					{
-						_sb.AppendLine(_wrongCameFromId);
-					}
-					break;
-				case CounterpartyFrom.WebSite:
-					if(cameFromId != _counterpartySettings.GetWebSiteCounterpartyCameFromId)
-					{
-						_sb.AppendLine(_wrongCameFromId);
-					}
-					break;
 			}
 		}
 	}

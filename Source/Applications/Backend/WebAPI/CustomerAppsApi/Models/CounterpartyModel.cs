@@ -10,6 +10,7 @@ using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Parameters;
 
@@ -18,29 +19,33 @@ namespace CustomerAppsApi.Models
 	public class CounterpartyModel : ICounterpartyModel
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly IPhoneRepository _phoneRepository;
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IEmailRepository _emailRepository;
 		private readonly RoboatsSettings _roboatsSettings;
+		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly CounterpartyModelFactory _counterpartyModelFactory;
 		private readonly CounterpartyModelValidator _counterpartyModelValidator;
 		private readonly IContactManagerForExternalCounterparty _contactManagerForExternalCounterparty;
 
 		public CounterpartyModel(
 			IUnitOfWork uow,
-			IPhoneRepository phoneRepository,
+			IExternalCounterpartyRepository externalCounterpartyRepository,
 			IRoboatsRepository roboatsRepository,
 			IEmailRepository emailRepository,
 			RoboatsSettings roboatsSettings,
+			ICounterpartySettings counterpartySettings,
 			CounterpartyModelFactory counterpartyModelFactory,
 			CounterpartyModelValidator counterpartyModelValidator,
 			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
+			_externalCounterpartyRepository =
+				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
+			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
 			_counterpartyModelFactory = counterpartyModelFactory ?? throw new ArgumentNullException(nameof(counterpartyModelFactory));
 			_counterpartyModelValidator = counterpartyModelValidator ?? throw new ArgumentNullException(nameof(counterpartyModelValidator));
 			_contactManagerForExternalCounterparty =
@@ -54,11 +59,13 @@ namespace CustomerAppsApi.Models
 			{
 				return _counterpartyModelFactory.CreateErrorCounterpartyIdentificationDto(validationResult);
 			}
+
+			var counterpartyFrom = GetCounterpartyFrom(counterpartyContactInfoDto.CameFromId);
 			
 			//Ищем зарегистрированного клиента по ExternalId
 			var externalCounterparty =
-				_phoneRepository.GetExternalCounterparty(
-					_uow, counterpartyContactInfoDto.ExternalCounterpartyId, counterpartyContactInfoDto.CounterpartyFrom);
+				_externalCounterpartyRepository.GetExternalCounterparty(
+					_uow, counterpartyContactInfoDto.ExternalCounterpartyId, counterpartyFrom);
 
 			if(externalCounterparty != null)
 			{
@@ -71,12 +78,11 @@ namespace CustomerAppsApi.Models
 			 * и наоборот, если запрос с сайта - ищем зарегистрированного через мобилку
 			 */
 			var phoneNumber = new PhoneFormatter(PhoneFormat.DigitsTen).FormatString(counterpartyContactInfoDto.PhoneNumber);
-			var counterpartyFrom =
-				counterpartyContactInfoDto.CounterpartyFrom == CounterpartyFrom.MobileApp
+			var registeredFromOtherPlatform = counterpartyFrom == CounterpartyFrom.MobileApp
 				? CounterpartyFrom.WebSite
 				: CounterpartyFrom.MobileApp;
 			
-			externalCounterparty = _phoneRepository.GetExternalCounterparty(_uow, phoneNumber, counterpartyFrom);
+			externalCounterparty = _externalCounterpartyRepository.GetExternalCounterparty(_uow, phoneNumber, registeredFromOtherPlatform);
 
 			if(externalCounterparty != null)
 			{
@@ -96,7 +102,7 @@ namespace CustomerAppsApi.Models
 			switch(contact.FoundContactStatus)
 			{
 				case FoundContactStatus.Success:
-					externalCounterparty = _counterpartyModelFactory.CreateExternalCounterparty(counterpartyContactInfoDto.CounterpartyFrom);
+					externalCounterparty = _counterpartyModelFactory.CreateExternalCounterparty(counterpartyFrom);
 					externalCounterparty.ExternalCounterpartyId = counterpartyContactInfoDto.ExternalCounterpartyId;
 					externalCounterparty.Phone = contact.Phone;
 					externalCounterparty.Email = GetCounterpartyEmailForExternalCounterparty(contact.Phone.Counterparty.Id);
@@ -120,14 +126,16 @@ namespace CustomerAppsApi.Models
 				return _counterpartyModelFactory.CreateErrorCounterpartyRegistrationDto(validationResult);
 			}
 
-			var counterpartyRegistrationDto = CheckExternalCounterpartyWithSameExternalId(counterpartyDto);
+			var counterpartyFrom = GetCounterpartyFrom(counterpartyDto.CameFromId);
+			
+			var counterpartyRegistrationDto = CheckExternalCounterpartyWithSameExternalId(counterpartyDto, counterpartyFrom);
 
 			if(counterpartyRegistrationDto != null)
 			{
 				return counterpartyRegistrationDto;
 			}
 
-			counterpartyRegistrationDto = CheckExternalCounterpartyWithSamePhoneNumber(counterpartyDto);
+			counterpartyRegistrationDto = CheckExternalCounterpartyWithSamePhoneNumber(counterpartyDto, counterpartyFrom);
 			
 			if(counterpartyRegistrationDto != null)
 			{
@@ -171,7 +179,7 @@ namespace CustomerAppsApi.Models
 			var email = CreateNewEmail(counterpartyDto.Email, counterparty);
 
 			//Делаем привязку нового клиента и покупателя
-			var externalCounterparty = _counterpartyModelFactory.CreateExternalCounterparty(counterpartyDto.CounterpartyFrom);
+			var externalCounterparty = _counterpartyModelFactory.CreateExternalCounterparty(counterpartyFrom);
 			externalCounterparty.Email = email;
 			externalCounterparty.ExternalCounterpartyId = counterpartyDto.ExternalCounterpartyId;
 			externalCounterparty.Phone = phone;
@@ -191,8 +199,8 @@ namespace CustomerAppsApi.Models
 				return _counterpartyModelFactory.CreateErrorCounterpartyUpdateDto(validationResult);
 			}
 			
-			var externalCounterparty = _phoneRepository
-				.GetExternalCounterparty(_uow, counterpartyDto.ExternalCounterpartyId, counterpartyDto.CounterpartyFrom);
+			var externalCounterparty = _externalCounterpartyRepository
+				.GetExternalCounterparty(_uow, counterpartyDto.ExternalCounterpartyId, GetCounterpartyFrom(counterpartyDto.CameFromId));
 
 			if(externalCounterparty is null)
 			{
@@ -263,10 +271,11 @@ namespace CustomerAppsApi.Models
 			};
 		}
 
-		private CounterpartyRegistrationDto CheckExternalCounterpartyWithSameExternalId(CounterpartyDto counterpartyDto)
+		private CounterpartyRegistrationDto CheckExternalCounterpartyWithSameExternalId(
+			CounterpartyDto counterpartyDto, CounterpartyFrom counterpartyFrom)
 		{
 			var externalCounterparty =
-				_phoneRepository.GetExternalCounterparty(_uow, counterpartyDto.ExternalCounterpartyId, counterpartyDto.CounterpartyFrom);
+				_externalCounterpartyRepository.GetExternalCounterparty(_uow, counterpartyDto.ExternalCounterpartyId, counterpartyFrom);
 
 			if(externalCounterparty != null)
 			{
@@ -281,11 +290,12 @@ namespace CustomerAppsApi.Models
 			return null;
 		}
 		
-		private CounterpartyRegistrationDto CheckExternalCounterpartyWithSamePhoneNumber(CounterpartyDto counterpartyDto)
+		private CounterpartyRegistrationDto CheckExternalCounterpartyWithSamePhoneNumber(
+			CounterpartyDto counterpartyDto, CounterpartyFrom counterpartyFrom)
 		{
 			var phoneNumber = new PhoneFormatter(PhoneFormat.RussiaOnlyShort).FormatString(counterpartyDto.PhoneNumber);
 			var externalCounterparty = 
-				_phoneRepository.GetExternalCounterparty(_uow, phoneNumber, counterpartyDto.CounterpartyFrom);
+				_externalCounterpartyRepository.GetExternalCounterparty(_uow, phoneNumber, counterpartyFrom);
 
 			if(externalCounterparty != null)
 			{
@@ -328,6 +338,13 @@ namespace CustomerAppsApi.Models
 				_uow.GetById<RoboAtsCounterpartyName>(_roboatsSettings.DefaultCounterpartyNameId);
 			phone.RoboAtsCounterpartyPatronymic =
 				_uow.GetById<RoboAtsCounterpartyPatronymic>(_roboatsSettings.DefaultCounterpartyPatronymicId);
+		}
+		
+		private CounterpartyFrom GetCounterpartyFrom(int cameFromId)
+		{
+			return cameFromId == _counterpartySettings.GetMobileAppCounterpartyCameFromId
+				? CounterpartyFrom.MobileApp
+				: CounterpartyFrom.WebSite;
 		}
 	}
 }

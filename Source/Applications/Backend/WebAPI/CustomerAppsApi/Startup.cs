@@ -22,6 +22,7 @@ using QS.Utilities.Numeric;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
@@ -61,6 +62,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<RoboatsSettings>();
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
+			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
 			services.AddSingleton<RegisteredNaturalCounterpartyDtoFactory>();
 			services.AddSingleton<CounterpartyModelFactory>();
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));

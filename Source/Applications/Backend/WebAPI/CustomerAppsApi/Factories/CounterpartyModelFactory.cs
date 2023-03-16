@@ -125,7 +125,7 @@ namespace CustomerAppsApi.Factories
 			}
 		}
 		
-		public ExternalCounterparty CopyToOtherExternalCounterparty(ExternalCounterparty copyingCounterparty, int externalCounterpartyId)
+		public ExternalCounterparty CopyToOtherExternalCounterparty(ExternalCounterparty copyingCounterparty, Guid externalCounterpartyId)
 		{
 			switch(copyingCounterparty.CounterpartyFrom)
 			{

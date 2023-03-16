@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Contacts;
 
@@ -16,7 +17,7 @@ namespace Vodovoz.Domain.Client
 
 	public class ExternalCounterparty : PropertyChangedBase, IDomainObject
 	{
-		private int _externalCounterpartyCounterpartyId;
+		private Guid _externalCounterpartyCounterpartyId;
 		private Phone _phone;
 		private Email _email;
 		private bool _isArchive;
@@ -24,7 +25,7 @@ namespace Vodovoz.Domain.Client
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Внешний номер клиента")]
-		public virtual int ExternalCounterpartyId
+		public virtual Guid ExternalCounterpartyId
 		{
 			get => _externalCounterpartyCounterpartyId;
 			set => SetField(ref _externalCounterpartyCounterpartyId, value);
@@ -56,7 +57,7 @@ namespace Vodovoz.Domain.Client
 
 	public enum CounterpartyFrom
 	{
-		MobileApp,
-		WebSite
+		MobileApp = 54,
+		WebSite = 55
 	}
 }

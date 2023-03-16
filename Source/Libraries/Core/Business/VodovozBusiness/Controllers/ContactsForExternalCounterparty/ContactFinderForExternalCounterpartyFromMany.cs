@@ -47,7 +47,7 @@ namespace Vodovoz.Controllers.ContactsForExternalCounterparty
 		{
 			var processedContacts = new ProcessedContacts();
 			
-			for(var i = 0; i > contacts.Count; i++)
+			for(var i = 0; i < contacts.Count; i++)
 			{
 				if(contacts[i].Counterparty != null)
 				{

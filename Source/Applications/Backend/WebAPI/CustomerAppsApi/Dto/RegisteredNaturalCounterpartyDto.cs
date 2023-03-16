@@ -1,8 +1,10 @@
-﻿namespace CustomerAppsApi.Controllers
+﻿using System;
+
+namespace CustomerAppsApi.Controllers
 {
 	public class RegisteredNaturalCounterpartyDto
 	{
-		public int ExternalCounterpartyId { get; set; }
+		public Guid ExternalCounterpartyId { get; set; }
 		public int ErpCounterpartyId { get; set; }
 		public string FirstName { get; set; }
 		public string Surname { get; set; }

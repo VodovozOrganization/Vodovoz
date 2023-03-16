@@ -14,7 +14,11 @@ namespace Vodovoz.EntityRepositories
 {
 	public class PhoneRepository : IPhoneRepository
 	{
-
+		public PhoneRepository()
+		{
+			
+		}
+		
 		#region PhoneType
 
 		public IList<PhoneType> GetPhoneTypes(IUnitOfWork uow)
@@ -70,25 +74,6 @@ namespace Vodovoz.EntityRepositories
 				.And(p => p.Counterparty != null || p.DeliveryPoint != null)
 				.And(p => !p.IsArchive)
 				.List();
-		}
-
-		public ExternalCounterparty GetExternalCounterparty(IUnitOfWork uow, int externalCounterpartyId, CounterpartyFrom counterpartyFrom)
-		{
-			return uow.Session.QueryOver<ExternalCounterparty>()
-				.Where(ec => ec.CounterpartyFrom == counterpartyFrom)
-				.And(ec => ec.ExternalCounterpartyId == externalCounterpartyId)
-				.SingleOrDefault();
-		}
-		
-		public ExternalCounterparty GetExternalCounterparty(IUnitOfWork uow, string phoneNumber, CounterpartyFrom counterpartyFrom)
-		{
-			Phone phoneAlias = null;
-			
-			return uow.Session.QueryOver<ExternalCounterparty>()
-				.JoinAlias(ec => ec.Phone, () => phoneAlias)
-				.Where(ec => ec.CounterpartyFrom == counterpartyFrom)
-				.And(() => phoneAlias.DigitsNumber == phoneNumber)
-				.SingleOrDefault();
 		}
 
 		public IList<IncomingCallsAnalysisReportNode> GetLastOrderIdAndDeliveryDateByPhone(
