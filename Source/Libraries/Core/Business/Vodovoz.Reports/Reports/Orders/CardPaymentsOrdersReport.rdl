@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>277mm</Width>
@@ -437,8 +435,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -464,8 +461,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -494,8 +490,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -513,8 +508,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -532,8 +526,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -551,8 +544,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -614,8 +606,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -633,8 +624,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -652,8 +642,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -685,46 +674,62 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    orders.id AS order_id,
-    orders.delivery_date,
-    counterparty.full_name AS client,
-    IF(orders.self_delivery, 'Самовывоз', delivery_points.compiled_address) AS address,
-    orders.online_order,
-    IF(SUM(ROUND(IFNULL(actual_count, 0) * price - discount_money, 2))&gt;0, SUM(ROUND(IFNULL(actual_count, 0) * price - discount_money, 2)), 0) AS actual_sum,
-    IF(SUM(ROUND(count * price - discount_money, 2))&gt;0, SUM(ROUND(count * price - discount_money, 2)), 0) AS sum,
-    CASE
-        WHEN orders.order_status = 'NewOrder' THEN 'Новый'
-        WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
-        WHEN orders.order_status = 'Accepted' THEN 'Принят'
-        WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
-        WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'
-        WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
-        WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
-        WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
-        WHEN orders.order_status = 'Closed' THEN 'Закрыт'
-        WHEN orders.order_status = 'Canceled' THEN 'Отменён'
-        WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
-        WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'
-        ELSE ''
-        END AS status,
-    CONCAT(employees.last_name, ' ', LEFT(employees.name,1), '.', LEFT(employees.patronymic,1), '.') AS author
-FROM orders
-    LEFT JOIN counterparty ON counterparty.id = orders.client_id
-    LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-    LEFT JOIN districts ON delivery_points.district_id = districts.id
-    LEFT JOIN employees ON employees.id = orders.author_employee_id
-    LEFT JOIN order_items ON order_items.order_id = orders.id
-WHERE
-    orders.payment_type = 'ByCard'
-    AND orders.delivery_date &gt;= @start_date
-    AND orders.delivery_date &lt;= @end_date
-    AND (@payment_from_id = '' OR orders.payment_from_id = @payment_from_id)
-    AND (@geo_group_id = '' OR districts.geo_group_id = @geo_group_id)
-GROUP BY orders.id
-;</CommandText>
+	o.id AS order_id,
+	o.delivery_date,
+	c.full_name AS client,
+	IF(o.self_delivery,
+	'Самовывоз',
+	dp.compiled_address) AS address,
+	o.online_order,
+	IF(SUM(ROUND(IFNULL(actual_count, 0) * price - discount_money, 2))&gt;0,
+	SUM(ROUND(IFNULL(actual_count, 0) * price - discount_money, 2)),
+	0) AS actual_sum,
+	IF(SUM(ROUND(count * price - discount_money, 2))&gt;0,
+	SUM(ROUND(count * price - discount_money, 2)),
+	0) AS sum,
+	CASE
+		WHEN o.order_status = 'NewOrder' THEN 'Новый'
+		WHEN o.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
+		WHEN o.order_status = 'Accepted' THEN 'Принят'
+		WHEN o.order_status = 'InTravelList' THEN 'В маршрутном листе'
+		WHEN o.order_status = 'OnLoading' THEN 'На погрузке'
+		WHEN o.order_status = 'OnTheWay' THEN 'В пути'
+		WHEN o.order_status = 'Shipped' THEN 'Доставлен'
+		WHEN o.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
+		WHEN o.order_status = 'Closed' THEN 'Закрыт'
+		WHEN o.order_status = 'Canceled' THEN 'Отменён'
+		WHEN o.order_status = 'NotDelivered' THEN 'Недовоз'
+		WHEN o.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'
+		ELSE ''
+	END AS status,
+	CONCAT(e.last_name, ' ', LEFT(e.name, 1), '.', LEFT(e.patronymic, 1), '.') AS author
+FROM orders o
+LEFT JOIN counterparty c 
+ON c.id = o.client_id
+LEFT JOIN delivery_points dp
+ON dp.id = o.delivery_point_id
+LEFT JOIN districts d
+ON dp.district_id = d.id
+LEFT JOIN employees e
+ON e.id = o.author_employee_id
+LEFT JOIN order_items oi
+ON oi.order_id = o.id
+WHERE o.payment_type = 'ByCard'
+	AND o.delivery_date &gt;= @start_date
+	AND o.delivery_date &lt;= @end_date
+	AND (
+		(o.is_self_delivery_paid AND o.pay_after_shipment AND o.order_status = 'WaitForPayment')
+		OR o.order_status IN ('Accepted', 'InTravelList', 'OnLoading', 'OnTheWay', 'Shipped', 'UnloadingOnStock', 'Closed')
+		)
+	AND NOT o.is_contract_closer 
+	AND (@payment_from_id = ''
+		OR o.payment_from_id = @payment_from_id)
+	AND (@geo_group_id = ''
+		OR d.geo_group_id = @geo_group_id)
+GROUP BY o.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -740,7 +745,7 @@ GROUP BY orders.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -786,8 +791,7 @@ GROUP BY orders.id
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -803,8 +807,7 @@ GROUP BY orders.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -816,8 +819,7 @@ GROUP BY orders.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="payment_from_id">
       <DataType>String</DataType>
