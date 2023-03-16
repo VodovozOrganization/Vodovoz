@@ -59,6 +59,7 @@
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
     <Compile Include="Controllers\IEmployeeRegistrationVersionController.cs" />
     <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
+    <Compile Include="Controllers\IProfitabilityConstantsViewModelHandler.cs" />
     <Compile Include="Controllers\IRouteListProfitabilityController.cs" />
     <Compile Include="Controllers\IUserPermissionsController.cs" />
     <Compile Include="Controllers\OdometerReadingsController.cs" />
