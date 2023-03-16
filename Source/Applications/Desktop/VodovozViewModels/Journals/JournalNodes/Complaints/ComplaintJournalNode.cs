@@ -88,4 +88,20 @@ namespace Vodovoz.Journals.JournalNodes
 		public string ResultOfEmployees { get; set; }
 		public string ArrangementText { get; set; }
 	}
+
+	public class ComplaintJournalNodeWithDepartmentsReaction : ComplaintJournalNode
+	{
+		public DateTime DepartmentConnectionTime { get; set; }
+		public DateTime DepartmentFirstCommentTime { get; set; }
+		public TimeSpan DepartmentReactionTime => DepartmentConnectionTime - DepartmentFirstCommentTime;
+
+		public string DepartmentConnectionTimeString =>
+			$"{DepartmentConnectionTime.ToString("dd.MM.yy")}\n{DepartmentConnectionTime.ToString("t")}";
+
+		public string DepartmentFirstCommentTimeString =>
+			$"{DepartmentFirstCommentTime.ToString("dd.MM.yy")}\n{DepartmentFirstCommentTime.ToString("t")}";
+
+		public string DepartmentReactionTimeString =>
+			$"{DepartmentReactionTime.TotalDays}д:{DepartmentReactionTime.TotalHours}ч:{DepartmentReactionTime.TotalMinutes}мин";
+	}
 }
