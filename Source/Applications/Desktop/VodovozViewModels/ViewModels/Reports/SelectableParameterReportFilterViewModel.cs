@@ -8,14 +8,19 @@ namespace Vodovoz.ViewModels.Reports
 {
 	public class SelectableParameterReportFilterViewModel : WidgetViewModelBase
 	{
-		public SelectableParametersReportFilter ReportFilter { get; set; }
-
 		private SelectableParameterSet _currentParameterSet;
 
 		private DelegateCommand _switchToIncludeCommand;
 		private DelegateCommand _switchToExcludeCommand;
 		private DelegateCommand _selectAllParametersCommand;
 		private DelegateCommand _unselectAllParametersCommand;
+
+		public SelectableParameterReportFilterViewModel(SelectableParametersReportFilter reportFilter)
+		{
+			ReportFilter = reportFilter;
+		}
+
+		public SelectableParametersReportFilter ReportFilter { get; set; }
 
 		public virtual SelectableParameterSet CurrentParameterSet
 		{
@@ -53,11 +58,6 @@ namespace Vodovoz.ViewModels.Reports
 		public bool CanSelectAllParameters => CurrentParameterSet != null && CurrentParameterSet.Parameters.Any();
 
 		public bool CanDeselectAllParameters => CurrentParameterSet != null && CurrentParameterSet.Parameters.Any();
-
-		public SelectableParameterReportFilterViewModel(SelectableParametersReportFilter reportFilter)
-		{
-			ReportFilter = reportFilter;
-		}
 
 		void CurrentParameterSet_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
