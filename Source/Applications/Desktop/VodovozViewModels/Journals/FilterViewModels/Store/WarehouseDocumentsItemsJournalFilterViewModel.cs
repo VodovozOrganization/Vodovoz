@@ -29,14 +29,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private readonly SelectableParametersReportFilter _filter;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private DocumentType? _restrictDocumentType;
 		private MovementDocumentStatus? _movementDocumentStatus;
-		private MovementDocumentStatus? _restrictMovementStatus;
-		private Warehouse _restrictWarehouse;
-		private DateTime? _restrictStartDate;
-		private DateTime? _restrictEndDate;
 		private Employee _driver;
-		private Employee _restrictDriver;
 		private DocumentType? _documentType;
 		private TargetSource _targetSource;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
@@ -100,71 +94,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		{
 			get => _targetSource;
 			set => UpdateFilterField(ref _targetSource, value);
-		}
-
-		[PropertyChangedAlso(nameof(CanChangeDatePeriod))]
-		public DateTime? RestrictStartDate
-		{
-			get => _restrictStartDate;
-			set
-			{
-				if(UpdateFilterField(ref _restrictStartDate, value) && value != null)
-				{
-					StartDate = value.Value;
-				}
-			}
-		}
-
-		[PropertyChangedAlso(nameof(CanChangeDatePeriod))]
-		public DateTime? RestrictEndDate
-		{
-			get => _restrictEndDate;
-			set
-			{
-				if(UpdateFilterField(ref _restrictEndDate, value) && value != null)
-				{
-					EndDate = value.Value;
-				}
-			}
-		}
-
-		[PropertyChangedAlso(nameof(CanChangeDocumentType))]
-		public DocumentType? RestrictDocumentType
-		{
-			get => _restrictDocumentType;
-			set
-			{
-				if(UpdateFilterField(ref _restrictDocumentType, value) && value != null)
-				{
-					DocumentType = value;
-				}
-			}
-		}
-
-		[PropertyChangedAlso(nameof(CanChangeMovementDocumentStatus))]
-		public MovementDocumentStatus? RestrictMovementStatus
-		{
-			get => _restrictMovementStatus;
-			set
-			{
-				if(UpdateFilterField(ref _restrictMovementStatus, value) && value != null)
-				{
-					MovementDocumentStatus = value;
-				}
-			}
-		}
-
-		[PropertyChangedAlso(nameof(CanChangeDriver))]
-		public Employee RestrictDriver
-		{
-			get => _restrictDriver;
-			set
-			{
-				if(UpdateFilterField(ref _restrictDriver, value) && value != null)
-				{
-					Driver = value;
-				}
-			}
 		}
 
 		public virtual SelectableParameterReportFilterViewModel FilterViewModel
