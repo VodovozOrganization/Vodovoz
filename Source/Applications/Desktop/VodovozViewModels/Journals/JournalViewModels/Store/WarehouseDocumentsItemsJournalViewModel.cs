@@ -253,6 +253,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				{
 					invoiceQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
+
+				if(FilterViewModel.WarhouseIds.Any())
+				{
+					var warehouseRestriction = Restrictions.In(Projections.Property(() => invoiceAlias.Warehouse), FilterViewModel.WarhouseIds);
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						invoiceQuery.Where(warehouseRestriction);
+					}
+					else
+					{
+						invoiceQuery.Where(Restrictions.Not(warehouseRestriction));
+					}
+				}
 			}
 			else
 			{

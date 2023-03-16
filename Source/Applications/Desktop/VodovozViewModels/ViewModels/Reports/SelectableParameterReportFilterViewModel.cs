@@ -20,6 +20,9 @@ namespace Vodovoz.ViewModels.Reports
 			ReportFilter = reportFilter;
 		}
 
+		public event EventHandler<SelectableParameterReportFilterSelectionChangedArgs> SelectionChanged;
+		public event EventHandler<FilterTypeChangedArgs> FilterModeChanged;
+
 		public SelectableParametersReportFilter ReportFilter { get; set; }
 
 		public virtual SelectableParameterSet CurrentParameterSet
@@ -40,14 +43,14 @@ namespace Vodovoz.ViewModels.Reports
 
 					if(oldParameterSet != null)
 					{
-						oldParameterSet.PropertyChanged -= CurrentParameterSet_PropertyChanged;
-						oldParameterSet.SelectionChanged -= OnSelectionChanged;
+						oldParameterSet.PropertyChanged -= OnCurrentParameterSet_PropertyChanged;
+						oldParameterSet.SelectionChanged -= OnCurrentParameterSet_SelectionChanged;
 					}
 
 					if(_currentParameterSet != null)
 					{
-						_currentParameterSet.PropertyChanged += CurrentParameterSet_PropertyChanged;
-						_currentParameterSet.SelectionChanged += OnSelectionChanged;
+						_currentParameterSet.PropertyChanged += OnCurrentParameterSet_PropertyChanged;
+						_currentParameterSet.SelectionChanged += OnCurrentParameterSet_SelectionChanged;
 					}
 				}
 			}
@@ -59,22 +62,26 @@ namespace Vodovoz.ViewModels.Reports
 
 		public bool CanDeselectAllParameters => CurrentParameterSet != null && CurrentParameterSet.Parameters.Any();
 
-		void CurrentParameterSet_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		void OnCurrentParameterSet_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName)
 			{
 				case nameof(CurrentParameterSet.Parameters):
 					UpdateCurrentSetsParameters();
 					break;
+				case nameof(CurrentParameterSet.FilterType):
+					FilterModeChanged?.Invoke(this, new FilterTypeChangedArgs(CurrentParameterSet.FilterType));
+					break;
 				default:
 					break;
 			}
 		}
 
-		private void OnSelectionChanged(object sender, EventArgs e)
+		private void OnCurrentParameterSet_SelectionChanged(object sender, SelectableParameterSetSelectionChanged e)
 		{
 			SelectAllParametersCommand.RaiseCanExecuteChanged();
 			UnselectAllParametersCommand.RaiseCanExecuteChanged();
+			SelectionChanged?.Invoke(this, new SelectableParameterReportFilterSelectionChangedArgs(e.Name, e.ParametersChanged.ToArray()));
 		}
 
 		private void UpdateCurrentSetsParameters()
@@ -112,6 +119,7 @@ namespace Vodovoz.ViewModels.Reports
 						() =>
 						{
 							CurrentParameterSet.FilterType = SelectableFilterType.Exclude;
+
 						},
 						() => CurrentParameterSet != null
 					);

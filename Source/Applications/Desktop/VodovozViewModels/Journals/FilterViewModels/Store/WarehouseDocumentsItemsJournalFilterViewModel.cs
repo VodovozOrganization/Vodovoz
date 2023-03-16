@@ -2,6 +2,8 @@
 using QS.Project.Filter;
 using QS.Services;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -33,6 +35,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private DocumentType? _documentType;
 		private TargetSource _targetSource;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
+		private List<int> _warhouseIds = new List<int>();
+		private SelectableFilterType _filterType;
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
 			IWarehouseJournalFactory warehouseJournalFactory,
@@ -95,10 +99,22 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => UpdateFilterField(ref _targetSource, value);
 		}
 
-		public virtual SelectableParameterReportFilterViewModel FilterViewModel
+		public List<int> WarhouseIds
+		{
+			get => _warhouseIds;
+			private set => UpdateFilterField(ref _warhouseIds, value);
+		}
+
+		public SelectableParameterReportFilterViewModel FilterViewModel
 		{
 			get => _filterViewModel;
-			set => SetField(ref _filterViewModel, value);
+			set => UpdateFilterField(ref _filterViewModel, value);
+		}
+
+		public SelectableFilterType FilterType
+		{
+			get => _filterType;
+			set => UpdateFilterField(ref _filterType, value);
 		}
 
 		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(_haveAccessOnlyToWarehouseAndComplaintsPermissionName) || _userService.GetCurrentUser(UoW).IsAdmin;
@@ -239,6 +255,45 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				}));
 
 			FilterViewModel = new SelectableParameterReportFilterViewModel(_filter);
+
+			FilterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
+			FilterViewModel.FilterModeChanged += OnFilterViewModelFilterModeChanged;
+		}
+
+		private void OnFilterViewModelFilterModeChanged(object sender, FilterTypeChangedArgs e)
+		{
+			FilterType = e.FilterType;
+		}
+
+		private void OnFilterViewModelSelectionChanged(object sender, SelectableParameterReportFilterSelectionChangedArgs e)
+		{
+			switch(e.Name)
+			{
+				case nameof(Counterparty):
+					break;
+				case nameof(Warehouse):
+					foreach(var parameter in e.ParametersChanged)
+					{
+						if(parameter.Value)
+						{
+							_warhouseIds.Add((int)parameter.Id);
+						}
+						else
+						{
+							_warhouseIds.Remove((int)parameter.Id);
+						}
+					}
+					SetAndRefilterAtOnce();
+					break;
+				case nameof(Employee):
+					break;
+				case nameof(Car):
+					break;
+				case nameof(MovementWagon):
+					break;
+				default:
+					throw new InvalidOperationException($"Сет параметров с именем {e.Name} не поддерживается");
+			}
 		}
 	}
 
