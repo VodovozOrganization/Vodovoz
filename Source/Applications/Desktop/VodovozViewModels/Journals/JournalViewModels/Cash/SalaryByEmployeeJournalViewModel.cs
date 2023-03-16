@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using FluentNHibernate.Utils;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -7,27 +8,33 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Journal;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Reports.SalaryByEmployeeJournalReport;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
 	public class SalaryByEmployeeJournalViewModel : FilterableSingleEntityJournalViewModelBase
-		<Employee, EmployeeViewModel, EmployeeJournalNode, SalaryByEmployeeJournalFilterViewModel>
+		<Employee, EmployeeViewModel, EmployeeWithLastWorkingDayJournalNode, SalaryByEmployeeJournalFilterViewModel>
 	{
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IFileDialogService _fileDialogService;
 
 		public SalaryByEmployeeJournalViewModel(
 			SalaryByEmployeeJournalFilterViewModel filterViewModel,
 			IGtkTabsOpener gtkTabsOpener,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			IFileDialogService fileDialogService,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
@@ -35,6 +42,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			TabName = "Журнал выдач З/П";
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
 			UpdateOnChanges(
 				typeof(Employee),
@@ -45,12 +53,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateAddAction();
+			CreateExportAction();
+		}
+
+		private void CreateAddAction()
+		{
 			var addAction = new JournalAction("Добавить расходный ордер",
 				selected => true,
 				selected => true,
 				selected =>
 				{
-					var selectedNodes = selected.OfType<EmployeeJournalNode>();
+					var selectedNodes = selected.OfType<EmployeeWithLastWorkingDayJournalNode>();
 					var node = selectedNodes.FirstOrDefault();
 					if(node == null)
 					{
@@ -66,11 +80,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			NodeActionsList.Add(addAction);
 		}
 
+		private void CreateExportAction()
+		{
+			NodeActionsList.Add(new JournalAction("Экспорт в Excel", x => true, x => true,
+				selectedItems =>
+				{
+					var nodes = ItemsSourceQueryFunction(UoW).List<EmployeeWithLastWorkingDayJournalNode>();
+
+					var report = new SalaryByEmployeeJournalReport(nodes, _fileDialogService);
+					report.Export();
+				}));
+		}
+
 		protected override Func<IUnitOfWork, IQueryOver<Employee>> ItemsSourceQueryFunction => (uow) =>
 		{
 			Employee employeeAlias = null;
 			Subdivision subdivisionAlias = null;
-			EmployeeJournalNode resultAlias = null;
+			EmployeeWithLastWorkingDayJournalNode resultAlias = null;
 			WagesMovementOperations wageAlias = null;
 
 			var employeesQuery = uow.Session.QueryOver(() => employeeAlias)
@@ -91,9 +117,36 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				employeesQuery.Where(e => e.Subdivision == FilterViewModel.Subdivision);
 			}
 
+			if(FilterViewModel.MinBalanceFilterEnable)
+			{
+				var minBalanceComparisonQuery = QueryOver.Of<WagesMovementOperations>()
+					.SelectList(list => list
+						.SelectGroup(w => w.Employee.Id))
+					.Where(Restrictions.Lt(
+						Projections.Sum<WagesMovementOperations>(w => w.Money),
+						FilterViewModel.MinBalance));
+
+				employeesQuery
+					.WithSubquery
+					.WhereProperty(x => x.Id).In(minBalanceComparisonQuery);
+			}
+
 			var wageQuery = QueryOver.Of(() => wageAlias)
 				.Where(wage => wage.Employee.Id == employeeAlias.Id)
 				.Select(Projections.Sum(Projections.Property(() => wageAlias.Money)));
+
+			var routeListStatusesForLastWorkingDay = new RouteListStatus[] { RouteListStatus.Closed, RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck };
+
+			RouteList routeListAlias = null;
+			var driverLastWorkingDateQuery = QueryOver.Of(() => routeListAlias)
+				.Where(() => routeListAlias.Driver.Id == employeeAlias.Id)
+				.WhereRestrictionOn(() => routeListAlias.Status).IsIn(routeListStatusesForLastWorkingDay)
+				.Select(Projections.Max(Projections.Property(() => routeListAlias.Date)));
+
+			var forwarderLastWorkingDateQuery = QueryOver.Of(() => routeListAlias)
+				.Where(() => routeListAlias.Forwarder.Id == employeeAlias.Id)
+				.WhereRestrictionOn(() => routeListAlias.Status).IsIn(routeListStatusesForLastWorkingDay)
+				.Select(Projections.Max(Projections.Property(() => routeListAlias.Date)));
 
 			var employeeProjection = CustomProjections.Concat_WS(
 				" ",
@@ -118,11 +171,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => employeeAlias.Comment).WithAlias(() => resultAlias.EmployeeComment)
 					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionTitle)
 					.SelectSubQuery(wageQuery).WithAlias(() => resultAlias.Balance)
-				)
+					.Select(Projections.Conditional(
+								Expression.In(nameof(employeeAlias.Category), new[] { EmployeeCategory.driver, EmployeeCategory.forwarder }),
+								(Projections.Conditional(
+									Expression.Eq(nameof(employeeAlias.Category), EmployeeCategory.driver),
+									Projections.SubQuery(driverLastWorkingDateQuery),
+									Projections.SubQuery(forwarderLastWorkingDateQuery))),
+								Projections.Property(nameof(employeeAlias.DateFired)))).WithAlias(() => resultAlias.LastWorkingDay)
+				);
+
+			employeesQuery
 				.OrderBy(e => e.LastName).Asc
 				.OrderBy(e => e.Name).Asc
 				.OrderBy(e => e.Patronymic).Asc
-				.TransformUsing(Transformers.AliasToBean<EmployeeJournalNode>());
+				.TransformUsing(Transformers.AliasToBean<EmployeeWithLastWorkingDayJournalNode>());
 
 			return employeesQuery;
 		};
@@ -130,7 +192,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		protected override Func<EmployeeViewModel> CreateDialogFunction => () =>
 			throw new NotSupportedException("Не поддерживается создание сотрудника из журнала");
 
-		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction => (node) =>
+		protected override Func<EmployeeWithLastWorkingDayJournalNode, EmployeeViewModel> OpenDialogFunction => (node) =>
 			throw new NotSupportedException("Не поддерживается изменение сотрудника из журнала");
 	}
 }

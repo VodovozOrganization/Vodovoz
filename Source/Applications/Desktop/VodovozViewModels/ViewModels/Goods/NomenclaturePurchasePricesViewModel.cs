@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 	public class NomenclaturePurchasePricesViewModel : WidgetViewModelBase
 	{
 		private readonly Nomenclature _entity;
-		private readonly NomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
+		private readonly INomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
 		private readonly IReadyObservableListBinding _pricesBinding;
 		private GenericObservableList<NomenclaturePurchasePriceViewModel> _priceViewModels = new GenericObservableList<NomenclaturePurchasePriceViewModel>();
 		private NomenclaturePurchasePriceViewModel _selectedPrice;
@@ -21,7 +21,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		private DelegateCommand _changeDateCommand;
 		private DelegateCommand _createPriceCommand;
 
-		public NomenclaturePurchasePricesViewModel(Nomenclature entity, NomenclaturePurchasePriceModel nomenclaturePurchasePriceModel)
+		public NomenclaturePurchasePricesViewModel(Nomenclature entity, INomenclaturePurchasePriceModel nomenclaturePurchasePriceModel)
 		{
 			_entity = entity ?? throw new ArgumentNullException(nameof(entity));
 			_nomenclaturePurchasePriceModel = nomenclaturePurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePriceModel));

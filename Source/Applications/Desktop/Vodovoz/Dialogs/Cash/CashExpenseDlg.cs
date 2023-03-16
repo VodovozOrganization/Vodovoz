@@ -18,6 +18,8 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
+using QSProjectsLib;
+using System.Globalization;
 
 namespace Vodovoz
 {
@@ -26,7 +28,6 @@ namespace Vodovoz
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 
-		private decimal _currentEmployeeWage = default(decimal);
 		private readonly bool _canEdit = true;
 		private readonly bool _canCreate;
 		private readonly bool _canEditRectroactively;
@@ -152,6 +153,8 @@ namespace Vodovoz
 			specialListCmbOrganisation.Binding.AddBinding(Entity, e => e.Organisation, w => w.SelectedItem).InitializeFromSource();
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
+			yspinMoney.Output += YspinMoneyOnOutput;
+			yspinMoney.Input += YspinMoneyOnInput;
 
 			ytextviewDescription.Binding.AddBinding(Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource();
 
@@ -304,16 +307,29 @@ namespace Vodovoz
 		private void UpdateEmployeeBalaceInfo()
 		{
 			UpdateEmployeeBalanceVisibility();
+			
+			var currentEmployeeWage = default(decimal);
 
-			_currentEmployeeWage = 0;
 			var labelTemplate = "<span font='large' weight='bold'>Текущий баланс сотрудника: {0}</span>";
 
 			if(evmeEmployee.Subject is Employee employee)
 			{
-				_currentEmployeeWage = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
+				if (employee.Category == EmployeeCategory.driver && employee.Status == EmployeeStatus.IsWorking)
+				{
+					var driverBalanceWithoutFutureFines = _wagesMovementRepository.GetDriverWageBalanceWithoutFutureFines(UoW, employee.Id);
+					var driverFutureFinesBalance = (-1) * _wagesMovementRepository.GetDriverFutureFinesBalance(UoW, employee.Id);
+
+					labelTemplate += "      <span font='large' weight='bold'>Будущие штрафы: {1}</span>"; 
+					
+					ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, CurrencyWorks.GetShortCurrencyString(driverBalanceWithoutFutureFines), CurrencyWorks.GetShortCurrencyString(driverFutureFinesBalance));
+
+					return;
+				}
+
+				currentEmployeeWage = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
 			}
 
-			ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, _currentEmployeeWage);
+			ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, CurrencyWorks.GetShortCurrencyString(currentEmployeeWage));
 		}
 
 		private void UpdateEmployeeBalanceVisibility()
@@ -366,6 +382,39 @@ namespace Vodovoz
 			{
 				yspinMoney.Text = "";
 			}
+		}
+
+		private void YspinMoneyOnOutput(object o, Gtk.OutputArgs args)
+		{
+			yspinMoney.Numeric = false;
+
+			NumberFormatInfo valueFormatInfo = new NumberFormatInfo();
+			valueFormatInfo.NumberDecimalSeparator = ".";
+			valueFormatInfo.NumberGroupSeparator = " ";
+
+			yspinMoney.Text = string.Format(valueFormatInfo, "{0:#,0.00}", yspinMoney.Value);
+			yspinMoney.Numeric = true;
+
+			args.RetVal = 1;
+		}
+
+		private void YspinMoneyOnInput(object o, Gtk.InputArgs args)
+		{
+			if(yspinMoney.Text.Length == 0)
+			{
+				yspinMoney.Text = "0";
+			}
+
+			double newValue;
+			if(double.TryParse(yspinMoney.Text.Replace(" ", ""), NumberStyles.Any, CultureInfo.GetCultureInfo("en-US"), out newValue))
+			{
+				args.NewValue = newValue;
+			}
+			else
+			{
+				args.NewValue = yspinMoney.Value;
+			}
+			args.RetVal = 1;
 		}
 	}
 }

@@ -40,6 +40,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
@@ -50,6 +51,7 @@ using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Organizations;
 using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
@@ -150,6 +152,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Retail;
+using Vodovoz.ViewModels.ViewModels.Sale;
 using Vodovoz.ViewModels.ViewModels.Security;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using Vodovoz.ViewModels.ViewModels.Store;
@@ -337,6 +340,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
 				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
 				.RegisterWidgetForTabViewModel<CounterpartyDetailsFromRevenueServiceViewModel, CounterpartyDetailsFromRevenueServiceView>()
+				.RegisterWidgetForTabViewModel<DeliveryPriceRuleViewModel, DeliveryPriceRuleView>()
 				;
 
 			//Регистрация виджетов
@@ -528,7 +532,7 @@ namespace Vodovoz
 			builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
 			builder.RegisterType<ReportPrinter>().As<IReportPrinter>();
 
-			builder.RegisterType<EntityDeleteWorker>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<EntityDeleteWorker>().AsSelf().As<IEntityDeleteWorker>();
 			builder.RegisterType<CommonMessages>().AsSelf();
 
 			#endregion
@@ -580,7 +584,12 @@ namespace Vodovoz
 		static void RegisterVodovozClassConfig(ContainerBuilder builder)
 		{
 			builder.RegisterType<WaterFixedPricesGenerator>().AsSelf();
-			builder.RegisterInstance(ViewModelWidgetResolver.Instance).AsSelf().AsImplementedInterfaces();
+			builder.RegisterInstance(ViewModelWidgetResolver.Instance)
+				.AsSelf()
+				.As<ITDIWidgetResolver>()
+				.As<IFilterWidgetResolver>()
+				.As<IWidgetResolver>()
+				.As<IGtkViewResolver>();
 
 			builder.RegisterType<TrueMarkCodesPool>()
 				.AsSelf()
@@ -591,17 +600,20 @@ namespace Vodovoz
 			builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
 			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
-			builder.RegisterType<GtkReportViewOpener>()
-				.AsImplementedInterfaces()
-				.SingleInstance();
+			builder.RegisterType<GtkReportViewOpener>().As<IReportViewOpener>().SingleInstance();
 
 			builder.RegisterAssemblyTypes(
 					Assembly.GetExecutingAssembly(),
 					Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)),
 					Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder)))
-				.Where(t => t.Name.EndsWith("Factory"))
-				.AsSelf()
-				.AsImplementedInterfaces()
+				.Where(t => t.Name.EndsWith("Factory")
+					&& t.GetInterfaces()
+						.Where(i => i.Name == $"I{t.Name}")
+						.FirstOrDefault() != null)
+				.As((s) => s.GetTypeInfo()
+					.GetInterfaces()
+					.Where(i => i.Name == $"I{s.Name}")
+					.First())
 				.SingleInstance();
 
 			#endregion
@@ -609,11 +621,17 @@ namespace Vodovoz
 			#region Controllers
 
 			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)))
-				.Where(t => t.Name.EndsWith("Controller") || t.Name.EndsWith("Handler"))
-				.AsSelf()
-				.AsImplementedInterfaces();
+				.Where(t => (t.Name.EndsWith("Controller") || t.Name.EndsWith("Handler"))
+					&& t.GetInterfaces()
+						.Where(i => i.Name == $"I{t.Name}")
+						.FirstOrDefault() != null)
+				.As((s) => s.GetTypeInfo()
+					.GetInterfaces()
+					.Where(i => i.Name == $"I{s.Name}")
+					.First());
 
-			builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf();
+			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>().AsSelf();
 
 			#endregion
 
@@ -626,8 +644,8 @@ namespace Vodovoz
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 			builder.Register(c => PermissionsSettings.PermissionService).As<IPermissionService>();
 			builder.Register(c => ErrorReporter.Instance).As<IErrorReporter>();
-			builder.RegisterType<ObjectValidator>().AsImplementedInterfaces().AsSelf();
-			builder.RegisterType<WarehousePermissionService>().AsImplementedInterfaces().AsSelf();
+			builder.RegisterType<ObjectValidator>().As<IValidator>().AsSelf();
+			builder.RegisterType<WarehousePermissionService>().As<IWarehousePermissionService>().AsSelf();
 			builder.RegisterType<UsersPresetPermissionValuesGetter>().AsSelf();
 			builder.RegisterType<UsersEntityPermissionValuesGetter>().AsSelf();
 			builder.RegisterType<UserPermissionsExporter>().AsSelf();
@@ -637,9 +655,15 @@ namespace Vodovoz
 			#region Models
 
 			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(VodovozBusinessAssemblyFinder)))
-				.Where(t => t.Name.EndsWith("Model") && !t.Name.EndsWith("ViewModel"))
-				.AsImplementedInterfaces()
-				.AsSelf();
+				.Where(t => t.Name.EndsWith("Model") && !t.Name.EndsWith("ViewModel")
+					&& t.GetInterfaces()
+						.Where(i => i.Name == $"I{t.Name}")
+						.FirstOrDefault() != null)
+				.As((s) => s.GetTypeInfo()
+					.GetInterfaces()
+					.Where(i => i.Name == $"I{s.Name}")
+					.First());
+
 			builder.RegisterType<WageParameterService>().AsSelf();
 			builder.RegisterType<UserWarehousePermissionModel>()
 				.As<WarehousePermissionModelBase>()
@@ -651,23 +675,21 @@ namespace Vodovoz
 
 			builder.Register(context => CallTaskSingletonFactory.GetInstance()).As<ICallTaskFactory>();
 
-			builder.Register(context => new CallTaskWorker(
-				context.Resolve<ICallTaskFactory>(),
-				context.Resolve<ICallTaskRepository>(),
-				context.Resolve<IOrderRepository>(),
-				context.Resolve<IEmployeeRepository>(),
-				context.Resolve<IPersonProvider>(),
-				context.Resolve<IUserService>(),
-				context.Resolve<IErrorReporter>()
-			)).As<ICallTaskWorker>();
+			builder.RegisterType<CallTaskWorker>().As<ICallTaskWorker>();
 
 			#endregion
 
 			#region Репозитории
 
-			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
-				.Where(t => t.Name.EndsWith("Repository"))
-				.AsImplementedInterfaces()
+			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
+				.Where(t => t.Name.EndsWith("Repository")
+					&& t.GetInterfaces()
+						.Where(i => i.Name == $"I{t.Name}")
+						.FirstOrDefault() != null)
+				.As((s) => s.GetTypeInfo()
+					.GetInterfaces()
+					.Where(i => i.Name == $"I{s.Name}")
+					.First())
 				.SingleInstance();
 
 			#endregion
@@ -687,7 +709,7 @@ namespace Vodovoz
 
 			#region Старые диалоги
 
-			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyDlg)))
+			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(CounterpartyDlg)))
 				.Where(t => t.IsAssignableTo<ITdiTab>())
 				.AsSelf();
 
@@ -696,20 +718,45 @@ namespace Vodovoz
 			#region ParameterProviders
 
 			builder.RegisterType<BaseParametersProvider>()
-				.As<ITerminalNomenclatureProvider>()
+				.As<IStandartNomenclatures>()
+				.As<IImageProvider>()
+				.As<IStandartDiscountsService>()
+				.As<IPersonProvider>()
+				.As<ISmsNotifierParametersProvider>()
+				.As<IWageParametersProvider>()
+				.As<IDefaultDeliveryDayScheduleSettings>()
+				.As<ISmsNotificationServiceSettings>()
+				.As<ISalesReceiptsServiceSettings>()
+				.As<IEmailServiceSettings>()
+				.As<IDriverServiceParametersProvider>()
+				.As<IErrorSendParameterProvider>()
 				.As<IProfitCategoryProvider>()
+				.As<IPotentialFreePromosetsReportDefaultsProvider>()
+				.As<IMailjetParametersProvider>()
+				.As<IVpbxSettings>()
+				.As<ITerminalNomenclatureProvider>()
 				.AsSelf();
 
-			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
-				.Where(t => t.Name.EndsWith("Provider"))
-				.AsImplementedInterfaces()
-				.AsSelf()
+			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ParametersProvider)))
+				.Where(t => t.Name.EndsWith("Provider")
+					&& t.GetInterfaces()
+						.Where(i => i.Name == $"I{t.Name}")
+						.FirstOrDefault() != null)
+				.As((s) => s.GetTypeInfo()
+					.GetInterfaces()
+					.Where(i => i.Name == $"I{s.Name}")
+					.First())
 				.SingleInstance();
 
-			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(ParametersProvider)))
-				.Where(t => t.Name.EndsWith("Settings"))
-				.AsImplementedInterfaces()
-				.AsSelf()
+			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ParametersProvider)))
+				.Where(t => t.Name.EndsWith("Settings")
+					&& t.GetInterfaces()
+						.Where(i => i.Name == $"I{t.Name}")
+						.FirstOrDefault() != null)
+				.As((s) => s.GetTypeInfo()
+					.GetInterfaces()
+					.Where(i => i.Name == $"I{s.Name}")
+					.First())
 				.SingleInstance();
 
 			builder.RegisterType<RdlViewerViewModel>().AsSelf();
@@ -734,7 +781,9 @@ namespace Vodovoz
 			builder.RegisterType<EntityUserPermissionExtended>().AsSelf();
 			builder.RegisterType<UserPermissionNode>()
 				.AsSelf()
-				.AsImplementedInterfaces();
+				.As<IPermissionNode>();
+
+			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 			#endregion
 		}

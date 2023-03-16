@@ -4,6 +4,10 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class SalaryByEmployeeFilterView
 	{
+		private global::Gtk.ScrolledWindow scrolledwindow2;
+
+		private global::Gtk.VBox vbox1;
+
 		private global::Gtk.HBox hbox1;
 
 		private global::Gtk.Label labelCategory;
@@ -18,6 +22,16 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox comboSubdivision;
 
+		private global::Gtk.HBox hbox2;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonBalanceFilterEnable;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxMinBalanceSettings;
+
+		private global::Gamma.GtkWidgets.yLabel labelMinBalance;
+
+		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonMinBalance;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -25,6 +39,19 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.SalaryByEmployeeFilterView";
 			// Container child Vodovoz.Filters.GtkViews.SalaryByEmployeeFilterView.Gtk.Container+ContainerChild
+			this.scrolledwindow2 = new global::Gtk.ScrolledWindow();
+			this.scrolledwindow2.CanFocus = true;
+			this.scrolledwindow2.Name = "scrolledwindow2";
+			this.scrolledwindow2.VscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.scrolledwindow2.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledwindow2.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
+			w1.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport.Gtk.Container+ContainerChild
+			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -33,10 +60,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.labelCategory.Name = "labelCategory";
 			this.labelCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категория:");
 			this.hbox1.Add(this.labelCategory);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelCategory]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelCategory]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.enumcomboCategory = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumcomboCategory.Name = "enumcomboCategory";
@@ -45,19 +72,19 @@ namespace Vodovoz.Filters.GtkViews
 			this.enumcomboCategory.UseShortTitle = false;
 			this.enumcomboCategory.DefaultFirst = false;
 			this.hbox1.Add(this.enumcomboCategory);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.enumcomboCategory]));
-			w2.Position = 1;
-			w2.Expand = false;
-			w2.Fill = false;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.enumcomboCategory]));
+			w3.Position = 1;
+			w3.Expand = false;
+			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ylabelStatus = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelStatus.Name = "ylabelStatus";
 			this.ylabelStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус:");
 			this.hbox1.Add(this.ylabelStatus);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabelStatus]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabelStatus]));
+			w4.Position = 2;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.yenumcomboStatus = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboStatus.Name = "yenumcomboStatus";
@@ -66,19 +93,19 @@ namespace Vodovoz.Filters.GtkViews
 			this.yenumcomboStatus.UseShortTitle = false;
 			this.yenumcomboStatus.DefaultFirst = false;
 			this.hbox1.Add(this.yenumcomboStatus);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yenumcomboStatus]));
-			w4.Position = 3;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yenumcomboStatus]));
+			w5.Position = 3;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ylabelSubdivision = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSubdivision.Name = "ylabelSubdivision";
 			this.ylabelSubdivision.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение:");
 			this.hbox1.Add(this.ylabelSubdivision);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabelSubdivision]));
-			w5.Position = 4;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabelSubdivision]));
+			w6.Position = 4;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.comboSubdivision = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.comboSubdivision.Name = "comboSubdivision";
@@ -87,11 +114,71 @@ namespace Vodovoz.Filters.GtkViews
 			this.comboSubdivision.ShowSpecialStateAll = true;
 			this.comboSubdivision.ShowSpecialStateNot = false;
 			this.hbox1.Add(this.comboSubdivision);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.comboSubdivision]));
-			w6.Position = 5;
-			w6.Expand = false;
-			w6.Fill = false;
-			this.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.comboSubdivision]));
+			w7.Position = 5;
+			w7.Expand = false;
+			w7.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.ycheckbuttonBalanceFilterEnable = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonBalanceFilterEnable.CanFocus = true;
+			this.ycheckbuttonBalanceFilterEnable.Name = "ycheckbuttonBalanceFilterEnable";
+			this.ycheckbuttonBalanceFilterEnable.Label = "";
+			this.ycheckbuttonBalanceFilterEnable.DrawIndicator = true;
+			this.ycheckbuttonBalanceFilterEnable.UseUnderline = true;
+			this.hbox2.Add(this.ycheckbuttonBalanceFilterEnable);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.ycheckbuttonBalanceFilterEnable]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.yhboxMinBalanceSettings = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxMinBalanceSettings.Name = "yhboxMinBalanceSettings";
+			this.yhboxMinBalanceSettings.Spacing = 6;
+			// Container child yhboxMinBalanceSettings.Gtk.Box+BoxChild
+			this.labelMinBalance = new global::Gamma.GtkWidgets.yLabel();
+			this.labelMinBalance.Name = "labelMinBalance";
+			this.labelMinBalance.LabelProp = global::Mono.Unix.Catalog.GetString("Баланс менее:");
+			this.yhboxMinBalanceSettings.Add(this.labelMinBalance);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhboxMinBalanceSettings[this.labelMinBalance]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child yhboxMinBalanceSettings.Gtk.Box+BoxChild
+			this.yspinbuttonMinBalance = new global::Gamma.GtkWidgets.ySpinButton(-10000000D, 10000000D, 100D);
+			this.yspinbuttonMinBalance.CanFocus = true;
+			this.yspinbuttonMinBalance.Name = "yspinbuttonMinBalance";
+			this.yspinbuttonMinBalance.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonMinBalance.ClimbRate = 1D;
+			this.yspinbuttonMinBalance.Numeric = true;
+			this.yspinbuttonMinBalance.ValueAsDecimal = 0m;
+			this.yspinbuttonMinBalance.ValueAsInt = 0;
+			this.yhboxMinBalanceSettings.Add(this.yspinbuttonMinBalance);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhboxMinBalanceSettings[this.yspinbuttonMinBalance]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
+			this.hbox2.Add(this.yhboxMinBalanceSettings);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.yhboxMinBalanceSettings]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
+			w1.Add(this.vbox1);
+			this.scrolledwindow2.Add(w1);
+			this.Add(this.scrolledwindow2);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

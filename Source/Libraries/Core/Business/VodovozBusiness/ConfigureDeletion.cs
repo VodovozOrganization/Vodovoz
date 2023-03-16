@@ -813,13 +813,13 @@ namespace Vodovoz
 				.AddDeleteDependence<IncomingInvoice>(item => item.Warehouse)
 				.AddDeleteDependence<CarLoadDocument>(x => x.Warehouse)
 				.AddDeleteDependence<CarUnloadDocument>(x => x.Warehouse)
-				.AddDeleteDependence<IncomingWater>(x => x.IncomingWarehouse)
-				.AddDeleteDependence<IncomingWater>(x => x.WriteOffWarehouse)
+				.AddDeleteDependence<IncomingWater>(x => x.ToWarehouse)
+				.AddDeleteDependence<IncomingWater>(x => x.FromWarehouse)
 				.AddDeleteDependence<MovementDocument>(x => x.FromWarehouse)
 				.AddDeleteDependence<MovementDocument>(x => x.ToWarehouse)
 				.AddDeleteDependence<WarehouseMovementOperation>(x => x.IncomingWarehouse)
 				.AddDeleteDependence<WarehouseMovementOperation>(x => x.WriteoffWarehouse)
-				.AddDeleteDependence<WriteoffDocument>(x => x.WriteoffWarehouse)
+				.AddDeleteDependence<WriteoffDocument>(x => x.Warehouse)
 				.AddDeleteDependence<InventoryDocument>(x => x.Warehouse)
 				.AddDeleteDependence<ShiftChangeWarehouseDocument>(x => x.Warehouse)
 				.AddDeleteDependence<RegradingOfGoodsDocument>(x => x.Warehouse)
@@ -1208,6 +1208,8 @@ namespace Vodovoz
 						.AddDeleteDependence<ComplaintDiscussion>(item => item.Complaint)
 						.AddDeleteDependence<ComplaintFile>(item => item.Complaint)
 						.AddDeleteDependence<ComplaintGuiltyItem>(item => item.Complaint)
+						.AddDeleteDependence<ComplaintArrangementComment>(item => item.Complaint)
+						.AddDeleteDependence<ComplaintResultComment>(item => item.Complaint)
 						;
 
 			DeleteConfig.AddHibernateDeleteInfo<ComplaintDiscussion>()
@@ -1222,6 +1224,12 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<ComplaintDiscussionComment>()
 						.AddDeleteDependence<ComplaintFile>(item => item.ComplaintDiscussionComment)
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintArrangementComment>()
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintResultComment>()
 						;
 
 			DeleteConfig.AddHibernateDeleteInfo<ComplaintObject>();

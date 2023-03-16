@@ -8,13 +8,13 @@ using Vodovoz.Tools;
 
 namespace Vodovoz.Factories
 {
-	public class RoboatsFileStorageFactory
+	public class RoboatsFileStorageFactory : IRoboatsFileStorageFactory
 	{
-		private readonly RoboatsSettings _roboatsSettings;
+		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IErrorReporter _errorReporter;
 
-		public RoboatsFileStorageFactory(RoboatsSettings roboatsSettings, IInteractiveService interactiveService, IErrorReporter errorReporter)
+		public RoboatsFileStorageFactory(IRoboatsSettings roboatsSettings, IInteractiveService interactiveService, IErrorReporter errorReporter)
 		{
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
