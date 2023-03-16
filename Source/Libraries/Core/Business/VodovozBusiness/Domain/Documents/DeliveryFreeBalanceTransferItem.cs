@@ -76,7 +76,7 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOrUpdateOperations()
 		{
-			if(AddressTransferDocumentItem.AddressTransferType == AddressTransferType.FromDriverToDriver)
+			if(AddressTransferDocumentItem.AddressTransferType == AddressTransferType.FromHandToHand)
 			{
 				return;
 			}

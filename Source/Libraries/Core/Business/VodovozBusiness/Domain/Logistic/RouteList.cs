@@ -982,7 +982,7 @@ namespace Vodovoz.Domain.Logistic
 
 			#region Получено от других водителей
 
-			var allGoodsTransferredFromDrivers = _routeListRepository.AllGoodsTransferredFromDrivers(UoW, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromDriverToDriver);
+			var allGoodsTransferredFromDrivers = _routeListRepository.AllGoodsTransferredFromDrivers(UoW, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromHandToHand);
 			AddDiscrepancy(allGoodsTransferredFromDrivers, result, (discrepancy, amount) => discrepancy.TransferedFromDrivers = amount);
 
 			#endregion
@@ -990,7 +990,7 @@ namespace Vodovoz.Domain.Logistic
 			#region Передано другим водителям
 
 			var allGoodsTransferedToAnotherDrivers = _routeListRepository.AllGoodsTransferredToAnotherDrivers(
-				UoW, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromDriverToDriver);
+				UoW, this, Nomenclature.GetCategoriesForShipment(), AddressTransferType.FromHandToHand);
 
 			AddDiscrepancy(allGoodsTransferedToAnotherDrivers, result, (discrepancy, amount) => discrepancy.TransferedToAnotherDrivers = amount);
 

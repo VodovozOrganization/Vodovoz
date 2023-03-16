@@ -6,9 +6,9 @@ namespace Vodovoz.Domain.Logistic
 	{
 		[Display(Name = "С допогрузкой на складе")]
 		NeedToReload,
-		[Display(Name = "С перегрузом от первого водителя")]
-		FromDriverToDriver,
-		[Display(Name = "Из текущих свободных остатков получателя")]
+		[Display(Name = "С передачей товара от водителя")]
+		FromHandToHand,
+		[Display(Name = "Из свободных остатков получателя")]
 		FromFreeBalance
 	}
 }

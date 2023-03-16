@@ -152,6 +152,8 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			hpanedMain.Position = Screen.RootWindow.FrameExtents.Width / 2;
+
 			var nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
 			
 			_routeListProfitabilityController = new RouteListProfitabilityController(new RouteListProfitabilityFactory(),
@@ -259,17 +261,17 @@ namespace Vodovoz
 			{
 				config.AddColumn("Тип переноса")
 					.AddToggleRenderer(x => x.IsNeedToReload).Radio()
-					.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
-					.AddTextRenderer(x => x.Status != RouteListItemStatus.Transfered ? "Дозагрузка\nна складе" : "")
-					.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
-					.AddToggleRenderer(x => x.IsFromDriverToDriverTransfer).Radio()
-					.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
-					.AddTextRenderer(x => x.Status != RouteListItemStatus.Transfered ? "От водителя\nк водителю" : "")
-					.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
+						.AddSetter((c, x) => c.Activatable = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
+					.AddTextRenderer(x => AddressTransferType.NeedToReload.GetEnumTitle())
+						.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
+					.AddToggleRenderer(x => x.IsFromHandToHandTransfer).Radio()
+						.AddSetter((c, x) => c.Activatable = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
+					.AddTextRenderer(x => AddressTransferType.FromHandToHand.GetEnumTitle() )
+						.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
 					.AddToggleRenderer(x => x.IsFromFreeBalance).Radio()
-					.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered)
-					.AddTextRenderer(x => x.Status != RouteListItemStatus.Transfered ? "Из остатков\nполучателя" : "")
-					.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered);
+						.AddSetter((c, x) => c.Activatable = x.RouteListItem.RouteList != null)
+					.AddTextRenderer(x => AddressTransferType.FromFreeBalance.GetEnumTitle())
+						.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered);
 			}
 
 			return config.AddColumn("Нужен\nтерминал").AddToggleRenderer(x => x.NeedTerminal).Editing(false)
@@ -300,7 +302,9 @@ namespace Vodovoz
         {
             RouteListItemsFrom.Clear();
 
-            if(evmeRouteListFrom.Subject == null)
+            ybuttonAddOrder.Sensitive = evmeRouteListFrom.Subject == null;
+
+			if(evmeRouteListFrom.Subject == null)
             {
 	            _deliveryFreeBalanceViewModelFrom.ObservableDeliveryFreeBalanceOperations = new GenericObservableList<DeliveryFreeBalanceOperation>();
 	            return;
@@ -445,7 +449,7 @@ namespace Vodovoz
 					continue;
 				}
 
-				if(!row.IsNeedToReload && !row.IsFromDriverToDriverTransfer && !row.IsFromFreeBalance)
+				if(!row.IsNeedToReload && !row.IsFromHandToHandTransfer && !row.IsFromFreeBalance)
 				{
 					transferTypeNotSet.Add(row);
 					continue;
@@ -488,8 +492,8 @@ namespace Vodovoz
 						WasTransfered = true,
 						AddressTransferType = row.IsNeedToReload
 							? AddressTransferType.NeedToReload
-							: row.IsFromDriverToDriverTransfer
-								? AddressTransferType.FromDriverToDriver 
+							: row.IsFromHandToHandTransfer
+								? AddressTransferType.FromHandToHand 
 								: AddressTransferType.FromFreeBalance,
 						WithForwarder = routeListTo.Forwarder != null
 					};
@@ -1005,14 +1009,14 @@ namespace Vodovoz
 			}
 		}
 		
-		public bool IsFromDriverToDriverTransfer
+		public bool IsFromHandToHandTransfer
 		{
-			get => RouteListItem.AddressTransferType == AddressTransferType.FromDriverToDriver;
+			get => RouteListItem.AddressTransferType == AddressTransferType.FromHandToHand;
 			set
 			{
 				if(value)
 				{
-					RouteListItem.AddressTransferType = AddressTransferType.FromDriverToDriver;
+					RouteListItem.AddressTransferType = AddressTransferType.FromHandToHand;
 				}
 				else
 				{
