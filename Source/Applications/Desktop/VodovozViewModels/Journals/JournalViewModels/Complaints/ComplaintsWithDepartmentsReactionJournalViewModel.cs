@@ -178,7 +178,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 		private IQueryOver<Complaint> GetComplaintQuery(IUnitOfWork uow)
 		{
-			ComplaintJournalNode resultAlias = null;
+			ComplaintJournalNodeWithDepartmentsReaction resultAlias = null;
 
 			Complaint complaintAlias = null;
 			Employee authorAlias = null;
@@ -329,6 +329,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.Where(() => resultOfComplaintResultCommentAlias.Complaint.Id == complaintAlias.Id)
 				.Select(resultCommentProjection);
 
+			ComplaintDiscussionComment complaintDiscussionCommentAlias = null;
+
 			var query = uow.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
 				.Left.JoinAlias(() => complaintAlias.Counterparty, () => counterpartyAlias)
@@ -339,7 +341,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.Left.JoinAlias(() => complaintAlias.ComplaintDetalization, () => complaintDelatizationAlias)
 				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
-				.Left.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
+				.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Employee, () => guiltyEmployeeAlias)
 				.Left.JoinAlias(() => guiltyEmployeeAlias.Subdivision, () => superspecialAlias)
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Subdivision, () => guiltySubdivisionAlias)
@@ -497,6 +499,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				)
 			);
 
+			
+			var departmentFirstCommentTimeSubQuery = QueryOver.Of(() => discussionAlias)
+				.JoinAlias(() => discussionAlias.Comments, () => complaintDiscussionCommentAlias)
+				.Where(() => complaintAlias.Id == discussionAlias.Complaint.Id)
+				.Where(() => subdivisionAlias.Id == discussionAlias.Subdivision.Id)
+				.Select(Projections.Min(() => complaintDiscussionCommentAlias.CreationTime));
+
 			var plannedCompletionDateSubQuery = QueryOver.Of(() => discussionAlias)
 				.Where(() => complaintAlias.Id == discussionAlias.Complaint.Id)
 				.Where(() => subdivisionAlias.Id == discussionAlias.Subdivision.Id)
@@ -513,6 +522,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.Select(() => complaintAlias.ComplaintType).WithAlias(() => resultAlias.Type)
 				.Select(() => complaintAlias.Status).WithAlias(() => resultAlias.Status)
 				.Select(() => subdivisionAlias.ShortName).WithAlias(() => resultAlias.WorkInSubdivision)
+				.Select(() => discussionAlias.StartSubdivisionDate).WithAlias(() => resultAlias.DepartmentConnectionTime)
+				.SelectSubQuery(departmentFirstCommentTimeSubQuery).WithAlias(() => resultAlias.DepartmentFirstCommentTime)
 				.Select(plannedCompletionDateProjection1).WithAlias(() => resultAlias.PlannedCompletionDate)
 				.Select(Projections.Constant(DateTime.Now)).WithAlias(() => resultAlias.LastPlannedCompletionDate)
 				.Select(counterpartyWithAddressProjection).WithAlias(() => resultAlias.ClientNameWithAddress)
@@ -557,7 +568,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			//	.SelectSubQuery(resultOfEmployeesSubquery).WithAlias(() => resultAlias.ResultOfEmployees)
 			//);
 
-			query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>())
+			query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNodeWithDepartmentsReaction>())
 				 .OrderBy(n => n.Id)
 				 .Desc();
 
