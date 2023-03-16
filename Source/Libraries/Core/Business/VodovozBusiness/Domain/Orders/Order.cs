@@ -445,17 +445,17 @@ namespace Vodovoz.Domain.Orders
 		public virtual PaymentType PaymentType {
 			get => _paymentType;
 			set {
-				if(value != _paymentType && SetField(ref _paymentType, value, () => PaymentType)) {
+				if(value != _paymentType && SetField(ref _paymentType, value)) {
 					switch(PaymentType) {
 						case PaymentType.cash:
 						case PaymentType.barter:
 						case PaymentType.cashless:
 						case PaymentType.ContractDoc:
+						case PaymentType.Terminal:
 							OnlineOrder = null;
 							PaymentByCardFrom = null;
 							break;
 						case PaymentType.ByCard:
-						case PaymentType.Terminal:
 							break;
 					}
 
