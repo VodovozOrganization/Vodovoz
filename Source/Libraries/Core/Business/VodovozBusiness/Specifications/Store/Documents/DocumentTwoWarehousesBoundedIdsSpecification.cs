@@ -7,19 +7,19 @@ using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.Specifications.Store.Documents
 {
-	public class DocumentOneWarehouseBoundedIdsSpecification<TDocument> : ISpecification<TDocument>
-	where TDocument : IWarehouseBoundedDocument
+	public class DocumentTwoWarehousesBoundedIdsSpecification<TDocument> : ISpecification<TDocument>
+		where TDocument : ITwoWarhousesBindedDocument
 	{
 		private readonly IEnumerable<int> _warehouseIds;
 
-		public DocumentOneWarehouseBoundedIdsSpecification(IEnumerable<int> warehouseIds)
+		public DocumentTwoWarehousesBoundedIdsSpecification(IEnumerable<int> warehouseIds)
 		{
 			_warehouseIds = warehouseIds;
 		}
 
 		public Expression<Func<TDocument, bool>> IsSatisfiedBy()
 		{
-			return (doc) => !_warehouseIds.Any() || _warehouseIds.Contains(doc.Warehouse.Id);
+			return (doc) => !_warehouseIds.Any() || _warehouseIds.Contains(doc.FromWarehouse.Id) || _warehouseIds.Contains(doc.ToWarehouse.Id);
 		}
 	}
 }

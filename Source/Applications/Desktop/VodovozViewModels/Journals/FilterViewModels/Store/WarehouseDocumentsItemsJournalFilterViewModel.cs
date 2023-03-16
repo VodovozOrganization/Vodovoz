@@ -4,6 +4,7 @@ using QS.Project.Filter;
 using QS.Services;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -13,6 +14,8 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.NHibernateProjections.Logistics;
+using Vodovoz.Specifications;
+using Vodovoz.Specifications.Store;
 using Vodovoz.Specifications.Store.Documents;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -27,7 +30,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IUserService _userService;
 		private readonly IUserRepository _userRepository;
-		private Warehouse _warehouse;
+		private readonly SelectableParametersReportFilter _filter;
+		//private Warehouse _warehouse;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private DocumentType? _restrictDocumentType;
@@ -41,7 +45,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private DocumentType? _documentType;
 		private TargetSource _targetSource;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
-		private readonly SelectableParametersReportFilter _filter;
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
 			IWarehouseJournalFactory warehouseJournalFactory,
@@ -81,7 +84,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		}
 
 		public TimestampBetweenSpecification<TDocument> GetPeriodSpecification<TDocument>()
-			where TDocument : Document
+			where TDocument : IDocument
 		{
 			return new TimestampBetweenSpecification<TDocument>(StartDate, EndDate.Value.AddDays(1));
 		}
@@ -96,6 +99,19 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		//	where TDocument : IWarehouseBoundedDocument
 		//{
 		//	return new DocumentOneWarehouseBoundedIdSpecification<TDocument>(Warehouse?.Id);
+		//}
+
+		//public ISpecification<TDocument> GetWarehouseSpecification<TDocument>()
+		//	where TDocument : IDocument
+		//{
+		//	if(typeof(TDocument).IsAssignableFrom(typeof(IWarehouseBoundedDocument)))
+		//	{
+		//		return new DocumentOneWarehouseBoundedIdsSpecification<TDocument>(
+		//			_filter.GetParameters()
+		//			.Where(p => p.Key == nameof(Warehouse))
+		//			.Select(p => p.GetId()));
+		//	}
+
 		//}
 
 		public Employee Driver
@@ -191,6 +207,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		{
 			get => _filterViewModel;
 			set => SetField(ref _filterViewModel, value);
+		}
+
+		public ISpecification<TDocument> GetSpecification<TDocument>()
+			where TDocument : IDocument
+		{
+			var result = GetPeriodSpecification<TDocument>();
+
+			return result;
 		}
 
 		public bool CanChangeDatePeriod => RestrictStartDate is null && RestrictEndDate is null;

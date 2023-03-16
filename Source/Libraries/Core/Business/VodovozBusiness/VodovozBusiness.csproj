@@ -923,7 +923,8 @@
     <Compile Include="Specifications\Store\Documents\TimestampAfterSpecification.cs" />
     <Compile Include="Specifications\Store\Documents\TimestampBeforeEndDateSpecification.cs" />
     <Compile Include="Specifications\Store\Documents\TimestampBetweenSpecification.cs" />
-    <Compile Include="Specifications\Store\Documents\DocumentTwoWarehousesBoundedIdSpecification.cs" />
+    <Compile Include="Specifications\Store\Documents\DocumentTwoWarehousesBoundedIdsSpecification.cs" />
+    <Compile Include="Specifications\Store\WarehouseIdsSpecification.cs" />
     <Compile Include="Specifications\Store\WarehouseIdSpecification.cs" />
     <Compile Include="Tools\GeoGroupVersionNotFoundException.cs" />
     <Compile Include="Tools\DataArchiver.cs" />

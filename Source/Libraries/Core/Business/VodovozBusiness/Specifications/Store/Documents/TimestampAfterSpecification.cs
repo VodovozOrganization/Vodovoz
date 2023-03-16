@@ -5,7 +5,7 @@ using Vodovoz.Domain.Documents;
 namespace Vodovoz.Specifications.Store.Documents
 {
 	public class TimestampAfterSpecification<TDocument> : ISpecification<TDocument>
-		where TDocument : Document
+		where TDocument : IDocument
 	{
 		private readonly DateTime? _startDate;
 
