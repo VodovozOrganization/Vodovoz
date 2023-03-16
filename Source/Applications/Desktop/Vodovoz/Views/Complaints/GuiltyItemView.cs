@@ -50,5 +50,12 @@ namespace Vodovoz.Views.Complaints
 				yCmbSubdivision.Visible = ViewModel.CanChooseSubdivision;
 			};
 		}
+
+		public override void Destroy()
+		{
+			yCmbResponsible.Destroy();
+			yCmbSubdivision.Destroy();
+			base.Destroy();
+		}
 	}
 }

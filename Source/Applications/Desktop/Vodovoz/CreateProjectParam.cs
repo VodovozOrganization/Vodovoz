@@ -51,6 +51,7 @@ using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Organizations;
 using Vodovoz.Domain;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
@@ -630,6 +631,7 @@ namespace Vodovoz
 					.First());
 
 			builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf();
+			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>().AsSelf();
 
 			#endregion
 
@@ -716,10 +718,24 @@ namespace Vodovoz
 			#region ParameterProviders
 
 			builder.RegisterType<BaseParametersProvider>()
-				.As<ITerminalNomenclatureProvider>()
-				.As<IProfitCategoryProvider>()
+				.As<IStandartNomenclatures>()
+				.As<IImageProvider>()
+				.As<IStandartDiscountsService>()
 				.As<IPersonProvider>()
 				.As<IWageParametersProvider>()
+				.As<ISmsNotifierParametersProvider>()
+				.As<IWageParametersProvider>()
+				.As<IDefaultDeliveryDayScheduleSettings>()
+				.As<ISmsNotificationServiceSettings>()
+				.As<ISalesReceiptsServiceSettings>()
+				.As<IEmailServiceSettings>()
+				.As<IDriverServiceParametersProvider>()
+				.As<IErrorSendParameterProvider>()
+				.As<IProfitCategoryProvider>()
+				.As<IPotentialFreePromosetsReportDefaultsProvider>()
+				.As<IMailjetParametersProvider>()
+				.As<IVpbxSettings>()
+				.As<ITerminalNomenclatureProvider>()
 				.AsSelf();
 
 			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ParametersProvider)))

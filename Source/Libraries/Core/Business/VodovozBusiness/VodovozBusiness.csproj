@@ -63,6 +63,7 @@
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
     <Compile Include="Controllers\IEmployeeRegistrationVersionController.cs" />
     <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
+    <Compile Include="Controllers\IProfitabilityConstantsViewModelHandler.cs" />
     <Compile Include="Controllers\IRouteListProfitabilityController.cs" />
     <Compile Include="Controllers\IUserPermissionsController.cs" />
     <Compile Include="Controllers\OdometerReadingsController.cs" />
@@ -95,6 +96,8 @@
     <Compile Include="Domain\Client\SubscribingBulkEmailEvent.cs" />
     <Compile Include="Domain\Client\UnsubscribingBulkEmailEvent.cs" />
     <Compile Include="Domain\Client\BulkEmailEventReason.cs" />
+    <Compile Include="Domain\Complaints\ComplaintResultComment.cs" />
+    <Compile Include="Domain\Complaints\ComplaintArrangementComment.cs" />
     <Compile Include="Domain\Complaints\ComplaintDetalization.cs" />
     <Compile Include="Domain\Complaints\ComplaintObject.cs" />
     <Compile Include="Domain\Complaints\ComplaintResultBase.cs" />
@@ -154,6 +157,7 @@
     <Compile Include="Domain\Employees\PremiumRaskatGAZelle.cs" />
     <Compile Include="Domain\Employees\EmployeeRegistration.cs" />
     <Compile Include="Domain\Employees\EmployeeRegistrationVersion.cs" />
+    <Compile Include="Domain\EntityFactories\INomenclatureFixedPriceFactory.cs" />
     <Compile Include="Domain\FastPayments\FastPayment.cs" />
     <Compile Include="Domain\FastPayments\FastPaymentPayType.cs" />
     <Compile Include="Domain\FastPayments\FastPaymentStatus.cs" />
@@ -449,6 +453,8 @@
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\PayoutRequestBaseMap.cs" />
     <Compile Include="HibernateMapping\Complaints\CamplaintDetalizationMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintResultCommentMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintArrangementCommentMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintObjectMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintResultOfCounterpartyMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintResultOfEmployeesMap.cs" />
@@ -592,6 +598,8 @@
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
+    <Compile Include="NHibernateProjections\Contacts\PhoneProjections.cs" />
+    <Compile Include="NHibernateProjections\Employees\EmployeeProjections.cs" />
     <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />
     <Compile Include="NHibernateProjections\Orders\OrderProjections.cs" />
@@ -1470,5 +1478,8 @@
       <Project>{445C399F-F7F9-43FF-8278-E0392A792F03}</Project>
       <Name>Vodovoz.Settings</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="NHibernateProjections\Counterparty\" />
   </ItemGroup>
 </Project>

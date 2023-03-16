@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>7.5in</Width>
@@ -12,7 +10,7 @@
   <RightMargin>4mm</RightMargin>
   <BottomMargin>4mm</BottomMargin>
   <PageHeader>
-    <Height>16.1pt</Height>
+    <Height>12pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -36,11 +34,11 @@
       <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Top>0.0pt</Top>
         <Left>591.2pt</Left>
-        <Height>12pt</Height>
+        <Height>10pt</Height>
         <Width>3in</Width>
         <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
         <Style>
-          <FontSize>10pt</FontSize>
+          <FontSize>8pt</FontSize>
           <FontWeight>Normal</FontWeight>
           <BorderStyle />
           <BorderColor />
@@ -51,11 +49,11 @@
       <Textbox Name="TextboxPrintDate">
         <Top>0.0pt</Top>
         <Left>0.0pt</Left>
-        <Height>12.00pt</Height>
+        <Height>10.00pt</Height>
         <Width>162.06pt</Width>
         <Value>={?Print_date}</Value>
         <Style>
-          <FontSize>10pt</FontSize>
+          <FontSize>8pt</FontSize>
           <FontWeight>Normal</FontWeight>
           <BorderStyle />
           <BorderColor />
@@ -67,7 +65,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>354.8pt</Height>
+    <Height>272.6pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table2">
@@ -85,13 +83,10 @@
             <Width>15pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>33pt</Width>
+            <Width>90.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>70pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>95pt</Width>
+            <Width>176.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>30pt</Width>
@@ -137,9 +132,10 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -256,8 +252,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -293,9 +288,10 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -346,8 +342,7 @@
                           <Default>Solid</Default>
                           <Bottom>Solid</Bottom>
                         </BorderStyle>
-                        <FontWeight>
-                        </FontWeight>
+                        <FontWeight></FontWeight>
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
@@ -413,8 +408,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -437,26 +431,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value>№ Зак/</Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -474,8 +449,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>
-                      </Value>
+                      <Value>№ Заказа /</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -493,8 +467,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -512,8 +485,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -531,8 +503,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -652,8 +623,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -688,25 +658,6 @@
                         <FontSize>8pt</FontSize>
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox12">
-                      <Value>Еж. №</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>None</Top>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontWeight>Bold</FontWeight>
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>8pt</FontSize>
-                        <VerticalAlign>Top</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -766,7 +717,9 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell><!--table_cell_name--><TableCell>
+                </TableCell>
+                <!--table_cell_name-->
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>КЛИЕНТУ</Value>
@@ -826,8 +779,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox74" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -847,8 +799,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox88">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -868,8 +819,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -900,10 +850,11 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>=RowNumber()</Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -911,26 +862,6 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Value>={order_and_daily_nr}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Color>Black</Color>
-                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
-                        <FontFamily>Arial</FontFamily>
-                        <FontSize>8pt</FontSize>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -938,9 +869,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>={phone_and_name}</Value>
+                      <Value>={phone_and_name_and_order}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingBottom>=Len({phone_and_name_and_order}) / 6 + "pt"</PaddingBottom>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -948,11 +879,11 @@
                         <BorderWidth />
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <FontWeight>=Iif({has_comment_for_driver} = true,'Bold','Normal')</FontWeight>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontStyle>Normal</FontStyle>
                         <FontSize>8pt</FontSize>
-                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingTop>=Len({phone_and_name_and_order}) / 6 + "pt"</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -963,7 +894,7 @@
                       <Value>={Address} + Iif({Reloaded}, "*", "") + Iif({NeedNewBottles}, "(Н)", "")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingBottom>=Len({phone_and_name_and_order}) / 6 + "pt"</PaddingBottom>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -971,11 +902,12 @@
                         <BorderWidth />
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <FontWeight>=Iif({has_comment_for_driver} = true,'Bold','Normal')</FontWeight>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontStyle>Normal</FontStyle>
                         <FontSize>8pt</FontSize>
-                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>=Len({phone_and_name_and_order}) / 3 + "pt"</PaddingBottom>
+                        <PaddingTop >=Len({phone_and_name_and_order}) / 6 + "pt"</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -995,12 +927,14 @@
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell><!--table_cell_value--><TableCell>
+                </TableCell>
+                <!--table_cell_value-->
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
                       <Value>={ToClient}</Value>
@@ -1015,8 +949,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                         <Format>="N0"</Format>
                         <FontSize>8pt</FontSize>
                       </Style>
@@ -1039,8 +973,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
@@ -1065,8 +999,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
@@ -1089,8 +1023,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
@@ -1126,8 +1060,8 @@ Switch(
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                         <Format>0.00</Format>
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
@@ -1138,8 +1072,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1151,12 +1084,77 @@ Switch(
                         </BorderWidth>
                         <TextAlign>Center</TextAlign>
                         <Format>0.00</Format>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>15.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>Solid</Right>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>Комментарий</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="TextboxOrderComment">
+                      <Value>={OrderComment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                  <!--comment_colspan-->
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1170,8 +1168,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1186,12 +1183,13 @@ Switch(
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
-                </TableCell><!--table_cell_total--><TableCell>
+                  <ColSpan>4</ColSpan>
+                </TableCell>
+                <!--table_cell_total-->
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1209,8 +1207,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1227,8 +1224,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1244,8 +1240,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1261,8 +1256,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1278,8 +1272,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1316,13 +1309,12 @@ Switch(
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1393,13 +1385,12 @@ Switch(
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>13.7pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1413,7 +1404,7 @@ Switch(
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>5</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1472,8 +1463,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox81">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1491,7 +1481,7 @@ Switch(
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>77.2pt</Top>
+        <Top>76.4pt</Top>
         <ZIndex>20</ZIndex>
       </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1510,8 +1500,7 @@ Switch(
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundColor>
-          </BackgroundColor>
+          <BackgroundColor></BackgroundColor>
           <BackgroundGradientType>None</BackgroundGradientType>
           <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
           <TextAlign>Left</TextAlign>
@@ -1550,7 +1539,7 @@ Switch(
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox23">
+                    <Textbox Name="Textbox29">
                       <Value>="Логист: " + {LogisticanLastname} + " " + {LogisticanName}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -1564,7 +1553,7 @@ Switch(
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                         <VerticalAlign>Top</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -1572,7 +1561,7 @@ Switch(
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox26">
+                    <Textbox Name="Textbox34">
                       <Value>=
 Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "", 
 "Погрузка на складе с " + Format({on_load_start}, "hh\:mm") + " по " + Format({on_load_end}, "hh\\:mm")
@@ -1594,6 +1583,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Bottom</VerticalAlign>
                         <PaddingRight>0pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1606,7 +1596,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox29">
+                    <Textbox Name="Textbox35">
                       <Value>={?phones}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1619,7 +1609,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Normal</FontWeight>
-                        <FontSize>9pt</FontSize>
+                        <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -1627,7 +1617,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox34">
+                    <Textbox Name="Textbox37">
                       <Value>="Тоннаж МЛ: " + Round(Sum({Weight}, "Orders"), 3) + "кг" + "\n" +
 "Грузоподъёмность: " + {max_weight} + "кг"</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1643,6 +1633,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Top</VerticalAlign>
                         <PaddingRight>0pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1680,7 +1671,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
         <Details>
           <TableRows>
             <TableRow>
-              <Height>17.8pt</Height>
+              <Height>12pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1699,7 +1690,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1708,8 +1699,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox89">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1731,8 +1721,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox72">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1752,7 +1741,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>17.8pt</Height>
+              <Height>12pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1768,7 +1757,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1776,8 +1765,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox106">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1809,7 +1797,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
                         <PaddingRight>15pt</PaddingRight>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1817,8 +1805,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox104">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1838,7 +1825,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>15.5pt</Height>
+              <Height>12pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1854,7 +1841,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1862,8 +1849,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1895,7 +1881,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
                         <PaddingRight>15pt</PaddingRight>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1903,8 +1889,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox100">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1916,7 +1901,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1924,11 +1909,11 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>17.8pt</Height>
+              <Height>12pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox28">
+                    <Textbox Name="Textbox40">
                       <Value>ПОЛНЫХ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1941,16 +1926,15 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox35">
-                      <Value>
-                      </Value>
+                    <Textbox Name="Textbox50">
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1961,14 +1945,14 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox37">
+                    <Textbox Name="Textbox53">
                       <Value>Нач. склада</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1983,16 +1967,15 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
                         <PaddingRight>15pt</PaddingRight>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox50">
-                      <Value>
-                      </Value>
+                    <Textbox Name="Textbox66">
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2004,7 +1987,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2012,7 +1995,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>18.6pt</Height>
+              <Height>9.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -2029,7 +2012,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2037,8 +2020,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox112">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2049,16 +2031,15 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                           <Bottom>3pt</Bottom>
                         </BorderWidth>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox40">
-                      <Value>
-                      </Value>
+                    <Textbox Name="Textbox70">
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2072,7 +2053,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Right</TextAlign>
                         <PaddingRight>15pt</PaddingRight>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2080,8 +2061,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox115">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -2093,7 +2073,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2103,7 +2083,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>202.8pt</Top>
+        <Top>210.2pt</Top>
       </Table>
       <List Name="List1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>64.87pt</Height>
@@ -2258,12 +2238,12 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId,
-    CONCAT_WS('\n', CONCAT((SELECT rcnc.name FROM roboats_counterparty_name_codes rcnc WHERE rcnc.id = p.roboats_counterparty_name_id), ' ',
-    	(SELECT rcpc.patronymic FROM roboats_counterparty_patronymic_codes rcpc WHERE rcpc.id = p.roboats_counterparty_patronymic_id)), p.`number`) as phone_and_name,
+    CONCAT_WS('\n', orders.id, CONCAT((SELECT rcnc.name FROM roboats_counterparty_name_codes rcnc WHERE rcnc.id = p.roboats_counterparty_name_id), ' ',
+    	(SELECT rcpc.patronymic FROM roboats_counterparty_patronymic_codes rcpc WHERE rcpc.id = p.roboats_counterparty_patronymic_id)), p.`number`) as phone_and_name_and_order,
     CONCAT_WS('\n', orders.id, orders.daily_number_1c) AS order_and_daily_nr,
     orders.daily_number_1c, orders.has_comment_for_driver, route_list_addresses.address_transfer_type = 'NeedToReload' AS Reloaded,
     (SELECT SUM(order_items.count * nomenclature.weight) FROM order_items
@@ -2458,7 +2438,7 @@ ORDER BY order_in_route
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2539,8 +2519,8 @@ ORDER BY order_in_route
           <DataField>terminals_sum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="phone_and_name">
-          <DataField>phone_and_name</DataField>
+        <Field Name="phone_and_name_and_order">
+          <DataField>phone_and_name_and_order</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="payment_by_qr">
@@ -2599,24 +2579,21 @@ WHERE stored_resource.id = @id1</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="Print_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="RouteListDate">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="need_terminal">
       <DataType>Boolean</DataType>
