@@ -93,7 +93,7 @@ namespace Vodovoz.Journals.JournalNodes
 	{
 		public DateTime DepartmentConnectionTime { get; set; }
 		public DateTime DepartmentFirstCommentTime { get; set; }
-		public TimeSpan DepartmentReactionTime => DepartmentConnectionTime - DepartmentFirstCommentTime;
+		public TimeSpan DepartmentReactionTime => DepartmentFirstCommentTime - DepartmentConnectionTime;
 
 		public string DepartmentConnectionTimeString =>
 			$"{DepartmentConnectionTime.ToString("dd.MM.yy")}\n{DepartmentConnectionTime.ToString("t")}";
