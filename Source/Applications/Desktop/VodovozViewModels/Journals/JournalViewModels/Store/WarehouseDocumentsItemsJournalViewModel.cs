@@ -23,6 +23,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 using Vodovoz.ViewModels.Warehouses;
+using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
@@ -83,7 +84,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 		protected void CreateOpenDocumentAction()
 		{
-			var editAction = new JournalAction("Изменить",
+			var editAction = new JournalAction("Открыть документ",
 				(selected) => {
 					var selectedNodes = selected.OfType<WarehouseDocumentsItemsJournalNode>();
 					if(selectedNodes == null || selectedNodes.Count() != 1)
@@ -228,8 +229,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.IncomingInvoice)
 				&& FilterViewModel.Driver is null)
 			{
-				invoiceQuery.Where(FilterViewModel.GetSpecification<IncomingInvoice>().IsSatisfiedBy());
-					//.And(FilterViewModel.GetWarehouseSpecification<IncomingInvoice>().IsSatisfiedBy());
+				if(FilterViewModel.StartDate != null)
+				{
+					invoiceQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					invoiceQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
 			}
 			else
 			{
@@ -289,8 +297,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.IncomingWater)
 				&& FilterViewModel.Driver == null)
 			{
-				waterQuery.Where(FilterViewModel.GetSpecification<IncomingWater>().IsSatisfiedBy());
-					//.And(FilterViewModel.GetTwoWarhousesSpecification<IncomingWater>().IsSatisfiedBy());
+				if(FilterViewModel.StartDate != null)
+				{
+					waterQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					waterQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
 			}
 			else
 			{
@@ -345,8 +360,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
 				&& FilterViewModel.Driver == null)
 			{
-				movementQuery.Where(FilterViewModel.GetSpecification<MovementDocument>().IsSatisfiedBy());
-				// .And(FilterViewModel.GetTwoWarhousesSpecification<MovementDocument>().IsSatisfiedBy());
+				if(FilterViewModel.StartDate != null)
+				{
+					movementQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					movementQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
 			}
 			else
 			{
@@ -411,8 +433,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.WriteoffDocument) &&
 				 FilterViewModel.Driver == null)
 			{
-				writeoffQuery.Where(FilterViewModel.GetSpecification<WriteoffDocument>().IsSatisfiedBy());
-				// .And(FilterViewModel.GetWarehouseSpecification<WriteoffDocument>().IsSatisfiedBy())
+				if(FilterViewModel.StartDate != null)
+				{
+					writeoffQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					writeoffQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
 			}
 			else
 			{
@@ -475,8 +504,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				|| FilterViewModel.DocumentType == DocumentType.SelfDeliveryDocument)
 				&& FilterViewModel.Driver == null)
 			{
-				selfDeliveryQuery.Where(FilterViewModel.GetSpecification<SelfDeliveryDocument>().IsSatisfiedBy());
-					//.And(FilterViewModel.GetWarehouseSpecification<SelfDeliveryDocument>().IsSatisfiedBy());
+				if(FilterViewModel.StartDate != null)
+				{
+					selfDeliveryQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					selfDeliveryQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
 			}
 			else
 			{
@@ -533,13 +569,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if(FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarLoadDocument)
 			{
+				if(FilterViewModel.StartDate != null)
+				{
+					carLoadQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					carLoadQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
+
 				if(FilterViewModel.Driver != null)
 				{
 					carLoadQuery.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
 				}
-
-				carLoadQuery.Where(FilterViewModel.GetSpecification<CarLoadDocument>().IsSatisfiedBy());
-					//.And(FilterViewModel.GetWarehouseSpecification<CarLoadDocument>().IsSatisfiedBy());
 			}
 			else
 			{
@@ -603,8 +646,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if(FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarUnloadDocument)
 			{
-				carUnloadQuery.Where(FilterViewModel.GetSpecification<CarUnloadDocument>().IsSatisfiedBy());
-					//.And(FilterViewModel.GetWarehouseSpecification<CarUnloadDocument>().IsSatisfiedBy());
+				if(FilterViewModel.StartDate != null)
+				{
+					carUnloadQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					carUnloadQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
 
 				if(FilterViewModel.Driver != null)
 				{
@@ -669,8 +719,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.InventoryDocument) &&
 				FilterViewModel.Driver == null)
 			{
-				inventoryQuery.Where(FilterViewModel.GetSpecification<InventoryDocument>().IsSatisfiedBy());
-					//.And(FilterViewModel.GetWarehouseSpecification<InventoryDocument>().IsSatisfiedBy());
+				if(FilterViewModel.StartDate != null)
+				{
+					inventoryQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					inventoryQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
 			}
 			else
 			{
@@ -721,8 +778,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.ShiftChangeDocument) &&
 				FilterViewModel.Driver == null)
 			{
-				shiftchangeQuery.Where(FilterViewModel.GetSpecification<ShiftChangeWarehouseDocument>().IsSatisfiedBy());
-					//.And(FilterViewModel.GetWarehouseSpecification<ShiftChangeWarehouseDocument>().IsSatisfiedBy());
+				if(FilterViewModel.StartDate != null)
+				{
+					shiftchangeQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					shiftchangeQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
 			}
 			else
 			{
@@ -773,8 +837,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument) &&
 				FilterViewModel.Driver == null)
 			{
-				regrandingQuery.Where(FilterViewModel.GetSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
-					//.And(FilterViewModel.GetWarehouseSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
+				if(FilterViewModel.StartDate != null)
+				{
+					regrandingQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					regrandingQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
 			}
 			else
 			{
@@ -825,8 +896,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument) &&
 				FilterViewModel.Driver == null)
 			{
-				regrandingQuery.Where(FilterViewModel.GetSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
-					//.And(FilterViewModel.GetWarehouseSpecification<RegradingOfGoodsDocument>().IsSatisfiedBy());
+				if(FilterViewModel.StartDate != null)
+				{
+					regrandingQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					regrandingQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
 			}
 			else
 			{
