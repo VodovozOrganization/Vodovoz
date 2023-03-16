@@ -25,32 +25,33 @@ namespace Vodovoz.Controllers
 			_subdivisionIdForNotify = subdivisionIdForNotify;
 		}
 
-		public event Action<string> UpdateNotificationAction;
+		public event Action<SendedComplaintNotificationDetails> UpdateNotificationAction;
 
 		public SendedComplaintNotificationDetails GetNotificationDetails(IUnitOfWork uow)
 		{
 			var result = new SendedComplaintNotificationDetails();
 			var sendedComplaints = GetSendedComplaintIdsBySubdivision(uow);
 
+			result.SendedComplaintsCount = sendedComplaints.Count;
+			result.NeedNotify = result.SendedComplaintsCount > 0;
+			result.NotificationMessage = GetNotificationMessage(result.SendedComplaintsCount.Value);
+			result.SendedComplaintsIds = sendedComplaints;
+
 			if(sendedComplaints.Count > 0)
 			{
-				result.SendedComplaintsCount = sendedComplaints.Count;
-				result.NeedNotify = true;
-				result.NotificationMessage = GetNotificationMessage(result.SendedComplaintsCount.Value);
-
-				NotifyConfiguration.Instance.BatchSubscribeOnEntity<Complaint>(OnComplaintChanged);
+				NotifyConfiguration.Instance.BatchSubscribeOnEntity<ComplaintDiscussionComment>(OnComplaintChanged);
 			}
 
 			return result;
 		}
 
-		public List<int> GetSendedComplaintIdsBySubdivision(IUnitOfWork uow)
+		private List<int> GetSendedComplaintIdsBySubdivision(IUnitOfWork uow)
 		{
 			var compaints = _complaintsRepository.GetUnclosedWithNoCommentsComplaintIdsBySubdivision(uow, _subdivisionIdForNotify);
 			return compaints.ToList();
 		}
 
-		public string GetNotificationMessageBySubdivision(IUnitOfWork uow)
+		private string GetNotificationMessageBySubdivision(IUnitOfWork uow)
 		{
 			return GetNotificationMessage(GetSendedComplaintIdsBySubdivision(uow).Count);
 		}
@@ -75,7 +76,7 @@ namespace Vodovoz.Controllers
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				UpdateNotificationAction?.Invoke(GetNotificationMessageBySubdivision(uow));
+				UpdateNotificationAction?.Invoke(GetNotificationDetails(uow));
 			}
 		}
 	}
@@ -85,5 +86,6 @@ namespace Vodovoz.Controllers
 		public bool NeedNotify { get; set; }
 		public int? SendedComplaintsCount { get; set; }
 		public string NotificationMessage { get; set; }
+		public List<int> SendedComplaintsIds { get; set; }
 	}
 }
