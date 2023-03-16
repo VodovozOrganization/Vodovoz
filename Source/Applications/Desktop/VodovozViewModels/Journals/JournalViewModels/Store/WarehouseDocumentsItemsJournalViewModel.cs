@@ -334,6 +334,37 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				{
 					waterQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
+
+				if(FilterViewModel.WarhouseIds.Any())
+				{
+					ICriterion warehouseCriterion = null;
+
+					if(FilterViewModel.TargetSource == TargetSource.Source)
+					{
+						warehouseCriterion = Restrictions.In(Projections.Property(() => incomingWaterAlias.FromWarehouse), FilterViewModel.WarhouseIds);
+					}
+
+					if(FilterViewModel.TargetSource == TargetSource.Target)
+					{
+						warehouseCriterion = Restrictions.In(Projections.Property(() => incomingWaterAlias.ToWarehouse), FilterViewModel.WarhouseIds);
+					}
+
+					if(FilterViewModel.TargetSource == TargetSource.Both)
+					{
+						warehouseCriterion = Restrictions.Or(
+							Restrictions.In(Projections.Property(() => incomingWaterAlias.FromWarehouse), FilterViewModel.WarhouseIds),
+							Restrictions.In(Projections.Property(() => incomingWaterAlias.ToWarehouse), FilterViewModel.WarhouseIds));
+					}
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						waterQuery.Where(warehouseCriterion);
+					}
+					else
+					{
+						waterQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
 			}
 			else
 			{
@@ -397,6 +428,37 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				{
 					movementQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
+
+				if(FilterViewModel.WarhouseIds.Any())
+				{
+					ICriterion warehouseCriterion = null;
+
+					if(FilterViewModel.TargetSource == TargetSource.Source)
+					{
+						warehouseCriterion = Restrictions.In(Projections.Property(() => movementDocumentAlias.FromWarehouse), FilterViewModel.WarhouseIds);
+					}
+
+					if(FilterViewModel.TargetSource == TargetSource.Target)
+					{
+						warehouseCriterion = Restrictions.In(Projections.Property(() => movementDocumentAlias.ToWarehouse), FilterViewModel.WarhouseIds);
+					}
+
+					if(FilterViewModel.TargetSource == TargetSource.Both)
+					{
+						warehouseCriterion = Restrictions.Or(
+							Restrictions.In(Projections.Property(() => movementDocumentAlias.FromWarehouse), FilterViewModel.WarhouseIds),
+							Restrictions.In(Projections.Property(() => movementDocumentAlias.ToWarehouse), FilterViewModel.WarhouseIds));
+					}
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						movementQuery.Where(warehouseCriterion);
+					}
+					else
+					{
+						movementQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
 			}
 			else
 			{
@@ -458,8 +520,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var writeoffQuery = unitOfWork.Session.QueryOver(() => writeoffDocumentItemAlias)
 				.JoinQueryOver(() => writeoffDocumentItemAlias.Document, () => writeoffDocumentAlias);
 
-			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.WriteoffDocument) &&
-				 FilterViewModel.Driver == null)
+			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.WriteoffDocument)
+				&& FilterViewModel.Driver == null)
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -469,6 +531,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				if(FilterViewModel.EndDate != null)
 				{
 					writeoffQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
+
+				if(FilterViewModel.WarhouseIds.Any()
+					&& (FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both))
+				{
+					var  warehouseCriterion = Restrictions.In(Projections.Property(() => writeoffDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						writeoffQuery.Where(warehouseCriterion);
+					}
+					else
+					{
+						writeoffQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
 				}
 			}
 			else
@@ -541,6 +618,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				{
 					selfDeliveryQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
+
+				if(FilterViewModel.WarhouseIds.Any()
+					&& (FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both))
+				{
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => selfDeliveryDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						selfDeliveryQuery.Where(warehouseCriterion);
+					}
+					else
+					{
+						selfDeliveryQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
 			}
 			else
 			{
@@ -594,8 +686,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var carLoadQuery = unitOfWork.Session.QueryOver(() => carLoadDocumentItemAlias)
 				.JoinQueryOver(() => carLoadDocumentItemAlias.Document, () => carLoadDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-			if(FilterViewModel.DocumentType == null
+			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarLoadDocument)
+				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -610,6 +703,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				if(FilterViewModel.Driver != null)
 				{
 					carLoadQuery.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
+				}
+
+				if(FilterViewModel.WarhouseIds.Any()
+					&& (FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both))
+				{
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => carLoadDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						carLoadQuery.Where(warehouseCriterion);
+					}
+					else
+					{
+						carLoadQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
 				}
 			}
 			else
@@ -671,8 +779,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var carUnloadQuery = unitOfWork.Session.QueryOver(() => carUnLoadDocumentItemAlias)
 					.JoinQueryOver(() => carUnLoadDocumentItemAlias.Document, () => carUnLoadDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-			if(FilterViewModel.DocumentType == null
+			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarUnloadDocument)
+				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
+				)
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -688,6 +798,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				{
 					carUnloadQuery.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
 				}
+
+				if(FilterViewModel.WarhouseIds.Any()
+					&& (FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both))
+				{
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => carUnLoadDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						carUnloadQuery.Where(warehouseCriterion);
+					}
+					else
+					{
+						carUnloadQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
 			}
 			else
 			{
@@ -695,7 +820,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return carUnloadQuery
-				.Left.JoinAlias(() => carUnLoadDocumentItemAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias) // Нет данных в самом айтеме
+				.Left.JoinAlias(() => carUnLoadDocumentItemAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
 				.Left.JoinAlias(() => warehouseMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => carUnLoadDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => carUnLoadDocumentAlias.RouteList, () => routeListAlias)
@@ -756,6 +881,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				{
 					inventoryQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
+
+				if(FilterViewModel.WarhouseIds.Any())
+				{
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => inventoryDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						inventoryQuery.Where(warehouseCriterion);
+					}
+					else
+					{
+						inventoryQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
 			}
 			else
 			{
@@ -814,6 +953,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				if(FilterViewModel.EndDate != null)
 				{
 					shiftchangeQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
+
+				if(FilterViewModel.WarhouseIds.Any())
+				{
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => shiftChangeWarehouseDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						shiftchangeQuery.Where(warehouseCriterion);
+					}
+					else
+					{
+						shiftchangeQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
 				}
 			}
 			else
@@ -874,6 +1027,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				{
 					regrandingQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
+
+				if(FilterViewModel.WarhouseIds.Any())
+				{
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => regradingOfGoodsDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						regrandingQuery.Where(warehouseCriterion);
+					}
+					else
+					{
+						regrandingQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
 			}
 			else
 			{
@@ -932,6 +1099,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				if(FilterViewModel.EndDate != null)
 				{
 					regrandingQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
+
+				if(FilterViewModel.WarhouseIds.Any())
+				{
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => regradingOfGoodsDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						regrandingQuery.Where(warehouseCriterion);
+					}
+					else
+					{
+						regrandingQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
 				}
 			}
 			else
