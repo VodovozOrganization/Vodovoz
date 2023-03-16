@@ -177,7 +177,7 @@ namespace Vodovoz.Views.Complaints
 
 			ytreeviewArrangement.ItemsDataSource = ViewModel.Entity.ObservableArrangementComments;
 
-			ytreeviewArrangement.ButtonReleaseEvent += ButtonArrangementsRelease;
+			ytreeviewArrangement.ButtonReleaseEvent += OnButtonArrangementsRelease;
 
 			ytextviewNewArrangement.Binding.AddBinding(ViewModel, vm => vm.NewArrangementCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewNewArrangement.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -203,7 +203,7 @@ namespace Vodovoz.Views.Complaints
 
 			ytreeviewResult.ItemsDataSource = ViewModel.Entity.ObservableResultComments;
 
-			ytreeviewResult.ButtonReleaseEvent += ButtonCommentsRelease;
+			ytreeviewResult.ButtonReleaseEvent += OnButtonCommentsRelease;
 
 			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.NewResultCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -258,7 +258,7 @@ namespace Vodovoz.Views.Complaints
 			GetClipboard(null).Text = stringBuilder.ToString();
 		}
 
-		private void ButtonArrangementsRelease(object o, ButtonReleaseEventArgs args)
+		private void OnButtonArrangementsRelease(object o, ButtonReleaseEventArgs args)
 		{
 			if(args.Event.Button != (uint)GtkMouseButton.Right)
 			{
@@ -275,7 +275,7 @@ namespace Vodovoz.Views.Complaints
 			_popupCopyArrangementsMenu.Popup();
 		}
 
-		private void ButtonCommentsRelease(object o, ButtonReleaseEventArgs args)
+		private void OnButtonCommentsRelease(object o, ButtonReleaseEventArgs args)
 		{
 			if(args.Event.Button != (uint)GtkMouseButton.Right)
 			{
