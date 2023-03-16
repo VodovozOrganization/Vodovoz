@@ -4,11 +4,7 @@ namespace Vodovoz
 {
 	public partial class RouteListAddressesTransferringDlg
 	{
-		private global::Gtk.HBox hbox1;
-
-		private global::Gtk.VBox vbox3;
-
-		private global::Gtk.HBox hbox2;
+		private global::Gtk.HPaned hpanedMain;
 
 		private global::Gtk.VBox vbox4;
 
@@ -71,18 +67,11 @@ namespace Vodovoz
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.RouteListAddressesTransferringDlg";
 			// Container child Vodovoz.RouteListAddressesTransferringDlg.Gtk.Container+ContainerChild
-			this.hbox1 = new global::Gtk.HBox();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.vbox3 = new global::Gtk.VBox();
-			this.vbox3.Name = "vbox3";
-			this.vbox3.Spacing = 6;
-			// Container child vbox3.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
+			this.hpanedMain = new global::Gtk.HPaned();
+			this.hpanedMain.CanFocus = true;
+			this.hpanedMain.Name = "hpanedMain";
+			this.hpanedMain.Position = 969;
+			// Container child hpanedMain.Gtk.Paned+PanedChild
 			this.vbox4 = new global::Gtk.VBox();
 			this.vbox4.Name = "vbox4";
 			this.vbox4.Spacing = 6;
@@ -203,10 +192,10 @@ namespace Vodovoz
 			w15.Position = 4;
 			w15.Expand = false;
 			w15.Fill = false;
-			this.hbox2.Add(this.vbox4);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox4]));
-			w16.Position = 0;
-			// Container child hbox2.Gtk.Box+BoxChild
+			this.hpanedMain.Add(this.vbox4);
+			global::Gtk.Paned.PanedChild w16 = ((global::Gtk.Paned.PanedChild)(this.hpanedMain[this.vbox4]));
+			w16.Resize = false;
+			// Container child hpanedMain.Gtk.Paned+PanedChild
 			this.vbox5 = new global::Gtk.VBox();
 			this.vbox5.Name = "vbox5";
 			this.vbox5.Spacing = 6;
@@ -312,16 +301,8 @@ namespace Vodovoz
 			w29.Position = 4;
 			w29.Expand = false;
 			w29.Fill = false;
-			this.hbox2.Add(this.vbox5);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox5]));
-			w30.Position = 1;
-			this.vbox3.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
-			w31.Position = 0;
-			this.hbox1.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox3]));
-			w32.Position = 0;
-			this.Add(this.hbox1);
+			this.hpanedMain.Add(this.vbox5);
+			this.Add(this.hpanedMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
