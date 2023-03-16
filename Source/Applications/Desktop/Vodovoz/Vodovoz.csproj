@@ -453,6 +453,7 @@
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfCounterpartyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfEmployeesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\ComplaintsWithDepartmentsReactionJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CounterpartyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DebtorsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryPointByClientJournalRegistrar.cs" />
