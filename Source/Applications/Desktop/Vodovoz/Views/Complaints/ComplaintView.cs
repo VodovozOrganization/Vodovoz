@@ -1,20 +1,24 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Widgets;
+using Gtk;
+using QS.Journal.GtkUI;
 using QS.Views.GtkUI;
 using QSProjectsLib;
+using System;
+using System.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Complaints;
-using Gtk;
-using Gamma.Binding.Core.LevelTreeConfig;
-using Gamma.Binding;
 
 namespace Vodovoz.Views.Complaints
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ComplaintView : TabViewBase<ComplaintViewModel>
 	{
+		private Menu _popupCopyArrangementsMenu;
+		private Menu _popupCopyCommentsMenu;
+
 		public ComplaintView(ComplaintViewModel viewModel) : base(viewModel)
 		{
 			Build();
@@ -131,9 +135,10 @@ namespace Vodovoz.Views.Complaints
 				.AddColumn("Сотрудник").AddTextRenderer(x => x.Employee.ShortName)
 				.AddColumn("Сумма штрафа").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.Money))
 				.Finish();
+
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
-			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(this.Tab); };
+			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(Tab); };
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
 
 			buttonAttachFine.Clicked += (sender, e) => { ViewModel.AttachFineCommand.Execute(); };
@@ -154,30 +159,25 @@ namespace Vodovoz.Views.Complaints
 				}
 			};
 
-			ytreeviewArrangement.ShowExpanders = false;
-			ytreeviewArrangement.ColumnsConfig = FluentColumnsConfig<object>.Create()
+			ytreeviewArrangement.Selection.Mode = SelectionMode.Multiple;
+			ytreeviewArrangement.ColumnsConfig = FluentColumnsConfig<ComplaintArrangementComment>.Create()
 				.AddColumn("Время")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetTime(x))
+					.AddTextRenderer(x => x.CreationTime.ToShortTimeString())
 				.AddColumn("Автор")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetAuthor(x))
+					.AddTextRenderer(x => x.Author.FullName)
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetNodeName(x))
+					.AddTextRenderer(x => x.Comment)
 						.WrapWidth(250)
 						.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
-			var levelsArrangement = LevelConfigFactory.FirstLevel<Complaint, ComplaintArrangementComment>(x => x.ArrangementComments).LastLevel(c => c.Complaint).EndConfig();
-			ytreeviewArrangement.YTreeModel = new LevelTreeModel<ComplaintArrangementComment>(ViewModel.Entity.ArrangementComments, levelsArrangement);
 
-			ViewModel.Entity.ObservableArrangementComments.ListContentChanged += (sender, e) =>
-			{
-				ytreeviewArrangement.YTreeModel.EmitModelChanged();
-				ytreeviewArrangement.ExpandAll();
-			};
-			ytreeviewArrangement.ExpandAll();
+			ytreeviewArrangement.ItemsDataSource = ViewModel.Entity.ObservableArrangementComments;
+
+			ytreeviewArrangement.ButtonReleaseEvent += OnButtonArrangementsRelease;
 
 			ytextviewNewArrangement.Binding.AddBinding(ViewModel, vm => vm.NewArrangementCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewNewArrangement.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -185,36 +185,111 @@ namespace Vodovoz.Views.Complaints
 			ybuttonAddArrangement.Clicked += (sender, e) => ViewModel.AddArrangementCommentCommand.Execute();
 			ybuttonAddArrangement.Binding.AddBinding(ViewModel, vm => vm.CanAddArrangementComment, w => w.Sensitive).InitializeFromSource();
 
-			ytreeviewResult.ShowExpanders = false;
-			ytreeviewResult.ColumnsConfig = FluentColumnsConfig<object>.Create()
+			ytreeviewResult.Selection.Mode = SelectionMode.Multiple;
+			ytreeviewResult.ColumnsConfig = FluentColumnsConfig<ComplaintResultComment>.Create()
 				.AddColumn("Время")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetTime(x))
+					.AddTextRenderer(x => x.CreationTime.ToShortTimeString())
 				.AddColumn("Автор")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetAuthor(x))
+					.AddTextRenderer(x => x.Author.FullName)
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => GetNodeName(x))
+					.AddTextRenderer(x => x.Comment)
 						.WrapWidth(250)
 						.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
-			var levelsResult = LevelConfigFactory.FirstLevel<Complaint, ComplaintResultComment>(x => x.ResultComments).LastLevel(c => c.Complaint).EndConfig();
-			ytreeviewResult.YTreeModel = new LevelTreeModel<ComplaintResultComment>(ViewModel.Entity.ResultComments, levelsResult);
 
-			ViewModel.Entity.ObservableResultComments.ListContentChanged += (sender, e) =>
-			{
-				ytreeviewResult.YTreeModel.EmitModelChanged();
-				ytreeviewResult.ExpandAll();
-			};
-			ytreeviewResult.ExpandAll();
+			ytreeviewResult.ItemsDataSource = ViewModel.Entity.ObservableResultComments;
+
+			ytreeviewResult.ButtonReleaseEvent += OnButtonCommentsRelease;
 
 			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.NewResultCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			ybuttonAddResult.Clicked += (sender, e) => ViewModel.AddResultCommentCommand.Execute();
 			ybuttonAddResult.Binding.AddBinding(ViewModel, vm => vm.CanAddResultComment, w => w.Sensitive).InitializeFromSource();
+
+			_popupCopyArrangementsMenu = new Menu();
+			MenuItem copyArrangementsMenuEntry = new MenuItem("Копировать");
+			copyArrangementsMenuEntry.ButtonPressEvent += CopyArrangementsMenuEntry_Activated;
+			copyArrangementsMenuEntry.Visible = true;
+			_popupCopyArrangementsMenu.Add(copyArrangementsMenuEntry);
+
+			_popupCopyCommentsMenu = new Menu();
+			MenuItem copyCommentsMenuEntry = new MenuItem("Копировать");
+			copyCommentsMenuEntry.ButtonPressEvent += CopyCopyCommentsMenuEntry_Activated;
+			copyCommentsMenuEntry.Visible = true;
+			_popupCopyCommentsMenu.Add(copyCommentsMenuEntry);
+		}
+
+		private void CopyArrangementsMenuEntry_Activated(object sender, EventArgs e)
+		{
+			CopyArrangements();
+		}
+
+		private void CopyCopyCommentsMenuEntry_Activated(object sender, EventArgs e)
+		{
+			CopyComments();
+		}
+
+		private void CopyArrangements()
+		{
+			StringBuilder stringBuilder = new StringBuilder();
+
+			foreach(ComplaintArrangementComment selected in ytreeviewArrangement.SelectedRows)
+			{
+				stringBuilder.AppendLine($"{selected.CreationTime} {selected.Author.FullName} {selected.Comment}");
+			}
+
+			GetClipboard(null).Text = stringBuilder.ToString();
+		}
+
+		private void CopyComments()
+		{
+			StringBuilder stringBuilder = new StringBuilder();
+
+			foreach(ComplaintResultComment selected in ytreeviewResult.SelectedRows)
+			{
+				stringBuilder.AppendLine($"{selected.CreationTime} {selected.Author.FullName} {selected.Comment}");
+			}
+
+			GetClipboard(null).Text = stringBuilder.ToString();
+		}
+
+		private void OnButtonArrangementsRelease(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			_popupCopyArrangementsMenu.Show();
+
+			if(_popupCopyArrangementsMenu.Children.Length == 0)
+			{
+				return;
+			}
+
+			_popupCopyArrangementsMenu.Popup();
+		}
+
+		private void OnButtonCommentsRelease(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			_popupCopyCommentsMenu.Show();
+
+			if(_popupCopyCommentsMenu.Children.Length == 0)
+			{
+				return;
+			}
+
+			_popupCopyCommentsMenu.Popup();
 		}
 
 		void EntryCounterparty_Changed(object sender, System.EventArgs e)
@@ -231,56 +306,6 @@ namespace Vodovoz.Views.Complaints
 			spLstAddress.NameForSpecialStateNot = null;
 			spLstAddress.SelectedItem = SpecialComboState.Not;
 			spLstAddress.ItemsList = null;
-		}
-
-		private string GetTime(object node)
-		{
-			if(node is ComplaintArrangementComment arrangementComment)
-			{
-				return arrangementComment.CreationTime.ToShortDateString() + "\n" + arrangementComment.CreationTime.ToShortTimeString();
-			}
-
-			if(node is ComplaintResultComment resultComment)
-			{
-				return resultComment.CreationTime.ToShortDateString() + "\n" + resultComment.CreationTime.ToShortTimeString();
-			}
-
-			return "";
-		}
-
-		private string GetAuthor(object node)
-		{
-			Employee author = new Employee();
-
-			if(node is ComplaintArrangementComment arrangementComment)
-			{
-				author = arrangementComment.Author;
-			}
-			else if(node is ComplaintResultComment resultComment)
-			{
-				author = resultComment.Author;
-			}
-			else
-			{
-				return "";
-			}
-
-			var subdivisionName = author.Subdivision != null && !string.IsNullOrWhiteSpace(author.Subdivision.ShortName) ? "\n" + author.Subdivision.ShortName : "";
-			var result = $"{author.GetPersonNameWithInitials()}{subdivisionName}";
-			return result;
-		}
-
-		private string GetNodeName(object node)
-		{
-			if(node is ComplaintArrangementComment arrangementComment)
-			{
-				return arrangementComment.Comment;
-			}
-			if(node is ComplaintResultComment resultComment)
-			{
-				return resultComment.Comment;
-			}
-			return "";
 		}
 
 		private void SetColor(CellRenderer cell, object node)
