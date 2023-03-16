@@ -29,5 +29,6 @@ namespace Vodovoz.Services
         Nomenclature GetForfeitNomenclature(IUnitOfWork uow);
 
         int GetIdentifierOfOnlineShopGroup();
-    }
+		Nomenclature GetFastDeliveryNomenclature(IUnitOfWork uow);
+	}
 }

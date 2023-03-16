@@ -1004,17 +1004,15 @@ namespace Vodovoz
 				}
 
 				Entity.AddFastDeliveryNomenclatureIfNeeded();
+				return;
 			}
 
-			if(!ycheckFastDelivery.Active)
+			if(Entity.DeliverySchedule?.Id == _deliveryRulesParametersProvider.FastDeliveryScheduleId)
 			{
-				if(Entity.DeliverySchedule?.Id == _deliveryRulesParametersProvider.FastDeliveryScheduleId)
-				{
-					Entity.DeliverySchedule = null;
-				}
-
-				Entity.RemoveFastDeliveryNomenclature();
+				Entity.DeliverySchedule = null;
 			}
+
+			Entity.RemoveFastDeliveryNomenclature();
 		}
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
@@ -1906,7 +1904,10 @@ namespace Vodovoz
 
 		private void OnButtonAcceptAndReturnToOrderClicked(object sender, EventArgs e)
 		{
-			AcceptOrder();
+			if(!AcceptOrder())
+			{
+				MessageDialogHelper.RunWarningDialog("Произошла ошибка при подтверждении заказа", "Ошибка подтверждения заказа");
+			}
 			ReturnToEditTab();
 		}
 
