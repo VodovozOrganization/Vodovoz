@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using fyiReporting.RDL;
+﻿using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -17,6 +10,13 @@ using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Services;
 using QS.Validation;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -28,7 +28,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -1272,6 +1271,11 @@ namespace Vodovoz.Domain.Orders
 					"Тип оплаты - контрактная документация невозможен для самовывоза",
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
+			}
+
+			if(IsFastDelivery)
+			{
+				AddFastDeliveryNomenclatureIfNeeded();
 			}
 
 			if(!PaymentTypesFastDeliveryAvailableFor.Contains(PaymentType) && IsFastDelivery)
@@ -4413,7 +4417,7 @@ namespace Vodovoz.Domain.Orders
 				if(_fastDeliveryNomenclature == null)
 				{
 					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
-					_fastDeliveryNomenclature = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.FastDeliveryNomenclatureId);
+					_fastDeliveryNomenclature = nomenclatureParametersProvider.GetFastDeliveryNomenclature(UoW);
 				}
 
 				return _fastDeliveryNomenclature;
@@ -4424,7 +4428,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(IsFastDelivery && orderItems.All(x => x.Nomenclature.Id != FastDeliveryNomenclature.Id))
 			{
-				var fastDeliveryNomenclature = UoW.GetById<Nomenclature>(FastDeliveryNomenclature.Id);
 				var fastDeliveryItemToAdd = new OrderItem
 				{
 					Order = this,
