@@ -341,7 +341,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.Left.JoinAlias(() => complaintAlias.ComplaintDetalization, () => complaintDelatizationAlias)
 				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
-				.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
+				.Left.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Employee, () => guiltyEmployeeAlias)
 				.Left.JoinAlias(() => guiltyEmployeeAlias.Subdivision, () => superspecialAlias)
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Subdivision, () => guiltySubdivisionAlias)
@@ -516,20 +516,27 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				NHibernateUtil.String,
 				Projections.SubQuery(plannedCompletionDateSubQuery));
 
+			var guiltiesSubQuery = QueryOver.Of(() => complaintGuiltyItemAlias)
+				.Left.JoinAlias(() => complaintGuiltyItemAlias.Employee, () => guiltyEmployeeAlias)
+				.Left.JoinAlias(() => guiltyEmployeeAlias.Subdivision, () => superspecialAlias)
+				.Left.JoinAlias(() => complaintGuiltyItemAlias.Responsible, () => responsibleAlias)
+				.Where(() => complaintAlias.Id == complaintGuiltyItemAlias.Complaint.Id)
+				.Select(guiltiesProjection);
+
 			query.SelectList(list => list
-				.Select(() => complaintAlias.Id).WithAlias(() => resultAlias.Id)
+				.SelectGroup(() => complaintAlias.Id).WithAlias(() => resultAlias.Id)
 				.Select(() => complaintAlias.CreationDate).WithAlias(() => resultAlias.Date)
 				.Select(() => complaintAlias.ComplaintType).WithAlias(() => resultAlias.Type)
 				.Select(() => complaintAlias.Status).WithAlias(() => resultAlias.Status)
-				.Select(() => subdivisionAlias.ShortName).WithAlias(() => resultAlias.WorkInSubdivision)
+				.SelectGroup(() => subdivisionAlias.ShortName).WithAlias(() => resultAlias.WorkInSubdivision)
 				.Select(() => discussionAlias.StartSubdivisionDate).WithAlias(() => resultAlias.DepartmentConnectionTime)
 				.SelectSubQuery(departmentFirstCommentTimeSubQuery).WithAlias(() => resultAlias.DepartmentFirstCommentTime)
-				.Select(plannedCompletionDateProjection1).WithAlias(() => resultAlias.PlannedCompletionDate)
-				.Select(Projections.Constant(DateTime.Now)).WithAlias(() => resultAlias.LastPlannedCompletionDate)
+				.Select(plannedCompletionDateProjection).WithAlias(() => resultAlias.PlannedCompletionDate)
+				.Select(lastPlannedCompletionDateProjection).WithAlias(() => resultAlias.LastPlannedCompletionDate)
 				.Select(counterpartyWithAddressProjection).WithAlias(() => resultAlias.ClientNameWithAddress)
-				.Select(Projections.Constant("Guilties")).WithAlias(() => resultAlias.Guilties)
+				.Select(guiltiesProjection).WithAlias(() => resultAlias.Guilties)
 				.Select(authorProjection).WithAlias(() => resultAlias.Author)
-				.Select(Projections.Constant("Fines")).WithAlias(() => resultAlias.Fines)
+				.Select(finesProjection).WithAlias(() => resultAlias.Fines)
 				.Select(() => complaintAlias.ComplaintText).WithAlias(() => resultAlias.ComplaintText)
 				.Select(() => complaintKindAlias.Name).WithAlias(() => resultAlias.ComplaintKindString)
 				.Select(() => complaintKindAlias.IsArchive).WithAlias(() => resultAlias.ComplaintKindIsArchive)
@@ -542,6 +549,33 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.SelectSubQuery(resultOfCounterpartySubquery).WithAlias(() => resultAlias.ResultOfCounterparty)
 				.SelectSubQuery(resultOfEmployeesSubquery).WithAlias(() => resultAlias.ResultOfEmployees)
 			);
+
+			//query.SelectList(list => list
+			//	.SelectGroup(() => complaintAlias.Id).WithAlias(() => resultAlias.Id)
+			//	.Select(() => complaintAlias.CreationDate).WithAlias(() => resultAlias.Date)
+			//	.Select(() => complaintAlias.ComplaintType).WithAlias(() => resultAlias.Type)
+			//	.Select(() => complaintAlias.Status).WithAlias(() => resultAlias.Status)
+			//	.SelectGroup(() => subdivisionAlias.ShortName).WithAlias(() => resultAlias.WorkInSubdivision)
+			//	.Select(() => discussionAlias.StartSubdivisionDate).WithAlias(() => resultAlias.DepartmentConnectionTime)
+			//	.SelectSubQuery(departmentFirstCommentTimeSubQuery).WithAlias(() => resultAlias.DepartmentFirstCommentTime)
+			//	.Select(plannedCompletionDateProjection1).WithAlias(() => resultAlias.PlannedCompletionDate)
+			//	.SelectSubQuery(plannedCompletionDateSubQuery).WithAlias(() => resultAlias.LastPlannedCompletionDate)
+			//	.Select(counterpartyWithAddressProjection).WithAlias(() => resultAlias.ClientNameWithAddress)
+			//	.SelectSubQuery(guiltiesSubQuery).WithAlias(() => resultAlias.Guilties)
+			//	.Select(authorProjection).WithAlias(() => resultAlias.Author)
+			//	.Select(Projections.Constant("Fines")).WithAlias(() => resultAlias.Fines)
+			//	.Select(() => complaintAlias.ComplaintText).WithAlias(() => resultAlias.ComplaintText)
+			//	.Select(() => complaintKindAlias.Name).WithAlias(() => resultAlias.ComplaintKindString)
+			//	.Select(() => complaintKindAlias.IsArchive).WithAlias(() => resultAlias.ComplaintKindIsArchive)
+			//	.Select(() => complaintDelatizationAlias.Name).WithAlias(() => resultAlias.ComplaintDetalizationString)
+			//	.Select(() => complaintDelatizationAlias.IsArchive).WithAlias(() => resultAlias.ComplaintDetalizationIsArchive)
+			//	.SelectSubQuery(resultOfResultCommentsSubquery).WithAlias(() => resultAlias.ResultText)
+			//	.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
+			//	.Select(() => complaintObjectAlias.Name).WithAlias(() => resultAlias.ComplaintObjectString)
+			//	.SelectSubQuery(resultOfArrangementCommentsSubquery).WithAlias(() => resultAlias.ArrangementText)
+			//	.SelectSubQuery(resultOfCounterpartySubquery).WithAlias(() => resultAlias.ResultOfCounterparty)
+			//	.SelectSubQuery(resultOfEmployeesSubquery).WithAlias(() => resultAlias.ResultOfEmployees)
+			//);
 
 			//query.SelectList(list => list
 			//	.SelectGroup(() => complaintAlias.Id).WithAlias(() => resultAlias.Id)
