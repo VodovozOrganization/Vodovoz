@@ -7,12 +7,9 @@ using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.NHibernateProjections.Employees;
-using Vodovoz.NHibernateProjections.Logistics;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Reports;
@@ -37,9 +34,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private SelectableParameterReportFilterViewModel _filterViewModel;
 		private List<int> _counterpartyIds = new List<int>();
 		private List<int> _warhouseIds = new List<int>();
-		private List<int> _employeeIds = new List<int>();
-		private List<int> _carIds = new List<int>();
-		private List<int> _movementWagonIds = new List<int>();
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
 			IWarehouseJournalFactory warehouseJournalFactory,
@@ -115,24 +109,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			private set => UpdateFilterField(ref _warhouseIds, value);
 		}
 
-		public List<int> EmployeeIds
-		{
-			get => _employeeIds;
-			private set => UpdateFilterField(ref _employeeIds, value);
-		}
-
-		public List<int> CarIds
-		{
-			get => _carIds;
-			private set => UpdateFilterField(ref _carIds, value);
-		}
-
-		public List<int> MovementWagonIds
-		{
-			get => _movementWagonIds;
-			private set => UpdateFilterField(ref _movementWagonIds, value);
-		}
-
 		public SelectableParameterReportFilterViewModel FilterViewModel
 		{
 			get => _filterViewModel;
@@ -201,87 +177,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 					return query.List<SelectableParameter>();
 				}));
 
-			_filter.CreateParameterSet(
-				"Сотрудник",
-				nameof(Employee),
-				new ParametersFactory(UoW, (filters) =>
-				{
-					Employee driverAlias = null;
-
-					SelectableEntityParameter<Employee> resultAlias = null;
-					var query = UoW.Session.QueryOver(() => driverAlias)
-						.Where(x => x.Category == EmployeeCategory.driver);
-					if(filters != null && filters.Any())
-					{
-						foreach(var f in filters)
-						{
-							query.Where(f());
-						}
-					}
-
-					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(EmployeeProjections.GetDriverFullNamePojection()).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
-					return query.List<SelectableParameter>();
-				}));
-
-			_filter.CreateParameterSet(
-				"Автомобиль",
-				nameof(Car),
-				new ParametersFactory(UoW, (filters) =>
-				{
-					Car carAlias = null;
-					CarModel carModelAlias = null;
-					CarManufacturer carManufacturerAlias = null;
-					Employee driverAlias = null;
-
-					SelectableEntityParameter<Car> resultAlias = null;
-					var query = UoW.Session.QueryOver(() => carAlias)
-						.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-						.Left.JoinAlias(() => carModelAlias.CarManufacturer, () => carManufacturerAlias)
-						.Left.JoinAlias(() => carAlias.Driver, () => driverAlias)
-						.Where(x => !x.IsArchive);
-					if(filters != null && filters.Any())
-					{
-						foreach(var f in filters)
-						{
-							query.Where(f());
-						}
-					}
-
-					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(CarProjections.GetCarTitleProjection()).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Car>>());
-					return query.List<SelectableParameter>();
-				}));
-
-			_filter.CreateParameterSet(
-				"Фура",
-				nameof(MovementWagon),
-				new ParametersFactory(UoW, (filters) =>
-				{
-					SelectableEntityParameter<MovementWagon> resultAlias = null;
-					var query = UoW.Session.QueryOver<MovementWagon>();
-					if(filters != null && filters.Any())
-					{
-						foreach(var f in filters)
-						{
-							query.Where(f());
-						}
-					}
-
-					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<MovementWagon>>());
-					return query.List<SelectableParameter>();
-				}));
-
 			FilterViewModel = new SelectableParameterReportFilterViewModel(_filter);
 
 			FilterViewModel.SelectionChanged += OnFilterViewModelSelectionChanged;
@@ -321,48 +216,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 						else
 						{
 							_warhouseIds.Remove((int)parameter.Id);
-						}
-					}
-					SetAndRefilterAtOnce();
-					break;
-				case nameof(Employee):
-					foreach(var parameter in e.ParametersChanged)
-					{
-						if(parameter.Value)
-						{
-							_employeeIds.Add((int)parameter.Id);
-						}
-						else
-						{
-							_employeeIds.Remove((int)parameter.Id);
-						}
-					}
-					SetAndRefilterAtOnce();
-					break;
-				case nameof(Car):
-					foreach(var parameter in e.ParametersChanged)
-					{
-						if(parameter.Value)
-						{
-							_carIds.Add((int)parameter.Id);
-						}
-						else
-						{
-							_carIds.Remove((int)parameter.Id);
-						}
-					}
-					SetAndRefilterAtOnce();
-					break;
-				case nameof(MovementWagon):
-					foreach(var parameter in e.ParametersChanged)
-					{
-						if(parameter.Value)
-						{
-							_movementWagonIds.Add((int)parameter.Id);
-						}
-						else
-						{
-							_movementWagonIds.Remove((int)parameter.Id);
 						}
 					}
 					SetAndRefilterAtOnce();

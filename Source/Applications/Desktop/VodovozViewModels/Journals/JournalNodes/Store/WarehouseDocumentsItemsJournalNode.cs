@@ -60,16 +60,16 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 				switch(DocTypeEnum)
 				{
 					case DocumentType.IncomingInvoice:
-						return $"Поставщик: {Counterparty}; Склад поступления: {Warehouse};";
+						return $"Поставщик: {Counterparty}; Склад поступления: {FromWarehouse};";
 					case DocumentType.IncomingWater:
-						return $"Количество: {Amount}; Склад поступления: {Warehouse}; Продукт производства: {ProductName}";
+						return $"Количество: {Amount}; Склад поступления: {FromWarehouse}; Продукт производства: {ProductName}";
 					case DocumentType.MovementDocument:
 						var carInfo = string.IsNullOrEmpty(CarNumber) ? null : $", Фура: {CarNumber}";
-						return $"{Warehouse} -> {SecondWarehouse}{carInfo}";
+						return $"{FromWarehouse} -> {ToWarehouse}{carInfo}";
 					case DocumentType.WriteoffDocument:
-						if(Warehouse != string.Empty)
+						if(FromWarehouse != string.Empty)
 						{
-							return $"Со склада \"{Warehouse}\"";
+							return $"Со склада \"{FromWarehouse}\"";
 						}
 
 						if(Counterparty != string.Empty)
@@ -103,19 +103,19 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 							RouteListId
 						);
 					case DocumentType.InventoryDocument:
-						return string.Format("По складу: {0}", Warehouse);
+						return string.Format("По складу: {0}", FromWarehouse);
 					case DocumentType.ShiftChangeDocument:
-						return string.Format("По складу: {0}", Warehouse);
+						return string.Format("По складу: {0}", FromWarehouse);
 					case DocumentType.RegradingOfGoodsDocument:
-						return string.Format("По складу: {0}", Warehouse);
+						return string.Format("По складу: {0}", FromWarehouse);
 					case DocumentType.SelfDeliveryDocument:
-						return string.Format("Склад: {0}, Заказ №: {1}, Клиент: {2}", Warehouse, OrderId, Counterparty);
+						return string.Format("Склад: {0}, Заказ №: {1}, Клиент: {2}", FromWarehouse, OrderId, Counterparty);
 					case DocumentType.DriverTerminalGiveout:
 						return "Выдача терминала водителю " +
-							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} со склада {Warehouse}";
+							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} со склада {FromWarehouse}";
 					case DocumentType.DriverTerminalReturn:
 						return "Возврат терминала водителем " +
-							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} на склад {Warehouse}";
+							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} на склад {FromWarehouse}";
 					default:
 						return string.Empty;
 				}
@@ -126,9 +126,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 
 		public int OrderId { get; set; }
 
-		public string Warehouse { get; set; }
+		public string FromWarehouse { get; set; }
 
-		public string SecondWarehouse { get; set; }
+		public string ToWarehouse { get; set; }
 
 		public decimal Amount { get; set; }
 

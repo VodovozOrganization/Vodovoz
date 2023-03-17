@@ -51,8 +51,11 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.ShowMovementDocumentFilterDetails, w => w.Visible)
 				.InitializeFromSource();
 
+			var initTargetSource = filterViewModel.TargetSource;
 			foreach(RadioButton radioButton in yrbtnTargetSourceSource.Group)
 			{
+				radioButton.Active = radioButton.Name == _radioButtonPrefix + _targetSourcePrefix + initTargetSource.ToString();
+				
 				if(radioButton.Active)
 				{
 					TargetSourceGroupSelectionChanged(radioButton, EventArgs.Empty);
