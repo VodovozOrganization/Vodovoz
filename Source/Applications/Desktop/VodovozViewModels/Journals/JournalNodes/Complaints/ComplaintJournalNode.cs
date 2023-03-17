@@ -92,16 +92,21 @@ namespace Vodovoz.Journals.JournalNodes
 	public class ComplaintJournalNodeWithDepartmentsReaction : ComplaintJournalNode
 	{
 		public DateTime DepartmentConnectionTime { get; set; }
-		public DateTime DepartmentFirstCommentTime { get; set; }
-		public TimeSpan DepartmentReactionTime => DepartmentFirstCommentTime - DepartmentConnectionTime;
+		public DateTime? DepartmentFirstCommentTime { get; set; }
 
 		public string DepartmentConnectionTimeString =>
 			$"{DepartmentConnectionTime.ToString("dd.MM.yy")}\n{DepartmentConnectionTime.ToString("t")}";
 
-		public string DepartmentFirstCommentTimeString =>
-			$"{DepartmentFirstCommentTime.ToString("dd.MM.yy")}\n{DepartmentFirstCommentTime.ToString("t")}";
+		public string DepartmentFirstCommentTimeString => 
+			DepartmentFirstCommentTime.HasValue
+			? $"{DepartmentFirstCommentTime.Value.ToString("dd.MM.yy")}\n{DepartmentFirstCommentTime.Value.ToString("t")}"
+			: "-";
 
 		public string DepartmentReactionTimeString =>
-			$"{DepartmentReactionTime.TotalDays}д:{DepartmentReactionTime.TotalHours}ч:{DepartmentReactionTime.TotalMinutes}мин";
+			DepartmentFirstCommentTime.HasValue
+			? $"{(DepartmentFirstCommentTime.Value - DepartmentConnectionTime).Days.ToString("F0")}д" +
+				$":{(DepartmentFirstCommentTime.Value - DepartmentConnectionTime).Hours.ToString("F0")}ч" +
+				$":{(DepartmentFirstCommentTime.Value - DepartmentConnectionTime).Minutes.ToString("F0")}мин"
+			: "-";
 	}
 }
