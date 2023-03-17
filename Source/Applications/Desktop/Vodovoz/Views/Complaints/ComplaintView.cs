@@ -240,7 +240,7 @@ namespace Vodovoz.Views.Complaints
 
 			foreach(ComplaintArrangementComment selected in ytreeviewArrangement.SelectedRows)
 			{
-				stringBuilder.AppendLine($"{selected.CreationTime} {selected.Author.FullName} {selected.Comment}");
+				stringBuilder.AppendLine(selected.Comment);
 			}
 
 			GetClipboard(null).Text = stringBuilder.ToString();
@@ -252,7 +252,7 @@ namespace Vodovoz.Views.Complaints
 
 			foreach(ComplaintResultComment selected in ytreeviewResult.SelectedRows)
 			{
-				stringBuilder.AppendLine($"{selected.CreationTime} {selected.Author.FullName} {selected.Comment}");
+				stringBuilder.AppendLine(selected.Comment);
 			}
 
 			GetClipboard(null).Text = stringBuilder.ToString();
