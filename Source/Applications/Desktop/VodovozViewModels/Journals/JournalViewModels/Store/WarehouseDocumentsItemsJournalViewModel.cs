@@ -520,7 +520,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Property(() => toWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.ToWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
-					.Select(() => incomingWaterAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => incomingWaterAlias.Amount))).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
