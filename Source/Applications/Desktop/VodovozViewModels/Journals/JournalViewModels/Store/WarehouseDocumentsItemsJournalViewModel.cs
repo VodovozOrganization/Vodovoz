@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using DateTimeHelpers;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -23,7 +24,6 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 using Vodovoz.ViewModels.Warehouses;
-using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
@@ -242,7 +242,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			if((FilterViewModel.DocumentType is null
 				|| FilterViewModel.DocumentType == DocumentType.IncomingInvoice)
-				&& FilterViewModel.Driver is null)
+				&& FilterViewModel.Driver is null
+				&& (!FilterViewModel.CounterpartyIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
+				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any()
+				&& !FilterViewModel.MovementWagonIds.Any())
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -254,9 +259,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					invoiceQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
-				if(FilterViewModel.WarhouseIds.Any())
+				if(FilterViewModel.CounterpartyIds.Any() && FilterViewModel.TargetSource != TargetSource.Target)
 				{
-					var warehouseRestriction = Restrictions.In(Projections.Property(() => invoiceAlias.Warehouse), FilterViewModel.WarhouseIds);
+					var countrpartyRestriction = Restrictions.In(Projections.Property(() => counterpartyAlias.Id), FilterViewModel.CounterpartyIds);
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						invoiceQuery.Where(countrpartyRestriction);
+					}
+					else
+					{
+						invoiceQuery.Where(Restrictions.Not(countrpartyRestriction));
+					}
+				}
+
+				if(FilterViewModel.WarhouseIds.Any() && FilterViewModel.TargetSource != TargetSource.Source)
+				{
+					var warehouseRestriction = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarhouseIds);
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
 					{
 						invoiceQuery.Where(warehouseRestriction);
@@ -323,7 +341,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.IncomingWater)
-				&& FilterViewModel.Driver == null)
+				&& FilterViewModel.Driver == null
+				&& !FilterViewModel.CounterpartyIds.Any()
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any()
+				&& !FilterViewModel.MovementWagonIds.Any())
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -341,19 +363,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 					if(FilterViewModel.TargetSource == TargetSource.Source)
 					{
-						warehouseCriterion = Restrictions.In(Projections.Property(() => incomingWaterAlias.FromWarehouse), FilterViewModel.WarhouseIds);
+						warehouseCriterion = Restrictions.In(Projections.Property(() => incomingWaterAlias.FromWarehouse.Id), FilterViewModel.WarhouseIds);
 					}
 
 					if(FilterViewModel.TargetSource == TargetSource.Target)
 					{
-						warehouseCriterion = Restrictions.In(Projections.Property(() => incomingWaterAlias.ToWarehouse), FilterViewModel.WarhouseIds);
+						warehouseCriterion = Restrictions.In(Projections.Property(() => incomingWaterAlias.ToWarehouse.Id), FilterViewModel.WarhouseIds);
 					}
 
 					if(FilterViewModel.TargetSource == TargetSource.Both)
 					{
 						warehouseCriterion = Restrictions.Or(
-							Restrictions.In(Projections.Property(() => incomingWaterAlias.FromWarehouse), FilterViewModel.WarhouseIds),
-							Restrictions.In(Projections.Property(() => incomingWaterAlias.ToWarehouse), FilterViewModel.WarhouseIds));
+							Restrictions.In(Projections.Property(() => incomingWaterAlias.FromWarehouse.Id), FilterViewModel.WarhouseIds),
+							Restrictions.In(Projections.Property(() => incomingWaterAlias.ToWarehouse.Id), FilterViewModel.WarhouseIds));
 					}
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
@@ -405,8 +427,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			MovementDocumentItem movementDocumentItemAlias = null;
 			MovementDocument movementDocumentAlias = null;
-			Warehouse warehouseAlias = null;
-			Warehouse secondWarehouseAlias = null;
+			Warehouse fromWarehouseAlias = null;
+			Warehouse toWarehouseAlias = null;
 			MovementWagon movementWagonAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
@@ -417,7 +439,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
-				&& FilterViewModel.Driver == null)
+				&& FilterViewModel.Driver == null
+				&& !FilterViewModel.CounterpartyIds.Any()
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any()
+				&& !FilterViewModel.MovementWagonIds.Any()) // Зависит от статуса передвижения, что делать с Discrepancy?
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -435,19 +461,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 					if(FilterViewModel.TargetSource == TargetSource.Source)
 					{
-						warehouseCriterion = Restrictions.In(Projections.Property(() => movementDocumentAlias.FromWarehouse), FilterViewModel.WarhouseIds);
+						warehouseCriterion = Restrictions.In(Projections.Property(() => fromWarehouseAlias.Id), FilterViewModel.WarhouseIds);
 					}
 
 					if(FilterViewModel.TargetSource == TargetSource.Target)
 					{
-						warehouseCriterion = Restrictions.In(Projections.Property(() => movementDocumentAlias.ToWarehouse), FilterViewModel.WarhouseIds);
+						warehouseCriterion = Restrictions.In(Projections.Property(() => toWarehouseAlias.Id), FilterViewModel.WarhouseIds);
 					}
 
 					if(FilterViewModel.TargetSource == TargetSource.Both)
 					{
 						warehouseCriterion = Restrictions.Or(
-							Restrictions.In(Projections.Property(() => movementDocumentAlias.FromWarehouse), FilterViewModel.WarhouseIds),
-							Restrictions.In(Projections.Property(() => movementDocumentAlias.ToWarehouse), FilterViewModel.WarhouseIds));
+							Restrictions.In(Projections.Property(() => fromWarehouseAlias.Id), FilterViewModel.WarhouseIds),
+							Restrictions.In(Projections.Property(() => toWarehouseAlias.Id), FilterViewModel.WarhouseIds));
 					}
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
@@ -467,8 +493,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			return movementQuery
 				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => warehouseAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.ToWarehouse, () => secondWarehouseAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => fromWarehouseAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.ToWarehouse, () => toWarehouseAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.MovementWagon, () => movementWagonAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => movementDocumentAlias.LastEditor, () => lastEditorAlias)
@@ -481,14 +507,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => movementDocumentAlias.HasDiscrepancy).WithAlias(() => resultAlias.MovementDocumentDiscrepancy)
 					.Select(() => movementWagonAlias.Name).WithAlias(() => resultAlias.CarNumber)
 					.Select(Projections.Conditional(
-						Restrictions.Where(() => warehouseAlias.Name == null),
+						Restrictions.Where(() => fromWarehouseAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => warehouseAlias.Name)))
+						Projections.Property(() => fromWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.Warehouse)
 					.Select(Projections.Conditional(
-						Restrictions.Where(() => secondWarehouseAlias.Name == null),
+						Restrictions.Where(() => toWarehouseAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => secondWarehouseAlias.Name)))
+						Projections.Property(() => toWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.SecondWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select(() => movementDocumentItemAlias.ReceivedAmount - movementDocumentItemAlias.SendedAmount)
@@ -521,7 +547,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.JoinQueryOver(() => writeoffDocumentItemAlias.Document, () => writeoffDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.WriteoffDocument)
-				&& FilterViewModel.Driver == null)
+				&& FilterViewModel.Driver == null
+				&& !FilterViewModel.CounterpartyIds.Any()
+				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any()
+				&& !FilterViewModel.MovementWagonIds.Any())
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -536,7 +567,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				if(FilterViewModel.WarhouseIds.Any()
 					&& (FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both))
 				{
-					var  warehouseCriterion = Restrictions.In(Projections.Property(() => writeoffDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+					var  warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarhouseIds);
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
 					{
@@ -607,7 +638,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.SelfDeliveryDocument)
-				&& FilterViewModel.Driver == null)
+				&& FilterViewModel.Driver == null
+				&& (!FilterViewModel.CounterpartyIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
+				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any()
+				&& !FilterViewModel.MovementWagonIds.Any())
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -619,10 +655,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					selfDeliveryQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
-				if(FilterViewModel.WarhouseIds.Any()
-					&& (FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both))
+				if(FilterViewModel.CounterpartyIds.Any() && FilterViewModel.TargetSource != TargetSource.Source)
 				{
-					var warehouseCriterion = Restrictions.In(Projections.Property(() => selfDeliveryDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+					var counterpartyCriterion = Restrictions.In(Projections.Property(() => counterpartyAlias.Id), FilterViewModel.CounterpartyIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						selfDeliveryQuery.Where(counterpartyCriterion);
+					}
+					else
+					{
+						selfDeliveryQuery.Where(Restrictions.Not(counterpartyCriterion));
+					}
+				}
+
+				if(FilterViewModel.WarhouseIds.Any() && FilterViewModel.TargetSource != TargetSource.Target)
+				{
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarhouseIds);
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
 					{
@@ -688,7 +737,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarLoadDocument)
-				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
+				&& !FilterViewModel.CounterpartyIds.Any()
+				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& (!FilterViewModel.CarIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
+				&& !FilterViewModel.MovementWagonIds.Any())
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -705,10 +758,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					carLoadQuery.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
 				}
 
-				if(FilterViewModel.WarhouseIds.Any()
-					&& (FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both))
+				if(FilterViewModel.WarhouseIds.Any() && FilterViewModel.TargetSource != TargetSource.Target)
 				{
-					var warehouseCriterion = Restrictions.In(Projections.Property(() => carLoadDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarhouseIds);
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
 					{
@@ -717,6 +769,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					else
 					{
 						carLoadQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
+
+				if(FilterViewModel.CarIds.Any() && FilterViewModel.TargetSource != TargetSource.Source)
+				{
+					var carCriterion = Restrictions.In(Projections.Property(() => carAlias.Id), FilterViewModel.CarIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						carLoadQuery.Where(carCriterion);
+					}
+					else
+					{
+						carLoadQuery.Where(Restrictions.Not(carCriterion));
 					}
 				}
 			}
@@ -781,8 +847,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarUnloadDocument)
+				&& !FilterViewModel.CounterpartyIds.Any()
 				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
-				)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& (!FilterViewModel.CarIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
+				&& !FilterViewModel.MovementWagonIds.Any())
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -799,10 +868,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					carUnloadQuery.Where(() => routeListAlias.Driver.Id == FilterViewModel.Driver.Id);
 				}
 
-				if(FilterViewModel.WarhouseIds.Any()
-					&& (FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both))
+				if(FilterViewModel.WarhouseIds.Any() && FilterViewModel.TargetSource != TargetSource.Source)
 				{
-					var warehouseCriterion = Restrictions.In(Projections.Property(() => carUnLoadDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarhouseIds);
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
 					{
@@ -811,6 +879,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					else
 					{
 						carUnloadQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
+
+				if(FilterViewModel.CarIds.Any() && FilterViewModel.TargetSource != TargetSource.Target)
+				{
+					var carCriterion = Restrictions.In(Projections.Property(() => carAlias.Id), FilterViewModel.CarIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						carUnloadQuery.Where(carCriterion);
+					}
+					else
+					{
+						carUnloadQuery.Where(Restrictions.Not(carCriterion));
 					}
 				}
 			}
@@ -869,8 +951,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var inventoryQuery = unitOfWork.Session.QueryOver(() => inventoryDocumentItemAlias)
 				.JoinQueryOver(() => inventoryDocumentItemAlias.Document, () => inventoryDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.InventoryDocument) &&
-				FilterViewModel.Driver == null)
+			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.InventoryDocument)
+				&& FilterViewModel.Driver == null
+				&& !FilterViewModel.CounterpartyIds.Any()
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any()
+				&& !FilterViewModel.MovementWagonIds.Any())
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -884,7 +970,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 				if(FilterViewModel.WarhouseIds.Any())
 				{
-					var warehouseCriterion = Restrictions.In(Projections.Property(() => inventoryDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarhouseIds);
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
 					{
@@ -893,6 +979,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					else
 					{
 						inventoryQuery.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
+
+				if(FilterViewModel.TargetSource != TargetSource.Both)
+				{
+					if(FilterViewModel.TargetSource == TargetSource.Target)
+					{
+						inventoryQuery.Where(() => inventoryDocumentItemAlias.AmountInFact - inventoryDocumentItemAlias.AmountInDB > 0);
+					}
+
+					if(FilterViewModel.TargetSource == TargetSource.Source)
+					{
+						inventoryQuery.Where(() => inventoryDocumentItemAlias.AmountInFact - inventoryDocumentItemAlias.AmountInDB < 0);
 					}
 				}
 			}
@@ -927,7 +1026,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<InventoryDocumentItem>>());
 		}
 
-		private IQueryOver<ShiftChangeWarehouseDocumentItem> GetQueryShiftChangeWarehouseDocumentItem(IUnitOfWork unitOfWork)
+		private IQueryOver<ShiftChangeWarehouseDocumentItem> GetQueryShiftChangeWarehouseDocumentItem(IUnitOfWork unitOfWork) // Не влияет на остатки
 		{
 			WarehouseDocumentsItemsJournalNode<ShiftChangeWarehouseDocumentItem> resultAlias = null;
 
@@ -942,8 +1041,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var shiftchangeQuery = unitOfWork.Session.QueryOver(() => shiftChangeWarehouseDocumentItemAlias)
 				.JoinQueryOver(() => shiftChangeWarehouseDocumentItemAlias.Document, () => shiftChangeWarehouseDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
-			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.ShiftChangeDocument) &&
-				FilterViewModel.Driver == null)
+			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.ShiftChangeDocument)
+				&& FilterViewModel.Driver == null
+				&& !FilterViewModel.CounterpartyIds.Any()
+				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource == TargetSource.Both)
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any()
+				&& !FilterViewModel.MovementWagonIds.Any())
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -957,7 +1061,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 				if(FilterViewModel.WarhouseIds.Any())
 				{
-					var warehouseCriterion = Restrictions.In(Projections.Property(() => shiftChangeWarehouseDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarhouseIds);
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
 					{
@@ -1015,8 +1119,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var regrandingQuery = unitOfWork.Session.QueryOver(() => regradingOfGoodsDocumentItemAlias)
 				.JoinQueryOver(() => regradingOfGoodsDocumentItemAlias.Document, () => regradingOfGoodsDocumentAlias);
 
-			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument) &&
-				FilterViewModel.Driver == null)
+			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument)
+				&& FilterViewModel.Driver == null
+				&& !FilterViewModel.CounterpartyIds.Any()
+				&& !FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any()
+				&& !FilterViewModel.MovementWagonIds.Any())
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -1028,9 +1137,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					regrandingQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
-				if(FilterViewModel.WarhouseIds.Any())
+				if(FilterViewModel.WarhouseIds.Any() && FilterViewModel.TargetSource != TargetSource.Target)
 				{
-					var warehouseCriterion = Restrictions.In(Projections.Property(() => regradingOfGoodsDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarhouseIds);
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
 					{
@@ -1088,8 +1197,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var regrandingQuery = unitOfWork.Session.QueryOver(() => regradingOfGoodsDocumentItemAlias)
 				.JoinQueryOver(() => regradingOfGoodsDocumentItemAlias.Document, () => regradingOfGoodsDocumentAlias);
 
-			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument) &&
-				FilterViewModel.Driver == null)
+			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.RegradingOfGoodsDocument)
+				&& FilterViewModel.Driver == null
+				&& !FilterViewModel.CounterpartyIds.Any()
+				&& !FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source
+				&& !FilterViewModel.EmployeeIds.Any()
+				&& !FilterViewModel.CarIds.Any()
+				&& !FilterViewModel.MovementWagonIds.Any())
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -1101,9 +1215,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					regrandingQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
-				if(FilterViewModel.WarhouseIds.Any())
+				if(FilterViewModel.WarhouseIds.Any() && FilterViewModel.TargetSource != TargetSource.Source)
 				{
-					var warehouseCriterion = Restrictions.In(Projections.Property(() => regradingOfGoodsDocumentAlias.Warehouse), FilterViewModel.WarhouseIds);
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarhouseIds);
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
 					{

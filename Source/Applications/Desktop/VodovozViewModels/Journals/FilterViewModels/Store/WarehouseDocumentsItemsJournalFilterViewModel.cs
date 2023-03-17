@@ -3,7 +3,6 @@ using QS.Project.Filter;
 using QS.Services;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -34,9 +33,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private Employee _driver;
 		private DocumentType? _documentType;
 		private TargetSource _targetSource;
-		private SelectableParameterReportFilterViewModel _filterViewModel;
-		private List<int> _warhouseIds = new List<int>();
 		private SelectableFilterType _filterType;
+		private SelectableParameterReportFilterViewModel _filterViewModel;
+		private List<int> _counterpartyIds = new List<int>();
+		private List<int> _warhouseIds = new List<int>();
+		private List<int> _employeeIds = new List<int>();
+		private List<int> _carIds = new List<int>();
+		private List<int> _movementWagonIds = new List<int>();
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
 			IWarehouseJournalFactory warehouseJournalFactory,
@@ -54,6 +57,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 			StartDate = DateTime.Today.AddDays(-7);
 			EndDate = DateTime.Today.AddDays(1);
+			TargetSource = TargetSource.Both;
 
 			_filter = new SelectableParametersReportFilter(UoW);
 			ConfigureFilter();
@@ -99,10 +103,34 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => UpdateFilterField(ref _targetSource, value);
 		}
 
+		public List<int> CounterpartyIds
+		{
+			get => _counterpartyIds;
+			private set => UpdateFilterField(ref _counterpartyIds, value);
+		}
+
 		public List<int> WarhouseIds
 		{
 			get => _warhouseIds;
 			private set => UpdateFilterField(ref _warhouseIds, value);
+		}
+
+		public List<int> EmployeeIds
+		{
+			get => _employeeIds;
+			private set => UpdateFilterField(ref _employeeIds, value);
+		}
+
+		public List<int> CarIds
+		{
+			get => _carIds;
+			private set => UpdateFilterField(ref _carIds, value);
+		}
+
+		public List<int> MovementWagonIds
+		{
+			get => _movementWagonIds;
+			private set => UpdateFilterField(ref _movementWagonIds, value);
 		}
 
 		public SelectableParameterReportFilterViewModel FilterViewModel
@@ -174,7 +202,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				}));
 
 			_filter.CreateParameterSet(
-				"Водитель",
+				"Сотрудник",
 				nameof(Employee),
 				new ParametersFactory(UoW, (filters) =>
 				{
@@ -270,6 +298,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			switch(e.Name)
 			{
 				case nameof(Counterparty):
+					foreach(var parameter in e.ParametersChanged)
+					{
+						if(parameter.Value)
+						{
+							_counterpartyIds.Add((int)parameter.Id);
+						}
+						else
+						{
+							_counterpartyIds.Remove((int)parameter.Id);
+						}
+					}
+					SetAndRefilterAtOnce();
 					break;
 				case nameof(Warehouse):
 					foreach(var parameter in e.ParametersChanged)
@@ -286,10 +326,46 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 					SetAndRefilterAtOnce();
 					break;
 				case nameof(Employee):
+					foreach(var parameter in e.ParametersChanged)
+					{
+						if(parameter.Value)
+						{
+							_employeeIds.Add((int)parameter.Id);
+						}
+						else
+						{
+							_employeeIds.Remove((int)parameter.Id);
+						}
+					}
+					SetAndRefilterAtOnce();
 					break;
 				case nameof(Car):
+					foreach(var parameter in e.ParametersChanged)
+					{
+						if(parameter.Value)
+						{
+							_carIds.Add((int)parameter.Id);
+						}
+						else
+						{
+							_carIds.Remove((int)parameter.Id);
+						}
+					}
+					SetAndRefilterAtOnce();
 					break;
 				case nameof(MovementWagon):
+					foreach(var parameter in e.ParametersChanged)
+					{
+						if(parameter.Value)
+						{
+							_movementWagonIds.Add((int)parameter.Id);
+						}
+						else
+						{
+							_movementWagonIds.Remove((int)parameter.Id);
+						}
+					}
+					SetAndRefilterAtOnce();
 					break;
 				default:
 					throw new InvalidOperationException($"Сет параметров с именем {e.Name} не поддерживается");
