@@ -1,4 +1,7 @@
-﻿using Autofac;
+using ApiClientProvider;
+using Autofac;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Deletion;
@@ -51,6 +54,7 @@ using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Organizations;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
@@ -196,6 +200,7 @@ using Vodovoz.ViewWidgets;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
+using VodovozInfrastructure.Endpoints;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
 
@@ -782,6 +787,26 @@ namespace Vodovoz
 			builder.RegisterType<UserPermissionNode>()
 				.AsSelf()
 				.As<IPermissionNode>();
+
+			builder.Register(context =>
+				{
+					var cs = new ConfigurationSection(
+					new ConfigurationRoot(
+						new List<IConfigurationProvider>
+						{
+							new MemoryConfigurationProvider(new MemoryConfigurationSource())
+						}
+						), "");
+
+					cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
+
+					var clientProvider = new ApiClientProvider.ApiClientProvider(cs);
+
+					return new DriverApiUserRegisterEndpoint(clientProvider);
+				}
+				).As<DriverApiUserRegisterEndpoint>();
+
+			builder.Register(c => CurrentUserSettings.Settings).As<UserSettings>();
 
 			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
