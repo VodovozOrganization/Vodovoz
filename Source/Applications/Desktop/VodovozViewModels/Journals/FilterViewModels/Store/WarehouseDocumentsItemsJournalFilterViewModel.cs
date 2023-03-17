@@ -1,18 +1,27 @@
-﻿using NHibernate.Transform;
+﻿using Autofac;
+using NHibernate.Transform;
+using QS.Navigation;
 using QS.Project.Filter;
 using QS.Services;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Reports;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
@@ -21,6 +30,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private const string _haveAccessOnlyToWarehouseAndComplaintsPermissionName = "user_have_access_only_to_warehouse_and_complaints";
 
 		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly INavigationManager _navigationManager;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IUserService _userService;
 		private readonly IUserRepository _userRepository;
 		private readonly SelectableParametersReportFilter _filter;
@@ -34,18 +45,18 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private SelectableParameterReportFilterViewModel _filterViewModel;
 		private List<int> _counterpartyIds = new List<int>();
 		private List<int> _warhouseIds = new List<int>();
+		private DialogViewModelBase _journalViewModel;
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
-			IWarehouseJournalFactory warehouseJournalFactory,
-			IEmployeeJournalFactory employeeJournalFactory,
 			ICurrentPermissionService currentPermissionService,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			IUserService userService,
 			IUserRepository userRepository)
 		{
-			WarehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
-			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
@@ -56,10 +67,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			_filter = new SelectableParametersReportFilter(UoW);
 			ConfigureFilter();
 		}
-
-		public IWarehouseJournalFactory WarehouseJournalFactory { get; }
-
-		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 
 		public DateTime? StartDate
 		{
@@ -121,11 +128,88 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => UpdateFilterField(ref _filterType, value);
 		}
 
+		public DialogViewModelBase JournalViewModel
+		{
+			get => _journalViewModel;
+			set
+			{
+				_journalViewModel = value;
+
+				var driverEntryViewModel =
+					new CommonEEVMBuilderFactory<WarehouseDocumentsItemsJournalFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope)
+					.ForProperty(x => x.Driver)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						filter =>
+						{
+							filter.RestrictCategory = EmployeeCategory.driver;
+						}
+					)
+					.Finish();
+
+				driverEntryViewModel.CanViewEntity = false;
+
+				DriverEntityEntryViewModel = driverEntryViewModel;
+
+				var authorEntryViewModel =
+					new CommonEEVMBuilderFactory<WarehouseDocumentsItemsJournalFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope)
+					.ForProperty(x => x.Driver)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						filter =>
+						{
+						}
+					)
+					.Finish();
+
+				authorEntryViewModel.CanViewEntity = false;
+
+				AuthorEntityEntryViewModel = authorEntryViewModel;
+
+				var lastEditorEntryViewModel =
+					new CommonEEVMBuilderFactory<WarehouseDocumentsItemsJournalFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope)
+					.ForProperty(x => x.Driver)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						filter =>
+						{
+						}
+					)
+					.Finish();
+
+				lastEditorEntryViewModel.CanViewEntity = false;
+
+				LastEditorEntityEntryViewModel = lastEditorEntryViewModel;
+
+				var nomenclatureEntryViewModel =
+					new CommonEEVMBuilderFactory<WarehouseDocumentsItemsJournalFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope)
+					.ForProperty(x => x.Driver)
+					.UseViewModelDialog<NomenclatureViewModel>()
+					.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(
+						filter =>
+						{
+						}
+					)
+					.Finish();
+
+				lastEditorEntryViewModel.CanViewEntity = false;
+
+				NomenclatureEntityEntryViewModel = lastEditorEntryViewModel;
+			}
+		}
+
 		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(_haveAccessOnlyToWarehouseAndComplaintsPermissionName) || _userService.GetCurrentUser(UoW).IsAdmin;
 
 		public bool CanUpdateWarehouse => CanReadWarehouse;
 
 		public bool ShowMovementDocumentFilterDetails => DocumentType.HasValue && (DocumentType.Value == Domain.Documents.DocumentType.MovementDocument);
+
+		public EntityEntryViewModel<Employee> DriverEntityEntryViewModel { get; private set; }
+		public EntityEntryViewModel<Employee> AuthorEntityEntryViewModel { get; private set; }
+		public EntityEntryViewModel<Employee> LastEditorEntityEntryViewModel { get; private set; }
+		public EntityEntryViewModel<Employee> NomenclatureEntityEntryViewModel { get; private set; }
+		public object CanReadEmployee => _currentPermissionService.ValidateEntityPermission(typeof(Employee)).CanRead;
+		public object CanReadNomenclature => _currentPermissionService.ValidateEntityPermission(typeof(Nomenclature)).CanRead;
 
 		private void ConfigureFilter()
 		{

@@ -43,6 +43,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		{
 			NavigationManager = navigationManager;
 
+			FilterViewModel.JournalViewModel = this;
+
 			TabName = "Журнал строк складских документов";
 
 			_documentItemsTypes = new[]

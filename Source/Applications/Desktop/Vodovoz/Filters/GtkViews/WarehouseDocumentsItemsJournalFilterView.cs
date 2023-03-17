@@ -35,10 +35,21 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.DocumentType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
-			//evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
-			//evmeDriver.Binding.AddSource(ViewModel)
-				//.AddBinding(vm => vm.Driver, w => w.Subject)
-				//.InitializeFromSource();
+			entryDriver.ViewModel = ViewModel.DriverEntityEntryViewModel;
+			entryDriver.Binding.AddBinding(ViewModel, vm => vm.CanReadEmployee, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
+
+			entryAuthor.ViewModel = ViewModel.AuthorEntityEntryViewModel;
+			entryAuthor.Binding.AddBinding(ViewModel, vm => vm.CanReadEmployee, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
+
+			entryLastEditor.ViewModel = ViewModel.LastEditorEntityEntryViewModel;
+			entryLastEditor.Binding.AddBinding(ViewModel, vm => vm.CanReadEmployee, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
+
+			entryNomenclature.ViewModel = ViewModel.NomenclatureEntityEntryViewModel;
+			entryNomenclature.Binding.AddBinding(ViewModel, vm => vm.CanReadNomenclature, w => w.ViewModel.IsEditable)
+				.InitializeFromSource();
 
 			yecmbMovementStatus.ItemsEnum = typeof(MovementDocumentStatus);
 			yecmbMovementStatus.Binding.AddSource(ViewModel)
