@@ -17,14 +17,13 @@ namespace Vodovoz.Filters.GtkViews
 			: base(filterViewModel)
 		{
 			Build();
-
-			dateperiodDocs.Binding.AddSource(ViewModel)
+			dppDocuments.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDate)
 				.AddBinding(vm => vm.EndDate, w => w.EndDate)
 				.InitializeFromSource();
 
-			enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
-			enumcomboDocumentType.HiddenItems = new object[]
+			yecmbDocumentType.ItemsEnum = typeof(DocumentType);
+			yecmbDocumentType.HiddenItems = new object[]
 			{
 				DocumentType.DeliveryDocument,
 				DocumentType.DriverTerminalGiveout,
@@ -32,22 +31,22 @@ namespace Vodovoz.Filters.GtkViews
 				DocumentType.DriverTerminalReturn,
 			};
 
-			enumcomboDocumentType.Binding.AddSource(ViewModel)
+			yecmbDocumentType.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.DocumentType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
-			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
-			evmeDriver.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.Driver, w => w.Subject)
-				.InitializeFromSource();
+			//evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory());
+			//evmeDriver.Binding.AddSource(ViewModel)
+				//.AddBinding(vm => vm.Driver, w => w.Subject)
+				//.InitializeFromSource();
 
-			comboMovementStatus.ItemsEnum = typeof(MovementDocumentStatus);
-			comboMovementStatus.Binding.AddSource(ViewModel)
+			yecmbMovementStatus.ItemsEnum = typeof(MovementDocumentStatus);
+			yecmbMovementStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowMovementDocumentFilterDetails, w => w.Visible)
 				.AddBinding(vm => vm.MovementDocumentStatus, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
-			ylabelMovementStatus.Binding
+			ylblMovementStatus.Binding
 				.AddBinding(ViewModel, vm => vm.ShowMovementDocumentFilterDetails, w => w.Visible)
 				.InitializeFromSource();
 
