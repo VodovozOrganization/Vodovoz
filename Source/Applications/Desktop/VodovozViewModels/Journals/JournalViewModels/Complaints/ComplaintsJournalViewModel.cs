@@ -960,7 +960,6 @@ namespace Vodovoz.Journals.JournalViewModels
 						null,
 						FilterViewModel,
 						OpenPageOptions.IgnoreHash);
-					//NavigationManager.OpenViewModel<ComplaintsWithDepartmentsReactionJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 				}
 			);
 			NodeActionsList.Add(openStandartView);

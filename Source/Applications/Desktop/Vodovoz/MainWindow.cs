@@ -327,6 +327,7 @@ public partial class MainWindow : Gtk.Window
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
+			vseparatorNotifications1.Visible = notificationDetails.NeedNotify;
 			lblMovementsNotification.Markup = notificationDetails.NotificationMessage;
 
 			if(notificationDetails.NeedNotify)
@@ -335,25 +336,17 @@ public partial class MainWindow : Gtk.Window
 			}
 		}
 
-		btnUpdateMovementsNotification.Clicked += OnBtnUpdateMovementsNotificationClicked;
+		btnUpdateMovementsNotification.Clicked += OnBtnUpdateNotificationClicked;
 
 		#endregion
 
 		#region Уведомление о наличии незакрытых рекламаций без комментариев в добавленной дискуссии для отдела
 
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			_complaintNotificationController = autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
+		_complaintNotificationController = autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
+		_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
 
-			var notificationDetails = _complaintNotificationController.GetNotificationDetails(uow);
-			hboxComplaintsNotification.Visible = notificationDetails.NeedNotify;
-			lblComplaintsNotification.Markup = notificationDetails.NotificationMessage;
-
-			if(notificationDetails.NeedNotify)
-			{
-				_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
-			}
-		}
+		var complaintNotificationDetails = GetComplaintNotificationDetails();
+		UpdateSendedComplaintsNotification(complaintNotificationDetails);
 
 		btnUpdateOpenComplaint.Clicked += OnBtnOpenComplaintClicked;
 
@@ -433,13 +426,16 @@ public partial class MainWindow : Gtk.Window
 	}
 
 	#region Методы для уведомления об отправленных перемещениях для подразделения
-	private void OnBtnUpdateMovementsNotificationClicked(object sender, EventArgs e)
+	private void OnBtnUpdateNotificationClicked(object sender, EventArgs e)
 	{
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			var notification = _movementsNotificationsController.GetNotificationMessageBySubdivision(uow);
-			UpdateSendedMovementsNotification(notification);
+			var movementsNotification = _movementsNotificationsController.GetNotificationMessageBySubdivision(uow);
+			UpdateSendedMovementsNotification(movementsNotification);
 		}
+
+		var complaintsNotifications = GetComplaintNotificationDetails();
+		UpdateSendedComplaintsNotification(complaintsNotifications);
 	}
 
 	private void UpdateSendedMovementsNotification(string notification)
@@ -452,9 +448,10 @@ public partial class MainWindow : Gtk.Window
 	private void UpdateSendedComplaintsNotification(SendedComplaintNotificationDetails notificationDetails)
 	{
 		lblComplaintsNotification.Markup = notificationDetails.NotificationMessage;
+		hboxComplaintsNotification.Visible = notificationDetails.NeedNotify;
+		vseparatorNotifications2.Visible = notificationDetails.NeedNotify;
 	}
-
-	private void OnBtnOpenComplaintClicked(object sender, EventArgs e)
+	private SendedComplaintNotificationDetails GetComplaintNotificationDetails()
 	{
 		SendedComplaintNotificationDetails notificationDetails;
 
@@ -462,6 +459,13 @@ public partial class MainWindow : Gtk.Window
 		{
 			notificationDetails = _complaintNotificationController.GetNotificationDetails(uow);
 		}
+
+		return notificationDetails;
+	}
+
+	private void OnBtnOpenComplaintClicked(object sender, EventArgs e)
+	{
+		var notificationDetails = GetComplaintNotificationDetails();
 
 		UpdateSendedComplaintsNotification(notificationDetails);
 
@@ -1127,6 +1131,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
+		//NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 		NavigationManager.OpenViewModel<ComplaintsWithDepartmentsReactionJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
