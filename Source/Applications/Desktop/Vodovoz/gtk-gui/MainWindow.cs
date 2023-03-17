@@ -585,9 +585,13 @@ public partial class MainWindow
 
 	private global::Gamma.GtkWidgets.yButton btnUpdateMovementsNotification;
 
+	private global::Gtk.VSeparator vseparatorNotifications1;
+
 	private global::Gamma.GtkWidgets.yHBox hboxMovementsNotification;
 
 	private global::Gamma.GtkWidgets.yLabel lblMovementsNotification;
+
+	private global::Gtk.VSeparator vseparatorNotifications2;
 
 	private global::Gamma.GtkWidgets.yHBox hboxComplaintsNotification;
 
@@ -1768,6 +1772,14 @@ public partial class MainWindow
 		w4.Expand = false;
 		w4.Fill = false;
 		// Container child hboxNotifications.Gtk.Box+BoxChild
+		this.vseparatorNotifications1 = new global::Gtk.VSeparator();
+		this.vseparatorNotifications1.Name = "vseparatorNotifications1";
+		this.hboxNotifications.Add(this.vseparatorNotifications1);
+		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.vseparatorNotifications1]));
+		w5.Position = 1;
+		w5.Expand = false;
+		w5.Fill = false;
+		// Container child hboxNotifications.Gtk.Box+BoxChild
 		this.hboxMovementsNotification = new global::Gamma.GtkWidgets.yHBox();
 		this.hboxMovementsNotification.Name = "hboxMovementsNotification";
 		this.hboxMovementsNotification.Spacing = 6;
@@ -1778,15 +1790,23 @@ public partial class MainWindow
 		this.lblMovementsNotification.LabelProp = global::Mono.Unix.Catalog.GetString("MovementsNotification");
 		this.lblMovementsNotification.UseMarkup = true;
 		this.hboxMovementsNotification.Add(this.lblMovementsNotification);
-		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxMovementsNotification[this.lblMovementsNotification]));
-		w5.Position = 0;
-		w5.Expand = false;
-		w5.Fill = false;
-		this.hboxNotifications.Add(this.hboxMovementsNotification);
-		global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.hboxMovementsNotification]));
-		w6.Position = 1;
+		global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxMovementsNotification[this.lblMovementsNotification]));
+		w6.Position = 0;
 		w6.Expand = false;
 		w6.Fill = false;
+		this.hboxNotifications.Add(this.hboxMovementsNotification);
+		global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.hboxMovementsNotification]));
+		w7.Position = 2;
+		w7.Expand = false;
+		w7.Fill = false;
+		// Container child hboxNotifications.Gtk.Box+BoxChild
+		this.vseparatorNotifications2 = new global::Gtk.VSeparator();
+		this.vseparatorNotifications2.Name = "vseparatorNotifications2";
+		this.hboxNotifications.Add(this.vseparatorNotifications2);
+		global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.vseparatorNotifications2]));
+		w8.Position = 3;
+		w8.Expand = false;
+		w8.Fill = false;
 		// Container child hboxNotifications.Gtk.Box+BoxChild
 		this.hboxComplaintsNotification = new global::Gamma.GtkWidgets.yHBox();
 		this.hboxComplaintsNotification.Name = "hboxComplaintsNotification";
@@ -1798,10 +1818,10 @@ public partial class MainWindow
 		this.lblComplaintsNotification.LabelProp = global::Mono.Unix.Catalog.GetString("ComplaintsNotification");
 		this.lblComplaintsNotification.UseMarkup = true;
 		this.hboxComplaintsNotification.Add(this.lblComplaintsNotification);
-		global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxComplaintsNotification[this.lblComplaintsNotification]));
-		w7.Position = 0;
-		w7.Expand = false;
-		w7.Fill = false;
+		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxComplaintsNotification[this.lblComplaintsNotification]));
+		w9.Position = 0;
+		w9.Expand = false;
+		w9.Fill = false;
 		// Container child hboxComplaintsNotification.Gtk.Box+BoxChild
 		this.btnUpdateOpenComplaint = new global::Gamma.GtkWidgets.yButton();
 		this.btnUpdateOpenComplaint.CanFocus = true;
@@ -1809,20 +1829,20 @@ public partial class MainWindow
 		this.btnUpdateOpenComplaint.UseUnderline = true;
 		this.btnUpdateOpenComplaint.Label = global::Mono.Unix.Catalog.GetString("Перейти в рекламацию");
 		this.hboxComplaintsNotification.Add(this.btnUpdateOpenComplaint);
-		global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxComplaintsNotification[this.btnUpdateOpenComplaint]));
-		w8.Position = 1;
-		w8.Expand = false;
-		w8.Fill = false;
-		this.hboxNotifications.Add(this.hboxComplaintsNotification);
-		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.hboxComplaintsNotification]));
-		w9.Position = 2;
-		w9.Expand = false;
-		w9.Fill = false;
-		this.vbox1.Add(this.hboxNotifications);
-		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxNotifications]));
+		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxComplaintsNotification[this.btnUpdateOpenComplaint]));
 		w10.Position = 1;
 		w10.Expand = false;
 		w10.Fill = false;
+		this.hboxNotifications.Add(this.hboxComplaintsNotification);
+		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.hboxComplaintsNotification]));
+		w11.Position = 4;
+		w11.Expand = false;
+		w11.Fill = false;
+		this.vbox1.Add(this.hboxNotifications);
+		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxNotifications]));
+		w12.Position = 1;
+		w12.Expand = false;
+		w12.Fill = false;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.hbox2 = new global::Gtk.HBox();
 		this.hbox2.Name = "hbox2";
@@ -1835,8 +1855,8 @@ public partial class MainWindow
 		this.toolbarMain.ToolbarStyle = ((global::Gtk.ToolbarStyle)(2));
 		this.toolbarMain.IconSize = ((global::Gtk.IconSize)(5));
 		this.hbox2.Add(this.toolbarMain);
-		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.toolbarMain]));
-		w11.Position = 0;
+		global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.toolbarMain]));
+		w13.Position = 0;
 		// Container child hbox2.Gtk.Box+BoxChild
 		this.UIManager.AddUiFromString("<ui><toolbar name=\'tlbComplaints\'><toolitem name=\'ActionComplaints\' action=\'Actio" +
 				"nComplaints\'/><toolitem name=\'MangoAction\' action=\'MangoAction\'/></toolbar></ui>" +
@@ -1847,15 +1867,15 @@ public partial class MainWindow
 		this.tlbComplaints.ToolbarStyle = ((global::Gtk.ToolbarStyle)(2));
 		this.tlbComplaints.IconSize = ((global::Gtk.IconSize)(5));
 		this.hbox2.Add(this.tlbComplaints);
-		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.tlbComplaints]));
-		w12.PackType = ((global::Gtk.PackType)(1));
-		w12.Position = 1;
-		w12.Expand = false;
+		global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.tlbComplaints]));
+		w14.PackType = ((global::Gtk.PackType)(1));
+		w14.Position = 1;
+		w14.Expand = false;
 		this.vbox1.Add(this.hbox2);
-		global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-		w13.Position = 2;
-		w13.Expand = false;
-		w13.Fill = false;
+		global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+		w15.Position = 2;
+		w15.Expand = false;
+		w15.Fill = false;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.UIManager.AddUiFromString("<ui><toolbar name=\'toolbarSub\'/></ui>");
 		this.toolbarSub = ((global::Gtk.Toolbar)(this.UIManager.GetWidget("/toolbarSub")));
@@ -1864,10 +1884,10 @@ public partial class MainWindow
 		this.toolbarSub.ToolbarStyle = ((global::Gtk.ToolbarStyle)(1));
 		this.toolbarSub.IconSize = ((global::Gtk.IconSize)(2));
 		this.vbox1.Add(this.toolbarSub);
-		global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.toolbarSub]));
-		w14.Position = 3;
-		w14.Expand = false;
-		w14.Fill = false;
+		global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.toolbarSub]));
+		w16.Position = 3;
+		w16.Expand = false;
+		w16.Fill = false;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.tdiMain = new global::QS.Tdi.Gtk.TdiNotebook();
 		this.tdiMain.Name = "tdiMain";
@@ -1878,8 +1898,8 @@ public partial class MainWindow
 		this.tdiMain.KeepColors = false;
 		this.tdiMain.AllowToReorderTabs = false;
 		this.vbox1.Add(this.tdiMain);
-		global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.tdiMain]));
-		w15.Position = 4;
+		global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.tdiMain]));
+		w17.Position = 4;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.statusbarMain = new global::Gtk.Statusbar();
 		this.statusbarMain.Name = "statusbarMain";
@@ -1888,28 +1908,28 @@ public partial class MainWindow
 		this.labelUser = new global::Gtk.Label();
 		this.labelUser.Name = "labelUser";
 		this.statusbarMain.Add(this.labelUser);
-		global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelUser]));
-		w16.Position = 0;
-		w16.Expand = false;
-		w16.Fill = false;
-		this.vbox1.Add(this.statusbarMain);
-		global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
-		w17.PackType = ((global::Gtk.PackType)(1));
-		w17.Position = 5;
-		w17.Expand = false;
-		w17.Fill = false;
-		this.hbox1.Add(this.vbox1);
-		global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox1]));
+		global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelUser]));
 		w18.Position = 0;
+		w18.Expand = false;
+		w18.Fill = false;
+		this.vbox1.Add(this.statusbarMain);
+		global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
+		w19.PackType = ((global::Gtk.PackType)(1));
+		w19.Position = 5;
+		w19.Expand = false;
+		w19.Fill = false;
+		this.hbox1.Add(this.vbox1);
+		global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox1]));
+		w20.Position = 0;
 		// Container child hbox1.Gtk.Box+BoxChild
 		this.infopanel = new global::Vodovoz.SidePanel.InfoPanel();
 		this.infopanel.Events = ((global::Gdk.EventMask)(256));
 		this.infopanel.Name = "infopanel";
 		this.hbox1.Add(this.infopanel);
-		global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.infopanel]));
-		w19.Position = 1;
-		w19.Expand = false;
-		w19.Fill = false;
+		global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.infopanel]));
+		w21.Position = 1;
+		w21.Expand = false;
+		w21.Fill = false;
 		this.Add(this.hbox1);
 		if ((this.Child != null))
 		{
