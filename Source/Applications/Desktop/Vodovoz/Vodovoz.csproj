@@ -1775,6 +1775,10 @@
     <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReportGroupPrint.cs" />
     <Compile Include="ReportsParameters\WayBillReportGroupPrint.cs" />
+    <Compile Include="Filters\Views\ExternalCounterpartiesMatchingJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.ExternalCounterpartiesMatchingJournalFilterView.cs" />
+    <Compile Include="Views\Client\ExternalCounterpartyMatchingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.ExternalCounterpartyMatchingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
