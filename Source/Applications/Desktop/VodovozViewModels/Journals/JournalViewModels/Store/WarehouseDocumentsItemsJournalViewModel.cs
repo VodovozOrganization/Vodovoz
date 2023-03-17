@@ -291,6 +291,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						invoiceQuery.Where(Restrictions.Not(warehouseRestriction));
 					}
 				}
+
+				if(FilterViewModel.Author != null)
+				{
+					invoiceQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					invoiceQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					invoiceQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
+				}
 			}
 			else
 			{
@@ -393,6 +408,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						waterQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
 				}
+
+				if(FilterViewModel.Author != null)
+				{
+					waterQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					waterQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					waterQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
+				}
 			}
 			else
 			{
@@ -494,6 +524,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						waterQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
 				}
+
+				if(FilterViewModel.Author != null)
+				{
+					waterQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					waterQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					waterQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
+				}
 			}
 			else
 			{
@@ -556,7 +601,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& !FilterViewModel.CounterpartyIds.Any()
 				&& FilterViewModel.TargetSource != TargetSource.Target)
 			{
-				if(false) //Not ShowNotAffectedRows
+				if(!FilterViewModel.ShowNotAffectedBalance)
 				{
 					movementQuery.Where(() => movementDocumentAlias.Status != MovementDocumentStatus.New);
 				}
@@ -600,6 +645,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					{
 						movementQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
+				}
+
+				if(FilterViewModel.Author != null)
+				{
+					movementQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					movementQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					movementQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
 				}
 			}
 			else
@@ -710,6 +770,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						movementQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
 				}
+
+				if(FilterViewModel.Author != null)
+				{
+					movementQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					movementQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					movementQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
+				}
 			}
 			else
 			{
@@ -798,6 +873,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					{
 						writeoffQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
+				}
+
+				if(FilterViewModel.Author != null)
+				{
+					writeoffQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					writeoffQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					writeoffQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
 				}
 			}
 			else
@@ -900,6 +990,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						selfDeliveryQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
 				}
+
+				if(FilterViewModel.Author != null)
+				{
+					selfDeliveryQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					selfDeliveryQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					selfDeliveryQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
+				}
 			}
 			else
 			{
@@ -985,6 +1090,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					{
 						carLoadQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
+				}
+
+				if(FilterViewModel.Author != null)
+				{
+					carLoadQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					carLoadQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					carLoadQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
 				}
 			}
 			else
@@ -1079,6 +1199,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						carUnloadQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
 				}
+
+				if(FilterViewModel.Author != null)
+				{
+					carUnloadQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					carUnloadQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					carUnloadQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
+				}
 			}
 			else
 			{
@@ -1139,6 +1274,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& FilterViewModel.Driver == null
 				&& !FilterViewModel.CounterpartyIds.Any())
 			{
+				if(!FilterViewModel.ShowNotAffectedBalance)
+				{
+					inventoryQuery.Where(Restrictions.NotEqProperty(
+						Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
+						Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)));
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					inventoryQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
@@ -1167,13 +1309,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				{
 					if(FilterViewModel.TargetSource == TargetSource.Target)
 					{
-						inventoryQuery.Where(() => inventoryDocumentItemAlias.AmountInFact - inventoryDocumentItemAlias.AmountInDB > 0);
+						inventoryQuery.Where(() => inventoryDocumentItemAlias.AmountInFact - inventoryDocumentItemAlias.AmountInDB >= 0);
 					}
 
 					if(FilterViewModel.TargetSource == TargetSource.Source)
 					{
 						inventoryQuery.Where(() => inventoryDocumentItemAlias.AmountInFact - inventoryDocumentItemAlias.AmountInDB < 0);
 					}
+				}
+
+				if(FilterViewModel.Author != null)
+				{
+					inventoryQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					inventoryQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					inventoryQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
 				}
 			}
 			else
@@ -1220,7 +1377,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<InventoryDocumentItem>>());
 		}
 
-		private IQueryOver<ShiftChangeWarehouseDocumentItem> GetQueryShiftChangeWarehouseDocumentItem(IUnitOfWork unitOfWork) // Не влияет на остатки
+		private IQueryOver<ShiftChangeWarehouseDocumentItem> GetQueryShiftChangeWarehouseDocumentItem(IUnitOfWork unitOfWork)
 		{
 			WarehouseDocumentsItemsJournalNode<ShiftChangeWarehouseDocumentItem> resultAlias = null;
 
@@ -1238,7 +1395,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.ShiftChangeDocument)
 				&& FilterViewModel.Driver == null
 				&& !FilterViewModel.CounterpartyIds.Any()
-				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource == TargetSource.Both))
+				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource == TargetSource.Both)
+				&& FilterViewModel.ShowNotAffectedBalance)
 			{
 				if(FilterViewModel.StartDate != null)
 				{
@@ -1262,6 +1420,34 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					{
 						shiftchangeQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
+				}
+
+				if(FilterViewModel.TargetSource != TargetSource.Both)
+				{
+					if(FilterViewModel.TargetSource == TargetSource.Target)
+					{
+						shiftchangeQuery.Where(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact - shiftChangeWarehouseDocumentItemAlias.AmountInDB >= 0);
+					}
+
+					if(FilterViewModel.TargetSource == TargetSource.Source)
+					{
+						shiftchangeQuery.Where(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact - shiftChangeWarehouseDocumentItemAlias.AmountInDB < 0);
+					}
+				}
+
+				if(FilterViewModel.Author != null)
+				{
+					shiftchangeQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					shiftchangeQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					shiftchangeQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
 				}
 			}
 			else
@@ -1338,6 +1524,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						regrandingQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
 				}
+
+				if(FilterViewModel.Author != null)
+				{
+					regrandingQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					regrandingQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					regrandingQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
+				}
 			}
 			else
 			{
@@ -1412,6 +1613,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					{
 						regrandingQuery.Where(Restrictions.Not(warehouseCriterion));
 					}
+				}
+
+				if(FilterViewModel.Author != null)
+				{
+					regrandingQuery.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					regrandingQuery.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					regrandingQuery.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
 				}
 			}
 			else

@@ -61,6 +61,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.ShowMovementDocumentFilterDetails, w => w.Visible)
 				.InitializeFromSource();
 
+			ychkbtnShowNotAffectedBalance.Binding
+				.AddBinding(ViewModel, vm => vm.ShowNotAffectedBalance, w => w.Active)
+				.InitializeFromSource();
+
 			var initTargetSource = filterViewModel.TargetSource;
 			foreach(RadioButton radioButton in yrbtnTargetSourceSource.Group)
 			{

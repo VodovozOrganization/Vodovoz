@@ -46,6 +46,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private List<int> _counterpartyIds = new List<int>();
 		private List<int> _warhouseIds = new List<int>();
 		private DialogViewModelBase _journalViewModel;
+		private Employee _author;
+		private Employee _lastEditor;
+		private Nomenclature _nomenclature;
+		private bool _showNotAffectedBalance = false;
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
 			ICurrentPermissionService currentPermissionService,
@@ -104,6 +108,24 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => UpdateFilterField(ref _targetSource, value);
 		}
 
+		public Employee Author
+		{
+			get => _author;
+			set => UpdateFilterField(ref _author, value);
+		}
+
+		public Employee LastEditor
+		{
+			get => _lastEditor;
+			set => UpdateFilterField(ref _lastEditor, value);
+		}
+
+		public Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set => UpdateFilterField(ref _nomenclature, value);
+		}
+
 		public List<int> CounterpartyIds
 		{
 			get => _counterpartyIds;
@@ -128,6 +150,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => UpdateFilterField(ref _filterType, value);
 		}
 
+		public bool ShowNotAffectedBalance
+		{
+			get => _showNotAffectedBalance;
+			set => UpdateFilterField(ref _showNotAffectedBalance, value);
+		}
+
 		public DialogViewModelBase JournalViewModel
 		{
 			get => _journalViewModel;
@@ -143,6 +171,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 						filter =>
 						{
 							filter.RestrictCategory = EmployeeCategory.driver;
+							filter.Status = EmployeeStatus.IsWorking;
 						}
 					)
 					.Finish();
@@ -153,11 +182,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 				var authorEntryViewModel =
 					new CommonEEVMBuilderFactory<WarehouseDocumentsItemsJournalFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope)
-					.ForProperty(x => x.Driver)
+					.ForProperty(x => x.Author)
 					.UseViewModelDialog<EmployeeViewModel>()
 					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
 						filter =>
 						{
+							filter.Status = EmployeeStatus.IsWorking;
 						}
 					)
 					.Finish();
@@ -168,11 +198,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 				var lastEditorEntryViewModel =
 					new CommonEEVMBuilderFactory<WarehouseDocumentsItemsJournalFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope)
-					.ForProperty(x => x.Driver)
+					.ForProperty(x => x.LastEditor)
 					.UseViewModelDialog<EmployeeViewModel>()
 					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
 						filter =>
 						{
+							filter.Status = EmployeeStatus.IsWorking;
 						}
 					)
 					.Finish();
@@ -183,7 +214,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 				var nomenclatureEntryViewModel =
 					new CommonEEVMBuilderFactory<WarehouseDocumentsItemsJournalFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope)
-					.ForProperty(x => x.Driver)
+					.ForProperty(x => x.Nomenclature)
 					.UseViewModelDialog<NomenclatureViewModel>()
 					.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(
 						filter =>
@@ -192,9 +223,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 					)
 					.Finish();
 
-				lastEditorEntryViewModel.CanViewEntity = false;
+				nomenclatureEntryViewModel.CanViewEntity = false;
 
-				NomenclatureEntityEntryViewModel = lastEditorEntryViewModel;
+				NomenclatureEntityEntryViewModel = nomenclatureEntryViewModel;
 			}
 		}
 
@@ -205,11 +236,16 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		public bool ShowMovementDocumentFilterDetails => DocumentType.HasValue && (DocumentType.Value == Domain.Documents.DocumentType.MovementDocument);
 
 		public EntityEntryViewModel<Employee> DriverEntityEntryViewModel { get; private set; }
+
 		public EntityEntryViewModel<Employee> AuthorEntityEntryViewModel { get; private set; }
+
 		public EntityEntryViewModel<Employee> LastEditorEntityEntryViewModel { get; private set; }
-		public EntityEntryViewModel<Employee> NomenclatureEntityEntryViewModel { get; private set; }
-		public object CanReadEmployee => _currentPermissionService.ValidateEntityPermission(typeof(Employee)).CanRead;
-		public object CanReadNomenclature => _currentPermissionService.ValidateEntityPermission(typeof(Nomenclature)).CanRead;
+
+		public EntityEntryViewModel<Nomenclature> NomenclatureEntityEntryViewModel { get; private set; }
+
+		public bool CanReadEmployee => _currentPermissionService.ValidateEntityPermission(typeof(Employee)).CanRead;
+
+		public bool CanReadNomenclature => _currentPermissionService.ValidateEntityPermission(typeof(Nomenclature)).CanRead;
 
 		private void ConfigureFilter()
 		{
