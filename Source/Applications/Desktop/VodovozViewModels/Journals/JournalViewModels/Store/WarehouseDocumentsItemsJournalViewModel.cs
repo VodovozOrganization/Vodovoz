@@ -258,12 +258,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				if(FilterViewModel.StartDate != null)
 				{
-					invoiceQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					invoiceQuery.Where(() => invoiceAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					invoiceQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					invoiceQuery.Where(() => invoiceAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.CounterpartyIds.Any() && FilterViewModel.TargetSource != TargetSource.Target)
@@ -360,7 +360,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Nomenclature nomenclatureAlias = null;
 
 			var waterQuery = unitOfWork.Session.QueryOver(() => incomingWaterMaterialAlias)
-				.JoinQueryOver(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.IncomingWater)
@@ -370,12 +370,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				if(FilterViewModel.StartDate != null)
 				{
-					waterQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					waterQuery.Where(() => incomingWaterAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					waterQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					waterQuery.Where(() => incomingWaterAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarhouseIds.Any())
@@ -476,7 +476,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Nomenclature nomenclatureAlias = null;
 
 			var waterQuery = unitOfWork.Session.QueryOver(() => incomingWaterMaterialAlias)
-				.JoinQueryOver(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => incomingWaterMaterialAlias.Document, () => incomingWaterAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.IncomingWater)
@@ -486,12 +486,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				if(FilterViewModel.StartDate != null)
 				{
-					waterQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					waterQuery.Where(() => incomingWaterAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					waterQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					waterQuery.Where(() => incomingWaterAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarhouseIds.Any())
@@ -593,7 +593,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Nomenclature nomenclatureAlias = null;
 
 			var movementQuery = unitOfWork.Session.QueryOver(() => movementDocumentItemAlias)
-				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
@@ -606,14 +606,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					movementQuery.Where(() => movementDocumentAlias.Status != MovementDocumentStatus.New);
 				}
 
+				if(FilterViewModel.MovementDocumentStatus != null)
+				{
+					movementQuery.Where(() => movementDocumentAlias.Status == FilterViewModel.MovementDocumentStatus);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
-					movementQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					movementQuery.Where(() => movementDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					movementQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					movementQuery.Where(() => movementDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarhouseIds.Any())
@@ -720,7 +725,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Nomenclature nomenclatureAlias = null;
 
 			var movementQuery = unitOfWork.Session.QueryOver(() => movementDocumentItemAlias)
-				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
@@ -728,16 +733,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& !FilterViewModel.CounterpartyIds.Any()
 				&& FilterViewModel.TargetSource != TargetSource.Source)
 			{
-				movementQuery.Where(Restrictions.In(Projections.Property(() => movementDocumentAlias.Status), new[] { MovementDocumentStatus.Accepted, MovementDocumentStatus.Discrepancy }));
+				movementQuery.Where(Restrictions.In(
+					Projections.Property(() => movementDocumentAlias.Status),
+					new[] { MovementDocumentStatus.Accepted, MovementDocumentStatus.Discrepancy }));
+
+				if(FilterViewModel.MovementDocumentStatus != null)
+				{
+					movementQuery.Where(() => movementDocumentAlias.Status == FilterViewModel.MovementDocumentStatus);
+				}
 
 				if(FilterViewModel.StartDate != null)
 				{
-					movementQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					movementQuery.Where(() => movementDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					movementQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					movementQuery.Where(() => movementDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarhouseIds.Any())
@@ -852,12 +864,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				if(FilterViewModel.StartDate != null)
 				{
-					writeoffQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					writeoffQuery.Where(() => writeoffDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					writeoffQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					writeoffQuery.Where(() => writeoffDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarhouseIds.Any()
@@ -955,12 +967,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				if(FilterViewModel.StartDate != null)
 				{
-					selfDeliveryQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					selfDeliveryQuery.Where(() => selfDeliveryDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					selfDeliveryQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					selfDeliveryQuery.Where(() => selfDeliveryDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.CounterpartyIds.Any() && FilterViewModel.TargetSource != TargetSource.Source)
@@ -1056,7 +1068,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Nomenclature nomenclatureAlias = null;
 
 			var carLoadQuery = unitOfWork.Session.QueryOver(() => carLoadDocumentItemAlias)
-				.JoinQueryOver(() => carLoadDocumentItemAlias.Document, () => carLoadDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => carLoadDocumentItemAlias.Document, () => carLoadDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarLoadDocument)
@@ -1065,12 +1077,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				if(FilterViewModel.StartDate != null)
 				{
-					carLoadQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					carLoadQuery.Where(() => carLoadDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					carLoadQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					carLoadQuery.Where(() => carLoadDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.Driver != null)
@@ -1164,7 +1176,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			WarehouseMovementOperation warehouseMovementOperationAlias = null;
 
 			var carUnloadQuery = unitOfWork.Session.QueryOver(() => carUnLoadDocumentItemAlias)
-					.JoinQueryOver(() => carUnLoadDocumentItemAlias.Document, () => carUnLoadDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+					.JoinQueryOver(() => carUnLoadDocumentItemAlias.Document, () => carUnLoadDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.CarUnloadDocument)
@@ -1173,12 +1185,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				if(FilterViewModel.StartDate != null)
 				{
-					carUnloadQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					carUnloadQuery.Where(() => carUnLoadDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					carUnloadQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					carUnloadQuery.Where(() => carUnLoadDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.Driver != null)
@@ -1268,7 +1280,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Nomenclature nomenclatureAlias = null;
 
 			var inventoryQuery = unitOfWork.Session.QueryOver(() => inventoryDocumentItemAlias)
-				.JoinQueryOver(() => inventoryDocumentItemAlias.Document, () => inventoryDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => inventoryDocumentItemAlias.Document, () => inventoryDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.InventoryDocument)
 				&& FilterViewModel.Driver == null
@@ -1283,12 +1295,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 				if(FilterViewModel.StartDate != null)
 				{
-					inventoryQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					inventoryQuery.Where(() => inventoryDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					inventoryQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					inventoryQuery.Where(() => inventoryDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarhouseIds.Any())
@@ -1390,7 +1402,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Nomenclature nomenclatureAlias = null;
 
 			var shiftchangeQuery = unitOfWork.Session.QueryOver(() => shiftChangeWarehouseDocumentItemAlias)
-				.JoinQueryOver(() => shiftChangeWarehouseDocumentItemAlias.Document, () => shiftChangeWarehouseDocumentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+				.JoinQueryOver(() => shiftChangeWarehouseDocumentItemAlias.Document, () => shiftChangeWarehouseDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.ShiftChangeDocument)
 				&& FilterViewModel.Driver == null
@@ -1400,12 +1412,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				if(FilterViewModel.StartDate != null)
 				{
-					shiftchangeQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					shiftchangeQuery.Where(() => shiftChangeWarehouseDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					shiftchangeQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					shiftchangeQuery.Where(() => shiftChangeWarehouseDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarhouseIds.Any())
@@ -1503,12 +1515,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				if(FilterViewModel.StartDate != null)
 				{
-					regrandingQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					regrandingQuery.Where(() => regradingOfGoodsDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					regrandingQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					regrandingQuery.Where(() => regradingOfGoodsDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarhouseIds.Any() && FilterViewModel.TargetSource != TargetSource.Target)
@@ -1593,12 +1605,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				if(FilterViewModel.StartDate != null)
 				{
-					regrandingQuery.Where(ii => ii.TimeStamp >= FilterViewModel.StartDate);
+					regrandingQuery.Where(() => regradingOfGoodsDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					regrandingQuery.Where(ii => ii.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					regrandingQuery.Where(() => regradingOfGoodsDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarhouseIds.Any() && FilterViewModel.TargetSource != TargetSource.Source)

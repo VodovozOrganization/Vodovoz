@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using NHibernate.Transform;
+using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.Project.Filter;
 using QS.Services;
@@ -90,6 +91,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set => UpdateFilterField(ref _driver, value);
 		}
 
+		[PropertyChangedAlso(nameof(ShowMovementDocumentFilterDetails))]
 		public DocumentType? DocumentType
 		{
 			get => _documentType;
