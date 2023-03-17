@@ -62,11 +62,11 @@ namespace Vodovoz.Controllers
 		{
 			var balanceType = GetDeliveryFreeBalanceType(oldStatus, newStatus);
 
-			CreateOrUpdateRouteListKeepingDocument(uow, routeListItem, balanceType, false, newStatus);
+			CreateOrUpdateRouteListKeepingDocument(uow, routeListItem, balanceType, false, oldStatus, newStatus);
 		}
 
 		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem,
-			DeliveryFreeBalanceType deliveryFreeBalanceType, bool isFullRecreation = false, RouteListItemStatus? newStatus = null)
+			DeliveryFreeBalanceType deliveryFreeBalanceType, bool isFullRecreation = false, RouteListItemStatus? oldStatus = null, RouteListItemStatus? newStatus = null)
 		{
 			var routeListKeepingDocument =
 				uow.GetAll<RouteListAddressKeepingDocument>()
@@ -82,16 +82,16 @@ namespace Vodovoz.Controllers
 			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
 			var pickupEquipments = routeListItem.Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp).ToList();
 
-			var amountSign = deliveryFreeBalanceType == DeliveryFreeBalanceType.Increase ? 1 : -1;
+			#region Бутыли на возврат и оборудование от клиента
 
-			if(newStatus == RouteListItemStatus.Completed)
+			if(newStatus == RouteListItemStatus.Completed && oldStatus != RouteListItemStatus.Completed)
 			{
-				// бутыли на возврат
+				
 				var bottleRouteListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
 				{
 					RouteListAddressKeepingDocument = routeListKeepingDocument,
 					Nomenclature = defaultBottleNomenclature,
-					Amount = (routeListItem.Order.BottlesReturn ?? 0) * (-amountSign)
+					Amount = (routeListItem.Order.BottlesReturn ?? 0)
 				};
 
 				bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();
@@ -99,14 +99,13 @@ namespace Vodovoz.Controllers
 
 				routeList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
 
-				// оборудование от клиента
 				foreach(var item in pickupEquipments)
 				{
 					var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
 					{
 						RouteListAddressKeepingDocument = routeListKeepingDocument,
 						Nomenclature = item.Nomenclature,
-						Amount = item.CurrentCount * (-amountSign)
+						Amount = item.CurrentCount
 					};
 
 					routeListKeepingDocumentItem.CreateOrUpdateOperation();
@@ -115,7 +114,8 @@ namespace Vodovoz.Controllers
 					routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
 				}
 			}
-			else
+
+			if(newStatus != RouteListItemStatus.Completed && oldStatus == RouteListItemStatus.Completed)
 			{
 				var defaultBottleNomenclatureItems = routeListKeepingDocument.Items
 					.Where(x => x.Nomenclature.Id == defaultBottleNomenclature.Id)
@@ -140,12 +140,26 @@ namespace Vodovoz.Controllers
 				}
 			}
 
+			#endregion
+
 			if(deliveryFreeBalanceType == DeliveryFreeBalanceType.Unchange)
 			{
 				uow.Save(routeListKeepingDocument);
 				return;
 			}
 
+			int amountSign;
+			switch(deliveryFreeBalanceType)
+			{
+				case DeliveryFreeBalanceType.Increase:
+					amountSign = 1;
+					break;
+				case DeliveryFreeBalanceType.Decrease:
+					amountSign = -1;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(deliveryFreeBalanceType));
+			}
 
 			if(isFullRecreation)
 			{
@@ -162,7 +176,7 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocument.Items.Clear();
 			}
 
-			foreach(var item in routeListItem.Order.GetAllGoodsToDeliver(true))
+			foreach(var item in routeListItem.Order.GetAllGoodsToDeliver(false))
 			{
 				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 
