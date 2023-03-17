@@ -347,7 +347,6 @@ public partial class MainWindow : Gtk.Window
 
 			var notificationDetails = _complaintNotificationController.GetNotificationDetails(uow);
 			hboxComplaintsNotification.Visible = notificationDetails.NeedNotify;
-			vseparatorNotifications.Visible = notificationDetails.NeedNotify;
 			lblComplaintsNotification.Markup = notificationDetails.NotificationMessage;
 
 			if(notificationDetails.NeedNotify)
