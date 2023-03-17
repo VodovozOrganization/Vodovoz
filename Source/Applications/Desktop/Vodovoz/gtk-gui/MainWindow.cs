@@ -1765,6 +1765,8 @@ public partial class MainWindow
 		this.hboxNotifications.Add(this.hboxBunnons);
 		global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.hboxBunnons]));
 		w4.Position = 0;
+		w4.Expand = false;
+		w4.Fill = false;
 		// Container child hboxNotifications.Gtk.Box+BoxChild
 		this.hboxMovementsNotification = new global::Gamma.GtkWidgets.yHBox();
 		this.hboxMovementsNotification.Name = "hboxMovementsNotification";
@@ -1783,6 +1785,8 @@ public partial class MainWindow
 		this.hboxNotifications.Add(this.hboxMovementsNotification);
 		global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.hboxMovementsNotification]));
 		w6.Position = 1;
+		w6.Expand = false;
+		w6.Fill = false;
 		// Container child hboxNotifications.Gtk.Box+BoxChild
 		this.hboxComplaintsNotification = new global::Gamma.GtkWidgets.yHBox();
 		this.hboxComplaintsNotification.Name = "hboxComplaintsNotification";
@@ -1811,7 +1815,7 @@ public partial class MainWindow
 		w8.Fill = false;
 		this.hboxNotifications.Add(this.hboxComplaintsNotification);
 		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.hboxComplaintsNotification]));
-		w9.Position = 3;
+		w9.Position = 2;
 		w9.Expand = false;
 		w9.Fill = false;
 		this.vbox1.Add(this.hboxNotifications);
