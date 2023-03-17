@@ -37,6 +37,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using QS.Tdi;
+using Vodovoz.Journals.JournalViewModels;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
@@ -1031,6 +1032,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			CreateEditAction();
 			CreateDefaultDeleteAction();
 			CreateExportAction();
+			OpenStandartViewAction();
+		}
+
+		private void OpenStandartViewAction()
+		{
+			var openStandartView = new JournalAction("Перейти к обычному виду",
+				(selected) => true,
+				(selected) => true,
+				(selected) =>
+				{
+					NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
+						null,
+						FilterViewModel,
+						OpenPageOptions.IgnoreHash);
+					//NavigationManager.OpenViewModel<ComplaintsWithDepartmentsReactionJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+				}
+			);
+			NodeActionsList.Add(openStandartView);
 		}
 
 		private void CreateExportAction()

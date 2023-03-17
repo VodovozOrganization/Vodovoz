@@ -37,6 +37,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using QS.Tdi;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -945,6 +946,24 @@ namespace Vodovoz.Journals.JournalViewModels
 			CreateEditAction();
 			CreateDefaultDeleteAction();
 			CreateExportAction();
+			OpenWithDepartmentsReacrionViewAction();
+		}
+
+		private void OpenWithDepartmentsReacrionViewAction()
+		{
+			var openStandartView = new JournalAction("Отобразить время реакции отделов",
+				(selected) => true,
+				(selected) => true,
+				(selected) =>
+				{
+					NavigationManager.OpenViewModel<ComplaintsWithDepartmentsReactionJournalViewModel, ComplaintFilterViewModel>(
+						null,
+						FilterViewModel,
+						OpenPageOptions.IgnoreHash);
+					//NavigationManager.OpenViewModel<ComplaintsWithDepartmentsReactionJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+				}
+			);
+			NodeActionsList.Add(openStandartView);
 		}
 
 		private void CreateExportAction()
