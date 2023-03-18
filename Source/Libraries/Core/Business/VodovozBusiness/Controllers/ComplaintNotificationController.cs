@@ -23,37 +23,31 @@ namespace Vodovoz.Controllers
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_complaintsRepository = complaintsRepository ?? throw new ArgumentNullException(nameof(complaintsRepository));
 			_subdivisionIdForNotify = subdivisionIdForNotify;
+
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ComplaintDiscussionComment>(OnComplaintChanged);
 		}
 
 		public event Action<SendedComplaintNotificationDetails> UpdateNotificationAction;
 
 		public SendedComplaintNotificationDetails GetNotificationDetails(IUnitOfWork uow)
 		{
-			var result = new SendedComplaintNotificationDetails();
 			var sendedComplaints = GetSendedComplaintIdsBySubdivision(uow);
 
-			result.SendedComplaintsCount = sendedComplaints.Count;
-			result.NeedNotify = result.SendedComplaintsCount > 0;
-			result.NotificationMessage = GetNotificationMessage(result.SendedComplaintsCount.Value);
-			result.SendedComplaintsIds = sendedComplaints;
-
-			if(sendedComplaints.Count > 0)
+			var notificationDetails = new SendedComplaintNotificationDetails()
 			{
-				NotifyConfiguration.Instance.BatchSubscribeOnEntity<ComplaintDiscussionComment>(OnComplaintChanged);
-			}
+				SendedComplaintsCount = sendedComplaints.Count,
+				NeedNotify = sendedComplaints.Count > 0,
+				NotificationMessage = GetNotificationMessage(sendedComplaints.Count),
+				SendedComplaintsIds = sendedComplaints
+			};
 
-			return result;
+			return notificationDetails;
 		}
 
 		private List<int> GetSendedComplaintIdsBySubdivision(IUnitOfWork uow)
 		{
 			var compaints = _complaintsRepository.GetUnclosedWithNoCommentsComplaintIdsBySubdivision(uow, _subdivisionIdForNotify);
 			return compaints.ToList();
-		}
-
-		private string GetNotificationMessageBySubdivision(IUnitOfWork uow)
-		{
-			return GetNotificationMessage(GetSendedComplaintIdsBySubdivision(uow).Count);
 		}
 
 		private string GetNotificationMessage(int sendedComplaints)
@@ -84,7 +78,7 @@ namespace Vodovoz.Controllers
 	public class SendedComplaintNotificationDetails
 	{
 		public bool NeedNotify { get; set; }
-		public int? SendedComplaintsCount { get; set; }
+		public int SendedComplaintsCount { get; set; }
 		public string NotificationMessage { get; set; }
 		public List<int> SendedComplaintsIds { get; set; }
 	}

@@ -327,7 +327,6 @@ public partial class MainWindow : Gtk.Window
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
-			vseparatorNotifications1.Visible = notificationDetails.NeedNotify;
 			lblMovementsNotification.Markup = notificationDetails.NotificationMessage;
 
 			if(notificationDetails.NeedNotify)
@@ -447,8 +446,8 @@ public partial class MainWindow : Gtk.Window
 	{
 		lblComplaintsNotification.Markup = notificationDetails.NotificationMessage;
 		hboxComplaintsNotification.Visible = notificationDetails.NeedNotify;
-		vseparatorNotifications2.Visible = notificationDetails.NeedNotify;
 	}
+
 	private SendedComplaintNotificationDetails GetComplaintNotificationDetails()
 	{
 		SendedComplaintNotificationDetails notificationDetails;
