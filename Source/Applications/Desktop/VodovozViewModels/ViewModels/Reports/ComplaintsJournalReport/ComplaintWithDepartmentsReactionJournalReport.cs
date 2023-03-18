@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport
 			var dialogSettings = new DialogSettings();
 			dialogSettings.Title = "Сохранить";
 			dialogSettings.DefaultFileExtention = ".xlsx";
-			dialogSettings.FileName = $"{"Журнал рекламаций"} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+			dialogSettings.FileName = $"{"Журнал рекламаций с реакцией отделов"} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 			if(result.Successful)

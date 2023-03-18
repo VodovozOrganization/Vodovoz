@@ -994,9 +994,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			NodeActionsList.Add(new JournalAction("Экспорт в Excel", x => true, x => true,
 				selectedItems =>
 				{
-					var nodes = GetComplaintQuery(UoW).List<ComplaintJournalNode>();
+					var nodes = GetComplaintQuery(UoW).List<ComplaintWithDepartmentsReactionJournalNode>();
 
-					var report = new ComplaintJournalReport(nodes, _fileDialogService);
+					var report = new ComplaintWithDepartmentsReactionJournalReport(nodes, _fileDialogService);
 					report.Export();
 				}));
 		}
