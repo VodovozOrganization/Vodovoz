@@ -428,6 +428,7 @@
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintsJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintWithDepartmentsReactionJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Counterparty\CounterpartyRevenueServiceReport.cs" />
     <Compile Include="ViewModels\Reports\DebtorsJournalReport\DebtorsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\EdoUpdReport\EdoUpdReport.cs" />

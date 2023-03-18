@@ -8,12 +8,12 @@ using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
-	internal sealed class ComplaintsWithDepartmentsReactionJournalRegistrar : ColumnsConfigRegistrarBase<ComplaintsWithDepartmentsReactionJournalViewModel, ComplaintJournalNodeWithDepartmentsReaction>
+	internal sealed class ComplaintsWithDepartmentsReactionJournalRegistrar : ColumnsConfigRegistrarBase<ComplaintsWithDepartmentsReactionJournalViewModel, ComplaintWithDepartmentsReactionJournalNode>
 	{
 		private static readonly Color _colorWhite = new Color(0xff, 0xff, 0xff);
 		private static readonly Color _colorPink = new Color(0xff, 0xc0, 0xc0);
 
-		public override IColumnsConfig Configure(FluentColumnsConfig<ComplaintJournalNodeWithDepartmentsReaction> config) =>
+		public override IColumnsConfig Configure(FluentColumnsConfig<ComplaintWithDepartmentsReactionJournalNode> config) =>
 			config.AddColumn("№ п/п").HeaderAlignment(0.5f)
 				.AddTextRenderer(node => node.SequenceNumber.ToString())
 					.XAlign(0.5f)

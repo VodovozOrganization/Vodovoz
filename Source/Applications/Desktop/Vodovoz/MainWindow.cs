@@ -1128,8 +1128,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		//NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
-		NavigationManager.OpenViewModel<ComplaintsWithDepartmentsReactionJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)

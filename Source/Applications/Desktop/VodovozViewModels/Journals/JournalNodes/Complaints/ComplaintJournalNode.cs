@@ -89,7 +89,7 @@ namespace Vodovoz.Journals.JournalNodes
 		public string ArrangementText { get; set; }
 	}
 
-	public class ComplaintJournalNodeWithDepartmentsReaction : ComplaintJournalNode
+	public class ComplaintWithDepartmentsReactionJournalNode : ComplaintJournalNode
 	{
 		public DateTime DepartmentConnectionTime { get; set; }
 		public DateTime? DepartmentFirstCommentTime { get; set; }

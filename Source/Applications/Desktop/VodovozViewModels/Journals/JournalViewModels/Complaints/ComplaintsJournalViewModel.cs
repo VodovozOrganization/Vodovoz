@@ -956,6 +956,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				(selected) => true,
 				(selected) =>
 				{
+					NavigationManager.ForceClosePage(NavigationManager.CurrentPage);
 					NavigationManager.OpenViewModel<ComplaintsWithDepartmentsReactionJournalViewModel, ComplaintFilterViewModel>(
 						null,
 						FilterViewModel,
