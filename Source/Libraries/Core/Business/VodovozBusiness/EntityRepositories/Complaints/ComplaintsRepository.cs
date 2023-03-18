@@ -4,11 +4,9 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 
 namespace Vodovoz.EntityRepositories.Complaints
 {
@@ -77,30 +75,23 @@ namespace Vodovoz.EntityRepositories.Complaints
 			return query.Select(Projections.Count<Complaint>(c => c.Id)).SingleOrDefault<int>();
 		}
 
-		/// <summary>
-		/// Возвращает список id незакрытых рекламаций, в которых подключена дискуссия для указанного
-		/// отдела, но комментарии в ней отсутствуют
-		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <param name="subdivisionId">id отдела для которого выполняется поиск рекламаций</param>
-		/// <returns>Список id рекламаций</returns>
 		public IList<int> GetUnclosedWithNoCommentsComplaintIdsBySubdivision(IUnitOfWork uow, int subdivisionId)
 		{
 			Complaint complaintAlias = null;
 			ComplaintDiscussion complaintDiscussionAlias = null;
 			ComplaintDiscussionComment complaintDiscussionCommentAlias = null;
 
-			var ids = uow.Session.QueryOver(() => complaintDiscussionAlias)
+			var complaintsIds = uow.Session.QueryOver(() => complaintDiscussionAlias)
 				.Left.JoinAlias(() => complaintDiscussionAlias.Complaint, () => complaintAlias)
 				.Left.JoinAlias(() => complaintDiscussionAlias.Comments, () => complaintDiscussionCommentAlias)
 				.Where(() => complaintAlias.Status != ComplaintStatuses.Closed)
 				.Where(() => complaintDiscussionAlias.Subdivision.Id == subdivisionId)
 				.SelectList(list => list
-					.Select(Projections.Group(() => complaintAlias.Id))
-					.Select(Projections.Count(() => complaintDiscussionCommentAlias.Id)))
-				.List<object[]>();
+					.Select(Projections.Group(() => complaintAlias.Id)))
+				.Where(Restrictions.Eq(Projections.Count(() => complaintDiscussionCommentAlias.Id), 0))
+				.List<int>();
 
-			return ids.Where(o => (int)o[1] == 0).Select(o => (int)o[0]).ToList();
+			return complaintsIds;
 		}
 
 		public IEnumerable<DriverComplaintReason> GetDriverComplaintReasons(IUnitOfWork unitOfWork)
