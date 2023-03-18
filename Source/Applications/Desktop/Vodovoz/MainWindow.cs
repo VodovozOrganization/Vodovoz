@@ -336,7 +336,7 @@ public partial class MainWindow : Gtk.Window
 			}
 		}
 
-		btnUpdateMovementsNotification.Clicked += OnBtnUpdateNotificationClicked;
+		btnUpdateNotifications.Clicked += OnBtnUpdateNotificationClicked;
 
 		#endregion
 
@@ -348,9 +348,7 @@ public partial class MainWindow : Gtk.Window
 		var complaintNotificationDetails = GetComplaintNotificationDetails();
 		UpdateSendedComplaintsNotification(complaintNotificationDetails);
 
-		btnUpdateOpenComplaint.Clicked += OnBtnOpenComplaintClicked;
-
-		hboxNotifications.Visible = hboxMovementsNotification.Visible || hboxComplaintsNotification.Visible;
+		btnOpenComplaint.Clicked += OnBtnOpenComplaintClicked;
 		#endregion
 
 		BanksUpdater.CheckBanksUpdate(false);

@@ -583,21 +583,21 @@ public partial class MainWindow
 
 	private global::Gtk.HBox hboxBunnons;
 
-	private global::Gamma.GtkWidgets.yButton btnUpdateMovementsNotification;
-
-	private global::Gtk.VSeparator vseparatorNotifications1;
+	private global::Gamma.GtkWidgets.yButton btnUpdateNotifications;
 
 	private global::Gamma.GtkWidgets.yHBox hboxMovementsNotification;
 
-	private global::Gamma.GtkWidgets.yLabel lblMovementsNotification;
+	private global::Gtk.VSeparator vseparatorNotifications1;
 
-	private global::Gtk.VSeparator vseparatorNotifications2;
+	private global::Gamma.GtkWidgets.yLabel lblMovementsNotification;
 
 	private global::Gamma.GtkWidgets.yHBox hboxComplaintsNotification;
 
+	private global::Gtk.VSeparator vseparatorNotifications2;
+
 	private global::Gamma.GtkWidgets.yLabel lblComplaintsNotification;
 
-	private global::Gamma.GtkWidgets.yButton btnUpdateOpenComplaint;
+	private global::Gamma.GtkWidgets.yButton btnOpenComplaint;
 
 	private global::Gtk.HBox hbox2;
 
@@ -1756,33 +1756,34 @@ public partial class MainWindow
 		this.hboxBunnons.Name = "hboxBunnons";
 		this.hboxBunnons.Spacing = 6;
 		// Container child hboxBunnons.Gtk.Box+BoxChild
-		this.btnUpdateMovementsNotification = new global::Gamma.GtkWidgets.yButton();
-		this.btnUpdateMovementsNotification.CanFocus = true;
-		this.btnUpdateMovementsNotification.Name = "btnUpdateMovementsNotification";
-		this.btnUpdateMovementsNotification.UseUnderline = true;
-		this.btnUpdateMovementsNotification.Label = global::Mono.Unix.Catalog.GetString("Обновить уведомления");
-		this.hboxBunnons.Add(this.btnUpdateMovementsNotification);
-		global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxBunnons[this.btnUpdateMovementsNotification]));
+		this.btnUpdateNotifications = new global::Gamma.GtkWidgets.yButton();
+		this.btnUpdateNotifications.CanFocus = true;
+		this.btnUpdateNotifications.Name = "btnUpdateNotifications";
+		this.btnUpdateNotifications.UseUnderline = true;
+		this.btnUpdateNotifications.Label = global::Mono.Unix.Catalog.GetString("Обновить уведомления");
+		this.hboxBunnons.Add(this.btnUpdateNotifications);
+		global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxBunnons[this.btnUpdateNotifications]));
 		w3.Position = 0;
 		w3.Expand = false;
 		w3.Fill = false;
+		w3.Padding = ((uint)(10));
 		this.hboxNotifications.Add(this.hboxBunnons);
 		global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.hboxBunnons]));
 		w4.Position = 0;
 		w4.Expand = false;
 		w4.Fill = false;
 		// Container child hboxNotifications.Gtk.Box+BoxChild
-		this.vseparatorNotifications1 = new global::Gtk.VSeparator();
-		this.vseparatorNotifications1.Name = "vseparatorNotifications1";
-		this.hboxNotifications.Add(this.vseparatorNotifications1);
-		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.vseparatorNotifications1]));
-		w5.Position = 1;
-		w5.Expand = false;
-		w5.Fill = false;
-		// Container child hboxNotifications.Gtk.Box+BoxChild
 		this.hboxMovementsNotification = new global::Gamma.GtkWidgets.yHBox();
 		this.hboxMovementsNotification.Name = "hboxMovementsNotification";
 		this.hboxMovementsNotification.Spacing = 6;
+		// Container child hboxMovementsNotification.Gtk.Box+BoxChild
+		this.vseparatorNotifications1 = new global::Gtk.VSeparator();
+		this.vseparatorNotifications1.Name = "vseparatorNotifications1";
+		this.hboxMovementsNotification.Add(this.vseparatorNotifications1);
+		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxMovementsNotification[this.vseparatorNotifications1]));
+		w5.Position = 0;
+		w5.Expand = false;
+		w5.Fill = false;
 		// Container child hboxMovementsNotification.Gtk.Box+BoxChild
 		this.lblMovementsNotification = new global::Gamma.GtkWidgets.yLabel();
 		this.lblMovementsNotification.Name = "lblMovementsNotification";
@@ -1791,26 +1792,26 @@ public partial class MainWindow
 		this.lblMovementsNotification.UseMarkup = true;
 		this.hboxMovementsNotification.Add(this.lblMovementsNotification);
 		global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxMovementsNotification[this.lblMovementsNotification]));
-		w6.Position = 0;
+		w6.Position = 1;
 		w6.Expand = false;
 		w6.Fill = false;
 		this.hboxNotifications.Add(this.hboxMovementsNotification);
 		global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.hboxMovementsNotification]));
-		w7.Position = 2;
+		w7.Position = 1;
 		w7.Expand = false;
 		w7.Fill = false;
-		// Container child hboxNotifications.Gtk.Box+BoxChild
-		this.vseparatorNotifications2 = new global::Gtk.VSeparator();
-		this.vseparatorNotifications2.Name = "vseparatorNotifications2";
-		this.hboxNotifications.Add(this.vseparatorNotifications2);
-		global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.vseparatorNotifications2]));
-		w8.Position = 3;
-		w8.Expand = false;
-		w8.Fill = false;
 		// Container child hboxNotifications.Gtk.Box+BoxChild
 		this.hboxComplaintsNotification = new global::Gamma.GtkWidgets.yHBox();
 		this.hboxComplaintsNotification.Name = "hboxComplaintsNotification";
 		this.hboxComplaintsNotification.Spacing = 6;
+		// Container child hboxComplaintsNotification.Gtk.Box+BoxChild
+		this.vseparatorNotifications2 = new global::Gtk.VSeparator();
+		this.vseparatorNotifications2.Name = "vseparatorNotifications2";
+		this.hboxComplaintsNotification.Add(this.vseparatorNotifications2);
+		global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxComplaintsNotification[this.vseparatorNotifications2]));
+		w8.Position = 0;
+		w8.Expand = false;
+		w8.Fill = false;
 		// Container child hboxComplaintsNotification.Gtk.Box+BoxChild
 		this.lblComplaintsNotification = new global::Gamma.GtkWidgets.yLabel();
 		this.lblComplaintsNotification.Name = "lblComplaintsNotification";
@@ -1819,23 +1820,23 @@ public partial class MainWindow
 		this.lblComplaintsNotification.UseMarkup = true;
 		this.hboxComplaintsNotification.Add(this.lblComplaintsNotification);
 		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxComplaintsNotification[this.lblComplaintsNotification]));
-		w9.Position = 0;
+		w9.Position = 1;
 		w9.Expand = false;
 		w9.Fill = false;
 		// Container child hboxComplaintsNotification.Gtk.Box+BoxChild
-		this.btnUpdateOpenComplaint = new global::Gamma.GtkWidgets.yButton();
-		this.btnUpdateOpenComplaint.CanFocus = true;
-		this.btnUpdateOpenComplaint.Name = "btnUpdateOpenComplaint";
-		this.btnUpdateOpenComplaint.UseUnderline = true;
-		this.btnUpdateOpenComplaint.Label = global::Mono.Unix.Catalog.GetString("Перейти в рекламацию");
-		this.hboxComplaintsNotification.Add(this.btnUpdateOpenComplaint);
-		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxComplaintsNotification[this.btnUpdateOpenComplaint]));
-		w10.Position = 1;
+		this.btnOpenComplaint = new global::Gamma.GtkWidgets.yButton();
+		this.btnOpenComplaint.CanFocus = true;
+		this.btnOpenComplaint.Name = "btnOpenComplaint";
+		this.btnOpenComplaint.UseUnderline = true;
+		this.btnOpenComplaint.Label = global::Mono.Unix.Catalog.GetString("Перейти в рекламацию");
+		this.hboxComplaintsNotification.Add(this.btnOpenComplaint);
+		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxComplaintsNotification[this.btnOpenComplaint]));
+		w10.Position = 2;
 		w10.Expand = false;
 		w10.Fill = false;
 		this.hboxNotifications.Add(this.hboxComplaintsNotification);
 		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxNotifications[this.hboxComplaintsNotification]));
-		w11.Position = 4;
+		w11.Position = 2;
 		w11.Expand = false;
 		w11.Fill = false;
 		this.vbox1.Add(this.hboxNotifications);
