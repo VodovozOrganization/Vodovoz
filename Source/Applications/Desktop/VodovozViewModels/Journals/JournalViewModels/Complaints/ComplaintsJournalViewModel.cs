@@ -142,18 +142,27 @@ namespace Vodovoz.Journals.JournalViewModels
 			var defaultSubdivision = currentUserSettings.DefaultSubdivision;
 			var currentEmployeeSubdivision = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId).Subdivision;
 
-			FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
-
-			if (currentUserSettings.UseEmployeeSubdivision)
+			if(FilterViewModel.CurrentUserSubdivision == null)
 			{
-				FilterViewModel.Subdivision = currentEmployeeSubdivision;
-			}
-			else
-			{
-				FilterViewModel.Subdivision = defaultSubdivision;
+				FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
 			}
 
-			FilterViewModel.ComplaintStatus = currentUserSettings.DefaultComplaintStatus;
+			if(FilterViewModel.Subdivision == null)
+			{
+				if(currentUserSettings.UseEmployeeSubdivision)
+				{
+					FilterViewModel.Subdivision = currentEmployeeSubdivision;
+				}
+				else
+				{
+					FilterViewModel.Subdivision = defaultSubdivision;
+				}
+			}
+
+			if(FilterViewModel.ComplaintStatus == null)
+			{
+				FilterViewModel.ComplaintStatus = currentUserSettings.DefaultComplaintStatus;
+			}
 
 			UpdateOnChanges(
 				typeof(Complaint),
