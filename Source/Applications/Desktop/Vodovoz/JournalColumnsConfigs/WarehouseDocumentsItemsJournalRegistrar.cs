@@ -15,7 +15,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Номер документа").AddTextRenderer(node => node.DocumentId.ToString()).SearchHighlight()
 				.AddColumn("Номенклатура").AddTextRenderer(node => node.ProductName).SearchHighlight()
 				.AddColumn("Кол-во").AddTextRenderer(node => node.Amount.ToString("0.00")).SearchHighlight()
-				.AddColumn("Тип документа").AddTextRenderer(node => node.DocTypeString)
+				.AddColumn("Тип документа").AddTextRenderer(node => node.DocumentTypeString)
 				.AddColumn("Дата").AddTextRenderer(node => node.DateString)
 				.AddColumn("Автор").AddTextRenderer(node => node.Author)
 				.AddColumn("Изменил").AddTextRenderer(node => node.LastEditor)
@@ -27,7 +27,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
 					Color color = new Color(255, 255, 255);
-					if(node.DocTypeEnum == DocumentType.MovementDocument)
+					if(node.DocumentTypeEnum == DocumentType.MovementDocument)
 					{
 						switch(node.MovementDocumentStatus)
 						{

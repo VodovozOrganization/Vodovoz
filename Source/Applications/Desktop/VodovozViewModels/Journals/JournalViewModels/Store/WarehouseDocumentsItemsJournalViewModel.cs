@@ -342,7 +342,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => invoiceAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => invoiceAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => invoiceAlias.Comment).WithAlias(() => resultAlias.Comment)
-					.Select(() => DocumentType.IncomingInvoice).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.IncomingInvoice).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => counterpartyAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
@@ -458,7 +458,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => incomingWaterMaterialAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => incomingWaterAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => incomingWaterAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.IncomingWater).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.IncomingWater).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => fromWarehouseAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
@@ -574,7 +574,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => incomingWaterMaterialAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => incomingWaterAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => incomingWaterAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.IncomingWater).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.IncomingWater).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => fromWarehouseAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
@@ -702,7 +702,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => movementDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => movementDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => movementDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.MovementDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.MovementDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => movementDocumentAlias.Status).WithAlias(() => resultAlias.MovementDocumentStatus)
 					.Select(() => movementDocumentAlias.HasDiscrepancy).WithAlias(() => resultAlias.MovementDocumentDiscrepancy)
 					.Select(() => movementWagonAlias.Name).WithAlias(() => resultAlias.CarNumber)
@@ -833,7 +833,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => movementDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => movementDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => movementDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.MovementDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.MovementDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => movementDocumentAlias.Status).WithAlias(() => resultAlias.MovementDocumentStatus)
 					.Select(() => movementDocumentAlias.HasDiscrepancy).WithAlias(() => resultAlias.MovementDocumentDiscrepancy)
 					.Select(() => movementWagonAlias.Name).WithAlias(() => resultAlias.CarNumber)
@@ -936,7 +936,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => writeoffDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => writeoffDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => writeoffDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.WriteoffDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.WriteoffDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => counterpartyAlias.Name == null),
 						Projections.Constant(string.Empty, NHibernateUtil.String),
@@ -1054,7 +1054,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => selfDeliveryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(() => selfDeliveryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.SelfDeliveryDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.SelfDeliveryDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
@@ -1156,7 +1156,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => carLoadDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => carLoadDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => carLoadDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.CarLoadDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.CarLoadDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
@@ -1265,7 +1265,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => carUnLoadDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => carUnLoadDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => carUnLoadDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.CarUnloadDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.CarUnloadDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
@@ -1378,7 +1378,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => inventoryDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => inventoryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => inventoryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.InventoryDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.InventoryDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(Projections.Conditional(
 						Restrictions.GeProperty(
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
@@ -1495,7 +1495,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => shiftChangeWarehouseDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => shiftChangeWarehouseDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => shiftChangeWarehouseDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.ShiftChangeDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.ShiftChangeDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact - shiftChangeWarehouseDocumentItemAlias.AmountInDB)
@@ -1585,7 +1585,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => regradingOfGoodsDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => regradingOfGoodsDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => regradingOfGoodsDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select(() => -regradingOfGoodsDocumentItemAlias.Amount)
@@ -1675,7 +1675,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => regradingOfGoodsDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => regradingOfGoodsDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => regradingOfGoodsDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select(() => regradingOfGoodsDocumentItemAlias.Amount)
@@ -1764,7 +1764,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => warehouseMovementOperationAlias.OperationTime).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.DriverTerminalGiveout).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.DriverTerminalGiveout).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
@@ -1851,7 +1851,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => driverAttachedTerminalReturnDocumentAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => driverAttachedTerminalReturnDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => warehouseMovementOperationAlias.OperationTime).WithAlias(() => resultAlias.Date)
-					.Select(() => DocumentType.DriverTerminalReturn).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => DocumentType.DriverTerminalReturn).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)

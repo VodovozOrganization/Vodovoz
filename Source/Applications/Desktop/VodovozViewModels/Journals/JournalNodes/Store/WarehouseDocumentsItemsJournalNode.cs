@@ -49,9 +49,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 
 		public string ProductName { get; set; }
 
-		public DocumentType DocTypeEnum { get; set; }
+		public DocumentType DocumentTypeEnum { get; set; }
 
-		public string DocTypeString => DocTypeEnum.GetEnumTitle();
+		public string DocumentTypeString => DocumentTypeEnum.GetEnumTitle();
 
 		public DateTime Date { get; set; }
 
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 		{
 			get
 			{
-				switch(DocTypeEnum)
+				switch(DocumentTypeEnum)
 				{
 					case DocumentType.IncomingInvoice:
 						return $"Поставщик: {Counterparty}; Склад поступления: {FromWarehouse};";
@@ -145,6 +145,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 		public int RouteListId { get; set; }
 
 		public DateTime LastEditedTime { get; set; }
+
+		public string LastEditedTimeString => LastEditedTime.ToShortDateString() + " " + LastEditedTime.ToShortTimeString();
 
 		public string AuthorSurname { get; set; }
 
