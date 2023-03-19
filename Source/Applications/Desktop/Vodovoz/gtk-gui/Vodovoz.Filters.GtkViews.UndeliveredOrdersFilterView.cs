@@ -12,7 +12,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodOldOrderDate;
 
-		private global::QS.Views.Control.EntityEntry entityentryInProcessAtSubdivision;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityInProcessAtSubdivision;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryAuthorSubdivision;
 
@@ -123,11 +123,13 @@ namespace Vodovoz.Filters.GtkViews
 			w3.RightAttach = ((uint)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entityentryInProcessAtSubdivision = new global::QS.Views.Control.EntityEntry();
-			this.entityentryInProcessAtSubdivision.Events = ((global::Gdk.EventMask)(256));
-			this.entityentryInProcessAtSubdivision.Name = "entityentryInProcessAtSubdivision";
-			this.table1.Add(this.entityentryInProcessAtSubdivision);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.entityentryInProcessAtSubdivision]));
+			this.entityInProcessAtSubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityInProcessAtSubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entityInProcessAtSubdivision.Name = "entityInProcessAtSubdivision";
+			this.entityInProcessAtSubdivision.CanEditReference = false;
+			this.entityInProcessAtSubdivision.CanOpenWithoutTabParent = false;
+			this.table1.Add(this.entityInProcessAtSubdivision);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.entityInProcessAtSubdivision]));
 			w4.TopAttach = ((uint)(5));
 			w4.BottomAttach = ((uint)(6));
 			w4.LeftAttach = ((uint)(5));
