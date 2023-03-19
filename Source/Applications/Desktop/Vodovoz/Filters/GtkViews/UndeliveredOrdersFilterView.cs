@@ -30,6 +30,9 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.RestrictInProcessAtDepartment, w => w.SelectedItem)
 				.InitializeFromSource();
 
+			entityInProcessAtSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.InProcessAtSubdivisionSelectorFactory);
+			//entityInProcessAtSubdivision.Binding.AddBinding(ViewModel, vm => vm.RestrictInProcessAtDepartment, w => w.Subject).InitializeFromSource();
+
 			ySpecCMBGuiltyDep.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Subdivisions, w => w.ItemsList)
 				.AddBinding(vm => vm.RestrictGuiltyDepartment, w => w.SelectedItem)
