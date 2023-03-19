@@ -5,6 +5,7 @@ using QS.Utilities.Text;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.DriverTerminal;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 {
@@ -28,7 +29,10 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 			typeof(InventoryDocumentItem),
 			typeof(ShiftChangeWarehouseDocumentItem),
 			typeof(RegradingOfGoodsDocumentItem),
-			typeof(DeliveryDocumentItem)
+			typeof(DeliveryDocumentItem),
+			typeof(DriverAttachedTerminalDocumentBase),
+			typeof(DriverAttachedTerminalGiveoutDocument),
+			typeof(DriverAttachedTerminalReturnDocument),
 		};
 
 		protected WarehouseDocumentsItemsJournalNode(Type entityType) : base(entityType)

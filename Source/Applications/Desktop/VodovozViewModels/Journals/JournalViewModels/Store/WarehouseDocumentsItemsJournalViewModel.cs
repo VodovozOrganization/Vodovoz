@@ -13,6 +13,7 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -22,6 +23,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
+using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 using Vodovoz.ViewModels.Warehouses;
 
@@ -73,6 +75,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				typeof(InventoryDocument),
 				typeof(ShiftChangeWarehouseDocument),
 				typeof(RegradingOfGoodsDocument),
+				typeof(DriverAttachedTerminalDocumentBase),
+				typeof(DriverAttachedTerminalGiveoutDocument),
+				typeof(DriverAttachedTerminalReturnDocument),
 			};
 
 			SearchEnabled = false;
@@ -228,6 +233,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					() => null,
 					(node) => _gtkTabsOpener.OpenRegradingOfGoodsDocumentDlg(node.DocumentId),
 					(node) => node.EntityType == typeof(RegradingOfGoodsDocumentItem))
+					.FinishConfiguration();
+
+			RegisterEntity(GetQueryDriverAttachedTerminalGiveoutDocument)
+				.AddDocumentConfiguration(
+					() => null,
+					(node) => NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
+					(node) => node.EntityType == typeof(DriverAttachedTerminalGiveoutDocument))
+					.FinishConfiguration();
+
+			RegisterEntity(GetQueryDriverAttachedTerminalReturnDocument)
+				.AddDocumentConfiguration(
+					() => null,
+					(node) => NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
+					(node) => node.EntityType == typeof(DriverAttachedTerminalReturnDocument))
 					.FinishConfiguration();
 
 			var dataLoader = DataLoader as ThreadDataLoader<WarehouseDocumentsItemsJournalNode>;
@@ -1671,6 +1690,180 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => regradingOfGoodsDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<RegradingOfGoodsDocumentItem>>());
+		}
+
+		private IQueryOver<DriverAttachedTerminalGiveoutDocument> GetQueryDriverAttachedTerminalReturnDocument(IUnitOfWork unitOfWork)
+		{
+			WarehouseDocumentsItemsJournalNode<DriverAttachedTerminalGiveoutDocument> resultAlias = null;
+
+			DriverAttachedTerminalGiveoutDocument driverAttachedTerminalGiveoutDocumentAlias = null;
+			WarehouseMovementOperation warehouseMovementOperationAlias = null;
+			Warehouse warehouseAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+			
+			var queryDriverAttachedTerminalGiveout = unitOfWork.Session.QueryOver(() => driverAttachedTerminalGiveoutDocumentAlias);
+
+			if((FilterViewModel.DocumentType == null
+					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalGiveout
+					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalMovement)
+				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
+			{
+				if(FilterViewModel.StartDate != null)
+				{
+					queryDriverAttachedTerminalGiveout.Where(() => driverAttachedTerminalGiveoutDocumentAlias.CreationDate >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					queryDriverAttachedTerminalGiveout.Where(() => driverAttachedTerminalGiveoutDocumentAlias.CreationDate <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
+
+				if(FilterViewModel.WarhouseIds.Any() && FilterViewModel.TargetSource != TargetSource.Target)
+				{
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarhouseIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						queryDriverAttachedTerminalGiveout.Where(warehouseCriterion);
+					}
+					else
+					{
+						queryDriverAttachedTerminalGiveout.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
+
+				if(FilterViewModel.Author != null)
+				{
+					queryDriverAttachedTerminalGiveout.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					queryDriverAttachedTerminalGiveout.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					queryDriverAttachedTerminalGiveout.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
+				}
+			}
+			else
+			{
+				queryDriverAttachedTerminalGiveout.Where(() => driverAttachedTerminalGiveoutDocumentAlias.Id == -1);
+			}
+
+			return queryDriverAttachedTerminalGiveout
+				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
+				.Left.JoinAlias(() => warehouseMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.Author, () => lastEditorAlias)
+				.Left.JoinAlias(() => warehouseMovementOperationAlias.WriteoffWarehouse, () => warehouseAlias)
+				.SelectList(list => list
+					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => warehouseMovementOperationAlias.OperationTime).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.DriverTerminalGiveout).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.CreationDate).WithAlias(() => resultAlias.LastEditedTime))
+				.OrderBy(x => x.CreationDate).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<DriverAttachedTerminalGiveoutDocument>>());
+		}
+
+		private IQueryOver<DriverAttachedTerminalReturnDocument> GetQueryDriverAttachedTerminalGiveoutDocument(IUnitOfWork unitOfWork)
+		{
+			WarehouseDocumentsItemsJournalNode<DriverAttachedTerminalReturnDocument> resultAlias = null;
+
+			DriverAttachedTerminalReturnDocument driverAttachedTerminalReturnDocumentAlias = null;
+			WarehouseMovementOperation warehouseMovementOperationAlias = null;
+			Warehouse warehouseAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+
+			var queryDriverAttachedTerminalReturn = unitOfWork.Session.QueryOver(() => driverAttachedTerminalReturnDocumentAlias);
+
+			if((FilterViewModel.DocumentType == null
+					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalReturn
+					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalMovement)
+				&& (!FilterViewModel.WarhouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source))
+			{
+				if(FilterViewModel.StartDate != null)
+				{
+					queryDriverAttachedTerminalReturn.Where(() => driverAttachedTerminalReturnDocumentAlias.CreationDate >= FilterViewModel.StartDate);
+				}
+
+				if(FilterViewModel.EndDate != null)
+				{
+					queryDriverAttachedTerminalReturn.Where(() => driverAttachedTerminalReturnDocumentAlias.CreationDate <= FilterViewModel.EndDate.Value.LatestDayTime());
+				}
+
+				if(FilterViewModel.WarhouseIds.Any() && FilterViewModel.TargetSource != TargetSource.Source)
+				{
+					var warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarhouseIds);
+
+					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
+					{
+						queryDriverAttachedTerminalReturn.Where(warehouseCriterion);
+					}
+					else
+					{
+						queryDriverAttachedTerminalReturn.Where(Restrictions.Not(warehouseCriterion));
+					}
+				}
+
+				if(FilterViewModel.Author != null)
+				{
+					queryDriverAttachedTerminalReturn.Where(() => authorAlias.Id == FilterViewModel.Author.Id);
+				}
+
+				if(FilterViewModel.LastEditor != null)
+				{
+					queryDriverAttachedTerminalReturn.Where(() => lastEditorAlias.Id == FilterViewModel.LastEditor.Id);
+				}
+
+				if(FilterViewModel.Nomenclature != null)
+				{
+					queryDriverAttachedTerminalReturn.Where(() => nomenclatureAlias.Id == FilterViewModel.Nomenclature.Id);
+				}
+			}
+			else
+			{
+				queryDriverAttachedTerminalReturn.Where(() => driverAttachedTerminalReturnDocumentAlias.Id == -1);
+			}
+
+			return queryDriverAttachedTerminalReturn
+				.Left.JoinAlias(() => driverAttachedTerminalReturnDocumentAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
+				.Left.JoinAlias(() => warehouseMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => driverAttachedTerminalReturnDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => driverAttachedTerminalReturnDocumentAlias.Author, () => lastEditorAlias)
+				.Left.JoinAlias(() => warehouseMovementOperationAlias.WriteoffWarehouse, () => warehouseAlias)
+				.SelectList(list => list
+					.Select(() => driverAttachedTerminalReturnDocumentAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => driverAttachedTerminalReturnDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => warehouseMovementOperationAlias.OperationTime).WithAlias(() => resultAlias.Date)
+					.Select(() => DocumentType.DriverTerminalReturn).WithAlias(() => resultAlias.DocTypeEnum)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToWarehouse)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
+					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+					.Select(() => driverAttachedTerminalReturnDocumentAlias.CreationDate).WithAlias(() => resultAlias.LastEditedTime))
+				.OrderBy(x => x.CreationDate).Desc
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<DriverAttachedTerminalReturnDocument>>());
 		}
 
 		#endregion

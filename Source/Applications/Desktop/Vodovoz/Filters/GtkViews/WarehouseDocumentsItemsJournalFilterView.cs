@@ -25,10 +25,7 @@ namespace Vodovoz.Filters.GtkViews
 			yecmbDocumentType.ItemsEnum = typeof(DocumentType);
 			yecmbDocumentType.HiddenItems = new object[]
 			{
-				DocumentType.DeliveryDocument,
-				DocumentType.DriverTerminalGiveout,
-				DocumentType.DriverTerminalMovement,
-				DocumentType.DriverTerminalReturn,
+				DocumentType.DeliveryDocument
 			};
 
 			yecmbDocumentType.Binding.AddSource(ViewModel)
