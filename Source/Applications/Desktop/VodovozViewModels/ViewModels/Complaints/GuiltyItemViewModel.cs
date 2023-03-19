@@ -10,6 +10,7 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -24,17 +25,24 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IUnitOfWork uow,
 			bool fromComplaintsJournalFilter = false
 		) : base(entity, commonServices)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
+
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			EmployeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			
+			SubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
+				.CreateSubdivisionAutocompleteSelectorFactory();
+
 			if(subdivisionRepository == null) {
 				throw new ArgumentNullException(nameof(subdivisionRepository));
 			}
+
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider)); ;
 			ConfigureEntityPropertyChanges();
 			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
@@ -73,6 +81,7 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory SubdivisionSelectorFactory { get; }
 
 		void ConfigureEntityPropertyChanges()
 		{

@@ -35,6 +35,8 @@ namespace Vodovoz.Filters.GtkViews
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
 
+			
+
 			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ComplaintObjectSource, w => w.ItemsList)
@@ -49,6 +51,10 @@ namespace Vodovoz.Filters.GtkViews
 			yCmbCurrentSubdivision.Binding.AddBinding(ViewModel, s => s.CurrentUserSubdivision, w => w.SelectedItem).InitializeFromSource();
 			yCmbCurrentSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChangeSubdivision, w => w.Sensitive).InitializeFromSource();
 			yCmbCurrentSubdivision.SetSizeRequest(250, 30);
+
+			entityentryCurrentSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.CurrentSubdivisionSelectorFactory);
+			entityentryCurrentSubdivision.Binding.AddBinding(ViewModel, vm => vm.CurrentUserSubdivision, w => w.Subject).InitializeFromSource();
+			entityentryCurrentSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChangeSubdivision, w => w.Sensitive).InitializeFromSource();
 
 			yentryreferenceSubdivision.SubjectType = typeof(Subdivision);
 			yentryreferenceSubdivision.Binding.AddBinding(ViewModel, x => x.Subdivision, w => w.Subject).InitializeFromSource();

@@ -18,6 +18,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 
@@ -50,6 +51,7 @@ namespace Vodovoz.FilterViewModels
 		private IList<ComplaintKind> _complaintKindSource;
 		private ComplaintDetalization _complainDetalization;
 		private DialogViewModelBase _journalViewModel;
+		public IEntityAutocompleteSelectorFactory CurrentSubdivisionSelectorFactory { get; }
 
 		public ComplaintFilterViewModel(
 			ICommonServices commonServices,
@@ -58,6 +60,7 @@ namespace Vodovoz.FilterViewModels
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			Action<ComplaintFilterViewModel> filterParams = null)
 		{
@@ -76,6 +79,7 @@ namespace Vodovoz.FilterViewModels
 				commonServices,
 				subdivisionRepository,
 				employeeJournalFactory,
+				subdivisionJournalFactory,
 				_subdivisionParametersProvider,
 				UoW,
 				true);
@@ -102,6 +106,9 @@ namespace Vodovoz.FilterViewModels
 			{
 				SetAndRefilterAtOnce(filterParams);
 			}
+
+			CurrentSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
+				.CreateSubdivisionAutocompleteSelectorFactory();
 
 			UpdateWith(
 				x => x.ComplaintType,

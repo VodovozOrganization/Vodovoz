@@ -1140,6 +1140,7 @@ public partial class MainWindow : Window
 		IBottlesRepository bottlesRepository = new BottlesRepository();
 		ResidueFilterViewModel filter = new ResidueFilterViewModel();
 		var employeeJournalFactory = new EmployeeJournalFactory();
+		var subdivisionJournalFactory = new SubdivisionJournalFactory();
 		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 
 		var residueJournalViewModel = new ResidueJournalViewModel(
@@ -1152,6 +1153,7 @@ public partial class MainWindow : Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			employeeJournalFactory,
+			subdivisionJournalFactory,
 			subdivisionParametersProvider
 		);
 		tdiMain.AddTab(residueJournalViewModel);
