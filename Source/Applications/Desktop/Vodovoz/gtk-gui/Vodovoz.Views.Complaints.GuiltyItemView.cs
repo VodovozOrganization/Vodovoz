@@ -12,6 +12,8 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gamma.Widgets.ySpecComboBox yCmbSubdivision;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityentrySubdivision;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -40,6 +42,7 @@ namespace Vodovoz.Views.Complaints
 			this.entVmEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.entVmEmployee.Name = "entVmEmployee";
 			this.entVmEmployee.CanEditReference = false;
+			this.entVmEmployee.CanOpenWithoutTabParent = false;
 			this.vbxCreateGuilty.Add(this.entVmEmployee);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.entVmEmployee]));
 			w2.Position = 1;
@@ -58,6 +61,18 @@ namespace Vodovoz.Views.Complaints
 			w3.Position = 2;
 			w3.Expand = false;
 			w3.Fill = false;
+			// Container child vbxCreateGuilty.Gtk.Box+BoxChild
+			this.entityentrySubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityentrySubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entityentrySubdivision.Name = "entityentrySubdivision";
+			this.entityentrySubdivision.CanEditReference = false;
+			this.entityentrySubdivision.CanOpenWithoutTabParent = false;
+			this.vbxCreateGuilty.Add(this.entityentrySubdivision);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.entityentrySubdivision]));
+			w4.PackType = ((global::Gtk.PackType)(1));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
 			this.Add(this.vbxCreateGuilty);
 			if ((this.Child != null))
 			{
