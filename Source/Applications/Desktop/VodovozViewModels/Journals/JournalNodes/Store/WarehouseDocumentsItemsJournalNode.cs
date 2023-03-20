@@ -1,45 +1,14 @@
 ﻿using Gamma.Utilities;
-using NHibernate.Type;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
-using System.Linq;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Documents.DriverTerminal;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 {
 	public class WarehouseDocumentsItemsJournalNode : JournalEntityNodeBase
 	{
-		//private Type[] _supportedDocuments = new[]
-		//{
-		//	typeof(IncomingInvoiceItem),
-		//	typeof(IncomingWaterMaterial),
-		//	typeof(MovementDocumentItem),
-		//	typeof(WriteoffDocumentItem),
-		//	typeof(SelfDeliveryDocumentItem),
-		//	typeof(CarLoadDocumentItem),
-		//	typeof(CarUnloadDocumentItem),
-		//	typeof(InventoryDocumentItem),
-		//	typeof(ShiftChangeWarehouseDocumentItem),
-		//	typeof(RegradingOfGoodsDocumentItem),
-		//	typeof(DeliveryDocumentItem),
-		//	typeof(DriverAttachedTerminalDocumentBase),
-		//	typeof(DriverAttachedTerminalGiveoutDocument),
-		//	typeof(DriverAttachedTerminalReturnDocument),
-		//};
-
-		//protected WarehouseDocumentsItemsJournalNode(Type entityType)
-		//{
-		//	if(!_supportedDocuments.Contains(entityType))
-		//	{
-		//		throw new ArgumentOutOfRangeException(nameof(entityType));
-		//	}
-
-		//	Title = GetTitle(entityType);
-		//}
-
 		public override string Title => GetTitle(EntityType);
 
 		public int DocumentId { get; set; }

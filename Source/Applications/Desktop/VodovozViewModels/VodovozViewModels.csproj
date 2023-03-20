@@ -69,6 +69,7 @@
     <Compile Include="Journals\FilterViewModels\Orders\OrderJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\TargetSource.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsItemsJournalReport.cs" />
+    <Compile Include="Journals\FilterViewModels\Store\WarhouseAccountingCard.cs" />
     <Compile Include="Journals\FilterViewModels\TrueMark\TrueMarkReceiptOrderJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsItemsJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />

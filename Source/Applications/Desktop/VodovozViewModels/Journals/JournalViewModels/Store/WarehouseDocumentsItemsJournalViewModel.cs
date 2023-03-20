@@ -38,12 +38,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 	public class WarehouseDocumentsItemsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<WarehouseDocumentsItemsJournalNode, WarehouseDocumentsItemsJournalFilterViewModel>
 	{
 		private const string _journalReportTemplatePath = @".\Reports\Store\WarehouseDocumentsItemsJournalReport.xlsx";
+		private const string _warhouseAccountingCardTemplatePath = @".\Reports\Store\WarehouseAccountingCard.xlsx";
 		private readonly IFileDialogService _fileDialogService;
 
 		private readonly Type[] _documentItemsTypes;
 		private readonly Type[] _documentTypes;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private WarehouseDocumentsItemsJournalReport _warehouseDocumentsItemsJournalReport;
+		private WarhouseAccountingCard _warhouseAccountingCard;
 		private CancellationTokenSource _cancellationTokenSource;
 
 		public WarehouseDocumentsItemsJournalViewModel(
@@ -111,12 +113,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			CreateNodeActions();
 			CreatePopupActions();
 			_cancellationTokenSource = new CancellationTokenSource();
-			CreateReportCommand = new DelegateCommand(async () => await CreateReport(_cancellationTokenSource.Token));
+			CreateJournalReportCommand = new DelegateCommand(async () => await CreateReport(_cancellationTokenSource.Token));
 			ExportJournalReportCommand = new DelegateCommand(ExportJournalReport);
+			CreateWarhouseAccountingCardCommand = new DelegateCommand(async () => await CreateWarhouseAccountingCard(_cancellationTokenSource.Token));
+			ExportWarhouseAccountingCardCommand = new DelegateCommand(ExportWarhouseAccountingCard);
 		}
 
-		public DelegateCommand CreateReportCommand { get; set; }
+		public DelegateCommand CreateJournalReportCommand { get; set; }
 		public DelegateCommand ExportJournalReportCommand { get; set; }
+		public DelegateCommand CreateWarhouseAccountingCardCommand { get; set; }
+		public DelegateCommand ExportWarhouseAccountingCardCommand { get; set; }
 
 		protected override void CreatePopupActions()
 		{
@@ -127,6 +133,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			NodeActionsList.Clear();
 			CreateOpenDocumentAction();
 			CreateExportJournalReportAction();
+			CreateExportWarhouseAccountingCardAction();
 		}
 
 		protected void CreateOpenDocumentAction()
@@ -183,8 +190,31 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				(selected) => {
 					try
 					{
-						CreateReportCommand?.Execute();
+						CreateJournalReportCommand?.Execute();
 						ExportJournalReportCommand?.Execute();
+					}
+					catch(Exception)
+					{
+						throw;
+					}
+				}
+			);
+
+			NodeActionsList.Add(exportJournalReportAction);
+		}
+
+		protected void CreateExportWarhouseAccountingCardAction()
+		{
+			var exportJournalReportAction = new JournalAction("Выгрузить карточку складского учета",
+				(selected) => FilterViewModel.Nomenclature != null
+					&& FilterViewModel.WarhouseIds.Count == 1
+					&& FilterViewModel.TargetSource == TargetSource.Both,
+				(selected) => true,
+				(selected) => {
+					try
+					{
+						CreateWarhouseAccountingCardCommand?.Execute();
+						ExportWarhouseAccountingCardCommand?.Execute();
 					}
 					catch(Exception)
 					{
@@ -1989,6 +2019,63 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		{
 			var template = new XLTemplate(_journalReportTemplatePath);
 			template.AddVariable(_warehouseDocumentsItemsJournalReport);
+			template.Generate();
+			template.SaveAs(path);
+		}
+
+		private async Task CreateWarhouseAccountingCard(CancellationToken token)
+		{
+			List<WarehouseDocumentsItemsJournalNode> lines = new List<WarehouseDocumentsItemsJournalNode>();
+
+			lines.AddRange(GetQueryIncomingInvoiceItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryIncomingWaterFromMaterial(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryIncomingWaterToMaterial(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryMovementFromDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryMovementToDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryWriteoffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQuerySelfDeliveryDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryCarLoadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryCarUnloadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryInventoryDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryRegradingOfGoodsWriteoffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryRegradingOfGoodsIncomeDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryDriverAttachedTerminalGiveoutDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryDriverAttachedTerminalReturnDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
+
+			lines.OrderByDescending(x => x.Date);
+
+			_warhouseAccountingCard = WarhouseAccountingCard.Create(
+				FilterViewModel.StartDate.Value,
+				FilterViewModel.EndDate.Value,
+				FilterViewModel.WarhouseIds.SingleOrDefault(),
+				FilterViewModel.WarhousessNames,
+				FilterViewModel.Nomenclature.Id,
+				FilterViewModel.Nomenclature.Name,
+				lines);
+
+			await Task.CompletedTask;
+		}
+
+		private void ExportWarhouseAccountingCard()
+		{
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить карточку складского учета",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"Карточка складского учета {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(result.Successful)
+			{
+				SaveWarhouseAccountingCard(result.Path);
+			}
+		}
+
+		private void SaveWarhouseAccountingCard(string path)
+		{
+			var template = new XLTemplate(_warhouseAccountingCardTemplatePath);
+			template.AddVariable(_warhouseAccountingCard);
 			template.Generate();
 			template.SaveAs(path);
 		}

@@ -12,7 +12,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private readonly List<WarehouseDocumentsItemsJournalNode> _rows = new List<WarehouseDocumentsItemsJournalNode>();
 
 		private WarehouseDocumentsItemsJournalReport(
-			DateTime? stertDate,
+			DateTime? startDate,
 			DateTime? endDate,
 			DocumentType? documentType,
 			MovementDocumentStatus? movementDocumentStatus,
@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			string warhouses,
 			IEnumerable<WarehouseDocumentsItemsJournalNode> rows)
 		{
-			StartDate = stertDate;
+			StartDate = startDate;
 			EndDate = endDate;
 			DocumentType = documentType;
 			MovementDocumentStatus = movementDocumentStatus;
@@ -61,7 +61,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		public ReadOnlyCollection<WarehouseDocumentsItemsJournalNode> Rows => _rows.AsReadOnly();
 
 		public static WarehouseDocumentsItemsJournalReport Create(
-			DateTime? stertDate,
+			DateTime? startDate,
 			DateTime? endDate,
 			DocumentType? documentType,
 			MovementDocumentStatus? movementDocumentStatus,
@@ -76,7 +76,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			IEnumerable<WarehouseDocumentsItemsJournalNode> rows)
 		{
 			return new WarehouseDocumentsItemsJournalReport(
-				stertDate,
+				startDate,
 				endDate,
 				documentType,
 				movementDocumentStatus,
