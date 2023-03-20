@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -11,6 +12,8 @@ using QS.Services;
 using QS.Tdi;
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -34,6 +37,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		private readonly Type[] _documentItemsTypes;
 		private readonly Type[] _documentTypes;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private WarehouseDocumentsItemsJournalReport _warehouseDocumentsItemsJournalReport;
+		private CancellationTokenSource _cancellationTokenSource;
 
 		public WarehouseDocumentsItemsJournalViewModel(
 			WarehouseDocumentsItemsJournalFilterViewModel filterViewModel,
@@ -92,6 +97,31 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			CreateNodeActions();
 			CreatePopupActions();
 			_gtkTabsOpener = gtkTabsOpener;
+
+			_cancellationTokenSource = new CancellationTokenSource();
+			CreateReportCommand = new DelegateCommand(async () => await CreateReport(_cancellationTokenSource.Token));
+		}
+
+		public DelegateCommand CreateReportCommand { get; set; }
+
+		public async Task CreateReport(CancellationToken cancellationToken)
+		{
+			_warehouseDocumentsItemsJournalReport = WarehouseDocumentsItemsJournalReport.Create(
+				FilterViewModel.StartDate,
+				FilterViewModel.EndDate,
+				FilterViewModel.DocumentType,
+				FilterViewModel.MovementDocumentStatus,
+				FilterViewModel.Author.FullName,
+				FilterViewModel.LastEditor.FullName,
+				FilterViewModel.Driver.FullName,
+				FilterViewModel.Nomenclature.Name,
+				FilterViewModel.ShowNotAffectedBalance,
+				FilterViewModel.TargetSource,
+				FilterViewModel.CounterpartyIds.Select(x => x.ToString()),
+				FilterViewModel.WarhouseIds.Select(x => x.ToString()),
+				null);
+
+			await Task.CompletedTask;
 		}
 
 		protected override void CreatePopupActions()
