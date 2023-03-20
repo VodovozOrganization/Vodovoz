@@ -40,14 +40,14 @@ namespace Vodovoz.Views.Complaints
 					return string.Concat(strLst);
 				}
 			);
-			yCmbSubdivision.ItemsList = ViewModel.AllDepartments;
-			yCmbSubdivision.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.SelectedItem).InitializeFromSource();
-			yCmbSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChooseSubdivision, w => w.Visible).InitializeFromSource();
-			yCmbSubdivision.SetSizeRequest(250, 30);
+			//yCmbSubdivision.ItemsList = ViewModel.AllDepartments;
+			//yCmbSubdivision.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.SelectedItem).InitializeFromSource();
+			//yCmbSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChooseSubdivision, w => w.Visible).InitializeFromSource();
+			//yCmbSubdivision.SetSizeRequest(250, 30);
 
 			entityentrySubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionSelectorFactory);
 			entityentrySubdivision.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject).InitializeFromSource();
-			entityentrySubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChooseSubdivision, w => w.Sensitive).InitializeFromSource();
+			entityentrySubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChooseSubdivision, w => w.Visible).InitializeFromSource();
 
 			this.Shown += (s, ea) => {
 				entVmEmployee.Visible = ViewModel.CanChooseEmployee;

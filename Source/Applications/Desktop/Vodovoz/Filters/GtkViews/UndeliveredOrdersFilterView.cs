@@ -25,10 +25,10 @@ namespace Vodovoz.Filters.GtkViews
 			yEnumStatusOnOldOrderCancels.ItemsEnum = typeof(OrderStatus);
 			yEnumStatusOnOldOrderCancels.Binding.AddBinding(ViewModel, vm => vm.OldOrderStatus, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			ySpecCMBinProcessAt.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.Subdivisions, w => w.ItemsList)
-				.AddBinding(vm => vm.RestrictInProcessAtDepartment, w => w.SelectedItem)
-				.InitializeFromSource();
+			//ySpecCMBinProcessAt.Binding.AddSource(ViewModel)
+			//	.AddBinding(vm => vm.Subdivisions, w => w.ItemsList)
+			//	.AddBinding(vm => vm.RestrictInProcessAtDepartment, w => w.SelectedItem)
+			//	.InitializeFromSource();
 
 			entityInProcessAtSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.InProcessAtSubdivisionSelectorFactory);
 			entityInProcessAtSubdivision.Binding.AddBinding(ViewModel, vm => vm.RestrictInProcessAtDepartment, w => w.Subject).InitializeFromSource();

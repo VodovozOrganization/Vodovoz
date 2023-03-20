@@ -51,7 +51,6 @@ namespace Vodovoz.FilterViewModels
 		private IList<ComplaintKind> _complaintKindSource;
 		private ComplaintDetalization _complainDetalization;
 		private DialogViewModelBase _journalViewModel;
-		public IEntityAutocompleteSelectorFactory CurrentSubdivisionSelectorFactory { get; }
 
 		public ComplaintFilterViewModel(
 			ICommonServices commonServices,
@@ -61,6 +60,7 @@ namespace Vodovoz.FilterViewModels
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IComplaintKindJournalFactory complaintKindJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			Action<ComplaintFilterViewModel> filterParams = null)
 		{
@@ -74,6 +74,9 @@ namespace Vodovoz.FilterViewModels
 			EmployeeSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
+			ComplaintKindSelectorFactory =
+				(complaintKindJournalFactory ?? throw new ArgumentNullException(nameof(complaintKindJournalFactory)))
+				.CreateComplaintKindAutocompleteSelectorFactory();
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				commonServices,
@@ -131,6 +134,10 @@ namespace Vodovoz.FilterViewModels
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+
+		public IEntityAutocompleteSelectorFactory CurrentSubdivisionSelectorFactory { get; }
+
+		public IEntityAutocompleteSelectorFactory ComplaintKindSelectorFactory { get; }
 
 		public IEntityEntryViewModel ComplaintDetalizationEntiryEntryViewModel { get; private set; }
 
