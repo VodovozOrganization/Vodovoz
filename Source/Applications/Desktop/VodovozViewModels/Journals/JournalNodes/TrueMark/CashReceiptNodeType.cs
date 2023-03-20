@@ -1,6 +1,6 @@
 ﻿namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 {
-	public enum TrueMarkOrderNodeType
+	public enum CashReceiptNodeType
 	{
 		Order,
 		Code

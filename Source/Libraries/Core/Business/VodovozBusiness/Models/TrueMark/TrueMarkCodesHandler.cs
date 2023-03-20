@@ -10,25 +10,22 @@ namespace Vodovoz.Models.TrueMark
 	{
 		private readonly ReceiptPreparerFactory _receiptPreparerFactory;
 		private readonly SelfdeliveryReceiptCreatorFactory _selfdeliveryReceiptCreatorFactory;
-		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 
 		public ReceiptsHandler(
 			ReceiptPreparerFactory receiptPreparerFactory,
 			SelfdeliveryReceiptCreatorFactory selfdeliveryReceiptCreatorFactory,
-			ITrueMarkRepository trueMarkRepository,
 			ICashReceiptRepository cashReceiptRepository
 		)
 		{
 			_receiptPreparerFactory = receiptPreparerFactory ?? throw new ArgumentNullException(nameof(receiptPreparerFactory));
 			_selfdeliveryReceiptCreatorFactory = selfdeliveryReceiptCreatorFactory ?? throw new ArgumentNullException(nameof(selfdeliveryReceiptCreatorFactory));
-			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 		}
 
 		public async Task HandleReceiptsAsync(CancellationToken cancellationToken)
 		{
-			var receiptIds = _trueMarkRepository.GetReceiptIdsForPrepare();
+			var receiptIds = _cashReceiptRepository.GetReceiptIdsForPrepare();
 			foreach(var receiptId in receiptIds)
 			{
 				using(var preparer = _receiptPreparerFactory.Create(receiptId))

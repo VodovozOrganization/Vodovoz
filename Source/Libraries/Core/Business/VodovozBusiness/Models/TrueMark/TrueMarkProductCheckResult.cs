@@ -4,7 +4,7 @@ namespace Vodovoz.Models.TrueMark
 {
 	public class TrueMarkProductCheckResult
 	{
-		public TrueMarkCashReceiptProductCode Code { get; set; }
+		public CashReceiptProductCode Code { get; set; }
 
 		/// <summary>
 		/// В обороте

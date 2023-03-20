@@ -25,7 +25,7 @@ namespace Vodovoz.Models.TrueMark
 			_trueMarkClient = trueMarkClient ?? throw new ArgumentNullException(nameof(trueMarkClient));
 		}
 
-		public async Task<IEnumerable<TrueMarkProductCheckResult>> CheckCodesAsync(IEnumerable<TrueMarkCashReceiptProductCode> codes, CancellationToken cancellationToken)
+		public async Task<IEnumerable<TrueMarkProductCheckResult>> CheckCodesAsync(IEnumerable<CashReceiptProductCode> codes, CancellationToken cancellationToken)
 		{
 			var result = new List<TrueMarkProductCheckResult>();
 
@@ -35,7 +35,7 @@ namespace Vodovoz.Models.TrueMark
 			var checkResults = await CheckCodesAsync(codesDic.Keys, cancellationToken);
 			foreach(var checkResult in checkResults)
 			{
-				if(!codesDic.TryGetValue(checkResult.Code, out TrueMarkCashReceiptProductCode productCode))
+				if(!codesDic.TryGetValue(checkResult.Code, out CashReceiptProductCode productCode))
 				{
 					throw new TrueMarkException($"Невозможно найти код {checkResult.Code.RawCode} в списке отправленных на проверку.");
 				}

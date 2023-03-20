@@ -76,50 +76,82 @@ namespace Vodovoz.Models.TrueMark
 			CommitPool();
 		}
 
-		private async Task PrepareCodes(TrueMarkCashReceiptOrder receipt, CancellationToken cancellationToken)
+		private async Task PrepareCodes(CashReceipt receipt, CancellationToken cancellationToken)
 		{
 			PrepareDefectiveCodes(receipt);
 
-			//Если для перепродажи, то сразу забыли про отбирание кодов
-
-			//Если перепродажа и не нужен чек, ставим чек не требуется, коды забываем
-			//Если перепродажа и нужен чек, собираем коды клиента и формируем чек с указанием ИНН клиента. (РЕШЕНИЕ: Формируем так как обычно) ПРОБЛЕМА! Нужны точные коды которые будем передавать, нельзя подбирать коды из пула!
-
-			//Если собст. нужд и не нужен чек, то берем себе его коды в пул.
-			//Если для собст. нужд и нужен чек, то формируем чек из его кодов + недостающие из пула и отправляем обычный чек с кодами.
-
 			var order = receipt.Order;
-			var reasonForLeaving = order.Client.ReasonForLeaving;
 
-			if(reasonForLeaving == ReasonForLeaving.Unknown)
+			if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown)
 			{
 				throw new TrueMarkException($"Невозможно обработать заказ {order.Id}. Неизвестная причина отпуска товара.");
 			}
 
+			var receiptNeeded = _cashReceiptRepository.CashReceiptNeeded(_uow, order.Id);
+			if(receiptNeeded)
+			{
+
+				await PrepareForFirstReceipt(receipt, cancellationToken);
+			}
+			else
+			{
+				await PrepareForReceiptNotNeeded(receipt, cancellationToken);
+			}
+		}
+
+		private async Task PrepareForReceiptNotNeeded(CashReceipt receipt, CancellationToken cancellationToken)
+		{
+			var order = receipt.Order;
 			var codes = receipt.ScannedCodes.Where(x => !x.IsDefectiveSourceCode);
 
-			var receiptNeeded = _cashReceiptRepository.CashReceiptNeeded(_uow, order.Id);
-			if(!receiptNeeded)
+			//В первую очередь необходима проверка на первый чек,
+			//если не пройдет тогда все остальное можно проверять будет
+			//а если пройдет, то формируем чек
+			if(order.PaymentType == PaymentType.cash)
 			{
-				if(order.Client.PersonType == PersonType.legal)
-				{
-					switch(reasonForLeaving)
-					{
-						case ReasonForLeaving.ForOwnNeeds:
-						case ReasonForLeaving.Other:
-							PutCodesToPool(codes);
-							break;
-						case ReasonForLeaving.Resale:
-						case ReasonForLeaving.Unknown:
-						default:
-							break;
-					}
-				}
+				await PrepareForFirstReceiptIfReceiptNotNeeded(receipt, cancellationToken);
+				return;
+			}
 
-				receipt.Status = TrueMarkCashReceiptOrderStatus.ReceiptNotNeeded;
+			TryPutCodesToPool(receipt);
+
+			receipt.Status = CashReceiptStatus.ReceiptNotNeeded;
+			receipt.ErrorDescription = null;
+			return;
+		}
+
+		private async Task PrepareForFirstReceiptIfReceiptNotNeeded(CashReceipt receipt, CancellationToken cancellationToken)
+		{
+			var needReceiptForFirstSum = _cashReceiptRepository.CashReceiptNeededForFirstCashSum(_uow, receipt.Order.Id);
+			if(needReceiptForFirstSum)
+			{
+				await PrepareForFirstReceipt(receipt, cancellationToken);
+			}
+
+			receipt.Status = CashReceiptStatus.ReceiptNotNeeded;
+			receipt.ErrorDescription = null;
+			return;
+		}
+
+		private async Task PrepareForFirstReceipt(CashReceipt receipt, CancellationToken cancellationToken)
+		{
+			var orderSum = receipt.Order.OrderPositiveOriginalSum;
+			var hasReceiptBySum = _cashReceiptRepository.HasReceiptBySum(DateTime.Today, orderSum);
+			if(hasReceiptBySum)
+			{
+				receipt.Status = CashReceiptStatus.DuplicateSum;
 				receipt.ErrorDescription = null;
 				return;
 			}
+			else
+			{
+				await PrepareForReadyToSend(receipt, cancellationToken);
+			}
+		}
+
+		private async Task PrepareForReadyToSend(CashReceipt receipt, CancellationToken cancellationToken)
+		{
+			var codes = receipt.ScannedCodes.Where(x => !x.IsDefectiveSourceCode);
 
 			//valid codes
 			var validCodes = codes.Where(x => x.IsValid);
@@ -150,11 +182,33 @@ namespace Vodovoz.Models.TrueMark
 			PrepareUnscannedAndExtraScannedCodes(receipt);
 
 			//states
-			receipt.Status = TrueMarkCashReceiptOrderStatus.ReadyToSend;
+			receipt.Status = CashReceiptStatus.ReadyToSend;
 			receipt.ErrorDescription = null;
 		}
 
-		private void PrepareDefectiveCodes(TrueMarkCashReceiptOrder receipt)
+		private void TryPutCodesToPool(CashReceipt receipt)
+		{
+			var order = receipt.Order;
+			if(order.Client.PersonType != PersonType.legal)
+			{
+				return;
+			}
+
+			var codes = receipt.ScannedCodes.Where(x => !x.IsDefectiveSourceCode);
+			switch(order.Client.ReasonForLeaving)
+			{
+				case ReasonForLeaving.ForOwnNeeds:
+				case ReasonForLeaving.Other:
+					PutCodesToPool(codes);
+					break;
+				case ReasonForLeaving.Resale:
+				case ReasonForLeaving.Unknown:
+				default:
+					break;
+			}
+		}
+
+		private void PrepareDefectiveCodes(CashReceipt receipt)
 		{
 			var defectiveCodes = receipt.ScannedCodes.Where(x => x.IsDefectiveSourceCode);
 			foreach(var defectiveCode in defectiveCodes)
@@ -175,7 +229,7 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		private void PrepareUnscannedAndExtraScannedCodes(TrueMarkCashReceiptOrder receipt)
+		private void PrepareUnscannedAndExtraScannedCodes(CashReceipt receipt)
 		{
 			var orderItems = receipt.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark);
 			foreach(var orderItem in orderItems)
@@ -209,7 +263,7 @@ namespace Vodovoz.Models.TrueMark
 				//Unscanned codes
 				for(int i = 0; i < unscannedCodesCount; i++)
 				{
-					var newCode = new TrueMarkCashReceiptProductCode();
+					var newCode = new CashReceiptProductCode();
 					newCode.CashReceipt = receipt;
 					newCode.OrderItem = orderItem;
 					newCode.IsUnscannedSourceCode = true;
@@ -221,7 +275,7 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		private void PutCodesToPool(IEnumerable<TrueMarkCashReceiptProductCode> codes)
+		private void PutCodesToPool(IEnumerable<CashReceiptProductCode> codes)
 		{
 			foreach(var code in codes)
 			{
@@ -271,8 +325,8 @@ namespace Vodovoz.Models.TrueMark
 			_logger.LogError(ex, $"Ошибка обработки заказа честного знака {_receiptId}.");
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var trueMarkOrder = uow.GetById<TrueMarkCashReceiptOrder>(_receiptId);
-				trueMarkOrder.Status = TrueMarkCashReceiptOrderStatus.CodeError;
+				var trueMarkOrder = uow.GetById<CashReceipt>(_receiptId);
+				trueMarkOrder.Status = CashReceiptStatus.CodeError;
 				trueMarkOrder.ErrorDescription = ex.Message;
 				uow.Save(trueMarkOrder);
 				uow.Commit();

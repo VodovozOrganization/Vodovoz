@@ -4,7 +4,7 @@ using VodovozInfrastructure.Attributes;
 
 namespace Vodovoz.Domain.Orders
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
+	/*[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "чеки на отправку",
 		Nominative = "чек на отправку")]
 	public class CashReceipt : PropertyChangedBase, IDomainObject
@@ -32,5 +32,5 @@ namespace Vodovoz.Domain.Orders
 			get => httpCode;
 			set => SetField(ref httpCode, value);
 		}
-	}
+	}*/
 }

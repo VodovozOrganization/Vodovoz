@@ -70,11 +70,11 @@ namespace Vodovoz.Models.TrueMark
 		{
 			var order = _uow.GetById<Order>(_orderId);
 
-			var receipt = new TrueMarkCashReceiptOrder
+			var receipt = new CashReceipt
 			{
 				Order = order,
-				Date = DateTime.Now,
-				Status = TrueMarkCashReceiptOrderStatus.New
+				CreateDate = DateTime.Now,
+				Status = CashReceiptStatus.New
 			};
 
 			_uow.Save(receipt);
@@ -95,9 +95,9 @@ namespace Vodovoz.Models.TrueMark
 			_uow.Save(receipt);
 		}
 
-		private void CreateTrueMarkCodeEntity(TrueMarkCashReceiptOrder receipt, OrderItem orderItem)
+		private void CreateTrueMarkCodeEntity(CashReceipt receipt, OrderItem orderItem)
 		{
-			var orderProductCode = new TrueMarkCashReceiptProductCode
+			var orderProductCode = new CashReceiptProductCode
 			{
 				CashReceipt = receipt,
 				OrderItem = orderItem,

@@ -1,25 +1,8 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
-namespace VodovozSalesReceiptsService.DTO
+namespace Vodovoz.Models.CashReceipts.DTO
 {
-    public class SalesDocumentsStatusDTO
-    {
-        [JsonProperty("fiscalInfo")] 
-        public FiscalInfo FiscalInfo { get; set; }
-
-        [JsonProperty("fnState")] 
-        public string FnState { get; set; }
-
-        [JsonProperty("message")]
-        public string Message { get; set; }
-
-        [JsonProperty("status")] 
-        [JsonConverter(typeof(StringEnumConverter))]
-        public DocumentStatus Status { get; set; }
-    }
-    
-    public class FiscalInfo
+	public class FiscalInfo
     {
         [JsonProperty("checkNumber")] 
         public long CheckNumber { get; set; }

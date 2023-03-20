@@ -117,24 +117,6 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		OrderStatus[] GetUndeliveryStatuses();
 
-		/// <summary>
-		/// Подбирает подходящие заказы, для которых необходимо отправкить чеки контрагентам
-		/// </summary>
-		IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(
-			IUnitOfWork uow,
-			IOrderParametersProvider orderParametersProvider,
-			DateTime? startDate = null);
-
-		/// <summary>
-		/// Возвращает id заказов самовывоза на которые необходима отправка чека
-		/// </summary>
-		IEnumerable<int> GetSelfdeliveryOrderIdsForCashReceipt(IUnitOfWork uow, IOrderParametersProvider orderParametersProvider);
-
-		IEnumerable<ReceiptForOrderNode> GetLegalSelfdeliveriesForCashReceiptServiceToSend(
-			IUnitOfWork uow,
-			IOrderParametersProvider orderParametersProvider,
-			DateTime? startDate = null);
-
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Order order);
 
 		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);

@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 
-namespace VodovozSalesReceiptsService.DTO
+namespace Vodovoz.Models.CashReceipts.DTO
 {
-    public class CashBox
+    public class CashboxSetting
     {
         public int Id { get; set; }
         public string RetailPointName { get; set; }
-        public Guid UserName { get; set; }
+        public Guid UserId { get; set; }
         public string Password { get; set; }
-    }
+	}
 }

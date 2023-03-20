@@ -7,13 +7,13 @@ namespace Vodovoz.Domain.TrueMark
 	[
 		Appellative(
 			Gender = GrammaticalGender.Masculine,
-			NominativePlural = "коды честного знака для отправки чеков",
-			Nominative = "код честного знака для отправки чеков"
+			NominativePlural = "коды товаров",
+			Nominative = "код товара"
 		)
 	]
-	public class TrueMarkCashReceiptProductCode : PropertyChangedBase, IDomainObject
+	public class CashReceiptProductCode : PropertyChangedBase, IDomainObject
 	{
-		private TrueMarkCashReceiptOrder _cashReceipt;
+		private CashReceipt _cashReceipt;
 		private OrderItem _orderItem;
 		private bool _isUnscannedSourceCode;
 		private bool _isDuplicateSourceCode;
@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.TrueMark
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Заказ с честным знаком для отправки чека")]
-		public virtual TrueMarkCashReceiptOrder CashReceipt
+		public virtual CashReceipt CashReceipt
 		{
 			get => _cashReceipt;
 			set => SetField(ref _cashReceipt, value);

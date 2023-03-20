@@ -3,7 +3,7 @@ using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.HibernateMapping.Suppliers
 {
-	public class TrueMarkCashReceiptProductCodeMap : ClassMap<TrueMarkCashReceiptProductCode>
+	public class TrueMarkCashReceiptProductCodeMap : ClassMap<CashReceiptProductCode>
 	{
 		public TrueMarkCashReceiptProductCodeMap()
 		{

@@ -3,7 +3,7 @@ using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.HibernateMapping.Suppliers
 {
-	public class TrueMarkCashReceiptOrderMap : ClassMap<TrueMarkCashReceiptOrder>
+	/*public class TrueMarkCashReceiptOrderMap : ClassMap<TrueMarkCashReceiptOrder>
 	{
 		public TrueMarkCashReceiptOrderMap()
 		{
@@ -21,5 +21,5 @@ namespace Vodovoz.HibernateMapping.Suppliers
 			HasMany(x => x.ScannedCodes).Cascade.AllDeleteOrphan().Not.LazyLoad().Inverse()
 				.KeyColumn("true_mark_cash_receipt_order_id");
 		}
-	}
+	}*/
 }

@@ -341,7 +341,7 @@ namespace DriverAPI.Library.Models
 				return;
 			}
 
-			var trueMarkCashReceiptOrder = _uow.Session.QueryOver<TrueMarkCashReceiptOrder>()
+			var trueMarkCashReceiptOrder = _uow.Session.QueryOver<CashReceipt>()
 				.Where(x => x.Order.Id == completeOrderInfo.OrderId)
 				.SingleOrDefault();
 
@@ -351,11 +351,11 @@ namespace DriverAPI.Library.Models
 				return;
 			}
 
-			trueMarkCashReceiptOrder = new TrueMarkCashReceiptOrder();
+			trueMarkCashReceiptOrder = new CashReceipt();
 			trueMarkCashReceiptOrder.UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason;
 			trueMarkCashReceiptOrder.Order = new Order { Id = completeOrderInfo.OrderId };
-			trueMarkCashReceiptOrder.Date = actionTime;
-			trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.New;
+			trueMarkCashReceiptOrder.CreateDate = actionTime;
+			trueMarkCashReceiptOrder.Status = CashReceiptStatus.New;
 			_uow.Save(trueMarkCashReceiptOrder);
 
 			foreach(var scannedItem in completeOrderInfo.ScannedItems)
@@ -383,9 +383,9 @@ namespace DriverAPI.Library.Models
 			_uow.Save(trueMarkCashReceiptOrder);
 		}
 
-		private TrueMarkCashReceiptProductCode CreateTrueMarkCodeEntity(string code, TrueMarkCashReceiptOrder trueMarkCashReceiptOrder, OrderItem orderItem)
+		private CashReceiptProductCode CreateTrueMarkCodeEntity(string code, CashReceipt trueMarkCashReceiptOrder, OrderItem orderItem)
 		{
-			var orderProductCode = new TrueMarkCashReceiptProductCode();
+			var orderProductCode = new CashReceiptProductCode();
 			orderProductCode.CashReceipt = trueMarkCashReceiptOrder;
 			orderProductCode.OrderItem = orderItem;
 

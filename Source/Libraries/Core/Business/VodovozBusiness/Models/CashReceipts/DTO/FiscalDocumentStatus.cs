@@ -2,10 +2,10 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace VodovozSalesReceiptsService.DTO
+namespace Vodovoz.Models.CashReceipts.DTO
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum DocumentStatus
+    public enum FiscalDocumentStatus
     {
         [EnumMember(Value = "QUEUED")]
         Queued,

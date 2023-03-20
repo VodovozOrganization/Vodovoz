@@ -72,8 +72,8 @@
     <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OrderJournalNode.cs" />
-    <Compile Include="Journals\JournalNodes\TrueMark\TrueMarkOrderNodeType.cs" />
-    <Compile Include="Journals\JournalNodes\TrueMark\TrueMarkReceiptOrderNode.cs" />
+    <Compile Include="Journals\JournalNodes\TrueMark\CashReceiptNodeType.cs" />
+    <Compile Include="Journals\JournalNodes\TrueMark\CashReceiptJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Client\EdoOperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />

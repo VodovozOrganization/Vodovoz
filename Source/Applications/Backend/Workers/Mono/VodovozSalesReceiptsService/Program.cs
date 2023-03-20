@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
 using MySql.Data.MySqlClient;
 using NLog;
 using QS.Project.DB;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 using Vodovoz.Settings.Database;
-using VodovozSalesReceiptsService.DTO;
 
 namespace VodovozSalesReceiptsService
 {

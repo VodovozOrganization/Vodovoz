@@ -22,7 +22,7 @@ namespace VodovozSalesReceiptsService
 
 			var fiscalizationWorker = new FiscalizationWorker(
 				new OrderRepository(),
-				new SalesReceiptSender(modulKassaBaseAddress),
+				new CashboxClient(modulKassaBaseAddress),
 				new OrderParametersProvider(parametersProvider),
 				cashboxes
 			);

@@ -7,21 +7,21 @@ using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 {
-	public class TrueMarkReceiptOrderNode : JournalNodeBase, IHierarchicalNode<TrueMarkReceiptOrderNode>
+	public class CashReceiptJournalNode : JournalNodeBase, IHierarchicalNode<CashReceiptJournalNode>
 	{
 		public int Id { get; set; }
 		public int? ParentId { get; set; }
-		public TrueMarkReceiptOrderNode Parent { get; set; }
-		public IList<TrueMarkReceiptOrderNode> Children { get; set; }
+		public CashReceiptJournalNode Parent { get; set; }
+		public IList<CashReceiptJournalNode> Children { get; set; }
 
-		public TrueMarkOrderNodeType NodeType { get; set; }
+		public CashReceiptNodeType NodeType { get; set; }
 		public string EntityId => Id == 0 ? "" : Id.ToString();
 		public override string Title => $"{EntityId} {Time:dd.MM.yyyy HH:mm:ss}";
 
 
 		public DateTime? Time { get; set; }
 		public int OrderAndItemId { get; set; }
-		public TrueMarkCashReceiptOrderStatus? OrderStatus { get; set; }
+		public CashReceiptStatus? OrderStatus { get; set; }
 		public string Status => OrderStatus.HasValue ? OrderStatus.GetEnumTitle() : "";
 		public string UnscannedReason { get; set; }
 		public string ErrorDescription { get; set; }

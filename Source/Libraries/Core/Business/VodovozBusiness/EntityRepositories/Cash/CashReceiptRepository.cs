@@ -21,7 +21,6 @@ namespace Vodovoz.EntityRepositories.Cash
 		private VodovozOrder _orderAlias = null;
 		private CashReceipt _cashReceiptAlias = null;
 		private Counterparty _counterpartyAlias = null;
-		private TrueMarkCashReceiptOrder _trueMarkCashReceiptOrderAlias = null;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
@@ -72,32 +71,24 @@ namespace Vodovoz.EntityRepositories.Cash
 			return restriction;
 		}
 
-		private ICriterion GetNotSendRestriction()
-		{
-			var restriction = Restrictions.Disjunction()
-				.Add(Restrictions.IsNull(Projections.Property(() => _cashReceiptAlias.Id)))
-				.Add(() => !_cashReceiptAlias.Sent);
-			return restriction;
-		}
-
 		private ICriterion GetDeliveryDateRestriction()
 		{
 			var restriction = Restrictions.Where(() => _orderAlias.DeliveryDate >= DateTime.Today.AddDays(-3));
 			return restriction;
 		}
 
-		private ICriterion GetMissingReceiptOrderRestriction()
+		private ICriterion GetMissingCashReceiptRestriction()
 		{
 			var restriction = Restrictions.IsNull(
-				Projections.Property(() => _trueMarkCashReceiptOrderAlias.Id)
+				Projections.Property(() => _cashReceiptAlias.Id)
 			);
 			return restriction;
 		}
 
-		private ICriterion GetAvailabilityReceiptOrderRestriction()
+		private ICriterion GetCashReceiptExistRestriction()
 		{
 			var restriction = Restrictions.IsNotNull(
-				Projections.Property(() => _trueMarkCashReceiptOrderAlias.Id)
+				Projections.Property(() => _cashReceiptAlias.Id)
 			);
 			return restriction;
 		}
@@ -111,8 +102,8 @@ namespace Vodovoz.EntityRepositories.Cash
 
 		private ICriterion GetReceiptOrderStatusRestriction()
 		{
-			var receiptAllowedStatuses = new[] { TrueMarkCashReceiptOrderStatus.New, TrueMarkCashReceiptOrderStatus.CodeError };
-			var restriction = Restrictions.In(Projections.Property(() => _trueMarkCashReceiptOrderAlias.Status), receiptAllowedStatuses);
+			var receiptAllowedStatuses = new[] { CashReceiptStatus.New, CashReceiptStatus.CodeError };
+			var restriction = Restrictions.In(Projections.Property(() => _cashReceiptAlias.Status), receiptAllowedStatuses);
 			return restriction;
 		}
 
@@ -125,26 +116,26 @@ namespace Vodovoz.EntityRepositories.Cash
 					.Inner.JoinAlias(() => _orderAlias.Client, () => _counterpartyAlias)
 					.Left.JoinAlias(() => _orderAlias.OrderItems, () => _orderItemAlias)
 					.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
-					.JoinEntityAlias(() => _trueMarkCashReceiptOrderAlias, () => _orderAlias.Id == _trueMarkCashReceiptOrderAlias.Order.Id, JoinType.LeftOuterJoin)
-					.Where(GetMissingReceiptOrderRestriction())
+					.JoinEntityAlias(() => _cashReceiptAlias, () => _orderAlias.Id == _cashReceiptAlias.Order.Id, JoinType.LeftOuterJoin)
+					.Where(GetMissingCashReceiptRestriction())
 					.Where(GetPaymentTypeRestriction())
 					.Where(GetSelfdeliveryRestriction())
 					.Where(GetPositiveSumRestriction())
 					.Where(GetDeliveryDateRestriction())
-					.Where(GetNotSendRestriction());
+					;
 
 				var result = query.Select(Projections.Id()).List<int>();
 				return result;
 			}
 		}
 
-		public IEnumerable<int> GetOrderIdsForCashReceipt(IUnitOfWork uow)
+		/*public IEnumerable<int> GetOrderIdsForCashReceipt(IUnitOfWork uow)
 		{
 			var query = uow.Session.QueryOver(() => _orderAlias)
 				.Inner.JoinAlias(() => _orderAlias.Client, () => _counterpartyAlias)
 				.Left.JoinAlias(() => _orderAlias.OrderItems, () => _orderItemAlias)
 				.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => _trueMarkCashReceiptOrderAlias, () => _orderAlias.Id == _trueMarkCashReceiptOrderAlias.Order.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => _cashReceiptAlias, () => _orderAlias.Id == _cashReceiptAlias.Order.Id, JoinType.LeftOuterJoin)
 				.Where(GetAvailabilityReceiptOrderRestriction())
 				.Where(GetPaymentTypeRestriction())
 				.Where(GetPositiveSumRestriction())
@@ -158,6 +149,21 @@ namespace Vodovoz.EntityRepositories.Cash
 
 			var result = query.Select(Projections.Id()).List<int>();
 			return result;
+		}*/
+
+		public IEnumerable<CashReceipt> GetCashReceiptsForSend(IUnitOfWork uow, int count)
+		{
+			var statusesForSend = new[] { CashReceiptStatus.ReadyToSend, CashReceiptStatus.ReceiptSendError };
+			var query = uow.Session.QueryOver(() => _cashReceiptAlias)
+				.WhereRestrictionOn(() => _cashReceiptAlias.Status).IsIn(statusesForSend)
+				.Select(Projections.Id())
+				.OrderBy(() => _cashReceiptAlias.CreateDate).Asc
+				.Take(count);
+
+			var receiptIds = query.List<int>();
+
+			var result = LoadReceipts(uow, receiptIds);
+			return result;
 		}
 
 		public bool CashReceiptNeeded(IUnitOfWork uow, int orderId)
@@ -166,9 +172,9 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Inner.JoinAlias(() => _orderAlias.Client, () => _counterpartyAlias)
 				.Left.JoinAlias(() => _orderAlias.OrderItems, () => _orderItemAlias)
 				.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => _trueMarkCashReceiptOrderAlias, () => _orderAlias.Id == _trueMarkCashReceiptOrderAlias.Order.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => _cashReceiptAlias, () => _orderAlias.Id == _cashReceiptAlias.Order.Id, JoinType.LeftOuterJoin)
 				.Where(() => _orderAlias.Id == orderId)
-				.Where(GetAvailabilityReceiptOrderRestriction())
+				.Where(GetCashReceiptExistRestriction())
 				.Where(GetPaymentTypeRestriction())
 				.Where(GetPositiveSumRestriction())
 				.Where(GetDeliveryDateRestriction())
@@ -181,15 +187,44 @@ namespace Vodovoz.EntityRepositories.Cash
 			return id == orderId;
 		}
 
-		public TrueMarkCashReceiptOrder LoadReceipt(IUnitOfWork uow, int receiptId)
+		public bool CashReceiptNeededForFirstCashSum(IUnitOfWork uow, int orderId)
 		{
-			TrueMarkCashReceiptOrder receiptAlias = null;
-			TrueMarkCashReceiptProductCode productCodeAlias = null;
+			var query = uow.Session.QueryOver(() => _orderAlias)
+				.Inner.JoinAlias(() => _orderAlias.Client, () => _counterpartyAlias)
+				.Left.JoinAlias(() => _orderAlias.OrderItems, () => _orderItemAlias)
+				.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => _cashReceiptAlias, () => _orderAlias.Id == _cashReceiptAlias.Order.Id, JoinType.LeftOuterJoin)
+				.Where(() => _orderAlias.Id == orderId)
+				.Where(GetCashReceiptExistRestriction())
+				.Where(() => _orderAlias.PaymentType == PaymentType.cash)
+				.Where(GetPositiveSumRestriction())
+				.Where(GetDeliveryDateRestriction())
+				.Where(Restrictions.Disjunction()
+					.Add(GetSelfdeliveryRestriction())
+					.Add(GetOrderStatusRestriction())
+				);
 
-			IQueryOver<TrueMarkCashReceiptOrder, TrueMarkCashReceiptOrder> CreateLastOrdersBaseQuery()
+			var id = query.Select(Projections.Id()).SingleOrDefault<int>();
+			return id == orderId;
+		}
+
+		public CashReceipt LoadReceipt(IUnitOfWork uow, int receiptId)
+		{
+			var receiptIds = new[] { receiptId };
+			var receipts = LoadReceipts(uow, receiptIds);
+			var result = receipts.SingleOrDefault();
+			return result;
+		}
+
+		public IEnumerable<CashReceipt> LoadReceipts(IUnitOfWork uow, IEnumerable<int> receiptId)
+		{
+			CashReceipt receiptAlias = null;
+			CashReceiptProductCode productCodeAlias = null;
+
+			IQueryOver<CashReceipt, CashReceipt> CreateLastOrdersBaseQuery()
 			{
 				var baseQuery = uow.Session.QueryOver(() => receiptAlias)
-					.Where(() => receiptAlias.Id == receiptId);
+					.WhereRestrictionOn(() => receiptAlias.Id).IsIn(receiptId.ToArray());
 				return baseQuery;
 			}
 
@@ -198,32 +233,71 @@ namespace Vodovoz.EntityRepositories.Cash
 			// все используемые поля
 
 			var receiptQuery = CreateLastOrdersBaseQuery()
-				.Future<TrueMarkCashReceiptOrder>();
+				.Future<CashReceipt>();
 
 			var orderQuery = CreateLastOrdersBaseQuery()
 				.Fetch(SelectMode.Fetch, () => receiptAlias.Order)
-				.Future<TrueMarkCashReceiptOrder>();
+				.Future<CashReceipt>();
 
 			var counterpartyQuery = CreateLastOrdersBaseQuery()
 				.Fetch(SelectMode.Fetch, () => receiptAlias.Order.Client)
-				.Future<TrueMarkCashReceiptOrder>();
+				.Future<CashReceipt>();
 
 			var codesQuery = CreateLastOrdersBaseQuery()
 				.Left.JoinAlias(() => receiptAlias.ScannedCodes, () => productCodeAlias)
 				.Fetch(SelectMode.Fetch, () => productCodeAlias.SourceCode)
 				.Fetch(SelectMode.Fetch, () => productCodeAlias.ResultCode)
-				.Future<TrueMarkCashReceiptOrder>();
+				.Future<CashReceipt>();
 
-			var result = codesQuery.SingleOrDefault<TrueMarkCashReceiptOrder>();
+			var result = codesQuery.ToList();
 			return result;
 		}
-	}
 
-	//public class ReceiptForOrderNode
-	//{
-	//	public int OrderId { get; set; }
-	//	public int TrueMarkCashReceiptOrderId { get; set; }
-	//	public int? ReceiptId { get; set; }
-	//	public bool? WasSent { get; set; }
-	//}
+		public bool HasReceiptBySum(DateTime date, decimal sum)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var completedStatuses = new[] { FiscalDocumentStatus.Completed, FiscalDocumentStatus.WaitForCallback, FiscalDocumentStatus.Printed };
+				var query = uow.Session.QueryOver(() => _cashReceiptAlias)
+					.Where(
+						Restrictions.Eq(
+							Projections.SqlFunction(
+								"DATE",
+								NHibernateUtil.DateTime,
+								Projections.Property(() => _cashReceiptAlias.CreateDate)
+							),
+							date.Date
+						)
+					)
+					.Where(() => _cashReceiptAlias.Sum == sum)
+					.WhereRestrictionOn(() => _cashReceiptAlias.FiscalDocumentStatus).IsIn(completedStatuses)
+					.Select(Projections.Id());
+				var result = query.List<int>();
+				return result.Any();
+			}
+		}
+
+		public int GetCodeErrorsReceiptCount(IUnitOfWork uow)
+		{
+			var result = uow.Session.QueryOver<CashReceipt>()
+				.Where(x => x.Status == CashReceiptStatus.CodeError)
+				.ToRowCountQuery()
+				.List<int>().First();
+			return result;
+		}
+
+		public IEnumerable<int> GetReceiptIdsForPrepare()
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var statusesForPrepare = new[] { CashReceiptStatus.New, CashReceiptStatus.CodeError };
+				CashReceipt cashReceiptAlias = null;
+				var result = uow.Session.QueryOver(() => cashReceiptAlias)
+					.WhereRestrictionOn(() => cashReceiptAlias.Status).IsIn(statusesForPrepare)
+					.Select(Projections.Id())
+					.List<int>();
+				return result;
+			}
+		}
+	}
 }

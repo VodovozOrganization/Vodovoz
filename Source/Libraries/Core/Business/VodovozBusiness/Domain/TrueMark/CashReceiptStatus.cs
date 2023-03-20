@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Domain.TrueMark
 {
-	public enum TrueMarkCashReceiptOrderStatus
+	public enum CashReceiptStatus
 	{
 		[Display(Name = "Новый")]
 		New,
@@ -20,6 +20,9 @@ namespace Vodovoz.Domain.TrueMark
 		ReceiptNotNeeded,
 
 		[Display(Name = "Отправлен")]
-		Sended
+		Sended,
+
+		[Display(Name = "Дубликат по сумме")]
+		DuplicateSum
 	}
 }

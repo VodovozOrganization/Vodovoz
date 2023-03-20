@@ -44,6 +44,7 @@ namespace Vodovoz.Models.TrueMark
 			{
 				var sql = $@"
 					DELETE FROM true_mark_codes_pool
+					WHERE promoted
 					ORDER BY adding_time DESC 
 					LIMIT 1
 					RETURNING code_id
@@ -141,6 +142,7 @@ namespace Vodovoz.Models.TrueMark
 				var sql = $@"
 					UPDATE true_mark_codes_pool
 					SET adding_time = ADDDATE(current_timestamp(), INTERVAL :extra_second SECOND)
+					SET promoted = 1
 					WHERE code_id in (:code_ids)
 					;";
 				var query = uow.Session.CreateSQLQuery(sql)

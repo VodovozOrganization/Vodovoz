@@ -55,8 +55,8 @@ namespace Vodovoz.JournalColumnsConfigs
 			);
 
 			TreeViewColumnsConfigFactory.Register<TrueMarkReceiptOrdersRegistryJournalViewModel>(
-				(vm) => FluentColumnsConfig<TrueMarkReceiptOrderNode>.Create()
-					.SetTreeModel(() => new RecursiveTreeModel<TrueMarkReceiptOrderNode>(vm.Items.Cast<TrueMarkReceiptOrderNode>(), vm.RecuresiveConfig))
+				(vm) => FluentColumnsConfig<CashReceiptJournalNode>.Create()
+					.SetTreeModel(() => new RecursiveTreeModel<CashReceiptJournalNode>(vm.Items.Cast<CashReceiptJournalNode>(), vm.RecuresiveConfig))
 					.AddColumn("Код").AddNumericRenderer(node => node.EntityId)
 					.AddColumn("Время").AddTextRenderer(node => node.Time.HasValue ? node.Time.Value.ToString("dd.MM.yyyy HH:mm:ss") : "")
 					.AddColumn("Статус").AddTextRenderer(node => node.Status)
@@ -75,7 +75,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
 							var color = _colorWhite;
-							if(node.NodeType == TrueMarkOrderNodeType.Order)
+							if(node.NodeType == CashReceiptNodeType.Order)
 							{
 								color = _colorLightGray;
 							}

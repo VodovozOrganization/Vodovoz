@@ -54,22 +54,10 @@
     <Reference Include="System.Management" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DTO\CashBox.cs" />
-    <Compile Include="DTO\DocumentStatus.cs" />
-    <Compile Include="DTO\FiscalRegistratorStatus.cs" />
-    <Compile Include="DTO\PreparedReceiptNode.cs" />
-    <Compile Include="DTO\SalesDocumentsStatusDTO.cs" />
-    <Compile Include="DTO\SendDocumentResultDTO.cs" />
-    <Compile Include="SalesReceiptSender.cs" />
     <Compile Include="FiscalizationWorker.cs" />
-    <Compile Include="ISalesReceiptSender.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceiptServiceStarter.cs" />
-    <Compile Include="DTO\FinscalizatorStatusResponseDTO.cs" />
-    <Compile Include="DTO\InventPositionDTO.cs" />
-    <Compile Include="DTO\MoneyPositionDTO.cs" />
-    <Compile Include="DTO\SalesDocumentDTO.cs" />
     <Compile Include="ISalesReceiptsService.cs" />
     <Compile Include="SalesReceiptsInstanceProvider.cs" />
     <Compile Include="SalesReceiptsService.cs" />
@@ -149,5 +137,6 @@
     <PackageReference Include="System.Security.Cryptography.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
