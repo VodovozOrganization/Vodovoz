@@ -215,16 +215,16 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
             <Width>23.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35.1pt</Width>
+            <Width>50.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>62.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>87.8pt</Width>
+            <Width>81.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.8pt</Width>
+            <Width>68.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>47.4pt</Width>
@@ -528,7 +528,7 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -547,7 +547,7 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -565,6 +565,8 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop >7pt</PaddingTop>
+                        <PaddingBottom >7pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -642,7 +644,7 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
                         <BorderWidth />
                         <FontWeight>Bolder</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -666,7 +668,7 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
                         <BorderWidth />
                         <FontWeight>Bolder</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -840,7 +842,7 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <Format >0</Format>
+                            <Format>0</Format>
                           </Style>
                           <Value>=Sum(Fields!water19_amount.Value)</Value>
                         </Textbox>
@@ -858,7 +860,7 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <Format >0</Format>
+                            <Format>0</Format>
                           </Style>
                           <Value>=Sum(Fields!water6_amount.Value)</Value>
                         </Textbox>
