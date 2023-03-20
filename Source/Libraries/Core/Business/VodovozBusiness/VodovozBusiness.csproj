@@ -597,7 +597,14 @@
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
+    <Compile Include="Models\TrueMark\ITrueMarkOrderItemScannedInfo.cs" />
+    <Compile Include="Models\TrueMark\ITrueMarkOrderScannedInfo.cs" />
+    <Compile Include="Models\TrueMark\ITrueMarkWaterCode.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkException.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkTransactionalCodesPool.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkWaterCode.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkWaterCodeParser.cs" />
     <Compile Include="NHibernateProjections\Contacts\PhoneProjections.cs" />
     <Compile Include="NHibernateProjections\Employees\EmployeeProjections.cs" />
     <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />

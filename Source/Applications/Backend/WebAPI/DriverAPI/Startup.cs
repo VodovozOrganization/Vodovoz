@@ -36,6 +36,7 @@ using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Settings.Database;
 using System.Reflection;
+using Vodovoz.Models.TrueMark;
 
 namespace DriverAPI
 {
@@ -130,7 +131,7 @@ namespace DriverAPI
 
 			services.AddControllersWithViews();
 			services.AddControllers();
-
+			
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "DriverAPI", Version = "v1" });
@@ -148,12 +149,14 @@ namespace DriverAPI
 		{
 			app.UseRequestResponseLogging();
 
+			app.UseSwagger();
+			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DriverAPI v1"));
+
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseMigrationsEndPoint();
-				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DriverAPI v1"));
+				
 			}
 			else
 			{
@@ -161,6 +164,8 @@ namespace DriverAPI
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
+
+			
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
@@ -236,10 +241,13 @@ namespace DriverAPI
 			// Сервисы для контроллеров
 
 			// Unit Of Work
+			services.AddScoped<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
 			services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
 
 			// ErrorReporter
 			services.AddScoped<IErrorReporter>((sp) => ErrorReporter.Instance);
+			services.AddScoped<TrueMarkWaterCodeParser>();
+			services.AddScoped<TrueMarkCodesPool, TrueMarkTransactionalCodesPool>();
 
 			// Репозитории водовоза
 			services.AddScoped<ITrackRepository, TrackRepository>();

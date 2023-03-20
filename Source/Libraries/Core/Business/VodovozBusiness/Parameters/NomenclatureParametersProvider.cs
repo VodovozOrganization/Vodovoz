@@ -119,6 +119,11 @@ namespace Vodovoz.Parameters
 			return res;
 		}
 
-        #endregion INomenclatureParametersProvider implementation
-    }
+		public Nomenclature GetFastDeliveryNomenclature(IUnitOfWork uow)
+		{
+			return uow.GetById<Nomenclature>(FastDeliveryNomenclatureId);
+		}
+
+		#endregion INomenclatureParametersProvider implementation
+	}
 }
