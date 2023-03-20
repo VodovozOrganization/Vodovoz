@@ -10,6 +10,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 	public class WarhouseAccountingCard
 	{
 		private readonly List<WarhouseAccountingCardRow> _rows = new List<WarhouseAccountingCardRow>();
+		private readonly Func<int, int, DateTime, decimal> _getWarhouseBalance;
 
 		private WarhouseAccountingCard(
 			DateTime startDate,
@@ -18,7 +19,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			string warehouseName,
 			int nomenclatureId,
 			string nomenclatureName,
-			IEnumerable<WarehouseDocumentsItemsJournalNode> rows)
+			IEnumerable<WarehouseDocumentsItemsJournalNode> rows,
+			Func<int, int, DateTime, decimal> getWarhouseBalance)
 		{
 			StartDate = startDate;
 			EndDate = endDate;
@@ -26,6 +28,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			WarehouseName = warehouseName;
 			NomenclatureId = nomenclatureId;
 			NomenclatureName = nomenclatureName;
+			_getWarhouseBalance = getWarhouseBalance;
 			ProcessData(rows);
 		}
 
@@ -51,7 +54,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 						&& x.NomenclatureName == NomenclatureName)
 					.Sum(x => x.Amount);
 
-				_rows.Add(WarhouseAccountingCardRow.Create(startDate, income, outcome, 0m));
+				var residue = _getWarhouseBalance(NomenclatureId, WarehouseId, EndDate);
+
+				_rows.Add(WarhouseAccountingCardRow.Create(startDate, income, outcome, residue));
 			}
 		}
 
@@ -70,7 +75,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			string warehouseName,
 			int nomenclatureId,
 			string nomenclatureName,
-			IEnumerable<WarehouseDocumentsItemsJournalNode> rows)
+			IEnumerable<WarehouseDocumentsItemsJournalNode> rows,
+			Func<int, int, DateTime, decimal> getWarhouseBalance)
 		{
 			return new WarhouseAccountingCard(
 				startDate,
@@ -79,7 +85,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				warehouseName,
 				nomenclatureId,
 				nomenclatureName,
-				rows);
+				rows,
+				getWarhouseBalance);
 		}
 	}
 

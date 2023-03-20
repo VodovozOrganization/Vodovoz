@@ -2,6 +2,7 @@
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -2110,7 +2111,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				warehouseName,
 				FilterViewModel.Nomenclature.Id,
 				FilterViewModel.Nomenclature.Name,
-				lines);
+				lines,
+				GetWarhouseBalance);
 
 			await Task.CompletedTask;
 		}
@@ -2137,6 +2139,44 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			template.AddVariable(_warehouseAccountingCard);
 			template.Generate();
 			template.SaveAs(path);
+		}
+
+		private decimal GetWarhouseBalance(int nomenclatureId, int warehouseId, DateTime upToDateTime)
+		{
+			WarehouseMovementOperation incomeWarehouseOperationAlias = null;
+			WarehouseMovementOperation writeoffWarehouseOperationAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var incomeSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => incomeWarehouseOperationAlias)
+				.Where(() => incomeWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And(() => incomeWarehouseOperationAlias.IncomingWarehouse.Id == warehouseId)
+				.And(Restrictions.Le(Projections.Property(() => incomeWarehouseOperationAlias.OperationTime), upToDateTime))
+				.Where(
+					Restrictions.IsNotNull(
+						Projections.Property(() => incomeWarehouseOperationAlias.IncomingWarehouse)))
+				.Select(Projections.Sum(Projections.Property(() => incomeWarehouseOperationAlias.Amount)));
+
+			var writeoffSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => writeoffWarehouseOperationAlias)
+				.Where(() => writeoffWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And(() => writeoffWarehouseOperationAlias.WriteoffWarehouse.Id == warehouseId)
+				.And(Restrictions.Le(Projections.Property(() => writeoffWarehouseOperationAlias.OperationTime), upToDateTime))
+				.Where(
+					Restrictions.IsNotNull(
+						Projections.Property(() => writeoffWarehouseOperationAlias.WriteoffWarehouse)))
+				.Select(Projections.Sum(Projections.Property(() => writeoffWarehouseOperationAlias.Amount)));
+
+			IProjection projection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(incomeSubQuery),
+				Projections.SubQuery(writeoffSubQuery));
+
+			var result = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Id == nomenclatureId)
+				.Select(projection)
+				.SingleOrDefault<decimal>();
+
+			return result;
 		}
 	}
 }
