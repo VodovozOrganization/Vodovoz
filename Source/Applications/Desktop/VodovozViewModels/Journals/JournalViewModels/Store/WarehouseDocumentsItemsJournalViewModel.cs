@@ -181,8 +181,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				(selected) => true,
 				(selected) => true,
 				(selected) => {
-					CreateReportCommand?.Execute();
-					ExportJournalReportCommand?.Execute();
+					try
+					{
+						CreateReportCommand?.Execute();
+						ExportJournalReportCommand?.Execute();
+					}
+					catch(Exception)
+					{
+						throw;
+					}
 				}
 			);
 
@@ -296,7 +303,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 		private IQueryOver<IncomingInvoiceItem> GetQueryIncomingInvoiceItem(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<IncomingInvoiceItem> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 			IncomingInvoice invoiceAlias = null;
 			IncomingInvoiceItem incomingInvoiceItemAlias = null;
 			Counterparty counterpartyAlias = null;
@@ -382,6 +389,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => invoiceAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => invoiceAlias.Comment).WithAlias(() => resultAlias.Comment)
 					.Select(() => DocumentType.IncomingInvoice).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(IncomingInvoiceItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => counterpartyAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
@@ -402,12 +410,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => invoiceAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<IncomingInvoiceItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<IncomingWaterMaterial> GetQueryIncomingWaterFromMaterial(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<IncomingWaterMaterial> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 			IncomingWaterMaterial incomingWaterMaterialAlias = null;
 			IncomingWater incomingWaterAlias = null;
 
@@ -498,6 +506,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => incomingWaterAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => incomingWaterAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.IncomingWater).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(IncomingWaterMaterial)).WithAlias(() => resultAlias.EntityType)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => fromWarehouseAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
@@ -518,12 +527,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => incomingWaterAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<IncomingWaterMaterial>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<IncomingWaterMaterial> GetQueryIncomingWaterToMaterial(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<IncomingWaterMaterial> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 			IncomingWaterMaterial incomingWaterMaterialAlias = null;
 			IncomingWater incomingWaterAlias = null;
 
@@ -614,6 +623,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => incomingWaterAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => incomingWaterAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.IncomingWater).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(IncomingWaterMaterial)).WithAlias(() => resultAlias.EntityType)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => fromWarehouseAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
@@ -634,12 +644,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => incomingWaterAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<IncomingWaterMaterial>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<MovementDocumentItem> GetQueryMovementFromDocumentItem(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<MovementDocumentItem> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			MovementDocumentItem movementDocumentItemAlias = null;
 			MovementDocument movementDocumentAlias = null;
@@ -742,6 +752,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => movementDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => movementDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.MovementDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(MovementDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => movementDocumentAlias.Status).WithAlias(() => resultAlias.MovementDocumentStatus)
 					.Select(() => movementDocumentAlias.HasDiscrepancy).WithAlias(() => resultAlias.MovementDocumentDiscrepancy)
 					.Select(() => movementWagonAlias.Name).WithAlias(() => resultAlias.CarNumber)
@@ -766,12 +777,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => movementDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => movementDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<MovementDocumentItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<MovementDocumentItem> GetQueryMovementToDocumentItem(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<MovementDocumentItem> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			MovementDocumentItem movementDocumentItemAlias = null;
 			MovementDocument movementDocumentAlias = null;
@@ -873,6 +884,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => movementDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => movementDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.MovementDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(MovementDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => movementDocumentAlias.Status).WithAlias(() => resultAlias.MovementDocumentStatus)
 					.Select(() => movementDocumentAlias.HasDiscrepancy).WithAlias(() => resultAlias.MovementDocumentDiscrepancy)
 					.Select(() => movementWagonAlias.Name).WithAlias(() => resultAlias.CarNumber)
@@ -897,12 +909,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => movementDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => movementDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<MovementDocumentItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<WriteoffDocumentItem> GetQueryWriteoffDocumentItem(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<WriteoffDocumentItem> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			WriteoffDocumentItem writeoffDocumentItemAlias = null;
 			WriteoffDocument writeoffDocumentAlias = null;
@@ -976,6 +988,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => writeoffDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => writeoffDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.WriteoffDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(WriteoffDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => counterpartyAlias.Name == null),
 						Projections.Constant(string.Empty, NHibernateUtil.String),
@@ -997,12 +1010,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => writeoffDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => writeoffDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<WriteoffDocumentItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<SelfDeliveryDocumentItem> GetQuerySelfDeliveryDocumentItem(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<SelfDeliveryDocumentItem> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			SelfDeliveryDocument selfDeliveryDocumentAlias = null;
 			SelfDeliveryDocumentItem selfDeliveryDocumentItemAlias = null;
@@ -1094,6 +1107,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(() => selfDeliveryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.SelfDeliveryDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(SelfDeliveryDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
@@ -1107,12 +1121,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => selfDeliveryDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => selfDeliveryDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<SelfDeliveryDocumentItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<CarLoadDocumentItem> GetQueryCarLoadDocumentItem(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<CarLoadDocumentItem> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 			CarLoadDocument carLoadDocumentAlias = null;
@@ -1196,6 +1210,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => carLoadDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => carLoadDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.CarLoadDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(CarLoadDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
@@ -1214,12 +1229,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => carLoadDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => carLoadDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<CarLoadDocumentItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<CarUnloadDocumentItem> GetQueryCarUnloadDocumentItem(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<CarUnloadDocumentItem> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			CarUnloadDocumentItem carUnLoadDocumentItemAlias = null;
 			CarUnloadDocument carUnLoadDocumentAlias = null;
@@ -1305,6 +1320,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => carUnLoadDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => carUnLoadDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.CarUnloadDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(CarUnloadDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => carModelAlias.Name).WithAlias(() => resultAlias.CarModelName)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
@@ -1323,12 +1339,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => carUnLoadDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => carUnLoadDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<CarUnloadDocumentItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<InventoryDocumentItem> GetQueryInventoryDocumentItem(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<InventoryDocumentItem> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			InventoryDocumentItem inventoryDocumentItemAlias = null;
 			InventoryDocument inventoryDocumentAlias = null;
@@ -1418,6 +1434,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => inventoryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => inventoryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.InventoryDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(InventoryDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(Projections.Conditional(
 						Restrictions.GeProperty(
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
@@ -1444,12 +1461,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => inventoryDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => inventoryDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<InventoryDocumentItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<ShiftChangeWarehouseDocumentItem> GetQueryShiftChangeWarehouseDocumentItem(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<ShiftChangeWarehouseDocumentItem> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			ShiftChangeWarehouseDocumentItem shiftChangeWarehouseDocumentItemAlias = null;
 			ShiftChangeWarehouseDocument shiftChangeWarehouseDocumentAlias = null;
@@ -1535,6 +1552,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => shiftChangeWarehouseDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => shiftChangeWarehouseDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.ShiftChangeDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(ShiftChangeWarehouseDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact - shiftChangeWarehouseDocumentItemAlias.AmountInDB)
@@ -1548,12 +1566,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => shiftChangeWarehouseDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => shiftChangeWarehouseDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<ShiftChangeWarehouseDocumentItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<RegradingOfGoodsDocumentItem> GetQueryRegradingOfGoodsWriteoffDocumentItem(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<RegradingOfGoodsDocumentItem> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			RegradingOfGoodsDocumentItem regradingOfGoodsDocumentItemAlias = null;
 			RegradingOfGoodsDocument regradingOfGoodsDocumentAlias = null;
@@ -1625,6 +1643,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => regradingOfGoodsDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => regradingOfGoodsDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(RegradingOfGoodsDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select(() => -regradingOfGoodsDocumentItemAlias.Amount)
@@ -1638,12 +1657,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => regradingOfGoodsDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => regradingOfGoodsDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<RegradingOfGoodsDocumentItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<RegradingOfGoodsDocumentItem> GetQueryRegradingOfGoodsIncomeDocumentItem(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<RegradingOfGoodsDocumentItem> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			RegradingOfGoodsDocumentItem regradingOfGoodsDocumentItemAlias = null;
 			RegradingOfGoodsDocument regradingOfGoodsDocumentAlias = null;
@@ -1715,6 +1734,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => regradingOfGoodsDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => regradingOfGoodsDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(RegradingOfGoodsDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select(() => regradingOfGoodsDocumentItemAlias.Amount)
@@ -1728,12 +1748,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => regradingOfGoodsDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select(() => regradingOfGoodsDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<RegradingOfGoodsDocumentItem>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<DriverAttachedTerminalGiveoutDocument> GetQueryDriverAttachedTerminalReturnDocument(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<DriverAttachedTerminalGiveoutDocument> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			DriverAttachedTerminalGiveoutDocument driverAttachedTerminalGiveoutDocumentAlias = null;
 			WarehouseMovementOperation warehouseMovementOperationAlias = null;
@@ -1804,6 +1824,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => warehouseMovementOperationAlias.OperationTime).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.DriverTerminalGiveout).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(DriverAttachedTerminalGiveoutDocument)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
@@ -1815,12 +1836,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.CreationDate).WithAlias(() => resultAlias.LastEditedTime))
 				.OrderBy(x => x.CreationDate).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<DriverAttachedTerminalGiveoutDocument>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		private IQueryOver<DriverAttachedTerminalReturnDocument> GetQueryDriverAttachedTerminalGiveoutDocument(IUnitOfWork unitOfWork)
 		{
-			WarehouseDocumentsItemsJournalNode<DriverAttachedTerminalReturnDocument> resultAlias = null;
+			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			DriverAttachedTerminalReturnDocument driverAttachedTerminalReturnDocumentAlias = null;
 			WarehouseMovementOperation warehouseMovementOperationAlias = null;
@@ -1891,6 +1912,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => driverAttachedTerminalReturnDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => warehouseMovementOperationAlias.OperationTime).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.DriverTerminalReturn).WithAlias(() => resultAlias.DocumentTypeEnum)
+					.Select(() => typeof(DriverAttachedTerminalReturnDocument)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToWarehouse)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
 					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
@@ -1902,7 +1924,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 					.Select(() => driverAttachedTerminalReturnDocumentAlias.CreationDate).WithAlias(() => resultAlias.LastEditedTime))
 				.OrderBy(x => x.CreationDate).Desc
-				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode<DriverAttachedTerminalReturnDocument>>());
+				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
 		#endregion

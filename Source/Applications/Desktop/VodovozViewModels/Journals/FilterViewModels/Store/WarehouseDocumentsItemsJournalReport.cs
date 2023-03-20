@@ -52,6 +52,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		public string Driver { get; }
 		public string Nomenclature { get; }
 		public bool ShowNotAffectedBalance { get; }
+		public string ShowNotAffectedBalanceString => ShowNotAffectedBalance ? "Да" : "Нет";
 		public TargetSource? TargetSource { get; }
 		public string TargetSourceString => TargetSource?.GetEnumTitle() ?? string.Empty;
 		public IEnumerable<string> Counterparties { get; }
