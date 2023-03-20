@@ -86,12 +86,11 @@ namespace Vodovoz.Controllers
 
 			if(newStatus == RouteListItemStatus.Completed && oldStatus != RouteListItemStatus.Completed)
 			{
-				
 				var bottleRouteListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
 				{
 					RouteListAddressKeepingDocument = routeListKeepingDocument,
 					Nomenclature = defaultBottleNomenclature,
-					Amount = (routeListItem.Order.BottlesReturn ?? 0)
+					Amount = routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn ?? 0
 				};
 
 				bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();

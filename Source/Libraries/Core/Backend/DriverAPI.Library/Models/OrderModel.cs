@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -18,7 +19,6 @@ using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace DriverAPI.Library.Models
@@ -42,6 +42,7 @@ namespace DriverAPI.Library.Models
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
 		private readonly IOrderParametersProvider _orderParametersProvider;
+		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
 		public OrderModel(
 			ILogger<OrderModel> logger,
@@ -58,7 +59,8 @@ namespace DriverAPI.Library.Models
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			QRPaymentConverter qrPaymentConverter,
 			IFastPaymentModel fastPaymentModel,
-			IOrderParametersProvider orderParametersProvider)
+			IOrderParametersProvider orderParametersProvider,
+			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -75,6 +77,7 @@ namespace DriverAPI.Library.Models
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 		}
 
 		/// <summary>
@@ -288,6 +291,8 @@ namespace DriverAPI.Library.Models
 			SaveScannedCodes(actionTime, completeOrderInfo);
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
+
+			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(_uow, routeListAddress, routeListAddress.Status, RouteListItemStatus.Completed);
 
 			routeList.ChangeAddressStatus(_uow, routeListAddress.Id, RouteListItemStatus.Completed);
 
