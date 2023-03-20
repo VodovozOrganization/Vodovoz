@@ -68,8 +68,6 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.Widgets.ySpecComboBox ySpecCMBGuiltyDep;
 
-		private global::Gamma.Widgets.ySpecComboBox ySpecCMBinProcessAt;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -130,8 +128,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.entityInProcessAtSubdivision.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityInProcessAtSubdivision);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.entityInProcessAtSubdivision]));
-			w4.TopAttach = ((uint)(5));
-			w4.BottomAttach = ((uint)(6));
+			w4.TopAttach = ((uint)(4));
+			w4.BottomAttach = ((uint)(5));
 			w4.LeftAttach = ((uint)(5));
 			w4.RightAttach = ((uint)(6));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -479,21 +477,6 @@ namespace Vodovoz.Filters.GtkViews
 			w31.LeftAttach = ((uint)(5));
 			w31.RightAttach = ((uint)(6));
 			w31.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ySpecCMBinProcessAt = new global::Gamma.Widgets.ySpecComboBox();
-			this.ySpecCMBinProcessAt.Name = "ySpecCMBinProcessAt";
-			this.ySpecCMBinProcessAt.AddIfNotExist = false;
-			this.ySpecCMBinProcessAt.DefaultFirst = false;
-			this.ySpecCMBinProcessAt.ShowSpecialStateAll = true;
-			this.ySpecCMBinProcessAt.ShowSpecialStateNot = false;
-			this.table1.Add(this.ySpecCMBinProcessAt);
-			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table1[this.ySpecCMBinProcessAt]));
-			w32.TopAttach = ((uint)(4));
-			w32.BottomAttach = ((uint)(5));
-			w32.LeftAttach = ((uint)(5));
-			w32.RightAttach = ((uint)(6));
-			w32.XOptions = ((global::Gtk.AttachOptions)(4));
-			w32.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{
