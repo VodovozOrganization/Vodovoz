@@ -40,15 +40,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				var income = rows
 					.Where(x => x.Date >= startDate
 						&& x.Date <= endDate
-						&& x.ToWarehouse == WarehouseName
-						&& x.ProductName == NomenclatureName)
+						&& x.ToWarehouseId == WarehouseId
+						&& x.NomenclatureName == NomenclatureName)
 					.Sum(x => x.Amount);
 
 				var outcome = rows
 					.Where(x => x.Date >= startDate
 						&& x.Date <= endDate
-						&& x.FromWarehouse == WarehouseName
-						&& x.ProductName == NomenclatureName)
+						&& x.FromWarehouseId == WarehouseId
+						&& x.NomenclatureName == NomenclatureName)
 					.Sum(x => x.Amount);
 
 				_rows.Add(WarhouseAccountingCardRow.Create(startDate, income, outcome, 0m));

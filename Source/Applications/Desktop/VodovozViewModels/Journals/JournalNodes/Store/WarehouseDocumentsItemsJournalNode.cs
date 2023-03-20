@@ -13,7 +13,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 
 		public int DocumentId { get; set; }
 
-		public string ProductName { get; set; }
+		public string NomenclatureName { get; set; }
+
+		public int NomenclatureId { get; set; }
 
 		public DocumentType DocumentTypeEnum { get; set; }
 
@@ -32,7 +34,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 					case DocumentType.IncomingInvoice:
 						return $"Поставщик: {Counterparty}; Склад поступления: {FromWarehouse};";
 					case DocumentType.IncomingWater:
-						return $"Количество: {Amount}; Склад поступления: {FromWarehouse}; Продукт производства: {ProductName}";
+						return $"Количество: {Amount}; Склад поступления: {FromWarehouse}; Продукт производства: {NomenclatureName}";
 					case DocumentType.MovementDocument:
 						var carInfo = string.IsNullOrEmpty(CarNumber) ? null : $", Фура: {CarNumber}";
 						return $"{FromWarehouse} -> {ToWarehouse}{carInfo}";
@@ -98,7 +100,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 
 		public string FromWarehouse { get; set; }
 
+		public int FromWarehouseId { get; set; }
+
 		public string ToWarehouse { get; set; }
+
+		public int ToWarehouseId { get; set; }
 
 		public decimal Amount { get; set; }
 

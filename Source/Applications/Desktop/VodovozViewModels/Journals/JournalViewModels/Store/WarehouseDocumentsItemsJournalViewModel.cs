@@ -452,7 +452,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => warehouseAlias.Name)))
 					.WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => incomingInvoiceItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -564,12 +565,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => fromWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.FromWarehouse)
+					.Select(() => fromWarehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => toWarehouseAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => toWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => toWarehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => incomingWaterMaterialAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -681,12 +684,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => fromWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.FromWarehouse)
+					.Select(() => fromWarehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => toWarehouseAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => toWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => toWarehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => incomingWaterAlias.Amount))).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -813,12 +818,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => fromWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.FromWarehouse)
+					.Select(() => fromWarehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => toWarehouseAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => toWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => toWarehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => movementDocumentItemAlias.SendedAmount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -945,12 +952,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => fromWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.FromWarehouse)
+					.Select(() => fromWarehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => toWarehouseAlias.Name == null),
 						Projections.Constant("Не указан", NHibernateUtil.String),
 						Projections.Property(() => toWarehouseAlias.Name)))
 					.WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => toWarehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => movementDocumentItemAlias.ReceivedAmount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -1051,7 +1060,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Constant(string.Empty, NHibernateUtil.String),
 						Projections.Property(() => warehouseAlias.Name)))
 					.WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => writeoffDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -1162,7 +1172,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => typeof(SelfDeliveryDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => selfDeliveryDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -1269,7 +1280,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => carLoadDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
@@ -1379,7 +1391,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
@@ -1495,13 +1508,27 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 						Projections.Constant("")))
 						.WithAlias(() => resultAlias.FromWarehouse)
 					.Select(Projections.Conditional(
+						Restrictions.GeProperty(
+							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
+							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
+						Projections.Property(() => warehouseAlias.Id),
+						Projections.Constant(0))
+					).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(Projections.Conditional(
 						Restrictions.LtProperty(
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
 						Projections.Property(() => warehouseAlias.Name),
 						Projections.Constant("")))
 						.WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(Projections.Conditional(
+						Restrictions.LtProperty(
+							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
+							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
+						Projections.Property(() => warehouseAlias.Id),
+						Projections.Constant(0))
+					).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => inventoryDocumentItemAlias.AmountInFact - inventoryDocumentItemAlias.AmountInDB)
 						.WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
@@ -1606,7 +1633,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => DocumentType.ShiftChangeDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(ShiftChangeWarehouseDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact - shiftChangeWarehouseDocumentItemAlias.AmountInDB)
 						.WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
@@ -1697,7 +1725,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(RegradingOfGoodsDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => -regradingOfGoodsDocumentItemAlias.Amount)
 						.WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
@@ -1787,8 +1816,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => regradingOfGoodsDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(RegradingOfGoodsDocumentItem)).WithAlias(() => resultAlias.EntityType)
-					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToWarehouse)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => regradingOfGoodsDocumentItemAlias.Amount)
 						.WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
@@ -1878,7 +1908,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => DocumentType.DriverTerminalGiveout).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(DriverAttachedTerminalGiveoutDocument)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -1966,7 +1997,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => DocumentType.DriverTerminalReturn).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(DriverAttachedTerminalReturnDocument)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.ProductName)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)

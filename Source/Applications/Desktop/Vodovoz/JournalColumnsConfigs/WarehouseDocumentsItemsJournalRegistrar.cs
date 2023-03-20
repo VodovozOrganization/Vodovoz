@@ -13,7 +13,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			config
 				.AddColumn("Номер строки").AddTextRenderer(node => node.Id.ToString()).SearchHighlight()
 				.AddColumn("Номер документа").AddTextRenderer(node => node.DocumentId.ToString()).SearchHighlight()
-				.AddColumn("Номенклатура").AddTextRenderer(node => node.ProductName).SearchHighlight()
+				.AddColumn("Номенклатура").AddTextRenderer(node => node.NomenclatureName).SearchHighlight()
 				.AddColumn("Кол-во").AddTextRenderer(node => node.Amount.ToString("0.00")).SearchHighlight()
 				.AddColumn("Тип документа").AddTextRenderer(node => node.DocumentTypeString)
 				.AddColumn("Дата").AddTextRenderer(node => node.DateString)
