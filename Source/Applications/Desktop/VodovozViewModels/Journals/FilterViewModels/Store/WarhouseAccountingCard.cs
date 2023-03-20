@@ -15,15 +15,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			DateTime startDate,
 			DateTime endDate,
 			int warhouseId,
-			string warhouseName,
+			string warehouseName,
 			int nomenclatureId,
 			string nomenclatureName,
 			IEnumerable<WarehouseDocumentsItemsJournalNode> rows)
 		{
 			StartDate = startDate;
 			EndDate = endDate;
-			WarhouseId = warhouseId;
-			WarhouseName = warhouseName;
+			WarehouseId = warhouseId;
+			WarehouseName = warehouseName;
 			NomenclatureId = nomenclatureId;
 			NomenclatureName = nomenclatureName;
 			ProcessData(rows);
@@ -40,14 +40,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				var income = rows
 					.Where(x => x.Date >= startDate
 						&& x.Date <= endDate
-						&& x.ToWarehouse == WarhouseName
+						&& x.ToWarehouse == WarehouseName
 						&& x.ProductName == NomenclatureName)
 					.Sum(x => x.Amount);
 
 				var outcome = rows
 					.Where(x => x.Date >= startDate
 						&& x.Date <= endDate
-						&& x.FromWarehouse == WarhouseName
+						&& x.FromWarehouse == WarehouseName
 						&& x.ProductName == NomenclatureName)
 					.Sum(x => x.Amount);
 
@@ -57,8 +57,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public DateTime StartDate { get; }
 		public DateTime EndDate { get; }
-		public int WarhouseId { get; }
-		public string WarhouseName { get; }
+		public int WarehouseId { get; }
+		public string WarehouseName { get; }
 		public int NomenclatureId { get; }
 		public string NomenclatureName { get; }
 		public ReadOnlyCollection<WarhouseAccountingCardRow> Rows => _rows.AsReadOnly();
@@ -66,8 +66,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		public static WarhouseAccountingCard Create(
 			DateTime startDate,
 			DateTime endDate,
-			int warhouseId,
-			string warhouseName,
+			int warehouseId,
+			string warehouseName,
 			int nomenclatureId,
 			string nomenclatureName,
 			IEnumerable<WarehouseDocumentsItemsJournalNode> rows)
@@ -75,8 +75,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			return new WarhouseAccountingCard(
 				startDate,
 				endDate,
-				warhouseId,
-				warhouseName,
+				warehouseId,
+				warehouseName,
 				nomenclatureId,
 				nomenclatureName,
 				rows);

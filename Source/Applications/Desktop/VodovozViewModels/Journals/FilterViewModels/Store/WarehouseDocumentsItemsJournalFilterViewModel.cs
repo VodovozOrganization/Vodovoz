@@ -137,13 +137,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public string CounterpartiesNames => GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Counterparty)));
 
-		public List<int> WarhouseIds
+		public List<int> WarehouseIds
 		{
 			get => _warhouseIds;
 			private set => UpdateFilterField(ref _warhouseIds, value);
 		}
 
-		public string WarhousessNames => GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Warehouse)));
+		public string WarehousesNames => GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Warehouse)));
 
 		public SelectableParameterReportFilterViewModel FilterViewModel
 		{
