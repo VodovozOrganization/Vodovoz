@@ -1,4 +1,5 @@
-﻿using DateTimeHelpers;
+﻿using ClosedXML.Report;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -8,9 +9,11 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,6 +37,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 {
 	public class WarehouseDocumentsItemsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<WarehouseDocumentsItemsJournalNode, WarehouseDocumentsItemsJournalFilterViewModel>
 	{
+		private const string _journalReportTemplatePath = @".\Reports\Store\WarehouseDocumentsItemsJournalReport.xlsx";
+		private readonly IFileDialogService _fileDialogService;
+
 		private readonly Type[] _documentItemsTypes;
 		private readonly Type[] _documentTypes;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
@@ -45,10 +51,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IGtkTabsOpener gtkTabsOpener)
+			IGtkTabsOpener gtkTabsOpener,
+			IFileDialogService fileDialogService)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			if(navigationManager is null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
 			NavigationManager = navigationManager;
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 
 			FilterViewModel.JournalViewModel = this;
 
@@ -96,33 +110,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			UpdateAllEntityPermissions();
 			CreateNodeActions();
 			CreatePopupActions();
-			_gtkTabsOpener = gtkTabsOpener;
-
 			_cancellationTokenSource = new CancellationTokenSource();
 			CreateReportCommand = new DelegateCommand(async () => await CreateReport(_cancellationTokenSource.Token));
+			ExportJournalReportCommand = new DelegateCommand(ExportJournalReport);
 		}
 
 		public DelegateCommand CreateReportCommand { get; set; }
-
-		public async Task CreateReport(CancellationToken cancellationToken)
-		{
-			_warehouseDocumentsItemsJournalReport = WarehouseDocumentsItemsJournalReport.Create(
-				FilterViewModel.StartDate,
-				FilterViewModel.EndDate,
-				FilterViewModel.DocumentType,
-				FilterViewModel.MovementDocumentStatus,
-				FilterViewModel.Author.FullName,
-				FilterViewModel.LastEditor.FullName,
-				FilterViewModel.Driver.FullName,
-				FilterViewModel.Nomenclature.Name,
-				FilterViewModel.ShowNotAffectedBalance,
-				FilterViewModel.TargetSource,
-				FilterViewModel.CounterpartyIds.Select(x => x.ToString()),
-				FilterViewModel.WarhouseIds.Select(x => x.ToString()),
-				null);
-
-			await Task.CompletedTask;
-		}
+		public DelegateCommand ExportJournalReportCommand { get; set; }
 
 		protected override void CreatePopupActions()
 		{
@@ -132,6 +126,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		{
 			NodeActionsList.Clear();
 			CreateOpenDocumentAction();
+			CreateExportJournalReportAction();
 		}
 
 		protected void CreateOpenDocumentAction()
@@ -178,6 +173,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
+		}
+
+		protected void CreateExportJournalReportAction()
+		{
+			var exportJournalReportAction = new JournalAction("Выгрузка",
+				(selected) => true,
+				(selected) => true,
+				(selected) => {
+					CreateReportCommand?.Execute();
+					ExportJournalReportCommand?.Execute();
+				}
+			);
+
+			NodeActionsList.Add(exportJournalReportAction);
 		}
 
 		private void RegisterDocumentItems(Type[] types)
@@ -1897,5 +1906,69 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		}
 
 		#endregion
+
+		public async Task CreateReport(CancellationToken cancellationToken)
+		{
+			List<WarehouseDocumentsItemsJournalNode> lines = new List<WarehouseDocumentsItemsJournalNode>();
+
+			lines.AddRange(GetQueryIncomingInvoiceItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryIncomingWaterFromMaterial(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryIncomingWaterToMaterial(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryMovementFromDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryMovementToDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryWriteoffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQuerySelfDeliveryDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryCarLoadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryCarUnloadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryInventoryDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryShiftChangeWarehouseDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryRegradingOfGoodsWriteoffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryRegradingOfGoodsIncomeDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryDriverAttachedTerminalGiveoutDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryDriverAttachedTerminalReturnDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
+
+			lines.OrderByDescending(x => x.Date);
+
+			_warehouseDocumentsItemsJournalReport = WarehouseDocumentsItemsJournalReport.Create(
+				FilterViewModel.StartDate,
+				FilterViewModel.EndDate,
+				FilterViewModel.DocumentType,
+				FilterViewModel.MovementDocumentStatus,
+				FilterViewModel.Author?.FullName ?? string.Empty,
+				FilterViewModel.LastEditor?.FullName ?? string.Empty,
+				FilterViewModel.Driver?.FullName ?? string.Empty,
+				FilterViewModel.Nomenclature?.Name ?? string.Empty,
+				FilterViewModel.ShowNotAffectedBalance,
+				FilterViewModel.TargetSource,
+				FilterViewModel.CounterpartyIds.Select(x => x.ToString()),
+				FilterViewModel.WarhouseIds.Select(x => x.ToString()),
+				lines);
+
+			await Task.CompletedTask;
+		}
+
+		public void ExportJournalReport()
+		{
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(result.Successful)
+			{
+				SaveReport(result.Path);
+			}
+		}
+
+		private void SaveReport(string path)
+		{
+			var template = new XLTemplate(_journalReportTemplatePath);
+			template.AddVariable(_warehouseDocumentsItemsJournalReport);
+			template.Generate();
+			template.SaveAs(path);
+		}
 	}
 }

@@ -347,11 +347,4 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			}
 		}
 	}
-
-	public enum TargetSource
-	{
-		Source,
-		Target,
-		Both
-	}
 }
