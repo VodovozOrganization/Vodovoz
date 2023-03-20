@@ -564,8 +564,8 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date);</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingTop >7pt</PaddingTop>
+                        <PaddingBottom >7pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
