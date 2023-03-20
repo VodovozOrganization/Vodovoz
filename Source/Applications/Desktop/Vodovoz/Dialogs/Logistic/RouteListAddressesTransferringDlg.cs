@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.GtkWidgets.Cells;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -233,9 +234,13 @@ namespace Vodovoz
         {
             CheckSensitivities();
 
-            buttonRevert.Sensitive = ytreeviewRLTo.GetSelectedObjects<RouteListItemNode>()
-                .Any(x => x.WasTransfered
-                          || (x.IsFromFreeBalance && x.Status != RouteListItemStatus.Transfered));
+            var selectedNodes = ytreeviewRLTo.GetSelectedObjects<RouteListItemNode>();
+
+            buttonRevert.Sensitive = selectedNodes
+	            .Any(x =>
+		            x.Status != RouteListItemStatus.Completed 
+		            && (x.WasTransfered 
+		                || (x.IsFromFreeBalance && x.Status != RouteListItemStatus.Transfered)));
         }
 
         private IColumnsConfig GetColumnsConfig(bool isRightPanel)
@@ -261,23 +266,36 @@ namespace Vodovoz
 			{
 				config.AddColumn("Тип переноса")
 					.AddToggleRenderer(x => x.IsNeedToReload).Radio()
-						.AddSetter((c, x) => c.Activatable = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
+						.AddSetter((c, x) => ApplyCellRendererSetter(c, x, true))
 					.AddTextRenderer(x => AddressTransferType.NeedToReload.GetEnumTitle())
-						.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
+						.AddSetter((c, x) => ApplyCellRendererSetter(c, x, true))
 					.AddToggleRenderer(x => x.IsFromHandToHandTransfer).Radio()
-						.AddSetter((c, x) => c.Activatable = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
-					.AddTextRenderer(x => AddressTransferType.FromHandToHand.GetEnumTitle() )
-						.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered && x.RouteListItem.RouteList != null)
+						.AddSetter((c, x) => ApplyCellRendererSetter(c, x, true))
+					.AddTextRenderer(x => AddressTransferType.FromHandToHand.GetEnumTitle())
+						.AddSetter((c, x) => ApplyCellRendererSetter(c, x, true))
 					.AddToggleRenderer(x => x.IsFromFreeBalance).Radio()
-						.AddSetter((c, x) => c.Activatable = x.RouteListItem.RouteList != null)
+						.AddSetter((c, x) => ApplyCellRendererSetter(c, x, false))
 					.AddTextRenderer(x => AddressTransferType.FromFreeBalance.GetEnumTitle())
-						.AddSetter((c, x) => c.Sensitive = x.Status != RouteListItemStatus.Transfered);
+						.AddSetter((c, x) => ApplyCellRendererSetter(c, x, false));
 			}
 
 			return config.AddColumn("Нужен\nтерминал").AddToggleRenderer(x => x.NeedTerminal).Editing(false)
 			             .AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
 			             .RowCells().AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.WasTransfered ? colorGreen : colorWhite)
 			             .Finish();
+		}
+
+		private void ApplyCellRendererSetter(CellRenderer nodeCellRenderer, RouteListItemNode routeListItemNode, bool isHiddenForNewOrder)
+		{
+			if(routeListItemNode.RouteListItem.RouteList == null /* && routeListItemNode.IsFromFreeBalance */&& isHiddenForNewOrder)
+			{
+				nodeCellRenderer.Visible = false;
+
+				return;
+			}
+
+			nodeCellRenderer.Sensitive = routeListItemNode.Status != RouteListItemStatus.Transfered
+										 && routeListItemNode.RouteListItem.RouteList != null;
 		}
 
 		private void ConfigureTreeViewsDriverBalance()
@@ -345,7 +363,12 @@ namespace Vodovoz
             }
 
             FillObservableDriverBalance(ObservableDriverBalanceFrom, routeListFrom);
-        }
+
+            ytreeviewRLFrom.ColumnsConfig = GetColumnsConfig(false);
+
+			ytreeviewRLFrom.YTreeModel.EmitModelChanged();
+
+		}
 
         private void OnRouteListToChanged(object sender, EventArgs e)
         {
@@ -953,6 +976,8 @@ namespace Vodovoz
 
 				RouteListItemsFrom.Add(new RouteListItemNode { RouteListItem = newRouteListItem });
 			}
+			ytreeviewRLFrom.ColumnsConfig = GetColumnsConfig(false);
+			ytreeviewRLFrom.YTreeModel.EmitModelChanged();
 		}
 
         private void AddOrderInRouteListEnRoute(RouteList routeList, Order order)

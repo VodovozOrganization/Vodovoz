@@ -286,7 +286,8 @@ namespace Vodovoz
 
 		private void UpdateWidgetsVisible()
 		{
-			lblTareReturnedBefore.Visible = Entity.RouteList != null;
+			//20230320 Если не понадобится после обновления, вырезать всё, что с этим связано
+			lblTareReturnedBefore.Visible = false; // Entity.RouteList != null;
 			nonserialequipmentreceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
 		}
 

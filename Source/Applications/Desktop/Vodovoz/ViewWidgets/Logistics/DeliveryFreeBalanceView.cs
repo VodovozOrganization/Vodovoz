@@ -70,7 +70,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 				}
 
 				iter = buffer.EndIter;
-				buffer.InsertWithTags(ref iter, item.Key.ShortName + ": ", _defaultTag);
+				buffer.InsertWithTags(ref iter, item.Key.Name + ": ", _defaultTag);
 				iter = buffer.EndIter;
 				buffer.InsertWithTags(ref iter, sum.ToString("N0"), _boldTag);
 				iter = buffer.EndIter;
