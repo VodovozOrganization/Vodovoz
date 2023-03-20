@@ -49,6 +49,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Store\WarehouseDocumentsItemsJournalReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Store\WarhouseAccountingCard.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)\Reports\Bookkeeping\CounterpartyDebtDetailsWithoutOrderByDate.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

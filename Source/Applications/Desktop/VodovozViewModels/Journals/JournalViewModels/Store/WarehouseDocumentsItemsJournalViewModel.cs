@@ -117,12 +117,34 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ExportJournalReportCommand = new DelegateCommand(ExportJournalReport);
 			CreateWarhouseAccountingCardCommand = new DelegateCommand(async () => await CreateWarhouseAccountingCard(_cancellationTokenSource.Token));
 			ExportWarhouseAccountingCardCommand = new DelegateCommand(ExportWarhouseAccountingCard);
+
+			FilterViewModel.PropertyChanged += OnFilterViewModelPropertyChanged;
+		}
+
+		private void OnFilterViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			var canExportWarhouseAccountingCardPropertiesAffected = new string[]
+			{
+				nameof(FilterViewModel.Nomenclature),
+				nameof(FilterViewModel.WarhouseIds),
+				nameof(FilterViewModel.TargetSource)
+			};
+
+			if(canExportWarhouseAccountingCardPropertiesAffected.Contains(e.PropertyName))
+			{
+				OnPropertyChanged(nameof(CanExportWarhouseAccountingCard));
+			}
 		}
 
 		public DelegateCommand CreateJournalReportCommand { get; set; }
 		public DelegateCommand ExportJournalReportCommand { get; set; }
 		public DelegateCommand CreateWarhouseAccountingCardCommand { get; set; }
 		public DelegateCommand ExportWarhouseAccountingCardCommand { get; set; }
+
+		public bool CanExportWarhouseAccountingCard =>
+			FilterViewModel.Nomenclature != null
+			&& FilterViewModel.WarhouseIds.Count == 1
+			&& FilterViewModel.TargetSource == TargetSource.Both;
 
 		protected override void CreatePopupActions()
 		{

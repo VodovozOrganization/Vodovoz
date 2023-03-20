@@ -13,7 +13,6 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			get => selected;
 			set {
 				if(SetField(ref selected, value)) {
-					RaiseAnySelectedChanged(this);
 					if(selected) {
 						SelectAllChilds();
 					} else {
