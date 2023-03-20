@@ -5,8 +5,10 @@ using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Pango;
 using Vodovoz.Domain.Operations;
 using Vodovoz.ViewModels.Widgets;
+using Color = Gdk.Color;
 
 namespace Vodovoz.ViewWidgets.Logistics
 {
@@ -15,6 +17,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 	{
 		private TextTag _defaultTag;
 		private TextTag _boldTag;
+		private TextTag _redBoldTag;
 
 		public DeliveryFreeBalanceView(DeliveryFreeBalanceViewModel viewModel) : base(viewModel)
 		{
@@ -72,7 +75,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 				iter = buffer.EndIter;
 				buffer.InsertWithTags(ref iter, item.Key.Name + ": ", _defaultTag);
 				iter = buffer.EndIter;
-				buffer.InsertWithTags(ref iter, sum.ToString("N0"), _boldTag);
+				buffer.InsertWithTags(ref iter, sum.ToString("N0"), sum < 0 ? _redBoldTag : _boldTag);
 				iter = buffer.EndIter;
 				buffer.InsertWithTags(ref iter, " " + item.Key.Unit.Name + (i == lastIndex ? "" : ", "), _defaultTag);
 			}
@@ -87,6 +90,11 @@ namespace Vodovoz.ViewWidgets.Logistics
 
 			_defaultTag = new TextTag("Default");
 			textTags.Add(_defaultTag);
+			
+			_redBoldTag = new TextTag("Red");
+			_redBoldTag.ForegroundGdk = new Color(255, 0, 0);
+			_redBoldTag.Weight = Weight.Bold;
+			textTags.Add(_redBoldTag);
 
 			ytextview.Buffer = new TextBuffer(textTags);
 			ytextview.Editable = false;
