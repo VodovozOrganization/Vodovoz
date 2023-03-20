@@ -37,6 +37,6 @@ namespace Vodovoz.Domain.Operations
 			set => SetField(ref _amount, value);
 		}
 
-		public virtual string Title => $"операция изменения свободных остатков МЛ №{RouteList.Id} {Nomenclature.Name} кол-во {Amount}";
+		public virtual string Title => $"Операция изменения свободных остатков МЛ №{RouteList.Id} {Nomenclature.Name} кол-во {Amount}";
 	}
 }

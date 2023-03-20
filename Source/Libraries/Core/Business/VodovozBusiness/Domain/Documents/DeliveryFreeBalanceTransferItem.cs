@@ -74,6 +74,10 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref _deliveryFreeBalanceOperationTo, value);
 		}
 
+		public virtual string Title =>
+			$"Строка изменения свободных остатков при переносе заказа {AddressTransferDocumentItem.NewAddress.Order.Id}" +
+			$" из МЛ {RouteListFrom.Id} в МЛ {RouteListTo.Id}, {Nomenclature.Name} кол-во {Amount}";
+
 		public virtual void CreateOrUpdateOperations()
 		{
 			if(AddressTransferDocumentItem.AddressTransferType == AddressTransferType.FromHandToHand)

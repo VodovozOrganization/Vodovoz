@@ -68,19 +68,25 @@ namespace Vodovoz.Controllers
 					.Select(y => y.DeliveryFreeBalanceOperationFrom));
 			var documentOperations = documentOperationsFrom.Concat(documentOperationsTo).ToArray();
 
-			foreach(var operation in transferDocument.RouteListFrom.ObservableDeliveryFreeBalanceOperations.ToArray())
+			if(transferDocument.RouteListFrom?.ObservableDeliveryFreeBalanceOperations != null)
 			{
-				if(documentOperations.Contains(operation))
+				foreach(var operation in transferDocument.RouteListFrom?.ObservableDeliveryFreeBalanceOperations.ToArray())
 				{
-					transferDocument.RouteListFrom?.ObservableDeliveryFreeBalanceOperations.Remove(operation);
+					if(documentOperations.Contains(operation))
+					{
+						transferDocument.RouteListFrom?.ObservableDeliveryFreeBalanceOperations.Remove(operation);
+					}
 				}
 			}
 
-			foreach(var operation in transferDocument.RouteListTo.ObservableDeliveryFreeBalanceOperations.ToArray())
+			if(transferDocument.RouteListTo?.ObservableDeliveryFreeBalanceOperations != null)
 			{
-				if(documentOperations.Contains(operation))
+				foreach(var operation in transferDocument.RouteListTo?.ObservableDeliveryFreeBalanceOperations.ToArray())
 				{
-					transferDocument.RouteListTo?.ObservableDeliveryFreeBalanceOperations.Remove(operation);
+					if(documentOperations.Contains(operation))
+					{
+						transferDocument.RouteListTo?.ObservableDeliveryFreeBalanceOperations.Remove(operation);
+					}
 				}
 			}
 		}
@@ -92,6 +98,8 @@ namespace Vodovoz.Controllers
 				.And(x => x.RouteListTo.Id == to.Id)
 				.SingleOrDefault() ?? new AddressTransferDocument();
 
+			CleanRouteListFreeBalanceOperations(transferDocument);
+			
 			transferDocument.ObservableAddressTransferDocumentItems.Clear();
 
 			var employeeForCurrentUser = employeeRepository.GetEmployeeForCurrentUser(uow);
