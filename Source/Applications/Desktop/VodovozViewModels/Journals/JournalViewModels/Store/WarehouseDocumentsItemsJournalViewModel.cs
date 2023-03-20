@@ -1962,8 +1962,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				FilterViewModel.Nomenclature?.Name ?? string.Empty,
 				FilterViewModel.ShowNotAffectedBalance,
 				FilterViewModel.TargetSource,
-				FilterViewModel.CounterpartyIds.Select(x => x.ToString()),
-				FilterViewModel.WarhouseIds.Select(x => x.ToString()),
+				FilterViewModel.CounterpartiesNames,
+				FilterViewModel.WarhousessNames,
 				lines);
 
 			await Task.CompletedTask;

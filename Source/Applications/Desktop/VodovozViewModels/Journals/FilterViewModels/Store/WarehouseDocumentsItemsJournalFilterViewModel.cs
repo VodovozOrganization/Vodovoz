@@ -9,6 +9,7 @@ using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -134,11 +135,15 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			private set => UpdateFilterField(ref _counterpartyIds, value);
 		}
 
+		public string CounterpartiesNames => GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Counterparty)));
+
 		public List<int> WarhouseIds
 		{
 			get => _warhouseIds;
 			private set => UpdateFilterField(ref _warhouseIds, value);
 		}
+
+		public string WarhousessNames => GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Warehouse)));
 
 		public SelectableParameterReportFilterViewModel FilterViewModel
 		{
@@ -345,6 +350,29 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				default:
 					throw new InvalidOperationException($"Сет параметров с именем {e.Name} не поддерживается");
 			}
+		}
+
+		private string GetSelectedParametersTitles(IDictionary<string, string> selectedParametersTitles)
+		{
+			var sb = new StringBuilder();
+
+			var notSetValues = new string[]{
+				"Все",
+				"Нет"
+			};
+
+			if(selectedParametersTitles.Any())
+			{
+				foreach(var item in selectedParametersTitles)
+				{
+					if(!notSetValues.Contains(item.Value))
+					{
+						sb.AppendLine($"{item.Key}{item.Value.Trim('\n', '\r')}");
+					}
+				}
+			}
+
+			return sb.ToString().TrimEnd('\n');
 		}
 	}
 }

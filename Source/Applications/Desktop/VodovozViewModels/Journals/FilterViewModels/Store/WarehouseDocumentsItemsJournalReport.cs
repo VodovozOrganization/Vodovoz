@@ -22,8 +22,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			string nomenclature,
 			bool showNotAffectedBalance,
 			TargetSource? targetSource,
-			IEnumerable<string> counterparties,
-			IEnumerable<string> warhouses,
+			string counterparties,
+			string warhouses,
 			IEnumerable<WarehouseDocumentsItemsJournalNode> rows)
 		{
 			StartDate = stertDate;
@@ -55,8 +55,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		public string ShowNotAffectedBalanceString => ShowNotAffectedBalance ? "Да" : "Нет";
 		public TargetSource? TargetSource { get; }
 		public string TargetSourceString => TargetSource?.GetEnumTitle() ?? string.Empty;
-		public IEnumerable<string> Counterparties { get; }
-		public IEnumerable<string> Warhouses { get; }
+		public string Counterparties { get; }
+		public string Warhouses { get; }
 
 		public ReadOnlyCollection<WarehouseDocumentsItemsJournalNode> Rows => _rows.AsReadOnly();
 
@@ -71,8 +71,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			string nomenclature,
 			bool showNotAffectedBalance,
 			TargetSource? targetSource,
-			IEnumerable<string> counterparties,
-			IEnumerable<string> warhouses,
+			string counterparties,
+			string warhouses,
 			IEnumerable<WarehouseDocumentsItemsJournalNode> rows)
 		{
 			return new WarehouseDocumentsItemsJournalReport(
