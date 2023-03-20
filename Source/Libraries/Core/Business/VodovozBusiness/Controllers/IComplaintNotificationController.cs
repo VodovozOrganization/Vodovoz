@@ -7,8 +7,6 @@ namespace Vodovoz.Controllers
 	public interface IComplaintNotificationController
 	{
 		SendedComplaintNotificationDetails GetNotificationDetails(IUnitOfWork uow);
-		//List<int> GetSendedComplaintIdsBySubdivision(IUnitOfWork uow);
-		//string GetNotificationMessageBySubdivision(IUnitOfWork uow);
 		event Action<SendedComplaintNotificationDetails> UpdateNotificationAction;
 	}
 }
