@@ -2098,11 +2098,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 			lines.OrderByDescending(x => x.Date);
 
+			var warehouseId = FilterViewModel.WarehouseIds.SingleOrDefault();
+
+			var warehouseName = UoW.Query<Warehouse>().Where(x => x.Id == warehouseId)
+				.SingleOrDefault().Name;
+
 			_warehouseAccountingCard = WarhouseAccountingCard.Create(
 				FilterViewModel.StartDate.Value,
 				FilterViewModel.EndDate.Value,
-				FilterViewModel.WarehouseIds.SingleOrDefault(),
-				FilterViewModel.WarehousesNames,
+				warehouseId,
+				warehouseName,
 				FilterViewModel.Nomenclature.Id,
 				FilterViewModel.Nomenclature.Name,
 				lines);
