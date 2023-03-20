@@ -43,20 +43,13 @@ namespace Vodovoz.ViewModels.Complaints
 				throw new ArgumentNullException(nameof(subdivisionRepository));
 			}
 
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider)); ;
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			ConfigureEntityPropertyChanges();
-			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
 			HideClientFromGuilty = !fromComplaintsJournalFilter;
 			ResponsibleList = uow.GetAll<Responsible>().Where(r => !r.IsArchived).ToList();
 		}
 
 		public event EventHandler OnGuiltyItemReady;
-
-		private IList<Subdivision> allDepartments;
-		public IList<Subdivision> AllDepartments {
-			get => allDepartments;
-			private set => SetField(ref allDepartments, value);
-		}
 
 		public bool CanChooseEmployee => Entity.Responsible != null && Entity.Responsible.IsEmployeeResponsible;
 
