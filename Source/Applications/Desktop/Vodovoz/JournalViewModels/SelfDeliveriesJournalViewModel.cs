@@ -300,7 +300,7 @@ namespace Vodovoz.Representations
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null)
 							TabParent.AddTab(
-								new PaymentByOnlineViewModel(
+								new PaymentOnlineViewModel(
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
 									UnitOfWorkFactory,
 									commonServices,

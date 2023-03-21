@@ -14,12 +14,12 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Cash
 {
-	public class PaymentByOnlineViewModel : EntityTabViewModelBase<Order>
+	public class PaymentOnlineViewModel : EntityTabViewModelBase<Order>
 	{
 		private readonly Employee _currentEmployee;
 		private readonly CallTaskWorker _callTaskWorker;
 
-		public PaymentByOnlineViewModel(
+		public PaymentOnlineViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -46,13 +46,13 @@ namespace Vodovoz.ViewModels.Cash
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_currentEmployee = currentEmployee;
 
-			TabName = "Оплата по карте";
+			TabName = "Онлайн оплата";
 
 			ItemsList = UoW.GetAll<PaymentFrom>().Where(p => !p.IsArchive).ToList();
 
-			if(PaymentByCardFrom == null)
+			if(PaymentOnlineFrom == null)
 			{
-				PaymentByCardFrom = ItemsList.FirstOrDefault(p => p.Id == orderPaymentSettings.DefaultSelfDeliveryPaymentFromId);
+				PaymentOnlineFrom = ItemsList.FirstOrDefault(p => p.Id == orderPaymentSettings.DefaultSelfDeliveryPaymentFromId);
 			}
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
@@ -65,11 +65,11 @@ namespace Vodovoz.ViewModels.Cash
 		{
 			if(e.PropertyName == nameof(Entity.PaymentByCardFrom))
 			{
-				OnPropertyChanged(nameof(PaymentByCardFrom));
+				OnPropertyChanged(nameof(PaymentOnlineFrom));
 			}
 		}
 
-		public PaymentFrom PaymentByCardFrom
+		public PaymentFrom PaymentOnlineFrom
 		{
 			get => Entity.PaymentByCardFrom;
 			set => Entity.PaymentByCardFrom = value;
@@ -79,7 +79,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		protected override void BeforeValidation()
 		{
-			Entity.ChangePaymentTypeToByCard(_callTaskWorker);
+			Entity.ChangePaymentTypeToOnline(_callTaskWorker);
 
 			if(!Entity.PayAfterShipment)
 			{

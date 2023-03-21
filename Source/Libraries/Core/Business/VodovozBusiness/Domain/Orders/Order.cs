@@ -3487,6 +3487,12 @@ namespace Vodovoz.Domain.Orders
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
 		}
 
+		public virtual void ChangePaymentTypeToOnline(CallTaskWorker callTaskWorker)
+		{
+			PaymentType = PaymentType.ByCard;
+			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
+		}
+
 		#region Работа с документами
 
 		public virtual OrderDocumentType[] GetRequirementDocTypes()
