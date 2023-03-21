@@ -35,34 +35,34 @@ namespace Vodovoz.Representations
 {
 	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
 	{
-        private readonly CallTaskWorker _callTaskWorker;
-        private readonly Employee _currentEmployee;
-        private readonly OrderPaymentSettings _orderPaymentSettings;
-        private readonly OrderParametersProvider _orderParametersProvider;
-        private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
-        private readonly bool _userCanChangePayTypeToByCard;
+		private readonly CallTaskWorker _callTaskWorker;
+		private readonly Employee _currentEmployee;
+		private readonly OrderPaymentSettings _orderPaymentSettings;
+		private readonly OrderParametersProvider _orderParametersProvider;
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly bool _userCanChangePayTypeToByCard;
 
-        public SelfDeliveriesJournalViewModel(
-	        OrderJournalFilterViewModel filterViewModel, 
-            IUnitOfWorkFactory unitOfWorkFactory, 
+		public SelfDeliveriesJournalViewModel(
+			OrderJournalFilterViewModel filterViewModel, 
+			IUnitOfWorkFactory unitOfWorkFactory, 
 			ICommonServices commonServices, 
-            CallTaskWorker callTaskWorker,
-            OrderPaymentSettings orderPaymentSettings,
+			CallTaskWorker callTaskWorker,
+			OrderPaymentSettings orderPaymentSettings,
 			OrderParametersProvider orderParametersProvider,
-	        IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
-	        IEmployeeService employeeService) 
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IEmployeeService employeeService) 
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-            _callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-            _orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
-            _orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-            _deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-            _currentEmployee =
-	            (employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
-		            UoW,
-		            commonServices.UserService.CurrentUserId);
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_orderPaymentSettings = orderPaymentSettings ?? throw new ArgumentNullException(nameof(orderPaymentSettings));
+			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_currentEmployee =
+				(employeeService ?? throw new ArgumentNullException(nameof(employeeService))).GetEmployeeForUser(
+					UoW,
+					commonServices.UserService.CurrentUserId);
 
-            TabName = "Журнал самовывозов";
+			TabName = "Журнал самовывозов";
 			SetOrder(x => x.Date, true);
 			UpdateOnChanges(
 				typeof(VodovozOrder),
@@ -71,7 +71,7 @@ namespace Vodovoz.Representations
 			_userCanChangePayTypeToByCard = commonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 		}
 
-        protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
 			SelfDeliveryJournalNode resultAlias = null;
 			VodovozOrder orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -262,8 +262,8 @@ namespace Vodovoz.Representations
 					"Оплата по карте",
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
-                        var selectedNode = selectedNodes.FirstOrDefault();
-                        return selectedNodes.Count == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
+						var selectedNode = selectedNodes.FirstOrDefault();
+						return selectedNodes.Count == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => _userCanChangePayTypeToByCard,
 					selectedItems => {
@@ -273,10 +273,10 @@ namespace Vodovoz.Representations
 							TabParent.AddTab(
 								new PaymentByCardViewModel(
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
-                                    UnitOfWorkFactory,
+									UnitOfWorkFactory,
 									commonServices,
-                                    _callTaskWorker,
-                                    _orderPaymentSettings,
+									_callTaskWorker,
+									_orderPaymentSettings,
 									_orderParametersProvider,
 									_deliveryRulesParametersProvider,
 									_currentEmployee), 
@@ -286,7 +286,36 @@ namespace Vodovoz.Representations
 					
 				)
 			);
-			
+			PopupActionsList.Add(
+				new JournalAction(
+					"Онлайн оплата",
+					selectedItems => {
+						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						return selectedNodes.Count == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
+					},
+					selectedItems => _userCanChangePayTypeToByCard,
+					selectedItems => {
+						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null)
+							TabParent.AddTab(
+								new PaymentByOnlineViewModel(
+									EntityUoWBuilder.ForOpen(selectedNode.Id),
+									UnitOfWorkFactory,
+									commonServices,
+									_callTaskWorker,
+									_orderPaymentSettings,
+									_orderParametersProvider,
+									_deliveryRulesParametersProvider,
+									_currentEmployee),
+								this
+							);
+					}
+
+				)
+			);
+
 		}
 		
 
