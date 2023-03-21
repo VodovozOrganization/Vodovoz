@@ -394,6 +394,7 @@ namespace Vodovoz
 				}
 			}
 
+			AddCommentsFromDeliveryPoint();
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 		}
