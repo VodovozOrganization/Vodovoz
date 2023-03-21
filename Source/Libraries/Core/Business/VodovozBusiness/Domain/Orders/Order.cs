@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using fyiReporting.RDL;
+﻿using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -17,6 +10,13 @@ using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Services;
 using QS.Validation;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -28,7 +28,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -445,17 +444,17 @@ namespace Vodovoz.Domain.Orders
 		public virtual PaymentType PaymentType {
 			get => _paymentType;
 			set {
-				if(value != _paymentType && SetField(ref _paymentType, value, () => PaymentType)) {
+				if(value != _paymentType && SetField(ref _paymentType, value)) {
 					switch(PaymentType) {
 						case PaymentType.cash:
 						case PaymentType.barter:
 						case PaymentType.cashless:
 						case PaymentType.ContractDoc:
+						case PaymentType.Terminal:
 							OnlineOrder = null;
 							PaymentByCardFrom = null;
 							break;
 						case PaymentType.ByCard:
-						case PaymentType.Terminal:
 							break;
 					}
 
@@ -1274,6 +1273,11 @@ namespace Vodovoz.Domain.Orders
 				);
 			}
 
+			if(IsFastDelivery)
+			{
+				AddFastDeliveryNomenclatureIfNeeded();
+			}
+
 			if(!PaymentTypesFastDeliveryAvailableFor.Contains(PaymentType) && IsFastDelivery)
 			{
 				yield return new ValidationResult(
@@ -1897,17 +1901,27 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddEquipmentNomenclatureFromClient(Nomenclature nomenclature, IUnitOfWork UoW)
+		public virtual void AddEquipmentNomenclatureFromClient(
+			Nomenclature nomenclature,
+			IUnitOfWork UoW,
+			int count = 0,
+			Direction direction = Direction.PickUp,
+			DirectionReason directionReason = DirectionReason.None,
+			OwnTypes ownType = OwnTypes.None,
+			Reason reason = Reason.Service)
 		{
 			ObservableOrderEquipments.Add(
 				new OrderEquipment {
 					Order = this,
-					Direction = Direction.PickUp,
+					Direction = direction,
 					Equipment = null,
 					OrderItem = null,
-					Reason = Reason.Service,
+					OwnType = ownType,
+					DirectionReason = directionReason,
+					Reason = reason,
 					Confirmed = true,
-					Nomenclature = nomenclature
+					Nomenclature = nomenclature,
+					Count = count
 				}
 			);
 			UpdateDocuments();
@@ -4419,7 +4433,7 @@ namespace Vodovoz.Domain.Orders
 				if(_fastDeliveryNomenclature == null)
 				{
 					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
-					_fastDeliveryNomenclature = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.FastDeliveryNomenclatureId);
+					_fastDeliveryNomenclature = nomenclatureParametersProvider.GetFastDeliveryNomenclature(UoW);
 				}
 
 				return _fastDeliveryNomenclature;
@@ -4430,7 +4444,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(IsFastDelivery && orderItems.All(x => x.Nomenclature.Id != FastDeliveryNomenclature.Id))
 			{
-				var fastDeliveryNomenclature = UoW.GetById<Nomenclature>(FastDeliveryNomenclature.Id);
 				var fastDeliveryItemToAdd = new OrderItem
 				{
 					Order = this,

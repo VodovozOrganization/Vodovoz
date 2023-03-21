@@ -74,8 +74,11 @@ namespace RevenueService.Client.Dto
 		[Display(Name = "Тип контрагента (строка)")]
 		public string CounterpartyTypeString => CounterpartyType.GetEnumTitle();
 
-		[Display(Name = "Организационно-правовая форма")]
+		[Display(Name = "Организационно-правовая форма (аббревиатура)")]
 		public string Opf { get; set; }
+
+		[Display(Name = "Полное название организационно-правовой формы")]
+		public string OpfFull { get; set; }
 
 		[Display(Name = "ФИО менеджера")]
 		public string ManagerFullName { get; set; }

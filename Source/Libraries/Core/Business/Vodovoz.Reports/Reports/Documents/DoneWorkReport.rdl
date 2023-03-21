@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>11.69in</PageHeight>
   <PageWidth>8.27in</PageWidth>
   <Width>.1pt</Width>
@@ -13,7 +11,7 @@
   <BottomMargin>10mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id, 
@@ -23,6 +21,9 @@
 	counterparty.full_name AS client_name, 
 	counterparty.jur_address AS client_address, 
 	counterparty.inn, counterparty.kpp,
+    IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
+       CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
+       counterparty.special_contract_name) AS special_contract_number,
 	GROUP_CONCAT(CONCAT('+7 ', phones.digits_number), ', ') AS phone,
 	delivery_points.compiled_address as delivery_address
 FROM orders 
@@ -37,7 +38,7 @@ WHERE orders.id = @order_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -78,6 +79,10 @@ WHERE orders.id = @order_id</CommandText>
           <DataField>delivery_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="special_contract_number">
+          <DataField>special_contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="equipments">
@@ -108,7 +113,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="MasterOrderItem">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT order_items.id,
        order_items.count,
@@ -126,7 +131,7 @@ WHERE nomenclature.category="master" &amp;&amp; order_items.order_id=@order_id</
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="count">
           <DataField>count</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -206,14 +211,13 @@ WHERE stored_resource.id = @id1
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Height>49.11pt</Height>
+        <Height>31.82pt</Height>
         <Width>288.76pt</Width>
         <Value>="АКТ
-выполненных работ №"+{?order_id}+" 
-по договору №" + Max({contract}, "Order")</Value>
+выполненных работ №"+{?order_id}</Value>
         <ZIndex>1</ZIndex>
-        <Left>98.0pt</Left>
-        <Top>40.4pt</Top>
+        <Left>98.00pt</Left>
+        <Top>40.40pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -305,8 +309,7 @@ WHERE stored_resource.id = @id1
       <Textbox Name="Textbox39">
         <Height>12.00pt</Height>
         <Width>72.27pt</Width>
-        <Value>
-        </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>52.3pt</Left>
         <Top>528.9pt</Top>
@@ -428,8 +431,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -441,8 +443,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -454,8 +455,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -472,8 +472,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -485,8 +484,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -500,8 +498,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -524,8 +521,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -542,8 +538,7 @@ WHERE stored_resource.id = @id1
                           <Default>Solid</Default>
                         </BorderStyle>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -555,8 +550,7 @@ WHERE stored_resource.id = @id1
                           <Default>Solid</Default>
                         </BorderStyle>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -568,8 +562,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox65">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -581,8 +574,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox66">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -594,8 +586,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -612,8 +603,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -625,8 +615,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -638,8 +627,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox64">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -656,8 +644,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -669,8 +656,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -682,8 +668,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -741,8 +726,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox43">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -793,8 +777,7 @@ WHERE stored_resource.id = @id1
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundColor>
-          </BackgroundColor>
+          <BackgroundColor></BackgroundColor>
           <BackgroundGradientType>None</BackgroundGradientType>
           <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
           <TextAlign>Left</TextAlign>
@@ -869,7 +852,7 @@ WHERE stored_resource.id = @id1
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>30.1pt</Height>
+              <Height>39.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1047,8 +1030,7 @@ WHERE stored_resource.id = @id1
       <Textbox Name="Textbox17">
         <Height>39.14pt</Height>
         <Width>360.62pt</Width>
-        <Value>
-        </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>148.5pt</Left>
         <Top>250.5pt</Top>
@@ -1377,7 +1359,7 @@ WHERE stored_resource.id = @id1
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <Format >="N" + {digits}</Format>
+                        <Format>="N" + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1394,7 +1376,7 @@ WHERE stored_resource.id = @id1
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1605,8 +1587,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1618,8 +1599,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox69">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1638,8 +1618,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1651,8 +1630,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1671,8 +1649,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1684,8 +1661,7 @@ WHERE stored_resource.id = @id1
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1740,8 +1716,7 @@ WHERE stored_resource.id = @id1
       <Textbox Name="Textbox71">
         <Height>12pt</Height>
         <Width>1in</Width>
-        <Value>
-        </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>206.0pt</Left>
         <Top>572.6pt</Top>
@@ -1764,8 +1739,7 @@ WHERE stored_resource.id = @id1
       <Textbox Name="Textbox73">
         <Height>12pt</Height>
         <Width>1in</Width>
-        <Value>
-        </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>206.0pt</Left>
         <Top>586.4pt</Top>
@@ -1775,6 +1749,23 @@ WHERE stored_resource.id = @id1
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox74" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.31pt</Height>
+        <Width>294.80pt</Width>
+        <Value>=Iif(String.IsNullOrWhiteSpace(First({special_contract_number}, "Order")) = false,First({special_contract_number}, "Order"), "по договору № " +  Max({contract}, "Order"))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>99.1pt</Left>
+        <Top>72.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
         </Style>
       </Textbox>
     </ReportItems>
@@ -2201,8 +2192,7 @@ WHERE stored_resource.id = @id1
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
   <DataSources>

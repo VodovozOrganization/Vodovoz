@@ -76,6 +76,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.XAlign(0.5f)
 				.AddColumn("Мероприятия").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.ArrangementText)
+					.WrapWidth(450).WrapMode(WrapMode.WordChar)
 					.XAlign(0f)
 				.AddColumn("Результат по клиенту").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.ResultOfCounterparty)

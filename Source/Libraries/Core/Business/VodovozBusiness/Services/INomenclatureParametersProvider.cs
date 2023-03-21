@@ -14,6 +14,7 @@ namespace Vodovoz.Services
         string OnlineStoreExportFileUrl { get; }
         int FastDeliveryNomenclatureId { get; }
 		int PromotionalNomenclatureGroupId { get; }
+		int DailyCoolerRentNomenclatureId { get; }
 		int[] PaidDeliveriesNomenclaturesIds();
 
 		Nomenclature GetWaterSemiozerie(IUnitOfWork uow);
@@ -28,5 +29,6 @@ namespace Vodovoz.Services
         Nomenclature GetForfeitNomenclature(IUnitOfWork uow);
 
         int GetIdentifierOfOnlineShopGroup();
-    }
+		Nomenclature GetFastDeliveryNomenclature(IUnitOfWork uow);
+	}
 }

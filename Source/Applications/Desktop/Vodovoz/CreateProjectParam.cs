@@ -1,4 +1,7 @@
-﻿using Autofac;
+using ApiClientProvider;
+using Autofac;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Deletion;
@@ -40,6 +43,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
@@ -48,7 +52,10 @@ using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.OrderWidgets;
+using Vodovoz.Dialogs.Organizations;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
@@ -119,6 +126,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Mango.Talks;
@@ -148,6 +156,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Retail;
+using Vodovoz.ViewModels.ViewModels.Sale;
 using Vodovoz.ViewModels.ViewModels.Security;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using Vodovoz.ViewModels.ViewModels.Store;
@@ -191,6 +200,7 @@ using Vodovoz.ViewWidgets;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
+using VodovozInfrastructure.Endpoints;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
 
@@ -233,6 +243,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
 				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>()
 				.RegisterWidgetForTabViewModel<ClientCameFromViewModel, ClientCameFromView>()
+				.RegisterWidgetForTabViewModel<OrganizationOwnershipTypeViewModel, OrganizationOwnershipTypeView>()
 				.RegisterWidgetForTabViewModel<FuelTypeViewModel, FuelTypeView>()
 				.RegisterWidgetForTabViewModel<FuelWriteoffDocumentViewModel, FuelWriteoffDocumentView>()
 				.RegisterWidgetForTabViewModel<ResidueViewModel, ResidueView>()
@@ -334,6 +345,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
 				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
 				.RegisterWidgetForTabViewModel<CounterpartyDetailsFromRevenueServiceViewModel, CounterpartyDetailsFromRevenueServiceView>()
+				.RegisterWidgetForTabViewModel<DeliveryPriceRuleViewModel, DeliveryPriceRuleView>()
 				;
 
 			//Регистрация виджетов
@@ -348,6 +360,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<OrderJournalFilterViewModel, OrderFilterView>()
 				.RegisterWidgetForWidgetViewModel<DriverMessageFilterViewModel, DriverMessageFilterView>()
 				.RegisterWidgetForWidgetViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
+				.RegisterWidgetForWidgetViewModel<OrganizationOwnershipTypeJournalFilterViewModel, OrganizationOwnershipTypeJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ResidueFilterViewModel, ResidueFilterView>()
 				.RegisterWidgetForWidgetViewModel<IncomeCategoryJournalFilterViewModel, IncomeCategoryJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ExpenseCategoryJournalFilterViewModel, ExpenseCategoryJournalFilterView>()
@@ -418,8 +431,9 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CarsMonitoringViewModel, CarsMonitoringView>()
 				.RegisterWidgetForWidgetViewModel<TurnoverWithDynamicsReportViewModel, TurnoverWithDynamicsReportView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryPercentCoverageReportViewModel, FastDeliveryPercentCoverageReportView>()
+				.RegisterWidgetForWidgetViewModel<TrueMarkReceiptOrderJournalFilterViewModel, TrueMarkReceiptJournalFilterView>()
 				;
-
+			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
@@ -622,6 +636,7 @@ namespace Vodovoz
 					.First());
 
 			builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf();
+			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>().AsSelf();
 
 			#endregion
 
@@ -665,15 +680,7 @@ namespace Vodovoz
 
 			builder.Register(context => CallTaskSingletonFactory.GetInstance()).As<ICallTaskFactory>();
 
-			builder.Register(context => new CallTaskWorker(
-					context.Resolve<ICallTaskFactory>(),
-					context.Resolve<ICallTaskRepository>(),
-					context.Resolve<IOrderRepository>(),
-					context.Resolve<IEmployeeRepository>(),
-					context.Resolve<IPersonProvider>(),
-					context.Resolve<IUserService>(),
-					context.Resolve<IErrorReporter>()))
-				.As<ICallTaskWorker>();
+			builder.RegisterType<CallTaskWorker>().As<ICallTaskWorker>();
 
 			#endregion
 
@@ -716,8 +723,23 @@ namespace Vodovoz
 			#region ParameterProviders
 
 			builder.RegisterType<BaseParametersProvider>()
-				.As<ITerminalNomenclatureProvider>()
+				.As<IStandartNomenclatures>()
+				.As<IImageProvider>()
+				.As<IStandartDiscountsService>()
+				.As<IPersonProvider>()
+				.As<ISmsNotifierParametersProvider>()
+				.As<IWageParametersProvider>()
+				.As<IDefaultDeliveryDayScheduleSettings>()
+				.As<ISmsNotificationServiceSettings>()
+				.As<ISalesReceiptsServiceSettings>()
+				.As<IEmailServiceSettings>()
+				.As<IDriverServiceParametersProvider>()
+				.As<IErrorSendParameterProvider>()
 				.As<IProfitCategoryProvider>()
+				.As<IPotentialFreePromosetsReportDefaultsProvider>()
+				.As<IMailjetParametersProvider>()
+				.As<IVpbxSettings>()
+				.As<ITerminalNomenclatureProvider>()
 				.AsSelf();
 
 			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ParametersProvider)))
@@ -765,6 +787,28 @@ namespace Vodovoz
 			builder.RegisterType<UserPermissionNode>()
 				.AsSelf()
 				.As<IPermissionNode>();
+
+			builder.Register(context =>
+				{
+					var cs = new ConfigurationSection(
+					new ConfigurationRoot(
+						new List<IConfigurationProvider>
+						{
+							new MemoryConfigurationProvider(new MemoryConfigurationSource())
+						}
+						), "");
+
+					cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
+
+					var clientProvider = new ApiClientProvider.ApiClientProvider(cs);
+
+					return new DriverApiUserRegisterEndpoint(clientProvider);
+				}
+				).As<DriverApiUserRegisterEndpoint>();
+
+			builder.Register(c => CurrentUserSettings.Settings).As<UserSettings>();
+
+			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 			#endregion
 		}

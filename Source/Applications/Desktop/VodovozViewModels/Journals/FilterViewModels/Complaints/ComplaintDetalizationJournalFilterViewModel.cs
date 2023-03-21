@@ -19,7 +19,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 
 		public ComplaintDetalizationJournalFilterViewModel(Action<ComplaintDetalizationJournalFilterViewModel> filterParams = null)
 		{
-			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>().List();
+			ComplaintObjects = UoW.Session.QueryOver<ComplaintObject>()
+				.Where(co => !co.IsArchive)
+				.List();
+
 			ComplaintKinds = UoW.Session.QueryOver<ComplaintKind>().List();
 			VisibleComplaintKinds = Enumerable.Empty<ComplaintKind>();
 

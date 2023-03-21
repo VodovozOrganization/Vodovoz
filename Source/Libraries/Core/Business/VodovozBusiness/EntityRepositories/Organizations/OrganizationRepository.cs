@@ -1,6 +1,7 @@
 ﻿using NHibernate.Criterion;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 
@@ -60,6 +61,19 @@ namespace Vodovoz.EntityRepositories.Organizations
 			return uow.Session.QueryOver<Organization>()
 				.Where(x => x.TaxcomEdoAccountId == edoAccountId)
 				.SingleOrDefault();
+		}
+
+		public IList<OrganizationOwnershipType> GetOrganizationOwnershipTypeByAbbreviation(IUnitOfWork uow, string abbreviation)
+		{
+			return uow.Session.QueryOver<OrganizationOwnershipType>()
+				.Where(o => o.Abbreviation == abbreviation)
+				.List<OrganizationOwnershipType>();
+		}
+
+		public IList<OrganizationOwnershipType> GetAllOrganizationOwnershipTypes(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<OrganizationOwnershipType>()
+				.List<OrganizationOwnershipType>();
 		}
 	}
 }

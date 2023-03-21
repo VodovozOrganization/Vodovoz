@@ -27,6 +27,7 @@ using QS.Project.Services;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 using Vodovoz.Tools;
+using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz
 {
@@ -321,6 +322,7 @@ namespace Vodovoz
 		List<ChangedItem> 	Changes = new List<ChangedItem>();
 
 		List<DeliverySchedule> 	DeliverySchedules = null;
+		List<OrganizationOwnershipType> _allOrganizationOwnershipTypes = null;
 
 		MeasurementUnits unitU;
 		MeasurementUnits UnitServ;
@@ -329,6 +331,9 @@ namespace Vodovoz
 		public LoadFrom1cDlg ()
 		{
 			this.Build ();
+
+			throw new NotSupportedException("Загрузка заказов из 1с не поддерживается!");
+
 			TabName = "Загрузка контрагентов из 1с 7.7";
 
 			FileFilter Filter = new FileFilter();
@@ -338,6 +343,7 @@ namespace Vodovoz
 			filechooserXML.Filter = Filter;
 
 			DeliverySchedules  = _uow.GetAll<DeliverySchedule>().ToList();
+			_allOrganizationOwnershipTypes = _uow.GetAll<OrganizationOwnershipType>().ToList();
 			unitU 	 = MeasurementUnitsRepository.GetDefaultGoodsUnit(_uow);
 			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(_uow);
 
@@ -540,9 +546,9 @@ namespace Vodovoz
 				if(counterparty.PersonType == PersonType.legal)
 				{
 					counterparty.FullName = counterparty.FullName.TrimStart();
-					var found = CommonValues.Ownerships.FirstOrDefault(x => counterparty.FullName.StartsWith(x.Key));
-					if (!String.IsNullOrEmpty(found.Key))
-						counterparty.TypeOfOwnership = found.Key;
+					var found = _allOrganizationOwnershipTypes.FirstOrDefault(x => counterparty.FullName.StartsWith(x.Abbreviation));
+					if (found != null)
+						counterparty.TypeOfOwnership = found.Abbreviation;
 				}
 
 				var MainNode = node.SelectSingleNode ("Свойство[@Имя='ГоловнойКонтрагент']/Значение");

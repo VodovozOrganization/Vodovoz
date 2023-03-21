@@ -101,7 +101,8 @@ public partial class MainWindow : Window
 	Action ActionDeliveryPrice;
 	Action ActionUndeliveredOrders;
 	Action ActionTrueMarkOrders;
-	
+	Action ActionReceiptsJournal;
+
 	Action ActionServiceClaims;
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
@@ -188,8 +189,9 @@ public partial class MainWindow : Window
 		ActionLoadOrders = new Action("ActionLoadOrders", "Загрузить из 1С", null, "table");
 		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
-		ActionTrueMarkOrders = new Action(nameof(ActionTrueMarkOrders), "Реестр заказов для чека", null, "table");
-
+		ActionTrueMarkOrders = new Action(nameof(ActionTrueMarkOrders), "Журнал кодов честного знака", null, "table");
+		ActionReceiptsJournal = new Action(nameof(ActionReceiptsJournal), "Журнал чеков", null, "table");
+		
 		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
@@ -281,6 +283,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionDeliveryPrice, null);
 		w1.Add(ActionUndeliveredOrders, null);
 		w1.Add(ActionTrueMarkOrders, null);
+		w1.Add(ActionReceiptsJournal, null);
 		
 		//
 		w1.Add(ActionServiceClaims, null);
@@ -376,7 +379,8 @@ public partial class MainWindow : Window
 		ActionDeliveryPrice.Activated += ActionDeliveryPrice_Activated;
 		ActionUndeliveredOrders.Activated += ActionUndeliveredOrdersActivated;
 		ActionTrueMarkOrders.Activated += ActionTrueMarkOrdersActivated;
-
+		ActionReceiptsJournal.Activated += ActionReceiptsJournalActivated;
+		
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionReadyForShipment.Activated += ActionReadyForShipmentActivated;
@@ -466,6 +470,11 @@ public partial class MainWindow : Window
 	private void ActionTrueMarkOrdersActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<TrueMarkReceiptOrdersRegistryJournalViewModel>(null);
+	}
+
+	private void ActionReceiptsJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ReceiptsJournalViewModel>(null);
 	}
 
 	private void OnActionIncomingCallsAnalysisReportActivated(object sender, EventArgs e)
