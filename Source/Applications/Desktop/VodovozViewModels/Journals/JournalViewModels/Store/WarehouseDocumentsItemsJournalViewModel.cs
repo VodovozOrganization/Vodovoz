@@ -137,10 +137,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 		}
 
-		public DelegateCommand CreateJournalReportCommand { get; set; }
-		public DelegateCommand ExportJournalReportCommand { get; set; }
-		public DelegateCommand CreateWarhouseAccountingCardCommand { get; set; }
-		public DelegateCommand ExportWarhouseAccountingCardCommand { get; set; }
+		public DelegateCommand CreateJournalReportCommand { get; }
+		public DelegateCommand ExportJournalReportCommand { get; }
+		public DelegateCommand CreateWarhouseAccountingCardCommand { get; }
+		public DelegateCommand ExportWarhouseAccountingCardCommand { get; }
 
 		public bool CanExportWarhouseAccountingCard =>
 			FilterViewModel.Nomenclature != null

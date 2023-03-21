@@ -83,6 +83,13 @@ namespace Vodovoz.Filters.GtkViews
 			}
 
 			ShowFilter();
+
+			btnInfo.Clicked += OnBInfoBtnClicked;
+		}
+
+		private void OnBInfoBtnClicked(object sender, EventArgs e)
+		{
+			ViewModel.ShowInfoCommand?.Execute();
 		}
 
 		private void OnKeyReleased(object o, KeyReleaseEventArgs args)

@@ -1,5 +1,7 @@
 ﻿using Autofac;
 using NHibernate.Transform;
+using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.Project.Filter;
@@ -36,6 +38,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IUserService _userService;
 		private readonly IUserRepository _userRepository;
+		private readonly IInteractiveService _interactiveService;
 		private readonly SelectableParametersReportFilter _filter;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -59,21 +62,25 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
 			IUserService userService,
-			IUserRepository userRepository)
+			IUserRepository userRepository,
+			IInteractiveService interactiveService)
 		{
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			StartDate = DateTime.Today.AddDays(-7);
 			EndDate = DateTime.Today.AddDays(1);
 			TargetSource = TargetSource.Both;
 
 			_filter = new SelectableParametersReportFilter(UoW);
+			ShowInfoCommand = new DelegateCommand(ShowInfo);
 			ConfigureFilter();
 		}
+
+		public DelegateCommand ShowInfoCommand { get; }
 
 		public int? DocumentId
 		{
@@ -380,6 +387,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			}
 
 			return sb.ToString().TrimEnd('\n');
+		}
+
+		private void ShowInfo()
+		{
+			_interactiveService.ShowMessage(ImportanceLevel.Info,
+				"",
+				"Справка");
 		}
 	}
 }
