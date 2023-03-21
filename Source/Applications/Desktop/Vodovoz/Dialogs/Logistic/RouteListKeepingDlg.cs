@@ -480,9 +480,6 @@ namespace Vodovoz
 				UoWGeneric.Session.Refresh(Entity);
 				UpdateNodes();
 			}
-
-			_deliveryFreeBalanceViewModel.ObservableDeliveryFreeBalanceOperations = Entity.ObservableDeliveryFreeBalanceOperations.ReconnectToObject(Entity.DeliveryFreeBalanceOperations);
-			_deliveryFreeBalanceViewModel.UpdateAction?.Invoke();
 		}
 
 		protected void OnButtonChangeDeliveryTimeClicked(object sender, EventArgs e)

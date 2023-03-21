@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.GtkWidgets.Cells;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -293,8 +294,15 @@ namespace Vodovoz
 				return;
 			}
 
-			nodeCellRenderer.Sensitive = routeListItemNode.Status != RouteListItemStatus.Transfered
-										 && routeListItemNode.RouteListItem.RouteList != null;
+			var isActive = routeListItemNode.Status != RouteListItemStatus.Transfered
+			               && routeListItemNode.RouteListItem.RouteList != null;
+
+			nodeCellRenderer.Sensitive = isActive;
+
+			if(nodeCellRenderer is NodeCellRendererToggle<RouteListItemNode> toggle)
+			{
+				toggle.Activatable = isActive;
+			}
 		}
 
 		private void ConfigureTreeViewsDriverBalance()

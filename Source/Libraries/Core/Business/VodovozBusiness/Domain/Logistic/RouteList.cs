@@ -832,7 +832,10 @@ namespace Vodovoz.Domain.Logistic
 			{
 				address.ChangeOrderStatus(OrderStatus.Accepted);
 			}
-			
+
+			var addressKeepingDocument = UoW.GetAll<RouteListAddressKeepingDocument>().SingleOrDefault(x => x.RouteListItem.Id == address.Id);
+			UoW.Delete(addressKeepingDocument);
+
 			ObservableAddresses.Remove(address);
 			return true;
 		}
