@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Autofac.Core.Lifetime;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
@@ -22,6 +21,7 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Employees;
@@ -52,6 +52,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly IRouteListRepository _routeListRepository;
 		private readonly ILifetimeScope _scope;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
@@ -89,6 +91,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeSettings employeeSettings,
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IRouteListItemRepository routeListItemRepository,
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -107,7 +110,7 @@ namespace Vodovoz.ViewModels.Complaints
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			if(orderSelectorFactory == null)
 			{
 				throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -199,6 +202,15 @@ namespace Vodovoz.ViewModels.Complaints
 			if(e.PropertyName == nameof(Entity.ComplaintKind))
 			{
 				OnPropertyChanged(nameof(CanChangeDetalization));
+			}
+
+			if(e.PropertyName == nameof(Entity.Order))
+			{
+				var routeList = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Order).RouteList;
+				if(routeList != null && routeList.Driver != null)
+				{
+					Entity.Driver = routeList.Driver;
+				}
 			}
 		}
 
