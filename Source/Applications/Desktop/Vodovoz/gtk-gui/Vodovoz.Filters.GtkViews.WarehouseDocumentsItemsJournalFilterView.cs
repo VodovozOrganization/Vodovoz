@@ -166,7 +166,8 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child table1.Gtk.Table+TableChild
 			this.frame1 = new global::Gtk.Frame();
 			this.frame1.Name = "frame1";
-			this.frame1.ShadowType = ((global::Gtk.ShadowType)(0));
+			this.frame1.ShadowType = ((global::Gtk.ShadowType)(2));
+			this.frame1.BorderWidth = ((uint)(1));
 			// Container child frame1.Gtk.Container+ContainerChild
 			this.GtkAlignment13 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment13.Name = "GtkAlignment13";
