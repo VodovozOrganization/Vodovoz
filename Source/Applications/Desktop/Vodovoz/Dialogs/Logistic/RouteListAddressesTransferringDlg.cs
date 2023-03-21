@@ -14,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.GtkWidgets.Cells;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -503,6 +502,7 @@ namespace Vodovoz
 				if(transferredAddressFromRouteListTo != null)
 				{
 					newItem = transferredAddressFromRouteListTo;
+					newItem.AddressTransferType = item.AddressTransferType;
 					item.WasTransfered = false;
 					routeListTo.RevertTransferAddress(_wageParameterService, newItem, item);
 					routeListFrom.TransferAddressTo(item, newItem);

@@ -69,6 +69,8 @@ namespace Vodovoz
 		WageParameterService wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
 
+		private DeliveryFreeBalanceViewModel _deliveryFreeBalanceViewModel;
+
 		public event RowActivatedHandler OnClosingItemActivated;
 
 		public RouteListKeepingDlg(int id)
@@ -144,8 +146,8 @@ namespace Vodovoz
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Sensitive = _logisticanEditing;
 
-			var deliveryFreeBalanceViewModel = new DeliveryFreeBalanceViewModel();
-			var deliveryfreebalanceview = new DeliveryFreeBalanceView(deliveryFreeBalanceViewModel);
+			_deliveryFreeBalanceViewModel = new DeliveryFreeBalanceViewModel();
+			var deliveryfreebalanceview = new DeliveryFreeBalanceView(_deliveryFreeBalanceViewModel);
 			deliveryfreebalanceview.Binding
 				.AddBinding(Entity, e => e.ObservableDeliveryFreeBalanceOperations, w => w.ObservableDeliveryFreeBalanceOperations)
 				.InitializeFromSource();
@@ -478,6 +480,9 @@ namespace Vodovoz
 				UoWGeneric.Session.Refresh(Entity);
 				UpdateNodes();
 			}
+
+			_deliveryFreeBalanceViewModel.ObservableDeliveryFreeBalanceOperations = Entity.ObservableDeliveryFreeBalanceOperations.ReconnectToObject(Entity.DeliveryFreeBalanceOperations);
+			_deliveryFreeBalanceViewModel.UpdateAction?.Invoke();
 		}
 
 		protected void OnButtonChangeDeliveryTimeClicked(object sender, EventArgs e)

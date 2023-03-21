@@ -148,23 +148,27 @@ namespace Vodovoz.Domain.Documents
 				OperationTime = TimeStamp
 			};
 
-			var deliveryFreeBalanceOperation = new DeliveryFreeBalanceOperation()
-			{
-				Amount = -amount,
-				Nomenclature = nomenclature,
-				RouteList = RouteList
-			};
-
 			var item = new CarUnloadDocumentItem {
 				ReciveType = reciveType,
 				WarehouseMovementOperation = warehouseMovementOperation,
 				EmployeeNomenclatureMovementOperation = employeeNomenclatureMovementOperation,
-				DeliveryFreeBalanceOperation = deliveryFreeBalanceOperation,
 				ServiceClaim = serviceClaim,
 				Redhead = redhead,
 				DefectSource = source,
 				TypeOfDefect = typeOfDefect
 			};
+
+			if(reciveType != ReciveTypes.Defective)
+			{
+				var deliveryFreeBalanceOperation = new DeliveryFreeBalanceOperation
+				{
+					Amount = -amount,
+					Nomenclature = nomenclature,
+					RouteList = RouteList
+				};
+
+				item.DeliveryFreeBalanceOperation = deliveryFreeBalanceOperation;
+			}
 
 			AddItem(item);
 		}
