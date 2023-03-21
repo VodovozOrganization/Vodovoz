@@ -206,7 +206,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 			if(e.PropertyName == nameof(Entity.Order))
 			{
-				var routeList = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Order).RouteList;
+				var routeList = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Order)?.RouteList;
 				if(routeList != null && routeList.Driver != null)
 				{
 					Entity.Driver = routeList.Driver;

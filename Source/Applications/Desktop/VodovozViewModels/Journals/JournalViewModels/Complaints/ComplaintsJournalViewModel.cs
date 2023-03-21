@@ -37,6 +37,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using QS.Tdi;
+using Vodovoz.NHibernateProjections.Employees;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -186,6 +187,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			DeliveryPoint deliveryPointAlias = null;
 			ComplaintGuiltyItem complaintGuiltyItemAlias = null;
 			Employee guiltyEmployeeAlias = null;
+			Employee driverAlias = null;
 			Subdivision guiltySubdivisionAlias = null;
 			Fine fineAlias = null;
 			Order orderAlias = null;
@@ -335,6 +337,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Left.JoinAlias(() => complaintAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => complaintAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => complaintAlias.Guilties, () => complaintGuiltyItemAlias)
+				.Left.JoinAlias(() => complaintAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDetalization, () => complaintDelatizationAlias)
 				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
@@ -504,6 +507,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(lastPlannedCompletionDateProjection).WithAlias(() => resultAlias.LastPlannedCompletionDate)
 				.Select(counterpartyWithAddressProjection).WithAlias(() => resultAlias.ClientNameWithAddress)
 				.Select(guiltiesProjection).WithAlias(() => resultAlias.Guilties)
+				.Select(EmployeeProjections.GetDriverFullNamePojection()).WithAlias(() => resultAlias.Driver)
 				.Select(authorProjection).WithAlias(() => resultAlias.Author)
 				.Select(finesProjection).WithAlias(() => resultAlias.Fines)
 				.Select(() => complaintAlias.ComplaintText).WithAlias(() => resultAlias.ComplaintText)
