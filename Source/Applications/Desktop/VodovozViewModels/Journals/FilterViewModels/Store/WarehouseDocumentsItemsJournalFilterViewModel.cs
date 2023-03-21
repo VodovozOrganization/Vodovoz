@@ -52,6 +52,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private Employee _lastEditor;
 		private Nomenclature _nomenclature;
 		private bool _showNotAffectedBalance = false;
+		private int? _documentId;
 
 		public WarehouseDocumentsItemsJournalFilterViewModel(
 			ICurrentPermissionService currentPermissionService,
@@ -72,6 +73,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 			_filter = new SelectableParametersReportFilter(UoW);
 			ConfigureFilter();
+		}
+
+		public int? DocumentId
+		{
+			get => _documentId;
+			set => UpdateFilterField(ref _documentId, value);
 		}
 
 		public DateTime? StartDate

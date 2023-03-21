@@ -1,10 +1,12 @@
 ﻿using Gtk;
-using QS.Project.Services.FileDialog;
 using QS.Views.GtkUI;
+using QS.Widgets;
 using System;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -28,6 +30,10 @@ namespace Vodovoz.Filters.GtkViews
 			{
 				DocumentType.DeliveryDocument
 			};
+
+			entryDocumentId.ValidationMode = ValidationType.Numeric;
+			entryDocumentId.KeyReleaseEvent += OnKeyReleased;
+			entryDocumentId.Binding.AddBinding(ViewModel, vm => vm.DocumentId, w => w.Text, new NullableIntToStringConverter()).InitializeFromSource();
 
 			yecmbDocumentType.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.DocumentType, w => w.SelectedItemOrNull)
@@ -77,6 +83,14 @@ namespace Vodovoz.Filters.GtkViews
 			}
 
 			ShowFilter();
+		}
+
+		private void OnKeyReleased(object o, KeyReleaseEventArgs args)
+		{
+			if(args.Event.Key == Key.Return)
+			{
+				ViewModel.Update();
+			}
 		}
 
 		private void ShowFilter()

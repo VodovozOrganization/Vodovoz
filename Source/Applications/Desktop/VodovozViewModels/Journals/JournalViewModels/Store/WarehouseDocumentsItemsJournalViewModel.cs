@@ -374,6 +374,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& (!FilterViewModel.CounterpartyIds.Any() || FilterViewModel.TargetSource != TargetSource.Target)
 				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source))
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					invoiceQuery.Where(() => invoiceAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					invoiceQuery.Where(() => invoiceAlias.TimeStamp >= FilterViewModel.StartDate);
@@ -488,6 +493,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& !FilterViewModel.CounterpartyIds.Any()
 				&& FilterViewModel.TargetSource != TargetSource.Target)
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					waterQuery.Where(() => incomingWaterAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					waterQuery.Where(() => incomingWaterAlias.TimeStamp >= FilterViewModel.StartDate);
@@ -607,6 +617,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& !FilterViewModel.CounterpartyIds.Any()
 				&& FilterViewModel.TargetSource != TargetSource.Source)
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					waterQuery.Where(() => incomingWaterAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					waterQuery.Where(() => incomingWaterAlias.TimeStamp >= FilterViewModel.StartDate);
@@ -727,6 +742,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& !FilterViewModel.CounterpartyIds.Any()
 				&& FilterViewModel.TargetSource != TargetSource.Target)
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					movementQuery.Where(() => movementDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(!FilterViewModel.ShowNotAffectedBalance)
 				{
 					movementQuery.Where(() => movementDocumentAlias.Status != MovementDocumentStatus.New);
@@ -866,6 +886,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					Projections.Property(() => movementDocumentAlias.Status),
 					new[] { MovementDocumentStatus.Accepted, MovementDocumentStatus.Discrepancy }));
 
+				if(FilterViewModel.DocumentId != null)
+				{
+					movementQuery.Where(() => movementDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.MovementDocumentStatus != null)
 				{
 					movementQuery.Where(() => movementDocumentAlias.Status == FilterViewModel.MovementDocumentStatus);
@@ -994,6 +1019,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& (!FilterViewModel.CounterpartyIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
 				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					writeoffQuery.Where(() => writeoffDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					writeoffQuery.Where(() => writeoffDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
@@ -1099,6 +1129,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& (!FilterViewModel.CounterpartyIds.Any() || FilterViewModel.TargetSource != TargetSource.Source)
 				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					selfDeliveryQuery.Where(() => selfDeliveryDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					selfDeliveryQuery.Where(() => selfDeliveryDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
@@ -1211,6 +1246,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& !FilterViewModel.CounterpartyIds.Any()
 				&& FilterViewModel.TargetSource != TargetSource.Target)
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					carLoadQuery.Where(() => carLoadDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					carLoadQuery.Where(() => carLoadDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
@@ -1321,6 +1361,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& !FilterViewModel.CounterpartyIds.Any()
 				&& FilterViewModel.TargetSource != TargetSource.Source)
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					carUnloadQuery.Where(() => carUnLoadDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					carUnloadQuery.Where(() => carUnLoadDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
@@ -1426,6 +1471,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& FilterViewModel.Driver == null
 				&& !FilterViewModel.CounterpartyIds.Any())
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					inventoryQuery.Where(() => inventoryDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(!FilterViewModel.ShowNotAffectedBalance)
 				{
 					inventoryQuery.Where(Restrictions.NotEqProperty(
@@ -1565,6 +1615,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource == TargetSource.Both)
 				&& FilterViewModel.ShowNotAffectedBalance)
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					shiftchangeQuery.Where(() => shiftChangeWarehouseDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					shiftchangeQuery.Where(() => shiftChangeWarehouseDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
@@ -1670,6 +1725,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& !FilterViewModel.CounterpartyIds.Any()
 				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					regrandingQuery.Where(() => regradingOfGoodsDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					regrandingQuery.Where(() => regradingOfGoodsDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
@@ -1762,6 +1822,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				&& !FilterViewModel.CounterpartyIds.Any()
 				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source))
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					regrandingQuery.Where(() => regradingOfGoodsDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					regrandingQuery.Where(() => regradingOfGoodsDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
@@ -1852,6 +1917,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalMovement)
 				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Target))
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					queryDriverAttachedTerminalGiveout.Where(() => driverAttachedTerminalGiveoutDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					queryDriverAttachedTerminalGiveout.Where(() => driverAttachedTerminalGiveoutDocumentAlias.CreationDate >= FilterViewModel.StartDate);
@@ -1941,6 +2011,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					|| FilterViewModel.DocumentType == DocumentType.DriverTerminalMovement)
 				&& (!FilterViewModel.WarehouseIds.Any() || FilterViewModel.TargetSource != TargetSource.Source))
 			{
+				if(FilterViewModel.DocumentId != null)
+				{
+					queryDriverAttachedTerminalReturn.Where(() => driverAttachedTerminalReturnDocumentAlias.Id == FilterViewModel.DocumentId);
+				}
+
 				if(FilterViewModel.StartDate != null)
 				{
 					queryDriverAttachedTerminalReturn.Where(() => driverAttachedTerminalReturnDocumentAlias.CreationDate >= FilterViewModel.StartDate);
