@@ -58,6 +58,7 @@ namespace Vodovoz.Domain.Complaints
 		private GenericObservableList<ComplaintArrangementComment> _observableArrangementComments;
 		private IList<ComplaintResultComment> _resultComments = new List<ComplaintResultComment>();
 		private GenericObservableList<ComplaintResultComment> _observableResultComments;
+		private Employee _driver;
 
 		public virtual int Id { get; set; }
 
@@ -152,6 +153,13 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref _complaintSource, value);
 		}
 
+		[Display(Name = "Водитель")]
+		public virtual Employee Driver
+		{
+			get => _driver;
+			set => SetField(ref _driver, value);
+		}
+
 		[Display(Name = "Статус")]
 		public virtual ComplaintStatuses Status
 		{
@@ -172,7 +180,7 @@ namespace Vodovoz.Domain.Complaints
 			get => _resultComments;
 			set => SetField(ref _resultComments, value);
 		}
-		
+
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<ComplaintResultComment> ObservableResultComments
 		{
@@ -186,7 +194,7 @@ namespace Vodovoz.Domain.Complaints
 				return _observableResultComments;
 			}
 		}
-		
+
 		[Display(Name = "Результат по клиенту")]
 		public virtual ComplaintResultOfCounterparty ComplaintResultOfCounterparty
 		{

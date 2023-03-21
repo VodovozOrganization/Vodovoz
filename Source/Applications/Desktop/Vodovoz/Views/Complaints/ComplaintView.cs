@@ -49,6 +49,11 @@ namespace Vodovoz.Views.Complaints
 			
 			yenumcomboStatus.EnumItemSelected += (sender, args) => ViewModel.CloseComplaint((ComplaintStatuses)args.SelectedItem);
 
+			entryDriver.ViewModel = ViewModel.ComplaintDriverEntryViewModel;
+			//entryDriver.Binding.AddSource(ViewModel)
+			//	.AddBinding(vm => vm.CanChangeDetalization, w => w.Sensitive)
+			//	.InitializeFromSource();
+
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date).InitializeFromSource();
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 

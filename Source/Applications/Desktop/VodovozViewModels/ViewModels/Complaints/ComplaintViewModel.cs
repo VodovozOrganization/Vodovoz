@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Autofac.Core.Lifetime;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
@@ -30,10 +31,13 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Complaints;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -128,6 +132,20 @@ namespace Vodovoz.ViewModels.Complaints
 
 			CreateCommands();
 
+			var driverEntryViewModel =
+					new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope)
+					.ForProperty(x => x.Driver)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						filter =>
+						{
+							filter.RestrictCategory = EmployeeCategory.driver;
+						}
+					)
+					.Finish();
+
+			ComplaintDriverEntryViewModel = driverEntryViewModel;
+
 			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
@@ -137,9 +155,9 @@ namespace Vodovoz.ViewModels.Complaints
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
-			var builder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope);
+			var complaintDetalizationEntryViewModelBuilder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope);
 
-			ComplaintDetalizationEntryViewModel = builder
+			ComplaintDetalizationEntryViewModel = complaintDetalizationEntryViewModelBuilder
 				.ForProperty(x => x.ComplaintDetalization)
 				.UseViewModelDialog<ComplaintDetalizationViewModel>()
 				.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel, ComplaintDetalizationJournalFilterViewModel>(
@@ -171,6 +189,8 @@ namespace Vodovoz.ViewModels.Complaints
 
 			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
 		}
+
+		public IEntityEntryViewModel ComplaintDriverEntryViewModel { get; }
 
 		public IEntityEntryViewModel ComplaintDetalizationEntryViewModel { get; }
 

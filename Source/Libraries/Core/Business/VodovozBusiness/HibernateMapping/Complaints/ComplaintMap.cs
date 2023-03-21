@@ -32,6 +32,7 @@ namespace Vodovoz.HibernateMapping.Complaints
 			References(x => x.DeliveryPoint).Column("delivery_point_id");
 			References(x => x.Order).Column("order_id");
 			References(x => x.ComplaintSource).Column("complaint_source_id");
+			References(x => x.Driver).Column("driver_id");
 			References(x => x.ComplaintResultOfCounterparty).Column("complaint_result_of_counterparty_id");
 			References(x => x.ComplaintResultOfEmployees).Column("complaint_result_of_employees_id");
 			References(x => x.ComplaintKind).Column("complaint_kind_id");
