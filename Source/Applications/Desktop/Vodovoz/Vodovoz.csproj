@@ -1885,6 +1885,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyDetailsFromRevenueServiceView.cs" />
     <Compile Include="Filters\Views\TrueMarkReceiptJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.TrueMarkReceiptJournalFilterView.cs" />
+    <Compile Include="Views\Cash\PaymentOnlineView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentOnlineView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
