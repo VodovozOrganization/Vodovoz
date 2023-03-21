@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -2193,7 +2193,10 @@ namespace Vodovoz
 			if((revenueServiceRow.Opf ?? String.Empty).Length > 0 && (revenueServiceRow.OpfFull ?? String.Empty).Length > 0)
 			{
 				Entity.TypeOfOwnership = revenueServiceRow.Opf;
-				
+
+				Entity.Name = $"{revenueServiceRow.Opf} {Entity.Name}";
+				Entity.FullName = $"{revenueServiceRow.Opf} {Entity.FullName}";
+
 				if(!GetAllComboboxOpfValues().Any(t => t == revenueServiceRow.Opf))
 				{
 					AddNewOrganizationOwnershipType(revenueServiceRow.Opf, revenueServiceRow.OpfFull);
