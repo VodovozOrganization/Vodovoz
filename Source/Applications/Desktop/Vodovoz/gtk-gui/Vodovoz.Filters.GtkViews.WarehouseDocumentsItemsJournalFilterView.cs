@@ -67,7 +67,7 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.WarehouseDocumentsItemsJournalFilterView";
 			// Container child Vodovoz.Filters.GtkViews.WarehouseDocumentsItemsJournalFilterView.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(9)), ((uint)(4)), false);
+			this.table1 = new global::Gtk.Table(((uint)(9)), ((uint)(5)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -83,8 +83,8 @@ namespace Vodovoz.Filters.GtkViews
 			this.btnInfo.Image = w1;
 			this.table1.Add(this.btnInfo);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.btnInfo]));
-			w2.LeftAttach = ((uint)(3));
-			w2.RightAttach = ((uint)(4));
+			w2.LeftAttach = ((uint)(4));
+			w2.RightAttach = ((uint)(5));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
