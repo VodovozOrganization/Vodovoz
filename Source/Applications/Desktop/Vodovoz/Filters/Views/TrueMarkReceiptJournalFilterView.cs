@@ -22,7 +22,7 @@ namespace Vodovoz.Filters.Views
 				.InitializeFromSource();
 
 			yenumcomboStatus.ShowSpecialStateAll = true;
-			yenumcomboStatus.ItemsEnum = typeof(TrueMarkCashReceiptOrderStatus);
+			yenumcomboStatus.ItemsEnum = typeof(CashReceiptStatus);
 			yenumcomboStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Status, w => w.SelectedItemOrNull)
 				.InitializeFromSource();

@@ -9,7 +9,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private bool _hasUnscannedReason;
-		private TrueMarkCashReceiptOrderStatus? _status;
+		private CashReceiptStatus? _status;
 		
 
 		public DateTime? StartDate
@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark
 			set => UpdateFilterField(ref _hasUnscannedReason, value);
 		}
 
-		public TrueMarkCashReceiptOrderStatus? Status
+		public CashReceiptStatus? Status
 		{
 			get => _status;
 			set => UpdateFilterField(ref _status, value);

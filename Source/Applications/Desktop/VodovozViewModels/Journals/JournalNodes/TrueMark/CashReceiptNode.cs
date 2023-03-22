@@ -25,14 +25,14 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 		public string DriverLastName { get; set; }
 		public string DriverPatronimyc { get; set; }
 		public string DriverFIO => PersonHelper.PersonNameWithInitials(DriverLastName, DriverName, DriverPatronimyc);
-		public TrueMarkCashReceiptOrderStatus? ReceiptStatus { get; set; }
+		public CashReceiptStatus? ReceiptStatus { get; set; }
 		public string Status
 		{
 			get
 			{
 				if(!ReceiptId.HasValue)
 				{
-					return TrueMarkCashReceiptOrderStatus.ReceiptNotNeeded.GetEnumTitle();
+					return CashReceiptStatus.ReceiptNotNeeded.GetEnumTitle();
 				}
 				return ReceiptStatus.HasValue ? ReceiptStatus.GetEnumTitle() : "";
 			}

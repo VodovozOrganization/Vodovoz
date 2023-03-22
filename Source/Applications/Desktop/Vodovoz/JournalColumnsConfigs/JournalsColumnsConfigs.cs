@@ -75,7 +75,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
 							var color = _colorWhite;
-							if(node.NodeType == CashReceiptNodeType.Order)
+							if(node.NodeType == CashReceiptNodeType.Receipt)
 							{
 								color = _colorLightGray;
 							}

@@ -18,11 +18,16 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 		public string EntityId => Id == 0 ? "" : Id.ToString();
 		public override string Title => $"{EntityId} {Time:dd.MM.yyyy HH:mm:ss}";
 
-
 		public DateTime? Time { get; set; }
 		public int OrderAndItemId { get; set; }
-		public CashReceiptStatus? OrderStatus { get; set; }
-		public string Status => OrderStatus.HasValue ? OrderStatus.GetEnumTitle() : "";
+		public CashReceiptStatus? ReceiptStatus { get; set; }
+		public string Status => ReceiptStatus.HasValue ? ReceiptStatus.GetEnumTitle() : "";
+
+		public int RouteListId { get; set; }
+		public string DriverName { get; set; }
+		public string DriverLastName { get; set; }
+		public string DriverPatronimyc { get; set; }
+
 		public string UnscannedReason { get; set; }
 		public string ErrorDescription { get; set; }
 

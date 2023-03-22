@@ -16,7 +16,7 @@ using System.Timers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.TrueMark;
-using Vodovoz.EntityRepositories.TrueMark;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 	{
 		private readonly TrueMarkReceiptOrderJournalFilterViewModel _filter;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
-		private readonly ITrueMarkRepository _trueMarkRepository;
+		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private Timer _autoRefreshTimer;
 		private int _autoRefreshInterval;
 
@@ -36,19 +36,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			TrueMarkCodesPool trueMarkCodesPool,
-			ITrueMarkRepository trueMarkRepository,
+			ICashReceiptRepository cashReceiptRepository,
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
 			_filter = filter ?? throw new ArgumentNullException(nameof(filter));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
-			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
+			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_autoRefreshInterval = 30;
 
 			Title = "Журнал кодов честного знака";
 			Filter = filter;
 
-			var levelDataLoader = new HierarchicalQueryLoader<TrueMarkCashReceiptOrder, TrueMarkReceiptOrderNode>(unitOfWorkFactory);
+			var levelDataLoader = new HierarchicalQueryLoader<CashReceipt, CashReceiptJournalNode>(unitOfWorkFactory);
 
 			levelDataLoader.SetLevelingModel(GetQuery)
 				.AddNextLevelSource(GetDetails);
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			RecuresiveConfig = levelDataLoader.TreeConfig;
 
-			var threadDataLoader = new ThreadDataLoader<TrueMarkReceiptOrderNode>(unitOfWorkFactory);
+			var threadDataLoader = new ThreadDataLoader<CashReceiptJournalNode>(unitOfWorkFactory);
 			threadDataLoader.DynamicLoadingEnabled = true;
 			threadDataLoader.QueryLoaders.Add(levelDataLoader);
 			DataLoader = threadDataLoader;
@@ -93,8 +93,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				var poolCount = _trueMarkCodesPool.GetTotalCount();
 				var defectivePoolCount = _trueMarkCodesPool.GetDefectiveTotalCount();
 				var autorefreshInfo = GetAutoRefreshInfo();
-				var codeErrorsOrdersCount = _trueMarkRepository.GetCodeErrorsOrdersCount(UoW);
-				return $"Заказов с ошибками кодов: {codeErrorsOrdersCount} | Кодов в пуле: {poolCount}, бракованных: {defectivePoolCount} | {autorefreshInfo} | {base.FooterInfo}";
+				var codeErrorsReceiptCount = _cashReceiptRepository.GetCodeErrorsReceiptCount(UoW);
+				return $"Заказов с ошибками кодов: {codeErrorsReceiptCount} | Кодов в пуле: {poolCount}, бракованных: {defectivePoolCount} | {autorefreshInfo} | {base.FooterInfo}";
 			}
 		}
 
@@ -108,22 +108,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		#region Queries
 
-		private IQueryOver<TrueMarkCashReceiptOrder> GetQuery(IUnitOfWork uow)
+		private IQueryOver<CashReceipt> GetQuery(IUnitOfWork uow)
 		{
-			TrueMarkReceiptOrderNode resultAlias = null;
-			TrueMarkCashReceiptOrder trueMarkOrderAlias = null;
+			CashReceiptJournalNode resultAlias = null;
+			CashReceipt cashReceiptAlias = null;
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
 			Employee driverAlias = null;
 
-			var query = uow.Session.QueryOver(() => trueMarkOrderAlias);
-			query.JoinEntityQueryOver(() => routeListItemAlias, Restrictions.Where(() => trueMarkOrderAlias.Order.Id == routeListItemAlias.Order.Id), JoinType.LeftOuterJoin);
+			var query = uow.Session.QueryOver(() => cashReceiptAlias);
+			query.JoinEntityQueryOver(() => routeListItemAlias, Restrictions.Where(() => cashReceiptAlias.Order.Id == routeListItemAlias.Order.Id), JoinType.LeftOuterJoin);
 			query.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias);
 			query.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias);
 
 			if(_filter.Status.HasValue)
 			{
-				query.Where(Restrictions.Eq(Projections.Property(() => trueMarkOrderAlias.Status), _filter.Status.Value));
+				query.Where(Restrictions.Eq(Projections.Property(() => cashReceiptAlias.Status), _filter.Status.Value));
 			}
 
 			if(_filter.StartDate.HasValue)
@@ -133,7 +133,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 					Restrictions.Ge(
 						Projections.SqlFunction("DATE",
 							NHibernateUtil.Date,
-							Projections.Property(() => trueMarkOrderAlias.Date)),
+							Projections.Property(() => cashReceiptAlias.CreateDate)),
 						startDate
 					)
 				);
@@ -146,7 +146,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 					Restrictions.Le(
 						Projections.SqlFunction("DATE",
 							NHibernateUtil.Date,
-							Projections.Property(() => trueMarkOrderAlias.Date)),
+							Projections.Property(() => cashReceiptAlias.CreateDate)),
 						endDate
 					)
 				);
@@ -154,66 +154,65 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			if(_filter.HasUnscannedReason)
 			{
-				query.Where(Restrictions.Eq(Projections.SqlFunction("IS_NULL_OR_WHITESPACE", NHibernateUtil.Boolean, Projections.Property(() => trueMarkOrderAlias.UnscannedCodesReason)), false));
+				query.Where(Restrictions.Eq(Projections.SqlFunction("IS_NULL_OR_WHITESPACE", NHibernateUtil.Boolean, Projections.Property(() => cashReceiptAlias.UnscannedCodesReason)), false));
 			}
 
 			query.Where(
 				GetSearchCriterion(
-					() => trueMarkOrderAlias.Id,
-					() => trueMarkOrderAlias.Order.Id,
-					() => trueMarkOrderAlias.UnscannedCodesReason
+					() => cashReceiptAlias.Id,
+					() => cashReceiptAlias.Order.Id,
+					() => cashReceiptAlias.UnscannedCodesReason
 				)
 			);
 
 			query.SelectList(list => list
-				.SelectGroup(() => trueMarkOrderAlias.Id).WithAlias(() => resultAlias.Id)
-				.Select(Projections.Constant(TrueMarkOrderNodeType.Order)).WithAlias(() => resultAlias.NodeType)
-				.Select(Projections.Property(() => trueMarkOrderAlias.Date)).WithAlias(() => resultAlias.Time)
-				.Select(Projections.Property(() => trueMarkOrderAlias.Order.Id)).WithAlias(() => resultAlias.OrderAndItemId)
+				.SelectGroup(() => cashReceiptAlias.Id).WithAlias(() => resultAlias.Id)
+				.Select(Projections.Constant(CashReceiptNodeType.Receipt)).WithAlias(() => resultAlias.NodeType)
+				.Select(Projections.Property(() => cashReceiptAlias.CreateDate)).WithAlias(() => resultAlias.Time)
+				.Select(Projections.Property(() => cashReceiptAlias.Order.Id)).WithAlias(() => resultAlias.OrderAndItemId)
 				.Select(Projections.Property(() => routeListAlias.Id)).WithAlias(() => resultAlias.RouteListId)
 				.Select(Projections.Property(() => driverAlias.Name)).WithAlias(() => resultAlias.DriverName)
 				.Select(Projections.Property(() => driverAlias.LastName)).WithAlias(() => resultAlias.DriverLastName)
 				.Select(Projections.Property(() => driverAlias.Patronymic)).WithAlias(() => resultAlias.DriverPatronimyc)
-				.Select(Projections.Property(() => trueMarkOrderAlias.Status)).WithAlias(() => resultAlias.OrderStatus)
-				.Select(Projections.Property(() => trueMarkOrderAlias.UnscannedCodesReason)).WithAlias(() => resultAlias.UnscannedReason)
-				.Select(Projections.Property(() => trueMarkOrderAlias.ErrorDescription)).WithAlias(() => resultAlias.ErrorDescription)
-				.Select(Projections.Property(() => trueMarkOrderAlias.CashReceipt.Id)).WithAlias(() => resultAlias.ReceiptId)
+				.Select(Projections.Property(() => cashReceiptAlias.Status)).WithAlias(() => resultAlias.ReceiptStatus)
+				.Select(Projections.Property(() => cashReceiptAlias.UnscannedCodesReason)).WithAlias(() => resultAlias.UnscannedReason)
+				.Select(Projections.Property(() => cashReceiptAlias.ErrorDescription)).WithAlias(() => resultAlias.ErrorDescription)
 			)
-			.OrderByAlias(() => trueMarkOrderAlias.Id).Desc()
-			.TransformUsing(Transformers.AliasToBean<TrueMarkReceiptOrderNode>());
+			.OrderByAlias(() => cashReceiptAlias.Id).Desc()
+			.TransformUsing(Transformers.AliasToBean<CashReceiptJournalNode>());
 
 			return query;
 		}
 
-		private IList<TrueMarkReceiptOrderNode> GetDetails(IEnumerable<TrueMarkReceiptOrderNode> parentNodes)
+		private IList<CashReceiptJournalNode> GetDetails(IEnumerable<CashReceiptJournalNode> parentNodes)
 		{
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				TrueMarkCashReceiptProductCode trueMarkReceiptCodeAlias = null;
-				TrueMarkWaterIdentificationCode trueMarkSourceCodeAlias = null;
-				TrueMarkWaterIdentificationCode trueMarkResultCodeAlias = null;
-				TrueMarkReceiptOrderNode resultAlias = null;
+				CashReceiptProductCode productCodeAlias = null;
+				TrueMarkWaterIdentificationCode sourceCodeAlias = null;
+				TrueMarkWaterIdentificationCode resultCodeAlias = null;
+				CashReceiptJournalNode resultAlias = null;
 
-				var query = uow.Session.QueryOver(() => trueMarkReceiptCodeAlias)
-					.Left.JoinAlias(() => trueMarkReceiptCodeAlias.SourceCode, () => trueMarkSourceCodeAlias)
-					.Left.JoinAlias(() => trueMarkReceiptCodeAlias.ResultCode, () => trueMarkResultCodeAlias)
-					.Where(Restrictions.In(Projections.Property(() => trueMarkReceiptCodeAlias.TrueMarkCashReceiptOrder.Id), parentNodes.Select(x => x.Id).ToArray()));
+				var query = uow.Session.QueryOver(() => productCodeAlias)
+					.Left.JoinAlias(() => productCodeAlias.SourceCode, () => sourceCodeAlias)
+					.Left.JoinAlias(() => productCodeAlias.ResultCode, () => resultCodeAlias)
+					.Where(Restrictions.In(Projections.Property(() => productCodeAlias.CashReceipt.Id), parentNodes.Select(x => x.Id).ToArray()));
 
 				query.SelectList(list => list
-					.SelectGroup(() => trueMarkReceiptCodeAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(Projections.Constant(TrueMarkOrderNodeType.Code)).WithAlias(() => resultAlias.NodeType)
-					.Select(() => trueMarkReceiptCodeAlias.TrueMarkCashReceiptOrder.Id).WithAlias(() => resultAlias.ParentId)
-					.Select(() => trueMarkReceiptCodeAlias.OrderItem.Id).WithAlias(() => resultAlias.OrderAndItemId)
-					.Select(() => trueMarkReceiptCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsDefectiveCode)
-					.Select(() => trueMarkReceiptCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateCode)
-					.Select(() => trueMarkSourceCodeAlias.GTIN).WithAlias(() => resultAlias.SourceGtin)
-					.Select(() => trueMarkSourceCodeAlias.SerialNumber).WithAlias(() => resultAlias.SourceSerialnumber)
-					.Select(() => trueMarkResultCodeAlias.GTIN).WithAlias(() => resultAlias.ResultGtin)
-					.Select(() => trueMarkResultCodeAlias.SerialNumber).WithAlias(() => resultAlias.ResultSerialnumber)
+					.SelectGroup(() => productCodeAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(Projections.Constant(CashReceiptNodeType.Code)).WithAlias(() => resultAlias.NodeType)
+					.Select(() => productCodeAlias.CashReceipt.Id).WithAlias(() => resultAlias.ParentId)
+					.Select(() => productCodeAlias.OrderItem.Id).WithAlias(() => resultAlias.OrderAndItemId)
+					.Select(() => productCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsDefectiveCode)
+					.Select(() => productCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateCode)
+					.Select(() => sourceCodeAlias.GTIN).WithAlias(() => resultAlias.SourceGtin)
+					.Select(() => sourceCodeAlias.SerialNumber).WithAlias(() => resultAlias.SourceSerialnumber)
+					.Select(() => resultCodeAlias.GTIN).WithAlias(() => resultAlias.ResultGtin)
+					.Select(() => resultCodeAlias.SerialNumber).WithAlias(() => resultAlias.ResultSerialnumber)
 				)
-				.TransformUsing(Transformers.AliasToBean<TrueMarkReceiptOrderNode>());
+				.TransformUsing(Transformers.AliasToBean<CashReceiptJournalNode>());
 
-				return query.List<TrueMarkReceiptOrderNode>();
+				return query.List<CashReceiptJournalNode>();
 			}
 		}
 
@@ -222,7 +221,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private int GetCount(IUnitOfWork uow)
 		{
 			var query = GetQuery(uow);
-			var count = query.List<TrueMarkReceiptOrderNode>().Count();
+			var count = query.List<CashReceiptJournalNode>().Count();
 			return count;
 		}
 

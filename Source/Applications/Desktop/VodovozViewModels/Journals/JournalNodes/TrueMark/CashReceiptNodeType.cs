@@ -2,7 +2,7 @@
 {
 	public enum CashReceiptNodeType
 	{
-		Order,
+		Receipt,
 		Code
 	}
 }
