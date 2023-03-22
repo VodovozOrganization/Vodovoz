@@ -779,14 +779,14 @@ namespace Vodovoz
 				lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
 
-				if(Entity.SelfDelivery)
-				{
-					enumPaymentType.AddEnumToHideList(PaymentType.Terminal);
-				}
-				else
-				{
-					enumPaymentType.RemoveEnumFromHideList(PaymentType.Terminal);
-				}
+				//if(Entity.SelfDelivery)
+				//{
+				//	enumPaymentType.AddEnumToHideList(PaymentType.Terminal);
+				//}
+				//else
+				//{
+				//	enumPaymentType.RemoveEnumFromHideList(PaymentType.Terminal);
+				//}
 
 				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 				enumPaymentType.SelectedItem = Entity.PaymentType;
@@ -2921,12 +2921,12 @@ namespace Vodovoz
 				chkPaymentByQr.Visible = true;
 			}
 
-			if(Entity.PaymentType == PaymentType.Terminal) {
-				checkSelfDelivery.Visible = checkSelfDelivery.Active = false;
-			}
-			else {
-				checkSelfDelivery.Visible = true;
-			}
+			//if(Entity.PaymentType == PaymentType.Terminal) {
+			//	checkSelfDelivery.Visible = checkSelfDelivery.Active = false;
+			//}
+			//else {
+			//	checkSelfDelivery.Visible = true;
+			//}
 
 			enumSignatureType.Visible = labelSignatureType.Visible =
 				Entity.Client != null && (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless);
