@@ -520,9 +520,15 @@ namespace Vodovoz
 		protected void OnButtonSetStatusCompleteClicked(object sender, EventArgs e)
 		{
 			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
-			foreach(RouteListKeepingItemNode item in selectedObjects) {
+			foreach(RouteListKeepingItemNode item in selectedObjects) 
+			{
 				if(item.Status == RouteListItemStatus.Transfered)
+				{
 					continue;
+				}
+
+				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, item.RouteListItem, item.RouteListItem.Status, RouteListItemStatus.Completed);
+
 				Entity.ChangeAddressStatusAndCreateTask(UoW, item.RouteListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
 			}
 		}
