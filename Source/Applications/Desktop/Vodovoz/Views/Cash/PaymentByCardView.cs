@@ -28,15 +28,15 @@ namespace Vodovoz.Views.Cash
 				w => w.Text,
 				new NullableIntToStringConverter()).InitializeFromSource();
 			
-			comboPaymentFrom.SetRenderTextFunc<PaymentFrom>(x => x.Name);
+			//comboPaymentFrom.SetRenderTextFunc<PaymentFrom>(x => x.Name);
 
-            comboPaymentFrom.Binding.AddBinding(ViewModel,
-                vm => vm.ItemsList, w => w.ItemsList)
-                .InitializeFromSource();
+   //         comboPaymentFrom.Binding.AddBinding(ViewModel,
+   //             vm => vm.ItemsList, w => w.ItemsList)
+   //             .InitializeFromSource();
 
-            comboPaymentFrom.Binding.AddBinding(ViewModel,
-				vm => vm.PaymentByCardFrom, w => w.SelectedItem)
-                .InitializeFromSource();
+   //         comboPaymentFrom.Binding.AddBinding(ViewModel,
+			//	vm => vm.PaymentByCardFrom, w => w.SelectedItem)
+   //             .InitializeFromSource();
         }
 	}
 }
