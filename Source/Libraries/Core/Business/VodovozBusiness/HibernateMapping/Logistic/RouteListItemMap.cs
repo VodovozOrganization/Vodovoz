@@ -29,7 +29,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.StatusLastUpdate)                 .Column("status_last_update");
 			Map(x => x.Comment)                          .Column("comment").Length(150);
 			Map(x => x.Status)                           .Column("status").CustomType<RouteListItemStatusStringType>();
-			Map(x => x.NeedToReload)                     .Column("need_to_reload");
+			Map(x => x.AddressTransferType)              .Column("address_transfer_type").CustomType<AddressTransferTypeStringType>();
 			Map(x => x.WasTransfered)                    .Column("was_transfered");
 			Map(x => x.CashierComment)                   .Column("cashier_comment");
 			Map(x => x.CashierCommentCreateDate)         .Column("cashier_comment_create_date");

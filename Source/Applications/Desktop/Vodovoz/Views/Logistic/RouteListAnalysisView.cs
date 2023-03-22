@@ -12,6 +12,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewWidgets.Logistics;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -63,6 +65,14 @@ namespace Vodovoz.Views.Logistic
 			UpdateBottlesSummaryInfo();
 
 			ViewModel.UpdateTreeAddresses += UpdateTreeAddresses;
+
+			var deliveryFreeBalanceViewModel = new DeliveryFreeBalanceViewModel();
+			var deliveryfreebalanceview = new DeliveryFreeBalanceView(deliveryFreeBalanceViewModel);
+			deliveryfreebalanceview.Binding
+				.AddBinding(ViewModel.Entity, e => e.ObservableDeliveryFreeBalanceOperations, w => w.ObservableDeliveryFreeBalanceOperations)
+				.InitializeFromSource();
+			deliveryfreebalanceview.ShowAll();
+			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
 		}
 
 		private void ConfigureTreeViewAddresses()
