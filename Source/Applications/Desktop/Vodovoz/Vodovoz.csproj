@@ -536,6 +536,7 @@
     <Compile Include="JournalColumnsConfigs\WageDistrictLevelRatesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WageDistrictsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WarehouseJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\OrdersWithReceiptsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WaterJournalRegistrar.cs" />
     <Compile Include="JournalNodes\CarModelJournalNode.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />

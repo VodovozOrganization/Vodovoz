@@ -7,6 +7,4 @@ namespace Vodovoz.Models.CashReceipts
 	{
 		IEnumerable<CashboxSetting> GetCashBoxSettings();
 	}
-
-	
 }

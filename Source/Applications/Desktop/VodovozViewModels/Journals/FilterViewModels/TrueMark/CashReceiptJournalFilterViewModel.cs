@@ -4,7 +4,7 @@ using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark
 {
-	public class TrueMarkReceiptOrderJournalFilterViewModel : FilterViewModelBase<TrueMarkReceiptOrderJournalFilterViewModel>
+	public class CashReceiptJournalFilterViewModel : FilterViewModelBase<CashReceiptJournalFilterViewModel>
 	{
 		private DateTime? _startDate;
 		private DateTime? _endDate;

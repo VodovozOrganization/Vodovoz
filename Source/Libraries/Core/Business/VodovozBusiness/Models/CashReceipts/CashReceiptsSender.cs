@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.CashReceipts.DTO;
-using ApiFiscalStatus = Vodovoz.Models.CashReceipts.DTO.FiscalDocumentStatus;
-using DomainFiscalStatus = Vodovoz.Domain.TrueMark.FiscalDocumentStatus;
+using Vodovoz.Models.TrueMark;
 
 namespace Vodovoz.Models.CashReceipts
 {
@@ -22,13 +21,15 @@ namespace Vodovoz.Models.CashReceipts
 		private readonly FiscalDocumentPreparer _fiscalDocumentPreparer;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly CashReceiptDistributor _cashReceiptDistributor;
+		private readonly FiscalizationResultSaver _fiscalizationResultSaver;
 
 		public CashReceiptsSender(
 			ILogger<CashReceiptsSender> logger,
 			IUnitOfWorkFactory uowFactory,
 			FiscalDocumentPreparer fiscalDocumentPreparer,
 			ICashReceiptRepository cashReceiptRepository,
-			CashReceiptDistributor cashReceiptDistributor
+			CashReceiptDistributor cashReceiptDistributor,
+			FiscalizationResultSaver fiscalizationResultSaver
 		)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -36,6 +37,7 @@ namespace Vodovoz.Models.CashReceipts
 			_fiscalDocumentPreparer = fiscalDocumentPreparer ?? throw new ArgumentNullException(nameof(fiscalDocumentPreparer));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_cashReceiptDistributor = cashReceiptDistributor ?? throw new ArgumentNullException(nameof(cashReceiptDistributor));
+			_fiscalizationResultSaver = fiscalizationResultSaver ?? throw new ArgumentNullException(nameof(fiscalizationResultSaver));
 		}
 
 		public async Task PrepareAndSendAsync(CancellationToken cancellationToken)
@@ -114,34 +116,10 @@ namespace Vodovoz.Models.CashReceipts
 				else
 				{
 					receipt.Status = CashReceiptStatus.Sended;
-					receipt.FiscalDocumentStatus = ConvertStatus(fiscalizationResult.Status);
-					receipt.FiscalDocumentNumber = fiscalizationResult.FiscalDocumentNumber;
-					receipt.FiscalDocumentDate = fiscalizationResult.FiscalDocumentDate;
-					receipt.FiscalDocumentStatusChangeTime = fiscalizationResult.StatusChangedTime;
+					_fiscalizationResultSaver.SaveResult(receipt, fiscalizationResult);
 				}
 
 				uow.Save(receipt);
-			}
-		}
-
-		private DomainFiscalStatus ConvertStatus(ApiFiscalStatus status)
-		{
-			switch(status)
-			{
-				case ApiFiscalStatus.Queued:
-					return DomainFiscalStatus.Queued;
-				case ApiFiscalStatus.Pending:
-					return DomainFiscalStatus.Pending;
-				case ApiFiscalStatus.Printed:
-					return DomainFiscalStatus.Printed;
-				case ApiFiscalStatus.WaitForCallback:
-					return DomainFiscalStatus.WaitForCallback;
-				case ApiFiscalStatus.Completed:
-					return DomainFiscalStatus.Completed;
-				case ApiFiscalStatus.Failed:
-					return DomainFiscalStatus.Failed;
-				default:
-					throw new InvalidOperationException($"Невозможно сконвертировать статус фискального документа. Неизвестный статус {status}");
 			}
 		}
 	}

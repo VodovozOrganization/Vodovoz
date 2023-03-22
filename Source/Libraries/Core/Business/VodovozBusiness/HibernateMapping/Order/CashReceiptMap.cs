@@ -25,7 +25,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.ManualSent).Column("manual_sent");
 
 			HasMany(x => x.ScannedCodes).Cascade.AllDeleteOrphan().Not.LazyLoad().Inverse()
-				.KeyColumn("true_mark_cash_receipt_order_id");
+				.KeyColumn("cash_receipt_id");
 		}
 	}
 }

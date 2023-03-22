@@ -19,7 +19,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
@@ -27,17 +26,17 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
-	public class ReceiptsJournalViewModel : JournalViewModelBase
+	public class OrdersWithReceiptsJournalViewModel : JournalViewModelBase
 	{
-		private readonly TrueMarkReceiptOrderJournalFilterViewModel _filter;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly IFileDialogService _fileDialogService;
+		private CashReceiptJournalFilterViewModel _filter;
 		private Timer _autoRefreshTimer;
 		private int _autoRefreshInterval;
 
-		public ReceiptsJournalViewModel(
-			TrueMarkReceiptOrderJournalFilterViewModel filter,
+		public OrdersWithReceiptsJournalViewModel(
+			CashReceiptJournalFilterViewModel filter,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			TrueMarkCodesPool trueMarkCodesPool,
@@ -46,14 +45,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
-			_filter = filter ?? throw new ArgumentNullException(nameof(filter));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
+
 			_autoRefreshInterval = 30;
 
-			Title = "Журнал чеков";
-			Filter = filter;
+			Title = "Журнал заказов с чеками";
 
 			var loader = new ThreadDataLoader<CashReceiptNode>(unitOfWorkFactory);
 			loader.AddQuery(GetQuery);
@@ -64,17 +63,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			StartAutoRefresh();
 		}
 
-		private IJournalFilter filter;
-		public IJournalFilter Filter
+		public CashReceiptJournalFilterViewModel Filter
 		{
-			get => filter;
+			get => _filter;
 			protected set
 			{
-				if(filter != null)
-					filter.OnFiltered -= FilterViewModel_OnFiltered;
-				filter = value;
-				if(filter != null)
-					filter.OnFiltered += FilterViewModel_OnFiltered;
+				if(_filter != null)
+				{
+					_filter.OnFiltered -= FilterViewModel_OnFiltered;
+				}
+
+				_filter = value;
+				if(_filter != null)
+				{
+					_filter.OnFiltered += FilterViewModel_OnFiltered;
+				}
 			}
 		}
 
@@ -210,13 +213,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		}
 
 		#endregion Queries
-
-		private int GetCount(IUnitOfWork uow)
-		{
-			var query = GetQuery(uow, true);
-			var count = query.List<CashReceiptNode>().Count();
-			return count;
-		}
 
 		#region Autorefresh
 

@@ -54,53 +54,40 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			TreeViewColumnsConfigFactory.Register<TrueMarkReceiptOrdersRegistryJournalViewModel>(
+			TreeViewColumnsConfigFactory.Register<CashReceiptsJournalViewModel>(
 				(vm) => FluentColumnsConfig<CashReceiptJournalNode>.Create()
 					.SetTreeModel(() => new RecursiveTreeModel<CashReceiptJournalNode>(vm.Items.Cast<CashReceiptJournalNode>(), vm.RecuresiveConfig))
-					.AddColumn("Код").AddNumericRenderer(node => node.EntityId)
-					.AddColumn("Время").AddTextRenderer(node => node.Time.HasValue ? node.Time.Value.ToString("dd.MM.yyyy HH:mm:ss") : "")
-					.AddColumn("Статус").AddTextRenderer(node => node.Status)
-					.AddColumn("Код заказа или\nстроки заказа").AddNumericRenderer(node => node.OrderAndItemId).Digits(0)
-					.AddColumn("Брак").AddToggleRenderer(node => node.IsDefectiveCode).Editing(false)
-					.AddColumn("Дубль").AddToggleRenderer(node => node.IsDuplicateCode).Editing(false)
-					.AddColumn("Чек").AddToggleRenderer(node => node.HasReceipt).Editing(false)
-					.AddColumn("Источник\nGTIN").AddTextRenderer(node => node.SourceGtin)
-					.AddColumn("Источник\nСерийный номер").AddTextRenderer(node => node.SourceSerialnumber)
-					.AddColumn("Результат\nGTIN").AddTextRenderer(node => node.ResultGtin)
-					.AddColumn("Результат\nСерийный номер").AddTextRenderer(node => node.ResultSerialnumber)
-					.AddColumn("Причина не отскани-\nрованных бутылей").AddTextRenderer(node => node.UnscannedReason).WrapMode(Pango.WrapMode.Word).WrapWidth(400)
-					.AddColumn("Описание ошибки").AddTextRenderer(node => node.ErrorDescription).WrapMode(Pango.WrapMode.Word).WrapWidth(400)
+					.AddColumn(" ┯ Код чека\n └ Код маркир. ").AddNumericRenderer(node => node.ReceiptOrProductCodeId).Editing(false)
+					.AddColumn(" ━ Создан \n").AddTextRenderer(node => node.CreatedTime)
+					.AddColumn(" ━ Изменен \n").AddTextRenderer(node => node.ChangedTime)
+					.AddColumn(" ━ Статус \n").AddTextRenderer(node => node.Status)
+					.AddColumn(" ━ Сумма \n").AddNumericRenderer(node => node.ReceiptSum).Digits(2).Editing(false)
+					.AddColumn(" ━ Код МЛ \n").AddNumericRenderer(node => node.RouteListId).Editing(false)	
+					.AddColumn(" ━ Водитель \n").AddTextRenderer(node => node.DriverFIO)
+					.AddColumn(" ┯ Код заказа\n └ Код стр. заказа ").AddNumericRenderer(node => node.OrderAndItemId).Digits(0).Editing(false)
+
+					.AddColumn(" ┯ Статус фиск. док.\n └ Исх. GTIN ").AddTextRenderer(node => node.FiscalDocStatusOrSourceGtin)
+					.AddColumn(" ┯ Номер фиск. док.\n └ Исх. Сер. номер ").AddTextRenderer(node => node.FiscalDocNumberOrSourceCodeInfo)
+					.AddColumn(" ┯ Дата фиск. док.\n └ Итог. GTIN ").AddTextRenderer(node => node.FiscalDocDateOrResultGtin)
+					.AddColumn(" ┯ Дата статуса фиск. док.\n └ Итог. Сер. номер ").AddTextRenderer(node => node.FiscalDocStatusDateOrResultSerialnumber)
+
+
+					.AddColumn(" ┯ Ручная отправка\n └ Брак ").AddToggleRenderer(node => node.IsManualSentOrIsDefectiveCode).Editing(false)
+
+					.AddColumn(" ━ Причина не отскан. бутылей \n").AddTextRenderer(node => node.UnscannedReason).WrapMode(Pango.WrapMode.Word).WrapWidth(350)
+					.AddColumn(" ━ Описание ошибки \n ").AddTextRenderer(node => node.ErrorDescription).WrapMode(Pango.WrapMode.Word).WrapWidth(350)
 					.AddColumn("")
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
 							var color = _colorWhite;
-							if(node.NodeType == CashReceiptNodeType.Receipt)
+							if(node.NodeType == CashReceiptNodeType.Code)
 							{
 								color = _colorLightGray;
 							}
 							cell.CellBackgroundGdk = color;
 						}
 					)
-					.Finish()
-			);
-
-			TreeViewColumnsConfigFactory.Register<ReceiptsJournalViewModel>(
-				(vm) => FluentColumnsConfig<CashReceiptNode>.Create()
-					.AddColumn("Код заказа").AddNumericRenderer(node => node.OrderId)
-					.AddColumn("Дата доставки").AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToString("dd.MM.yyyy") : "")
-					.AddColumn("Сумма").AddNumericRenderer(node => node.OrderSum)
-					.AddColumn("Тип оплаты").AddTextRenderer(node => node.PaymentType)
-					.AddColumn("Самовывоз").AddToggleRenderer(node => node.IsSelfdelivery).Editing(false)
-					.AddColumn("Код чека").AddNumericRenderer(node => node.ReceiptId)
-					.AddColumn("Время чека").AddTextRenderer(node => node.ReceiptTime.HasValue ? node.ReceiptTime.Value.ToString("dd.MM.yyyy HH:mm:ss") : "")
-					.AddColumn("Статус").AddTextRenderer(node => node.Status)
-					.AddColumn("МЛ").AddNumericRenderer(node => node.RouteListId).Digits(0)
-					.AddColumn("Водитель").AddTextRenderer(node => node.DriverFIO)
-					.AddColumn("Причина не отскани-\nрованных бутылей").AddTextRenderer(node => node.UnscannedReason).WrapMode(Pango.WrapMode.Word).WrapWidth(400)
-					.AddColumn("Описание ошибки").AddTextRenderer(node => node.ErrorDescription).WrapMode(Pango.WrapMode.Word).WrapWidth(400)
-					.AddColumn("")
-					.RowCells()
 					.Finish()
 			);
 		}

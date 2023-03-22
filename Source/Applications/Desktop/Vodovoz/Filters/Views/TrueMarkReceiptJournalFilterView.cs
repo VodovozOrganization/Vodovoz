@@ -6,9 +6,9 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 namespace Vodovoz.Filters.Views
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class TrueMarkReceiptJournalFilterView : FilterViewBase<TrueMarkReceiptOrderJournalFilterViewModel>
+	public partial class TrueMarkReceiptJournalFilterView : FilterViewBase<CashReceiptJournalFilterViewModel>
 	{
-		public TrueMarkReceiptJournalFilterView(TrueMarkReceiptOrderJournalFilterViewModel viewModel) : base(viewModel)
+		public TrueMarkReceiptJournalFilterView(CashReceiptJournalFilterViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();

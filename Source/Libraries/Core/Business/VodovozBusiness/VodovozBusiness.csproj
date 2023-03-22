@@ -548,9 +548,8 @@
     <Compile Include="HibernateMapping\Security\RegisteredRMMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\StoredEmails\CounterpartyEmailMap.cs" />
-    <Compile Include="HibernateMapping\TrueMark\TrueMarkCashReceiptOrderMap.cs" />
     <Compile Include="HibernateMapping\TrueMark\TrueMarkWaterIdentificationCodeMap.cs" />
-    <Compile Include="HibernateMapping\TrueMark\TrueMarkCashReceiptProductCodeMap.cs" />
+    <Compile Include="HibernateMapping\TrueMark\CashReceiptProductCodeMap.cs" />
     <Compile Include="HibernateMapping\Users\AvailableDatabaseMap.cs" />
     <Compile Include="HibernateMapping\Users\DatabasePrivilegeMap.cs" />
     <Compile Include="HibernateMapping\Users\GlobalPrivilegeMap.cs" />
@@ -610,9 +609,11 @@
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
+    <Compile Include="Models\TrueMark\FiscalizationResultSaver.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkOrderItemScannedInfo.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkOrderScannedInfo.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkWaterCode.cs" />
+    <Compile Include="Models\TrueMark\ReceiptManualController.cs" />
     <Compile Include="Models\TrueMark\ReceiptPreparer.cs" />
     <Compile Include="Models\TrueMark\ReceiptPreparerFactory.cs" />
     <Compile Include="Models\TrueMark\SelfdeliveryReceiptCreatorFactory.cs" />

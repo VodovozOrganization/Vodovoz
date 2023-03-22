@@ -23,30 +23,34 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
-	public class TrueMarkReceiptOrdersRegistryJournalViewModel : JournalViewModelBase
+	public class CashReceiptsJournalViewModel : JournalViewModelBase
 	{
-		private readonly TrueMarkReceiptOrderJournalFilterViewModel _filter;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
+		private readonly ReceiptManualController _receiptManualController;
+		private CashReceiptJournalFilterViewModel _filter;
 		private Timer _autoRefreshTimer;
 		private int _autoRefreshInterval;
 
-		public TrueMarkReceiptOrdersRegistryJournalViewModel(
-			TrueMarkReceiptOrderJournalFilterViewModel filter,
+		public CashReceiptsJournalViewModel(
+			CashReceiptJournalFilterViewModel filter,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			TrueMarkCodesPool trueMarkCodesPool,
 			ICashReceiptRepository cashReceiptRepository,
+			ReceiptManualController receiptManualController,
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
-			_filter = filter ?? throw new ArgumentNullException(nameof(filter));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
+			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
+
+			Filter = filter ?? throw new ArgumentNullException(nameof(filter)); ;
+
 			_autoRefreshInterval = 30;
 
-			Title = "Журнал кодов честного знака";
-			Filter = filter;
+			Title = "Журнал чеков";
 
 			var levelDataLoader = new HierarchicalQueryLoader<CashReceipt, CashReceiptJournalNode>(unitOfWorkFactory);
 
@@ -62,20 +66,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			DataLoader = threadDataLoader;
 
 			CreateNodeActions();
+			CreatePopupActions();
 			StartAutoRefresh();
 		}
 
-		private IJournalFilter filter;
-		public IJournalFilter Filter
+		public CashReceiptJournalFilterViewModel Filter
 		{
-			get => filter;
+			get => _filter;
 			protected set
 			{
-				if(filter != null)
-					filter.OnFiltered -= FilterViewModel_OnFiltered;
-				filter = value;
-				if(filter != null)
-					filter.OnFiltered += FilterViewModel_OnFiltered;
+				if(_filter != null)
+				{
+					_filter.OnFiltered -= FilterViewModel_OnFiltered;
+				}
+
+				_filter = value;
+				if(_filter != null)
+				{
+					_filter.OnFiltered += FilterViewModel_OnFiltered;
+				}
 			}
 		}
 
@@ -104,6 +113,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		{
 			NodeActionsList.Clear();
 			CreateAutorefreshAction();
+			CreateNodeManualSendAction();
+		}
+
+		protected override void CreatePopupActions()
+		{
+			PopupActionsList.Clear();
+			CreatePopupManualSendAction();
 		}
 
 		#region Queries
@@ -168,13 +184,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			query.SelectList(list => list
 				.SelectGroup(() => cashReceiptAlias.Id).WithAlias(() => resultAlias.Id)
 				.Select(Projections.Constant(CashReceiptNodeType.Receipt)).WithAlias(() => resultAlias.NodeType)
-				.Select(Projections.Property(() => cashReceiptAlias.CreateDate)).WithAlias(() => resultAlias.Time)
-				.Select(Projections.Property(() => cashReceiptAlias.Order.Id)).WithAlias(() => resultAlias.OrderAndItemId)
+				.Select(Projections.Property(() => cashReceiptAlias.CreateDate)).WithAlias(() => resultAlias.Created)
+				.Select(Projections.Property(() => cashReceiptAlias.UpdateDate)).WithAlias(() => resultAlias.Changed)
+				.Select(Projections.Property(() => cashReceiptAlias.Status)).WithAlias(() => resultAlias.ReceiptStatus)
+				.Select(Projections.Property(() => cashReceiptAlias.Sum)).WithAlias(() => resultAlias.ReceiptSum)
 				.Select(Projections.Property(() => routeListAlias.Id)).WithAlias(() => resultAlias.RouteListId)
 				.Select(Projections.Property(() => driverAlias.Name)).WithAlias(() => resultAlias.DriverName)
 				.Select(Projections.Property(() => driverAlias.LastName)).WithAlias(() => resultAlias.DriverLastName)
 				.Select(Projections.Property(() => driverAlias.Patronymic)).WithAlias(() => resultAlias.DriverPatronimyc)
-				.Select(Projections.Property(() => cashReceiptAlias.Status)).WithAlias(() => resultAlias.ReceiptStatus)
+				.Select(Projections.Property(() => cashReceiptAlias.Order.Id)).WithAlias(() => resultAlias.OrderAndItemId)
+				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentStatus)).WithAlias(() => resultAlias.FiscalDocStatus)
+				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentNumber)).WithAlias(() => resultAlias.FiscalDocNumber)
+				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentDate)).WithAlias(() => resultAlias.FiscalDocDate)
+				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentStatusChangeTime)).WithAlias(() => resultAlias.FiscalDocStatusDate)
+				.Select(Projections.Property(() => cashReceiptAlias.ManualSent)).WithAlias(() => resultAlias.IsManualSentOrIsDefectiveCode)
 				.Select(Projections.Property(() => cashReceiptAlias.UnscannedCodesReason)).WithAlias(() => resultAlias.UnscannedReason)
 				.Select(Projections.Property(() => cashReceiptAlias.ErrorDescription)).WithAlias(() => resultAlias.ErrorDescription)
 			)
@@ -203,12 +226,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 					.Select(Projections.Constant(CashReceiptNodeType.Code)).WithAlias(() => resultAlias.NodeType)
 					.Select(() => productCodeAlias.CashReceipt.Id).WithAlias(() => resultAlias.ParentId)
 					.Select(() => productCodeAlias.OrderItem.Id).WithAlias(() => resultAlias.OrderAndItemId)
-					.Select(() => productCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsDefectiveCode)
-					.Select(() => productCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateCode)
 					.Select(() => sourceCodeAlias.GTIN).WithAlias(() => resultAlias.SourceGtin)
-					.Select(() => sourceCodeAlias.SerialNumber).WithAlias(() => resultAlias.SourceSerialnumber)
+					.Select(() => productCodeAlias.IsUnscannedSourceCode).WithAlias(() => resultAlias.IsUnscannedProductCode)
+					.Select(() => productCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateProductCode)
+					.Select(() => sourceCodeAlias.SerialNumber).WithAlias(() => resultAlias.SourceCodeSerialNumber)
 					.Select(() => resultCodeAlias.GTIN).WithAlias(() => resultAlias.ResultGtin)
 					.Select(() => resultCodeAlias.SerialNumber).WithAlias(() => resultAlias.ResultSerialnumber)
+					.Select(() => productCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsManualSentOrIsDefectiveCode)
 				)
 				.TransformUsing(Transformers.AliasToBean<CashReceiptJournalNode>());
 
@@ -282,5 +306,66 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		}
 
 		#endregion Autorefresh
+
+		#region Manual send
+
+		private void CreatePopupManualSendAction()
+		{
+			var manualSentAction = GetManualSentAction();
+			PopupActionsList.Add(manualSentAction);
+		}
+
+		private void CreateNodeManualSendAction()
+		{
+			var manualSentAction = GetManualSentAction();
+			NodeActionsList.Add(manualSentAction);
+		}
+
+		private JournalAction GetManualSentAction()
+		{
+			var manualSentAction = new JournalAction("Отправить принудительно",
+				(selected) => ManualSentActionSensitive(selected),
+				(selected) => true,
+				(selected) => ManualSent(selected)
+			);
+			return manualSentAction;
+		}
+
+		private bool ManualSentActionSensitive(object[] selectedNodes)
+		{
+			var nodes = selectedNodes.OfType<CashReceiptJournalNode>();
+			if(!nodes.Any())
+			{
+				return false;
+			}
+
+			if(nodes.Count() > 1)
+			{
+				return false;
+			}
+
+			var node = nodes.First();
+
+			if(node.NodeType != CashReceiptNodeType.Receipt)
+			{
+				return false;
+			}
+
+			if(node.ReceiptStatus == CashReceiptStatus.DuplicateSum)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private void ManualSent(object[] selectedNodes)
+		{
+			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
+			_receiptManualController.ForceSendDuplicatedReceipt(node.Id);
+			Refresh();
+		}
+
+		#endregion Popup actions
 	}
 }

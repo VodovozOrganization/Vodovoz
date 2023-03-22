@@ -1,4 +1,4 @@
-using ApiClientProvider;
+﻿using ApiClientProvider;
 using Autofac;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -431,7 +431,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CarsMonitoringViewModel, CarsMonitoringView>()
 				.RegisterWidgetForWidgetViewModel<TurnoverWithDynamicsReportViewModel, TurnoverWithDynamicsReportView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryPercentCoverageReportViewModel, FastDeliveryPercentCoverageReportView>()
-				.RegisterWidgetForWidgetViewModel<TrueMarkReceiptOrderJournalFilterViewModel, TrueMarkReceiptJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<CashReceiptJournalFilterViewModel, TrueMarkReceiptJournalFilterView>()
 				;
 			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -599,6 +599,16 @@ namespace Vodovoz
 			builder.RegisterType<TrueMarkCodesPool>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
+
+			builder.RegisterType<ReceiptManualController>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<FiscalizationResultSaver>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+			
+
 
 			#region Adapters & Factories
 

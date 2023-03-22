@@ -137,7 +137,7 @@ namespace Vodovoz.Models.TrueMark
 		{
 			var orderSum = receipt.Order.OrderPositiveOriginalSum;
 			var hasReceiptBySum = _cashReceiptRepository.HasReceiptBySum(DateTime.Today, orderSum);
-			if(hasReceiptBySum)
+			if(hasReceiptBySum && !receipt.ManualSent)
 			{
 				receipt.Status = CashReceiptStatus.DuplicateSum;
 				receipt.ErrorDescription = null;
