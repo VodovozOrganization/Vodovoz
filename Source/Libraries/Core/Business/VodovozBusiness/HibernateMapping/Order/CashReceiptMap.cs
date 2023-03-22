@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public CashReceiptMap()
 		{
-			Table("cash_receipts");
+			Table("cash_receipts_old");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Sent).Column("sent");
