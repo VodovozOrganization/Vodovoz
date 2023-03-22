@@ -263,7 +263,7 @@ namespace Vodovoz.Representations
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						return selectedNodes.Count == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
+						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.cash || selectedNode.PaymentTypeEnum == PaymentType.Terminal) && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => _userCanChangePayTypeToByCard,
 					selectedItems => {
@@ -292,7 +292,7 @@ namespace Vodovoz.Representations
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						return selectedNodes.Count == 1 && selectedNode.PaymentTypeEnum == PaymentType.cash && selectedNode.StatusEnum != OrderStatus.Closed;
+						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.cash || selectedNode.PaymentTypeEnum == PaymentType.Terminal) && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => _userCanChangePayTypeToByCard,
 					selectedItems => {
