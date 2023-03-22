@@ -230,20 +230,20 @@ namespace Vodovoz
 			CheckSensitivities();
 		}
 
-        void YtreeviewRLTo_OnSelectionChanged(object sender, EventArgs e)
-        {
-            CheckSensitivities();
+		void YtreeviewRLTo_OnSelectionChanged(object sender, EventArgs e)
+		{
+			CheckSensitivities();
 
-            var selectedNodes = ytreeviewRLTo.GetSelectedObjects<RouteListItemNode>();
+			var selectedNodes = ytreeviewRLTo.GetSelectedObjects<RouteListItemNode>();
 
-            buttonRevert.Sensitive = selectedNodes
-	            .Any(x =>
-		            x.Status != RouteListItemStatus.Completed 
-		            && (x.WasTransfered 
-		                || (x.IsFromFreeBalance && x.Status != RouteListItemStatus.Transfered)));
-        }
+			buttonRevert.Sensitive = selectedNodes
+				.Any(x =>
+					x.Status != RouteListItemStatus.Completed
+					&& (x.WasTransfered
+						|| (x.IsFromFreeBalance && x.Status != RouteListItemStatus.Transfered)));
+		}
 
-        private IColumnsConfig GetColumnsConfig(bool isRightPanel)
+		private IColumnsConfig GetColumnsConfig(bool isRightPanel)
 		{
 			var colorGreen = new Gdk.Color(0x44, 0xcc, 0x49);
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
