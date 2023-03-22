@@ -25,12 +25,12 @@ namespace CashReceiptSendWorker
 	public class Startup
 	{
 		private const string _nLogSectionName = "NLog";
-		private bool _testMode;
+		//private bool _testMode;
 
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
-			SetupMode();
+			//SetupMode();
 		}
 
 		public IConfiguration Configuration { get; }
@@ -112,7 +112,7 @@ namespace CashReceiptSendWorker
 		{
 		}
 
-		private void SetupMode()
+		/*private void SetupMode()
 		{
 			var commonConfig = Configuration.GetSection("Common");
 
@@ -127,7 +127,7 @@ namespace CashReceiptSendWorker
 				default:
 					throw new NotSupportedException($"Не поддерживаемый режим работы ({modeValue}) приложения");
 			}
-		}
+		}*/
 
 		private void CreateBaseConfig()
 		{
@@ -168,14 +168,7 @@ namespace CashReceiptSendWorker
 
 		private IConfigurationSection GetCashboxesConfiguration()
 		{
-			if(_testMode)
-			{
-				return Configuration.GetSection("TestCashboxes");
-			}
-			else
-			{
-				return Configuration.GetSection("Cashboxes");
-			}
+			return Configuration.GetSection("Cashboxes");
 		}
 
 		private string GetCashboxBaseUrl()
@@ -185,17 +178,8 @@ namespace CashReceiptSendWorker
 			{
 				throw new ConfigurationErrorsException("Не удается загрузить конфигурацию для модуль кассы.");
 			}
-			string baseUrlConfig;
 
-			if(_testMode)
-			{
-				baseUrlConfig = modulKassaSection["test_base_address"];
-			}
-			else
-			{
-				baseUrlConfig = modulKassaSection["base_address"];
-			}
-
+			string baseUrlConfig = modulKassaSection["base_address"];
 			if(string.IsNullOrWhiteSpace(baseUrlConfig))
 			{
 				throw new ConfigurationErrorsException("Не удается загрузить конфигурацию базового адреса api для модуль кассы.");
