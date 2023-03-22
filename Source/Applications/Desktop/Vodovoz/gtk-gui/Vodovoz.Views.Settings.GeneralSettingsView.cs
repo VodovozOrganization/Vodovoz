@@ -60,6 +60,28 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gtk.Label frameOrderAutoCommentLabel;
 
+		private global::Gtk.VBox vbox1;
+
+		private global::Gtk.Frame frameComplaintConfiguration;
+
+		private global::Gtk.Alignment GtkAlignment4;
+
+		private global::Gtk.VBox vbox4;
+
+		private global::Gtk.HBox hbox3;
+
+		private global::Gamma.GtkWidgets.yButton ybtnComplaintWithoutDriverSubdivisionsAdd;
+
+		private global::Gamma.GtkWidgets.yButton ybtnComplaintWithoutDriverSubdivisionsDelete;
+
+		private global::Gamma.GtkWidgets.yButton ybtnComplaintWithoutDriverSubdivisionsSave;
+
+		private global::Gtk.ScrolledWindow scrollComplaintWithoutDriverSubdivisions;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeComplaintWithoutDriverSubdivisions;
+
+		private global::Gtk.Label frameLabelComplaints;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -288,6 +310,97 @@ namespace Vodovoz.Views.Settings
 			w25.Position = 0;
 			w25.Expand = false;
 			w25.Fill = false;
+			// Container child hboxMain.Gtk.Box+BoxChild
+			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.frameComplaintConfiguration = new global::Gtk.Frame();
+			this.frameComplaintConfiguration.Name = "frameComplaintConfiguration";
+			this.frameComplaintConfiguration.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child frameComplaintConfiguration.Gtk.Container+ContainerChild
+			this.GtkAlignment4 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment4.Name = "GtkAlignment4";
+			this.GtkAlignment4.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment4.Gtk.Container+ContainerChild
+			this.vbox4 = new global::Gtk.VBox();
+			this.vbox4.Name = "vbox4";
+			this.vbox4.Spacing = 6;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.hbox3 = new global::Gtk.HBox();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd.CanFocus = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd.Name = "ybtnComplaintWithoutDriverSubdivisionsAdd";
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd.UseUnderline = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить");
+			global::Gtk.Image w26 = new global::Gtk.Image();
+			w26.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd.Image = w26;
+			this.hbox3.Add(this.ybtnComplaintWithoutDriverSubdivisionsAdd);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnComplaintWithoutDriverSubdivisionsAdd]));
+			w27.Position = 0;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete.CanFocus = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete.Name = "ybtnComplaintWithoutDriverSubdivisionsDelete";
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete.UseUnderline = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			global::Gtk.Image w28 = new global::Gtk.Image();
+			w28.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete.Image = w28;
+			this.hbox3.Add(this.ybtnComplaintWithoutDriverSubdivisionsDelete);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnComplaintWithoutDriverSubdivisionsDelete]));
+			w29.Position = 1;
+			w29.Expand = false;
+			w29.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.ybtnComplaintWithoutDriverSubdivisionsSave = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnComplaintWithoutDriverSubdivisionsSave.CanFocus = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsSave.Name = "ybtnComplaintWithoutDriverSubdivisionsSave";
+			this.ybtnComplaintWithoutDriverSubdivisionsSave.UseUnderline = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.hbox3.Add(this.ybtnComplaintWithoutDriverSubdivisionsSave);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnComplaintWithoutDriverSubdivisionsSave]));
+			w30.Position = 2;
+			w30.Expand = false;
+			w30.Fill = false;
+			this.vbox4.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox3]));
+			w31.Position = 0;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.scrollComplaintWithoutDriverSubdivisions = new global::Gtk.ScrolledWindow();
+			this.scrollComplaintWithoutDriverSubdivisions.Name = "scrollComplaintWithoutDriverSubdivisions";
+			this.scrollComplaintWithoutDriverSubdivisions.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrollComplaintWithoutDriverSubdivisions.Gtk.Container+ContainerChild
+			this.ytreeComplaintWithoutDriverSubdivisions = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeComplaintWithoutDriverSubdivisions.CanFocus = true;
+			this.ytreeComplaintWithoutDriverSubdivisions.Name = "ytreeComplaintWithoutDriverSubdivisions";
+			this.scrollComplaintWithoutDriverSubdivisions.Add(this.ytreeComplaintWithoutDriverSubdivisions);
+			this.vbox4.Add(this.scrollComplaintWithoutDriverSubdivisions);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.scrollComplaintWithoutDriverSubdivisions]));
+			w33.Position = 1;
+			this.GtkAlignment4.Add(this.vbox4);
+			this.frameComplaintConfiguration.Add(this.GtkAlignment4);
+			this.frameLabelComplaints = new global::Gtk.Label();
+			this.frameLabelComplaints.Name = "frameLabelComplaints";
+			this.frameLabelComplaints.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройки рекламаций</b>");
+			this.frameLabelComplaints.UseMarkup = true;
+			this.frameComplaintConfiguration.LabelWidget = this.frameLabelComplaints;
+			this.vbox1.Add(this.frameComplaintConfiguration);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameComplaintConfiguration]));
+			w36.Position = 0;
+			this.hboxMain.Add(this.vbox1);
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
+			w37.Position = 1;
+			w37.Expand = false;
+			w37.Fill = false;
 			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{
