@@ -1,7 +1,7 @@
 ﻿using QS.Navigation;
 using QS.Views.GtkUI;
 using QSWidgetLib;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Client;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Cash;
 
@@ -27,16 +27,11 @@ namespace Vodovoz.Views.Cash
 				e => e.OnlineOrder,
 				w => w.Text,
 				new NullableIntToStringConverter()).InitializeFromSource();
-			
-			//comboPaymentFrom.SetRenderTextFunc<PaymentFrom>(x => x.Name);
 
-   //         comboPaymentFrom.Binding.AddBinding(ViewModel,
-   //             vm => vm.ItemsList, w => w.ItemsList)
-   //             .InitializeFromSource();
-
-   //         comboPaymentFrom.Binding.AddBinding(ViewModel,
-			//	vm => vm.PaymentByCardFrom, w => w.SelectedItem)
-   //             .InitializeFromSource();
-        }
+			enumPaymentType.ItemsEnum = typeof(PaymentType);
+			enumPaymentType.Binding.AddBinding(ViewModel, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			enumPaymentType.AddEnumToHideList(PaymentType.barter, PaymentType.ByCard, PaymentType.cash, PaymentType.cashless, PaymentType.ContractDoc);
+			enumPaymentType.SelectedItem = ViewModel.PaymentType;
+		}
 	}
 }

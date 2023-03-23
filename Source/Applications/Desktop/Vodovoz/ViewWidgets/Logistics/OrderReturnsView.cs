@@ -50,9 +50,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
-    public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
-    {
-	    private class OrderNode : PropertyChangedBase
+	public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
+	{
+		private class OrderNode : PropertyChangedBase
 		{
 			public enum ChangedType
 			{
@@ -366,7 +366,7 @@ namespace Vodovoz
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 			
-			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().List();
+			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(p => !p.IsArchive).List();
 			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.ByCard, w => w.Visible)
 				.InitializeFromSource();
@@ -517,7 +517,7 @@ namespace Vodovoz
 			buttonDeliveryCanceled.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Canceled;
 			buttonNotDelivered.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Overdue;
 			buttonDelivered.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Completed &&
-			                            _routeListItem.Status != RouteListItemStatus.EnRoute;
+										_routeListItem.Status != RouteListItemStatus.EnRoute;
 		}
 
 		protected void OnYenumcomboOrderPaymentChangedByUser(object sender, EventArgs e)

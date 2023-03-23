@@ -674,11 +674,12 @@ namespace Vodovoz
 			{
 				ySpecPaymentFrom.ItemsList =
 					UoW.Session.QueryOver<PaymentFrom>()
+						.Where(p => !p.IsArchive)
 						.WhereRestrictionOn(x => x.Id).Not.IsIn(excludedPaymentFromIds).List();
 			}
 			else
 			{
-				ySpecPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>();
+				ySpecPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>().Where(p => !p.IsArchive);
 			}
 
 			ySpecPaymentFrom.Binding.AddBinding(Entity, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
@@ -778,15 +779,6 @@ namespace Vodovoz
 					ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
 				lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
-
-				//if(Entity.SelfDelivery)
-				//{
-				//	enumPaymentType.AddEnumToHideList(PaymentType.Terminal);
-				//}
-				//else
-				//{
-				//	enumPaymentType.RemoveEnumFromHideList(PaymentType.Terminal);
-				//}
 
 				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 				enumPaymentType.SelectedItem = Entity.PaymentType;

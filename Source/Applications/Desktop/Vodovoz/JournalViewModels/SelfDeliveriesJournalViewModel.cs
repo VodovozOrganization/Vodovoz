@@ -10,7 +10,6 @@ using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Permissions;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -23,7 +22,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -263,7 +261,7 @@ namespace Vodovoz.Representations
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.cash || selectedNode.PaymentTypeEnum == PaymentType.Terminal) && selectedNode.StatusEnum != OrderStatus.Closed;
+						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.cash || (selectedNode.PaymentTypeEnum == PaymentType.Terminal && selectedNode.OrderCashSumTotal != 0)) && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => _userCanChangePayTypeToByCard,
 					selectedItems => {
@@ -292,7 +290,7 @@ namespace Vodovoz.Representations
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.cash || selectedNode.PaymentTypeEnum == PaymentType.Terminal) && selectedNode.StatusEnum != OrderStatus.Closed;
+						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.cash || (selectedNode.PaymentTypeEnum == PaymentType.Terminal && selectedNode.OrderCashSumTotal != 0)) && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => _userCanChangePayTypeToByCard,
 					selectedItems => {

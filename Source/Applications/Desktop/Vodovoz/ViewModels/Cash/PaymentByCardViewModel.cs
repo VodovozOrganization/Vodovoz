@@ -1,94 +1,85 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.Utilities.Extensions;
 using QS.ViewModels;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Cash
 {
-    public class PaymentByCardViewModel: EntityTabViewModelBase<Order> 
-    {
-        private readonly Employee _currentEmployee;
-        private readonly CallTaskWorker _callTaskWorker;
+	public class PaymentByCardViewModel: EntityTabViewModelBase<Order> 
+	{
+		private readonly Employee _currentEmployee;
+		private readonly CallTaskWorker _callTaskWorker;
 
-        public PaymentByCardViewModel(
-            IEntityUoWBuilder uowBuilder,
-            IUnitOfWorkFactory unitOfWorkFactory,
-            ICommonServices commonServices,
-            CallTaskWorker callTaskWorker,
-            IOrderPaymentSettings orderPaymentSettings,
-            IOrderParametersProvider orderParametersProvider,
-            IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
-            Employee currentEmployee) : base(uowBuilder, unitOfWorkFactory, commonServices)
-        {
-	        if(orderPaymentSettings == null)
-	        {
-		        throw new ArgumentNullException(nameof(orderPaymentSettings));
-	        }
-	        
-	        if(orderParametersProvider == null)
-	        {
-		        throw new ArgumentNullException(nameof(orderParametersProvider));
-	        }
-	        if(deliveryRulesParametersProvider == null)
-	        {
-		        throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-	        }
+		public PaymentByCardViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			CallTaskWorker callTaskWorker,
+			IOrderPaymentSettings orderPaymentSettings,
+			IOrderParametersProvider orderParametersProvider,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			Employee currentEmployee) : base(uowBuilder, unitOfWorkFactory, commonServices)
+		{
+			if(orderPaymentSettings == null)
+			{
+				throw new ArgumentNullException(nameof(orderPaymentSettings));
+			}
+			
+			if(orderParametersProvider == null)
+			{
+				throw new ArgumentNullException(nameof(orderParametersProvider));
+			}
+			if(deliveryRulesParametersProvider == null)
+			{
+				throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			}
 
-	        _callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-            _currentEmployee = currentEmployee;
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_currentEmployee = currentEmployee;
 
-            TabName = "Оплата по карте";
+			TabName = "Оплата по карте";
 
-            ItemsList = UoW.GetAll<PaymentFrom>().ToList();
+			Entity.PaymentType = PaymentType.Terminal;
 
-            if (PaymentByCardFrom == null)
-            {
-                PaymentByCardFrom = ItemsList.FirstOrDefault(p => p.Id == orderPaymentSettings.DefaultSelfDeliveryPaymentFromId);
-            }
+			Entity.PropertyChanged += Entity_PropertyChanged;
+			
+			ValidationContext.ServiceContainer.AddService(orderParametersProvider);
+			ValidationContext.ServiceContainer.AddService(deliveryRulesParametersProvider);
+		}
 
-            Entity.PropertyChanged += Entity_PropertyChanged;
-            
-            ValidationContext.ServiceContainer.AddService(orderParametersProvider);
-            ValidationContext.ServiceContainer.AddService(deliveryRulesParametersProvider);
-        }
+		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == nameof(Entity.PaymentType)){
+				OnPropertyChanged(nameof(PaymentType));
+			}
+		}
 
-        void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(Entity.PaymentByCardFrom)){
-                OnPropertyChanged(nameof(PaymentByCardFrom));
-            }
-        }
+		public PaymentType PaymentType
+		{
+			get => Entity.PaymentType;
+			set => Entity.PaymentType = value;
+		}
 
-        public PaymentFrom PaymentByCardFrom
-        {
-            get => Entity.PaymentByCardFrom;
-            set => Entity.PaymentByCardFrom = value;
-        }
+		protected override void BeforeValidation()
+		{
+			Entity.ChangePaymentTypeToByCardTerminal(_callTaskWorker);
 
-        public List<PaymentFrom> ItemsList { get; private set; }
+			if(!Entity.PayAfterShipment)
+			{
+				Entity.SelfDeliveryToLoading(_currentEmployee, CommonServices.CurrentPermissionService, _callTaskWorker);
+			}
 
-        protected override void BeforeValidation()
-        {
-	        Entity.ChangePaymentTypeToByCard(_callTaskWorker);
-
-	        if(!Entity.PayAfterShipment)
-	        {
-		        Entity.SelfDeliveryToLoading(_currentEmployee, CommonServices.CurrentPermissionService, _callTaskWorker);
-	        }
-
-	        if(Entity.SelfDelivery)
-	        {
-		        Entity.IsSelfDeliveryPaid = true;
-	        }
-        }
-    }
+			if(Entity.SelfDelivery)
+			{
+				Entity.IsSelfDeliveryPaid = true;
+			}
+		}
+	}
 }
