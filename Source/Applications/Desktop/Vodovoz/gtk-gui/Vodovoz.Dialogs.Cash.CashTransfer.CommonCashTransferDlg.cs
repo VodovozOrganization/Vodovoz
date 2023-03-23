@@ -546,6 +546,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			w43.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(0D, 999999999D, 100D);
+			this.yspinMoney.WidthRequest = 150;
 			this.yspinMoney.CanDefault = true;
 			this.yspinMoney.CanFocus = true;
 			this.yspinMoney.Name = "yspinMoney";

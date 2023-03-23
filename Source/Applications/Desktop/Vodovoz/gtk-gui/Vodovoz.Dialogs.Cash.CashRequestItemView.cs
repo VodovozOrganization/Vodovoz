@@ -28,7 +28,7 @@ namespace Vodovoz.Dialogs.Cash
 
 		private global::Gamma.GtkWidgets.yEntry yentryComment;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinsum;
+		private global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat yspinsum;
 
 		protected virtual void Build()
 		{
@@ -87,6 +87,7 @@ namespace Vodovoz.Dialogs.Cash
 			this.AccountableEntityviewmodelentry3.Events = ((global::Gdk.EventMask)(256));
 			this.AccountableEntityviewmodelentry3.Name = "AccountableEntityviewmodelentry3";
 			this.AccountableEntityviewmodelentry3.CanEditReference = false;
+			this.AccountableEntityviewmodelentry3.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.AccountableEntityviewmodelentry3);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.AccountableEntityviewmodelentry3]));
 			w6.TopAttach = ((uint)(2));
@@ -167,12 +168,12 @@ namespace Vodovoz.Dialogs.Cash
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinsum = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 100D);
+			this.yspinsum = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(0D, 999999999D, 100D);
+			this.yspinsum.CanDefault = true;
 			this.yspinsum.CanFocus = true;
 			this.yspinsum.Name = "yspinsum";
-			this.yspinsum.Adjustment.PageIncrement = 10D;
+			this.yspinsum.Adjustment.PageIncrement = 1000D;
 			this.yspinsum.ClimbRate = 1D;
-			this.yspinsum.Digits = ((uint)(2));
 			this.yspinsum.Numeric = true;
 			this.yspinsum.ValueAsDecimal = 0m;
 			this.yspinsum.ValueAsInt = 0;
