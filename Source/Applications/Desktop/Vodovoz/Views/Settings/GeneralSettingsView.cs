@@ -43,6 +43,49 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.OrderAutoComment, w => w.Text)
 				.AddBinding(vm => vm.CanEditOrderAutoComment, w => w.IsEditable)
 				.InitializeFromSource();
+
+			ybtnComplaintWithoutDriverSubdivisionsAdd.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsAddClicked;
+			ybtnComplaintWithoutDriverSubdivisionsDelete.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsDeleteClicked;
+			ybtnComplaintWithoutDriverSubdivisionsSave.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsSaveClicked;
+
+			ytreeComplaintWithoutDriverSubdivisions.CreateFluentColumnsConfig<Subdivision>()
+				.AddColumn("Номер").AddNumericRenderer(x => x.Id)
+				.AddColumn("Подразделение").AddTextRenderer(x => x.Name)
+				.AddColumn("")
+				.Finish();
+
+			ytreeComplaintWithoutDriverSubdivisions.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.ObservableSubdivisions, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.SelectedSubdivision, w => w.SelectedRow)
+				.InitializeFromSource();
+
+			ybtnComplaintWithoutDriverSubdivisionsDelete.Binding
+				.AddBinding(ViewModel, vm => vm.CanRemoveSubdivision, w => w.Sensitive)
+				.InitializeFromSource();
+		}
+
+		private void OnYbtnComplaintWithoutDriverSubdivisionsSaveClicked(object sender, System.EventArgs e)
+		{
+			ViewModel.SaveSubdivisionsCommand?.Execute();
+		}
+
+		private void OnYbtnComplaintWithoutDriverSubdivisionsDeleteClicked(object sender, System.EventArgs e)
+		{
+			ViewModel.RemoveSubdivisionCommand?.Execute();
+		}
+
+		private void OnYbtnComplaintWithoutDriverSubdivisionsAddClicked(object sender, System.EventArgs e)
+		{
+			ViewModel.AddSubdivisionCommand?.Execute();
+		}
+
+		public override void Dispose()
+		{
+			ybtnComplaintWithoutDriverSubdivisionsAdd.Clicked -= OnYbtnComplaintWithoutDriverSubdivisionsAddClicked;
+			ybtnComplaintWithoutDriverSubdivisionsDelete.Clicked -= OnYbtnComplaintWithoutDriverSubdivisionsDeleteClicked;
+			ybtnComplaintWithoutDriverSubdivisionsSave.Clicked -= OnYbtnComplaintWithoutDriverSubdivisionsSaveClicked;
+			base.Dispose();
 		}
 	}
 }
