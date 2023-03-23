@@ -55,7 +55,10 @@ namespace Vodovoz.Controllers
 		{
 			var address = uow.GetAll<RouteListItem>().FirstOrDefault(x => x.Order.Id == order.Id);
 
-			CreateOrUpdateRouteListKeepingDocument(uow, address, deliveryFreeBalanceType);
+			if(address != null)
+			{
+				CreateOrUpdateRouteListKeepingDocument(uow, address, deliveryFreeBalanceType);
+			}
 		}
 
 		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
