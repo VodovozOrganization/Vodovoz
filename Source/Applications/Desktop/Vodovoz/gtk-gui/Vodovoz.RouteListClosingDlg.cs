@@ -96,7 +96,7 @@ namespace Vodovoz
 
 		private global::Vodovoz.RouteListClosingItemsView routeListAddressesView;
 
-		private global::Vodovoz.ViewWidgets.Logistics.AdditionalLoadingTextView additionalloadingtextview;
+		private global::Gamma.GtkWidgets.yHBox yhboxDeliveryFreeBalance;
 
 		private global::Gamma.Widgets.SidePanels.RightSidePanel rightsidepanel1;
 
@@ -354,6 +354,7 @@ namespace Vodovoz
 			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
 			this.entityviewmodelentryCar.CanEditReference = true;
+			this.entityviewmodelentryCar.CanOpenWithoutTabParent = false;
 			this.tblRLInfo.Add(this.entityviewmodelentryCar);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.entityviewmodelentryCar]));
 			w15.LeftAttach = ((uint)(3));
@@ -686,14 +687,13 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.routeListAddressesView]));
 			w46.Position = 0;
 			// Container child vbox5.Gtk.Box+BoxChild
-			this.additionalloadingtextview = new global::Vodovoz.ViewWidgets.Logistics.AdditionalLoadingTextView();
-			this.additionalloadingtextview.Events = ((global::Gdk.EventMask)(256));
-			this.additionalloadingtextview.Name = "additionalloadingtextview";
-			this.vbox5.Add(this.additionalloadingtextview);
-			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.additionalloadingtextview]));
+			this.yhboxDeliveryFreeBalance = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxDeliveryFreeBalance.Name = "yhboxDeliveryFreeBalance";
+			this.yhboxDeliveryFreeBalance.Spacing = 6;
+			this.vbox5.Add(this.yhboxDeliveryFreeBalance);
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.yhboxDeliveryFreeBalance]));
 			w47.Position = 1;
 			w47.Expand = false;
-			w47.Fill = false;
 			this.hbox8.Add(this.vbox5);
 			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.vbox5]));
 			w48.Position = 0;

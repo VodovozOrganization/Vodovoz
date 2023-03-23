@@ -158,6 +158,18 @@ namespace Vodovoz.Domain.Documents
 				TypeOfDefect = typeOfDefect
 			};
 
+			if(reciveType != ReciveTypes.Defective)
+			{
+				var deliveryFreeBalanceOperation = new DeliveryFreeBalanceOperation
+				{
+					Amount = -amount,
+					Nomenclature = nomenclature,
+					RouteList = RouteList
+				};
+
+				item.DeliveryFreeBalanceOperation = deliveryFreeBalanceOperation;
+			}
+
 			AddItem(item);
 		}
 

@@ -223,9 +223,8 @@ namespace Vodovoz
 				.AddColumn("Доп. оборуд.\n от клиента").HeaderAlignment(0.5f)
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
-				.AddColumn("С погрузкой").HeaderAlignment(0.5f)
-					.AddToggleRenderer(item => item.TransferedTo != null ? item.TransferedTo.NeedToReload : item.NeedToReload )
-						.Editing(false)
+				.AddColumn("Тип переноса").HeaderAlignment(0.5f)
+					.AddTextRenderer(item => item.AddressTransferType.HasValue ? item.AddressTransferType.GetEnumTitle() : "")
 				.AddColumn("Чужой район\n для водит.").HeaderAlignment(0.5f)
 					.AddToggleRenderer(item => item.IsDriverForeignDistrict)
 						.Editing(false)
@@ -293,7 +292,7 @@ namespace Vodovoz
 					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1} {2}.", 
 						item.TransferedTo.RouteList.Id, 
 						item.TransferedTo.RouteList.Driver.ShortName, 
-						item.TransferedTo.NeedToReload ? "с погрузкой" : "без поргрузки");
+						item.TransferedTo.AddressTransferType?.GetEnumTitle());
 				else
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 			}
@@ -303,7 +302,7 @@ namespace Vodovoz
 					return String.Format("Заказ из МЛ №{0} водителя {1} {2}.", 
 						transferedFrom.RouteList.Id, 
 						transferedFrom.RouteList.Driver.ShortName, 
-						transferedFrom.TransferedTo.NeedToReload ? "с погрузкой" : "без поргрузки");
+						transferedFrom.TransferedTo.AddressTransferType?.GetEnumTitle());
 				else
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}
