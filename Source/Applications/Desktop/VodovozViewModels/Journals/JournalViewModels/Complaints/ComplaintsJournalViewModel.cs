@@ -56,6 +56,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
+		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
 		private readonly ILifetimeScope _scope;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
@@ -83,6 +84,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			IComplaintParametersProvider complaintParametersProvider,
+			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
 			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -100,6 +102,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
+			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
 			TabName = "Журнал рекламаций";
@@ -823,13 +826,28 @@ namespace Vodovoz.Journals.JournalViewModels
 					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed && _canCloseComplaint,
 					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate && _canCloseComplaint,
 					n => {
-
-						// Проверка водителя
-
 						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
 						ComplaintViewModel currentComplaintVM = null;
 						if(currentComplaintId.HasValue) {
 							currentComplaintVM = _scope.Resolve<ComplaintViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(currentComplaintId.Value)));
+
+							var interserctedSubdivisionsToInformIds = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
+									.Intersect(currentComplaintVM.Entity.Guilties.Select(cgi => cgi.Subdivision.Id));
+
+							var intersectedSubdivisionsNames = currentComplaintVM.Entity.Guilties
+								.Select(g => g.Subdivision)
+								.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
+								.Select(s => s.Name);
+
+							if(currentComplaintVM.Entity.ComplaintResultOfEmployees.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+								&& interserctedSubdivisionsToInformIds.Any()
+								&& currentComplaintVM.Entity.Driver is null
+								&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",
+								"Вы уверены?"))
+							{
+								return;
+							}
+
 							currentComplaintVM.AddFineCommand.Execute(this);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))

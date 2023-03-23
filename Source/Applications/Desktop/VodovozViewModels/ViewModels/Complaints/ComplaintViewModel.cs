@@ -53,6 +53,8 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly IComplaintParametersProvider _complaintParametersProvider;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ILifetimeScope _scope;
 		private readonly IUserRepository _userRepository;
@@ -92,6 +94,8 @@ namespace Vodovoz.ViewModels.Complaints
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IRouteListItemRepository routeListItemRepository,
+			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			IComplaintParametersProvider complaintParametersProvider,
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -111,6 +115,8 @@ namespace Vodovoz.ViewModels.Complaints
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
+			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
 			if(orderSelectorFactory == null)
 			{
 				throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -665,6 +671,23 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public void CloseComplaint(ComplaintStatuses status)
 		{
+			var interserctedSubdivisionsToInformIds = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
+				.Intersect(Entity.Guilties.Select(cgi => cgi.Subdivision.Id));
+
+			var intersectedSubdivisionsNames = Entity.Guilties
+				.Select(g => g.Subdivision)
+				.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
+				.Select(s => s.Name);
+
+			if(Entity.ComplaintResultOfEmployees.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+				&& interserctedSubdivisionsToInformIds.Any()
+				&& Entity.Driver is null
+				&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",
+				"Вы уверены?"))
+			{
+				return;
+			}
+
 			var msg = Entity.SetStatus(status);
 			if(msg.Any())
 			{
