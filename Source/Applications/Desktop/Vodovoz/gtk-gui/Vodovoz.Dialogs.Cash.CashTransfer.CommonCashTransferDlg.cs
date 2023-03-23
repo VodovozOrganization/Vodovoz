@@ -88,7 +88,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private global::Gtk.Label labelSum;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinMoney;
+		private global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat yspinMoney;
 
 		private global::Gtk.Label labelComment;
 
@@ -255,6 +255,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.evmeDriver);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.evmeDriver]));
 			w17.Position = 1;
@@ -273,6 +274,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
 			this.entityviewmodelentryCar.CanEditReference = true;
+			this.entityviewmodelentryCar.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.entityviewmodelentryCar);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityviewmodelentryCar]));
 			w19.Position = 3;
@@ -543,13 +545,12 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			w43.Expand = false;
 			w43.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton(0D, 999999999D, 100D);
+			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(0D, 999999999D, 100D);
 			this.yspinMoney.CanDefault = true;
 			this.yspinMoney.CanFocus = true;
 			this.yspinMoney.Name = "yspinMoney";
 			this.yspinMoney.Adjustment.PageIncrement = 1000D;
 			this.yspinMoney.ClimbRate = 1D;
-			this.yspinMoney.Digits = ((uint)(2));
 			this.yspinMoney.Numeric = true;
 			this.yspinMoney.ValueAsDecimal = 0m;
 			this.yspinMoney.ValueAsInt = 0;
