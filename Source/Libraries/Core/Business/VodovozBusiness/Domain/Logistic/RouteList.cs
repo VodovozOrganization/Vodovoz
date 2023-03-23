@@ -1096,25 +1096,17 @@ namespace Vodovoz.Domain.Logistic
 			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
 			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
-			var discrepancyTerminalFreeBalance = new Discrepancy
+			if(loadedTerminalAmount > 0)
 			{
-				Nomenclature = terminal,
-				FreeBalance = loadedTerminalAmount - unloadedTerminalAmount,
-				Name = terminal.Name
-			};
-
-			AddDiscrepancy(result, discrepancyTerminalFreeBalance);
-
-			if(unloadedTerminalAmount > 0)
-			{
-				var discrepancyTerminal = new Discrepancy
+				var discrepancyTerminalFreeBalance = new Discrepancy
 				{
 					Nomenclature = terminal,
+					FreeBalance = loadedTerminalAmount - unloadedTerminalAmount,
 					ToWarehouse = unloadedTerminalAmount,
 					Name = terminal.Name
 				};
 
-				AddDiscrepancy(result, discrepancyTerminal);
+				AddDiscrepancy(result, discrepancyTerminalFreeBalance);
 			}
 
 			#endregion
