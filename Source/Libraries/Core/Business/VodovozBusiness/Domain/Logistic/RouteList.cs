@@ -834,7 +834,11 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			var addressKeepingDocument = UoW.GetAll<RouteListAddressKeepingDocument>().SingleOrDefault(x => x.RouteListItem.Id == address.Id);
-			UoW.Delete(addressKeepingDocument);
+
+			if(addressKeepingDocument != null)
+			{
+				UoW.Delete(addressKeepingDocument);
+			}
 
 			ObservableAddresses.Remove(address);
 			return true;
