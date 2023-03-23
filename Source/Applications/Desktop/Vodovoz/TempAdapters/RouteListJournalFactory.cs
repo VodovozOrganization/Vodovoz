@@ -12,9 +12,13 @@ namespace Vodovoz.TempAdapters
 		public IEntityAutocompleteSelectorFactory CreateRouteListJournalAutocompleteSelectorFactory(ILifetimeScope scope,
 			RouteListJournalFilterViewModel routeListJournalFilterViewModel = null)
 		{
-			var routeListJournalViewModel = scope.Resolve<RouteListJournalViewModel>();
-			routeListJournalViewModel.FilterViewModel = routeListJournalFilterViewModel;
-			return new EntityAutocompleteSelectorFactory<RouteListJournalViewModel>(typeof(RouteList), () => routeListJournalViewModel);
+			return new EntityAutocompleteSelectorFactory<RouteListJournalViewModel>(typeof(RouteList), () =>
+			{
+				var routeListJournalViewModel = scope.Resolve<RouteListJournalViewModel>();
+				routeListJournalViewModel.FilterViewModel = routeListJournalFilterViewModel;
+
+				return routeListJournalViewModel;
+			});
 		}
 	}
 }
