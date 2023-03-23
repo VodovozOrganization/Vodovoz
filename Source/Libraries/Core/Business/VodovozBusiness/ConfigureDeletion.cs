@@ -862,7 +862,8 @@ namespace Vodovoz
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarLoadDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.WarehouseMovementOperation);
+				.AddDeleteCascadeDependence(x => x.WarehouseMovementOperation)
+				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarUnloadDocument>()
 				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.Document);
@@ -1161,11 +1162,18 @@ namespace Vodovoz
 				.AddDeleteDependenceFromCollection(x => x.AddressTransferDocumentItems);
 
 			DeleteConfig.AddHibernateDeleteInfo<AddressTransferDocumentItem>()
-				.AddDeleteDependenceFromCollection(x => x.DriverNomenclatureTransferDocumentItems);
+				.AddDeleteDependenceFromCollection(x => x.DriverNomenclatureTransferDocumentItems)
+				.AddDeleteDependenceFromCollection(x => x.DeliveryFreeBalanceTransferItems);
 
 			DeleteConfig.AddHibernateDeleteInfo<DriverNomenclatureTransferItem>()
 				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperationFrom)
 				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperationTo);
+
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryFreeBalanceTransferItem>()
+				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperationFrom)
+				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperationTo);
+
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryFreeBalanceOperation>();
 
 			#endregion
 

@@ -203,6 +203,12 @@ namespace Vodovoz.Domain.Documents
 						uow.Delete(item.EmployeeNomenclatureMovementOperation);
 						item.EmployeeNomenclatureMovementOperation = null;
 					}
+
+					if(item.DeliveryFreeBalanceOperation != null)
+					{
+						uow.Delete(item.DeliveryFreeBalanceOperation);
+						item.DeliveryFreeBalanceOperation = null;
+					}
 				}
 				else {
 					if(item.WarehouseMovementOperation != null) {
@@ -216,6 +222,8 @@ namespace Vodovoz.Domain.Documents
 					} else {
 						item.CreateEmployeeNomenclatureMovementOperation(TimeStamp);
 					}
+
+					item.CreateOrUpdateDeliveryFreeBalanceOperation();
 				}
 			}
 		}

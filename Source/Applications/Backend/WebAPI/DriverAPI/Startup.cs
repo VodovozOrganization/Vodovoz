@@ -36,6 +36,7 @@ using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Settings.Database;
 using System.Reflection;
+using Vodovoz.Controllers;
 using Vodovoz.Models.TrueMark;
 
 namespace DriverAPI
@@ -264,6 +265,7 @@ namespace DriverAPI
 			services.AddScoped<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddScoped<IDriverApiParametersProvider, DriverApiParametersProvider>();
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
+			services.AddScoped<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 
 			// Конвертеры
 			foreach(var type in typeof(Library.AssemblyFinder)
@@ -290,6 +292,8 @@ namespace DriverAPI
 			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
+
+			services.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>();
 		}
 	}
 }

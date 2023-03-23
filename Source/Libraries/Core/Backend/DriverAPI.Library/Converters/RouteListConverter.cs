@@ -37,24 +37,9 @@ namespace DriverAPI.Library.Converters
 
 			if(result.CompletionStatus == RouteListDtoCompletionStatus.Completed)
 			{
-				var ownOrders = routeList.Addresses
-					.Where(rla => !rla.Order.IsFastDelivery && !rla.WasTransfered)
-					.Sum(rla => rla.Order.Total19LBottlesToDeliver);
-
-				var additionalBalance = routeList.AdditionalLoadingDocument?.Items
-					.Where(ai => ai.Nomenclature.IsWater19L)
-					.Sum(ai => ai.Amount) ?? 0;
-
-				var deliveredOrders = routeList.Addresses
-					.Where(rla => 
-						rla.Status != RouteListItemStatus.Canceled && rla.Status != RouteListItemStatus.Overdue
-						// и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
-						&& (!rla.WasTransfered || rla.NeedToReload || rla.Order.IsFastDelivery)
-						// и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
-						&& (rla.Status != RouteListItemStatus.Transfered || (!rla.TransferedTo.NeedToReload && !rla.Order.IsFastDelivery)))
-					.Sum(rla => rla.Order.Total19LBottlesToDeliver);
-
-				var fullBottlesToReturn = ownOrders + additionalBalance - deliveredOrders;
+				var fullBottlesToReturn = routeList.ObservableDeliveryFreeBalanceOperations
+					.Where(x => x.Nomenclature.IsWater19L)
+					.Sum(x => x.Amount);
 
 				result.CompletedRouteList = new CompletedRouteListDto()
 				{

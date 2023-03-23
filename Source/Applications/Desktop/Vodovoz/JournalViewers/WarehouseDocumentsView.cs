@@ -27,6 +27,8 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Models;
+using Vodovoz.Controllers;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Views.Warehouse.Documents;
 using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 using Vodovoz.ViewWidgets;

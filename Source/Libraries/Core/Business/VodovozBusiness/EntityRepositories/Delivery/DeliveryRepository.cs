@@ -14,6 +14,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
@@ -217,6 +218,8 @@ namespace Vodovoz.EntityRepositories.Delivery
 			RouteListNomenclatureAmount ordersAmountAlias = null;
 			RouteListNomenclatureAmount loadDocumentsAmountAlias = null;
 
+			DeliveryFreeBalanceOperation freeBalanceOperation = null;
+
 			var lastTimeTrackQuery = QueryOver.Of(() => tpInner)
 				.Where(() => tpInner.Track.Id == t.Id)
 				.Select(Projections.Max(() => tpInner.TimeStamp));
@@ -388,88 +391,28 @@ namespace Vodovoz.EntityRepositories.Delivery
 				}
 			}
 
-			var rlIds = routeListNodes.Select(x => x.RouteList.Id).ToArray();
+			var rlIds =  routeListNodes.Select(x => x.RouteList.Id).ToArray();
 
-			//OrderItems
-			var orderItemsToDeliver = uow.Session.QueryOver<RouteListItem>(() => rla)
-				.Inner.JoinAlias(() => rla.Order, () => o)
-				.Inner.JoinAlias(() => o.OrderItems, () => oi)
-				.Left.JoinAlias(() => rla.TransferedTo, () => rlaTransfered)
-				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
-				.WhereRestrictionOn(() => oi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
-				.Where(() =>
-					//не отменённые и не недовозы
-					rla.Status != RouteListItemStatus.Canceled && rla.Status != RouteListItemStatus.Overdue
-					// и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
-					&& (!rla.WasTransfered || rla.NeedToReload || o.IsFastDelivery) 
-					// и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
-					&& (rla.Status != RouteListItemStatus.Transfered || (!rlaTransfered.NeedToReload && !o.IsFastDelivery)))
+			var freeBalances = uow.Session.QueryOver(() => freeBalanceOperation)
+				.WhereRestrictionOn(() => freeBalanceOperation.RouteList.Id).IsIn(rlIds)
+				.WhereRestrictionOn(() => freeBalanceOperation.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
 				.SelectList(list => list
-					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
-					.SelectGroup(() => oi.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
-					.SelectSum(() => oi.Count).WithAlias(() => ordersAmountAlias.Amount))
+					.SelectGroup(() => freeBalanceOperation.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
+					.SelectGroup(() => freeBalanceOperation.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
+					.SelectSum(() => freeBalanceOperation.Amount).WithAlias(() => ordersAmountAlias.Amount))
 				.TransformUsing(Transformers.AliasToBean<RouteListNomenclatureAmount>())
-				.Future<RouteListNomenclatureAmount>();
-
-			//OrderEquipments
-			var orderEquipmentsToDeliver = uow.Session.QueryOver<RouteListItem>(() => rla)
-				.Inner.JoinAlias(() => rla.Order, () => o)
-				.Inner.JoinAlias(() => o.OrderEquipments, () => oe)
-				.Left.JoinAlias(() => rla.TransferedTo, () => rlaTransfered)
-				.WhereRestrictionOn(() => rla.RouteList.Id).IsIn(rlIds)
-				.WhereRestrictionOn(() => oe.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
-				.Where(() =>
-					//не отменённые и не недовозы
-					rla.Status != RouteListItemStatus.Canceled && rla.Status != RouteListItemStatus.Overdue
-					// и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
-	               && (!rla.WasTransfered || rla.NeedToReload || o.IsFastDelivery)
-	               // и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
-	               && (rla.Status != RouteListItemStatus.Transfered || (!rlaTransfered.NeedToReload && !o.IsFastDelivery)))
-				.And(() => oe.Direction == Direction.Deliver)
-				.SelectList(list => list
-					.SelectGroup(() => rla.RouteList.Id).WithAlias(() => ordersAmountAlias.RouteListId)
-					.SelectGroup(() => oe.Nomenclature.Id).WithAlias(() => ordersAmountAlias.NomenclatureId)
-					.Select(Projections.Sum(Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => oe.Count)))
-					).WithAlias(() => ordersAmountAlias.Amount))
-				.TransformUsing(Transformers.AliasToBean<RouteListNomenclatureAmount>())
-				.Future<RouteListNomenclatureAmount>();
-
-			//CarLoadDocuments
-			var allLoaded = uow.Session.QueryOver<CarLoadDocument>(() => scld)
-				.Inner.JoinAlias(() => scld.Items, () => scldi)
-				.WhereRestrictionOn(() => scld.RouteList.Id).IsIn(rlIds)
-				.WhereRestrictionOn(() => scldi.Nomenclature.Id).IsIn(neededNomenclatures.Keys)
-				.SelectList(list => list
-					.SelectGroup(() => scld.RouteList.Id).WithAlias(() => loadDocumentsAmountAlias.RouteListId)
-					.SelectGroup(() => scldi.Nomenclature.Id).WithAlias(() => loadDocumentsAmountAlias.NomenclatureId)
-					.SelectSum(() => scldi.Amount).WithAlias(() => loadDocumentsAmountAlias.Amount))
-				.TransformUsing(Transformers.AliasToBean<RouteListNomenclatureAmount>())
-				.Future<RouteListNomenclatureAmount>();
-
-			var allToDeliver = orderItemsToDeliver
-				.Union(orderEquipmentsToDeliver)
-				.GroupBy(x => new { x.RouteListId, x.NomenclatureId })
-				.Select(group => new RouteListNomenclatureAmount
-				{
-					RouteListId = group.Key.RouteListId,
-					NomenclatureId = group.Key.NomenclatureId,
-					Amount = group.Sum(x => x.Amount)
-				})
-				.ToList();
+				.List<RouteListNomenclatureAmount>();
 
 			//Выбираем МЛ, в котором хватает запаса номенклатур на поступивший быстрый заказ
 			foreach(var routeListNode in routeListNodes)
 			{
-				var toDeliverForRL = allToDeliver.Where(x => x.RouteListId == routeListNode.RouteList.Id).ToList();
-				var loadedForRL = allLoaded.Where(x => x.RouteListId == routeListNode.RouteList.Id).ToList();
+				var routeListFreeBalance = freeBalances.Where(x => x.RouteListId == routeListNode.RouteList.Id).ToArray();
 
 				foreach(var need in neededNomenclatures)
 				{
-					var toDeliver = toDeliverForRL.FirstOrDefault(x => x.NomenclatureId == need.Key)?.Amount ?? 0;
-					var loaded = loadedForRL.FirstOrDefault(x => x.NomenclatureId == need.Key)?.Amount ?? 0;
+					var nomenclatureFreeBalance = routeListFreeBalance?.SingleOrDefault(x => x.NomenclatureId == need.Key)?.Amount ?? 0;
 
-					var onBoard = loaded - toDeliver;
-					if(onBoard < need.Value)
+					if(nomenclatureFreeBalance < need.Value)
 					{
 						routeListNode.IsGoodsEnough.ParameterValue = false;
 						routeListNode.IsGoodsEnough.IsValidParameter = false;
