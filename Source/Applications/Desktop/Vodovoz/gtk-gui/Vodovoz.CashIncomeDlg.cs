@@ -258,6 +258,7 @@ namespace Vodovoz
 			this.yspinMoney.Name = "yspinMoney";
 			this.yspinMoney.Adjustment.PageIncrement = 1000D;
 			this.yspinMoney.ClimbRate = 1D;
+			this.yspinMoney.Digits = ((uint)(2));
 			this.yspinMoney.Numeric = true;
 			this.yspinMoney.ValueAsDecimal = 0m;
 			this.yspinMoney.ValueAsInt = 0;

@@ -174,6 +174,7 @@ namespace Vodovoz.Dialogs.Cash
 			this.yspinsum.Name = "yspinsum";
 			this.yspinsum.Adjustment.PageIncrement = 1000D;
 			this.yspinsum.ClimbRate = 1D;
+			this.yspinsum.Digits = ((uint)(2));
 			this.yspinsum.Numeric = true;
 			this.yspinsum.ValueAsDecimal = 0m;
 			this.yspinsum.ValueAsInt = 0;
