@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1895,6 +1895,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.TrueMarkReceiptJournalFilterView.cs" />
     <Compile Include="Views\Cash\PaymentOnlineView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentOnlineView.cs" />
+    <Compile Include="Views\Reports\SalesBySubdivisionsAnalitycsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.SalesBySubdivisionsAnalitycsReportView.cs" />
     <Compile Include="Views\Complaints\ComplaintsJournalsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintsJournalsView.cs" />
     <Compile Include="Filters\GtkViews\WarehouseDocumentsItemsJournalFilterView.cs" />
