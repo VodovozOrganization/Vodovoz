@@ -207,7 +207,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 		protected void CreateExportJournalReportAction()
 		{
-			var exportJournalReportAction = new JournalAction("Выгрузка",
+			var exportJournalReportAction = new JournalAction("Выгрузка в Excel",
 				(selected) => true,
 				(selected) => true,
 				(selected) => {
