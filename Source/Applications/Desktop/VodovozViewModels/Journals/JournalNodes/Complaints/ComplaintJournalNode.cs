@@ -91,22 +91,40 @@ namespace Vodovoz.Journals.JournalNodes
 
 	public class ComplaintWithDepartmentsReactionJournalNode : ComplaintJournalNode
 	{
-		public DateTime DepartmentConnectionTime { get; set; }
+		public DateTime? DepartmentConnectionTime { get; set; }
 		public DateTime? DepartmentFirstCommentTime { get; set; }
 
 		public string DepartmentConnectionTimeString =>
-			$"{DepartmentConnectionTime.ToString("dd.MM.yy")}\n{DepartmentConnectionTime.ToString("t")}";
+			DepartmentConnectionTime.HasValue
+			? $"{DepartmentConnectionTime.Value.ToString("dd.MM.yy")}\n{DepartmentConnectionTime.Value.ToString("t")}"
+			: "-";
 
 		public string DepartmentFirstCommentTimeString => 
 			DepartmentFirstCommentTime.HasValue
 			? $"{DepartmentFirstCommentTime.Value.ToString("dd.MM.yy")}\n{DepartmentFirstCommentTime.Value.ToString("t")}"
 			: "-";
 
-		public string DepartmentReactionTimeString =>
-			DepartmentFirstCommentTime.HasValue
-			? $"{(DepartmentFirstCommentTime.Value - DepartmentConnectionTime).Days.ToString("F0")}д" +
-				$":{(DepartmentFirstCommentTime.Value - DepartmentConnectionTime).Hours.ToString("F0")}ч" +
-				$":{(DepartmentFirstCommentTime.Value - DepartmentConnectionTime).Minutes.ToString("F0")}мин"
-			: "-";
+		public string DepartmentReactionTimeString
+		{
+			get
+			{
+				if(DepartmentConnectionTime.HasValue && DepartmentFirstCommentTime.HasValue)
+				{
+					var reactionTime = DepartmentFirstCommentTime.Value - DepartmentConnectionTime.Value;
+
+					if(reactionTime.Minutes % 10 !=  (DepartmentFirstCommentTime.Value.Minute - DepartmentConnectionTime.Value.Minute) % 10)
+					{
+						reactionTime = reactionTime + TimeSpan.FromMinutes(1);
+					}
+
+					string daysCountStr = $"{reactionTime.Days.ToString("F0")}д";
+					string hoursCountStr = $"{reactionTime.Hours.ToString("F0")}ч";
+					string minutesCountStr = $"{reactionTime.Minutes.ToString("F0")}мин";
+
+					return $"{daysCountStr}:{hoursCountStr}:{minutesCountStr}";
+				}
+				return "-";
+			}
+		}
 	}
 }
