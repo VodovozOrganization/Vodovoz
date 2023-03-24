@@ -672,18 +672,19 @@ namespace Vodovoz
 				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
 				_orderParametersProvider.PaymentByCardFromOnlineStoreId
 			};
+
+			var paymentFromItemsQuery = UoW.Session.QueryOver<PaymentFrom>();
 			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
 			{
-				ySpecPaymentFrom.ItemsList =
-					UoW.Session.QueryOver<PaymentFrom>()
-						.Where(p => !p.IsArchive)
-						.WhereRestrictionOn(x => x.Id).Not.IsIn(excludedPaymentFromIds).List();
-			}
-			else
-			{
-				ySpecPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>().Where(p => !p.IsArchive);
+				paymentFromItemsQuery.WhereRestrictionOn(x => x.Id).Not.IsIn(excludedPaymentFromIds);
 			}
 
+			if(Entity.PaymentByCardFrom == null || !Entity.PaymentByCardFrom.IsArchive)
+			{
+				paymentFromItemsQuery.Where(p => !p.IsArchive);
+			}
+
+			ySpecPaymentFrom.ItemsList = paymentFromItemsQuery.List();
 			ySpecPaymentFrom.Binding.AddBinding(Entity, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 
 			enumTax.ItemsEnum = typeof(TaxType);

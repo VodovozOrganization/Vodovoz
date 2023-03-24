@@ -365,8 +365,20 @@ namespace Vodovoz
 
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
+
+			if (_routeListItem.Order.PaymentType == PaymentType.ByCard)
+			{
+				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>()
+					.Where(
+						p => !p.IsArchive
+						|| _routeListItem.Order.PaymentByCardFrom.Id == p.Id
+				).List();
+			}
+			else
+			{
+				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(p => !p.IsArchive).List();
+			}				
 			
-			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(p => !p.IsArchive).List();
 			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.ByCard, w => w.Visible)
 				.InitializeFromSource();
