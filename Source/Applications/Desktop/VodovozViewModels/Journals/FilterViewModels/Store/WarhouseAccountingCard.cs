@@ -54,7 +54,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 						&& x.NomenclatureName == NomenclatureName)
 					.Sum(x => x.Amount);
 
-				var residue = _getWarhouseBalance(NomenclatureId, WarehouseId, EndDate);
+				var residue = _getWarhouseBalance(NomenclatureId, WarehouseId, slice.EndDate);
 
 				_rows.Add(WarhouseAccountingCardRow.Create(startDate, income, outcome, residue));
 			}
