@@ -174,6 +174,8 @@ namespace Vodovoz
 				EndDate = DateTime.Today.AddDays(1)
 			};
 
+			routeListJournalFilterViewModelFrom.AddressTypeNodes.ForEach(x => x.Selected = true);
+
 			evmeRouteListFrom.SetEntityAutocompleteSelectorFactory(routeListJournalFactory
 				.CreateRouteListJournalAutocompleteSelectorFactory(scope, routeListJournalFilterViewModelFrom));
 
@@ -188,6 +190,8 @@ namespace Vodovoz
 				StartDate = DateTime.Today.AddDays(-3),
 				EndDate = DateTime.Today.AddDays(1)
 			};
+
+			routeListJournalFilterViewModelTo.AddressTypeNodes.ForEach(x => x.Selected = true);
 
 			evmeRouteListTo.SetEntityAutocompleteSelectorFactory(routeListJournalFactory
 				.CreateRouteListJournalAutocompleteSelectorFactory(scope, routeListJournalFilterViewModelTo));

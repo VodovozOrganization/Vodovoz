@@ -834,7 +834,11 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			var addressKeepingDocument = UoW.GetAll<RouteListAddressKeepingDocument>().SingleOrDefault(x => x.RouteListItem.Id == address.Id);
-			UoW.Delete(addressKeepingDocument);
+
+			if(addressKeepingDocument != null)
+			{
+				UoW.Delete(addressKeepingDocument);
+			}
 
 			ObservableAddresses.Remove(address);
 			return true;
@@ -1088,25 +1092,25 @@ namespace Vodovoz.Domain.Logistic
 
 			#region Терминал для оплаты
 
-			//Терминал для оплаты
+			//Терминал для оплаты 
+			//TODO Если используются операции по водителю с терминалами, переделать на них.
+
 			var terminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
+			var terminal = UoW.GetById<Nomenclature>(terminalId);
 			var loadedTerminalAmount = _carLoadDocumentRepository.LoadedTerminalAmount(UoW, Id, terminalId);
 			var unloadedTerminalAmount = _carUnloadRepository.UnloadedTerminalAmount(UoW, Id, terminalId);
 
 			if(loadedTerminalAmount > 0)
 			{
-				var terminal = UoW.GetById<Nomenclature>(terminalId);
-
-				var discrepancyTerminal = new Discrepancy
+				var discrepancyTerminalFreeBalance = new Discrepancy
 				{
 					Nomenclature = terminal,
-					PickedUpFromClient = loadedTerminalAmount,
+					FreeBalance = loadedTerminalAmount - unloadedTerminalAmount,
+					ToWarehouse = unloadedTerminalAmount,
 					Name = terminal.Name
 				};
 
-				if(unloadedTerminalAmount > 0) discrepancyTerminal.ToWarehouse = unloadedTerminalAmount;
-
-				AddDiscrepancy(result, discrepancyTerminal);
+				AddDiscrepancy(result, discrepancyTerminalFreeBalance);
 			}
 
 			#endregion
