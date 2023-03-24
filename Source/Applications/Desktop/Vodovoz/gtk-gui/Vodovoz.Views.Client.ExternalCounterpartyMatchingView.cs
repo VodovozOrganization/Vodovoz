@@ -36,7 +36,7 @@ namespace Vodovoz.Views.Client
 
 		private global::Gtk.VSeparator vseparator1;
 
-		private global::Gtk.Expander expander1;
+		private global::Gtk.Expander expanderDiscrepancies;
 
 		private global::Gamma.GtkWidgets.yVBox vboxDiscrepancies;
 
@@ -233,11 +233,11 @@ namespace Vodovoz.Views.Client
 			w15.Expand = false;
 			w15.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.expander1 = new global::Gtk.Expander(null);
-			this.expander1.CanFocus = true;
-			this.expander1.Name = "expander1";
-			this.expander1.Expanded = true;
-			// Container child expander1.Gtk.Container+ContainerChild
+			this.expanderDiscrepancies = new global::Gtk.Expander(null);
+			this.expanderDiscrepancies.CanFocus = true;
+			this.expanderDiscrepancies.Name = "expanderDiscrepancies";
+			this.expanderDiscrepancies.Expanded = true;
+			// Container child expanderDiscrepancies.Gtk.Container+ContainerChild
 			this.vboxDiscrepancies = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxDiscrepancies.Name = "vboxDiscrepancies";
 			this.vboxDiscrepancies.Spacing = 6;
@@ -253,15 +253,17 @@ namespace Vodovoz.Views.Client
 			this.vboxDiscrepancies.Add(this.GtkScrolledWindow2);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxDiscrepancies[this.GtkScrolledWindow2]));
 			w17.Position = 2;
-			this.expander1.Add(this.vboxDiscrepancies);
+			this.expanderDiscrepancies.Add(this.vboxDiscrepancies);
 			this.lblDiscrepanciesTitle = new global::Gtk.Label();
 			this.lblDiscrepanciesTitle.Name = "lblDiscrepanciesTitle";
 			this.lblDiscrepanciesTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Уже зарегистрированные\nклиенты со схожими параметрами");
 			this.lblDiscrepanciesTitle.UseUnderline = true;
-			this.expander1.LabelWidget = this.lblDiscrepanciesTitle;
-			this.vboxMain.Add(this.expander1);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.expander1]));
+			this.expanderDiscrepancies.LabelWidget = this.lblDiscrepanciesTitle;
+			this.vboxMain.Add(this.expanderDiscrepancies);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.expanderDiscrepancies]));
 			w19.Position = 2;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
