@@ -1,5 +1,6 @@
 ﻿using QS.Commands;
 using QS.Project.Filter;
+using QS.Project.Journal;
 using QS.Project.Services;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 {
-	public class EmployeeFilterViewModel : FilterViewModelBase<EmployeeFilterViewModel>
+	public class EmployeeFilterViewModel : FilterViewModelBase<EmployeeFilterViewModel>, IJournalFilterViewModel
 	{
 		private bool _sortByPriority;
 		private bool _canSortByPriority;
@@ -228,6 +229,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 				}
 			}
 		}
+
+		public bool IsShow { get; set; }
 
 		#endregion
 

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.Project.Filter;
+using QS.Project.Journal;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 {
-	public class NomenclatureFilterViewModel : FilterViewModelBase<NomenclatureFilterViewModel>
+	public class NomenclatureFilterViewModel : FilterViewModelBase<NomenclatureFilterViewModel>, IJournalFilterViewModel
 	{
 		NomenclatureCategory[] availableCategories;
 		public virtual NomenclatureCategory[] AvailableCategories {
@@ -139,5 +140,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 		}
 
 		public bool IsDefectiveBottle { get; set; }
+		public bool IsShow { get; set; }
 	}
 }

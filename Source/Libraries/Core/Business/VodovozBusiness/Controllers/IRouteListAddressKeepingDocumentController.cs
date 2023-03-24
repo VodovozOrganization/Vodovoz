@@ -1,0 +1,14 @@
+﻿using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+
+namespace Vodovoz.Controllers
+{
+	public interface IRouteListAddressKeepingDocumentController
+	{
+		void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, Order order, DeliveryFreeBalanceType deliveryFreeBalanceType);
+		void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem address, RouteListItemStatus oldStatus, RouteListItemStatus newStatus);
+		void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem, DeliveryFreeBalanceType deliveryFreeBalanceType,
+			bool isFullRecreation = false, RouteListItemStatus? oldStatus = null, RouteListItemStatus? newStatus = null);
+	}
+}

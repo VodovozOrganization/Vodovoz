@@ -478,7 +478,7 @@ namespace Vodovoz
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
 		{
-			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW);
+			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW, true);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
@@ -491,7 +491,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveryCanceledClicked(object sender, EventArgs e)
 		{
-			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW);
+			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW, true);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{

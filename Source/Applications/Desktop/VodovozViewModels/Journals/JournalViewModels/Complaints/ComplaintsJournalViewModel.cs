@@ -722,27 +722,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_subdivisionParametersProvider
 					),
 					//функция диалога открытия документа
-					(ComplaintJournalNode node) => new ComplaintViewModel(
-						EntityUoWBuilder.ForOpen(node.Id),
-						_unitOfWorkFactory,
-						_commonServices,
-						NavigationManager,
-						_undeliveredOrdersJournalOpener,
-						_employeeService,
-						_fileDialogService,
-						_subdivisionRepository,
-						_userRepository,
-						_orderSelectorFactory,
-						_employeeJournalFactory,
-						_counterpartyJournalFactory,
-						_deliveryPointJournalFactory,
-						_salesPlanJournalFactory,
-						_nomenclatureSelector,
-						_employeeSettings,
-						new ComplaintResultsRepository(),
-						_subdivisionParametersProvider,
-						_scope.BeginLifetimeScope()
-					),
+					(ComplaintJournalNode node) =>
+						(ITdiTab)NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id)),
 					//функция идентификации документа
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
@@ -764,27 +745,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_subdivisionParametersProvider
 					),
 					//функция диалога открытия документа
-					(ComplaintJournalNode node) => new ComplaintViewModel(
-						EntityUoWBuilder.ForOpen(node.Id),
-						_unitOfWorkFactory,
-						_commonServices,
-						NavigationManager,
-						_undeliveredOrdersJournalOpener,
-						_employeeService,
-						_fileDialogService,
-						_subdivisionRepository,
-						_userRepository,
-						_orderSelectorFactory,
-						_employeeJournalFactory,
-						_counterpartyJournalFactory,
-						_deliveryPointJournalFactory,
-						_salesPlanJournalFactory,
-						_nomenclatureSelector,
-						_employeeSettings,
-						new ComplaintResultsRepository(),
-						_subdivisionParametersProvider,
-						_scope.BeginLifetimeScope()
-					),
+					(ComplaintJournalNode node) =>
+						(ITdiTab)NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id)),
 					//функция идентификации документа
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
@@ -875,27 +837,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
 						ComplaintViewModel currentComplaintVM = null;
 						if(currentComplaintId.HasValue) {
-							currentComplaintVM = new ComplaintViewModel(
-								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
-								_unitOfWorkFactory,
-								_commonServices,
-								NavigationManager,
-								_undeliveredOrdersJournalOpener,
-								_employeeService,
-								_fileDialogService,
-								_subdivisionRepository,
-								_userRepository,
-								_orderSelectorFactory,
-								_employeeJournalFactory,
-								_counterpartyJournalFactory,
-								_deliveryPointJournalFactory,
-								_salesPlanJournalFactory,
-								_nomenclatureSelector,
-								_employeeSettings,
-								new ComplaintResultsRepository(),
-								_subdivisionParametersProvider,
-								_scope.BeginLifetimeScope()
-							);
+							currentComplaintVM = _scope.Resolve<ComplaintViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(currentComplaintId.Value)));
 							currentComplaintVM.AddFineCommand.Execute(this);
 						}
 					}
@@ -911,27 +853,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
 						ComplaintViewModel currentComplaintVM = null;
 						if(currentComplaintId.HasValue) {
-							currentComplaintVM = new ComplaintViewModel(
-								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
-								_unitOfWorkFactory,
-								_commonServices,
-								NavigationManager,
-								_undeliveredOrdersJournalOpener,
-								_employeeService,
-								_fileDialogService,
-								_subdivisionRepository,
-								_userRepository,
-								_orderSelectorFactory,
-								_employeeJournalFactory,
-								_counterpartyJournalFactory,
-								_deliveryPointJournalFactory,
-								_salesPlanJournalFactory,
-								_nomenclatureSelector,
-								_employeeSettings,
-								new ComplaintResultsRepository(),
-								_subdivisionParametersProvider,
-								_scope.BeginLifetimeScope()
-							);
+							currentComplaintVM = _scope.Resolve<ComplaintViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(currentComplaintId.Value)));
+							currentComplaintVM.AddFineCommand.Execute(this);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))
 							{

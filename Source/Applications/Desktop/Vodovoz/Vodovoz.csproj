@@ -577,6 +577,7 @@
     <Compile Include="Representations\ProductGroups\ProductGroupVMNode.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
+    <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
     <Compile Include="TreeModels\ModelConfig.cs" />
     <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />
@@ -1869,6 +1870,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Sale.DeliveryPriceRuleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReportGroupPrint.cs" />
     <Compile Include="ReportsParameters\WayBillReportGroupPrint.cs" />
+    <Compile Include="ViewWidgets\Logistics\DeliveryFreeBalanceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.DeliveryFreeBalanceView.cs" />
     <Compile Include="Views\Warehouse\Documents\InventoryDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.Documents.InventoryDocumentView.cs" />
     <Compile Include="Views\Reports\FastDeliveryPercentCoverageReportView.cs" />

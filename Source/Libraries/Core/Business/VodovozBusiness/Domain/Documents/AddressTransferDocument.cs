@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Documents
@@ -12,7 +13,8 @@ namespace Vodovoz.Domain.Documents
     [Appellative (Gender = GrammaticalGender.Masculine,
         Nominative = "документ переноса адресов",
         NominativePlural = "документы переноса адресов")]
-    public class AddressTransferDocument : Document
+    [HistoryTrace]
+	public class AddressTransferDocument : Document
     {
         #region Сохраняемые свойства
 

@@ -565,6 +565,7 @@ namespace Vodovoz
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 			_logger.Debug("Закончили пересчет рентабельности МЛ");
 			UoW.Save(Entity.RouteListProfitability);
+
 			UoW.Commit();
 			
 			return true;
@@ -750,6 +751,13 @@ namespace Vodovoz
 					}
 
 					Save();
+
+					var routeListKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
+
+					foreach(var address in Entity.Addresses)
+					{
+						routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, address, DeliveryFreeBalanceType.Decrease, true);
+					}
 
 					if(Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !Entity.NeedToLoad)
 					{
