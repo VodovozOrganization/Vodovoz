@@ -173,7 +173,8 @@ public partial class MainWindow : Gtk.Window
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 	private readonly IComplaintNotificationController _complaintNotificationController;
 	private readonly bool _hasAccessToSalariesForLogistics;
-	public readonly int _currentUserSubdivisionId;
+	private readonly int _currentUserSubdivisionId;
+	private readonly bool _hideComplaintsNotifications;
 
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
@@ -194,6 +195,7 @@ public partial class MainWindow : Gtk.Window
 		var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
 		var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
 		var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
+		_hideComplaintsNotifications = CurrentUserSettings.Settings.HideComplaintNotification;
 		var tabsParametersProvider = new TabsParametersProvider(new ParametersProvider());
 		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
 		TDIMain.SetTabsReordering(reorderTabs);
@@ -342,13 +344,23 @@ public partial class MainWindow : Gtk.Window
 		#region Уведомление о наличии незакрытых рекламаций без комментариев в добавленной дискуссии для отдела
 
 		_complaintNotificationController = autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
-		_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
+		
+		if (!_hideComplaintsNotifications)
+		{
+			_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
 
-		var complaintNotificationDetails = GetComplaintNotificationDetails();
-		UpdateSendedComplaintsNotification(complaintNotificationDetails);
+			var complaintNotificationDetails = GetComplaintNotificationDetails();
+			UpdateSendedComplaintsNotification(complaintNotificationDetails);
 
-		btnOpenComplaint.Clicked += OnBtnOpenComplaintClicked;
+			btnOpenComplaint.Clicked += OnBtnOpenComplaintClicked;
+		}
+		else
+		{
+			hboxComplaintsNotification.Visible = false;
+		}
 		#endregion
+
+		hboxNotifications.Visible = hboxMovementsNotification.Visible || hboxComplaintsNotification.Visible;
 
 		BanksUpdater.CheckBanksUpdate(false);
 
@@ -431,8 +443,11 @@ public partial class MainWindow : Gtk.Window
 			UpdateSendedMovementsNotification(movementsNotification);
 		}
 
-		var complaintsNotifications = GetComplaintNotificationDetails();
-		UpdateSendedComplaintsNotification(complaintsNotifications);
+		if(!_hideComplaintsNotifications)
+		{
+			var complaintsNotifications = GetComplaintNotificationDetails();
+			UpdateSendedComplaintsNotification(complaintsNotifications);
+		}
 	}
 
 	private void UpdateSendedMovementsNotification(string notification)
