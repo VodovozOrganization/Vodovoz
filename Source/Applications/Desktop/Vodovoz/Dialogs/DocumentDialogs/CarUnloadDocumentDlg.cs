@@ -20,6 +20,7 @@ using Vodovoz.Repository.Store;
 using Vodovoz.ViewWidgets.Store;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -467,11 +468,17 @@ namespace Vodovoz
 						item.WarehouseMovementOperation.Amount = tempItem.Amount;
 					if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.Amount != -tempItem.Amount)
 						item.EmployeeNomenclatureMovementOperation.Amount = -tempItem.Amount;
-					
-					if(item.DeliveryFreeBalanceOperation != null && item.DeliveryFreeBalanceOperation.Amount != -tempItem.Amount)
-					{
-						item.DeliveryFreeBalanceOperation.Amount = -tempItem.Amount;
-					}
+
+					var deliveryFreeBalanceOperation = item.DeliveryFreeBalanceOperation
+					    ?? new DeliveryFreeBalanceOperation
+						{
+							Nomenclature = new Nomenclature { Id = tempItem.NomenclatureId },
+							RouteList = Entity.RouteList
+						};
+
+					deliveryFreeBalanceOperation.Amount = -tempItem.Amount;
+
+					item.DeliveryFreeBalanceOperation = deliveryFreeBalanceOperation;
 
 					if(item.Redhead != tempItem.Redhead)
 						item.Redhead = tempItem.Redhead;
