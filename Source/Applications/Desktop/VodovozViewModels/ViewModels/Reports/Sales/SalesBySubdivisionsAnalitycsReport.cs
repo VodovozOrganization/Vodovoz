@@ -1,22 +1,35 @@
 ﻿using DateTimeHelpers;
 using System;
+using System.Collections.Generic;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 {
 	public class SalesBySubdivisionsAnalitycsReport
 	{
+		private readonly List<Row> _rows = new List<Row>();
+
 		private SalesBySubdivisionsAnalitycsReport(
 			DateTimePeriod firstPeriod,
 			DateTimePeriod secondPeriod,
 			bool splitByNomenclatures,
 			bool splitBySubdivisions,
-			bool splitByWarehouses)
+			bool splitByWarehouses,
+			IEnumerable<DataNode> dataNodes)
 		{
 			FirstPeriod = firstPeriod;
 			SecondPeriod = secondPeriod;
 			SplitByNomenclatures = splitByNomenclatures;
 			SplitBySubdivisions = splitBySubdivisions;
 			SplitByWarehouses = splitByWarehouses;
+
+			Process(dataNodes);
+
+			CreatedAt = DateTime.Now;
+		}
+
+		private void Process(IEnumerable<DataNode> dataNodes)
+		{
+			throw new NotImplementedException();
 		}
 
 		public DateTimePeriod FirstPeriod { get; }
@@ -29,14 +42,31 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 		public bool SplitByWarehouses { get; }
 
+		public DateTime CreatedAt { get; }
+
+		public IReadOnlyCollection<Row> Rows => _rows.AsReadOnly();
+
 		public static SalesBySubdivisionsAnalitycsReport Create(
 			DateTimePeriod firstPeriod,
 			DateTimePeriod secondPeriod,
 			bool splitByNomenclatures,
 			bool splitBySubdivisions,
-			bool splitByWarehouses)
+			bool splitByWarehouses,
+			Func<DateTimePeriod, DateTimePeriod, bool, bool, bool, IEnumerable<DataNode>> retrieveFunction)
 		{
+			if(retrieveFunction is null)
+			{
+				throw new ArgumentNullException(nameof(retrieveFunction));
+			}
+
 			ValidateParameters(
+				firstPeriod,
+				secondPeriod,
+				splitByNomenclatures,
+				splitBySubdivisions,
+				splitByWarehouses);
+
+			IEnumerable<DataNode> dataNodes = retrieveFunction.Invoke(
 				firstPeriod,
 				secondPeriod,
 				splitByNomenclatures,
@@ -48,7 +78,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				secondPeriod,
 				splitByNomenclatures,
 				splitBySubdivisions,
-				splitByWarehouses);
+				splitByWarehouses,
+				dataNodes);
 		}
 
 		private static void ValidateParameters(
@@ -71,11 +102,31 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			}
 
 			if(splitByWarehouses
-				&& (firstPeriod.EndDateTime - firstPeriod.StartDateTime).TotalDays > 1)
+				&& (firstPeriod.EndDateTime - firstPeriod.StartDateTime)?.TotalDays > 1)
 			{
 				throw new ArgumentException("Нельзя выбрать разбивку по складам для отчета с интервалом более одного дня",
 					nameof(splitByWarehouses));
 			}
+		}
+
+		public class Row
+		{
+
+		}
+
+		public class DataNode
+		{
+			public int nomenclatureId { get; set; }
+
+			public string nomenclatureName { get; set; }
+
+			public int productGroupId { get; set; }
+
+			public string productGroupName { get; set; }
+
+			public int subdivisionId { get; set; }
+
+			public string subdivisionName { get; set; }
 		}
 	}
 }

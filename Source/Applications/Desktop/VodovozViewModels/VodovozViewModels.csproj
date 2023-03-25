@@ -483,7 +483,9 @@
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNode.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportTitleNode.cs" />
     <Compile Include="ViewModels\Reports\SalaryByEmployeeJournalReport\SalaryByEmployeeJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\IClosedXmlAsyncReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.GroupingBy.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.MeasurementUnit.cs" />
