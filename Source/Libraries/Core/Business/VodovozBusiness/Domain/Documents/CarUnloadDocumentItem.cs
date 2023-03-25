@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Service;
 
@@ -13,6 +14,8 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class CarUnloadDocumentItem: PropertyChangedBase, IDomainObject
 	{
+		private DeliveryFreeBalanceOperation _deliveryFreeBalanceOperation;
+
 		public virtual int Id { get; set; }
 
 		private CarUnloadDocument document;
@@ -37,6 +40,12 @@ namespace Vodovoz.Domain.Documents
 		public virtual EmployeeNomenclatureMovementOperation EmployeeNomenclatureMovementOperation { 
 			get => employeeNomenclatureMovementOperation;
 			set => SetField (ref employeeNomenclatureMovementOperation, value);
+		}
+
+		public virtual DeliveryFreeBalanceOperation DeliveryFreeBalanceOperation
+		{
+			get => _deliveryFreeBalanceOperation;
+			set => SetField(ref _deliveryFreeBalanceOperation, value);
 		}
 
 		ServiceClaim serviceClaim;

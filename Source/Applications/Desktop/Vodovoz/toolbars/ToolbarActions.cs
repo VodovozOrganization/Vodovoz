@@ -587,6 +587,8 @@ public partial class MainWindow : Window
 		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
 		var routeListItemRepository = new RouteListItemRepository();
 		var employeeService = new EmployeeService();
+		var employeeRepository = new EmployeeRepository();
+		var nomenclatureParametersProvider = new NomenclatureParametersProvider(parametersProvider);
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListAddressesTransferringDlg>(),
@@ -597,7 +599,9 @@ public partial class MainWindow : Window
 				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
-				new CategoryRepository(parametersProvider)
+				new CategoryRepository(parametersProvider),
+				employeeRepository,
+				nomenclatureParametersProvider
 			)
 		);
 	}

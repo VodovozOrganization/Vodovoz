@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -180,10 +180,10 @@ namespace Vodovoz.Controllers
             var loaded = routeListRepository.AllGoodsLoaded(uow, routeList)
                 .ToDictionary(x => x.NomenclatureId, x => x.Amount);
             
-            var transferedFromThisRL = routeListRepository.AllGoodsTransferredFrom(uow, routeList)
+            var transferedFromThisRL = routeListRepository.AllGoodsTransferredToAnotherDrivers(uow, routeList)
                 .ToDictionary(x => x.NomenclatureId, x => x.Amount);
             
-            var transferedToThisRL = routeListRepository.AllGoodsTransferredTo(uow, routeList)
+            var transferedToThisRL = routeListRepository.AllGoodsTransferredFromDrivers(uow, routeList)
                 .ToDictionary(x => x.NomenclatureId, x => x.Amount);
             
             var delivered = routeListRepository.AllGoodsDelivered(deliveryDocuments)

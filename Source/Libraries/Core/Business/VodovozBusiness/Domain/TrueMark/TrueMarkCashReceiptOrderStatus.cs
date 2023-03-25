@@ -20,6 +20,9 @@ namespace Vodovoz.Domain.TrueMark
 		ReceiptNotNeeded,
 
 		[Display(Name = "Отправлен")]
-		Sended
+		Sended,
+
+		[Display(Name = "Дубликат по сумме")]
+		DuplicateSum
 	}
 }

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Tools;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -28,6 +30,7 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteListItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private AddressTransferType? _addressTransferType;
 
 		#region Свойства
 
@@ -80,13 +83,6 @@ namespace Vodovoz.Domain.Logistic
 		public virtual RouteListItem TransferedTo {
 			get => transferedTo;
 			protected set => SetField(ref transferedTo, value);
-		}
-
-		private bool needToReload;
-		[Display(Name = "Необходима повторная загрузка")]
-		public virtual bool NeedToReload {
-			get => needToReload;
-			set => SetField(ref needToReload, value);
 		}
 
 		private bool wasTransfered;
@@ -157,6 +153,13 @@ namespace Vodovoz.Domain.Logistic
 		public virtual int? DriverBottlesReturned {
 			get => driverBottlesReturned;
 			set => SetField(ref driverBottlesReturned, value);
+		}
+
+		[Display(Name = "Тип переноа адреса")]
+		public virtual AddressTransferType? AddressTransferType
+		{
+			get => _addressTransferType;
+			set => SetField(ref _addressTransferType, value);
 		}
 
 		private decimal oldBottleDepositsCollected;
@@ -715,7 +718,7 @@ namespace Vodovoz.Domain.Logistic
 					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1} {2}.",
 						item.TransferedTo.RouteList.Id,
 						item.TransferedTo.RouteList.Driver.ShortName,
-						item.TransferedTo.NeedToReload ? "с погрузкой":"без поргрузки");
+						item.TransferedTo.AddressTransferType?.GetEnumTitle());
 				else
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 			}
@@ -725,7 +728,7 @@ namespace Vodovoz.Domain.Logistic
 					return string.Format("Заказ из МЛ №{0} водителя {1} {2}.",
 						transferedFrom.RouteList.Id,
 						transferedFrom.RouteList.Driver.ShortName,
-						transferedFrom.TransferedTo.NeedToReload ? "с погрузкой" : "без поргрузки");
+						transferedFrom.TransferedTo.AddressTransferType?.GetEnumTitle());
 				else
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}
@@ -871,5 +874,10 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteListItemStatusStringType : NHibernate.Type.EnumStringType
 	{
 		public RouteListItemStatusStringType() : base(typeof(RouteListItemStatus)) { }
+	}
+
+	public class AddressTransferTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public AddressTransferTypeStringType() : base(typeof(AddressTransferType)) { }
 	}
 }

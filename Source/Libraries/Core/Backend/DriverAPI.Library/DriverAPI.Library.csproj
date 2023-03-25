@@ -14,6 +14,7 @@
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
+    <ProjectReference Include="..\..\..\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />
     <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
   </ItemGroup>
 
