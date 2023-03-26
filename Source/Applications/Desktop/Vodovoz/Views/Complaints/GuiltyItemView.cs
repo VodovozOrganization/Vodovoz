@@ -30,8 +30,10 @@ namespace Vodovoz.Views.Complaints
 			entVmEmployee.Binding.AddBinding(ViewModel, vm => vm.CanChooseEmployee, w => w.Visible).InitializeFromSource();
 
 			entityentrySubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionSelectorFactory);
-			entityentrySubdivision.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject).InitializeFromSource();
-			entityentrySubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChooseSubdivision, w => w.Visible).InitializeFromSource();
+			entityentrySubdivision.Binding
+				.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject)
+				.AddBinding(ViewModel, vm => vm.CanChooseSubdivision, w => w.Visible)
+				.InitializeFromSource();
 
 			this.Shown += (s, ea) => {
 				entVmEmployee.Visible = ViewModel.CanChooseEmployee;

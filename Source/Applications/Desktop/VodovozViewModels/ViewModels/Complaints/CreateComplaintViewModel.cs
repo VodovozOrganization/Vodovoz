@@ -33,9 +33,9 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IUserRepository _userRepository;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
-        private IList<ComplaintObject> _complaintObjectSource;
-        private ComplaintObject _complaintObject;
-        private DelegateCommand _changeDeliveryPointCommand;
+		private IList<ComplaintObject> _complaintObjectSource;
+		private ComplaintObject _complaintObject;
+		private DelegateCommand _changeDeliveryPointCommand;
 
 		public CreateComplaintViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IUserRepository userRepository,
-            IFileDialogService fileDialogService,
+			IFileDialogService fileDialogService,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -78,7 +78,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 			UserHasOnlyAccessToWarehouseAndComplaints =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-			    && !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
 
 			TabName = "Новая клиентская рекламация";
 			
@@ -92,7 +92,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IUserRepository userRepository,
-            IFileDialogService filePickerService,
+			IFileDialogService filePickerService,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -115,7 +115,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IUserRepository userRepository,
-            IFileDialogService filePickerService,
+			IFileDialogService filePickerService,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -157,21 +157,21 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-        private ComplaintFilesViewModel filesViewModel;
-        public ComplaintFilesViewModel FilesViewModel
-        {
-            get
-            {
-                if (filesViewModel == null)
-                {
-                    filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, _userRepository);
-                }
-                return filesViewModel;
-            }
-        }
+		private ComplaintFilesViewModel filesViewModel;
+		public ComplaintFilesViewModel FilesViewModel
+		{
+			get
+			{
+				if (filesViewModel == null)
+				{
+					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, _userRepository);
+				}
+				return filesViewModel;
+			}
+		}
 
-        //так как диалог только для создания рекламации
-        public bool CanEdit => PermissionResult.CanCreate;
+		//так как диалог только для создания рекламации
+		public bool CanEdit => PermissionResult.CanCreate;
 
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 
@@ -246,40 +246,40 @@ namespace Vodovoz.ViewModels.Complaints
 			);
 		}
 
-        public void CheckAndSave()
-        {
-            if (!HasСounterpartyDuplicateToday() ||
-                CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"))
-            {
-                SaveAndClose();
-            }
-        }
+		public void CheckAndSave()
+		{
+			if (!HasСounterpartyDuplicateToday() ||
+				CommonServices.InteractiveService.Question("Рекламация с данным контрагентом уже создавалась сегодня, создать ещё одну?"))
+			{
+				SaveAndClose();
+			}
+		}
 
-        private bool HasСounterpartyDuplicateToday()
-        {
-	        if(Entity.Counterparty == null) {
-		        return false;
-	        }
-	        return UoW.Session.QueryOver<Complaint>()
-		        .Where(i => i.Counterparty.Id == Entity.Counterparty.Id)
-		        .And(i => i.CreationDate >= DateTime.Now.AddDays(-1))
-		        .RowCount() > 0;
-        }
+		private bool HasСounterpartyDuplicateToday()
+		{
+			if(Entity.Counterparty == null) {
+				return false;
+			}
+			return UoW.Session.QueryOver<Complaint>()
+				.Where(i => i.Counterparty.Id == Entity.Counterparty.Id)
+				.And(i => i.CreationDate >= DateTime.Now.AddDays(-1))
+				.RowCount() > 0;
+		}
 
-        #region ChangeDeliveryPointCommand
+		#region ChangeDeliveryPointCommand
 
-        public DelegateCommand ChangeDeliveryPointCommand => _changeDeliveryPointCommand ?? (_changeDeliveryPointCommand =
-	        new DelegateCommand(() =>
-		        {
-			        if(Entity.Order?.DeliveryPoint != null)
-			        {
-				        Entity.DeliveryPoint = Entity.Order.DeliveryPoint;
-			        }
-		        },
-		        () => true
-	        ));
+		public DelegateCommand ChangeDeliveryPointCommand => _changeDeliveryPointCommand ?? (_changeDeliveryPointCommand =
+			new DelegateCommand(() =>
+				{
+					if(Entity.Order?.DeliveryPoint != null)
+					{
+						Entity.DeliveryPoint = Entity.Order.DeliveryPoint;
+					}
+				},
+				() => true
+			));
 
-        #endregion ChangeDeliveryPointCommand
+		#endregion ChangeDeliveryPointCommand
 
 		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
 		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }

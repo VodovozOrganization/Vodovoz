@@ -43,8 +43,10 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 
 			entityentryCurrentSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.CurrentSubdivisionSelectorFactory);
-			entityentryCurrentSubdivision.Binding.AddBinding(ViewModel, vm => vm.CurrentUserSubdivision, w => w.Subject).InitializeFromSource();
-			entityentryCurrentSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChangeSubdivision, w => w.Sensitive).InitializeFromSource();
+			entityentryCurrentSubdivision.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CurrentUserSubdivision, w => w.Subject)
+				.AddBinding(vm => vm.CanChangeSubdivision, w => w.Sensitive)
+				.InitializeFromSource();
 
 			yentryreferenceSubdivision.SubjectType = typeof(Subdivision);
 			yentryreferenceSubdivision.Binding.AddBinding(ViewModel, x => x.Subdivision, w => w.Subject).InitializeFromSource();
