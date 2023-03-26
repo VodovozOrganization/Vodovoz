@@ -256,7 +256,7 @@ namespace Vodovoz.Filters.GtkViews
 			w15.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.frmGuilty = new global::Gtk.Frame();
-			this.frmGuilty.WidthRequest = 370;
+			this.frmGuilty.WidthRequest = 300;
 			this.frmGuilty.Name = "frmGuilty";
 			this.frmGuilty.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child frmGuilty.Gtk.Container+ContainerChild
@@ -308,7 +308,7 @@ namespace Vodovoz.Filters.GtkViews
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entityentryCurrentSubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityentryCurrentSubdivision.WidthRequest = 370;
+			this.entityentryCurrentSubdivision.WidthRequest = 300;
 			this.entityentryCurrentSubdivision.Events = ((global::Gdk.EventMask)(256));
 			this.entityentryCurrentSubdivision.Name = "entityentryCurrentSubdivision";
 			this.entityentryCurrentSubdivision.CanEditReference = false;
