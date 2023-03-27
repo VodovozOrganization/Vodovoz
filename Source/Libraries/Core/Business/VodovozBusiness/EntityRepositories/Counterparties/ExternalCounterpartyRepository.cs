@@ -15,6 +15,19 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.SingleOrDefault();
 		}
 		
+		public ExternalCounterparty GetExternalCounterparty(
+			IUnitOfWork uow, Guid externalCounterpartyId, string phoneNumber, CounterpartyFrom counterpartyFrom)
+		{
+			Phone phoneAlias = null;
+			
+			return uow.Session.QueryOver<ExternalCounterparty>()
+				.JoinAlias(ec => ec.Phone, () => phoneAlias)
+				.Where(ec => ec.CounterpartyFrom == counterpartyFrom)
+				.And(ec => ec.ExternalCounterpartyId == externalCounterpartyId)
+				.And(() => phoneAlias.DigitsNumber == phoneNumber)
+				.SingleOrDefault();
+		}
+		
 		public ExternalCounterparty GetExternalCounterparty(IUnitOfWork uow, string phoneNumber, CounterpartyFrom counterpartyFrom)
 		{
 			Phone phoneAlias = null;

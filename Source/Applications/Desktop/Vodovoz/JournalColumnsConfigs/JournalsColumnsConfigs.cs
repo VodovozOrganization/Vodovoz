@@ -1821,6 +1821,23 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.Finish()
 			);
+			
+			//ExternalCounterpartiesMatchingJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ExternalCounterpartiesMatchingJournalViewModel>(
+				() => FluentColumnsConfig<ExternalCounterpartyMatchingJournalNode>.Create()
+					.AddColumn("Телефон")
+						.AddTextRenderer(node => node.PhoneNumber)
+					.AddColumn("Источник")
+						.AddEnumRenderer(node => node.CounterpartyFrom)
+					.AddColumn("Дата/время")
+						.AddTextRenderer(node => node.Created.ToShortDateString())
+					.AddColumn("Статус")
+						.AddEnumRenderer(node => node.Status)
+					.AddColumn("Присвоенный КА")
+						.AddTextRenderer(node => node.CounterpartyName)
+					.AddColumn("")
+					.Finish()
+			);
 		}
 	}
 }

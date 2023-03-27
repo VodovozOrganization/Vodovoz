@@ -48,7 +48,9 @@ namespace CustomerAppsApi.Factories
 			{
 				RegisteredNaturalCounterpartyDto =
 					_registeredNaturalCounterpartyDtoFactory.CreateNewRegisteredNaturalCounterpartyDto(externalCounterparty),
-				CounterpartyIdentificationStatus = CounterpartyIdentificationStatus.Success
+				CounterpartyIdentificationStatus = externalCounterparty.Email != null
+					? CounterpartyIdentificationStatus.Success
+					: CounterpartyIdentificationStatus.CounterpartyRegisteredWithoutEmail
 			};
 		}
 		

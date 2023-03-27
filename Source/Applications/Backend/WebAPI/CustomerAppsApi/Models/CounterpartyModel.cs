@@ -22,7 +22,7 @@ namespace CustomerAppsApi.Models
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IEmailRepository _emailRepository;
-		private readonly RoboatsSettings _roboatsSettings;
+		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly CounterpartyModelFactory _counterpartyModelFactory;
 		private readonly CounterpartyModelValidator _counterpartyModelValidator;
@@ -33,7 +33,7 @@ namespace CustomerAppsApi.Models
 			IExternalCounterpartyRepository externalCounterpartyRepository,
 			IRoboatsRepository roboatsRepository,
 			IEmailRepository emailRepository,
-			RoboatsSettings roboatsSettings,
+			IRoboatsSettings roboatsSettings,
 			ICounterpartySettings counterpartySettings,
 			CounterpartyModelFactory counterpartyModelFactory,
 			CounterpartyModelValidator counterpartyModelValidator,
@@ -61,15 +61,34 @@ namespace CustomerAppsApi.Models
 			}
 
 			var counterpartyFrom = GetCounterpartyFrom(counterpartyContactInfoDto.CameFromId);
+			var phoneNumber = new PhoneFormatter(PhoneFormat.DigitsTen).FormatString(counterpartyContactInfoDto.PhoneNumber);
+
+			//Ищем зарегистрированного клиента по ExternalId и по телефону
+			var externalCounterparty =
+				_externalCounterpartyRepository.GetExternalCounterparty(
+					_uow, counterpartyContactInfoDto.ExternalCounterpartyId, phoneNumber, counterpartyFrom);
+
+			if(externalCounterparty != null)
+			{
+				return _counterpartyModelFactory.CreateSuccessCounterpartyIdentificationDto(externalCounterparty);
+			}
 			
 			//Ищем зарегистрированного клиента по ExternalId
-			var externalCounterparty =
+			externalCounterparty =
 				_externalCounterpartyRepository.GetExternalCounterparty(
 					_uow, counterpartyContactInfoDto.ExternalCounterpartyId, counterpartyFrom);
 
 			if(externalCounterparty != null)
 			{
-				return _counterpartyModelFactory.CreateSuccessCounterpartyIdentificationDto(externalCounterparty);
+				return _counterpartyModelFactory.CreateNeedManualHandlingCounterpartyIdentificationDto();
+			}
+
+			//Ищем зарегистрированного клиента по телефону
+			externalCounterparty = _externalCounterpartyRepository.GetExternalCounterparty(_uow, phoneNumber, counterpartyFrom);
+
+			if(externalCounterparty != null)
+			{
+				return _counterpartyModelFactory.CreateNeedManualHandlingCounterpartyIdentificationDto();
 			}
 
 			/*
@@ -77,7 +96,6 @@ namespace CustomerAppsApi.Models
 			 * если запрос пришел от мобилки, то смотрим клиента с таким номером телефона, зарегистрированного через сайт
 			 * и наоборот, если запрос с сайта - ищем зарегистрированного через мобилку
 			 */
-			var phoneNumber = new PhoneFormatter(PhoneFormat.DigitsTen).FormatString(counterpartyContactInfoDto.PhoneNumber);
 			var registeredFromOtherPlatform = counterpartyFrom == CounterpartyFrom.MobileApp
 				? CounterpartyFrom.WebSite
 				: CounterpartyFrom.MobileApp;

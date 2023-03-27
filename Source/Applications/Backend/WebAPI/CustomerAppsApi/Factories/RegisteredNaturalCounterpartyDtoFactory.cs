@@ -3,7 +3,7 @@ using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Factories
 {
-	public class RegisteredNaturalCounterpartyDtoFactory
+	public class RegisteredNaturalCounterpartyDtoFactory : IRegisteredNaturalCounterpartyDtoFactory
 	{
 		public RegisteredNaturalCounterpartyDto CreateNewRegisteredNaturalCounterpartyDto(ExternalCounterparty externalCounterparty)
 		{

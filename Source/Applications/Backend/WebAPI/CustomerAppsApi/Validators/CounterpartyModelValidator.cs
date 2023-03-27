@@ -62,6 +62,9 @@ namespace CustomerAppsApi.Validators
 
 		private void ValidateLegalCounterpartyInfo(CounterpartyDto counterpartyDto)
 		{
+			_sb.AppendLine("Регистрация юридических лиц не возможна");
+			return;
+			
 			if(string.IsNullOrWhiteSpace(counterpartyDto.Name))
 			{
 				_sb.AppendLine("Не заполнено наименование клиента");

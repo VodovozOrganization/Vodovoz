@@ -17,18 +17,26 @@ namespace Vodovoz.Domain.Client
 
 	public class ExternalCounterparty : PropertyChangedBase, IDomainObject
 	{
-		private Guid _externalCounterpartyCounterpartyId;
+		private Guid _externalCounterpartyId;
 		private Phone _phone;
 		private Email _email;
 		private bool _isArchive;
+		private DateTime? _created;
 
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Внешний номер клиента")]
 		public virtual Guid ExternalCounterpartyId
 		{
-			get => _externalCounterpartyCounterpartyId;
-			set => SetField(ref _externalCounterpartyCounterpartyId, value);
+			get => _externalCounterpartyId;
+			set => SetField(ref _externalCounterpartyId, value);
+		}
+		
+		[Display(Name = "Дата создания")]
+		public virtual DateTime? Created
+		{
+			get => _created;
+			set => SetField(ref _created, value);
 		}
 
 		[Display(Name = "Телефон клиента")]
@@ -57,7 +65,9 @@ namespace Vodovoz.Domain.Client
 
 	public enum CounterpartyFrom
 	{
+		[Display(Name = "Мобильное приложение")]
 		MobileApp = 54,
+		[Display(Name = "Сайт")]
 		WebSite = 55
 	}
 }

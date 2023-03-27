@@ -60,10 +60,10 @@ namespace CustomerAppsApi
 			services.AddSingleton<ISettingsController, SettingsController>();
 			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
 			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
-			services.AddSingleton<RoboatsSettings>();
+			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
-			services.AddSingleton<RegisteredNaturalCounterpartyDtoFactory>();
+			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
 			services.AddSingleton<CounterpartyModelFactory>();
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();

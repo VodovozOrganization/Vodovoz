@@ -3,7 +3,7 @@ using Vodovoz.Settings;
 
 namespace Vodovoz.Parameters
 {
-	public class RoboatsSettings
+	public class RoboatsSettings : IRoboatsSettings
 	{
 		private readonly ISettingsController _settingsController;
 
