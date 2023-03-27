@@ -86,6 +86,7 @@ namespace RoboatsService.OrderValidation
 				multiValidator.AddValidator(new OnlyWaterOrderValidator(_nomenclatureParametersProvider));
 				multiValidator.AddValidator(new RoboatsWaterOrderValidator(_roboatsRepository));
 				multiValidator.AddValidator(new WaterRowDuplicateOrderValidator());
+				multiValidator.AddValidator(new ReasonForLeavingValidator());
 
 				var result = multiValidator.ValidateOrders(orders);
 				if(result.HasValidOrders)
