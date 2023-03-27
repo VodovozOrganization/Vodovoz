@@ -360,7 +360,7 @@ public partial class MainWindow : Gtk.Window
 		}
 		#endregion
 
-		hboxNotifications.Visible = hboxMovementsNotification.Visible || hboxComplaintsNotification.Visible;
+		hboxNotifications.Visible = hboxMovementsNotification.Visible || !_hideComplaintsNotifications;
 
 		BanksUpdater.CheckBanksUpdate(false);
 
