@@ -52,7 +52,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 					{ "car_types_of_use", carTypesOfUse.Any() ? carTypesOfUse : new[] { (object)0 } },
 					{ "car_own_types", carOwnTypes.Any() ? carOwnTypes : new[] { (object)0 } },
 					{ "show_today_route_lists", ycheckTodayRouteLists.Active },
-					{ "include_visiting_masters", nullCheckVisitingMasters.Active }
+					{ "include_visiting_masters", nullCheckVisitingMasters.Active },
+					{ "end_date", "2023.02.01" }
 				}
 			};
 		}

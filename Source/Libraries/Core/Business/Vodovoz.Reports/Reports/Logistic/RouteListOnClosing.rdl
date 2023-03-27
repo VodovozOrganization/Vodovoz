@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -97,6 +97,7 @@ WHERE
       END)
   AND cm.car_type_of_use IN (@car_types_of_use)
   AND cv.car_own_type IN (@car_own_types)
+  AND route_lists.date &lt; @end_date
 GROUP BY routeListId
 ORDER BY routeListDate, routeListId
 ;</CommandText>
@@ -115,6 +116,9 @@ ORDER BY routeListDate, routeListId
           </QueryParameter>
           <QueryParameter Name="@include_visiting_masters">
             <Value>={?include_visiting_masters}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@end_date">
+            <Value>={?end_date}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -960,6 +964,13 @@ ORDER BY routeListDate, routeListId
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
