@@ -436,6 +436,7 @@ namespace Vodovoz
 						null,
 						tempItem.Amount,
 						null,
+						terminalId,
 						null,
 						tempItem.Source,
 						tempItem.TypeOfDefect
@@ -461,6 +462,7 @@ namespace Vodovoz
 						null,
 						tempItem.Amount,
 						null,
+						terminalId,
 						tempItem.Redhead
 					);
 				} else {
