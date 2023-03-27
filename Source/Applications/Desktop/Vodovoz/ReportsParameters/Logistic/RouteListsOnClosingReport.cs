@@ -32,6 +32,9 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 			enumcheckCarOwnType.EnumType = typeof(CarOwnType);
 			enumcheckCarOwnType.SelectAll();
+
+			var now = DateTime.Now;
+			dateEnd.Date = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
@@ -53,7 +56,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 					{ "car_own_types", carOwnTypes.Any() ? carOwnTypes : new[] { (object)0 } },
 					{ "show_today_route_lists", ycheckTodayRouteLists.Active },
 					{ "include_visiting_masters", nullCheckVisitingMasters.Active },
-					{ "end_date", "2023.02.01" }
+					{ "end_date", dateEnd.DateOrNull.Value }
 				}
 			};
 		}
