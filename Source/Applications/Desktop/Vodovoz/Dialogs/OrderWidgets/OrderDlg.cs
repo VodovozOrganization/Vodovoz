@@ -1863,12 +1863,8 @@ namespace Vodovoz
 
 			if(fastDeliveryAddress != null)
 			{
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot(nameof(_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument)))
-				{
-					_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
-
-					uow.Commit();
-				}
+				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
+				UoW.Commit();
 			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
