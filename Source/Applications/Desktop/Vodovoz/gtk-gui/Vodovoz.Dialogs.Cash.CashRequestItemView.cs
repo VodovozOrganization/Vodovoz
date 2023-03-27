@@ -87,7 +87,6 @@ namespace Vodovoz.Dialogs.Cash
 			this.AccountableEntityviewmodelentry3.Events = ((global::Gdk.EventMask)(256));
 			this.AccountableEntityviewmodelentry3.Name = "AccountableEntityviewmodelentry3";
 			this.AccountableEntityviewmodelentry3.CanEditReference = false;
-			this.AccountableEntityviewmodelentry3.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.AccountableEntityviewmodelentry3);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.AccountableEntityviewmodelentry3]));
 			w6.TopAttach = ((uint)(2));

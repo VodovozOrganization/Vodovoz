@@ -185,7 +185,6 @@ namespace Vodovoz.Dialogs.Cash
 			this.evmeOrder.Events = ((global::Gdk.EventMask)(256));
 			this.evmeOrder.Name = "evmeOrder";
 			this.evmeOrder.CanEditReference = true;
-			this.evmeOrder.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeOrder);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeOrder]));
 			w12.TopAttach = ((uint)(2));
@@ -300,7 +299,6 @@ namespace Vodovoz.Dialogs.Cash
 			this.evmeCashier.Events = ((global::Gdk.EventMask)(256));
 			this.evmeCashier.Name = "evmeCashier";
 			this.evmeCashier.CanEditReference = true;
-			this.evmeCashier.CanOpenWithoutTabParent = false;
 			this.hbox9.Add(this.evmeCashier);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.evmeCashier]));
 			w22.Position = 1;

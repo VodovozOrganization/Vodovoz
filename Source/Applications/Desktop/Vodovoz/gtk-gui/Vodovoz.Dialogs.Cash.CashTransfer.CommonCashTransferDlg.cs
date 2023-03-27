@@ -255,7 +255,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
-			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.evmeDriver);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.evmeDriver]));
 			w17.Position = 1;
@@ -274,7 +273,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
 			this.entityviewmodelentryCar.CanEditReference = true;
-			this.entityviewmodelentryCar.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.entityviewmodelentryCar);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityviewmodelentryCar]));
 			w19.Position = 3;

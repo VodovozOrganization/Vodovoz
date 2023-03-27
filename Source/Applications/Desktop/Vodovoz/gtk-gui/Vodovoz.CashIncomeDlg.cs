@@ -227,7 +227,6 @@ namespace Vodovoz
 			this.evmeCashier.Events = ((global::Gdk.EventMask)(256));
 			this.evmeCashier.Name = "evmeCashier";
 			this.evmeCashier.CanEditReference = true;
-			this.evmeCashier.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeCashier);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeCashier]));
 			w14.LeftAttach = ((uint)(3));
@@ -238,7 +237,6 @@ namespace Vodovoz
 			this.evmeEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.evmeEmployee.Name = "evmeEmployee";
 			this.evmeEmployee.CanEditReference = true;
-			this.evmeEmployee.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeEmployee);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeEmployee]));
 			w15.TopAttach = ((uint)(6));
