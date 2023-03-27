@@ -242,7 +242,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.dateEnd = new global::QS.Widgets.GtkUI.DatePicker();
 			this.dateEnd.Events = ((global::Gdk.EventMask)(256));
 			this.dateEnd.Name = "dateEnd";
-			this.dateEnd.WithTime = true;
+			this.dateEnd.WithTime = false;
 			this.dateEnd.HideCalendarButton = false;
 			this.dateEnd.Date = new global::System.DateTime(0);
 			this.dateEnd.IsEditable = true;
