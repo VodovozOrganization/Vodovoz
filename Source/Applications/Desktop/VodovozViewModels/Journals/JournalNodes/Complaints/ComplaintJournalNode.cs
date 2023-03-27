@@ -96,12 +96,12 @@ namespace Vodovoz.Journals.JournalNodes
 
 		public string DepartmentConnectionTimeString =>
 			DepartmentConnectionTime.HasValue
-			? $"{DepartmentConnectionTime.Value.ToString("dd.MM.yy")}\n{DepartmentConnectionTime.Value.ToString("t")}"
+			? $"{DepartmentConnectionTime.Value.ToString("dd.MM.yy")} {DepartmentConnectionTime.Value.ToString("t")}"
 			: "-";
 
 		public string DepartmentFirstCommentTimeString => 
 			DepartmentFirstCommentTime.HasValue
-			? $"{DepartmentFirstCommentTime.Value.ToString("dd.MM.yy")}\n{DepartmentFirstCommentTime.Value.ToString("t")}"
+			? $"{DepartmentFirstCommentTime.Value.ToString("dd.MM.yy")} {DepartmentFirstCommentTime.Value.ToString("t")}"
 			: "-";
 
 		public string DepartmentReactionTimeString
