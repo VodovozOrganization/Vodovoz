@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
@@ -11,8 +9,7 @@
   <LeftMargin>.25in</LeftMargin>
   <RightMargin>.25in</RightMargin>
   <BottomMargin>.25in</BottomMargin>
-  <DataSets>
-  </DataSets>
+  <DataSets></DataSets>
   <PageHeader>
     <Height>78.6pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
@@ -139,31 +136,31 @@
         <NoRows>За период нет прихода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="IncomeCategory" >
+          <Parameter Name="IncomeCategory">
             <Value>=Parameters!IncomeCategory</Value>
           </Parameter>
-          <Parameter Name="Casher" >
+          <Parameter Name="Casher">
             <Value>=Parameters!Casher</Value>
           </Parameter>
-          <Parameter Name="Employee" >
+          <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
           </Parameter>
-          <Parameter Name="CasherName" >
+          <Parameter Name="CasherName">
             <Value>=Parameters!CasherName</Value>
           </Parameter>
-          <Parameter Name="EmployeeName" >
+          <Parameter Name="EmployeeName">
             <Value>=Parameters!EmployeeName</Value>
           </Parameter>
-          <Parameter Name="cash_subdivisions" >
+          <Parameter Name="cash_subdivisions">
             <Value>=Parameters!cash_subdivisions</Value>
           </Parameter>
-          <Parameter Name="cash_subdivisions_name" >
+          <Parameter Name="cash_subdivisions_name">
             <Value>=Parameters!cash_subdivisions_name</Value>
           </Parameter>
         </Parameters>
@@ -181,7 +178,7 @@
         <ReportName>CashFlowDetailExpense</ReportName>
         <NoRows>За период нет расхода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters >
+        <Parameters>
           <Parameter Name="Casher">
             <Value>=Parameters!Casher</Value>
           </Parameter>
@@ -227,7 +224,7 @@
         <ReportName>CashFlowDetailAdvance</ReportName>
         <NoRows>За период нет авансов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters >
+        <Parameters>
           <Parameter Name="Casher">
             <Value>=Parameters!Casher</Value>
           </Parameter>
@@ -288,7 +285,7 @@
         <ReportName>CashFlowDetailAdvanceReport</ReportName>
         <NoRows>За период нет авансовых отчетов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters >
+        <Parameters>
           <Parameter Name="Casher">
             <Value>=Parameters!Casher</Value>
           </Parameter>
@@ -349,7 +346,7 @@
         <ReportName>CashFlowDetailIncomeReturn</ReportName>
         <NoRows>За период нет возвратов денег.</NoRows>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters >
+        <Parameters>
           <Parameter Name="Casher">
             <Value>=Parameters!Casher</Value>
           </Parameter>
@@ -395,7 +392,7 @@
         <ReportName>CashFlowDetailUnclosedAdvance</ReportName>
         <NoRows>Все авансы закрыты.</NoRows>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters >
+        <Parameters>
           <Parameter Name="Casher">
             <Value>=Parameters!Casher</Value>
           </Parameter>
@@ -479,22 +476,20 @@
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="EndDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="IncomeCategory">
       <DataType>Integer</DataType>
@@ -506,8 +501,7 @@
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="ExpenseCategory">
       <DataType>Integer</DataType>
@@ -519,8 +513,7 @@
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="ExpenseCategoryUsed">
       <DataType>Integer</DataType>
@@ -532,24 +525,21 @@
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="Casher">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="Employee">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CasherName">
       <DataType>String</DataType>

@@ -195,6 +195,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <Format >N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -208,6 +209,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <Format >N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -221,6 +223,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -234,6 +237,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <Format >N0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -292,6 +296,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >N0</Format>
                       </Style>
                       <Value>=Sum(Fields!empty_bottles.Value)</Value>
                     </Textbox>
@@ -306,6 +311,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >N0</Format>
                       </Style>
                       <Value>=Sum(Fields!full_bottles.Value)</Value>
                     </Textbox>
@@ -320,6 +326,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!wage.Value)</Value>
                     </Textbox>
@@ -334,6 +341,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >N0</Format>
                       </Style>
                       <Value>=Sum(Fields!addresses_count.Value)</Value>
                     </Textbox>
@@ -451,6 +459,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -486,6 +495,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -498,14 +508,12 @@
         <Top>233.1pt</Top>
       </Table>
       <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>18.03pt</Height>
-        <Width>292.84pt</Width>
-        <Value>="Итого: " + Convert.ToString( Sum(Fields!wage.Value, "ForwarderWage") + Sum(Fields!money.Value, "ForwarderPremiums") - Sum(Fields!advance.Value, "Advances")
-- Sum(Fields!money.Value, "ForwarderFines")
-)</Value>
+        <Height>19.52pt</Height>
+        <Width>69.94pt</Width>
+        <Value>Итого:</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>375.9pt</Top>
+        <Left>0.00pt</Left>
+        <Top>374.41pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -588,6 +596,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -771,6 +780,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -843,6 +853,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!money.Value)</Value>
                     </Textbox>
@@ -1001,6 +1012,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1058,6 +1070,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!money.Value)</Value>
                     </Textbox>
@@ -1256,6 +1269,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1328,6 +1342,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <Format >#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!money.Value)</Value>
                     </Textbox>
@@ -1385,6 +1400,23 @@
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox70" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.03pt</Height>
+        <Width>292.84pt</Width>
+        <Value>=Sum(Fields!wage.Value, "ForwarderWage") + Sum(Fields!money.Value, "ForwarderPremiums") - Sum(Fields!advance.Value, "Advances")
+- Sum(Fields!money.Value, "ForwarderFines")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>47.0pt</Left>
+        <Top>375.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>14pt</FontSize>
+          <Format >#,##0.00</Format>
+          <TextAlign >Left</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
