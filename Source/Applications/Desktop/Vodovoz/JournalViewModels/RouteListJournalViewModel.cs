@@ -1081,5 +1081,11 @@ namespace Vodovoz.JournalViewModels
 			public decimal Stock;
 			public string Measure;
 		}
+
+		public override void Dispose()
+		{
+			base.Dispose();
+			FilterViewModel?.Dispose();
+		}
 	}
 }

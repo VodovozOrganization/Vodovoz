@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private GeoGroup _geographicGroup;
 		private List<AddressTypeNode> _addressTypeNodes = new List<AddressTypeNode>();
 		private List<RouteListStatusNode> _statusNodes;
+		private IList<GeoGroup> _geographicGroups;
 		private IList<CarOwnType> _restrictedCarOwnTypes;
 		private IList<CarTypeOfUse> _restrictedCarTypesOfUse;
 		private DelegateCommand _infoCommand;
@@ -40,8 +41,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				newAddressTypeNode.PropertyChanged += OnStatusCheckChanged;
 				_addressTypeNodes.Add(newAddressTypeNode);
 			}
-
-			GeographicGroups = UoW.GetAll<GeoGroup>().ToList();
 
 			var currentUserSettings = new UserRepository().GetUserSettings(UoW, ServicesConfig.CommonServices.UserService.CurrentUserId);
 
@@ -71,7 +70,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			SubscribeOnCheckChanged();
 		}
 
-		public IList<GeoGroup> GeographicGroups { get; }
+		public IList<GeoGroup> GeographicGroups => _geographicGroups ?? (_geographicGroups = UoW.GetAll<GeoGroup>().ToList());
 
 		public bool ShowDriversWithTerminal
 		{

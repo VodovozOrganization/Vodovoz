@@ -72,7 +72,8 @@ namespace Vodovoz
 
 		private DeliveryFreeBalanceViewModel _deliveryFreeBalanceViewModelFrom;
 		private DeliveryFreeBalanceViewModel _deliveryFreeBalanceViewModelTo;
-
+		private RouteListJournalFilterViewModel _routeListJournalFilterViewModelFrom;
+		private RouteListJournalFilterViewModel _routeListJournalFilterViewModelTo;
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
@@ -167,19 +168,19 @@ namespace Vodovoz
 			IRouteListJournalFactory routeListJournalFactory = new RouteListJournalFactory();
 			var scope = MainClass.AppDIContainer.BeginLifetimeScope();
 
-			var routeListJournalFilterViewModelFrom = new RouteListJournalFilterViewModel()
+			_routeListJournalFilterViewModelFrom = new RouteListJournalFilterViewModel()
 			{
 				DisplayableStatuses = new[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing },
 				StartDate = DateTime.Today.AddDays(-3),
 				EndDate = DateTime.Today.AddDays(1)
 			};
 
-			routeListJournalFilterViewModelFrom.AddressTypeNodes.ForEach(x => x.Selected = true);
+			_routeListJournalFilterViewModelFrom.AddressTypeNodes.ForEach(x => x.Selected = true);
 
 			evmeRouteListFrom.SetEntityAutocompleteSelectorFactory(routeListJournalFactory
-				.CreateRouteListJournalAutocompleteSelectorFactory(scope, routeListJournalFilterViewModelFrom));
+				.CreateRouteListJournalAutocompleteSelectorFactory(scope, _routeListJournalFilterViewModelFrom));
 
-			var routeListJournalFilterViewModelTo = new RouteListJournalFilterViewModel()
+			_routeListJournalFilterViewModelTo = new RouteListJournalFilterViewModel()
 			{
 				DisplayableStatuses = new[] {
 					RouteListStatus.New,
@@ -191,10 +192,10 @@ namespace Vodovoz
 				EndDate = DateTime.Today.AddDays(1)
 			};
 
-			routeListJournalFilterViewModelTo.AddressTypeNodes.ForEach(x => x.Selected = true);
+			_routeListJournalFilterViewModelTo.AddressTypeNodes.ForEach(x => x.Selected = true);
 
 			evmeRouteListTo.SetEntityAutocompleteSelectorFactory(routeListJournalFactory
-				.CreateRouteListJournalAutocompleteSelectorFactory(scope, routeListJournalFilterViewModelTo));
+				.CreateRouteListJournalAutocompleteSelectorFactory(scope, _routeListJournalFilterViewModelTo));
 
 			evmeRouteListFrom.Changed += OnRouteListFromChanged;
 			evmeRouteListTo.Changed += OnRouteListToChanged;
@@ -781,6 +782,8 @@ namespace Vodovoz
 		public override void Destroy()
 		{
 			UoW?.Dispose();
+			_routeListJournalFilterViewModelFrom?.Dispose();
+			_routeListJournalFilterViewModelTo?.Dispose();
 			base.Destroy();
 		}
 

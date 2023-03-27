@@ -40,7 +40,8 @@ namespace Vodovoz.Domain.Permissions.Warehouses
 				while(subdivision != null)
 				{
 					var subdivisionWarehousePermissionQuery = uow.Session.QueryOver<SubdivisionWarehousePermission>()
-						.Where(x => x.Subdivision.Id == subdivision.Id && !x.Warehouse.Id.IsIn(permissions.Select(y=>y.Warehouse.Id).ToArray())).List();
+						.Where(x => x.Subdivision.Id == subdivision.Id
+							&& !x.Warehouse.Id.IsIn(permissions.Select(y => y.Warehouse.Id).Distinct().ToArray())).List();
 					subdivisionWarehousePermissionQuery.ForEach(x => permissions.Add(x));
 					subdivision = subdivision.ParentSubdivision;
 				}
