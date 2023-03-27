@@ -170,11 +170,12 @@ ORDER BY routeListDate, routeListId
     <Height>30.4pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Top>8.0pt</Top>
+        <Top>9.5pt</Top>
         <Left>112.4pt</Left>
         <Width>566.12pt</Width>
         <Height>18.82pt</Height>
-        <Value>Отчет по незакрытым МЛ</Value>
+        <Value>="Отчет по незакрытым МЛ за период до " +
+(Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
