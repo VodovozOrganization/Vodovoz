@@ -84,7 +84,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
-		private readonly BaseParametersProvider _baseParametersProvider;
 		private readonly decimal _routeListProfitabilityIndicator;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
 		private readonly Employee _currentEmployee;
@@ -121,8 +120,7 @@ namespace Vodovoz.JournalViewModels
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
-			IWarehousePermissionService warehousePermissionService,
-			BaseParametersProvider baseParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IWarehousePermissionService warehousePermissionService) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -155,7 +153,6 @@ namespace Vodovoz.JournalViewModels
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider)); ;
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
@@ -782,7 +779,7 @@ namespace Vodovoz.JournalViewModels
 				if((routeListFullyShipped || routeListShippedWithoutTerminal) && valid)
 				{
 					carLoadDocument.ClearItemsFromZero();
-					carLoadDocument.UpdateOperations(localUow, _baseParametersProvider.GetNomenclatureIdForTerminal);
+					carLoadDocument.UpdateOperations(localUow, _terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
 
 					if(!carLoadDocument.Items.Any())
 					{
