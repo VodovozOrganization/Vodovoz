@@ -97,7 +97,7 @@ WHERE
       END)
   AND cm.car_type_of_use IN (@car_types_of_use)
   AND cv.car_own_type IN (@car_own_types)
-  AND route_lists.date &lt; @end_date
+  AND route_lists.date &lt;= @end_date
 GROUP BY routeListId
 ORDER BY routeListDate, routeListId
 ;</CommandText>
