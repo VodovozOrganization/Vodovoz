@@ -556,13 +556,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			ComplaintKind complaintKindAlias = null;
 			ComplaintObject complaintObjectAlias = null;
 			ComplaintDetalization complaintDelatizationAlias = null;
+			Subdivision subdivisionAlias = null;
 
 			var query = uow.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDetalization, () => complaintDelatizationAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
-				.Left.JoinAlias(() => complaintKindAlias.ComplaintObject, () => complaintObjectAlias);
+				.Left.JoinAlias(() => complaintKindAlias.ComplaintObject, () => complaintObjectAlias)
+				.Left.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias);
 
 			#region Filter
 
@@ -708,9 +710,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			#endregion Filter
 
-			query.Select(Projections.GroupProjection(() => complaintAlias.Id));
+			query.SelectList(list => list
+				.SelectGroup(() => complaintAlias.Id)
+				.SelectGroup(() => subdivisionAlias.ShortName));
 
-			return query.List<int>().Count;
+			return query.List<object>().Count;
 		}
 
 		private void RegisterComplaints()
