@@ -34,6 +34,9 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(vm => vm.CanShowOrganization, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.OrganizationForAvangardPayments, w => w.Subject)
 				.InitializeFromSource();
+
+			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			yChkIsArchive.Binding.AddBinding(ViewModel, wm => wm.CanEdit, w => w.Sensitive).InitializeFromSource();
 		}
 	}
 }

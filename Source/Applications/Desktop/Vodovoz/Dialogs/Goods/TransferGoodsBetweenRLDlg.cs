@@ -8,10 +8,11 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -21,6 +22,7 @@ namespace Vodovoz
 
 		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
 		private readonly IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository;
+		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 
 		IColumnsConfig colConfigFrom = ColumnsConfigFactory.Create<CarUnloadDocumentNode>()
 			.AddColumn("Номенклатура").AddTextRenderer(d => d.Nomenclature)
@@ -234,8 +236,10 @@ namespace Vodovoz
 				var to = itemsTo
 					.FirstOrDefault(i => i.DocumentItem.WarehouseMovementOperation.Nomenclature.Id == nomenclature.Id);
 
-				if(to == null) {
-					toDoc.AddItem(receiveType, nomenclature, null, transfer, null);
+				if(to == null)
+				{
+					var tetminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
+					toDoc.AddItem(receiveType, nomenclature, null, transfer, null, tetminalId);
 
 					foreach(var item in toDoc.Items) {
 						var exist = itemsTo.FirstOrDefault(i => i.DocumentItem.Id == item.Id);

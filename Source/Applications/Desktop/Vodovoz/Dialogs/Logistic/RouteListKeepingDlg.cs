@@ -390,7 +390,7 @@ namespace Vodovoz
 			if(sender is RouteListKeepingItemNode rli) {
 				var oldStatus = rli.RouteListItem.Status;
 				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) {
-					UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW);
+					UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW, false);
 					TabParent.AddSlaveTab(this, dlg);
 					dlg.DlgSaved += (s, ea) =>
 					{

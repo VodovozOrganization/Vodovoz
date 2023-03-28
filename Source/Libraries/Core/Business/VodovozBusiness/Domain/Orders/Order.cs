@@ -451,7 +451,6 @@ namespace Vodovoz.Domain.Orders
 						case PaymentType.cashless:
 						case PaymentType.ContractDoc:
 						case PaymentType.Terminal:
-							OnlineOrder = null;
 							PaymentByCardFrom = null;
 							break;
 						case PaymentType.ByCard:
@@ -3486,7 +3485,13 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
 
-		public virtual void ChangePaymentTypeToByCard (CallTaskWorker callTaskWorker)
+		public virtual void ChangePaymentTypeToByCardTerminal (CallTaskWorker callTaskWorker)
+		{
+			PaymentType = PaymentType.Terminal;
+			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
+		}
+
+		public virtual void ChangePaymentTypeToOnline(CallTaskWorker callTaskWorker)
 		{
 			PaymentType = PaymentType.ByCard;
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);

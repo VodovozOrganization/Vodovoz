@@ -435,6 +435,7 @@ namespace Vodovoz
 						null,
 						tempItem.Amount,
 						null,
+						terminalId,
 						null,
 						tempItem.Source,
 						tempItem.TypeOfDefect
@@ -460,6 +461,7 @@ namespace Vodovoz
 						null,
 						tempItem.Amount,
 						null,
+						terminalId,
 						tempItem.Redhead
 					);
 				} else {
@@ -467,11 +469,6 @@ namespace Vodovoz
 						item.WarehouseMovementOperation.Amount = tempItem.Amount;
 					if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.Amount != -tempItem.Amount)
 						item.EmployeeNomenclatureMovementOperation.Amount = -tempItem.Amount;
-					
-					if(item.DeliveryFreeBalanceOperation != null && item.DeliveryFreeBalanceOperation.Amount != -tempItem.Amount)
-					{
-						item.DeliveryFreeBalanceOperation.Amount = -tempItem.Amount;
-					}
 
 					if(item.Redhead != tempItem.Redhead)
 						item.Redhead = tempItem.Redhead;
