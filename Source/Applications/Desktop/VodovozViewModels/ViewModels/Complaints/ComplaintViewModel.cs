@@ -78,6 +78,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory driverJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureJournalFactory,
@@ -98,6 +99,7 @@ namespace Vodovoz.ViewModels.Complaints
 			NomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
@@ -237,7 +239,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(_guiltyItemsViewModel == null)
 				{
 					_guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, EmployeeJournalFactory, SubdivisionParametersProvider);
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, EmployeeJournalFactory, _subdivisionJournalFactory, SubdivisionParametersProvider);
 				}
 
 				return _guiltyItemsViewModel;
@@ -551,6 +553,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
+		private ISubdivisionJournalFactory _subdivisionJournalFactory { get; }
 		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 		private INomenclatureJournalFactory NomenclatureJournalFactory { get; }

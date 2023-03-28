@@ -25,6 +25,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels
 {
@@ -46,6 +47,7 @@ namespace Vodovoz.ViewModels
 			IMoneyRepository moneyRepository,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider
 		)
 		: base(uowBuilder, uowFactory, commonServices)
@@ -73,6 +75,7 @@ namespace Vodovoz.ViewModels
 				commonServices,
 				new SubdivisionRepository(new ParametersProvider()),
 				employeeJournalFactory,
+				subdivisionJournalFactory,
 				subdivisionParametersProvider);
 
 			Entity.ObservableEquipmentDepositItems.PropertyOfElementChanged += OnObservableEquipmentItemsPropertyOfElementChanged;

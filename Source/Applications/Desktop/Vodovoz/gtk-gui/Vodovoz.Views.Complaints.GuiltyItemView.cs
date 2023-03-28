@@ -10,7 +10,7 @@ namespace Vodovoz.Views.Complaints
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entVmEmployee;
 
-		private global::Gamma.Widgets.ySpecComboBox yCmbSubdivision;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityentrySubdivision;
 
 		protected virtual void Build()
 		{
@@ -40,21 +40,20 @@ namespace Vodovoz.Views.Complaints
 			this.entVmEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.entVmEmployee.Name = "entVmEmployee";
 			this.entVmEmployee.CanEditReference = false;
+			this.entVmEmployee.CanOpenWithoutTabParent = false;
 			this.vbxCreateGuilty.Add(this.entVmEmployee);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.entVmEmployee]));
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child vbxCreateGuilty.Gtk.Box+BoxChild
-			this.yCmbSubdivision = new global::Gamma.Widgets.ySpecComboBox();
-			this.yCmbSubdivision.Name = "yCmbSubdivision";
-			this.yCmbSubdivision.AddIfNotExist = false;
-			this.yCmbSubdivision.DefaultFirst = false;
-			this.yCmbSubdivision.ShowSpecialStateAll = false;
-			this.yCmbSubdivision.ShowSpecialStateNot = false;
-			this.yCmbSubdivision.NameForSpecialStateNot = "Выберите отдел";
-			this.vbxCreateGuilty.Add(this.yCmbSubdivision);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.yCmbSubdivision]));
+			this.entityentrySubdivision = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityentrySubdivision.Events = ((global::Gdk.EventMask)(256));
+			this.entityentrySubdivision.Name = "entityentrySubdivision";
+			this.entityentrySubdivision.CanEditReference = false;
+			this.entityentrySubdivision.CanOpenWithoutTabParent = false;
+			this.vbxCreateGuilty.Add(this.entityentrySubdivision);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbxCreateGuilty[this.entityentrySubdivision]));
 			w3.Position = 2;
 			w3.Expand = false;
 			w3.Fill = false;
