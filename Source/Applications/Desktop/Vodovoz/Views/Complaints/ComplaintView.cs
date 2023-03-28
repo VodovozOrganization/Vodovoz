@@ -47,7 +47,7 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 			
-			yenumcomboStatus.EnumItemSelected += (sender, args) => ViewModel.CloseComplaint((ComplaintStatuses)args.SelectedItem);
+			yenumcomboStatus.EnumItemSelected += (sender, args) => ViewModel.ChangeComplaintStatus((ComplaintStatuses)args.SelectedItem);
 
 			entryDriver.ViewModel = ViewModel.ComplaintDriverEntryViewModel;
 

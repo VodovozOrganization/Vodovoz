@@ -680,23 +680,26 @@ namespace Vodovoz.ViewModels.Complaints
 			OnPropertyChanged(() => FineItems);
 		}
 
-		public void CloseComplaint(ComplaintStatuses status)
+		public void ChangeComplaintStatus(ComplaintStatuses status)
 		{
-			var interserctedSubdivisionsToInformIds = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
-				.Intersect(Entity.Guilties.Select(cgi => cgi.Subdivision.Id));
-
-			var intersectedSubdivisionsNames = Entity.Guilties
-				.Select(g => g.Subdivision)
-				.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
-				.Select(s => s.Name);
-
-			if(Entity.ComplaintResultOfEmployees.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
-				&& interserctedSubdivisionsToInformIds.Any()
-				&& Entity.Driver is null
-				&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",
-				"Вы уверены?"))
+			if(status == ComplaintStatuses.Closed)
 			{
-				return;
+				var interserctedSubdivisionsToInformIds = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
+					.Intersect(Entity.Guilties.Select(cgi => cgi.Subdivision.Id));
+
+				var intersectedSubdivisionsNames = Entity.Guilties
+					.Select(g => g.Subdivision)
+					.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
+					.Select(s => s.Name);
+
+				if(Entity.ComplaintResultOfEmployees.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+					&& interserctedSubdivisionsToInformIds.Any()
+					&& Entity.Driver is null
+					&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",
+					"Вы уверены?"))
+				{
+					return;
+				}
 			}
 
 			var msg = Entity.SetStatus(status);
