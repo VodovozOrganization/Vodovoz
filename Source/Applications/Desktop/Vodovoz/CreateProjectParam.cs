@@ -1,4 +1,4 @@
-using ApiClientProvider;
+﻿using ApiClientProvider;
 using Autofac;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -128,6 +128,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Orders;
@@ -606,6 +607,7 @@ namespace Vodovoz
 			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 			builder.RegisterType<GtkReportViewOpener>().As<IReportViewOpener>().SingleInstance();
+			builder.RegisterType<RoboatsJournalsFactory>().AsSelf().InstancePerLifetimeScope();
 
 			builder.RegisterAssemblyTypes(
 					Assembly.GetExecutingAssembly(),
