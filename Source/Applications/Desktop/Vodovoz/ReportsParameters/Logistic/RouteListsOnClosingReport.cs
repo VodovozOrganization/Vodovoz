@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DateTimeHelpers;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -34,7 +35,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			enumcheckCarOwnType.SelectAll();
 
 			var now = DateTime.Now;
-			dateEnd.Date = new DateTime(now.Year, now.Month, 01);
+			dateEnd.Date = DateTimeExtensions.FirstDayOfMonth(now);
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
