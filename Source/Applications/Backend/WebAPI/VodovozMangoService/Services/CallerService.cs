@@ -86,7 +86,7 @@ namespace VodovozMangoService.Services
 				var retryPolicy = Policy
 					.Handle<MySqlException>()
 					.Or<TimeoutException>()
-					.WaitAndRetryAsync(5, (_) => TimeSpan.FromSeconds(1));
+					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(1));
 
 				using var connection = new MySqlConnection(_connectionString);
 
