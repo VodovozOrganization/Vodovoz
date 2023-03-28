@@ -577,6 +577,7 @@
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
+    <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
     <Compile Include="TreeModels\ModelConfig.cs" />
     <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />

@@ -1225,6 +1225,7 @@ namespace Vodovoz.JournalViewModels
 							_employeeJournalFactory,
 							_counterpartyJournalFactory,
 							_deliveryPointJournalFactory,
+							_subdivisionJournalFactory,
 							_subdivisionParametersProvider
 						);
 						var order = complaintViewModel.UoW.GetById<VodovozOrder>(selectedOrder.Id);

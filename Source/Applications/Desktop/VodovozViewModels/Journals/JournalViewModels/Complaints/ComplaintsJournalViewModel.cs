@@ -709,6 +709,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
 						_deliveryPointJournalFactory,
+						_subdivisionJournalFactory,
 						_subdivisionParametersProvider
 					),
 					//функция диалога открытия документа
@@ -730,6 +731,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_subdivisionRepository,
 						_commonServices,
 						_employeeJournalFactory,
+						_subdivisionJournalFactory,
 						_fileDialogService,
 						new UserRepository(),
 						_subdivisionParametersProvider

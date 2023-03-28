@@ -18,6 +18,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.ViewModels.ViewModels.Complaints;
 
@@ -58,6 +59,8 @@ namespace Vodovoz.FilterViewModels
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IComplaintKindJournalFactory complaintKindJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			Action<ComplaintFilterViewModel> filterParams = null)
 		{
@@ -71,11 +74,15 @@ namespace Vodovoz.FilterViewModels
 			EmployeeSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
+			ComplaintKindSelectorFactory =
+				(complaintKindJournalFactory ?? throw new ArgumentNullException(nameof(complaintKindJournalFactory)))
+				.CreateComplaintKindAutocompleteSelectorFactory();
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				commonServices,
 				subdivisionRepository,
 				employeeJournalFactory,
+				subdivisionJournalFactory,
 				_subdivisionParametersProvider,
 				UoW,
 				true);
@@ -103,6 +110,9 @@ namespace Vodovoz.FilterViewModels
 				SetAndRefilterAtOnce(filterParams);
 			}
 
+			CurrentSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
+				.CreateSubdivisionAutocompleteSelectorFactory();
+
 			UpdateWith(
 				x => x.ComplaintType,
 				x => x.ComplaintStatus,
@@ -124,6 +134,10 @@ namespace Vodovoz.FilterViewModels
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+
+		public IEntityAutocompleteSelectorFactory CurrentSubdivisionSelectorFactory { get; }
+
+		public IEntityAutocompleteSelectorFactory ComplaintKindSelectorFactory { get; }
 
 		public IEntityEntryViewModel ComplaintDetalizationEntiryEntryViewModel { get; private set; }
 
