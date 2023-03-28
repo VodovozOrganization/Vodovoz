@@ -49,6 +49,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
 		private readonly IUserRepository _userRepository;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
@@ -77,6 +78,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			ComplaintFilterViewModel filterViewModel,
 			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
 			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
@@ -85,7 +87,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			IComplaintParametersProvider complaintParametersProvider,
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
-			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ILifetimeScope scope
+			) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -95,6 +98,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -104,9 +108,9 @@ namespace Vodovoz.Journals.JournalViewModels
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
 			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			
+
 			TabName = "Журнал рекламаций";
-			
+
 			RegisterComplaints();
 
 			var threadLoader = DataLoader as ThreadDataLoader<ComplaintJournalNode>;
@@ -124,7 +128,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
 
-			if (currentUserSettings.UseEmployeeSubdivision)
+			if(currentUserSettings.UseEmployeeSubdivision)
 			{
 				FilterViewModel.Subdivision = currentEmployeeSubdivision;
 			}
