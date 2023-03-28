@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Logistic;
@@ -212,11 +213,21 @@ namespace Vodovoz.ViewModels.Complaints
 
 			if(e.PropertyName == nameof(Entity.Order))
 			{
-				var routeList = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Order)?.RouteList;
-				if(routeList != null && routeList.Driver != null)
+				if(Entity.Order is null)
 				{
-					Entity.Driver = routeList.Driver;
+					Entity.Driver = null;
+					return;
 				}
+
+				var routeList = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Order)?.RouteList;
+
+				if(routeList is null)
+				{
+					Entity.Driver = null;
+					return;
+				}
+
+				Entity.Driver = routeList.Driver;
 			}
 		}
 
