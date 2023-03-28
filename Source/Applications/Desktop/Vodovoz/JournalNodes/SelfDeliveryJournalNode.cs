@@ -22,7 +22,10 @@ namespace Vodovoz.JournalNodes
 		//заказ
 		public decimal OrderSum { get; set; }
 		public decimal OrderReturnSum { get; set; }
-		public decimal OrderCashSumTotal => PaymentTypeEnum == PaymentType.cash ? OrderSum - OrderReturnSum : 0;
+		public decimal OrderCashSumTotal => (PaymentTypeEnum == 
+				PaymentType.cash || (PaymentTypeEnum == PaymentType.Terminal && StatusEnum == OrderStatus.WaitForPayment) || (PaymentTypeEnum == PaymentType.Terminal && PayAfterLoad && StatusEnum != OrderStatus.Closed)) 
+				? OrderSum - OrderReturnSum 
+				: 0;
 		public decimal OrderCashlessSumTotal => PaymentTypeEnum == PaymentType.cashless || 
 		                                        PaymentTypeEnum == PaymentType.ByCard ||
 		                                        PaymentTypeEnum == PaymentType.Terminal ? OrderReturnSum - OrderReturnSum : 0;
