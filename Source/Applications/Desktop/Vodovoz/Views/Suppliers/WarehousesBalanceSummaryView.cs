@@ -50,6 +50,8 @@ namespace Vodovoz.Views.Suppliers
 				datePicker.Date = DateTime.Now;
 			};
 
+			ycheckbuttonShowPrices.Binding.AddBinding(ViewModel, vm => vm.ShowPrices, w => w.Active).InitializeFromSource();
+
 			radioAllNoms.Binding.AddBinding(ViewModel, vm => vm.AllNomenclatures, w => w.Active).InitializeFromSource();
 			radioGtZNoms.Binding.AddBinding(ViewModel, vm => vm.IsGreaterThanZeroByNomenclature, w => w.Active).InitializeFromSource();
 			radioLeZNoms.Binding.AddBinding(ViewModel, vm => vm.IsLessOrEqualZeroByNomenclature, w => w.Active).InitializeFromSource();
@@ -102,6 +104,13 @@ namespace Vodovoz.Views.Suppliers
 				var index = i;
 				columnsConfig.AddColumn($"{ViewModel.Report.WarehousesTitles[i]}").AddNumericRenderer(row => row.Separate[index])
 					.XAlign(0.5f);
+			}
+
+			if(ViewModel.ShowPrices)
+			{
+				columnsConfig
+					.AddColumn("Цена закупки").AddNumericRenderer(row => row.PurchasePrice).XAlign(0.5f)
+					.AddColumn("Цена").AddNumericRenderer(row => row.Price).XAlign(0.5f);
 			}
 
 			treeData.ColumnsConfig = columnsConfig.AddColumn("").Finish();

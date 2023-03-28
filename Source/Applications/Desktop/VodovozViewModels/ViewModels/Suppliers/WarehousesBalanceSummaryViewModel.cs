@@ -52,6 +52,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		public DateTime? EndDate { get; set; } = DateTime.Today;
 		public bool ShowReserve { get; set; }
+		public bool ShowPrices { get; set; }
 
 		public bool AllNomenclatures { get; set; } = true;
 		public bool IsGreaterThanZeroByNomenclature { get; set; }
@@ -95,7 +96,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var uow = UnitOfWorkFactory.CreateWithoutRoot("Отчет остатков по складам");
 			try
 			{
-				return await GenerateAsync(EndDate ?? DateTime.Today, ShowReserve, uow, cancellationToken);
+				return await GenerateAsync(EndDate ?? DateTime.Today, ShowReserve, ShowPrices, uow, cancellationToken);
 			}
 			finally
 			{
@@ -106,6 +107,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private async Task<BalanceSummaryReport> GenerateAsync(
 			DateTime endDate,
 			bool createReportWithReserveData,
+			bool withPrices,
 			IUnitOfWork localUow,
 			CancellationToken cancellationToken)
 		{
@@ -207,6 +209,10 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			OrderItem orderItemsAlias = null;
 			ReservedBalance reservedBalance = null;
 			ProductGroup productGroupAlias = null;
+			NomenclaturePrice priceAlias = null;
+			PriceNode priceResult = null;
+			NomenclaturePurchasePrice purchasePriceAlias = null;
+			PriceNode purchasePriceResult = null;
 
 			OrderStatus[] orderStatusesToCalcReservedItems = new[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading };
 
@@ -218,6 +224,20 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.Where(() => nomAlias.DoNotReserve == false)
 				.Where(() => !nomAlias.IsArchive && !nomAlias.IsSerial);
 
+			var nomenclatureQuery = localUow.Session.QueryOver(() => nomAlias);
+
+			var purchasePriceSubquery = QueryOver.Of<NomenclaturePurchasePrice>()
+				.Where(x => x.Nomenclature.Id == nomAlias.Id)
+				.OrderBy(x => x.StartDate).Desc
+				.Select(x => x.PurchasePrice)
+				.Take(1);
+
+			var priceSubquery = QueryOver.Of<NomenclaturePrice>()
+				.Where(x => x.Nomenclature.Id == nomAlias.Id)
+				.OrderBy(x => x.MinCount).Asc
+				.Select(x => x.Price)
+				.Take(1);
+
 			if(typesSelected)
 			{
 				var typesIds = types.Select(x => (int)x.Value).ToArray();
@@ -225,6 +245,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 				reservedItemsQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				nomenclatureQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 			}
 
 			if(nomsSelected && !allNomsSelected)
@@ -233,6 +254,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				reservedItemsQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				nomenclatureQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 			}
 
 			if(groupsSelected)
@@ -241,6 +263,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 				msQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 				reservedItemsQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				nomenclatureQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 			}
 
 			reservedItemsQuery
@@ -266,12 +289,34 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				reservedItems = reservedItemsQuery.List<ReservedBalance>().ToList();
 			}
 
+			List<PriceNode> prices = new List<PriceNode>();
+			List<PriceNode> purchasePrices = new List<PriceNode>();
+
+			if(withPrices)
+			{
+				prices = nomenclatureQuery.SelectList(list => list
+						.Select(() => nomAlias.Id).WithAlias(() => priceResult.NomenclatureId)
+						.SelectSubQuery(priceSubquery).WithAlias(() => priceResult.Amount))
+					.TransformUsing(Transformers.AliasToBean<PriceNode>())
+					.List<PriceNode>()
+					.ToList();
+
+				purchasePrices = nomenclatureQuery.SelectList(list => list
+						.Select(() => nomAlias.Id).WithAlias(() => priceResult.NomenclatureId)
+						.SelectSubQuery(purchasePriceSubquery).WithAlias(() => priceResult.Amount))
+					.TransformUsing(Transformers.AliasToBean<PriceNode>())
+					.List<PriceNode>()
+					.ToList();
+			}
+
 			//Кол-во списаний != кол-во начислений, используется два счетчика
 			var addedCounter = 0;
 			var removedCounter = 0;
 			for(var nomsCounter = 0; nomsCounter < noms?.Count; nomsCounter++)
 			{
 				cancellationToken.ThrowIfCancellationRequested();
+
+
 
 				var row = new BalanceSummaryRow
 				{
@@ -281,7 +326,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					Min = msResult[nomsCounter],
 					ReservedItemsAmount = reservedItems
 						.Where(i => i.ItemId == (int)noms[nomsCounter].Value)
-						.Select(i => i.ReservedItemsAmount).FirstOrDefault() ?? 0
+						.Select(i => i.ReservedItemsAmount).FirstOrDefault() ?? 0,
+					Price = prices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0,
+					PurchasePrice = purchasePrices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0
 				};
 
 				for(var warsCounter = 0; warsCounter < wars?.Count; warsCounter++)
@@ -361,7 +408,8 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private void InsertValues(IXLWorksheet ws)
 		{
-			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "Общий остаток", "Разница" };
+			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "Общий остаток", "Разница", "Цена закупки", "Цена" };
+
 			var rows = from row in Report.SummaryRows
 					   select new
 					   {
@@ -369,7 +417,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						   row.NomTitle,
 						   row.Min,
 						   row.Common,
-						   row.Diff
+						   row.Diff,
+						   row.PurchasePrice,
+						   row.Price
 					   };
 			int index = 1;
 			foreach(var name in colNames)
@@ -383,7 +433,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private void InsertValuesWithReserveAmount(IXLWorksheet ws)
 		{
-			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "В резерве", "Доступно для заказа", "Общий остаток", "Разница" };
+			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "В резерве", "Доступно для заказа", "Общий остаток", "Разница", "Цена закупки", "Цена" };
 			var rows = from row in Report.SummaryRows
 					   select new
 					   {
@@ -393,7 +443,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						   row.ReservedItemsAmount,
 						   row.AvailableItemsAmount,
 						   row.Common,
-						   row.Diff
+						   row.Diff,
+						   row.PurchasePrice,
+						   row.Price
 					   };
 			int index = 1;
 			foreach(var name in colNames)
@@ -574,6 +626,8 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public List<decimal> Separate { get; set; }
 		public decimal? ReservedItemsAmount { get; set; } = 0;
 		public decimal? AvailableItemsAmount => Common - ReservedItemsAmount;
+		public decimal PurchasePrice { get; set; }
+		public decimal Price { get; set; }
 	}
 
 	public class BalanceSummaryReport
@@ -595,4 +649,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public int ItemId { get; set; }
 		public decimal? ReservedItemsAmount { get; set; }
 	}
+	
+	public class PriceNode
+	{
+		public int NomenclatureId { get; set; }
+		public decimal Amount { get; set; }
+	}
 }
+
