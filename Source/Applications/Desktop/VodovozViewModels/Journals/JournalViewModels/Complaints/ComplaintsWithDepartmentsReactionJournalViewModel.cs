@@ -734,6 +734,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						_employeeJournalFactory,
 						_counterpartyJournalFactory,
 						_deliveryPointJournalFactory,
+						_subdivisionJournalFactory,
 						_subdivisionParametersProvider
 					),
 					//функция диалога открытия документа
@@ -755,6 +756,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						_subdivisionRepository,
 						_commonServices,
 						_employeeJournalFactory,
+						_subdivisionJournalFactory,
 						_fileDialogService,
 						new UserRepository(),
 						_subdivisionParametersProvider
