@@ -435,6 +435,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias)
 				.JoinEntityAlias(() => trackAlias, () => routeListAlias.Id == trackAlias.RouteList.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
+			var lastTrackPoint = QueryOver.Of<TrackPoint>()
+				.Left.JoinAlias(x => x.Track, () => trackAlias)
+				.Where(() => trackAlias.RouteList.Id == routeListAlias.Id)
+				.OrderBy(x => x.TimeStamp).Desc
+				.Select(x => x.TimeStamp)
+				.Take(1);
+
 			if(ShowFastDeliveryOnly)
 			{
 				query.Where(() => routeListAlias.AdditionalLoadingDocument != null);
@@ -484,6 +491,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.SelectSubQuery(addressesSubquery).WithAlias(() => resultAlias.AddressesAll)
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
 					.Select(() => trackAlias.Id).WithAlias(() => resultAlias.TrackId)
+					.SelectSubQuery(lastTrackPoint).WithAlias(() => resultAlias.LastTrackPointTime)
 					.SelectSubQuery(uncompletedBottlesSubquery).WithAlias(() => resultAlias.BottlesLeft)
 					.SelectSubQuery(water19LSubquery).WithAlias(() => resultAlias.Water19LReserve))
 				.TransformUsing(Transformers.AliasToBean<WorkingDriverNode>())
@@ -498,11 +506,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			var driversNodes = result.GroupBy(x => x.Id).OrderBy(x => x.First().ShortName).ToList();
 
+			var disconnectedDateTime = (ShowHistory ? HistoryDateTime : DateTime.Now).Add(DriverDisconnectedTimespan);
+
 			for(var i = 0; i < driversNodes.Count; i++)
 			{
 				savedRow = driversNodes[i].First();
-				savedRow.RouteListsText = string.Join("; ", driversNodes[i].Select(x => x.TrackId != null
-						? $"<span foreground=\"green\"><b>{x.RouteListNumber}</b></span>"
+				savedRow.RouteListsText =
+					string.Join("; ", driversNodes[i].Select(x => x.TrackId != null
+						? x.LastTrackPointTime >= disconnectedDateTime
+							? $"<span foreground=\"green\"><b>{x.RouteListNumber}</b></span>"
+							: $"<span foreground=\"blue\"><b>{x.RouteListNumber}</b></span>"
 						: x.RouteListNumber.ToString()));
 				savedRow.RouteListsIds = driversNodes[i].ToDictionary(x => x.RouteListNumber, x => x.TrackId);
 				savedRow.AddressesAll = driversNodes[i].Sum(x => x.AddressesAll);
@@ -732,6 +745,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string CarText => IsVodovozAuto ? string.Format("<b>{0}</b>", CarNumber) : CarNumber;
 
 		public string ShortName => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
+
+		public DateTime? LastTrackPointTime { get; set; }
 	}
 
 	public class RouteListAddressNode
