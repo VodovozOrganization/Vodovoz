@@ -35,7 +35,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			enumcheckCarOwnType.SelectAll();
 
 			var now = DateTime.Now;
-			dateEnd.Date = DateTimeExtensions.FirstDayOfMonth(now);
+			dateEnd.Date = now.FirstDayOfMonth();
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
