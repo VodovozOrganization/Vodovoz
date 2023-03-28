@@ -205,50 +205,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			NodeActionsList.Add(editAction);
 		}
 
-		protected void CreateExportJournalReportAction()
-		{
-			var exportJournalReportAction = new JournalAction("Выгрузка в Excel",
-				(selected) => true,
-				(selected) => true,
-				(selected) => {
-					try
-					{
-						CreateJournalReportCommand?.Execute();
-						ExportJournalReportCommand?.Execute();
-					}
-					catch(Exception)
-					{
-						throw;
-					}
-				}
-			);
-
-			NodeActionsList.Add(exportJournalReportAction);
-		}
-
-		protected void CreateExportWarhouseAccountingCardAction()
-		{
-			var exportJournalReportAction = new JournalAction("Выгрузить карточку складского учета",
-				(selected) => FilterViewModel.Nomenclature != null
-					&& FilterViewModel.WarehouseIds.Count == 1
-					&& FilterViewModel.TargetSource == TargetSource.Both,
-				(selected) => true,
-				(selected) => {
-					try
-					{
-						CreateWarhouseAccountingCardCommand?.Execute();
-						ExportWarhouseAccountingCardCommand?.Execute();
-					}
-					catch(Exception)
-					{
-						throw;
-					}
-				}
-			);
-
-			NodeActionsList.Add(exportJournalReportAction);
-		}
-
 		private void RegisterDocumentItems(Type[] types)
 		{
 			RegisterEntity(GetQueryIncomingInvoiceItem)
@@ -1899,7 +1855,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
-		private IQueryOver<DriverAttachedTerminalGiveoutDocument> GetQueryDriverAttachedTerminalReturnDocument(IUnitOfWork unitOfWork)
+		private IQueryOver<DriverAttachedTerminalGiveoutDocument> GetQueryDriverAttachedTerminalGiveoutDocument(IUnitOfWork unitOfWork)
 		{
 			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
@@ -1993,7 +1949,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
-		private IQueryOver<DriverAttachedTerminalReturnDocument> GetQueryDriverAttachedTerminalGiveoutDocument(IUnitOfWork unitOfWork)
+		private IQueryOver<DriverAttachedTerminalReturnDocument> GetQueryDriverAttachedTerminalReturnDocument(IUnitOfWork unitOfWork)
 		{
 			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
@@ -2089,6 +2045,29 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 		#endregion
 
+		#region ExportReport
+
+		protected void CreateExportJournalReportAction()
+		{
+			var exportJournalReportAction = new JournalAction("Выгрузка в Excel",
+				(selected) => true,
+				(selected) => true,
+				(selected) => {
+					try
+					{
+						CreateJournalReportCommand?.Execute();
+						ExportJournalReportCommand?.Execute();
+					}
+					catch(Exception)
+					{
+						throw;
+					}
+				}
+			);
+
+			NodeActionsList.Add(exportJournalReportAction);
+		}
+
 		public async Task CreateReport(CancellationToken cancellationToken)
 		{
 			List<WarehouseDocumentsItemsJournalNode> lines = new List<WarehouseDocumentsItemsJournalNode>();
@@ -2153,6 +2132,33 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			template.SaveAs(path);
 		}
 
+		#endregion ExportReport
+
+		#region WarehouseAccountingCard
+
+		protected void CreateExportWarhouseAccountingCardAction()
+		{
+			var exportJournalReportAction = new JournalAction("Выгрузить карточку складского учета",
+				(selected) => FilterViewModel.Nomenclature != null
+					&& FilterViewModel.WarehouseIds.Count == 1
+					&& FilterViewModel.TargetSource == TargetSource.Both,
+				(selected) => true,
+				(selected) => {
+					try
+					{
+						CreateWarhouseAccountingCardCommand?.Execute();
+						ExportWarhouseAccountingCardCommand?.Execute();
+					}
+					catch(Exception)
+					{
+						throw;
+					}
+				}
+			);
+
+			NodeActionsList.Add(exportJournalReportAction);
+		}
+
 		private async Task CreateWarhouseAccountingCard(CancellationToken token)
 		{
 			List<WarehouseDocumentsItemsJournalNode> lines = new List<WarehouseDocumentsItemsJournalNode>();
@@ -2215,6 +2221,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			template.Generate();
 			template.SaveAs(path);
 		}
+
+		#endregion WarehouseAccountingCard
 
 		private decimal GetWarhouseBalance(int nomenclatureId, int warehouseId, DateTime upToDateTime)
 		{
