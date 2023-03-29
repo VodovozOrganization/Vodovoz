@@ -756,7 +756,15 @@ namespace Vodovoz
 
 					foreach(var address in Entity.Addresses)
 					{
-						routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, address, DeliveryFreeBalanceType.Decrease, true);
+						if(address.TransferedTo == null &&
+						   (!address.WasTransfered || address.AddressTransferType != AddressTransferType.FromHandToHand))
+						{
+							routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, address, DeliveryFreeBalanceType.Decrease, true);
+						}
+						else
+						{
+							routeListKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address);
+						}
 					}
 
 					if(Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !Entity.NeedToLoad)
