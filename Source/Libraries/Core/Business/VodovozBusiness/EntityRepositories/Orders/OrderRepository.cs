@@ -147,13 +147,13 @@ namespace Vodovoz.EntityRepositories.Orders
 							.Add(Restrictions.Conjunction()
 								.Add(Restrictions.On(() => orderAlias.PaymentType)
 									.IsIn(new[] { PaymentType.Terminal, PaymentType.cash }))
-								.Add(Restrictions.IsNotNull(Projections.Property(() => cashReceiptAlias.Id))))
+								.Add(Restrictions.Where(() => cashReceiptAlias.Status == CashReceiptStatus.Sended)))
 							.Add(Restrictions.Conjunction()
 								.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
 								.Add(Restrictions.Disjunction()
 									.Add(Restrictions.On(() => orderAlias.PaymentByCardFrom.Id)
 										.IsIn(orderParametersProvider.PaymentsByCardFromNotToSendSalesReceipts))
-									.Add(Restrictions.IsNotNull(Projections.Property(() => cashReceiptAlias.Id))))
+									.Add(Restrictions.Where(() => cashReceiptAlias.Status == CashReceiptStatus.Sended)))
 							)
 						);
 					break;
