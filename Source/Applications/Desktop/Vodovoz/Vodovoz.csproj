@@ -535,6 +535,7 @@
     <Compile Include="JournalColumnsConfigs\UsersJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WageDistrictLevelRatesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WageDistrictsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\WarehouseDocumentsItemsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WarehouseJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OrdersWithReceiptsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WaterJournalRegistrar.cs" />
@@ -1892,6 +1893,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.TrueMarkReceiptJournalFilterView.cs" />
     <Compile Include="Views\Cash\PaymentOnlineView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentOnlineView.cs" />
+    <Compile Include="Filters\GtkViews\WarehouseDocumentsItemsJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseDocumentsItemsJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

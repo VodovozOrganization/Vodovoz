@@ -434,6 +434,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<TurnoverWithDynamicsReportViewModel, TurnoverWithDynamicsReportView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryPercentCoverageReportViewModel, FastDeliveryPercentCoverageReportView>()
 				.RegisterWidgetForWidgetViewModel<CashReceiptJournalFilterViewModel, TrueMarkReceiptJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<WarehouseDocumentsItemsJournalFilterViewModel, WarehouseDocumentsItemsJournalFilterView>()
 				;
 			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

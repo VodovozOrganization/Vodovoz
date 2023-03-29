@@ -62,10 +62,16 @@
     <Compile Include="Factories\IRoboatsViewModelFactory.cs" />
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSelectionChangedEventArgs.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSetSelectionChanged.cs" />
     <Compile Include="Infrastructure\Services\IStoreDocumentHelper.cs" />
     <Compile Include="Journals\FilterViewModels\Counterparties\PhonesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\OrderJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\TrueMark\CashReceiptJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Store\TargetSource.cs" />
+    <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsItemsJournalReport.cs" />
+    <Compile Include="Journals\FilterViewModels\Store\WarhouseAccountingCard.cs" />
+    <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsItemsJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IRouteListJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IComplaintKindJournalFactory.cs" />
@@ -81,6 +87,7 @@
     <Compile Include="Journals\JournalNodes\TrueMark\CashReceiptNode.cs" />
     <Compile Include="Journals\JournalNodes\TrueMark\CashReceiptNodeType.cs" />
     <Compile Include="Journals\JournalNodes\TrueMark\CashReceiptJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Store\WarehouseDocumentsItemsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Client\EdoOperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
@@ -89,6 +96,7 @@
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\TrueMark\OrdersWithReceiptsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\TrueMark\CashReceiptsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Store\WarehouseDocumentsItemsJournalViewModel.cs" />
     <Compile Include="TempAdapters\IComplaintDetalizationAutocompleteSelectionFactory.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintDetalizationViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyDetailsFromRevenueServiceViewModel.cs" />
@@ -442,6 +450,7 @@
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryFailsReportRow.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryPercentCoverageReport.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliverySalesReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\FilterTypeChangedArgs.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReport.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\DeliveryAnalytics\DeliveryAnalyticsReportNode.cs" />
@@ -474,6 +483,7 @@
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.MeasurementUnit.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.Report.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.DynamicsInEnum.cs" />
+    <Compile Include="ViewModels\Reports\SelectableParameterReportFilterSelectionChangedArgs.cs" />
     <Compile Include="ViewModels\Sale\DeliveryPriceRuleViewModel.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />

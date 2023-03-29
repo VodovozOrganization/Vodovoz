@@ -91,6 +91,7 @@ using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Autofac;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 public partial class MainWindow : Window
 {
@@ -107,6 +108,7 @@ public partial class MainWindow : Window
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
+	Action ActionWarehouseDocumentsItemsJournal;
 
 	//Работа с клиентами
 	Action ActionCallTasks;
@@ -208,6 +210,7 @@ public partial class MainWindow : Window
 		ActionReadyForReception = new Action("ActionReadyForReception", "Готовые к разгрузке", null, "table");
 		ActionWarehouseStock = new Action("ActionWarehouseStock", "Складские остатки", null, "table");
 		ActionClientBalance = new Action("ActionClientBalance", "Оборудование у клиентов", null, "table");
+		ActionWarehouseDocumentsItemsJournal = new Action(nameof(ActionWarehouseDocumentsItemsJournal), "Журнал строк складских документов", null, "table");
 
 		//Логистика
 		ActionRouteListTable = new Action("ActionRouteListTable", "Журнал МЛ", null, "table");
@@ -292,6 +295,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionReadyForReception, null);
 		w1.Add(ActionWarehouseStock, null);
 		w1.Add(ActionClientBalance, null);
+		w1.Add(ActionWarehouseDocumentsItemsJournal, null);
 
 		//Работа с клиентами
 		w1.Add(ActionCallTasks, null);
@@ -387,6 +391,7 @@ public partial class MainWindow : Window
 		ActionReadyForReception.Activated += ActionReadyForReceptionActivated;
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
+		ActionWarehouseDocumentsItemsJournal.Activated += ActionWarehouseDocumentsItemsJournal_Activated;
 
 		//Работа с клиентами
 		ActionCallTasks.Activated += ActionCallTasks_Activate;
@@ -460,6 +465,11 @@ public partial class MainWindow : Window
 		ActionSalesComplaintsJournal.Activated += OnActionSalesComplaintsJournalActivated;
 
 		#endregion
+	}
+
+	private void ActionWarehouseDocumentsItemsJournal_Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<WarehouseDocumentsItemsJournalViewModel>(null);
 	}
 
 	private void ActionRoboatsCallsRegistryActivated(object sender, EventArgs e)
