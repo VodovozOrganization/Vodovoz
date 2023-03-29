@@ -21,8 +21,8 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			Build();
 			dppDocuments.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.StartDate, w => w.StartDate)
-				.AddBinding(vm => vm.EndDate, w => w.EndDate)
+				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
 			yecmbDocumentType.ItemsEnum = typeof(DocumentType);
