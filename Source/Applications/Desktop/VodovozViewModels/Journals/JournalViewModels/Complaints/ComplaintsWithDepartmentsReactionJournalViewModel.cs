@@ -899,9 +899,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			CreateExportAction();
 			OpenStandartViewAction();
 		}
-
-		public delegate void ChangeViewHandler(Type switchToType);
-		public event ChangeViewHandler ChangeView;
+		
+		public Action<Type> ChangeView;
 		private void OpenStandartViewAction()
 		{
 			var openStandartView = new JournalAction("Перейти к обычному виду",

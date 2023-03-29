@@ -883,8 +883,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			OpenWithDepartmentsReacrionViewAction();
 		}
 
-		public delegate void ChangeViewHandler(Type switchToType);
-		public event ChangeViewHandler ChangeView;
+		public Action<Type> ChangeView;
 		private void OpenWithDepartmentsReacrionViewAction()
 		{
 			var openStandartView = new JournalAction("Отобразить время реакции отделов",
