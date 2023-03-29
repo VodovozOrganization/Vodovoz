@@ -17,7 +17,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "пересортица товаров")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class RegradingOfGoodsDocument: Document, IValidatableObject
+	public class RegradingOfGoodsDocument: Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }

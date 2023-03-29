@@ -13,19 +13,18 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			get => selected;
 			set {
 				if(SetField(ref selected, value)) {
-					RaiseAnySelectedChanged();
 					if(selected) {
 						SelectAllChilds();
 					} else {
 						UnselectAllChilds();
 					}
-					RaiseAnySelectedChanged();
+					RaiseAnySelectedChanged(this);
 					Parent?.ActualizeSelected();
 				}
 			}
 		}
 
-		public event EventHandler AnySelectedChanged;
+		public event EventHandler<SelectableParameterSelectionChangedEventArgs> AnySelectedChanged;
 
 		public abstract string Title { get; }
 
@@ -47,9 +46,9 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		{
 		}
 
-		private void RaiseAnySelectedChanged()
+		private void RaiseAnySelectedChanged(SelectableParameter selectableParameter)
 		{
-			AnySelectedChanged?.Invoke(this, EventArgs.Empty);
+			AnySelectedChanged?.Invoke(this, new SelectableParameterSelectionChangedEventArgs(Value, Title, Selected));
 		}
 
 		private void ActualizeSelected()
@@ -138,7 +137,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		void OnChildAnySelectedChanged(object sender, EventArgs e)
 		{
-			RaiseAnySelectedChanged();
+			RaiseAnySelectedChanged(this);
 		}
 
 		public IEnumerable<SelectableParameter> GetAllSelected()
