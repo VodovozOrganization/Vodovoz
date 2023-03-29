@@ -1,20 +1,19 @@
-﻿using DriverAPI.Library.DTOs;
-using Microsoft.Extensions.Configuration;
-using System;
+﻿using Microsoft.Extensions.Configuration;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace DriverAPI.Library.Helpers
 {
 	public class FCMAPIHelper : IFCMAPIHelper
 	{
-		private string _sendPushNotificationEndpointURI;
-		private HttpClient _apiClient;
+		private readonly string _sendPushNotificationEndpointURI;
+		private readonly HttpClient _httpClient;
 
-		public FCMAPIHelper(IConfiguration configuration)
+		public FCMAPIHelper(IConfiguration configuration, HttpClient httpClient)
 		{
-			InitializeClient(configuration);
+			_httpClient = httpClient;
+			var firebaseClientConfiguration = configuration.GetSection("FCMAPI");
+			_sendPushNotificationEndpointURI = firebaseClientConfiguration.GetValue<string>("SendPushNotificationEndpointURI");
 		}
 
 		public async Task SendPushNotification(string pushNotificationClientToken, string title, string body)
@@ -24,35 +23,34 @@ namespace DriverAPI.Library.Helpers
 				to = pushNotificationClientToken,
 				notification = new
 				{
-					title = title,
-					body = body
+					title,
+					body
 				}
 			};
 
-			using (HttpResponseMessage response = await _apiClient.PostAsJsonAsync(_sendPushNotificationEndpointURI, request))
+			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(_sendPushNotificationEndpointURI, request);
+
+			if(!response.IsSuccessStatusCode)
 			{
-				if (response.IsSuccessStatusCode)
-				{
-					return;
-				}
-				else
-				{
-					throw new FCMException(response.ReasonPhrase);
-				}
+				throw new FCMException(response.ReasonPhrase);
 			}
 		}
 
-		private void InitializeClient(IConfiguration configuration)
+		public async Task SendWakeUpNotification(string pushNotificationClientToken)
 		{
-			var apiConfiguration = configuration.GetSection("FCMAPI");
+			var request = new
+			{
+				to = pushNotificationClientToken,
+				priority = "high",
+				content_available = true
+			};
 
-			_apiClient = new HttpClient();
-			_apiClient.BaseAddress = new Uri(apiConfiguration["ApiBase"]);
-			_apiClient.DefaultRequestHeaders.Accept.Clear();
-			_apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			_apiClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("key", "=" + apiConfiguration["AccessToken"]);
+			using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(_sendPushNotificationEndpointURI, request);
 
-			_sendPushNotificationEndpointURI = apiConfiguration["SendPushNotificationEndpointURI"];
+			if(!response.IsSuccessStatusCode)
+			{
+				throw new FCMException(response.ReasonPhrase);
+			}
 		}
 	}
 }

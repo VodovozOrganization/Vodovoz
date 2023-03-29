@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Microsoft.Net.Http.Headers;
+using DriverAPI.Services;
 
 namespace DriverAPI.Controllers
 {
@@ -21,19 +22,22 @@ namespace DriverAPI.Controllers
 		private readonly IRouteListModel _aPIRouteListData;
 		private readonly IFCMAPIHelper _iFCMAPIHelper;
 		private readonly IEmployeeModel _employeeData;
+		private readonly IWakeUpDriverClientService _wakeUpDriverClientService;
 
 		public PushNotificationsController(
 			ILogger<PushNotificationsController> logger,
 			UserManager<IdentityUser> userManager,
 			IRouteListModel aPIRouteListData,
 			IFCMAPIHelper iFCMAPIHelper,
-			IEmployeeModel employeeData)
+			IEmployeeModel employeeData,
+			IWakeUpDriverClientService wakeUpDriverClientService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
 			_iFCMAPIHelper = iFCMAPIHelper ?? throw new ArgumentNullException(nameof(iFCMAPIHelper));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
+			_wakeUpDriverClientService = wakeUpDriverClientService;
 		}
 
 		/// <summary>
@@ -51,6 +55,7 @@ namespace DriverAPI.Controllers
 
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
+			_wakeUpDriverClientService.Subscribe(driver, enablePushNotificationsRequest.Token);
 			_employeeData.EnablePushNotifications(driver, enablePushNotificationsRequest.Token);
 		}
 
@@ -67,7 +72,9 @@ namespace DriverAPI.Controllers
 
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
+			_wakeUpDriverClientService.UnSubscribe(driver);
 			_employeeData.DisablePushNotifications(driver);
+
 		}
 
 		/// <summary>

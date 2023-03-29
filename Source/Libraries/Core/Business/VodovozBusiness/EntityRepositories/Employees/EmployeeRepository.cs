@@ -128,5 +128,13 @@ namespace Vodovoz.EntityRepositories.Employees
 					.SingleOrDefault();
 			}
 		}
+
+		public IEnumerable<Employee> GetSubscribedToPushNotificationsDrivers(IUnitOfWork uow)
+		{
+			return uow.Session.Query<Employee>()
+				.Where(e => e.AndroidToken != null && e.AndroidToken != string.Empty)
+				.ToList()
+				.AsEnumerable();
+		}
 	}
 }
