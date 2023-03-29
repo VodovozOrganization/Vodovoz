@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DateTimeHelpers;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -32,6 +33,9 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 			enumcheckCarOwnType.EnumType = typeof(CarOwnType);
 			enumcheckCarOwnType.SelectAll();
+
+			var now = DateTime.Now;
+			dateEnd.Date = now.FirstDayOfMonth();
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
@@ -52,7 +56,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 					{ "car_types_of_use", carTypesOfUse.Any() ? carTypesOfUse : new[] { (object)0 } },
 					{ "car_own_types", carOwnTypes.Any() ? carOwnTypes : new[] { (object)0 } },
 					{ "show_today_route_lists", ycheckTodayRouteLists.Active },
-					{ "include_visiting_masters", nullCheckVisitingMasters.Active }
+					{ "include_visiting_masters", nullCheckVisitingMasters.Active },
+					{ "end_date", dateEnd.DateOrNull.Value }
 				}
 			};
 		}
