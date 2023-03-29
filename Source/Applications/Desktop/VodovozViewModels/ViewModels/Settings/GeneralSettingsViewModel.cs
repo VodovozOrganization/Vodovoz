@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -10,6 +6,10 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Parameters;
 
@@ -55,6 +55,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_can_add_forwarders_to_largus");
 			CanEditOrderAutoComment =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_order_auto_comment_setting");
+
+			CanEditComplaintWithoutDriverSubdivisions = CanEditRouteListPrintedFormPhones;
 
 			OrderAutoComment = _generalSettingsParametersProvider.OrderAutoComment;
 
@@ -177,6 +179,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#region Complaints
 
+		public bool CanEditComplaintWithoutDriverSubdivisions { get; }
+
 		public GenericObservableList<Subdivision> ObservableSubdivisions
 		{
 			get => _observableSubdivisions;
@@ -196,7 +200,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public DelegateCommand AddSubdivisionCommand { get; }
 		public DelegateCommand RemoveSubdivisionCommand { get; }
 		public DelegateCommand SaveSubdivisionsCommand { get; }
-		public bool CanRemoveSubdivision => SelectedSubdivision != null;
+		public bool CanRemoveSubdivision => CanEditComplaintWithoutDriverSubdivisions && SelectedSubdivision != null;
 
 		private void AddSubdivision()
 		{

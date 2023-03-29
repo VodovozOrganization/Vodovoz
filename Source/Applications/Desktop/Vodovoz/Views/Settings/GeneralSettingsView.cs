@@ -48,6 +48,9 @@ namespace Vodovoz.Views.Settings
 			ybtnComplaintWithoutDriverSubdivisionsDelete.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsDeleteClicked;
 			ybtnComplaintWithoutDriverSubdivisionsSave.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsSaveClicked;
 
+			ybtnComplaintWithoutDriverSubdivisionsAdd.Sensitive = ViewModel.CanEditComplaintWithoutDriverSubdivisions;
+			ybtnComplaintWithoutDriverSubdivisionsSave.Sensitive = ViewModel.CanEditComplaintWithoutDriverSubdivisions;
+
 			ytreeComplaintWithoutDriverSubdivisions.CreateFluentColumnsConfig<Subdivision>()
 				.AddColumn("Номер").AddNumericRenderer(x => x.Id)
 				.AddColumn("Подразделение").AddTextRenderer(x => x.Name)
@@ -56,6 +59,7 @@ namespace Vodovoz.Views.Settings
 
 			ytreeComplaintWithoutDriverSubdivisions.Binding
 				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanEditComplaintWithoutDriverSubdivisions, w => w.Sensitive)
 				.AddBinding(vm => vm.ObservableSubdivisions, w => w.ItemsDataSource)
 				.AddBinding(vm => vm.SelectedSubdivision, w => w.SelectedRow)
 				.InitializeFromSource();
