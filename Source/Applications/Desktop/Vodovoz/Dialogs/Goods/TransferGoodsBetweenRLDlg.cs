@@ -227,7 +227,8 @@ namespace Vodovoz
 			var fromDoc = ylistcomboReceptionTicketFrom.SelectedItem as CarUnloadDocument;
 			var toDoc = ylistcomboReceptionTicketTo.SelectedItem as CarUnloadDocument;
 
-			foreach(var from in itemsFrom.Where(i => i.TransferCount > 0)) {
+			foreach(var from in itemsFrom.Where(i => i.TransferCount > 0))
+			{
 				int transfer = from.TransferCount;
 				//Заполняем для краткости
 				var nomenclature = from.DocumentItem.WarehouseMovementOperation.Nomenclature;
@@ -241,25 +242,37 @@ namespace Vodovoz
 					var tetminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
 					toDoc.AddItem(receiveType, nomenclature, null, transfer, null, tetminalId);
 
-					foreach(var item in toDoc.Items) {
+					foreach(var item in toDoc.Items)
+					{
 						var exist = itemsTo.FirstOrDefault(i => i.DocumentItem.Id == item.Id);
 						if(exist == null)
 							itemsTo.Add(new CarUnloadDocumentNode { DocumentItem = item });
 					}
-				} else {
+				}
+				else
+				{
 					to.DocumentItem.WarehouseMovementOperation.Amount += transfer;
+					to.DocumentItem.DeliveryFreeBalanceOperation.Amount -= transfer;
 
 					UoW.Save(to.DocumentItem.WarehouseMovementOperation);
+					UoW.Save(to.DocumentItem.DeliveryFreeBalanceOperation);
 				}
 
 				from.DocumentItem.WarehouseMovementOperation.Amount -= transfer;
-				if(from.DocumentItem.WarehouseMovementOperation.Amount == 0) {
+				from.DocumentItem.DeliveryFreeBalanceOperation.Amount += transfer;
+
+				if(from.DocumentItem.WarehouseMovementOperation.Amount == 0)
+				{
 					var item = fromDoc.Items.First(i => i.Id == from.DocumentItem.Id);
 					fromDoc.Items.Remove(item);
 
 					UoW.Delete(from.DocumentItem.WarehouseMovementOperation);
-				} else {
+					UoW.Delete(from.DocumentItem.DeliveryFreeBalanceOperation);
+				}
+				else
+				{
 					UoW.Save(from.DocumentItem.WarehouseMovementOperation);
+					UoW.Save(from.DocumentItem.DeliveryFreeBalanceOperation);
 				}
 
 				from.TransferCount = 0;

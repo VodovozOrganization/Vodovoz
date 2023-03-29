@@ -292,7 +292,7 @@ namespace Vodovoz
 					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1} {2}.", 
 						item.TransferedTo.RouteList.Id, 
 						item.TransferedTo.RouteList.Driver.ShortName, 
-						item.TransferedTo.AddressTransferType?.GetEnumTitle());
+						item.AddressTransferType?.GetEnumTitle());
 				else
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 			}
@@ -301,8 +301,8 @@ namespace Vodovoz
 				if (transferedFrom != null)
 					return String.Format("Заказ из МЛ №{0} водителя {1} {2}.", 
 						transferedFrom.RouteList.Id, 
-						transferedFrom.RouteList.Driver.ShortName, 
-						transferedFrom.TransferedTo.AddressTransferType?.GetEnumTitle());
+						transferedFrom.RouteList.Driver.ShortName,
+						transferedFrom.AddressTransferType?.GetEnumTitle());
 				else
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}

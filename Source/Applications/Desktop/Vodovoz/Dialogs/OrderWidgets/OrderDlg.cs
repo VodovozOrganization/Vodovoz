@@ -3039,7 +3039,7 @@ namespace Vodovoz
 		/// </summary>
 		void OpenDlgToCreateNewUndeliveredOrder()
 		{
-			var dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW, true);
+			var dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (sender, e) =>
 			{

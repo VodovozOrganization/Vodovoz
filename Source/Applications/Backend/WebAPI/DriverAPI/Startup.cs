@@ -36,7 +36,6 @@ using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Settings.Database;
 using System.Reflection;
-using Vodovoz.Controllers;
 using Vodovoz.Models.TrueMark;
 using DriverAPI.Services;
 using DriverAPI.Workers;
@@ -312,8 +311,6 @@ namespace DriverAPI
 			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
-
-			services.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>();
 		}
 	}
 }

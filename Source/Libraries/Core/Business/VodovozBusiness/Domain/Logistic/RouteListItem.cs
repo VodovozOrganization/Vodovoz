@@ -15,8 +15,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Services;
+using Vodovoz.Parameters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -513,6 +514,7 @@ namespace Vodovoz.Domain.Logistic
 			if(Status == status)
 				return;
 
+			var oldStatus = Status;
 			Status = status;
 			StatusLastUpdate = DateTime.Now;
 
@@ -538,6 +540,9 @@ namespace Vodovoz.Domain.Logistic
 					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
+
+			CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
+
 			uow.Save(Order);
 		}
 
@@ -548,6 +553,7 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
+			var oldStatus = Status;
 			Status = status;
 			StatusLastUpdate = DateTime.Now;
 
@@ -574,6 +580,8 @@ namespace Vodovoz.Domain.Logistic
 					break;
 			}
 			uow.Save(Order);
+
+			CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
 		}
 
 		public virtual void SetTransferTo(RouteListItem targetAddress)
@@ -581,15 +589,15 @@ namespace Vodovoz.Domain.Logistic
 			TransferedTo = targetAddress;
 		}
 
-		protected internal virtual void TransferTo(RouteListItem targetAddress)
+		protected internal virtual void TransferTo(IUnitOfWork uow, RouteListItem targetAddress)
 		{
 			SetTransferTo(targetAddress);
-			SetStatusWithoutOrderChange(RouteListItemStatus.Transfered);
+			SetStatusWithoutOrderChange(uow, RouteListItemStatus.Transfered);
 		}
 		
-		protected internal virtual void RevertTransferAddress(WageParameterService wageParameterService, RouteListItem revertedAddress)
+		protected internal virtual void RevertTransferAddress(IUnitOfWork uow, WageParameterService wageParameterService, RouteListItem revertedAddress)
 		{
-			SetStatusWithoutOrderChange(revertedAddress.Status);
+			SetStatusWithoutOrderChange(uow, revertedAddress.Status);
 			SetTransferTo(null);
 			DriverBottlesReturned = revertedAddress.DriverBottlesReturned;
 			
@@ -708,7 +716,20 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void ChangeOrderStatus(OrderStatus orderStatus) => Order.OrderStatus = orderStatus;
 
-		protected internal virtual void SetStatusWithoutOrderChange(RouteListItemStatus status) => Status = status;
+		protected internal virtual void SetStatusWithoutOrderChange(IUnitOfWork uow, RouteListItemStatus status)
+		{
+			var oldStatus = Status;
+			Status = status;
+			CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
+		}
+
+		public virtual void CreateDeliveryFreeBalanceOperation(IUnitOfWork uow, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
+		{
+			RouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController =
+				new RouteListAddressKeepingDocumentController(new EmployeeRepository(), new NomenclatureParametersProvider(new ParametersProvider()));
+
+			routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, oldStatus, newStatus);
+		}
 
 		// Скопировано из RouteListClosingItemsView, отображает передавшего и принявшего адрес.
 		public virtual string GetTransferText(RouteListItem item)
@@ -718,7 +739,7 @@ namespace Vodovoz.Domain.Logistic
 					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1} {2}.",
 						item.TransferedTo.RouteList.Id,
 						item.TransferedTo.RouteList.Driver.ShortName,
-						item.TransferedTo.AddressTransferType?.GetEnumTitle());
+						item.AddressTransferType?.GetEnumTitle());
 				else
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 			}
@@ -728,7 +749,7 @@ namespace Vodovoz.Domain.Logistic
 					return string.Format("Заказ из МЛ №{0} водителя {1} {2}.",
 						transferedFrom.RouteList.Id,
 						transferedFrom.RouteList.Driver.ShortName,
-						transferedFrom.TransferedTo.AddressTransferType?.GetEnumTitle());
+						transferedFrom.AddressTransferType?.GetEnumTitle());
 				else
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}
