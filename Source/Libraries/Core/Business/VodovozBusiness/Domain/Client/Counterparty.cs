@@ -799,28 +799,28 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref isChainStore, value);
 		}
 
-        private bool isForRetail;
-        [Display(Name = "Для розницы")]
-        public virtual bool IsForRetail
-        {
-            get => isForRetail;
-            set => SetField(ref isForRetail, value);
-        }
-
-        [Display(Name = "Для отдела продаж")]
-        public virtual bool IsForSalesDepartment
+		private bool isForRetail;
+		[Display(Name = "Для розницы")]
+		public virtual bool IsForRetail
 		{
-	        get => _isForSalesDepartment;
-	        set => SetField(ref _isForSalesDepartment, value);
-        }
+			get => isForRetail;
+			set => SetField(ref isForRetail, value);
+		}
+
+		[Display(Name = "Для отдела продаж")]
+		public virtual bool IsForSalesDepartment
+		{
+			get => _isForSalesDepartment;
+			set => SetField(ref _isForSalesDepartment, value);
+		}
 
 		private bool noPhoneCall;
-        [Display(Name = "Без прозвона")]
-        public virtual bool NoPhoneCall
-        {
-            get => noPhoneCall;
-            set => SetField(ref noPhoneCall, value);
-        }
+		[Display(Name = "Без прозвона")]
+		public virtual bool NoPhoneCall
+		{
+			get => noPhoneCall;
+			set => SetField(ref noPhoneCall, value);
+		}
 
 		[Display(Name = "Исключение из Roboats звонков")]
 		public virtual bool RoboatsExclude
@@ -877,8 +877,8 @@ namespace Vodovoz.Domain.Client
 		}
 
 		private bool _alwaysSendReceipts;
-        [RestrictedHistoryProperty]
-        [IgnoreHistoryTrace]
+		[RestrictedHistoryProperty]
+		[IgnoreHistoryTrace]
 		[Display(Name = "Всегда отправлять чеки")]
 		public virtual bool AlwaysSendReceipts {
 			get => _alwaysSendReceipts;
@@ -975,15 +975,15 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-        #endregion
+		#endregion
 
-        #region CloseDelivery
-        
-        public virtual void AddCloseDeliveryComment(string newComment, Employee currentEmployee)
+		#region CloseDelivery
+		
+		public virtual void AddCloseDeliveryComment(string newComment, Employee currentEmployee)
 		{
 			CloseDeliveryComment = currentEmployee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + newComment;
 		}
-        
+		
 		protected virtual bool CloseDelivery(Employee currentEmployee)
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
@@ -1077,25 +1077,25 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-        public virtual void AddFile(CounterpartyFile file)
-        {
-            if (ObservableFiles.Contains(file))
-            {
-                return;
-            }
-            file.Counterparty = this;
-            ObservableFiles.Add(file);
-        }
+		public virtual void AddFile(CounterpartyFile file)
+		{
+			if (ObservableFiles.Contains(file))
+			{
+				return;
+			}
+			file.Counterparty = this;
+			ObservableFiles.Add(file);
+		}
 
-        public virtual void RemoveFile(CounterpartyFile file)
-        {
-            if (ObservableFiles.Contains(file))
-            {
-                ObservableFiles.Remove(file);
-            }
-        }
+		public virtual void RemoveFile(CounterpartyFile file)
+		{
+			if (ObservableFiles.Contains(file))
+			{
+				ObservableFiles.Remove(file);
+			}
+		}
 
-        public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
+		public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
 		{
 			var removableItems = new List<SupplierPriceItem>(
 				ObservableSuplierPriceItems.Where(i => i.NomenclatureToBuy.Id == nomenclatureId).ToList()
@@ -1333,13 +1333,15 @@ namespace Vodovoz.Domain.Client
 			{
 				if(phone.RoboAtsCounterpartyName == null)
 				{
-					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано имя контрагента.");
+					phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано имя контрагента.");
 				}
 
 				if(phone.RoboAtsCounterpartyPatronymic == null)
 				{
-					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано отчество контрагента.");
+					phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано отчество контрагента.");
 				}
+
+				#region Проверка дубликатов номера телефона
 
 				if(!phoneNumberDuplicatesIsChecked.Contains(phone.Number))
 				{
@@ -1348,19 +1350,19 @@ namespace Vodovoz.Domain.Client
 						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} в карточке контрагента указан несколько раз.");
 					}
 
-					var counterpartiesWithTheSamePhoneNumber = CheckForPhoneNumberDuplicate(counterpartyRepository, UoW, phone.Number);
+					var counterpartiesWithTheSamePhoneNumber = counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(UoW, phone.Number, this.Id);
 					if(counterpartiesWithTheSamePhoneNumber.Count() > 0)
 					{
-						phonesValidationStringBuilder.Append($"Телефон {phone.Number} уже указан у контрагентов:\n");
+						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} уже указан у контрагентов:");
 						foreach(var c in counterpartiesWithTheSamePhoneNumber)
 						{
-							phonesValidationStringBuilder.Append($"\t{c.Name}\n");
+							phonesValidationStringBuilder.AppendLine($"\t{c}");
 						}
 					}
 					phoneNumberDuplicatesIsChecked.Add(phone.Number);
 				}
+				#endregion
 			}
-
 			var phonesValidationMessage = phonesValidationStringBuilder.ToString();
 
 			if(!string.IsNullOrEmpty(phonesValidationMessage))
