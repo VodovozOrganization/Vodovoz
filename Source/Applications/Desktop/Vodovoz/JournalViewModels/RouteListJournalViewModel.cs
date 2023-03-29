@@ -1,6 +1,5 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
@@ -47,8 +46,8 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
+using QS.Project.DB;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Infrastructure.Services;
@@ -294,9 +293,8 @@ namespace Vodovoz.JournalViewModels
 				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(FilterViewModel.RestrictedCarTypesOfUse.ToArray());
 			}
 
-			var driverProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?1, ?2, ?3)"),
-				NHibernateUtil.String,
+			var driverProjection = CustomProjections.Concat_WS(
+				" ",
 				Projections.Property(() => driverAlias.LastName),
 				Projections.Property(() => driverAlias.Name),
 				Projections.Property(() => driverAlias.Patronymic)
@@ -304,9 +302,6 @@ namespace Vodovoz.JournalViewModels
 
 			query.Where(GetSearchCriterion(
 				() => routeListAlias.Id,
-				() => driverAlias.Name,
-				() => driverAlias.LastName,
-				() => driverAlias.Patronymic,
 				() => driverProjection,
 				() => carModelAlias.Name,
 				() => carAlias.RegistrationNumber
