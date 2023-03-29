@@ -1318,7 +1318,8 @@ namespace Vodovoz
 				new FileDialogService(),
 				new SubdivisionParametersProvider(new ParametersProvider()),
 				new DeliveryScheduleParametersProvider(new ParametersProvider()),
-				new RdlPreviewOpener()
+				new RdlPreviewOpener(),
+				new RouteListItemRepository()
 			);
 
 			TabParent.AddTab(orderJournalViewModel, this, false);

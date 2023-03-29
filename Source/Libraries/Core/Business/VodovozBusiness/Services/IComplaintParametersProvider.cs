@@ -4,5 +4,6 @@
 	{
 		int SubdivisionResponsibleId { get; }
 		int EmployeeResponsibleId { get; }
+		int ComplaintResultOfEmployeesIsGuiltyId { get; }
 	}
 }

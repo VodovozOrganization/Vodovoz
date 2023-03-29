@@ -10,6 +10,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
@@ -95,7 +96,8 @@ namespace Vodovoz.TempAdapters
 						new FileDialogService(),
 						new SubdivisionParametersProvider(new ParametersProvider()),
 						new DeliveryScheduleParametersProvider(new ParametersProvider()),
-						new RdlPreviewOpener());
+						new RdlPreviewOpener(),
+						new RouteListItemRepository());
 				});
 		}
 
@@ -138,7 +140,8 @@ namespace Vodovoz.TempAdapters
 						new FileDialogService(),
 						new SubdivisionParametersProvider(new ParametersProvider()),
 						new DeliveryScheduleParametersProvider(new ParametersProvider()),
-						new RdlPreviewOpener());
+						new RdlPreviewOpener(),
+						new RouteListItemRepository());
 				});
 		}
 
@@ -177,7 +180,8 @@ namespace Vodovoz.TempAdapters
 				new FileDialogService(),
 				new SubdivisionParametersProvider(new ParametersProvider()),
 				new DeliveryScheduleParametersProvider(new ParametersProvider()),
-				new RdlPreviewOpener());
+				new RdlPreviewOpener(),
+				new RouteListItemRepository());
 		}
 	}
 }
