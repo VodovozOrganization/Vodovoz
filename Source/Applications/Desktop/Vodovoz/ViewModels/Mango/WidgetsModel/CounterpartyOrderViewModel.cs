@@ -272,7 +272,7 @@ namespace Vodovoz.ViewModels.Mango
 
 					var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, order);
 					if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {
-						routeListItem.RouteList.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Canceled);
+						routeListItem.RouteList.SetAddressStatusWithoutOrderChange(UoW, routeListItem.Id, RouteListItemStatus.Canceled);
 						routeListItem.StatusLastUpdate = DateTime.Now;
 						routeListItem.SetOrderActualCountsToZeroOnCanceled();
 						UoW.Save(routeListItem.RouteList);

@@ -1,15 +1,17 @@
 ﻿using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Services;
 
 namespace Vodovoz.Controllers
 {
-	public class RouteListAddressKeepingDocumentController: IRouteListAddressKeepingDocumentController
+	public class RouteListAddressKeepingDocumentController : IRouteListAddressKeepingDocumentController
 	{
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
@@ -28,7 +30,7 @@ namespace Vodovoz.Controllers
 				return DeliveryFreeBalanceType.Increase;
 			}
 
-			if(IsPositive(oldStatus) 
+			if(IsPositive(oldStatus)
 			   && (IsNegative(newStatus) || IsNeutral(newStatus)))
 			{
 				return DeliveryFreeBalanceType.Decrease;
@@ -47,45 +49,12 @@ namespace Vodovoz.Controllers
 			throw new ArgumentOutOfRangeException(nameof(oldStatus));
 		}
 
-		private bool IsPositive(RouteListItemStatus status) => new[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue }.Contains(status);
-		private bool IsNegative(RouteListItemStatus status) => new[] { RouteListItemStatus.EnRoute }.Contains(status);
-		private bool IsNeutral(RouteListItemStatus status) => new[] { RouteListItemStatus.Completed }.Contains(status);
-
-		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, Order order, DeliveryFreeBalanceType deliveryFreeBalanceType)
+		private void CreateOperationsForReturns(IUnitOfWork uow, RouteListItem routeListItem, RouteListAddressKeepingDocument routeListKeepingDocument, RouteListItemStatus? oldStatus, RouteListItemStatus? newStatus)
 		{
-			var address = uow.GetAll<RouteListItem>().FirstOrDefault(x => x.Order.Id == order.Id);
-
-			if(address != null)
-			{
-				CreateOrUpdateRouteListKeepingDocument(uow, address, deliveryFreeBalanceType);
-			}
-		}
-
-		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
-		{
-			var balanceType = GetDeliveryFreeBalanceType(oldStatus, newStatus);
-
-			CreateOrUpdateRouteListKeepingDocument(uow, routeListItem, balanceType, false, oldStatus, newStatus);
-		}
-
-		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem,
-			DeliveryFreeBalanceType deliveryFreeBalanceType, bool isFullRecreation = false, RouteListItemStatus? oldStatus = null, RouteListItemStatus? newStatus = null)
-		{
-			var routeListKeepingDocument =
-				uow.GetAll<RouteListAddressKeepingDocument>()
-					.SingleOrDefault(x => x.RouteListItem.Id == routeListItem.Id)
-				?? new RouteListAddressKeepingDocument();
-
-			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
-			routeListKeepingDocument.RouteListItem = routeListItem;
-			routeListKeepingDocument.Author = currentEmployee;
-
 			var routeList = routeListItem.RouteList;
 
 			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
 			var pickupEquipments = routeListItem.Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp).ToList();
-
-			#region Бутыли на возврат и оборудование от клиента
 
 			if(newStatus == RouteListItemStatus.Completed && oldStatus != RouteListItemStatus.Completed)
 			{
@@ -141,11 +110,52 @@ namespace Vodovoz.Controllers
 					uow.Delete(pickupsEquipmentItem);
 				}
 			}
+		}
 
-			#endregion
+		private bool IsPositive(RouteListItemStatus status) => new[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue }.Contains(status);
+		private bool IsNegative(RouteListItemStatus status) => new[] { RouteListItemStatus.EnRoute }.Contains(status);
+		private bool IsNeutral(RouteListItemStatus status) => new[] { RouteListItemStatus.Completed }.Contains(status);
+
+		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, Order order, DeliveryFreeBalanceType deliveryFreeBalanceType)
+		{
+			var address = uow.GetAll<RouteListItem>().FirstOrDefault(x => x.Order.Id == order.Id);
+
+			if(address != null)
+			{
+				CreateOrUpdateRouteListKeepingDocument(uow, address, deliveryFreeBalanceType);
+			}
+		}
+
+		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
+		{
+			if(newStatus == RouteListItemStatus.Transfered || oldStatus == RouteListItemStatus.Transfered)
+			{
+				return;
+			}
+
+			var balanceType = GetDeliveryFreeBalanceType(oldStatus, newStatus);
+
+			CreateOrUpdateRouteListKeepingDocument(uow, routeListItem, balanceType, false, false, oldStatus, newStatus);
+		}
+
+		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem,
+			DeliveryFreeBalanceType deliveryFreeBalanceType, bool isFullRecreation = false, bool isActualCount = false,
+			RouteListItemStatus? oldStatus = null, RouteListItemStatus? newStatus = null)
+		{
+			var routeListKeepingDocument =
+				uow.GetAll<RouteListAddressKeepingDocument>()
+					.SingleOrDefault(x => x.RouteListItem.Id == routeListItem.Id)
+				?? new RouteListAddressKeepingDocument();
+
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+			routeListKeepingDocument.RouteListItem = routeListItem;
+			routeListKeepingDocument.Author = currentEmployee;
+
+			var routeList = routeListItem.RouteList;
 
 			if(deliveryFreeBalanceType == DeliveryFreeBalanceType.Unchange)
 			{
+				CreateOperationsForReturns(uow, routeListItem, routeListKeepingDocument, oldStatus, newStatus);
 				uow.Save(routeListKeepingDocument);
 				return;
 			}
@@ -168,17 +178,15 @@ namespace Vodovoz.Controllers
 				foreach(var item in routeListKeepingDocument.Items)
 				{
 					routeList.ObservableDeliveryFreeBalanceOperations.Remove(item.DeliveryFreeBalanceOperation);
-				}
-
-				foreach(var item in routeListKeepingDocument.Items)
-				{
 					uow.Delete(item);
 				}
 
 				routeListKeepingDocument.Items.Clear();
 			}
 
-			foreach(var item in routeListItem.Order.GetAllGoodsToDeliver(false))
+			CreateOperationsForReturns(uow, routeListItem, routeListKeepingDocument, oldStatus, newStatus);
+
+			foreach(var item in routeListItem.Order.GetAllGoodsToDeliver(isActualCount))
 			{
 				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 
@@ -187,13 +195,175 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocumentItem.Amount = item.Amount * amountSign;
 
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
-				
+
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
 
 				routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
 			}
 
 			uow.Save(routeListKeepingDocument);
+		}
+
+		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uoW, RouteList routeList, DeliveryFreeBalanceType deliveryFreeBalanceType, bool isFullRecreation, bool isActualCount)
+		{
+			foreach(var address in routeList.Addresses)
+			{
+				CreateOrUpdateRouteListKeepingDocument(uoW, address, deliveryFreeBalanceType, isFullRecreation, isActualCount, newStatus: RouteListItemStatus.Completed);
+			}
+		}
+
+		public void CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(IUnitOfWork uow, RouteListItem changedRouteListItem)
+		{
+			IList<NomenclatureAmountNode> oldGoodsToDeliverAmountNodes;
+			IList<NomenclatureAmountNode> oldEquipmentToPickupAmountNodes;
+
+			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
+			{
+				var oldOrder = uowLocal.GetById<Order>(changedRouteListItem.Order.Id);
+				oldGoodsToDeliverAmountNodes = oldOrder.GetAllGoodsToDeliver(true);
+				oldEquipmentToPickupAmountNodes = oldOrder.OrderEquipments
+					.Where(x => x.Direction == Direction.PickUp)
+					.Select(x => new NomenclatureAmountNode { NomenclatureId = x.Nomenclature.Id, Amount = x.CurrentCount, Nomenclature = x.Nomenclature })
+					.ToList();
+			}
+
+			var routeListKeepingDocument =
+				uow.GetAll<RouteListAddressKeepingDocument>()
+					.SingleOrDefault(x => x.RouteListItem.Id == changedRouteListItem.Id)
+				?? new RouteListAddressKeepingDocument();
+
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+			routeListKeepingDocument.RouteListItem = changedRouteListItem;
+			routeListKeepingDocument.Author = currentEmployee;
+
+			int amountSign = -1;
+
+			#region ToDeliver
+
+			foreach(var node in oldGoodsToDeliverAmountNodes)
+			{
+				decimal count;
+
+				var foundInChanged = changedRouteListItem.Order.OrderItems
+					.Select(i => new NomenclatureAmountNode { NomenclatureId = i.Nomenclature.Id, Nomenclature = i.Nomenclature, Amount = i.CurrentCount })
+					.Concat(changedRouteListItem.Order.OrderEquipments
+						.Where(x => x.Direction == Direction.Deliver)
+						.Select(e => new NomenclatureAmountNode { NomenclatureId = e.Nomenclature.Id, Nomenclature = e.Nomenclature, Amount = e.CurrentCount }))
+				.SingleOrDefault(x => x.Nomenclature.Id == node.NomenclatureId);
+
+				if(foundInChanged != null)
+				{
+					if(foundInChanged.Amount == node.Amount)
+					{
+						continue;
+					}
+
+					count = foundInChanged.Amount - node.Amount;
+				}
+				else
+				{
+					count = -node.Amount;
+				}
+
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
+				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
+				routeListKeepingDocumentItem.Nomenclature = node.Nomenclature;
+				routeListKeepingDocumentItem.Amount = count * amountSign;
+				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
+				routeListKeepingDocumentItem.CreateOrUpdateOperation();
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+			}
+
+			var newItemsToDeliver = changedRouteListItem.Order.GetAllGoodsToDeliver(true)
+				.Where(x => oldGoodsToDeliverAmountNodes.All(a => a.Nomenclature.Id != x.Nomenclature.Id));
+
+			foreach(var item in newItemsToDeliver)
+			{
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
+				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
+				routeListKeepingDocumentItem.Nomenclature = item.Nomenclature;
+				routeListKeepingDocumentItem.Amount = item.Amount * amountSign;
+				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
+				routeListKeepingDocumentItem.CreateOrUpdateOperation();
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+			}
+
+			#endregion
+
+			#region Pickup
+
+			foreach(var node in oldEquipmentToPickupAmountNodes)
+			{
+				decimal count;
+
+				var foundInChanged = changedRouteListItem.Order.OrderEquipments
+					.Where(x => x.Direction == Direction.PickUp)
+					.SingleOrDefault(x => x.Nomenclature.Id == node.NomenclatureId);
+
+				if(foundInChanged != null)
+				{
+					if(foundInChanged.ActualCount == node.Amount)
+					{
+						continue;
+					}
+
+					count = foundInChanged.ActualCount.Value - node.Amount;
+				}
+				else
+				{
+					count = -node.Amount;
+				}
+
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
+				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
+				routeListKeepingDocumentItem.Nomenclature = node.Nomenclature;
+				routeListKeepingDocumentItem.Amount = count;
+				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
+				routeListKeepingDocumentItem.CreateOrUpdateOperation();
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+			}
+
+			var newEquipmentsToPickup = changedRouteListItem.Order.OrderEquipments
+				.Where(x => x.Direction == Direction.PickUp)
+				.Where(x => oldEquipmentToPickupAmountNodes
+					.All(a => a.Nomenclature.Id != x.Nomenclature.Id))
+				.ToList();
+
+			foreach(var item in newEquipmentsToPickup)
+			{
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
+				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
+				routeListKeepingDocumentItem.Nomenclature = item.Nomenclature;
+				routeListKeepingDocumentItem.Amount = item.CurrentCount;
+				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
+				routeListKeepingDocumentItem.CreateOrUpdateOperation();
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+			}
+
+			#endregion
+
+			uow.Save(routeListKeepingDocument);
+		}
+
+		public void RemoveRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem)
+		{
+			var routeListKeepingDocument =
+				uow.GetAll<RouteListAddressKeepingDocument>()
+					.SingleOrDefault(x => x.RouteListItem.Id == routeListItem.Id);
+
+			if(routeListKeepingDocument == null)
+			{
+				return;
+			}
+
+			foreach(var item in routeListKeepingDocument.Items)
+			{
+				routeListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Remove(item.DeliveryFreeBalanceOperation);
+			}
+
+			routeListKeepingDocument.Items.Clear();
+
+			uow.Delete(routeListKeepingDocument);
 		}
 	}
 }

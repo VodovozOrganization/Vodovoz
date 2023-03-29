@@ -1,15 +1,15 @@
-﻿using EdoService.Dto;
+﻿using EdoService.Converters;
+using EdoService.Dto;
 using NLog;
 using System;
 using System.IO;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using EdoService.Converters;
 using TISystems.TTC.CRM.BE.Serialization;
 using Vodovoz.Domain.Client;
-using Vodovoz.Services;
-using System.Text.RegularExpressions;
+using Vodovoz.Settings.Edo;
 
 namespace EdoService.Services
 {

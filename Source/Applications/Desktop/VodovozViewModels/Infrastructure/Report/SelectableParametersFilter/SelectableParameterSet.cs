@@ -64,7 +64,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		public string ParameterName { get; }
 
-		public event EventHandler SelectionChanged;
+		public event EventHandler<SelectableParameterSetSelectionChanged> SelectionChanged;
 
 		public SelectableParameterSet(string name, IParametersFactory parametersFactory, string parameterName, string includeSuffix = "_include", string excludeSuffix = "_exclude")
 		{
@@ -84,19 +84,19 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			ParameterName = parameterName;
 		}
 
-		void Parameter_AnySelectedChanged(object sender, EventArgs e)
+		void Parameter_AnySelectedChanged(object sender, SelectableParameterSelectionChangedEventArgs e)
 		{
-			RaiseSelectionChanged();
+			RaiseSelectionChanged(e);
 		}
 
 		private bool suppressSelectionChangedEvent;
 
-		private void RaiseSelectionChanged()
+		private void RaiseSelectionChanged(params SelectableParameterSelectionChangedEventArgs[] changes)
 		{
 			if(suppressSelectionChangedEvent) {
 				return;
 			}
-			SelectionChanged?.Invoke(this, EventArgs.Empty);
+			SelectionChanged?.Invoke(this, new SelectableParameterSetSelectionChanged(ParameterName, changes));
 		}
 
 		private string searchValue;
@@ -121,21 +121,25 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		public void SelectAll()
 		{
 			suppressSelectionChangedEvent = true;
+			List<SelectableParameterSelectionChangedEventArgs> changes = new List<SelectableParameterSelectionChangedEventArgs>();
 			foreach(SelectableParameter value in OutputParameters) {
 				value.Selected = true;
+				changes.Add(new SelectableParameterSelectionChangedEventArgs(value.Value, value.Title, true));
 			}
 			suppressSelectionChangedEvent = false;
-			RaiseSelectionChanged();
+			RaiseSelectionChanged(changes.ToArray());
 		}
 
 		public void UnselectAll()
 		{
 			suppressSelectionChangedEvent = true;
+			List<SelectableParameterSelectionChangedEventArgs> changes = new List<SelectableParameterSelectionChangedEventArgs>();
 			foreach(SelectableParameter value in OutputParameters) {
 				value.Selected = false;
+				changes.Add(new SelectableParameterSelectionChangedEventArgs(value.Value, value.Title, false));
 			}
 			suppressSelectionChangedEvent = false;
-			RaiseSelectionChanged();
+			RaiseSelectionChanged(changes.ToArray());
 		}
 
 		public IEnumerable<object> GetSelectedValues()

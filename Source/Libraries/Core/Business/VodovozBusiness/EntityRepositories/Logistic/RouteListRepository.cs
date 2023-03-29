@@ -247,7 +247,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand))
+				.Where(r => r.TransferedTo == null &&
+				            (!r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand)))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -275,18 +276,17 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand))
+				.Where(r => r.TransferedTo == null &&
+					(!r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand)))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
 			var orderitemsQuery = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
-				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
-				.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
-				.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
-				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()))
-				.And(() => !orderAlias.IsFastDelivery);
-
+					.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
+					.JoinAlias(() => orderItemsAlias.Nomenclature, () => orderItemNomenclatureAlias)
+					.JoinAlias(() => orderItemsAlias.Order, () => orderAlias)
+					.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+					.Where(() => orderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
 			return orderitemsQuery.SelectList(list => list
 				.Select(
 					Projections.GroupProperty(
@@ -332,7 +332,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand))
+				.Where(r => r.TransferedTo == null &&
+					(!r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand)))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
@@ -366,7 +367,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var ordersQuery = QueryOver.Of<VodovozOrder>(() => orderAlias);
 			var routeListItemsSubQuery = QueryOver.Of<RouteListItem>()
 				.Where(r => r.RouteList.Id == routeList.Id)
-				.Where(r => !r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand))
+				.Where(r => r.TransferedTo == null &&
+					(!r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand)))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 

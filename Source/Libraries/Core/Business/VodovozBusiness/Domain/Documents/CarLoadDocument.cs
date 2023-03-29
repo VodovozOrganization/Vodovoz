@@ -21,7 +21,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "талон погрузки автомобиля")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class CarLoadDocument : Document, IValidatableObject
+	public class CarLoadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private const int _commentLimit = 255;
 
@@ -191,7 +191,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateOperations(IUnitOfWork uow)
+		public virtual void UpdateOperations(IUnitOfWork uow, int terminalId)
 		{
 			foreach(var item in Items) {
 				if(item.Amount == 0) {
@@ -223,7 +223,10 @@ namespace Vodovoz.Domain.Documents
 						item.CreateEmployeeNomenclatureMovementOperation(TimeStamp);
 					}
 
-					item.CreateOrUpdateDeliveryFreeBalanceOperation();
+					if(item.Nomenclature.Id != terminalId)
+					{
+						item.CreateOrUpdateDeliveryFreeBalanceOperation();
+					}
 				}
 			}
 		}

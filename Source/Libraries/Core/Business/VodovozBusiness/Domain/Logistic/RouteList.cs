@@ -15,7 +15,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NHibernate.Criterion;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
@@ -1457,9 +1456,9 @@ namespace Vodovoz.Domain.Logistic
 			UpdateStatus();
 		}
 
-		public virtual void SetAddressStatusWithoutOrderChange(int routeListAddressid, RouteListItemStatus newAddressStatus)
+		public virtual void SetAddressStatusWithoutOrderChange(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus)
 		{
-			Addresses.First(a => a.Id == routeListAddressid).SetStatusWithoutOrderChange(newAddressStatus);
+			Addresses.First(a => a.Id == routeListAddressid).SetStatusWithoutOrderChange(uow, newAddressStatus);
 			UpdateStatus();
 		}
 
@@ -1471,16 +1470,16 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void TransferAddressTo(RouteListItem transferringAddress, RouteListItem targetAddress)
+		public virtual void TransferAddressTo(IUnitOfWork uow, RouteListItem transferringAddress, RouteListItem targetAddress)
 		{
-			transferringAddress.TransferTo(targetAddress);
+			transferringAddress.TransferTo(uow, targetAddress);
 			UpdateStatus();
 		}
 
 		public virtual void RevertTransferAddress(
 			WageParameterService wageParameterService, RouteListItem targetAddress, RouteListItem revertedAddress)
 		{
-			targetAddress.RevertTransferAddress(wageParameterService, revertedAddress);
+			targetAddress.RevertTransferAddress(UoW, wageParameterService, revertedAddress);
 			UpdateStatus();
 		}
 

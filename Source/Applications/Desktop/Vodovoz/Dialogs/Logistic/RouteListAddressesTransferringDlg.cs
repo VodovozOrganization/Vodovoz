@@ -72,7 +72,8 @@ namespace Vodovoz
 
 		private DeliveryFreeBalanceViewModel _deliveryFreeBalanceViewModelFrom;
 		private DeliveryFreeBalanceViewModel _deliveryFreeBalanceViewModelTo;
-
+		private RouteListJournalFilterViewModel _routeListJournalFilterViewModelFrom;
+		private RouteListJournalFilterViewModel _routeListJournalFilterViewModelTo;
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
@@ -167,19 +168,19 @@ namespace Vodovoz
 			IRouteListJournalFactory routeListJournalFactory = new RouteListJournalFactory();
 			var scope = MainClass.AppDIContainer.BeginLifetimeScope();
 
-			var routeListJournalFilterViewModelFrom = new RouteListJournalFilterViewModel()
+			_routeListJournalFilterViewModelFrom = new RouteListJournalFilterViewModel()
 			{
 				DisplayableStatuses = new[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing },
 				StartDate = DateTime.Today.AddDays(-3),
 				EndDate = DateTime.Today.AddDays(1)
 			};
 
-			routeListJournalFilterViewModelFrom.AddressTypeNodes.ForEach(x => x.Selected = true);
+			_routeListJournalFilterViewModelFrom.AddressTypeNodes.ForEach(x => x.Selected = true);
 
 			evmeRouteListFrom.SetEntityAutocompleteSelectorFactory(routeListJournalFactory
-				.CreateRouteListJournalAutocompleteSelectorFactory(scope, routeListJournalFilterViewModelFrom));
+				.CreateRouteListJournalAutocompleteSelectorFactory(scope, _routeListJournalFilterViewModelFrom));
 
-			var routeListJournalFilterViewModelTo = new RouteListJournalFilterViewModel()
+			_routeListJournalFilterViewModelTo = new RouteListJournalFilterViewModel()
 			{
 				DisplayableStatuses = new[] {
 					RouteListStatus.New,
@@ -191,10 +192,10 @@ namespace Vodovoz
 				EndDate = DateTime.Today.AddDays(1)
 			};
 
-			routeListJournalFilterViewModelTo.AddressTypeNodes.ForEach(x => x.Selected = true);
+			_routeListJournalFilterViewModelTo.AddressTypeNodes.ForEach(x => x.Selected = true);
 
 			evmeRouteListTo.SetEntityAutocompleteSelectorFactory(routeListJournalFactory
-				.CreateRouteListJournalAutocompleteSelectorFactory(scope, routeListJournalFilterViewModelTo));
+				.CreateRouteListJournalAutocompleteSelectorFactory(scope, _routeListJournalFilterViewModelTo));
 
 			evmeRouteListFrom.Changed += OnRouteListFromChanged;
 			evmeRouteListTo.Changed += OnRouteListToChanged;
@@ -517,7 +518,7 @@ namespace Vodovoz
 					newItem.AddressTransferType = item.AddressTransferType;
 					item.WasTransfered = false;
 					routeListTo.RevertTransferAddress(_wageParameterService, newItem, item);
-					routeListFrom.TransferAddressTo(item, newItem);
+					routeListFrom.TransferAddressTo(UoW, item, newItem);
 					newItem.WasTransfered = true;
 				}
 				else
@@ -528,13 +529,13 @@ namespace Vodovoz
 						AddressTransferType = row.IsNeedToReload
 							? AddressTransferType.NeedToReload
 							: row.IsFromHandToHandTransfer
-								? AddressTransferType.FromHandToHand 
+								? AddressTransferType.FromHandToHand
 								: AddressTransferType.FromFreeBalance,
 						WithForwarder = routeListTo.Forwarder != null
 					};
 
 					routeListTo.ObservableAddresses.Add(newItem);
-					routeListFrom.TransferAddressTo(item, newItem);
+					routeListFrom.TransferAddressTo(UoW, item, newItem);
 				}
 
 				//Пересчёт зарплаты после изменения МЛ
@@ -554,10 +555,11 @@ namespace Vodovoz
 				UoW.Save(item);
 				UoW.Save(newItem);
 
+				UpdateTranferDocuments(item, newItem);
+
 				UoW.Commit();
 			}
 			
-			UpdateTranferDocuments(routeListFrom, routeListTo);
 
 			if(routeListFrom.Status == RouteListStatus.Closed)
 			{
@@ -652,9 +654,9 @@ namespace Vodovoz
         private void CheckSensitivities()
 		{
 			bool routeListToIsSelected = evmeRouteListTo.Subject != null;
-			bool existToTransfer = ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>().Any(x => x.Status != RouteListItemStatus.Transfered);
-
-			buttonTransfer.Sensitive = existToTransfer && routeListToIsSelected;
+			var selectedNodes = ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>();
+			buttonTransfer.Sensitive = selectedNodes.All(x => x.Status == RouteListItemStatus.EnRoute)
+									   && routeListToIsSelected;
 		}
 
 		protected void OnButtonRevertClicked(object sender, EventArgs e)
@@ -734,7 +736,7 @@ namespace Vodovoz
 
 				if(pastPlace != null)
 				{
-					if(address.AddressTransferType.Value == AddressTransferType.FromFreeBalance)
+					if(pastPlace.TransferedTo.AddressTransferType.Value == AddressTransferType.FromFreeBalance)
 					{
 						var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(UoW, address.Order, pastPlace.RouteList);
 
@@ -748,10 +750,10 @@ namespace Vodovoz
 					previousRouteList.RevertTransferAddress(_wageParameterService, pastPlace, address);
 					pastPlace.AddressTransferType = address.AddressTransferType;
 					pastPlace.WasTransfered = true;
-					UpdateTranferDocuments(pastPlace.RouteList, address.RouteList);
+					UpdateTranferDocuments(address, pastPlace);
 					pastPlace.RecalculateTotalCash();
 					UoW.Save(pastPlace);
-					address.RouteList.TransferAddressTo(address, pastPlace);
+					address.RouteList.TransferAddressTo(UoW, address, pastPlace);
 					address.WasTransfered = false;
 				}
 
@@ -772,15 +774,17 @@ namespace Vodovoz
 			}
 		}
 
-		private void UpdateTranferDocuments(RouteList from, RouteList to)
+		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to)
 		{
-			var addressTransferController = new AddressTransferController(new EmployeeRepository(), _nomenclatureParametersProvider);
+			var addressTransferController = new AddressTransferController(new EmployeeRepository());
 			addressTransferController.UpdateDocuments(from, to, UoW);
 		}
 
 		public override void Destroy()
 		{
 			UoW?.Dispose();
+			_routeListJournalFilterViewModelFrom?.Dispose();
+			_routeListJournalFilterViewModelTo?.Dispose();
 			base.Destroy();
 		}
 

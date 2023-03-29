@@ -672,17 +672,19 @@ namespace Vodovoz
 				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
 				_orderParametersProvider.PaymentByCardFromOnlineStoreId
 			};
+
+			var paymentFromItemsQuery = UoW.Session.QueryOver<PaymentFrom>();
 			if(Entity.PaymentByCardFrom == null || !excludedPaymentFromIds.Contains(Entity.PaymentByCardFrom.Id))
 			{
-				ySpecPaymentFrom.ItemsList =
-					UoW.Session.QueryOver<PaymentFrom>()
-						.WhereRestrictionOn(x => x.Id).Not.IsIn(excludedPaymentFromIds).List();
-			}
-			else
-			{
-				ySpecPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>();
+				paymentFromItemsQuery.WhereRestrictionOn(x => x.Id).Not.IsIn(excludedPaymentFromIds);
 			}
 
+			if(Entity.PaymentByCardFrom == null || !Entity.PaymentByCardFrom.IsArchive)
+			{
+				paymentFromItemsQuery.Where(p => !p.IsArchive);
+			}
+
+			ySpecPaymentFrom.ItemsList = paymentFromItemsQuery.List();
 			ySpecPaymentFrom.Binding.AddBinding(Entity, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 
 			enumTax.ItemsEnum = typeof(TaxType);
@@ -780,15 +782,6 @@ namespace Vodovoz
 					ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
 				lblDeliveryPoint.Sensitive = evmeDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
 				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
-
-				if(Entity.SelfDelivery)
-				{
-					enumPaymentType.AddEnumToHideList(PaymentType.Terminal);
-				}
-				else
-				{
-					enumPaymentType.RemoveEnumFromHideList(PaymentType.Terminal);
-				}
 
 				Entity.UpdateClientDefaultParam(UoW, counterpartyContractRepository, organizationProvider, counterpartyContractFactory);
 				enumPaymentType.SelectedItem = Entity.PaymentType;
@@ -1811,7 +1804,7 @@ namespace Vodovoz
 				? EdoLightsMatrixPaymentType.Cashless
 				: EdoLightsMatrixPaymentType.Receipt;
 
-			var isAccountableInChestniyZnak = Entity.OrderItems.Any(x => x.Nomenclature.IsAccountableInChestniyZnak);
+			var isAccountableInChestniyZnak = Entity.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
 
 			if(isAccountableInChestniyZnak
 			   && Entity.DeliveryDate >= new DateTime(2022, 11, 01)
@@ -2931,13 +2924,6 @@ namespace Vodovoz
 				chkPaymentByQr.Visible = true;
 			}
 
-			if(Entity.PaymentType == PaymentType.Terminal) {
-				checkSelfDelivery.Visible = checkSelfDelivery.Active = false;
-			}
-			else {
-				checkSelfDelivery.Visible = true;
-			}
-
 			enumSignatureType.Visible = labelSignatureType.Visible =
 				Entity.Client != null && (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless);
 
@@ -3053,7 +3039,7 @@ namespace Vodovoz
 		/// </summary>
 		void OpenDlgToCreateNewUndeliveredOrder()
 		{
-			var dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW, true);
+			var dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (sender, e) =>
 			{

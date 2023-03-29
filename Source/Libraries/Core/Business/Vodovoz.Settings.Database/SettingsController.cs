@@ -73,10 +73,21 @@ namespace Vodovoz.Settings.Database
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				Setting setting = uow.Session.QueryOver<Setting>()
+				var settings = uow.Session.QueryOver<Setting>()
 					.Where(x => x.Name == settingName)
-					.SingleOrDefault<Setting>();
+					.List<Setting>();
 
+				if(settings == null || !settings.Any())
+				{
+					return;
+				}
+
+				if(settings.Count > 1)
+				{
+					throw new InvalidOperationException($"Установлено более 2-х настроек для {settingName}");
+				}
+
+				Setting setting = settings.First();
 				if(setting == null)
 				{
 					return;

@@ -91,6 +91,7 @@ using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Autofac;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 public partial class MainWindow : Window
 {
@@ -100,13 +101,14 @@ public partial class MainWindow : Window
 	Action ActionLoadOrders;
 	Action ActionDeliveryPrice;
 	Action ActionUndeliveredOrders;
-	Action ActionTrueMarkOrders;
-	Action ActionReceiptsJournal;
+	Action ActionCashReceiptsJournal;
+	Action ActionOrdersWithReceiptJournal;
 
 	Action ActionServiceClaims;
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
+	Action ActionWarehouseDocumentsItemsJournal;
 
 	//Работа с клиентами
 	Action ActionCallTasks;
@@ -189,15 +191,15 @@ public partial class MainWindow : Window
 		ActionLoadOrders = new Action("ActionLoadOrders", "Загрузить из 1С", null, "table");
 		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
-		ActionTrueMarkOrders = new Action(nameof(ActionTrueMarkOrders), "Журнал кодов честного знака", null, "table");
-		ActionReceiptsJournal = new Action(nameof(ActionReceiptsJournal), "Журнал чеков", null, "table");
+		ActionCashReceiptsJournal = new Action(nameof(ActionCashReceiptsJournal), "Журнал чеков", null, "table");
+		ActionOrdersWithReceiptJournal = new Action(nameof(ActionOrdersWithReceiptJournal), "Журнал заказов с чеками", null, "table");
 		
 		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
 		ActionIncomingCallsAnalysisReport = new Action(nameof(ActionIncomingCallsAnalysisReport), "Анализ входящих звонков", null, "table");
 		ActionRoboatsCallsRegistry = new Action(nameof(ActionRoboatsCallsRegistry), "Реестр звонков Roboats", null, "table");
-
+		
 		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
@@ -208,6 +210,7 @@ public partial class MainWindow : Window
 		ActionReadyForReception = new Action("ActionReadyForReception", "Готовые к разгрузке", null, "table");
 		ActionWarehouseStock = new Action("ActionWarehouseStock", "Складские остатки", null, "table");
 		ActionClientBalance = new Action("ActionClientBalance", "Оборудование у клиентов", null, "table");
+		ActionWarehouseDocumentsItemsJournal = new Action(nameof(ActionWarehouseDocumentsItemsJournal), "Журнал строк складских документов", null, "table");
 
 		//Логистика
 		ActionRouteListTable = new Action("ActionRouteListTable", "Журнал МЛ", null, "table");
@@ -282,8 +285,8 @@ public partial class MainWindow : Window
 		w1.Add(ActionLoadOrders, null);
 		w1.Add(ActionDeliveryPrice, null);
 		w1.Add(ActionUndeliveredOrders, null);
-		w1.Add(ActionTrueMarkOrders, null);
-		w1.Add(ActionReceiptsJournal, null);
+		w1.Add(ActionCashReceiptsJournal, null);
+		w1.Add(ActionOrdersWithReceiptJournal, null);
 		
 		//
 		w1.Add(ActionServiceClaims, null);
@@ -292,6 +295,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionReadyForReception, null);
 		w1.Add(ActionWarehouseStock, null);
 		w1.Add(ActionClientBalance, null);
+		w1.Add(ActionWarehouseDocumentsItemsJournal, null);
 
 		//Работа с клиентами
 		w1.Add(ActionCallTasks, null);
@@ -378,8 +382,8 @@ public partial class MainWindow : Window
 		ActionLoadOrders.Activated += ActionLoadOrders_Activated;
 		ActionDeliveryPrice.Activated += ActionDeliveryPrice_Activated;
 		ActionUndeliveredOrders.Activated += ActionUndeliveredOrdersActivated;
-		ActionTrueMarkOrders.Activated += ActionTrueMarkOrdersActivated;
-		ActionReceiptsJournal.Activated += ActionReceiptsJournalActivated;
+		ActionCashReceiptsJournal.Activated += ActionCashReceiptsJournalActivated;
+		ActionOrdersWithReceiptJournal.Activated += ActionOrdersWithReceiptJournalActivated;
 		
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
@@ -387,6 +391,7 @@ public partial class MainWindow : Window
 		ActionReadyForReception.Activated += ActionReadyForReceptionActivated;
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
+		ActionWarehouseDocumentsItemsJournal.Activated += ActionWarehouseDocumentsItemsJournal_Activated;
 
 		//Работа с клиентами
 		ActionCallTasks.Activated += ActionCallTasks_Activate;
@@ -462,19 +467,24 @@ public partial class MainWindow : Window
 		#endregion
 	}
 
+	private void ActionWarehouseDocumentsItemsJournal_Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<WarehouseDocumentsItemsJournalViewModel>(null);
+	}
+
 	private void ActionRoboatsCallsRegistryActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<RoboatsCallsRegistryJournalViewModel>(null);
 	}
 
-	private void ActionTrueMarkOrdersActivated(object sender, EventArgs e)
+	private void ActionCashReceiptsJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<TrueMarkReceiptOrdersRegistryJournalViewModel>(null);
+		NavigationManager.OpenViewModel<CashReceiptsJournalViewModel>(null);
 	}
 
-	private void ActionReceiptsJournalActivated(object sender, EventArgs e)
+	private void ActionOrdersWithReceiptJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ReceiptsJournalViewModel>(null);
+		NavigationManager.OpenViewModel<OrdersWithReceiptsJournalViewModel>(null);
 	}
 
 	private void OnActionIncomingCallsAnalysisReportActivated(object sender, EventArgs e)
@@ -1144,6 +1154,7 @@ public partial class MainWindow : Window
 		IBottlesRepository bottlesRepository = new BottlesRepository();
 		ResidueFilterViewModel filter = new ResidueFilterViewModel();
 		var employeeJournalFactory = new EmployeeJournalFactory();
+		var subdivisionJournalFactory = new SubdivisionJournalFactory();
 		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 
 		var residueJournalViewModel = new ResidueJournalViewModel(
@@ -1156,6 +1167,7 @@ public partial class MainWindow : Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			employeeJournalFactory,
+			subdivisionJournalFactory,
 			subdivisionParametersProvider
 		);
 		tdiMain.AddTab(residueJournalViewModel);

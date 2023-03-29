@@ -36,8 +36,10 @@ using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Settings.Database;
 using System.Reflection;
-using Vodovoz.Controllers;
 using Vodovoz.Models.TrueMark;
+using DriverAPI.Services;
+using DriverAPI.Workers;
+using System.Net.Http.Headers;
 
 namespace DriverAPI
 {
@@ -142,6 +144,16 @@ namespace DriverAPI
 			{
 				c.BaseAddress = new Uri(Configuration.GetSection("FastPaymentsServiceAPI").GetValue<string>("ApiBase"));
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
+			});
+
+			services.AddHttpClient<IFCMAPIHelper, FCMAPIHelper>(c =>
+			{
+				var apiConfiguration = Configuration.GetSection("FCMAPI");
+
+				c.BaseAddress = new Uri(apiConfiguration["ApiBase"]);
+				c.DefaultRequestHeaders.Accept.Clear();
+				c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+				c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("key", "=" + apiConfiguration["AccessToken"]);
 			});
 		}
 
@@ -250,6 +262,12 @@ namespace DriverAPI
 			services.AddScoped<TrueMarkWaterCodeParser>();
 			services.AddScoped<TrueMarkCodesPool, TrueMarkTransactionalCodesPool>();
 
+			// Сервисы
+			services.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>();
+
+			// Workers
+			services.AddHostedService<WakeUpNotificationSenderService>();
+
 			// Репозитории водовоза
 			services.AddScoped<ITrackRepository, TrackRepository>();
 			services.AddScoped<IComplaintsRepository, ComplaintsRepository>();
@@ -278,6 +296,7 @@ namespace DriverAPI
 				services.AddScoped(type);
 			}
 
+
 			// Хелперы
 			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
 			services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
@@ -292,8 +311,6 @@ namespace DriverAPI
 			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
-
-			services.AddScoped<IRouteListAddressKeepingDocumentController, RouteListAddressKeepingDocumentController>();
 		}
 	}
 }

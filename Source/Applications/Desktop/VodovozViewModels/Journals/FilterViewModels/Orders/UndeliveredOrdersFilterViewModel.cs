@@ -58,6 +58,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			AuthorSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
 				.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
 
+			InProcessAtSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
+				.CreateSubdivisionAutocompleteSelectorFactory();
+
 			Subdivisions = UoW.GetAll<Subdivision>();
 			RestrictOldOrderStartDate = DateTime.Today.AddMonths(-1);
 			RestrictOldOrderEndDate = DateTime.Today.AddMonths(1);
@@ -69,6 +72,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory AuthorSubdivisionSelectorFactory { get; }
+		public IEntityAutocompleteSelectorFactory InProcessAtSubdivisionSelectorFactory { get; }
 
 		public Order RestrictOldOrder
 		{

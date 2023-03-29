@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Vodovoz.Controllers;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -42,7 +41,6 @@ namespace DriverAPI.Library.Models
 		private readonly int _maxClosingRating = 5;
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
 		private readonly IOrderParametersProvider _orderParametersProvider;
-		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
 		public OrderModel(
 			ILogger<OrderModel> logger,
@@ -59,8 +57,7 @@ namespace DriverAPI.Library.Models
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			QRPaymentConverter qrPaymentConverter,
 			IFastPaymentModel fastPaymentModel,
-			IOrderParametersProvider orderParametersProvider,
-			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController)
+			IOrderParametersProvider orderParametersProvider)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -77,7 +74,6 @@ namespace DriverAPI.Library.Models
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 		}
 
 		/// <summary>
@@ -292,8 +288,6 @@ namespace DriverAPI.Library.Models
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
 
-			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(_uow, routeListAddress, routeListAddress.Status, RouteListItemStatus.Completed);
-
 			routeList.ChangeAddressStatus(_uow, routeListAddress.Id, RouteListItemStatus.Completed);
 
 			if (completeOrderInfo.Rating < _maxClosingRating)
@@ -346,7 +340,7 @@ namespace DriverAPI.Library.Models
 				return;
 			}
 
-			var trueMarkCashReceiptOrder = _uow.Session.QueryOver<TrueMarkCashReceiptOrder>()
+			var trueMarkCashReceiptOrder = _uow.Session.QueryOver<CashReceipt>()
 				.Where(x => x.Order.Id == completeOrderInfo.OrderId)
 				.SingleOrDefault();
 
@@ -356,11 +350,11 @@ namespace DriverAPI.Library.Models
 				return;
 			}
 
-			trueMarkCashReceiptOrder = new TrueMarkCashReceiptOrder();
+			trueMarkCashReceiptOrder = new CashReceipt();
 			trueMarkCashReceiptOrder.UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason;
 			trueMarkCashReceiptOrder.Order = new Order { Id = completeOrderInfo.OrderId };
-			trueMarkCashReceiptOrder.Date = actionTime;
-			trueMarkCashReceiptOrder.Status = TrueMarkCashReceiptOrderStatus.New;
+			trueMarkCashReceiptOrder.CreateDate = actionTime;
+			trueMarkCashReceiptOrder.Status = CashReceiptStatus.New;
 			_uow.Save(trueMarkCashReceiptOrder);
 
 			foreach(var scannedItem in completeOrderInfo.ScannedItems)
@@ -388,10 +382,10 @@ namespace DriverAPI.Library.Models
 			_uow.Save(trueMarkCashReceiptOrder);
 		}
 
-		private TrueMarkCashReceiptProductCode CreateTrueMarkCodeEntity(string code, TrueMarkCashReceiptOrder trueMarkCashReceiptOrder, OrderItem orderItem)
+		private CashReceiptProductCode CreateTrueMarkCodeEntity(string code, CashReceipt trueMarkCashReceiptOrder, OrderItem orderItem)
 		{
-			var orderProductCode = new TrueMarkCashReceiptProductCode();
-			orderProductCode.TrueMarkCashReceiptOrder = trueMarkCashReceiptOrder;
+			var orderProductCode = new CashReceiptProductCode();
+			orderProductCode.CashReceipt = trueMarkCashReceiptOrder;
 			orderProductCode.OrderItem = orderItem;
 
 			TrueMarkWaterIdentificationCode codeEntity;
