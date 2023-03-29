@@ -209,10 +209,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			OrderItem orderItemsAlias = null;
 			ReservedBalance reservedBalance = null;
 			ProductGroup productGroupAlias = null;
-			NomenclaturePrice priceAlias = null;
 			PriceNode priceResult = null;
-			NomenclaturePurchasePrice purchasePriceAlias = null;
-			PriceNode purchasePriceResult = null;
 
 			OrderStatus[] orderStatusesToCalcReservedItems = new[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading };
 
@@ -315,8 +312,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			for(var nomsCounter = 0; nomsCounter < noms?.Count; nomsCounter++)
 			{
 				cancellationToken.ThrowIfCancellationRequested();
-
-
 
 				var row = new BalanceSummaryRow
 				{

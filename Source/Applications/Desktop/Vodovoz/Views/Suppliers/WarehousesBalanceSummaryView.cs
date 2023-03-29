@@ -99,18 +99,18 @@ namespace Vodovoz.Views.Suppliers
 				.AddColumn("Общий остаток").AddNumericRenderer(row => row.Common).XAlign(0.5f)
 				.AddColumn("Разница").AddNumericRenderer(row => row.Diff).XAlign(0.5f);
 
+			if(ViewModel.ShowPrices)
+			{
+				columnsConfig
+					.AddColumn("Цена закупки").AddNumericRenderer(row => row.PurchasePrice).XAlign(0.5f).Digits(2)
+					.AddColumn("Цена").AddNumericRenderer(row => row.Price).XAlign(0.5f).Digits(2);
+			}
+
 			for(var i = 0; i < ViewModel.Report.WarehousesTitles.Count; i++)
 			{
 				var index = i;
 				columnsConfig.AddColumn($"{ViewModel.Report.WarehousesTitles[i]}").AddNumericRenderer(row => row.Separate[index])
 					.XAlign(0.5f);
-			}
-
-			if(ViewModel.ShowPrices)
-			{
-				columnsConfig
-					.AddColumn("Цена закупки").AddNumericRenderer(row => row.PurchasePrice).XAlign(0.5f)
-					.AddColumn("Цена").AddNumericRenderer(row => row.Price).XAlign(0.5f);
 			}
 
 			treeData.ColumnsConfig = columnsConfig.AddColumn("").Finish();
