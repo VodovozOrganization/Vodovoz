@@ -107,6 +107,50 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			return counterpartiesWithDesiredPhoneNumber.Distinct().ToList();
 		}
 
+		public IList<string> GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(IUnitOfWork uow, string phoneNumber, int currentCounterpartyId)
+		{
+			var counterpartiesWithDesiredPhoneNumber = new List<string>();
+
+			if(string.IsNullOrWhiteSpace(phoneNumber))
+			{
+				return counterpartiesWithDesiredPhoneNumber;
+			}
+
+			Phone phoneAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+
+			var counterpartyDescriptionProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT('Карточка контрагента \"', ?1, '\"')"),
+				NHibernateUtil.String,
+				Projections.Property(() => counterpartyAlias.FullName)
+			);
+
+			var deliveryPointDescriptionProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT('Точка доставки контрагента \"', ?1, '\" по адресу: ', ?2)"),
+				NHibernateUtil.String,
+				Projections.Property(() => counterpartyAlias.FullName),
+				Projections.Property(() => deliveryPointAlias.ShortAddress)
+			);
+
+			var counterparties = uow.Session.QueryOver(() => phoneAlias)
+				.JoinAlias(() => phoneAlias.Counterparty, () => counterpartyAlias)
+				.Where(() => phoneAlias.Number == phoneNumber && !phoneAlias.IsArchive && counterpartyAlias.Id != currentCounterpartyId && !counterpartyAlias.IsArchive)
+				.Select(Projections.Distinct(counterpartyDescriptionProjection))
+				.List<string>().ToList();
+
+			var deliveryPoints = uow.Session.QueryOver(() => phoneAlias)
+				.JoinAlias(() => phoneAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.Counterparty, () => counterpartyAlias)
+				.Where(() => phoneAlias.Number == phoneNumber && !phoneAlias.IsArchive && counterpartyAlias.Id != currentCounterpartyId && !counterpartyAlias.IsArchive && deliveryPointAlias.IsActive)
+				.Select(Projections.Distinct(deliveryPointDescriptionProjection))
+				.List<string>().ToList();
+
+			counterparties.AddRange(deliveryPoints);
+
+			return counterparties;
+		}
+
 		public Counterparty GetCounterpartyByAccount(IUnitOfWork uow, string accountNumber)
 		{
 			if(string.IsNullOrWhiteSpace(accountNumber))

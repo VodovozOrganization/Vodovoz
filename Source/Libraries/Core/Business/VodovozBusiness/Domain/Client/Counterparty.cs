@@ -1333,13 +1333,33 @@ namespace Vodovoz.Domain.Client
 			{
 				if(phone.RoboAtsCounterpartyName == null)
 				{
-					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано имя контрагента.");
+					phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано имя контрагента.");
 				}
 
 				if(phone.RoboAtsCounterpartyPatronymic == null)
 				{
-					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано отчество контрагента.");
+					phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано отчество контрагента.");
 				}
+
+				//if(!phoneNumberDuplicatesIsChecked.Contains(phone.Number))
+				//{
+				//	if(Phones.Where(p => p.Number == phone.Number).Count() > 1)
+				//	{
+				//		phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} в карточке контрагента указан несколько раз.");
+				//	}
+
+				//	var counterpartiesWithTheSamePhoneNumber = CheckForPhoneNumberDuplicate(counterpartyRepository, UoW, phone.Number);
+				//	if(counterpartiesWithTheSamePhoneNumber.Count() > 0)
+				//	{
+				//		phonesValidationStringBuilder.Append($"Телефон {phone.Number} уже указан у контрагентов:\n");
+				//		foreach(var c in counterpartiesWithTheSamePhoneNumber)
+				//		{
+				//			phonesValidationStringBuilder.Append($"\t{c.Name}\n");
+				//		}
+				//	}
+				//	phoneNumberDuplicatesIsChecked.Add(phone.Number);
+				//}
+				#region
 
 				if(!phoneNumberDuplicatesIsChecked.Contains(phone.Number))
 				{
@@ -1348,19 +1368,19 @@ namespace Vodovoz.Domain.Client
 						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} в карточке контрагента указан несколько раз.");
 					}
 
-					var counterpartiesWithTheSamePhoneNumber = CheckForPhoneNumberDuplicate(counterpartyRepository, UoW, phone.Number);
+					var counterpartiesWithTheSamePhoneNumber = counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(UoW, phone.Number, this.Id);
 					if(counterpartiesWithTheSamePhoneNumber.Count() > 0)
 					{
-						phonesValidationStringBuilder.Append($"Телефон {phone.Number} уже указан у контрагентов:\n");
+						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} уже указан у контрагентов:");
 						foreach(var c in counterpartiesWithTheSamePhoneNumber)
 						{
-							phonesValidationStringBuilder.Append($"\t{c.Name}\n");
+							phonesValidationStringBuilder.AppendLine($"\t{c}");
 						}
 					}
 					phoneNumberDuplicatesIsChecked.Add(phone.Number);
 				}
+				#endregion
 			}
-
 			var phonesValidationMessage = phonesValidationStringBuilder.ToString();
 
 			if(!string.IsNullOrEmpty(phonesValidationMessage))
