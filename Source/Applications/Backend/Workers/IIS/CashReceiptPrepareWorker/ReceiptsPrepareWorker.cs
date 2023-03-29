@@ -17,8 +17,8 @@ namespace CashReceiptPrepareWorker
 		private bool _isRunning = false;
 
 		public ReceiptsPrepareWorker(
-			ILogger<ReceiptsPrepareWorker> logger, 
-			IEdoSettings edoSettings, 
+			ILogger<ReceiptsPrepareWorker> logger,
+			IEdoSettings edoSettings,
 			ReceiptsHandler receiptsHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

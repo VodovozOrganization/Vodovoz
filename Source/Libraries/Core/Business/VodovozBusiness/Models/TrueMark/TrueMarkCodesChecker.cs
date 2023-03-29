@@ -62,7 +62,7 @@ namespace Vodovoz.Models.TrueMark
 				var codesToCheck = codes.Skip(toSkip).Take(100);
 				toSkip += 100;
 
-				_logger.LogInformation("Отправка на проверку {0}/{1} кодов.", codesToCheck.Count(), codesCount);
+				_logger.LogInformation("Отправка на проверку {codesToCheckCount}/{codesCount} кодов.", codesToCheck.Count(), codesCount);
 
 				await Task.Delay(_checkDelayMs);
 				var checkResult = await Check(codesToCheck, cancellationToken);

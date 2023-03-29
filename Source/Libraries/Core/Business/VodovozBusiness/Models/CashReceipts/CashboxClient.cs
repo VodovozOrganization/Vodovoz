@@ -67,45 +67,45 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			try
 			{
-				_logger.LogInformation($"Проверка фискального регистратора №{_cashBox.Id} ({_cashBox.RetailPointName}).");
+				_logger.LogInformation("Проверка фискального регистратора №{cashboxId} ({cashboxName}).", _cashBox.Id, _cashBox.RetailPointName);
 				var response = await _httpClient.GetAsync(_fiscalizationStatusUrl, cancellationToken);
 				if(!response.IsSuccessStatusCode)
 				{
 					var httpCodeMessage = $"HTTP Code: {(int)response.StatusCode} {response.StatusCode}";
-					_logger.LogWarning($"Проверка фискального регистратора№{_cashBox.Id} не пройдена. {httpCodeMessage}.");
+					_logger.LogWarning("Проверка фискального регистратора№{cashboxId} не пройдена. {httpCodeMessage}.", _cashBox.Id, httpCodeMessage);
 					return false;
 				}
 
 				var finscalizatorStatusResponse = await response.Content.ReadAsAsync<CashboxStatusResponse>(cancellationToken);
 				if(finscalizatorStatusResponse == null)
 				{
-					_logger.LogWarning($"Проверка фискального регистратора №{_cashBox.Id} не пройдена. Не удалось десериализовать ответ.");
+					_logger.LogWarning("Проверка фискального регистратора №{cashboxId} не пройдена. Не удалось десериализовать ответ.", _cashBox.Id);
 					return false;
 				}
 
 				switch(finscalizatorStatusResponse.CashboxStatus)
 				{
 					case FiscalRegistratorStatus.Ready:
-						_logger.LogInformation($"Проверка фискального регистратора №{_cashBox.Id} проведена успешно. Его состояние позволяет фискализировать чеки.");
+						_logger.LogInformation("Проверка фискального регистратора №{cashboxId} проведена успешно. Его состояние позволяет фискализировать чеки.", _cashBox.Id);
 						return true;
 					case FiscalRegistratorStatus.Failed:
-						_logger.LogWarning($"Проблемы получения статуса фискального регистратора №{_cashBox.Id}. " +
+						_logger.LogWarning("Проблемы получения статуса фискального регистратора №{cashboxId}. " +
 							"Этот статус не препятствует добавлению документов для фискализации. " +
-							"Все документы будут добавлены в очередь на сервере и дождутся момента когда касса будет в состоянии их фискализировать.");
+							"Все документы будут добавлены в очередь на сервере и дождутся момента когда касса будет в состоянии их фискализировать.", _cashBox.Id);
 						return true;
 					case FiscalRegistratorStatus.Associated:
 						_logger.LogWarning("Клиент успешно связан с розничной точкой, " +
-							$"но касса еще ни разу не вышла на связь и не сообщила свое состояние. " +
-							$"Отправка чеков для фискального регистратора №{_cashBox.Id} отменена");
+							"но касса еще ни разу не вышла на связь и не сообщила свое состояние. " +
+							"Отправка чеков для фискального регистратора №{cashboxId} отменена", _cashBox.Id);
 						return IsTestMode;
 					default:
-						_logger.LogWarning($"Проверка фискального регистратора №{_cashBox.Id} не пройдена. {finscalizatorStatusResponse.Message}");
+						_logger.LogWarning("Проверка фискального регистратора №{cashboxId} не пройдена. {finscalizatorStatusResponse.Message}", _cashBox.Id);
 						return false;
 				}
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, $"Ошибка при проверке фискального регистратора №{_cashBox.Id}");
+				_logger.LogError(ex, "Ошибка при проверке фискального регистратора №{cashboxId}", _cashBox.Id);
 				return false;
 			}
 		}
@@ -147,7 +147,7 @@ namespace Vodovoz.Models.CashReceipts
 				if(!responseContent.IsSuccessStatusCode)
 				{
 					var httpCodeMessage = $"HTTP Code: {(int)responseContent.StatusCode} {responseContent.StatusCode}";
-					_logger.LogWarning($"Не удалось получить актуальный статус чека для документа №{fiscalDocumentId}. {httpCodeMessage}");
+					_logger.LogWarning("Не удалось получить актуальный статус чека для документа №{fiscalDocumentId}. {httpCodeMessage}", fiscalDocumentId, httpCodeMessage);
 					return CreateFailResult(httpCodeMessage);
 				}
 
@@ -157,7 +157,7 @@ namespace Vodovoz.Models.CashReceipts
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, $"Ошибка при получении статуса чека для документа №{fiscalDocumentId}");
+				_logger.LogError(ex, "Ошибка при получении статуса чека для документа №{fiscalDocumentId}", fiscalDocumentId);
 				return CreateFailResult(ex.Message);
 			}
 		}

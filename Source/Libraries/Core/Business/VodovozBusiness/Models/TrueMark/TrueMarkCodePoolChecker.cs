@@ -36,10 +36,10 @@ namespace Vodovoz.Models.TrueMark
 		{
 			var selectingCodesCount = _edoSettings.CodePoolCheckCodesDepth;
 
-			_logger.LogInformation("Для проверки требуется {0} кодов.", selectingCodesCount);
+			_logger.LogInformation("Для проверки требуется {selectingCodesCount} кодов.", selectingCodesCount);
 			_logger.LogInformation("Запрос ранее не проверенных кодов.");
 			var selectedCodeIds = _trueMarkCodesPool.SelectCodes(selectingCodesCount, false).ToList();
-			_logger.LogInformation("Получено {0} ранее не проверенных кодов.", selectedCodeIds.Count);
+			_logger.LogInformation("Получено {selectedCodesCount} ранее не проверенных кодов.", selectedCodeIds.Count);
 
 			if(selectedCodeIds.Count < selectingCodesCount)
 			{
@@ -49,7 +49,7 @@ namespace Vodovoz.Models.TrueMark
 
 				var promotedCodes = _trueMarkCodesPool.SelectCodes(promotedCount, true);
 
-				_logger.LogInformation("Получено {0} ранее проверенных кодов.", promotedCodes.Count());
+				_logger.LogInformation("Получено {promotedCodesCount} ранее проверенных кодов.", promotedCodes.Count());
 
 				selectedCodeIds.AddRange(promotedCodes);
 			}
@@ -60,7 +60,7 @@ namespace Vodovoz.Models.TrueMark
 				return;
 			}
 
-			_logger.LogInformation("Всего {0} кодов на проверку.", selectedCodeIds.Count);
+			_logger.LogInformation("Всего {selectedCodesCount} кодов на проверку.", selectedCodeIds.Count);
 
 			var codeIdsToPromote = new List<int>();
 			var codeIdsToDelete = new List<int>();
@@ -76,7 +76,7 @@ namespace Vodovoz.Models.TrueMark
 				var codesToCheck = selectedCodes.Skip(toSkip).Take(100);
 				toSkip += 100;
 
-				_logger.LogInformation("Отправка на проверку {0}/{1} кодов.", codesToCheck.Count(), selectedCodeIds.Count);
+				_logger.LogInformation("Отправка на проверку {codesToCheckCount}/{selectedCodesCount} кодов.", codesToCheck.Count(), selectedCodeIds.Count);
 
 				await Task.Delay(2000);
 				var checkResults = await _trueMarkCodesChecker.CheckCodesAsync(codesToCheck, cancellationToken);
@@ -97,13 +97,13 @@ namespace Vodovoz.Models.TrueMark
 			if(codeIdsToPromote.Any())
 			{
 				var extraSecondsPromotion = _edoSettings.CodePoolPromoteWithExtraSeconds;
-				_logger.LogInformation("Продвижение {0} проверенных кодов на верх пула на дополнительыне {1} секунд сверх текущего времени.", codeIdsToPromote.Count, extraSecondsPromotion);
+				_logger.LogInformation("Продвижение {promotedCodesCount} проверенных кодов на верх пула на дополнительыне {extraSecondsPromotion} секунд сверх текущего времени.", codeIdsToPromote.Count, extraSecondsPromotion);
 				_trueMarkCodesPool.PromoteCodes(codeIdsToPromote, extraSecondsPromotion);
 			}
 
 			if(codeIdsToDelete.Any())
 			{
-				_logger.LogInformation("Удаление из пула {0} кодов не прошедших проверку.", codeIdsToDelete.Count);
+				_logger.LogInformation("Удаление из пула {codesToDeleteCount} кодов не прошедших проверку.", codeIdsToDelete.Count);
 				_trueMarkCodesPool.DeleteCodes(codeIdsToDelete);
 			}
 		}

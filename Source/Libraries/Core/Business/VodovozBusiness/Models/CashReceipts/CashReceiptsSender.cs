@@ -48,10 +48,10 @@ namespace Vodovoz.Models.CashReceipts
 				var receiptsData = PrepareReceiptsData(uow);
 				if(receiptsData.Any())
 				{
-					_logger.LogInformation($"Общее количество чеков для отправки: {receiptsData.Count()}");
+					_logger.LogInformation("Общее количество чеков для отправки: {receiptCount}", receiptsData.Count());
 					var sendResuts = await _cashReceiptDistributor.SendReceipts(receiptsData, cancellationToken);
 
-					_logger.LogInformation($"Сохранение результатов отправки");
+					_logger.LogInformation("Сохранение результатов отправки");
 					SaveResults(uow, sendResuts);
 				}
 
