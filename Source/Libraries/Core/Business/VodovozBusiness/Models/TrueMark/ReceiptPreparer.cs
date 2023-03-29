@@ -94,9 +94,6 @@ namespace Vodovoz.Models.TrueMark
 
 		private async Task PrepareForReceiptNotNeeded(CashReceipt receipt, CancellationToken cancellationToken)
 		{
-			//В первую очередь необходима проверка на первый чек,
-			//если не пройдет тогда все остальное можно проверять будет
-			//а если пройдет, то формируем чек
 			if(receipt.Order.PaymentType == PaymentType.cash)
 			{
 				await PrepareForFirstReceiptIfReceiptNotNeeded(receipt, cancellationToken);

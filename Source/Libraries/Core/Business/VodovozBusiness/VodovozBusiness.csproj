@@ -1259,7 +1259,6 @@
     <Compile Include="Domain\Sms\LowBalanceSmsNotification.cs" />
     <Compile Include="Services\ISmsNotifierParametersProvider.cs" />
     <Compile Include="HibernateMapping\Sms\SmsNotificationMap.cs" />
-    <Compile Include="Domain\Orders\CashReceipt.cs" />
     <Compile Include="HibernateMapping\Order\CashReceiptMap.cs" />
     <Compile Include="EntityRepositories\Orders\ReceiptForOrderNode.cs" />
     <Compile Include="EntityRepositories\Store\CarUnloadRepository.cs" />

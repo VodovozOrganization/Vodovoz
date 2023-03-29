@@ -44,68 +44,6 @@ namespace Vodovoz.Models.CashReceipts
 
 		public bool IsTestMode { get; set; }
 
-		//public PreparedReceiptNode[] SendReceipts(PreparedReceiptNode[] preparedReceiptNodes, CancellationToken cancellationToken, uint timeoutInSeconds = 300)
-		//{
-		//	//Необходимо разбить клиент индивидуально на каждую кассу
-
-		//	//Группировка по кассовым аппаратам
-		//	var groupedNodes = preparedReceiptNodes.GroupBy(
-		//		x => x.CashBox,
-		//		(machine, receiptNodes) =>
-		//			new
-		//			{
-		//				machine,
-		//				receiptNodes
-		//			}
-		//	);
-
-		//	IList<Task> runningTasks = new List<Task>();
-
-		//	foreach(var groupedNode in groupedNodes)
-		//	{
-		//		runningTasks.Add(Task.Run(() =>
-		//		{
-		//			SendAllDocumentsForCashMachine(groupedNode.machine, groupedNode.receiptNodes.ToList(), cancellationToken);
-		//		}, cancellationToken));
-		//	}
-
-		//	try
-		//	{
-		//		Task.WaitAll(runningTasks.ToArray());
-		//		return preparedReceiptNodes;
-		//	}
-		//	catch(Exception ex)
-		//	{
-		//		logger.Error(ex, "Неизвестная ошибка при отправке чеков");
-		//		return preparedReceiptNodes;
-		//	}
-		//}
-
-		/*private void SendAllDocumentsForCashMachine(CashBox cashBox, IList<PreparedReceiptNode> receiptNodes, CancellationToken cancellationToken)
-		{
-			logger.Info($"Отправка чеков для фискального регистратора №{cashBox.Id}");
-
-			using(var httpClient = GetHttpClient(cashBox))
-			{
-				if(!ConnectToCashBox(httpClient, cashBox))
-				{
-					return;
-				}
-
-				int i = 1;
-				foreach(var receiptNode in receiptNodes)
-				{
-					if(cancellationToken.IsCancellationRequested)
-					{
-						return;
-					}
-
-					logger.Info($"Отправка документа №{receiptNode.FiscalDocument.InternalDocumentId} на кассовый аппарат №{cashBox.Id} {cashBox.RetailPointName} ({i++}/{receiptNodes.Count})...");
-					receiptNode.FiscalizationResult = SendFiscalDocument(httpClient, receiptNode.FiscalDocument);
-				}
-			}
-		}*/
-
 		private HttpClient CreateHttpClient()
 		{
 			var authentication = new AuthenticationHeaderValue(
