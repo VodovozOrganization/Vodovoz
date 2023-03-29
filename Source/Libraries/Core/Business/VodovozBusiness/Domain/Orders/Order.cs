@@ -451,7 +451,6 @@ namespace Vodovoz.Domain.Orders
 						case PaymentType.cashless:
 						case PaymentType.ContractDoc:
 						case PaymentType.Terminal:
-							OnlineOrder = null;
 							PaymentByCardFrom = null;
 							break;
 						case PaymentType.ByCard:
@@ -695,12 +694,12 @@ namespace Vodovoz.Domain.Orders
 
 		private bool isSelfDeliveryPaid;
 
-        [Display(Name = "Самовывоз оплачен")]
-        public virtual bool IsSelfDeliveryPaid
-        {
-            get => isSelfDeliveryPaid;
-            set => SetField(ref isSelfDeliveryPaid, value);
-        }
+		[Display(Name = "Самовывоз оплачен")]
+		public virtual bool IsSelfDeliveryPaid
+		{
+			get => isSelfDeliveryPaid;
+			set => SetField(ref isSelfDeliveryPaid, value);
+		}
 
 		private int bottlesByStockCount;
 		[Display(Name = "Количество бутылей по акции")]
@@ -1109,10 +1108,10 @@ namespace Vodovoz.Domain.Orders
 
 					//создание нескольких заказов на одну дату и точку доставки
 					if(!SelfDelivery && DeliveryPoint != null
-					                 && DeliveryDate.HasValue
-					                 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
-					                 && validationContext.Items.ContainsKey("uowFactory")
-					                 && !IsCopiedFromUndelivery)
+									 && DeliveryDate.HasValue
+									 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
+									 && validationContext.Items.ContainsKey("uowFactory")
+									 && !IsCopiedFromUndelivery)
 					{
 						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
@@ -1120,8 +1119,8 @@ namespace Vodovoz.Domain.Orders
 							.GetSameOrderForDateAndDeliveryPoint((IUnitOfWorkFactory)validationContext.Items["uowFactory"],
 								DeliveryDate.Value, DeliveryPoint)
 							.Where(o => o.Id != Id
-							            && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
-							            && o.OrderAddressType != OrderAddressType.Service).ToList();
+										&& !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
+										&& o.OrderAddressType != OrderAddressType.Service).ToList();
 
 						if(!hasMaster
 						   && orderCheckedOutsideSession.Any())
@@ -1190,11 +1189,11 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
-            if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
-                if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
-                    yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
+			if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
+				if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
+					yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
 
-            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null && x.PromoSet == null))
+			if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null && x.PromoSet == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
 			if(!SelfDelivery && DeliveryPoint == null)
@@ -1206,12 +1205,12 @@ namespace Vodovoz.Domain.Orders
 				new[] { nameof(DeliveryPoint) });
 			}
 
-            if(DriverCallId != null && string.IsNullOrWhiteSpace(CommentManager)){
-                yield return new ValidationResult("Необходимо заполнить комментарий водителя.",
-                    new[] { this.GetPropertyName(o => o.CommentManager) });
-            }
+			if(DriverCallId != null && string.IsNullOrWhiteSpace(CommentManager)){
+				yield return new ValidationResult("Необходимо заполнить комментарий водителя.",
+					new[] { this.GetPropertyName(o => o.CommentManager) });
+			}
 
-            if (Client == null)
+			if (Client == null)
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
@@ -1336,7 +1335,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if (DeliveryPoint != null)
-            {
+			{
 				if (DeliveryPoint.MinimalOrderSumLimit != 0 && OrderSum < DeliveryPoint.MinimalOrderSumLimit)
 				{
 					yield return new ValidationResult(
@@ -1427,15 +1426,15 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual int Total19LBottlesToDeliver =>
 			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
-			                           x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
+									   x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
 		public virtual int Total6LBottlesToDeliver =>
 			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
-			                           x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
+									   x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
 
 		public virtual int Total600mlBottlesToDeliver =>
 			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
-			                           x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
+									   x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
 
 		public virtual int TotalWeight =>
 			(int)OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Weight);
@@ -1497,7 +1496,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanBeMovedFromClosedToAcepted =>
 			new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
-		        && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
+				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
 
 		public virtual bool HasItemsNeededToLoad => ObservableOrderItems.Any(orderItem =>
 				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderItem.Nomenclature.Category) && !orderItem.Nomenclature.NoDelivery)
@@ -1622,7 +1621,7 @@ namespace Vodovoz.Domain.Orders
 					ObservableOrderItems.Remove(item);
 				}
 			} else
-            {
+			{
 				ObservableOrderItems.Remove(orderItem);
 			}
 
@@ -1966,9 +1965,14 @@ namespace Vodovoz.Domain.Orders
 			};
 			AddOrderItem(newItem);
 
-			Nomenclature followingNomenclature = _nomenclatureRepository.GetNomenclatureToAddWithMaster(UoW);
-			if(quantityOfFollowingNomenclatures > 0 && !ObservableOrderItems.Any(i => i.Nomenclature.Id == followingNomenclature.Id))
-				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
+			if(quantityOfFollowingNomenclatures > 0)
+			{
+				Nomenclature followingNomenclature = _nomenclatureRepository.GetNomenclatureToAddWithMaster(UoW);
+				if(!ObservableOrderItems.Any(i => i.Nomenclature.Id == followingNomenclature.Id))
+				{
+					AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
+				}
+			}
 		}
 
 		public virtual void AddWaterForSale(Nomenclature nomenclature, decimal count, decimal discount = 0, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
@@ -2131,10 +2135,10 @@ namespace Vodovoz.Domain.Orders
 
 			#region перенести всё это в OrderStateKey
 			bool IsDeliveryForFree = SelfDelivery
-											      || OrderAddressType == OrderAddressType.Service
-											      || DeliveryPoint.AlwaysFreeDelivery
-			                                      || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
-			                                      || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
+												  || OrderAddressType == OrderAddressType.Service
+												  || DeliveryPoint.AlwaysFreeDelivery
+												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
+												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
 
 			if(IsDeliveryForFree) {
 				if(deliveryPriceItem != null)
@@ -2366,7 +2370,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				ForceUpdateContract();
 			}
-			AddMasterNomenclature(nomenclature, 1, 1);
+			AddMasterNomenclature(nomenclature, 1);
 			return Contract;
 		}
 
@@ -3481,7 +3485,13 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
 
-		public virtual void ChangePaymentTypeToByCard (CallTaskWorker callTaskWorker)
+		public virtual void ChangePaymentTypeToByCardTerminal (CallTaskWorker callTaskWorker)
+		{
+			PaymentType = PaymentType.Terminal;
+			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
+		}
+
+		public virtual void ChangePaymentTypeToOnline(CallTaskWorker callTaskWorker)
 		{
 			PaymentType = PaymentType.ByCard;
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
@@ -3859,7 +3869,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			foreach(var equipment in OrderEquipments.Where(x => x.Direction == Direction.Deliver
-				        && Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
+						&& Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
 			{
 				var found = result.FirstOrDefault(x => x.NomenclatureId == equipment.Nomenclature.Id);
 				if(found != null)

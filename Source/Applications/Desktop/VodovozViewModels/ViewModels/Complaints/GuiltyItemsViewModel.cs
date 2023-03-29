@@ -9,6 +9,7 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -16,6 +17,7 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		ISubdivisionJournalFactory _subdivisionJournalFactory;
 		readonly ICommonServices _commonServices;
 		readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
@@ -26,12 +28,14 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			bool isForSalesDepartment = false
 		) : base(entity, commonServices)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeSelectorFactory = _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_commonServices = commonServices;
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
@@ -78,6 +82,7 @@ namespace Vodovoz.ViewModels.Complaints
 				_commonServices,
 				_subdivisionRepository,
 				_employeeJournalFactory,
+				_subdivisionJournalFactory,
 				_subdivisionParametersProvider,
 				UoW
 			);

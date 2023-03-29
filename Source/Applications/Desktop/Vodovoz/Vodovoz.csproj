@@ -577,9 +577,11 @@
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
+    <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
     <Compile Include="TreeModels\ModelConfig.cs" />
     <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />
+    <Compile Include="ViewModels\Cash\PaymentOnlineViewModel.cs" />
     <Compile Include="Views\Goods\NomenclatureCostPricesView.cs" />
     <Compile Include="Views\Logistic\DeliveryScheduleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DeliveryScheduleView.cs" />
@@ -1887,6 +1889,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CounterpartyDetailsFromRevenueServiceView.cs" />
     <Compile Include="Filters\Views\TrueMarkReceiptJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.TrueMarkReceiptJournalFilterView.cs" />
+    <Compile Include="Views\Cash\PaymentOnlineView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentOnlineView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
