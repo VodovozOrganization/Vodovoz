@@ -409,7 +409,7 @@ namespace Vodovoz.Domain.Orders
 			Math.Round(Price * CurrentCount - (IncludeNDS ?? 0 * (1 - Discount / 100)) - DiscountMoney, 2);
 
 		public decimal CurrentCount => ActualCount ?? Count;
-
+		
 		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);
 
 		public virtual decimal ActualSum => Math.Round(Price * CurrentCount - DiscountMoney, 2);

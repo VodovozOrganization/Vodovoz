@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Gamma.Utilities;
 using NetTopologySuite.Geometries;
+using NHibernate.Impl;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;

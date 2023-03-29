@@ -4,11 +4,9 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -118,14 +116,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		double GetAvgRangeBetweenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, out int? orderCount, DateTime? startDate = null, DateTime? endDate = null);
 
 		OrderStatus[] GetUndeliveryStatuses();
-
-		/// <summary>
-		/// Подбирает подходящие заказы, для которых необходимо отправкить чеки контрагентам
-		/// </summary>
-		IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(
-			IUnitOfWork uow,
-			IOrderParametersProvider orderParametersProvider,
-			DateTime? startDate = null);
 
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Order order);
 

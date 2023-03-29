@@ -1,0 +1,15 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "CashReceiptApi";
+
+import "google/protobuf/empty.proto";
+
+package cashReceiptApi;
+
+service CashReceiptServiceGrpc {
+  rpc RefreshFiscalDocument (RefreshReceiptRequest) returns (google.protobuf.Empty);
+}
+
+message RefreshReceiptRequest {
+  int32 cashReceiptId = 1;
+}

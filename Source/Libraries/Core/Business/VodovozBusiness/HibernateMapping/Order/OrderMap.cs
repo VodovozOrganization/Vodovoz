@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping
 		public OrderMap()
 		{
 			Table("orders");
-
+			
 			OptimisticLock.Version();
 			Version(x => x.Version)                       .Column("version");
 
