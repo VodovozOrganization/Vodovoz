@@ -6,8 +6,6 @@ namespace Vodovoz.Views.Complaints
 	{
 		private global::Gamma.GtkWidgets.yVBox yvboxMain;
 
-		private global::Gamma.GtkWidgets.yHBox yhboxNavigation;
-
 		private global::Gamma.GtkWidgets.yVBox yvboxJournal;
 
 		protected virtual void Build()
@@ -21,19 +19,12 @@ namespace Vodovoz.Views.Complaints
 			this.yvboxMain.Name = "yvboxMain";
 			this.yvboxMain.Spacing = 6;
 			// Container child yvboxMain.Gtk.Box+BoxChild
-			this.yhboxNavigation = new global::Gamma.GtkWidgets.yHBox();
-			this.yhboxNavigation.Name = "yhboxNavigation";
-			this.yhboxNavigation.Spacing = 6;
-			this.yvboxMain.Add(this.yhboxNavigation);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxNavigation]));
-			w1.Position = 0;
-			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yvboxJournal = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxJournal.Name = "yvboxJournal";
 			this.yvboxJournal.Spacing = 6;
 			this.yvboxMain.Add(this.yvboxJournal);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxJournal]));
-			w2.Position = 1;
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxJournal]));
+			w1.Position = 0;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
