@@ -333,6 +333,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<TariffZoneViewModel, TariffZoneView>()
 				.RegisterWidgetForTabViewModel<DeliveryScheduleViewModel, DeliveryScheduleView>()
 				.RegisterWidgetForTabViewModel<RoboatsCatalogExportViewModel, RoboatsCatalogExportView>()
+				.RegisterWidgetForTabViewModel<ComplaintsJournalsViewModel, ComplaintsJournalsView>()
 				.RegisterWidgetForTabViewModel<RoboatsWaterTypeViewModel, RoboatsWaterTypeView>()
 				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()

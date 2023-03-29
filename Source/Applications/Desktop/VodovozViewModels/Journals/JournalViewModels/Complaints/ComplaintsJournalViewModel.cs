@@ -883,6 +883,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			OpenWithDepartmentsReacrionViewAction();
 		}
 
+		public delegate void ChangeViewHandler(Type switchToType);
+		public event ChangeViewHandler ChangeView;
 		private void OpenWithDepartmentsReacrionViewAction()
 		{
 			var openStandartView = new JournalAction("Отобразить время реакции отделов",
@@ -890,11 +892,12 @@ namespace Vodovoz.Journals.JournalViewModels
 				(selected) => true,
 				(selected) =>
 				{
-					NavigationManager.ForceClosePage(NavigationManager.CurrentPage);
-					NavigationManager.OpenViewModel<ComplaintsWithDepartmentsReactionJournalViewModel, ComplaintFilterViewModel>(
-						null,
-						FilterViewModel,
-						OpenPageOptions.IgnoreHash);
+					ChangeView?.Invoke(typeof(ComplaintsWithDepartmentsReactionJournalViewModel));
+					//NavigationManager.ForceClosePage(NavigationManager.CurrentPage);
+					//NavigationManager.OpenViewModel<ComplaintsWithDepartmentsReactionJournalViewModel, ComplaintFilterViewModel>(
+					//	null,
+					//	FilterViewModel,
+					//	OpenPageOptions.IgnoreHash);
 				}
 			);
 			NodeActionsList.Add(openStandartView);

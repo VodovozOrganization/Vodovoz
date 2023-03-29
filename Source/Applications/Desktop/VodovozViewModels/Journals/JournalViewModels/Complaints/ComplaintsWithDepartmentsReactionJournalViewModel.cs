@@ -900,6 +900,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			OpenStandartViewAction();
 		}
 
+		public delegate void ChangeViewHandler(Type switchToType);
+		public event ChangeViewHandler ChangeView;
 		private void OpenStandartViewAction()
 		{
 			var openStandartView = new JournalAction("Перейти к обычному виду",
@@ -907,11 +909,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				(selected) => true,
 				(selected) =>
 				{
-					NavigationManager.ForceClosePage(NavigationManager.CurrentPage);
-					NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
-						null,
-						FilterViewModel,
-						OpenPageOptions.IgnoreHash);
+					ChangeView?.Invoke(typeof(ComplaintsJournalViewModel));
+					//NavigationManager.ForceClosePage(NavigationManager.CurrentPage);
+					//NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
+					//	null,
+					//	FilterViewModel,
+					//	OpenPageOptions.IgnoreHash);
 				}
 			);
 			NodeActionsList.Add(openStandartView);
