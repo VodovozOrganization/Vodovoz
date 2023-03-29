@@ -15,6 +15,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		Counterparty GetCounterpartyByINN(IUnitOfWork uow, string inn);
 		IList<Counterparty> GetCounterpartiesByINN(IUnitOfWork uow, string inn);
 		IList<Counterparty> GetNotArchivedCounterpartiesByPhoneNumber(IUnitOfWork uow, string phoneNumber);
+		IList<string> GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(IUnitOfWork uow, string phoneNumber, int currentCounterpartyId);
 		Counterparty GetCounterpartyByAccount(IUnitOfWork uow, string accountNumber);
 		IList<string> GetUniqueSignatoryPosts(IUnitOfWork uow);
 		IList<string> GetUniqueSignatoryBaseOf(IUnitOfWork uow);

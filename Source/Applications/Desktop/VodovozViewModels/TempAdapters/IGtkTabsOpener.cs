@@ -1,8 +1,5 @@
 ﻿using QS.Tdi;
-using System;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
 namespace Vodovoz.TempAdapters
@@ -24,5 +21,12 @@ namespace Vodovoz.TempAdapters
 		void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType);
 		void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description);
 		ITdiTab OpenCounterpartyEdoTab(int counterpartyId, ITdiTab master = null);
+		ITdiTab OpenIncomingWaterDlg(int incomingWaterId, ITdiTab master = null);
+		ITdiTab OpenWriteoffDocumentDlg(int writeoffDocumentId, ITdiTab master = null);
+		ITdiTab OpenSelfDeliveryDocumentDlg(int selfDeliveryDocumentId, ITdiTab master = null);
+		ITdiTab OpenCarLoadDocumentDlg(int carLoadDocumentId, ITdiTab master = null);
+		ITdiTab OpenCarUnloadDocumentDlg(int carUnloadDocumentId, ITdiTab master = null);
+		ITdiTab OpenShiftChangeWarehouseDocumentDlg(int shiftChangeWarehouseDocumentId, ITdiTab master = null);
+		ITdiTab OpenRegradingOfGoodsDocumentDlg(int regradingOfGoodsDocumentId, ITdiTab master = null);
 	}
 }

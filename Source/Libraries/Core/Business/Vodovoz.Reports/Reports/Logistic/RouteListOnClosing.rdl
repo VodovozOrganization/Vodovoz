@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -11,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="RouteLists">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id AS routeListId,
@@ -97,6 +97,7 @@ WHERE
       END)
   AND cm.car_type_of_use IN (@car_types_of_use)
   AND cv.car_own_type IN (@car_own_types)
+  AND route_lists.date &lt;= @end_date
 GROUP BY routeListId
 ORDER BY routeListDate, routeListId
 ;</CommandText>
@@ -116,9 +117,12 @@ ORDER BY routeListDate, routeListId
           <QueryParameter Name="@include_visiting_masters">
             <Value>={?include_visiting_masters}</Value>
           </QueryParameter>
+          <QueryParameter Name="@end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="routeListId">
           <DataField>routeListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -163,24 +167,7 @@ ORDER BY routeListDate, routeListId
     </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>30.4pt</Height>
-    <ReportItems>
-      <Textbox Name="Textbox1">
-        <Top>8.0pt</Top>
-        <Left>112.4pt</Left>
-        <Width>566.12pt</Width>
-        <Height>18.82pt</Height>
-        <Value>Отчет по незакрытым МЛ</Value>
-        <Style>
-          <FontSize>15pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-        </Style>
-      </Textbox>
-    </ReportItems>
+    <Height>8.5pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
@@ -230,6 +217,33 @@ ORDER BY routeListDate, routeListId
         </TableColumns>
         <Header>
           <TableRows>
+            <TableRow >
+              <Height>42.5pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>="Отчет по незакрытым МЛ за период до " + (Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >15pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>10</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
             <TableRow>
               <Height>42.5pt</Height>
               <TableCells>
@@ -925,7 +939,7 @@ ORDER BY routeListDate, routeListId
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="geographic_group_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
@@ -960,6 +974,13 @@ ORDER BY routeListDate, routeListId
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
