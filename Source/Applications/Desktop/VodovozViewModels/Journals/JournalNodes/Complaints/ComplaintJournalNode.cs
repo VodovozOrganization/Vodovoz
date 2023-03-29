@@ -46,6 +46,7 @@ namespace Vodovoz.Journals.JournalNodes
 		public string ClientNameWithAddress { get; set; }
 
 		public string Guilties { get; set; }
+		public string Driver { get; set; }
 
 		public string ComplaintText { get; set; }
 

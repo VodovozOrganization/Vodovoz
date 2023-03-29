@@ -7,8 +7,8 @@ namespace Vodovoz.Parameters
     {
         bool ContainsParameter(string parameterName);
         void CreateOrUpdateParameter(string name, string value);
-        string GetParameterValue(string parameterName);
-        char GetCharValue(string parameterId);
+		string GetParameterValue(string parameterName, bool allowEmpty = false);
+		char GetCharValue(string parameterId);
         decimal GetDecimalValue(string parameterId);
         int GetIntValue(string parameterId);
         string GetStringValue(string parameterId);
@@ -16,5 +16,5 @@ namespace Vodovoz.Parameters
         T GetValue<T>(string parameterId);
 
         void RefreshParameters();
-    }
+	}
 }

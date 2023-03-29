@@ -27,7 +27,7 @@ namespace Vodovoz.Parameters
 			return _parameters.ContainsKey(parameterName);
 		}
 
-		public string GetParameterValue(string parameterName)
+		public string GetParameterValue(string parameterName, bool allowEmpty = false)
 		{
 			if(string.IsNullOrWhiteSpace(parameterName))
 			{
@@ -46,12 +46,12 @@ namespace Vodovoz.Parameters
 				parameter = _parameters[parameterName];
 			}
 			
-			if(String.IsNullOrWhiteSpace(parameter.StrValue))
+			if(!allowEmpty && string.IsNullOrWhiteSpace(parameter.StrValue))
 			{
 				throw new InvalidProgramException($"В параметрах базы не настроен параметр ({parameterName})");
 			}
 			
-			return parameter.StrValue;
+			return parameter.StrValue ?? string.Empty;
 		}
 
 		private void RefreshParameter(string parameterName)

@@ -1,30 +1,32 @@
-﻿using NHibernate;
+﻿using Autofac;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
+using QS.Tdi;
 using System;
 using System.Collections;
 using System.Linq;
-using Autofac;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
@@ -35,8 +37,6 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
 using Order = Vodovoz.Domain.Orders.Order;
-using QS.Navigation;
-using QS.Tdi;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
@@ -44,30 +44,25 @@ namespace Vodovoz.Journals.JournalViewModels
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICommonServices _commonServices;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
+		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
 		private readonly ILifetimeScope _scope;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
-		private bool canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelector;
-		private readonly IEmployeeSettings _employeeSettings;
+		private bool _canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
@@ -77,55 +72,45 @@ namespace Vodovoz.Journals.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			ComplaintFilterViewModel filterViewModel,
 			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelector,
-			IEmployeeSettings employeeSettings,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IComplaintParametersProvider complaintParametersProvider,
-			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			ILifetimeScope scope
+			) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			_undeliveredOrdersRepository =
-				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
+			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
-			
+
 			TabName = "Журнал рекламаций";
-			
+
 			RegisterComplaints();
 
 			var threadLoader = DataLoader as ThreadDataLoader<ComplaintJournalNode>;
@@ -143,7 +128,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			FilterViewModel.CurrentUserSubdivision = currentEmployeeSubdivision;
 
-			if (currentUserSettings.UseEmployeeSubdivision)
+			if(currentUserSettings.UseEmployeeSubdivision)
 			{
 				FilterViewModel.Subdivision = currentEmployeeSubdivision;
 			}
@@ -186,6 +171,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			DeliveryPoint deliveryPointAlias = null;
 			ComplaintGuiltyItem complaintGuiltyItemAlias = null;
 			Employee guiltyEmployeeAlias = null;
+			Employee driverAlias = null;
 			Subdivision guiltySubdivisionAlias = null;
 			Fine fineAlias = null;
 			Order orderAlias = null;
@@ -335,6 +321,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Left.JoinAlias(() => complaintAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => complaintAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => complaintAlias.Guilties, () => complaintGuiltyItemAlias)
+				.Left.JoinAlias(() => complaintAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDetalization, () => complaintDelatizationAlias)
 				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
@@ -504,6 +491,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				.Select(lastPlannedCompletionDateProjection).WithAlias(() => resultAlias.LastPlannedCompletionDate)
 				.Select(counterpartyWithAddressProjection).WithAlias(() => resultAlias.ClientNameWithAddress)
 				.Select(guiltiesProjection).WithAlias(() => resultAlias.Guilties)
+				.Select(EmployeeProjections.GetDriverFullNamePojection()).WithAlias(() => resultAlias.Driver)
 				.Select(authorProjection).WithAlias(() => resultAlias.Author)
 				.Select(finesProjection).WithAlias(() => resultAlias.Fines)
 				.Select(() => complaintAlias.ComplaintText).WithAlias(() => resultAlias.ComplaintText)
@@ -704,6 +692,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_subdivisionRepository,
 						_commonServices,
 						_userRepository,
+						_routeListItemRepository,
 						_fileDialogService,
 						_orderSelectorFactory,
 						_employeeJournalFactory,
@@ -734,7 +723,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_subdivisionJournalFactory,
 						_fileDialogService,
 						new UserRepository(),
-						_subdivisionParametersProvider
+						_subdivisionParametersProvider,
+						_routeListItemRepository
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) =>
@@ -839,13 +829,31 @@ namespace Vodovoz.Journals.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Закрыть рекламацию",
-					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed && canCloseComplaint,
-					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate && canCloseComplaint,
+					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed && _canCloseComplaint,
+					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate && _canCloseComplaint,
 					n => {
 						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
 						ComplaintViewModel currentComplaintVM = null;
 						if(currentComplaintId.HasValue) {
 							currentComplaintVM = _scope.Resolve<ComplaintViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(currentComplaintId.Value)));
+
+							var interserctedSubdivisionsToInformIds = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
+									.Intersect(currentComplaintVM.Entity.Guilties.Select(cgi => cgi.Subdivision.Id));
+
+							var intersectedSubdivisionsNames = currentComplaintVM.Entity.Guilties
+								.Select(g => g.Subdivision)
+								.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
+								.Select(s => s.Name);
+
+							if(currentComplaintVM.Entity.ComplaintResultOfEmployees.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+								&& interserctedSubdivisionsToInformIds.Any()
+								&& currentComplaintVM.Entity.Driver is null
+								&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",
+								"Вы уверены?"))
+							{
+								return;
+							}
+
 							currentComplaintVM.AddFineCommand.Execute(this);
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))
