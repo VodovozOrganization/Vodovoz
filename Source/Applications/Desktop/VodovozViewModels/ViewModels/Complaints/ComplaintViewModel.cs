@@ -679,9 +679,9 @@ namespace Vodovoz.ViewModels.Complaints
 			OnPropertyChanged(() => FineItems);
 		}
 
-		public void ChangeComplaintStatus(ComplaintStatuses status)
+		public void ChangeComplaintStatus(ComplaintStatuses oldStatus, ComplaintStatuses newStatus)
 		{
-			if(status == ComplaintStatuses.Closed)
+			if(newStatus == ComplaintStatuses.Closed)
 			{
 				var interserctedSubdivisionsToInformIds = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
 					.Intersect(Entity.Guilties.Select(cgi => cgi.Subdivision.Id));
@@ -697,11 +697,12 @@ namespace Vodovoz.ViewModels.Complaints
 					&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",
 					"Вы уверены?"))
 				{
+					Entity.SetStatus(oldStatus);
 					return;
 				}
 			}
 
-			var msg = Entity.SetStatus(status);
+			var msg = Entity.SetStatus(newStatus);
 			if(msg.Any())
 			{
 				CommonServices.InteractiveService.ShowMessage(
@@ -709,7 +710,7 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 			else
 			{
-				Entity.ActualCompletionDate = status == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
+				Entity.ActualCompletionDate = newStatus == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
 			}
 			OnPropertyChanged(nameof(Status));
 		}

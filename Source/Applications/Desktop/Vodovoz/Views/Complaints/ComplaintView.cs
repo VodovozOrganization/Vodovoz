@@ -18,6 +18,7 @@ namespace Vodovoz.Views.Complaints
 	{
 		private Menu _popupCopyArrangementsMenu;
 		private Menu _popupCopyCommentsMenu;
+		private ComplaintStatuses _lastStatus;
 
 		public ComplaintView(ComplaintViewModel viewModel) : base(viewModel)
 		{
@@ -42,12 +43,13 @@ namespace Vodovoz.Views.Complaints
 				yenumcomboStatus.AddEnumToHideList(new object[] { ComplaintStatuses.Closed });
 			}
 
+			_lastStatus = ViewModel.Status;
 			yenumcomboStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Status, w => w.SelectedItem)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			
-			yenumcomboStatus.EnumItemSelected += (sender, args) => ViewModel.ChangeComplaintStatus((ComplaintStatuses)args.SelectedItem);
+
+			yenumcomboStatus.EnumItemSelected += OnYenumcomboStatusChanged;
 
 			entryDriver.ViewModel = ViewModel.ComplaintDriverEntryViewModel;
 
@@ -227,6 +229,13 @@ namespace Vodovoz.Views.Complaints
 			copyCommentsMenuEntry.ButtonPressEvent += CopyCopyCommentsMenuEntry_Activated;
 			copyCommentsMenuEntry.Visible = true;
 			_popupCopyCommentsMenu.Add(copyCommentsMenuEntry);
+		}
+
+		private void OnYenumcomboStatusChanged(object sender, ItemSelectedEventArgs e)
+		{
+			var newStatus = (ComplaintStatuses)e.SelectedItem;
+			ViewModel.ChangeComplaintStatus(_lastStatus, newStatus);
+			_lastStatus = newStatus;
 		}
 
 		private void CopyArrangementsMenuEntry_Activated(object sender, EventArgs e)
