@@ -66,7 +66,7 @@ namespace Vodovoz.Models
 			return document.Items.Any() ? document : null;
 		}
 
-		public IList<AdditionalLoadingDocumentItem> CreateAdditionalLoadingItems(IUnitOfWork uow, decimal availableWeight,
+		private IList<AdditionalLoadingDocumentItem> CreateAdditionalLoadingItems(IUnitOfWork uow, decimal availableWeight,
 			decimal availableVolume, DateTime routelistDate)
 		{
 			var distributions = uow.GetAll<AdditionalLoadingNomenclatureDistribution>().ToList();
@@ -118,6 +118,7 @@ namespace Vodovoz.Models
 			AddFlyers(items, uow, routelistDate);
 			_activeFlyers = null;
 			_flyersInStock = null;
+
 			return items;
 		}
 

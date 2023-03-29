@@ -129,6 +129,7 @@ namespace Vodovoz.Domain.Documents
 			Equipment equipment, 
 			decimal amount, 
 			ServiceClaim serviceClaim,
+			int terminalId,
 			string redhead = null, 
 			DefectSource source = DefectSource.None, 
 			CullingCategory typeOfDefect = null)
@@ -157,6 +158,18 @@ namespace Vodovoz.Domain.Documents
 				DefectSource = source,
 				TypeOfDefect = typeOfDefect
 			};
+
+			if(reciveType != ReciveTypes.Defective && nomenclature.Id != terminalId)
+			{
+				var deliveryFreeBalanceOperation = new DeliveryFreeBalanceOperation
+				{
+					Amount = -amount,
+					Nomenclature = nomenclature,
+					RouteList = RouteList
+				};
+
+				item.DeliveryFreeBalanceOperation = deliveryFreeBalanceOperation;
+			}
 
 			AddItem(item);
 		}

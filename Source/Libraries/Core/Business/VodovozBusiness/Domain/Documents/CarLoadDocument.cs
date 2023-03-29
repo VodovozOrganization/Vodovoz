@@ -191,7 +191,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateOperations(IUnitOfWork uow)
+		public virtual void UpdateOperations(IUnitOfWork uow, int terminalId)
 		{
 			foreach(var item in Items) {
 				if(item.Amount == 0) {
@@ -202,6 +202,12 @@ namespace Vodovoz.Domain.Documents
 					if(item.EmployeeNomenclatureMovementOperation != null) {
 						uow.Delete(item.EmployeeNomenclatureMovementOperation);
 						item.EmployeeNomenclatureMovementOperation = null;
+					}
+
+					if(item.DeliveryFreeBalanceOperation != null)
+					{
+						uow.Delete(item.DeliveryFreeBalanceOperation);
+						item.DeliveryFreeBalanceOperation = null;
 					}
 				}
 				else {
@@ -215,6 +221,11 @@ namespace Vodovoz.Domain.Documents
 						item.UpdateEmployeeNomenclatureMovementOperation();
 					} else {
 						item.CreateEmployeeNomenclatureMovementOperation(TimeStamp);
+					}
+
+					if(item.Nomenclature.Id != terminalId)
+					{
+						item.CreateOrUpdateDeliveryFreeBalanceOperation();
 					}
 				}
 			}

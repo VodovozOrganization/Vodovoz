@@ -740,6 +740,7 @@ namespace Vodovoz
 				.As<IImageProvider>()
 				.As<IStandartDiscountsService>()
 				.As<IPersonProvider>()
+				.As<IWageParametersProvider>()
 				.As<ISmsNotifierParametersProvider>()
 				.As<IWageParametersProvider>()
 				.As<IDefaultDeliveryDayScheduleSettings>()

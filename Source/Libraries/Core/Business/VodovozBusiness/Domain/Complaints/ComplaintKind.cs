@@ -46,7 +46,7 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual string GetFullName => !IsArchive ? Name : $"(Архив) {Name}";
 
-		public virtual string Title => $"Вид рекламации №{Id} ({Name})";
+		public virtual string Title => Name;
 
 		[Display(Name = "Подразделения")]
 		public virtual IList<Subdivision> Subdivisions

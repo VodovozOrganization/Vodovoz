@@ -48,6 +48,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using Vodovoz.Controllers;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Infrastructure.Services;
@@ -778,7 +779,7 @@ namespace Vodovoz.JournalViewModels
 				if((routeListFullyShipped || routeListShippedWithoutTerminal) && valid)
 				{
 					carLoadDocument.ClearItemsFromZero();
-					carLoadDocument.UpdateOperations(localUow);
+					carLoadDocument.UpdateOperations(localUow, _terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
 
 					if(!carLoadDocument.Items.Any())
 					{

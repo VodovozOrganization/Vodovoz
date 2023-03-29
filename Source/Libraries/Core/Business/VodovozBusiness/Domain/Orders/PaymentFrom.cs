@@ -21,6 +21,7 @@ namespace Vodovoz.Domain.Orders
 		
 		public virtual int Id { get; set; }
 		public virtual string Name { get; set; }
+		public virtual bool IsArchive { get; set; }
 
 		public virtual Organization OrganizationForAvangardPayments
 		{

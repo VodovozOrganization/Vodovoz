@@ -5,7 +5,6 @@ using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
-using QS.EntityRepositories;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain;
@@ -132,6 +131,9 @@ namespace Vodovoz
 				hbxTareToReturn.Sensitive =
 					nonserialequipmentreceptionview1.Sensitive =
 						defectiveitemsreceptionview1.Sensitive = editing;
+
+			// 20230309 Если спустя время не понадобится, то вырезать всё, что связано с этим, вместе с CarUnloadDocument.TareToReturn
+			hbxTareToReturn.Visible = false;
 
 			defectiveitemsreceptionview1.UoW =
 				returnsreceptionview.UoW = UoW;
@@ -284,17 +286,14 @@ namespace Vodovoz
 
 		private void UpdateWidgetsVisible()
 		{
-			lblTareReturnedBefore.Visible = Entity.RouteList != null;
-			hbxTareToReturn.Visible = Entity.RouteList != null && Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
+			//20230320 Если не понадобится после обновления, вырезать всё, что с этим связано
+			lblTareReturnedBefore.Visible = false; // Entity.RouteList != null;
 			nonserialequipmentreceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
 		}
 
 		void LoadReception()
 		{
 			foreach(var item in Entity.Items) {
-				if(Entity.IsDefaultBottle(item))
-					continue;
-
 				if(defectiveitemsreceptionview1.Items.Any(x => x.NomenclatureId == item.WarehouseMovementOperation.Nomenclature.Id))
 					continue;
 
@@ -436,6 +435,7 @@ namespace Vodovoz
 						null,
 						tempItem.Amount,
 						null,
+						terminalId,
 						null,
 						tempItem.Source,
 						tempItem.TypeOfDefect
@@ -461,6 +461,7 @@ namespace Vodovoz
 						null,
 						tempItem.Amount,
 						null,
+						terminalId,
 						tempItem.Redhead
 					);
 				} else {
@@ -468,6 +469,7 @@ namespace Vodovoz
 						item.WarehouseMovementOperation.Amount = tempItem.Amount;
 					if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.Amount != -tempItem.Amount)
 						item.EmployeeNomenclatureMovementOperation.Amount = -tempItem.Amount;
+
 					if(item.Redhead != tempItem.Redhead)
 						item.Redhead = tempItem.Redhead;
 				}

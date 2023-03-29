@@ -587,6 +587,8 @@ public partial class MainWindow : Window
 		var routeListRepository = new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider));
 		var routeListItemRepository = new RouteListItemRepository();
 		var employeeService = new EmployeeService();
+		var employeeRepository = new EmployeeRepository();
+		var nomenclatureParametersProvider = new NomenclatureParametersProvider(parametersProvider);
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListAddressesTransferringDlg>(),
@@ -597,7 +599,9 @@ public partial class MainWindow : Window
 				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
-				new CategoryRepository(parametersProvider)
+				new CategoryRepository(parametersProvider),
+				employeeRepository,
+				nomenclatureParametersProvider
 			)
 		);
 	}
@@ -1140,6 +1144,7 @@ public partial class MainWindow : Window
 		IBottlesRepository bottlesRepository = new BottlesRepository();
 		ResidueFilterViewModel filter = new ResidueFilterViewModel();
 		var employeeJournalFactory = new EmployeeJournalFactory();
+		var subdivisionJournalFactory = new SubdivisionJournalFactory();
 		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
 
 		var residueJournalViewModel = new ResidueJournalViewModel(
@@ -1152,6 +1157,7 @@ public partial class MainWindow : Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
 			employeeJournalFactory,
+			subdivisionJournalFactory,
 			subdivisionParametersProvider
 		);
 		tdiMain.AddTab(residueJournalViewModel);
