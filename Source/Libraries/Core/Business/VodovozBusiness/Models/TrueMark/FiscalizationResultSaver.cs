@@ -1,5 +1,4 @@
-﻿using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.Models.CashReceipts.DTO;
 using ApiFiscalStatus = Vodovoz.Models.CashReceipts.DTO.FiscalDocumentStatus;
@@ -9,35 +8,6 @@ namespace Vodovoz.Models.TrueMark
 {
 	public class FiscalizationResultSaver
 	{
-		private readonly IUnitOfWorkFactory _uowFactory;
-
-		public FiscalizationResultSaver(IUnitOfWorkFactory uowFactory)
-		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-		}
-
-		public void SaveResult(int cashReceiptId, FiscalizationResult fiscalizationResult)
-		{
-			if(cashReceiptId <= 0)
-			{
-				throw new ArgumentException("Должен быть указан валидный код чека", nameof(cashReceiptId));
-			}
-
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var cashReceipt = uow.GetById<CashReceipt>(cashReceiptId);
-				if(cashReceipt == null)
-				{
-					throw new InvalidOperationException($"Чека с кодом {cashReceiptId} не существует");
-				}
-
-				SaveResult(cashReceipt, fiscalizationResult);
-
-				uow.Save(cashReceipt);
-				uow.Commit();
-			}
-		}
-
 		public void SaveResult(CashReceipt cashReceipt, FiscalizationResult fiscalizationResult)
 		{
 			cashReceipt.FiscalDocumentStatus = ConvertStatus(fiscalizationResult.Status);
@@ -57,8 +27,13 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		private DomainFiscalStatus ConvertStatus(ApiFiscalStatus status)
+		private DomainFiscalStatus ConvertStatus(ApiFiscalStatus? status)
 		{
+			if(status == null)
+			{
+				return DomainFiscalStatus.None;
+			}
+
 			switch(status)
 			{
 				case ApiFiscalStatus.Queued:

@@ -80,14 +80,7 @@ namespace Vodovoz.Models.TrueMark
 		{
 			PrepareDefectiveCodes(receipt);
 
-			var order = receipt.Order;
-
-			if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown)
-			{
-				throw new TrueMarkException($"Невозможно обработать заказ {order.Id}. Неизвестная причина отпуска товара.");
-			}
-
-			var receiptNeeded = _cashReceiptRepository.CashReceiptNeeded(_uow, order.Id);
+			var receiptNeeded = _cashReceiptRepository.CashReceiptNeeded(_uow, receipt.Order.Id);
 			if(receiptNeeded)
 			{
 
@@ -101,13 +94,10 @@ namespace Vodovoz.Models.TrueMark
 
 		private async Task PrepareForReceiptNotNeeded(CashReceipt receipt, CancellationToken cancellationToken)
 		{
-			var order = receipt.Order;
-			var codes = receipt.ScannedCodes.Where(x => !x.IsDefectiveSourceCode);
-
 			//В первую очередь необходима проверка на первый чек,
 			//если не пройдет тогда все остальное можно проверять будет
 			//а если пройдет, то формируем чек
-			if(order.PaymentType == PaymentType.cash)
+			if(receipt.Order.PaymentType == PaymentType.cash)
 			{
 				await PrepareForFirstReceiptIfReceiptNotNeeded(receipt, cancellationToken);
 				return;
@@ -128,6 +118,8 @@ namespace Vodovoz.Models.TrueMark
 				await PrepareForFirstReceipt(receipt, cancellationToken);
 			}
 
+			TryPutCodesToPool(receipt);
+
 			receipt.Status = CashReceiptStatus.ReceiptNotNeeded;
 			receipt.ErrorDescription = null;
 			return;
@@ -139,18 +131,27 @@ namespace Vodovoz.Models.TrueMark
 			var hasReceiptBySum = _cashReceiptRepository.HasReceiptBySum(DateTime.Today, orderSum);
 			if(hasReceiptBySum && !receipt.ManualSent)
 			{
+				TryPutCodesToPool(receipt);
+
 				receipt.Status = CashReceiptStatus.DuplicateSum;
 				receipt.ErrorDescription = null;
 				return;
 			}
 			else
 			{
+				receipt.Sum = orderSum;
 				await PrepareForReadyToSend(receipt, cancellationToken);
 			}
 		}
 
 		private async Task PrepareForReadyToSend(CashReceipt receipt, CancellationToken cancellationToken)
 		{
+			var order = receipt.Order;
+			if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown)
+			{
+				throw new TrueMarkException($"Невозможно обработать заказ {order.Id}. Неизвестная причина отпуска товара.");
+			}
+
 			var codes = receipt.ScannedCodes.Where(x => !x.IsDefectiveSourceCode);
 
 			//valid codes
@@ -161,10 +162,20 @@ namespace Vodovoz.Models.TrueMark
 				var code = checkResult.Code;
 				if(checkResult.Introduced)
 				{
+					if(code.ResultCode != null && !code.ResultCode.Equals(code.SourceCode))
+					{
+						_codesPool.PutCode(code.ResultCode.Id);
+					}
+
 					code.ResultCode = code.SourceCode;
 				}
 				else
 				{
+					if(code.ResultCode != null)
+					{
+						_codesPool.PutCode(code.ResultCode.Id);
+					}
+
 					code.ResultCode = GetCodeFromPool();
 				}
 
@@ -175,6 +186,11 @@ namespace Vodovoz.Models.TrueMark
 			var invalidCodes = codes.Where(x => !x.IsValid);
 			foreach(var invalidCode in invalidCodes)
 			{
+				if(invalidCode.ResultCode != null)
+				{
+					_codesPool.PutCode(invalidCode.ResultCode.Id);
+				}
+
 				invalidCode.ResultCode = GetCodeFromPool();
 			}
 
@@ -189,11 +205,6 @@ namespace Vodovoz.Models.TrueMark
 		private void TryPutCodesToPool(CashReceipt receipt)
 		{
 			var order = receipt.Order;
-			if(order.Client.PersonType != PersonType.legal)
-			{
-				return;
-			}
-
 			var codes = receipt.ScannedCodes.Where(x => !x.IsDefectiveSourceCode);
 			switch(order.Client.ReasonForLeaving)
 			{

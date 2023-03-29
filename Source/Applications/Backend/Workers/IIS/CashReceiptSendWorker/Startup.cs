@@ -11,12 +11,14 @@ using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Domain;
-using System;
 using System.Configuration;
 using System.Reflection;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.CashReceipts;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.NhibernateExtensions;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 
@@ -25,12 +27,10 @@ namespace CashReceiptSendWorker
 	public class Startup
 	{
 		private const string _nLogSectionName = "NLog";
-		//private bool _testMode;
 
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
-			//SetupMode();
 		}
 
 		public IConfiguration Configuration { get; }
@@ -38,12 +38,13 @@ namespace CashReceiptSendWorker
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			var nlogConfig = Configuration.GetSection(_nLogSectionName);
 			services.AddLogging(
 				logging =>
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
+					logging.AddConfiguration(nlogConfig);
 				});
 
 			services.AddHostedService<CashReceiptSendWorker>();
@@ -78,13 +79,25 @@ namespace CashReceiptSendWorker
 				.AsSelf()
 				.SingleInstance();
 
+			builder.RegisterType<StaleReceiptDocumentsRefresher>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
 			builder.RegisterType<CashReceiptDistributor>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
-			//Сделать регистрацию строки для этого типа
+			builder.RegisterType<CashboxClientProvider>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<FiscalDocumentRefresher>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
 			builder.RegisterType<CashboxClientFactory>()
 				.WithParameter(TypedParameter.From(GetCashboxBaseUrl()))
+				.WithProperty(x => x.IsTestMode, IsTestMode())
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
@@ -92,15 +105,19 @@ namespace CashReceiptSendWorker
 				.As<ICashboxSettingProvider>()
 				.SingleInstance();
 
-			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
-			/*builder.RegisterType<OrderParametersProvider>()
-				.As<IOrderParametersProvider>()
-				.SingleInstance();*/
+			builder.RegisterType<FiscalizationResultSaver>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
 
 			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
-			/*builder.RegisterType<ParametersProvider>()
+			builder.RegisterType<OrderParametersProvider>()
+				.As<IOrderParametersProvider>()
+				.SingleInstance();
+
+			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
+			builder.RegisterType<ParametersProvider>()
 				.As<IParametersProvider>()
-				.SingleInstance();*/
+				.SingleInstance();
 
 			builder.RegisterInstance(ErrorReporter.Instance)
 				.As<IErrorReporter>()
@@ -112,34 +129,17 @@ namespace CashReceiptSendWorker
 		{
 		}
 
-		/*private void SetupMode()
-		{
-			var commonConfig = Configuration.GetSection("Common");
-
-			var modeValue = commonConfig["Mode"];
-			switch(modeValue)
-			{
-				case "Test":
-					_testMode = true;
-					break;
-				case "Work":
-					return;
-				default:
-					throw new NotSupportedException($"Не поддерживаемый режим работы ({modeValue}) приложения");
-			}
-		}*/
-
 		private void CreateBaseConfig()
 		{
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
 			var domainDBConfig = Configuration.GetSection("DomainDB");
 
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
+			conStrBuilder.Server = domainDBConfig.GetValue<string>("server");
+			conStrBuilder.Port = domainDBConfig.GetValue<uint>("port");
+			conStrBuilder.Database = domainDBConfig.GetValue<string>("database");
+			conStrBuilder.UserID = domainDBConfig.GetValue<string>("user");
+			conStrBuilder.Password = domainDBConfig.GetValue<string>("password");
 			conStrBuilder.SslMode = MySqlSslMode.None;
 
 			var connectionString = conStrBuilder.GetConnectionString(true);
@@ -179,13 +179,25 @@ namespace CashReceiptSendWorker
 				throw new ConfigurationErrorsException("Не удается загрузить конфигурацию для модуль кассы.");
 			}
 
-			string baseUrlConfig = modulKassaSection["base_address"];
+			string baseUrlConfig = modulKassaSection["baseAddress"];
 			if(string.IsNullOrWhiteSpace(baseUrlConfig))
 			{
 				throw new ConfigurationErrorsException("Не удается загрузить конфигурацию базового адреса api для модуль кассы.");
 			}
 
 			return baseUrlConfig;
+		}
+
+		private bool IsTestMode()
+		{
+			var modulKassaSection = Configuration.GetSection("ModulKassa");
+			if(!modulKassaSection.Exists())
+			{
+				throw new ConfigurationErrorsException("Не удается загрузить конфигурацию для модуль кассы.");
+			}
+
+			bool isTestMode = modulKassaSection.GetValue<bool>("isTestsMode");
+			return isTestMode;
 		}
 	}
 }

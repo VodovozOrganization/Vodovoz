@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using Vodovoz.Models.CashReceipts.DTO;
-using Vodovoz.Models.CashReceipts;
 using Microsoft.Extensions.Configuration;
 using System.Configuration;
 using System;
 
-namespace CashReceiptSendWorker
+namespace Vodovoz.Models.CashReceipts
 {
 	public class CashboxSettingProvider : ICashboxSettingProvider
 	{
@@ -35,16 +34,16 @@ namespace CashReceiptSendWorker
 					throw new ConfigurationErrorsException(string.Format(_configValueNotFoundString, "id"));
 				}
 
-				string retailPointName = cashboxConfig["retail_point_name"];
+				string retailPointName = cashboxConfig["retailPointName"];
 				if(string.IsNullOrWhiteSpace(retailPointName))
 				{
-					throw new ConfigurationErrorsException(string.Format(_configValueNotFoundString, "retail_point_name"));
+					throw new ConfigurationErrorsException(string.Format(_configValueNotFoundString, "retailPointName"));
 				}
 
-				string stringUserId = cashboxConfig["user_id"];
+				string stringUserId = cashboxConfig["userId"];
 				if(string.IsNullOrWhiteSpace(stringUserId) || !Guid.TryParse(stringUserId, out Guid userId))
 				{
-					throw new ConfigurationErrorsException(string.Format(_configValueNotFoundString, "user_id"));
+					throw new ConfigurationErrorsException(string.Format(_configValueNotFoundString, "userId"));
 				}
 
 				string password = cashboxConfig["password"];

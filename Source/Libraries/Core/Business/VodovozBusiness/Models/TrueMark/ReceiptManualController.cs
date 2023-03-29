@@ -1,4 +1,8 @@
-﻿using QS.DomainModel.UoW;
+﻿using CashReceiptApi;
+using CashReceiptApi.Client.Framework;
+using Grpc.Core;
+using QS.Dialog;
+using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Domain.TrueMark;
 
@@ -7,12 +11,14 @@ namespace Vodovoz.Models.TrueMark
 	public class ReceiptManualController
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly FiscalizationResultSaver _fiscalizationResultSaver;
+		private readonly CashReceiptClientChannelFactory _cashReceiptClientChannelFactory;
+		private readonly IInteractiveMessage _interactiveMessage;
 
-		public ReceiptManualController(IUnitOfWorkFactory uowFactory, FiscalizationResultSaver fiscalizationResultSaver)
+		public ReceiptManualController(IUnitOfWorkFactory uowFactory, CashReceiptClientChannelFactory cashReceiptClientChannelFactory, IInteractiveMessage interactiveMessage)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_fiscalizationResultSaver = fiscalizationResultSaver ?? throw new ArgumentNullException(nameof(fiscalizationResultSaver));
+			_cashReceiptClientChannelFactory = cashReceiptClientChannelFactory ?? throw new ArgumentNullException(nameof(cashReceiptClientChannelFactory));
+			_interactiveMessage = interactiveMessage ?? throw new ArgumentNullException(nameof(interactiveMessage));
 		}
 
 		public void ForceSendDuplicatedReceipt(int receiptId)
@@ -34,6 +40,21 @@ namespace Vodovoz.Models.TrueMark
 				cashReceipt.Status = CashReceiptStatus.New;
 				uow.Save(cashReceipt);
 				uow.Commit();
+			}
+		}
+
+		public void RefreshFiscalDoc(int receiptId)
+		{
+			if(receiptId <= 0)
+			{
+				throw new ArgumentException("Должен быть указан валидный код чека", nameof(receiptId));
+			}
+
+			using(var receiptServiceChannel = _cashReceiptClientChannelFactory.OpenChannel())
+			{
+				var request = new RefreshReceiptRequest();
+				request.CashReceiptId = receiptId;
+				receiptServiceChannel.Client.RefreshFiscalDocument(request);
 			}
 		}
 	}

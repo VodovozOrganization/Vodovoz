@@ -13,6 +13,7 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using System.Reflection;
 using TrueMarkApi.Library;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
@@ -22,7 +23,7 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 
-namespace TrueMarkCodesWorker
+namespace CashReceiptPrepareWorker
 {
 	public class Startup
     {
@@ -46,7 +47,7 @@ namespace TrueMarkCodesWorker
 					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
-			services.AddHostedService<ReceiptsHandleWorker>();
+			services.AddHostedService<ReceiptsPrepareWorker>();
 
 			CreateBaseConfig();
 		}
@@ -83,6 +84,22 @@ namespace TrueMarkCodesWorker
 			builder.RegisterType<ParametersProvider>()
 				.As<IParametersProvider>()
 				.SingleInstance();
+
+			builder.RegisterType<ReceiptPreparerFactory>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<SelfdeliveryReceiptCreatorFactory>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<CashReceiptRepository>()
+				.As<ICashReceiptRepository>()
+				.InstancePerDependency();
+
+			builder.RegisterType<TrueMarkCodesChecker>()
+				.AsSelf()
+				.InstancePerDependency();
 
 			builder.RegisterType<ReceiptsHandler>()
 				.AsSelf()

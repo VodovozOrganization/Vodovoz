@@ -15,6 +15,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		IEnumerable<CashReceipt> LoadReceipts(IUnitOfWork uow, IEnumerable<int> receiptId);
 		bool HasReceiptBySum(DateTime date, decimal sum);
 		int GetCodeErrorsReceiptCount(IUnitOfWork uow);
-		IEnumerable<int> GetReceiptIdsForPrepare();
+		IEnumerable<int> GetReceiptIdsForPrepare(int count);
+		IEnumerable<int> GetUnfinishedReceiptIds(int count);
 	}
 }

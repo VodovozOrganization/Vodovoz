@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.TrueMark;
 
 namespace Vodovoz.Models.TrueMark
 {
@@ -25,7 +24,7 @@ namespace Vodovoz.Models.TrueMark
 
 		public async Task HandleReceiptsAsync(CancellationToken cancellationToken)
 		{
-			var receiptIds = _cashReceiptRepository.GetReceiptIdsForPrepare();
+			var receiptIds = _cashReceiptRepository.GetReceiptIdsForPrepare(100);
 			foreach(var receiptId in receiptIds)
 			{
 				using(var preparer = _receiptPreparerFactory.Create(receiptId))

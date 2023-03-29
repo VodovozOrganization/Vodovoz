@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace TrueMarkCodesWorker
+namespace CashReceiptPrepareWorker
 {
 	public class Program
 	{

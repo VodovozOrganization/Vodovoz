@@ -2161,6 +2161,10 @@
     <EmbeddedResource Include="icons\map\points\overduetriangle\yellow_stripes.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\CashReceipt\CashReceiptApi.Client.Framework\CashReceiptApi.Client.Framework.csproj">
+      <Project>{D3B6592D-6DCF-40F7-8627-3B4A6CBB040C}</Project>
+      <Name>CashReceiptApi.Client.Framework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
       <Project>{329bffc8-9feb-45cf-b2ad-91d5b6a7c376}</Project>
       <Name>Mailjet.Api.Abstractions</Name>

@@ -3,6 +3,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Journal;
@@ -25,6 +26,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
 	public class CashReceiptsJournalViewModel : JournalViewModelBase
 	{
+		private readonly ICommonServices _commonServices;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly ReceiptManualController _receiptManualController;
@@ -45,24 +47,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			Filter = filter ?? throw new ArgumentNullException(nameof(filter)); ;
+			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
+			;
 
 			_autoRefreshInterval = 30;
 
 			Title = "Журнал чеков";
 
-			var levelDataLoader = new HierarchicalQueryLoader<CashReceipt, CashReceiptJournalNode>(unitOfWorkFactory);
+			var levelQueryLoader = new HierarchicalQueryLoader<CashReceipt, CashReceiptJournalNode>(unitOfWorkFactory);
 
-			levelDataLoader.SetLevelingModel(GetQuery)
+			levelQueryLoader.SetLevelingModel(GetQuery)
 				.AddNextLevelSource(GetDetails);
-			levelDataLoader.SetCountFunction(GetCount);
+			levelQueryLoader.SetCountFunction(GetCount);
 
-			RecuresiveConfig = levelDataLoader.TreeConfig;
+			RecuresiveConfig = levelQueryLoader.TreeConfig;
 
 			var threadDataLoader = new ThreadDataLoader<CashReceiptJournalNode>(unitOfWorkFactory);
 			threadDataLoader.DynamicLoadingEnabled = true;
-			threadDataLoader.QueryLoaders.Add(levelDataLoader);
+			threadDataLoader.QueryLoaders.Add(levelQueryLoader);
 			DataLoader = threadDataLoader;
 
 			CreateNodeActions();
@@ -114,12 +118,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			NodeActionsList.Clear();
 			CreateAutorefreshAction();
 			CreateNodeManualSendAction();
+			CreateNodeRefrechFiscalDocAction();
 		}
 
 		protected override void CreatePopupActions()
 		{
 			PopupActionsList.Clear();
 			CreatePopupManualSendAction();
+			CreatePopupRefrechFiscalDocAction();
 		}
 
 		#region Queries
@@ -136,7 +142,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			query.JoinEntityQueryOver(() => routeListItemAlias, Restrictions.Where(() => cashReceiptAlias.Order.Id == routeListItemAlias.Order.Id), JoinType.LeftOuterJoin);
 			query.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias);
 			query.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias);
-
+			query.Where(() => !cashReceiptAlias.WithoutMarks);
 			if(_filter.Status.HasValue)
 			{
 				query.Where(Restrictions.Eq(Projections.Property(() => cashReceiptAlias.Status), _filter.Status.Value));
@@ -198,6 +204,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentDate)).WithAlias(() => resultAlias.FiscalDocDate)
 				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentStatusChangeTime)).WithAlias(() => resultAlias.FiscalDocStatusDate)
 				.Select(Projections.Property(() => cashReceiptAlias.ManualSent)).WithAlias(() => resultAlias.IsManualSentOrIsDefectiveCode)
+				.Select(Projections.Property(() => cashReceiptAlias.Contact)).WithAlias(() => resultAlias.Contact)
 				.Select(Projections.Property(() => cashReceiptAlias.UnscannedCodesReason)).WithAlias(() => resultAlias.UnscannedReason)
 				.Select(Projections.Property(() => cashReceiptAlias.ErrorDescription)).WithAlias(() => resultAlias.ErrorDescription)
 			)
@@ -366,6 +373,75 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			Refresh();
 		}
 
-		#endregion Popup actions
+		#endregion Manual send
+
+		#region Manual send
+
+		private void CreatePopupRefrechFiscalDocAction()
+		{
+			var refrechFiscalDocAction = GetRefrechFiscalDocAction();
+			PopupActionsList.Add(refrechFiscalDocAction);
+		}
+
+		private void CreateNodeRefrechFiscalDocAction()
+		{
+			var refrechFiscalDocAction = GetRefrechFiscalDocAction();
+			NodeActionsList.Add(refrechFiscalDocAction);
+		}
+
+		private JournalAction GetRefrechFiscalDocAction()
+		{
+			var manualSentAction = new JournalAction("Обновить статус фиск. документа",
+				(selected) => RefrechFiscalDocActionSensitive(selected),
+				(selected) => true,
+				(selected) => RefrechFiscalDoc(selected)
+			);
+			return manualSentAction;
+		}
+
+		private bool RefrechFiscalDocActionSensitive(object[] selectedNodes)
+		{
+			var nodes = selectedNodes.OfType<CashReceiptJournalNode>();
+			if(!nodes.Any())
+			{
+				return false;
+			}
+
+			if(nodes.Count() > 1)
+			{
+				return false;
+			}
+
+			var node = nodes.First();
+
+			if(node.NodeType != CashReceiptNodeType.Receipt)
+			{
+				return false;
+			}
+
+			if(node.ReceiptStatus == CashReceiptStatus.Sended)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private void RefrechFiscalDoc(object[] selectedNodes)
+		{
+			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
+
+			try
+			{
+				_receiptManualController.RefreshFiscalDoc(node.Id);
+			}
+			catch(Exception ex)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Невозможно подключиться к сервису обработки чеков.\n{ex.Message}");
+			}
+			Refresh();
+		}
+
+		#endregion Manual send
 	}
 }

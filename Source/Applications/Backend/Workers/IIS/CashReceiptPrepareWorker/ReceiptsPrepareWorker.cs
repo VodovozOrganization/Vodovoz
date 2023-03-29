@@ -6,25 +6,25 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
 
-namespace TrueMarkCodesWorker
+namespace CashReceiptPrepareWorker
 {
-	public class ReceiptsHandleWorker : TimerBackgroundServiceBase
+	public class ReceiptsPrepareWorker : TimerBackgroundServiceBase
 	{
-		private readonly ILogger<ReceiptsHandleWorker> _logger;
+		private readonly ILogger<ReceiptsPrepareWorker> _logger;
 		private readonly IEdoSettings _edoSettings;
 		private readonly ReceiptsHandler _receiptsHandler;
 		private readonly TimeSpan _interval;
 		private bool _isRunning = false;
 
-		public ReceiptsHandleWorker(
-			ILogger<ReceiptsHandleWorker> logger, 
+		public ReceiptsPrepareWorker(
+			ILogger<ReceiptsPrepareWorker> logger, 
 			IEdoSettings edoSettings, 
 			ReceiptsHandler receiptsHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_receiptsHandler = receiptsHandler ?? throw new ArgumentNullException(nameof(receiptsHandler));
-			_interval = TimeSpan.FromMinutes(_edoSettings.TrueMarkCodesHandleInterval);
+			_interval = TimeSpan.FromSeconds(_edoSettings.TrueMarkCodesHandleInterval);
 		}
 		protected override TimeSpan Interval => _interval;
 

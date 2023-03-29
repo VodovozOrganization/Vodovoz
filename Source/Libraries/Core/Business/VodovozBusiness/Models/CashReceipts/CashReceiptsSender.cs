@@ -46,12 +46,14 @@ namespace Vodovoz.Models.CashReceipts
 			{
 				_logger.LogInformation($"Получение чеков для отправки (макс. 30)");
 				var receiptsData = PrepareReceiptsData(uow);
+				if(receiptsData.Any())
+				{
+					_logger.LogInformation($"Общее количество чеков для отправки: {receiptsData.Count()}");
+					var sendResuts = await _cashReceiptDistributor.SendReceipts(receiptsData, cancellationToken);
 
-				_logger.LogInformation($"Общее количество чеков для отправки: {receiptsData.Count()}");
-				var sendResuts = await _cashReceiptDistributor.SendReceipts(receiptsData, cancellationToken);
-
-				_logger.LogInformation($"Сохранение результатов отправки");
-				SaveResults(uow, sendResuts);
+					_logger.LogInformation($"Сохранение результатов отправки");
+					SaveResults(uow, sendResuts);
+				}
 
 				uow.Commit();
 			}
@@ -67,7 +69,7 @@ namespace Vodovoz.Models.CashReceipts
 				ReceiptSendData receiptToSend;
 				try
 				{
-					receiptToSend = CreateReceiptNode(receipt);
+					receiptToSend = CreateReceiptData(receipt);
 				}
 				catch(Exception ex)
 				{
@@ -88,7 +90,7 @@ namespace Vodovoz.Models.CashReceipts
 			uow.Save(receipt);
 		}
 
-		private ReceiptSendData CreateReceiptNode(CashReceipt receipt)
+		private ReceiptSendData CreateReceiptData(CashReceipt receipt)
 		{
 			var fiscalDocument = _fiscalDocumentPreparer.CreateDocument(receipt);
 

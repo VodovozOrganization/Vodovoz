@@ -20,6 +20,8 @@ namespace Vodovoz.Models.CashReceipts
 			_baseUrl = baseUrl;
 		}
 
+		public bool IsTestMode { get; set; }
+
 		public ICashboxClient CreateClient(CashboxSetting cashBox)
 		{
 			if(cashBox is null)
@@ -28,6 +30,7 @@ namespace Vodovoz.Models.CashReceipts
 			}
 
 			var result = new CashboxClient(_logger, cashBox, _baseUrl);
+			result.IsTestMode = IsTestMode;
 			return result;
 		}
 	}

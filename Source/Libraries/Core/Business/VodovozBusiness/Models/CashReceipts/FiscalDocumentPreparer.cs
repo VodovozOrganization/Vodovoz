@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RestSharp.Extensions;
+using System;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -14,9 +15,10 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			var order = cashReceipt.Order;
 			var cashier = order.Contract?.Organization?.ActiveOrganizationVersion?.Leader?.ShortName;
-			var documentId = string.Concat("vod_", order.Id);
+			var documentId = cashReceipt.DocumentId;
 			var time = (order.TimeDelivered ?? DateTime.Now).ToString("O");
 			var contact = order.GetContact();
+			cashReceipt.Contact = contact;
 
 			var fiscalDocument = new FiscalDocument
 			{
@@ -180,14 +182,17 @@ namespace Vodovoz.Models.CashReceipts
 				throw new InvalidOperationException($"Сумма в {nameof(fiscalDocument.MoneyPositions)} фискального документа должна быть больше нуля");
 			}
 
-			if(fiscalDocument.ClientINN.Length != 10 && fiscalDocument.ClientINN.Length != 12)
+			if(fiscalDocument.ClientINN.HasValue())
 			{
-				throw new InvalidOperationException($"ИНН контрагента ({fiscalDocument.ClientINN}) должен быть длиной 10 или 12 знаков");
-			}
-				
-			if(fiscalDocument.ClientINN.Any(x => !char.IsNumber(x)))
-			{
-				throw new InvalidOperationException($"ИНН контрагента ({fiscalDocument.ClientINN}) должен состоять из цифр");
+				if(fiscalDocument.ClientINN.Length != 10 && fiscalDocument.ClientINN.Length != 12)
+				{
+					throw new InvalidOperationException($"ИНН контрагента ({fiscalDocument.ClientINN}) должен быть длиной 10 или 12 знаков");
+				}
+
+				if(fiscalDocument.ClientINN.Any(x => !char.IsNumber(x)))
+				{
+					throw new InvalidOperationException($"ИНН контрагента ({fiscalDocument.ClientINN}) должен состоять из цифр");
+				}
 			}
 		}
 	}

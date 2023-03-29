@@ -4,24 +4,28 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
 using Vodovoz.Models.CashReceipts;
+using Vodovoz.Models.TrueMark;
 
 namespace CashReceiptSendWorker
 {
 	public class CashReceiptSendWorker : TimerBackgroundServiceBase
 	{
-
 		private readonly ILogger<CashReceiptSendWorker> _logger;
 		private readonly CashReceiptsSender _cashReceiptsSender;
+		private readonly StaleReceiptDocumentsRefresher _staleReceiptDocumentsRefresher;
 		private readonly TimeSpan _standartInterval;
 		private bool _isRunning = false;
 
 		public CashReceiptSendWorker(
 			ILogger<CashReceiptSendWorker> logger,
-			CashReceiptsSender cashReceiptsSender)
+			CashReceiptsSender cashReceiptsSender,
+			StaleReceiptDocumentsRefresher staleReceiptDocumentsRefresher
+		)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_cashReceiptsSender = cashReceiptsSender ?? throw new ArgumentNullException(nameof(cashReceiptsSender));
-			_standartInterval = TimeSpan.FromSeconds(30);
+			_staleReceiptDocumentsRefresher = staleReceiptDocumentsRefresher ?? throw new ArgumentNullException(nameof(staleReceiptDocumentsRefresher));
+			_standartInterval = TimeSpan.FromSeconds(60);
 		}
 		protected override TimeSpan Interval
 		{
@@ -52,6 +56,9 @@ namespace CashReceiptSendWorker
 			{
 				_logger.LogInformation("Вызов отправки чеков");
 				await _cashReceiptsSender.PrepareAndSendAsync(stoppingToken);
+
+				_logger.LogInformation("Вызов обновления фискальных документов для чеков");
+				await _staleReceiptDocumentsRefresher.RefreshDocuments(stoppingToken);
 			}
 			catch(Exception ex)
 			{

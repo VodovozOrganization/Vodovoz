@@ -8,15 +8,7 @@ namespace CashReceiptSendWorker
 	{
 		public static void Main(string[] args)
 		{
-			try
-			{
-				CreateHostBuilder(args).Build().Run();
-			}
-			finally
-			{
-				// Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
-				NLog.LogManager.Shutdown();
-			}
+			CreateHostBuilder(args).Build().Run();
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>

@@ -59,8 +59,16 @@ namespace Vodovoz.Domain.TrueMark
 
 		public override bool Equals(object obj)
 		{
-			return obj is TrueMarkWaterIdentificationCode code &&
-				   _rawCode == code._rawCode;
+			if(obj is TrueMarkWaterIdentificationCode)
+			{
+				var code = (TrueMarkWaterIdentificationCode)obj;
+				var result = _rawCode == code.RawCode;
+				return result;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		public override int GetHashCode()

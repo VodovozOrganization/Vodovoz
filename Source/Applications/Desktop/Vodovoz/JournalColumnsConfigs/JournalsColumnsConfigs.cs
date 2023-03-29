@@ -58,11 +58,12 @@ namespace Vodovoz.JournalColumnsConfigs
 				(vm) => FluentColumnsConfig<CashReceiptJournalNode>.Create()
 					.SetTreeModel(() => new RecursiveTreeModel<CashReceiptJournalNode>(vm.Items.Cast<CashReceiptJournalNode>(), vm.RecuresiveConfig))
 					.AddColumn(" ┯ Код чека\n └ Код маркир. ").AddNumericRenderer(node => node.ReceiptOrProductCodeId).Editing(false)
+					.AddColumn(" ━ Id чека \n").AddTextRenderer(node => node.ReceiptDocId)
 					.AddColumn(" ━ Создан \n").AddTextRenderer(node => node.CreatedTime)
 					.AddColumn(" ━ Изменен \n").AddTextRenderer(node => node.ChangedTime)
 					.AddColumn(" ━ Статус \n").AddTextRenderer(node => node.Status)
 					.AddColumn(" ━ Сумма \n").AddNumericRenderer(node => node.ReceiptSum).Digits(2).Editing(false)
-					.AddColumn(" ━ Код МЛ \n").AddNumericRenderer(node => node.RouteListId).Editing(false)	
+					.AddColumn(" ━ Код МЛ \n").AddTextRenderer(node => node.RouteList)	
 					.AddColumn(" ━ Водитель \n").AddTextRenderer(node => node.DriverFIO)
 					.AddColumn(" ┯ Код заказа\n └ Код стр. заказа ").AddNumericRenderer(node => node.OrderAndItemId).Digits(0).Editing(false)
 
@@ -74,6 +75,7 @@ namespace Vodovoz.JournalColumnsConfigs
 
 					.AddColumn(" ┯ Ручная отправка\n └ Брак ").AddToggleRenderer(node => node.IsManualSentOrIsDefectiveCode).Editing(false)
 
+					.AddColumn(" ━ Отправлен на \n").AddTextRenderer(node => node.Contact)
 					.AddColumn(" ━ Причина не отскан. бутылей \n").AddTextRenderer(node => node.UnscannedReason).WrapMode(Pango.WrapMode.Word).WrapWidth(350)
 					.AddColumn(" ━ Описание ошибки \n ").AddTextRenderer(node => node.ErrorDescription).WrapMode(Pango.WrapMode.Word).WrapWidth(350)
 					.AddColumn("")

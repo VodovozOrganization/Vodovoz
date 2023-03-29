@@ -29,6 +29,8 @@ namespace Vodovoz.Domain.TrueMark
 		private DateTime? _fiscalDocumentStatusChangeTime;
 		private decimal? _sum;
 		private bool _manualSent;
+		private string _contact;
+		private bool _withoutMarks;
 		private IList<CashReceiptProductCode> _scannedCodes = new List<CashReceiptProductCode>();
 		private GenericObservableList<CashReceiptProductCode> _observableScannedCodes;
 
@@ -118,6 +120,20 @@ namespace Vodovoz.Domain.TrueMark
 			set => SetField(ref _manualSent, value);
 		}
 
+		[Display(Name = "Контакт для чека")]
+		public virtual string Contact
+		{
+			get => _contact;
+			set => SetField(ref _contact, value);
+		}
+
+		[Display(Name = "Без маркировки (архив)")]
+		public virtual bool WithoutMarks
+		{
+			get => _withoutMarks;
+			set => SetField(ref _withoutMarks, value);
+		}
+
 		[Display(Name = "Отсканированные коды")]
 		public virtual IList<CashReceiptProductCode> ScannedCodes
 		{
@@ -138,5 +154,12 @@ namespace Vodovoz.Domain.TrueMark
 				return _observableScannedCodes;
 			}
 		}
+
+		public static string GetDocumentId(int orderId)
+		{
+			return $"vod_{orderId}";
+		}
+
+		public virtual string DocumentId => GetDocumentId(Order.Id);
 	}
 }

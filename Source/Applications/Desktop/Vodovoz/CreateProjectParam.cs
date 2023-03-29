@@ -1,5 +1,6 @@
 ﻿using ApiClientProvider;
 using Autofac;
+using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.Logging;
@@ -93,6 +94,7 @@ using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.Services;
 using Vodovoz.Services.Permissions;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -607,8 +609,9 @@ namespace Vodovoz
 			builder.RegisterType<FiscalizationResultSaver>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
-			
 
+			builder.RegisterModule<DatabaseSettingsModule>();
+			builder.RegisterModule<CashReceiptClientChannelModule>();
 
 			#region Adapters & Factories
 

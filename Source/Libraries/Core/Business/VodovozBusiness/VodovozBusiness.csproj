@@ -566,6 +566,8 @@
     <Compile Include="HibernateMapping\Logistic\Drivers\DriverWorkScheduleSetMap.cs" />
     <Compile Include="Models\AdditionalLoadingModel.cs" />
     <Compile Include="Models\CashReceipts\CashboxClientFactory.cs" />
+    <Compile Include="Models\CashReceipts\CashboxClientProvider.cs" />
+    <Compile Include="Models\CashReceipts\CashboxSettingProvider.cs" />
     <Compile Include="Models\CashReceipts\CashReceiptDistributor.cs" />
     <Compile Include="Models\CashReceipts\CashReceiptsSender.cs" />
     <Compile Include="Models\CashReceipts\DTO\CashboxSetting.cs" />
@@ -609,6 +611,7 @@
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
+    <Compile Include="Models\TrueMark\FiscalDocumentRefresher.cs" />
     <Compile Include="Models\TrueMark\FiscalizationResultSaver.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkOrderItemScannedInfo.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkOrderScannedInfo.cs" />
@@ -617,11 +620,12 @@
     <Compile Include="Models\TrueMark\ReceiptPreparer.cs" />
     <Compile Include="Models\TrueMark\ReceiptPreparerFactory.cs" />
     <Compile Include="Models\TrueMark\SelfdeliveryReceiptCreatorFactory.cs" />
+    <Compile Include="Models\TrueMark\StaleReceiptDocumentsRefresher.cs" />
     <Compile Include="Models\TrueMark\TrueMarkApiRegistrationStatusConverter.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCheckResult.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodePoolChecker.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesChecker.cs" />
-    <Compile Include="Models\TrueMark\TrueMarkCodesHandler.cs" />
+    <Compile Include="Models\TrueMark\ReceiptsHandler.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
     <Compile Include="Models\TrueMark\TrueMarkException.cs" />
     <Compile Include="Models\TrueMark\TrueMarkProductCheckResult.cs" />
@@ -1490,6 +1494,10 @@
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Utilities\QS.Utilities.csproj">
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Backend\CashReceipt\CashReceiptApi.Client.Framework\CashReceiptApi.Client.Framework.csproj">
+      <Project>{d3b6592d-6dcf-40f7-8627-3b4a6cbb040c}</Project>
+      <Name>CashReceiptApi.Client.Framework</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>

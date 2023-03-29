@@ -140,9 +140,9 @@ namespace Vodovoz.Models.TrueMark
 			using(var transaction = uow.Session.BeginTransaction(IsolationLevel.RepeatableRead))
 			{
 				var sql = $@"
-					UPDATE true_mark_codes_pool
-					SET adding_time = ADDDATE(current_timestamp(), INTERVAL :extra_second SECOND),
-					SET promoted = 1
+					UPDATE true_mark_codes_pool SET
+						adding_time = ADDDATE(current_timestamp(), INTERVAL :extra_second SECOND),
+						promoted = 1
 					WHERE code_id in (:code_ids)
 					;";
 				var query = uow.Session.CreateSQLQuery(sql)

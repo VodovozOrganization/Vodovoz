@@ -42,6 +42,8 @@ namespace Vodovoz.Models.CashReceipts
 
 		public int CashboxId => _cashBox.Id;
 
+		public bool IsTestMode { get; set; }
+
 		//public PreparedReceiptNode[] SendReceipts(PreparedReceiptNode[] preparedReceiptNodes, CancellationToken cancellationToken, uint timeoutInSeconds = 300)
 		//{
 		//	//Необходимо разбить клиент индивидуально на каждую кассу
@@ -157,7 +159,7 @@ namespace Vodovoz.Models.CashReceipts
 						_logger.LogWarning("Клиент успешно связан с розничной точкой, " +
 							$"но касса еще ни разу не вышла на связь и не сообщила свое состояние. " +
 							$"Отправка чеков для фискального регистратора №{_cashBox.Id} отменена");
-						return false;
+						return IsTestMode;
 					default:
 						_logger.LogWarning($"Проверка фискального регистратора №{_cashBox.Id} не пройдена. {finscalizatorStatusResponse.Message}");
 						return false;
@@ -195,14 +197,19 @@ namespace Vodovoz.Models.CashReceipts
 
 		public async Task<FiscalizationResult> CheckFiscalDocument(FiscalDocument doc, CancellationToken cancellationToken)
 		{
+			return await CheckFiscalDocument(doc.Id, cancellationToken);
+		}
+
+		public async Task<FiscalizationResult> CheckFiscalDocument(string fiscalDocumentId, CancellationToken cancellationToken)
+		{
 			try
 			{
-				var completedUrl = string.Format(_documentStatusUrl, doc.Id);
+				var completedUrl = string.Format(_documentStatusUrl, fiscalDocumentId);
 				var responseContent = await _httpClient.GetAsync(completedUrl, cancellationToken);
 				if(!responseContent.IsSuccessStatusCode)
 				{
 					var httpCodeMessage = $"HTTP Code: {(int)responseContent.StatusCode} {responseContent.StatusCode}";
-					_logger.LogWarning($"Не удалось получить актуальный статус чека для документа №{doc.DocNum}. {httpCodeMessage}");
+					_logger.LogWarning($"Не удалось получить актуальный статус чека для документа №{fiscalDocumentId}. {httpCodeMessage}");
 					return CreateFailResult(httpCodeMessage);
 				}
 
@@ -212,7 +219,7 @@ namespace Vodovoz.Models.CashReceipts
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, $"Ошибка при получении статуса чека для документа №{doc.DocNum}");
+				_logger.LogError(ex, $"Ошибка при получении статуса чека для документа №{fiscalDocumentId}");
 				return CreateFailResult(ex.Message);
 			}
 		}
@@ -222,11 +229,15 @@ namespace Vodovoz.Models.CashReceipts
 			var result = new FiscalizationResult
 			{
 				SendStatus = SendStatus.Success,
-				FiscalDocumentNumber = response.FiscalInfo.FnDocNumber,
-				FiscalDocumentDate = DateTime.Parse(response.FiscalInfo.Date),
 				Status = response.Status,
 				StatusChangedTime = DateTime.Parse(response.TimeStatusChangedString)
 			};
+
+			if(response.FiscalInfo != null)
+			{
+				result.FiscalDocumentNumber = response.FiscalInfo.FnDocNumber;
+				result.FiscalDocumentDate = DateTime.Parse(response.FiscalInfo.Date);
+			}
 
 			if(response.FailureInfo != null)
 			{

@@ -22,6 +22,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 		//Код чека / Код маркировки товара
 		public string ReceiptOrProductCodeId => Id == 0 ? "" : Id.ToString();
 
+		//Id чека
+		public string ReceiptDocId => NodeType == CashReceiptNodeType.Receipt ? CashReceipt.GetDocumentId(OrderAndItemId) : "";
+
 		//Создан
 		public DateTime? Created { get; set; }
 		public string CreatedTime => Created.HasValue ? Created.Value.ToString("dd.MM.yyyy HH:mm:ss") : "";
@@ -133,6 +136,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 
 		//Ручная отправка / Брак
 		public bool IsManualSentOrIsDefectiveCode { get; set; }
+
+		//Отправлен на
+		public string Contact { get; set; }
 
 		//Причина не отскан. бутылей
 		public string UnscannedReason { get; set; }
