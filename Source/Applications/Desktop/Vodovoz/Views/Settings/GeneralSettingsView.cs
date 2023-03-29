@@ -47,6 +47,7 @@ namespace Vodovoz.Views.Settings
 			ybtnComplaintWithoutDriverSubdivisionsAdd.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsAddClicked;
 			ybtnComplaintWithoutDriverSubdivisionsDelete.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsDeleteClicked;
 			ybtnComplaintWithoutDriverSubdivisionsSave.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsSaveClicked;
+			ybtnComplaintWithoutDriverSubdivisionsInfo.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsInfoClicked;
 
 			ybtnComplaintWithoutDriverSubdivisionsAdd.Sensitive = ViewModel.CanEditComplaintWithoutDriverSubdivisions;
 			ybtnComplaintWithoutDriverSubdivisionsSave.Sensitive = ViewModel.CanEditComplaintWithoutDriverSubdivisions;
@@ -67,6 +68,11 @@ namespace Vodovoz.Views.Settings
 			ybtnComplaintWithoutDriverSubdivisionsDelete.Binding
 				.AddBinding(ViewModel, vm => vm.CanRemoveSubdivision, w => w.Sensitive)
 				.InitializeFromSource();
+		}
+
+		private void OnYbtnComplaintWithoutDriverSubdivisionsInfoClicked(object sender, System.EventArgs e)
+		{
+			ViewModel.ShowSubdivisionsToInformComplaintHasNoDriverInfoCommand?.Execute();
 		}
 
 		private void OnYbtnComplaintWithoutDriverSubdivisionsSaveClicked(object sender, System.EventArgs e)

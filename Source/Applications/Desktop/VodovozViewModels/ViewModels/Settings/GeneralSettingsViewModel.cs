@@ -63,6 +63,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			AddSubdivisionCommand = new DelegateCommand(AddSubdivision);
 			RemoveSubdivisionCommand = new DelegateCommand(RemoveSubdivision, () => CanRemoveSubdivision);
 			SaveSubdivisionsCommand = new DelegateCommand(SaveSubdivisions);
+			ShowSubdivisionsToInformComplaintHasNoDriverInfoCommand = new DelegateCommand(ShowSubdivisionsToInformComplaintHasNoDriverInfo);
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot())
 			{
@@ -200,6 +201,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public DelegateCommand AddSubdivisionCommand { get; }
 		public DelegateCommand RemoveSubdivisionCommand { get; }
 		public DelegateCommand SaveSubdivisionsCommand { get; }
+		public DelegateCommand ShowSubdivisionsToInformComplaintHasNoDriverInfoCommand { get; }
+
 		public bool CanRemoveSubdivision => CanEditComplaintWithoutDriverSubdivisions && SelectedSubdivision != null;
 
 		private void AddSubdivision()
@@ -291,6 +294,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			_subdivisionsToAdd.Clear();
 			_subdivisionsToRemoves.Clear();
+		}
+
+		private void ShowSubdivisionsToInformComplaintHasNoDriverInfo()
+		{
+			_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"Сотрудники данных отделов будут проинформированы о незаполненном водителе при закрытии рекламации. " +
+					"Если отдел есть в списке ответственных и итог работы по сотрудникам: Вина доказана.");
 		}
 
 		#endregion
