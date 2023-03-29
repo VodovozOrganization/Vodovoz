@@ -692,6 +692,7 @@ namespace Vodovoz.Journals.JournalViewModels
 						_subdivisionRepository,
 						_commonServices,
 						_userRepository,
+						_routeListItemRepository,
 						_fileDialogService,
 						_orderSelectorFactory,
 						_employeeJournalFactory,
@@ -722,7 +723,8 @@ namespace Vodovoz.Journals.JournalViewModels
 						_subdivisionJournalFactory,
 						_fileDialogService,
 						new UserRepository(),
-						_subdivisionParametersProvider
+						_subdivisionParametersProvider,
+						_routeListItemRepository
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) =>
