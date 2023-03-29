@@ -17,7 +17,12 @@ namespace DriverAPI.Services
 			ILogger<WakeUpDriverClientService> logger,
 			IEmployeeModel employeeModel)
 		{
-			_logger = logger;
+			if(employeeModel is null)
+			{
+				throw new ArgumentNullException(nameof(employeeModel));
+			}
+
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 			var drivers = employeeModel.GetAllPushNotifiableEmployees();
 
