@@ -49,38 +49,34 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
+		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
 		private readonly ILifetimeScope _scope;
 
 		public ComplaintsJournalsViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			ComplaintFilterViewModel filterViewModel,
 			IFileDialogService fileDialogService,
 			ISubdivisionRepository subdivisionRepository,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IGtkTabsOpener gtkDialogsOpener,
-			INomenclatureRepository nomenclatureRepository,
 			IUserRepository userRepository,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelector,
-			IEmployeeSettings employeeSettings,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IComplaintParametersProvider complaintParametersProvider,
+			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
 			ILifetimeScope scope) : base(commonServices.InteractiveService, navigationManager)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
+			//_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
@@ -88,18 +84,19 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			//_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
-			_nomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			_undeliveredOrdersRepository = undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			//_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			//_nomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
+			//_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			//_undeliveredOrdersRepository = undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
+			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			_filterViewModel.DisposeOnDestroy = false;
@@ -149,59 +146,49 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 		private ComplaintsJournalViewModel GetJournalStandart()
 		{
 			return new ComplaintsJournalViewModel(
-				_unitOfWorkFactory,
-				_commonServices,
-				_navigationManager,
-				_undeliveredOrdersJournalOpener,
-				_employeeService,
-				_routeListItemRepository,
-				_subdivisionParametersProvider,
-				_filterViewModel,
-				_fileDialogService,
-				_subdivisionRepository,
-				_gtkDialogsOpener,
-				_nomenclatureRepository,
-				_userRepository,
-				_orderSelectorFactory,
-				_employeeJournalFactory,
-				_counterpartyJournalFactory,
-				_deliveryPointJournalFactory,
-				_subdivisionJournalFactory,
-				_salesPlanJournalFactory,
-				_nomenclatureSelector,
-				_employeeSettings,
-				_undeliveredOrdersRepository,
-				_complaintParametersProvider,
-				_scope);
+			_unitOfWorkFactory,
+			_commonServices,
+			_navigationManager,
+			_employeeService,
+			_routeListItemRepository,
+			_subdivisionParametersProvider,
+			_filterViewModel,
+			_fileDialogService,
+			_subdivisionRepository,
+			_subdivisionJournalFactory,
+			_gtkDialogsOpener,
+			_userRepository,
+			_orderSelectorFactory,
+			_employeeJournalFactory,
+			_counterpartyJournalFactory,
+			_deliveryPointJournalFactory,
+			_complaintParametersProvider,
+			_generalSettingsParametersProvider,
+			_scope);
 		}
 
 		private ComplaintsWithDepartmentsReactionJournalViewModel GetJournalWithDepartmentsReaction()
 		{
 			return new ComplaintsWithDepartmentsReactionJournalViewModel(
-				_unitOfWorkFactory,
-				_commonServices,
-				_navigationManager,
-				_undeliveredOrdersJournalOpener,
-				_employeeService,
-				_routeListItemRepository,
-				_subdivisionParametersProvider,
-				_filterViewModel,
-				_fileDialogService,
-				_subdivisionRepository,
-				_gtkDialogsOpener,
-				_nomenclatureRepository,
-				_userRepository,
-				_orderSelectorFactory,
-				_employeeJournalFactory,
-				_counterpartyJournalFactory,
-				_deliveryPointJournalFactory,
-				_subdivisionJournalFactory,
-				_salesPlanJournalFactory,
-				_nomenclatureSelector,
-				_employeeSettings,
-				_undeliveredOrdersRepository,
-				_complaintParametersProvider,
-				_scope);
+			_unitOfWorkFactory,
+			_commonServices,
+			_navigationManager,
+			_employeeService,
+			_routeListItemRepository,
+			_subdivisionParametersProvider,
+			_filterViewModel,
+			_fileDialogService,
+			_subdivisionRepository,
+			_subdivisionJournalFactory,
+			_gtkDialogsOpener,
+			_userRepository,
+			_orderSelectorFactory,
+			_employeeJournalFactory,
+			_counterpartyJournalFactory,
+			_deliveryPointJournalFactory,
+			_complaintParametersProvider,
+			_generalSettingsParametersProvider,
+			_scope);
 		}
 	}
 }
