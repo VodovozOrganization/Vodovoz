@@ -85,28 +85,32 @@ namespace Vodovoz.Domain.Documents
 				return;
 			}
 
-			var freeBalanceOperationFrom = DeliveryFreeBalanceOperationFrom ?? new DeliveryFreeBalanceOperation();
-			freeBalanceOperationFrom.Amount = Amount;
-			freeBalanceOperationFrom.Nomenclature = Nomenclature;
-			freeBalanceOperationFrom.OperationTime = DateTime.Now;
-			freeBalanceOperationFrom.RouteList = AddressTransferDocumentItem.OldAddress.RouteList;
-
-			DeliveryFreeBalanceOperationFrom = freeBalanceOperationFrom;
-			RouteListFrom.ObservableDeliveryFreeBalanceOperations.Add(DeliveryFreeBalanceOperationFrom);
-
-			if(AddressTransferDocumentItem.AddressTransferType == AddressTransferType.NeedToReload)
+			// Для статуса Новый пропускаем, т.к. потом будут подтверждать МЛ и опять создадуться операции
+			if(AddressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
+			   || AddressTransferDocumentItem.OldAddress.RouteList.Status != RouteListStatus.New)
 			{
-				return;
+				var freeBalanceOperationFrom = DeliveryFreeBalanceOperationFrom ?? new DeliveryFreeBalanceOperation();
+				freeBalanceOperationFrom.Amount = Amount;
+				freeBalanceOperationFrom.Nomenclature = Nomenclature;
+				freeBalanceOperationFrom.OperationTime = DateTime.Now;
+				freeBalanceOperationFrom.RouteList = AddressTransferDocumentItem.OldAddress.RouteList;
+
+				DeliveryFreeBalanceOperationFrom = freeBalanceOperationFrom;
+				RouteListFrom.ObservableDeliveryFreeBalanceOperations.Add(DeliveryFreeBalanceOperationFrom);
 			}
 
-			var freeBalanceOperationTo = DeliveryFreeBalanceOperationTo ?? new DeliveryFreeBalanceOperation();
-			freeBalanceOperationTo.Amount = -Amount;
-			freeBalanceOperationTo.Nomenclature = Nomenclature;
-			freeBalanceOperationTo.OperationTime = DateTime.Now;
-			freeBalanceOperationTo.RouteList = AddressTransferDocumentItem.NewAddress.RouteList;
+			if(AddressTransferDocumentItem.AddressTransferType != AddressTransferType.NeedToReload
+			   || AddressTransferDocumentItem.NewAddress.RouteList.Status != RouteListStatus.New)
+			{
+				var freeBalanceOperationTo = DeliveryFreeBalanceOperationTo ?? new DeliveryFreeBalanceOperation();
+				freeBalanceOperationTo.Amount = -Amount;
+				freeBalanceOperationTo.Nomenclature = Nomenclature;
+				freeBalanceOperationTo.OperationTime = DateTime.Now;
+				freeBalanceOperationTo.RouteList = AddressTransferDocumentItem.NewAddress.RouteList;
 
-			DeliveryFreeBalanceOperationTo = freeBalanceOperationTo;
-			RouteListTo.ObservableDeliveryFreeBalanceOperations.Add(DeliveryFreeBalanceOperationTo);
+				DeliveryFreeBalanceOperationTo = freeBalanceOperationTo;
+				RouteListTo.ObservableDeliveryFreeBalanceOperations.Add(DeliveryFreeBalanceOperationTo);
+			}
 		}
 	}
 }

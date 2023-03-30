@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Vodovoz.Models.TrueMark
 {
+	// После обновления базы данных до версии 10.6 
+	// необходимо поменять работу пула кодов на логику 
+	// использующую SELECT SKIP LOCKED
 	public class TrueMarkTransactionalCodesPool : TrueMarkCodesPool
 	{
 		private IList<int> _codesToPut = new List<int>();

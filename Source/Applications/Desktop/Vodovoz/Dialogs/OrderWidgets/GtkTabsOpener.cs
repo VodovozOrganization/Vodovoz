@@ -1,15 +1,16 @@
-﻿using QS.Dialog.Gtk;
+﻿using Dialogs.Logistic;
+using QS.Dialog.Gtk;
+using QS.DomainModel.Entity;
 using QS.Tdi;
-using QS.Services;
+using System;
+using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
-using Dialogs.Logistic;
-using Vodovoz.Domain.Employees;
-using System;
 
 namespace Vodovoz.Dialogs.OrderWidgets
 {
@@ -139,6 +140,59 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			TDIMain.MainNotebook.AddTab(counterpartyDlg);
 
 			return counterpartyDlg;
+		}
+
+		public ITdiTab OpenIncomingWaterDlg(int incomingWaterId, ITdiTab master = null) =>
+			OpenDialogTabFor<IncomingWaterDlg, IncomingWater>(incomingWaterId, master);
+
+		public ITdiTab OpenWriteoffDocumentDlg(int writeoffDocumentId, ITdiTab master = null) =>
+			OpenDialogTabFor<WriteoffDocumentDlg, WriteoffDocument>(writeoffDocumentId, master);
+
+		public ITdiTab OpenSelfDeliveryDocumentDlg(int selfDeliveryDocumentId, ITdiTab master = null) =>
+			OpenDialogTabFor<SelfDeliveryDocumentDlg, SelfDeliveryDocument>(selfDeliveryDocumentId, master);
+
+		public ITdiTab OpenCarLoadDocumentDlg(int carLoadDocumentId, ITdiTab master = null) =>
+			OpenDialogTabFor<CarLoadDocumentDlg, CarLoadDocument>(carLoadDocumentId, master);
+
+		public ITdiTab OpenCarUnloadDocumentDlg(int carUnloadDocumentId, ITdiTab master = null) =>
+			OpenDialogTabFor<CarUnloadDocumentDlg, CarUnloadDocument>(carUnloadDocumentId, master);
+
+		public ITdiTab OpenShiftChangeWarehouseDocumentDlg(int shiftChangeWarehouseDocumentId, ITdiTab master = null) =>
+			OpenDialogTabFor<ShiftChangeWarehouseDocumentDlg, ShiftChangeWarehouseDocument>(shiftChangeWarehouseDocumentId, master);
+
+		public ITdiTab OpenRegradingOfGoodsDocumentDlg(int regradingOfGoodsDocumentId, ITdiTab master = null) =>
+			OpenDialogTabFor<RegradingOfGoodsDocumentDlg, RegradingOfGoodsDocument>(regradingOfGoodsDocumentId, master);
+
+		private ITdiTab OpenDialogTabFor<TDialog, TEntity>(int entityId, ITdiTab master = null)
+			where TDialog : ITdiTab
+			where TEntity : IDomainObject
+		{
+			var dlgType = typeof(TDialog);
+
+			var constructorWithId = dlgType.GetConstructor(new[] { typeof(int) });
+
+			var constructorParameters = constructorWithId.GetParameters();
+
+			if(constructorWithId is null
+				|| (constructorParameters.Length != 1)
+				|| !(constructorParameters[0].Name.EndsWith("Id")
+					|| constructorParameters[0].Name == "id"))
+			{
+				throw new InvalidOperationException("Нет конструктора принимающего только Id");
+			}
+
+			var entityDlg = (TDialog)Activator.CreateInstance(dlgType, entityId);
+
+			if(master != null)
+			{
+				return master.TabParent.OpenTab(
+					DialogHelper.GenerateDialogHashName<TEntity>(entityId),
+					() => entityDlg);
+			}
+
+			TDIMain.MainNotebook.AddTab(entityDlg);
+
+			return entityDlg;
 		}
 	}
 }

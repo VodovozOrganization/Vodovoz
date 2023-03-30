@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Parameters;
@@ -409,7 +406,7 @@ namespace Vodovoz.Domain.Orders
 			Math.Round(Price * CurrentCount - (IncludeNDS ?? 0 * (1 - Discount / 100)) - DiscountMoney, 2);
 
 		public decimal CurrentCount => ActualCount ?? Count;
-
+		
 		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);
 
 		public virtual decimal ActualSum => Math.Round(Price * CurrentCount - DiscountMoney, 2);

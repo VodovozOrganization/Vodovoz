@@ -6,9 +6,9 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 namespace Vodovoz.Filters.Views
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class TrueMarkReceiptJournalFilterView : FilterViewBase<TrueMarkReceiptOrderJournalFilterViewModel>
+	public partial class TrueMarkReceiptJournalFilterView : FilterViewBase<CashReceiptJournalFilterViewModel>
 	{
-		public TrueMarkReceiptJournalFilterView(TrueMarkReceiptOrderJournalFilterViewModel viewModel) : base(viewModel)
+		public TrueMarkReceiptJournalFilterView(CashReceiptJournalFilterViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();
@@ -22,7 +22,7 @@ namespace Vodovoz.Filters.Views
 				.InitializeFromSource();
 
 			yenumcomboStatus.ShowSpecialStateAll = true;
-			yenumcomboStatus.ItemsEnum = typeof(TrueMarkCashReceiptOrderStatus);
+			yenumcomboStatus.ItemsEnum = typeof(CashReceiptStatus);
 			yenumcomboStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Status, w => w.SelectedItemOrNull)
 				.InitializeFromSource();

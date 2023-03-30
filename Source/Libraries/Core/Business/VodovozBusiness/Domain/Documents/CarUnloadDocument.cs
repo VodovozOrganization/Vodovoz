@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "талон разгрузки автомобиля")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class CarUnloadDocument : Document, IValidatableObject
+	public class CarUnloadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private const int _commentLimit = 255;
 		

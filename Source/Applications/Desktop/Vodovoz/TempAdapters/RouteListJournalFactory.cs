@@ -14,9 +14,8 @@ namespace Vodovoz.TempAdapters
 		{
 			return new EntityAutocompleteSelectorFactory<RouteListJournalViewModel>(typeof(RouteList), () =>
 			{
-				var routeListJournalViewModel = scope.Resolve<RouteListJournalViewModel>();
-				routeListJournalViewModel.FilterViewModel = routeListJournalFilterViewModel;
-
+				var routeListJournalViewModel = scope.Resolve<RouteListJournalViewModel>(
+					new TypedParameter(typeof(RouteListJournalFilterViewModel), routeListJournalFilterViewModel));
 				return routeListJournalViewModel;
 			});
 		}
