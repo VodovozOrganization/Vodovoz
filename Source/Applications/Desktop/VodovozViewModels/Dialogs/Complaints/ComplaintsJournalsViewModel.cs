@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 {
 	public class ComplaintsJournalsViewModel : TabViewModelBase
 	{
-		private FilterableMultipleEntityJournalViewModelBase<ComplaintJournalNode, ComplaintFilterViewModel> _journal;
+		private JournalViewModelBase _journal;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly INavigationManager _navigationManager;
@@ -102,87 +102,106 @@ namespace Vodovoz.ViewModels.Dialogs.Complaints
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
-			Title = "2 Журнал рекламаций";
+			_filterViewModel.DisposeOnDestroy = false;
 
+			Title = "2 Журнал рекламаций";
 			ChangeView(typeof(ComplaintsJournalViewModel));
+		}
+
+		public override void Dispose()
+		{
+			_filterViewModel.Dispose();
+			base.Dispose();
 		}
 
 		private void ChangeView(Type switchToType)
 		{
-			UpdateJournal(switchToType);
+			var newJournal = GetNewJournal(switchToType);
+			UpdateJournal(newJournal);
 		}
 
-		private void UpdateJournal(Type switchToType)
+		private JournalViewModelBase GetNewJournal(Type switchToType)
+		{
+			if(switchToType == typeof(ComplaintsWithDepartmentsReactionJournalViewModel))
+			{
+				var withDepartmentsReactionComplaintsJournal = GetJournalWithDepartmentsReaction();
+				withDepartmentsReactionComplaintsJournal.ChangeView += ChangeView;
+				return withDepartmentsReactionComplaintsJournal;
+			}
+
+			var standartComplaintsJournal = GetJournalStandart();
+			standartComplaintsJournal.ChangeView += ChangeView;
+			return standartComplaintsJournal;
+		}
+
+		private void UpdateJournal(JournalViewModelBase newJournal)
 		{
 			Journal?.Dispose();
-			if(switchToType == typeof(ComplaintsJournalViewModel))
-			{
-				var standartComplaintsJournal = new ComplaintsJournalViewModel(
-				_unitOfWorkFactory,
-				_commonServices,
-				_navigationManager,
-				_undeliveredOrdersJournalOpener,
-				_employeeService,
-				_routeListItemRepository,
-				_subdivisionParametersProvider,
-				_filterViewModel,
-				_fileDialogService,
-				_subdivisionRepository,
-				_gtkDialogsOpener,
-				_nomenclatureRepository,
-				_userRepository,
-				_orderSelectorFactory,
-				_employeeJournalFactory,
-				_counterpartyJournalFactory,
-				_deliveryPointJournalFactory,
-				_subdivisionJournalFactory,
-				_salesPlanJournalFactory,
-				_nomenclatureSelector,
-				_employeeSettings,
-				_undeliveredOrdersRepository,
-				_complaintParametersProvider,
-				_scope);
-
-				standartComplaintsJournal.ChangeView += ChangeView;
-				Journal = standartComplaintsJournal;
-			}
-			else
-			{
-				var withDepartmentsReactionComplaintsJournal = new ComplaintsWithDepartmentsReactionJournalViewModel(
-				_unitOfWorkFactory,
-				_commonServices,
-				_navigationManager,
-				_undeliveredOrdersJournalOpener,
-				_employeeService,
-				_routeListItemRepository,
-				_subdivisionParametersProvider,
-				_filterViewModel,
-				_fileDialogService,
-				_subdivisionRepository,
-				_gtkDialogsOpener,
-				_nomenclatureRepository,
-				_userRepository,
-				_orderSelectorFactory,
-				_employeeJournalFactory,
-				_counterpartyJournalFactory,
-				_deliveryPointJournalFactory,
-				_subdivisionJournalFactory,
-				_salesPlanJournalFactory,
-				_nomenclatureSelector,
-				_employeeSettings,
-				_undeliveredOrdersRepository,
-				_complaintParametersProvider,
-				_scope);
-
-				withDepartmentsReactionComplaintsJournal.ChangeView += ChangeView;
-				Journal = withDepartmentsReactionComplaintsJournal;
-			}
+			Journal = newJournal;
 		}
 
-		public FilterableMultipleEntityJournalViewModelBase<ComplaintJournalNode, ComplaintFilterViewModel> Journal
+		public JournalViewModelBase Journal
 		{
 			get => _journal;
 			set => SetField(ref _journal, value);
+		}
+
+		private ComplaintsJournalViewModel GetJournalStandart()
+		{
+			return new ComplaintsJournalViewModel(
+				_unitOfWorkFactory,
+				_commonServices,
+				_navigationManager,
+				_undeliveredOrdersJournalOpener,
+				_employeeService,
+				_routeListItemRepository,
+				_subdivisionParametersProvider,
+				_filterViewModel,
+				_fileDialogService,
+				_subdivisionRepository,
+				_gtkDialogsOpener,
+				_nomenclatureRepository,
+				_userRepository,
+				_orderSelectorFactory,
+				_employeeJournalFactory,
+				_counterpartyJournalFactory,
+				_deliveryPointJournalFactory,
+				_subdivisionJournalFactory,
+				_salesPlanJournalFactory,
+				_nomenclatureSelector,
+				_employeeSettings,
+				_undeliveredOrdersRepository,
+				_complaintParametersProvider,
+				_scope);
+		}
+
+		private ComplaintsWithDepartmentsReactionJournalViewModel GetJournalWithDepartmentsReaction()
+		{
+			return new ComplaintsWithDepartmentsReactionJournalViewModel(
+				_unitOfWorkFactory,
+				_commonServices,
+				_navigationManager,
+				_undeliveredOrdersJournalOpener,
+				_employeeService,
+				_routeListItemRepository,
+				_subdivisionParametersProvider,
+				_filterViewModel,
+				_fileDialogService,
+				_subdivisionRepository,
+				_gtkDialogsOpener,
+				_nomenclatureRepository,
+				_userRepository,
+				_orderSelectorFactory,
+				_employeeJournalFactory,
+				_counterpartyJournalFactory,
+				_deliveryPointJournalFactory,
+				_subdivisionJournalFactory,
+				_salesPlanJournalFactory,
+				_nomenclatureSelector,
+				_employeeSettings,
+				_undeliveredOrdersRepository,
+				_complaintParametersProvider,
+				_scope);
 		}
 	}
 }
