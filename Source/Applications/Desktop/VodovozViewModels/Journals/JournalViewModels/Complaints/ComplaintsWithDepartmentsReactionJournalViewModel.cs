@@ -45,6 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICommonServices _commonServices;
+		private readonly INavigationManager _navigationManager;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IEmployeeService _employeeService;
 		private readonly IFileDialogService _fileDialogService;
@@ -52,23 +53,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IGtkTabsOpener _gtkDlgOpener;
-		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
+		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
+		private readonly INomenclatureJournalFactory _nomenclatureSelector;
+		private readonly IEmployeeSettings _employeeSettings;
+		private readonly IComplaintResultsRepository _complaintResultsRepository;
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
+		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly ITdiTab _masterPage;
 		private readonly ILifetimeScope _scope;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
-		private bool canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
-		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
-		private readonly INomenclatureJournalFactory _nomenclatureSelector;
-		private readonly IEmployeeSettings _employeeSettings;
+		private bool _canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
@@ -78,6 +80,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
+			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IEmployeeService employeeService,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
@@ -91,12 +94,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
+			ISalesPlanJournalFactory salesPlanJournalFactory,
+			INomenclatureJournalFactory nomenclatureSelector,
+			IEmployeeSettings employeeSettings,
+			IComplaintResultsRepository complaintResultsRepository,
 			IComplaintParametersProvider complaintParametersProvider,
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			ITdiTab masterPage,
 			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_navigationManager = navigationManager;
+			_undeliveredOrdersJournalOpener = undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -109,8 +119,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
+			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
+			_nomenclatureSelector = nomenclatureSelector ?? throw new ArgumentNullException(nameof(nomenclatureSelector));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_complaintResultsRepository = complaintResultsRepository ?? throw new ArgumentNullException(nameof(complaintResultsRepository));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
+			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
+			_masterPage = masterPage ?? throw new ArgumentNullException(nameof(masterPage));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			TabName = "Журнал рекламаций";
@@ -727,8 +743,33 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						_subdivisionParametersProvider
 					),
 					//функция диалога открытия документа
-					(ComplaintJournalNode node) =>
-						(ITdiTab)NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id)),
+					//(ComplaintJournalNode node) =>
+					//	(ITdiTab)NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id)),
+					(ComplaintJournalNode node) => new ComplaintViewModel(
+							EntityUoWBuilder.ForOpen(node.Id),
+							_unitOfWorkFactory,
+							_commonServices,
+							NavigationManager,
+							_undeliveredOrdersJournalOpener,
+							_employeeService,
+							_fileDialogService,
+							_subdivisionRepository,
+							_userRepository,
+							_orderSelectorFactory,
+							_employeeJournalFactory,
+							_counterpartyJournalFactory,
+							_subdivisionJournalFactory,
+							_deliveryPointJournalFactory,
+							_salesPlanJournalFactory,
+							_nomenclatureSelector,
+							_employeeSettings,
+							_complaintResultsRepository,
+							_subdivisionParametersProvider,
+							_routeListItemRepository,
+							_generalSettingsParametersProvider,
+							_complaintParametersProvider,
+							_scope.BeginLifetimeScope()
+					),
 					//функция идентификации документа
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
@@ -752,8 +793,33 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						_routeListItemRepository
 					),
 					//функция диалога открытия документа
-					(ComplaintJournalNode node) =>
-						(ITdiTab)NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id)),
+					//(ComplaintJournalNode node) =>
+					//	(ITdiTab)NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.Id)),
+					(ComplaintJournalNode node) => new ComplaintViewModel(
+							EntityUoWBuilder.ForOpen(node.Id),
+							_unitOfWorkFactory,
+							_commonServices,
+							NavigationManager,
+							_undeliveredOrdersJournalOpener,
+							_employeeService,
+							_fileDialogService,
+							_subdivisionRepository,
+							_userRepository,
+							_orderSelectorFactory,
+							_employeeJournalFactory,
+							_counterpartyJournalFactory,
+							_subdivisionJournalFactory,
+							_deliveryPointJournalFactory,
+							_salesPlanJournalFactory,
+							_nomenclatureSelector,
+							_employeeSettings,
+							_complaintResultsRepository,
+							_subdivisionParametersProvider,
+							_routeListItemRepository,
+							_generalSettingsParametersProvider,
+							_complaintParametersProvider,
+							_scope.BeginLifetimeScope()
+					),
 					//функция идентификации документа
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
@@ -814,7 +880,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					"Открыть заказ",
 					HasOrder,
 					n => true,
-					n => _gtkDlgOpener.OpenOrderDlg(this, GetOrder(n).Id)
+					n => _gtkDlgOpener.OpenOrderDlg(_masterPage, GetOrder(n).Id)
 				)
 			);
 
@@ -823,7 +889,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					"Открыть маршрутный лист",
 					HasRouteList,
 					n => true,
-					n => _gtkDlgOpener.OpenRouteListCreateDlg(this, GetRouteList(n).Id)
+					n => _gtkDlgOpener.OpenRouteListCreateDlg(_masterPage, GetRouteList(n).Id)
 				)
 			);
 
@@ -832,7 +898,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					"Открыть диалог закрытия МЛ",
 					n => GetRouteList(n)?.CanBeOpenedInClosingDlg ?? false,
 					n => true,
-					n => _gtkDlgOpener.OpenRouteListClosingDlg(this, GetRouteList(n).Id)
+					n => _gtkDlgOpener.OpenRouteListClosingDlg(_masterPage, GetRouteList(n).Id)
 				)
 			);
 
@@ -847,7 +913,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						if(currentComplaintId.HasValue)
 						{
 							currentComplaintVM = _scope.Resolve<ComplaintViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(currentComplaintId.Value)));
-							currentComplaintVM.AddFineCommand.Execute(this);
+							currentComplaintVM.AddFineCommand.Execute(_masterPage);
 						}
 					}
 				)
@@ -856,8 +922,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			PopupActionsList.Add(
 				new JournalAction(
 					"Закрыть рекламацию",
-					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed && canCloseComplaint,
-					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate && canCloseComplaint,
+					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed && _canCloseComplaint,
+					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate && _canCloseComplaint,
 					n => {
 						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
 						ComplaintViewModel currentComplaintVM = null;
@@ -947,7 +1013,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 								(selected) => entityConfig.PermissionResult.CanCreate,
 								(selected) => entityConfig.PermissionResult.CanCreate,
 								(selected) => {
-									TabParent.AddSlaveTab(this, createDlgConfig.OpenEntityDialogFunction());
+									_masterPage.TabParent.AddSlaveTab(_masterPage, createDlgConfig.OpenEntityDialogFunction());
 								}
 							);
 							addParentNodeAction.ChildActionsList.Add(childNodeAction);
@@ -969,7 +1035,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						if(tab is ITdiDialog)
 							((ITdiDialog)tab).EntitySaved += Tab_EntitySaved;
 
-						TabParent.AddSlaveTab(this, tab);
+						TabParent.AddSlaveTab(_masterPage, tab);
 					},
 					"Insert"
 					);
@@ -1008,15 +1074,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
 
-					if(selectedNode.EntityType == typeof(Complaint))
-					{
-						NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
-							this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
-						return;
-					}
+					//if(selectedNode.EntityType == typeof(Complaint))
+					//{
+					//	NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
+					//		this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
+					//	return;
+					//}
 
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-					TabParent.AddSlaveTab(this, foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode));
+					_masterPage.TabParent.AddSlaveTab(_masterPage, foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode));
 				}
 			);
 			if(SelectionMode == JournalSelectionMode.None)
