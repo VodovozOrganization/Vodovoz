@@ -13,6 +13,7 @@ namespace Vodovoz.Parameters
 	public class ParametersProvider : IParametersProvider
 	{
 		private readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private const int _defaultCacheTimeInSeconds = 5;
 
 		private static readonly ConcurrentDictionary<string, BaseParameter> _parameters = new ConcurrentDictionary<string, BaseParameter>();
 
@@ -61,7 +62,12 @@ namespace Vodovoz.Parameters
 				BaseParameter parameter = uow.Session.QueryOver<BaseParameter>()
 					.Where(x => x.Name == parameterName)
 					.SingleOrDefault<BaseParameter>();
-				
+
+				if(!parameter.CacheTimeout.HasValue)
+				{
+					parameter.CacheTimeout = TimeSpan.FromSeconds(_defaultCacheTimeInSeconds);
+				}
+
 				if(parameter == null)
 				{
 					return;
