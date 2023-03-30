@@ -427,7 +427,7 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <BackgroundColor>Lightcyan</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -526,7 +526,7 @@ ORDER BY Category;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=sum(Fields!Sum.Value)</Value>
                     </Textbox>
@@ -585,7 +585,7 @@ ORDER BY Category;</CommandText>
                             <TextAlign>Right</TextAlign>
                             <BackgroundColor>Lightgrey</BackgroundColor>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <Format >#,##0.00</Format>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum(Iif(Previous({expense_id}) != {expense_id}, Fields!Sum.Value, 0)) - sum({return_money})</Value>
                         </Textbox>
@@ -691,7 +691,7 @@ ORDER BY Category;</CommandText>
                             <BorderColor />
                             <BorderWidth />
                             <VerticalAlign>Middle</VerticalAlign>
-                            <Format >#,##0.00</Format>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=Fields!Sum.Value</Value>
                         </Textbox>
@@ -780,7 +780,7 @@ ORDER BY Category;</CommandText>
                             <BorderColor />
                             <BorderWidth />
                             <VerticalAlign>Middle</VerticalAlign>
-                            <Format >#,##0.00</Format>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>={Sum} - Sum({return_money})</Value>
                         </Textbox>

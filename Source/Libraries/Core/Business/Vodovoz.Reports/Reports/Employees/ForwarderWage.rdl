@@ -195,7 +195,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <Format >N0</Format>
+                        <Format>#,##0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -209,7 +209,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <Format >N0</Format>
+                        <Format>#,##0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -223,7 +223,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -237,7 +237,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <Format >N0</Format>
+                        <Format>#,##0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -296,7 +296,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >N0</Format>
+                        <Format>#,##0</Format>
                       </Style>
                       <Value>=Sum(Fields!empty_bottles.Value)</Value>
                     </Textbox>
@@ -311,7 +311,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >N0</Format>
+                        <Format>#,##0</Format>
                       </Style>
                       <Value>=Sum(Fields!full_bottles.Value)</Value>
                     </Textbox>
@@ -326,7 +326,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!wage.Value)</Value>
                     </Textbox>
@@ -341,7 +341,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >N0</Format>
+                        <Format>#,##0</Format>
                       </Style>
                       <Value>=Sum(Fields!addresses_count.Value)</Value>
                     </Textbox>
@@ -459,7 +459,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -495,7 +495,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -596,7 +596,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -780,7 +780,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -853,7 +853,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!money.Value)</Value>
                     </Textbox>
@@ -1012,7 +1012,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1070,7 +1070,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!money.Value)</Value>
                     </Textbox>
@@ -1269,7 +1269,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1342,7 +1342,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!money.Value)</Value>
                     </Textbox>
@@ -1415,8 +1415,8 @@
           <BorderColor />
           <BorderWidth />
           <FontSize>14pt</FontSize>
-          <Format >#,##0.00</Format>
-          <TextAlign >Left</TextAlign>
+          <Format>#,##0.00</Format>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
