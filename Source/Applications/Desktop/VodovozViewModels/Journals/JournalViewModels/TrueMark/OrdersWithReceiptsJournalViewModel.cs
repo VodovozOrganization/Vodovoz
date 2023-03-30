@@ -50,6 +50,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
 
+			var permissionService = commonServices.CurrentPermissionService;
+			var canReadReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanReadReceipts");
+			if(!canReadReceipts)
+			{
+				AbortOpening("Нет прав просматривать кассовые чеки.");
+				return;
+			}
+
 			_autoRefreshInterval = 30;
 
 			Title = "Журнал заказов с чеками";
