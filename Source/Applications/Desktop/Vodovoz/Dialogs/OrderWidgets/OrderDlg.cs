@@ -1804,7 +1804,7 @@ namespace Vodovoz
 				? EdoLightsMatrixPaymentType.Cashless
 				: EdoLightsMatrixPaymentType.Receipt;
 
-			var isAccountableInChestniyZnak = Entity.OrderItems.Any(x => x.Nomenclature.IsAccountableInChestniyZnak);
+			var isAccountableInChestniyZnak = Entity.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
 
 			if(isAccountableInChestniyZnak
 			   && Entity.DeliveryDate >= new DateTime(2022, 11, 01)
@@ -3039,7 +3039,7 @@ namespace Vodovoz
 		/// </summary>
 		void OpenDlgToCreateNewUndeliveredOrder()
 		{
-			var dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW, true);
+			var dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (sender, e) =>
 			{

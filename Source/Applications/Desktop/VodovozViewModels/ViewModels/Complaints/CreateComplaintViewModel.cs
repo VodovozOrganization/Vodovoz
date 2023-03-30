@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
@@ -9,11 +6,16 @@ using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
@@ -31,6 +33,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private IList<ComplaintObject> _complaintObjectSource;
@@ -44,6 +47,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IUserRepository userRepository,
+			IRouteListItemRepository routeListItemRepository,
 			IFileDialogService fileDialogService,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -56,6 +60,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
@@ -83,6 +88,8 @@ namespace Vodovoz.ViewModels.Complaints
 			TabName = "Новая клиентская рекламация";
 			
 			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
+
+			Entity.PropertyChanged += EntityPropertyChanged;
 		}
 
 		public CreateComplaintViewModel(Counterparty client,
@@ -92,6 +99,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IUserRepository userRepository,
+			IRouteListItemRepository routeListItemRepository,
 			IFileDialogService filePickerService,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -100,7 +108,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService,
-			subdivisionRepository, commonServices, userRepository, filePickerService, orderSelectorFactory, employeeJournalFactory,
+			subdivisionRepository, commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory,
 			counterpartyJournalFactory, deliveryPointJournalFactory, subdivisionJournalFactory, subdivisionParametersProvider, phone)
 		{
 			var currentClient = UoW.GetById<Counterparty>(client.Id);
@@ -115,6 +123,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IUserRepository userRepository,
+			IRouteListItemRepository routeListItemRepository,
 			IFileDialogService filePickerService,
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -123,15 +132,38 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			string phone = null) : this(uowBuilder, unitOfWorkFactory, employeeService, subdivisionRepository,
-			commonServices, userRepository, filePickerService, orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory,
+			commonServices, userRepository, routeListItemRepository, filePickerService, orderSelectorFactory, employeeJournalFactory, counterpartyJournalFactory,
 			deliveryPointJournalFactory, subdivisionJournalFactory, subdivisionParametersProvider, phone)
 		{
 			var currentOrder = UoW.GetById<Order>(order.Id);
 			Entity.Order = currentOrder;
 			Entity.Counterparty = currentOrder.Client;
 			Entity.Phone = phone;
+
 		}
-		
+
+		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Order))
+			{
+				if(Entity.Order is null)
+				{
+					Entity.Driver = null;
+					return;
+				}
+
+				var routeList = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Order)?.RouteList;
+
+				if(routeList is null)
+				{
+					Entity.Driver = null;
+					return;
+				}
+
+				Entity.Driver = routeList.Driver;
+			}
+		}
+
 		private void InitializeOrderAutocompleteSelectorFactory(IOrderSelectorFactory orderSelectorFactory)
 		{
 			var orderFilter =

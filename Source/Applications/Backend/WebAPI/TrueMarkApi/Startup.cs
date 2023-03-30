@@ -26,7 +26,10 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings;
+using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Edo;
+using Vodovoz.Settings.Edo;
 
 namespace TrueMarkApi
 {
@@ -63,13 +66,13 @@ namespace TrueMarkApi
 			services.AddControllers();
 
 			services.AddHostedService<DocumentService>();
-			services.AddSingleton<IParametersProvider, ParametersProvider>();
 			services.AddSingleton<IAuthorizationService, AuthorizationService>();
 			services.AddSingleton<IOrderRepository, OrderRepository>();
 			services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
 			services.AddSingleton<IEdoSettings, EdoSettings>();
+			services.AddSingleton<ISettingsController, SettingsController>();
 			services.AddHttpClient();
 
 			// Авторизация
@@ -143,6 +146,7 @@ namespace TrueMarkApi
 				dbConfig,
 				new[]
 				{
+					Assembly.GetAssembly(typeof(SettingMap)),
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
 					Assembly.GetAssembly(typeof(Bank)),

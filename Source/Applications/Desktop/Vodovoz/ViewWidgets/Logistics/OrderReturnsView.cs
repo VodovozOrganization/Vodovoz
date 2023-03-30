@@ -8,8 +8,6 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
 using QSProjectsLib;
 using Vodovoz.Core.DataService;
@@ -40,9 +38,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -490,7 +486,7 @@ namespace Vodovoz
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
 		{
-			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW, true);
+			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
@@ -503,7 +499,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveryCanceledClicked(object sender, EventArgs e)
 		{
-			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW, true);
+			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(_routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{

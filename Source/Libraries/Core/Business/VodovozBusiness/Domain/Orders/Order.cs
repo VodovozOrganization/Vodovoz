@@ -1471,6 +1471,22 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
+		/// Вся положительная изначальная сумма заказа
+		/// </summary>
+		public virtual decimal OrderPositiveOriginalSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderItem item in ObservableOrderItems)
+				{
+					sum += item.Sum;
+				}
+				return sum;
+			}
+		}
+
+		/// <summary>
 		/// Вся отрицательная сумма заказа
 		/// </summary>
 		public virtual decimal OrderNegativeSum {
@@ -2777,7 +2793,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
 					ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
-					routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Overdue);
+					routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue);
 					break;
 				case OrderStatus.OnTheWay:
 				case OrderStatus.DeliveryCanceled:
@@ -2788,12 +2804,12 @@ namespace Vodovoz.Domain.Orders
 					if(guilty == GuiltyTypes.Client)
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Canceled);
+						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Canceled);
 					}
 					else
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Overdue);
+						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue);
 					}
 					break;
 			}
@@ -3759,8 +3775,27 @@ namespace Vodovoz.Domain.Orders
 			}
 			if(!contacts.Any())
 				return null;
-			int minWeight = contacts.Min(c => c.Key);
-			return contacts[minWeight];
+
+			var onlyWithValidPhones = contacts.Where(x =>
+				(x.Value.StartsWith("+7") &&
+				x.Value.Length == 12)
+				|| !x.Value.StartsWith("+7")
+			);
+
+			if(!onlyWithValidPhones.Any())
+			{
+				throw new InvalidOperationException($"Не удалось подобрать контакт для заказа {Id}");
+			}
+
+			int minWeight = onlyWithValidPhones.Min(c => c.Key);
+			var contact = contacts[minWeight];
+
+			if(string.IsNullOrWhiteSpace(contact))
+			{
+				throw new InvalidOperationException($"Не удалось подобрать контакт для заказа {Id}");
+			}
+
+			return contact;
 		}
 
 		public virtual void SaveOrderComment()

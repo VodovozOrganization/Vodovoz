@@ -101,8 +101,8 @@ public partial class MainWindow : Window
 	Action ActionLoadOrders;
 	Action ActionDeliveryPrice;
 	Action ActionUndeliveredOrders;
-	Action ActionTrueMarkOrders;
-	Action ActionReceiptsJournal;
+	Action ActionCashReceiptsJournal;
+	Action ActionOrdersWithReceiptJournal;
 
 	Action ActionServiceClaims;
 	Action ActionWarehouseDocuments;
@@ -191,15 +191,15 @@ public partial class MainWindow : Window
 		ActionLoadOrders = new Action("ActionLoadOrders", "Загрузить из 1С", null, "table");
 		ActionDeliveryPrice = new Action("ActionDeliveryPrice", "Стоимость доставки", null, null);
 		ActionUndeliveredOrders = new Action("ActionUndeliveredOrders", "Журнал недовозов", null, null);
-		ActionTrueMarkOrders = new Action(nameof(ActionTrueMarkOrders), "Журнал кодов честного знака", null, "table");
-		ActionReceiptsJournal = new Action(nameof(ActionReceiptsJournal), "Журнал чеков", null, "table");
+		ActionCashReceiptsJournal = new Action(nameof(ActionCashReceiptsJournal), "Журнал чеков", null, "table");
+		ActionOrdersWithReceiptJournal = new Action(nameof(ActionOrdersWithReceiptJournal), "Журнал заказов с чеками", null, "table");
 		
 		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
 		ActionBottleDebtors = new Action("ActionBottleDebtors", "Журнал задолженности", null, "table");
 		ActionIncomingCallsAnalysisReport = new Action(nameof(ActionIncomingCallsAnalysisReport), "Анализ входящих звонков", null, "table");
 		ActionRoboatsCallsRegistry = new Action(nameof(ActionRoboatsCallsRegistry), "Реестр звонков Roboats", null, "table");
-
+		
 		ActionDriversTareMessages = new Action(nameof(ActionDriversTareMessages), "Сообщения водителей по таре", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action("ActionServiceTickets", "Журнал заявок", null, "table");
@@ -285,8 +285,8 @@ public partial class MainWindow : Window
 		w1.Add(ActionLoadOrders, null);
 		w1.Add(ActionDeliveryPrice, null);
 		w1.Add(ActionUndeliveredOrders, null);
-		w1.Add(ActionTrueMarkOrders, null);
-		w1.Add(ActionReceiptsJournal, null);
+		w1.Add(ActionCashReceiptsJournal, null);
+		w1.Add(ActionOrdersWithReceiptJournal, null);
 		
 		//
 		w1.Add(ActionServiceClaims, null);
@@ -382,8 +382,8 @@ public partial class MainWindow : Window
 		ActionLoadOrders.Activated += ActionLoadOrders_Activated;
 		ActionDeliveryPrice.Activated += ActionDeliveryPrice_Activated;
 		ActionUndeliveredOrders.Activated += ActionUndeliveredOrdersActivated;
-		ActionTrueMarkOrders.Activated += ActionTrueMarkOrdersActivated;
-		ActionReceiptsJournal.Activated += ActionReceiptsJournalActivated;
+		ActionCashReceiptsJournal.Activated += ActionCashReceiptsJournalActivated;
+		ActionOrdersWithReceiptJournal.Activated += ActionOrdersWithReceiptJournalActivated;
 		
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
@@ -477,14 +477,14 @@ public partial class MainWindow : Window
 		NavigationManager.OpenViewModel<RoboatsCallsRegistryJournalViewModel>(null);
 	}
 
-	private void ActionTrueMarkOrdersActivated(object sender, EventArgs e)
+	private void ActionCashReceiptsJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<TrueMarkReceiptOrdersRegistryJournalViewModel>(null);
+		NavigationManager.OpenViewModel<CashReceiptsJournalViewModel>(null);
 	}
 
-	private void ActionReceiptsJournalActivated(object sender, EventArgs e)
+	private void ActionOrdersWithReceiptJournalActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ReceiptsJournalViewModel>(null);
+		NavigationManager.OpenViewModel<OrdersWithReceiptsJournalViewModel>(null);
 	}
 
 	private void OnActionIncomingCallsAnalysisReportActivated(object sender, EventArgs e)
