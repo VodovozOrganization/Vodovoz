@@ -30,6 +30,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly ReceiptManualController _receiptManualController;
+		private readonly bool _canResendDuplicateReceipts;
+
+
 		private CashReceiptJournalFilterViewModel _filter;
 		private Timer _autoRefreshTimer;
 		private int _autoRefreshInterval;
@@ -48,6 +51,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
+			var permissionService = _commonServices.CurrentPermissionService;
+			var canReadReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanReadReceipts");
+			if(!canReadReceipts)
+			{
+				AbortOpening("Нет прав просматривать кассовые чеки.");
+				return;
+			}
+
+			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanResendDuplicateReceipts");
 
 			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
 			;
@@ -380,7 +393,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		private JournalAction GetManualSentAction()
 		{
-			var manualSentAction = new JournalAction("Отправить принудительно",
+			var manualSentAction = new JournalAction("Отправить дубль принудительно",
 				(selected) => ManualSentActionSensitive(selected),
 				(selected) => true,
 				(selected) => ManualSent(selected)
@@ -390,6 +403,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		private bool ManualSentActionSensitive(object[] selectedNodes)
 		{
+			if(!_canResendDuplicateReceipts)
+			{
+				return false;
+			}
+
 			var nodes = selectedNodes.OfType<CashReceiptJournalNode>();
 			if(!nodes.Any())
 			{
@@ -487,7 +505,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 			catch(Exception ex)
 			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Невозможно подключиться к сервису обработки чеков.\n{ex.Message}");
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Невозможно подключиться к сервису обработки чеков. Повторите попытку позже.\n{ex.Message}");
 			}
 			Refresh();
 		}
