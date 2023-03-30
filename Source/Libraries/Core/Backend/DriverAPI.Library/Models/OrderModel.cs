@@ -305,6 +305,7 @@ namespace DriverAPI.Library.Models
 					DeliveryPoint = vodovozOrder.DeliveryPoint,
 					CreationDate = actionTime,
 					ChangedDate = actionTime,
+					Driver = driver,
 					CreatedBy = driver,
 					ChangedBy = driver,
 					ComplaintText = $"Заказ номер {orderId}\n" +
