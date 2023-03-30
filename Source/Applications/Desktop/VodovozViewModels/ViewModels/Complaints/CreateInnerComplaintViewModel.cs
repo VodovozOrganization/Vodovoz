@@ -1,19 +1,21 @@
 ﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -22,12 +24,14 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEmployeeService _employeeService;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-        private readonly IFileDialogService _fileDialogService;
-        private readonly IUserRepository _userRepository;
-        private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
-        private IList<ComplaintObject> _complaintObjectSource;
-        private ComplaintObject _complaintObject;
-        private readonly IList<ComplaintKind> _complaintKinds;
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+		private readonly IFileDialogService _fileDialogService;
+		private readonly IUserRepository _userRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private IList<ComplaintObject> _complaintObjectSource;
+		private ComplaintObject _complaintObject;
+		private readonly IList<ComplaintKind> _complaintKinds;
 
 		public CreateInnerComplaintViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -36,23 +40,50 @@ namespace Vodovoz.ViewModels.Complaints
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
-            IFileDialogService fileDialogService,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IFileDialogService fileDialogService,
 			IUserRepository userRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider
-            ) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IRouteListItemRepository routeListItemRepository) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
-            _fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			Entity.ComplaintType = ComplaintType.Inner;
 			Entity.SetStatus(ComplaintStatuses.Checking);
 
 			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			TabName = "Новая внутреняя рекламация";
+
+			Entity.PropertyChanged += EntityPropertyChanged;
+		}
+
+		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.Order))
+			{
+				if(Entity.Order is null)
+				{
+					Entity.Driver = null;
+					return;
+				}
+
+				var routeList = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Order)?.RouteList;
+
+				if(routeList is null)
+				{
+					Entity.Driver = null;
+					return;
+				}
+
+				Entity.Driver = routeList.Driver;
+			}
 		}
 
 		//так как диалог только для создания рекламации
@@ -97,27 +128,27 @@ namespace Vodovoz.ViewModels.Complaints
 				if(guiltyItemsViewModel == null)
 				{
 					guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeJournalFactory, _subdivisionParametersProvider);
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, _employeeJournalFactory, _subdivisionJournalFactory, _subdivisionParametersProvider);
 				}
 
 				return guiltyItemsViewModel;
 			}
 		}
 
-        private ComplaintFilesViewModel filesViewModel;
-        public ComplaintFilesViewModel FilesViewModel
-        {
-            get
-            {
-                if (filesViewModel == null)
-                {
-                    filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, _userRepository);
-                }
-                return filesViewModel;
-            }
-        }
+		private ComplaintFilesViewModel filesViewModel;
+		public ComplaintFilesViewModel FilesViewModel
+		{
+			get
+			{
+				if (filesViewModel == null)
+				{
+					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, _fileDialogService, CommonServices, _userRepository);
+				}
+				return filesViewModel;
+			}
+		}
 
-        protected override void BeforeValidation()
+		protected override void BeforeValidation()
 		{
 			if(UoW.IsNew) {
 				Entity.CreatedBy = CurrentEmployee;

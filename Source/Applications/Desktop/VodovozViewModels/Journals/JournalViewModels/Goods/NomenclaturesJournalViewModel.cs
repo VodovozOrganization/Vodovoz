@@ -39,7 +39,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository
+			IUserRepository userRepository,
+			Action<NomenclatureFilterViewModel> filterParams = null
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -52,6 +53,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 			TabName = "Журнал ТМЦ";
 			SetOrder(x => x.Name);
+
+			if(filterParams != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterParams);
+			}
+
 			UpdateOnChanges(
 				typeof(Nomenclature),
 				typeof(MeasurementUnits),

@@ -1,0 +1,447 @@
+﻿using Gamma.Binding.Core.RecursiveTreeConfig;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.SqlCommand;
+using NHibernate.Transform;
+using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
+using QS.Project.Journal.DataLoader.Hierarchy;
+using QS.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Timers;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.TrueMark;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Models.TrueMark;
+using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
+using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+
+namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
+{
+	public class CashReceiptsJournalViewModel : JournalViewModelBase
+	{
+		private readonly ICommonServices _commonServices;
+		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ICashReceiptRepository _cashReceiptRepository;
+		private readonly ReceiptManualController _receiptManualController;
+		private CashReceiptJournalFilterViewModel _filter;
+		private Timer _autoRefreshTimer;
+		private int _autoRefreshInterval;
+
+		public CashReceiptsJournalViewModel(
+			CashReceiptJournalFilterViewModel filter,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			TrueMarkCodesPool trueMarkCodesPool,
+			ICashReceiptRepository cashReceiptRepository,
+			ReceiptManualController receiptManualController,
+			INavigationManager navigation = null)
+			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
+		{
+			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
+			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
+			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
+			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
+			;
+
+			_autoRefreshInterval = 30;
+
+			Title = "Журнал чеков";
+
+			var levelQueryLoader = new HierarchicalQueryLoader<CashReceipt, CashReceiptJournalNode>(unitOfWorkFactory);
+
+			levelQueryLoader.SetLevelingModel(GetQuery)
+				.AddNextLevelSource(GetDetails);
+			levelQueryLoader.SetCountFunction(GetCount);
+
+			RecuresiveConfig = levelQueryLoader.TreeConfig;
+
+			var threadDataLoader = new ThreadDataLoader<CashReceiptJournalNode>(unitOfWorkFactory);
+			threadDataLoader.DynamicLoadingEnabled = true;
+			threadDataLoader.QueryLoaders.Add(levelQueryLoader);
+			DataLoader = threadDataLoader;
+
+			CreateNodeActions();
+			CreatePopupActions();
+			StartAutoRefresh();
+		}
+
+		public CashReceiptJournalFilterViewModel Filter
+		{
+			get => _filter;
+			protected set
+			{
+				if(_filter != null)
+				{
+					_filter.OnFiltered -= FilterViewModel_OnFiltered;
+				}
+
+				_filter = value;
+				if(_filter != null)
+				{
+					_filter.OnFiltered += FilterViewModel_OnFiltered;
+				}
+			}
+		}
+
+		public IRecursiveConfig RecuresiveConfig { get; }
+
+		void FilterViewModel_OnFiltered(object sender, EventArgs e)
+		{
+			Refresh();
+		}
+
+		public override string FooterInfo
+		{
+			get
+			{
+				var poolCount = _trueMarkCodesPool.GetTotalCount();
+				var defectivePoolCount = _trueMarkCodesPool.GetDefectiveTotalCount();
+				var autorefreshInfo = GetAutoRefreshInfo();
+				var codeErrorsReceiptCount = _cashReceiptRepository.GetCodeErrorsReceiptCount(UoW);
+				return $"Заказов с ошибками кодов: {codeErrorsReceiptCount} | Кодов в пуле: {poolCount}, бракованных: {defectivePoolCount} | {autorefreshInfo} | {base.FooterInfo}";
+			}
+		}
+
+		public override JournalSelectionMode SelectionMode => JournalSelectionMode.Single;
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateAutorefreshAction();
+			CreateNodeManualSendAction();
+			CreateNodeRefrechFiscalDocAction();
+		}
+
+		protected override void CreatePopupActions()
+		{
+			PopupActionsList.Clear();
+			CreatePopupManualSendAction();
+			CreatePopupRefrechFiscalDocAction();
+		}
+
+		#region Queries
+
+		private IQueryOver<CashReceipt> GetQuery(IUnitOfWork uow)
+		{
+			CashReceiptJournalNode resultAlias = null;
+			CashReceipt cashReceiptAlias = null;
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			Employee driverAlias = null;
+
+			var query = uow.Session.QueryOver(() => cashReceiptAlias);
+			query.JoinEntityQueryOver(() => routeListItemAlias, Restrictions.Where(() => cashReceiptAlias.Order.Id == routeListItemAlias.Order.Id), JoinType.LeftOuterJoin);
+			query.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias);
+			query.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias);
+			query.Where(() => !cashReceiptAlias.WithoutMarks);
+			if(_filter.Status.HasValue)
+			{
+				query.Where(Restrictions.Eq(Projections.Property(() => cashReceiptAlias.Status), _filter.Status.Value));
+			}
+
+			if(_filter.StartDate.HasValue)
+			{
+				var startDate = _filter.StartDate.Value;
+				query.Where(
+					Restrictions.Ge(
+						Projections.SqlFunction("DATE",
+							NHibernateUtil.Date,
+							Projections.Property(() => cashReceiptAlias.CreateDate)),
+						startDate
+					)
+				);
+			}
+
+			if(_filter.EndDate.HasValue)
+			{
+				var endDate = _filter.EndDate.Value;
+				query.Where(
+					Restrictions.Le(
+						Projections.SqlFunction("DATE",
+							NHibernateUtil.Date,
+							Projections.Property(() => cashReceiptAlias.CreateDate)),
+						endDate
+					)
+				);
+			}
+
+			if(_filter.HasUnscannedReason)
+			{
+				query.Where(Restrictions.Eq(Projections.SqlFunction("IS_NULL_OR_WHITESPACE", NHibernateUtil.Boolean, Projections.Property(() => cashReceiptAlias.UnscannedCodesReason)), false));
+			}
+
+			query.Where(
+				GetSearchCriterion(
+					() => cashReceiptAlias.Id,
+					() => cashReceiptAlias.Order.Id,
+					() => cashReceiptAlias.UnscannedCodesReason
+				)
+			);
+
+			query.SelectList(list => list
+				.SelectGroup(() => cashReceiptAlias.Id).WithAlias(() => resultAlias.Id)
+				.Select(Projections.Constant(CashReceiptNodeType.Receipt)).WithAlias(() => resultAlias.NodeType)
+				.Select(Projections.Property(() => cashReceiptAlias.CreateDate)).WithAlias(() => resultAlias.Created)
+				.Select(Projections.Property(() => cashReceiptAlias.UpdateDate)).WithAlias(() => resultAlias.Changed)
+				.Select(Projections.Property(() => cashReceiptAlias.Status)).WithAlias(() => resultAlias.ReceiptStatus)
+				.Select(Projections.Property(() => cashReceiptAlias.Sum)).WithAlias(() => resultAlias.ReceiptSum)
+				.Select(Projections.Property(() => routeListAlias.Id)).WithAlias(() => resultAlias.RouteListId)
+				.Select(Projections.Property(() => driverAlias.Name)).WithAlias(() => resultAlias.DriverName)
+				.Select(Projections.Property(() => driverAlias.LastName)).WithAlias(() => resultAlias.DriverLastName)
+				.Select(Projections.Property(() => driverAlias.Patronymic)).WithAlias(() => resultAlias.DriverPatronimyc)
+				.Select(Projections.Property(() => cashReceiptAlias.Order.Id)).WithAlias(() => resultAlias.OrderAndItemId)
+				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentStatus)).WithAlias(() => resultAlias.FiscalDocStatus)
+				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentNumber)).WithAlias(() => resultAlias.FiscalDocNumber)
+				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentDate)).WithAlias(() => resultAlias.FiscalDocDate)
+				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentStatusChangeTime)).WithAlias(() => resultAlias.FiscalDocStatusDate)
+				.Select(Projections.Property(() => cashReceiptAlias.ManualSent)).WithAlias(() => resultAlias.IsManualSentOrIsDefectiveCode)
+				.Select(Projections.Property(() => cashReceiptAlias.Contact)).WithAlias(() => resultAlias.Contact)
+				.Select(Projections.Property(() => cashReceiptAlias.UnscannedCodesReason)).WithAlias(() => resultAlias.UnscannedReason)
+				.Select(Projections.Property(() => cashReceiptAlias.ErrorDescription)).WithAlias(() => resultAlias.ErrorDescription)
+			)
+			.OrderByAlias(() => cashReceiptAlias.Id).Desc()
+			.TransformUsing(Transformers.AliasToBean<CashReceiptJournalNode>());
+
+			return query;
+		}
+
+		private IList<CashReceiptJournalNode> GetDetails(IEnumerable<CashReceiptJournalNode> parentNodes)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				CashReceiptProductCode productCodeAlias = null;
+				TrueMarkWaterIdentificationCode sourceCodeAlias = null;
+				TrueMarkWaterIdentificationCode resultCodeAlias = null;
+				CashReceiptJournalNode resultAlias = null;
+
+				var query = uow.Session.QueryOver(() => productCodeAlias)
+					.Left.JoinAlias(() => productCodeAlias.SourceCode, () => sourceCodeAlias)
+					.Left.JoinAlias(() => productCodeAlias.ResultCode, () => resultCodeAlias)
+					.Where(Restrictions.In(Projections.Property(() => productCodeAlias.CashReceipt.Id), parentNodes.Select(x => x.Id).ToArray()));
+
+				query.SelectList(list => list
+					.SelectGroup(() => productCodeAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(Projections.Constant(CashReceiptNodeType.Code)).WithAlias(() => resultAlias.NodeType)
+					.Select(() => productCodeAlias.CashReceipt.Id).WithAlias(() => resultAlias.ParentId)
+					.Select(() => productCodeAlias.OrderItem.Id).WithAlias(() => resultAlias.OrderAndItemId)
+					.Select(() => sourceCodeAlias.GTIN).WithAlias(() => resultAlias.SourceGtin)
+					.Select(() => productCodeAlias.IsUnscannedSourceCode).WithAlias(() => resultAlias.IsUnscannedProductCode)
+					.Select(() => productCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateProductCode)
+					.Select(() => sourceCodeAlias.SerialNumber).WithAlias(() => resultAlias.SourceCodeSerialNumber)
+					.Select(() => resultCodeAlias.GTIN).WithAlias(() => resultAlias.ResultGtin)
+					.Select(() => resultCodeAlias.SerialNumber).WithAlias(() => resultAlias.ResultSerialnumber)
+					.Select(() => productCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsManualSentOrIsDefectiveCode)
+				)
+				.TransformUsing(Transformers.AliasToBean<CashReceiptJournalNode>());
+
+				return query.List<CashReceiptJournalNode>();
+			}
+		}
+
+		#endregion Queries
+
+		private int GetCount(IUnitOfWork uow)
+		{
+			var query = GetQuery(uow);
+			var count = query.List<CashReceiptJournalNode>().Count();
+			return count;
+		}
+
+		#region Autorefresh
+
+		private bool autoRefreshEnabled => _autoRefreshTimer != null && _autoRefreshTimer.Enabled;
+
+		private void StartAutoRefresh()
+		{
+			if(autoRefreshEnabled)
+			{
+				return;
+			}
+			_autoRefreshTimer = new Timer(_autoRefreshInterval * 1000);
+			_autoRefreshTimer.Elapsed += (s, e) => Refresh();
+			_autoRefreshTimer.Start();
+		}
+
+		private void StopAutoRefresh()
+		{
+			_autoRefreshTimer?.Stop();
+			_autoRefreshTimer = null;
+		}
+
+		private void SwitchAutoRefresh()
+		{
+			if(autoRefreshEnabled)
+			{
+				StopAutoRefresh();
+			}
+			else
+			{
+				StartAutoRefresh();
+			}
+			OnPropertyChanged(nameof(FooterInfo));
+		}
+
+		private string GetAutoRefreshInfo()
+		{
+			if(autoRefreshEnabled)
+			{
+				return $"Автообновление каждые {_autoRefreshInterval} сек.";
+			}
+			else
+			{
+				return $"Автообновление выключено";
+			}
+		}
+
+		private void CreateAutorefreshAction()
+		{
+			var switchAutorefreshAction = new JournalAction("Вкл/Выкл автообновление",
+				(selected) => true,
+				(selected) => true,
+				(selected) => SwitchAutoRefresh()
+			);
+			NodeActionsList.Add(switchAutorefreshAction);
+		}
+
+		#endregion Autorefresh
+
+		#region Manual send
+
+		private void CreatePopupManualSendAction()
+		{
+			var manualSentAction = GetManualSentAction();
+			PopupActionsList.Add(manualSentAction);
+		}
+
+		private void CreateNodeManualSendAction()
+		{
+			var manualSentAction = GetManualSentAction();
+			NodeActionsList.Add(manualSentAction);
+		}
+
+		private JournalAction GetManualSentAction()
+		{
+			var manualSentAction = new JournalAction("Отправить принудительно",
+				(selected) => ManualSentActionSensitive(selected),
+				(selected) => true,
+				(selected) => ManualSent(selected)
+			);
+			return manualSentAction;
+		}
+
+		private bool ManualSentActionSensitive(object[] selectedNodes)
+		{
+			var nodes = selectedNodes.OfType<CashReceiptJournalNode>();
+			if(!nodes.Any())
+			{
+				return false;
+			}
+
+			if(nodes.Count() > 1)
+			{
+				return false;
+			}
+
+			var node = nodes.First();
+
+			if(node.NodeType != CashReceiptNodeType.Receipt)
+			{
+				return false;
+			}
+
+			if(node.ReceiptStatus == CashReceiptStatus.DuplicateSum)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private void ManualSent(object[] selectedNodes)
+		{
+			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
+			_receiptManualController.ForceSendDuplicatedReceipt(node.Id);
+			Refresh();
+		}
+
+		#endregion Manual send
+
+		#region Manual send
+
+		private void CreatePopupRefrechFiscalDocAction()
+		{
+			var refrechFiscalDocAction = GetRefrechFiscalDocAction();
+			PopupActionsList.Add(refrechFiscalDocAction);
+		}
+
+		private void CreateNodeRefrechFiscalDocAction()
+		{
+			var refrechFiscalDocAction = GetRefrechFiscalDocAction();
+			NodeActionsList.Add(refrechFiscalDocAction);
+		}
+
+		private JournalAction GetRefrechFiscalDocAction()
+		{
+			var manualSentAction = new JournalAction("Обновить статус фиск. документа",
+				(selected) => RefrechFiscalDocActionSensitive(selected),
+				(selected) => true,
+				(selected) => RefrechFiscalDoc(selected)
+			);
+			return manualSentAction;
+		}
+
+		private bool RefrechFiscalDocActionSensitive(object[] selectedNodes)
+		{
+			var nodes = selectedNodes.OfType<CashReceiptJournalNode>();
+			if(!nodes.Any())
+			{
+				return false;
+			}
+
+			if(nodes.Count() > 1)
+			{
+				return false;
+			}
+
+			var node = nodes.First();
+
+			if(node.NodeType != CashReceiptNodeType.Receipt)
+			{
+				return false;
+			}
+
+			if(node.ReceiptStatus == CashReceiptStatus.Sended)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private void RefrechFiscalDoc(object[] selectedNodes)
+		{
+			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
+
+			try
+			{
+				_receiptManualController.RefreshFiscalDoc(node.Id);
+			}
+			catch(Exception ex)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Невозможно подключиться к сервису обработки чеков.\n{ex.Message}");
+			}
+			Refresh();
+		}
+
+		#endregion Manual send
+	}
+}

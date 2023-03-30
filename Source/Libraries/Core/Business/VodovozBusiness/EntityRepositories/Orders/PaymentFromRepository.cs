@@ -10,7 +10,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			var query = uow.Session.QueryOver<PaymentFrom>()
 				.Where(Restrictions.Conjunction()
-					.Add(Restrictions.Like(Projections.Property<PaymentFrom>(pf => pf.Name), name, MatchMode.Start)));
+					.Add(Restrictions.Eq(Projections.Property<PaymentFrom>(pf => pf.Name), name)));
 
 			if(id > 0)
 			{

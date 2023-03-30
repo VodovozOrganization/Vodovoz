@@ -51,7 +51,6 @@ namespace Vodovoz
 			new NomenclatureParametersProvider(_parametersProvider);
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
-		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController =
 			new RouteListProfitabilityController(
 				new RouteListProfitabilityFactory(),
@@ -298,8 +297,6 @@ namespace Vodovoz
 			UpdateBottlesSummaryInfo();
 
 			UpdateNodes();
-
-			_routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
 		}
 
 		void YtreeviewAddresses_RowActivated(object o, RowActivatedArgs args)
@@ -388,18 +385,15 @@ namespace Vodovoz
 		{
 			var newStatus = e.NewStatus;
 			if(sender is RouteListKeepingItemNode rli) {
-				var oldStatus = rli.RouteListItem.Status;
 				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) {
-					UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW, false);
+					UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW);
 					TabParent.AddSlaveTab(this, dlg);
 					dlg.DlgSaved += (s, ea) =>
 					{
 						rli.UpdateStatus(newStatus, CallTaskWorker);
-						_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
 					};
 					return;
 				}
-				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, rli.RouteListItem, oldStatus, newStatus);
 				rli.UpdateStatus(newStatus, CallTaskWorker);
 			}
 		}
@@ -526,8 +520,6 @@ namespace Vodovoz
 				{
 					continue;
 				}
-
-				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, item.RouteListItem, item.RouteListItem.Status, RouteListItemStatus.Completed);
 
 				Entity.ChangeAddressStatusAndCreateTask(UoW, item.RouteListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
 			}

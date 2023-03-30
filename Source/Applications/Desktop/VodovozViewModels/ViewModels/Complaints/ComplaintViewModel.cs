@@ -21,6 +21,7 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Employees;
@@ -30,10 +31,13 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Complaints;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -48,6 +52,10 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IComplaintResultsRepository _complaintResultsRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
+		private readonly IComplaintParametersProvider _complaintParametersProvider;
+		private readonly IRouteListRepository _routeListRepository;
 		private readonly ILifetimeScope _scope;
 		private readonly IUserRepository _userRepository;
 		private readonly IEmployeeService _employeeService;
@@ -78,12 +86,16 @@ namespace Vodovoz.ViewModels.Complaints
 			IOrderSelectorFactory orderSelectorFactory,
 			IEmployeeJournalFactory driverJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureJournalFactory,
 			IEmployeeSettings employeeSettings,
 			IComplaintResultsRepository complaintResultsRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IRouteListItemRepository routeListItemRepository,
+			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
+			IComplaintParametersProvider complaintParametersProvider,
 			ILifetimeScope scope)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
@@ -98,10 +110,13 @@ namespace Vodovoz.ViewModels.Complaints
 			NomenclatureJournalFactory = nomenclatureJournalFactory ?? throw new ArgumentNullException(nameof(nomenclatureJournalFactory));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			EmployeeJournalFactory = driverJournalFactory ?? throw new ArgumentNullException(nameof(driverJournalFactory));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			CounterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			DeliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			SubdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
+			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
 			if(orderSelectorFactory == null)
 			{
 				throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -126,6 +141,20 @@ namespace Vodovoz.ViewModels.Complaints
 
 			CreateCommands();
 
+			var driverEntryViewModel =
+					new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope)
+					.ForProperty(x => x.Driver)
+					.UseViewModelDialog<EmployeeViewModel>()
+					.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						filter =>
+						{
+							filter.RestrictCategory = EmployeeCategory.driver;
+						}
+					)
+					.Finish();
+
+			ComplaintDriverEntryViewModel = driverEntryViewModel;
+
 			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			ComplaintObject = Entity.ComplaintKind?.ComplaintObject;
@@ -135,9 +164,9 @@ namespace Vodovoz.ViewModels.Complaints
 				throw new ArgumentNullException(nameof(navigationManager));
 			}
 
-			var builder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope);
+			var complaintDetalizationEntryViewModelBuilder = new CommonEEVMBuilderFactory<Complaint>(this, Entity, UoW, NavigationManager, _scope);
 
-			ComplaintDetalizationEntryViewModel = builder
+			ComplaintDetalizationEntryViewModel = complaintDetalizationEntryViewModelBuilder
 				.ForProperty(x => x.ComplaintDetalization)
 				.UseViewModelDialog<ComplaintDetalizationViewModel>()
 				.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel, ComplaintDetalizationJournalFilterViewModel>(
@@ -170,6 +199,8 @@ namespace Vodovoz.ViewModels.Complaints
 			InitializeOrderAutocompleteSelectorFactory(orderSelectorFactory);
 		}
 
+		public IEntityEntryViewModel ComplaintDriverEntryViewModel { get; }
+
 		public IEntityEntryViewModel ComplaintDetalizationEntryViewModel { get; }
 
 		private void EntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -177,6 +208,25 @@ namespace Vodovoz.ViewModels.Complaints
 			if(e.PropertyName == nameof(Entity.ComplaintKind))
 			{
 				OnPropertyChanged(nameof(CanChangeDetalization));
+			}
+
+			if(e.PropertyName == nameof(Entity.Order))
+			{
+				if(Entity.Order is null)
+				{
+					Entity.Driver = null;
+					return;
+				}
+
+				var routeList = _routeListItemRepository.GetRouteListItemForOrder(UoW, Entity.Order)?.RouteList;
+
+				if(routeList is null)
+				{
+					Entity.Driver = null;
+					return;
+				}
+
+				Entity.Driver = routeList.Driver;
 			}
 		}
 
@@ -237,7 +287,7 @@ namespace Vodovoz.ViewModels.Complaints
 				if(_guiltyItemsViewModel == null)
 				{
 					_guiltyItemsViewModel =
-						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, EmployeeJournalFactory, SubdivisionParametersProvider);
+						new GuiltyItemsViewModel(Entity, UoW, CommonServices, _subdivisionRepository, EmployeeJournalFactory, _subdivisionJournalFactory, SubdivisionParametersProvider);
 				}
 
 				return _guiltyItemsViewModel;
@@ -551,6 +601,7 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public IEntityAutocompleteSelectorFactory OrderAutocompleteSelectorFactory { get; private set; }
 		private IEmployeeJournalFactory EmployeeJournalFactory { get; }
+		private ISubdivisionJournalFactory _subdivisionJournalFactory { get; }
 		public ICounterpartyJournalFactory CounterpartyJournalFactory { get; }
 		private IDeliveryPointJournalFactory DeliveryPointJournalFactory { get; }
 		private INomenclatureJournalFactory NomenclatureJournalFactory { get; }
@@ -628,9 +679,30 @@ namespace Vodovoz.ViewModels.Complaints
 			OnPropertyChanged(() => FineItems);
 		}
 
-		public void CloseComplaint(ComplaintStatuses status)
+		public void ChangeComplaintStatus(ComplaintStatuses oldStatus, ComplaintStatuses newStatus)
 		{
-			var msg = Entity.SetStatus(status);
+			if(newStatus == ComplaintStatuses.Closed)
+			{
+				var interserctedSubdivisionsToInformIds = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
+					.Intersect(Entity.Guilties.Select(cgi => cgi.Subdivision.Id));
+
+				var intersectedSubdivisionsNames = Entity.Guilties
+					.Select(g => g.Subdivision)
+					.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
+					.Select(s => s.Name);
+
+				if(Entity.ComplaintResultOfEmployees.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+					&& interserctedSubdivisionsToInformIds.Any()
+					&& Entity.Driver is null
+					&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",
+					"Вы уверены?"))
+				{
+					Entity.SetStatus(oldStatus);
+					return;
+				}
+			}
+
+			var msg = Entity.SetStatus(newStatus);
 			if(msg.Any())
 			{
 				CommonServices.InteractiveService.ShowMessage(
@@ -638,7 +710,7 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 			else
 			{
-				Entity.ActualCompletionDate = status == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
+				Entity.ActualCompletionDate = newStatus == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
 			}
 			OnPropertyChanged(nameof(Status));
 		}

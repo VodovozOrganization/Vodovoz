@@ -6,6 +6,10 @@ using System.Linq;
 
 namespace Vodovoz.Models.TrueMark
 {
+
+	// После обновления базы данных до версии 10.6 
+	// необходимо поменять работу пула кодов на логику 
+	// использующую SELECT SKIP LOCKED
 	public class TrueMarkCodesPool
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
@@ -40,6 +44,7 @@ namespace Vodovoz.Models.TrueMark
 			{
 				var sql = $@"
 					DELETE FROM true_mark_codes_pool
+					WHERE promoted
 					ORDER BY adding_time DESC 
 					LIMIT 1
 					RETURNING code_id
@@ -135,8 +140,9 @@ namespace Vodovoz.Models.TrueMark
 			using(var transaction = uow.Session.BeginTransaction(IsolationLevel.RepeatableRead))
 			{
 				var sql = $@"
-					UPDATE true_mark_codes_pool
-					SET adding_time = ADDDATE(current_timestamp(), INTERVAL :extra_second SECOND)
+					UPDATE true_mark_codes_pool SET
+						adding_time = ADDDATE(current_timestamp(), INTERVAL :extra_second SECOND),
+						promoted = 1
 					WHERE code_id in (:code_ids)
 					;";
 				var query = uow.Session.CreateSQLQuery(sql)

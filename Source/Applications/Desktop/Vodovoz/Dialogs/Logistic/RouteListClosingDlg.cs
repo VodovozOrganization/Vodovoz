@@ -7,6 +7,7 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
@@ -92,6 +93,7 @@ namespace Vodovoz
 				new RouteListProfitabilityRepository(),
 				_routeListRepository,
 				_nomenclatureRepository);
+		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
 
@@ -101,6 +103,7 @@ namespace Vodovoz
 		private Employee previousForwarder = null;
 		private bool _canEdit;
 		private bool? _canEditFuelCardNumber;
+		private List<int> _hasActualCountsChangesItemIds = new List<int>();
 
 		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
@@ -349,6 +352,9 @@ namespace Vodovoz
 				.InitializeFromSource();
 			deliveryfreebalanceview.ShowAll();
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
+
+			_routeListAddressKeepingDocumentController =
+				new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
 		}
 
 		private void UpdateSensitivity()
@@ -591,8 +597,25 @@ namespace Vodovoz
 		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
+
+			if(_hasActualCountsChangesItemIds.Contains(node.Id))
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, "Этот заказ уже редактировался, нужно сохранить изменения,\nлибо переоткрыть диалог.");
+
+				return;
+			}
+
 			var dlg = new OrderReturnsView(node, UoW);
+			dlg.TabClosed += OnOrderReturnsViewTabClosed;
 			TabParent.AddSlaveTab(this, dlg);
+		}
+
+		private void OnOrderReturnsViewTabClosed(object sender, EventArgs e)
+		{
+			var node = routeListAddressesView.GetSelectedRouteListItem();
+			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node);
+			_hasActualCountsChangesItemIds.Add(node.Id);
+			((OrderReturnsView)sender).TabClosed -= OnOrderReturnsViewTabClosed;
 		}
 
 		void OnRouteListItemChanged(object aList, int[] aIdx)

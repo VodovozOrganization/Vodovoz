@@ -38,9 +38,15 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gamma.Widgets.EnumCheckList enumcheckCarOwnType;
 
-		private global::Gtk.Button buttonCreateReport;
+		private global::Gtk.HSeparator hseparator4;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelPeriodEndDate;
+
+		private global::QS.Widgets.GtkUI.DatePicker dateEnd;
 
 		private global::Gtk.HSeparator hseparator1;
+
+		private global::Gtk.Button buttonCreateReport;
 
 		protected virtual void Build()
 		{
@@ -215,24 +221,58 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w20.Position = 6;
 			w20.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hseparator4 = new global::Gtk.HSeparator();
+			this.hseparator4.Name = "hseparator4";
+			this.vbox1.Add(this.hseparator4);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator4]));
+			w21.Position = 7;
+			w21.Expand = false;
+			w21.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelPeriodEndDate = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelPeriodEndDate.Name = "ylabelPeriodEndDate";
+			this.ylabelPeriodEndDate.Xalign = 0F;
+			this.ylabelPeriodEndDate.LabelProp = global::Mono.Unix.Catalog.GetString("За период до:");
+			this.vbox1.Add(this.ylabelPeriodEndDate);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelPeriodEndDate]));
+			w22.Position = 8;
+			w22.Expand = false;
+			w22.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.dateEnd = new global::QS.Widgets.GtkUI.DatePicker();
+			this.dateEnd.Events = ((global::Gdk.EventMask)(256));
+			this.dateEnd.Name = "dateEnd";
+			this.dateEnd.WithTime = false;
+			this.dateEnd.HideCalendarButton = false;
+			this.dateEnd.Date = new global::System.DateTime(0);
+			this.dateEnd.IsEditable = true;
+			this.dateEnd.AutoSeparation = true;
+			this.vbox1.Add(this.dateEnd);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.dateEnd]));
+			w23.Position = 9;
+			w23.Expand = false;
+			w23.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hseparator1 = new global::Gtk.HSeparator();
+			this.hseparator1.Name = "hseparator1";
+			this.vbox1.Add(this.hseparator1);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
+			w24.PackType = ((global::Gtk.PackType)(1));
+			w24.Position = 10;
+			w24.Expand = false;
+			w24.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w21.PackType = ((global::Gtk.PackType)(1));
-			w21.Position = 7;
-			w21.Expand = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.hseparator1 = new global::Gtk.HSeparator();
-			this.hseparator1.Name = "hseparator1";
-			this.vbox1.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
-			w22.PackType = ((global::Gtk.PackType)(1));
-			w22.Position = 8;
-			w22.Expand = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w25.PackType = ((global::Gtk.PackType)(1));
+			w25.Position = 11;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

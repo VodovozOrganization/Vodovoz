@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.Employees;
@@ -26,7 +25,6 @@ namespace Vodovoz.Dialogs
 
 		UndeliveredOrder undelivery;
 		Order order;
-		private readonly bool _isDeliveryFreeBalanceOperationsNeeded;
 
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController =
 			new RouteListAddressKeepingDocumentController(new EmployeeRepository(),
@@ -38,11 +36,10 @@ namespace Vodovoz.Dialogs
 			TabName = "Новый недовоз";
 		}
 
-		public UndeliveryOnOrderCloseDlg(Order order, IUnitOfWork uow, bool isDeliveryFreeBalanceOperationsNeeded) : this()
+		public UndeliveryOnOrderCloseDlg(Order order, IUnitOfWork uow) : this()
 		{
 			UoW = uow;
 			this.order = order;
-			_isDeliveryFreeBalanceOperationsNeeded = isDeliveryFreeBalanceOperationsNeeded;
 			ConfigureDlg();
 		}
 
@@ -64,11 +61,6 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			if(_isDeliveryFreeBalanceOperationsNeeded)
-			{
-				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, order, DeliveryFreeBalanceType.Increase);
-			}
-
 			var saved = Save();
 
 			if(!saved && _addedCommentToOldUndelivery)
