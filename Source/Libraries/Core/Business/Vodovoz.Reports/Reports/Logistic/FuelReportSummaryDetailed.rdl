@@ -2657,7 +2657,7 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4127,7 +4127,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox146">
-                      <Value>=Iif({fuel_type}=3, {liters_coupons}, 0)</Value>
+                      <Value>=Iif({fuel_type}=3, Format({liters_coupons}, "N2"), 0)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -4150,7 +4150,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox147">
-                      <Value>=Iif({fuel_type}!=3, {liters_coupons}, 0)</Value>
+                      <Value>=Iif({fuel_type}!=3, Format({liters_coupons}, "N2"), 0)</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -4450,14 +4450,14 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
                       </Style>
-                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
+                      <Value>=Format(Sum(Iif({fuel_type}=3, {liters_coupons}, 0)), "N2")</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox173">
-                      <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0))</Value>
+                      <Value>=Format(Sum(Iif({fuel_type}!=3, {liters_coupons}, 0)), "N2")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -5056,7 +5056,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox206">
-                      <Value>=Iif({fuel_type}=3, {liters_coupons}, 0)</Value>
+                      <Value>=Iif({fuel_type}=3, Format({liters_coupons}, "N2"), 0)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -5079,7 +5079,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox207">
-                      <Value>=Iif({fuel_type}!=3, {liters_coupons}, 0)</Value>
+                      <Value>=Iif({fuel_type}!=3, Format({liters_coupons}, "N2"), 0)</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -5379,14 +5379,14 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
                       </Style>
-                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
+                      <Value>=Format(Sum(Iif({fuel_type}=3, {liters_coupons}, 0)), "N2")</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox221">
-                      <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0))</Value>
+                      <Value>=Format(Sum(Iif({fuel_type}!=3, {liters_coupons}, 0)), "N2")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
