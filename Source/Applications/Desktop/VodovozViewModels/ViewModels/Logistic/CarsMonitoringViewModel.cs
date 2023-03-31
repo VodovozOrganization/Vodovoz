@@ -738,6 +738,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public string RouteListsText { get; set; }
 
+		public decimal FastDeliveryMaxDistance { get; set; }
+
 		public int CompletedPercent => AddressesAll == 0 ? 100 : (int)(((double)AddressesCompleted / AddressesAll) * 100);
 
 		public string CompletedText => string.Format("{0}/{1}", AddressesCompleted, AddressesAll);
