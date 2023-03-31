@@ -76,8 +76,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn(" ┯ Ручная отправка\n └ Брак ").AddToggleRenderer(node => node.IsManualSentOrIsDefectiveCode).Editing(false)
 
 					.AddColumn(" ━ Отправлен на \n").AddTextRenderer(node => node.Contact)
-					.AddColumn(" ━ Причина не отскан. бутылей \n").AddTextRenderer(node => node.UnscannedReason).WrapMode(Pango.WrapMode.Word).WrapWidth(350)
-					.AddColumn(" ━ Описание ошибки \n ").AddTextRenderer(node => node.ErrorDescription).WrapMode(Pango.WrapMode.Word).WrapWidth(350)
+					.AddColumn(" ━ Причина не отскан. бутылей \n").AddTextRenderer(node => node.UnscannedReason).WrapMode(Pango.WrapMode.Word).WrapWidth(300)
+					.AddColumn(" ━ Описание ошибки \n ").AddTextRenderer(node => node.ErrorDescription).WrapMode(Pango.WrapMode.Word).WrapWidth(300)
 					.AddColumn("")
 					.RowCells()
 					.AddSetter<CellRenderer>(
