@@ -100,6 +100,7 @@
     <Compile Include="Journals\JournalViewModels\TrueMark\CashReceiptsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Store\WarehouseDocumentsItemsJournalViewModel.cs" />
     <Compile Include="TempAdapters\IComplaintDetalizationAutocompleteSelectionFactory.cs" />
+    <Compile Include="TempAdapters\IComplaintsJournalFactory.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintDetalizationViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyDetailsFromRevenueServiceViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />

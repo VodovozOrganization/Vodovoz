@@ -54,7 +54,7 @@ namespace Vodovoz.Filters.GtkViews
 
 			yentryreferenceSubdivision.SubjectType = typeof(Subdivision);
 			yentryreferenceSubdivision.Binding.AddBinding(ViewModel, x => x.Subdivision, w => w.Subject).InitializeFromSource();
-
+			
 			daterangepicker.Binding
 				.AddSource(ViewModel)
 				.AddBinding(x => x.StartDate, w => w.StartDateOrNull)
