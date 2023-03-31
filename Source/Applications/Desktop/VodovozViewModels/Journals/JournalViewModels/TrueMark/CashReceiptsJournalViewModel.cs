@@ -30,6 +30,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly ReceiptManualController _receiptManualController;
+		private readonly bool _canResendDuplicateReceipts;
+
+
 		private CashReceiptJournalFilterViewModel _filter;
 		private Timer _autoRefreshTimer;
 		private int _autoRefreshInterval;
@@ -48,6 +51,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
+			var permissionService = _commonServices.CurrentPermissionService;
+			var canReadReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanReadReceipts");
+			if(!canReadReceipts)
+			{
+				AbortOpening("Нет прав просматривать кассовые чеки.");
+				return;
+			}
+
+			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanResendDuplicateReceipts");
 
 			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
 			;
@@ -116,6 +129,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateHelpAction();
 			CreateAutorefreshAction();
 			CreateNodeManualSendAction();
 			CreateNodeRefrechFiscalDocAction();
@@ -256,6 +270,55 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			return count;
 		}
 
+		#region Help
+
+		private void CreateHelpAction()
+		{
+			var helpAction = new JournalAction("Справка",
+				(selected) => true,
+				(selected) => true,
+				(selected) => ShowHelp()
+			);
+			NodeActionsList.Add(helpAction);
+		}
+
+		private void ShowHelp()
+		{
+			var helpMessage = @"Журнал чеков отображает информацию о состоянии кассовых чеков для заказов.
+Чек - запись о данных необходимых для формирования, отправки и проверки реального чека.
+	Код чека / код марк. - внутренний номер записи о чеке или записи о маркировки
+	Id чека - идентификатор чека, по которому его можно найти в модуль кассе
+	Создан - дата создания записи о чеке, является датой начала работы с чеком.
+	Изменен - дата последнего изменения какой либо информации о чеке.
+Маркировка - запись связанная с чеком, представляет информацию о коде честного знака привязанной к единице товара. 
+	Имеет исходную маркировку которая была отсканирована водителем с бутыля и итоговую маркировку которая уже отправляется в чек.
+	Если исходная маркировка не удовлетворяет условиям для использования ее в чеке, в итоговой она заменяется на ранее специально сохраненную в пуле для замены.
+Фискальный документ (Фиск. док.) -  по сути является действительным чеком, формируется после фискализации отправленной информации о чеке в модуль кассу.
+	Номер фиск. док. - номер фискального документа по которому можно найти чек в ОФД
+	Дата статуса фискального документа - дата последней смены статуса фискального документа.
+	Дата фискального документа - дата фискализации чека
+
+Чек можно переотправить вручную только если он является дублем по сумме.
+Можно обновить информацию о фискальном документе, информация по этому чеку будет загружена с модуль кассы.
+
+Логика подбора контакта для отправки чека:
+	Подбирается первый подходящий контакт из приоритетов:
+	1. Телефон для чеков точки доставки
+	2. Телефон для чеков контрагента
+	3. Эл.почта для чеков контрагентов
+	4. Мобильный телефон точки доставки
+	5. Мобильный телефон контрагента
+	6. Эл.почта для счетов контрагента
+	7. Иная эл. почта (не для чеков или счетов)
+	8. Городской телефон точки доставки
+	9. Городской телефон контрагента";
+
+
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, helpMessage, "Справка");
+		}
+
+		#endregion Help
+
 		#region Autorefresh
 
 		private bool autoRefreshEnabled => _autoRefreshTimer != null && _autoRefreshTimer.Enabled;
@@ -275,19 +338,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		{
 			_autoRefreshTimer?.Stop();
 			_autoRefreshTimer = null;
-		}
-
-		private void SwitchAutoRefresh()
-		{
-			if(autoRefreshEnabled)
-			{
-				StopAutoRefresh();
-			}
-			else
-			{
-				StartAutoRefresh();
-			}
-			OnPropertyChanged(nameof(FooterInfo));
 		}
 
 		private string GetAutoRefreshInfo()
@@ -312,6 +362,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			NodeActionsList.Add(switchAutorefreshAction);
 		}
 
+		private void SwitchAutoRefresh()
+		{
+			if(autoRefreshEnabled)
+			{
+				StopAutoRefresh();
+			}
+			else
+			{
+				StartAutoRefresh();
+			}
+			OnPropertyChanged(nameof(FooterInfo));
+		}
+
 		#endregion Autorefresh
 
 		#region Manual send
@@ -330,7 +393,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		private JournalAction GetManualSentAction()
 		{
-			var manualSentAction = new JournalAction("Отправить принудительно",
+			var manualSentAction = new JournalAction("Отправить дубль принудительно",
 				(selected) => ManualSentActionSensitive(selected),
 				(selected) => true,
 				(selected) => ManualSent(selected)
@@ -340,6 +403,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		private bool ManualSentActionSensitive(object[] selectedNodes)
 		{
+			if(!_canResendDuplicateReceipts)
+			{
+				return false;
+			}
+
 			var nodes = selectedNodes.OfType<CashReceiptJournalNode>();
 			if(!nodes.Any())
 			{
@@ -375,7 +443,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		#endregion Manual send
 
-		#region Manual send
+		#region Refresh fiscal document
 
 		private void CreatePopupRefrechFiscalDocAction()
 		{
@@ -437,11 +505,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			}
 			catch(Exception ex)
 			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Невозможно подключиться к сервису обработки чеков.\n{ex.Message}");
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, $"Невозможно подключиться к сервису обработки чеков. Повторите попытку позже.\n{ex.Message}");
 			}
 			Refresh();
 		}
 
-		#endregion Manual send
+		#endregion Refresh fiscal document
 	}
 }
