@@ -1,25 +1,8 @@
-﻿using QS.Tdi;
-using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
-using NHibernate.Transform;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
-using QS.Project.Journal;
-using QS.Project.Journal.DataLoader;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
-using QS.Services;
 using System;
-using System.Collections;
-using System.Linq;
-using Autofac;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Complaints;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels;
@@ -27,14 +10,11 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport;
-using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using Vodovoz.Journals.JournalViewModels;
 using QS.Dialog.GtkUI.FileDialog;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 
 namespace Vodovoz.TempAdapters
@@ -83,7 +63,7 @@ namespace Vodovoz.TempAdapters
 			_generalSettingsParametersProvider = new GeneralSettingsParametersProvider(new ParametersProvider());
 		}
 
-		public ComplaintsJournalViewModel GetStandartJournal(ComplaintFilterViewModel filterViewModel, ITdiTab parentDialog)
+		public ComplaintsJournalViewModel GetStandartJournal(ComplaintFilterViewModel filterViewModel)
 		{
 			return new ComplaintsJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
@@ -104,12 +84,11 @@ namespace Vodovoz.TempAdapters
 				_deliveryPointJournalFactory,
 				_complaintParametersProvider,
 				_generalSettingsParametersProvider,
-				MainClass.AppDIContainer.BeginLifetimeScope(),
-				parentDialog
+				MainClass.AppDIContainer.BeginLifetimeScope()
 				);
 		}
 
-		public ComplaintsWithDepartmentsReactionJournalViewModel GetJournalWithDepartmentsReaction(ComplaintFilterViewModel filterViewModel, ITdiTab parentDialog)
+		public ComplaintsWithDepartmentsReactionJournalViewModel GetJournalWithDepartmentsReaction(ComplaintFilterViewModel filterViewModel)
 		{
 			return new ComplaintsWithDepartmentsReactionJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
@@ -130,8 +109,7 @@ namespace Vodovoz.TempAdapters
 				_deliveryPointJournalFactory,
 				_complaintParametersProvider,
 				_generalSettingsParametersProvider,
-				MainClass.AppDIContainer.BeginLifetimeScope(),
-				parentDialog
+				MainClass.AppDIContainer.BeginLifetimeScope()
 				);
 		}
 	}

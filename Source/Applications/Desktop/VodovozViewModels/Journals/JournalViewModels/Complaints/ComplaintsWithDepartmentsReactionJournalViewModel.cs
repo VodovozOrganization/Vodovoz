@@ -18,7 +18,6 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels;
@@ -59,7 +58,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private readonly IComplaintParametersProvider _complaintParametersProvider;
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
 		private readonly ILifetimeScope _scope;
-		private readonly ITdiTab _parentDialog;
+
+		public ITdiTab ParentTab { get; set; }
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -89,8 +89,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			IComplaintParametersProvider complaintParametersProvider,
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
-			ILifetimeScope scope,
-			ITdiTab parentDialog) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -109,8 +108,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_complaintParametersProvider = complaintParametersProvider ?? throw new ArgumentNullException(nameof(complaintParametersProvider));
 			_generalSettingsParametersProvider = generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
-			_parentDialog = parentDialog ?? throw new ArgumentNullException(nameof(parentDialog));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+
+			ParentTab = (ITdiTab)this;
 
 			TabName = "Журнал рекламаций";
 
@@ -121,7 +121,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			FinishJournalConfiguration();
 
-			FilterViewModel.JournalViewModel = (DialogViewModelBase)_parentDialog;
+			FilterViewModel.JournalViewModel = (DialogViewModelBase)ParentTab;
 
 			FilterViewModel.EmployeeService = employeeService;
 
@@ -813,7 +813,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					"Открыть заказ",
 					HasOrder,
 					n => true,
-					n => _gtkDlgOpener.OpenOrderDlg(_parentDialog, GetOrder(n).Id)
+					n => _gtkDlgOpener.OpenOrderDlg(ParentTab, GetOrder(n).Id)
 				)
 			);
 
@@ -822,7 +822,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					"Открыть маршрутный лист",
 					HasRouteList,
 					n => true,
-					n => _gtkDlgOpener.OpenRouteListCreateDlg(_parentDialog, GetRouteList(n).Id)
+					n => _gtkDlgOpener.OpenRouteListCreateDlg(ParentTab, GetRouteList(n).Id)
 				)
 			);
 
@@ -831,7 +831,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					"Открыть диалог закрытия МЛ",
 					n => GetRouteList(n)?.CanBeOpenedInClosingDlg ?? false,
 					n => true,
-					n => _gtkDlgOpener.OpenRouteListClosingDlg(_parentDialog, GetRouteList(n).Id)
+					n => _gtkDlgOpener.OpenRouteListClosingDlg(ParentTab, GetRouteList(n).Id)
 				)
 			);
 
@@ -846,7 +846,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						if(currentComplaintId.HasValue)
 						{
 							currentComplaintVM = _scope.Resolve<ComplaintViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(currentComplaintId.Value)));
-							currentComplaintVM.AddFineCommand.Execute(_parentDialog);
+							currentComplaintVM.AddFineCommand.Execute(ParentTab);
 						}
 					}
 				)
@@ -941,7 +941,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 								(selected) => entityConfig.PermissionResult.CanCreate,
 								(selected) => entityConfig.PermissionResult.CanCreate,
 								(selected) => {
-									_parentDialog.TabParent.AddSlaveTab(_parentDialog, createDlgConfig.OpenEntityDialogFunction());
+									ParentTab.TabParent.AddSlaveTab(ParentTab, createDlgConfig.OpenEntityDialogFunction());
 								}
 							);
 							addParentNodeAction.ChildActionsList.Add(childNodeAction);
@@ -963,7 +963,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 						if(tab is ITdiDialog)
 							((ITdiDialog)tab).EntitySaved += Tab_EntitySaved;
 
-						_parentDialog.TabParent.AddSlaveTab(_parentDialog, tab);
+						ParentTab.TabParent.AddSlaveTab(ParentTab, tab);
 					},
 					"Insert"
 					);
@@ -1005,12 +1005,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					if(selectedNode.EntityType == typeof(Complaint))
 					{
 						NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
-							(DialogViewModelBase)_parentDialog, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
+							(DialogViewModelBase)ParentTab, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 						return;
 					}
 
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-					_parentDialog.TabParent.AddSlaveTab(_parentDialog, foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode));
+					ParentTab.TabParent.AddSlaveTab(ParentTab, foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode));
 				}
 			);
 			if(SelectionMode == JournalSelectionMode.None)
