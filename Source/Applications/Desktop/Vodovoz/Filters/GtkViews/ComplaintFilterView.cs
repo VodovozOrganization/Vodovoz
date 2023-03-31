@@ -52,9 +52,13 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 			entityentryCurrentSubdivision.CanOpenWithoutTabParent = true;
 
-			//yentryreferenceSubdivision.SubjectType = typeof(Subdivision);
-			//yentryreferenceSubdivision.Binding.AddBinding(ViewModel, x => x.Subdivision, w => w.Subject).InitializeFromSource();
-			
+			entityentryInWorkSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.InWorkSubdivisionSelectorFactory);
+			entityentryInWorkSubdivision.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Subdivision, w => w.Subject)
+				.InitializeFromSource();
+			entityentryInWorkSubdivision.CanOpenWithoutTabParent = true;
+
+
 			daterangepicker.Binding
 				.AddSource(ViewModel)
 				.AddBinding(x => x.StartDate, w => w.StartDateOrNull)

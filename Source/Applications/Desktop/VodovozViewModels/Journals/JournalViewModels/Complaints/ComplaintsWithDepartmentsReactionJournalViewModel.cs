@@ -59,8 +59,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
 		private readonly ILifetimeScope _scope;
 
-		public ITdiTab ParentTab { get; set; }
-
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		private bool _canCloseComplaint = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_complaints");
@@ -121,8 +119,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			FinishJournalConfiguration();
 
-			FilterViewModel.JournalViewModel = (DialogViewModelBase)ParentTab;
-
 			FilterViewModel.EmployeeService = employeeService;
 
 			var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
@@ -171,6 +167,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 			UseSlider = false;
+		}
+
+		private ITdiTab _parrentTab;
+		public ITdiTab ParentTab
+		{
+			get => _parrentTab;
+			set
+			{
+				_parrentTab = value;
+				FilterViewModel.JournalViewModel = (DialogViewModelBase)_parrentTab;
+			}
 		}
 
 		private IQueryOver<Complaint> GetComplaintQuery(IUnitOfWork uow)
