@@ -859,6 +859,26 @@ namespace Vodovoz.Journals.JournalViewModels
 						if(currentComplaintId.HasValue)
 						{
 							currentComplaintVM = _scope.Resolve<ComplaintViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(currentComplaintId.Value)));
+
+							var interserctedSubdivisionsToInformIds = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
+									.Intersect(currentComplaintVM.Entity.Guilties.Select(cgi => cgi.Subdivision.Id));
+
+							var intersectedSubdivisionsNames = currentComplaintVM.Entity.Guilties
+								.Select(g => g.Subdivision)
+								.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
+								.Select(s => s.Name);
+
+							if(currentComplaintVM.Entity.ComplaintResultOfEmployees.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+								&& interserctedSubdivisionsToInformIds.Any()
+								&& currentComplaintVM.Entity.Driver is null
+								&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",
+								"Вы уверены?"))
+							{
+								return;
+							}
+
+							currentComplaintVM.AddFineCommand.Execute(this);
+
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))
 							{
