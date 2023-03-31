@@ -868,7 +868,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
 								.Select(s => s.Name);
 
-							if(currentComplaintVM.Entity.ComplaintResultOfEmployees.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+							if(currentComplaintVM.Entity.ComplaintResultOfEmployees?.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
 								&& interserctedSubdivisionsToInformIds.Any()
 								&& currentComplaintVM.Entity.Driver is null
 								&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",
@@ -877,7 +877,7 @@ namespace Vodovoz.Journals.JournalViewModels
 								return;
 							}
 
-							currentComplaintVM.AddFineCommand.Execute(this);
+							currentComplaintVM.AddFineCommand.Execute(ParentTab);
 
 							string msg = string.Empty;
 							if(!currentComplaintVM.Entity.Close(ref msg))
