@@ -242,8 +242,8 @@ def DeployWebService(serviceName) {
 }
 
 def DeployWinRuntime() {
-	def RUNTIME_DEPLOY_PATH = "${RuntimePath}\\DeployInProgress"
-	def RUNTIME_LATEST_PATH = "${RuntimePath}\\latest"
+	def RUNTIME_DEPLOY_PATH = "${RuntimePath}DeployInProgress"
+	def RUNTIME_LATEST_PATH = "${RuntimePath}latest"
 
 	echo "Deploy master to runtime folder to ${RUNTIME_LATEST_PATH}"
 	copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
