@@ -248,7 +248,7 @@ def DeployWinRuntime() {
 	echo "Deploy master to runtime folder to ${RUNTIME_LATEST_PATH}"
 	copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 
-	bat 'rename ' + RUNTIME_LATEST_PATH + ' ' + RUNTIME_DEPLOY_PATH
+	bat 'rename "' + RUNTIME_LATEST_PATH + '" "' + RUNTIME_DEPLOY_PATH + '"'
 	unzip zipFile: 'Vodovoz.zip', dir: RUNTIME_DEPLOY_PATH
-	bat 'rename ' + RUNTIME_DEPLOY_PATH + ' ' + RUNTIME_LATEST_PATH
+	bat 'rename "' + RUNTIME_DEPLOY_PATH + '" "' + RUNTIME_LATEST_PATH + '"'
 }
