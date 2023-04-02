@@ -6,6 +6,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 	public class ExternalCounterpartyMatchingNode
 	{
 		public int EntityId { get; set; }
+		public int? ExternalCounterpartyId { get; set; }
 		public int? DeliveryPointCounterpartyId { get; set; }
 		public int? PhoneId { get; set; }
 		public string DeliveryPointCounterpartyName { get; set; }

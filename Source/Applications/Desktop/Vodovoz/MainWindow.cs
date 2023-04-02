@@ -1083,7 +1083,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+		/*ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 		IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
 
@@ -1136,7 +1136,8 @@ public partial class MainWindow : Gtk.Window
 			autofacScope.BeginLifetimeScope()
 		);
 
-		tdiMain.AddTab(journal);
+		tdiMain.AddTab(journal);*/
+		NavigationManager.OpenViewModel<ExternalCounterpartiesMatchingJournalViewModel>(null);
 	}
 
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)

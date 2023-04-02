@@ -1830,7 +1830,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Источник")
 						.AddEnumRenderer(node => node.CounterpartyFrom)
 					.AddColumn("Дата/время")
-						.AddTextRenderer(node => node.Created.ToShortDateString())
+						.AddTextRenderer(node => node.Created.ToString("g"))
 					.AddColumn("Статус")
 						.AddEnumRenderer(node => node.Status)
 					.AddColumn("Присвоенный КА")

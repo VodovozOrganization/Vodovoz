@@ -1,4 +1,4 @@
-﻿namespace CustomerAppsApi.Dto
+﻿namespace CustomerAppsApi.Library.Dto
 {
 	public class CounterpartyUpdateDto
 	{

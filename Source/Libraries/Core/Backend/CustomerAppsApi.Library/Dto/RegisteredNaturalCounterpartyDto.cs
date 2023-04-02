@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CustomerAppsApi.Controllers
+namespace CustomerAppsApi.Library.Dto
 {
 	public class RegisteredNaturalCounterpartyDto
 	{

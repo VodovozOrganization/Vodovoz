@@ -1,7 +1,7 @@
 ﻿using System;
-using CustomerAppsApi.Controllers;
-using CustomerAppsApi.Dto;
+using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
+using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Validators;
 using QS.DomainModel.UoW;
 using QS.Utilities.Numeric;
@@ -23,7 +23,7 @@ namespace CustomerAppsApi.Models
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IRoboatsSettings _roboatsSettings;
-		private readonly ICounterpartySettings _counterpartySettings;
+		private readonly ICameFromConverter _cameFromConverter;
 		private readonly CounterpartyModelFactory _counterpartyModelFactory;
 		private readonly CounterpartyModelValidator _counterpartyModelValidator;
 		private readonly IContactManagerForExternalCounterparty _contactManagerForExternalCounterparty;
@@ -34,7 +34,7 @@ namespace CustomerAppsApi.Models
 			IRoboatsRepository roboatsRepository,
 			IEmailRepository emailRepository,
 			IRoboatsSettings roboatsSettings,
-			ICounterpartySettings counterpartySettings,
+			ICameFromConverter cameFromConverter,
 			CounterpartyModelFactory counterpartyModelFactory,
 			CounterpartyModelValidator counterpartyModelValidator,
 			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty)
@@ -45,7 +45,7 @@ namespace CustomerAppsApi.Models
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
-			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
+			_cameFromConverter = cameFromConverter ?? throw new ArgumentNullException(nameof(cameFromConverter));
 			_counterpartyModelFactory = counterpartyModelFactory ?? throw new ArgumentNullException(nameof(counterpartyModelFactory));
 			_counterpartyModelValidator = counterpartyModelValidator ?? throw new ArgumentNullException(nameof(counterpartyModelValidator));
 			_contactManagerForExternalCounterparty =
@@ -60,7 +60,7 @@ namespace CustomerAppsApi.Models
 				return _counterpartyModelFactory.CreateErrorCounterpartyIdentificationDto(validationResult);
 			}
 
-			var counterpartyFrom = GetCounterpartyFrom(counterpartyContactInfoDto.CameFromId);
+			var counterpartyFrom = _cameFromConverter.ConvertCameFromToCounterpartyFrom(counterpartyContactInfoDto.CameFromId);
 			var phoneNumber = new PhoneFormatter(PhoneFormat.DigitsTen).FormatString(counterpartyContactInfoDto.PhoneNumber);
 
 			//Ищем зарегистрированного клиента по ExternalId и по телефону
@@ -80,7 +80,7 @@ namespace CustomerAppsApi.Models
 
 			if(externalCounterparty != null)
 			{
-				return _counterpartyModelFactory.CreateNeedManualHandlingCounterpartyIdentificationDto();
+				return SendToManualHandling(counterpartyContactInfoDto, counterpartyFrom);
 			}
 
 			//Ищем зарегистрированного клиента по телефону
@@ -88,7 +88,7 @@ namespace CustomerAppsApi.Models
 
 			if(externalCounterparty != null)
 			{
-				return _counterpartyModelFactory.CreateNeedManualHandlingCounterpartyIdentificationDto();
+				return SendToManualHandling(counterpartyContactInfoDto, counterpartyFrom);
 			}
 
 			/*
@@ -132,7 +132,7 @@ namespace CustomerAppsApi.Models
 				case FoundContactStatus.ContactNotFound:
 					return _counterpartyModelFactory.CreateNotFoundCounterpartyIdentificationDto();
 				default:
-					return _counterpartyModelFactory.CreateNeedManualHandlingCounterpartyIdentificationDto();
+					return SendToManualHandling(counterpartyContactInfoDto, counterpartyFrom);
 			}
 		}
 
@@ -144,7 +144,7 @@ namespace CustomerAppsApi.Models
 				return _counterpartyModelFactory.CreateErrorCounterpartyRegistrationDto(validationResult);
 			}
 
-			var counterpartyFrom = GetCounterpartyFrom(counterpartyDto.CameFromId);
+			var counterpartyFrom = _cameFromConverter.ConvertCameFromToCounterpartyFrom(counterpartyDto.CameFromId);
 			
 			var counterpartyRegistrationDto = CheckExternalCounterpartyWithSameExternalId(counterpartyDto, counterpartyFrom);
 
@@ -218,7 +218,8 @@ namespace CustomerAppsApi.Models
 			}
 			
 			var externalCounterparty = _externalCounterpartyRepository
-				.GetExternalCounterparty(_uow, counterpartyDto.ExternalCounterpartyId, GetCounterpartyFrom(counterpartyDto.CameFromId));
+				.GetExternalCounterparty(_uow, counterpartyDto.ExternalCounterpartyId,
+					_cameFromConverter.ConvertCameFromToCounterpartyFrom(counterpartyDto.CameFromId));
 
 			if(externalCounterparty is null)
 			{
@@ -357,12 +358,17 @@ namespace CustomerAppsApi.Models
 			phone.RoboAtsCounterpartyPatronymic =
 				_uow.GetById<RoboAtsCounterpartyPatronymic>(_roboatsSettings.DefaultCounterpartyPatronymicId);
 		}
-		
-		private CounterpartyFrom GetCounterpartyFrom(int cameFromId)
+
+		private CounterpartyIdentificationDto SendToManualHandling(
+			CounterpartyContactInfoDto counterpartyContactInfoDto, CounterpartyFrom counterpartyFrom)
 		{
-			return cameFromId == _counterpartySettings.GetMobileAppCounterpartyCameFromId
-				? CounterpartyFrom.MobileApp
-				: CounterpartyFrom.WebSite;
+			var counterpartyManualHandlingDto = _counterpartyModelFactory.CreateNeedManualHandlingCounterpartyDto(
+				counterpartyContactInfoDto, counterpartyFrom);
+			
+			_uow.Save(counterpartyManualHandlingDto.ExternalCounterpartyMatching);
+			_uow.Commit();
+
+			return counterpartyManualHandlingDto.CounterpartyIdentificationDto;
 		}
 	}
 }

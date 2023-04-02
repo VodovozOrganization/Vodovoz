@@ -36,7 +36,14 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		public IList<DeliveryPointMatchingNode> DeliveryPoints { get; set; } = new List<DeliveryPointMatchingNode>();
 
 		public static CounterpartyMatchingNode Create(
-			int entityId, PersonType personType, DateTime? lastOrderDate, string title, bool matching, int? phoneId = null)
+			int entityId,
+			PersonType personType,
+			DateTime? lastOrderDate,
+			string title,
+			bool matching,
+			int? phoneId = null,
+			int? externalCounterpartyId = null,
+			bool hasOtherExternalCounterparty = false)
 		{
 			return new CounterpartyMatchingNode
 			{
@@ -45,7 +52,9 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				LastOrderDate = lastOrderDate,
 				Title = title,
 				PhoneId = phoneId,
-				Matching = matching
+				Matching = matching,
+				ExternalCounterpartyId = externalCounterpartyId,
+				HasOtherExternalCounterparty = hasOtherExternalCounterparty
 			};
 		}
 	}

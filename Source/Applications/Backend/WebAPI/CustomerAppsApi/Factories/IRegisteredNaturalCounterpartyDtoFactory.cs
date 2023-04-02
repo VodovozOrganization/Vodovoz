@@ -1,4 +1,4 @@
-﻿using CustomerAppsApi.Controllers;
+﻿using CustomerAppsApi.Library.Dto;
 using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Factories

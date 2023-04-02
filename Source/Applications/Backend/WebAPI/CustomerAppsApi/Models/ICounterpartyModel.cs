@@ -1,5 +1,4 @@
-﻿using CustomerAppsApi.Controllers;
-using CustomerAppsApi.Dto;
+﻿using CustomerAppsApi.Library.Dto;
 
 namespace CustomerAppsApi.Models
 {

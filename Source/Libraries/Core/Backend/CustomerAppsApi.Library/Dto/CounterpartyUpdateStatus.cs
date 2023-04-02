@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CustomerAppsApi.Dto
+namespace CustomerAppsApi.Library.Dto
 {
 	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum CounterpartyUpdateStatus

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
 using CustomerAppsApi.Models;
 using CustomerAppsApi.Validators;
@@ -24,6 +25,7 @@ using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Roboats;
+using Vodovoz.Factories;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Settings;
@@ -64,9 +66,12 @@ namespace CustomerAppsApi
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
 			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
+			services.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>();
+			services.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>();
 			services.AddSingleton<CounterpartyModelFactory>();
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
+			services.AddSingleton<ICameFromConverter, CameFromConverter>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromOne>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromMany>();

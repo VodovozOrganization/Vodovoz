@@ -1,7 +1,7 @@
 ﻿using System;
 using Vodovoz.Domain.Client;
 
-namespace CustomerAppsApi.Controllers
+namespace CustomerAppsApi.Library.Dto
 {
 	public class CounterpartyDto
 	{

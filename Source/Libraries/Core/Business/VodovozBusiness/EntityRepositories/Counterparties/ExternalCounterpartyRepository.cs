@@ -12,6 +12,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			return uow.Session.QueryOver<ExternalCounterparty>()
 				.Where(ec => ec.CounterpartyFrom == counterpartyFrom)
 				.And(ec => ec.ExternalCounterpartyId == externalCounterpartyId)
+				.And(ec => !ec.IsArchive)
 				.SingleOrDefault();
 		}
 		
@@ -24,6 +25,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.JoinAlias(ec => ec.Phone, () => phoneAlias)
 				.Where(ec => ec.CounterpartyFrom == counterpartyFrom)
 				.And(ec => ec.ExternalCounterpartyId == externalCounterpartyId)
+				.And(ec => !ec.IsArchive)
 				.And(() => phoneAlias.DigitsNumber == phoneNumber)
 				.SingleOrDefault();
 		}
@@ -35,6 +37,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			return uow.Session.QueryOver<ExternalCounterparty>()
 				.JoinAlias(ec => ec.Phone, () => phoneAlias)
 				.Where(ec => ec.CounterpartyFrom == counterpartyFrom)
+				.And(ec => !ec.IsArchive)
 				.And(() => phoneAlias.DigitsNumber == phoneNumber)
 				.SingleOrDefault();
 		}

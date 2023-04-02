@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerAppsApi.Library.Dto;
 using ExternalCounterpartyAssignNotifier.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -50,12 +51,18 @@ namespace ExternalCounterpartyAssignNotifier
 
 				foreach(var notification in notificationsToSend)
 				{
-					var httpCode = await _notificationService.NotifyOfCounterpartyAssignAsync(
-						GetRegisteredNaturalCounterpartyDto(notification), notification.ExternalCounterparty.CounterpartyFrom);
+					var httpCode = -1;
+					try
+					{
+						httpCode = await _notificationService.NotifyOfCounterpartyAssignAsync(
+							GetRegisteredNaturalCounterpartyDto(notification), notification.ExternalCounterparty.CounterpartyFrom);
+					}
+					catch(Exception e)
+					{
+						_logger.LogError(e, "Ошибка при отправке уведомления о ручном сопоставлении клиента в ИПЗ");
+					}
 
-					notification.HttpCode = httpCode;
-					uow.Save(notification);
-					uow.Commit();
+					UpdateNotification(uow, notification, httpCode);
 				}
 			}
 		}
@@ -74,15 +81,19 @@ namespace ExternalCounterpartyAssignNotifier
 				Patronymic = counterparty.Patronymic
 			};
 		}
-	}
-	
-	public class RegisteredNaturalCounterpartyDto
-	{
-		public Guid ExternalCounterpartyId { get; set; }
-		public int ErpCounterpartyId { get; set; }
-		public string FirstName { get; set; }
-		public string Surname { get; set; }
-		public string Patronymic { get; set; }
-		public string Email { get; set; }
+		
+		private void UpdateNotification(IUnitOfWork uow, ExternalCounterpartyAssignNotification notification, int httpCode)
+		{
+			try
+			{
+				notification.HttpCode = httpCode;
+				uow.Save(notification);
+				uow.Commit();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,"Ошибка при обновлении уведомления ИПЗ");
+			}
+		}
 	}
 }

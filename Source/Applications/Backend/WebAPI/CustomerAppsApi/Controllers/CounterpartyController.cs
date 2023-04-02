@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomerAppsApi.Dto;
+using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

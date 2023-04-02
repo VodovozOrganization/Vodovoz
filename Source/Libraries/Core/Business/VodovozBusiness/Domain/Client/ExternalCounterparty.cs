@@ -25,7 +25,7 @@ namespace Vodovoz.Domain.Client
 
 		public virtual int Id { get; set; }
 
-		[Display(Name = "Внешний номер клиента")]
+		[Display(Name = "Внешний код клиента")]
 		public virtual Guid ExternalCounterpartyId
 		{
 			get => _externalCounterpartyId;

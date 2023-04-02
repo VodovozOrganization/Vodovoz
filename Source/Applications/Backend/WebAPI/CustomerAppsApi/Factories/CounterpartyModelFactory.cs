@@ -1,18 +1,27 @@
 ﻿using System;
-using CustomerAppsApi.Dto;
-using CustomerAppsApi.Models;
+using CustomerAppsApi.Library.Dto;
 using Vodovoz.Domain.Client;
+using Vodovoz.Factories;
 
 namespace CustomerAppsApi.Factories
 {
 	public class CounterpartyModelFactory
 	{
-		private readonly RegisteredNaturalCounterpartyDtoFactory _registeredNaturalCounterpartyDtoFactory;
+		private readonly IRegisteredNaturalCounterpartyDtoFactory _registeredNaturalCounterpartyDtoFactory;
+		private readonly IExternalCounterpartyMatchingFactory _externalCounterpartyMatchingFactory;
+		private readonly IExternalCounterpartyFactory _externalCounterpartyFactory;
 
-		public CounterpartyModelFactory(RegisteredNaturalCounterpartyDtoFactory registeredNaturalCounterpartyDtoFactory)
+		public CounterpartyModelFactory(
+			IRegisteredNaturalCounterpartyDtoFactory registeredNaturalCounterpartyDtoFactory,
+			IExternalCounterpartyMatchingFactory externalCounterpartyMatchingFactory,
+			IExternalCounterpartyFactory externalCounterpartyFactory)
 		{
 			_registeredNaturalCounterpartyDtoFactory =
 				registeredNaturalCounterpartyDtoFactory ?? throw new ArgumentNullException(nameof(registeredNaturalCounterpartyDtoFactory));
+			_externalCounterpartyMatchingFactory =
+				externalCounterpartyMatchingFactory ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingFactory));
+			_externalCounterpartyFactory =
+				externalCounterpartyFactory ?? throw new ArgumentNullException(nameof(externalCounterpartyFactory));
 		}
 
 		#region CounterpartyIdentificationDto
@@ -34,12 +43,20 @@ namespace CustomerAppsApi.Factories
 			};
 		}
 
-		public CounterpartyIdentificationDto CreateNeedManualHandlingCounterpartyIdentificationDto()
+		public CounterpartyManualHandlingDto CreateNeedManualHandlingCounterpartyDto(
+			CounterpartyContactInfoDto counterpartyContactInfoDto, CounterpartyFrom counterpartyFrom)
 		{
-			return new CounterpartyIdentificationDto
+			var matchingEntity = _externalCounterpartyMatchingFactory.CreateNewExternalCounterpartyMatching(
+				counterpartyContactInfoDto.ExternalCounterpartyId,
+				counterpartyContactInfoDto.PhoneNumber,
+				counterpartyFrom);
+
+			var counterpartyIdentificationDto = new CounterpartyIdentificationDto
 			{
 				CounterpartyIdentificationStatus = CounterpartyIdentificationStatus.NeedManualHandling
 			};
+			
+			return new CounterpartyManualHandlingDto(counterpartyIdentificationDto, matchingEntity);
 		}
 
 		public CounterpartyIdentificationDto CreateSuccessCounterpartyIdentificationDto(ExternalCounterparty externalCounterparty)
@@ -114,18 +131,8 @@ namespace CustomerAppsApi.Factories
 
 		#region ExternalCounterparty
 
-		public ExternalCounterparty CreateExternalCounterparty(CounterpartyFrom counterpartyFrom)
-		{
-			switch(counterpartyFrom)
-			{
-				case CounterpartyFrom.MobileApp:
-					return new MobileAppCounterparty();
-				case CounterpartyFrom.WebSite:
-					return new WebSiteCounterparty();
-				default:
-					throw new ArgumentOutOfRangeException(nameof(counterpartyFrom), counterpartyFrom, null);
-			}
-		}
+		public ExternalCounterparty CreateExternalCounterparty(CounterpartyFrom counterpartyFrom) =>
+			_externalCounterpartyFactory.CreateNewExternalCounterparty(counterpartyFrom);
 		
 		public ExternalCounterparty CopyToOtherExternalCounterparty(ExternalCounterparty copyingCounterparty, Guid externalCounterpartyId)
 		{
@@ -136,20 +143,29 @@ namespace CustomerAppsApi.Factories
 					{
 						Email = copyingCounterparty.Email,
 						Phone = copyingCounterparty.Phone,
-						ExternalCounterpartyId = externalCounterpartyId,
-						IsArchive = copyingCounterparty.IsArchive
+						ExternalCounterpartyId = externalCounterpartyId
 					};
 				case CounterpartyFrom.WebSite:
 					return new MobileAppCounterparty
 					{
 						Email = copyingCounterparty.Email,
 						Phone = copyingCounterparty.Phone,
-						ExternalCounterpartyId = externalCounterpartyId,
-						IsArchive = copyingCounterparty.IsArchive
+						ExternalCounterpartyId = externalCounterpartyId
 					};
 				default:
 					return null;
 			}
+		}
+
+		#endregion
+
+		#region ExternalCounterpartyMatching
+
+		public ExternalCounterpartyMatching CreateNewExternalCounterpartyMatching(Guid externalCounterpartyId, string phoneNumber,
+			CounterpartyFrom counterpartyFrom)
+		{
+			return _externalCounterpartyMatchingFactory.CreateNewExternalCounterpartyMatching(
+				externalCounterpartyId, phoneNumber, counterpartyFrom);
 		}
 
 		#endregion

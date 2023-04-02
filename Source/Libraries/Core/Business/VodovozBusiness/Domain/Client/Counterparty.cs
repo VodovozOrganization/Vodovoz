@@ -5,6 +5,7 @@ using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Gamma.Utilities;
 using QS.Banks.Domain;
@@ -1344,6 +1345,7 @@ namespace Vodovoz.Domain.Client
 		#endregion
 	}
 
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum PersonType
 	{
 		[Display(Name = "Физическое лицо")]
@@ -1402,6 +1404,7 @@ namespace Vodovoz.Domain.Client
 		public CargoReceiverTypeStringType() : base(typeof(CargoReceiverSource)) { }
 	}
 
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum TaxType
 	{
 		[Display(Name = "Не указано")]

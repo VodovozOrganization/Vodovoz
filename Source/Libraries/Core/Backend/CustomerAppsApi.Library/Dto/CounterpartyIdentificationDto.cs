@@ -1,6 +1,4 @@
-﻿using CustomerAppsApi.Controllers;
-
-namespace CustomerAppsApi.Models
+﻿namespace CustomerAppsApi.Library.Dto
 {
 	public class CounterpartyIdentificationDto
 	{

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Client
 {
@@ -10,15 +11,15 @@ namespace Vodovoz.Domain.Client
 		Prepositional = "Сопоставлении клиента с контактом",
 		PrepositionalPlural = "Сопоставлениях клиента с контактом"
 	)]
+	[HistoryTrace]
 	public class ExternalCounterpartyMatching : PropertyChangedBase, IDomainObject
 	{
 		private ExternalCounterpartyMatchingStatus _status;
 		private CounterpartyFrom _counterpartyFrom;
 		private DateTime? _created;
 		private ExternalCounterparty _assignedExternalCounterparty;
-		private ExternalCounterparty _existingExternalCounterpartyWithSameParams;
 		private string _phoneNumber;
-		private Guid _externalCounterpartyId;
+		private Guid _externalCounterpartyGuid;
 
 		public virtual int Id { get; set; }
 		public virtual DateTime Version { get; set; }
@@ -30,10 +31,10 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Внешний номер клиента")]
-		public virtual Guid ExternalCounterpartyId
+		public virtual Guid ExternalCounterpartyGuid
 		{
-			get => _externalCounterpartyId;
-			set => SetField(ref _externalCounterpartyId, value);
+			get => _externalCounterpartyGuid;
+			set => SetField(ref _externalCounterpartyGuid, value);
 		}
 
 		public virtual ExternalCounterpartyMatchingStatus Status
@@ -59,12 +60,6 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _assignedExternalCounterparty;
 			set => SetField(ref _assignedExternalCounterparty, value);
-		}
-		
-		public virtual ExternalCounterparty ExistingExternalCounterpartyWithSameParams
-		{
-			get => _existingExternalCounterpartyWithSameParams;
-			set => SetField(ref _existingExternalCounterpartyWithSameParams, value);
 		}
 
 		public virtual void AssignCounterparty(ExternalCounterparty externalCounterparty)

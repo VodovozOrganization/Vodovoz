@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentNHibernate.Data;
 using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;
@@ -17,6 +18,7 @@ namespace Vodovoz.Views.Client
 		private Menu _discrepanciesPopUpMenu;
 		private static readonly Color _colorBlack = new Color(0, 0, 0);
 		private static readonly Color _colorWhite = new Color(0xff, 0xff, 0xff);
+		private static readonly Color _colorRed = new Color(0xfe, 0x5c, 0x5c);
 		private static readonly Color _colorLightGreen = new Color(0xc0, 0xff, 0xc0);
 		private static readonly Color _colorOrange = new Color(0xfc, 0x66, 0x00);
 		
@@ -114,8 +116,18 @@ namespace Vodovoz.Views.Client
 				.AddColumn("Тип КА").AddTextRenderer(n => n.PersonTypeShort)
 				.AddColumn("Код КА").AddNumericRenderer(n => n.EntityId)
 				.AddColumn("КА").AddTextRenderer(n => n.CounterpartyName)
-				.AddColumn("Код КА в ИПЗ").AddTextRenderer(n => n.ExternalCounterpartyGuid.ToString())
-				.AddColumn("Телефон").AddTextRenderer(n => n.PhoneNumber)
+				.AddColumn("Код КА в ИПЗ")
+					.AddTextRenderer(n => n.ExternalCounterpartyGuid.ToString())
+					.AddSetter((c, n) =>
+						c.ForegroundGdk = n.ExternalCounterpartyGuid != ViewModel.Entity.ExternalCounterpartyGuid
+							? _colorRed
+							: _colorBlack)
+				.AddColumn("Телефон")
+					.AddTextRenderer(n => n.PhoneNumber)
+					.AddSetter((c, n) =>
+						c.ForegroundGdk = n.PhoneNumber != ViewModel.DigitsPhoneNumber
+							? _colorRed
+							: _colorBlack)
 				.AddColumn("")
 				.Finish();
 
@@ -141,6 +153,7 @@ namespace Vodovoz.Views.Client
 		private void ReAssignCounterparty(object sender, EventArgs e)
 		{
 			ViewModel.ReAssignCounterpartyCommand.Execute();
+			treeViewMatches.YTreeModel.EmitModelChanged();
 		}
 
 		private void OnTreeViewMatchesRowActivated(object o, RowActivatedArgs args)
