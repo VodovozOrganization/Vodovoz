@@ -487,12 +487,17 @@ namespace Vodovoz
 					.Cast<RouteListKeepingItemNode>()
 					.FirstOrDefault();
 
-				RoboatsSettings roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
-				RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
+				var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+				var roboatsFileStorageFactory =
+					new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 				IDeliveryScheduleRepository deliveryScheduleRepository = new DeliveryScheduleRepository();
 				IFileDialogService fileDialogService = new FileDialogService();
-				RoboatsViewModelFactory roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-				var journal = new DeliveryScheduleJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, roboatsViewModelFactory);
+				var roboatsViewModelFactory =
+					new RoboatsViewModelFactory(
+						roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
+				var journal =
+					new DeliveryScheduleJournalViewModel(
+						UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, roboatsViewModelFactory);
 				journal.SelectionMode = JournalSelectionMode.Single;
 				journal.OnEntitySelectedResult += (s, args) => {
 					var selectedResult = args.SelectedNodes.First() as DeliveryScheduleJournalNode;

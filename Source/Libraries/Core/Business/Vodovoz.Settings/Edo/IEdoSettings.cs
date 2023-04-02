@@ -19,6 +19,5 @@
 		int CodePoolCheckCodesDepth { get; }
 		int CodePoolCheckIntervalMinutes { get; }
 		int CodePoolPromoteWithExtraSeconds { get; }
-
 	}
 }

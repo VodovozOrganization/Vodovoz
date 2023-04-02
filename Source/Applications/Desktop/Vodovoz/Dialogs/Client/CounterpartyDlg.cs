@@ -139,7 +139,8 @@ namespace Vodovoz
 		private TrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings = new EdoSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
-		private ICounterpartySettings _counterpartySettings = new CounterpartySettings(new ParametersProvider());
+		private ICounterpartySettings _counterpartySettings =
+			new CounterpartySettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 		private IRevenueServiceClient _revenueServiceClient;
 
