@@ -105,14 +105,12 @@ parallel (
 )
 
 parallel (
-	"Desktop" : {
-		node('DESKTOP_RUNTIME'){
-			stage('Deploy Desktop'){
+	/*"Desktop" : {
+		node('Vod3'){
+			stage('Deploy desktop'){
 				script{
 					def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
-					if(
-						env.BRANCH_NAME == 'master'
-						|| env.BRANCH_NAME == 'develop'
+					if(env.BRANCH_NAME == 'develop'
 						|| env.BRANCH_NAME == 'Beta'
 						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 					{
@@ -131,7 +129,21 @@ parallel (
 				}
 			}		
 		}
-	},
+	},*/
+	"DesktopRuntime" : {
+		node('DESKTOP_RUNTIME'){
+			stage('Deploy master desktop'){
+				script{
+					if(env.BRANCH_NAME == 'master')
+					{
+						DeployWinRuntime();
+					}else{
+						echo "Nothing to publish"
+					}
+				}
+			}		
+		}
+	}/*,
 	"Linux" : {
 		node('LINUX_RUNTIME'){
 			stage('Deploy WCF'){
@@ -176,7 +188,7 @@ parallel (
 				}
 			}
 		}						
-	}
+	}*/
 )
 
 def PrepareSources(jenkinsHome) {
@@ -227,4 +239,16 @@ def DeployWebService(serviceName) {
 	
     echo "Deploy ${serviceName} to CD folder"
 	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH
+}
+
+def DeployWinRuntime() {
+	def RUNTIME_DEPLOY_PATH = "${RuntimePath}\\DeployInProgress"
+	def RUNTIME_LATEST_PATH = "${RuntimePath}\\latest"
+
+	echo "Deploy master to runtime folder to ${RUNTIME_LATEST_PATH}"
+	copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+
+	bat 'rename ' + RUNTIME_LATEST_PATH + ' ' + RUNTIME_DEPLOY_PATH
+	unzip zipFile: 'Vodovoz.zip', dir: RUNTIME_DEPLOY_PATH
+	bat 'rename ' + RUNTIME_DEPLOY_PATH + ' ' + RUNTIME_LATEST_PATH
 }
