@@ -134,12 +134,12 @@ parallel (
 		node('DESKTOP_RUNTIME'){
 			stage('Deploy master desktop'){
 				script{
-					if(env.BRANCH_NAME == 'master')
-					{
+					/*if(env.BRANCH_NAME == 'master')
+					{*/
 						DeployWinRuntime();
-					}else{
+					/*}else{
 						echo "Nothing to publish"
-					}
+					}*/
 				}
 			}		
 		}
