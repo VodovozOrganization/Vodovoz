@@ -130,8 +130,22 @@ parallel (
 			}		
 		}
 	},*/
-	"DesktopRuntime" : {
-		node('DESKTOP_RUNTIME'){
+	"Vod3Runtime" : {
+		node('Vod3'){
+			stage('Deploy master desktop'){
+				script{
+					/*if(env.BRANCH_NAME == 'master')
+					{*/
+						DeployWinRuntime();
+					/*}else{
+						echo "Nothing to publish"
+					}*/
+				}
+			}		
+		}
+	},
+	"Vod5Runtime" : {
+		node('Vod5'){
 			stage('Deploy master desktop'){
 				script{
 					/*if(env.BRANCH_NAME == 'master')
