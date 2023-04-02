@@ -84,7 +84,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
-			INavigationManager navigationManager) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			Action<EmployeeFilterViewModel> filterparams = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал сотрудников";
 
@@ -111,6 +112,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
+
+			if(filterparams != null)
+			{
+				filterViewModel.SetAndRefilterAtOnce(filterparams);
+			}
 
 			UpdateOnChanges(typeof(Employee));
 		}

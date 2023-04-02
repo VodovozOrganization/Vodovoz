@@ -565,6 +565,7 @@ namespace Vodovoz
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 			_logger.Debug("Закончили пересчет рентабельности МЛ");
 			UoW.Save(Entity.RouteListProfitability);
+
 			UoW.Commit();
 			
 			return true;
@@ -686,7 +687,12 @@ namespace Vodovoz
 					warningMsg.Append($"\n\t- объём груза превышен на { Entity.VolumeExecess() } м<sup>3</sup>");
 				}
 
-				if(buttonAccept.Label == "Подтвердить" && (Entity.HasOverweight() || Entity.HasVolumeExecess()))
+				if(Entity.HasReverseVolumeExcess())
+				{
+					warningMsg.Append($"\n\t- объём возвращаемого груза превышен на {Entity.ReverseVolumeExecess()} м<sup>3</sup>");
+				}
+
+				if(buttonAccept.Label == "Подтвердить" && (Entity.HasOverweight() || Entity.HasVolumeExecess() || Entity.HasReverseVolumeExcess()))
 				{
 					if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_routelist_with_overweight"))
 					{
@@ -745,6 +751,21 @@ namespace Vodovoz
 					}
 
 					Save();
+
+					var routeListKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
+
+					foreach(var address in Entity.Addresses)
+					{
+						if(address.TransferedTo == null &&
+						   (!address.WasTransfered || address.AddressTransferType != AddressTransferType.FromHandToHand))
+						{
+							routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, address, DeliveryFreeBalanceType.Decrease, true);
+						}
+						else
+						{
+							routeListKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address);
+						}
+					}
 
 					if(Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !Entity.NeedToLoad)
 					{

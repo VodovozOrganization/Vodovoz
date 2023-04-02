@@ -41,7 +41,8 @@ namespace Vodovoz.Domain.Orders.Documents
 				Title = String.Format("{0} от {1:d}", Name, Certificate.ExpirationDate),
 				Identifier = "Documents.Certificate",
 				Parameters = new Dictionary<string, object> {
-					{ "certificate_id",  Certificate.Id }
+					{ "certificate_id",  Certificate.Id },
+					{ "order_id", Order.Id }
 				}
 			};
 			return reportInfo;

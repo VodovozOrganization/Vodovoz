@@ -133,7 +133,7 @@ namespace Vodovoz.Domain.Contacts
 		#endregion
 
 		/// <summary>
-		/// Обязательно вызвать <see cref="Init(IContactsParameters)"/> после вызова конструктора
+		/// Обязательно вызвать <see cref="Init(IContactParametersProvider)"/> после вызова конструктора
 		/// </summary>
 		public Phone()
 		{
@@ -161,7 +161,7 @@ namespace Vodovoz.Domain.Contacts
 			_comment = comment;
 		}
 
-		public virtual Phone Init(IContactsParameters contactsParameters)
+		public virtual Phone Init(IContactParametersProvider contactsParameters)
 		{
 			//I-2566 Отключено за ненадобностью
 			//if(String.IsNullOrWhiteSpace(contactsParameters.DefaultCityCode))

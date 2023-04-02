@@ -5,14 +5,14 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:5000;https://localhost:5001",
+      "applicationUrl": "https://localhost:7100",
       "dotnetRunMessages": "true"
     },
-    "Docker": {
-      "commandName": "Docker",
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
-      "publishAllPorts": true,
-      "useSSL": false
-    }
+		"Docker": {
+			"commandName": "Docker",
+			"launchUrl": "http://localhost:7100",
+			"publishAllPorts": true,
+			"useSSL": false
+		}
   }
 }

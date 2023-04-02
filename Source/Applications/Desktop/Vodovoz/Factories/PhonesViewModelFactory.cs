@@ -1,4 +1,4 @@
-﻿using QS.Dialog.GtkUI.FileDialog;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;

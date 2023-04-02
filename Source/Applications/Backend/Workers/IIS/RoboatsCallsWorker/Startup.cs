@@ -34,7 +34,7 @@ namespace RoboatsCallsWorker
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-			NLogBuilder.ConfigureNLog("NLog/NLog.config");
+			NLogBuilder.ConfigureNLog("NLog.config");
 			CreateBaseConfig();
 		}
 
@@ -47,7 +47,7 @@ namespace RoboatsCallsWorker
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<RoboatsSettings>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<RoboatsSettings>().As<IRoboatsSettings>();
 
 			builder.RegisterInstance(ErrorReporter.Instance).AsImplementedInterfaces();
 

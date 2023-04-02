@@ -1,4 +1,6 @@
-﻿using Autofac;
+using Autofac;
+using Fias.Client;
+using Fias.Client.Cache;
 using Gtk;
 using MySql.Data.MySqlClient;
 using NLog;
@@ -39,14 +41,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Fias.Client;
-using Fias.Client.Cache;
 using Vodovoz;
+using Vodovoz.Controllers;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.OnlineStore;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -54,10 +54,9 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Retail;
+using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
@@ -70,8 +69,10 @@ using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.EntityRepositories.Profitability;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
@@ -80,7 +81,6 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals;
-using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalSelector;
@@ -102,6 +102,7 @@ using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.Services;
+using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
@@ -109,6 +110,7 @@ using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using Vodovoz.ViewModels.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
@@ -131,40 +133,33 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
+using Vodovoz.ViewModels.Profitability;
 using Vodovoz.ViewModels.Reports;
+using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
+using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Interfaces;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
+using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
-using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
-using Vodovoz.Controllers;
-using Vodovoz.EntityRepositories.Profitability;
-using Vodovoz.ViewModels.Profitability;
-using Vodovoz.EntityRepositories.Stock;
-using Vodovoz.SidePanel;
-using Vodovoz.ViewModels.Dialogs.Goods;
-using Vodovoz.ViewModels.ReportsParameters.Profitability;
-using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
-using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
-using Vodovoz.ViewModels.Reports.Sales;
-using Vodovoz.EntityRepositories.Roboats;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -176,7 +171,7 @@ public partial class MainWindow : Gtk.Window
 	private readonly IApplicationConfigurator applicationConfigurator;
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 	private readonly bool _hasAccessToSalariesForLogistics;
-	
+
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
 
@@ -685,10 +680,6 @@ public partial class MainWindow : Gtk.Window
 		var userRepository = new UserRepository();
 		var counterpartyJournalFactory = new CounterpartyJournalFactory();
 
-		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
-
 		tdiMain.OpenTab(
 			() => new NomenclaturesJournalViewModel(
 				new NomenclatureFilterViewModel() { HidenByDefault = true },
@@ -1083,61 +1074,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		/*ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
-
-		IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
-
-		var parametersProvider = new ParametersProvider();
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(parametersProvider));
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var userRepository = new UserRepository();
-
-		ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
-
-		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(parametersProvider);
-		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
-		IFileDialogService fileDialogService = new FileDialogService();
-		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
-		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
-
-		var journal = new ComplaintsJournalViewModel(
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices,
-			undeliveredOrdersJournalOpener,
-			VodovozGtkServicesConfig.EmployeeService,
-			counterpartySelectorFactory,
-			routeListItemRepository,
-			new SubdivisionParametersProvider(new ParametersProvider()),
-			new ComplaintFilterViewModel(
-				ServicesConfig.CommonServices,
-				subdivisionRepository,
-				employeeJournalFactory,
-				counterpartySelectorFactory,
-				subdivisionParametersProvider
-			)
-			{
-				HidenByDefault = true
-			},
-			fileDialogService,
-			subdivisionRepository,
-			new GtkTabsOpener(),
-			nomenclatureRepository,
-			userRepository,
-			new OrderSelectorFactory(),
-			employeeJournalFactory,
-			counterpartySelectorFactory,
-			new DeliveryPointJournalFactory(),
-			subdivisionJournalFactory,
-			new SalesPlanJournalFactory(),
-			new NomenclatureJournalFactory(),
-			new EmployeeSettings(new ParametersProvider()),
-			new UndeliveredOrdersRepository(),
-			complaintParametersProvider,
-			autofacScope.BeginLifetimeScope()
-		);
-
-		tdiMain.AddTab(journal);*/
-		NavigationManager.OpenViewModel<ExternalCounterpartiesMatchingJournalViewModel>(null);
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)
@@ -1198,7 +1135,7 @@ public partial class MainWindow : Gtk.Window
 
 		employeeFilter.HidenByDefault = true;
 		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
-		
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.WagesOperationsReport(employeeJournalFactory))
@@ -1261,20 +1198,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionQualityRetailReport(object sender, EventArgs e)
 	{
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, RetailCounterpartyJournalViewModel,
-				CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-
-		var employeeJournalFactory = new EmployeeJournalFactory();
-
-		IEntityAutocompleteSelectorFactory salesChannelselectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
-				SalesChannelJournalFilterViewModel>(ServicesConfig.CommonServices);
-
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
-			() => new QSReport.ReportViewDlg(new QualityReport(counterpartySelectorFactory, salesChannelselectorFactory,
-				employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(), UnitOfWorkFactory.GetDefaultFactory,
+			() => new QSReport.ReportViewDlg(new QualityReport(
+				new CounterpartyJournalFactory(),
+				new EmployeeJournalFactory(),
+				new SalesChannelJournalFactory(),
+				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService)));
 	}
 
@@ -1282,21 +1212,10 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionOrderedByIdRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport();
 	protected void OnActionProducedProductionReportActivated(object sender, EventArgs e)
 	{
-		#region DependencyCreation
-
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
-		var userRepository = new UserRepository();
-
-		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(), nomenclatureRepository, userRepository);
-
-		#endregion
-
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ProducedProductionReport>(),
 			() => new QSReport.ReportViewDlg(
-				new ProducedProductionReport(nomenclatureSelectorFactory))
+				new ProducedProductionReport(new NomenclatureJournalFactory()))
 		);
 	}
 
@@ -1600,6 +1519,11 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab(journal);
 	}
 
+	protected void OnActionOrganizationOwnershipTypeActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OrganizationOwnershipTypeJournalViewModel>(null);
+	}
+
 	protected void OnActionProductGroupsActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1634,18 +1558,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionDeliveryPriceRulesActivated(object sender, EventArgs e)
 	{
-		bool right = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_price_rules");
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<DeliveryPriceRule>(),
-			() =>
-			{
-				var dlg = new OrmReference(typeof(DeliveryPriceRule))
-				{
-					ButtonMode = right ? ReferenceButtonMode.CanAll : ReferenceButtonMode.None
-				};
-				return dlg;
-			}
-		);
+		NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(null);
 	}
 
 	protected void OnOnLineActionActivated(object sender, EventArgs e)
@@ -1735,15 +1648,12 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionFirstClientsActivated(object sender, EventArgs e)
 	{
-		var districtFilter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
-
-		var districtSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District),
-			() => new DistrictJournalViewModel(districtFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
-
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<FirstClientsReport>(),
-			() => new QSReport.ReportViewDlg(new FirstClientsReport(districtSelectorFactory, new DiscountReasonRepository()))
-		);
+			() => new QSReport.ReportViewDlg(
+				  new FirstClientsReport(
+						new DistrictJournalFactory(),
+						new DiscountReasonRepository())));
 	}
 
 	protected void OnActionTariffZoneDebtsReportActivated(object sender, EventArgs e)
@@ -1784,10 +1694,6 @@ public partial class MainWindow : Gtk.Window
 		var userRepository = new UserRepository();
 
 		var counterpartyJournalFactory = new CounterpartyJournalFactory();
-
-		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
-			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
-				new NomenclatureFilterViewModel(), counterpartyJournalFactory, nomenclatureRepository, userRepository);
 
 		tdiMain.AddTab(
 			new PromotionalSetsJournalViewModel(
@@ -1971,7 +1877,7 @@ public partial class MainWindow : Gtk.Window
 			},
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+			employeeJournalFactory,
 			salesPlanJournalFactory,
 			nomenclatureSelectorFactory,
 			autofacScope.BeginLifetimeScope())
@@ -1986,7 +1892,7 @@ public partial class MainWindow : Gtk.Window
 			QSReport.ReportViewDlg.GenerateHashName<SetBillsReport>(),
 			() => new QSReport.ReportViewDlg(new SetBillsReport(
 				UnitOfWorkFactory.GetDefaultFactory,
-				subdivisionJournalFactory.CreateSubdivisionAutocompleteSelectorFactory()))
+				subdivisionJournalFactory))
 		);
 	}
 
@@ -2045,15 +1951,10 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionPaymentsReportActivated(object sender, EventArgs e)
 	{
-		var counterpartyAutocompleteSelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-
-		var userRepository = new UserRepository();
-
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
 			() => new QSReport.ReportViewDlg(
-				new PaymentsFromBankClientReport(counterpartyAutocompleteSelectorFactory, userRepository, ServicesConfig.CommonServices))
+				new PaymentsFromBankClientReport(new CounterpartyJournalFactory(), new UserRepository(), ServicesConfig.CommonServices))
 		);
 	}
 
@@ -2234,61 +2135,14 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
 	{
-		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
+		Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.IsForRetail = true;
 
-		IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener = new UndeliveredOrdersJournalOpener();
+		var filter = autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
 
-		var parametersProvider = new ParametersProvider();
-		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(parametersProvider));
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var userRepository = new UserRepository();
-
-		ICounterpartyJournalFactory counterpartySelectorFactory = new CounterpartyJournalFactory();
-
-		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
-		IFileDialogService fileDialogService = new FileDialogService();
-		ISubdivisionParametersProvider subdivisionParametersProvider = new SubdivisionParametersProvider(new ParametersProvider());
-		IComplaintParametersProvider complaintParametersProvider = new ComplaintParametersProvider(parametersProvider);
-
-		tdiMain.OpenTab(
-			() =>
-			{
-				return new ComplaintsJournalViewModel(
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					undeliveredOrdersJournalOpener,
-					VodovozGtkServicesConfig.EmployeeService,
-					counterpartySelectorFactory,
-					routeListItemRepository,
-					new SubdivisionParametersProvider(new ParametersProvider()),
-					new ComplaintFilterViewModel(
-						ServicesConfig.CommonServices,
-						subdivisionRepository,
-						employeeJournalFactory,
-						counterpartySelectorFactory,
-						subdivisionParametersProvider
-					)
-					{ IsForRetail = true },
-					fileDialogService,
-					subdivisionRepository,
-					new GtkTabsOpener(),
-					nomenclatureRepository,
-					userRepository,
-					new OrderSelectorFactory(),
-					employeeJournalFactory,
-					counterpartySelectorFactory,
-					new DeliveryPointJournalFactory(),
-					subdivisionJournalFactory,
-					new SalesPlanJournalFactory(),
-					new NomenclatureJournalFactory(),
-					new EmployeeSettings(new ParametersProvider()),
-					new UndeliveredOrdersRepository(),
-					complaintParametersProvider,
-					autofacScope.BeginLifetimeScope()
-				);
-			}
-		);
+		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
+			   null,
+			   filter,
+			   OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnActionRetailUndeliveredOrdersJournalActivated(object sender, EventArgs e)
@@ -2343,29 +2197,14 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCarsExploitationReportActivated(object sender, EventArgs e)
 	{
-		IEntityAutocompleteSelectorFactory carEntityAutocompleteSelectorFactory
-			= new EntityAutocompleteSelectorFactory<CarJournalViewModel>(typeof(Car),
-				() =>
-				{
-					var filter = new CarJournalFilterViewModel(new CarModelJournalFactory())
-					{
-						Archive = false,
-						VisitingMasters = false,
-						RestrictedCarTypesOfUse = new List<CarTypeOfUse>(new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle })
-					};
-					filter.SetFilterSensitivity(false);
-					filter.CanChangeRestrictedCarOwnTypes = true;
-					return new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices);
-				}
-			);
+		var carJournalFactory = new CarJournalFactory(NavigationManager);
 
 		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 		var interactiveService = new CastomInteractiveService();
 
 		var viewModel = new CarsExploitationReportViewModel(
 			uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(new ParametersProvider()),
-			carEntityAutocompleteSelectorFactory);
+			carJournalFactory);
 
 		tdiMain.AddTab(viewModel);
 	}
@@ -2392,18 +2231,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
 	{
-		IEntityAutocompleteSelectorFactory districtSelectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<District, DistrictJournalViewModel,
-				DistrictJournalFilterViewModel>(ServicesConfig.CommonServices);
-
-		IEntityAutocompleteSelectorFactory salesChannelselectorFactory =
-			new DefaultEntityAutocompleteSelectorFactory<SalesChannel, SalesChannelJournalViewModel,
-				SalesChannelJournalFilterViewModel>(ServicesConfig.CommonServices);
-
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
-			() => new QSReport.ReportViewDlg(new CounterpartyReport(salesChannelselectorFactory, districtSelectorFactory,
-				UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
+			() => new QSReport.ReportViewDlg(new CounterpartyReport(
+				new SalesChannelJournalFactory(),
+				new DistrictJournalFactory(),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.InteractiveService)));
 	}
 
 	protected void OnDriversToDistrictsAssignmentReportActionActivated(object sender, EventArgs e)
@@ -2516,30 +2350,21 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
 			() => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
-				employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-				employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory(), ServicesConfig.InteractiveService))
+				employeeJournalFactory,
+				ServicesConfig.InteractiveService))
 		);
 	}
 
 	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
 	{
-		var districtSelectorFactory = new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () =>
-		{
-			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
-			return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices)
-			{
-				EnableDeleteButton = true,
-				EnableAddButton = true,
-				EnableEditButton = true
-			};
-		});
+		var districtJournalFactory = new DistrictJournalFactory();
 
 		tdiMain.AddTab(
 			new DeliveryAnalyticsViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.InteractiveService,
 				NavigationManager,
-				districtSelectorFactory)
+				districtJournalFactory)
 		);
 	}
 
@@ -2779,7 +2604,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<EdoOperatorsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
-	
+
 	protected void OnUsersRolesActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<UserRolesJournalViewModel>(null);
@@ -2801,5 +2626,15 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionTurnoverWithDynamicsReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<TurnoverWithDynamicsReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnActionFastDeliveryPercentCoverageReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FastDeliveryPercentCoverageReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnActionComplaintDetalizationJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ComplaintDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }

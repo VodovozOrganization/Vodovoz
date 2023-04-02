@@ -7,6 +7,7 @@ using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
@@ -20,6 +21,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -28,6 +30,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
@@ -45,16 +48,23 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
+
 		private readonly string _templatePath = @".\Reports\Sales\TurnoverReport.xlsx";
 		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
 		private readonly string _templateFinancePath = @".\Reports\Sales\TurnoverFinanceReport.xlsx";
 		private readonly string _templateWithDynamicsFinancePath = @".\Reports\Sales\TurnoverWithDynamicsFinanceReport.xlsx";
+		private readonly string _templateByCounterpartyPath = @".\Reports\Sales\TurnoverByCounterpartyReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsReport.xlsx";
+		private readonly string _templateByCounterpartyFinancePath = @".\Reports\Sales\TurnoverByCounterpartyFinanceReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsFinancePath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsFinanceReport.xlsx";
+		
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
+		private GroupingByEnum _groupingBy;
 		private DateTimeSliceType _slice;
 		private MeasurementUnitEnum _measurementUnit;
 		private DynamicsInEnum _dynamicsIn;
@@ -124,6 +134,20 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			set => SetField(ref _showDynamics, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanShowResidueForNomenclaturesWithoutSales))]
+		public GroupingByEnum GroupingBy
+		{
+			get => _groupingBy;
+			set
+			{
+				if(SetField(ref _groupingBy, value)
+					&& value == GroupingByEnum.Counterparty)
+				{
+					ShowResidueForNomenclaturesWithoutSales = false;
+				}
+			}
+		}
+
 		public MeasurementUnitEnum MeasurementUnit
 		{
 			get => _measurementUnit;
@@ -142,18 +166,21 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			set => SetField(ref _dynamicsIn, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanShowResidueForNomenclaturesWithoutSales))]
 		public bool ShowLastSale
 		{
 			get => _showLastSale;
 			set
 			{
-				SetField(ref _showLastSale, value);
-				if(!value)
+				if(SetField(ref _showLastSale, value) && !value)
 				{
-					ShowResidueForNomenclaturesWithoutSales = value;
+					ShowResidueForNomenclaturesWithoutSales = false;
 				}
 			}
 		}
+
+		public bool CanShowResidueForNomenclaturesWithoutSales =>
+			ShowLastSale && GroupingBy == GroupingByEnum.Nomenclature;
 
 		public bool ShowResidueForNomenclaturesWithoutSales
 		{
@@ -513,7 +540,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				"«В разрезе» - Выбор разбивки по периодам. В отчет попадают периоды согласно выбранного разреза, но не выходя за границы выставленного периода.\r\n" +
 				"«Единица измерения» - величина, в которой будет сформирован отчёт, а именно в штуках или рублях.\r\n" +
 				"«В динамике» - показывает изменения по отношению к предыдущему столбцу, в процентах или ед. измерения.\r\n" +
-				"«Показать последнюю продажу» - добавляется информация о дате последней продажи, кол-ве дней от последней продажи до текущей даты, остатках по всем складам на текущую дату.";
+				"«Показать последнюю продажу» - добавляется информация о дате последней продажи, кол-ве дней от последней продажи до текущей даты, остатках по всем складам на текущую дату.\r\n" +
+				"2.1 В отчете доступна группировка по:\r\n" +
+				"    'Номенклатура'\r\n" +
+				"    'Контрагент'\r\n" +
+				"2.2 При выборе группировки по \"Контрагенту\"\r\n" +
+				"    - В отчете выводится имя контрагента и дополнительный столбец \"Телефоны контрагента\"\r\n" +
+				"    - Галочка \"Показывать товары на остатках без продаж\" становится недоступной для выбора\r\n" +
+				"    - При выборе галочки \"Показывать последнюю продажу\" не выводится в отчете последний столбец \"Остатки по всем складам\"";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
 		}
@@ -582,11 +616,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					StartDate.Value,
 					EndDate.Value,
 					filters,
+					GroupingBy,
 					SlicingType,
 					MeasurementUnit,
 					ShowDynamics,
 					DynamicsIn,
 					ShowLastSale,
+					ShowResidueForNomenclaturesWithoutSales,
 					GetWarhouseBalance,
 					GetData);
 			}, cancellationToken);
@@ -594,31 +630,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		public void ExportReport(string path)
 		{
-			string templatePath;
-
-			if(ShowDynamics)
-			{
-				if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
-				{
-					templatePath = _templateWithDynamicsPath;
-				}
-				else
-				{
-					templatePath = _templateWithDynamicsFinancePath;
-				}
-
-			}
-			else
-			{
-				if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
-				{
-					templatePath = _templatePath;
-				}
-				else
-				{
-					templatePath = _templateFinancePath;
-				}
-			}
+			string templatePath = GetTrmplatePath();
 
 			var template = new XLTemplate(templatePath);
 
@@ -626,6 +638,61 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			template.Generate();
 
 			template.SaveAs(path);
+		}
+
+		private string GetTrmplatePath()
+		{
+			if(Report.GroupingBy == GroupingByEnum.Nomenclature)
+			{
+				if(Report.ShowDynamics)
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateWithDynamicsPath;
+					}
+					else
+					{
+						return _templateWithDynamicsFinancePath;
+					}
+				}
+				else
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templatePath;
+					}
+					else
+					{
+						return _templateFinancePath;
+					}
+				}
+			}
+			else if(Report.GroupingBy == GroupingByEnum.Counterparty)
+			{
+				if(Report.ShowDynamics)
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyWithDynamicsPath;
+					}
+					else
+					{
+						return _templateByCounterpartyWithDynamicsFinancePath;
+					}
+				}
+				else
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyPath;
+					}
+					else
+					{
+						return _templateByCounterpartyFinancePath;
+					}
+				}
+			}
+			throw new InvalidOperationException("Что-то пошло не так. Не достижимая ветка ветвления");
 		}
 
 		private decimal GetWarhouseBalance(int nomenclatureId)
@@ -691,6 +758,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			District districtAlias = null;
 			VodovozCounterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
+			Phone phoneAlias = null;
+			Phone orderContactPhoneAlias = null;
 
 			OrderItemNode resultNodeAlias = null;
 
@@ -782,15 +851,23 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var query = _unitOfWork.Session.QueryOver(() => orderItemAlias)
 				.Left.JoinAlias(() => orderItemAlias.PromoSet, () => promotionalSetAlias)
 				.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id)
+				.Left.JoinAlias(() => orderAlias.ContactPhone, () => orderContactPhoneAlias)
 				.Left.JoinAlias(() => orderAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Left.JoinAlias(() => counterpartyAlias.CounterpartyContracts, () => counterpartyContractAlias)
+				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias);
 
+			var counterpartyPhonesSubquery = QueryOver.Of(() => phoneAlias)
+				.Where(() => phoneAlias.Counterparty.Id == orderAlias.Client.Id)
+				.AndNot(() => phoneAlias.IsArchive)
+				.Select(
+					CustomProjections.GroupConcat(
+						PhoneProjections.GetDigitNumberLeadsWith8(),
+						separator: ",\n"));
 
 			#region filter parameters
 			if(parameters.ContainsKey(nameof(NomenclatureCategory) + _includeSuffix)
@@ -1002,17 +1079,24 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var result = query.Where(GetOrderCriterion(filterOrderStatusInclude, orderAlias))
 				.SelectList(list =>
 					list.SelectGroup(() => orderItemAlias.Id)
-						.Select(Projections.Property(() => orderItemAlias.Id).WithAlias(() => resultNodeAlias.Id))
-						.Select(Projections.Property(() => orderItemAlias.Price).WithAlias(() => resultNodeAlias.Price))
+						.Select(() => orderItemAlias.Id).WithAlias(() => resultNodeAlias.Id)
+						.Select(() => orderItemAlias.Price).WithAlias(() => resultNodeAlias.Price)
 						.Select(OrderProjections.GetOrderItemSumProjection()).WithAlias(() => resultNodeAlias.ActualSum)
-						.Select(Projections.Property(() => orderItemAlias.Count).WithAlias(() => resultNodeAlias.Count))
-						.Select(Projections.Property(() => orderItemAlias.ActualCount).WithAlias(() => resultNodeAlias.ActualCount))
-						.Select(Projections.Property(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId))
-						.Select(Projections.Property(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName))
-						.Select(Projections.Property(() => orderAlias.Id).WithAlias(() => resultNodeAlias.OrderId))
-						.Select(Projections.Property(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
-						.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
-						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.ProductGroupName)))
+						.Select(() => orderItemAlias.Count).WithAlias(() => resultNodeAlias.Count)
+						.Select(() => orderItemAlias.ActualCount).WithAlias(() => resultNodeAlias.ActualCount)
+						.Select(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId)
+						.Select(() => counterpartyAlias.Id).WithAlias(() => resultNodeAlias.CounterpartyId)
+						.Select(() => counterpartyAlias.FullName).WithAlias(() => resultNodeAlias.CounterpartyFullName)
+						.SelectSubQuery(counterpartyPhonesSubquery).WithAlias(() => resultNodeAlias.CounterpartyPhones)
+						.Select(Projections.Conditional(
+							Restrictions.IsNull(Projections.Property(() => orderAlias.ContactPhone)),
+							Projections.Constant(string.Empty),
+							PhoneProjections.GetOrderContactDigitNumberLeadsWith8())).WithAlias(() => resultNodeAlias.OrderContactPhone)
+						.Select(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName)
+						.Select(() => orderAlias.Id).WithAlias(() => resultNodeAlias.OrderId)
+						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate)
+						.Select(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId)
+						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName))
 				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).List<OrderItemNode>();
 

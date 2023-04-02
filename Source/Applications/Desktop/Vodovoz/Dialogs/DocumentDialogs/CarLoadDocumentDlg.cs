@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
 using QS.Project.Services;
 using QS.Report;
+using Vodovoz.Controllers;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
@@ -33,6 +34,7 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -193,7 +195,7 @@ namespace Vodovoz
 				}
 			}
 
-			Entity.UpdateOperations(UoW);
+			Entity.UpdateOperations(UoW, _baseParametersProvider.GetNomenclatureIdForTerminal);
 
 			logger.Info("Сохраняем погрузочный талон...");
 			UoWGeneric.Save();
@@ -202,6 +204,7 @@ namespace Vodovoz
 			if(Entity.RouteList.ShipIfCan(UoW, CallTaskWorker, out _))
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			UoW.Save(Entity.RouteList);
+
 			UoW.Commit();
 
 			logger.Info("Ok.");

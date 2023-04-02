@@ -18,6 +18,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.TrueMark;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
@@ -147,13 +148,13 @@ namespace Vodovoz.EntityRepositories.Orders
 							.Add(Restrictions.Conjunction()
 								.Add(Restrictions.On(() => orderAlias.PaymentType)
 									.IsIn(new[] { PaymentType.Terminal, PaymentType.cash }))
-								.Add(Restrictions.IsNotNull(Projections.Property(() => cashReceiptAlias.Id))))
+								.Add(Restrictions.Where(() => cashReceiptAlias.Status == CashReceiptStatus.Sended)))
 							.Add(Restrictions.Conjunction()
 								.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
 								.Add(Restrictions.Disjunction()
 									.Add(Restrictions.On(() => orderAlias.PaymentByCardFrom.Id)
 										.IsIn(orderParametersProvider.PaymentsByCardFromNotToSendSalesReceipts))
-									.Add(Restrictions.IsNotNull(Projections.Property(() => cashReceiptAlias.Id))))
+									.Add(Restrictions.Where(() => cashReceiptAlias.Status == CashReceiptStatus.Sended)))
 							)
 						);
 					break;
@@ -575,79 +576,6 @@ namespace Vodovoz.EntityRepositories.Orders
 			};
 		}
 
-		public IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(
-			IUnitOfWork uow,
-			IOrderParametersProvider orderParametersProvider,
-			DateTime? startDate = null)
-		{
-			ReceiptForOrderNode resultAlias = null;
-			OrderItem orderItemAlias = null;
-			VodovozOrder orderAlias = null;
-			CashReceipt cashReceiptAlias = null;
-			Counterparty counterpartyAlias = null;
-
-			var orderSumProjection = Projections.Sum(
-				Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.Decimal, "CAST(IFNULL(?1 * ?2 - ?3, 0) AS DECIMAL(14,2))"),
-					NHibernateUtil.Decimal,
-					Projections.Property(() => orderItemAlias.Count),
-					Projections.Property(() => orderItemAlias.Price),
-					Projections.Property(() => orderItemAlias.DiscountMoney)
-				)
-			);
-
-			var paymentTypeRestriction = Restrictions.Disjunction()
-				.Add(() => orderAlias.PaymentType == PaymentType.Terminal)
-				.Add(Restrictions.Conjunction()
-					.Add(() => orderAlias.PaymentType == PaymentType.cash)
-					.Add(() => counterpartyAlias.AlwaysSendReceipts))
-				.Add(Restrictions.Conjunction()
-					.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
-					.Add(Restrictions.Disjunction()
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.PaymentFromTerminalId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromAvangardId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
-						.Add(() => orderAlias.PaymentByCardFrom.Id == orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)));
-
-			var statusRestriction = Restrictions.Disjunction()
-				.Add(Restrictions.In(Projections.Property(() => orderAlias.OrderStatus),
-					new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock }))
-				.Add(Restrictions.Conjunction()
-					.Add(() => orderAlias.SelfDelivery)
-					.Add(() => orderAlias.IsSelfDeliveryPaid));
-
-			var positiveSumRestriction = Restrictions.Gt(orderSumProjection, 0);
-
-			var notSentRestriction = Restrictions.Disjunction()
-				.Add(Restrictions.IsNull(Projections.Property(() => cashReceiptAlias.Id)))
-				.Add(() => !cashReceiptAlias.Sent);
-
-			var ordersToSendQuery = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
-				.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
-				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.Inner.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.Where(paymentTypeRestriction)
-				.And(statusRestriction)
-				.And(positiveSumRestriction)
-				.And(notSentRestriction);
-
-			if(startDate.HasValue)
-			{
-				ordersToSendQuery.Where(() => orderAlias.DeliveryDate >= startDate.Value);
-			}
-
-			var ordersToSend = ordersToSendQuery
-				.SelectList(list => list
-					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
-					.Select(() => cashReceiptAlias.Id).WithAlias(() => resultAlias.ReceiptId)
-					.Select(() => cashReceiptAlias.Sent).WithAlias(() => resultAlias.WasSent))
-				.TransformUsing(Transformers.AliasToBean<ReceiptForOrderNode>())
-				.List<ReceiptForOrderNode>();
-
-			return ordersToSend;
-		}
-
 		public SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId)
 		{
 			SmsPayment smsPaymentAlias = null;
@@ -718,6 +646,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			var receipt = uow.Session.QueryOver<CashReceipt>()
 				.Where(x => x.Order.Id == orderId)
+				.Where(x => x.Status == CashReceiptStatus.Sended)
 				.SingleOrDefault();
 
 			return receipt != null;
@@ -765,6 +694,15 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault<int>();
 
 			return subqueryAdded - subqueryRemoved - subqueryReserved > 0;
+		}
+
+		public bool IsMovedToTheNewOrder(IUnitOfWork uow, OrderItem orderItem)
+		{
+			var movedOrderItems = uow.Session.QueryOver<OrderItem>()
+				.Where(o => o.CopiedFromUndelivery.Id == orderItem.Id && o.Id != orderItem.Id)
+				.List<OrderItem>();
+
+			return movedOrderItems.Count > 0;
 		}
 
 		public IEnumerable<VodovozOrder> GetOrders(IUnitOfWork uow, int[] ids)
@@ -954,7 +892,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			var hasGtinNomenclaturesSubQuery = QueryOver.Of(() => orderItemAlias)
 					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-					.And(() => nomenclatureAlias.IsAccountableInChestniyZnak)
+					.And(() => nomenclatureAlias.IsAccountableInTrueMark)
 					.And(() => nomenclatureAlias.Gtin != null)
 					.Select(Projections.Id());
 
@@ -1007,7 +945,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			var hasGtinNomenclaturesSubQuery = QueryOver.Of(() => orderItemAlias)
 					.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-					.And(() => nomenclatureAlias.IsAccountableInChestniyZnak)
+					.And(() => nomenclatureAlias.IsAccountableInTrueMark)
 					.And(() => nomenclatureAlias.Gtin != null)
 					.Select(Projections.Id());
 

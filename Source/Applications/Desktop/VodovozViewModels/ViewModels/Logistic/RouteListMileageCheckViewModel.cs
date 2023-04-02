@@ -33,6 +33,7 @@ namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListMileageCheckViewModel : EntityTabViewModelBase<RouteList>, IAskSaveOnCloseViewModel
 	{
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly BaseParametersProvider _baseParametersProvider;
 		private readonly ITrackRepository _trackRepository;
@@ -60,7 +61,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeService _employeeService;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 
-		public RouteListMileageCheckViewModel(IEntityUoWBuilder uowBuilder,
+		public RouteListMileageCheckViewModel(
+			IEntityUoWBuilder uowBuilder,
 			ICommonServices commonServices,
 			ICarJournalFactory carJournalFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -93,6 +95,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_errorReporter = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -105,11 +108,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 			CarSelectorFactory = (carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
 				.CreateCarAutocompleteSelectorFactory();
-
-			if(employeeJournalFactory == null)
-			{
-				throw new ArgumentNullException(nameof(employeeJournalFactory));
-			}
 
 			LogisticianSelectorFactory = employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory();
 			DriverSelectorFactory = employeeJournalFactory.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
@@ -328,7 +326,7 @@ namespace Vodovoz.ViewModels.Logistic
 						UnitOfWorkFactory,
 						_undeliveryViewOpener,
 						_employeeService,
-						_employeeSelectorFactory,
+						_employeeJournalFactory,
 						_employeeSettings,
 						CommonServices
 					)

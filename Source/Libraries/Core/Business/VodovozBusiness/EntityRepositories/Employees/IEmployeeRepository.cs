@@ -18,5 +18,6 @@ namespace Vodovoz.EntityRepositories.Employees
 		IList<EmployeeWorkChart> GetWorkChartForEmployeeByDate(IUnitOfWork uow, Employee employee, DateTime date);
 		string GetEmployeePushTokenByOrderId(IUnitOfWork uow, int orderId);
 		EmployeeRegistration EmployeeRegistrationDuplicateExists(EmployeeRegistration registration);
+		IEnumerable<Employee> GetSubscribedToPushNotificationsDrivers(IUnitOfWork uow);
 	}
 }

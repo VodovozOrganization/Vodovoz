@@ -10,11 +10,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using TrueMarkApi.Dto.Participants;
 using TrueMarkApi.Library.Dto;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using IAuthorizationService = TrueMarkApi.Services.Authorization.IAuthorizationService;
 using TrueMarkApi.Dto;
+using TrueMarkApi.Dto.Participants;
 
 namespace TrueMarkApi.Controllers
 {
@@ -47,7 +47,7 @@ namespace TrueMarkApi.Controllers
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
-
+		
 		[HttpGet]
 		[Route("/api/ParticipantRegistrationForWater")]
 		public async Task<TrueMarkResponseResultDto> ParticipantRegistrationForWaterAsync(string inn)
@@ -138,6 +138,88 @@ namespace TrueMarkApi.Controllers
 			_logger.LogError($"Ошибка при получении статуса регистрации в ЧЗ: Http code {response.StatusCode}, причина {response.ReasonPhrase}");
 
 			return null;
+		}
+
+		[HttpPost]
+		[Route("/api/RequestProductInstanceInfo")]
+		public async Task<ProductInstancesInfo> GetProductInstanceInfo([FromBody]IEnumerable<string> identificationCodes)
+		{
+			var uri = $"cises/info";
+
+			var token = await _authorizationService.Login(_organizationCertificate.CertificateThumbPrint);
+			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			_logger.LogInformation($"token: {token}");
+
+			StringBuilder errorMessage = new StringBuilder();
+			errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
+
+			try
+			{
+				string content = JsonSerializer.Serialize(identificationCodes.ToArray());
+				HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+
+				var response = await _httpClient.PostAsync(uri, httpContent);
+				if(response.IsSuccessStatusCode)
+				{
+					string responseBody = await response.Content.ReadAsStringAsync();
+					var cisesInformation = JsonSerializer.Deserialize<IList<CisInfoRoot>>(responseBody);
+					_logger.LogInformation($"responseBody: {responseBody}");
+
+					var productInstancesInfo = cisesInformation.Select(x =>
+						new ProductInstanceStatus { 
+							IdentificationCode = x.CisInfo.RequestedCis, 
+							Status = GetStatus(x.CisInfo.Status) 
+						}
+					);
+
+					return new ProductInstancesInfo
+					{
+						InstanceStatuses = new List<ProductInstanceStatus>(productInstancesInfo)
+					};
+				}
+
+				return new ProductInstancesInfo
+				{
+					ErrorMessage = errorMessage.AppendLine($"{response.StatusCode} {response.ReasonPhrase}").ToString()
+				};
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, errorMessage.ToString());
+
+				return new ProductInstancesInfo
+				{
+					ErrorMessage = errorMessage.AppendLine(e.Message).ToString()
+				};
+			}
+		}
+		private ProductInstanceStatusEnum GetStatus(string statusName)
+		{
+			switch(statusName)
+			{
+				case "EMITTED":
+					return ProductInstanceStatusEnum.Emitted;
+				case "APPLIED":
+					return ProductInstanceStatusEnum.Applied;
+				case "APPLIED_PAID":
+					return ProductInstanceStatusEnum.AppliedPaid;
+				case "INTRODUCED":
+					return ProductInstanceStatusEnum.Introduced;
+				case "WRITTEN_OFF":
+					return ProductInstanceStatusEnum.WrittenOff;
+				case "RETIRED":
+					return ProductInstanceStatusEnum.Retired;
+				case "WITHDRAWN":
+					return ProductInstanceStatusEnum.Withdrawn;
+				case "DISAGGREGATION":
+					return ProductInstanceStatusEnum.Disaggregation;
+				case "DISAGGREGATED":
+					return ProductInstanceStatusEnum.Disaggregated;
+				case "APPLIED_NOT_PAID":
+					return ProductInstanceStatusEnum.AppliedNotPaid;
+				default:
+					throw new InvalidOperationException($"Не известный статус экземпляра продукта: {statusName}");
+			}
 		}
 	}
 }

@@ -8,8 +8,6 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
 using QSProjectsLib;
 using Vodovoz.Core.DataService;
@@ -40,9 +38,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -50,9 +46,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
-    public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
-    {
-	    private class OrderNode : PropertyChangedBase
+	public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
+	{
+		private class OrderNode : PropertyChangedBase
 		{
 			public enum ChangedType
 			{
@@ -365,8 +361,20 @@ namespace Vodovoz
 
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
+
+			if (_routeListItem.Order.PaymentType == PaymentType.ByCard)
+			{
+				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>()
+					.Where(
+						p => !p.IsArchive
+						|| _routeListItem.Order.PaymentByCardFrom.Id == p.Id
+				).List();
+			}
+			else
+			{
+				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(p => !p.IsArchive).List();
+			}				
 			
-			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().List();
 			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.ByCard, w => w.Visible)
 				.InitializeFromSource();
@@ -459,8 +467,7 @@ namespace Vodovoz
 
 		int GetMaxCount(OrderItemReturnsNode node)
 		{
-			var count = (node.Nomenclature.Category == NomenclatureCategory.master
-			             || node.Nomenclature.Category == NomenclatureCategory.deposit)
+			var count = node.Nomenclature.Category == NomenclatureCategory.deposit
 				? 1
 				: 9999;
 			return count;
@@ -518,7 +525,7 @@ namespace Vodovoz
 			buttonDeliveryCanceled.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Canceled;
 			buttonNotDelivered.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Overdue;
 			buttonDelivered.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Completed &&
-			                            _routeListItem.Status != RouteListItemStatus.EnRoute;
+										_routeListItem.Status != RouteListItemStatus.EnRoute;
 		}
 
 		protected void OnYenumcomboOrderPaymentChangedByUser(object sender, EventArgs e)

@@ -169,8 +169,8 @@ namespace TaxcomEdoApi.Factories
 							Otchestvo = firstNameAndPatronymic[1]
 						},
 						INNJuL = org.INN,
-						NaimOrg = certDetails.OrganizationName,
-						Dolzhn = certDetails.Title
+						NaimOrg = org.Name,
+						Dolzhn = "Главный бухгалтер"
 					}
 				}
 			};

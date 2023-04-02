@@ -153,7 +153,17 @@ namespace Vodovoz.ViewModels.ViewModels.Profitability
 			IUnitOfWork uow,
 			ISelectableParametersFilterViewModelFactory selectableParametersFilterViewModelFactory)
 		{
-			uow.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch,x => x.Childs).List();
+			ProductGroup productGroupChildAlias = null;
+			var query = uow.Session.QueryOver<ProductGroup>()
+				.Left.JoinAlias(p => p.Childs, () => productGroupChildAlias);
+
+			if(uow.IsNew)
+			{
+				query.Where(() => !productGroupChildAlias.IsArchive);
+			}
+			
+			query.Fetch(SelectMode.Fetch,p => p.Childs)
+				.List();
 			
 			AdministrativeExpensesProductGroupsFilterViewModel =
 				selectableParametersFilterViewModelFactory.CreateProductGroupsSelectableParametersFilterViewModel(

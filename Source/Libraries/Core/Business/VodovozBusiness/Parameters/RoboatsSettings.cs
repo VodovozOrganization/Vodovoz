@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vodovoz.Settings;
 
 namespace Vodovoz.Parameters

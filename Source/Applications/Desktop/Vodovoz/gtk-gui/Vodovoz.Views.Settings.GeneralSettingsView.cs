@@ -38,6 +38,30 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gtk.Label frameLogisticLabel;
 
+		private global::Gtk.Frame frameComplaintConfiguration;
+
+		private global::Gtk.Alignment GtkAlignment4;
+
+		private global::Gtk.VBox vbox4;
+
+		private global::Gtk.Label label1;
+
+		private global::Gtk.HBox hbox3;
+
+		private global::Gamma.GtkWidgets.yButton ybtnComplaintWithoutDriverSubdivisionsAdd;
+
+		private global::Gamma.GtkWidgets.yButton ybtnComplaintWithoutDriverSubdivisionsDelete;
+
+		private global::Gamma.GtkWidgets.yButton ybtnComplaintWithoutDriverSubdivisionsSave;
+
+		private global::Gamma.GtkWidgets.yButton ybtnComplaintWithoutDriverSubdivisionsInfo;
+
+		private global::Gtk.ScrolledWindow scrollComplaintWithoutDriverSubdivisions;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeComplaintWithoutDriverSubdivisions;
+
+		private global::Gtk.Label frameLabelComplaints;
+
 		private global::Gtk.Frame frameRoboats;
 
 		private global::Gtk.Alignment GtkAlignment;
@@ -45,6 +69,22 @@ namespace Vodovoz.Views.Settings
 		private global::Vodovoz.Views.Settings.RoboatsSettingsView roboatssettingsview1;
 
 		private global::Gtk.Label frameRoboatsLabel;
+
+		private global::Gtk.Frame frameOrderAutoComment;
+
+		private global::Gtk.Alignment GtkAlignment2;
+
+		private global::Gamma.GtkWidgets.yHBox hboxOrderAutoComment;
+
+		private global::Gamma.GtkWidgets.yButton btnSaveOrderAutoComment;
+
+		private global::Gamma.GtkWidgets.yEntry entryOrderAutoComment;
+
+		private global::Gamma.GtkWidgets.yButton btnOrderAutoCommentInfo;
+
+		private global::Gtk.Label frameOrderAutoCommentLabel;
+
+		private global::Gtk.VBox vbox1;
 
 		protected virtual void Build()
 		{
@@ -185,6 +225,115 @@ namespace Vodovoz.Views.Settings
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
+			this.frameComplaintConfiguration = new global::Gtk.Frame();
+			this.frameComplaintConfiguration.Name = "frameComplaintConfiguration";
+			this.frameComplaintConfiguration.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child frameComplaintConfiguration.Gtk.Container+ContainerChild
+			this.GtkAlignment4 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment4.Name = "GtkAlignment4";
+			this.GtkAlignment4.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment4.Gtk.Container+ContainerChild
+			this.vbox4 = new global::Gtk.VBox();
+			this.vbox4.Name = "vbox4";
+			this.vbox4.Spacing = 6;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.label1 = new global::Gtk.Label();
+			this.label1.Name = "label1";
+			this.label1.Xalign = 0F;
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Информировать о незаполненном водителе в рекламациях на следующие отделы:");
+			this.label1.UseMarkup = true;
+			this.label1.Wrap = true;
+			this.vbox4.Add(this.label1);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.label1]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.hbox3 = new global::Gtk.HBox();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd.CanFocus = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd.Name = "ybtnComplaintWithoutDriverSubdivisionsAdd";
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd.UseUnderline = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить");
+			global::Gtk.Image w16 = new global::Gtk.Image();
+			w16.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.ybtnComplaintWithoutDriverSubdivisionsAdd.Image = w16;
+			this.hbox3.Add(this.ybtnComplaintWithoutDriverSubdivisionsAdd);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnComplaintWithoutDriverSubdivisionsAdd]));
+			w17.Position = 0;
+			w17.Expand = false;
+			w17.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete.CanFocus = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete.Name = "ybtnComplaintWithoutDriverSubdivisionsDelete";
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete.UseUnderline = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			global::Gtk.Image w18 = new global::Gtk.Image();
+			w18.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.ybtnComplaintWithoutDriverSubdivisionsDelete.Image = w18;
+			this.hbox3.Add(this.ybtnComplaintWithoutDriverSubdivisionsDelete);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnComplaintWithoutDriverSubdivisionsDelete]));
+			w19.Position = 1;
+			w19.Expand = false;
+			w19.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.ybtnComplaintWithoutDriverSubdivisionsSave = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnComplaintWithoutDriverSubdivisionsSave.CanFocus = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsSave.Name = "ybtnComplaintWithoutDriverSubdivisionsSave";
+			this.ybtnComplaintWithoutDriverSubdivisionsSave.UseUnderline = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.hbox3.Add(this.ybtnComplaintWithoutDriverSubdivisionsSave);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnComplaintWithoutDriverSubdivisionsSave]));
+			w20.Position = 2;
+			w20.Expand = false;
+			w20.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.ybtnComplaintWithoutDriverSubdivisionsInfo = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnComplaintWithoutDriverSubdivisionsInfo.TooltipMarkup = "Справка по работе с отчётом";
+			this.ybtnComplaintWithoutDriverSubdivisionsInfo.CanFocus = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsInfo.Name = "ybtnComplaintWithoutDriverSubdivisionsInfo";
+			this.ybtnComplaintWithoutDriverSubdivisionsInfo.UseUnderline = true;
+			this.ybtnComplaintWithoutDriverSubdivisionsInfo.Relief = ((global::Gtk.ReliefStyle)(1));
+			global::Gtk.Image w21 = new global::Gtk.Image();
+			w21.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.ybtnComplaintWithoutDriverSubdivisionsInfo.Image = w21;
+			this.hbox3.Add(this.ybtnComplaintWithoutDriverSubdivisionsInfo);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnComplaintWithoutDriverSubdivisionsInfo]));
+			w22.Position = 3;
+			w22.Expand = false;
+			w22.Fill = false;
+			this.vbox4.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox3]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.scrollComplaintWithoutDriverSubdivisions = new global::Gtk.ScrolledWindow();
+			this.scrollComplaintWithoutDriverSubdivisions.Name = "scrollComplaintWithoutDriverSubdivisions";
+			this.scrollComplaintWithoutDriverSubdivisions.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrollComplaintWithoutDriverSubdivisions.Gtk.Container+ContainerChild
+			this.ytreeComplaintWithoutDriverSubdivisions = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeComplaintWithoutDriverSubdivisions.CanFocus = true;
+			this.ytreeComplaintWithoutDriverSubdivisions.Name = "ytreeComplaintWithoutDriverSubdivisions";
+			this.scrollComplaintWithoutDriverSubdivisions.Add(this.ytreeComplaintWithoutDriverSubdivisions);
+			this.vbox4.Add(this.scrollComplaintWithoutDriverSubdivisions);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.scrollComplaintWithoutDriverSubdivisions]));
+			w25.Position = 2;
+			this.GtkAlignment4.Add(this.vbox4);
+			this.frameComplaintConfiguration.Add(this.GtkAlignment4);
+			this.frameLabelComplaints = new global::Gtk.Label();
+			this.frameLabelComplaints.Name = "frameLabelComplaints";
+			this.frameLabelComplaints.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройки рекламаций</b>");
+			this.frameLabelComplaints.UseMarkup = true;
+			this.frameComplaintConfiguration.LabelWidget = this.frameLabelComplaints;
+			this.vboxMain.Add(this.frameComplaintConfiguration);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frameComplaintConfiguration]));
+			w28.Position = 1;
+			// Container child vboxMain.Gtk.Box+BoxChild
 			this.frameRoboats = new global::Gtk.Frame();
 			this.frameRoboats.Name = "frameRoboats";
 			this.frameRoboats.BorderWidth = ((uint)(1));
@@ -204,15 +353,83 @@ namespace Vodovoz.Views.Settings
 			this.frameRoboatsLabel.UseMarkup = true;
 			this.frameRoboats.LabelWidget = this.frameRoboatsLabel;
 			this.vboxMain.Add(this.frameRoboats);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frameRoboats]));
-			w17.Position = 1;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frameRoboats]));
+			w31.Position = 2;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.frameOrderAutoComment = new global::Gtk.Frame();
+			this.frameOrderAutoComment.Name = "frameOrderAutoComment";
+			this.frameOrderAutoComment.BorderWidth = ((uint)(1));
+			// Container child frameOrderAutoComment.Gtk.Container+ContainerChild
+			this.GtkAlignment2 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment2.Name = "GtkAlignment2";
+			this.GtkAlignment2.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment2.Gtk.Container+ContainerChild
+			this.hboxOrderAutoComment = new global::Gamma.GtkWidgets.yHBox();
+			this.hboxOrderAutoComment.WidthRequest = 0;
+			this.hboxOrderAutoComment.HeightRequest = 0;
+			this.hboxOrderAutoComment.Name = "hboxOrderAutoComment";
+			this.hboxOrderAutoComment.Spacing = 6;
+			// Container child hboxOrderAutoComment.Gtk.Box+BoxChild
+			this.btnSaveOrderAutoComment = new global::Gamma.GtkWidgets.yButton();
+			this.btnSaveOrderAutoComment.CanFocus = true;
+			this.btnSaveOrderAutoComment.Name = "btnSaveOrderAutoComment";
+			this.btnSaveOrderAutoComment.UseUnderline = true;
+			this.btnSaveOrderAutoComment.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.hboxOrderAutoComment.Add(this.btnSaveOrderAutoComment);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAutoComment[this.btnSaveOrderAutoComment]));
+			w32.Position = 0;
+			w32.Expand = false;
+			w32.Fill = false;
+			// Container child hboxOrderAutoComment.Gtk.Box+BoxChild
+			this.entryOrderAutoComment = new global::Gamma.GtkWidgets.yEntry();
+			this.entryOrderAutoComment.CanFocus = true;
+			this.entryOrderAutoComment.Name = "entryOrderAutoComment";
+			this.entryOrderAutoComment.IsEditable = true;
+			this.entryOrderAutoComment.InvisibleChar = '•';
+			this.hboxOrderAutoComment.Add(this.entryOrderAutoComment);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAutoComment[this.entryOrderAutoComment]));
+			w33.Position = 1;
+			// Container child hboxOrderAutoComment.Gtk.Box+BoxChild
+			this.btnOrderAutoCommentInfo = new global::Gamma.GtkWidgets.yButton();
+			this.btnOrderAutoCommentInfo.TooltipMarkup = "Справка по работе с отчётом";
+			this.btnOrderAutoCommentInfo.CanFocus = true;
+			this.btnOrderAutoCommentInfo.Name = "btnOrderAutoCommentInfo";
+			this.btnOrderAutoCommentInfo.UseUnderline = true;
+			this.btnOrderAutoCommentInfo.Relief = ((global::Gtk.ReliefStyle)(1));
+			global::Gtk.Image w34 = new global::Gtk.Image();
+			w34.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.btnOrderAutoCommentInfo.Image = w34;
+			this.hboxOrderAutoComment.Add(this.btnOrderAutoCommentInfo);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hboxOrderAutoComment[this.btnOrderAutoCommentInfo]));
+			w35.Position = 2;
+			w35.Expand = false;
+			w35.Fill = false;
+			this.GtkAlignment2.Add(this.hboxOrderAutoComment);
+			this.frameOrderAutoComment.Add(this.GtkAlignment2);
+			this.frameOrderAutoCommentLabel = new global::Gtk.Label();
+			this.frameOrderAutoCommentLabel.Name = "frameOrderAutoCommentLabel";
+			this.frameOrderAutoCommentLabel.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройка автокомментария заказа</b>");
+			this.frameOrderAutoCommentLabel.UseMarkup = true;
+			this.frameOrderAutoComment.LabelWidget = this.frameOrderAutoCommentLabel;
+			this.vboxMain.Add(this.frameOrderAutoComment);
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frameOrderAutoComment]));
+			w38.Position = 3;
+			w38.Expand = false;
+			w38.Fill = false;
 			this.hboxMain.Add(this.vboxMain);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxMain]));
-			w18.Position = 0;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxMain]));
+			w39.Position = 0;
+			w39.Expand = false;
+			w39.Fill = false;
+			// Container child hboxMain.Gtk.Box+BoxChild
+			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
+			this.hboxMain.Add(this.vbox1);
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
+			w40.Position = 1;
 			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{

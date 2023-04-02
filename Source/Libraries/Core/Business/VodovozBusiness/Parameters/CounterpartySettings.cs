@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vodovoz.Settings;
 
 namespace Vodovoz.Parameters
@@ -14,5 +14,6 @@ namespace Vodovoz.Parameters
 
 		public int GetMobileAppCounterpartyCameFromId => _settingsController.GetIntValue("mobile_app_counterparty_came_from_id");
 		public int GetWebSiteCounterpartyCameFromId => _settingsController.GetIntValue("web_site_counterparty_came_from_id");
+        public string RevenueServiceClientAccessToken => _parametersProvider.GetStringValue("RevenueServiceClientAccessToken");
 	}
 }

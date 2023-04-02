@@ -159,9 +159,14 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				cashlessOrdersQuery.Where(x => x.Client == Entity.Client);
 			}
 
-			if(StartDate.HasValue && EndDate.HasValue)
+			if(StartDate.HasValue)
 			{
-				cashlessOrdersQuery.Where(x => x.CreateDate >= StartDate && x.CreateDate <= EndDate);
+				cashlessOrdersQuery.Where(x => x.DeliveryDate >= StartDate);
+			}
+			
+			if(EndDate.HasValue)
+			{
+				cashlessOrdersQuery.Where(x => x.DeliveryDate <= EndDate);
 			}
 
 			var bottleCountSubQuery = QueryOver.Of(() => orderItemAlias)
@@ -174,12 +179,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					.SelectList(list => list
 					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				   	.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
-				   	.Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.OrderDate)
+				   	.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OrderDate)
 				    .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.DeliveryAddress)
 					.Select(OrderProjections.GetOrderSumProjection()).WithAlias(() => resultAlias.OrderSum)
 				    .SelectSubQuery(bottleCountSubQuery).WithAlias(() => resultAlias.Bottles)
 					)
-				.OrderBy(x => x.CreateDate).Desc
+				.OrderBy(x => x.DeliveryDate).Desc
 				.TransformUsing(Transformers.AliasToBean<OrderWithoutShipmentForPaymentNode>())
 				.List<OrderWithoutShipmentForPaymentNode>();
 

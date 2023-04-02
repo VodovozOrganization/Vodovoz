@@ -47,6 +47,7 @@ namespace Vodovoz.Views.Logistic
 		private readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		private readonly GMapOverlay driverDistrictsOverlay = new GMapOverlay("driverDistricts");
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
+		private readonly GMapOverlay addressOverlapOverlay = new GMapOverlay("addressOverlaps");
 		private readonly GMapOverlay driverAddressesOverlay = new GMapOverlay("driverAddresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
 		private readonly GMapOverlay routeOverlay = new GMapOverlay("route");
@@ -80,6 +81,7 @@ namespace Vodovoz.Views.Logistic
 			gmapWidget.Overlays.Add(driverDistrictsOverlay);
 			gmapWidget.Overlays.Add(routeOverlay);
 			gmapWidget.Overlays.Add(addressesOverlay);
+			gmapWidget.Overlays.Add(addressOverlapOverlay);
 			gmapWidget.Overlays.Add(driverAddressesOverlay);
 			gmapWidget.Overlays.Add(selectionOverlay);
 			gmapWidget.DisableAltForSelection = true;
@@ -432,12 +434,14 @@ namespace Vodovoz.Views.Logistic
 			var selectedBottle = orders.Sum(o => o.Total19LBottlesToDeliver);
 			var selectedKilos = orders.Sum(o => o.TotalWeight);
 			var selectedCbm = orders.Sum(o => o.TotalVolume);
+			var selectedReverseCbm = orders.Sum(o => o.FullReverseVolume());
 			labelSelected.Markup = string.Format(
-				"{0} адр.; {1} бут.;\n{2} кг; {3} м<sup>3</sup>",
+				"{0} адр.; {1} бут.; {2} кг; \nК клиентам: {3:F4} м<sup>3</sup>. От клиентов: {4:F4} м<sup>3</sup>",
 				orders.Count(),
 				selectedBottle,
 				selectedKilos,
-				selectedCbm
+				selectedCbm,
+				selectedReverseCbm
 			);
 			menuAddToRL.Sensitive = ViewModel.RoutesOnDay.Any() && !checkShowCompleted.Active;
 		}
@@ -539,9 +543,77 @@ namespace Vodovoz.Views.Logistic
 				else
 					addressesWithoutCoordinats++;
 			}
-			
+
+			PushApartAddresses(addressesOverlay);
+
 			UpdateOrdersInfo();
 			logger.Info("Ок.");
+		}
+
+		/// <summary>
+		/// Разведение друг от друга слишком близких маркеров адресов и рисование на верхнем слое спец знака,
+		/// информирующего о наличии нескольких заказов рядом
+		/// </summary>
+		/// <param name="addressOverlay"></param>
+		private void PushApartAddresses(GMapOverlay addressOverlay)
+		{
+			addressOverlapOverlay.Clear();
+
+			var pushApartPrecision = 0.0001d;
+
+			var addressMarkers = addressOverlay.Markers
+				.Where(x => x.Tag is Order)
+				.OrderBy(x => x.Position.Lat)
+				.ThenBy(x => x.Position.Lng)
+				.ToArray();
+
+			var overlapMarkers = new Dictionary<int, List<GMapMarker>>();
+
+			var index = 0;
+
+			foreach(var orderMarker in addressMarkers)
+			{
+				var intersections = addressMarkers
+					.Except(new[] { orderMarker })
+					.Where(g => Math.Abs(g.Position.Lat - orderMarker.Position.Lat) < pushApartPrecision
+								&& Math.Abs(g.Position.Lng - orderMarker.Position.Lng) < pushApartPrecision)
+					.ToList();
+
+				for(var i = 0; i < intersections.Count; i++)
+				{
+					var intersectMarker = addressMarkers.Single(x => x.Tag == intersections[i].Tag);
+
+					var lat = orderMarker.Position.Lat + (i + 1) * pushApartPrecision + pushApartPrecision / 10;
+					var lng = orderMarker.Position.Lng + (i + 1) * pushApartPrecision + pushApartPrecision / 10;
+
+					intersectMarker.Position = new PointLatLng(lat, lng);
+				}
+
+				if(intersections.Any() && !overlapMarkers.Values.Any(x => x.Contains(orderMarker)))
+				{
+					var intersectionsWithSelf = intersections.Concat(new[] { orderMarker }).ToList();
+					overlapMarkers.Add(index, intersectionsWithSelf);
+
+					index++;
+				}
+			}
+
+			foreach(var marker in overlapMarkers)
+			{
+				var lat = marker.Value.Min(x => x.Position.Lat) +
+						  (marker.Value.Max(x => x.Position.Lat) - marker.Value.Min(x => x.Position.Lat)) /
+						  2;
+				var lng = marker.Value.Min(x => x.Position.Lng) +
+						  (marker.Value.Max(x => x.Position.Lng) - marker.Value.Min(x => x.Position.Lng)) /
+						  2;
+
+				var overlapMarker = new PointMarker(new PointLatLng(lat, lng), PointMarkerType.color21, PointMarkerShape.overduestar)
+				{
+					ToolTipText = $"{marker.Value.Count} заказа(ов) рядом."
+				};
+
+				addressOverlapOverlay.Markers.Add(overlapMarker);
+			}
 		}
 
 		private void FillTypeAndShapeMarker(Order order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type, bool overdueOrder = false)
@@ -595,10 +667,6 @@ namespace Vodovoz.Views.Logistic
 
 		private PointMarker FillAddressMarker(Order order, PointMarkerType type, PointMarkerShape shape, GMapOverlay overlay, RouteList route)
 		{
-			var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude), type, shape) {
-				Tag = order
-			};
-
 			string ttText = order.DeliveryPoint.ShortAddress;
 			if(order.Total19LBottlesToDeliver > 0)
 				ttText += string.Format("\nБутылей 19л: {0}", order.Total19LBottlesToDeliver);
@@ -613,13 +681,14 @@ namespace Vodovoz.Views.Logistic
 				order.DeliverySchedule?.Name ?? "Не назначено",
 				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.DistrictBorder.Contains(order.DeliveryPoint.NetTopologyPoint))?.DistrictName);
 
-			addressMarker.ToolTipText = ttText;
+			var orderLat = (double)order.DeliveryPoint.Latitude;
+			var orderLong = (double)order.DeliveryPoint.Longitude;
 
-			var identicalPoint = overlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.Latitude && g.Position.Lng == (double)order.DeliveryPoint.Longitude);
-			var pointShift = 5;
-			if(identicalPoint >= 1) {
-				addressMarker.Offset = new System.Drawing.Point(identicalPoint * pointShift, identicalPoint * pointShift);
-			}
+			var addressMarker = new PointMarker(new PointLatLng(orderLat, orderLong), type, shape)
+			{
+				Tag = order,
+				ToolTipText = ttText
+			};
 
 			if(route != null)
 				addressMarker.ToolTipText += string.Format(" Везёт: {0}", route.Driver.ShortName);

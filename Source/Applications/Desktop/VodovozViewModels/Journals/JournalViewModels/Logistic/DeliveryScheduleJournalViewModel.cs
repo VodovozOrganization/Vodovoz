@@ -19,14 +19,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	public class DeliveryScheduleJournalViewModel : SingleEntityJournalViewModelBase<DeliverySchedule, DeliveryScheduleViewModel, DeliveryScheduleJournalNode>
 	{
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
-		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private OpenViewModelCommand _openViewModelCommand;
 
 		public DeliveryScheduleJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IDeliveryScheduleRepository deliveryScheduleRepository,
-			RoboatsViewModelFactory roboatsViewModelFactory,
+			IRoboatsViewModelFactory roboatsViewModelFactory,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 		: base(unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)

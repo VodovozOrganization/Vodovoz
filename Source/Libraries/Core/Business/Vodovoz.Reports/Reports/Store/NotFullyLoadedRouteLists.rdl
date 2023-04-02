@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -334,7 +334,7 @@ FROM route_lists rl
                       LEFT JOIN nomenclature n ON oi.nomenclature_id = n.id
              WHERE rl.not_fully_loaded
                AND rl.date BETWEEN @start_date AND @end_date
-               AND (!rla.was_transfered OR rla.need_to_reload)
+               AND (!rla.was_transfered OR rla.address_transfer_type = 'NeedToReload')
                AND o.is_fast_delivery = FALSE 
                AND n.category IN (
                                   'additional',
@@ -356,7 +356,7 @@ FROM route_lists rl
                       LEFT JOIN nomenclature n ON oe.nomenclature_id = n.id
              WHERE rl.not_fully_loaded
                AND rl.date BETWEEN @start_date AND @end_date
-               AND (!rla.was_transfered OR rla.need_to_reload)
+               AND (!rla.was_transfered OR rla.address_transfer_type = 'NeedToReload')
                AND oe.direction = 'Deliver'
                AND o.is_fast_delivery = FALSE 
          UNION ALL # Adds Termanal to RouteLists Nomenclatures 
@@ -369,7 +369,7 @@ FROM route_lists rl
          LEFT JOIN orders o ON rla.order_id = o.id
          WHERE rl.not_fully_loaded
            AND rl.date BETWEEN @start_date AND @end_date 
-           AND (!rla.was_transfered OR rla.need_to_reload)
+           AND (!rla.was_transfered OR rla.address_transfer_type = 'NeedToReload')
            AND o.payment_type = 'Terminal' 
          GROUP BY rl_id
          UNION ALL # FastDelivery additional loading                  

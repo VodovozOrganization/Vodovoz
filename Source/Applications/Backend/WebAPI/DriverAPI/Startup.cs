@@ -36,6 +36,10 @@ using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Settings.Database;
 using System.Reflection;
+using Vodovoz.Models.TrueMark;
+using DriverAPI.Services;
+using DriverAPI.Workers;
+using System.Net.Http.Headers;
 
 namespace DriverAPI
 {
@@ -130,7 +134,7 @@ namespace DriverAPI
 
 			services.AddControllersWithViews();
 			services.AddControllers();
-
+			
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "DriverAPI", Version = "v1" });
@@ -141,6 +145,16 @@ namespace DriverAPI
 				c.BaseAddress = new Uri(Configuration.GetSection("FastPaymentsServiceAPI").GetValue<string>("ApiBase"));
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
 			});
+
+			services.AddHttpClient<IFCMAPIHelper, FCMAPIHelper>(c =>
+			{
+				var apiConfiguration = Configuration.GetSection("FCMAPI");
+
+				c.BaseAddress = new Uri(apiConfiguration["ApiBase"]);
+				c.DefaultRequestHeaders.Accept.Clear();
+				c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+				c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("key", "=" + apiConfiguration["AccessToken"]);
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -148,12 +162,14 @@ namespace DriverAPI
 		{
 			app.UseRequestResponseLogging();
 
+			app.UseSwagger();
+			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DriverAPI v1"));
+
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseMigrationsEndPoint();
-				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DriverAPI v1"));
+				
 			}
 			else
 			{
@@ -161,6 +177,8 @@ namespace DriverAPI
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
+
+			
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
@@ -236,10 +254,19 @@ namespace DriverAPI
 			// Сервисы для контроллеров
 
 			// Unit Of Work
+			services.AddScoped<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
 			services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
 
 			// ErrorReporter
 			services.AddScoped<IErrorReporter>((sp) => ErrorReporter.Instance);
+			services.AddScoped<TrueMarkWaterCodeParser>();
+			services.AddScoped<TrueMarkCodesPool, TrueMarkTransactionalCodesPool>();
+
+			// Сервисы
+			services.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>();
+
+			// Workers
+			services.AddHostedService<WakeUpNotificationSenderService>();
 
 			// Репозитории водовоза
 			services.AddScoped<ITrackRepository, TrackRepository>();
@@ -256,6 +283,7 @@ namespace DriverAPI
 			services.AddScoped<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddScoped<IDriverApiParametersProvider, DriverApiParametersProvider>();
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
+			services.AddScoped<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 
 			// Конвертеры
 			foreach(var type in typeof(Library.AssemblyFinder)
@@ -267,6 +295,7 @@ namespace DriverAPI
 			{
 				services.AddScoped(type);
 			}
+
 
 			// Хелперы
 			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();

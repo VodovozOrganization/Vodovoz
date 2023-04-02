@@ -22,7 +22,8 @@ namespace Vodovoz.TempAdapters
 	{
 		public IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures)
 		{
-			var filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
+			var warehouseJournalFactory = new WarehouseJournalFactory();
+			var filter = new NomenclatureStockFilterViewModel(warehouseJournalFactory);
 			filter.SetAndRefilterAtOnce(
 				x => x.ExcludedNomenclatureIds = excludedNomenclatures,
 				x => x.RestrictWarehouse = warehouse);
@@ -53,7 +54,8 @@ namespace Vodovoz.TempAdapters
 				new NomenclatureJournalFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
-				userRepository
+				userRepository,
+				null
 			);
 
 			vm.SelectionMode = multiselect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;

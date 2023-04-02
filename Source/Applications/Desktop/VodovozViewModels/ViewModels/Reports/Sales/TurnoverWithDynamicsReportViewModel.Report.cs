@@ -17,26 +17,58 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				DateTime startDate,
 				DateTime endDate,
 				string filters,
+				GroupingByEnum groupingBy,
 				DateTimeSliceType slicingType,
 				MeasurementUnitEnum measurementUnit,
 				bool showDynamics,
 				DynamicsInEnum dynamicsIn,
 				bool showLastSale,
+				bool showResidueForNomenclaturesWithoutSales,
 				Func<int, decimal> warehouseNomenclatureBalanceCallback,
 				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
 			{
 				StartDate = startDate;
 				EndDate = endDate;
 				Filters = filters;
+				GroupingBy = groupingBy;
 				SliceType = slicingType;
 				MeasurementUnit = measurementUnit;
 				ShowDynamics = showDynamics;
 				DynamicsIn = dynamicsIn;
 				ShowLastSale = showLastSale;
+				ShowResidueForNomenclaturesWithoutSales = showResidueForNomenclaturesWithoutSales;
 				_warehouseNomenclatureBalanceCallback = warehouseNomenclatureBalanceCallback;
 				Slices = DateTimeSliceFactory.CreateSlices(slicingType, startDate, endDate).ToList();
 				CreatedAt = DateTime.Now;
 				Rows = ProcessData(dataFetchCallback(this));
+				DisplayRows = ProcessTreeViewDisplay();
+			}
+
+			private IList<TurnoverWithDynamicsReportRow> ProcessTreeViewDisplay()
+			{
+				if(GroupingBy == GroupingByEnum.Nomenclature)
+				{
+					return new List<TurnoverWithDynamicsReportRow>
+					{
+						ReportTotal,
+						new TurnoverWithDynamicsReportRow
+						{
+							Title = "Номенклатура",
+							RowType = TurnoverWithDynamicsReportRow.RowTypes.Subheader,
+							SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
+							DynamicColumns = CreateInitializedBy(ShowDynamics ? Slices.Count * 2 : Slices.Count, ""),
+							LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails
+							{
+
+							}
+						}
+					}.Union(Rows).ToList();
+				}
+				if(GroupingBy == GroupingByEnum.Counterparty)
+				{
+					return Rows;
+				}
+				throw new InvalidOperationException($"Unsupported value {GroupingBy} of {nameof(GroupingBy)}");
 			}
 
 			#region Parameters
@@ -45,6 +77,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			public DateTime EndDate { get; }
 
 			public string Filters { get; }
+
+			public GroupingByEnum GroupingBy { get; }
 
 			public DateTimeSliceType SliceType { get; }
 
@@ -56,6 +90,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			public bool ShowLastSale { get; }
 
+			public bool ShowResidueForNomenclaturesWithoutSales { get; }
+
 			public DateTime CreatedAt { get; }
 			#endregion
 
@@ -66,21 +102,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			public IList<TurnoverWithDynamicsReportRow> Rows { get; }
 
-			public IList<TurnoverWithDynamicsReportRow> DisplayRows => new List<TurnoverWithDynamicsReportRow>
-				{
-					ReportTotal,
-					new TurnoverWithDynamicsReportRow
-					{
-						Title = "Номенклатура",
-						RowType = TurnoverWithDynamicsReportRow.RowTypes.Subheader,
-						SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
-						DynamicColumns = CreateInitializedBy(ShowDynamics ? Slices.Count * 2 : Slices.Count, ""),
-						LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails
-						{
-
-						}
-					}
-				}.Union(Rows).ToList();
+			public IList<TurnoverWithDynamicsReportRow> DisplayRows { get; }
 
 			public TurnoverWithDynamicsReportRow ReportTotal { get; private set; }
 
@@ -100,11 +122,23 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				IList<TurnoverWithDynamicsReportRow> rows = new List<TurnoverWithDynamicsReportRow>();
 
-				var productGroups = ordersItemslist
-					.GroupBy(oi => oi.NomenclatureId)
-					.GroupBy(g => g.First().ProductGroupId);
+				if(GroupingBy == GroupingByEnum.Nomenclature)
+				{
+					var productGroups = ordersItemslist
+						.GroupBy(oi => oi.NomenclatureId)
+						.GroupBy(g => g.First().ProductGroupId);
 
-				rows = ProcessGroups(productGroups);
+					rows = ProcessGroups(productGroups);
+				}
+				else if(GroupingBy == GroupingByEnum.Counterparty)
+				{
+					var counterpartyGroups = ordersItemslist
+						.GroupBy(oi => oi.CounterpartyId);
+
+					int index = 1;
+
+					rows = ProcessCounterpartyGroups(ref index, counterpartyGroups);
+				}
 
 				return rows;
 			}
@@ -131,47 +165,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				foreach(var productGroup in productGroups)
 				{
-					IList<TurnoverWithDynamicsReportRow> productGroupRows = new List<TurnoverWithDynamicsReportRow>();
-
 					var productGroupTitle = productGroup.First().First().ProductGroupName;
 
-					foreach(var nomenclatureGroup in productGroup)
-					{
-						var row = new TurnoverWithDynamicsReportRow
-						{
-							Title = nomenclatureGroup.First().NomenclatureOfficialName,
-							RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
-							SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
-						};
-
-						row.SliceColumnValues = CalculateNomenclatureValuesRow(nomenclatureGroup);
-
-						if(ShowDynamics)
-						{
-							row.DynamicColumns = CalculateDynamics(row.SliceColumnValues);
-						}
-
-						row.Index = index.ToString();
-						index++;
-
-						if(ShowLastSale)
-						{
-							var lastDelivery = nomenclatureGroup
-								.OrderBy(oi => oi.OrderDeliveryDate)
-								.Last().OrderDeliveryDate.Value;
-
-							row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails
-							{
-								LastSaleDate = lastDelivery,
-								DaysFromLastShipment = Math.Floor((CreatedAt - lastDelivery).TotalDays),
-								WarhouseResidue = _warehouseNomenclatureBalanceCallback(nomenclatureGroup.Key)
-							};
-						}
-
-						productGroupRows.Add(row);
-					}
+					var productGroupRows = ProcessProductGroup(ref index, productGroup);
 
 					var groupTotal = AddGroupTotals(productGroupTitle, productGroupRows);
+
 					totalsRows.Add(groupTotal);
 					productGroupRows.Insert(0, groupTotal);
 					rows = rows.Union(productGroupRows).ToList();
@@ -180,6 +179,155 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				ReportTotal = AddGroupTotals("Сводные данные по отчету", totalsRows);
 
 				return rows;
+			}
+
+			private IList<TurnoverWithDynamicsReportRow> ProcessProductGroup(ref int index, IGrouping<int, IGrouping<int, OrderItemNode>> productGroup)
+			{
+				IList<TurnoverWithDynamicsReportRow> productGroupRows = ProcessSubGroups(ref index, productGroup);
+
+				return productGroupRows;
+			}
+
+			private IList<TurnoverWithDynamicsReportRow> ProcessSubGroups(ref int index, IGrouping<int, IGrouping<int, OrderItemNode>> productGroup)
+			{
+				var result = new List<TurnoverWithDynamicsReportRow>();
+
+				foreach(var nomenclatureGroup in productGroup)
+				{
+					TurnoverWithDynamicsReportRow row = ProcessNomenclatureGroup(nomenclatureGroup);
+
+					if(ShowResidueForNomenclaturesWithoutSales
+						&& row.LastSaleDetails.WarhouseResidue == 0
+						&& row.RowTotal == 0)
+					{
+						continue;
+					}
+
+					row.Index = index.ToString();
+					index++;
+
+					result.Add(row);
+				}
+
+				return result;
+			}
+
+			private TurnoverWithDynamicsReportRow ProcessNomenclatureGroup(IGrouping<int, OrderItemNode> nomenclatureGroup)
+			{
+				var row = new TurnoverWithDynamicsReportRow
+				{
+					Title = nomenclatureGroup.First().NomenclatureOfficialName,
+					RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
+					SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
+				};
+
+				row.SliceColumnValues = CalculateValuesRow(nomenclatureGroup);
+
+				ProcessDynamics(row);
+				ProcessLastSale(nomenclatureGroup, row);
+				return row;
+			}
+
+			private IList<TurnoverWithDynamicsReportRow> ProcessCounterpartyGroups(ref int index, IEnumerable<IGrouping<int, OrderItemNode>> counterpartyGroups)
+			{
+				var result = new List<TurnoverWithDynamicsReportRow>();
+
+				foreach(var counterpartyGroup in counterpartyGroups)
+				{
+					TurnoverWithDynamicsReportRow row = ProcessCounterpartyGroup(counterpartyGroup);
+
+					row.Index = index.ToString();
+					index++;
+
+					result.Add(row);
+				}
+
+				ReportTotal = AddGroupTotals("Сводные данные по отчету", result);
+
+				return result;
+			}
+
+			private TurnoverWithDynamicsReportRow ProcessCounterpartyGroup(IGrouping<int, OrderItemNode> counterpartyGroup)
+			{
+				var row = new TurnoverWithDynamicsReportRow
+				{
+					Title = counterpartyGroup.First().CounterpartyFullName,
+					Phones = ProcessCounterpartyPhones(counterpartyGroup),
+					RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
+					SliceColumnValues = CreateInitializedBy(Slices.Count, 0m),
+				};
+
+				row.SliceColumnValues = CalculateValuesRow(counterpartyGroup);
+
+				ProcessDynamics(row);
+				ProcessLastSale(counterpartyGroup, row);
+				return row;
+			}
+
+			private string ProcessCounterpartyPhones(IGrouping<int, OrderItemNode> counterpartyGroup)
+			{
+				var result = string.Empty;
+
+				var counterpartyPhones = counterpartyGroup.First().CounterpartyPhones;
+
+				if(string.IsNullOrWhiteSpace(counterpartyPhones))
+				{
+					counterpartyPhones = string.Empty;
+				}
+
+				var ordersContactPhones = counterpartyGroup
+					.Select(cp => cp.OrderContactPhone)
+					.Where(ocp => !counterpartyPhones.Contains(ocp))
+					.Distinct();
+
+				string resultedOrderContactPhones = string.Empty;
+
+				if(ordersContactPhones.Any())
+				{
+					resultedOrderContactPhones = string.Join(",\n", ordersContactPhones);
+
+					if(counterpartyPhones != string.Empty)
+					{
+						result = resultedOrderContactPhones + ",\n" + counterpartyPhones;
+					}
+					else
+					{
+						result = resultedOrderContactPhones;
+					}
+				}
+				else
+				{
+					result = counterpartyPhones;
+				}
+
+				return result;
+			}
+
+			private void ProcessLastSale(IGrouping<int, OrderItemNode> nomenclatureGroup, TurnoverWithDynamicsReportRow row)
+			{
+				if(ShowLastSale)
+				{
+					var lastDelivery = nomenclatureGroup
+						.OrderBy(oi => oi.OrderDeliveryDate)
+						.Last().OrderDeliveryDate.Value;
+
+					row.LastSaleDetails = new TurnoverWithDynamicsReportLastSaleDetails
+					{
+						LastSaleDate = lastDelivery,
+						DaysFromLastShipment = Math.Floor((CreatedAt - lastDelivery).TotalDays),
+						WarhouseResidue = GroupingBy == GroupingByEnum.Nomenclature
+							? _warehouseNomenclatureBalanceCallback(nomenclatureGroup.Key)
+							: 0
+					};
+				}
+			}
+
+			private void ProcessDynamics(TurnoverWithDynamicsReportRow row)
+			{
+				if(ShowDynamics)
+				{
+					row.DynamicColumns = CalculateDynamics(row.SliceColumnValues);
+				}
 			}
 
 			private IList<string> CalculateDynamics(IList<decimal> sliceColumnValues)
@@ -256,7 +404,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return row;
 			}
 
-			private IList<decimal> CalculateNomenclatureValuesRow(IGrouping<int, OrderItemNode> ordersItemsGroup)
+			private IList<decimal> CalculateValuesRow(IGrouping<int, OrderItemNode> ordersItemsGroup)
 			{
 				IList<decimal> result = CreateInitializedBy(Slices.Count, 0m);
 
@@ -300,11 +448,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				DateTime startDate,
 				DateTime endDate,
 				string filters,
+				GroupingByEnum groupingBy,
 				DateTimeSliceType slicingType,
 				MeasurementUnitEnum measurementUnit,
 				bool showDynamics,
 				DynamicsInEnum dynamicsIn,
 				bool showLastSale,
+				bool showResidueForNomenclaturesWithoutSales,
 				Func<int, decimal> warehouseNomenclatureBalanceCallback,
 				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
 			{
@@ -312,11 +462,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							startDate,
 							endDate,
 							filters,
+							groupingBy,
 							slicingType,
 							measurementUnit,
 							showDynamics,
 							dynamicsIn,
 							showLastSale,
+							showResidueForNomenclaturesWithoutSales,
 							warehouseNomenclatureBalanceCallback,
 							dataFetchCallback);
 			}
@@ -324,6 +476,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			public class TurnoverWithDynamicsReportRow
 			{
 				public string Title { get; set; }
+
+				public string Phones { get; set; } = string.Empty;
 
 				public string Index { get; set; } = string.Empty;
 
@@ -364,6 +518,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				public int OrderId { get; set; }
 
+				public int CounterpartyId { get; set; }
+
+				public string CounterpartyPhones { get; set; }
+
+				public string CounterpartyFullName { get; set; }
+
 				public DateTime? OrderDeliveryDate { get; set; }
 
 				public int NomenclatureId { get; set; }
@@ -381,6 +541,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public decimal Price { get; set; }
 
 				public decimal ActualSum { get; set; }
+
+				public string OrderContactPhone { get; set; }
 			}
 		}
 	}

@@ -17,13 +17,13 @@ namespace Vodovoz.TempAdapters
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository;
-		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 
 		public DeliveryScheduleJournalFactory(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IDeliveryScheduleRepository deliveryScheduleRepository,
-			RoboatsViewModelFactory roboatsViewModelFactory
+			IRoboatsViewModelFactory roboatsViewModelFactory
 		)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

@@ -1,4 +1,4 @@
-﻿using QS.Dialog.GtkUI.FileDialog;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services;
@@ -29,7 +29,7 @@ namespace Vodovoz.Factories
 		private readonly IFiasApiClient _fiasApiClient;
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleSelectorFactory;
-		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
 
 

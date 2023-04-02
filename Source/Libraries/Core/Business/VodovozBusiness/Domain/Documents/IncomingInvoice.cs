@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -20,137 +18,166 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "входящая накладная")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class IncomingInvoice : Document, IValidatableObject
+	public class IncomingInvoice : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
-		IList<IncomingInvoiceItem> items = new List<IncomingInvoiceItem>();
+		private IList<IncomingInvoiceItem> _items = new List<IncomingInvoiceItem>();
 
 		[Display(Name = "Строки")]
-		public virtual IList<IncomingInvoiceItem> Items {
-			get => items;
-			set {
-				SetField(ref items, value, () => Items);
-				observableItems = null;
+		public virtual IList<IncomingInvoiceItem> Items
+		{
+			get => _items;
+			set
+			{
+				SetField(ref _items, value);
+				_observableItems = null;
 			}
 		}
 
-		GenericObservableList<IncomingInvoiceItem> observableItems;
+		private GenericObservableList<IncomingInvoiceItem> _observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<IncomingInvoiceItem> ObservableItems {
-			get {
-				if(observableItems == null)
-					observableItems = new GenericObservableList<IncomingInvoiceItem>(Items);
-				return observableItems;
+		public virtual GenericObservableList<IncomingInvoiceItem> ObservableItems
+		{
+			get
+			{
+				if(_observableItems == null)
+				{
+					_observableItems = new GenericObservableList<IncomingInvoiceItem>(Items);
+				}
+
+				return _observableItems;
 			}
 		}
 
 		#region Properties
 
-		public override DateTime TimeStamp {
+		public override DateTime TimeStamp
+		{
 			get => base.TimeStamp;
-			set {
+			set
+			{
 				base.TimeStamp = value;
-				foreach(var item in Items) {
+				foreach(var item in Items)
+				{
 					if(item.IncomeGoodsOperation.OperationTime != TimeStamp)
+					{
 						item.IncomeGoodsOperation.OperationTime = TimeStamp;
+					}
 				}
 			}
 		}
 
-		string invoiceNumber;
+		private string _invoiceNumber;
 
 		[Display(Name = "Номер счета-фактуры")]
-		public virtual string InvoiceNumber {
-			get => invoiceNumber;
-			set => SetField(ref invoiceNumber, value, () => InvoiceNumber);
+		public virtual string InvoiceNumber
+		{
+			get => _invoiceNumber;
+			set => SetField(ref _invoiceNumber, value);
 		}
 
-		string waybillNumber;
+		private string _waybillNumber;
 
 		[Display(Name = "Номер входящей накладной")]
-		public virtual string WaybillNumber {
-			get => waybillNumber;
-			set => SetField(ref waybillNumber, value, () => WaybillNumber);
+		public virtual string WaybillNumber
+		{
+			get => _waybillNumber;
+			set => SetField(ref _waybillNumber, value);
 		}
 
-		Counterparty contractor;
+		private Counterparty _contractor;
 
 		[Display(Name = "Контрагент")]
-		public virtual Counterparty Contractor {
-			get => contractor;
-			set => SetField(ref contractor, value, () => Contractor);
+		public virtual Counterparty Contractor
+		{
+			get => _contractor;
+			set => SetField(ref _contractor, value);
 		}
 		public virtual decimal TotalSum
 		{
 			get
 			{
 				decimal total = 0;
-				foreach (var item in Items) {
+				foreach(var item in Items)
+				{
 					total += item.Sum;
 				}
 				return total;
 			}
 		}
-		
-		Warehouse warehouse;
+
+		private Warehouse _warehouse;
 
 		[Display(Name = "Склад")]
 		[Required(ErrorMessage = "Склад должен быть указан.")]
-		public virtual Warehouse Warehouse {
-			get => warehouse;
-			set {
-				SetField(ref warehouse, value, () => Warehouse);
-				foreach(var item in Items) {
-					if(item.IncomeGoodsOperation.IncomingWarehouse != warehouse)
-						item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
+		public virtual Warehouse Warehouse
+		{
+			get => _warehouse;
+			set
+			{
+				SetField(ref _warehouse, value);
+				foreach(var item in Items)
+				{
+					if(item.IncomeGoodsOperation.IncomingWarehouse != _warehouse)
+					{
+						item.IncomeGoodsOperation.IncomingWarehouse = _warehouse;
+					}
 				}
 			}
 		}
 
-		string comment;
+		private string _comment;
 
 		[Display(Name = "Комментарий")]
-		public virtual string Comment {
-			get => comment;
-			set => SetField(ref comment, value, () => Comment);
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
-		
 
-		public virtual string Title => string.Format("Поступление №{0} от {1:d}", Id, TimeStamp);
-		
+		public virtual string Title => $"Поступление №{Id} от {TimeStamp:d}";
+
 		public virtual bool CanAddItem => true;
+
 		public virtual bool CanDeleteItems => true;
 
 		#endregion
-		
+
 		#region Functions
 
-		
 		public virtual void AddItem(IncomingInvoiceItem item)
 		{
-			if (!CanAddItem) return;
+			if(!CanAddItem)
+			{
+				return;
+			}
 
-			item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
+			item.IncomeGoodsOperation.IncomingWarehouse = _warehouse;
 			item.IncomeGoodsOperation.OperationTime = TimeStamp;
 			item.Document = this;
 			ObservableItems.Add(item);
 		}
+
 		public virtual void DeleteItem(IncomingInvoiceItem item)
 		{
-			if(item == null || !CanDeleteItems || !ObservableItems.Contains(item)) 
+			if(item == null || !CanDeleteItems || !ObservableItems.Contains(item))
+			{
 				return;
+			}
+
 			ObservableItems.Remove(item);
 		}
-		
+
 		public IncomingInvoice()
 		{
 			WaybillNumber = string.Empty;
 			InvoiceNumber = string.Empty;
 		}
-		
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			int maxCommentLength = 500;
-			if(Comment?.Length > maxCommentLength) {
+			if(Comment?.Length > maxCommentLength)
+			{
 				yield return new ValidationResult(
 					$"Строка комментария слишком длинная. Максимальное количество символов: {maxCommentLength}",
 					new[] { this.GetPropertyName(o => o.Items) }
@@ -158,17 +185,22 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			if(!Items.Any())
+			{
 				yield return new ValidationResult(
-					string.Format("Табличная часть документа пустая."),
+					"Табличная часть документа пустая.",
 					new[] { this.GetPropertyName(o => o.Items) }
 				);
+			}
 
-			foreach(var item in Items) {
+			foreach(var item in Items)
+			{
 				if(item.Amount <= 0)
+				{
 					yield return new ValidationResult(
-						string.Format("Для номенклатуры <{0}> не указано количество.", item.Nomenclature.Name),
+						$"Для номенклатуры <{item.Nomenclature.Name}> не указано количество.",
 						new[] { this.GetPropertyName(o => o.Items) }
 					);
+				}
 			}
 
 			var needWeightOrVolume = Items
@@ -190,32 +222,37 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			if(string.IsNullOrWhiteSpace(WaybillNumber) || string.IsNullOrWhiteSpace(InvoiceNumber))
+			{
 				yield return new ValidationResult(
-					string.Format("\"Номер счета-фактуры\" и \"Номер входящей накладной\" должны быть указаны"),
+					"\"Номер счета-фактуры\" и \"Номер входящей накладной\" должны быть указаны",
 					new[] {
 						this.GetPropertyName(o => o.WaybillNumber),
 						this.GetPropertyName(o => o.InvoiceNumber)
 					}
 				);
+			}
 
 			if(Contractor == null)
+			{
 				yield return new ValidationResult(
-					string.Format("\"Контрагент\" должен быть указан"),
+					"\"Контрагент\" должен быть указан",
 					new[] {
 						this.GetPropertyName(o => o.Contractor)
 					}
 				);
+			}
 
 			if(string.IsNullOrWhiteSpace(Comment))
+			{
 				yield return new ValidationResult(
-					string.Format("Добавьте комментарий"),
+					"Добавьте комментарий",
 					new[] {
 						this.GetPropertyName(o => o.Comment)
 					}
 				);
+			}
 		}
 
 		#endregion
 	}
 }
-

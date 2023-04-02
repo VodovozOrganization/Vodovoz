@@ -12,7 +12,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 {
 	public class ProductGroupViewModel : EntityTabViewModelBase<ProductGroup>
 	{
-		private DelegateCommand<bool> _setArchiveCommand;
+		private DelegateCommand _setArchiveCommand;
 		public ProductGroupViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
 			IProductGroupJournalFactory productGroupJournalFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -25,13 +25,29 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			}
 		}
 
-		public DelegateCommand<bool> SetArchiveCommand =>
-			_setArchiveCommand ?? (_setArchiveCommand = new DelegateCommand<bool>((isActive) =>
+		public DelegateCommand SetArchiveCommand =>
+			_setArchiveCommand ?? (_setArchiveCommand = new DelegateCommand(() =>
 				{
-					Entity.FetchChilds(UoW);
-					Entity.SetIsArchiveRecursively(isActive);
-				},
-				(isActive) => true
+					if(!Entity.IsArchive)
+					{
+						var parent = Entity.Parent;
+						if(parent != null && parent.IsArchive)
+						{
+							Entity.IsArchive = true;
+							ShowWarningMessage(
+								$"Родительская группа {parent.Name} архивирована.\n" +
+								"Выполните одно из действий:\n" +
+								"Либо уберите родительскую группу у данной группы\n" +
+								"Либо разархивируйте родителя\n" +
+								"Либо перенесите эту группу в действующую неархивную группу товаров");
+						}
+					}
+					else
+					{
+						Entity.FetchChilds(UoW);
+						Entity.SetIsArchiveRecursively(Entity.IsArchive);
+					}
+				}
 			));
 
 		public bool CanEditOnlineStore { get; } = true;

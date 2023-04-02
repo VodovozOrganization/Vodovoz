@@ -92,7 +92,7 @@ namespace Vodovoz.Tools
 					Modification = Edition,
 					ProductName = ProductName,
 					Version = Version,
-					ProductCode = 1
+					ProductCode = 3
 				},
 				Db = new DatabaseInfo
 				{

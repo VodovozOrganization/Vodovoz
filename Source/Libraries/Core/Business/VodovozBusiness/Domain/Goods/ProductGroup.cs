@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 using NHibernate;
 using NLog;
 using QS.DomainModel.Entity;
@@ -113,8 +114,10 @@ namespace Vodovoz.Domain.Goods
 		public virtual void SetIsArchiveRecursively(bool value)
 		{
 			IsArchive = value;
-			foreach (var child in Childs)
+			foreach(var child in Childs)
+			{
 				child.SetIsArchiveRecursively(value);
+			}
 		}
 		
 		public virtual void CreateGuidIfNotExist(IUnitOfWork uow)

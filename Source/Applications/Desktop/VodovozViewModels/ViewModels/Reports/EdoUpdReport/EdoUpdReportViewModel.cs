@@ -23,7 +23,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 {
 	public partial class EdoUpdReportViewModel : DialogTabViewModelBase
 	{
-		private const string _templatePath = @".\Reports\Orders\EdoUpdReport.xlsx";
 		private readonly IFileDialogService _fileDialogService;
 		private DelegateCommand _generateCommand;
 		private DelegateCommand _exportCommand;
@@ -78,7 +77,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 				.Where(() => orderAlias.DeliveryDate >= DateFrom && orderAlias.DeliveryDate <= DateTo)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.And(() => counterpartyAlias.PersonType == PersonType.legal)
-				.And(() => nomenclatureAlias.IsAccountableInChestniyZnak)
+				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
 				.And(() => nomenclatureAlias.Gtin != null)
 				.And(() => counterpartyContractAlias.Organization.Id == Organization.Id)
 				.And(() => counterpartyAlias.OrderStatusForSendingUpd != OrderStatusForSendingUpd.Delivered

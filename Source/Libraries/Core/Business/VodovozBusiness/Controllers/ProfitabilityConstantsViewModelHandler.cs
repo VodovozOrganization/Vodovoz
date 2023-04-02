@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.EntityRepositories.Profitability;
 
 namespace Vodovoz.Controllers
 {
-	public class ProfitabilityConstantsViewModelHandler
+	public class ProfitabilityConstantsViewModelHandler : IProfitabilityConstantsViewModelHandler
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IProfitabilityConstantsRepository _profitabilityConstantsRepository;

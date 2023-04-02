@@ -307,6 +307,10 @@ namespace Vodovoz.EntityRepositories.Roboats
 					.Fetch(SelectMode.Fetch, () => nomenclatureAlias.Unit)
 					.Future<Order>();
 
+				var counterpartyQuery = CreateLastOrdersBaseQuery()
+					.Fetch(SelectMode.Fetch, () => orderAlias.Client)
+					.Future<Order>();
+
 				var promosetsQuery = CreateLastOrdersBaseQuery()
 					.Fetch(SelectMode.Fetch, () => orderAlias.PromotionalSets)
 					.Future<Order>();

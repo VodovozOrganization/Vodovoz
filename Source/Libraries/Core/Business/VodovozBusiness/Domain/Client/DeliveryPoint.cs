@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Gamma.Utilities;
 using NetTopologySuite.Geometries;
+using NHibernate.Impl;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -895,6 +896,11 @@ namespace Vodovoz.Domain.Client
 			if(!string.IsNullOrEmpty(phonesValidationMessage))
 			{
 				yield return new ValidationResult(phonesValidationMessage);
+			}
+
+			if(ResponsiblePersons.Any(x => x.DeliveryPointResponsiblePersonType == null || x.Employee == null || string.IsNullOrWhiteSpace(x.Phone)))
+			{
+				yield return new ValidationResult("Для ответственных лиц должны быть заполнены Тип, Сотрудник и Телефон", new[] { nameof(ResponsiblePersons) });
 			}
 		}
 

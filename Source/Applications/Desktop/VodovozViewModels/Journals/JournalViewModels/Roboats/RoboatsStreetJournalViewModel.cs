@@ -17,13 +17,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
 	public class RoboatsStreetJournalViewModel : SingleEntityJournalViewModelBase<RoboatsStreet, RoboatsStreetViewModel, RoboatsStreetJournalNode>
 	{
-		private readonly RoboatsViewModelFactory _roboatsViewModelFactory;
+		private readonly IRoboatsViewModelFactory _roboatsViewModelFactory;
 		private readonly ICommonServices _commonServices;
 		private OpenViewModelCommand _openViewModelCommand;
 
 		public RoboatsStreetJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			RoboatsViewModelFactory roboatsViewModelFactory,
+			IRoboatsViewModelFactory roboatsViewModelFactory,
 			ICommonServices commonServices
 		) : base(unitOfWorkFactory, commonServices)
 		{
