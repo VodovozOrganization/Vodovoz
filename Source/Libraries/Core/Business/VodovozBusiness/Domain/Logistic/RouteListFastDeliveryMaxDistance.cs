@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Logistic
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "Радиусы быстрой доставки",
+		Nominative = "Радиус быстрой доставки")]
 	public class RouteListFastDeliveryMaxDistance : PropertyChangedBase, IDomainObject
 	{
 		private DateTime _startDate;

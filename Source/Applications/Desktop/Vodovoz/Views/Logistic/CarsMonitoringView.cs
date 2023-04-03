@@ -155,7 +155,7 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Имя").AddTextRenderer(node => node.ShortName)
 				.AddColumn("Машина").AddTextRenderer().AddSetter((c, node) => c.Markup = node.CarText)
 				.AddColumn("МЛ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.RouteListsText)
-				.AddColumn("Радиус").AddTextRenderer().AddSetter((c, node) => c.Markup = node.RouteListsText)
+				.AddColumn("Радиус").AddTextRenderer().AddSetter((c, node) => c.Markup = node.FastDeliveryMaxDistanceString)
 				.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent).AddSetter((c, n) => c.Text = n.CompletedText)
 				.AddColumn("Остаток бут.").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.BottlesLeft:N0}")
 				.AddColumn("Остаток запаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.Water19LReserve:N0}")

@@ -405,6 +405,18 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		IList<RouteListFastDeliveryMaxDistance> _fastDeliveryMaxDistanceItems = new List<RouteListFastDeliveryMaxDistance>();
+
+		[Display(Name = "Значения радиусов для быстрой доставки")]
+		public virtual IList<RouteListFastDeliveryMaxDistance> FastDeliveryMaxDistanceItems
+		{
+			get => _fastDeliveryMaxDistanceItems;
+			set
+			{
+				SetField(ref _fastDeliveryMaxDistanceItems, value);
+			}
+		}
+
 		IList<DeliveryFreeBalanceOperation> _deliveryFreeBalanceOperations = new List<DeliveryFreeBalanceOperation>();
 
 		[Display(Name = "Операции со свободными остатками")]
@@ -816,7 +828,7 @@ namespace Vodovoz.Domain.Logistic
 			if(address.TransferedTo != null)
 			{
 				msg = $"Адрес \"{ address.Order.DeliveryPoint?.ShortAddress }\" не может быть удалён, т.к. был перенесён в МЛ №{ address.TransferedTo.RouteList.Id }.\n" +
-				      $"Воспользуйтесь функционалом из вкладки \"Перенос адресов маршрутных листов\" для возврата этого адреса в исходный МЛ.";
+					  $"Воспользуйтесь функционалом из вкладки \"Перенос адресов маршрутных листов\" для возврата этого адреса в исходный МЛ.";
 				return false;
 			}
 
@@ -945,7 +957,7 @@ namespace Vodovoz.Domain.Logistic
 
 				if(itemToLoad.NomenclatureId == terminalId
 					&& ((loaded?.Amount ?? 0) + terminalsTransferedToThisRL == itemToLoad.Amount
-					    || _routeListRepository.GetSelfDriverTerminalTransferDocument(uow, Driver, this) != null))
+						|| _routeListRepository.GetSelfDriverTerminalTransferDocument(uow, Driver, this) != null))
 				{
 					continue;
 				}
@@ -1034,8 +1046,8 @@ namespace Vodovoz.Domain.Logistic
 					Discrepancy discrepancy = null;
 
 					var isNotFromHandsToHandsTransfer = address.TransferedTo == null 
-					    || (address.TransferedTo.AddressTransferType != null 
-					        && new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }.Contains(address.TransferedTo.AddressTransferType.Value));
+						|| (address.TransferedTo.AddressTransferType != null 
+							&& new[] { AddressTransferType.NeedToReload, AddressTransferType.FromFreeBalance }.Contains(address.TransferedTo.AddressTransferType.Value));
 
 					if(isNotFromHandsToHandsTransfer)
 					{
@@ -1413,7 +1425,7 @@ namespace Vodovoz.Domain.Logistic
 
 						Status = newStatus;
 						foreach(var item in Addresses.Where(x =>
-							        x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
+									x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute))
 						{
 							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
 						}
@@ -1586,9 +1598,9 @@ namespace Vodovoz.Domain.Logistic
 
 			var foundRouteLists = UoW.Session.QueryOver<RouteList>()
 				.Where(x => x.Driver == this.Driver
-				            && x.Date == this.Date
-				            && x.Status == RouteListStatus.InLoading
-				            && x.Id != this.Id)
+							&& x.Date == this.Date
+							&& x.Status == RouteListStatus.InLoading
+							&& x.Id != this.Id)
 				.List();
 
 			if(foundRouteLists.Count == 0)
@@ -1676,18 +1688,58 @@ namespace Vodovoz.Domain.Logistic
 			_generalSettingsParametersProviderGap = generalSettingsParametersProviderGap;
 		}
 
+		public virtual void UpdateFastDeliveryMaxDistanceValue(decimal _fastDeliveryMaxDistanceValue)
+		{
+			if(FastDeliveryMaxDistanceItems.Count > 0)
+			{
+				var currentFastDeliveryMaxDistance = FastDeliveryMaxDistanceItems.Where(f => f.EndDate == null).FirstOrDefault();
+
+				if(currentFastDeliveryMaxDistance != null)
+				{
+					if (currentFastDeliveryMaxDistance.Distance != _fastDeliveryMaxDistanceValue)
+					{
+						currentFastDeliveryMaxDistance.EndDate = DateTime.Now;
+					}
+					else
+					{
+						return;
+					}
+				}
+			}
+
+			var routeListFastDeliveryMaxDistance = new RouteListFastDeliveryMaxDistance()
+			{
+				RouteList = this,
+				Distance = _fastDeliveryMaxDistanceValue,
+				StartDate = DateTime.Now
+			};
+
+			FastDeliveryMaxDistanceItems.Add(routeListFastDeliveryMaxDistance);
+		}
+
+		public virtual decimal GetFastDeliveryMaxDistanceValue(DateTime? date = null)
+		{
+			if (date == null)
+			{
+				date = DateTime.Now;
+			}
+
+			var fastDeliveryMaxDistanceItem = FastDeliveryMaxDistanceItems.Where(d => d.StartDate > date && (d.EndDate == null || d.StartDate < date)).FirstOrDefault() ?? new RouteListFastDeliveryMaxDistance();
+			return fastDeliveryMaxDistanceItem.Distance;
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-            bool cashOrderClose = false;
-            if (validationContext.Items.ContainsKey("cash_order_close"))
-            {
-                cashOrderClose = (bool)validationContext.Items["cash_order_close"];
-            }
-            if (validationContext.Items.ContainsKey("NewStatus")) {
+			bool cashOrderClose = false;
+			if (validationContext.Items.ContainsKey("cash_order_close"))
+			{
+				cashOrderClose = (bool)validationContext.Items["cash_order_close"];
+			}
+			if (validationContext.Items.ContainsKey("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items["NewStatus"];
 				switch(newStatus) {
 					case RouteListStatus.New:
