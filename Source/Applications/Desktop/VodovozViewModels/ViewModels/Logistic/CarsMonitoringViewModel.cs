@@ -379,6 +379,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Domain.Orders.Order orderAlias = null;
 			OrderItem ordItemsAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			RouteListFastDeliveryMaxDistance routeListFastDeliveryMaxDistanceAlias = null;
 
 			var completedSubquery = QueryOver.Of<RouteListItem>()
 				.Where(i => i.RouteList.Id == routeListAlias.Id)
@@ -480,6 +481,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				query.Where(rl => rl.Status == RouteListStatus.EnRoute);
 			}
 
+			var routeListFastDeliveryMaxDistanceSubquery = QueryOver.Of<RouteListFastDeliveryMaxDistance>()
+				.Where(d => d.RouteList.Id == routeListAlias.Id && d.StartDate < DateTime.Now && (d.EndDate == null || d.EndDate > DateTime.Now))
+				.Select(d => d.Distance)
+				.OrderBy(d => d.StartDate).Desc
+				.Take(1);
+
 			var result = query.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.Name)
@@ -488,6 +495,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 					.Select(isCompanyCarProjection).WithAlias(() => resultAlias.IsVodovozAuto)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
+					.SelectSubQuery(routeListFastDeliveryMaxDistanceSubquery).WithAlias(() => resultAlias.FastDeliveryMaxDistance)
 					.SelectSubQuery(addressesSubquery).WithAlias(() => resultAlias.AddressesAll)
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
 					.Select(() => trackAlias.Id).WithAlias(() => resultAlias.TrackId)

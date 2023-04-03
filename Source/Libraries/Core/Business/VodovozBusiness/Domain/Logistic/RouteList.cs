@@ -709,6 +709,8 @@ namespace Vodovoz.Domain.Logistic
 			=> new[] { RouteListStatus.Delivered, RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }
 				.Contains(Status);
 
+		public virtual decimal CurrentFastDeliveryMaxDistanceValue => GetFastDeliveryMaxDistanceValue();
+
 		#endregion
 
 		void ObservableAddresses_ElementRemoved(object aList, int[] aIdx, object aObject)
@@ -1724,7 +1726,7 @@ namespace Vodovoz.Domain.Logistic
 				date = DateTime.Now;
 			}
 
-			var fastDeliveryMaxDistanceItem = FastDeliveryMaxDistanceItems.Where(d => d.StartDate > date && (d.EndDate == null || d.StartDate < date)).FirstOrDefault() ?? new RouteListFastDeliveryMaxDistance();
+			var fastDeliveryMaxDistanceItem = FastDeliveryMaxDistanceItems.Where(d => d.StartDate < date && (d.EndDate == null || d.EndDate > date)).FirstOrDefault() ?? new RouteListFastDeliveryMaxDistance();
 			return fastDeliveryMaxDistanceItem.Distance;
 		}
 
