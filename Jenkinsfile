@@ -110,7 +110,8 @@ parallel (
 			stage('Deploy desktop'){
 				script{
 					def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
-					if(env.BRANCH_NAME == 'develop'
+					if(env.BRANCH_NAME == 'master'
+						|| env.BRANCH_NAME == 'develop'
 						|| env.BRANCH_NAME == 'Beta'
 						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
 					{
@@ -130,34 +131,32 @@ parallel (
 			}		
 		}
 	},*/
-	"Vod3Runtime" : {
-		node('Vod3'){
+	"Vod1Runtime" : {
+		node('Vod1'){
 			stage('Deploy master desktop'){
-				script{
-					/*if(env.BRANCH_NAME == 'master')
-					{*/
-						DeployWinRuntime();
-					/*}else{
-						echo "Nothing to publish"
-					}*/
-				}
+				DeployWinRuntime()
 			}		
 		}
 	},
-	"Vod5Runtime" : {
-		node('Vod5'){
+	"Vod3Runtime" : {
+		node('Vod3'){
 			stage('Deploy master desktop'){
-				script{
-					/*if(env.BRANCH_NAME == 'master')
-					{*/
-						DeployWinRuntime();
-					/*}else{
-						echo "Nothing to publish"
-					}*/
-				}
+				DeployWinRuntime()
 			}		
 		}
-	}/*,
+	},"Vod5Runtime" : {
+		node('Vod5'){
+			stage('Deploy master desktop'){
+				DeployWinRuntime()
+			}		
+		}
+	},"Vod7Runtime" : {
+		node('Vod7'){
+			stage('Deploy master desktop'){
+				DeployWinRuntime()
+			}		
+		}
+	},/*,
 	"Linux" : {
 		node('LINUX_RUNTIME'){
 			stage('Deploy WCF'){
@@ -256,13 +255,15 @@ def DeployWebService(serviceName) {
 }
 
 def DeployWinRuntime() {
-	def RUNTIME_DEPLOY_PATH = "${RuntimePath}DeployInProgress"
-	def RUNTIME_LATEST_PATH = "${RuntimePath}latest"
+	/*if(env.BRANCH_NAME == 'master')
+	{*/
+		def RUNTIME_DEPLOY_PATH = "${RuntimePath}latest"
 
-	echo "Deploy master to runtime folder to ${RUNTIME_LATEST_PATH}"
-	copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+		echo "Deploy master to runtime folder to ${RUNTIME_DEPLOY_PATH}"
+		copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 
-	bat 'rename "' + RUNTIME_LATEST_PATH + '" "DeployInProgress"'
-	unzip zipFile: 'Vodovoz.zip', dir: RUNTIME_DEPLOY_PATH
-	bat 'rename "' + RUNTIME_DEPLOY_PATH + '" "latest"'
+		unzip zipFile: 'Vodovoz.zip', dir: RUNTIME_DEPLOY_PATH
+	/*}else{
+		echo "Branch is not master, nothing to deploy to runtime folder"
+	}*/
 }
