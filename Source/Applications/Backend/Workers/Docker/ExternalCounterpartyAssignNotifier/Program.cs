@@ -8,9 +8,11 @@ using MySql.Data.MySqlClient;
 using NLog.Extensions.Logging;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.HibernateMapping.Organizations;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
@@ -39,8 +41,13 @@ namespace ExternalCounterpartyAssignNotifier
 						//c.BaseAddress = new Uri(hostContext.Configuration.GetSection("VodovozSiteNotificationService").GetValue<string>("BaseUrl"));
 						c.DefaultRequestHeaders.Add("Accept", "application/json");
 					});
-					
+
+					services
+						.AddSingleton<IExternalCounterpartyAssignNotificationRepository, ExternalCounterpartyAssignNotificationRepository>();
+					services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
+					services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 					services.AddHostedService<ExternalCounterpartyAssignNotifier>();
+					
 					CreateBaseConfig(hostContext.Configuration);
 				});
 		
@@ -66,7 +73,7 @@ namespace ExternalCounterpartyAssignNotifier
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
 				db_config,
-				new Assembly[]
+				new[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					Assembly.GetAssembly(typeof(OrganizationMap)),

@@ -1,5 +1,4 @@
 ﻿using System;
-using FluentNHibernate.Data;
 using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Gamma.ColumnConfig;

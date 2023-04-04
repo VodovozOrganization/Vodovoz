@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto;
 using ExternalCounterpartyAssignNotifier.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -16,21 +17,21 @@ namespace ExternalCounterpartyAssignNotifier
 		private readonly ILogger<ExternalCounterpartyAssignNotifier> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IExternalCounterpartyAssignNotificationRepository _externalCounterpartyAssignNotificationRepository;
-		private readonly INotificationService _notificationService;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private const int _delayInSec = 20;
 
 		public ExternalCounterpartyAssignNotifier(
 			ILogger<ExternalCounterpartyAssignNotifier> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IExternalCounterpartyAssignNotificationRepository externalCounterpartyAssignNotificationRepository,
-			INotificationService notificationService)
+			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger;
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_externalCounterpartyAssignNotificationRepository =
 				externalCounterpartyAssignNotificationRepository
 				?? throw new ArgumentNullException(nameof(externalCounterpartyAssignNotificationRepository));
-			_notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -49,20 +50,26 @@ namespace ExternalCounterpartyAssignNotifier
 			{
 				var notificationsToSend = _externalCounterpartyAssignNotificationRepository.GetNotificationsForSend(uow, 3);
 
-				foreach(var notification in notificationsToSend)
+				using(var scope = _serviceScopeFactory.CreateScope())
 				{
-					var httpCode = -1;
-					try
+					var notificationService = scope.ServiceProvider.GetService<INotificationService>();
+					
+					foreach(var notification in notificationsToSend)
 					{
-						httpCode = await _notificationService.NotifyOfCounterpartyAssignAsync(
-							GetRegisteredNaturalCounterpartyDto(notification), notification.ExternalCounterparty.CounterpartyFrom);
-					}
-					catch(Exception e)
-					{
-						_logger.LogError(e, "Ошибка при отправке уведомления о ручном сопоставлении клиента в ИПЗ");
-					}
+						var httpCode = -1;
+						try
+						{
+							_logger.LogInformation("Отправляем данные в ИПЗ");
+							httpCode = await notificationService.NotifyOfCounterpartyAssignAsync(
+								GetRegisteredNaturalCounterpartyDto(notification), notification.ExternalCounterparty.CounterpartyFrom);
+						}
+						catch(Exception e)
+						{
+							_logger.LogError(e, "Ошибка при отправке уведомления о ручном сопоставлении клиента в ИПЗ");
+						}
 
-					UpdateNotification(uow, notification, httpCode);
+						UpdateNotification(uow, notification, httpCode);
+					}
 				}
 			}
 		}
@@ -84,6 +91,7 @@ namespace ExternalCounterpartyAssignNotifier
 		
 		private void UpdateNotification(IUnitOfWork uow, ExternalCounterpartyAssignNotification notification, int httpCode)
 		{
+			_logger.LogInformation("Обновляем данные");
 			try
 			{
 				notification.HttpCode = httpCode;

@@ -133,12 +133,10 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					externalCounterparty.Phone = phone;
 					externalCounterparty.ExternalCounterpartyId = Entity.ExternalCounterpartyGuid;
 					externalCounterparty.Email = _emailRepository.GetEmailForExternalCounterparty(UoW, counterpartyNode.EntityId);
-					//TODO проверить сохранение подчиненной сущности
-					//UoW.Save(externalCounterparty);
 					
 					Entity.AssignCounterparty(externalCounterparty);
 					_needCreateNotification = true;
-					//CreateNotification(externalCounterparty);
+					
 					ArchiveOtherExternalCounterparties();
 					UpdateMatches();
 					UpdateDiscrepancies();
@@ -202,11 +200,9 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			var externalCounterparty = UoW.GetById<ExternalCounterparty>(selectedDiscrepancyNode.ExternalCounterpartyId);
 			selectedDiscrepancyNode.PhoneId = null;
 			externalCounterparty.Phone = GetPhone(selectedDiscrepancyNode);
-			//UoW.Save(externalCounterparty);
 
 			Entity.AssignCounterparty(externalCounterparty);
 			_needCreateNotification = true;
-			//CreateNotification(externalCounterparty);
 		}
 		
 		private void ReAssignCounterpartyWithChangeExternalId(ExistingExternalCounterpartyNode selectedDiscrepancyNode)
@@ -468,7 +464,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					Number = new PhoneFormatter(PhoneFormat.DigitsTen).FormatString(Entity.PhoneNumber)
 				};
 				FillCounterpartyContact(phone, counterparty.FirstName, counterparty.Patronymic);
-				//UoW.Save(phone);
 			}
 			else
 			{
