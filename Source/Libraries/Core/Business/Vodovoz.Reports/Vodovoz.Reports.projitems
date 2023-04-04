@@ -22,6 +22,8 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Orders\EdoUpdReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Sales\ProfitabilitySalesReport.rdl" />
+    <None Include="$(MSBuildThisFileDirectory)Reports\Sales\ProfitabilitySalesReportDetail.rdl" />
     <None Include="$(MSBuildThisFileDirectory)Reports\Sales\TurnoverByCounterpartyFinanceReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
