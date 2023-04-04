@@ -113,6 +113,7 @@ namespace Vodovoz.Models.TrueMark
 			if(needReceiptForFirstSum)
 			{
 				await PrepareForFirstReceipt(receipt, cancellationToken);
+				return;
 			}
 
 			TryPutCodesToPool(receipt);
