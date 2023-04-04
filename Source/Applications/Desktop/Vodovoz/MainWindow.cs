@@ -2637,4 +2637,9 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<ComplaintDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
+
+	protected void OnExternalCounterpartiesMatchingActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ExternalCounterpartiesMatchingJournalViewModel>(null);
+	}
 }
