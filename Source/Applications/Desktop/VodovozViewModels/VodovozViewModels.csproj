@@ -485,6 +485,9 @@
     <Compile Include="ViewModels\Reports\SalaryByEmployeeJournalReport\SalaryByEmployeeJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Sales\IClosedXmlAsyncReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.ResidueDataNode.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.Row.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.SalesDataNode.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.GroupingBy.cs" />

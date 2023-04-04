@@ -29,14 +29,14 @@ namespace Vodovoz.Views.Reports
 		{
 			dateFirstPeriodPicker.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.FirstPeriod.StartDateTime, w => w.StartDateOrNull)
-				.AddBinding(vm => vm.FirstPeriod.EndDateTime, w => w.EndDateOrNull)
+				.AddBinding(vm => vm.FirstPeriodStartDate, w => w.StartDate)
+				.AddBinding(vm => vm.FirstPeriodEndDate, w => w.EndDate)
 				.InitializeFromSource();
 
 			dateSecondPeriodPicker.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.SecondPeriod.StartDateTime, w => w.StartDateOrNull)
-				.AddBinding(vm => vm.SecondPeriod.EndDateTime, w => w.EndDateOrNull)
+				.AddBinding(vm => vm.SecondPeriodStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.SecondPeriodEndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
 			ychkbtnSplitByNomenclatures.Binding
@@ -51,7 +51,15 @@ namespace Vodovoz.Views.Reports
 				.AddBinding(ViewModel, vm => vm.SplitByWarehouses, w => w.Active)
 				.InitializeFromSource();
 
+			ybuttonCreateReport.Binding
+				.AddBinding(ViewModel, vm => vm.CanGenerate, w => w.Visible)
+				.InitializeFromSource();
+
 			ybuttonCreateReport.Clicked += OnButtonCreateReportClicked;
+
+			ybuttonAbortCreateReport.Binding
+				.AddBinding(ViewModel, vm => vm.CanCancelGenerate, w => w.Visible)
+				.InitializeFromSource();
 
 			ybuttonAbortCreateReport.Clicked += OnButtonAbortCreateReportClicked;
 
@@ -176,13 +184,41 @@ namespace Vodovoz.Views.Reports
 		private void ConfigureTreeView()
 		{
 			ytreeReportIndicatorsRows.EnableGridLines = TreeViewGridLines.Both;
+
+			var rowColumnsConfig = ytreeReportIndicatorsRows.CreateFluentColumnsConfig<SalesBySubdivisionsAnalitycsReport.DisplayRow>();
+
+			rowColumnsConfig.AddColumn("").AddTextRenderer(row => row.Title);
+
+			if(ViewModel.Report.DisplayRows.Any())
+			{
+				var count = ViewModel.Report.DisplayRows.First().DynamicRows.Count;
+
+				for(var i = 0; i < count; i++)
+				{
+					int index = i;
+					rowColumnsConfig
+						.AddColumn("")
+						.AddTextRenderer(row => row.DynamicRows[index]);
+				}
+			}
+			
+			rowColumnsConfig.AddColumn("").Finish();
 		}
 
 		private void ShowReport()
 		{
-			ConfigureTreeView();
-			ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report;
-			ytreeReportIndicatorsRows.YTreeModel.EmitModelChanged();
+			try
+			{
+				ConfigureTreeView();
+				ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report.DisplayRows;
+				ytreeReportIndicatorsRows.YTreeModel.EmitModelChanged();
+			}
+			catch(Exception e)
+			{
+
+				throw;
+			}
+			
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
