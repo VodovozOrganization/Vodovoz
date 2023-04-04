@@ -1,36 +1,33 @@
-﻿using Grpc.Core.Logging;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class RouteListFastDeliveryMaxDistanceViewModel : EntityTabViewModelBase<RouteList>
 	{
+		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly int _routeListId;
-
-		//private readonly ILogger _logger;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 
 		public RouteListFastDeliveryMaxDistanceViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			int routeListId
-			//ILogger logger
-			)
-		: base(uowBuilder, unitOfWorkFactory, commonServices)
+			IRouteListItemRepository routeListItemRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_routeListId = routeListId;
-			//_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 
 			_fastDeliveryMaxDistance = Entity.CurrentFastDeliveryMaxDistanceValue;
 
-			TabName = "Редактирование радиуса быстрой доставки для маршрутного листа";
+			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
+
+			TabName = $"Изменение радиуса быстрой доставки для маршрутного листа №{Entity.Id}";
 		}
 
 		private decimal _fastDeliveryMaxDistance;
@@ -52,7 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public override bool Save(bool close)
 		{
-			//_logger.Info("Добавляем в класс маршрутного листа новое значения радиуса быстрой доставки...");
+			_logger.Info("Добавляем новое значения радиуса быстрой доставки...");
 			return base.Save(close);
 		}
 	}

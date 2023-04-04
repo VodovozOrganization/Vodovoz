@@ -10,4 +10,9 @@ namespace Vodovoz.EntityRepositories.Logistic
 		public Double Latitude { get; set; }
 		public Double Longitude { get; set; }
 	}
+
+	public class DriverPositionWithFastDeliveryRadius : DriverPosition
+	{
+		public double FastDeliveryRadius { get; set; }
+	}
 }

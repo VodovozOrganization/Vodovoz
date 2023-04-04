@@ -76,6 +76,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private IUnitOfWork _unitOfWork;
 		private bool _canOpenKeepingTab;
+		private bool _canEditRouteListFastDeliveryMaxDistance;
 		private bool _showHistory;
 		private DateTime _historyDate;
 		private TimeSpan _historyHour;
@@ -223,6 +224,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set => SetField(ref _canOpenKeepingTab, value);
 		}
 
+		public bool CanEditRouteListFastDeliveryMaxDistance
+		{
+			get => _canEditRouteListFastDeliveryMaxDistance;
+			set => SetField(ref _canEditRouteListFastDeliveryMaxDistance, value);
+		}
+
 		public bool ShowHistory
 		{
 			get => _showHistory;
@@ -314,10 +321,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string CoveragePercentString => $"{CoveragePercent:P}";
 
 		[PropertyChangedAlso(nameof(CoveragePercentString))]
+		//public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
+		//	FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder).ToList(),
+		//	LastDriverPositions.Select(pos => pos.ToCoordinate()).ToList(),
+		//	FastDeliveryMaxDistance);
 		public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
 			FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder).ToList(),
-			LastDriverPositions.Select(pos => pos.ToCoordinate()).ToList(),
-			FastDeliveryMaxDistance);
+			LastDriverPositions.Select(pos => new DriverPositionWithFastDeliveryRadius()
+			{
+				DriverId = pos.DriverId,
+				RouteListId = pos.RouteListId,
+				Time = pos.Time,
+				Latitude = pos.Latitude,
+				Longitude = pos.Longitude,
+				FastDeliveryRadius = (double)(UoW.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).CurrentFastDeliveryMaxDistanceValue
+			}).ToList()
+			);
 
 		#endregion
 
@@ -367,8 +386,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void OpenChangeRouteListFastDeliveryMaxDistanceDlg(int routeListId)
 		{
-			NavigationManager.OpenViewModel<RouteListFastDeliveryMaxDistanceViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(routeListId));
-			//NavigationManager.OpenViewModel<RouteListFastDeliveryMaxDistanceViewModel>(this);
+			NavigationManager.OpenViewModel<RouteListFastDeliveryMaxDistanceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(routeListId));
 		}
 
 		private void OpenTrackPointJournalTab()
@@ -469,6 +487,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				.Where(rl => rl.Driver != null)
 				.Where(rl => rl.Car != null);
 
+
+			var dateForRouteListFastDeliveryMaxDistanceSubquery = DateTime.Now;
+
 			if(ShowHistory)
 			{
 				var routeListHistoryStatuses = new RouteListStatus[]
@@ -487,17 +508,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 							Restrictions.IsNull(Projections.Property(() => routeListAlias.DeliveredAt))),
 						Restrictions.In(Projections.Property(() => routeListAlias.Status), routeListHistoryStatuses)))
 					.And(() => routeListAlias.Date == HistoryDateTime.Date);
+
+				dateForRouteListFastDeliveryMaxDistanceSubquery = HistoryDateTime;
 			}
 			else
 			{
-				query.Where(rl => rl.Status == RouteListStatus.EnRoute);
+				query.Where(rl => rl.Status == RouteListStatus.EnRoute);				
 			}
 
 			var routeListFastDeliveryMaxDistanceSubquery = QueryOver.Of<RouteListFastDeliveryMaxDistance>()
-				.Where(d => d.RouteList.Id == routeListAlias.Id && d.StartDate < DateTime.Now && (d.EndDate == null || d.EndDate > DateTime.Now))
+				.Where(
+					d => d.RouteList.Id == routeListAlias.Id 
+					&& d.StartDate < dateForRouteListFastDeliveryMaxDistanceSubquery 
+					&& (d.EndDate == null || d.EndDate > dateForRouteListFastDeliveryMaxDistanceSubquery))
 				.Select(d => d.Distance)
 				.OrderBy(d => d.StartDate).Desc
 				.Take(1);
+
 
 			var result = query.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.Id)

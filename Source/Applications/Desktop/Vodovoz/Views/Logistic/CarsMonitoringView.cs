@@ -58,6 +58,8 @@ namespace Vodovoz.Views.Logistic
 			Build();
 
 			ybtnOpenKeeping.Binding.AddBinding(ViewModel, vm => vm.CanOpenKeepingTab, w => w.Sensitive);
+			ybtnChangeFastDeliveryDistance.Sensitive = false;
+			ybtnChangeFastDeliveryDistance.Binding.AddBinding(ViewModel, vm => vm.CanEditRouteListFastDeliveryMaxDistance, w => w.Sensitive);
 
 			ytbtnShowAddressesList.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowAddresses, w => w.Active)
@@ -240,6 +242,8 @@ namespace Vodovoz.Views.Logistic
 					_lastSelectedDrivers.Remove(pair.Key);
 				}
 			}
+
+			ViewModel.CanEditRouteListFastDeliveryMaxDistance = ViewModel.SelectedWorkingDrivers.Count == 1;
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
