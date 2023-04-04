@@ -22,6 +22,8 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Послед. изменения").AddTextRenderer(node =>
 					node.LastEditedTime != default ? node.LastEditedTime.ToString() : string.Empty)
 				.AddColumn("Детали").AddTextRenderer(node => node.Description).SearchHighlight()
+				.AddColumn("Источник").AddTextRenderer(node => node.Source)
+				.AddColumn("Получатель").AddTextRenderer(node => node.Target)
 				.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
