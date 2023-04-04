@@ -905,7 +905,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			OpenWithDepartmentsReacrionViewAction();
 		}
 
-		public Action<Type> ChangeView;
+		public Action<Type> ChangeView { get; set; }
 		private void OpenWithDepartmentsReacrionViewAction()
 		{
 			var openStandartView = new JournalAction("Отобразить время реакции отделов",

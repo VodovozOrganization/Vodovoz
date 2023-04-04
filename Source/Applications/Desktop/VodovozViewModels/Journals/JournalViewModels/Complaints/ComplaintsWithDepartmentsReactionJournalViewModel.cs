@@ -36,6 +36,7 @@ using QS.Navigation;
 using QS.Tdi;
 using Vodovoz.Journals.JournalViewModels;
 using QS.ViewModels.Dialog;
+using Vodovoz.NHibernateProjections.Employees;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
@@ -190,6 +191,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			DeliveryPoint deliveryPointAlias = null;
 			ComplaintGuiltyItem complaintGuiltyItemAlias = null;
 			Employee guiltyEmployeeAlias = null;
+			Employee driverAlias = null;
 			Subdivision guiltySubdivisionAlias = null;
 			Fine fineAlias = null;
 			Order orderAlias = null;
@@ -340,6 +342,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.Left.JoinAlias(() => complaintAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => complaintAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => complaintAlias.Guilties, () => complaintGuiltyItemAlias)
+				.Left.JoinAlias(() => complaintAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDetalization, () => complaintDelatizationAlias)
 				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
@@ -520,6 +523,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 				.Select(lastPlannedCompletionDateProjection).WithAlias(() => resultAlias.LastPlannedCompletionDate)
 				.Select(counterpartyWithAddressProjection).WithAlias(() => resultAlias.ClientNameWithAddress)
 				.Select(guiltiesProjection).WithAlias(() => resultAlias.Guilties)
+				.Select(EmployeeProjections.GetDriverFullNamePojection()).WithAlias(() => resultAlias.Driver)
 				.Select(authorProjection).WithAlias(() => resultAlias.Author)
 				.Select(finesProjection).WithAlias(() => resultAlias.Fines)
 				.Select(() => complaintAlias.ComplaintText).WithAlias(() => resultAlias.ComplaintText)
@@ -916,7 +920,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			OpenStandartViewAction();
 		}
 		
-		public Action<Type> ChangeView;
+		public Action<Type> ChangeView { get; set; }
 		private void OpenStandartViewAction()
 		{
 			var openStandartView = new JournalAction("Перейти к обычному виду",
