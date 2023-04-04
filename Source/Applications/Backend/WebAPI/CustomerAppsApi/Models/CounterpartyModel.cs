@@ -178,7 +178,7 @@ namespace CustomerAppsApi.Models
 					counterparty.FirstName = counterpartyDto.FirstName;
 					counterparty.Surname = counterpartyDto.Surname;
 					counterparty.Patronymic = counterpartyDto.Patronymic;
-					counterparty.FullName = $"{counterparty.Surname} {counterparty.FirstName} {counterparty.Patronymic}";
+					counterparty.Name = $"{counterparty.Surname} {counterparty.FirstName} {counterparty.Patronymic}";
 					break;
 			}
 
