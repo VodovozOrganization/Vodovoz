@@ -592,21 +592,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				{
 					ICriterion warehouseCriterion = null;
 
-					if(FilterViewModel.TargetSource == TargetSource.Source)
-					{
-						warehouseCriterion = Restrictions.In(Projections.Property(() => fromWarehouseAlias.Id), FilterViewModel.WarehouseIds);
-					}
-
-					if(FilterViewModel.TargetSource == TargetSource.Target)
+					if(FilterViewModel.TargetSource != TargetSource.Source)
 					{
 						warehouseCriterion = Restrictions.In(Projections.Property(() => incomingWaterAlias.ToWarehouse.Id), FilterViewModel.WarehouseIds);
-					}
-
-					if(FilterViewModel.TargetSource == TargetSource.Both)
-					{
-						warehouseCriterion = Restrictions.Or(
-							Restrictions.In(Projections.Property(() => fromWarehouseAlias.Id), FilterViewModel.WarehouseIds),
-							Restrictions.In(Projections.Property(() => toWarehouseAlias.Id), FilterViewModel.WarehouseIds));
 					}
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
@@ -727,21 +715,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				{
 					ICriterion warehouseCriterion = null;
 
-					if(FilterViewModel.TargetSource == TargetSource.Source)
+					if(FilterViewModel.TargetSource != TargetSource.Target)
 					{
 						warehouseCriterion = Restrictions.In(Projections.Property(() => fromWarehouseAlias.Id), FilterViewModel.WarehouseIds);
-					}
-
-					if(FilterViewModel.TargetSource == TargetSource.Target)
-					{
-						warehouseCriterion = Restrictions.In(Projections.Property(() => toWarehouseAlias.Id), FilterViewModel.WarehouseIds);
-					}
-
-					if(FilterViewModel.TargetSource == TargetSource.Both)
-					{
-						warehouseCriterion = Restrictions.Or(
-							Restrictions.In(Projections.Property(() => fromWarehouseAlias.Id), FilterViewModel.WarehouseIds),
-							Restrictions.In(Projections.Property(() => toWarehouseAlias.Id), FilterViewModel.WarehouseIds));
 					}
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
