@@ -2477,7 +2477,7 @@ FROM
             FROM
                 (SELECT
                      route_list_addresses.route_list_id as rl_id,
-                     SUM(IFNULL(order_items.price * order_items.count - order_items.discount_money, 0)) + SUM(orders.extra_money) AS TotalOrdersSum
+                     SUM(IFNULL(order_items.price * order_items.count - IF(order_items.count &gt; 0, order_items.discount_money, 0), 0)) + SUM(orders.extra_money) AS TotalOrdersSum
                  FROM
                      orders
                          LEFT JOIN order_items ON order_items.order_id = orders.id
