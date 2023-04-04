@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
 using Gtk;
