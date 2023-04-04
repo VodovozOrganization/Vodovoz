@@ -177,6 +177,7 @@ namespace Vodovoz.Views.Logistic
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			yTreeViewDrivers.RowActivated += OnYTreeViewDriversRowActivated;
 			ybtnOpenKeeping.Clicked += OnButtonOpenKeepingClicked;
+			ybtnChangeFastDeliveryDistance.Clicked += OnButtonChangeFastDeliveryDistanceClicked;
 			ychkbtnShowHistory.Toggled += ShowHistoryToggled;
 
 			ybuttonTrackPoints.Clicked += OnButtonTrackPointsClicked;
@@ -199,6 +200,7 @@ namespace Vodovoz.Views.Logistic
 			yTreeViewDrivers.Selection.Changed -= OnSelectionChanged;
 			yTreeViewDrivers.RowActivated -= OnYTreeViewDriversRowActivated;
 			ybtnOpenKeeping.Clicked -= OnButtonOpenKeepingClicked;
+			ybtnChangeFastDeliveryDistance.Clicked -= OnButtonChangeFastDeliveryDistanceClicked;
 			ychkbtnShowHistory.Toggled -= ShowHistoryToggled;
 
 			ybuttonTrackPoints.Clicked -= OnButtonTrackPointsClicked;
@@ -317,6 +319,18 @@ namespace Vodovoz.Views.Logistic
 				foreach(var routeListId in driver.RouteListsIds.Select(x => x.Key))
 				{
 					ViewModel.OpenKeepingDialogCommand?.Execute(routeListId);
+				}
+			}
+		}
+
+		private void OnButtonChangeFastDeliveryDistanceClicked(object sender, EventArgs e)
+		{
+			var selectedDrivers = ViewModel.SelectedWorkingDrivers;
+			foreach(var driver in selectedDrivers)
+			{
+				foreach(var routeListId in driver.RouteListsIds.Select(x => x.Key))
+				{
+					ViewModel.ChangeRouteListFastDeliveryMaxDistanceCommand?.Execute(routeListId);
 				}
 			}
 		}

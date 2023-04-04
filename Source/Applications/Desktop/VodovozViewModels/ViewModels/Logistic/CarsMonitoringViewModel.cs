@@ -8,6 +8,8 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
+using QS.Tdi;
 using QS.Utilities.Text;
 using QS.ViewModels;
 using System;
@@ -31,6 +33,7 @@ using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -135,6 +138,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			LastDriverPositions = new ObservableCollection<DriverPosition>();
 
 			OpenKeepingDialogCommand = new DelegateCommand<int>(OpenRouteListKeepingTab);
+			ChangeRouteListFastDeliveryMaxDistanceCommand = new DelegateCommand<int>(OpenChangeRouteListFastDeliveryMaxDistanceDlg);
 			OpenTrackPointsJournalTabCommand = new DelegateCommand(OpenTrackPointJournalTab);
 			RefreshWorkingDriversCommand = new DelegateCommand(RefreshWorkingDrivers);
 			RefreshRouteListAddressesCommand = new DelegateCommand<int>(RefreshRouteListAddresses);
@@ -332,6 +336,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		#region Commands
 		public DelegateCommand<int> OpenKeepingDialogCommand { get; }
 
+		public DelegateCommand<int> ChangeRouteListFastDeliveryMaxDistanceCommand { get; }
+
 		public DelegateCommand OpenTrackPointsJournalTabCommand { get; }
 
 		public DelegateCommand RefreshWorkingDriversCommand { get; }
@@ -357,6 +363,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void OpenRouteListKeepingTab(int routeListId)
 		{
 			_gtkTabsOpener.OpenRouteListKeepingDlg(this, routeListId);
+		}
+
+		private void OpenChangeRouteListFastDeliveryMaxDistanceDlg(int routeListId)
+		{
+			NavigationManager.OpenViewModel<RouteListFastDeliveryMaxDistanceViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(routeListId));
+			//NavigationManager.OpenViewModel<RouteListFastDeliveryMaxDistanceViewModel>(this);
 		}
 
 		private void OpenTrackPointJournalTab()
