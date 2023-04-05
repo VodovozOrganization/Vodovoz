@@ -131,7 +131,32 @@ parallel (
 			}		
 		}
 	},*/
-	"Vod1Runtime" : {
+
+	stage('Deploy master desktop'){
+		parallel (
+			"Vod1Runtime" : {
+				node('Vod1'){
+					DeployWinRuntime()
+				}
+			},
+			"Vod3Runtime" : {
+				node('Vod3'){
+					DeployWinRuntime()
+				}
+			},
+			"Vod5Runtime" : {
+				node('Vod5'){
+					DeployWinRuntime()
+				}
+			},
+			"Vod5Runtime" : {
+				node('Vod5'){
+					DeployWinRuntime()
+				}
+			},
+		)
+	},
+	/*"Vod1Runtime" : {
 		node('Vod1'){
 			stage('Deploy master desktop'){
 				DeployWinRuntime()
@@ -156,7 +181,8 @@ parallel (
 				DeployWinRuntime()
 			}		
 		}
-	},/*,
+	},*/
+	/*,
 	"Linux" : {
 		node('LINUX_RUNTIME'){
 			stage('Deploy WCF'){
@@ -257,7 +283,7 @@ def DeployWebService(serviceName) {
 def DeployWinRuntime() {
 	/*if(env.BRANCH_NAME == 'master')
 	{*/
-		def RUNTIME_DEPLOY_PATH = "${RuntimePath}latest"
+		def RUNTIME_DEPLOY_PATH = "${MasterRuntimePath}\\latest"
 
 		echo "Deploy master to runtime folder to ${RUNTIME_DEPLOY_PATH}"
 		copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
