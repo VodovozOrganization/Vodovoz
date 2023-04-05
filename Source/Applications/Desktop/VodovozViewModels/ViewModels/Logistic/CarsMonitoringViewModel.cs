@@ -677,29 +677,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				if(ShowHistory)
 				{
-					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPoints(UoW, routeListIds, DriverDisconnectedTimespan, HistoryDateTime)
-						.Select(pos => new DriverPositionWithFastDeliveryRadius()
-						{
-							DriverId = pos.DriverId,
-							RouteListId = pos.RouteListId,
-							Time = pos.Time,
-							Latitude = pos.Latitude,
-							Longitude = pos.Longitude,
-							FastDeliveryRadius = (double)(UoW.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).GetFastDeliveryMaxDistanceValue(HistoryDateTime)
-						}).ToList();
+					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPointsWithRadius(UoW, routeListIds, DriverDisconnectedTimespan, HistoryDateTime);
 				}
 				else
 				{
-					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPoints(UoW, routeListIds, DriverDisconnectedTimespan)
-						.Select(pos => new DriverPositionWithFastDeliveryRadius()
-						{
-							DriverId = pos.DriverId,
-							RouteListId = pos.RouteListId,
-							Time = pos.Time,
-							Latitude = pos.Latitude,
-							Longitude = pos.Longitude,
-							FastDeliveryRadius = (double)(UoW.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).GetFastDeliveryMaxDistanceValue(DateTime.Now.Add(DriverDisconnectedTimespan))
-						}).ToList();
+					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPointsWithRadius(UoW, routeListIds, DriverDisconnectedTimespan);
 				}
 			}
 			else

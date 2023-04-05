@@ -15,7 +15,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			return unitOfWork.Session.Query<Track>().SingleOrDefault(t => t.RouteList.Id == routeListId);
 		}
-		
+
 		public IList<TrackPoint> GetPointsForTrack(IUnitOfWork uow, int trackId)
 		{
 			return uow.Session.QueryOver<TrackPoint>()
@@ -42,7 +42,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var lastTimeTrackQuery = QueryOver.Of<TrackPoint>(() => subPoint)
 				.Where(() => subPoint.Track.Id == trackAlias.Id);
-			
+
 			if(beforeTime.HasValue)
 			{
 				lastTimeTrackQuery.Where(p => p.ReceiveTimeStamp < beforeTime);
@@ -63,6 +63,32 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Select(x => x.Longitude).WithAlias(() => result.Longitude))
 				.TransformUsing(Transformers.AliasToBean<DriverPosition>())
 				.List<DriverPosition>();
+		}
+
+		public IList<DriverPositionWithFastDeliveryRadius> GetLastPointForRouteListsWithRadius(IUnitOfWork uow, int[] routeListsIds, DateTime? beforeTime = null)
+		{
+			var driverPositions = new List<DriverPosition>();
+
+			if(beforeTime.HasValue)
+			{
+				driverPositions = GetLastPointForRouteLists(uow, routeListsIds, beforeTime).ToList();
+			}
+
+			else
+			{
+				driverPositions = GetLastPointForRouteLists(uow, routeListsIds).ToList();
+			}
+
+			return driverPositions
+				.Select(pos => new DriverPositionWithFastDeliveryRadius()
+				{
+					DriverId = pos.DriverId,
+					RouteListId = pos.RouteListId,
+					Time = pos.Time,
+					Latitude = pos.Latitude,
+					Longitude = pos.Longitude,
+					FastDeliveryRadius = (double)(uow.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).GetFastDeliveryMaxDistanceValue(pos.Time)
+				}).ToList();
 		}
 
 		public DateTime GetMinTrackPointDate(IUnitOfWork uow)
@@ -102,7 +128,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var lastTimeTrackQuery = QueryOver.Of<TrackPoint>(() => subPoint)
 				.Where(() => subPoint.Track.Id == trackAlias.Id);
-				
+
 			if(beforeTime.HasValue)
 			{
 				lastTimeTrackQuery.Where(p => p.ReceiveTimeStamp < beforeTime)
@@ -128,6 +154,30 @@ namespace Vodovoz.EntityRepositories.Logistic
 					.Select(x => x.Longitude).WithAlias(() => result.Longitude))
 				.TransformUsing(Transformers.AliasToBean<DriverPosition>())
 				.List<DriverPosition>();
+		}
+
+		public IList<DriverPositionWithFastDeliveryRadius> GetLastRouteListFastDeliveryTrackPointsWithRadius(IUnitOfWork uow, int[] routeListsIds, TimeSpan timeSpanDisconnected, DateTime? beforeTime = null)
+		{
+			var driverPositions = new List<DriverPosition>();
+			if(beforeTime.HasValue)
+			{
+				driverPositions = GetLastRouteListFastDeliveryTrackPoints(uow, routeListsIds, timeSpanDisconnected, beforeTime).ToList();
+			}
+			else
+			{
+				driverPositions = GetLastRouteListFastDeliveryTrackPoints(uow, routeListsIds, timeSpanDisconnected).ToList();
+			}
+
+			return driverPositions
+				.Select(pos => new DriverPositionWithFastDeliveryRadius()
+				{
+					DriverId = pos.DriverId,
+					RouteListId = pos.RouteListId,
+					Time = pos.Time,
+					Latitude = pos.Latitude,
+					Longitude = pos.Longitude,
+					FastDeliveryRadius = (double)(uow.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).GetFastDeliveryMaxDistanceValue(pos.Time)
+				}).ToList();
 		}
 	}
 }
