@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Library.Dto
@@ -14,10 +15,14 @@ namespace CustomerAppsApi.Library.Dto
 		public string Patronymic { get; set; }
 		public string PhoneNumber { get; set; }
 		public string Email { get; set; }
+
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public PersonType PersonType { get; set; }
 		public string Inn { get; set; }
 		public string Kpp { get; set; }
 		public string TypeOfOwnership { get; set; }
+
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public TaxType? TaxType { get; set; }
 		public int CameFromId { get; set; }
 		public string JurAddress { get; set; }

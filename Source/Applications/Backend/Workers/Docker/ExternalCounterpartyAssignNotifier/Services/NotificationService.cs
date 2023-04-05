@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto;
 using Microsoft.Extensions.Configuration;
@@ -22,22 +21,20 @@ namespace ExternalCounterpartyAssignNotifier.Services
 		public async Task<int> NotifyOfCounterpartyAssignAsync(
 			RegisteredNaturalCounterpartyDto counterpartyDto, CounterpartyFrom counterpartyFrom)
 		{
-			var response = await _httpClient.PostAsJsonAsync(ConfigureHttpClient(counterpartyFrom), counterpartyDto);
+			var response = await _httpClient.PostAsJsonAsync(GetUriString(counterpartyFrom), counterpartyDto);
 			return (int)response.StatusCode;
 		}
 
-		private string ConfigureHttpClient(CounterpartyFrom counterpartyFrom)
+		private string GetUriString(CounterpartyFrom counterpartyFrom)
 		{
 			switch(counterpartyFrom)
 			{
 				case CounterpartyFrom.MobileApp:
-					_httpClient.BaseAddress =
-						new Uri(_configuration.GetSection("MobileApp").GetValue<string>("BaseUrl"));
-					return _configuration.GetSection("MobileApp").GetValue<string>("NotificationAddress");
+					return $"{_configuration.GetSection("MobileApp").GetValue<string>("BaseUrl")}" +
+						$"{_configuration.GetSection("MobileApp").GetValue<string>("NotificationAddress")}";
 				case CounterpartyFrom.WebSite:
-					_httpClient.BaseAddress =
-						new Uri(_configuration.GetSection("VodovozSite").GetValue<string>("BaseUrl"));
-					return _configuration.GetSection("VodovozSite").GetValue<string>("NotificationAddress");
+					return $"{_configuration.GetSection("VodovozSite").GetValue<string>("BaseUrl")}" +
+						$"{_configuration.GetSection("MobileApp").GetValue<string>("NotificationAddress")}";
 				default:
 					throw new ArgumentOutOfRangeException(nameof(counterpartyFrom), counterpartyFrom, null);
 			}

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using ExternalCounterpartyAssignNotifier.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,7 +39,7 @@ namespace ExternalCounterpartyAssignNotifier
 					
 					services.AddHttpClient<INotificationService, NotificationService>(c =>
 					{
-						//c.BaseAddress = new Uri(hostContext.Configuration.GetSection("VodovozSiteNotificationService").GetValue<string>("BaseUrl"));
+						c.Timeout = TimeSpan.FromSeconds(15);
 						c.DefaultRequestHeaders.Add("Accept", "application/json");
 					});
 

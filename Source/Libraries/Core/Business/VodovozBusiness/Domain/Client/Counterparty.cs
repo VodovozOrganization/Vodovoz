@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
@@ -1385,7 +1385,6 @@ namespace Vodovoz.Domain.Client
 		#endregion
 	}
 
-	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum PersonType
 	{
 		[Display(Name = "Физическое лицо")]
@@ -1444,7 +1443,6 @@ namespace Vodovoz.Domain.Client
 		public CargoReceiverTypeStringType() : base(typeof(CargoReceiverSource)) { }
 	}
 
-	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum TaxType
 	{
 		[Display(Name = "Не указано")]
