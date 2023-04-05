@@ -105,7 +105,7 @@ parallel (
 )
 
 parallel (
-	/*"Desktop" : {
+	"Desktop" : {
 		node('Vod3'){
 			stage('Deploy desktop'){
 				script{
@@ -130,7 +130,7 @@ parallel (
 				}
 			}		
 		}
-	},*/
+	},
 	"Deploy master runtime" : {
 		stage('Deploy master desktop'){
 			parallel (
@@ -156,34 +156,7 @@ parallel (
 				},
 			)
 		}
-	}
-	/*"Vod1Runtime" : {
-		node('Vod1'){
-			stage('Deploy master desktop'){
-				DeployWinRuntime()
-			}		
-		}
 	},
-	"Vod3Runtime" : {
-		node('Vod3'){
-			stage('Deploy master desktop'){
-				DeployWinRuntime()
-			}		
-		}
-	},"Vod5Runtime" : {
-		node('Vod5'){
-			stage('Deploy master desktop'){
-				DeployWinRuntime()
-			}		
-		}
-	},"Vod7Runtime" : {
-		node('Vod7'){
-			stage('Deploy master desktop'){
-				DeployWinRuntime()
-			}		
-		}
-	},*/
-	/*,
 	"Linux" : {
 		node('LINUX_RUNTIME'){
 			stage('Deploy WCF'){
@@ -228,7 +201,7 @@ parallel (
 				}
 			}
 		}						
-	}*/
+	}
 )
 
 def PrepareSources(jenkinsHome) {
@@ -282,15 +255,15 @@ def DeployWebService(serviceName) {
 }
 
 def DeployWinRuntime() {
-	/*if(env.BRANCH_NAME == 'master')
-	{*/
+	if(env.BRANCH_NAME == 'master')
+	{
 		def RUNTIME_DEPLOY_PATH = "${MasterRuntimePath}\\latest"
 
 		echo "Deploy master to runtime folder to ${RUNTIME_DEPLOY_PATH}"
 		copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 
 		unzip zipFile: 'Vodovoz.zip', dir: RUNTIME_DEPLOY_PATH
-	/*}else{
+	}else{
 		echo "Branch is not master, nothing to deploy to runtime folder"
-	}*/
+	}
 }
