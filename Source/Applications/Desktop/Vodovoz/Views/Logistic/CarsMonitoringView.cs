@@ -465,7 +465,7 @@ namespace Vodovoz.Views.Logistic
 					{
 						_fastDeliveryCarCirclesOverlay.Polygons.Add(CustomPolygons.CreateCirclePolygon(
 							lastPoint.ToPointLatLng(),
-							ViewModel.FastDeliveryMaxDistance,
+							lastPoint.FastDeliveryRadius,
 							ViewModel.FastDeliveryCircleFillColor));
 					}
 

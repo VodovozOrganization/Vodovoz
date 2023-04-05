@@ -136,7 +136,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			RouteListAddresses = new ObservableCollection<RouteListAddressNode>();
 			WorkingDrivers = new ObservableCollection<WorkingDriverNode>();
 			SelectedWorkingDrivers = new ObservableCollection<WorkingDriverNode>();
-			LastDriverPositions = new ObservableCollection<DriverPosition>();
+			LastDriverPositions = new ObservableCollection<DriverPositionWithFastDeliveryRadius>();
 
 			OpenKeepingDialogCommand = new DelegateCommand<int>(OpenRouteListKeepingTab);
 			ChangeRouteListFastDeliveryMaxDistanceCommand = new DelegateCommand<int>(OpenChangeRouteListFastDeliveryMaxDistanceDlg);
@@ -327,15 +327,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		//	FastDeliveryMaxDistance);
 		public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
 			FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder).ToList(),
-			LastDriverPositions.Select(pos => new DriverPositionWithFastDeliveryRadius()
-			{
-				DriverId = pos.DriverId,
-				RouteListId = pos.RouteListId,
-				Time = pos.Time,
-				Latitude = pos.Latitude,
-				Longitude = pos.Longitude,
-				FastDeliveryRadius = (double)(UoW.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).CurrentFastDeliveryMaxDistanceValue
-			}).ToList()
+			LastDriverPositions.ToList()
 			);
 
 		#endregion
@@ -349,7 +341,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public ObservableCollection<RouteListAddressNode> RouteListAddresses { get; }
 
-		public ObservableCollection<DriverPosition> LastDriverPositions { get; }
+		public ObservableCollection<DriverPositionWithFastDeliveryRadius> LastDriverPositions { get; }
 		#endregion
 
 		#region Commands
@@ -607,7 +599,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				RouteListAddresses.Add(routeListAddress);
 			}
-
+			RefreshLastDriverPositionsCommand?.Execute();
 			RouteListAddressesChanged?.Invoke();
 		}
 
@@ -680,21 +672,48 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			var routeListIds = WorkingDrivers.SelectMany(x => x.RouteListsIds.Keys).ToArray();
 
-			IList<DriverPosition> lastPoints;
+			IList<DriverPositionWithFastDeliveryRadius> lastPoints;
 			if(ShowFastDeliveryOnly)
 			{
 				if(ShowHistory)
 				{
-					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPoints(UoW, routeListIds, DriverDisconnectedTimespan, HistoryDateTime);
+					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPoints(UoW, routeListIds, DriverDisconnectedTimespan, HistoryDateTime)
+						.Select(pos => new DriverPositionWithFastDeliveryRadius()
+						{
+							DriverId = pos.DriverId,
+							RouteListId = pos.RouteListId,
+							Time = pos.Time,
+							Latitude = pos.Latitude,
+							Longitude = pos.Longitude,
+							FastDeliveryRadius = (double)(UoW.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).GetFastDeliveryMaxDistanceValue(HistoryDateTime)
+						}).ToList();
 				}
 				else
 				{
-					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPoints(UoW, routeListIds, DriverDisconnectedTimespan);
+					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPoints(UoW, routeListIds, DriverDisconnectedTimespan)
+						.Select(pos => new DriverPositionWithFastDeliveryRadius()
+						{
+							DriverId = pos.DriverId,
+							RouteListId = pos.RouteListId,
+							Time = pos.Time,
+							Latitude = pos.Latitude,
+							Longitude = pos.Longitude,
+							FastDeliveryRadius = (double)(UoW.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).GetFastDeliveryMaxDistanceValue(DateTime.Now.Add(DriverDisconnectedTimespan))
+						}).ToList();
 				}
 			}
 			else
 			{
-				lastPoints = GetLastRouteListTrackPoints(routeListIds);
+				lastPoints = GetLastRouteListTrackPoints(routeListIds)
+						.Select(pos => new DriverPositionWithFastDeliveryRadius()
+						{
+							DriverId = pos.DriverId,
+							RouteListId = pos.RouteListId,
+							Time = pos.Time,
+							Latitude = pos.Latitude,
+							Longitude = pos.Longitude,
+							FastDeliveryRadius = (double)(UoW.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).CurrentFastDeliveryMaxDistanceValue
+						}).ToList();
 			}
 
 			LastDriverPositions.Clear();
