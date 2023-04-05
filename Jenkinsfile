@@ -149,8 +149,8 @@ parallel (
 					DeployWinRuntime()
 				}
 			},
-			"Vod5Runtime" : {
-				node('Vod5'){
+			"Vod7Runtime" : {
+				node('Vod7'){
 					DeployWinRuntime()
 				}
 			},
