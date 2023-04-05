@@ -3353,21 +3353,28 @@ WHERE
 	        OR (0 IN (@product_group_include) AND 0 IN (@product_group_exclude))
 	    )
 	AND (
-	        ((o.order_status IN (@order_status_include) AND '0' IN (@order_status_exclude) )
-	            OR
-	        (o.order_status NOT IN (@order_status_exclude) AND '0' IN (@order_status_include)))
+	        (
+            (
+              (
+                (
+                  o.order_status IN (@order_status_include)
+                  AND
+                  o.order_status != 'WaitForPayment'
+                )
+                OR
+                (
+                  o.order_status = 'WaitForPayment' 
+                  AND 'WaitForPayment' IN (@order_status_include) 
+                  AND self_delivery 
+                  AND pay_after_shipment
+                )
+              )
+              AND '0' IN (@order_status_exclude) 
+            )
+            OR
+            (o.order_status NOT IN (@order_status_exclude) AND '0' IN (@order_status_include))
+          )
 	        OR ('0' IN (@order_status_include) AND '0' IN (@order_status_exclude))
-	    )
-	AND (
-	        (
-	          'WaitingForPayment' IN (@order_status_include)
-	          AND self_delivery 
-	          AND pay_after_shipment
-	        )
-	        OR
-	        (
-	          'WaitingForPayment' NOT IN (@order_status_include)
-	        )
 	    )
 	GROUP BY oi.id
 ;</CommandText>
