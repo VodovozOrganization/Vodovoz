@@ -500,6 +500,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 		public double Latitude { get; set; }
 		public double Longitude { get; set; }
 		public RouteList RouteList { get; set; }
+		public double RouteListFastDeliveryRadius { get; set; }
 	}
 
 	public class FastDeliveryVerificationParameter<T>
