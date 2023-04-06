@@ -174,7 +174,7 @@ namespace Vodovoz.Models.TrueMark
 						_codesPool.PutCode(code.ResultCode.Id);
 					}
 
-					code.ResultCode = GetCodeFromPool();
+					code.ResultCode = GetCodeFromPool(code.OrderItem.Nomenclature.Gtin);
 				}
 
 				_uow.Save(code);
@@ -189,7 +189,7 @@ namespace Vodovoz.Models.TrueMark
 					_codesPool.PutCode(invalidCode.ResultCode.Id);
 				}
 
-				invalidCode.ResultCode = GetCodeFromPool();
+				invalidCode.ResultCode = GetCodeFromPool(invalidCode.OrderItem.Nomenclature.Gtin);
 			}
 
 			//unscanned codes
@@ -232,7 +232,7 @@ namespace Vodovoz.Models.TrueMark
 					continue;
 				}
 
-				defectiveCode.ResultCode = GetCodeFromPool();
+				defectiveCode.ResultCode = GetCodeFromPool(defectiveCode.OrderItem.Nomenclature.Gtin);
 
 				_uow.Save(defectiveCode);
 			}
@@ -276,7 +276,7 @@ namespace Vodovoz.Models.TrueMark
 					newCode.CashReceipt = receipt;
 					newCode.OrderItem = orderItem;
 					newCode.IsUnscannedSourceCode = true;
-					newCode.ResultCode = GetCodeFromPool();
+					newCode.ResultCode = GetCodeFromPool(orderItem.Nomenclature.Gtin);
 
 					_uow.Save(newCode);
 					receipt.ScannedCodes.Add(newCode);
@@ -297,9 +297,9 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		private TrueMarkWaterIdentificationCode GetCodeFromPool()
+		private TrueMarkWaterIdentificationCode GetCodeFromPool(string gtin)
 		{
-			var codeId = _codesPool.TakeCode();
+			var codeId = _codesPool.TakeCode(gtin);
 			return _uow.GetById<TrueMarkWaterIdentificationCode>(codeId);
 		}
 
