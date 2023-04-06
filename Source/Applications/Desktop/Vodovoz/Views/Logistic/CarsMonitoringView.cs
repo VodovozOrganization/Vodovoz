@@ -58,7 +58,6 @@ namespace Vodovoz.Views.Logistic
 			Build();
 
 			ybtnOpenKeeping.Binding.AddBinding(ViewModel, vm => vm.CanOpenKeepingTab, w => w.Sensitive);
-			ybtnChangeFastDeliveryDistance.Sensitive = false;
 			ybtnChangeFastDeliveryDistance.Binding.AddBinding(ViewModel, vm => vm.CanEditRouteListFastDeliveryMaxDistance, w => w.Sensitive);
 
 			ytbtnShowAddressesList.Binding.AddSource(ViewModel)
