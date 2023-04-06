@@ -5,16 +5,16 @@
 //Desktop
 def CAN_DEPLOY_DESKTOP_BRANCH = env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'Beta' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
 def CAN_DEPLOY_DESKTOP_PR = env.CHANGE_ID != null
-def CAN_COPY_DESKTOP_ARTIFACTS = CAN_DEPLOY_DESKTOP_BRANCH || CAN_DEPLOY_DESKTOP_PR 
+def CAN_COPY_DESKTOP_ARTIFACTS = ${CAN_DEPLOY_DESKTOP_BRANCH} || ${CAN_DEPLOY_DESKTOP_PR}  
 def CAN_PUBLISH_DESKTOP = env.BRANCH_NAME == 'master'
 
 //Web
 def CAN_PUBLISH_WEB_ARTIFACTS = env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
-def CAN_COPY_WEB_ARTIFACTS = CAN_PUBLISH_WEB_ARTIFACTS
+def CAN_COPY_WEB_ARTIFACTS = ${CAN_PUBLISH_WEB_ARTIFACTS}
 
 //WCF
 def CAN_PUBLISH_WCF_ARTIFACTS = env.BRANCH_NAME == 'master'
-def CAN_COPY_WCF_ARTIFACTS = CAN_PUBLISH_WCF_ARTIFACTS
+def CAN_COPY_WCF_ARTIFACTS = ${CAN_PUBLISH_WCF_ARTIFACTS}
 
 //Подготовка репозитория и проектов
 stage('Prepare sources'){
@@ -59,7 +59,6 @@ parallel (
 				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin'
 				archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true			
 			}
-
 			stage('Build WEB'){
 				script{
 					if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
@@ -109,8 +108,7 @@ parallel (
 						bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=Web -p:Platform=x86 -maxcpucount:2'
 					}
 				}
-			}
-			
+			}	
 		}
 	},
 	"Linux" : {
