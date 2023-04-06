@@ -1,7 +1,6 @@
 ﻿using ClosedXML.Report;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Dialog;
@@ -12,11 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Management;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -273,12 +269,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			var incomesQuery = from wmo in _unitOfWork.Session.Query<WarehouseMovementOperation>()
 							   join n in _unitOfWork.Session.Query<Nomenclature>()
 							   on wmo.Nomenclature.Id equals n.Id
+							   join productGroup in _unitOfWork.Session.Query<ProductGroup>()
+							   on n.ProductGroup.Id equals productGroup.Id
 							   join w in _unitOfWork.Session.Query<Warehouse>()
 							   on wmo.IncomingWarehouse.Id equals w.Id
 							   where !n.IsArchive
 							   select new
 							   {
 								   NomenclatureId = n.Id,
+								   ProductGroupId = productGroup.Id,
 								   WarehouseId = w.Id,
 								   wmo.Amount
 							   };
@@ -288,30 +287,27 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			var writeOffQuery = from wmo in _unitOfWork.Session.Query<WarehouseMovementOperation>()
 								join n in _unitOfWork.Session.Query<Nomenclature>()
 								on wmo.Nomenclature.Id equals n.Id
+								join productGroup in _unitOfWork.Session.Query<ProductGroup>()
+								on n.ProductGroup.Id equals productGroup.Id
 								join w in _unitOfWork.Session.Query<Warehouse>()
 								on wmo.WriteoffWarehouse.Id equals w.Id
 								where !n.IsArchive
 								select new
 								{
 									NomenclatureId = n.Id,
+									ProductGroupId = productGroup.Id,
 									WarehouseId = w.Id,
 									Amount = -wmo.Amount
 								};
 
 			var writeOff = writeOffQuery.ToList();
 
-			//var result = incomes.Union(writeOff).Select(obj => new ResidueDataNode
-			//{
-			//	NomenclatureId = obj.NomenclaureId,
-			//	WarehouseId = obj.WarehouseId,
-			//	Residue = obj.Amount,
-			//});
-
-			var result = incomes.Union(writeOff)
+			var result = incomes.Concat(writeOff)
 				.GroupBy(x => (x.WarehouseId, x.NomenclatureId))
 				.Select(group => new ResidueDataNode
 				{
 					NomenclatureId = group.Key.NomenclatureId,
+					ProductGroupId = group.First().ProductGroupId,
 					WarehouseId = group.Key.WarehouseId,
 					Residue = group.Sum(x => x.Amount),
 				})

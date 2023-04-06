@@ -7,22 +7,25 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 	{
 		public class DisplayRow
 		{
+			protected const string _numericDefaultFormat = "0.00";
+			protected const string _financialDefaultFormat = "0.00";
+
 			public virtual string Title { get; set; }
 
-			public virtual IList<string> DynamicRows { get; set; }
+			public virtual IList<string> DynamicColumns { get; set; }
 		}
 
 		public class Row : DisplayRow
 		{
 			public override string Title { get; set; }
 
-			public IList<(decimal Amount, decimal Price)> SalesBySubdivision { get; set; }
+			public IList<AmountPricePair> SalesBySubdivision { get; set; }
 
 			public IList<decimal> ResiduesByWarehouse { get; set; }
 
 			private List<string> _dynamicRows;
 
-			public override IList<string> DynamicRows
+			public override IList<string> DynamicColumns
 			{
 				get
 				{
@@ -32,13 +35,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 						
 						foreach (var sale in SalesBySubdivision)
 						{
-							_dynamicRows.Add(sale.Amount.ToString());
-							_dynamicRows.Add(sale.Price.ToString());
+							_dynamicRows.Add(sale.Amount.ToString(_numericDefaultFormat));
+							_dynamicRows.Add(sale.Price.ToString(_financialDefaultFormat));
 						}
 
 						foreach (var residue in ResiduesByWarehouse)
 						{
-							_dynamicRows.Add(residue.ToString());
+							_dynamicRows.Add(residue.ToString(_numericDefaultFormat));
 						}
 					}
 					
@@ -63,7 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		{
 			public override string Title { get; set; }
 
-			public override IList<string> DynamicRows { get; set; }
+			public override IList<string> DynamicColumns { get; set; }
 		}
 
 		public class HeaderRow : DisplayRow
@@ -76,13 +79,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 			private List<string> _dynamicRows;
 
-			public override IList<string> DynamicRows
+			public override IList<string> DynamicColumns
 			{
 				get
 				{
 					if(_dynamicRows == null)
 					{
-						_dynamicRows = new List<string>(SubdivisionsTitles.Union(WarehousesTitles));
+						_dynamicRows = SubdivisionsTitles.Concat(WarehousesTitles).ToList();
 					}
 
 					return _dynamicRows;

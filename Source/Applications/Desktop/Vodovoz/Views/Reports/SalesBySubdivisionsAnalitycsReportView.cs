@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
+using static Vodovoz.ViewModels.ViewModels.Reports.Sales.SalesBySubdivisionsAnalitycsReport;
 
 namespace Vodovoz.Views.Reports
 {
@@ -187,18 +188,34 @@ namespace Vodovoz.Views.Reports
 
 			var rowColumnsConfig = ytreeReportIndicatorsRows.CreateFluentColumnsConfig<SalesBySubdivisionsAnalitycsReport.DisplayRow>();
 
-			rowColumnsConfig.AddColumn("").AddTextRenderer(row => row.Title);
+			rowColumnsConfig
+				.AddColumn("")
+				.AddTextRenderer(row =>
+					row.GetType() == typeof(HeaderRow)
+					|| row.GetType() == typeof(SubHeaderRow)
+					|| row.GetType() == typeof(SubTotalRow)
+					|| row.GetType() == typeof(TotalRow)
+					? $"<b>{row.Title}</b>"
+					: row.Title,
+					useMarkup: true);
 
 			if(ViewModel.Report.DisplayRows.Any())
 			{
-				var count = ViewModel.Report.DisplayRows.First().DynamicRows.Count;
+				var count = ViewModel.Report.DisplayRows.First().DynamicColumns.Count;
 
 				for(var i = 0; i < count; i++)
 				{
 					int index = i;
 					rowColumnsConfig
 						.AddColumn("")
-						.AddTextRenderer(row => row.DynamicRows[index]);
+						.AddTextRenderer(row =>
+						row.GetType() == typeof(HeaderRow)
+						|| row.GetType() == typeof(SubHeaderRow)
+						|| row.GetType() == typeof(SubTotalRow)
+						|| row.GetType() == typeof(TotalRow)
+						? $"<b>{row.DynamicColumns[index]}</b>"
+						: row.DynamicColumns[index],
+						useMarkup: true);
 				}
 			}
 			
