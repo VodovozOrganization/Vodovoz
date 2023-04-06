@@ -136,128 +136,92 @@ parallel (
 
 //Копирование на ноды
 stage('Copy artifacts'){
-	parallel (
-		"Desktop vod1" : {
-			node('Vod1'){
-				CopyDesktopArtifacts("Vod1")
-			}			
-		},
-		"Desktop vod3" : {
-			node('Vod3'){
-				CopyDesktopArtifacts("Vod3")
-			}			
-		},
-		"Desktop vod5" : {
-			node('Vod5'){
-				CopyDesktopArtifacts("Vod5")
-			}			
-		},
-		"Desktop vod7" : {
-			node('Vod7'){
-				CopyDesktopArtifacts("Vod7")
-			}			
-		},
-		"Web" : {
-			node('WIN_WEB_RUNTIME'){
-				script{
-					echo "Can copy artifacts for web: ${CAN_COPY_WEB_ARTIFACTS}"
-					if(CAN_COPY_WEB_ARTIFACTS)
-					{
-						echo "Copy web artifacts"
-						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-					}
-					else
-					{
-						echo "Copy web artifacts not needed"
-					}
-				}
-			}			
-		},
-		"WCF" : {
-			node('LINUX_RUNTIME'){
-				script{
-					echo "Can copy artifacts for WCF: ${CAN_COPY_WCF_ARTIFACTS}"
-					if(CAN_COPY_WCF_ARTIFACTS)
-					{
-						echo "Copy WCF artifacts"
-						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-					}
-					else
-					{
-						echo "Copy WCF artifacts not needed"
-					}
-				}
-			}			
-		}
-	)	
-}
-
-//Развертывание и публикация сборок на нодах
-parallel (
-	//Развертывание сборок на нодах
-	"Deploy" : {
-		stage('Deploy'){
-			script{
-				node('Vod3'){
-					def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
-					if(CAN_DEPLOY_DESKTOP_BRANCH)
-					{
-						echo "Deploy branches build to desktop vod3"
-						def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
-						unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
-					}
-					else if(CAN_DEPLOY_DESKTOP_PR)
-					{
-						echo "Deploy pull request build to desktop vod3"
-						def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
-						unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
-					}
-					else
-					{
-						echo "Deploy desktop builds not needed"
-					}
-				}	
+	node('Vod1'){
+		CopyDesktopArtifacts("Vod1")
+	}
+	node('vod3'){
+		CopyDesktopArtifacts("vod3")
+	}
+	node('vod5'){
+		CopyDesktopArtifacts("vod5")
+	}
+	node('vod7'){
+		CopyDesktopArtifacts("vod7")
+	}
+	node('WIN_WEB_RUNTIME'){
+		script{
+			echo "Can copy artifacts for web: ${CAN_COPY_WEB_ARTIFACTS}"
+			if(CAN_COPY_WEB_ARTIFACTS)
+			{
+				echo "Copy web artifacts"
+				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+			}
+			else
+			{
+				echo "Copy web artifacts not needed"
 			}
 		}
-	},
-	//Публикация в предрелизный каталог на нодах
-	"Publish" : {
-		stage('Publish'){
-			parallel (
-				"Publish desktop Vod1" : {
-					node('Vod1'){
-						PublishMasterDesktop()
-					}
-				},
-				"Publish desktop Vod3" : {
-					node('Vod3'){
-						PublishMasterDesktop()
-					}
-				},
-				"Publish desktop Vod5" : {
-					node('Vod5'){
-						PublishMasterDesktop()
-					}
-				},
-				"Publish desktop Vod7" : {
-					node('Vod7'){
-						PublishMasterDesktop()
-					}
-				},
-				"Publish web services" : {
-					node('WIN_WEB_RUNTIME'){
-						PublishWebServices()
-					}
-				},
-				"Publish WCF services" : {
-					node('LINUX_RUNTIME'){
-						PublishWCFServices()
-					}
-				},
-			)
+	}
+	node('LINUX_RUNTIME'){
+		script{
+			echo "Can copy artifacts for WCF: ${CAN_COPY_WCF_ARTIFACTS}"
+			if(CAN_COPY_WCF_ARTIFACTS)
+			{
+				echo "Copy WCF artifacts"
+				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+			}
+			else
+			{
+				echo "Copy WCF artifacts not needed"
+			}
 		}
-	},
-)
+	}	
+}
+
+stage('Deploy'){
+	script{
+		node('Vod3'){
+			def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
+			if(CAN_DEPLOY_DESKTOP_BRANCH)
+			{
+				echo "Deploy branches build to desktop vod3"
+				def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
+				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+			}
+			else if(CAN_DEPLOY_DESKTOP_PR)
+			{
+				echo "Deploy pull request build to desktop vod3"
+				def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
+				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+			}
+			else
+			{
+				echo "Deploy desktop builds not needed"
+			}
+		}	
+	}
+}
+
+stage('Publish'){
+	node('Vod1'){
+		PublishMasterDesktop()
+	}
+	node('Vod3'){
+		PublishMasterDesktop()
+	}
+	node('Vod5'){
+		PublishMasterDesktop()
+	}
+	node('Vod7'){
+		PublishMasterDesktop()
+	}
+	node('WIN_WEB_RUNTIME'){
+		PublishWebServices()
+	}
+	node('LINUX_RUNTIME'){
+		PublishWCFServices()
+	}
+}
 
 def PrepareSources(jenkinsHome) {
     def REFERENCE_ABSOLUTE_PATH = "$jenkinsHome/workspace/Vodovoz_Vodovoz_master"
