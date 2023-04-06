@@ -139,12 +139,12 @@ stage('Copy artifacts'){
 			node('Vod3'){
 				CopyDesktopArtifacts("Vod3")
 			}			
-		},,
+		},
 		"Desktop vod5" : {
 			node('Vod5'){
 				CopyDesktopArtifacts("Vod5")
 			}			
-		},,
+		},
 		"Desktop vod7" : {
 			node('Vod7'){
 				CopyDesktopArtifacts("Vod7")
