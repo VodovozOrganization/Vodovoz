@@ -5,6 +5,7 @@ using QS.ViewModels;
 using System;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -13,16 +14,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 
 		public RouteListFastDeliveryMaxDistanceViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IRouteListItemRepository routeListItemRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			IRouteListItemRepository routeListItemRepository,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_fastDeliveryMaxDistance = Entity.CurrentFastDeliveryMaxDistanceValue;
 
 			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
@@ -40,7 +43,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			set
 			{
 				_fastDeliveryMaxDistance = value;
-				if (_fastDeliveryMaxDistance != Entity.CurrentFastDeliveryMaxDistanceValue) 
+				if (_fastDeliveryMaxDistance != Entity.CurrentFastDeliveryMaxDistanceValue)
 				{
 					Entity.UpdateFastDeliveryMaxDistanceValue(_fastDeliveryMaxDistance);
 				}

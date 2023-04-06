@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Services;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {

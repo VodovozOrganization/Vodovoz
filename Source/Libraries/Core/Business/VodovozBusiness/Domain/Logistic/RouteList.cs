@@ -66,6 +66,8 @@ namespace Vodovoz.Domain.Logistic
 			new CashDistributionCommonOrganisationProvider(new OrganizationParametersProvider(_parametersProvider));
 		private static readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), _baseParametersProvider);
+		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider = 
+			new DeliveryRulesParametersProvider(_parametersProvider);
 
 		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
 			new GeneralSettingsParametersProvider(new ParametersProvider());
@@ -1726,8 +1728,13 @@ namespace Vodovoz.Domain.Logistic
 				date = DateTime.Now;
 			}
 
-			var fastDeliveryMaxDistanceItem = FastDeliveryMaxDistanceItems.Where(d => d.StartDate < date && (d.EndDate == null || d.EndDate > date)).FirstOrDefault() ?? new RouteListFastDeliveryMaxDistance();
-			return fastDeliveryMaxDistanceItem.Distance;
+			var fastDeliveryMaxDistanceItem = FastDeliveryMaxDistanceItems.Where(d => d.StartDate < date && (d.EndDate == null || d.EndDate > date)).FirstOrDefault();
+			if (fastDeliveryMaxDistanceItem != null)
+			{
+				return fastDeliveryMaxDistanceItem.Distance;
+			}
+
+			return (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date ?? DateTime.Now);
 		}
 
 		#endregion

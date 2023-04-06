@@ -563,6 +563,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				savedRow.AddressesCompleted = driversNodes[i].Sum(x => x.AddressesCompleted);
 				savedRow.Water19LReserve = driversNodes[i].Sum(x => x.Water19LReserve);
 				savedRow.RowNumber = ++rowNum;
+				if (savedRow.FastDeliveryMaxDistance == null)
+				{
+					savedRow.FastDeliveryMaxDistance = (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(ShowHistory ? HistoryDateTime : DateTime.Now);
+				} 
 
 				WorkingDrivers.Add(savedRow);
 			}
@@ -785,8 +789,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public string RouteListsText { get; set; }
 
-		public decimal FastDeliveryMaxDistance { get; set; }
-		public string FastDeliveryMaxDistanceString => $"{FastDeliveryMaxDistance:N1}";
+		public decimal? FastDeliveryMaxDistance { get; set; }
+		public string FastDeliveryMaxDistanceString => FastDeliveryMaxDistance.HasValue ? $"{FastDeliveryMaxDistance.Value:N1}" : "-";
 
 		public int CompletedPercent => AddressesAll == 0 ? 100 : (int)(((double)AddressesCompleted / AddressesAll) * 100);
 
