@@ -4,7 +4,7 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class CarsMonitoringView
 	{
-		private global::Gtk.HBox hboxMain;
+		private global::Gtk.HPaned hpanedMain;
 
 		private global::Gtk.VBox vboxLeftSideContainer;
 
@@ -71,10 +71,11 @@ namespace Vodovoz.Views.Logistic
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Logistic.CarsMonitoringView";
 			// Container child Vodovoz.Views.Logistic.CarsMonitoringView.Gtk.Container+ContainerChild
-			this.hboxMain = new global::Gtk.HBox();
-			this.hboxMain.Name = "hboxMain";
-			this.hboxMain.Spacing = 6;
-			// Container child hboxMain.Gtk.Box+BoxChild
+			this.hpanedMain = new global::Gtk.HPaned();
+			this.hpanedMain.CanFocus = true;
+			this.hpanedMain.Name = "hpanedMain";
+			this.hpanedMain.Position = 500;
+			// Container child hpanedMain.Gtk.Paned+PanedChild
 			this.vboxLeftSideContainer = new global::Gtk.VBox();
 			this.vboxLeftSideContainer.Name = "vboxLeftSideContainer";
 			this.vboxLeftSideContainer.Spacing = 6;
@@ -235,12 +236,10 @@ namespace Vodovoz.Views.Logistic
 			w16.Position = 3;
 			w16.Expand = false;
 			w16.Fill = false;
-			this.hboxMain.Add(this.vboxLeftSideContainer);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxLeftSideContainer]));
-			w17.Position = 0;
-			w17.Expand = false;
-			w17.Fill = false;
-			// Container child hboxMain.Gtk.Box+BoxChild
+			this.hpanedMain.Add(this.vboxLeftSideContainer);
+			global::Gtk.Paned.PanedChild w17 = ((global::Gtk.Paned.PanedChild)(this.hpanedMain[this.vboxLeftSideContainer]));
+			w17.Resize = false;
+			// Container child hpanedMain.Gtk.Paned+PanedChild
 			this.vboxRightSideContainer = new global::Gtk.VBox();
 			this.vboxRightSideContainer.Name = "vboxRightSideContainer";
 			this.vboxRightSideContainer.Spacing = 6;
@@ -372,10 +371,8 @@ namespace Vodovoz.Views.Logistic
 			this.vboxRightSideContainer.Add(this.gmapWidget);
 			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxRightSideContainer[this.gmapWidget]));
 			w31.Position = 3;
-			this.hboxMain.Add(this.vboxRightSideContainer);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxRightSideContainer]));
-			w32.Position = 1;
-			this.Add(this.hboxMain);
+			this.hpanedMain.Add(this.vboxRightSideContainer);
+			this.Add(this.hpanedMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
