@@ -491,7 +491,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var routeListFastDeliveryMaxDistanceSubquery = QueryOver.Of<RouteListFastDeliveryMaxDistance>()
 				.Where(
 					d => d.RouteList.Id == routeListAlias.Id 
-					&& d.StartDate < dateForRouteListFastDeliveryMaxDistanceSubquery 
+					&& d.StartDate <= dateForRouteListFastDeliveryMaxDistanceSubquery 
 					&& (d.EndDate == null || d.EndDate > dateForRouteListFastDeliveryMaxDistanceSubquery))
 				.Select(d => d.Distance)
 				.OrderBy(d => d.StartDate).Desc
@@ -658,7 +658,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 			else
 			{
-				lastPoints = _trackRepository.GetLastPointForRouteListsWithRadius(_unitOfWork, routeListIds).ToList();
+				lastPoints = _trackRepository.GetLastPointForRouteListsWithRadius(_unitOfWork, routeListIds);
 			}
 
 			LastDriverPositions.Clear();

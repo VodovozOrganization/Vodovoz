@@ -14,18 +14,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 
 		public RouteListFastDeliveryMaxDistanceViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IRouteListItemRepository routeListItemRepository,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			IRouteListItemRepository routeListItemRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_fastDeliveryMaxDistance = Entity.CurrentFastDeliveryMaxDistanceValue;
 
 			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
@@ -36,22 +33,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private decimal _fastDeliveryMaxDistance;
 		public decimal FastDeliveryMaxDistance
 		{
-			get
-			{
-				return _fastDeliveryMaxDistance;
-			}
-			set
-			{
-				_fastDeliveryMaxDistance = value;
-				if (_fastDeliveryMaxDistance != Entity.CurrentFastDeliveryMaxDistanceValue)
-				{
-					Entity.UpdateFastDeliveryMaxDistanceValue(_fastDeliveryMaxDistance);
-				}
-			}
+			get => _fastDeliveryMaxDistance;
+			set => SetField(ref _fastDeliveryMaxDistance, value);
 		}
 
 		public override bool Save(bool close)
 		{
+			if(FastDeliveryMaxDistance != Entity.CurrentFastDeliveryMaxDistanceValue)
+			{
+				Entity.UpdateFastDeliveryMaxDistanceValue(FastDeliveryMaxDistance);
+			}
+
 			_logger.Info("Добавляем новое значения радиуса быстрой доставки...");
 			return base.Save(close);
 		}

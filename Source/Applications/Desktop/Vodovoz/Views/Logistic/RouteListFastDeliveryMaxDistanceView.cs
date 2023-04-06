@@ -24,8 +24,8 @@ namespace Vodovoz.Views.Logistic
 
 			yTreeViewDistanceHistory.ColumnsConfig = ColumnsConfigFactory.Create<RouteListFastDeliveryMaxDistance>()
 				.AddColumn("Радиус, км").AddTextRenderer(d => $"{d.Distance:N1} ")
-				.AddColumn("Дата начала:").AddTextRenderer(d => $"{d.StartDate.ToShortDateString()} {d.StartDate.ToShortTimeString()} ")
-				.AddColumn("Дата окончания").AddTextRenderer (d => (d.EndDate.HasValue) ? $"{d.EndDate.Value.ToShortDateString()} {d.EndDate.Value.ToShortTimeString()}" : "-")
+				.AddColumn("Дата начала").AddTextRenderer(d => $"{d.StartDate:dd.MM.yyyy} {d.StartDate:HH:mm} ")
+				.AddColumn("Дата окончания").AddTextRenderer (d => (d.EndDate.HasValue) ? $"{d.EndDate.Value:dd.MM.yyyy} {d.EndDate.Value:HH:mm}" : "-")
 				.AddColumn("")
 				.Finish();
 			yTreeViewDistanceHistory.ItemsDataSource = ViewModel.Entity.FastDeliveryMaxDistanceItems;

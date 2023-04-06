@@ -68,16 +68,16 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public IList<DriverPositionWithFastDeliveryRadius> GetLastPointForRouteListsWithRadius(IUnitOfWork uow, int[] routeListsIds, DateTime? beforeTime = null)
 		{
-			var driverPositions = new List<DriverPosition>();
+			IList<DriverPosition> driverPositions;
 
 			if(beforeTime.HasValue)
 			{
-				driverPositions = GetLastPointForRouteLists(uow, routeListsIds, beforeTime).ToList();
+				driverPositions = GetLastPointForRouteLists(uow, routeListsIds, beforeTime);
 			}
 
 			else
 			{
-				driverPositions = GetLastPointForRouteLists(uow, routeListsIds).ToList();
+				driverPositions = GetLastPointForRouteLists(uow, routeListsIds);
 			}
 
 			return driverPositions
@@ -159,14 +159,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public IList<DriverPositionWithFastDeliveryRadius> GetLastRouteListFastDeliveryTrackPointsWithRadius(IUnitOfWork uow, int[] routeListsIds, TimeSpan timeSpanDisconnected, DateTime? beforeTime = null)
 		{
-			var driverPositions = new List<DriverPosition>();
+			IList<DriverPosition> driverPositions;
+
 			if(beforeTime.HasValue)
 			{
-				driverPositions = GetLastRouteListFastDeliveryTrackPoints(uow, routeListsIds, timeSpanDisconnected, beforeTime).ToList();
+				driverPositions = GetLastRouteListFastDeliveryTrackPoints(uow, routeListsIds, timeSpanDisconnected, beforeTime);
 			}
 			else
 			{
-				driverPositions = GetLastRouteListFastDeliveryTrackPoints(uow, routeListsIds, timeSpanDisconnected).ToList();
+				driverPositions = GetLastRouteListFastDeliveryTrackPoints(uow, routeListsIds, timeSpanDisconnected);
 			}
 
 			return driverPositions

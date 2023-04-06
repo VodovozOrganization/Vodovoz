@@ -212,8 +212,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				var lastDriversCoordinates = _trackRepository.GetLastPointForRouteListsWithRadius(UoW, routeListsIds, date);
 
 				var carsCount = lastDriversCoordinates.Count;
-
-				var serviceRadiusAtDateTime = lastDriversCoordinates.Average(d => d.FastDeliveryRadius);
+				
+				var serviceRadiusAtDateTime =
+					carsCount > 0 
+					? lastDriversCoordinates.Average(d => d.FastDeliveryRadius)
+					: _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date);
+								
 
 				var activeDistrictsAtDateTime = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDeliveryAtDateTime(UoW, date).Select(d => d.DistrictBorder);
 
