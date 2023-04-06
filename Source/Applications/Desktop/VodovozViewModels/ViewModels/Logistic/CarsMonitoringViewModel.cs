@@ -10,7 +10,6 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Tdi;
 using QS.Utilities.Text;
 using QS.ViewModels;
 using System;
@@ -34,7 +33,6 @@ using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
-using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
@@ -81,8 +79,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool _showHistory;
 		private DateTime _historyDate;
 		private TimeSpan _historyHour;
-
-		//private double _fastDeliveryMaxDistance;
 
 		private int _fastDeliveryDistrictsLastVersionId;
 		private IList<District> _cachedFastDeliveryDistricts;
@@ -145,10 +141,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			RefreshWorkingDriversCommand = new DelegateCommand(RefreshWorkingDrivers);
 			RefreshRouteListAddressesCommand = new DelegateCommand<int>(RefreshRouteListAddresses);
 			RefreshFastDeliveryDistrictsCommand = new DelegateCommand(RefreshFastDeliveryDistricts);
-			//RefreshFastDeliveryMaxKmValueCommand = new DelegateCommand(RefreshFastDeliveryMaxKmValue);
 			RefreshLastDriverPositionsCommand = new DelegateCommand(RefreshLastDriverPositions);
 
-			//RefreshFastDeliveryMaxKmValueCommand?.Execute();
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(RoutelistEntityConfigEntityUpdated);
 		}
 
@@ -242,7 +236,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				if(ShowDistrictsOverlay)
 				{
 					RefreshFastDeliveryDistrictsCommand?.Execute();
-					//RefreshFastDeliveryMaxKmValueCommand?.Execute();
 				}
 			}
 		}
@@ -259,7 +252,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					if(ShowDistrictsOverlay)
 					{
 						RefreshFastDeliveryDistrictsCommand?.Execute();
-						//RefreshFastDeliveryMaxKmValueCommand?.Execute();
 					}
 				}
 			}
@@ -277,18 +269,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					if(ShowDistrictsOverlay)
 					{
 						RefreshFastDeliveryDistrictsCommand?.Execute();
-						//RefreshFastDeliveryMaxKmValueCommand?.Execute();
 					}
 				}
 			}
 		}
 
-		//[PropertyChangedAlso(nameof(CoveragePercent))]
-		//public double FastDeliveryMaxDistance
-		//{
-		//	get => _fastDeliveryMaxDistance;
-		//	set => SetField(ref _fastDeliveryMaxDistance, value);
-		//}
 		#endregion
 
 		#region Readoly Properties
@@ -323,10 +308,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string CoveragePercentString => $"{CoveragePercent:P}";
 
 		[PropertyChangedAlso(nameof(CoveragePercentString))]
-		//public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
-		//	FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder).ToList(),
-		//	LastDriverPositions.Select(pos => pos.ToCoordinate()).ToList(),
-		//	5);
 		public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
 			FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder).ToList(),
 			LastDriverPositions.ToList()
@@ -358,8 +339,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand<int> RefreshRouteListAddressesCommand { get; }
 
 		public DelegateCommand RefreshFastDeliveryDistrictsCommand { get; }
-
-		//public DelegateCommand RefreshFastDeliveryMaxKmValueCommand { get; }
 
 		public DelegateCommand RefreshLastDriverPositionsCommand { get; }
 		#endregion
@@ -403,7 +382,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Domain.Orders.Order orderAlias = null;
 			OrderItem ordItemsAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			RouteListFastDeliveryMaxDistance routeListFastDeliveryMaxDistanceAlias = null;
 
 			var completedSubquery = QueryOver.Of<RouteListItem>()
 				.Where(i => i.RouteList.Id == routeListAlias.Id)
@@ -662,18 +640,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			FastDeliveryDistrictChanged?.Invoke();
 		}
 
-		//public void RefreshFastDeliveryMaxKmValue()
-		//{
-		//	if(ShowHistory)
-		//	{
-		//		FastDeliveryMaxDistance = _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(HistoryDateTime);
-		//	}
-		//	else
-		//	{
-		//		FastDeliveryMaxDistance = _deliveryRulesParametersProvider.MaxDistanceToLatestTrackPointKm;
-		//	}
-		//}
-
 		private void RefreshLastDriverPositions()
 		{
 			var routeListIds = WorkingDrivers.SelectMany(x => x.RouteListsIds.Keys).ToArray();
@@ -766,7 +732,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public bool IsVodovozAuto { get; set; }
 
-		//RouteListId, TrackId
 		public Dictionary<int, int?> RouteListsIds;
 
 		public int AddressesCompleted { get; set; }
