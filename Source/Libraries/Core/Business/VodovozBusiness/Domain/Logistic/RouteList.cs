@@ -813,6 +813,13 @@ namespace Vodovoz.Domain.Logistic
 				return false;
 			}
 
+			if(address.TransferedTo != null)
+			{
+				msg = $"Адрес \"{ address.Order.DeliveryPoint?.ShortAddress }\" не может быть удалён, т.к. был перенесён в МЛ №{ address.TransferedTo.RouteList.Id }.\n" +
+				      $"Воспользуйтесь функционалом из вкладки \"Перенос адресов маршрутных листов\" для возврата этого адреса в исходный МЛ.";
+				return false;
+			}
+
 			if(_routeListRepository.GetCarLoadDocuments(UoW, Id).Any())
 			{
 				msg = "Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.";

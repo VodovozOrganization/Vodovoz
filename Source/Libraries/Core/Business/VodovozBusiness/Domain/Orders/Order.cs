@@ -1206,7 +1206,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if(DriverCallId != null && string.IsNullOrWhiteSpace(CommentManager)){
-				yield return new ValidationResult("Необходимо заполнить комментарий водителя.",
+				yield return new ValidationResult("Необходимо заполнить комментарий менеджера водительского телефона.",
 					new[] { this.GetPropertyName(o => o.CommentManager) });
 			}
 
@@ -3353,6 +3353,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:
+				case PaymentType.Terminal:
 					ChangeStatusAndCreateTasks(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
 					break;
 				case PaymentType.barter:

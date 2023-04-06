@@ -54,7 +54,8 @@ namespace Vodovoz.TempAdapters
 				new NomenclatureJournalFactory(),
 				counterpartyJournalFactory,
 				nomenclatureRepository,
-				userRepository
+				userRepository,
+				null
 			);
 
 			vm.SelectionMode = multiselect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;

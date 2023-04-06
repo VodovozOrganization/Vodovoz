@@ -27,11 +27,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 
 		//Создан
 		public DateTime? Created { get; set; }
-		public string CreatedTime => Created.HasValue ? Created.Value.ToString("dd.MM.yyyy HH:mm:ss") : "";
+		public string CreatedTime => Created.HasValue ? Created.Value.ToString("dd.MM.yy HH:mm") : "";
 
 		//Изменен
 		public DateTime? Changed { get; set; }
-		public string ChangedTime => Changed.HasValue ? Changed.Value.ToString("dd.MM.yyyy HH:mm:ss") : "";
+		public string ChangedTime => Changed.HasValue ? Changed.Value.ToString("dd.MM.yy HH:mm") : "";
 
 		//Статус
 		public CashReceiptStatus? ReceiptStatus { get; set; }
@@ -111,7 +111,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 			{
 				if(FiscalDocDate.HasValue)
 				{
-					return FiscalDocDate.Value.ToString("dd.MM.yyyy HH:mm:ss");
+					return FiscalDocDate.Value.ToString("dd.MM.yy HH:mm");
 				}
 
 				return ResultGtin;
@@ -127,7 +127,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 			{
 				if(FiscalDocStatusDate.HasValue)
 				{
-					return FiscalDocStatusDate.Value.ToString("dd.MM.yyyy HH:mm:ss");
+					return FiscalDocStatusDate.Value.ToString("dd.MM.yy HH:mm");
 				}
 
 				return ResultSerialnumber;

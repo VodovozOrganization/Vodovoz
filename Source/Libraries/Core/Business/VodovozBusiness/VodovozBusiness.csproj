@@ -55,12 +55,14 @@
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="Domain\Logistic\AddressTransferType.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
+    <Compile Include="Controllers\ComplaintNotificationController.cs" />
     <Compile Include="Controllers\EmployeeRegistrationVersionController.cs" />
     <Compile Include="Domain\Logistic\DeliveryFreeBalanceType.cs" />
     <Compile Include="Controllers\IRouteListAddressKeepingDocumentController.cs" />
     <Compile Include="Controllers\RouteListAddressKeepingDocumentController.cs" />
     <Compile Include="Controllers\FuelPriceVersionsController.cs" />
     <Compile Include="Controllers\ICarFuelVersionsController.cs" />
+    <Compile Include="Controllers\IComplaintNotificationController.cs" />
     <Compile Include="Controllers\IEmployeeRegistrationVersionController.cs" />
     <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
     <Compile Include="Controllers\IProfitabilityConstantsViewModelHandler.cs" />
