@@ -3353,6 +3353,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:
+				case PaymentType.Terminal:
 					ChangeStatusAndCreateTasks(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
 					break;
 				case PaymentType.barter:
