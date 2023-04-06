@@ -139,13 +139,13 @@ stage('Copy artifacts'){
 	node('Vod1'){
 		CopyDesktopArtifacts("Vod1")
 	}
-	node('vod3'){
+	node('Vod3'){
 		CopyDesktopArtifacts("Vod3")
 	}
-	node('vod5'){
+	node('Vod5'){
 		CopyDesktopArtifacts("Vod5")
 	}
-	node('vod7'){
+	node('Vod7'){
 		CopyDesktopArtifacts("Vod7")
 	}
 	node('WIN_WEB_RUNTIME'){
