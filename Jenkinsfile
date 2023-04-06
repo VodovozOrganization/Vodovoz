@@ -1,4 +1,24 @@
-stage('Checkout'){
+//Copy artifacts - копирование архивированных сборок на ноды
+//Deploy - разархивация сборок на ноде в каталог для соответствующей ветки
+//Publish - разархивация сборок на ноде в каталог для нового релиза
+
+//Desktop
+def CAN_DEPLOY_DESKTOP_BRANCH = env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'Beta' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
+def CAN_DEPLOY_DESKTOP_PR = env.CHANGE_ID != null
+def CAN_COPY_DESKTOP_ARTIFACTS = CAN_DEPLOY_DESKTOP_BRANCH || CAN_DEPLOY_DESKTOP_PR 
+def CAN_PUBLISH_DESKTOP = env.BRANCH_NAME == 'master'
+
+//Web
+def CAN_PUBLISH_WEB_ARTIFACTS = env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
+def CAN_COPY_WEB_ARTIFACTS = CAN_PUBLISH_WEB_ARTIFACTS
+
+//WCF
+def CAN_PUBLISH_WCF_ARTIFACTS = env.BRANCH_NAME == 'master'
+def CAN_COPY_WCF_ARTIFACTS = CAN_PUBLISH_WCF_ARTIFACTS
+
+//Подготовка репозитория и проектов
+stage('Prepare sources'){
+	echo "Checkout"
 	parallel (
 		"Win" : {
 			node('WIN_BUILD'){
@@ -11,8 +31,7 @@ stage('Checkout'){
 			}						
 		}
 	)				
-}
-stage('Restore'){
+	echo "Restore packages"
 	parallel (
 		"Win" : {
 			node('WIN_BUILD'){
@@ -26,8 +45,10 @@ stage('Restore'){
 				sh 'nuget restore Vodovoz/Source/Libraries/External/My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
 			}						
 		}
-	)				
+	)
 }
+
+//Сборка проектов
 parallel (
 	"Win" : {
 		node('WIN_BUILD'){
@@ -40,51 +61,53 @@ parallel (
 			}
 
 			stage('Build WEB'){
-				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-				{				
-					PublishBuildWebServiceToFolder('DriversAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0_publish')
+				script{
+					if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+					{				
+						PublishBuildWebServiceToFolder('DriversAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj', 
+							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebServiceToFolder('FastPaymentsAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\bin\\Release\\net5.0_publish')
+						PublishBuildWebServiceToFolder('FastPaymentsAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj', 
+							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebServiceToFolder('PayPageAPI', 'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj', 
-						'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\bin\\Release\\net5.0_publish')
+						PublishBuildWebServiceToFolder('PayPageAPI', 'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj', 
+							'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebServiceToFolder('MailjetEventsDistributorAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0_publish')
-						
-					PublishBuildWebServiceToFolder('UnsubscribePage', 'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj', 
-						'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\bin\\Release\\net5.0_publish')
+						PublishBuildWebServiceToFolder('MailjetEventsDistributorAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj', 
+							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0_publish')
+							
+						PublishBuildWebServiceToFolder('UnsubscribePage', 'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj', 
+							'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebServiceToFolder('DeliveryRulesService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\bin\\Release\\net5.0_publish')
+						PublishBuildWebServiceToFolder('DeliveryRulesService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj', 
+							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebServiceToFolder('RoboatsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\RoboatsService.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\bin\\Release\\net5.0_publish')
+						PublishBuildWebServiceToFolder('RoboatsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\RoboatsService.csproj', 
+							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebServiceToFolder('TrueMarkAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0_publish')
+						PublishBuildWebServiceToFolder('TrueMarkAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj', 
+							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebServiceToFolder('TaxcomEdoApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\TaxcomEdoApi.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\bin\\Release\\net5.0_publish')
+						PublishBuildWebServiceToFolder('TaxcomEdoApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\TaxcomEdoApi.csproj', 
+							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebServiceToFolder('CashReceiptApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CashReceiptApi\\CashReceiptApi.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CashReceiptApi\\bin\\Release\\net5.0_publish')
+						PublishBuildWebServiceToFolder('CashReceiptApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CashReceiptApi\\CashReceiptApi.csproj', 
+							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CashReceiptApi\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebServiceToFolder('CashReceiptPrepareWorker', 'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\CashReceiptPrepareWorker.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\bin\\Release\\net5.0_publish')
+						PublishBuildWebServiceToFolder('CashReceiptPrepareWorker', 'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\CashReceiptPrepareWorker.csproj', 
+							'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebServiceToFolder('CashReceiptSendWorker', 'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\CashReceiptSendWorker.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\bin\\Release\\net5.0_publish')
+						PublishBuildWebServiceToFolder('CashReceiptSendWorker', 'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\CashReceiptSendWorker.csproj', 
+							'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\bin\\Release\\net5.0_publish')
 
-					PublishBuildWebServiceToFolder('TrueMarkCodePoolCheckWorker', 'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\TrueMarkCodePoolCheckWorker.csproj', 
-						'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\bin\\Release\\net5.0_publish')
-				}
-				else
-				{
-					//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
-					bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=Web -p:Platform=x86 -maxcpucount:2'
+						PublishBuildWebServiceToFolder('TrueMarkCodePoolCheckWorker', 'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\TrueMarkCodePoolCheckWorker.csproj', 
+							'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\bin\\Release\\net5.0_publish')
+					}
+					else
+					{
+						//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
+						bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=Web -p:Platform=x86 -maxcpucount:2'
+					}
 				}
 			}
 			
@@ -104,104 +127,128 @@ parallel (
 	}
 )
 
-parallel (
-	"Desktop" : {
-		node('Vod3'){
-			stage('Deploy desktop'){
+//Копирование на ноды
+stage('Copy artifacts'){
+	parallel (
+		"Desktop vod1" : {
+			node('Vod1'){
+				CopyDesktopArtifacts("Vod1")
+			}			
+		},
+		"Desktop vod3" : {
+			node('Vod3'){
+				CopyDesktopArtifacts("Vod3")
+			}			
+		},,
+		"Desktop vod5" : {
+			node('Vod5'){
+				CopyDesktopArtifacts("Vod5")
+			}			
+		},,
+		"Desktop vod7" : {
+			node('Vod7'){
+				CopyDesktopArtifacts("Vod7")
+			}			
+		},
+		"Web" : {
+			node('WIN_WEB_RUNTIME'){
 				script{
-					def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
-					if(env.BRANCH_NAME == 'master'
-						|| env.BRANCH_NAME == 'develop'
-						|| env.BRANCH_NAME == 'Beta'
-						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
+					echo "Can copy artifacts for web: ${CAN_COPY_WEB_ARTIFACTS}"
+					if(CAN_COPY_WEB_ARTIFACTS)
 					{
-						def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
-						echo "Deploy branch " + env.BRANCH_NAME
+						echo "Copy web artifacts"
 						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-						unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
-					} else if(env.CHANGE_ID != null){
-						def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
-						echo "Deploy pull request " + env.CHANGE_ID
-						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-						unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
-					} else{
-						echo "Nothing to deploy"
+					}
+					else
+					{
+						echo "Copy web artifacts not needed"
 					}
 				}
-			}		
+			}			
+		},
+		"WCF" : {
+			node('LINUX_RUNTIME'){
+				script{
+					echo "Can copy artifacts for WCF: ${CAN_COPY_WCF_ARTIFACTS}"
+					if(CAN_COPY_WCF_ARTIFACTS)
+					{
+						echo "Copy WCF artifacts"
+						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+					}
+					else
+					{
+						echo "Copy WCF artifacts not needed"
+					}
+				}
+			}			
+		}
+	)	
+}
+
+//Развертывание и публикация сборок на нодах
+parallel (
+	//Развертывание сборок на нодах
+	"Deploy" : {
+		stage('Deploy'){
+			script{
+				node('Vod3'){
+					if(CAN_DEPLOY_DESKTOP_BRANCH)
+					{
+						echo "Deploy branches build to desktop vod3"
+						def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
+						unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+					}
+					else if(CAN_DEPLOY_DESKTOP_PR)
+					{
+						echo "Deploy pull request build to desktop vod3"
+						def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
+						unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+					}
+					else
+					{
+						echo "Deploy desktop builds not needed"
+					}
+				}	
+			}
 		}
 	},
-	"Deploy master runtime" : {
-		stage('Deploy master desktop'){
+	//Публикация в предрелизный каталог на нодах
+	"Publish" : {
+		stage('Publish'){
 			parallel (
-				"Vod1Runtime" : {
+				"Publish desktop Vod1" : {
 					node('Vod1'){
-						DeployWinRuntime()
+						PublishMasterDesktop()
 					}
 				},
-				"Vod3Runtime" : {
+				"Publish desktop Vod3" : {
 					node('Vod3'){
-						DeployWinRuntime()
+						PublishMasterDesktop()
 					}
 				},
-				"Vod5Runtime" : {
+				"Publish desktop Vod5" : {
 					node('Vod5'){
-						DeployWinRuntime()
+						PublishMasterDesktop()
 					}
 				},
-				"Vod7Runtime" : {
+				"Publish desktop Vod7" : {
 					node('Vod7'){
-						DeployWinRuntime()
+						PublishMasterDesktop()
+					}
+				},
+				"Publish web services" : {
+					node('WIN_WEB_RUNTIME'){
+						PublishWebServices()
+					}
+				},
+				"Publish WCF services" : {
+					node('LINUX_RUNTIME'){
+						PublishWCFServices()
 					}
 				},
 			)
 		}
 	},
-	"Linux" : {
-		node('LINUX_RUNTIME'){
-			stage('Deploy WCF'){
-				script{					
-					 if(env.BRANCH_NAME == 'master')
-					 {					
-						copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-
-						UnzipArtifact('SmsInformerService')
-						UnzipArtifact('SmsPaymentService')
-					 } else{
-					 	echo "Nothing to deploy"
-					 }
-				}
-			}					
-		}	
-	},
-	"WEB" : {
-		node('WIN_WEB_RUNTIME'){
-			stage('Deploy WEB'){
-				if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-				{
-					copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-
-					DeployWebService('DriversAPI')
-					DeployWebService('FastPaymentsAPI')
-					DeployWebService('MailjetEventsDistributorAPI')
-					DeployWebService('UnsubscribePage')
-					DeployWebService('DeliveryRulesService')
-					DeployWebService('RoboatsService')
-					DeployWebService('TaxcomEdoApi')
-					DeployWebService('TrueMarkAPI')
-					DeployWebService('PayPageAPI')
-					DeployWebService('CashReceiptApi')
-					DeployWebService('CashReceiptPrepareWorker')
-					DeployWebService('CashReceiptSendWorker')
-					DeployWebService('TrueMarkCodePoolCheckWorker')
-				}
-				else
-				{
-					echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-				}
-			}
-		}						
-	}
 )
 
 def PrepareSources(jenkinsHome) {
@@ -224,11 +271,6 @@ def ZipArtifact(path, serviceName) {
 	zip zipFile: "${serviceName}.zip", archive: false, dir: "${path}bin/Debug"  
 }
 
-def UnzipArtifact(serviceName) {
-	def SERVICE_PATH = "/opt/jenkins/builds/${serviceName}"
-	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH 
-}
-
 def PublishBuildWebServiceToFolder(serviceName, csprojPath, outputPath) {
 	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
 	
@@ -241,12 +283,89 @@ def PublishBuildWebServiceToFolder(serviceName, csprojPath, outputPath) {
 	archiveArtifacts artifacts: "${serviceName}.zip", onlyIfSuccessful: true
 }
 
-def PublishBuildWebServiceToDockerRegistry(serviceName, csprojPath) {	
-	echo "Publish ${serviceName} to docker registry"
-	sh 'msbuild ' + csprojPath + ' /p:Configuration=Web /p:Platform=x86 /p:DeployOnBuild=true /p:PublishProfile=DockerRegistry -maxcpucount:2'
+def CopyDesktopArtifacts(serverName){
+	script{
+		echo "Can copy artifacts for desktop ${serverName}: ${CAN_COPY_DESKTOP_ARTIFACTS}"
+		if(CAN_COPY_DESKTOP_ARTIFACTS)
+		{
+			echo "Copy desktop ${serverName} artifacts"
+			copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+		}
+		else
+		{
+			echo "Copy desktop artifacts not needed"
+		}
+	}
 }
 
-def DeployWebService(serviceName) {
+def PublishMasterDesktop() {
+	script{
+		if(CAN_PUBLISH_DESKTOP)
+		{
+			def PRERELEASE_PATH = "${MasterRuntimePath}\\prerelease"
+
+			echo "Publish master to prerelease folder ${PRERELEASE_PATH}"
+			unzip zipFile: 'Vodovoz.zip', dir: PRERELEASE_PATH
+		}else{
+			echo "Branch is not master, nothing to publish to prerelease folder"
+		}
+	}	
+}
+
+def PublishWebServices(){
+	script{
+		if(CAN_PUBLISH_WEB_ARTIFACTS)
+		{
+			parallel (
+				"Publish DriversAPI" : {
+					PublishWebService('DriversAPI')
+				},
+				"Publish FastPaymentsAPI" : {
+					PublishWebService('FastPaymentsAPI')
+				},
+				"Publish MailjetEventsDistributorAPI" : {
+					PublishWebService('MailjetEventsDistributorAPI')
+				},
+				"Publish UnsubscribePage" : {
+					PublishWebService('UnsubscribePage')
+				},
+				"Publish DeliveryRulesService" : {
+					PublishWebService('DeliveryRulesService')
+				},
+				"Publish RoboatsService" : {
+					PublishWebService('RoboatsService')
+				},
+				"Publish TaxcomEdoApi" : {
+					PublishWebService('TaxcomEdoApi')
+				},
+				"Publish TrueMarkAPI" : {
+					PublishWebService('TrueMarkAPI')
+				},
+				"Publish PayPageAPI" : {
+					PublishWebService('PayPageAPI')
+				},
+				"Publish CashReceiptApi" : {
+					PublishWebService('CashReceiptApi')
+				},
+				"Publish CashReceiptPrepareWorker" : {
+					PublishWebService('CashReceiptPrepareWorker')
+				},
+				"Publish CashReceiptSendWorker" : {
+					PublishWebService('CashReceiptSendWorker')
+				},
+				"Publish TrueMarkCodePoolCheckWorker" : {
+					PublishWebService('TrueMarkCodePoolCheckWorker')
+				},
+			)
+		}
+		else
+		{
+			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+		}
+	}
+}
+
+def PublishWebService(serviceName) {
 	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
 	def SERVICE_PATH = "E:\\CD\\${serviceName}\\${BRANCH_NAME}"
 	
@@ -254,16 +373,27 @@ def DeployWebService(serviceName) {
 	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH
 }
 
-def DeployWinRuntime() {
-	if(env.BRANCH_NAME == 'master')
-	{
-		def RUNTIME_DEPLOY_PATH = "${MasterRuntimePath}\\latest"
-
-		echo "Deploy master to runtime folder to ${RUNTIME_DEPLOY_PATH}"
-		copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-
-		unzip zipFile: 'Vodovoz.zip', dir: RUNTIME_DEPLOY_PATH
-	}else{
-		echo "Branch is not master, nothing to deploy to runtime folder"
+def PublishWCFServices(){
+	script{
+		if(CAN_PUBLISH_WCF_ARTIFACTS)
+		{
+			parallel (
+				"Publish SmsInformerService" : {
+					PublishWCFService('SmsInformerService')
+				},
+				"Publish SmsPaymentService" : {
+					PublishWCFService('SmsPaymentService')
+				},
+			)
+		}
+		else
+		{
+			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
+		}
 	}
+}
+
+def PublishWCFService(serviceName) {
+	def SERVICE_PATH = "/opt/jenkins/builds/${serviceName}"
+	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH 
 }
