@@ -23,9 +23,9 @@ namespace Vodovoz.Views.Logistic
 			yspinbuttonDistance.Binding.AddBinding(ViewModel, e => e.FastDeliveryMaxDistance, w => w.ValueAsDecimal).InitializeFromSource();
 
 			yTreeViewDistanceHistory.ColumnsConfig = ColumnsConfigFactory.Create<RouteListFastDeliveryMaxDistance>()
-				.AddColumn("Дата начала:").AddTextRenderer(d => d.StartDate.ToShortDateString())
-				.AddColumn("Дата окончания").AddTextRenderer (d => (d.EndDate.HasValue) ? d.EndDate.Value.ToShortDateString() : "-")
-				.AddColumn("Радиус, км").AddTextRenderer(d => $"{d.Distance:N1}")
+				.AddColumn("Радиус, км").AddTextRenderer(d => $"{d.Distance:N1} ")
+				.AddColumn("Дата начала:").AddTextRenderer(d => $"{d.StartDate.ToShortDateString()} {d.StartDate.ToShortTimeString()} ")
+				.AddColumn("Дата окончания").AddTextRenderer (d => (d.EndDate.HasValue) ? $"{d.EndDate.Value.ToShortDateString()} {d.EndDate.Value.ToShortTimeString()}" : "-")
 				.AddColumn("")
 				.Finish();
 			yTreeViewDistanceHistory.ItemsDataSource = ViewModel.Entity.FastDeliveryMaxDistanceItems;
