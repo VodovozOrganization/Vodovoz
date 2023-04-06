@@ -106,12 +106,11 @@ parallel (
 
 parallel (
 	"Desktop" : {
-		node('DESKTOP_RUNTIME'){
-			stage('Deploy Desktop'){
+		node('Vod3'){
+			stage('Deploy desktop'){
 				script{
 					def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
-					if(
-						env.BRANCH_NAME == 'master'
+					if(env.BRANCH_NAME == 'master'
 						|| env.BRANCH_NAME == 'develop'
 						|| env.BRANCH_NAME == 'Beta'
 						|| env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
@@ -130,6 +129,32 @@ parallel (
 					}
 				}
 			}		
+		}
+	},
+	"Deploy master runtime" : {
+		stage('Deploy master desktop'){
+			parallel (
+				"Vod1Runtime" : {
+					node('Vod1'){
+						DeployWinRuntime()
+					}
+				},
+				"Vod3Runtime" : {
+					node('Vod3'){
+						DeployWinRuntime()
+					}
+				},
+				"Vod5Runtime" : {
+					node('Vod5'){
+						DeployWinRuntime()
+					}
+				},
+				"Vod7Runtime" : {
+					node('Vod7'){
+						DeployWinRuntime()
+					}
+				},
+			)
 		}
 	},
 	"Linux" : {
@@ -227,4 +252,18 @@ def DeployWebService(serviceName) {
 	
     echo "Deploy ${serviceName} to CD folder"
 	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH
+}
+
+def DeployWinRuntime() {
+	if(env.BRANCH_NAME == 'master')
+	{
+		def RUNTIME_DEPLOY_PATH = "${MasterRuntimePath}\\latest"
+
+		echo "Deploy master to runtime folder to ${RUNTIME_DEPLOY_PATH}"
+		copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+
+		unzip zipFile: 'Vodovoz.zip', dir: RUNTIME_DEPLOY_PATH
+	}else{
+		echo "Branch is not master, nothing to deploy to runtime folder"
+	}
 }
