@@ -3,6 +3,7 @@ using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Validators;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Utilities.Numeric;
 using Vodovoz.Controllers;
@@ -18,6 +19,7 @@ namespace CustomerAppsApi.Models
 {
 	public class CounterpartyModel : ICounterpartyModel
 	{
+		private readonly ILogger<CounterpartyModel> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
 		private readonly IRoboatsRepository _roboatsRepository;
@@ -29,6 +31,7 @@ namespace CustomerAppsApi.Models
 		private readonly IContactManagerForExternalCounterparty _contactManagerForExternalCounterparty;
 
 		public CounterpartyModel(
+			ILogger<CounterpartyModel> logger,
 			IUnitOfWork uow,
 			IExternalCounterpartyRepository externalCounterpartyRepository,
 			IRoboatsRepository roboatsRepository,
@@ -39,6 +42,7 @@ namespace CustomerAppsApi.Models
 			CounterpartyModelValidator counterpartyModelValidator,
 			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_externalCounterpartyRepository =
 				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
@@ -54,6 +58,11 @@ namespace CustomerAppsApi.Models
 
 		public CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto)
 		{
+			_logger.LogInformation(
+				"Запрос на авторизацию с номером {PhoneNumber} и Guid {ExternalCounterpartyId}",
+				counterpartyContactInfoDto.PhoneNumber,
+				counterpartyContactInfoDto.ExternalCounterpartyId);
+			
 			var validationResult = _counterpartyModelValidator.CounterpartyContactInfoDtoValidate(counterpartyContactInfoDto);
 			if(!string.IsNullOrWhiteSpace(validationResult))
 			{
@@ -63,34 +72,49 @@ namespace CustomerAppsApi.Models
 			var counterpartyFrom = _cameFromConverter.ConvertCameFromToCounterpartyFrom(counterpartyContactInfoDto.CameFromId);
 			var phoneNumber = new PhoneFormatter(PhoneFormat.DigitsTen).FormatString(counterpartyContactInfoDto.PhoneNumber);
 
-			//Ищем зарегистрированного клиента по ExternalId и по телефону
+			
+			_logger.LogInformation(
+				"Ищем зарегистрированного клиента по ExternalId {ExternalCounterpartyId} и по телефону {PhoneNumber}",
+				counterpartyContactInfoDto.ExternalCounterpartyId,
+				phoneNumber);
+			
 			var externalCounterparty =
 				_externalCounterpartyRepository.GetExternalCounterparty(
 					_uow, counterpartyContactInfoDto.ExternalCounterpartyId, phoneNumber, counterpartyFrom);
 
 			if(externalCounterparty != null)
 			{
+				_logger.LogInformation("Нашли соответствие по телефону и ExternalId");
 				return _counterpartyModelFactory.CreateSuccessCounterpartyIdentificationDto(externalCounterparty);
 			}
 			
-			//Ищем зарегистрированного клиента по ExternalId
+			_logger.LogInformation(
+				"Теперь ищем зарегистрированного клиента по ExternalId {ExternalCounterpartyId}",
+				counterpartyContactInfoDto.ExternalCounterpartyId);
+			
 			externalCounterparty =
 				_externalCounterpartyRepository.GetExternalCounterparty(
 					_uow, counterpartyContactInfoDto.ExternalCounterpartyId, counterpartyFrom);
 
 			if(externalCounterparty != null)
 			{
+				_logger.LogInformation(
+					"Нашли соответствие по ExternalId {ExternalCounterpartyId} отправляем на ручное сопоставление",
+					counterpartyContactInfoDto.ExternalCounterpartyId);
 				return SendToManualHandling(counterpartyContactInfoDto, counterpartyFrom);
 			}
 
-			//Ищем зарегистрированного клиента по телефону
+			_logger.LogInformation("Теперь ищем зарегистрированного клиента по телефону {PhoneNumber}", phoneNumber);
+			
 			externalCounterparty = _externalCounterpartyRepository.GetExternalCounterparty(_uow, phoneNumber, counterpartyFrom);
 
 			if(externalCounterparty != null)
 			{
+				_logger.LogInformation("Нашли соответствие по телефону {PhoneNumber} отправляем на ручное сопоставление", phoneNumber);
 				return SendToManualHandling(counterpartyContactInfoDto, counterpartyFrom);
 			}
 
+			_logger.LogInformation("Ищем зарегистрированног пользователя, но на другой площадке");
 			/*
 			 * Ищем зарегистрированного клиента с другой площадки
 			 * если запрос пришел от мобилки, то смотрим клиента с таким номером телефона, зарегистрированного через сайт
@@ -104,6 +128,7 @@ namespace CustomerAppsApi.Models
 
 			if(externalCounterparty != null)
 			{
+				_logger.LogInformation("Нашли, создаем нового для {CounterpartyFrom}", counterpartyFrom);
 				//Создаем нужный контакт и отправляем данные в ИПЗ
 				var copiedExternalCounterparty =
 					_counterpartyModelFactory.CopyToOtherExternalCounterparty(externalCounterparty,
@@ -115,11 +140,14 @@ namespace CustomerAppsApi.Models
 				return _counterpartyModelFactory.CreateRegisteredCounterpartyIdentificationDto(externalCounterparty);
 			}
 
+			_logger.LogInformation("Ведем поиск телефона по всему списку контактов");
 			var contact = _contactManagerForExternalCounterparty.FindContactForRegisterExternalCounterparty(_uow, phoneNumber);
 
 			switch(contact.FoundContactStatus)
 			{
 				case FoundContactStatus.Success:
+					
+					_logger.LogInformation("Нашли правильное соответствие, создаем нового пользователя");
 					externalCounterparty = _counterpartyModelFactory.CreateExternalCounterparty(counterpartyFrom);
 					externalCounterparty.ExternalCounterpartyId = counterpartyContactInfoDto.ExternalCounterpartyId;
 					externalCounterparty.Phone = contact.Phone;
@@ -130,17 +158,22 @@ namespace CustomerAppsApi.Models
 					
 					return _counterpartyModelFactory.CreateRegisteredCounterpartyIdentificationDto(externalCounterparty);
 				case FoundContactStatus.ContactNotFound:
+					_logger.LogInformation(
+						"Контрагент не найден с телефоном {PhoneNumber}, должен прийти запрос на регистрацию", phoneNumber);
 					return _counterpartyModelFactory.CreateNotFoundCounterpartyIdentificationDto();
 				default:
+					_logger.LogInformation("Отправляем на ручное сопоставление {PhoneNumber}", phoneNumber);
 					return SendToManualHandling(counterpartyContactInfoDto, counterpartyFrom);
 			}
 		}
 
 		public CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto)
 		{
+			_logger.LogInformation("Запрос на регистрацию");
 			var validationResult = _counterpartyModelValidator.CounterpartyDtoValidate(counterpartyDto);
 			if(!string.IsNullOrWhiteSpace(validationResult))
 			{
+				_logger.LogInformation("Не прошли валидацию при регистрации {ValidationResult}", validationResult);
 				return _counterpartyModelFactory.CreateErrorCounterpartyRegistrationDto(validationResult);
 			}
 
@@ -206,14 +239,21 @@ namespace CustomerAppsApi.Models
 			_uow.Save(externalCounterparty);
 			_uow.Commit();
 
+			_logger.LogInformation(
+				"Создали нового пользователя {ExternalId} {PhoneNumber}, код пользователя {ErpCounterpartyId}",
+				counterpartyDto.ExternalCounterpartyId,
+				counterpartyDto.PhoneNumber,
+				counterparty.Id);
 			return _counterpartyModelFactory.CreateRegisteredCounterpartyRegistrationDto(counterparty.Id);
 		}
 
 		public CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto)
 		{
+			_logger.LogInformation("Запрос на обновление данных");
 			var validationResult = _counterpartyModelValidator.CounterpartyDtoValidate(counterpartyDto);
 			if(!string.IsNullOrWhiteSpace(validationResult))
 			{
+				_logger.LogInformation("Не прошли валидацию при обновлении {ValidationResult}", validationResult);
 				return _counterpartyModelFactory.CreateErrorCounterpartyUpdateDto(validationResult);
 			}
 			

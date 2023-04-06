@@ -14,7 +14,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
 			
 			Id(x => x.Id).GeneratedBy.Native();
 
-			Map(x => x.Created).Column("created");
+			Map(x => x.Created).Column("created").ReadOnly();
 			Map(x => x.ExternalCounterpartyGuid).Column("external_counterparty_guid");
 			Map(x => x.PhoneNumber).Column("phone_number");
 			Map(x => x.Status).Column("status");

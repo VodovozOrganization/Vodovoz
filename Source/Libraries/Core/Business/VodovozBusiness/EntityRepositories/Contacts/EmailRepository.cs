@@ -278,7 +278,7 @@ namespace Vodovoz.EntityRepositories
 			EmailType emailTypeAlias = null;
 
 			return QueryOver.Of<Email>()
-				.JoinAlias(e => e.EmailType, () => emailTypeAlias)
+				.Left.JoinAlias(e => e.EmailType, () => emailTypeAlias)
 				.Where(e => e.Counterparty.Id == counterpartyId)
 				.And(() => emailTypeAlias.Id == null)
 				.Take(1);
