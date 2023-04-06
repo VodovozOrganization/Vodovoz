@@ -71,6 +71,10 @@ namespace Vodovoz.Views.Users
 				.AddBinding(ViewModel.Entity, e => e.UseEmployeeSubdivision, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckbuttonHideComplaintsNotifications.Binding
+				.AddBinding(ViewModel.Entity, e => e.HideComplaintNotification, w => w.Active)
+				.InitializeFromSource();
+
 			frameSortingCashInfo.Visible = ViewModel.UserIsCashier;
 			treeViewSubdivisionsToSort.ColumnsConfig = FluentColumnsConfig<CashSubdivisionSortingSettings>.Create()
 				.AddColumn("№").AddNumericRenderer(x => x.SortingIndex)

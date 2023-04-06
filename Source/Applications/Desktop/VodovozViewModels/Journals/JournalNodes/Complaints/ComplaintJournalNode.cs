@@ -89,4 +89,43 @@ namespace Vodovoz.Journals.JournalNodes
 		public string ResultOfEmployees { get; set; }
 		public string ArrangementText { get; set; }
 	}
+
+	public class ComplaintWithDepartmentsReactionJournalNode : ComplaintJournalNode
+	{
+		public DateTime? DepartmentConnectionTime { get; set; }
+		public DateTime? DepartmentFirstCommentTime { get; set; }
+
+		public string DepartmentConnectionTimeString =>
+			DepartmentConnectionTime.HasValue
+			? $"{DepartmentConnectionTime.Value.ToString("dd.MM.yy")} {DepartmentConnectionTime.Value.ToString("t")}"
+			: "-";
+
+		public string DepartmentFirstCommentTimeString => 
+			DepartmentFirstCommentTime.HasValue
+			? $"{DepartmentFirstCommentTime.Value.ToString("dd.MM.yy")} {DepartmentFirstCommentTime.Value.ToString("t")}"
+			: "-";
+
+		public string DepartmentReactionTimeString
+		{
+			get
+			{
+				if(DepartmentConnectionTime.HasValue && DepartmentFirstCommentTime.HasValue)
+				{
+					var reactionTime = DepartmentFirstCommentTime.Value - DepartmentConnectionTime.Value;
+
+					if(reactionTime.Minutes % 10 !=  (DepartmentFirstCommentTime.Value.Minute - DepartmentConnectionTime.Value.Minute) % 10)
+					{
+						reactionTime = reactionTime + TimeSpan.FromMinutes(1);
+					}
+
+					string daysCountStr = $"{reactionTime.Days.ToString("F0")}д";
+					string hoursCountStr = $"{reactionTime.Hours.ToString("F0")}ч";
+					string minutesCountStr = $"{reactionTime.Minutes.ToString("F0")}мин";
+
+					return $"{daysCountStr}:{hoursCountStr}:{minutesCountStr}";
+				}
+				return "-";
+			}
+		}
+	}
 }
