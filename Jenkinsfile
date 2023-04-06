@@ -199,6 +199,7 @@ parallel (
 		stage('Deploy'){
 			script{
 				node('Vod3'){
+					def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
 					if(CAN_DEPLOY_DESKTOP_BRANCH)
 					{
 						echo "Deploy branches build to desktop vod3"
