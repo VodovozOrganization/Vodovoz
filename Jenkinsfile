@@ -377,3 +377,23 @@ def PublishWCFService(serviceName) {
 	def SERVICE_PATH = "/opt/jenkins/builds/${serviceName}"
 	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH 
 }
+
+def CompressArtifact(sourcePath, artifactName) {
+	echo "Compressing archive ${artifactName}${ARCHIVE_EXTENTION} from ./${sourcePath}/*"
+	if (isUnix()) {
+		sh "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
+	}
+	else {
+		bat "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
+	}
+}
+
+def DecompressArtifact(targetPath, artifactName) {
+	echo "Decompressing archive ${artifactName}${ARCHIVE_EXTENTION} to ${targetPath}"
+	if (isUnix()) {
+		sh "7z e -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
+	}
+	else {
+		bat "7z e -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
+	}
+}
