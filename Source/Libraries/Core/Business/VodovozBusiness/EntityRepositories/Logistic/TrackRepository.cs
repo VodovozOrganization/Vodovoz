@@ -178,7 +178,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 					Time = pos.Time,
 					Latitude = pos.Latitude,
 					Longitude = pos.Longitude,
-					FastDeliveryRadius = (double)(uow.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).GetFastDeliveryMaxDistanceValue(pos.Time)
+					FastDeliveryRadius = (double)(uow.GetById<RouteList>(pos.RouteListId) ?? new RouteList()).GetFastDeliveryMaxDistanceValue(beforeTime.HasValue ? pos.Time : DateTime.Now)
 				}).ToList();
 		}
 	}

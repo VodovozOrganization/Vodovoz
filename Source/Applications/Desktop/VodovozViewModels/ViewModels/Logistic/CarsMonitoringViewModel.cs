@@ -645,20 +645,24 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var routeListIds = WorkingDrivers.SelectMany(x => x.RouteListsIds.Keys).ToArray();
 
 			IList<DriverPositionWithFastDeliveryRadius> lastPoints;
-			if(ShowFastDeliveryOnly)
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				if(ShowHistory)
+				if(ShowFastDeliveryOnly)
 				{
-					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPointsWithRadius(_unitOfWork, routeListIds, DriverDisconnectedTimespan, HistoryDateTime);
+					if(ShowHistory)
+					{
+						lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPointsWithRadius(uow, routeListIds, DriverDisconnectedTimespan, HistoryDateTime);
+					}
+					else
+					{
+						lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPointsWithRadius(uow, routeListIds, DriverDisconnectedTimespan);
+					}
 				}
 				else
 				{
-					lastPoints = _trackRepository.GetLastRouteListFastDeliveryTrackPointsWithRadius(_unitOfWork, routeListIds, DriverDisconnectedTimespan);
+					lastPoints = _trackRepository.GetLastPointForRouteListsWithRadius(uow, routeListIds);
 				}
-			}
-			else
-			{
-				lastPoints = _trackRepository.GetLastPointForRouteListsWithRadius(_unitOfWork, routeListIds);
 			}
 
 			LastDriverPositions.Clear();
