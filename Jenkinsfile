@@ -131,6 +131,14 @@ parallel (
 			stage('Build WCF'){
 				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:2'
 
+				if (fileExists("Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/${ARCHIVE_EXTENTION}")) {
+					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/${ARCHIVE_EXTENTION}")])
+				}
+
+				if (fileExists("Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/${ARCHIVE_EXTENTION}")) {
+					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/${ARCHIVE_EXTENTION}")])
+				}
+
 				CompressArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug', 'SmsInformerService')
 				CompressArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug', 'SmsPaymentService')
 
@@ -192,13 +200,13 @@ stage('Deploy'){
 			{
 				echo "Deploy branches build to desktop vod3"
 				def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
-				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+				DecompressArtifact(OUTPUT_PATH, 'Vodovoz')
 			}
 			else if(CAN_DEPLOY_DESKTOP_PR)
 			{
 				echo "Deploy pull request build to desktop vod3"
 				def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
-				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+				DecompressArtifact(OUTPUT_PATH, 'Vodovoz')
 			}
 			else
 			{
