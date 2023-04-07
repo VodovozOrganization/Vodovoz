@@ -381,22 +381,22 @@ def PublishWCFService(serviceName) {
 	DecompressArtifact(SERVICE_PATH, serviceName)
 }
 
-def CompressArtifact(path, artifactName) {
-	echo "Compressing archive ${artifactName}${ARCHIVE_EXTENTION} from ./${path}/*"
+def CompressArtifact(sourcePath, artifactName) {
+	echo "Compressing archive ${artifactName}${ARCHIVE_EXTENTION} from ./${sourcePath}/*"
 	if (isUnix()) {
-		sh "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${path}/*"
+		sh "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
 	}
 	else {
-		bat "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${path}/*"
+		bat "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
 	}
 }
 
 def DecompressArtifact(targetPath, artifactName) {
 	echo "Decompressing archive ${artifactName}${ARCHIVE_EXTENTION} to ${targetPath}"
 	if (isUnix()) {
-		sh "7z e -o${path} ${artifactName}${ARCHIVE_EXTENTION}"
+		sh "7z e -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
 	}
 	else {
-		bat "7z e -o${path} ${artifactName}${ARCHIVE_EXTENTION}"
+		bat "7z e -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
 	}
 }
