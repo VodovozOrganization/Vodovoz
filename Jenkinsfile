@@ -67,9 +67,9 @@ parallel (
 			stage('Build Desktop'){
 				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=WinDesktop -p:Platform=x86 -maxcpucount:2'
 
-				fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
-				zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin'
-				archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true			
+				fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz${ARCHIVE_EXTENTION}')])
+				zip zipFile: 'Vodovoz${ARCHIVE_EXTENTION}', archive: false, dir: 'Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin'
+				archiveArtifacts artifacts: 'Vodovoz${ARCHIVE_EXTENTION}', onlyIfSuccessful: true			
 			}
 			stage('Build WEB'){
 				script{
@@ -139,7 +139,7 @@ parallel (
 				CompressArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug', 'SmsInformerService')
 				CompressArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug', 'SmsPaymentService')
 
-				archiveArtifacts artifacts: '*Service.zip', onlyIfSuccessful: true
+				archiveArtifacts artifacts: '*Service${ARCHIVE_EXTENTION}', onlyIfSuccessful: true
 			}
 		}						
 	}
@@ -250,8 +250,8 @@ def PrepareSources(jenkinsHome) {
 }
 
 def ZipArtifact(path, serviceName) {
-	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}.zip")])
-	zip zipFile: "${serviceName}.zip", archive: false, dir: "${path}bin/Debug"  
+	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}${ARCHIVE_EXTENTION}")])
+	zip zipFile: "${serviceName}${ARCHIVE_EXTENTION}", archive: false, dir: "${path}bin/Debug"  
 }
 
 def PublishBuildWebServiceToFolder(serviceName, csprojPath, outputPath) {
@@ -261,9 +261,9 @@ def PublishBuildWebServiceToFolder(serviceName, csprojPath, outputPath) {
 	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile -maxcpucount:2'
 
 	
-	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}.zip")])
-	zip zipFile: "${serviceName}.zip", archive: false, dir: outputPath
-	archiveArtifacts artifacts: "${serviceName}.zip", onlyIfSuccessful: true
+	fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}${ARCHIVE_EXTENTION}")])
+	zip zipFile: "${serviceName}${ARCHIVE_EXTENTION}", archive: false, dir: outputPath
+	archiveArtifacts artifacts: "${serviceName}${ARCHIVE_EXTENTION}", onlyIfSuccessful: true
 }
 
 def CopyDesktopArtifacts(serverName){
@@ -288,7 +288,7 @@ def PublishMasterDesktop() {
 			def PRERELEASE_PATH = "${MasterRuntimePath}\\prerelease"
 
 			echo "Publish master to prerelease folder ${PRERELEASE_PATH}"
-			unzip zipFile: 'Vodovoz.zip', dir: PRERELEASE_PATH
+			unzip zipFile: 'Vodovoz${ARCHIVE_EXTENTION}', dir: PRERELEASE_PATH
 		}else{
 			echo "Branch is not master, nothing to publish to prerelease folder"
 		}
@@ -353,7 +353,7 @@ def PublishWebService(serviceName) {
 	def SERVICE_PATH = "E:\\CD\\${serviceName}\\${BRANCH_NAME}"
 	
     echo "Deploy ${serviceName} to CD folder"
-	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH
+	unzip zipFile: "${serviceName}${ARCHIVE_EXTENTION}", dir: SERVICE_PATH
 }
 
 def PublishWCFServices(){
@@ -378,7 +378,7 @@ def PublishWCFServices(){
 
 def PublishWCFService(serviceName) {
 	def SERVICE_PATH = "/opt/jenkins/builds/${serviceName}"
-	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH 
+	unzip zipFile: "${serviceName}${ARCHIVE_EXTENTION}", dir: SERVICE_PATH 
 }
 
 def CompressArtifact(sourcePath, artifactName) {
