@@ -30,6 +30,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Parameters;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz
 {
@@ -472,6 +473,8 @@ namespace Vodovoz
 
 					if(item.Redhead != tempItem.Redhead)
 						item.Redhead = tempItem.Redhead;
+
+					item.CreateOrUpdateDeliveryFreeBalanceOperation(terminalId);
 				}
 			}
 
