@@ -84,7 +84,12 @@ namespace Vodovoz.ReportsParameters
 		
 		private ReportInfo GetReportInfo()
 		{
-			bool allCashes = ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem).Name == "Все";
+			if (yspeccomboboxCashSubdivision.SelectedItem == null)
+			{
+				throw new ArgumentNullException("Для формирования отчета необходимо выбрать кассу!");
+			}
+
+			bool allCashes = ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem)?.Name == "Все";
 
 			var parameters = new Dictionary<string, object> {
 				{ "StartDate", dateperiodpicker.StartDateOrNull.Value},
@@ -102,7 +107,7 @@ namespace Vodovoz.ReportsParameters
 			else
 			{
 				reportPath = "Cash.CashBook";
-				parameters.Add("Cash", allCashes ? -1 : ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem).Id);
+				parameters.Add("Cash", allCashes ? -1 : ((Subdivision) yspeccomboboxCashSubdivision.SelectedItem)?.Id);
 			}
 
 			return new ReportInfo {

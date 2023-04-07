@@ -11,8 +11,9 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataIncome">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     if(ci.cash_income_category_id,
        1,
@@ -70,7 +71,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="CategoryType">
           <DataField>CategoryType</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
@@ -106,8 +107,9 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="MLatDay">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     rl.date as date,
     SUM(codd.amount) AS sum
@@ -136,7 +138,7 @@ GROUP BY rl.date</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="MLdate">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -148,8 +150,9 @@ GROUP BY rl.date</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataIncomeReturn">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     ci.id as id,
     ocmo.operation_time as Date,
@@ -225,7 +228,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -257,8 +260,9 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataExpense">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     ce.id AS id,
     ce.cash_expense_category_id AS CategoryId,
@@ -333,7 +337,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -365,8 +369,9 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     ce.id as id,
     ce.cash_expense_category_id as CategoryId,
@@ -442,7 +447,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -474,8 +479,9 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvanceReport">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     cash_advance_report.id AS report_id,
     cash_advance_report.cash_expense_category_id AS CategoryId,
@@ -555,7 +561,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="report_id">
           <DataField>report_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -599,8 +605,9 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvanceClosing">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     ce.id as expense_id,
     ce.cash_expense_category_id AS CategoryId,
@@ -684,7 +691,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="expense_id">
           <DataField>expense_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
