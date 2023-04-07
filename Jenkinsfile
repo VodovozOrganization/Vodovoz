@@ -125,8 +125,16 @@ parallel (
 			stage('Build WCF'){
 				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:2'
 
-				ZipArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/', 'SmsInformerService')
-				ZipArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/', 'SmsPaymentService')
+				if (fileExists("Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/SmsPaymentService${ARCHIVE_EXTENTION}")) {
+					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/SmsPaymentService${ARCHIVE_EXTENTION}")])
+				}
+
+				if (fileExists("Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/SmsInformerService${ARCHIVE_EXTENTION}")) {
+					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/SmsInformerService${ARCHIVE_EXTENTION}")])
+				}
+
+				CompressArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug', 'SmsInformerService')
+				CompressArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug', 'SmsPaymentService')
 
 				archiveArtifacts artifacts: '*Service.zip', onlyIfSuccessful: true
 			}
@@ -186,13 +194,13 @@ stage('Deploy'){
 			{
 				echo "Deploy branches build to desktop vod3"
 				def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
-				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+				DecompressArtifact(OUTPUT_PATH, 'Vodovoz')
 			}
 			else if(CAN_DEPLOY_DESKTOP_PR)
 			{
 				echo "Deploy pull request build to desktop vod3"
 				def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
-				unzip zipFile: 'Vodovoz.zip', dir: OUTPUT_PATH
+				DecompressArtifact(OUTPUT_PATH, 'Vodovoz')
 			}
 			else
 			{
@@ -368,4 +376,24 @@ def PublishWCFServices(){
 def PublishWCFService(serviceName) {
 	def SERVICE_PATH = "/opt/jenkins/builds/${serviceName}"
 	unzip zipFile: "${serviceName}.zip", dir: SERVICE_PATH 
+}
+
+def CompressArtifact(sourcePath, artifactName) {
+	echo "Compressing archive ${artifactName}${ARCHIVE_EXTENTION} from ./${sourcePath}/*"
+	if (isUnix()) {
+		sh "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
+	}
+	else {
+		powershell "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
+	}
+}
+
+def DecompressArtifact(targetPath, artifactName) {
+	echo "Decompressing archive ${artifactName}${ARCHIVE_EXTENTION} to ${targetPath}"
+	if (isUnix()) {
+		sh "7z e -y -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
+	}
+	else {
+		powershell "7z e -y -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
+	}
 }
