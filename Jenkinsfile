@@ -125,12 +125,12 @@ parallel (
 			stage('Build WCF'){
 				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:2'
 
-				if (fileExists("Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/${ARCHIVE_EXTENTION}")) {
-					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/${ARCHIVE_EXTENTION}")])
+				if (fileExists("Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/SmsPaymentService${ARCHIVE_EXTENTION}")) {
+					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/SmsPaymentService${ARCHIVE_EXTENTION}")])
 				}
 
-				if (fileExists("Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/${ARCHIVE_EXTENTION}")) {
-					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/${ARCHIVE_EXTENTION}")])
+				if (fileExists("Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/SmsInformerService${ARCHIVE_EXTENTION}")) {
+					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/SmsInformerService${ARCHIVE_EXTENTION}")])
 				}
 
 				CompressArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug', 'SmsInformerService')
@@ -384,16 +384,16 @@ def CompressArtifact(sourcePath, artifactName) {
 		sh "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
 	}
 	else {
-		bat "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
+		ps "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
 	}
 }
 
 def DecompressArtifact(targetPath, artifactName) {
 	echo "Decompressing archive ${artifactName}${ARCHIVE_EXTENTION} to ${targetPath}"
 	if (isUnix()) {
-		sh "7z e -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
+		sh "7z e -y -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
 	}
 	else {
-		bat "7z e -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
+		ps "7z e -y -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
 	}
 }
