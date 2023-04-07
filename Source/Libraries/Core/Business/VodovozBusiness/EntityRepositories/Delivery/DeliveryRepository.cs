@@ -251,7 +251,17 @@ namespace Vodovoz.EntityRepositories.Delivery
 				
 				node.DistanceByLineToClient.ParameterValue = (decimal)distance;
 				node.DistanceByRoadToClient.ParameterValue = decimal.Round((decimal)(proposedRoute?.TotalDistance ?? int.MaxValue) / 1000, 2);
-				if(distance < maxDistanceToTrackPoint)
+
+				double routeListFastDeliveryMaxRadius = maxDistanceToTrackPoint;
+
+				var nodeRouteList = uow.GetById<RouteList>(node.RouteList.Id);
+
+				if(nodeRouteList?.FastDeliveryMaxDistanceItems.Count > 0)
+				{
+					routeListFastDeliveryMaxRadius = (double)nodeRouteList.GetFastDeliveryMaxDistanceValue();
+				}
+
+				if(distance < routeListFastDeliveryMaxRadius)
 				{
 					node.DistanceByLineToClient.IsValidParameter = node.DistanceByRoadToClient.IsValidParameter = true;
 				}
