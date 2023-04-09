@@ -88,7 +88,7 @@ namespace Vodovoz.Views.Logistic
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child yhboxSettings.Gtk.Box+BoxChild
-			this.yspinbuttonDistance = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
+			this.yspinbuttonDistance = new global::Gamma.GtkWidgets.ySpinButton(0D, 99.9D, 1D);
 			this.yspinbuttonDistance.CanFocus = true;
 			this.yspinbuttonDistance.Name = "yspinbuttonDistance";
 			this.yspinbuttonDistance.Adjustment.PageIncrement = 10D;
