@@ -387,7 +387,7 @@ def CompressArtifact(sourcePath, artifactName) {
 		sh "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
 	}
 	else {
-		powershell "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
+		bat "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
 	}
 }
 
@@ -397,6 +397,6 @@ def DecompressArtifact(targetPath, artifactName) {
 		sh "7z e -y -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
 	}
 	else {
-		powershell "7z e -y -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
+		bat "7z e -y -o${targetPath} ${artifactName}${ARCHIVE_EXTENTION}"
 	}
 }
