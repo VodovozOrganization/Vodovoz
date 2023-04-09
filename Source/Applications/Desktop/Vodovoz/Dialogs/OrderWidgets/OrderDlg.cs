@@ -349,7 +349,7 @@ namespace Vodovoz
 
 		public OrderDlg()
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
 			Entity.Author = _currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			if(Entity.Author == null)
@@ -397,17 +397,15 @@ namespace Vodovoz
 
 			AddCommentsFromDeliveryPoint();
 			CheckForStopDelivery();
-			UpdateOrderAddressTypeWithUI();
 		}
 
 		public OrderDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
 			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
 			IsForSalesDepartment = UoWGeneric.Root.Client.IsForSalesDepartment;
 			ConfigureDlg();
-			UpdateOrderAddressTypeWithUI();
 		}
 
 		public OrderDlg(Order sub) : this(sub.Id)
@@ -440,8 +438,6 @@ namespace Vodovoz
 				CheckForStopDelivery();
 				AddCommentsFromDeliveryPoint();
 			}
-
-			UpdateOrderAddressTypeWithUI();
 		}
 
 		public void CopyOrderFrom(int orderId)
@@ -600,8 +596,8 @@ namespace Vodovoz
 				.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp)
 				.InitializeFromSource();
 
-			ylabelOrderStatus.Binding.AddFuncBinding(Entity, e => e.OrderStatus.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
-			ylabelOrderAddressType.Binding.AddFuncBinding(Entity, e => "Тип адреса: " + e.OrderAddressType.GetEnumTitle(), w => w.LabelProp)
+			ylabelOrderStatus.Binding
+				.AddFuncBinding(Entity, e => e.OrderStatus.GetEnumTitle(), w => w.LabelProp)
 				.InitializeFromSource();
 			ylabelNumber.Binding
 				.AddFuncBinding(Entity, e => e.Code1c + (e.DailyNumber.HasValue ? $" ({e.DailyNumber})" : ""), w => w.LabelProp)
@@ -791,7 +787,7 @@ namespace Vodovoz
 					OnFormOrderActions();
 				}
 
-				UpdateOrderAddressTypeWithUI();
+				UpdateOrderAddressTypeUI();
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -895,7 +891,7 @@ namespace Vodovoz
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
 			chkPaymentByQr.Binding.AddBinding(Entity, e => e.PaymentByQr, w => w.Active).InitializeFromSource();
 
-			UpdateOrderAddressTypeWithUI();
+			UpdateOrderAddressTypeUI();
 
 			Entity.InteractiveService = new CastomInteractiveService();
 
@@ -912,15 +908,10 @@ namespace Vodovoz
 						break;
 					case nameof(Order.Client):
 						UpdateAvailableEnumSignatureTypes();
-						if(Entity.Client != null && Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
-						{
-							Entity.OrderAddressType = OrderAddressType.ChainStore;
-						}
-
 						UpdateOrderAddressTypeWithUI();
 						break;
 					case nameof(Entity.OrderAddressType):
-						UpdateOrderAddressTypeWithUI();
+						UpdateOrderAddressTypeUI();
 						break;
 					case nameof(Entity.Client.IsChainStore):
 						UpdateOrderAddressTypeWithUI();
@@ -934,8 +925,13 @@ namespace Vodovoz
 				Entity.CheckDocumentExportPermissions();
 			}
 
-			ybuttonToStorageLogicAddressType.Sensitive = ybuttonToDeliveryAddressType.Sensitive =
+			ylabelOrderAddressType.Binding
+				.AddFuncBinding(Entity, e => "Тип адреса: " + e.OrderAddressType.GetEnumTitle(), w => w.LabelProp)
+				.InitializeFromSource();
+			var canChangeOrderAddressType =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
+			ybuttonToStorageLogicAddressType.Sensitive = canChangeOrderAddressType;
+			ybuttonToDeliveryAddressType.Sensitive = canChangeOrderAddressType;
 
 			UpdateAvailableEnumSignatureTypes();
 
@@ -2546,9 +2542,10 @@ namespace Vodovoz
 
 		public void FillOrderItems(Order order)
 		{
-
 			if(Entity.OrderStatus != OrderStatus.NewOrder
-			   || Entity.ObservableOrderItems.Any() && !MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите удалить все позиции текущего из заказа и заполнить его позициями из выбранного?")) {
+				|| Entity.ObservableOrderItems.Any() && !MessageDialogHelper.RunQuestionDialog(
+					"Вы уверены, что хотите удалить все позиции из текущего заказа и заполнить его позициями из выбранного?"))
+			{
 				return;
 			}
 
@@ -2566,7 +2563,8 @@ namespace Vodovoz
 						continue;
 				}
 			}
-			Entity?.RecalculateItemsPrice();
+			Entity.RecalculateItemsPrice();
+			UpdateOrderAddressTypeWithUI();
 		}
 		#endregion
 
@@ -4249,7 +4247,11 @@ namespace Vodovoz
 		private void UpdateOrderAddressTypeWithUI()
 		{
 			Entity.UpdateAddressType();
-
+			UpdateOrderAddressTypeUI();
+		}
+		
+		private void UpdateOrderAddressTypeUI()
+		{
 			if(Entity.SelfDelivery)
 			{
 				ylabelOrderAddressType.Visible = false;
