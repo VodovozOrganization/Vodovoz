@@ -95,6 +95,10 @@ namespace CashReceiptSendWorker
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
+			builder.RegisterType<TrueMarkWaterCodeParser>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
 			builder.RegisterType<CashboxClientFactory>()
 				.WithParameter(TypedParameter.From(GetCashboxBaseUrl()))
 				.WithProperty(x => x.IsTestMode, IsTestMode())
