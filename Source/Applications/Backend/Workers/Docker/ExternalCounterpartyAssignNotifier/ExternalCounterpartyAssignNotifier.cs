@@ -85,7 +85,8 @@ namespace ExternalCounterpartyAssignNotifier
 				ExternalCounterpartyId = notification.ExternalCounterparty.ExternalCounterpartyId,
 				FirstName = counterparty.FirstName,
 				Surname = counterparty.Surname,
-				Patronymic = counterparty.Patronymic
+				Patronymic = counterparty.Patronymic,
+				PhoneNumber = $"+7{notification.ExternalCounterparty.Phone.DigitsNumber}"
 			};
 		}
 		

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Text.Json;
 using ExternalCounterpartyAssignNotifier.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,14 +38,17 @@ namespace ExternalCounterpartyAssignNotifier
 						loggingBuilder.AddNLog("NLog.config");
 					});
 					
-					services.AddHttpClient<INotificationService, NotificationService>(c =>
+					services.AddHttpClient<INotificationService, NotificationService>(client =>
 					{
-						c.Timeout = TimeSpan.FromSeconds(15);
-						c.DefaultRequestHeaders.Add("Accept", "application/json");
+						client.Timeout = TimeSpan.FromSeconds(15);
 					});
 
 					services
 						.AddSingleton<IExternalCounterpartyAssignNotificationRepository, ExternalCounterpartyAssignNotificationRepository>();
+					services.AddSingleton(_ => new JsonSerializerOptions
+					{
+						PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+					});
 					services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
 					services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 					services.AddHostedService<ExternalCounterpartyAssignNotifier>();
@@ -54,26 +58,27 @@ namespace ExternalCounterpartyAssignNotifier
 		
 		private static void CreateBaseConfig(IConfiguration configuration)
 		{
-			var conStrBuilder = new MySqlConnectionStringBuilder();
+			var domainDbConfig = configuration.GetSection("DomainDB");
 
-			var domainDBConfig = configuration.GetSection("DomainDB");
-
-			conStrBuilder.Server = domainDBConfig.GetValue<string>("Server");
-			conStrBuilder.Port = domainDBConfig.GetValue<uint>("Port");
-			conStrBuilder.Database = domainDBConfig.GetValue<string>("Database");
-			conStrBuilder.UserID = domainDBConfig.GetValue<string>("UserID");
-			conStrBuilder.Password = domainDBConfig.GetValue<string>("Password");
-			conStrBuilder.SslMode = MySqlSslMode.None;
+			var conStrBuilder = new MySqlConnectionStringBuilder
+			{
+				Server = domainDbConfig["Server"],
+				Port = domainDbConfig.GetValue<uint>("Port"),
+				Database = domainDbConfig["Database"],
+				UserID = domainDbConfig["UserID"],
+				Password = domainDbConfig["Password"],
+				SslMode = MySqlSslMode.None
+			};
 
 			var connectionString = conStrBuilder.GetConnectionString(true);
 
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(connectionString);
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
-				db_config,
+				dbConfig,
 				new[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
