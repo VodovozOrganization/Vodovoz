@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IInteractiveService _interactiveService;
 		private bool _isSaving;
-		private bool _canSave;
+		private bool _canSave = false;
 		private bool _isGenerating;
 		private bool _canCancelGenerate;
 
@@ -164,6 +164,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			try
 			{
 				var report = await Generate(cancellationToken);
+
+				if(report != null)
+				{
+					CanSave = true;
+				}
+
 				return report;
 			}
 			finally
