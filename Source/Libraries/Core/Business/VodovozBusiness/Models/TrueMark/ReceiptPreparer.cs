@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Organizations;
 
 namespace Vodovoz.Models.TrueMark
 {
@@ -19,7 +20,9 @@ namespace Vodovoz.Models.TrueMark
 		private readonly TrueMarkTransactionalCodesPool _codesPool;
 		private readonly TrueMarkCodesChecker _codeChecker;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
+		private readonly IOrganizationRepository _organizationRepository;
 		private readonly int _receiptId;
+		private IList<string> _ownersInn;
 		private bool _disposed;
 
 		public ReceiptPreparer(
@@ -28,6 +31,7 @@ namespace Vodovoz.Models.TrueMark
 			TrueMarkTransactionalCodesPool codesPool,
 			TrueMarkCodesChecker codeChecker,
 			ICashReceiptRepository cashReceiptRepository,
+			IOrganizationRepository organizationRepository,
 			int receiptId)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -35,12 +39,16 @@ namespace Vodovoz.Models.TrueMark
 			_codesPool = codesPool ?? throw new ArgumentNullException(nameof(codesPool));
 			_codeChecker = codeChecker ?? throw new ArgumentNullException(nameof(codeChecker));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+
 			if(receiptId <= 0)
 			{
 				throw new ArgumentException("Должен быть указан существующий Id чека.", nameof(receiptId));
 			}
 			_receiptId = receiptId;
 			_uow = _uowFactory.CreateWithoutRoot();
+
+			_ownersInn = _organizationRepository.GetTrueMarkCodesOwnersInns(_uow);
 		}
 
 		public async Task PrepareAsync(CancellationToken cancellationToken)
@@ -158,7 +166,8 @@ namespace Vodovoz.Models.TrueMark
 			foreach(var checkResult in checkResults)
 			{
 				var code = checkResult.Code;
-				if(checkResult.Introduced)
+				var isOurOrganizationOwner = _ownersInn.Contains(checkResult.OwnerInn);
+				if(checkResult.Introduced && isOurOrganizationOwner)
 				{
 					if(code.ResultCode != null && !code.ResultCode.Equals(code.SourceCode))
 					{
