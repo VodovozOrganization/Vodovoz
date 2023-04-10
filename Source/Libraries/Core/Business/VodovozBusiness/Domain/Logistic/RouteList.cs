@@ -1728,7 +1728,10 @@ namespace Vodovoz.Domain.Logistic
 				date = DateTime.Now;
 			}
 
-			var fastDeliveryMaxDistanceItem = FastDeliveryMaxDistanceItems.Where(d => d.StartDate < date && (d.EndDate == null || d.EndDate > date)).FirstOrDefault();
+			var fastDeliveryMaxDistanceItem = UoW.GetAll<RouteListFastDeliveryMaxDistance>()
+				.Where(d => d.RouteList.Id == this.Id && d.StartDate <= date && (d.EndDate == null || d.EndDate > date))
+				.FirstOrDefault();
+			
 			if (fastDeliveryMaxDistanceItem != null)
 			{
 				return fastDeliveryMaxDistanceItem.Distance;
