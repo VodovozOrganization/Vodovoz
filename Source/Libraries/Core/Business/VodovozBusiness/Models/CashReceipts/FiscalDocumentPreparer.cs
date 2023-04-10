@@ -11,6 +11,13 @@ namespace Vodovoz.Models.CashReceipts
 {
 	public class FiscalDocumentPreparer
 	{
+		private readonly TrueMarkWaterCodeParser _codeParser;
+
+		public FiscalDocumentPreparer(TrueMarkWaterCodeParser codeParser)
+		{
+			_codeParser = codeParser ?? throw new ArgumentNullException(nameof(codeParser));
+		}
+
 		public FiscalDocument CreateDocument(CashReceipt cashReceipt)
 		{
 			var order = cashReceipt.Order;
@@ -78,7 +85,7 @@ namespace Vodovoz.Models.CashReceipts
 				if(orderItem.Count == 1)
 				{
 					var inventPosition = CreateInventPosition(orderItem);
-					inventPosition.ProductMark = orderItemsCodes.First().ResultCode.RawCode;
+					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemsCodes.First().ResultCode);
 					fiscalDocument.InventPositions.Add(inventPosition);
 					continue;
 				}
@@ -94,7 +101,7 @@ namespace Vodovoz.Models.CashReceipts
 					var inventPosition = CreateInventPosition(orderItem);
 					inventPosition.Quantity = 1;
 					inventPosition.DiscSum = partDiscount;
-					inventPosition.ProductMark = orderItemsCodes[i - 1].ResultCode.RawCode;
+					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemsCodes[i - 1].ResultCode);
 					fiscalDocument.InventPositions.Add(inventPosition);
 				}
 
@@ -105,7 +112,7 @@ namespace Vodovoz.Models.CashReceipts
 				var lastInventPosition = CreateInventPosition(orderItem);
 				lastInventPosition.Quantity = 1;
 				lastInventPosition.DiscSum = residueDiscount;
-				lastInventPosition.ProductMark = orderItemCode.ResultCode.RawCode;
+				lastInventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemCode.ResultCode);
 				fiscalDocument.InventPositions.Add(lastInventPosition);
 			}
 		}

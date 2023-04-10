@@ -105,5 +105,10 @@ namespace Vodovoz.Models.TrueMark
 		{
 			return $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}";
 		}
+
+		public string GetProductCodeForCashReceipt(ITrueMarkWaterCode trueMarkWaterCode)
+		{
+			return $"\u001d01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
+		}
 	}
 }
