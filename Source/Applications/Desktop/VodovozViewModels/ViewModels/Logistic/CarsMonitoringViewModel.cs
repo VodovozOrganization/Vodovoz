@@ -675,7 +675,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void RoutelistEntityConfigEntityUpdated(EntityChangeEvent[] changeEvents)
 		{
 			RefreshWorkingDrivers();
-			//RefreshLastDriverPositions();
 		}
 
 		#endregion
