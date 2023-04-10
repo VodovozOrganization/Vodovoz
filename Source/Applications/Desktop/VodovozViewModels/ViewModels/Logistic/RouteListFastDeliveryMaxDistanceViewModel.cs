@@ -1,4 +1,4 @@
-﻿using NLog;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
@@ -12,7 +12,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class RouteListFastDeliveryMaxDistanceViewModel : EntityTabViewModelBase<RouteList>
 	{
-		private static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly ILogger<RouteListFastDeliveryMaxDistanceViewModel> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
@@ -20,11 +20,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IRouteListItemRepository routeListItemRepository) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			IRouteListItemRepository routeListItemRepository,
+			ILogger<RouteListFastDeliveryMaxDistanceViewModel> logger) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_fastDeliveryMaxDistance = Entity.CurrentFastDeliveryMaxDistanceValue;
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
 
@@ -45,7 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				Entity.UpdateFastDeliveryMaxDistanceValue(FastDeliveryMaxDistance);
 			}
 
-			_logger.Info("Добавляем новое значения радиуса быстрой доставки...");
+			_logger.LogInformation("Добавляем новое значения радиуса быстрой доставки...");
 			return base.Save(close);
 		}
 	}
