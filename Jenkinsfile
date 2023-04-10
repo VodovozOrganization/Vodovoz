@@ -394,9 +394,9 @@ def CompressArtifact(sourcePath, artifactName) {
 def DecompressArtifact(targetPath, artifactName) {
 	echo "Decompressing archive ${artifactName}${ARCHIVE_EXTENTION} to ${targetPath}"
 	if (isUnix()) {
-		sh "7z e -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
+		sh "7z x -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
 	}
 	else {
-		bat "7z e -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
+		bat "7z x -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
 	}
 }
