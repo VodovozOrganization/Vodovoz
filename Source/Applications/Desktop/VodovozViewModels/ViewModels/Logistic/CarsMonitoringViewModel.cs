@@ -485,7 +485,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 			else
 			{
-				query.Where(rl => rl.Status == RouteListStatus.EnRoute);				
+				query.Where(rl => rl.Status == RouteListStatus.EnRoute);
 			}
 
 			var routeListFastDeliveryMaxDistanceSubquery = QueryOver.Of<RouteListFastDeliveryMaxDistance>()
