@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using NLog;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
@@ -11,7 +12,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class RouteListFastDeliveryMaxDistanceViewModel : EntityTabViewModelBase<RouteList>
 	{
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private static ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
