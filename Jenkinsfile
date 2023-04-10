@@ -393,7 +393,6 @@ def CompressArtifact(sourcePath, artifactName) {
 
 def DecompressArtifact(targetPath, artifactName) {
 	echo "Decompressing archive ${artifactName}${ARCHIVE_EXTENTION} to ${targetPath}"
-	fileOperations([folderDeleteOperation(folderPath: targetPath)])
 	if (isUnix()) {
 		sh "7z x -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
 	}
