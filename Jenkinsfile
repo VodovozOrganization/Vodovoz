@@ -200,12 +200,14 @@ stage('Deploy'){
 			{
 				echo "Deploy branches build to desktop vod3"
 				def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
+				fileOperations([fileDeleteOperation(excludes: '', includes: "${OUTPUT_PATH}/*")])
 				DecompressArtifact(OUTPUT_PATH, 'Vodovoz')
 			}
 			else if(CAN_DEPLOY_DESKTOP_PR)
 			{
 				echo "Deploy pull request build to desktop vod3"
 				def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
+				fileOperations([fileDeleteOperation(excludes: '', includes: "${OUTPUT_PATH}/*")])
 				DecompressArtifact(OUTPUT_PATH, 'Vodovoz')
 			}
 			else
@@ -288,6 +290,7 @@ def PublishMasterDesktop() {
 			def PRERELEASE_PATH = "${MasterRuntimePath}\\prerelease"
 
 			echo "Publish master to prerelease folder ${PRERELEASE_PATH}"
+			fileOperations([fileDeleteOperation(excludes: '', includes: "${PRERELEASE_PATH}/*")])
 			DecompressArtifact(PRERELEASE_PATH, 'Vodovoz')
 		}else{
 			echo "Branch is not master, nothing to publish to prerelease folder"
@@ -353,6 +356,7 @@ def PublishWebService(serviceName) {
 	def SERVICE_PATH = "E:\\CD\\${serviceName}\\${BRANCH_NAME}"
 	
 	echo "Deploy ${serviceName} to CD folder"
+	fileOperations([fileDeleteOperation(excludes: '', includes: "${SERVICE_PATH}/*")])
 	DecompressArtifact(SERVICE_PATH, serviceName)
 }
 
@@ -378,6 +382,7 @@ def PublishWCFServices(){
 
 def PublishWCFService(serviceName) {
 	def SERVICE_PATH = "/opt/jenkins/builds/${serviceName}"
+	fileOperations([fileDeleteOperation(excludes: '', includes: "${SERVICE_PATH}/*")])
 	DecompressArtifact(SERVICE_PATH, serviceName)
 }
 
