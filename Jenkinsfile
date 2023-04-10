@@ -3,17 +3,17 @@
 //Publish - разархивация сборок на ноде в каталог для нового релиза
 
 //Desktop
-CAN_DEPLOY_DESKTOP_BRANCH = env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'Beta' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
-CAN_DEPLOY_DESKTOP_PR = env.CHANGE_ID != null
+CAN_DEPLOY_DESKTOP_BRANCH = true//env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'Beta' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
+CAN_DEPLOY_DESKTOP_PR = true//env.CHANGE_ID != null
 CAN_COPY_DESKTOP_ARTIFACTS = CAN_DEPLOY_DESKTOP_BRANCH || CAN_DEPLOY_DESKTOP_PR 
-CAN_PUBLISH_DESKTOP = env.BRANCH_NAME == 'master'
+CAN_PUBLISH_DESKTOP = true//env.BRANCH_NAME == 'master'
 
 //Web
-CAN_PUBLISH_WEB_ARTIFACTS = env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
+CAN_PUBLISH_WEB_ARTIFACTS = true//env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
 CAN_COPY_WEB_ARTIFACTS = CAN_PUBLISH_WEB_ARTIFACTS
 
 //WCF
-CAN_PUBLISH_WCF_ARTIFACTS = env.BRANCH_NAME == 'master'
+CAN_PUBLISH_WCF_ARTIFACTS = true//env.BRANCH_NAME == 'master'
 CAN_COPY_WCF_ARTIFACTS = CAN_PUBLISH_WCF_ARTIFACTS
 
 //ARCHIVATION
@@ -72,7 +72,6 @@ parallel (
 				}
 
 				CompressArtifact('Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin', 'Vodovoz')
-				archiveArtifacts artifacts: "Vodovoz${ARCHIVE_EXTENTION}", onlyIfSuccessful: true			
 			}
 			stage('Build WEB'){
 				script{
@@ -141,56 +140,54 @@ parallel (
 
 				CompressArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug', 'SmsInformerService')
 				CompressArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug', 'SmsPaymentService')
-
-				archiveArtifacts artifacts: "*Service${ARCHIVE_EXTENTION}", onlyIfSuccessful: true
 			}
 		}
 	}
 )
 
 //Копирование на ноды
-stage('Copy artifacts'){
-	node('Vod1'){
-		CopyDesktopArtifacts("Vod1")
-	}
-	node('Vod3'){
-		CopyDesktopArtifacts("Vod3")
-	}
-	node('Vod5'){
-		CopyDesktopArtifacts("Vod5")
-	}
-	node('Vod7'){
-		CopyDesktopArtifacts("Vod7")
-	}
-	node('WIN_WEB_RUNTIME'){
-		script{
-			echo "Can copy artifacts for web: ${CAN_COPY_WEB_ARTIFACTS}"
-			if(CAN_COPY_WEB_ARTIFACTS)
-			{
-				echo "Copy web artifacts"
-				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-			}
-			else
-			{
-				echo "Copy web artifacts not needed"
-			}
-		}
-	}
-	node('LINUX_RUNTIME'){
-		script{
-			echo "Can copy artifacts for WCF: ${CAN_COPY_WCF_ARTIFACTS}"
-			if(CAN_COPY_WCF_ARTIFACTS)
-			{
-				echo "Copy WCF artifacts"
-				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-			}
-			else
-			{
-				echo "Copy WCF artifacts not needed"
-			}
-		}
-	}	
-}
+// stage('Copy artifacts'){
+// 	node('Vod1'){
+// 		CopyDesktopArtifacts("Vod1")
+// 	}
+// 	node('Vod3'){
+// 		CopyDesktopArtifacts("Vod3")
+// 	}
+// 	node('Vod5'){
+// 		CopyDesktopArtifacts("Vod5")
+// 	}
+// 	node('Vod7'){
+// 		CopyDesktopArtifacts("Vod7")
+// 	}
+// 	node('WIN_WEB_RUNTIME'){
+// 		script{
+// 			echo "Can copy artifacts for web: ${CAN_COPY_WEB_ARTIFACTS}"
+// 			if(CAN_COPY_WEB_ARTIFACTS)
+// 			{
+// 				echo "Copy web artifacts"
+// 				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+// 			}
+// 			else
+// 			{
+// 				echo "Copy web artifacts not needed"
+// 			}
+// 		}
+// 	}
+// 	node('LINUX_RUNTIME'){
+// 		script{
+// 			echo "Can copy artifacts for WCF: ${CAN_COPY_WCF_ARTIFACTS}"
+// 			if(CAN_COPY_WCF_ARTIFACTS)
+// 			{
+// 				echo "Copy WCF artifacts"
+// 				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
+// 			}
+// 			else
+// 			{
+// 				echo "Copy WCF artifacts not needed"
+// 			}
+// 		}
+// 	}	
+// }
 
 stage('Deploy'){
 	script{
@@ -263,15 +260,15 @@ def PublishBuildWebServiceToFolder(serviceName, csprojPath, outputPath) {
 	}
 
 	CompressArtifact(outputPath, serviceName)
-	archiveArtifacts artifacts: "${serviceName}${ARCHIVE_EXTENTION}", onlyIfSuccessful: true
 }
-
+/*
 def CopyDesktopArtifacts(serverName){
 	script{
 		echo "Can copy artifacts for desktop ${serverName}: ${CAN_COPY_DESKTOP_ARTIFACTS}"
 		if(CAN_COPY_DESKTOP_ARTIFACTS)
 		{
 			echo "Copy desktop ${serverName} artifacts"
+			 
 			copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
 		}
 		else
@@ -280,6 +277,7 @@ def CopyDesktopArtifacts(serverName){
 		}
 	}
 }
+*/
 
 def PublishMasterDesktop() {
 	script{
@@ -382,21 +380,25 @@ def PublishWCFService(serviceName) {
 }
 
 def CompressArtifact(sourcePath, artifactName) {
-	echo "Compressing archive ${artifactName}${ARCHIVE_EXTENTION} from ./${sourcePath}/*"
+	def ARTIFACT_FILENAME = ${artifactName}${ARCHIVE_EXTENTION}
+	echo "Compressing archive ${ARTIFACT_FILENAME} from ./${sourcePath}/*"
 	if (isUnix()) {
-		sh "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
+		sh "7z a -stl ${ARTIFACT_FILENAME} ./${sourcePath}/*"
 	}
 	else {
-		bat "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
+		bat "7z a -stl ${ARTIFACT_FILENAME} ./${sourcePath}/*"
 	}
+	stash(name: artifactName, includes: ARTIFACT_FILENAME) 
 }
 
 def DecompressArtifact(targetPath, artifactName) {
 	echo "Decompressing archive ${artifactName}${ARCHIVE_EXTENTION} to ${targetPath}"
+	fileOperations([folderDeleteOperation(folderPath: targetPath)])
 	if (isUnix()) {
 		sh "7z x -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
 	}
 	else {
 		bat "7z x -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
 	}
+	unstash(name: artifactName) 
 }
