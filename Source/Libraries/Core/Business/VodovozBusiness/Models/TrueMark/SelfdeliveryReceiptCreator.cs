@@ -87,14 +87,14 @@ namespace Vodovoz.Models.TrueMark
 
 				for(int i = 1; i <= orderItem.Count; i++)
 				{
-					CreateTrueMarkCodeEntity(receipt, orderItem);
+					CreateCashReceiptProductCode(receipt, orderItem);
 				}
 			}
 
 			_uow.Save(receipt);
 		}
 
-		private void CreateTrueMarkCodeEntity(CashReceipt receipt, OrderItem orderItem)
+		private void CreateCashReceiptProductCode(CashReceipt receipt, OrderItem orderItem)
 		{
 			var orderProductCode = new CashReceiptProductCode
 			{
