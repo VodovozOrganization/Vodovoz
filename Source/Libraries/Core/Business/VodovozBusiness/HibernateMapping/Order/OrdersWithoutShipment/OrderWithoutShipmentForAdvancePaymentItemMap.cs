@@ -23,7 +23,7 @@ namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
             Map (x => x.ValueAddedTax).Column ("value_added_tax");
             Map(x => x.IsAlternativePrice).Column("is_alternative_price");
 
-			References (x => x.Nomenclature).Column ("nomenclature_id");
+            References(x => x.Nomenclature).Column ("nomenclature_id");
             References (x => x.OrderWithoutDeliveryForAdvancePayment).Column ("bill_ws_for_advance_payment_id");
             References (x => x.DiscountReason).Column ("discount_reason_id");
         }

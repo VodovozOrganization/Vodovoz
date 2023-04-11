@@ -27,7 +27,7 @@ namespace Vodovoz.Parameters
 				.ToArray();
 		}
 
-		private int[] GetsForAlternativePrices()
+		private int[] GetSubdivisionssForAlternativePrices()
 		{
 			var parameterValue = _parametersProvider.GetParameterValue(_subdivisionsForAlternativePricesName, true);
 			var splitedIds = parameterValue.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
@@ -47,7 +47,7 @@ namespace Vodovoz.Parameters
 
 		public int[] SubdivisionsToInformComplaintHasNoDriver => GetSubdivisionsToInformComplaintHasNoDriver();
 
-		public int[] SubdivisionsForAlternativePrices => GetsForAlternativePrices();
+		public int[] SubdivisionsForAlternativePrices => GetSubdivisionssForAlternativePrices();
 
 		public void UpdateOrderAutoComment(string value) =>
 			_parametersProvider.CreateOrUpdateParameter(_orderAutoComment, value);

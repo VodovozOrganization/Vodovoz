@@ -58,7 +58,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				if(SetField(ref price, value)) {
 					RecalculateDiscount();
 					RecalculateVAT();
-					IsAlternativePrice = OrderWithoutDeliveryForAdvancePayment.UseAlternativePrice;
 				}
 			}
 		}

@@ -1621,6 +1621,7 @@ namespace Vodovoz.Domain.Orders
 			if(ObservableOrderItems.Contains(orderItem)) {
 				return;
 			}
+			orderItem.IsAlternativePrice = UseAlternativePrice;
 			ObservableOrderItems.Add(orderItem);
 			UpdateContract();
 		}
