@@ -50,6 +50,7 @@ namespace Vodovoz.Views.Reports
 
 			ychkbtnSplitByWarhouses.Binding
 				.AddBinding(ViewModel, vm => vm.SplitByWarehouses, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanSplitByWarehouse, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybuttonCreateReport.Binding

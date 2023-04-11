@@ -4,6 +4,7 @@ using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.ViewModels;
@@ -59,17 +60,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			_unitOfWork.Session.DefaultReadOnly = true;
 		}
 
+		[PropertyChangedAlso(nameof(CanSplitByWarehouse), nameof(SplitByWarehouses))]
 		public DateTime FirstPeriodStartDate
 		{
 			get => _firstPeriodStartDate;
 			set => SetField(ref _firstPeriodStartDate, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanSplitByWarehouse), nameof(SplitByWarehouses))]
 		public DateTime FirstPeriodEndDate
 		{
 			get => _firstPeriodEndDate;
 			set => SetField(ref _firstPeriodEndDate, value);
 		}
+
+		[PropertyChangedAlso(nameof(CanSplitByWarehouse), nameof(SplitByWarehouses))]
 
 		public DateTime? SecondPeriodStartDate
 		{
@@ -77,6 +82,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			set => SetField(ref _secondPeriodStartDate, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanSplitByWarehouse), nameof(SplitByWarehouses))]
 		public DateTime? SecondPeriodEndDate
 		{
 			get => _secondPeriodEndDate;
@@ -97,9 +103,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 		public bool SplitByWarehouses
 		{
-			get => _splitByWarehouses;
+			get => CanSplitByWarehouse ? _splitByWarehouses : (_splitByWarehouses = false);
 			set => SetField(ref _splitByWarehouses, value);
 		}
+
+		public bool CanSplitByWarehouse =>
+			((FirstPeriodEndDate - FirstPeriodStartDate).TotalDays < 1)
+			&& SecondPeriodStartDate is null && SecondPeriodEndDate is null;
 
 		#region Reporting properties
 
@@ -142,7 +152,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			{
 				SetField(ref _isGenerating, value);
 				OnPropertyChanged(nameof(CanGenerate));
-				CanCancelGenerate = IsGenerating;
+				CanSave = !value && Report != null;
+				CanCancelGenerate = value;
 			}
 		}
 
@@ -164,11 +175,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			try
 			{
 				var report = await Generate(cancellationToken);
-
-				if(report != null)
-				{
-					CanSave = true;
-				}
 
 				return report;
 			}
