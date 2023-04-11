@@ -81,7 +81,6 @@ namespace Vodovoz.Domain.Orders
 				if(SetField(ref price, value, () => Price)) {
 					RecalculateDiscount();
 					RecalculateVAT();
-					IsAlternativePrice = Order.UseAlternativePrice;
 				}
 			}
 		}
