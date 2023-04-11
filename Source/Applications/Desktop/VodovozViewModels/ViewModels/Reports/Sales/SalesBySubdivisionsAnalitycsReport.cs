@@ -1,5 +1,4 @@
-﻿using MoreLinq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -406,6 +405,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 			return result;
 		}
+
+		public string Title => "Аналитика продаж КБ";
 
 		public DateTime FirstPeriodStartDate { get; }
 

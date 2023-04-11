@@ -3,6 +3,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.Transform;
+using OneOf;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -24,8 +25,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 {
-	public class SalesBySubdivisionsAnalitycsReportViewModel : DialogTabViewModelBase,
-		IClosedXmlAsyncReportViewModel<SalesBySubdivisionsAnalitycsReport>
+	public partial class SalesBySubdivisionsAnalitycsReportViewModel : DialogTabViewModelBase
 	{
 		private const string _templatePath = @".\Reports\Sales\SalesBySubdivisionsAnalitycsReport.xlsx";
 
@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		private bool _canCancelGenerate;
 
 		private IEnumerable<string> _lastGenerationErrors = Enumerable.Empty<string>();
-		private SalesBySubdivisionsAnalitycsReport _report;
+		private OneOf<SalesBySubdivisionsAnalitycsReport, SalesBySubdivisionsAnalitycsWithDynamicsReport>? _report;
 		private bool _splitByNomenclatures;
 		private bool _splitBySubdivisions;
 		private bool _splitByWarehouses;
@@ -125,7 +125,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
 
-		public SalesBySubdivisionsAnalitycsReport Report
+		public OneOf<SalesBySubdivisionsAnalitycsReport, SalesBySubdivisionsAnalitycsWithDynamicsReport>? Report
 		{
 			get => _report;
 			set => SetField(ref _report, value);

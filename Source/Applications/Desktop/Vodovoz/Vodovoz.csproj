@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1970,6 +1970,9 @@
     <PackageReference Include="NLog" Version="5.0.1" />
     <PackageReference Include="NLog.Extensions.Logging">
       <Version>5.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="OneOf">
+      <Version>3.0.243</Version>
     </PackageReference>
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="RabbitMQ.Client">

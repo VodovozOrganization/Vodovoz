@@ -140,7 +140,9 @@ namespace Vodovoz.Views.Reports
 				"Сохранить", ResponseType.Accept)
 			{
 				DoOverwriteConfirmation = true,
-				CurrentName = $"{Tab.TabName} {ViewModel.Report.CreatedAt:yyyy-MM-dd-HH-mm}{extension}"
+				CurrentName = ViewModel.Report?.Match(
+					report => $"{report.Title} {report.CreatedAt:yyyy-MM-dd-HH-mm}{extension}",
+					reportWithDynamics => $"{reportWithDynamics.Title} {reportWithDynamics.CreatedAt:yyyy-MM-dd-HH-mm}{extension}")
 			};
 
 			var excelFilter = new FileFilter
@@ -203,9 +205,13 @@ namespace Vodovoz.Views.Reports
 					: row.Title,
 					useMarkup: true);
 
-			if(ViewModel.Report.DisplayRows.Any())
+			if(ViewModel.Report?.Match(
+				report => report.DisplayRows.Any(),
+				reportWithDynamics => reportWithDynamics.DisplayRows.Any()) ?? false)
 			{
-				var count = ViewModel.Report.DisplayRows.First().DynamicColumns.Count;
+				var count = ViewModel.Report?.Match(
+					report => report.DisplayRows.First().DynamicColumns.Count,
+					reportWithDynamics => reportWithDynamics.DisplayRows.First().DynamicColumns.Count);
 
 				for(var i = 0; i < count; i++)
 				{
@@ -231,7 +237,9 @@ namespace Vodovoz.Views.Reports
 			try
 			{
 				ConfigureTreeView();
-				ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report.DisplayRows;
+				ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report?.Match(
+					report => report.DisplayRows,
+					reportWithDynamics => reportWithDynamics.DisplayRows);
 				ytreeReportIndicatorsRows.YTreeModel.EmitModelChanged();
 			}
 			catch(Exception e)
