@@ -2090,8 +2090,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			lines.AddRange(GetQueryDriverAttachedTerminalGiveoutDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryDriverAttachedTerminalReturnDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
 
-			lines.OrderByDescending(x => x.Date);
-
 			_warehouseDocumentsItemsJournalReport = WarehouseDocumentsItemsJournalReport.Create(
 				FilterViewModel.StartDate,
 				FilterViewModel.EndDate,
@@ -2105,7 +2103,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				FilterViewModel.TargetSource,
 				FilterViewModel.CounterpartiesNames,
 				FilterViewModel.WarehousesNames,
-				lines);
+				lines.OrderByDescending(x => x.Date));
 
 			await Task.CompletedTask;
 		}
