@@ -1308,6 +1308,8 @@ namespace Vodovoz
 						}
 					})
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("Альтерн.\nцена")
+					.AddToggleRenderer(x => x.IsAlternativePrice)
 				.AddColumn("В т.ч. НДС")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS ?? 0))

@@ -5,11 +5,15 @@ using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentBase : PropertyChangedBase
 	{
+		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
+			new GeneralSettingsParametersProvider(new ParametersProvider());
+
 		DateTime? createDate;
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate {
@@ -48,5 +52,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		{
 			return Client?.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 		}
+
+		public virtual bool UseAlternativePrice => _generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
 	}
 }

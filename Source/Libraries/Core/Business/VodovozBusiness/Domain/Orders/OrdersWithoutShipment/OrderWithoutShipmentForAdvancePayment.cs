@@ -71,7 +71,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				OrderWithoutDeliveryForAdvancePayment = this,
 				Count = count,
 				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1),
+				Price = nomenclature.GetPrice(1, UseAlternativePrice),
 				IsDiscountInMoney = discountInMoney,
 				DiscountSetter = discount,
 				DiscountReason = discountReason
@@ -84,7 +84,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			var acceptableCategories = Nomenclature.GetCategoriesForSale();
 			if(orderItem?.Nomenclature == null || !acceptableCategories.Contains(orderItem.Nomenclature.Category))
 				return;
-			
+
+			orderItem.IsAlternativePrice = UseAlternativePrice;
 			ObservableOrderWithoutDeliveryForAdvancePaymentItems.Add(orderItem);
 		}
 

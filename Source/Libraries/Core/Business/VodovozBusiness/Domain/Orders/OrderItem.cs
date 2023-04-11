@@ -29,6 +29,8 @@ namespace Vodovoz.Domain.Orders
 
 		private OrderItem _copiedFromUndelivery;
 
+		private bool _isAlternativePrice;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -79,6 +81,7 @@ namespace Vodovoz.Domain.Orders
 				if(SetField(ref price, value, () => Price)) {
 					RecalculateDiscount();
 					RecalculateVAT();
+					IsAlternativePrice = Order.UseAlternativePrice;
 				}
 			}
 		}
@@ -223,6 +226,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual PromotionalSet PromoSet {
 			get => promoSet;
 			set => SetField(ref promoSet, value, () => PromoSet);
+		}
+
+		[Display(Name = "Альтернативная цена?")]
+		public virtual bool IsAlternativePrice
+		{
+			get => _isAlternativePrice;
+			set => SetField(ref _isAlternativePrice, value);
 		}
 
 		#region Аренда
@@ -499,9 +509,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(Nomenclature != null) {
 				if(Nomenclature.DependsOnNomenclature == null)
-					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
+					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count, Order.UseAlternativePrice);
 				if(Nomenclature.IsWater19L)
-					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
+					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count, Order.UseAlternativePrice);
 			}
 			return 0m;
 		}

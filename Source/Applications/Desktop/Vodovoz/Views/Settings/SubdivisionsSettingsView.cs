@@ -1,4 +1,5 @@
-﻿using QS.Views.GtkUI;
+﻿using Gtk;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels.ViewModels.Settings;
 
 namespace Vodovoz.Views.Settings
@@ -42,7 +43,7 @@ namespace Vodovoz.Views.Settings
 
 			ylabelTitle.Binding.AddBinding(ViewModel, vm => vm.DetailTitle, w => w.LabelProp).InitializeFromSource();
 
-			frameConfiguration.Label = ViewModel.MainTitle;
+			((Label)frameConfiguration.LabelWidget).LabelProp = ViewModel.MainTitle;
 		}
 
 		private void OnYbtnComplaintWithoutDriverSubdivisionsInfoClicked(object sender, System.EventArgs e)

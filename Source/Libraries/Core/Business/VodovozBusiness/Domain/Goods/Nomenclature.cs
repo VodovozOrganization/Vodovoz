@@ -5,6 +5,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -851,20 +852,22 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		public virtual decimal GetPrice(decimal? itemsCount)
+		public virtual decimal GetPrice(decimal? itemsCount, bool isAlternativePrice = false)
 		{
 			if(itemsCount < 1)
 				itemsCount = 1;
 			decimal price = 0m;
 			if(DependsOnNomenclature != null)
 			{
-				price = DependsOnNomenclature.GetPrice(itemsCount);
+				price = DependsOnNomenclature.GetPrice(itemsCount, isAlternativePrice);
 			}
 			else
 			{
-				var nomPrice = NomenclaturePrice
+				var nomPrice = (isAlternativePrice && AlternativeNomenclaturePrice.Any()
+						? AlternativeNomenclaturePrice.Cast<NomenclaturePriceBase>()
+						: NomenclaturePrice.Cast<NomenclaturePriceBase>())
 					.OrderByDescending(p => p.MinCount)
-					.FirstOrDefault(p => (p.MinCount <= itemsCount));
+					.FirstOrDefault(p => p.MinCount <= itemsCount);
 				price = nomPrice?.Price ?? 0;
 			}
 			return price;

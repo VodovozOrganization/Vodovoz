@@ -54,15 +54,17 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_generalSettingsParametersProvider, _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriverParameterName)
 			{
 				CanEdit = CanEditRouteListPrintedFormPhones,
-				MainTitle = "Настройки рекламаций.",
+				MainTitle = "<b>Настройки рекламаций</b>",
 				DetailTitle = "Информировать о незаполненном водителе в рекламациях на следующие отделы:"
 			};
+
+			var canEditAlternativePrices = _commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
 
 			AlternativePricesSubdivisionSettingsViewModel = new SubdivisionSettingsViewModel(_commonServices, unitOfWorkFactory, NavigationManager,
 				_generalSettingsParametersProvider, generalSettingsParametersProvider.SubdivisionsAlternativePricesName)
 			{
-				CanEdit = CanEditRouteListPrintedFormPhones,
-				MainTitle = "Настройки альтернативных цен.",
+				CanEdit = canEditAlternativePrices,
+				MainTitle = "<b>Настройки альтернативных цен</b>",
 				DetailTitle = "Использовать альтернативную цену для авторов заказов из следующих отделов:"
 			};
 

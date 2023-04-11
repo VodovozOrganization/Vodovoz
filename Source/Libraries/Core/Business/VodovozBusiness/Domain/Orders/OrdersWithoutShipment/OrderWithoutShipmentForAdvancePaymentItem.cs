@@ -15,6 +15,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		Nominative = "строка счета без отгрузки на предоплату")]
 	public class OrderWithoutShipmentForAdvancePaymentItem : PropertyChangedBase, IDomainObject, IDiscount
 	{
+		private bool _isAlternativePrice;
+
 		public virtual int Id { get; set; }
 
 		OrderWithoutShipmentForAdvancePayment orderWithoutDeliveryForAdvancePayment;
@@ -56,6 +58,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				if(SetField(ref price, value)) {
 					RecalculateDiscount();
 					RecalculateVAT();
+					IsAlternativePrice = OrderWithoutDeliveryForAdvancePayment.UseAlternativePrice;
 				}
 			}
 		}
@@ -136,6 +139,13 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual DiscountReason DiscountReason {
 			get => discountReason;
 			set => SetField(ref discountReason, value);
+		}
+
+		[Display(Name = "Альтернативная цена?")]
+		public virtual bool IsAlternativePrice
+		{
+			get => _isAlternativePrice;
+			set => SetField(ref _isAlternativePrice, value);
 		}
 
 		int RentEquipmentCount {
@@ -240,9 +250,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		{
 			if(Nomenclature != null) {
 				if(Nomenclature.DependsOnNomenclature == null)
-					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount() : Count);
+					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount() : Count, OrderWithoutDeliveryForAdvancePayment.UseAlternativePrice);
 				if(Nomenclature.IsWater19L)
-					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount() : Count);
+					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount() : Count, OrderWithoutDeliveryForAdvancePayment.UseAlternativePrice);
 			}
 			return 0m;
 		}
@@ -314,7 +324,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		
 		private OrderOrganizationProviderFactory orderOrganizationProviderFactory;
 		private IOrganizationProvider orderOrganizationProvider;
-		
+
 		private Organization GetOrganization()
 		{
 			if(!NHibernateUtil.IsInitialized(OrderWithoutDeliveryForAdvancePayment)) {
