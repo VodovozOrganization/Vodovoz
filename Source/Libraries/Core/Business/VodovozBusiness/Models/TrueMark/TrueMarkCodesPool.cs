@@ -61,8 +61,7 @@ namespace Vodovoz.Models.TrueMark
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			using(var transaction = uow.Session.BeginTransaction(IsolationLevel.RepeatableRead))
 			{
-				var sql = $@"
-					SET @deletedCodeId := (
+				var deletingCodeIdQuery = @"
 						SELECT 
 							pool.id
 						FROM 
@@ -73,17 +72,21 @@ namespace Vodovoz.Models.TrueMark
 							AND code.gtin = :gtin
 						ORDER BY pool.adding_time DESC 
 						LIMIT 1
-					)
-					;
-
-					DELETE FROM true_mark_codes_pool
-					WHERE id = @deletedCodeId
+					;";
+				
+				var query = @"DELETE FROM true_mark_codes_pool
+					WHERE id = :deletingCodeId
 					RETURNING code_id
-					;
-";
-				var query = uow.Session.CreateSQLQuery(sql)
-					.SetParameter("gtin", gtin);
-				var result = (int)query.UniqueResult<uint>();
+					;";
+
+				var deletingCodeId = uow.Session.CreateSQLQuery(deletingCodeIdQuery)
+					.SetParameter("gtin", gtin)
+					.UniqueResult<uint>();
+
+				var result = (int)uow.Session.CreateSQLQuery(query)
+					.SetParameter("deletingCodeId", deletingCodeId)
+					.UniqueResult<uint>();
+				
 				transaction.Commit();
 				return result;
 			}
