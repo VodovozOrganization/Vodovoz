@@ -364,7 +364,7 @@ namespace DriverAPI.Library.Models
 
 				foreach(var defectiveCode in scannedItem.DefectiveBottleCodes)
 				{
-					var orderCode = CreateTrueMarkCodeEntity(defectiveCode, trueMarkCashReceiptOrder, orderItem);
+					var orderCode = CreateCashReceiptProductCode(defectiveCode, trueMarkCashReceiptOrder, orderItem);
 					orderCode.IsDefectiveSourceCode = true;
 
 					trueMarkCashReceiptOrder.ScannedCodes.Add(orderCode);
@@ -373,7 +373,7 @@ namespace DriverAPI.Library.Models
 
 				foreach(var code in scannedItem.BottleCodes)
 				{
-					var orderCode = CreateTrueMarkCodeEntity(code, trueMarkCashReceiptOrder, orderItem);
+					var orderCode = CreateCashReceiptProductCode(code, trueMarkCashReceiptOrder, orderItem);
 					
 					trueMarkCashReceiptOrder.ScannedCodes.Add(orderCode);
 					_uow.Save(orderCode);
@@ -383,7 +383,7 @@ namespace DriverAPI.Library.Models
 			_uow.Save(trueMarkCashReceiptOrder);
 		}
 
-		private CashReceiptProductCode CreateTrueMarkCodeEntity(string code, CashReceipt trueMarkCashReceiptOrder, OrderItem orderItem)
+		private CashReceiptProductCode CreateCashReceiptProductCode(string code, CashReceipt trueMarkCashReceiptOrder, OrderItem orderItem)
 		{
 			var orderProductCode = new CashReceiptProductCode();
 			orderProductCode.CashReceipt = trueMarkCashReceiptOrder;
