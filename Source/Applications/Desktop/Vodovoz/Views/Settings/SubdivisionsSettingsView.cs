@@ -48,7 +48,7 @@ namespace Vodovoz.Views.Settings
 
 		private void OnYbtnSubdivisionsInfoClicked(object sender, System.EventArgs e)
 		{
-			ViewModel.ShowSubdivisionsToInformComplaintHasNoDriverInfoCommand?.Execute();
+			ViewModel.ShowSubdivisionsInfoCommand?.Execute();
 		}
 
 		private void OnYbtnSubdivisionsSaveClicked(object sender, System.EventArgs e)

@@ -55,7 +55,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			{
 				CanEdit = CanEditRouteListPrintedFormPhones,
 				MainTitle = "<b>Настройки рекламаций</b>",
-				DetailTitle = "Информировать о незаполненном водителе в рекламациях на следующие отделы:"
+				DetailTitle = "Информировать о незаполненном водителе в рекламациях на следующие отделы:",
+				Info = "Сотрудники данных отделов будут проинформированы о незаполненном водителе при закрытии рекламации. " +
+				       "Если отдел есть в списке ответственных и итог работы по сотрудникам: Вина доказана."
 			};
 
 			var canEditAlternativePrices = _commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
@@ -65,7 +67,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			{
 				CanEdit = canEditAlternativePrices,
 				MainTitle = "<b>Настройки альтернативных цен</b>",
-				DetailTitle = "Использовать альтернативную цену для авторов заказов из следующих отделов:"
+				DetailTitle = "Использовать альтернативную цену для авторов заказов из следующих отделов:",
+				Info = "Сотрудники данных отделов могут редактировать альтернативные цены"
 			};
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot())

@@ -37,7 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			AddSubdivisionCommand = new DelegateCommand(AddSubdivision);
 			RemoveSubdivisionCommand = new DelegateCommand(RemoveSubdivision, () => CanRemove);
 			SaveSubdivisionsCommand = new DelegateCommand (SaveSubdivisions);
-			ShowSubdivisionsToInformComplaintHasNoDriverInfoCommand = new DelegateCommand(ShowSubdivisionsToInformComplaintHasNoDriverInfo);
+			ShowSubdivisionsInfoCommand = new DelegateCommand(ShowSubdivisionsToInformComplaintHasNoDriverInfo);
 			ParameterName = parameterName;
 		}
 
@@ -127,14 +127,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_subdivisionsToRemoves.Clear();
 		}
 
-		private void ShowSubdivisionsToInformComplaintHasNoDriverInfo()
-		{
-			_commonServices.InteractiveService.ShowMessage(
-				ImportanceLevel.Info,
-				"Сотрудники данных отделов будут проинформированы о незаполненном водителе при закрытии рекламации. " +
-				"Если отдел есть в списке ответственных и итог работы по сотрудникам: Вина доказана.");
-		}
-
+		private void ShowSubdivisionsToInformComplaintHasNoDriverInfo() => _commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, Info);
+		
 		public string ParameterName { get;}
 
 		public GenericObservableList<Subdivision> ObservableSubdivisions
@@ -154,9 +148,10 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public bool CanEdit { get; set; }
 		public string DetailTitle { get; set; }
 		public string MainTitle { get; set; }
+		public string Info { get; set; }
 		public DelegateCommand AddSubdivisionCommand { get; }
 		public DelegateCommand RemoveSubdivisionCommand { get; }
 		public DelegateCommand SaveSubdivisionsCommand { get; }
-		public DelegateCommand ShowSubdivisionsToInformComplaintHasNoDriverInfoCommand { get; }
+		public DelegateCommand ShowSubdivisionsInfoCommand { get; }
 	}
 }

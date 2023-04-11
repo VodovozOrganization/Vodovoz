@@ -39,7 +39,7 @@ namespace Vodovoz.Representations.ProductGroups
 					new StoredResourcesSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory)).GetIconFolderStoredResourceId)
 					.BinaryFile);
 			_emptyImg = _img.Copy();
-			_emptyImg.Fill(0xffffffff;
+			_emptyImg.Fill(0xffffffff);
 		}
 
 		public ProductGroupVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
