@@ -11,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataIncome">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -71,7 +71,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CategoryType">
           <DataField>CategoryType</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
@@ -107,7 +107,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="MLatDay">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -138,7 +138,7 @@ GROUP BY rl.date</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="MLdate">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -150,7 +150,7 @@ GROUP BY rl.date</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataIncomeReturn">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -228,7 +228,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -260,7 +260,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataExpense">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -337,7 +337,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -369,7 +369,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -447,7 +447,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -479,7 +479,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvanceReport">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -561,7 +561,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="report_id">
           <DataField>report_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -605,7 +605,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvanceClosing">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -691,7 +691,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="expense_id">
           <DataField>expense_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -1042,7 +1042,7 @@ ORDER BY Category;</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>36.9pt</Top>
+        <Top>29.0pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1306,16 +1306,16 @@ ORDER BY Category;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>354.5pt</Left>
-        <Top>131.6pt</Top>
+        <Left>356.1pt</Left>
+        <Top>114.8pt</Top>
       </Table>
       <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Сдача (наличка)</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>178.30pt</Top>
+        <Left>0.0pt</Left>
+        <Top>142.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1548,8 +1548,8 @@ ORDER BY Category;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
-        <Top>204.5pt</Top>
+        <Left>0.8pt</Left>
+        <Top>169.3pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1720,7 +1720,7 @@ ORDER BY Category;</CommandText>
         <Value>Расход (наличка)</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>286.0pt</Top>
+        <Top>236.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1956,7 +1956,7 @@ ORDER BY Category;</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>316.0pt</Top>
+        <Top>259.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -2126,7 +2126,7 @@ ORDER BY Category;</CommandText>
         <Value>Выданные авансы</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>401.7pt</Top>
+        <Top>325.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2360,7 +2360,7 @@ ORDER BY Category;</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>430.7pt</Top>
+        <Top>349.3pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -2530,7 +2530,7 @@ ORDER BY Category;</CommandText>
         <Value>Авансовые отчеты</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>514.2pt</Top>
+        <Top>417.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2769,7 +2769,7 @@ ORDER BY Category;</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>544.1pt</Top>
+        <Top>439.7pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -3043,7 +3043,7 @@ ORDER BY Category;</CommandText>
         <Value>Незакрытые авансы</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>639.7pt</Top>
+        <Top>521.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3073,10 +3073,10 @@ ORDER BY Category;</CommandText>
             <Width>128.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>235.5pt</Width>
+            <Width>228.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>73.7pt</Width>
+            <Width>79.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -3284,8 +3284,8 @@ ORDER BY Category;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
-        <Top>671.7pt</Top>
+        <Left>1.6pt</Left>
+        <Top>547.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -3639,7 +3639,7 @@ ORDER BY Category;</CommandText>
         </TableGroups>
       </Table>
     </ReportItems>
-    <Height>780.7pt</Height>
+    <Height>648.4pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
