@@ -8,7 +8,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 {
 	public partial class SalesBySubdivisionsAnalitycsReport
 	{
-		private readonly IEnumerable<IGrouping<(int NomenclatureId, int SubdivisionId), SalesDataNode>> _sales;
+		private readonly IEnumerable<SalesDataNode> _sales;
 		private readonly IEnumerable<IGrouping<(int NomenclatureId, int WarehouseId), ResidueDataNode>> _residues;
 		private readonly HeaderRow _header;
 		private readonly SubHeaderRow _subHeader;
@@ -19,6 +19,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		private readonly List<int> _productGroupIndexes;
 		private readonly Dictionary<int, IEnumerable<int>> _productGroupNomenclatures;
 		private readonly List<Row> _rows = new List<Row>();
+
 		private SalesBySubdivisionsAnalitycsReport(
 			DateTime firstPeriodStartDate,
 			DateTime firstPeriodEndDate,
@@ -42,40 +43,45 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			SplitBySubdivisions = splitBySubdivisions;
 			SplitByWarehouses = splitByWarehouses;
 
-			Subdivisions = subdivisions;
+			Subdivisions = new Dictionary<int, string>
+			{
+				{ 0, string.Empty }
+			};
+
+			foreach(var subdivision in subdivisions)
+			{
+				Subdivisions.Add(subdivision);
+			}
+
 			_subdivisionIndexes = subdivisions.Keys.ToList();
-			Warehouses = warehouses;
+
+			Warehouses = new Dictionary<int, string>
+			{
+				{ 0, "Общий остаток на складах" }
+			};
+
+			foreach(var warehouse in warehouses)
+			{
+				Warehouses.Add(warehouse);
+			}
+
 			_warehouseIndexes = warehouses.Keys.ToList();
 			Nomenclatures = nomenclatures;
 			ProductGroups = productGroups;
 			_productGroupIndexes = ProductGroups.Keys.ToList();
 			_productGroupNomenclatures = new Dictionary<int, IEnumerable<int>>();
-			_sales = sales.GroupBy(x => (x.NomenclatureId, x.SubdivisionId));
+			_sales = sales;
 			_residues = residues.GroupBy(x => (x.NomenclatureId, x.WarehouseId));
 
 			foreach(var productGroupId in _productGroupIndexes)
 			{
 				_productGroupNomenclatures.Add(
-					//productGroupId,
-					//_sales.SelectMany(x =>
-					//		x.Where(y => y.ProductGroupId == productGroupId)
-					//		 .Select(y => y.NomenclatureId).Distinct())
-					//	.Concat(_residues.
-					//		SelectMany(x =>
-					//			x.Where(y => y.ProductGroupId == productGroupId)
-					//			.Select(y => y.NomenclatureId).Distinct()))
-					//	.Distinct());
 					productGroupId,
-					_sales.SelectMany(x =>
-							x.Where(y => y.ProductGroupId == productGroupId)
-							 .Select(y => y.NomenclatureId).Distinct()));
+					_sales.Where(y => y.ProductGroupId == productGroupId)
+						.Select(y => y.NomenclatureId).Distinct());
 			}
 
-			var subdivisionsList = new List<string>
-			{
-				string.Empty,
-				string.Empty
-			};
+			var subdivisionsList = new List<string>();
 
 			foreach(var subdivision in Subdivisions)
 			{
@@ -83,10 +89,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				subdivisionsList.Add(string.Empty);
 			}
 
-			var warehousesList = new List<string>
-			{
-				"Общий остаток на складах"
-			};
+			var warehousesList = new List<string>();
 
 			warehousesList.AddRange(Warehouses.Values);
 
@@ -99,13 +102,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 			var dynamicsSubheaderRows = new List<string>();
 
-			for(int i = 0; i < Subdivisions.Count + 1; i++)
+			for(int i = 0; i < Subdivisions.Count; i++)
 			{
 				dynamicsSubheaderRows.Add("Количество");
 				dynamicsSubheaderRows.Add("Сумма");
 			}
 
-			for(int i = 0; i < Warehouses.Count + 1; i++)
+			for(int i = 0; i < Warehouses.Count; i++)
 			{
 				dynamicsSubheaderRows.Add("Количество");
 			}
@@ -126,34 +129,31 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 		private void Process()
 		{
-			if(SplitByNomenclatures)
+			_totalRow = new TotalRow()
 			{
-				_totalRow = new TotalRow()
-				{
-					SubTotalRows = new List<SubTotalRow>(),
-					SalesBySubdivision = Enumerable.Repeat(new AmountPricePair { Amount = 0m, Price = 0m }, Subdivisions.Count + 1).ToList(),
-					ResiduesByWarehouse = Enumerable.Repeat(0m, Warehouses.Count + 1).ToList()
-				};
+				SubTotalRows = new List<SubTotalRow>(),
+				SalesBySubdivision = Enumerable.Repeat(new AmountPricePair { Amount = 0m, Price = 0m }, Subdivisions.Count).ToList(),
+				ResiduesByWarehouse = Enumerable.Repeat(0m, Warehouses.Count).ToList()
+			};
 
-				for(var i = 0; i < _productGroupIndexes.Count; i++)
-				{
-					_totalRow.SubTotalRows.Add(ProcessProductGroup(_productGroupIndexes[i]));
-				}
-
-				for(int i = 0; i < _subdivisionIndexes.Count + 1; i++)
-				{
-					_totalRow.SalesBySubdivision[i].Amount = _totalRow.SubTotalRows.Sum(x => x.SalesBySubdivision[i].Amount);
-					_totalRow.SalesBySubdivision[i].Price = _totalRow.SubTotalRows.Sum(x => x.SalesBySubdivision[i].Price);
-				}
-
-				for(int i = 0; i < _warehouseIndexes.Count + 1; i++)
-				{
-					_totalRow.ResiduesByWarehouse[i] = _totalRow.SubTotalRows.Sum(x => x.ResiduesByWarehouse[i]);
-				}
-
-				_rows.Add(_totalRow);
-				_displayRows.Add(_totalRow);
+			for(var i = 0; i < _productGroupIndexes.Count; i++)
+			{
+				_totalRow.SubTotalRows.Add(ProcessProductGroup(_productGroupIndexes[i]));
 			}
+
+			for(int i = 0; i < Subdivisions.Count; i++)
+			{
+				_totalRow.SalesBySubdivision[i].Amount = _totalRow.SubTotalRows.Sum(x => x.SalesBySubdivision[i].Amount);
+				_totalRow.SalesBySubdivision[i].Price = _totalRow.SubTotalRows.Sum(x => x.SalesBySubdivision[i].Price);
+			}
+
+			for(int i = 0; i < Warehouses.Count; i++)
+			{
+				_totalRow.ResiduesByWarehouse[i] = _totalRow.SubTotalRows.Sum(x => x.ResiduesByWarehouse[i]);
+			}
+
+			_rows.Add(_totalRow);
+			_displayRows.Add(_totalRow);
 		}
 
 		private SubTotalRow ProcessProductGroup(int productGroupId)
@@ -161,41 +161,120 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			SubTotalRow result = new SubTotalRow
 			{
 				Title = ProductGroups[productGroupId],
-				SalesBySubdivision = Enumerable.Repeat(new AmountPricePair { Amount = 0m, Price = 0m }, Subdivisions.Count + 1).ToList(),
-				ResiduesByWarehouse = Enumerable.Repeat(0m, Warehouses.Count + 1).ToList()
+				SalesBySubdivision = Enumerable.Repeat(new AmountPricePair { Amount = 0m, Price = 0m }, Subdivisions.Count).ToList(),
+				ResiduesByWarehouse = Enumerable.Repeat(0m, Warehouses.Count).ToList()
 			};
 
-			var nomenclatureRows = new List<Row>();
-
-			if(SplitBySubdivisions)
+			if(SplitByNomenclatures)
 			{
-				nomenclatureRows = ProcessNomenclatureGroup(productGroupId);
+				var salesGroups = _sales.GroupBy(x => (x.NomenclatureId, x.SubdivisionId));
+
+				var nomenclatureRows = ProcessNomenclatureGroup(salesGroups, productGroupId);
 				result.NomenclatureRows = nomenclatureRows;
 
-				for(int i = 0; i < _subdivisionIndexes.Count + 1; i++)
+				if(SplitBySubdivisions)
 				{
-					result.SalesBySubdivision[i].Amount = nomenclatureRows.Sum(x => x.SalesBySubdivision[i].Amount);
-					result.SalesBySubdivision[i].Price = nomenclatureRows.Sum(x => x.SalesBySubdivision[i].Price);
+					for(int i = 0; i < Subdivisions.Count; i++)
+					{
+						result.SalesBySubdivision[i].Amount = nomenclatureRows.Sum(x => x.SalesBySubdivision[i].Amount);
+						result.SalesBySubdivision[i].Price = nomenclatureRows.Sum(x => x.SalesBySubdivision[i].Price);
+					}
 				}
-			}
+				else
+				{
+					result.SalesBySubdivision[0].Amount = nomenclatureRows.Sum(x => x.SalesBySubdivision.Sum(y => y.Amount));
+					result.SalesBySubdivision[0].Price = nomenclatureRows.Sum(x => x.SalesBySubdivision.Sum(y => y.Price));
+				}
 
-			if(SplitByWarehouses)
+				if(SplitByWarehouses)
+				{
+					for(int i = 0; i < Warehouses.Count; i++)
+					{
+						result.ResiduesByWarehouse[i] = nomenclatureRows.Sum(x => x.ResiduesByWarehouse[i]);
+					}
+
+					result.ResiduesByWarehouse[0] = result.ResiduesByWarehouse.Skip(1).Sum();
+				}
+				else
+				{
+					result.ResiduesByWarehouse[0] = _residues.Sum(x =>
+						x.Where(y => y.ProductGroupId == productGroupId
+							&& _productGroupNomenclatures[productGroupId].Contains(y.NomenclatureId))
+						 .Sum(y => y.Residue));
+				}
+
+				_rows.Add(result);
+				_displayRows.Add(result);
+				_rows.AddRange(nomenclatureRows);
+				_displayRows.AddRange(nomenclatureRows);
+			}
+			else
 			{
-				for(int i = 0; i < _warehouseIndexes.Count + 1; i++)
+				if(SplitBySubdivisions)
 				{
-					result.ResiduesByWarehouse[i] = nomenclatureRows.Sum(x => x.ResiduesByWarehouse[i]);
-				}
-			}
+					result.NomenclatureRows = Enumerable.Empty<Row>().ToList();
 
-			_rows.Add(result);
-			_rows.AddRange(nomenclatureRows);
-			_displayRows.Add(result);
-			_displayRows.AddRange(nomenclatureRows);
+					for(int i = 0; i < _subdivisionIndexes.Count; i++)
+					{
+						result.SalesBySubdivision[i + 1].Amount =
+							_sales
+								.Where(x => x.SubdivisionId == _subdivisionIndexes[i]
+									&& x.ProductGroupId == productGroupId)
+								.Sum(x => x.Amount);
+						result.SalesBySubdivision[i + 1].Price =
+							_sales
+								.Where(x => x.SubdivisionId == _subdivisionIndexes[i]
+									&& x.ProductGroupId == productGroupId)
+								.Sum(x => x.Price);
+					}
+
+					result.SalesBySubdivision[0].Amount =
+						result.SalesBySubdivision.Skip(1).Sum(x => x.Amount);
+					result.SalesBySubdivision[0].Price =
+						result.SalesBySubdivision.Skip(1).Sum(x => x.Price);
+				}
+				else
+				{
+					result.SalesBySubdivision[0].Amount =
+						_sales
+							.Where(x => x.ProductGroupId == productGroupId)
+							.Sum(x => x.Amount);
+					result.SalesBySubdivision[0].Price =
+						_sales
+							.Where(x => x.ProductGroupId == productGroupId)
+							.Sum(x => x.Price);
+				}
+
+				if(SplitByWarehouses)
+				{
+					for(int i = 0; i < _warehouseIndexes.Count; i++)
+					{
+						result.ResiduesByWarehouse[i + 1] =
+							_residues
+								.Where(x => x.Key.WarehouseId == _warehouseIndexes[i]
+									&& _productGroupNomenclatures.ContainsKey(productGroupId)
+									&& _productGroupNomenclatures[productGroupId].Contains(x.Key.NomenclatureId))
+								.Sum(x => x.Sum(y => y.Residue));
+					}
+
+					result.ResiduesByWarehouse[0] = result.ResiduesByWarehouse.Skip(1).Sum();
+				}
+				else
+				{
+					result.ResiduesByWarehouse[0] = _residues.Sum(x =>
+						x.Where(y => y.ProductGroupId == productGroupId
+							&& _productGroupNomenclatures[productGroupId].Contains(y.NomenclatureId))
+						 .Sum(y => y.Residue));
+				}
+
+				_rows.Add(result);
+				_displayRows.Add(result);
+			}
 
 			return result;
 		}
 
-		private List<Row> ProcessNomenclatureGroup(int productGroupId)
+		private List<Row> ProcessNomenclatureGroup(IEnumerable<IGrouping<(int NomenclatureId, int SubdivisionId), SalesDataNode>> salesGroups, int productGroupId)
 		{
 			var nomenclatureRows = new List<Row>();
 
@@ -206,7 +285,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				nomenclatureRows.Add(new Row
 				{
 					Title = Nomenclatures[nomenclatureId],
-					SalesBySubdivision = ProcessSubdivisionsNomenclaturesSales(nomenclatureId),
+					SalesBySubdivision = ProcessSubdivisionsNomenclaturesSales(salesGroups, nomenclatureId),
 					ResiduesByWarehouse = ProcessWarehousesResidues(nomenclatureId)
 				});
 			}
@@ -214,43 +293,66 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			return nomenclatureRows;
 		}
 
-		private IList<AmountPricePair> ProcessSubdivisionsNomenclaturesSales(int nomenclatureId)
+		private IList<AmountPricePair> ProcessSubdivisionsNomenclaturesSales(
+			IEnumerable<IGrouping<(int NomenclatureId, int SubdivisionId),
+			SalesDataNode>> salesGroups, int nomenclatureId)
 		{
-			var result = Enumerable.Repeat(new AmountPricePair { Amount = 0m, Price = 0m }, Subdivisions.Count + 1).ToList();
+			var result = Enumerable.Repeat(new AmountPricePair { Amount = 0m, Price = 0m }, Subdivisions.Count).ToList();
 
-			var salesCount = _sales.Count();
+			var salesCount = salesGroups.Count();
 
-			foreach(var group in _sales)
+			if(SplitBySubdivisions)
 			{
-				if(group.Key.NomenclatureId == nomenclatureId)
+				foreach(var group in salesGroups)
 				{
-					result[_subdivisionIndexes.IndexOf(group.Key.SubdivisionId) + 1].Amount = group.Sum(x => x.Amount);
-					result[_subdivisionIndexes.IndexOf(group.Key.SubdivisionId) + 1].Price = group.Sum(x => x.Price);
+					if(group.Key.NomenclatureId == nomenclatureId)
+					{
+						result[_subdivisionIndexes.IndexOf(group.Key.SubdivisionId) + 1].Amount = group.Sum(x => x.Amount);
+						result[_subdivisionIndexes.IndexOf(group.Key.SubdivisionId) + 1].Price = group.Sum(x => x.Price);
+					}
+				}
+
+				result[0] = new AmountPricePair
+				{
+					Amount = result.Skip(1).Sum(x => x.Amount),
+					Price = result.Skip(1).Sum(x => x.Price)
+				};
+			}
+			else
+			{
+				foreach(var group in salesGroups)
+				{
+					if(group.Key.NomenclatureId == nomenclatureId)
+					{
+						result[0].Amount += group.Sum(x => x.Amount);
+						result[0].Price += group.Sum(x => x.Price);
+					}
 				}
 			}
-
-			result[0] = new AmountPricePair
-			{
-				Amount = result.Skip(1).Sum(x => x.Amount),
-				Price = result.Skip(1).Sum(x => x.Price)
-			};
 
 			return result;
 		}
 
 		private IList<decimal> ProcessWarehousesResidues(int nomenclatureId)
 		{
-			var result = Enumerable.Repeat(0m, Warehouses.Count + 1).ToList();
+			var result = Enumerable.Repeat(0m, Warehouses.Count).ToList();
 
-			foreach(var group in _residues)
+			if(SplitByWarehouses)
 			{
-				if(group.Key.NomenclatureId == nomenclatureId)
+				foreach(var group in _residues)
 				{
-					result[_warehouseIndexes.IndexOf(group.Key.WarehouseId) + 1] = group.Sum(x => x.Residue);
+					if(group.Key.NomenclatureId == nomenclatureId)
+					{
+						result[_warehouseIndexes.IndexOf(group.Key.WarehouseId) + 1] = group.Sum(x => x.Residue);
+					}
 				}
-			}
 
-			result[0] = result.Skip(1).Sum();
+				result[0] = result.Skip(1).Sum();
+			}
+			else
+			{
+				result[0] = _residues.Where(x => x.Key.NomenclatureId == nomenclatureId).Sum(x => x.Sum(y => y.Residue));
+			}
 
 			return result;
 		}
@@ -305,6 +407,31 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				throw new ArgumentNullException(nameof(retrieveFunction));
 			}
 
+			if(warehouseResiduesFunc is null)
+			{
+				throw new ArgumentNullException(nameof(warehouseResiduesFunc));
+			}
+
+			if(getNomenclaturesFunc is null)
+			{
+				throw new ArgumentNullException(nameof(getNomenclaturesFunc));
+			}
+
+			if(getGetProductGroupsFunc is null)
+			{
+				throw new ArgumentNullException(nameof(getGetProductGroupsFunc));
+			}
+
+			if(getGetSubdivisionsFunc is null)
+			{
+				throw new ArgumentNullException(nameof(getGetSubdivisionsFunc));
+			}
+
+			if(getGetWarehousesFunc is null)
+			{
+				throw new ArgumentNullException(nameof(getGetWarehousesFunc));
+			}
+
 			ValidateParameters(
 				firstPeriodStartDate,
 				firstPeriodEndDate,
@@ -323,22 +450,52 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 			IEnumerable<ResidueDataNode> residueDataNodes = warehouseResiduesFunc(firstPeriodEndDate);
 
-			IDictionary<int, string> warehouses = await getGetWarehousesFunc(
+			IDictionary<int, string> warehouses;
+
+			if(splitByWarehouses)
+			{
+				warehouses = await getGetWarehousesFunc(
 				residueDataNodes.Where(x => dataNodes.Any(y => y.NomenclatureId == x.NomenclatureId)).Select(x => x.WarehouseId).Distinct());
-			//IDictionary<int, string> nomenclatures = await getNomenclaturesFunc(
-			//	dataNodes.Select(x => x.NomenclatureId)
-			//		.Concat(residueDataNodes.Select(x => x.NomenclatureId))
-			//		.Distinct());
-			IDictionary<int, string> nomenclatures = await getNomenclaturesFunc(
+				//IDictionary<int, string> nomenclatures = await getNomenclaturesFunc(
+				//	dataNodes.Select(x => x.NomenclatureId)
+				//		.Concat(residueDataNodes.Select(x => x.NomenclatureId))
+				//		.Distinct());
+			}
+			else
+			{
+				warehouses = new Dictionary<int, string>();
+			}
+
+			IDictionary<int, string> nomenclatures;
+
+			if(splitByNomenclatures)
+			{
+				nomenclatures = await getNomenclaturesFunc(
 				dataNodes.Select(x => x.NomenclatureId)
 					.Concat(residueDataNodes.Select(x => x.NomenclatureId))
 					.Distinct());
+			}
+			else
+			{
+				nomenclatures = new Dictionary<int, string>();
+			}
+			
 			//IDictionary<int, string> productGroups = await getGetProductGroupsFunc(
 			//	dataNodes.Select(x => x.ProductGroupId)
 			//		.Concat(residueDataNodes.Select(x => x.ProductGroupId))
 			//		.Distinct());
 			IDictionary<int, string> productGroups = await getGetProductGroupsFunc(dataNodes.Select(x => x.ProductGroupId).Distinct());
-			IDictionary<int, string> subdivisions = await getGetSubdivisionsFunc(dataNodes.Select(x => x.SubdivisionId).Distinct());
+
+			IDictionary<int, string> subdivisions;
+
+			if(splitBySubdivisions)
+			{
+				subdivisions = await getGetSubdivisionsFunc(dataNodes.Select(x => x.SubdivisionId).Distinct());
+			}
+			else
+			{
+				subdivisions = new Dictionary<int, string>();
+			}
 
 			return new SalesBySubdivisionsAnalitycsReport(
 				firstPeriodStartDate,

@@ -272,6 +272,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 		private IEnumerable<ResidueDataNode> GetWarhousesBalances(DateTime dateTime)
 		{
+			var warehousesIds = new int[]
+			{
+				1
+			};
+
 			var incomesQuery = from wmo in _unitOfWork.Session.Query<WarehouseMovementOperation>()
 							   join n in _unitOfWork.Session.Query<Nomenclature>()
 							   on wmo.Nomenclature.Id equals n.Id
