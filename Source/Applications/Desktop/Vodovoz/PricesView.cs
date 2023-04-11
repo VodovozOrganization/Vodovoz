@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
@@ -14,8 +15,10 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class PricesView : Gtk.Bin
 	{
+		
+
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private GenericObservableList<NomenclaturePrice> PricesList;
+		private GenericObservableList<NomenclaturePriceBase> PricesList;
 
 		private IUnitOfWorkGeneric<Nomenclature> uowGeneric;
 
@@ -27,12 +30,11 @@ namespace Vodovoz
 			set
 			{
 				uowGeneric = value;
-				Prices = UoWGeneric.Root.NomenclaturePrice;
 			}
 		}
 
-		private IList<NomenclaturePrice> prices;
-		public IList<NomenclaturePrice> Prices
+		private IList<NomenclaturePriceBase> prices;
+		public IList<NomenclaturePriceBase> Prices
 		{
 			get {
 				return prices;
@@ -45,11 +47,11 @@ namespace Vodovoz
 				prices = value;
 				buttonAdd.Sensitive = prices != null;
 				if (value != null) {
-					PricesList = new GenericObservableList<NomenclaturePrice> (prices);
+					PricesList = new GenericObservableList<NomenclaturePriceBase> (prices);
 					PricesList.ElementAdded += OnEmailListElementAdded;
 					PricesList.ElementRemoved += OnEmailListElementRemoved;
 
-					foreach (NomenclaturePrice price in PricesList)
+					foreach (NomenclaturePriceBase price in PricesList)
 						AddPriceRow (price);
 				}
 			}
@@ -94,10 +96,28 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			PricesList.Add(new NomenclaturePrice() { Nomenclature = UoWGeneric.Root });
+			NomenclaturePriceBase price;
+
+			switch(NomenclaturePriceType)
+			{
+				case NomenclaturePriceBase.NomenclaturePriceType.General:
+					price = new NomenclaturePrice();
+					break;
+				case NomenclaturePriceBase.NomenclaturePriceType.Alternative:
+					price = new AlternativeNomenclaturePrice();
+					break;
+				default:
+					throw new NotSupportedException($"{NomenclaturePriceType} не поддерживается");
+			}
+
+			price.Nomenclature = UoWGeneric.Root;
+
+			UoWGeneric.Session.Save(price);
+
+			PricesList.Add(price);
 		}
 
-		private void AddPriceRow(NomenclaturePrice newPrice) 
+		private void AddPriceRow(NomenclaturePriceBase newPrice) 
 		{
 			datatablePrices.NRows = RowNum + 1;
 
@@ -149,7 +169,9 @@ namespace Vodovoz
 				return;
 			}
 
-			PricesList.Remove((NomenclaturePrice)(foundWidget as IAdaptableContainer).Adaptor.Adaptor.FinalTarget);
+			var found = (NomenclaturePriceBase)(foundWidget as IAdaptableContainer).Adaptor.Adaptor.FinalTarget;
+			UoWGeneric.Session.Delete(found);
+			PricesList.Remove(found);
 		}
 
 		private void RemoveRow(uint Row)
@@ -179,16 +201,31 @@ namespace Vodovoz
 		{
 			while (PricesList.Count > 0)
 			{
+				UoWGeneric.Session.Delete(PricesList[0]);
 				PricesList.RemoveAt(0);
 			}
 		}
 
+		public NomenclaturePriceBase.NomenclaturePriceType NomenclaturePriceType { get; set; }
+
 		public void SaveChanges()
 		{
-			foreach(NomenclaturePrice price in PricesList.ToList())
+			foreach(NomenclaturePriceBase price in PricesList.ToList())
 			{
 				if (price.Price == 0 && price.MinCount <= 1)
 					PricesList.Remove (price);
+			}
+
+			switch(NomenclaturePriceType)
+			{
+				case NomenclaturePriceBase.NomenclaturePriceType.General:
+					UoWGeneric.Root.ObservableNomenclaturePrices = new GenericObservableList<NomenclaturePrice>(PricesList.Cast<NomenclaturePrice>().ToList());
+					break;
+				case NomenclaturePriceBase.NomenclaturePriceType.Alternative:
+					UoWGeneric.Root.ObservableAlternativeNomenclaturePrices = new GenericObservableList<AlternativeNomenclaturePrice>(PricesList.Cast<AlternativeNomenclaturePrice>().ToList());
+					break;
+				default:
+					throw new NotSupportedException($"{NomenclaturePriceType} не поддерживается");
 			}
 		}
 	}

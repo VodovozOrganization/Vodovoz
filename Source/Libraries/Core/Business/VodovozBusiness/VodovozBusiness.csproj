@@ -53,6 +53,8 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Domain\Goods\AlternativeNomenclaturePrice.cs" />
+    <Compile Include="Domain\Goods\NomenclaturePriceBase.cs" />
     <Compile Include="Domain\Logistic\AddressTransferType.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
     <Compile Include="Controllers\ComplaintNotificationController.cs" />
@@ -861,7 +863,7 @@
     <Compile Include="HibernateMapping\Goods\EquipmentKindMap.cs" />
     <Compile Include="HibernateMapping\Goods\ManufacturerMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureMap.cs" />
-    <Compile Include="HibernateMapping\Goods\NomenclaturePriceMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclaturePriceBaseMap.cs" />
     <Compile Include="HibernateMapping\Handbooks\MeasurementUnitsMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryShiftMap.cs" />

@@ -57,6 +57,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Nomenclature>()
 						.AddDeleteDependenceFromCollection(item => item.NomenclaturePrice)
+						.AddDeleteDependenceFromCollection(item => item.AlternativeNomenclaturePrice)
 						.AddDeleteDependence<Equipment>(item => item.Nomenclature)
 						.AddDeleteDependence<OrderItem>(x => x.Nomenclature)
 						.AddDeleteDependence<OrderEquipment>(x => x.Nomenclature)

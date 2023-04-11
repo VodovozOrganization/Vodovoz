@@ -28,9 +28,12 @@ namespace Vodovoz.Domain.Goods
 		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
 		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
 		private IList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new List<NomenclatureInnerDeliveryPrice>();
+		private IList<AlternativeNomenclaturePrice> _alternativeNomenclaturePrice = new List<AlternativeNomenclaturePrice>();
 		private GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
+		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
+		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrice;
 		private bool _usingInGroupPriceSet;
 
 		private decimal _length;
@@ -379,6 +382,13 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref nomenclaturePrice, value, () => NomenclaturePrice);
 		}
 
+		[Display(Name = "Альтернативные цены")]
+		public virtual IList<AlternativeNomenclaturePrice> AlternativeNomenclaturePrice
+		{
+			get => _alternativeNomenclaturePrice;
+			set => SetField(ref _alternativeNomenclaturePrice, value);
+		}
+
 		private string shortName;
 
 		[Display(Name = "Сокращенное название")]
@@ -564,6 +574,21 @@ namespace Vodovoz.Domain.Goods
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<NomenclatureCostPrice> ObservableCostPrices =>
 			_observableCostPrices ?? (_observableCostPrices = new GenericObservableList<NomenclatureCostPrice>(CostPrices));
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<NomenclaturePrice> ObservableNomenclaturePrices
+		{
+			get => _observableNomenclaturePrices ?? (_observableNomenclaturePrices = new GenericObservableList<NomenclaturePrice>(NomenclaturePrice));
+			set => _observableNomenclaturePrices = value;
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<AlternativeNomenclaturePrice> ObservableAlternativeNomenclaturePrices
+		{
+			get => _observableAlternativeNomenclaturePrice ?? (_observableAlternativeNomenclaturePrice = new GenericObservableList<AlternativeNomenclaturePrice>(AlternativeNomenclaturePrice));
+			set => _observableAlternativeNomenclaturePrice = value;
+		}
+
 
 		[Display(Name = "Стоимости доставки ТМЦ на склад")]
 		public virtual IList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
