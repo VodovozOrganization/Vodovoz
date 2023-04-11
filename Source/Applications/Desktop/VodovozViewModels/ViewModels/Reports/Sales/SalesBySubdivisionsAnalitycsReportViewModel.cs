@@ -41,8 +41,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		private bool _splitByNomenclatures;
 		private bool _splitBySubdivisions;
 		private bool _splitByWarehouses;
-		private DateTime _firstPeriodStartDate;
-		private DateTime _firstPeriodEndDate;
+		private DateTime? _firstPeriodStartDate;
+		private DateTime? _firstPeriodEndDate;
 		private DateTime? _secondPeriodStartDate;
 		private DateTime? _secondPeriodEndDate;
 
@@ -60,21 +60,29 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			_unitOfWork.Session.DefaultReadOnly = true;
 		}
 
-		[PropertyChangedAlso(nameof(CanSplitByWarehouse), nameof(SplitByWarehouses))]
-		public DateTime FirstPeriodStartDate
+		[PropertyChangedAlso(
+			nameof(CanSplitByWarehouse),
+			nameof(SplitByWarehouses),
+			nameof(GenerateSensitive))]
+		public DateTime? FirstPeriodStartDate
 		{
 			get => _firstPeriodStartDate;
 			set => SetField(ref _firstPeriodStartDate, value);
 		}
 
-		[PropertyChangedAlso(nameof(CanSplitByWarehouse), nameof(SplitByWarehouses))]
-		public DateTime FirstPeriodEndDate
+		[PropertyChangedAlso(
+			nameof(CanSplitByWarehouse),
+			nameof(SplitByWarehouses),
+			nameof(GenerateSensitive))]
+		public DateTime? FirstPeriodEndDate
 		{
 			get => _firstPeriodEndDate;
 			set => SetField(ref _firstPeriodEndDate, value);
 		}
 
-		[PropertyChangedAlso(nameof(CanSplitByWarehouse), nameof(SplitByWarehouses))]
+		[PropertyChangedAlso(
+			nameof(CanSplitByWarehouse),
+			nameof(SplitByWarehouses))]
 
 		public DateTime? SecondPeriodStartDate
 		{
@@ -82,7 +90,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			set => SetField(ref _secondPeriodStartDate, value);
 		}
 
-		[PropertyChangedAlso(nameof(CanSplitByWarehouse), nameof(SplitByWarehouses))]
+		[PropertyChangedAlso(
+			nameof(CanSplitByWarehouse),
+			nameof(SplitByWarehouses))]
 		public DateTime? SecondPeriodEndDate
 		{
 			get => _secondPeriodEndDate;
@@ -108,7 +118,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		}
 
 		public bool CanSplitByWarehouse =>
-			((FirstPeriodEndDate - FirstPeriodStartDate).TotalDays < 1)
+			((FirstPeriodEndDate - FirstPeriodStartDate)?.TotalDays < 1)
 			&& SecondPeriodStartDate is null && SecondPeriodEndDate is null;
 
 		#region Reporting properties
@@ -138,6 +148,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		}
 
 		public bool CanGenerate => !IsGenerating;
+
+		public bool GenerateSensitive => FirstPeriodStartDate != null && FirstPeriodEndDate != null;
 
 		public bool CanCancelGenerate
 		{
@@ -186,9 +198,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 		public async Task<SalesBySubdivisionsAnalitycsReport> Generate(CancellationToken cancellationToken)
 		{
+			if(FirstPeriodStartDate is null || FirstPeriodEndDate is null)
+			{
+				throw new InvalidOperationException("Не задан период");
+			}
+
 			return await SalesBySubdivisionsAnalitycsReport.Create(
-				FirstPeriodStartDate,
-				FirstPeriodEndDate,
+				FirstPeriodStartDate.Value,
+				FirstPeriodEndDate.Value,
 				SecondPeriodStartDate,
 				SecondPeriodEndDate,
 				SplitByNomenclatures,

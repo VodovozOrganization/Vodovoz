@@ -30,8 +30,8 @@ namespace Vodovoz.Views.Reports
 		{
 			dateFirstPeriodPicker.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.FirstPeriodStartDate, w => w.StartDate)
-				.AddBinding(vm => vm.FirstPeriodEndDate, w => w.EndDate)
+				.AddBinding(vm => vm.FirstPeriodStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.FirstPeriodEndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
 			dateSecondPeriodPicker.Binding
@@ -49,12 +49,15 @@ namespace Vodovoz.Views.Reports
 				.InitializeFromSource();
 
 			ychkbtnSplitByWarhouses.Binding
-				.AddBinding(ViewModel, vm => vm.SplitByWarehouses, w => w.Active)
-				.AddBinding(ViewModel, vm => vm.CanSplitByWarehouse, w => w.Sensitive)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.SplitByWarehouses, w => w.Active)
+				.AddBinding(vm => vm.CanSplitByWarehouse, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybuttonCreateReport.Binding
-				.AddBinding(ViewModel, vm => vm.CanGenerate, w => w.Visible)
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanGenerate, w => w.Visible)
+				.AddBinding(vm => vm.GenerateSensitive, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybuttonCreateReport.Clicked += OnButtonCreateReportClicked;
