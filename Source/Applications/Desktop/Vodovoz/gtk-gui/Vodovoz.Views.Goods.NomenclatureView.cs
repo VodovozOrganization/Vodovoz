@@ -278,11 +278,13 @@ namespace Vodovoz.Views.Goods
 
 		private global::Vodovoz.PricesView alternativePricesView;
 
-		private global::Gtk.HSeparator hseparator1;
-
 		private global::Gtk.HSeparator hseparator2;
 
 		private global::Vodovoz.PricesView pricesView;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelAlternativePrice;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelGeneralPrice;
 
 		private global::Gtk.Label label15;
 
@@ -451,7 +453,7 @@ namespace Vodovoz.Views.Goods
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 4;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -1845,7 +1847,7 @@ namespace Vodovoz.Views.Goods
 			this.notebook1.SetTabLabel(this.vbox3, this.label14);
 			this.label14.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.datatable2 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
+			this.datatable2 = new global::Gtk.Table(((uint)(5)), ((uint)(2)), false);
 			this.datatable2.Name = "datatable2";
 			this.datatable2.RowSpacing = ((uint)(6));
 			this.datatable2.ColumnSpacing = ((uint)(6));
@@ -1855,41 +1857,60 @@ namespace Vodovoz.Views.Goods
 			this.alternativePricesView.Name = "alternativePricesView";
 			this.datatable2.Add(this.alternativePricesView);
 			global::Gtk.Table.TableChild w136 = ((global::Gtk.Table.TableChild)(this.datatable2[this.alternativePricesView]));
-			w136.TopAttach = ((uint)(2));
-			w136.BottomAttach = ((uint)(3));
+			w136.TopAttach = ((uint)(4));
+			w136.BottomAttach = ((uint)(5));
 			w136.LeftAttach = ((uint)(1));
 			w136.RightAttach = ((uint)(2));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.hseparator1 = new global::Gtk.HSeparator();
-			this.hseparator1.Name = "hseparator1";
-			this.datatable2.Add(this.hseparator1);
-			global::Gtk.Table.TableChild w137 = ((global::Gtk.Table.TableChild)(this.datatable2[this.hseparator1]));
-			w137.TopAttach = ((uint)(1));
-			w137.BottomAttach = ((uint)(2));
+			this.hseparator2 = new global::Gtk.HSeparator();
+			this.hseparator2.HeightRequest = 20;
+			this.hseparator2.Name = "hseparator2";
+			this.datatable2.Add(this.hseparator2);
+			global::Gtk.Table.TableChild w137 = ((global::Gtk.Table.TableChild)(this.datatable2[this.hseparator2]));
+			w137.TopAttach = ((uint)(2));
+			w137.BottomAttach = ((uint)(3));
 			w137.LeftAttach = ((uint)(1));
 			w137.RightAttach = ((uint)(2));
 			w137.XOptions = ((global::Gtk.AttachOptions)(4));
 			w137.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.hseparator2 = new global::Gtk.HSeparator();
-			this.hseparator2.Name = "hseparator2";
-			this.datatable2.Add(this.hseparator2);
-			global::Gtk.Table.TableChild w138 = ((global::Gtk.Table.TableChild)(this.datatable2[this.hseparator2]));
-			w138.TopAttach = ((uint)(1));
-			w138.BottomAttach = ((uint)(2));
-			w138.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable2.Gtk.Table+TableChild
 			this.pricesView = new global::Vodovoz.PricesView();
 			this.pricesView.Events = ((global::Gdk.EventMask)(256));
 			this.pricesView.Name = "pricesView";
 			this.datatable2.Add(this.pricesView);
-			global::Gtk.Table.TableChild w139 = ((global::Gtk.Table.TableChild)(this.datatable2[this.pricesView]));
+			global::Gtk.Table.TableChild w138 = ((global::Gtk.Table.TableChild)(this.datatable2[this.pricesView]));
+			w138.TopAttach = ((uint)(1));
+			w138.BottomAttach = ((uint)(2));
+			w138.LeftAttach = ((uint)(1));
+			w138.RightAttach = ((uint)(2));
+			w138.XOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable2.Gtk.Table+TableChild
+			this.ylabelAlternativePrice = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelAlternativePrice.Name = "ylabelAlternativePrice";
+			this.ylabelAlternativePrice.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Цена для Kuler Sale:</b>");
+			this.ylabelAlternativePrice.UseMarkup = true;
+			this.datatable2.Add(this.ylabelAlternativePrice);
+			global::Gtk.Table.TableChild w139 = ((global::Gtk.Table.TableChild)(this.datatable2[this.ylabelAlternativePrice]));
+			w139.TopAttach = ((uint)(3));
+			w139.BottomAttach = ((uint)(4));
 			w139.LeftAttach = ((uint)(1));
 			w139.RightAttach = ((uint)(2));
 			w139.XOptions = ((global::Gtk.AttachOptions)(4));
+			w139.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable2.Gtk.Table+TableChild
+			this.ylabelGeneralPrice = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelGeneralPrice.Name = "ylabelGeneralPrice";
+			this.ylabelGeneralPrice.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Базовая цена:</b>");
+			this.ylabelGeneralPrice.UseMarkup = true;
+			this.datatable2.Add(this.ylabelGeneralPrice);
+			global::Gtk.Table.TableChild w140 = ((global::Gtk.Table.TableChild)(this.datatable2[this.ylabelGeneralPrice]));
+			w140.LeftAttach = ((uint)(1));
+			w140.RightAttach = ((uint)(2));
+			w140.XOptions = ((global::Gtk.AttachOptions)(4));
+			w140.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.notebook1.Add(this.datatable2);
-			global::Gtk.Notebook.NotebookChild w140 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.datatable2]));
-			w140.Position = 4;
+			global::Gtk.Notebook.NotebookChild w141 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.datatable2]));
+			w141.Position = 4;
 			// Notebook tab
 			this.label15 = new global::Gtk.Label();
 			this.label15.Name = "label15";
@@ -1910,20 +1931,20 @@ namespace Vodovoz.Views.Goods
 			this.ylabelCostPrice.Name = "ylabelCostPrice";
 			this.ylabelCostPrice.LabelProp = global::Mono.Unix.Catalog.GetString("Себестоимость производства");
 			this.vbox8.Add(this.ylabelCostPrice);
-			global::Gtk.Box.BoxChild w141 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.ylabelCostPrice]));
-			w141.Position = 0;
-			w141.Expand = false;
-			w141.Fill = false;
+			global::Gtk.Box.BoxChild w142 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.ylabelCostPrice]));
+			w142.Position = 0;
+			w142.Expand = false;
+			w142.Fill = false;
 			// Container child vbox8.Gtk.Box+BoxChild
 			this.nomenclaturecostpricesview = new global::Vodovoz.Views.Goods.NomenclatureCostPricesView();
 			this.nomenclaturecostpricesview.Events = ((global::Gdk.EventMask)(256));
 			this.nomenclaturecostpricesview.Name = "nomenclaturecostpricesview";
 			this.vbox8.Add(this.nomenclaturecostpricesview);
-			global::Gtk.Box.BoxChild w142 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.nomenclaturecostpricesview]));
-			w142.Position = 1;
+			global::Gtk.Box.BoxChild w143 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.nomenclaturecostpricesview]));
+			w143.Position = 1;
 			this.hbox11.Add(this.vbox8);
-			global::Gtk.Box.BoxChild w143 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox8]));
-			w143.Position = 0;
+			global::Gtk.Box.BoxChild w144 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox8]));
+			w144.Position = 0;
 			// Container child hbox11.Gtk.Box+BoxChild
 			this.vbox7 = new global::Gtk.VBox();
 			this.vbox7.Name = "vbox7";
@@ -1933,20 +1954,20 @@ namespace Vodovoz.Views.Goods
 			this.ylabelPurchasePrice.Name = "ylabelPurchasePrice";
 			this.ylabelPurchasePrice.LabelProp = global::Mono.Unix.Catalog.GetString("Цена закупки");
 			this.vbox7.Add(this.ylabelPurchasePrice);
-			global::Gtk.Box.BoxChild w144 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.ylabelPurchasePrice]));
-			w144.Position = 0;
-			w144.Expand = false;
-			w144.Fill = false;
+			global::Gtk.Box.BoxChild w145 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.ylabelPurchasePrice]));
+			w145.Position = 0;
+			w145.Expand = false;
+			w145.Fill = false;
 			// Container child vbox7.Gtk.Box+BoxChild
 			this.nomenclaturePurchasePricesView = new global::Vodovoz.Views.Goods.NomenclaturePurchasePricesView();
 			this.nomenclaturePurchasePricesView.Events = ((global::Gdk.EventMask)(256));
 			this.nomenclaturePurchasePricesView.Name = "nomenclaturePurchasePricesView";
 			this.vbox7.Add(this.nomenclaturePurchasePricesView);
-			global::Gtk.Box.BoxChild w145 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.nomenclaturePurchasePricesView]));
-			w145.Position = 1;
-			this.hbox11.Add(this.vbox7);
-			global::Gtk.Box.BoxChild w146 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox7]));
+			global::Gtk.Box.BoxChild w146 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.nomenclaturePurchasePricesView]));
 			w146.Position = 1;
+			this.hbox11.Add(this.vbox7);
+			global::Gtk.Box.BoxChild w147 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox7]));
+			w147.Position = 1;
 			// Container child hbox11.Gtk.Box+BoxChild
 			this.vbox9 = new global::Gtk.VBox();
 			this.vbox9.Name = "vbox9";
@@ -1956,23 +1977,23 @@ namespace Vodovoz.Views.Goods
 			this.ylabelInnerDelivery.Name = "ylabelInnerDelivery";
 			this.ylabelInnerDelivery.LabelProp = global::Mono.Unix.Catalog.GetString("Стоимость доставки единицы товара на склад");
 			this.vbox9.Add(this.ylabelInnerDelivery);
-			global::Gtk.Box.BoxChild w147 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.ylabelInnerDelivery]));
-			w147.Position = 0;
-			w147.Expand = false;
-			w147.Fill = false;
+			global::Gtk.Box.BoxChild w148 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.ylabelInnerDelivery]));
+			w148.Position = 0;
+			w148.Expand = false;
+			w148.Fill = false;
 			// Container child vbox9.Gtk.Box+BoxChild
 			this.nomenclatureinnerdeliverypricesview1 = new global::Vodovoz.Views.Goods.NomenclatureInnerDeliveryPricesView();
 			this.nomenclatureinnerdeliverypricesview1.Events = ((global::Gdk.EventMask)(256));
 			this.nomenclatureinnerdeliverypricesview1.Name = "nomenclatureinnerdeliverypricesview1";
 			this.vbox9.Add(this.nomenclatureinnerdeliverypricesview1);
-			global::Gtk.Box.BoxChild w148 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.nomenclatureinnerdeliverypricesview1]));
-			w148.Position = 1;
+			global::Gtk.Box.BoxChild w149 = ((global::Gtk.Box.BoxChild)(this.vbox9[this.nomenclatureinnerdeliverypricesview1]));
+			w149.Position = 1;
 			this.hbox11.Add(this.vbox9);
-			global::Gtk.Box.BoxChild w149 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox9]));
-			w149.Position = 2;
+			global::Gtk.Box.BoxChild w150 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vbox9]));
+			w150.Position = 2;
 			this.notebook1.Add(this.hbox11);
-			global::Gtk.Notebook.NotebookChild w150 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.hbox11]));
-			w150.Position = 5;
+			global::Gtk.Notebook.NotebookChild w151 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.hbox11]));
+			w151.Position = 5;
 			// Notebook tab
 			this.lblPurchasePrice = new global::Gtk.Label();
 			this.lblPurchasePrice.Name = "lblPurchasePrice";
@@ -1980,8 +2001,8 @@ namespace Vodovoz.Views.Goods
 			this.notebook1.SetTabLabel(this.hbox11, this.lblPurchasePrice);
 			this.lblPurchasePrice.ShowAll();
 			this.vbox1.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w151 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
-			w151.Position = 1;
+			global::Gtk.Box.BoxChild w152 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
+			w152.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

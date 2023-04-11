@@ -37,7 +37,7 @@ namespace Vodovoz.Views.Settings
 			// Container child Vodovoz.Views.Settings.SubdivisionsSettingsView.Gtk.Container+ContainerChild
 			this.frameConfiguration = new global::Gtk.Frame();
 			this.frameConfiguration.Name = "frameConfiguration";
-			this.frameConfiguration.ShadowType = ((global::Gtk.ShadowType)(0));
+			this.frameConfiguration.BorderWidth = ((uint)(1));
 			// Container child frameConfiguration.Gtk.Container+ContainerChild
 			this.GtkAlignment4 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment4.Name = "GtkAlignment4";

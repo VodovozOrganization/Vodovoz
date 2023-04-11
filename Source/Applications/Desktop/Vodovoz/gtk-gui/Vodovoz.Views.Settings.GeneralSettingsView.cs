@@ -206,6 +206,7 @@ namespace Vodovoz.Views.Settings
 			w14.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.complaintSubdivisionsView = new global::Vodovoz.Views.Settings.SubdivisionsSettingsView();
+			this.complaintSubdivisionsView.HeightRequest = 300;
 			this.complaintSubdivisionsView.Events = ((global::Gdk.EventMask)(256));
 			this.complaintSubdivisionsView.Name = "complaintSubdivisionsView";
 			this.vboxMain.Add(this.complaintSubdivisionsView);
@@ -309,6 +310,7 @@ namespace Vodovoz.Views.Settings
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.alternativePriceSubdivisionsView = new global::Vodovoz.Views.Settings.SubdivisionsSettingsView();
+			this.alternativePriceSubdivisionsView.HeightRequest = 300;
 			this.alternativePriceSubdivisionsView.Events = ((global::Gdk.EventMask)(256));
 			this.alternativePriceSubdivisionsView.Name = "alternativePriceSubdivisionsView";
 			this.vbox1.Add(this.alternativePriceSubdivisionsView);
