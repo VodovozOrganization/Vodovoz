@@ -16,28 +16,28 @@ namespace Vodovoz.Views.Settings
 		{
 			base.ConfigureWidget();
 
-			ybtnComplaintWithoutDriverSubdivisionsAdd.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsAddClicked;
-			ybtnComplaintWithoutDriverSubdivisionsDelete.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsDeleteClicked;
-			ybtnComplaintWithoutDriverSubdivisionsSave.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsSaveClicked;
-			ybtnComplaintWithoutDriverSubdivisionsInfo.Clicked += OnYbtnComplaintWithoutDriverSubdivisionsInfoClicked;
+			ybtnSubdivisionsAdd.Clicked += OnYbtnSubdivisionsAddClicked;
+			ybtnSubdivisionsDelete.Clicked += OnYbtnSubdivisionsDeleteClicked;
+			ybtnSubdivisionsSave.Clicked += OnYbtnSubdivisionsSaveClicked;
+			ybtnSubdivisionsInfo.Clicked += OnYbtnSubdivisionsInfoClicked;
 
-			ybtnComplaintWithoutDriverSubdivisionsAdd.Sensitive = ViewModel.CanEdit;
-			ybtnComplaintWithoutDriverSubdivisionsSave.Sensitive = ViewModel.CanEdit;
+			ybtnSubdivisionsAdd.Sensitive = ViewModel.CanEdit;
+			ybtnSubdivisionsSave.Sensitive = ViewModel.CanEdit;
 
-			ytreeComplaintWithoutDriverSubdivisions.CreateFluentColumnsConfig<Subdivision>()
+			ytreeSubdivisions.CreateFluentColumnsConfig<Subdivision>()
 				.AddColumn("Номер").AddNumericRenderer(x => x.Id)
 				.AddColumn("Подразделение").AddTextRenderer(x => x.Name)
 				.AddColumn("")
 				.Finish();
 
-			ytreeComplaintWithoutDriverSubdivisions.Binding
+			ytreeSubdivisions.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.AddBinding(vm => vm.ObservableSubdivisions, w => w.ItemsDataSource)
 				.AddBinding(vm => vm.SelectedSubdivision, w => w.SelectedRow)
 				.InitializeFromSource();
 
-			ybtnComplaintWithoutDriverSubdivisionsDelete.Binding
+			ybtnSubdivisionsDelete.Binding
 				.AddBinding(ViewModel, vm => vm.CanRemove, w => w.Sensitive)
 				.InitializeFromSource();
 
@@ -46,31 +46,31 @@ namespace Vodovoz.Views.Settings
 			((Label)frameConfiguration.LabelWidget).LabelProp = ViewModel.MainTitle;
 		}
 
-		private void OnYbtnComplaintWithoutDriverSubdivisionsInfoClicked(object sender, System.EventArgs e)
+		private void OnYbtnSubdivisionsInfoClicked(object sender, System.EventArgs e)
 		{
 			ViewModel.ShowSubdivisionsToInformComplaintHasNoDriverInfoCommand?.Execute();
 		}
 
-		private void OnYbtnComplaintWithoutDriverSubdivisionsSaveClicked(object sender, System.EventArgs e)
+		private void OnYbtnSubdivisionsSaveClicked(object sender, System.EventArgs e)
 		{
 			ViewModel.SaveSubdivisionsCommand?.Execute();
 		}
 
-		private void OnYbtnComplaintWithoutDriverSubdivisionsDeleteClicked(object sender, System.EventArgs e)
+		private void OnYbtnSubdivisionsDeleteClicked(object sender, System.EventArgs e)
 		{
 			ViewModel.RemoveSubdivisionCommand?.Execute();
 		}
 
-		private void OnYbtnComplaintWithoutDriverSubdivisionsAddClicked(object sender, System.EventArgs e)
+		private void OnYbtnSubdivisionsAddClicked(object sender, System.EventArgs e)
 		{
 			ViewModel.AddSubdivisionCommand?.Execute();
 		}
 
 		public override void Dispose()
 		{
-			ybtnComplaintWithoutDriverSubdivisionsAdd.Clicked -= OnYbtnComplaintWithoutDriverSubdivisionsAddClicked;
-			ybtnComplaintWithoutDriverSubdivisionsDelete.Clicked -= OnYbtnComplaintWithoutDriverSubdivisionsDeleteClicked;
-			ybtnComplaintWithoutDriverSubdivisionsSave.Clicked -= OnYbtnComplaintWithoutDriverSubdivisionsSaveClicked;
+			ybtnSubdivisionsAdd.Clicked -= OnYbtnSubdivisionsAddClicked;
+			ybtnSubdivisionsDelete.Clicked -= OnYbtnSubdivisionsDeleteClicked;
+			ybtnSubdivisionsSave.Clicked -= OnYbtnSubdivisionsSaveClicked;
 			base.Dispose();
 		}
 	}

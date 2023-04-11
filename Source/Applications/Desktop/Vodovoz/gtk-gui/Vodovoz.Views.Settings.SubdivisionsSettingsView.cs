@@ -14,17 +14,17 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gamma.GtkWidgets.yButton ybtnComplaintWithoutDriverSubdivisionsAdd;
+		private global::Gamma.GtkWidgets.yButton ybtnSubdivisionsAdd;
 
-		private global::Gamma.GtkWidgets.yButton ybtnComplaintWithoutDriverSubdivisionsDelete;
+		private global::Gamma.GtkWidgets.yButton ybtnSubdivisionsDelete;
 
-		private global::Gamma.GtkWidgets.yButton ybtnComplaintWithoutDriverSubdivisionsSave;
+		private global::Gamma.GtkWidgets.yButton ybtnSubdivisionsSave;
 
-		private global::Gamma.GtkWidgets.yButton ybtnComplaintWithoutDriverSubdivisionsInfo;
+		private global::Gamma.GtkWidgets.yButton ybtnSubdivisionsInfo;
 
-		private global::Gtk.ScrolledWindow scrollComplaintWithoutDriverSubdivisions;
+		private global::Gtk.ScrolledWindow scrollSubdivisions;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeComplaintWithoutDriverSubdivisions;
+		private global::Gamma.GtkWidgets.yTreeView ytreeSubdivisions;
 
 		private global::Gtk.Label frameLabelTitle;
 
@@ -62,56 +62,56 @@ namespace Vodovoz.Views.Settings
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.ybtnComplaintWithoutDriverSubdivisionsAdd = new global::Gamma.GtkWidgets.yButton();
-			this.ybtnComplaintWithoutDriverSubdivisionsAdd.CanFocus = true;
-			this.ybtnComplaintWithoutDriverSubdivisionsAdd.Name = "ybtnComplaintWithoutDriverSubdivisionsAdd";
-			this.ybtnComplaintWithoutDriverSubdivisionsAdd.UseUnderline = true;
-			this.ybtnComplaintWithoutDriverSubdivisionsAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить");
+			this.ybtnSubdivisionsAdd = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnSubdivisionsAdd.CanFocus = true;
+			this.ybtnSubdivisionsAdd.Name = "ybtnSubdivisionsAdd";
+			this.ybtnSubdivisionsAdd.UseUnderline = true;
+			this.ybtnSubdivisionsAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			global::Gtk.Image w2 = new global::Gtk.Image();
 			w2.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.ybtnComplaintWithoutDriverSubdivisionsAdd.Image = w2;
-			this.hbox3.Add(this.ybtnComplaintWithoutDriverSubdivisionsAdd);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnComplaintWithoutDriverSubdivisionsAdd]));
+			this.ybtnSubdivisionsAdd.Image = w2;
+			this.hbox3.Add(this.ybtnSubdivisionsAdd);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnSubdivisionsAdd]));
 			w3.Position = 0;
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.ybtnComplaintWithoutDriverSubdivisionsDelete = new global::Gamma.GtkWidgets.yButton();
-			this.ybtnComplaintWithoutDriverSubdivisionsDelete.CanFocus = true;
-			this.ybtnComplaintWithoutDriverSubdivisionsDelete.Name = "ybtnComplaintWithoutDriverSubdivisionsDelete";
-			this.ybtnComplaintWithoutDriverSubdivisionsDelete.UseUnderline = true;
-			this.ybtnComplaintWithoutDriverSubdivisionsDelete.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			this.ybtnSubdivisionsDelete = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnSubdivisionsDelete.CanFocus = true;
+			this.ybtnSubdivisionsDelete.Name = "ybtnSubdivisionsDelete";
+			this.ybtnSubdivisionsDelete.UseUnderline = true;
+			this.ybtnSubdivisionsDelete.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			global::Gtk.Image w4 = new global::Gtk.Image();
 			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
-			this.ybtnComplaintWithoutDriverSubdivisionsDelete.Image = w4;
-			this.hbox3.Add(this.ybtnComplaintWithoutDriverSubdivisionsDelete);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnComplaintWithoutDriverSubdivisionsDelete]));
+			this.ybtnSubdivisionsDelete.Image = w4;
+			this.hbox3.Add(this.ybtnSubdivisionsDelete);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnSubdivisionsDelete]));
 			w5.Position = 1;
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.ybtnComplaintWithoutDriverSubdivisionsSave = new global::Gamma.GtkWidgets.yButton();
-			this.ybtnComplaintWithoutDriverSubdivisionsSave.CanFocus = true;
-			this.ybtnComplaintWithoutDriverSubdivisionsSave.Name = "ybtnComplaintWithoutDriverSubdivisionsSave";
-			this.ybtnComplaintWithoutDriverSubdivisionsSave.UseUnderline = true;
-			this.ybtnComplaintWithoutDriverSubdivisionsSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			this.hbox3.Add(this.ybtnComplaintWithoutDriverSubdivisionsSave);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnComplaintWithoutDriverSubdivisionsSave]));
+			this.ybtnSubdivisionsSave = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnSubdivisionsSave.CanFocus = true;
+			this.ybtnSubdivisionsSave.Name = "ybtnSubdivisionsSave";
+			this.ybtnSubdivisionsSave.UseUnderline = true;
+			this.ybtnSubdivisionsSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.hbox3.Add(this.ybtnSubdivisionsSave);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnSubdivisionsSave]));
 			w6.Position = 2;
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.ybtnComplaintWithoutDriverSubdivisionsInfo = new global::Gamma.GtkWidgets.yButton();
-			this.ybtnComplaintWithoutDriverSubdivisionsInfo.TooltipMarkup = "Справка по работе с отчётом";
-			this.ybtnComplaintWithoutDriverSubdivisionsInfo.CanFocus = true;
-			this.ybtnComplaintWithoutDriverSubdivisionsInfo.Name = "ybtnComplaintWithoutDriverSubdivisionsInfo";
-			this.ybtnComplaintWithoutDriverSubdivisionsInfo.UseUnderline = true;
-			this.ybtnComplaintWithoutDriverSubdivisionsInfo.Relief = ((global::Gtk.ReliefStyle)(1));
+			this.ybtnSubdivisionsInfo = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnSubdivisionsInfo.TooltipMarkup = "Справка по работе с отчётом";
+			this.ybtnSubdivisionsInfo.CanFocus = true;
+			this.ybtnSubdivisionsInfo.Name = "ybtnSubdivisionsInfo";
+			this.ybtnSubdivisionsInfo.UseUnderline = true;
+			this.ybtnSubdivisionsInfo.Relief = ((global::Gtk.ReliefStyle)(1));
 			global::Gtk.Image w7 = new global::Gtk.Image();
 			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
-			this.ybtnComplaintWithoutDriverSubdivisionsInfo.Image = w7;
-			this.hbox3.Add(this.ybtnComplaintWithoutDriverSubdivisionsInfo);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnComplaintWithoutDriverSubdivisionsInfo]));
+			this.ybtnSubdivisionsInfo.Image = w7;
+			this.hbox3.Add(this.ybtnSubdivisionsInfo);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybtnSubdivisionsInfo]));
 			w8.Position = 3;
 			w8.Expand = false;
 			w8.Fill = false;
@@ -121,16 +121,16 @@ namespace Vodovoz.Views.Settings
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
-			this.scrollComplaintWithoutDriverSubdivisions = new global::Gtk.ScrolledWindow();
-			this.scrollComplaintWithoutDriverSubdivisions.Name = "scrollComplaintWithoutDriverSubdivisions";
-			this.scrollComplaintWithoutDriverSubdivisions.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child scrollComplaintWithoutDriverSubdivisions.Gtk.Container+ContainerChild
-			this.ytreeComplaintWithoutDriverSubdivisions = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeComplaintWithoutDriverSubdivisions.CanFocus = true;
-			this.ytreeComplaintWithoutDriverSubdivisions.Name = "ytreeComplaintWithoutDriverSubdivisions";
-			this.scrollComplaintWithoutDriverSubdivisions.Add(this.ytreeComplaintWithoutDriverSubdivisions);
-			this.vbox4.Add(this.scrollComplaintWithoutDriverSubdivisions);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.scrollComplaintWithoutDriverSubdivisions]));
+			this.scrollSubdivisions = new global::Gtk.ScrolledWindow();
+			this.scrollSubdivisions.Name = "scrollSubdivisions";
+			this.scrollSubdivisions.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrollSubdivisions.Gtk.Container+ContainerChild
+			this.ytreeSubdivisions = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeSubdivisions.CanFocus = true;
+			this.ytreeSubdivisions.Name = "ytreeSubdivisions";
+			this.scrollSubdivisions.Add(this.ytreeSubdivisions);
+			this.vbox4.Add(this.scrollSubdivisions);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.scrollSubdivisions]));
 			w11.Position = 2;
 			this.GtkAlignment4.Add(this.vbox4);
 			this.frameConfiguration.Add(this.GtkAlignment4);
