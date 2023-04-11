@@ -43,6 +43,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				var income = rows
 					.Where(x => x.Date >= startDate
 						&& x.Date <= endDate
+						&& !string.IsNullOrWhiteSpace(x.Target)
 						&& x.ToWarehouseId == WarehouseId
 						&& x.NomenclatureName == NomenclatureName)
 					.Sum(x => x.Amount);
@@ -50,6 +51,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				var outcome = rows
 					.Where(x => x.Date >= startDate
 						&& x.Date <= endDate
+						&& !string.IsNullOrWhiteSpace(x.Source)
 						&& x.FromWarehouseId == WarehouseId
 						&& x.NomenclatureName == NomenclatureName)
 					.Sum(x => x.Amount);
