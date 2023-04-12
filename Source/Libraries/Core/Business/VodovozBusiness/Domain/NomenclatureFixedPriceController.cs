@@ -93,17 +93,17 @@ namespace Vodovoz.Domain
             return false;
         }
         
-        public void AddOrUpdateFixedPrice(IUnitOfWork uow, DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice) {
+        public void AddOrUpdateFixedPrice(IUnitOfWork uow, DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice, int minCount) {
             if(nomenclature.Category == NomenclatureCategory.water)
-                AddOrUpdateWaterFixedPrice(uow, deliveryPoint, nomenclature, fixedPrice);
+                AddOrUpdateWaterFixedPrice(uow, deliveryPoint, nomenclature, fixedPrice, minCount);
             else {
                 throw new NotSupportedException("Не поддерживается.");
             }
         }
         
-        public void AddOrUpdateFixedPrice(IUnitOfWork uow, Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice) {
+        public void AddOrUpdateFixedPrice(IUnitOfWork uow, Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice, int minCount) {
             if(nomenclature.Category == NomenclatureCategory.water)
-                AddOrUpdateWaterFixedPrice(uow, counterparty, nomenclature, fixedPrice);
+                AddOrUpdateWaterFixedPrice(uow, counterparty, nomenclature, fixedPrice, minCount);
             else {
                 throw new NotSupportedException("Не поддерживается.");
             }
@@ -123,7 +123,7 @@ namespace Vodovoz.Domain
             }
         }
 
-        private void AddOrUpdateWaterFixedPrice(IUnitOfWork uow,  DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice) 
+        private void AddOrUpdateWaterFixedPrice(IUnitOfWork uow,  DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice, int minCount) 
         {
             var fixedPrices = waterFixedPricesGenerator.GenerateFixedPricesForAllWater(nomenclature.Id, fixedPrice);
 
@@ -133,14 +133,17 @@ namespace Vodovoz.Domain
                     var newNomenclature = uow.GetById<Nomenclature>(pricePair.Key);
                     var nomenclatureFixedPrice = CreateNewNomenclatureFixedPrice(newNomenclature, pricePair.Value);
                     nomenclatureFixedPrice.DeliveryPoint = deliveryPoint;
-                    deliveryPoint.ObservableNomenclatureFixedPrices.Add(nomenclatureFixedPrice);
+					nomenclatureFixedPrice.MinCount = minCount;
+					deliveryPoint.ObservableNomenclatureFixedPrices.Add(nomenclatureFixedPrice);
                 } else {
                     foundFixedPrice.Price = pricePair.Value;
-                }
+					foundFixedPrice.MinCount = minCount;
+
+				}
             }
         }
         
-        private void AddOrUpdateWaterFixedPrice(IUnitOfWork uow,  Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice) 
+        private void AddOrUpdateWaterFixedPrice(IUnitOfWork uow,  Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice, int minCount) 
         {
             var fixedPrices = waterFixedPricesGenerator.GenerateFixedPricesForAllWater(nomenclature.Id, fixedPrice);
 
@@ -150,10 +153,12 @@ namespace Vodovoz.Domain
                     var newNomenclature = uow.GetById<Nomenclature>(pricePair.Key);
                     var nomenclatureFixedPrice = CreateNewNomenclatureFixedPrice(newNomenclature, pricePair.Value);
                     nomenclatureFixedPrice.Counterparty = counterparty;
-                    counterparty.ObservableNomenclatureFixedPrices.Add(nomenclatureFixedPrice);
+					nomenclatureFixedPrice.MinCount = minCount;
+					counterparty.ObservableNomenclatureFixedPrices.Add(nomenclatureFixedPrice);
                 } else {
                     foundFixedPrice.Price = pricePair.Value;
-                }
+					foundFixedPrice.MinCount = minCount;
+				}
             }
         }
         

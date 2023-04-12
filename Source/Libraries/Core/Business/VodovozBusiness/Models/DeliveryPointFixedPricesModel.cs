@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.UoW;
@@ -40,13 +40,13 @@ namespace Vodovoz.Models
             FixedPricesUpdated?.Invoke(this, EventArgs.Empty);
         }
 
-        public void AddOrUpdateFixedPrice(Nomenclature nomenclature, decimal fixedPrice)
+        public void AddOrUpdateFixedPrice(Nomenclature nomenclature, decimal fixedPrice, int minCount)
         {
             if(nomenclature == null) {
                 throw new ArgumentNullException(nameof(nomenclature));
             }
 
-            fixedPriceController.AddOrUpdateFixedPrice(uow, deliveryPoint, nomenclature, fixedPrice);
+            fixedPriceController.AddOrUpdateFixedPrice(uow, deliveryPoint, nomenclature, fixedPrice, minCount);
         }
 
         public void RemoveFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice)
