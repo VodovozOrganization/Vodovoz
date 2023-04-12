@@ -211,7 +211,13 @@ namespace Vodovoz.Controllers
 				oldGoodsToDeliverAmountNodes = oldOrder.GetAllGoodsToDeliver(true);
 				oldEquipmentToPickupAmountNodes = oldOrder.OrderEquipments
 					.Where(x => x.Direction == Direction.PickUp)
-					.Select(x => new NomenclatureAmountNode { NomenclatureId = x.Nomenclature.Id, Amount = x.CurrentCount, Nomenclature = x.Nomenclature })
+					.GroupBy(n => new { n.Nomenclature.Id, n.Nomenclature })
+					.Select(n => new NomenclatureAmountNode
+					{
+						NomenclatureId = n.Key.Id,
+						Nomenclature = n.Key.Nomenclature,
+						Amount = n.Sum(s => s.CurrentCount)
+					})
 					.ToList();
 			}
 
@@ -304,16 +310,24 @@ namespace Vodovoz.Controllers
 
 				var foundInChanged = changedRouteListItem.Order.OrderEquipments
 					.Where(x => x.Direction == Direction.PickUp)
+					.GroupBy(n => new { n.Nomenclature.Id, n.Nomenclature })
+					.Select(n => new NomenclatureAmountNode
+					{
+						NomenclatureId = n.Key.Id,
+						Nomenclature = n.Key.Nomenclature,
+						Amount = n.Sum(s => s.CurrentCount)
+					})
+					.ToList()
 					.SingleOrDefault(x => x.Nomenclature.Id == node.NomenclatureId);
 
 				if(foundInChanged != null)
 				{
-					if(foundInChanged.ActualCount == node.Amount)
+					if(foundInChanged.Amount == node.Amount)
 					{
 						continue;
 					}
 
-					count = foundInChanged.ActualCount.Value - node.Amount;
+					count = foundInChanged.Amount - node.Amount;
 				}
 				else
 				{
@@ -332,7 +346,7 @@ namespace Vodovoz.Controllers
 			var newEquipmentsToPickup = changedRouteListItem.Order.OrderEquipments
 				.Where(x => x.Direction == Direction.PickUp)
 				.Where(x => oldEquipmentToPickupAmountNodes
-					.All(a => a.Nomenclature.Id != x.Nomenclature.Id))
+					.All(old => old.Nomenclature.Id != x.Nomenclature.Id))
 				.ToList();
 
 			foreach(var item in newEquipmentsToPickup)
