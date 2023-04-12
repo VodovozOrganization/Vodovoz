@@ -42,6 +42,17 @@ namespace Vodovoz.Models.TrueMark
 			return codeId;
 		}
 
+		public override int TakeCode(string gtin)
+		{
+			var codeId = base.TakeCode(gtin);
+			if(codeId == 0)
+			{
+				throw new TrueMarkException($"В пуле отсутствуют коды по gtin {gtin} для получения.");
+			}
+			_codesToTake.Add(codeId);
+			return codeId;
+		}
+
 		public override void PutDefectiveCode(int codeId)
 		{
 			_defectiveCodesToPut.Add(codeId);

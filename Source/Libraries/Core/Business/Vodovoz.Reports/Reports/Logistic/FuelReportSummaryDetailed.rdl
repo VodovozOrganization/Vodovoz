@@ -101,7 +101,7 @@
             <Width>58.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>58.4pt</Width>
+            <Width>65.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -293,7 +293,8 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -314,7 +315,8 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -375,7 +377,8 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -395,7 +398,8 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -416,7 +420,8 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -707,7 +712,8 @@
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingRight>2pt</PaddingRight>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -724,7 +730,8 @@
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingRight>2pt</PaddingRight>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -817,7 +824,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum({liters_diesel})</Value>
                     </Textbox>
@@ -832,7 +840,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum({liters_benzin})</Value>
                     </Textbox>
@@ -1315,6 +1324,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1337,6 +1347,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1358,6 +1369,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1379,6 +1391,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1400,6 +1413,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1421,6 +1435,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1614,7 +1629,8 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!liters_outlayed.Value)</Value>
                     </Textbox>
@@ -1634,7 +1650,8 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
                     </Textbox>
@@ -1655,7 +1672,8 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1675,7 +1693,8 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1695,7 +1714,8 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1715,7 +1735,8 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2240,6 +2261,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2262,6 +2284,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2283,6 +2306,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2304,6 +2328,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2325,6 +2350,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2346,6 +2372,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2539,8 +2566,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!liters_outlayed.Value)</Value>
                     </Textbox>
@@ -2560,8 +2588,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
                     </Textbox>
@@ -2582,8 +2611,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2603,8 +2633,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2624,8 +2655,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2645,8 +2677,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3157,6 +3190,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3179,6 +3213,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3200,6 +3235,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3221,6 +3257,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3242,6 +3279,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3263,6 +3301,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3456,8 +3495,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!liters_outlayed.Value)</Value>
                     </Textbox>
@@ -3477,8 +3517,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
                     </Textbox>
@@ -3499,8 +3540,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3520,8 +3562,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3541,8 +3584,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3562,8 +3606,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4074,6 +4119,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4081,7 +4127,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox146">
-                      <Value>=Iif({fuel_type}=3, {liters_coupons}, 0)</Value>
+                      <Value>=Iif({fuel_type}=3, Format({liters_coupons}, "N2"), 0)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -4096,6 +4142,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4103,7 +4150,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox147">
-                      <Value>=Iif({fuel_type}!=3, {liters_coupons}, 0)</Value>
+                      <Value>=Iif({fuel_type}!=3, Format({liters_coupons}, "N2"), 0)</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -4117,6 +4164,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4138,6 +4186,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4159,6 +4208,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4180,6 +4230,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4373,8 +4424,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!liters_outlayed.Value)</Value>
                     </Textbox>
@@ -4394,17 +4446,18 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
-                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
+                      <Value>=Format(Sum(Iif({fuel_type}=3, {liters_coupons}, 0)), "N2")</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox173">
-                      <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0))</Value>
+                      <Value>=Format(Sum(Iif({fuel_type}!=3, {liters_coupons}, 0)), "N2")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -4416,8 +4469,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4437,8 +4491,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4458,8 +4513,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4479,8 +4535,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4991,6 +5048,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -4998,7 +5056,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox206">
-                      <Value>=Iif({fuel_type}=3, {liters_coupons}, 0)</Value>
+                      <Value>=Iif({fuel_type}=3, Format({liters_coupons}, "N2"), 0)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -5013,6 +5071,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5020,7 +5079,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox207">
-                      <Value>=Iif({fuel_type}!=3, {liters_coupons}, 0)</Value>
+                      <Value>=Iif({fuel_type}!=3, Format({liters_coupons}, "N2"), 0)</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -5034,6 +5093,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5055,6 +5115,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5076,6 +5137,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5097,6 +5159,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5290,8 +5353,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!liters_outlayed.Value)</Value>
                     </Textbox>
@@ -5311,17 +5375,18 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
-                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
+                      <Value>=Format(Sum(Iif({fuel_type}=3, {liters_coupons}, 0)), "N2")</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox221">
-                      <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0))</Value>
+                      <Value>=Format(Sum(Iif({fuel_type}!=3, {liters_coupons}, 0)), "N2")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -5333,8 +5398,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5354,8 +5420,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5375,8 +5442,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -5396,8 +5464,9 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
-                        <TextAlign >Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>

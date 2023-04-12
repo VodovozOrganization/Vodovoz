@@ -10,5 +10,9 @@ namespace Vodovoz.Models.TrueMark
 		/// В обороте
 		/// </summary>
 		public bool Introduced { get; set; }
+
+		public string OwnerInn { get; set; }
+
+		public string OwnerName { get; set; }
 	}
 }

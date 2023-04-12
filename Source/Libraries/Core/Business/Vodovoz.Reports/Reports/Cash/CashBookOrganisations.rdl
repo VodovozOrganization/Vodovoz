@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>296.926mm</PageHeight>
   <PageWidth>210.058mm</PageWidth>
   <Width>7.5in</Width>
@@ -69,7 +67,7 @@
           <TableColumn>
             <Width>75.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>30.1pt</Width>
           </TableColumn>
         </TableColumns>
@@ -182,7 +180,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
                       <Value>Юр. лицо</Value>
@@ -279,7 +277,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>=Iif(Fields!income.Value = 0, " ", Fields!income.Value)</Value>
+                      <Value>=Iif(Fields!income.Value = 0, " ", Format(Fields!income.Value, "N2"))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -290,6 +288,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -297,7 +296,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>=Iif({expense} = 0, " ", {expense})</Value>
+                      <Value>=Iif({expense} = 0, " ", Format({expense}, "N2"))</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -308,11 +307,12 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
                       <Value>={is_jur}</Value>
@@ -356,8 +356,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -376,8 +375,7 @@
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -395,8 +393,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -435,6 +432,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                       <Value>=Sum(Fields!income.Value)</Value>
                     </Textbox>
@@ -456,11 +454,12 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
                       <Value></Value>
@@ -488,8 +487,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox70">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -507,8 +505,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -527,8 +524,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox72">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -581,6 +577,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -588,8 +585,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -604,7 +600,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
                       <Value></Value>
@@ -649,8 +645,7 @@
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -662,8 +657,7 @@
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -675,8 +669,7 @@
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -708,6 +701,7 @@
                             <BorderWidth />
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format >#,##0.00</Format>
                           </Style>
                           <Value>=Sum(Fields!income.Value)</Value>
                         </Textbox>
@@ -725,12 +719,13 @@
                             <BorderWidth />
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format >#,##0.00</Format>
                           </Style>
                           <Value>=Sum({expense})</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox49">
                           <Value></Value>
@@ -821,8 +816,7 @@
       <Textbox Name="Textbox38" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>10.50pt</Height>
         <Width>37.67pt</Width>
-        <Value>
-        </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>249.6pt</Left>
         <Top>211.1pt</Top>
@@ -1020,6 +1014,7 @@
           <BorderWidth />
           <TextAlign>Left</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
+          <Format >#,##0.00</Format>
         </Style>
       </Textbox>
       <Textbox Name="Textbox33">
@@ -1036,6 +1031,7 @@
           <TextAlign>Left</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
           <FontSize>8pt</FontSize>
+          <Format >N0</Format>
         </Style>
       </Textbox>
     </ReportItems>
@@ -1060,7 +1056,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>75</Timeout>
         <CommandText>##INCOME
@@ -1154,7 +1150,7 @@ WHERE IF(@organisation != -1,
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="doc_date">
           <DataField>doc_date</DataField>
           <TypeName>System.String</TypeName>
@@ -1301,24 +1297,21 @@ WHERE codd.amount &lt; 0
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="EndDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organisation">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organisation_name">
       <DataType>String</DataType>
