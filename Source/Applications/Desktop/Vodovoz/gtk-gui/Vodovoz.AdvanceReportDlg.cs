@@ -26,7 +26,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox6;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinMoney;
+		private global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat yspinMoney;
 
 		private global::QSProjectsLib.CurrencyLabel currencylabel1;
 
@@ -163,6 +163,7 @@ namespace Vodovoz
 			this.evmeCashier.Events = ((global::Gdk.EventMask)(256));
 			this.evmeCashier.Name = "evmeCashier";
 			this.evmeCashier.CanEditReference = true;
+			this.evmeCashier.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeCashier);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeCashier]));
 			w9.LeftAttach = ((uint)(5));
@@ -173,6 +174,7 @@ namespace Vodovoz
 			this.evmeEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.evmeEmployee.Name = "evmeEmployee";
 			this.evmeEmployee.CanEditReference = true;
+			this.evmeEmployee.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeEmployee);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeEmployee]));
 			w10.TopAttach = ((uint)(1));
@@ -186,7 +188,8 @@ namespace Vodovoz
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 100D);
+			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(0D, 999999999D, 100D);
+			this.yspinMoney.CanDefault = true;
 			this.yspinMoney.CanFocus = true;
 			this.yspinMoney.Name = "yspinMoney";
 			this.yspinMoney.Adjustment.PageIncrement = 1000D;

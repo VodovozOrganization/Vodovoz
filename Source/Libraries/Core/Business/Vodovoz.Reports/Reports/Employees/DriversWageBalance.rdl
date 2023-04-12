@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -213,6 +213,7 @@
                         <TextAlign>Right</TextAlign>
                         <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
                         <PaddingLeft>5pt</PaddingLeft>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -296,6 +297,7 @@
                             <BorderWidth />
                             <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum({balance})</Value>
                           <CanGrow>true</CanGrow>
@@ -480,6 +482,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>5pt</PaddingLeft>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -563,6 +566,7 @@
                             <BorderWidth />
                             <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum({balance})</Value>
                         </Textbox>
@@ -751,6 +755,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>5pt</PaddingLeft>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -833,6 +838,7 @@
                             <BorderWidth />
                             <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum({balance})</Value>
                         </Textbox>
@@ -913,6 +919,7 @@
                             <BorderWidth />
                             <PaddingLeft>5pt</PaddingLeft>
                             <TextAlign>Right</TextAlign>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>
@@ -964,6 +971,7 @@
                         <BorderWidth />
                         <PaddingLeft>5pt</PaddingLeft>
                         <TextAlign>Right</TextAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1184,6 +1192,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>5pt</PaddingLeft>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1267,6 +1276,7 @@
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum({balance})</Value>
                         </Textbox>
@@ -1451,6 +1461,7 @@
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <PaddingLeft>5pt</PaddingLeft>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1533,6 +1544,7 @@
                             <BorderWidth />
                             <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum({balance})</Value>
                         </Textbox>
@@ -1721,6 +1733,7 @@
                         <TextAlign>Right</TextAlign>
                         <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
                         <PaddingLeft>5pt</PaddingLeft>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1804,6 +1817,7 @@
                             <BorderWidth />
                             <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum({balance})</Value>
                           <CanGrow>true</CanGrow>
@@ -1840,7 +1854,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -1871,7 +1885,7 @@ ORDER BY driver;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1946,7 +1960,7 @@ ORDER BY driver;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="LargusDriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -1976,7 +1990,7 @@ ORDER BY driver;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -2000,7 +2014,7 @@ ORDER BY driver;
       </Fields>
     </DataSet>
     <DataSet Name="GAZelleDriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -2030,7 +2044,7 @@ ORDER BY driver;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -2089,7 +2103,7 @@ HAVING balance &lt;&gt; 0
       </Fields>
     </DataSet>
     <DataSet Name="RaskatBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -2118,7 +2132,7 @@ ORDER BY driver;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -2142,7 +2156,7 @@ ORDER BY driver;
       </Fields>
     </DataSet>
     <DataSet Name="TruckBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     CONCAT_WS(' ', employees.last_name, employees.name, employees.patronymic, CONCAT('(', employees.id, ')')) AS driver,
@@ -2172,7 +2186,7 @@ ORDER BY driver;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
