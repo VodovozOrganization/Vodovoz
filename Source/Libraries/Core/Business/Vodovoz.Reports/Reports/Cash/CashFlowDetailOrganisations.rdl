@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
@@ -15,6 +13,7 @@
     <DataSet Name="DataIncome">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     if(ci.cash_income_category_id,
        1,
@@ -110,6 +109,7 @@ ORDER BY Category;</CommandText>
     <DataSet Name="MLatDay">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     rl.date as date,
     SUM(codd.amount) AS sum
@@ -152,6 +152,7 @@ GROUP BY rl.date</CommandText>
     <DataSet Name="DataIncomeReturn">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     ci.id as id,
     ocmo.operation_time as Date,
@@ -261,6 +262,7 @@ ORDER BY Category;</CommandText>
     <DataSet Name="DataExpense">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     ce.id AS id,
     ce.cash_expense_category_id AS CategoryId,
@@ -369,6 +371,7 @@ ORDER BY Category;</CommandText>
     <DataSet Name="DataAdvance">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     ce.id as id,
     ce.cash_expense_category_id as CategoryId,
@@ -478,6 +481,7 @@ ORDER BY Category;</CommandText>
     <DataSet Name="DataAdvanceReport">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     cash_advance_report.id AS report_id,
     cash_advance_report.cash_expense_category_id AS CategoryId,
@@ -603,6 +607,7 @@ ORDER BY Category;</CommandText>
     <DataSet Name="DataAdvanceClosing">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>600</Timeout>
         <CommandText>SELECT
     ce.id as expense_id,
     ce.cash_expense_category_id AS CategoryId,
@@ -833,10 +838,10 @@ ORDER BY Category;</CommandText>
             <Width>127.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>252.1pt</Width>
+            <Width>246.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65pt</Width>
+            <Width>70.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1027,6 +1032,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1036,7 +1042,7 @@ ORDER BY Category;</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>36.9pt</Top>
+        <Top>29.0pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1045,8 +1051,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1063,8 +1068,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1081,8 +1085,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1125,6 +1128,7 @@ ORDER BY Category;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=sum(Fields!sum.Value)</Value>
                     </Textbox>
@@ -1185,6 +1189,7 @@ ORDER BY Category;</CommandText>
                             <TextAlign>Right</TextAlign>
                             <BackgroundColor>Lightgrey</BackgroundColor>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum(Fields!sum.Value)</Value>
                         </Textbox>
@@ -1213,10 +1218,10 @@ ORDER BY Category;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>139.5pt</Width>
+            <Width>135.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.6pt</Width>
+            <Width>68.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1227,8 +1232,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1244,8 +1248,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1294,6 +1297,7 @@ ORDER BY Category;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1302,16 +1306,16 @@ ORDER BY Category;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>354.5pt</Left>
-        <Top>131.6pt</Top>
+        <Left>356.1pt</Left>
+        <Top>114.8pt</Top>
       </Table>
       <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Сдача (наличка)</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>178.30pt</Top>
+        <Left>0.0pt</Left>
+        <Top>142.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1341,10 +1345,10 @@ ORDER BY Category;</CommandText>
             <Width>127.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>249.9pt</Width>
+            <Width>247.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65pt</Width>
+            <Width>69.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1535,6 +1539,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1543,8 +1548,8 @@ ORDER BY Category;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
-        <Top>204.5pt</Top>
+        <Left>0.8pt</Left>
+        <Top>169.3pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1553,8 +1558,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1571,8 +1575,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1589,8 +1592,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1633,6 +1635,7 @@ ORDER BY Category;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=sum(Fields!sum.Value)</Value>
                     </Textbox>
@@ -1692,6 +1695,7 @@ ORDER BY Category;</CommandText>
                             <TextAlign>Right</TextAlign>
                             <BackgroundColor>Lightgrey</BackgroundColor>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum(Fields!sum.Value)</Value>
                         </Textbox>
@@ -1716,7 +1720,7 @@ ORDER BY Category;</CommandText>
         <Value>Расход (наличка)</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>286.0pt</Top>
+        <Top>236.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1746,10 +1750,10 @@ ORDER BY Category;</CommandText>
             <Width>121.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>249.3pt</Width>
+            <Width>246.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65pt</Width>
+            <Width>67.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1942,6 +1946,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1951,7 +1956,7 @@ ORDER BY Category;</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>316.0pt</Top>
+        <Top>259.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1960,8 +1965,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1978,8 +1982,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1996,8 +1999,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2040,6 +2042,7 @@ ORDER BY Category;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=sum(Fields!sum.Value)</Value>
                     </Textbox>
@@ -2098,6 +2101,7 @@ ORDER BY Category;</CommandText>
                             <TextAlign>Right</TextAlign>
                             <BackgroundColor>Lightgrey</BackgroundColor>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum(Fields!sum.Value)</Value>
                         </Textbox>
@@ -2122,7 +2126,7 @@ ORDER BY Category;</CommandText>
         <Value>Выданные авансы</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>401.7pt</Top>
+        <Top>325.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2152,10 +2156,10 @@ ORDER BY Category;</CommandText>
             <Width>130.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>241.1pt</Width>
+            <Width>238.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65pt</Width>
+            <Width>69.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -2346,6 +2350,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2355,7 +2360,7 @@ ORDER BY Category;</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>430.7pt</Top>
+        <Top>349.3pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -2364,8 +2369,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2382,8 +2386,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2400,8 +2403,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox77">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2444,6 +2446,7 @@ ORDER BY Category;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=sum(Fields!sum.Value)</Value>
                     </Textbox>
@@ -2502,6 +2505,7 @@ ORDER BY Category;</CommandText>
                             <TextAlign>Right</TextAlign>
                             <BackgroundColor>Lightgrey</BackgroundColor>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum(Fields!sum.Value)</Value>
                         </Textbox>
@@ -2526,7 +2530,7 @@ ORDER BY Category;</CommandText>
         <Value>Авансовые отчеты</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>514.2pt</Top>
+        <Top>417.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2556,10 +2560,10 @@ ORDER BY Category;</CommandText>
             <Width>132.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>243.2pt</Width>
+            <Width>241.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65pt</Width>
+            <Width>66.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -2707,8 +2711,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox95" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2756,6 +2759,7 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <BackgroundColor>LightCyan</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2765,7 +2769,7 @@ ORDER BY Category;</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>544.1pt</Top>
+        <Top>439.7pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -2774,8 +2778,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox98">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2792,8 +2795,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox99">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2810,8 +2812,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox100">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2854,6 +2855,7 @@ ORDER BY Category;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=sum(Fields!Sum.Value)</Value>
                     </Textbox>
@@ -2912,6 +2914,7 @@ ORDER BY Category;</CommandText>
                             <TextAlign>Right</TextAlign>
                             <BackgroundColor>Lightgrey</BackgroundColor>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum(Fields!Sum.Value)</Value>
                         </Textbox>
@@ -3021,6 +3024,7 @@ ORDER BY Category;</CommandText>
                             <PaddingLeft>2pt</PaddingLeft>
                             <TextAlign>Right</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>={Sum}</Value>
                         </Textbox>
@@ -3039,7 +3043,7 @@ ORDER BY Category;</CommandText>
         <Value>Незакрытые авансы</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>639.7pt</Top>
+        <Top>521.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3069,10 +3073,10 @@ ORDER BY Category;</CommandText>
             <Width>128.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>241.1pt</Width>
+            <Width>228.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65pt</Width>
+            <Width>79.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -3268,6 +3272,7 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <BackgroundColor>Lightcyan</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3279,8 +3284,8 @@ ORDER BY Category;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
-        <Top>671.7pt</Top>
+        <Left>1.6pt</Left>
+        <Top>547.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -3289,8 +3294,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox126">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -3307,8 +3311,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox127">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -3325,8 +3328,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox128">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -3369,6 +3371,7 @@ ORDER BY Category;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=sum(Fields!Sum.Value)</Value>
                     </Textbox>
@@ -3427,6 +3430,7 @@ ORDER BY Category;</CommandText>
                             <TextAlign>Right</TextAlign>
                             <BackgroundColor>Lightgrey</BackgroundColor>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum(Iif(Previous({expense_id}) != {expense_id}, Fields!Sum.Value, 0)) - sum({return_money})</Value>
                         </Textbox>
@@ -3532,6 +3536,7 @@ ORDER BY Category;</CommandText>
                             <BorderColor />
                             <BorderWidth />
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=Fields!Sum.Value</Value>
                         </Textbox>
@@ -3559,16 +3564,14 @@ ORDER BY Category;</CommandText>
                             <BorderWidth />
                             <TextAlign>Center</TextAlign>
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox117">
-                          <Value>
-                          </Value>
+                          <Value></Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -3592,8 +3595,7 @@ ORDER BY Category;</CommandText>
                             <BorderColor />
                             <BorderWidth />
                           </Style>
-                          <Value>
-                          </Value>
+                          <Value></Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -3623,6 +3625,7 @@ ORDER BY Category;</CommandText>
                             <BorderColor />
                             <BorderWidth />
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>={Sum} - Sum({return_money})</Value>
                         </Textbox>
@@ -3636,7 +3639,7 @@ ORDER BY Category;</CommandText>
         </TableGroups>
       </Table>
     </ReportItems>
-    <Height>780.7pt</Height>
+    <Height>648.4pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -3671,22 +3674,20 @@ ORDER BY Category;</CommandText>
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="EndDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="IncomeCategory">
       <DataType>Integer</DataType>
@@ -3698,8 +3699,7 @@ ORDER BY Category;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="ExpenseCategory">
       <DataType>Integer</DataType>
@@ -3711,8 +3711,7 @@ ORDER BY Category;</CommandText>
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="ExpenseCategoryUsed">
       <DataType>Integer</DataType>
@@ -3724,48 +3723,42 @@ ORDER BY Category;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="Casher">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="Employee">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CasherName">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="EmployeeName">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organisations">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organisation_name">
       <DataType>String</DataType>

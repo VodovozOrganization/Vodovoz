@@ -4,11 +4,9 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
-using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 
 namespace Vodovoz.EntityRepositories.Complaints
 {
@@ -75,6 +73,25 @@ namespace Vodovoz.EntityRepositories.Complaints
 				query.Where(c => c.PlannedCompletionDate >= DateTime.Today);
 
 			return query.Select(Projections.Count<Complaint>(c => c.Id)).SingleOrDefault<int>();
+		}
+
+		public IList<int> GetUnclosedWithNoCommentsComplaintIdsBySubdivision(IUnitOfWork uow, int subdivisionId)
+		{
+			Complaint complaintAlias = null;
+			ComplaintDiscussion complaintDiscussionAlias = null;
+			ComplaintDiscussionComment complaintDiscussionCommentAlias = null;
+
+			var complaintsIds = uow.Session.QueryOver(() => complaintDiscussionAlias)
+				.Left.JoinAlias(() => complaintDiscussionAlias.Complaint, () => complaintAlias)
+				.Left.JoinAlias(() => complaintDiscussionAlias.Comments, () => complaintDiscussionCommentAlias)
+				.Where(() => complaintAlias.Status != ComplaintStatuses.Closed)
+				.Where(() => complaintDiscussionAlias.Subdivision.Id == subdivisionId)
+				.SelectList(list => list
+					.Select(Projections.Group(() => complaintAlias.Id)))
+				.Where(Restrictions.Eq(Projections.Count(() => complaintDiscussionCommentAlias.Id), 0))
+				.List<int>();
+
+			return complaintsIds;
 		}
 
 		public IEnumerable<DriverComplaintReason> GetDriverComplaintReasons(IUnitOfWork unitOfWork)

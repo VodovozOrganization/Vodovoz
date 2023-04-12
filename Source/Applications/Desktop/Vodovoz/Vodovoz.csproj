@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -453,6 +453,7 @@
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfCounterpartyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfEmployeesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\ComplaintsWithDepartmentsReactionJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CounterpartyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DebtorsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryPointByClientJournalRegistrar.cs" />
@@ -578,6 +579,7 @@
     <Compile Include="Representations\ProductGroups\ProductGroupVMNode.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
+    <Compile Include="TempAdapters\ComplaintsJournalFactory.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
@@ -1893,6 +1895,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.TrueMarkReceiptJournalFilterView.cs" />
     <Compile Include="Views\Cash\PaymentOnlineView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentOnlineView.cs" />
+    <Compile Include="Views\Complaints\ComplaintsJournalsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintsJournalsView.cs" />
     <Compile Include="Filters\GtkViews\WarehouseDocumentsItemsJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseDocumentsItemsJournalFilterView.cs" />
     <Compile Include="Views\Logistic\RouteListFastDeliveryMaxDistanceView.cs" />
