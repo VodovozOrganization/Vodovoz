@@ -126,13 +126,13 @@
             <Width>148.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>193.3pt</Width>
+            <Width>187.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>79.9pt</Width>
+            <Width>80.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>75.5pt</Width>
+            <Width>73.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -296,7 +296,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>=Fields!balance.Value</Value>
+                      <Value>=Format(Fields!balance.Value, '#,##0.00')</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
