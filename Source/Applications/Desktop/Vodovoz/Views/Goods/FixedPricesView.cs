@@ -33,6 +33,8 @@ namespace Vodovoz.Views.Goods
 				.AddColumn("Фиксированная цена").AddNumericRenderer(x => x.FixedPrice).Editing().Digits(2)
 					.AddSetter((cell, node) => cell.Editable = ViewModel.CanEdit)
 					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
+				.AddColumn("Минимальное количество").AddNumericRenderer(x => x.MinCount).Editing()
+					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
 				.Finish();
 
 			ViewModel.DiffFormatter = new PangoDiffFormater();

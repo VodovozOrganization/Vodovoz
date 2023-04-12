@@ -139,7 +139,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				price = fixPrice == null ? 0 : fixPrice.FixedPrice;
 			}
 
-			fixedPricesModel.AddOrUpdateFixedPrice(nomenclature, price);
+			fixedPricesModel.AddOrUpdateFixedPrice(nomenclature, price, 1);
 		}
 
 		private DelegateCommand removeFixedPriceCommand;

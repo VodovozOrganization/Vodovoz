@@ -30,7 +30,10 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
                 case nameof(NomenclatureFixedPrice.Price):
                     OnPropertyChanged(nameof(FixedPrice));
                     break;
-            }
+				case nameof(NomenclatureFixedPrice.MinCount):
+					OnPropertyChanged(nameof(MinCount));
+					break;
+			}
         }
 		
         private void NomenclatureOnPropertyChanged(object sender, PropertyChangedEventArgs e)
