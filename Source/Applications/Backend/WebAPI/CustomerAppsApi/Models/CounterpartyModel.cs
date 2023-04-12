@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Dto;
@@ -22,6 +22,7 @@ namespace CustomerAppsApi.Models
 		private readonly ILogger<CounterpartyModel> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
+		private readonly IExternalCounterpartyMatchingRepository _externalCounterpartyMatchingRepository;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IRoboatsSettings _roboatsSettings;
@@ -34,6 +35,7 @@ namespace CustomerAppsApi.Models
 			ILogger<CounterpartyModel> logger,
 			IUnitOfWork uow,
 			IExternalCounterpartyRepository externalCounterpartyRepository,
+			IExternalCounterpartyMatchingRepository externalCounterpartyMatchingRepository,
 			IRoboatsRepository roboatsRepository,
 			IEmailRepository emailRepository,
 			IRoboatsSettings roboatsSettings,
@@ -46,6 +48,8 @@ namespace CustomerAppsApi.Models
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_externalCounterpartyRepository =
 				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
+			_externalCounterpartyMatchingRepository =
+				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
@@ -292,7 +296,7 @@ namespace CustomerAppsApi.Models
 					break;
 			}
 
-			if(externalCounterparty.Email.Address != counterpartyDto.Email)
+			if(externalCounterparty.Email?.Address != counterpartyDto.Email)
 			{
 				externalCounterparty.Email = CreateNewEmail(counterpartyDto.Email, counterparty);
 			}
@@ -402,6 +406,12 @@ namespace CustomerAppsApi.Models
 		private CounterpartyIdentificationDto SendToManualHandling(
 			CounterpartyContactInfoDto counterpartyContactInfoDto, CounterpartyFrom counterpartyFrom)
 		{
+			if(_externalCounterpartyMatchingRepository.ExternalCounterpartyMatchingExists(
+					_uow, counterpartyContactInfoDto.ExternalCounterpartyId, counterpartyContactInfoDto.PhoneNumber))
+			{
+				return _counterpartyModelFactory.CreateNeedManualHandlingCounterpartyIdentificationDto();
+			}
+			
 			var counterpartyManualHandlingDto = _counterpartyModelFactory.CreateNeedManualHandlingCounterpartyDto(
 				counterpartyContactInfoDto, counterpartyFrom);
 			

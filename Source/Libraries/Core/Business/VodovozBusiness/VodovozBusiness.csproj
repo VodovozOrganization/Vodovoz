@@ -340,11 +340,13 @@
     <Compile Include="EntityRepositories\Counterparties\DeliveryPointRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\DocTemplateRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\ExternalCounterpartyAssignNotificationRepository.cs" />
+    <Compile Include="EntityRepositories\Counterparties\ExternalCounterpartyMatchingRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\ExternalCounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\ICounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\IDeliveryPointRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\IDocTemplateRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\IExternalCounterpartyAssignNotificationRepository.cs" />
+    <Compile Include="EntityRepositories\Counterparties\IExternalCounterpartyMatchingRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\IExternalCounterpartyRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\IWaterPricesRepository.cs" />
     <Compile Include="EntityRepositories\Counterparties\WaterPriceNode.cs" />

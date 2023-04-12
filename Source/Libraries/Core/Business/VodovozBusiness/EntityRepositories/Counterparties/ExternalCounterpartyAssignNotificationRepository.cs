@@ -11,7 +11,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		{
 			return uow.Session.QueryOver<ExternalCounterpartyAssignNotification>()
 				.Where(n => n.HttpCode == null || n.HttpCode != 204)
-				.And(n => n.Created >= DateTime.Today.AddDays(-days))
+				.And(n => n.CreationDate >= DateTime.Today.AddDays(-days))
 				.List();
 		}
 	}

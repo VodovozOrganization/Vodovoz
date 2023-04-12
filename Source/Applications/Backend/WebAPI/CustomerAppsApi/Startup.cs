@@ -65,6 +65,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
+			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
 			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
 			services.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>();
 			services.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>();
@@ -116,7 +117,7 @@ namespace CustomerAppsApi
 
 			var connectionString = conStrBuilder.GetConnectionString(true);
 
-			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(connectionString)
 				.AdoNetBatchSize(100)
@@ -124,7 +125,7 @@ namespace CustomerAppsApi
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
-				db_config,
+				dbConfig,
 				new Assembly[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
@@ -137,8 +138,6 @@ namespace CustomerAppsApi
 				}
 			);
 
-			//_dataBaseInfo = new DatabaseInfo(conStrBuilder.Database);
-
 			string userLogin = domainDbConfig.GetValue<string>("UserID");
 			int serviceUserId = 0;
 
@@ -149,11 +148,6 @@ namespace CustomerAppsApi
 					.Select(u => u.Id)
 					.FirstOrDefault();
 			}
-
-			/*if(serviceUserId == 0)
-			{
-				throw new ApplicationException($"Невозможно получить пользователя по логину: {userLogin}");
-			}*/
 
 			UserRepository.GetCurrentUserId = () => serviceUserId;
 			HistoryMain.Enable();

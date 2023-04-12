@@ -33,7 +33,7 @@ namespace Vodovoz.Domain.Client
 		}
 		
 		[Display(Name = "Дата создания")]
-		public virtual DateTime? Created
+		public virtual DateTime? CreationDate
 		{
 			get => _created;
 			set => SetField(ref _created, value);

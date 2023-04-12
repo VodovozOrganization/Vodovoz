@@ -42,6 +42,14 @@ namespace CustomerAppsApi.Factories
 				CounterpartyIdentificationStatus = CounterpartyIdentificationStatus.CounterpartyNotFound
 			};
 		}
+		
+		public CounterpartyIdentificationDto CreateNeedManualHandlingCounterpartyIdentificationDto()
+		{
+			return new CounterpartyIdentificationDto
+			{
+				CounterpartyIdentificationStatus = CounterpartyIdentificationStatus.NeedManualHandling
+			};
+		}
 
 		public CounterpartyManualHandlingDto CreateNeedManualHandlingCounterpartyDto(
 			CounterpartyContactInfoDto counterpartyContactInfoDto, CounterpartyFrom counterpartyFrom)
@@ -51,10 +59,7 @@ namespace CustomerAppsApi.Factories
 				counterpartyContactInfoDto.PhoneNumber,
 				counterpartyFrom);
 
-			var counterpartyIdentificationDto = new CounterpartyIdentificationDto
-			{
-				CounterpartyIdentificationStatus = CounterpartyIdentificationStatus.NeedManualHandling
-			};
+			var counterpartyIdentificationDto = CreateNeedManualHandlingCounterpartyIdentificationDto();
 			
 			return new CounterpartyManualHandlingDto(counterpartyIdentificationDto, matchingEntity);
 		}

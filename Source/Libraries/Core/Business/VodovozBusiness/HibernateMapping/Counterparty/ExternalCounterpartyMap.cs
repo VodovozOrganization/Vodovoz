@@ -14,6 +14,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
 
 			Map(x => x.ExternalCounterpartyId).Column("external_counterparty_id");
 			Map(x => x.CounterpartyFrom).Column("counterparty_from").ReadOnly();
+			Map(x => x.CreationDate).Column("creation_date").ReadOnly();
 			Map(x => x.IsArchive).Column("is_archive");
 
 			References(x => x.Phone).Column("phone_id").Cascade.AllDeleteOrphan();

@@ -341,6 +341,12 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					counterpartyNode = CounterpartyMatchingNode.Create(
 						item.EntityId, item.PersonType, item.LastOrderDate, item.Title, true, item.PhoneId,
 						item.ExternalCounterpartyId, hasOtherExternalCounterparty);
+					
+					if(nodes.ContainsKey(counterpartyNode.EntityId))
+					{
+						continue;
+					}
+
 					nodes.Add(counterpartyNode.EntityId, counterpartyNode);
 					ContactMatches.Add(counterpartyNode);
 				}
