@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -40,7 +40,15 @@ namespace Vodovoz.Domain.Goods
         public virtual decimal Price {
             get => price;
             set => SetField(ref price, value);
-        }
+		}
+
+		private int _minCount;
+		[Display(Name = "Минимальное количество")]
+		public virtual int MinCount
+		{
+			get => _minCount;
+			set => SetField(ref _minCount, value);
+		}
 
 		public virtual string Title
 		{
