@@ -18,6 +18,13 @@ namespace Vodovoz.Tools.Orders
 
 			foreach(var item in items)
 			{
+				DateTime dateOfRouteListFastDeliveryMaxDistance = 
+					item.FastDeliveryAvailabilityHistory.VerificationDate > DateTime.MinValue 
+					? item.FastDeliveryAvailabilityHistory.VerificationDate
+					: DateTime.Now;
+
+				double routeListFastDeliveryRadius = (double)item.RouteList.GetFastDeliveryMaxDistanceValue(dateOfRouteListFastDeliveryMaxDistance);
+
 				var node = new FastDeliveryVerificationDetailsNode
 				{
 					RouteList = item.RouteList,
@@ -52,7 +59,8 @@ namespace Vodovoz.Tools.Orders
 					{
 						IsValidParameter = item.IsValidUnclosedFastDeliveries,
 						ParameterValue = item.UnclosedFastDeliveries
-					}
+					},
+					RouteListFastDeliveryRadius = routeListFastDeliveryRadius
 				};
 
 				nodes.Add(node);
