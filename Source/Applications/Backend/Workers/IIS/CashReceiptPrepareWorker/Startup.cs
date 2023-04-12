@@ -15,6 +15,7 @@ using System.Reflection;
 using TrueMarkApi.Library;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.NhibernateExtensions;
@@ -73,6 +74,10 @@ namespace CashReceiptPrepareWorker
 
 			builder.RegisterType<OrderRepository>()
 				.As<IOrderRepository>()
+				.SingleInstance();
+			
+			builder.RegisterType<OrganizationRepository>()
+				.As<IOrganizationRepository>()
 				.SingleInstance();
 
 			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule

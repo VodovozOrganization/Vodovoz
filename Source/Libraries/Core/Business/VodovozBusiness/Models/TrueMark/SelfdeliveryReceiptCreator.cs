@@ -9,7 +9,6 @@ using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Models.TrueMark
 {
-
 	public class SelfdeliveryReceiptCreator : IDisposable
 	{
 		private readonly ILogger<SelfdeliveryReceiptCreator> _logger;
@@ -88,29 +87,29 @@ namespace Vodovoz.Models.TrueMark
 
 				for(int i = 1; i <= orderItem.Count; i++)
 				{
-					CreateTrueMarkCodeEntity(receipt, orderItem);
+					CreateCashReceiptProductCode(receipt, orderItem);
 				}
 			}
 
 			_uow.Save(receipt);
 		}
 
-		private void CreateTrueMarkCodeEntity(CashReceipt receipt, OrderItem orderItem)
+		private void CreateCashReceiptProductCode(CashReceipt receipt, OrderItem orderItem)
 		{
 			var orderProductCode = new CashReceiptProductCode
 			{
 				CashReceipt = receipt,
 				OrderItem = orderItem,
-				SourceCode = GetCodeFromPool()
+				SourceCode = GetCodeFromPool(orderItem.Nomenclature.Gtin)
 			};
 
 			receipt.ScannedCodes.Add(orderProductCode);
 			_uow.Save(orderProductCode);
 		}
 
-		private TrueMarkWaterIdentificationCode GetCodeFromPool()
+		private TrueMarkWaterIdentificationCode GetCodeFromPool(string gtin)
 		{
-			var codeId = _codesPool.TakeCode();
+			var codeId = _codesPool.TakeCode(gtin);
 			return _uow.GetById<TrueMarkWaterIdentificationCode>(codeId);
 		}
 
