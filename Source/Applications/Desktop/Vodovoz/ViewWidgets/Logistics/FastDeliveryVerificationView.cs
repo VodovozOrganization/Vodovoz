@@ -41,6 +41,8 @@ namespace Vodovoz.ViewWidgets.Logistics
 				.AddNumericRenderer(n => ViewModel.Nodes.IndexOf(n) + 1)
 				.AddColumn("Марш. лист")
 				.AddNumericRenderer(n => n.RouteList.Id)
+				.AddColumn("Радиус")
+				.AddNumericRenderer(n => $"{n.RouteListFastDeliveryRadius:N1}")
 				.AddColumn("Водитель")
 				.AddTextRenderer(n => n.DriverFIO)
 				.AddColumn("Хватает\nостатков\nна борту?")
