@@ -514,7 +514,11 @@ namespace Vodovoz.Domain.Logistic
 			if(Status == status)
 				return;
 
-			var oldStatus = Status;
+			if(!isEditAtCashier)
+			{
+				CreateDeliveryFreeBalanceOperation(uow, Status, status);
+			}
+
 			Status = status;
 			StatusLastUpdate = DateTime.Now;
 
@@ -539,11 +543,6 @@ namespace Vodovoz.Domain.Logistic
 					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
 					SetOrderActualCountsToZeroOnCanceled();
 					break;
-			}
-
-			if(!isEditAtCashier)
-			{
-				CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
 			}
 
 			uow.Save(Order);

@@ -56,59 +56,47 @@ namespace Vodovoz.Controllers
 			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
 			var pickupEquipments = routeListItem.Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp).ToList();
 
-			if(newStatus == RouteListItemStatus.Completed && oldStatus != RouteListItemStatus.Completed)
-			{
-				var bottleRouteListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
-				{
-					RouteListAddressKeepingDocument = routeListKeepingDocument,
-					Nomenclature = defaultBottleNomenclature,
-					Amount = routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn ?? 0
-				};
-
-				bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();
-				routeListKeepingDocument.Items.Add(bottleRouteListKeepingDocumentItem);
-
-				routeList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
-
-				foreach(var item in pickupEquipments)
-				{
-					var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
-					{
-						RouteListAddressKeepingDocument = routeListKeepingDocument,
-						Nomenclature = item.Nomenclature,
-						Amount = item.CurrentCount
-					};
-
-					routeListKeepingDocumentItem.CreateOrUpdateOperation();
-					routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
-
-					routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
-				}
-			}
-
+			int amountSign;
 			if(newStatus != RouteListItemStatus.Completed && oldStatus == RouteListItemStatus.Completed)
 			{
-				var defaultBottleNomenclatureItems = routeListKeepingDocument.Items
-					.Where(x => x.Nomenclature.Id == defaultBottleNomenclature.Id)
-					.ToList();
+				amountSign = -1;
+			}
+			else if(newStatus == RouteListItemStatus.Completed && oldStatus != RouteListItemStatus.Completed)
+			{
+				amountSign = 1;
+			}
+			else
+			{
+				return;
+			}
 
-				foreach(var defaultBottleNomenclatureItem in defaultBottleNomenclatureItems)
+			var bottleRouteListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
+			{
+				RouteListAddressKeepingDocument = routeListKeepingDocument,
+				Nomenclature = defaultBottleNomenclature,
+				Amount = (routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn ?? 0) * amountSign
+			};
+
+			bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();
+			routeListKeepingDocument.Items.Add(bottleRouteListKeepingDocumentItem);
+
+			routeList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+
+			var isOldUndelivered = RouteListItem.GetUndeliveryStatuses().Contains(oldStatus.Value);
+
+			foreach(var item in pickupEquipments)
+			{
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
 				{
-					routeListKeepingDocument.Items.Remove(defaultBottleNomenclatureItem);
-					routeList.ObservableDeliveryFreeBalanceOperations.Remove(defaultBottleNomenclatureItem.DeliveryFreeBalanceOperation);
-					uow.Delete(defaultBottleNomenclatureItem);
-				}
+					RouteListAddressKeepingDocument = routeListKeepingDocument,
+					Nomenclature = item.Nomenclature,
+					Amount = (isOldUndelivered ? item.Count : item.CurrentCount) * amountSign
+				};
 
-				var pickupsEquipmentItems = routeListKeepingDocument.Items
-					.Where(kdi => pickupEquipments.Any(pe => pe.Nomenclature.Id == kdi.Nomenclature.Id))
-					.ToList();
+				routeListKeepingDocumentItem.CreateOrUpdateOperation();
+				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 
-				foreach(var pickupsEquipmentItem in pickupsEquipmentItems)
-				{
-					routeListKeepingDocument.Items.Remove(pickupsEquipmentItem);
-					routeList.ObservableDeliveryFreeBalanceOperations.Remove(pickupsEquipmentItem.DeliveryFreeBalanceOperation);
-					uow.Delete(pickupsEquipmentItem);
-				}
+				routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
 			}
 		}
 
@@ -245,11 +233,29 @@ namespace Vodovoz.Controllers
 				decimal count;
 
 				var foundInChanged = changedRouteListItem.Order.OrderItems
-					.Select(i => new NomenclatureAmountNode { NomenclatureId = i.Nomenclature.Id, Nomenclature = i.Nomenclature, Amount = i.CurrentCount })
+					.Select(i => new NomenclatureAmountNode
+					{
+						NomenclatureId = i.Nomenclature.Id,
+						Nomenclature = i.Nomenclature,
+						Amount = i.CurrentCount
+					})
 					.Concat(changedRouteListItem.Order.OrderEquipments
-						.Where(x => x.Direction == Direction.Deliver)
-						.Select(e => new NomenclatureAmountNode { NomenclatureId = e.Nomenclature.Id, Nomenclature = e.Nomenclature, Amount = e.CurrentCount }))
-				.SingleOrDefault(x => x.Nomenclature.Id == node.NomenclatureId);
+						.Where(e => e.Direction == Direction.Deliver)
+						.Select(e => new NomenclatureAmountNode
+						{
+							NomenclatureId = e.Nomenclature.Id,
+							Nomenclature = e.Nomenclature,
+							Amount = e.CurrentCount
+						}))
+					.Where(n => n.Nomenclature.Id == node.NomenclatureId)
+					.GroupBy(n => new { n.Nomenclature.Id, n.Nomenclature })
+					.Select(n => new NomenclatureAmountNode
+					{
+						NomenclatureId = n.Key.Id,
+						Nomenclature = n.Key.Nomenclature,
+						Amount = n.Sum(s => s.Amount)
+					})
+					.SingleOrDefault();
 
 				if(foundInChanged != null)
 				{
