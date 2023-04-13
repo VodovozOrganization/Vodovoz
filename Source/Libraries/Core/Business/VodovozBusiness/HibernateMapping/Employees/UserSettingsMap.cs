@@ -23,7 +23,8 @@ namespace Vodovoz.HibernateMapping
             Map(x => x.ReorderTabs).Column("reorder_tabs");
             Map(x => x.HighlightTabsWithColor).Column("highlight_tabs_with_color");
             Map(x => x.KeepTabColor).Column("keep_tab_color");
-            References(x => x.User).Column("user_id");
+			Map(x => x.HideComplaintNotification).Column("hide_complaint_notification");
+			References(x => x.User).Column("user_id");
 			References(x => x.DefaultWarehouse).Column("default_warehouse_id");
             References(x => x.DefaultSubdivision).Column("default_subdivision_id");
             References(x => x.DefaultCounterparty).Column("default_counterparty_id");
