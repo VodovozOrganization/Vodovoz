@@ -54,7 +54,7 @@ namespace Vodovoz.Views.Goods
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.ytreeviewNomenclatures = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewNomenclatures.WidthRequest = 300;
+			this.ytreeviewNomenclatures.WidthRequest = 250;
 			this.ytreeviewNomenclatures.CanFocus = true;
 			this.ytreeviewNomenclatures.Name = "ytreeviewNomenclatures";
 			this.GtkScrolledWindow.Add(this.ytreeviewNomenclatures);
@@ -67,7 +67,7 @@ namespace Vodovoz.Views.Goods
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
 			this.ytreeviewFixedPriceAndCount = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewFixedPriceAndCount.WidthRequest = 300;
+			this.ytreeviewFixedPriceAndCount.WidthRequest = 200;
 			this.ytreeviewFixedPriceAndCount.CanFocus = true;
 			this.ytreeviewFixedPriceAndCount.Name = "ytreeviewFixedPriceAndCount";
 			this.GtkScrolledWindow2.Add(this.ytreeviewFixedPriceAndCount);
