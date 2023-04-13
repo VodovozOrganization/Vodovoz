@@ -44,6 +44,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Additions;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
@@ -672,6 +673,7 @@ namespace Vodovoz
 			builder.RegisterType<UsersPresetPermissionValuesGetter>().AsSelf();
 			builder.RegisterType<UsersEntityPermissionValuesGetter>().AsSelf();
 			builder.RegisterType<UserPermissionsExporter>().AsSelf();
+			builder.RegisterType<AuthorizationService>().As<IAuthorizationService>();
 
 			#endregion
 
@@ -828,6 +830,8 @@ namespace Vodovoz
 			builder.Register(c => CurrentUserSettings.Settings).As<UserSettings>();
 
 			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
+
+			builder.RegisterType<PasswordGenerator>().As<IPasswordGenerator>();
 
 			#endregion
 		}

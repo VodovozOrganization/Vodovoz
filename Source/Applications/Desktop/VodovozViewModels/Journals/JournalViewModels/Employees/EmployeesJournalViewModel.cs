@@ -1,11 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
-using QS.Attachments.ViewModels.Widgets;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -13,7 +11,8 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
-using QS.Tdi;
+using System;
+using System.Linq;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
@@ -35,83 +34,29 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using VodovozInfrastructure.Endpoints;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
 	public class EmployeesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Employee, EmployeeViewModel, EmployeeJournalNode, EmployeeFilterViewModel>
 	{
 		private readonly IAuthorizationServiceFactory _authorizationServiceFactory;
+		private readonly IContainer _container;
 		private readonly IAuthorizationService _authorizationService;
-		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private readonly IEmployeePostsJournalFactory _employeePostsJournalFactory;
-		private readonly ICashDistributionCommonOrganisationProvider _cashDistributionCommonOrganisationProvider;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
-		private readonly IWageCalculationRepository _wageCalculationRepository;
-		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IValidationContextFactory _validationContextFactory;
-		private readonly IPhonesViewModelFactory _phonesViewModelFactory;
-		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
-		private readonly IWarehouseRepository _warehouseRepository;
-		private readonly IRouteListRepository _routeListRepository;
-		private readonly UserSettings _userSettings;
-		private readonly IAttachmentsViewModelFactory _attachmentsViewModelFactory;
-		private readonly INavigationManager _navigationManager;
-
-		//Новые зависимости создаем в журнале, скоро внедрим autofac
-		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 
 		public EmployeesJournalViewModel(
 			EmployeeFilterViewModel filterViewModel,
 			IAuthorizationServiceFactory authorizationServiceFactory,
-			IEmployeeWageParametersFactory employeeWageParametersFactory,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IEmployeePostsJournalFactory employeePostsJournalFactory,
-			ICashDistributionCommonOrganisationProvider cashDistributionCommonOrganisationProvider,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
-			IWageCalculationRepository wageCalculationRepository,
-			IEmployeeRepository employeeRepository,
-			IWarehouseRepository warehouseRepository,
-			IRouteListRepository routeListRepository,
-			UserSettings userSettings,
-			IValidationContextFactory validationContextFactory,
-			IPhonesViewModelFactory phonesViewModelFactory,
-			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IAttachmentsViewModelFactory attachmentsViewModelFactory,
-			INavigationManager navigationManager,
+			IContainer container,
 			Action<EmployeeFilterViewModel> filterparams = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал сотрудников";
 
 			_authorizationServiceFactory =
 				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
+			_container = container ?? throw new ArgumentNullException(nameof(container));
 			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
-			_employeeWageParametersFactory =
-				employeeWageParametersFactory ?? throw new ArgumentNullException(nameof(employeeWageParametersFactory));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			_employeePostsJournalFactory =
-				employeePostsJournalFactory ?? throw new ArgumentNullException(nameof(employeePostsJournalFactory));
-			_cashDistributionCommonOrganisationProvider =
-				cashDistributionCommonOrganisationProvider ??
-				throw new ArgumentNullException(nameof(cashDistributionCommonOrganisationProvider));
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
-			_phonesViewModelFactory = phonesViewModelFactory ?? throw new ArgumentNullException(nameof(phonesViewModelFactory));
-			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
-			_attachmentsViewModelFactory = attachmentsViewModelFactory ?? throw new ArgumentNullException(nameof(attachmentsViewModelFactory));
-			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
-			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 
 			if(filterparams != null)
 			{
@@ -498,51 +443,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			NodeActionsList.Add(editAction);
 		}
 
-		protected override Func<EmployeeViewModel> CreateDialogFunction => () => new EmployeeViewModel(
-			_authorizationServiceFactory.CreateNewAuthorizationService(),
-			_employeeWageParametersFactory,
-			_employeeJournalFactory,
-			_subdivisionJournalFactory,
-			_employeePostsJournalFactory,
-			_cashDistributionCommonOrganisationProvider,
-			_subdivisionParametersProvider,
-			_wageCalculationRepository,
-			_employeeRepository,
-			EntityUoWBuilder.ForCreate().CreateUoW<Employee>(UnitOfWorkFactory),
-			commonServices,
-			_validationContextFactory,
-			_phonesViewModelFactory,
-			_warehouseRepository,
-			_routeListRepository,
-			_driverApiUserRegisterEndpoint,
-			_userSettings,
-			_userRepository,
-			_baseParametersProvider,
-			_attachmentsViewModelFactory,
-			_navigationManager);
+		protected override Func<EmployeeViewModel> CreateDialogFunction =>
+			() => _container.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()) });
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
-			n => new EmployeeViewModel(
-				_authorizationServiceFactory.CreateNewAuthorizationService(),
-				_employeeWageParametersFactory,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_employeePostsJournalFactory,
-				_cashDistributionCommonOrganisationProvider,
-				_subdivisionParametersProvider,
-				_wageCalculationRepository,
-				_employeeRepository,
-				EntityUoWBuilder.ForOpen(n.Id).CreateUoW<Employee>(UnitOfWorkFactory),
-				commonServices,
-				_validationContextFactory,
-				_phonesViewModelFactory,
-				_warehouseRepository,
-				_routeListRepository,
-				_driverApiUserRegisterEndpoint,
-				_userSettings,
-				_userRepository,
-				_baseParametersProvider,
-				_attachmentsViewModelFactory,
-				_navigationManager);
+			(node) => _container.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)) });
 	}
 }
