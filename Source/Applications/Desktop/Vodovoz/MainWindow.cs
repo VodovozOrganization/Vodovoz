@@ -1144,7 +1144,6 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		//tdiMain.AddTab(autofacScope.Resolve<ComplaintsJournalsViewModel>());
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
