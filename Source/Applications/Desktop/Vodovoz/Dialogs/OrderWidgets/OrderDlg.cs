@@ -4009,7 +4009,7 @@ namespace Vodovoz
 				.Where(oe => oe.OwnType == OwnTypes.Rent
 					&& oe.Reason == Reason.Rent
 					&& oe.Direction == Domain.Orders.Direction.Deliver
-					&& oe.OrderRentDepositItem.RentType == OrderRentType.DailyRent)
+					&& oe.OrderRentDepositItem?.RentType == OrderRentType.DailyRent)
 				.Select(oe => (oe.Nomenclature, oe.Count)).ToList();
 
 			foreach(var equipmentItem in equipmentItems)
