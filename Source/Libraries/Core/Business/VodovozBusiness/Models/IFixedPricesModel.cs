@@ -12,6 +12,8 @@ namespace Vodovoz.Models
 
 		void AddOrUpdateFixedPrice(Nomenclature nomenclature, decimal fixedPrice, int minCount, int nomenclatureFixedPriceId);
 
+		void UpdateFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice, decimal fixedPrice, int minCount);
+
 		void RemoveFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice);
 
 	}

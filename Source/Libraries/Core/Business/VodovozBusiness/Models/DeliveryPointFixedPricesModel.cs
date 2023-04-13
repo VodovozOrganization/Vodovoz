@@ -47,9 +47,19 @@ namespace Vodovoz.Models
             }
 
             fixedPriceController.AddOrUpdateFixedPrice(uow, deliveryPoint, nomenclature, fixedPrice, minCount, nomenclatureFixedPriceId);
-        }
+		}
 
-        public void RemoveFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice)
+		public void UpdateFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice, decimal fixedPrice, int minCount)
+		{
+			if(nomenclatureFixedPrice is null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureFixedPrice));
+			}
+
+			fixedPriceController.UpdateFixedPrice(nomenclatureFixedPrice, fixedPrice, minCount);
+		}
+
+		public void RemoveFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice)
         {
             if(nomenclatureFixedPrice == null) {
                 throw new ArgumentNullException(nameof(nomenclatureFixedPrice));

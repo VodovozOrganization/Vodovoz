@@ -194,7 +194,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				return;
 			}
 			Nomenclature waterNomenclature = UoW.GetById<Nomenclature>(selectedWaterNode.Id);
-			AddFixedPrice(waterNomenclature);////
+			AddFixedPrice(waterNomenclature);
 		}
 
 		private void AddFixedPrice(Nomenclature nomenclature)

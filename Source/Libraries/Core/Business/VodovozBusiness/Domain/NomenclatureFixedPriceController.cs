@@ -147,7 +147,24 @@ namespace Vodovoz.Domain
             }
         }
 
-        public void DeleteFixedPrice(DeliveryPoint deliveryPoint, NomenclatureFixedPrice nomenclatureFixedPrice) 
+		public void UpdateFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice, decimal fixedPrice = 0, int minCount = 0)
+		{
+			if(nomenclatureFixedPrice is null)
+			{
+				throw new ArgumentNullException(nameof(nomenclatureFixedPrice));
+			}
+
+			if(nomenclatureFixedPrice.Nomenclature?.Category == NomenclatureCategory.water)
+			{
+				UpdateWaterFixedPrice(nomenclatureFixedPrice, fixedPrice, minCount);
+			}
+			else
+			{
+				throw new NotSupportedException("Не поддерживается.");
+			}
+		}
+
+		public void DeleteFixedPrice(DeliveryPoint deliveryPoint, NomenclatureFixedPrice nomenclatureFixedPrice) 
         {
             if (deliveryPoint.ObservableNomenclatureFixedPrices.Contains(nomenclatureFixedPrice)) {
                 deliveryPoint.ObservableNomenclatureFixedPrices.Remove(nomenclatureFixedPrice);
@@ -185,7 +202,7 @@ namespace Vodovoz.Domain
 		{
 			var foundFixedPrice = deliveryPoint.NomenclatureFixedPrices.SingleOrDefault(x => x.Id == nomenclatureFixedPriceId);
 
-			if(foundFixedPrice == null && fixedPrice == 0 && minCount == 0)
+			if(foundFixedPrice == null || (foundFixedPrice.Id == 0 && (fixedPrice != 0 || minCount != 0)))
 			{
 				var nomenclatureFixedPrice = CreateNewNomenclatureFixedPrice(nomenclature, fixedPrice, minCount);
 				nomenclatureFixedPrice.DeliveryPoint = deliveryPoint;
@@ -201,20 +218,39 @@ namespace Vodovoz.Domain
 
 		private void AddOrUpdateWaterFixedPrice(IUnitOfWork uow, Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0)
 		{
-			var foundFixedPrice = counterparty.NomenclatureFixedPrices.SingleOrDefault(x => x.Id == nomenclatureFixedPriceId);
+			var nomenclatureFixedPrice = CreateNewNomenclatureFixedPrice(nomenclature, fixedPrice, minCount);
+			nomenclatureFixedPrice.Counterparty = counterparty;
+			nomenclatureFixedPrice.MinCount = minCount;
+			counterparty.ObservableNomenclatureFixedPrices.Add(nomenclatureFixedPrice);
+		}
 
-			if(foundFixedPrice == null && fixedPrice == 0 && minCount == 0)
+		//private void AddOrUpdateWaterFixedPrice(IUnitOfWork uow, Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0)
+		//{
+		//	var foundFixedPrice = counterparty.NomenclatureFixedPrices.SingleOrDefault(x => x.Id == nomenclatureFixedPriceId);
+
+		//	if(foundFixedPrice == null || (foundFixedPrice.Id == 0 && (fixedPrice != 0 || minCount != 0)))
+		//	{
+		//		var nomenclatureFixedPrice = CreateNewNomenclatureFixedPrice(nomenclature, fixedPrice, minCount);
+		//		nomenclatureFixedPrice.Counterparty = counterparty;
+		//		nomenclatureFixedPrice.MinCount = minCount;
+		//		counterparty.ObservableNomenclatureFixedPrices.Add(nomenclatureFixedPrice);
+		//	}
+		//	else
+		//	{
+		//		foundFixedPrice.Price = fixedPrice;
+		//		foundFixedPrice.MinCount = minCount;
+		//	}	
+		//}
+
+		private void UpdateWaterFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice, decimal fixedPrice = 0, int minCount = 0)
+		{
+			if(nomenclatureFixedPrice is null)
 			{
-				var nomenclatureFixedPrice = CreateNewNomenclatureFixedPrice(nomenclature, fixedPrice, minCount);
-				nomenclatureFixedPrice.Counterparty = counterparty;
-				nomenclatureFixedPrice.MinCount = minCount;
-				counterparty.ObservableNomenclatureFixedPrices.Add(nomenclatureFixedPrice);
+				throw new ArgumentNullException(nameof(nomenclatureFixedPrice));
 			}
-			else
-			{
-				foundFixedPrice.Price = fixedPrice;
-				foundFixedPrice.MinCount = minCount;
-			}	
+
+			nomenclatureFixedPrice.Price = fixedPrice;
+			nomenclatureFixedPrice.MinCount = minCount;
 		}
 
 		//private void AddOrUpdateWaterFixedPrice(IUnitOfWork uow, Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice, int minCount)
