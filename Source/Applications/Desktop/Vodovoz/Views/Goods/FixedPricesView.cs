@@ -28,12 +28,12 @@ namespace Vodovoz.Views.Goods
 
 		private void Configure()
 		{
-			ytreeviewFixedPrices.ColumnsConfig = FluentColumnsConfig<Nomenclature>.Create()
+			ytreeviewNomenclatures.ColumnsConfig = FluentColumnsConfig<Nomenclature>.Create()
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Name)
 				.Finish();
 
-			ytreeviewFixedPrices.Selection.Changed += NomenclatureSelection_Changed;
-			ytreeviewFixedPrices.Binding.AddBinding(ViewModel, vm => vm.FixedPriceNomenclatures, w => w.ItemsDataSource).InitializeFromSource();
+			ytreeviewNomenclatures.Selection.Changed += NomenclatureSelection_Changed;
+			ytreeviewNomenclatures.Binding.AddBinding(ViewModel, vm => vm.FixedPriceNomenclatures, w => w.ItemsDataSource).InitializeFromSource();
 
 			ViewModel.DiffFormatter = new PangoDiffFormater();
 			ytreeviewFixedPricesChanges.ColumnsConfig = FluentColumnsConfig<FieldChange>.Create()
@@ -68,7 +68,7 @@ namespace Vodovoz.Views.Goods
 
 		void NomenclatureSelection_Changed(object sender, EventArgs e)
 		{
-			var selectedNomenclature = ytreeviewFixedPrices.GetSelectedObject() as Nomenclature;
+			var selectedNomenclature = ytreeviewNomenclatures.GetSelectedObject() as Nomenclature;
 			ViewModel.SelectedNomenclature = selectedNomenclature;
 		}
 

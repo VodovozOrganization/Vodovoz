@@ -10,21 +10,15 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeviewFixedPrices;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
-
-		private global::Gamma.GtkWidgets.yTreeView ytreeviewFixedPricesChanges;
-
-		private global::Gamma.GtkWidgets.yHBox yhbox1;
-
-		private global::Gtk.ScrolledWindow scrolledwindow1;
-
-		private global::Vodovoz.PricesView pricesView;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewNomenclatures;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewFixedPriceAndCount;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewFixedPricesChanges;
 
 		private global::Gtk.HBox hboxButtons;
 
@@ -37,6 +31,8 @@ namespace Vodovoz.Views.Goods
 		private global::QS.Widgets.GtkUI.SpecialListComboBox specialListCmbOrganisations;
 
 		private global::Gtk.Button buttonDel;
+
+		private global::Gtk.Button buttonAddFixedPrice;
 
 		protected virtual void Build()
 		{
@@ -57,13 +53,27 @@ namespace Vodovoz.Views.Goods
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeviewFixedPrices = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewFixedPrices.CanFocus = true;
-			this.ytreeviewFixedPrices.Name = "ytreeviewFixedPrices";
-			this.GtkScrolledWindow.Add(this.ytreeviewFixedPrices);
+			this.ytreeviewNomenclatures = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewNomenclatures.WidthRequest = 300;
+			this.ytreeviewNomenclatures.CanFocus = true;
+			this.ytreeviewNomenclatures.Name = "ytreeviewNomenclatures";
+			this.GtkScrolledWindow.Add(this.ytreeviewNomenclatures);
 			this.hbox1.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow]));
 			w2.Position = 0;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
+			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
+			this.ytreeviewFixedPriceAndCount = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewFixedPriceAndCount.WidthRequest = 300;
+			this.ytreeviewFixedPriceAndCount.CanFocus = true;
+			this.ytreeviewFixedPriceAndCount.Name = "ytreeviewFixedPriceAndCount";
+			this.GtkScrolledWindow2.Add(this.ytreeviewFixedPriceAndCount);
+			this.hbox1.Add(this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow2]));
+			w4.Position = 1;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -74,47 +84,12 @@ namespace Vodovoz.Views.Goods
 			this.ytreeviewFixedPricesChanges.Name = "ytreeviewFixedPricesChanges";
 			this.GtkScrolledWindow1.Add(this.ytreeviewFixedPricesChanges);
 			this.hbox1.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow1]));
-			w4.Position = 1;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow1]));
+			w6.PackType = ((global::Gtk.PackType)(1));
+			w6.Position = 2;
 			this.vboxWidget.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hbox1]));
-			w5.Position = 0;
-			// Container child vboxWidget.Gtk.Box+BoxChild
-			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
-			this.yhbox1.Name = "yhbox1";
-			this.yhbox1.Spacing = 6;
-			// Container child yhbox1.Gtk.Box+BoxChild
-			this.scrolledwindow1 = new global::Gtk.ScrolledWindow();
-			this.scrolledwindow1.CanFocus = true;
-			this.scrolledwindow1.Name = "scrolledwindow1";
-			this.scrolledwindow1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child scrolledwindow1.Gtk.Container+ContainerChild
-			global::Gtk.Viewport w6 = new global::Gtk.Viewport();
-			w6.ShadowType = ((global::Gtk.ShadowType)(0));
-			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.pricesView = new global::Vodovoz.PricesView();
-			this.pricesView.Events = ((global::Gdk.EventMask)(256));
-			this.pricesView.Name = "pricesView";
-			w6.Add(this.pricesView);
-			this.scrolledwindow1.Add(w6);
-			this.yhbox1.Add(this.scrolledwindow1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.scrolledwindow1]));
-			w9.Position = 0;
-			// Container child yhbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
-			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
-			this.ytreeviewFixedPriceAndCount = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewFixedPriceAndCount.CanFocus = true;
-			this.ytreeviewFixedPriceAndCount.Name = "ytreeviewFixedPriceAndCount";
-			this.GtkScrolledWindow2.Add(this.ytreeviewFixedPriceAndCount);
-			this.yhbox1.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.GtkScrolledWindow2]));
-			w11.Position = 1;
-			this.vboxWidget.Add(this.yhbox1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.yhbox1]));
-			w12.Position = 1;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hbox1]));
+			w7.Position = 0;
 			// Container child vboxWidget.Gtk.Box+BoxChild
 			this.hboxButtons = new global::Gtk.HBox();
 			this.hboxButtons.Name = "hboxButtons";
@@ -126,10 +101,10 @@ namespace Vodovoz.Views.Goods
 			this.buttonAdd.UseUnderline = true;
 			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить фиксу");
 			this.hboxButtons.Add(this.buttonAdd);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonAdd]));
-			w13.Position = 0;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonAdd]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
 			this.hboxOrganisations = new global::Gtk.HBox();
 			this.hboxOrganisations.Name = "hboxOrganisations";
@@ -139,10 +114,10 @@ namespace Vodovoz.Views.Goods
 			this.ylabel2.Name = "ylabel2";
 			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Организация:");
 			this.hboxOrganisations.Add(this.ylabel2);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxOrganisations[this.ylabel2]));
-			w14.Position = 0;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxOrganisations[this.ylabel2]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
 			// Container child hboxOrganisations.Gtk.Box+BoxChild
 			this.specialListCmbOrganisations = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.specialListCmbOrganisations.Name = "specialListCmbOrganisations";
@@ -151,15 +126,15 @@ namespace Vodovoz.Views.Goods
 			this.specialListCmbOrganisations.ShowSpecialStateAll = true;
 			this.specialListCmbOrganisations.ShowSpecialStateNot = false;
 			this.hboxOrganisations.Add(this.specialListCmbOrganisations);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxOrganisations[this.specialListCmbOrganisations]));
-			w15.Position = 1;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxOrganisations[this.specialListCmbOrganisations]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.hboxButtons.Add(this.hboxOrganisations);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.hboxOrganisations]));
-			w16.Position = 1;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.hboxOrganisations]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
 			this.buttonDel = new global::Gtk.Button();
 			this.buttonDel.CanFocus = true;
@@ -167,16 +142,27 @@ namespace Vodovoz.Views.Goods
 			this.buttonDel.UseUnderline = true;
 			this.buttonDel.Label = global::Mono.Unix.Catalog.GetString("Удалить фиксу");
 			this.hboxButtons.Add(this.buttonDel);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonDel]));
-			w17.Position = 2;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonDel]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child hboxButtons.Gtk.Box+BoxChild
+			this.buttonAddFixedPrice = new global::Gtk.Button();
+			this.buttonAddFixedPrice.CanFocus = true;
+			this.buttonAddFixedPrice.Name = "buttonAddFixedPrice";
+			this.buttonAddFixedPrice.UseUnderline = true;
+			this.buttonAddFixedPrice.Label = global::Mono.Unix.Catalog.GetString("Добавить фиксу");
+			this.hboxButtons.Add(this.buttonAddFixedPrice);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonAddFixedPrice]));
+			w13.Position = 3;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.vboxWidget.Add(this.hboxButtons);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxButtons]));
-			w18.PackType = ((global::Gtk.PackType)(1));
-			w18.Position = 2;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxButtons]));
+			w14.PackType = ((global::Gtk.PackType)(1));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{
