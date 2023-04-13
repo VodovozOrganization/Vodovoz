@@ -110,7 +110,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 			_unitOfWork.Session.DefaultReadOnly = true;
 
-			CarRefreshInterval = TimeSpan.FromSeconds(10);
+			CarRefreshInterval = TimeSpan.FromSeconds(30);
 
 			DefaultMapCenterPosition = new Coordinate(59.93900, 30.31646);
 			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-20);
