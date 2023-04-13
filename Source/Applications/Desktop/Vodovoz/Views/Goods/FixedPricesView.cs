@@ -28,14 +28,12 @@ namespace Vodovoz.Views.Goods
 
 		private void Configure()
 		{
-			ytreeviewFixedPrices.ColumnsConfig = FluentColumnsConfig<FixedPriceItemViewModel>.Create()
-				.AddColumn("Номенклатура").AddTextRenderer(x => x.NomenclatureTitle)
-				.AddColumn("Фиксированная цена").AddNumericRenderer(x => x.FixedPrice).Editing().Digits(2)
-					.AddSetter((cell, node) => cell.Editable = ViewModel.CanEdit)
-					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
-				.AddColumn("Минимальное количество").AddNumericRenderer(x => x.MinCount).Editing()
-					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
+			ytreeviewFixedPrices.ColumnsConfig = FluentColumnsConfig<Nomenclature>.Create()
+				.AddColumn("Номенклатура").AddTextRenderer(x => x.Name)
 				.Finish();
+
+			ytreeviewFixedPrices.Selection.Changed += NomenclatureSelection_Changed;
+			ytreeviewFixedPrices.Binding.AddBinding(ViewModel, vm => vm.FixedPriceNomenclatures, w => w.ItemsDataSource).InitializeFromSource();
 
 			ViewModel.DiffFormatter = new PangoDiffFormater();
 			ytreeviewFixedPricesChanges.ColumnsConfig = FluentColumnsConfig<FieldChange>.Create()
@@ -45,10 +43,19 @@ namespace Vodovoz.Views.Goods
 				.AddColumn("Новое значение").AddTextRenderer(x => x.NewFormatedDiffText, useMarkup: true)
 				.Finish();
 
-			ytreeviewFixedPrices.Selection.Changed += PriceSelection_Changed;
-			ytreeviewFixedPrices.Binding.AddBinding(ViewModel, vm => vm.FixedPrices, w => w.ItemsDataSource).InitializeFromSource();
-
 			ytreeviewFixedPricesChanges.Binding.AddBinding(ViewModel, vm => vm.SelectedPriceChanges, w => w.ItemsDataSource).InitializeFromSource();
+
+			ytreeviewFixedPriceAndCount.ColumnsConfig = FluentColumnsConfig<FixedPriceItemViewModel>.Create()
+				.AddColumn("Номенклатура").AddTextRenderer(x => x.NomenclatureTitle)
+				.AddColumn("Фиксированная цена").AddNumericRenderer(x => x.FixedPrice).Editing().Digits(2)
+					.AddSetter((cell, node) => cell.Editable = ViewModel.CanEdit)
+					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
+				.AddColumn("Минимальное количество").AddNumericRenderer(x => x.MinCount).Editing()
+					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
+				.Finish();
+
+			ytreeviewFixedPriceAndCount.Binding.AddBinding(ViewModel, vm => vm.FixedPricesByNomenclature, w => w.ItemsDataSource).InitializeFromSource();
+			ytreeviewFixedPriceAndCount.Selection.Changed += PriceSelection_Changed;
 
 			buttonAdd.Clicked += (s, e) => ViewModel.AddFixedPriceCommand.Execute();
 			ViewModel.AddFixedPriceCommand.CanExecuteChanged += (sender, e) => buttonAdd.Sensitive = ViewModel.AddFixedPriceCommand.CanExecute();
@@ -59,9 +66,15 @@ namespace Vodovoz.Views.Goods
 			buttonDel.Sensitive = ViewModel.RemoveFixedPriceCommand.CanExecute();
 		}
 
+		void NomenclatureSelection_Changed(object sender, EventArgs e)
+		{
+			var selectedNomenclature = ytreeviewFixedPrices.GetSelectedObject() as Nomenclature;
+			ViewModel.SelectedNomenclature = selectedNomenclature;
+		}
+
 		void PriceSelection_Changed(object sender, EventArgs e)
 		{
-			var selectedPrice = ytreeviewFixedPrices.GetSelectedObject() as FixedPriceItemViewModel;
+			var selectedPrice = ytreeviewFixedPriceAndCount.GetSelectedObject() as FixedPriceItemViewModel;
 			ViewModel.SelectedFixedPrice = selectedPrice;
 		}
 	}

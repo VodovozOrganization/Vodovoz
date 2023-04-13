@@ -148,7 +148,7 @@ namespace Vodovoz.Domain
             var fixedPrices = waterFixedPricesGenerator.GenerateFixedPricesForAllWater(nomenclature.Id, fixedPrice);
 
             foreach (var pricePair in fixedPrices) {
-                var foundFixedPrice = counterparty.NomenclatureFixedPrices.SingleOrDefault(x => x.Nomenclature.Id == pricePair.Key);
+                var foundFixedPrice = counterparty.NomenclatureFixedPrices.SingleOrDefault(x => x.Nomenclature.Id == pricePair.Key && x.MinCount == minCount);
                 if (foundFixedPrice == null) {
                     var newNomenclature = uow.GetById<Nomenclature>(pricePair.Key);
                     var nomenclatureFixedPrice = CreateNewNomenclatureFixedPrice(newNomenclature, pricePair.Value);

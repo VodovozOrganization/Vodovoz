@@ -32,6 +32,14 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 			fixedPricesModel.FixedPricesUpdated += (sender, args) => UpdateFixedPrices();
 			UpdateFixedPrices();
+
+			FixedPrices.PropertyChanged += OnFixedPricesPropertyChanged;
+			UpdateNomenclatures();
+		}
+
+		private void OnFixedPricesPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			UpdateNomenclatures();
 		}
 
 		private bool canEdit = true;
@@ -64,6 +72,30 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			fixedPricesModel.FixedPrices.ElementRemoved += FixedPricesOnElementRemoved;
 		}
 
+		private void UpdateNomenclatures()
+		{
+			FixedPriceNomenclatures.Clear();
+			foreach(var fixedPrice in FixedPrices)
+			{
+				if (!FixedPriceNomenclatures.Contains(fixedPrice.NomenclatureFixedPrice.Nomenclature))
+				{
+					FixedPriceNomenclatures.Add(fixedPrice.NomenclatureFixedPrice.Nomenclature);
+				}
+			}
+		}
+
+		private void UpdateFixedPricesByNomenclature()
+		{
+			FixedPricesByNomenclature.Clear();
+			foreach(var fixedPrice in FixedPrices)
+			{
+				if(fixedPrice.NomenclatureFixedPrice.Nomenclature == SelectedNomenclature)
+				{
+					FixedPricesByNomenclature.Add(fixedPrice);
+				}
+			}
+		}
+
 		private void FixedPricesOnElementAdded(object alist, int[] aidx)
 		{
 			foreach (var index in aidx) {
@@ -83,7 +115,34 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				FixedPrices.Remove(viewModelToRemove);
 			}
 		}
-		
+
+		private GenericObservableList<Nomenclature> _fixedPriceNomenclatures = new GenericObservableList<Nomenclature>();
+		public virtual GenericObservableList<Nomenclature> FixedPriceNomenclatures
+		{
+			get => _fixedPriceNomenclatures;
+			set => SetField(ref _fixedPriceNomenclatures, value);
+		}
+
+		private GenericObservableList<FixedPriceItemViewModel> _fixedPricesByNomenclature = new GenericObservableList<FixedPriceItemViewModel>();
+		public virtual GenericObservableList<FixedPriceItemViewModel> FixedPricesByNomenclature
+		{
+			get => _fixedPricesByNomenclature;
+			set => SetField(ref _fixedPricesByNomenclature, value);
+		}
+
+		private Nomenclature _selectedNomenclature;
+		public virtual Nomenclature SelectedNomenclature
+		{
+			get => _selectedNomenclature;
+			set
+			{
+				if(SetField(ref _selectedNomenclature, value))
+				{
+					UpdateFixedPricesByNomenclature();
+				}
+			}
+		}
+
 		private FixedPriceItemViewModel selectedFixedPrice;
 		public virtual FixedPriceItemViewModel SelectedFixedPrice {
 			get => selectedFixedPrice;
@@ -139,7 +198,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				price = fixPrice == null ? 0 : fixPrice.FixedPrice;
 			}
 
-			fixedPricesModel.AddOrUpdateFixedPrice(nomenclature, price, 1);
+			fixedPricesModel.AddOrUpdateFixedPrice(nomenclature, price, 0);
 		}
 
 		private DelegateCommand removeFixedPriceCommand;
