@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
 using Gtk;
@@ -1144,6 +1144,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
+		//tdiMain.AddTab(autofacScope.Resolve<ComplaintsJournalsViewModel>());
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
