@@ -14,6 +14,12 @@ namespace TrueMarkApi.Dto.Participants
 
 		[JsonPropertyName("status")]
 		public string Status { get; set; }
+
+		[JsonPropertyName("ownerInn")]
+		public string OwnerInn { get; set; }
+
+		[JsonPropertyName("ownerName")]
+		public string OwnerName { get; set; }
 	}
 
 	public class CisInfoRoot

@@ -42,7 +42,9 @@ namespace Vodovoz.Models.TrueMark
 
 				var productCheckResult = new TrueMarkProductCheckResult {
 					Code = productCode,
-					Introduced = checkResult.Introduced
+					Introduced = checkResult.Introduced,
+					OwnerInn = checkResult.OwnerInn,
+					OwnerName = checkResult.OwnerName
 				};
 
 				result.Add(productCheckResult);
@@ -97,7 +99,10 @@ namespace Vodovoz.Models.TrueMark
 				var resultItem = new TrueMarkCheckResult
 				{
 					Code = code,
-					Introduced = instanceStatus.Status == ProductInstanceStatusEnum.Introduced
+					Introduced = instanceStatus.Status == ProductInstanceStatusEnum.Introduced,
+					OwnerInn = instanceStatus.OwnerInn,
+					OwnerName = instanceStatus.OwnerName
+
 				};
 				result.Add(resultItem);
 			}

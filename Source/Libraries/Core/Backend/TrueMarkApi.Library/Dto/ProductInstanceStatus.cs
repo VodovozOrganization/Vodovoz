@@ -10,5 +10,11 @@ namespace TrueMarkApi.Library.Dto
 
 		[JsonPropertyName("status")]
 		public ProductInstanceStatusEnum Status { get; set; }
+
+		[JsonPropertyName("ownerInn")]
+		public string OwnerInn { get; set; }
+
+		[JsonPropertyName("ownerName")]
+		public string OwnerName { get; set; }
 	}
 }

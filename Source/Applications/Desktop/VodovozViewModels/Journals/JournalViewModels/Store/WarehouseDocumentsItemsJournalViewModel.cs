@@ -771,7 +771,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.WithAlias(() => resultAlias.ToWarehouse)
 					.Select(() => toWarehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-					.Select(() => movementDocumentItemAlias.SendedAmount).WithAlias(() => resultAlias.Amount)
+					.Select(Projections.Conditional(
+						Restrictions.Eq(
+							Projections.Property(() => movementDocumentAlias.Status), MovementDocumentStatus.Accepted),
+							Projections.Property(() => movementDocumentItemAlias.ReceivedAmount),
+							Projections.Property(() => movementDocumentItemAlias.SendedAmount)))
+					.WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -2085,8 +2090,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			lines.AddRange(GetQueryDriverAttachedTerminalGiveoutDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryDriverAttachedTerminalReturnDocument(UoW).List<WarehouseDocumentsItemsJournalNode>());
 
-			lines.OrderByDescending(x => x.Date);
-
 			_warehouseDocumentsItemsJournalReport = WarehouseDocumentsItemsJournalReport.Create(
 				FilterViewModel.StartDate,
 				FilterViewModel.EndDate,
@@ -2100,7 +2103,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				FilterViewModel.TargetSource,
 				FilterViewModel.CounterpartiesNames,
 				FilterViewModel.WarehousesNames,
-				lines);
+				lines.OrderByDescending(x => x.Date));
 
 			await Task.CompletedTask;
 		}

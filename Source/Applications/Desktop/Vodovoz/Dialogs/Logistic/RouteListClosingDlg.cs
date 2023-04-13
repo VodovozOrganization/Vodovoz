@@ -613,7 +613,12 @@ namespace Vodovoz
 		private void OnOrderReturnsViewTabClosed(object sender, EventArgs e)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
-			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node);
+
+			if(!RouteListItem.GetUndeliveryStatuses().Contains(node.Status))
+			{
+				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node);
+			}
+
 			_hasActualCountsChangesItemIds.Add(node.Id);
 			((OrderReturnsView)sender).TabClosed -= OnOrderReturnsViewTabClosed;
 		}

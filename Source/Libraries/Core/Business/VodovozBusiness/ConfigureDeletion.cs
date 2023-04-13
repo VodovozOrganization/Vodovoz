@@ -580,6 +580,7 @@ namespace Vodovoz
 				.AddDeleteDependence<AddressTransferDocument>(x => x.RouteListTo)
 				.AddDeleteDependence<Track>(x => x.RouteList)
 				.AddDeleteDependence<FuelDocument>(x => x.RouteList)
+				.AddDeleteDependence<RouteListFastDeliveryMaxDistance>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
 				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation)
 				.AddDeleteCascadeDependence(x => x.DriverWageOperation)
@@ -612,6 +613,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<CarEventType>();
 
 			DeleteConfig.AddHibernateDeleteInfo<CarEvent>();
+
+			DeleteConfig.AddHibernateDeleteInfo<RouteListFastDeliveryMaxDistance>();
 
 			#region Формирование МЛ
 
