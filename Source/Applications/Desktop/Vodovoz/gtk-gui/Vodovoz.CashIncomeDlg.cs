@@ -34,7 +34,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox7;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinMoney;
+		private global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat yspinMoney;
 
 		private global::QSProjectsLib.CurrencyLabel currencylabel1;
 
@@ -250,7 +250,7 @@ namespace Vodovoz
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton(0D, 2147483647D, 100D);
+			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(0D, 999999999D, 100D);
 			this.yspinMoney.CanDefault = true;
 			this.yspinMoney.CanFocus = true;
 			this.yspinMoney.Name = "yspinMoney";

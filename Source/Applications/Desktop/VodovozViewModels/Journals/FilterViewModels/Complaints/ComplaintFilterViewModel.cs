@@ -113,6 +113,9 @@ namespace Vodovoz.FilterViewModels
 			CurrentSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
 				.CreateSubdivisionAutocompleteSelectorFactory();
 
+			InWorkSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
+				.CreateSubdivisionAutocompleteSelectorFactory();
+
 			UpdateWith(
 				x => x.ComplaintType,
 				x => x.ComplaintStatus,
@@ -136,6 +139,8 @@ namespace Vodovoz.FilterViewModels
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 
 		public IEntityAutocompleteSelectorFactory CurrentSubdivisionSelectorFactory { get; }
+
+		public IEntityAutocompleteSelectorFactory InWorkSubdivisionSelectorFactory { get; }
 
 		public IEntityAutocompleteSelectorFactory ComplaintKindSelectorFactory { get; }
 

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
@@ -210,10 +208,10 @@ ORDER BY Category;</CommandText>
             <Width>127.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>249.9pt</Width>
+            <Width>242.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65pt</Width>
+            <Width>75.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -404,6 +402,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -422,8 +421,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -440,8 +438,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -458,8 +455,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -502,6 +498,7 @@ ORDER BY Category;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format>#,##0.00</Format>
                       </Style>
                       <Value>=sum(Fields!sum.Value)</Value>
                     </Textbox>
@@ -561,6 +558,7 @@ ORDER BY Category;</CommandText>
                             <TextAlign>Right</TextAlign>
                             <BackgroundColor>Lightgrey</BackgroundColor>
                             <VerticalAlign>Middle</VerticalAlign>
+                            <Format>#,##0.00</Format>
                           </Style>
                           <Value>=sum(Fields!sum.Value)</Value>
                         </Textbox>
@@ -615,7 +613,7 @@ ORDER BY Category;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -626,8 +624,7 @@ ORDER BY Category;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="EndDate">
       <DataType>String</DataType>
@@ -639,8 +636,7 @@ ORDER BY Category;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="ExpenseCategory">
       <DataType>Integer</DataType>
@@ -652,8 +648,7 @@ ORDER BY Category;</CommandText>
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="ExpenseCategoryUsed">
       <DataType>Integer</DataType>
@@ -665,48 +660,42 @@ ORDER BY Category;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="Casher">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="Employee">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CasherName">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="EmployeeName">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organisations">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organisation_name">
       <DataType>String</DataType>

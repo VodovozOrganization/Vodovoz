@@ -17,9 +17,11 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			evmeAuthor.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			evmeAuthor.Binding.AddBinding(ViewModel, x => x.Employee, v => v.Subject).InitializeFromSource();
+			evmeAuthor.CanOpenWithoutTabParent = true;
 			
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entryCounterparty.Binding.AddBinding(ViewModel, x => x.Counterparty, v => v.Subject).InitializeFromSource();
+			entryCounterparty.CanOpenWithoutTabParent = true;
 
 			yenumcomboboxType.ItemsEnum = typeof(ComplaintType);
 			yenumcomboboxType.Binding.AddBinding(ViewModel, x => x.ComplaintType, v => v.SelectedItemOrNull).InitializeFromSource();
@@ -32,6 +34,7 @@ namespace Vodovoz.Filters.GtkViews
 
 			entityentryComplaintKind.SetEntityAutocompleteSelectorFactory(ViewModel.ComplaintKindSelectorFactory);
 			entityentryComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKind, w => w.Subject).InitializeFromSource();
+			entityentryComplaintKind.CanOpenWithoutTabParent = true;
 
 			yspeccomboboxComplaintObject.ShowSpecialStateAll = true;
 			yspeccomboboxComplaintObject.Binding.AddSource(ViewModel)
@@ -47,9 +50,14 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.CurrentUserSubdivision, w => w.Subject)
 				.AddBinding(vm => vm.CanChangeSubdivision, w => w.Sensitive)
 				.InitializeFromSource();
+			entityentryCurrentSubdivision.CanOpenWithoutTabParent = true;
 
-			yentryreferenceSubdivision.SubjectType = typeof(Subdivision);
-			yentryreferenceSubdivision.Binding.AddBinding(ViewModel, x => x.Subdivision, w => w.Subject).InitializeFromSource();
+			entityentryInWorkSubdivision.SetEntityAutocompleteSelectorFactory(ViewModel.InWorkSubdivisionSelectorFactory);
+			entityentryInWorkSubdivision.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Subdivision, w => w.Subject)
+				.InitializeFromSource();
+			entityentryInWorkSubdivision.CanOpenWithoutTabParent = true;
+
 
 			daterangepicker.Binding
 				.AddSource(ViewModel)

@@ -74,6 +74,15 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref keepTabColor, value);
 		}
 
+		private bool _hideComplaintNotification;
+
+		[Display(Name = "Скрыть уведомления об открытых рекламациях")]
+		public virtual bool HideComplaintNotification
+		{
+			get => _hideComplaintNotification;
+			set => SetField(ref _hideComplaintNotification, value);
+		}
+
 		Warehouse defaultWarehouse;
 
 		[Display (Name = "Склад")]
@@ -126,74 +135,74 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		/// <summary>
-        /// Использовать отдел сотрудника
-        /// </summary>
+		/// Использовать отдел сотрудника
+		/// </summary>
 
-        private bool useEmployeeSubdivision;
-        [Display(Name = "Использовать отдел сотрудника")]
-        public virtual bool UseEmployeeSubdivision
-        {
-            get => useEmployeeSubdivision;
-            set => SetField(ref useEmployeeSubdivision, value, () => UseEmployeeSubdivision);
-        }
+		private bool useEmployeeSubdivision;
+		[Display(Name = "Использовать отдел сотрудника")]
+		public virtual bool UseEmployeeSubdivision
+		{
+			get => useEmployeeSubdivision;
+			set => SetField(ref useEmployeeSubdivision, value, () => UseEmployeeSubdivision);
+		}
 
 
-        /// <summary>
-        /// Для установки фильтра подразделений
-        /// </summary>
-        private Subdivision defaultSubdivision;
+		/// <summary>
+		/// Для установки фильтра подразделений
+		/// </summary>
+		private Subdivision defaultSubdivision;
 
-        [Display(Name = "Подразделение")]
-        public virtual Subdivision DefaultSubdivision
-        {
-            get { return defaultSubdivision; }
-            set
-            {
-                SetField(ref defaultSubdivision, value, () => DefaultSubdivision);
-            }
-        }
+		[Display(Name = "Подразделение")]
+		public virtual Subdivision DefaultSubdivision
+		{
+			get { return defaultSubdivision; }
+			set
+			{
+				SetField(ref defaultSubdivision, value, () => DefaultSubdivision);
+			}
+		}
 
-        /// <summary>
-        /// Для установки дефолтного контрагента в отчете по оплатам
-        /// </summary>
-        private Counterparty defaultCounterparty;
-        [Display(Name = "Контрагент")]
-        public virtual Counterparty DefaultCounterparty
-        {
-            get => defaultCounterparty;
-            set => SetField(ref defaultCounterparty, value);
-        }
+		/// <summary>
+		/// Для установки дефолтного контрагента в отчете по оплатам
+		/// </summary>
+		private Counterparty defaultCounterparty;
+		[Display(Name = "Контрагент")]
+		public virtual Counterparty DefaultCounterparty
+		{
+			get => defaultCounterparty;
+			set => SetField(ref defaultCounterparty, value);
+		}
 
-        /// <summary>
-        /// Статус рекламации
-        /// </summary>
-        private ComplaintStatuses? defaultComplaintStatus;
+		/// <summary>
+		/// Статус рекламации
+		/// </summary>
+		private ComplaintStatuses? defaultComplaintStatus;
 
-        [Display(Name = "Статус рекламации")]
-        public virtual ComplaintStatuses? DefaultComplaintStatus
-        {
-            get { return defaultComplaintStatus; }
-            set
-            {
-                SetField(ref defaultComplaintStatus, value, () => DefaultComplaintStatus);
-            }
-        }
+		[Display(Name = "Статус рекламации")]
+		public virtual ComplaintStatuses? DefaultComplaintStatus
+		{
+			get { return defaultComplaintStatus; }
+			set
+			{
+				SetField(ref defaultComplaintStatus, value, () => DefaultComplaintStatus);
+			}
+		}
 
-        [Display(Name = "Настройки сортировки касс")]
-        public virtual IList<CashSubdivisionSortingSettings> CashSubdivisionSortingSettings
-        {
-	        get => _cashSubdivisionSortingSettings;
-	        set => SetField(ref _cashSubdivisionSortingSettings, value);
-        }
+		[Display(Name = "Настройки сортировки касс")]
+		public virtual IList<CashSubdivisionSortingSettings> CashSubdivisionSortingSettings
+		{
+			get => _cashSubdivisionSortingSettings;
+			set => SetField(ref _cashSubdivisionSortingSettings, value);
+		}
 
-        public virtual GenericObservableList<CashSubdivisionSortingSettings> ObservableCashSubdivisionSortingSettings =>
-	        _observableCashSubdivisionSortingSettings
-	        ?? (_observableCashSubdivisionSortingSettings =
-		        new GenericObservableList<CashSubdivisionSortingSettings>(CashSubdivisionSortingSettings));
+		public virtual GenericObservableList<CashSubdivisionSortingSettings> ObservableCashSubdivisionSortingSettings =>
+			_observableCashSubdivisionSortingSettings
+			?? (_observableCashSubdivisionSortingSettings =
+				new GenericObservableList<CashSubdivisionSortingSettings>(CashSubdivisionSortingSettings));
 
-        #endregion
+		#endregion
 
-        public UserSettings ()
+		public UserSettings ()
 		{
 		}
 
