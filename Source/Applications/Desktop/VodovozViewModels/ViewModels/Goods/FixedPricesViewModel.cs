@@ -74,6 +74,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		private void UpdateNomenclatures()
 		{
+			var selectedNomenclature = SelectedNomenclature;
 			FixedPriceNomenclatures.Clear();
 			foreach(var fixedPrice in FixedPrices)
 			{
@@ -81,6 +82,10 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				{
 					FixedPriceNomenclatures.Add(fixedPrice.NomenclatureFixedPrice.Nomenclature);
 				}
+			}
+			if (FixedPriceNomenclatures.Contains(selectedNomenclature))
+			{
+				SelectedNomenclature = selectedNomenclature;
 			}
 		}
 
@@ -161,14 +166,16 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		#region Commands
 
-		private DelegateCommand addFixedPriceCommand;
-		public DelegateCommand AddFixedPriceCommand {
+		#region Добавление номенклатуры
+		private DelegateCommand _addNomenclatureCommand;
+		public DelegateCommand AddNomenclatureCommand
+		{
 			get {
-				if(addFixedPriceCommand == null) {
-					addFixedPriceCommand = new DelegateCommand(() => SelectWaterNomenclature(), () => CanEdit);
-					addFixedPriceCommand.CanExecuteChangedWith(this, x => x.CanEdit);
+				if(_addNomenclatureCommand == null) {
+					_addNomenclatureCommand = new DelegateCommand(() => SelectWaterNomenclature(), () => CanEdit);
+					_addNomenclatureCommand.CanExecuteChangedWith(this, x => x.CanEdit);
 				}
-				return addFixedPriceCommand;
+				return _addNomenclatureCommand;
 			}
 		}
 
@@ -187,20 +194,39 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				return;
 			}
 			Nomenclature waterNomenclature = UoW.GetById<Nomenclature>(selectedWaterNode.Id);
-			AddFixedPrice(waterNomenclature);
+			AddFixedPrice(waterNomenclature);////
 		}
 
 		private void AddFixedPrice(Nomenclature nomenclature)
 		{
 			decimal price = 0;
-			if(nomenclature.DependsOnNomenclature != null) {
+			if(nomenclature.DependsOnNomenclature != null)
+			{
 				var fixPrice = FixedPrices.FirstOrDefault(p => p.NomenclatureFixedPrice.Nomenclature.Id == nomenclature.DependsOnNomenclature.Id);
 				price = fixPrice == null ? 0 : fixPrice.FixedPrice;
 			}
 
-			fixedPricesModel.AddOrUpdateFixedPrice(nomenclature, price, 0);
+			fixedPricesModel.AddOrUpdateFixedPrice(nomenclature, price, 0, 0);
 		}
+		#endregion
 
+		#region Добавление фиксы
+		private DelegateCommand _addFixedPriceCommand;
+		public DelegateCommand AddFixedPriceCommand
+		{
+			get
+			{
+				if(_addFixedPriceCommand == null)
+				{
+					_addFixedPriceCommand = new DelegateCommand(() => AddFixedPrice(SelectedNomenclature), () => CanEdit && SelectedNomenclature != null);
+					_addFixedPriceCommand.CanExecuteChangedWith(this, x => x.CanEdit, x => x.SelectedNomenclature);
+				}
+				return _addFixedPriceCommand;
+			}
+		}
+		#endregion
+
+		#region Удаление фиксы
 		private DelegateCommand removeFixedPriceCommand;
 		public DelegateCommand RemoveFixedPriceCommand {
 			get {
@@ -222,6 +248,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			
 			fixedPricesModel.RemoveFixedPrice(SelectedFixedPrice.NomenclatureFixedPrice);
 		}
+		#endregion
 
 		#endregion
 

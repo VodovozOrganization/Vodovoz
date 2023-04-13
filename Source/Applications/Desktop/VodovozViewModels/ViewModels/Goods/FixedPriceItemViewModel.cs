@@ -49,13 +49,13 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
         public decimal FixedPrice {
             get => NomenclatureFixedPrice.Price;
-            set => fixedPriceModel.AddOrUpdateFixedPrice(NomenclatureFixedPrice.Nomenclature, value, MinCount);
+            set => fixedPriceModel.AddOrUpdateFixedPrice(NomenclatureFixedPrice.Nomenclature, value, MinCount, NomenclatureFixedPrice.Id);
         }
 
 		public int MinCount
 		{
 			get => NomenclatureFixedPrice.MinCount;
-			set => fixedPriceModel.AddOrUpdateFixedPrice(NomenclatureFixedPrice.Nomenclature, FixedPrice, value);
+			set => fixedPriceModel.AddOrUpdateFixedPrice(NomenclatureFixedPrice.Nomenclature, FixedPrice, value, NomenclatureFixedPrice.Id);
 		}
 	}
 }

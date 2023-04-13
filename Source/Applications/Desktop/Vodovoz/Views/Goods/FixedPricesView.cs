@@ -32,8 +32,9 @@ namespace Vodovoz.Views.Goods
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Name)
 				.Finish();
 
-			ytreeviewNomenclatures.Selection.Changed += OnNomenclatureSelectionChanged;
+			//ytreeviewNomenclatures.Selection.Changed += OnNomenclatureSelectionChanged;
 			ytreeviewNomenclatures.Binding.AddBinding(ViewModel, vm => vm.FixedPriceNomenclatures, w => w.ItemsDataSource).InitializeFromSource();
+			ytreeviewNomenclatures.Binding.AddBinding(ViewModel, vm => vm.SelectedNomenclature, w => w.SelectedRow).InitializeFromSource();
 
 			ViewModel.DiffFormatter = new PangoDiffFormater();
 			ytreeviewFixedPricesChanges.ColumnsConfig = FluentColumnsConfig<FieldChange>.Create()
@@ -55,11 +56,16 @@ namespace Vodovoz.Views.Goods
 				.Finish();
 
 			ytreeviewFixedPriceAndCount.Binding.AddBinding(ViewModel, vm => vm.FixedPricesByNomenclature, w => w.ItemsDataSource).InitializeFromSource();
-			ytreeviewFixedPriceAndCount.Selection.Changed += OnPriceSelectionChanged;
+			ytreeviewFixedPriceAndCount.Binding.AddBinding(ViewModel, vm => vm.SelectedFixedPrice, w => w.SelectedRow).InitializeFromSource();
+			//ytreeviewFixedPriceAndCount.Selection.Changed += OnPriceSelectionChanged;
 
-			buttonAdd.Clicked += (s, e) => ViewModel.AddFixedPriceCommand.Execute();
-			ViewModel.AddFixedPriceCommand.CanExecuteChanged += (sender, e) => buttonAdd.Sensitive = ViewModel.AddFixedPriceCommand.CanExecute();
-			buttonAdd.Sensitive = ViewModel.AddFixedPriceCommand.CanExecute();
+			buttonAdd.Clicked += (s, e) => ViewModel.AddNomenclatureCommand.Execute();
+			ViewModel.AddNomenclatureCommand.CanExecuteChanged += (sender, e) => buttonAdd.Sensitive = ViewModel.AddNomenclatureCommand.CanExecute();
+			buttonAdd.Sensitive = ViewModel.AddNomenclatureCommand.CanExecute();
+
+			buttonAddFixedPrice.Clicked += (s, e) => ViewModel.AddFixedPriceCommand.Execute();
+			ViewModel.AddFixedPriceCommand.CanExecuteChanged += (sender, e) => buttonAddFixedPrice.Sensitive = ViewModel.AddFixedPriceCommand.CanExecute();
+			buttonAddFixedPrice.Sensitive = ViewModel.AddFixedPriceCommand.CanExecute();
 
 			buttonDel.Clicked += (s, e) => ViewModel.RemoveFixedPriceCommand.Execute();
 			ViewModel.RemoveFixedPriceCommand.CanExecuteChanged += (sender, e) => buttonDel.Sensitive = ViewModel.RemoveFixedPriceCommand.CanExecute();
