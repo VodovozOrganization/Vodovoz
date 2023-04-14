@@ -64,9 +64,15 @@ namespace Vodovoz.Domain.Goods
 
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Price <= 0) {
+            if (Price <= 0) 
+			{
                 yield return new ValidationResult($"Фиксированная цена для {Nomenclature.Name} должна быть больше нуля", new []{ nameof(Price) });
             }
-        }
+
+			if(MinCount < 1)
+			{
+				yield return new ValidationResult($"Значение минимального количества бутылей для {Nomenclature.Name} должно быть больше нуля", new[] { nameof(MinCount) });
+			}
+		}
     }
 }
