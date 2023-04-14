@@ -142,24 +142,24 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref phones, value, () => Phones); }
 		}
 
-        EmployeePost post;
+		EmployeePost post;
 
-        [Display(Name = "Должность")]
-        public virtual EmployeePost Post
-        {
-            get => post;
-            set => SetField(ref post, value);
-        }
+		[Display(Name = "Должность")]
+		public virtual EmployeePost Post
+		{
+			get => post;
+			set => SetField(ref post, value);
+		}
 
-        int? skilllevel;
-        [Display(Name = "Уровень квалификации")]
-        public virtual int? SkillLevel
-        {
-            get => skilllevel;
-            set => SetField(ref skilllevel, value);
-        }
+		int? skilllevel;
+		[Display(Name = "Уровень квалификации")]
+		public virtual int? SkillLevel
+		{
+			get => skilllevel;
+			set => SetField(ref skilllevel, value);
+		}
 
-        Nationality nationality;
+		Nationality nationality;
 
 		[Display(Name = "Национальность")]
 		public virtual Nationality Nationality {
@@ -236,9 +236,9 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual List<int> GetSkillLevels() => new List<int> { 0, 1, 2, 3, 4, 5 };
 
-        #region IValidatableObject implementation
+		#region IValidatableObject implementation
 
-        public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(String.IsNullOrEmpty(LastName))
 				yield return new ValidationResult("Фамилия должна быть заполнена", new[] { "LastName" });
@@ -286,10 +286,8 @@ namespace Vodovoz.Domain.Employees
 
 		#region static methods
 
-		public static void ChangeTraineeToEmployee(IUnitOfWorkGeneric<Employee> uow, ITrainee t)
+		public static void ChangeTraineeToEmployee(Employee employee, ITrainee trainee)
 		{
-			Employee employee = uow.Root;
-			ITrainee trainee = uow.GetById<Trainee>(t.Id);
 			PropertyInfo[] properties = typeof(IPersonnel).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 			foreach(var prop in properties) {
 				if(prop.PropertyType != typeof(string) && !prop.PropertyType.IsValueType || !prop.CanWrite) {
@@ -313,7 +311,6 @@ namespace Vodovoz.Domain.Employees
 			employee.Citizenship = trainee.Citizenship;
 			employee.Nationality = trainee.Nationality;
 			employee.Photo = trainee.Photo;
-			uow.Session.Evict(trainee);
 		}
 
 		#endregion
@@ -331,9 +328,9 @@ namespace Vodovoz.Domain.Employees
 		string AddressCurrent { get; set; }
 		string INN { get; set; }
 		IList<Phone> Phones { get; set; }
-        EmployeePost Post { get; set; }
-        int? SkillLevel { get; set; }
-        IList<EmployeeDocument> Documents { get; set; }
+		EmployeePost Post { get; set; }
+		int? SkillLevel { get; set; }
+		IList<EmployeeDocument> Documents { get; set; }
 		Nationality Nationality { get; set; }
 		bool IsRussianCitizen { get; set; }
 		Citizenship Citizenship { get; set; }
