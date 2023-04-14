@@ -20,8 +20,9 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Orders;
-using static Vodovoz.ViewModels.ViewModels.Reports.Sales.SalesBySubdivisionsAnalitycsReport;
+using Vodovoz.ViewModels.Reports;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
@@ -30,6 +31,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 	{
 		private const string _templatePath = @".\Reports\Sales\SalesBySubdivisionsAnalitycsReport.xlsx";
 		private const string _templateWithDynamicsPath = @".\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.xlsx";
+
+		private readonly SelectableParametersReportFilter _filter;
+		private SelectableParameterReportFilterViewModel _filterViewModel;
 
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IInteractiveService _interactiveService;
@@ -58,8 +62,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 			TabName = "Аналитика продаж КБ";
 
-			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
-			_unitOfWork.Session.DefaultReadOnly = true;
+			_filter = new SelectableParametersReportFilter(UoW);
+			ConfigureFilter();
 		}
 
 		[PropertyChangedAlso(
@@ -127,6 +131,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
 
+		public virtual SelectableParameterReportFilterViewModel FilterViewModel
+		{
+			get => _filterViewModel;
+			set => SetField(ref _filterViewModel, value);
+		}
+
 		public OneOf<SalesBySubdivisionsAnalitycsReport, SalesBySubdivisionsAnalitycsWithDynamicsReport>? Report
 		{
 			get => _report;
@@ -178,6 +188,71 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		}
 
 		#endregion
+
+		private void ConfigureFilter()
+		{
+			var selectedWarehousesIds = new int[] { 1, 68 };
+
+			var nomenclatureTypeParam = _filter.CreateParameterSet(
+				"Склады",
+				nameof(Warehouse),
+				new ParametersFactory(UoW, (filters) =>
+				{
+					Warehouse warehouseAlias = null;
+					SelectableEntityParameter<Warehouse> resultAlias = null;
+					var query = UoW.Session.QueryOver(() => warehouseAlias);
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+						.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.EntityTitle)
+						.Select(Projections.Conditional(
+							Restrictions.In(Projections.Property(() => warehouseAlias.Id), selectedWarehousesIds),
+							Projections.Constant(true),
+							Projections.Constant(false))).WithAlias(() => resultAlias.Selected)
+					);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Warehouse>>());
+					return query.List<SelectableParameter>();
+				}));
+
+			var selectedSubdivisionsIds = new int[] { 2, 3, 14, 29, 58, 35, 11 };
+
+			_filter.CreateParameterSet(
+				"Подразделения",
+				nameof(Subdivision),
+				new ParametersFactory(UoW, (filters) =>
+				{
+					Subdivision subdivisionAlias = null;
+					SelectableEntityParameter<Subdivision> resultAlias = null;
+					var query = UoW.Session.QueryOver(() => subdivisionAlias);
+					if(filters != null && filters.Any())
+					{
+						foreach(var f in filters)
+						{
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+						.Select(() => subdivisionAlias.Id).WithAlias(() => resultAlias.EntityId)
+						.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.EntityTitle)
+						.Select(Projections.Conditional(
+							Restrictions.In(Projections.Property(() => subdivisionAlias.Id), selectedSubdivisionsIds),
+							Projections.Constant(true),
+							Projections.Constant(false))).WithAlias(() => resultAlias.Selected)
+					);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Subdivision>>());
+					return query.List<SelectableParameter>();
+				}));
+
+			FilterViewModel = new SelectableParameterReportFilterViewModel(_filter);
+		}
 
 		public void ShowWarning(string message)
 		{
@@ -286,7 +361,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			Employee authorAlias = null;
 			Subdivision subdivisionAlias = null;
 
-			var query = _unitOfWork.Session.QueryOver(() => orderItemAlias);
+			var query = UoW.Session.QueryOver(() => orderItemAlias);
 
 			query.Where(GetOrderCriterion(filterOrderStatusInclude, startDate, endDate))
 				.And(Restrictions.In(Projections.Property(() => subdivisionAlias.Id), subdivisionsIds));
@@ -313,12 +388,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			DateTime dateTime,
 			int[] warehousesIds)
 		{
-			var incomesQuery = from wmo in _unitOfWork.Session.Query<WarehouseMovementOperation>()
-							   join n in _unitOfWork.Session.Query<Nomenclature>()
+			var incomesQuery = from wmo in UoW.Session.Query<WarehouseMovementOperation>()
+							   join n in UoW.Session.Query<Nomenclature>()
 							   on wmo.Nomenclature.Id equals n.Id
-							   join productGroup in _unitOfWork.Session.Query<ProductGroup>()
+							   join productGroup in UoW.Session.Query<ProductGroup>()
 							   on n.ProductGroup.Id equals productGroup.Id
-							   join w in _unitOfWork.Session.Query<Warehouse>()
+							   join w in UoW.Session.Query<Warehouse>()
 							   on wmo.IncomingWarehouse.Id equals w.Id
 							   where !n.IsArchive
 									&& wmo.OperationTime <= dateTime
@@ -333,12 +408,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 			var incomes = incomesQuery.ToList();
 
-			var writeOffQuery = from wmo in _unitOfWork.Session.Query<WarehouseMovementOperation>()
-								join n in _unitOfWork.Session.Query<Nomenclature>()
+			var writeOffQuery = from wmo in UoW.Session.Query<WarehouseMovementOperation>()
+								join n in UoW.Session.Query<Nomenclature>()
 								on wmo.Nomenclature.Id equals n.Id
-								join productGroup in _unitOfWork.Session.Query<ProductGroup>()
+								join productGroup in UoW.Session.Query<ProductGroup>()
 								on n.ProductGroup.Id equals productGroup.Id
-								join w in _unitOfWork.Session.Query<Warehouse>()
+								join w in UoW.Session.Query<Warehouse>()
 								on wmo.WriteoffWarehouse.Id equals w.Id
 								where !n.IsArchive
 									&& wmo.OperationTime <= dateTime
@@ -374,7 +449,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				return ImmutableDictionary<int, string>.Empty;
 			}
 
-			var query = from warehouse in _unitOfWork.Session.Query<Warehouse>()
+			var query = from warehouse in UoW.Session.Query<Warehouse>()
 						where warehouseIds.Contains(warehouse.Id)
 						select new { warehouse.Id, warehouse.Name };
 
@@ -390,7 +465,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				return ImmutableDictionary<int, string>.Empty;
 			}
 
-			var query = from nomenclature in _unitOfWork.Session.Query<Nomenclature>()
+			var query = from nomenclature in UoW.Session.Query<Nomenclature>()
 						where nomenclatureIds.Contains(nomenclature.Id)
 						select new { nomenclature.Id, nomenclature.OfficialName };
 
@@ -406,7 +481,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				return ImmutableDictionary<int, string>.Empty;
 			}
 
-			var query = from productGroup in _unitOfWork.Session.Query<ProductGroup>()
+			var query = from productGroup in UoW.Session.Query<ProductGroup>()
 						where productGroupIds.Contains(productGroup.Id)
 						select new { productGroup.Id, productGroup.Name };
 
@@ -422,7 +497,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				return ImmutableDictionary<int, string>.Empty;
 			}
 
-			var query = from subdivision in _unitOfWork.Session.Query<Subdivision>()
+			var query = from subdivision in UoW.Session.Query<Subdivision>()
 						where subdivisionIds.Contains(subdivision.Id)
 						select new { subdivision.Id, subdivision.Name };
 

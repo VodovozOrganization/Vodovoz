@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 
 namespace Vodovoz.Views.Reports
@@ -12,6 +13,7 @@ namespace Vodovoz.Views.Reports
 	public partial class SalesBySubdivisionsAnalitycsReportView : TabViewBase<SalesBySubdivisionsAnalitycsReportViewModel>
 	{
 		private Task _generationTask;
+		private SelectableParameterReportFilterView _filterView;
 
 		public SalesBySubdivisionsAnalitycsReportView(SalesBySubdivisionsAnalitycsReportViewModel viewModel) : base(viewModel)
 		{
@@ -74,6 +76,8 @@ namespace Vodovoz.Views.Reports
 			ybuttonSave.Clicked += OnYbuttonSaveClicked;
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
+
+			ShowFilter();
 		}
 
 		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
@@ -278,6 +282,14 @@ namespace Vodovoz.Views.Reports
 
 				rowColumnsConfig.AddColumn("").Finish();
 			}
+		}
+
+		private void ShowFilter()
+		{
+			_filterView?.Destroy();
+			_filterView = new SelectableParameterReportFilterView(ViewModel.FilterViewModel);
+			vboxParameters.Add(_filterView);
+			_filterView.Show();
 		}
 
 		private void ShowReport()
