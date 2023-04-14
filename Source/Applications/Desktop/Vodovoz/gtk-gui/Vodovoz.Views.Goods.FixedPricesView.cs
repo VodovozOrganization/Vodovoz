@@ -30,9 +30,9 @@ namespace Vodovoz.Views.Goods
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox specialListCmbOrganisations;
 
-		private global::Gtk.Button buttonDel;
-
 		private global::Gtk.Button buttonAddFixedPrice;
+
+		private global::Gtk.Button buttonDel;
 
 		protected virtual void Build()
 		{
@@ -54,26 +54,28 @@ namespace Vodovoz.Views.Goods
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.ytreeviewNomenclatures = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewNomenclatures.WidthRequest = 250;
+			this.ytreeviewNomenclatures.WidthRequest = 350;
 			this.ytreeviewNomenclatures.CanFocus = true;
 			this.ytreeviewNomenclatures.Name = "ytreeviewNomenclatures";
 			this.GtkScrolledWindow.Add(this.ytreeviewNomenclatures);
 			this.hbox1.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow]));
 			w2.Position = 0;
+			w2.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
 			this.ytreeviewFixedPriceAndCount = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewFixedPriceAndCount.WidthRequest = 200;
+			this.ytreeviewFixedPriceAndCount.WidthRequest = 240;
 			this.ytreeviewFixedPriceAndCount.CanFocus = true;
 			this.ytreeviewFixedPriceAndCount.Name = "ytreeviewFixedPriceAndCount";
 			this.GtkScrolledWindow2.Add(this.ytreeviewFixedPriceAndCount);
 			this.hbox1.Add(this.GtkScrolledWindow2);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow2]));
 			w4.Position = 1;
+			w4.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -99,7 +101,7 @@ namespace Vodovoz.Views.Goods
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
-			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить фиксу");
+			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить номенклатуру");
 			this.hboxButtons.Add(this.buttonAdd);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonAdd]));
 			w8.Position = 0;
@@ -136,24 +138,24 @@ namespace Vodovoz.Views.Goods
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.buttonDel = new global::Gtk.Button();
-			this.buttonDel.CanFocus = true;
-			this.buttonDel.Name = "buttonDel";
-			this.buttonDel.UseUnderline = true;
-			this.buttonDel.Label = global::Mono.Unix.Catalog.GetString("Удалить фиксу");
-			this.hboxButtons.Add(this.buttonDel);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonDel]));
-			w12.Position = 2;
-			w12.Expand = false;
-			w12.Fill = false;
-			// Container child hboxButtons.Gtk.Box+BoxChild
 			this.buttonAddFixedPrice = new global::Gtk.Button();
 			this.buttonAddFixedPrice.CanFocus = true;
 			this.buttonAddFixedPrice.Name = "buttonAddFixedPrice";
 			this.buttonAddFixedPrice.UseUnderline = true;
 			this.buttonAddFixedPrice.Label = global::Mono.Unix.Catalog.GetString("Добавить фиксу");
 			this.hboxButtons.Add(this.buttonAddFixedPrice);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonAddFixedPrice]));
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonAddFixedPrice]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child hboxButtons.Gtk.Box+BoxChild
+			this.buttonDel = new global::Gtk.Button();
+			this.buttonDel.CanFocus = true;
+			this.buttonDel.Name = "buttonDel";
+			this.buttonDel.UseUnderline = true;
+			this.buttonDel.Label = global::Mono.Unix.Catalog.GetString("Удалить фиксу");
+			this.hboxButtons.Add(this.buttonDel);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonDel]));
 			w13.Position = 3;
 			w13.Expand = false;
 			w13.Fill = false;
