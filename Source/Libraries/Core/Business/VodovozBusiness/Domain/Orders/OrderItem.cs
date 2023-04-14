@@ -506,11 +506,13 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal GetPriceByTotalCount()
 		{
-			if(Nomenclature != null) {
+			if(Nomenclature != null)
+			{
+				var canApplyAlternativePrice = Order.UseAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any();
 				if(Nomenclature.DependsOnNomenclature == null)
-					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count, Order.UseAlternativePrice);
+					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count, canApplyAlternativePrice);
 				if(Nomenclature.IsWater19L)
-					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count, Order.UseAlternativePrice);
+					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count, canApplyAlternativePrice);
 			}
 			return 0m;
 		}

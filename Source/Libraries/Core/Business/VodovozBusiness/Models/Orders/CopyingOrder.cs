@@ -146,7 +146,8 @@ namespace Vodovoz.Models.Orders
 		/// <param name="withDiscounts">true - копируем со скидками false - не переносим скидки</param>
 		/// <param name="withPrices">true - ставим ценам флаг ручного изменения, чтобы они были неизменны
 		/// false - выставляем флаг ручной цены из копируемого заказа</param>
-		public CopyingOrder CopyOrderItems(bool withDiscounts = false, bool withPrices = false)
+		/// <param name="useAlternativePrice">Использование альтернативной цены номенклатуры</param>
+		public CopyingOrder CopyOrderItems(bool withDiscounts = false, bool withPrices = false, bool useAlternativePrice = false)
 		{
 			var orderItems = _copiedOrder.OrderItems
 				.Where(x => x.PromoSet == null)
@@ -155,7 +156,7 @@ namespace Vodovoz.Models.Orders
 
 			foreach(var orderItem in orderItems)
 			{
-				CopyOrderItem(orderItem, withDiscounts, withPrices);
+				CopyOrderItem(orderItem, withDiscounts, withPrices, useAlternativePrice);
 				CopyDependentOrderEquipment(orderItem);
 			}
 
@@ -180,7 +181,10 @@ namespace Vodovoz.Models.Orders
 			}
 			if(paidDeliveryFromCopiedOrder != null)
 			{
-				CopyOrderItem(paidDeliveryFromCopiedOrder, true, true);
+				var canApplyAlternativePrice = _resultOrder.UseAlternativePrice
+				                               && paidDeliveryFromCopiedOrder.Nomenclature.AlternativeNomenclaturePrices.Any();
+
+				CopyOrderItem(paidDeliveryFromCopiedOrder, true, true, canApplyAlternativePrice);
 			}
 
 			return this;
@@ -258,7 +262,9 @@ namespace Vodovoz.Models.Orders
 
 			foreach(var promosetOrderItem in orderItems)
 			{
-				CopyOrderItem(promosetOrderItem, true, _needCopyStockBottleDiscount);
+				var canApplyAlternativePrice = _resultOrder.UseAlternativePrice
+				                               && promosetOrderItem.Nomenclature.AlternativeNomenclaturePrices.Any();
+				CopyOrderItem(promosetOrderItem, true, _needCopyStockBottleDiscount, canApplyAlternativePrice);
 				CopyDependentOrderEquipment(promosetOrderItem);
 			}
 
@@ -287,15 +293,17 @@ namespace Vodovoz.Models.Orders
 		private void CopyOrderItem(
 			OrderItem orderItem,
 			bool withDiscounts = false,
-			bool withPrices = false)
+			bool withPrices = false,
+			bool useAlternativePrice = false)
 		{
 			var newOrderItem = new OrderItem
 			{
 				Order = _resultOrder,
 				Nomenclature = orderItem.Nomenclature,
 				PromoSet = orderItem.PromoSet,
-				Price = orderItem.Price,
+				Price = orderItem.Nomenclature.GetPrice(orderItem.Count, useAlternativePrice),
 				IsUserPrice = withPrices,
+				IsAlternativePrice = useAlternativePrice,
 				Count = orderItem.Count,
 				IncludeNDS = orderItem.IncludeNDS
 			};
@@ -310,7 +318,7 @@ namespace Vodovoz.Models.Orders
 				CopyingDiscounts(orderItem, newOrderItem, _needCopyStockBottleDiscount);
 			}
 
-			_resultOrder.AddOrderItem(newOrderItem);
+			_resultOrder.AddOrderItem(newOrderItem, useAlternativePrice && orderItem.IsAlternativePrice);
 		}
 
 		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo, bool withStockBottleDiscount)

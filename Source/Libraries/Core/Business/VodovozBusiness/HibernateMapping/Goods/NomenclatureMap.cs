@@ -99,7 +99,7 @@ namespace Vodovoz.HibernateMapping
 				.Where($"type='{NomenclaturePriceBase.NomenclaturePriceType.General}'")
 				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 
-			HasMany(x => x.AlternativeNomenclaturePrice)
+			HasMany(x => x.AlternativeNomenclaturePrices)
 				.Where($"type='{NomenclaturePriceBase.NomenclaturePriceType.Alternative}'")
 				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 

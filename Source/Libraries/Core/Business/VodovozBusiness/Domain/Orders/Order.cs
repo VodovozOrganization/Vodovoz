@@ -1393,7 +1393,19 @@ namespace Vodovoz.Domain.Orders
 			foreach(var item in validatedOrderItems)
 			{
 				decimal fixedPrice = GetFixedPrice(item);
-				decimal nomenclaturePrice = GetNomenclaturePrice(item);
+				decimal nomenclaturePrice = GetNomenclaturePrice(item, false);
+				var alternativeNomenclaturePrice = GetNomenclaturePrice(item, true);
+
+				var conditionForNomenclaturePrice = nomenclaturePrice > default(decimal)
+				          && item.Price < nomenclaturePrice
+				          && (alternativeNomenclaturePrice == default(decimal)
+							  || item.Price < alternativeNomenclaturePrice);
+
+				var conditionForAlternativeNomenclaturePrice = alternativeNomenclaturePrice > default(decimal)
+				          && item.Price < alternativeNomenclaturePrice
+						  && (nomenclaturePrice == default(decimal)
+						      || item.Price < nomenclaturePrice);
+
 				if(fixedPrice > 0m)
 				{
 					if(item.Price < fixedPrice)
@@ -1404,12 +1416,10 @@ namespace Vodovoz.Domain.Orders
 							fixedPrice));
 					}
 				}
-				else if(nomenclaturePrice > default(decimal) && item.Price < nomenclaturePrice)
+				else if(conditionForNomenclaturePrice || conditionForAlternativeNomenclaturePrice)
 				{
-					incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-						item.NomenclatureString,
-						item.Price,
-						nomenclaturePrice));
+					incorrectPriceItems.Add(
+							$"{item.NomenclatureString} - цена: {item.Price}, должна быть: {nomenclaturePrice}, либо {alternativeNomenclaturePrice}");
 				}
 			}
 		}
@@ -1616,12 +1626,15 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Добавление/удаление товаров
-		public virtual void AddOrderItem(OrderItem orderItem)
+		public virtual void AddOrderItem(OrderItem orderItem, bool useAlternativePrice = false)
 		{
+			var canApplyAlternativePrice = useAlternativePrice 
+			                               || (UseAlternativePrice && orderItem.Nomenclature.AlternativeNomenclaturePrices.Any());
+
 			if(ObservableOrderItems.Contains(orderItem)) {
 				return;
 			}
-			orderItem.IsAlternativePrice = UseAlternativePrice;
+			orderItem.IsAlternativePrice = canApplyAlternativePrice;
 			ObservableOrderItems.Add(orderItem);
 			UpdateContract();
 		}
@@ -1942,12 +1955,14 @@ namespace Vodovoz.Domain.Orders
 			if(cnt.HasValue)
 				count = cnt.Value;
 
+			var canApplyAlternativePrice = UseAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any();
+
 			var newItem = new OrderItem {
 				Order = this,
 				Count = count,
 				Equipment = null,
 				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1, UseAlternativePrice)
+				Price = nomenclature.GetPrice(1, canApplyAlternativePrice)
 			};
 			AddOrderItem(newItem);
 		}
@@ -1975,12 +1990,14 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
+			var canApplyAlternativePrice = UseAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any();
+
 			var newItem = new OrderItem {
 				Order = this,
 				Count = count,
 				Equipment = null,
 				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1, UseAlternativePrice)
+				Price = nomenclature.GetPrice(1, canApplyAlternativePrice)
 			};
 			AddOrderItem(newItem);
 
@@ -2055,7 +2072,9 @@ namespace Vodovoz.Domain.Orders
 				return fixedPrice.Price;
 			}
 
-			return nomenclature.GetPrice(promoSet == null ? GetTotalWater19LCount(true) : bottlesCount, UseAlternativePrice);
+			var canApplyAlternativePrice = UseAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any();
+
+			return nomenclature.GetPrice(promoSet == null ? GetTotalWater19LCount(true) : bottlesCount, canApplyAlternativePrice);
 		}
 
 		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature)
@@ -2258,6 +2277,7 @@ namespace Vodovoz.Domain.Orders
 					contract = CreateServiceContractAddMasterNomenclature(nomenclature);
 					break;
 				default:
+					var canApplyAlternativePrice = UseAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any();
 					oi = new OrderItem {
 						Order = this,
 						Count = count,
@@ -2266,7 +2286,7 @@ namespace Vodovoz.Domain.Orders
 						DiscountSetter = discount,
 						DiscountReason = discountReason,
 						PromoSet = proSet,
-						Price = nomenclature.GetPrice(1, UseAlternativePrice)
+						Price = nomenclature.GetPrice(1, canApplyAlternativePrice)
 					};
 					AddItemWithNomenclatureForSale(oi);
 					break;
@@ -4245,13 +4265,13 @@ namespace Vodovoz.Domain.Orders
 		
 		decimal GetFixedPrice(OrderItem item) => item.GetWaterFixedPrice() ?? default(decimal);
 
-		decimal GetNomenclaturePrice(OrderItem item)
+		decimal GetNomenclaturePrice(OrderItem item, bool isAlternativePrice)
 		{
 			decimal nomenclaturePrice = 0M;
 			if(item.Nomenclature.IsWater19L) {
-				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWater19LCount(), UseAlternativePrice);
+				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWater19LCount(), isAlternativePrice);
 			} else {
-				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count, UseAlternativePrice);
+				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count, isAlternativePrice);
 			}
 			return nomenclaturePrice;
 		}
@@ -4478,12 +4498,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(IsFastDelivery && orderItems.All(x => x.Nomenclature.Id != FastDeliveryNomenclature.Id))
 			{
+				var canApplyAlternativePrice = UseAlternativePrice && FastDeliveryNomenclature.AlternativeNomenclaturePrices.Any();
 				var fastDeliveryItemToAdd = new OrderItem
 				{
 					Order = this,
 					Nomenclature = FastDeliveryNomenclature,
 					Count = 1,
-					Price = FastDeliveryNomenclature.GetPrice(1, UseAlternativePrice)
+					Price = FastDeliveryNomenclature.GetPrice(1, canApplyAlternativePrice)
 				};
 
 				AddOrderItem(fastDeliveryItemToAdd);

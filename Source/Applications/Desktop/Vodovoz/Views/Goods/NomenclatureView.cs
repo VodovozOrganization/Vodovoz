@@ -389,8 +389,8 @@ namespace Vodovoz.Views.Goods
 			pricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.General;
 
 			alternativePricesView.UoWGeneric = ViewModel.UoWGeneric;
-			alternativePricesView.Prices = ViewModel.UoWGeneric.Root.AlternativeNomenclaturePrice.Cast<NomenclaturePriceBase>().ToList();
-			alternativePricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEdit;
+			alternativePricesView.Prices = ViewModel.UoWGeneric.Root.AlternativeNomenclaturePrices.Cast<NomenclaturePriceBase>().ToList();
+			alternativePricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEditAlternativeNomenclaturePrices &&  ViewModel.CanEdit;
 			alternativePricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.Alternative;
 
 			ViewModel.PricesViewSaveChanges += () => pricesView.SaveChanges();

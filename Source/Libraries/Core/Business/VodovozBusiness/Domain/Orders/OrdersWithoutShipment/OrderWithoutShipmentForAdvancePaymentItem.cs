@@ -247,11 +247,12 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public virtual decimal GetPriceByTotalCount()
 		{
+			var canApplyAlternativePrice = OrderWithoutDeliveryForAdvancePayment.UseAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any();
 			if(Nomenclature != null) {
 				if(Nomenclature.DependsOnNomenclature == null)
-					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount() : Count, OrderWithoutDeliveryForAdvancePayment.UseAlternativePrice);
+					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount() : Count, canApplyAlternativePrice);
 				if(Nomenclature.IsWater19L)
-					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount() : Count, OrderWithoutDeliveryForAdvancePayment.UseAlternativePrice);
+					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount() : Count, canApplyAlternativePrice);
 			}
 			return 0m;
 		}

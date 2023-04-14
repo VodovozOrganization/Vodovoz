@@ -67,11 +67,12 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, bool discountInMoney = false, DiscountReason discountReason = null, PromotionalSet proSet = null)
 		{
+			var canApplyAlternativePrice = UseAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any();
 			OrderWithoutShipmentForAdvancePaymentItem oi = new OrderWithoutShipmentForAdvancePaymentItem {
 				OrderWithoutDeliveryForAdvancePayment = this,
 				Count = count,
 				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1, UseAlternativePrice),
+				Price = nomenclature.GetPrice(1, canApplyAlternativePrice),
 				IsDiscountInMoney = discountInMoney,
 				DiscountSetter = discount,
 				DiscountReason = discountReason
@@ -81,11 +82,12 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public virtual void AddItemWithNomenclatureForSale(OrderWithoutShipmentForAdvancePaymentItem orderItem)
 		{
+			var canApplyAlternativePrice = UseAlternativePrice && orderItem.Nomenclature.AlternativeNomenclaturePrices.Any();
 			var acceptableCategories = Nomenclature.GetCategoriesForSale();
 			if(orderItem?.Nomenclature == null || !acceptableCategories.Contains(orderItem.Nomenclature.Category))
 				return;
 
-			orderItem.IsAlternativePrice = UseAlternativePrice;
+			orderItem.IsAlternativePrice = canApplyAlternativePrice;
 			ObservableOrderWithoutDeliveryForAdvancePaymentItems.Add(orderItem);
 		}
 
