@@ -25,6 +25,8 @@ namespace DriverAPI.Library.Helpers
 
 		public DateTime GetActionTime(IActionTimeTrackable actionTimeTrackable)
 		{
+			_logger.LogTrace("Proceeding IActionTimeTrackable: {ActionTime} : {ActionTimeUtc}", actionTimeTrackable.ActionTime, actionTimeTrackable.ActionTimeUtc);
+			
 			if(actionTimeTrackable.ActionTimeUtc is null)
 			{
 				if(actionTimeTrackable.ActionTime is null)
