@@ -76,9 +76,11 @@ namespace DriverAPI.Controllers
 
 			var resultMessage = "OK";
 
+			var actionTime = _actionTimeHelper.GetActionTime(completedOrderRequestModel);
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, completedOrderRequestModel.ActionTime);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, actionTime);
 
 				_aPIOrderData.CompleteOrderDelivery(
 					recievedTime,
@@ -93,7 +95,7 @@ namespace DriverAPI.Controllers
 			}
 			finally
 			{
-				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, completedOrderRequestModel.ActionTime, recievedTime, resultMessage);
+				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, actionTime, recievedTime, resultMessage);
 			}
 		}
 
@@ -124,9 +126,11 @@ namespace DriverAPI.Controllers
 
 			var resultMessage = "OK";
 
+			var actionTime = _actionTimeHelper.GetActionTime(changeOrderPaymentTypeRequestModel);
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, changeOrderPaymentTypeRequestModel.ActionTime);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, actionTime);
 
 				IEnumerable<PaymentDtoType> availableTypesToChange = _aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
 
@@ -165,7 +169,7 @@ namespace DriverAPI.Controllers
 			}
 			finally
 			{
-				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.ChangeOrderPaymentTypeClicked, changeOrderPaymentTypeRequestModel.ActionTime, recievedTime, resultMessage);
+				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.ChangeOrderPaymentTypeClicked, actionTime, recievedTime, resultMessage);
 			}
 		}
 	}

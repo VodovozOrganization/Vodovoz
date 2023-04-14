@@ -105,9 +105,11 @@ namespace DriverAPI.Controllers
 
 			var resultMessage = "OK";
 
+			var actionTime = _actionTimeHelper.GetActionTime(payBySmsRequestModel);
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, payBySmsRequestModel.ActionTime);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, actionTime);
 
 				_aPIOrderData.SendSmsPaymentRequest(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber, driver.Id);
 			}
@@ -120,7 +122,7 @@ namespace DriverAPI.Controllers
 			{
 				_driverMobileAppActionRecordModel.RegisterAction(driver,
 					DriverMobileAppActionType.PayBySmsClicked,
-					payBySmsRequestModel.ActionTime,
+					actionTime,
 					recievedTime,
 					resultMessage);
 			}
