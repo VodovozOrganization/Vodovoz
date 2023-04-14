@@ -114,6 +114,22 @@ namespace Vodovoz.TempAdapters
 				});
 		}
 
+		public IEntityAutocompleteSelectorFactory GetNotArchiveEquipmentsSelectorFactory()
+		{
+			return new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
+				typeof(Nomenclature),
+				() =>
+				{
+					var filter = new NomenclatureFilterViewModel { HidenByDefault = true };
+					filter.SetAndRefilterAtOnce(
+						x => x.RestrictCategory = NomenclatureCategory.equipment,
+						x => x.RestrictArchive = false
+					);
+
+					return CreateNomenclaturesJournalViewModel(filter);
+				});
+		}
+
 		public IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory() =>
 			new EntityAutocompleteSelectorFactory<NomenclaturesJournalViewModel>(
 				typeof(Nomenclature),
