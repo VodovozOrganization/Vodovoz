@@ -19,6 +19,7 @@ namespace Vodovoz.TempAdapters
 		IEntityAutocompleteSelectorFactory GetServiceSelectorFactory();
 		IEntityAutocompleteSelectorFactory CreateNomenclatureForFlyerJournalFactory();
 		IEntityAutocompleteSelectorFactory GetDefaultNomenclatureSelectorFactory(NomenclatureFilterViewModel filter = null);
+		IEntityAutocompleteSelectorFactory GetNotArchiveEquipmentsSelectorFactory();
 		NomenclaturesJournalViewModel CreateNomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filter = null, bool multiselect = false);
 	}

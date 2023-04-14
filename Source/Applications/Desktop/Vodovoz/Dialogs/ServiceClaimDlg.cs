@@ -34,6 +34,8 @@ namespace Vodovoz
 		private readonly IEquipmentRepository _equipmentRepository = new EquipmentRepository();
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory =
+			new NomenclatureJournalFactory();
 
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel =
 			new DeliveryPointJournalFilterViewModel();
@@ -149,8 +151,12 @@ namespace Vodovoz
 			dpFactory.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilterViewModel);
 			evmeDeliveryPoint.SetEntityAutocompleteSelectorFactory(dpFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 
-			referenceNomenclature.ItemsQuery = _nomenclatureRepository.NomenclatureOfItemsForService();
-			referenceNomenclature.Binding.AddBinding(Entity, e => e.Nomenclature, w => w.Subject).InitializeFromSource();
+			nomenclatureVMEntry.SetEntityAutocompleteSelectorFactory(
+				_nomenclatureJournalFactory.GetNotArchiveEquipmentsSelectorFactory());
+			nomenclatureVMEntry.Binding
+				.AddBinding(Entity, e => e.Nomenclature, w => w.Subject)
+				.InitializeFromSource();
+			nomenclatureVMEntry.Changed += OnNomenclatureVMEntryChanged;
 
 			referenceEquipment.SubjectType = typeof(Equipment);
 			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
@@ -260,7 +266,7 @@ namespace Vodovoz
 
 		#endregion
 
-		protected void OnReferenceNomenclatureChanged (object sender, EventArgs e)
+		protected void OnNomenclatureVMEntryChanged (object sender, EventArgs e)
 		{
 			FixNomenclatureAndEquipmentSensitivity ();
 
@@ -392,7 +398,7 @@ namespace Vodovoz
 		protected void OnReferenceEquipmentChanged (object sender, EventArgs e)
 		{
 			Equipment selectedEquipment = referenceEquipment.Subject as Equipment;
-			referenceNomenclature.Subject = selectedEquipment != null ? selectedEquipment.Nomenclature : null;
+			nomenclatureVMEntry.Subject = selectedEquipment != null ? selectedEquipment.Nomenclature : null;
 		}
 			
 		protected void OnEnumcomboWithSerialEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -429,7 +435,7 @@ namespace Vodovoz
 			bool withSerial = ((ServiceClaimEquipmentSerialType)enumcomboWithSerial.SelectedItem) == ServiceClaimEquipmentSerialType.WithSerial;
 			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && 
 				(UoWGeneric.Root.DeliveryPoint !=null || UoWGeneric.Root.ServiceClaimType==ServiceClaimType.JustService);
-			referenceNomenclature.Sensitive = !withSerial && UoWGeneric.Root.Counterparty!=null;
+			nomenclatureVMEntry.Sensitive = !withSerial && UoWGeneric.Root.Counterparty != null;
 		}
 	}
 }
