@@ -1901,6 +1901,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseDocumentsItemsJournalFilterView.cs" />
     <Compile Include="Views\Logistic\RouteListFastDeliveryMaxDistanceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListFastDeliveryMaxDistanceView.cs" />
+    <Compile Include="Views\Logistic\LogisticsRequirementsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.LogisticsRequirementsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
