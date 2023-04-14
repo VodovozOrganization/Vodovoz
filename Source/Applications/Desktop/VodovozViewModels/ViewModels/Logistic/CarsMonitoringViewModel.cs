@@ -1,7 +1,6 @@
 ﻿using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -27,9 +26,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.Extensions;
 using Vodovoz.NHibernateProjections.Logistics;
-using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
@@ -73,7 +70,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly Color _fastDeliveryCircleFillColor = Color.OrangeRed;
 		private TimeSpan _fastDeliveryTime;
 
-		private IUnitOfWork _unitOfWork;
 		private bool _canOpenKeepingTab;
 		private bool _canEditRouteListFastDeliveryMaxDistance;
 		private bool _showHistory;
@@ -107,8 +103,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			FastDeliveryOverlayId = "fast delivery";
 			FastDeliveryDistrictsOverlayId = "districts";
 
-			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
-			_unitOfWork.Session.DefaultReadOnly = true;
+			UoW.Session.DefaultReadOnly = true;
 
 			CarRefreshInterval = TimeSpan.FromSeconds(10);
 
@@ -597,7 +592,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				if(ShowHistory)
 				{
 					var historyDistrictsVersionId = _scheduleRestrictionRepository
-						.GetDistrictsForFastDeliveryHistoryVersionId(_unitOfWork, HistoryDateTime);
+						.GetDistrictsForFastDeliveryHistoryVersionId(UoW, HistoryDateTime);
 
 					if(_fastDeliveryDistrictsLastVersionId == historyDistrictsVersionId)
 					{
@@ -606,7 +601,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					else
 					{
 						districts = _scheduleRestrictionRepository
-							.GetDistrictsWithBorderForFastDeliveryAtDateTime(_unitOfWork, HistoryDateTime);
+							.GetDistrictsWithBorderForFastDeliveryAtDateTime(UoW, HistoryDateTime);
 
 						_cachedFastDeliveryDistricts = districts;
 						_fastDeliveryDistrictsLastVersionId = historyDistrictsVersionId;
@@ -615,7 +610,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				else
 				{
 					var currentDistrictsVersionId = _scheduleRestrictionRepository
-						.GetDistrictsForFastDeliveryCurrentVersionId(_unitOfWork);
+						.GetDistrictsForFastDeliveryCurrentVersionId(UoW);
 
 					if(_fastDeliveryDistrictsLastVersionId == currentDistrictsVersionId)
 					{
@@ -623,7 +618,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					}
 					else
 					{
-						districts = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDelivery(_unitOfWork);
+						districts = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDelivery(UoW);
 
 						_cachedFastDeliveryDistricts = districts;
 						_fastDeliveryDistrictsLastVersionId = currentDistrictsVersionId;
@@ -681,23 +676,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public int[] GetDriversWithAdditionalLoadingFrom(int[] ids)
 		{
-			return _routeListRepository.GetDriversWithAdditionalLoading(_unitOfWork, ids)
+			return _routeListRepository.GetDriversWithAdditionalLoading(UoW, ids)
 				.Select(x => x.Id).ToArray();
 		}
 
 		public IList<DriverPosition> GetLastRouteListTrackPoints(int[] ids)
 		{
-			return _trackRepository.GetLastPointForRouteLists(_unitOfWork, ids);
+			return _trackRepository.GetLastPointForRouteLists(UoW, ids);
 		}
 
 		public IList<DriverPosition> GetLastRouteListTrackPoints(int[] routeListsIds, DateTime disconnectedDateTime)
 		{
-			return _trackRepository.GetLastPointForRouteLists(_unitOfWork, routeListsIds, disconnectedDateTime);
+			return _trackRepository.GetLastPointForRouteLists(UoW, routeListsIds, disconnectedDateTime);
 		}
 
 		public IList<TrackPoint> GetRouteListTrackPoints(int id)
 		{
-			return _trackRepository.GetPointsForRouteList(_unitOfWork, id);
+			return _trackRepository.GetPointsForRouteList(UoW, id);
 		}
 
 		#region IDisposable
@@ -706,6 +701,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			FastDeliveryDistricts.Clear();
 			WorkingDrivers.Clear();
 			SelectedWorkingDrivers.Clear();
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			base.Dispose();
 		}
 		#endregion
