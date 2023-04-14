@@ -4368,7 +4368,8 @@ namespace Vodovoz.Domain.Orders
 		{
 			PaymentType.cash,
 			PaymentType.ByCard,
-			PaymentType.Terminal
+			PaymentType.Terminal,
+			PaymentType.cashless
 		};
 
 		#endregion
