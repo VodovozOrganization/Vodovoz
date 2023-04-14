@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Vodovoz.ViewModels.ViewModels.Reports.Sales.SalesBySubdivisionsAnalitycsReportViewModel;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 {
@@ -22,8 +23,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		private SalesBySubdivisionsAnalitycsReport(
 			DateTime firstPeriodStartDate,
 			DateTime firstPeriodEndDate,
-			DateTime? secondPeriodStartDate,
-			DateTime? secondPeriodEndDate,
 			bool splitByNomenclatures,
 			bool splitBySubdivisions,
 			bool splitByWarehouses,
@@ -36,8 +35,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		{
 			FirstPeriodStartDate = firstPeriodStartDate;
 			FirstPeriodEndDate = firstPeriodEndDate;
-			SecondPeriodStartDate = secondPeriodStartDate;
-			SecondPeriodEndDate = secondPeriodEndDate;
 			SplitByNomenclatures = splitByNomenclatures;
 			SplitBySubdivisions = splitBySubdivisions;
 			SplitByWarehouses = splitByWarehouses;
@@ -52,7 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				Subdivisions.Add(subdivision);
 			}
 
-			_subdivisionIndexes = subdivisions.Keys.ToList();
+			_subdivisionIndexes = Subdivisions.Keys.ToList();
 
 			ShowResidues = (firstPeriodEndDate - firstPeriodStartDate).TotalDays < 1;
 
@@ -81,6 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 			Nomenclatures = nomenclatures;
 			ProductGroups = productGroups;
+			ProductGroups.Add(0, "Без группы");
 			_productGroupIndexes = ProductGroups.Keys.ToList();
 			_productGroupNomenclatures = new Dictionary<int, IEnumerable<int>>();
 			_sales = sales;
@@ -90,8 +88,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			{
 				_productGroupNomenclatures.Add(
 					productGroupId,
-					_sales.Where(y => y.ProductGroupId == productGroupId)
-						.Select(y => y.NomenclatureId).Distinct());
+					_sales
+						.Where(y => y.ProductGroupId == productGroupId)
+						.Select(y => y.NomenclatureId)
+						.Distinct());
 			}
 
 			var subdivisionsList = new List<string>();
@@ -139,12 +139,42 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			CreatedAt = DateTime.Now;
 		}
 
+		public string Title => "Аналитика продаж КБ";
+
+		public DateTime FirstPeriodStartDate { get; }
+
+		public DateTime FirstPeriodEndDate { get; }
+
+		public bool SplitByNomenclatures { get; }
+
+		public bool SplitBySubdivisions { get; }
+
+		public bool SplitByWarehouses { get; }
+
+		public bool ShowResidues { get; }
+
+		public IDictionary<int, string> Subdivisions { get; set; }
+
+		public IDictionary<int, string> Warehouses { get; }
+
+		public IDictionary<int, string> Nomenclatures { get; }
+
+		public IDictionary<int, string> ProductGroups { get; }
+
+		public DateTime CreatedAt { get; }
+
+		public TotalRow Total => _totalRow;
+
+		public List<DisplayRow> DisplayRows => _displayRows;
+
+		public List<Row> Rows => _rows;
+
 		private void Process()
 		{
 			_totalRow = new TotalRow()
 			{
 				SubTotalRows = new List<SubTotalRow>(),
-				SalesBySubdivision = Enumerable.Repeat(new AmountPricePair { Amount = 0m, Price = 0m }, Subdivisions.Count).ToList(),
+				SalesBySubdivision = CreateSalesBySubdivisionEmptyList(),
 				ResiduesByWarehouse = Enumerable.Repeat(0m, Warehouses.Count).ToList()
 			};
 
@@ -180,7 +210,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			SubTotalRow result = new SubTotalRow
 			{
 				Title = ProductGroups[productGroupId],
-				SalesBySubdivision = Enumerable.Repeat(new AmountPricePair { Amount = 0m, Price = 0m }, Subdivisions.Count).ToList(),
+				SalesBySubdivision = CreateSalesBySubdivisionEmptyList(),
 				ResiduesByWarehouse = Enumerable.Repeat(0m, Warehouses.Count).ToList()
 			};
 
@@ -338,10 +368,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		}
 
 		private IList<AmountPricePair> ProcessSubdivisionsNomenclaturesSales(
-			IEnumerable<IGrouping<(int NomenclatureId, int SubdivisionId),
-			SalesDataNode>> salesGroups, int nomenclatureId)
+			IEnumerable<IGrouping<(int NomenclatureId, int SubdivisionId), SalesDataNode>> salesGroups,
+			int nomenclatureId)
 		{
-			var result = Enumerable.Repeat(new AmountPricePair { Amount = 0m, Price = 0m }, Subdivisions.Count).ToList();
+			var result = CreateSalesBySubdivisionEmptyList();
 
 			var salesCount = salesGroups.Count();
 
@@ -356,11 +386,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 					}
 				}
 
-				result[0] = new AmountPricePair
-				{
-					Amount = result.Skip(1).Sum(x => x.Amount),
-					Price = result.Skip(1).Sum(x => x.Price)
-				};
+				result[0].Amount = result.Skip(1).Sum(x => x.Amount);
+				result[0].Price = result.Skip(1).Sum(x => x.Price);
 			}
 			else
 			{
@@ -406,50 +433,32 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			return result;
 		}
 
-		public string Title => "Аналитика продаж КБ";
+		public List<AmountPricePair> CreateSalesBySubdivisionEmptyList()
+		{
+			var result = new List<AmountPricePair>();
 
-		public DateTime FirstPeriodStartDate { get; }
+			for(int i = 0; i < Subdivisions.Count; i++)
+			{
+				result.Add(new AmountPricePair
+				{
+					Amount = 0m,
+					Price = 0m
+				});
+			}
 
-		public DateTime FirstPeriodEndDate { get; }
-
-		public DateTime? SecondPeriodStartDate { get; }
-
-		public DateTime? SecondPeriodEndDate { get; }
-
-		public bool SplitByNomenclatures { get; }
-
-		public bool SplitBySubdivisions { get; }
-
-		public bool SplitByWarehouses { get; }
-
-		public bool ShowResidues { get; }
-
-		public IDictionary<int, string> Subdivisions { get; set; }
-
-		public IDictionary<int, string> Warehouses { get; }
-
-		public IDictionary<int, string> Nomenclatures { get; }
-
-		public IDictionary<int, string> ProductGroups { get; }
-
-		public DateTime CreatedAt { get; }
-
-		public TotalRow Total => _totalRow;
-
-		public List<DisplayRow> DisplayRows => _displayRows;
-
-		public List<Row> Rows => _rows;
+			return result;
+		}
 
 		public static async Task<SalesBySubdivisionsAnalitycsReport> Create(
 			DateTime firstPeriodStartDate,
 			DateTime firstPeriodEndDate,
-			DateTime? secondPeriodStartDate,
-			DateTime? secondPeriodEndDate,
 			bool splitByNomenclatures,
 			bool splitBySubdivisions,
 			bool splitByWarehouses,
-			Func<DateTime, DateTime, DateTime?, DateTime?, bool, bool, bool, IEnumerable<SalesDataNode>> retrieveFunction,
-			Func<DateTime, IEnumerable<ResidueDataNode>> warehouseResiduesFunc,
+			int[] subdivisionsIds,
+			int[] warehousesIds,
+			Func<DateTime, DateTime, int[], IEnumerable<SalesDataNode>> retrieveFunction,
+			Func<DateTime, int[], IEnumerable<ResidueDataNode>> warehouseResiduesFunc,
 			Func<IEnumerable<int>, Task<IDictionary<int, string>>> getNomenclaturesFunc,
 			Func<IEnumerable<int>, Task<IDictionary<int, string>>> getGetProductGroupsFunc,
 			Func<IEnumerable<int>, Task<IDictionary<int, string>>> getGetSubdivisionsFunc,
@@ -485,21 +494,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				throw new ArgumentNullException(nameof(getGetWarehousesFunc));
 			}
 
-			ValidateParameters(
-				firstPeriodStartDate,
-				firstPeriodEndDate,
-				secondPeriodStartDate,
-				secondPeriodEndDate,
-				splitByWarehouses);
-
 			IEnumerable<SalesDataNode> dataNodes = retrieveFunction(
 				firstPeriodStartDate,
 				firstPeriodEndDate,
-				secondPeriodStartDate,
-				secondPeriodEndDate,
-				splitByNomenclatures,
-				splitBySubdivisions,
-				splitByWarehouses);
+				subdivisionsIds);
 
 			IEnumerable<ResidueDataNode> residueDataNodes;
 
@@ -507,7 +505,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 			if((firstPeriodEndDate - firstPeriodStartDate).TotalDays < 1)
 			{
-				residueDataNodes = warehouseResiduesFunc(firstPeriodEndDate);
+				residueDataNodes = warehouseResiduesFunc(firstPeriodEndDate, warehousesIds);
 
 				if(splitByWarehouses)
 				{
@@ -548,8 +546,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			return new SalesBySubdivisionsAnalitycsReport(
 				firstPeriodStartDate,
 				firstPeriodEndDate,
-				secondPeriodStartDate,
-				secondPeriodEndDate,
 				splitByNomenclatures,
 				splitBySubdivisions,
 				splitByWarehouses,
@@ -559,34 +555,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				subdivisions,
 				dataNodes,
 				residueDataNodes);
-		}
-
-		private static void ValidateParameters(
-			DateTime firstPeriodStartDate,
-			DateTime firstPeriodEndDate,
-			DateTime? secondPeriodStartDate,
-			DateTime? secondPeriodEndDate,
-			bool splitByWarehouses)
-		{
-			if(splitByWarehouses && (secondPeriodStartDate != null || secondPeriodEndDate != null))
-			{
-				throw new ArgumentException("Нельзя выбрать разбивку по складам для отчета с двумя периодами",
-					nameof(splitByWarehouses));
-			}
-
-			if(splitByWarehouses
-				&& (firstPeriodEndDate - firstPeriodStartDate).TotalDays > 1)
-			{
-				throw new ArgumentException("Нельзя выбрать разбивку по складам для отчета с интервалом более одного дня",
-					nameof(splitByWarehouses));
-			}
-		}
-
-		public class AmountPricePair
-		{
-			public decimal Amount { get; set; }
-
-			public decimal Price { get; set; }
 		}
 	}
 }

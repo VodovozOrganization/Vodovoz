@@ -53,6 +53,23 @@ namespace Vodovoz.NHibernateProjections.Orders
 		/// Используется <see cref="OrderItem"/> orderItemAlias
 		/// </summary>
 		/// <returns></returns>
+		public static IProjection GetOrderItemCurrentCountProjection()
+		{
+			OrderItem orderItemAlias = null;
+
+			return Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "ROUND(IFNULL(?1, ?2), 2)"),
+				NHibernateUtil.Decimal,
+					Projections.Property(() => orderItemAlias.ActualCount),
+					Projections.Property(() => orderItemAlias.Count));
+		}
+
+		/// <summary>
+		/// Проекции работают через рефлексию (nameof())<br/>
+		/// Необходимо использовать конвенцию наименования алиасов в запросе для которого применяется проекция:<br/>
+		/// camelCase названия сущности + Alias<br/>
+		/// Используется <see cref="OrderItem"/> orderItemAlias
+		/// </summary>
+		/// <returns></returns>
 		public static IProjection GetOrderItemCountSumProjection()
 		{
 			OrderItem orderItemAlias = null;

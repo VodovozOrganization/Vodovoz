@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
-using static Vodovoz.ViewModels.ViewModels.Reports.Sales.SalesBySubdivisionsAnalitycsReport;
 
 namespace Vodovoz.Views.Reports
 {
@@ -192,44 +191,93 @@ namespace Vodovoz.Views.Reports
 		{
 			ytreeReportIndicatorsRows.EnableGridLines = TreeViewGridLines.Both;
 
-			var rowColumnsConfig = ytreeReportIndicatorsRows.CreateFluentColumnsConfig<SalesBySubdivisionsAnalitycsReport.DisplayRow>();
-
-			rowColumnsConfig
-				.AddColumn("")
-				.AddTextRenderer(row =>
-					row.GetType() == typeof(HeaderRow)
-					|| row.GetType() == typeof(SubHeaderRow)
-					|| row.GetType() == typeof(SubTotalRow)
-					|| row.GetType() == typeof(TotalRow)
-					? $"<b>{row.Title}</b>"
-					: row.Title,
-					useMarkup: true);
-
-			if(ViewModel.Report?.Match(
-				report => report.DisplayRows.Any(),
-				reportWithDynamics => reportWithDynamics.DisplayRows.Any()) ?? false)
+			if(ViewModel.Report is null)
 			{
-				var count = ViewModel.Report?.Match(
-					report => report.DisplayRows.First().DynamicColumns.Count,
-					reportWithDynamics => reportWithDynamics.DisplayRows.First().DynamicColumns.Count);
-
-				for(var i = 0; i < count; i++)
-				{
-					int index = i;
-					rowColumnsConfig
-						.AddColumn("")
-						.AddTextRenderer(row =>
-						row.GetType() == typeof(HeaderRow)
-						|| row.GetType() == typeof(SubHeaderRow)
-						|| row.GetType() == typeof(SubTotalRow)
-						|| row.GetType() == typeof(TotalRow)
-						? $"<b>{row.DynamicColumns[index]}</b>"
-						: row.DynamicColumns[index],
-						useMarkup: true);
-				}
+				return;
 			}
-			
-			rowColumnsConfig.AddColumn("").Finish();
+
+			if(ViewModel.Report.Value.IsT0)
+			{
+				var rowColumnsConfig = ytreeReportIndicatorsRows.CreateFluentColumnsConfig<SalesBySubdivisionsAnalitycsReport.DisplayRow>();
+
+				rowColumnsConfig
+					.AddColumn("")
+					.AddTextRenderer(row =>
+						row.GetType() == typeof(SalesBySubdivisionsAnalitycsReport.HeaderRow)
+						|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsReport.SubHeaderRow)
+						|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsReport.SubTotalRow)
+						|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsReport.TotalRow)
+						? $"<b>{row.Title}</b>"
+						: row.Title,
+						useMarkup: true);
+
+				if(ViewModel.Report?.Match(
+					report => report.DisplayRows.Any(),
+					reportWithDynamics => reportWithDynamics.DisplayRows.Any()) ?? false)
+				{
+					var count = ViewModel.Report?.Match(
+						report => report.DisplayRows.First().DynamicColumns.Count,
+						reportWithDynamics => reportWithDynamics.DisplayRows.First().DynamicColumns.Count);
+
+					for(var i = 0; i < count; i++)
+					{
+						int index = i;
+						rowColumnsConfig
+							.AddColumn("")
+							.AddTextRenderer(row =>
+								row.GetType() == typeof(SalesBySubdivisionsAnalitycsReport.HeaderRow)
+								|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsReport.SubHeaderRow)
+								|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsReport.SubTotalRow)
+								|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsReport.TotalRow)
+								? $"<b>{row.DynamicColumns[index]}</b>"
+								: row.DynamicColumns[index],
+								useMarkup: true);
+					}
+				}
+
+				rowColumnsConfig.AddColumn("").Finish();
+			}
+			else
+			{
+				var rowColumnsConfig = ytreeReportIndicatorsRows.CreateFluentColumnsConfig<SalesBySubdivisionsAnalitycsWithDynamicsReport.DisplayRow>();
+
+				rowColumnsConfig
+					.AddColumn("")
+					.AddTextRenderer(row =>
+						row.GetType() == typeof(SalesBySubdivisionsAnalitycsWithDynamicsReport.HeaderRow)
+						|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsWithDynamicsReport.SubHeaderRow)
+						|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsWithDynamicsReport.SubTotalRow)
+						|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsWithDynamicsReport.TotalRow)
+						? $"<b>{row.Title}</b>"
+						: row.Title,
+						useMarkup: true);
+
+				if(ViewModel.Report?.Match(
+					report => report.DisplayRows.Any(),
+					reportWithDynamics => reportWithDynamics.DisplayRows.Any()) ?? false)
+				{
+					var count = ViewModel.Report?.Match(
+						report => report.DisplayRows.First().DynamicColumns.Count,
+						reportWithDynamics => reportWithDynamics.DisplayRows.First().DynamicColumns.Count);
+
+					for(var i = 0; i < count; i++)
+					{
+						int index = i;
+						rowColumnsConfig
+							.AddColumn("")
+							.AddTextRenderer(row =>
+								row.GetType() == typeof(SalesBySubdivisionsAnalitycsWithDynamicsReport.HeaderRow)
+								|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsWithDynamicsReport.SubHeaderRow)
+								|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsWithDynamicsReport.SubTotalRow)
+								|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsWithDynamicsReport.TotalRow)
+								? $"<b>{row.DynamicColumns[index]}</b>"
+								: row.DynamicColumns[index],
+								useMarkup: true);
+					}
+				}
+
+				rowColumnsConfig.AddColumn("").Finish();
+			}
 		}
 
 		private void ShowReport()
@@ -237,17 +285,15 @@ namespace Vodovoz.Views.Reports
 			try
 			{
 				ConfigureTreeView();
-				ytreeReportIndicatorsRows.ItemsDataSource = ViewModel.Report?.Match(
-					report => report.DisplayRows,
-					reportWithDynamics => reportWithDynamics.DisplayRows);
+				ViewModel.Report?.Switch(
+					report => ytreeReportIndicatorsRows.ItemsDataSource = report.DisplayRows,
+					reportWithDynamics => ytreeReportIndicatorsRows.ItemsDataSource = reportWithDynamics.DisplayRows);
 				ytreeReportIndicatorsRows.YTreeModel.EmitModelChanged();
 			}
-			catch(Exception e)
+			catch(Exception)
 			{
-
 				throw;
 			}
-			
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)

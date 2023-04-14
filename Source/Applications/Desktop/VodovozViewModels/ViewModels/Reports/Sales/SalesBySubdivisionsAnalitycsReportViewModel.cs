@@ -20,6 +20,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.NHibernateProjections.Orders;
 using static Vodovoz.ViewModels.ViewModels.Reports.Sales.SalesBySubdivisionsAnalitycsReport;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -28,6 +29,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 	public partial class SalesBySubdivisionsAnalitycsReportViewModel : DialogTabViewModelBase
 	{
 		private const string _templatePath = @".\Reports\Sales\SalesBySubdivisionsAnalitycsReport.xlsx";
+		private const string _templateWithDynamicsPath = @".\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.xlsx";
 
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IInteractiveService _interactiveService;
@@ -182,7 +184,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
 		}
 
-		public async Task<SalesBySubdivisionsAnalitycsReport> GenerateReport(CancellationToken cancellationToken)
+		public async Task<OneOf<SalesBySubdivisionsAnalitycsReport, SalesBySubdivisionsAnalitycsWithDynamicsReport>> GenerateReport(CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -196,27 +198,50 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			}
 		}
 
-		public async Task<SalesBySubdivisionsAnalitycsReport> Generate(CancellationToken cancellationToken)
+		public async Task<OneOf<SalesBySubdivisionsAnalitycsReport, SalesBySubdivisionsAnalitycsWithDynamicsReport>> Generate(CancellationToken cancellationToken)
 		{
 			if(FirstPeriodStartDate is null || FirstPeriodEndDate is null)
 			{
 				throw new InvalidOperationException("Не задан период");
 			}
 
-			return await SalesBySubdivisionsAnalitycsReport.Create(
+			ValidateParameters(
+				FirstPeriodStartDate.Value,
+				FirstPeriodEndDate.Value,
+				SecondPeriodStartDate,
+				SecondPeriodEndDate,
+				SplitByWarehouses);
+
+			if(SecondPeriodStartDate is null && SecondPeriodEndDate is null)
+			{
+				return await SalesBySubdivisionsAnalitycsReport.Create(
+					FirstPeriodStartDate.Value,
+					FirstPeriodEndDate.Value,
+					SplitByNomenclatures,
+					SplitBySubdivisions,
+					SplitByWarehouses,
+					new int[] { 2, 3, 14, 29, 58, 35, 11 },
+					new int[] { 1, 68 },
+					GetData,
+					GetWarhousesBalances,
+					GetNomenclaturesAsync,
+					GetProductGroupsAsync,
+					GetSubdivisionsAsync,
+					GetWarehousesAsync);
+			}
+
+			return await SalesBySubdivisionsAnalitycsWithDynamicsReport.Create(
 				FirstPeriodStartDate.Value,
 				FirstPeriodEndDate.Value,
 				SecondPeriodStartDate,
 				SecondPeriodEndDate,
 				SplitByNomenclatures,
 				SplitBySubdivisions,
-				SplitByWarehouses,
+				new int[] { 2, 3, 14, 29, 58, 35, 11 },
 				GetData,
-				GetWarhousesBalances,
 				GetNomenclaturesAsync,
 				GetProductGroupsAsync,
-				GetSubdivisionsAsync,
-				GetWarehousesAsync);
+				GetSubdivisionsAsync);
 		}
 
 		private AbstractCriterion GetOrderCriterion(OrderStatus[] filterOrderStatusInclude, DateTime startDate, DateTime endDate)
@@ -237,13 +262,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		}
 
 		private IEnumerable<SalesDataNode> GetData(
-			DateTime firstPeriodStartDate,
-			DateTime firstPeriodEndDate,
-			DateTime? secondPeriodStartDate,
-			DateTime? secondPeriodEndDate,
-			bool splitByNomenclatures,
-			bool splitBySubdivisions,
-			bool splitByWarehouses)
+			DateTime startDate,
+			DateTime endDate,
+			int[] subdivisionsIds)
 		{
 			var filterOrderStatusInclude = new OrderStatus[]
 			{
@@ -254,11 +275,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				OrderStatus.Shipped,
 				OrderStatus.UnloadingOnStock,
 				OrderStatus.Closed
-			};
-
-			var subdivisionsIds = new int[]
-			{
-				35,
 			};
 
 			SalesDataNode resultItemAlias = null;
@@ -272,7 +288,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 			var query = _unitOfWork.Session.QueryOver(() => orderItemAlias);
 
-			query.Where(GetOrderCriterion(filterOrderStatusInclude, firstPeriodStartDate, firstPeriodEndDate))
+			query.Where(GetOrderCriterion(filterOrderStatusInclude, startDate, endDate))
 				.And(Restrictions.In(Projections.Property(() => subdivisionAlias.Id), subdivisionsIds));
 
 			return query
@@ -285,21 +301,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 					list.Select(() => nomenclatureAlias.Id).WithAlias(() => resultItemAlias.NomenclatureId)
 						.Select(() => productGroupAlias.Id).WithAlias(() => resultItemAlias.ProductGroupId)
 						.Select(() => subdivisionAlias.Id).WithAlias(() => resultItemAlias.SubdivisionId)
-						.Select(() => orderItemAlias.ActualCount).WithAlias(() => resultItemAlias.Amount)
-						.Select(() => orderItemAlias.Price).WithAlias(() => resultItemAlias.Price))
+						.Select(OrderProjections.GetOrderItemCurrentCountProjection()).WithAlias(() => resultItemAlias.Amount)
+						.Select(OrderProjections.GetOrderItemSumProjection()).WithAlias(() => resultItemAlias.Price))
 				.TransformUsing(Transformers.AliasToBean<SalesDataNode>())
 				.SetTimeout(0)
 				.ReadOnly()
 				.List<SalesDataNode>();
 		}
 
-		private IEnumerable<ResidueDataNode> GetWarhousesBalances(DateTime dateTime)
+		private IEnumerable<ResidueDataNode> GetWarhousesBalances(
+			DateTime dateTime,
+			int[] warehousesIds)
 		{
-			var warehousesIds = new int[]
-			{
-				1
-			};
-
 			var incomesQuery = from wmo in _unitOfWork.Session.Query<WarehouseMovementOperation>()
 							   join n in _unitOfWork.Session.Query<Nomenclature>()
 							   on wmo.Nomenclature.Id equals n.Id
@@ -308,6 +321,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 							   join w in _unitOfWork.Session.Query<Warehouse>()
 							   on wmo.IncomingWarehouse.Id equals w.Id
 							   where !n.IsArchive
+									&& wmo.OperationTime <= dateTime
+									&& warehousesIds.Contains(w.Id)
 							   select new
 							   {
 								   NomenclatureId = n.Id,
@@ -326,6 +341,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 								join w in _unitOfWork.Session.Query<Warehouse>()
 								on wmo.WriteoffWarehouse.Id equals w.Id
 								where !n.IsArchive
+									&& wmo.OperationTime <= dateTime
+									&& warehousesIds.Contains(w.Id)
 								select new
 								{
 									NomenclatureId = n.Id,
@@ -416,19 +433,38 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 		public void ExportReport(string path)
 		{
-			string templatePath = GetTemplatePath();
+			var template = new XLTemplate(Report.Value.Match(
+				_ => _templatePath,
+				_ => _templateWithDynamicsPath));
 
-			var template = new XLTemplate(templatePath);
+			Report.Value.Switch(
+				report => template.AddVariable(report),
+				reportWithDynamics => template.AddVariable(reportWithDynamics));
 
-			template.AddVariable(Report);
 			template.Generate();
 
 			template.SaveAs(path);
 		}
 
-		private string GetTemplatePath()
+		private static void ValidateParameters(
+			DateTime firstPeriodStartDate,
+			DateTime firstPeriodEndDate,
+			DateTime? secondPeriodStartDate,
+			DateTime? secondPeriodEndDate,
+			bool splitByWarehouses)
 		{
-			return _templatePath;
+			if(splitByWarehouses && (secondPeriodStartDate != null || secondPeriodEndDate != null))
+			{
+				throw new ArgumentException("Нельзя выбрать разбивку по складам для отчета с двумя периодами",
+					nameof(splitByWarehouses));
+			}
+
+			if(splitByWarehouses
+				&& (firstPeriodEndDate - firstPeriodStartDate).TotalDays > 1)
+			{
+				throw new ArgumentException("Нельзя выбрать разбивку по складам для отчета с интервалом более одного дня",
+					nameof(splitByWarehouses));
+			}
 		}
 
 		public override void Dispose()
