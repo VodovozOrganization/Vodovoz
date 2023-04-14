@@ -10,16 +10,16 @@ namespace Vodovoz.Domain
 {
 	public class NomenclatureFixedPriceController : INomenclatureFixedPriceProvider 
     {
-        private readonly INomenclatureFixedPriceFactory nomenclatureFixedPriceFactory;
-        private readonly WaterFixedPricesGenerator waterFixedPricesGenerator;
+        private readonly INomenclatureFixedPriceFactory _nomenclatureFixedPriceFactory;
+        private readonly WaterFixedPricesGenerator _waterFixedPricesGenerator;
 
         public NomenclatureFixedPriceController(
 			INomenclatureFixedPriceFactory nomenclatureFixedPriceFactory,
             WaterFixedPricesGenerator waterFixedPricesGenerator) 
 		{
-            this.nomenclatureFixedPriceFactory = nomenclatureFixedPriceFactory ??
+            this._nomenclatureFixedPriceFactory = nomenclatureFixedPriceFactory ??
             	throw new ArgumentNullException(nameof(nomenclatureFixedPriceFactory));
-            this.waterFixedPricesGenerator = waterFixedPricesGenerator ??
+            this._waterFixedPricesGenerator = waterFixedPricesGenerator ??
             	throw new ArgumentNullException(nameof(waterFixedPricesGenerator));
         }
         
@@ -93,7 +93,7 @@ namespace Vodovoz.Domain
             return false;
         }
         
-        public void AddOrUpdateFixedPrice(IUnitOfWork uow, DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0)
+        public void AddFixedPrice(IUnitOfWork uow, DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0)
 		{
 			if(uow == null)
 			{
@@ -112,7 +112,7 @@ namespace Vodovoz.Domain
 			
 			if(nomenclature.Category == NomenclatureCategory.water)
 			{
-				AddOrUpdateWaterFixedPrice(uow, deliveryPoint, nomenclature, fixedPrice, minCount);
+				AddWaterFixedPrice(uow, deliveryPoint, nomenclature, fixedPrice, minCount);
 			}
             else 
 			{
@@ -120,7 +120,7 @@ namespace Vodovoz.Domain
             }
         }
         
-        public void AddOrUpdateFixedPrice(IUnitOfWork uow, Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0) 
+        public void AddFixedPrice(IUnitOfWork uow, Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0) 
 		{
 			if(uow == null)
 			{
@@ -139,7 +139,7 @@ namespace Vodovoz.Domain
 
 			if(nomenclature.Category == NomenclatureCategory.water)
 			{
-				AddOrUpdateWaterFixedPrice(uow, counterparty, nomenclature, fixedPrice, minCount, nomenclatureFixedPriceId);
+				AddWaterFixedPrice(uow, counterparty, nomenclature, fixedPrice, minCount, nomenclatureFixedPriceId);
 			}
             else 
 			{
@@ -198,7 +198,7 @@ namespace Vodovoz.Domain
   //          }
 		//}
 
-		private void AddOrUpdateWaterFixedPrice(IUnitOfWork uow, DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0)
+		private void AddWaterFixedPrice(IUnitOfWork uow, DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0)
 		{
 			var foundFixedPrice = deliveryPoint.NomenclatureFixedPrices.SingleOrDefault(x => x.Id == nomenclatureFixedPriceId);
 
@@ -216,7 +216,7 @@ namespace Vodovoz.Domain
 			}
 		}
 
-		private void AddOrUpdateWaterFixedPrice(IUnitOfWork uow, Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0)
+		private void AddWaterFixedPrice(IUnitOfWork uow, Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0)
 		{
 			var nomenclatureFixedPrice = CreateNewNomenclatureFixedPrice(nomenclature, fixedPrice, minCount);
 			nomenclatureFixedPrice.Counterparty = counterparty;
@@ -278,7 +278,7 @@ namespace Vodovoz.Domain
 
 		private NomenclatureFixedPrice CreateNewNomenclatureFixedPrice(Nomenclature nomenclature, decimal fixedPrice, int minCount = 0) 
         {
-            var nomenclatureFixedPrice = nomenclatureFixedPriceFactory.Create();
+            var nomenclatureFixedPrice = _nomenclatureFixedPriceFactory.Create();
             nomenclatureFixedPrice.Nomenclature = nomenclature;
             nomenclatureFixedPrice.Price = fixedPrice;
 			nomenclatureFixedPrice.MinCount = minCount;

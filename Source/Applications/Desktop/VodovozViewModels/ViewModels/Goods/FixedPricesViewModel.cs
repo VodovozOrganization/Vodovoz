@@ -19,16 +19,16 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 {
 	public class FixedPricesViewModel : UoWWidgetViewModelBase
 	{
-		private readonly IFixedPricesModel fixedPricesModel;
-		private readonly INomenclatureJournalFactory nomenclatureSelectorFactory;
-		private readonly ITdiTab parentTab;
+		private readonly IFixedPricesModel _fixedPricesModel;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly ITdiTab _parentTab;
 
 		public FixedPricesViewModel(IUnitOfWork uow, IFixedPricesModel fixedPricesModel, INomenclatureJournalFactory nomenclatureSelectorFactory, ITdiTab parentTab)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
-			this.fixedPricesModel = fixedPricesModel ?? throw new ArgumentNullException(nameof(fixedPricesModel));
-			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			this.parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
+			this._fixedPricesModel = fixedPricesModel ?? throw new ArgumentNullException(nameof(fixedPricesModel));
+			this._nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			this._parentTab = parentTab ?? throw new ArgumentNullException(nameof(parentTab));
 
 			fixedPricesModel.FixedPricesUpdated += (sender, args) => UpdateFixedPrices();
 			UpdateFixedPrices();
@@ -42,34 +42,37 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			UpdateNomenclatures();
 		}
 
-		private bool canEdit = true;
-		public virtual bool CanEdit {
-			get => canEdit;
-			set => SetField(ref canEdit, value);
+		private bool _canEdit = true;
+		public virtual bool CanEdit 
+		{
+			get => _canEdit;
+			set => SetField(ref _canEdit, value);
 		}
 
-		private IDiffFormatter diffFormatter;
-		public virtual IDiffFormatter DiffFormatter {
-			get => diffFormatter;
-			set => SetField(ref diffFormatter, value);
+		private IDiffFormatter _diffFormatter;
+		public virtual IDiffFormatter DiffFormatter 
+		{
+			get => _diffFormatter;
+			set => SetField(ref _diffFormatter, value);
 		}
 
-		private GenericObservableList<FixedPriceItemViewModel> fixedPrices = new GenericObservableList<FixedPriceItemViewModel>();
+		private GenericObservableList<FixedPriceItemViewModel> _fixedPrices = new GenericObservableList<FixedPriceItemViewModel>();
 		public virtual GenericObservableList<FixedPriceItemViewModel> FixedPrices {
-			get => fixedPrices;
-			set => SetField(ref fixedPrices, value);
+			get => _fixedPrices;
+			set => SetField(ref _fixedPrices, value);
 		}
 
 		private void UpdateFixedPrices()
 		{
 			FixedPrices.Clear();
-			foreach (NomenclatureFixedPrice fixedPrice in fixedPricesModel.FixedPrices) {
-				var fixedPriceViewModel = new FixedPriceItemViewModel(fixedPrice, fixedPricesModel);
+			foreach (NomenclatureFixedPrice fixedPrice in _fixedPricesModel.FixedPrices)
+			{
+				var fixedPriceViewModel = new FixedPriceItemViewModel(fixedPrice, _fixedPricesModel);
 				FixedPrices.Add(fixedPriceViewModel);
 			}
 
-			fixedPricesModel.FixedPrices.ElementAdded += FixedPricesOnElementAdded;
-			fixedPricesModel.FixedPrices.ElementRemoved += FixedPricesOnElementRemoved;
+			_fixedPricesModel.FixedPrices.ElementAdded += FixedPricesOnElementAdded;
+			_fixedPricesModel.FixedPrices.ElementRemoved += FixedPricesOnElementRemoved;
 		}
 
 		private void UpdateNomenclatures()
@@ -83,6 +86,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 					FixedPriceNomenclatures.Add(fixedPrice.NomenclatureFixedPrice.Nomenclature);
 				}
 			}
+
 			if (FixedPriceNomenclatures.Contains(selectedNomenclature))
 			{
 				SelectedNomenclature = selectedNomenclature;
@@ -92,7 +96,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		private void UpdateFixedPricesByNomenclature()
 		{
 			FixedPricesByNomenclature.Clear();
-			foreach(var fixedPrice in FixedPrices)
+			foreach(var fixedPrice in FixedPrices.OrderBy(p => p.MinCount))
 			{
 				if(fixedPrice.NomenclatureFixedPrice.Nomenclature == SelectedNomenclature)
 				{
@@ -104,9 +108,11 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		private void FixedPricesOnElementAdded(object alist, int[] aidx)
 		{
 			foreach (var index in aidx) {
-				var addedFixedPrice = fixedPricesModel.FixedPrices[index];
-				var addedFixedPriceViewModel = new FixedPriceItemViewModel(addedFixedPrice, fixedPricesModel);
-				if (FixedPrices.All(x => x.NomenclatureFixedPrice != addedFixedPrice)) {
+				var addedFixedPrice = _fixedPricesModel.FixedPrices[index];
+				var addedFixedPriceViewModel = new FixedPriceItemViewModel(addedFixedPrice, _fixedPricesModel);
+
+				if (FixedPrices.All(x => x.NomenclatureFixedPrice != addedFixedPrice)) 
+				{
 					FixedPrices.Add(addedFixedPriceViewModel);
 				}
 			}
@@ -116,7 +122,9 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		{
 			var removedFixedPrice = (NomenclatureFixedPrice)aobject;
 			var viewModelToRemove = FixedPrices.FirstOrDefault(x => x.NomenclatureFixedPrice == removedFixedPrice);
-			if (viewModelToRemove != null) {
+
+			if (viewModelToRemove != null) 
+			{
 				FixedPrices.Remove(viewModelToRemove);
 			}
 		}
@@ -148,20 +156,20 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			}
 		}
 
-		private FixedPriceItemViewModel selectedFixedPrice;
+		private FixedPriceItemViewModel _selectedFixedPrice;
 		public virtual FixedPriceItemViewModel SelectedFixedPrice {
-			get => selectedFixedPrice;
+			get => _selectedFixedPrice;
 			set {
-				if (SetField(ref selectedFixedPrice, value)) {
+				if (SetField(ref _selectedFixedPrice, value)) {
 					UpdateFixedPriceHistory();
 				}
 			}
 		}
 
-		private IList<FieldChange> selectedPriceChanges;
+		private IList<FieldChange> _selectedPriceChanges;
 		public virtual IList<FieldChange> SelectedPriceChanges {
-			get => selectedPriceChanges;
-			set => SetField(ref selectedPriceChanges, value);
+			get => _selectedPriceChanges;
+			set => SetField(ref _selectedPriceChanges, value);
 		}
 
 		#region Commands
@@ -181,10 +189,10 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		private void SelectWaterNomenclature()
 		{
-			var waterJournalFactory = nomenclatureSelectorFactory.GetWaterJournalFactory();
+			var waterJournalFactory = _nomenclatureSelectorFactory.GetWaterJournalFactory();
 			var selector = waterJournalFactory.CreateAutocompleteSelector();
 			selector.OnEntitySelectedResult += OnWaterSelected;
-			parentTab.TabParent.AddSlaveTab(parentTab, selector);
+			_parentTab.TabParent.AddSlaveTab(_parentTab, selector);
 		}
 
 		private void OnWaterSelected(object sender, JournalSelectedNodesEventArgs e)
@@ -194,7 +202,11 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				return;
 			}
 			Nomenclature waterNomenclature = UoW.GetById<Nomenclature>(selectedWaterNode.Id);
-			AddFixedPrice(waterNomenclature);
+
+			if(!FixedPrices.Any(p => p.NomenclatureFixedPrice.Nomenclature == waterNomenclature))
+			{
+				AddFixedPrice(waterNomenclature);
+			}
 		}
 
 		private void AddFixedPrice(Nomenclature nomenclature)
@@ -206,7 +218,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				price = fixPrice == null ? 0 : fixPrice.FixedPrice;
 			}
 
-			fixedPricesModel.AddOrUpdateFixedPrice(nomenclature, price, 0, 0);
+			_fixedPricesModel.AddFixedPrice(nomenclature, price, 0, 0);
 		}
 		#endregion
 
@@ -227,16 +239,16 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		#endregion
 
 		#region Удаление фиксы
-		private DelegateCommand removeFixedPriceCommand;
+		private DelegateCommand _removeFixedPriceCommand;
 		public DelegateCommand RemoveFixedPriceCommand {
 			get {
-				if(removeFixedPriceCommand == null) {
-					removeFixedPriceCommand = new DelegateCommand(RemoveFixedPrice,
+				if(_removeFixedPriceCommand == null) {
+					_removeFixedPriceCommand = new DelegateCommand(RemoveFixedPrice,
 						() => CanEdit && SelectedFixedPrice != null
 					);
-					removeFixedPriceCommand.CanExecuteChangedWith(this, x => x.CanEdit, x => x.SelectedFixedPrice);
+					_removeFixedPriceCommand.CanExecuteChangedWith(this, x => x.CanEdit, x => x.SelectedFixedPrice);
 				}
-				return removeFixedPriceCommand;
+				return _removeFixedPriceCommand;
 			}
 		}
 
@@ -246,7 +258,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				return;
 			}
 			
-			fixedPricesModel.RemoveFixedPrice(SelectedFixedPrice.NomenclatureFixedPrice);
+			_fixedPricesModel.RemoveFixedPrice(SelectedFixedPrice.NomenclatureFixedPrice);
 		}
 		#endregion
 

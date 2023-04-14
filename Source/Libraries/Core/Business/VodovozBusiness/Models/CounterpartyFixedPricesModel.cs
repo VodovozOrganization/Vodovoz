@@ -10,15 +10,15 @@ namespace Vodovoz.Models
 {
 	public class CounterpartyFixedPricesModel : IFixedPricesModel
 	{
-		private readonly IUnitOfWork uow;
-		private readonly Counterparty counterparty;
-		private readonly NomenclatureFixedPriceController fixedPriceController;
+		private readonly IUnitOfWork _uow;
+		private readonly Counterparty _counterparty;
+		private readonly NomenclatureFixedPriceController _fixedPriceController;
 
 		public CounterpartyFixedPricesModel(IUnitOfWork uow, Counterparty counterparty, NomenclatureFixedPriceController fixedPriceController)
 		{
-			this.uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			this.counterparty = counterparty ?? throw new ArgumentNullException(nameof(counterparty));
-			this.fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
+			this._uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			this._counterparty = counterparty ?? throw new ArgumentNullException(nameof(counterparty));
+			this._fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
 			counterparty.PropertyChanged += CounterpartyOnPropertyChanged;
 		}
 		
@@ -26,13 +26,13 @@ namespace Vodovoz.Models
 		private void CounterpartyOnPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			switch (e.PropertyName) {
-				case nameof(counterparty.ObservableNomenclatureFixedPrices):
+				case nameof(_counterparty.ObservableNomenclatureFixedPrices):
 					RaiseFixedPricesUpdated();
 					break;
 			}
 		}
 
-		public GenericObservableList<NomenclatureFixedPrice> FixedPrices => counterparty.ObservableNomenclatureFixedPrices;
+		public GenericObservableList<NomenclatureFixedPrice> FixedPrices => _counterparty.ObservableNomenclatureFixedPrices;
 
 		public event EventHandler FixedPricesUpdated;
 
@@ -41,14 +41,14 @@ namespace Vodovoz.Models
 			FixedPricesUpdated?.Invoke(this, EventArgs.Empty);
 		}
 		
-		public void AddOrUpdateFixedPrice(Nomenclature nomenclature, decimal fixedPrice, int minCount, int nomenclatureFixedPriceId)
+		public void AddFixedPrice(Nomenclature nomenclature, decimal fixedPrice, int minCount, int nomenclatureFixedPriceId)
 		{
 			if(nomenclature == null) 
 			{
 				throw new ArgumentNullException(nameof(nomenclature));
 			}
 
-			fixedPriceController.AddOrUpdateFixedPrice(uow, counterparty, nomenclature, fixedPrice, minCount, nomenclatureFixedPriceId);
+			_fixedPriceController.AddFixedPrice(_uow, _counterparty, nomenclature, fixedPrice, minCount, nomenclatureFixedPriceId);
 		}
 
 		public void UpdateFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice, decimal fixedPrice, int minCount)
@@ -58,7 +58,7 @@ namespace Vodovoz.Models
 				throw new ArgumentNullException(nameof(nomenclatureFixedPrice));
 			}
 
-			fixedPriceController.UpdateFixedPrice(nomenclatureFixedPrice, fixedPrice, minCount);
+			_fixedPriceController.UpdateFixedPrice(nomenclatureFixedPrice, fixedPrice, minCount);
 		}
 
 		public void RemoveFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice)
@@ -67,7 +67,7 @@ namespace Vodovoz.Models
 				throw new ArgumentNullException(nameof(nomenclatureFixedPrice));
 			}
 
-			fixedPriceController.DeleteFixedPrice(counterparty, nomenclatureFixedPrice);
+			_fixedPriceController.DeleteFixedPrice(_counterparty, nomenclatureFixedPrice);
 		}
 	}
 }

@@ -478,9 +478,11 @@ namespace Vodovoz.Domain.Orders
 				return result;
 
 			//влияющая номенклатура
-			if(Nomenclature.Category == NomenclatureCategory.water) {
-				var fixedPrice = order.GetFixedPriceOrNull(Nomenclature);
-				if (fixedPrice != null) {
+			if(Nomenclature.Category == NomenclatureCategory.water) 
+			{
+				var fixedPrice = order.GetFixedPriceOrNull(Nomenclature, Count);
+				if (fixedPrice != null) 
+				{
 					return fixedPrice.Price;
 				}
 			}
@@ -489,7 +491,13 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculatePrice()
 		{
-			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || order.GetFixedPriceOrNull(Nomenclature) != null)
+			if (order.GetFixedPriceOrNull(Nomenclature, Count) != null)
+			{
+				Price = order.GetFixedPriceOrNull(Nomenclature, Count).Price;
+				return;
+			}
+
+			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || order.GetFixedPriceOrNull(Nomenclature, Count) != null)
 				return;
 
 			Price = GetPriceByTotalCount();
