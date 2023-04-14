@@ -570,35 +570,7 @@ namespace Vodovoz.Dialogs.Logistic
 			
 			foreach(var one in selected) 
 			{
-				var employeeUow = UnitOfWorkFactory.CreateForRoot<Employee>(one.Employee.Id);
-
-				var employeeViewModel = new EmployeeViewModel(
-					_authorizationService,
-					_employeeWageParametersFactory,
-					_employeeJournalFactory,
-					_subdivisionJournalFactory,
-					_employeePostsJournalFactory,
-					_cashDistributionCommonOrganisationProvider,
-					_supSubdivisionParametersProvider,
-					_wageCalculationRepository,
-					_employeeRepository,
-					employeeUow,
-					ServicesConfig.CommonServices,
-					_validationContextFactory,
-					_phonesViewModelFactory,
-					_warehouseRepository,
-					_routeListRepository,
-					_driverApiRegistrationEndpoint,
-					CurrentUserSettings.Settings,
-					_userRepository,
-					_baseParametersProvider,
-					_attachmentsViewModelFactory,
-					MainClass.MainWin.NavigationManager);
-				
-				TabParent.OpenTab(
-					DialogHelper.GenerateDialogHashName<Employee>(one.Employee.Id),
-					() => employeeViewModel
-				);
+				MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(one.Employee.Id));
 			}
 		}
 		

@@ -33,6 +33,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using QS.Attachments.ViewModels.Widgets;
 using ApiClientProvider;
+using QS.Project.Domain;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -198,8 +199,6 @@ namespace Vodovoz.Dialogs.Employees
 					return;
 				}
 			}
-			var employeeUow = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
-			Personnel.ChangeTraineeToEmployee(employeeUow, Entity);
 
 			var cs = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider> { new MemoryConfigurationProvider(new MemoryConfigurationSource()) }), "");
 
@@ -209,32 +208,10 @@ namespace Vodovoz.Dialogs.Employees
 
 			var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
 
-			var employeeViewModel = new EmployeeViewModel(
-				_authorizationService,
-				_employeeWageParametersFactory,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_employeePostsJournalFactory,
-				_cashDistributionCommonOrganisationProvider,
-				_subdivisionParametersProvider,
-				_wageCalculationRepository,
-				_employeeRepository,
-				employeeUow,
-				ServicesConfig.CommonServices,
-				_validationContextFactory,
-				_phonesViewModelFactory,
-				_warehouseRepository,
-				_routeListRepository,
-				driverApiRegisterEndpoint,
-				CurrentUserSettings.Settings,
-				_userRepository,
-				_baseParametersProvider,
-				_attachmentsViewModelFactory,
-				MainClass.MainWin.NavigationManager,
-				true);
+			var employeeViewModel = MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
 
-			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),
-							  () => employeeViewModel);
+			Personnel.ChangeTraineeToEmployee(employeeViewModel.Entity, Entity);
+
 			OnCloseTab(false);
 		}
 
