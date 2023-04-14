@@ -266,13 +266,25 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 		private void UpdateFixedPriceHistory()
 		{
-			IList<FieldChange> fixedPricesChanges = new List<FieldChange>();
-			if(SelectedFixedPrice != null) {
-				fixedPricesChanges = HistoryChangesRepository
+			List<FieldChange> fixedPricesChanges = new List<FieldChange>();
+			if(SelectedFixedPrice != null) 
+			{
+				var priceChanges = HistoryChangesRepository
 					.GetFieldChanges<NomenclatureFixedPrice>(UoW, new[] { SelectedFixedPrice.NomenclatureFixedPrice.Id }, x => x.Price)
 					.OrderBy(x => x.Entity.ChangeTime)
 					.ToList();
-				foreach(var change in fixedPricesChanges) {
+
+				var countChanges = HistoryChangesRepository
+					.GetFieldChanges<NomenclatureFixedPrice>(UoW, new[] { SelectedFixedPrice.NomenclatureFixedPrice.Id }, x => x.MinCount)
+					.OrderBy(x => x.Entity.ChangeTime)
+					.ToList();
+
+				fixedPricesChanges.AddRange(priceChanges);
+				fixedPricesChanges.AddRange(countChanges);
+				fixedPricesChanges = fixedPricesChanges.OrderByDescending(x => x.Entity.ChangeTime).ToList();
+
+				foreach(var change in fixedPricesChanges) 
+				{
 					change.DiffFormatter = DiffFormatter;
 				}
 			}

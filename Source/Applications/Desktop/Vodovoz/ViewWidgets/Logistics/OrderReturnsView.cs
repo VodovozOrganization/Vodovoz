@@ -277,8 +277,7 @@ namespace Vodovoz
 		{
 			_nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			_nomenclatureFixedPriceProvider =
-				new NomenclatureFixedPriceController(
-					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository));
+				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
 			_canEditPrices =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
 			_orderNode = new OrderNode(_routeListItem.Order);

@@ -991,7 +991,7 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						new ParametersProvider(),
 						new OrderDiscountsController(new NomenclatureFixedPriceController(
-							new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository))),
+							new NomenclatureFixedPriceFactory())),
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener),
 					//функция диалога открытия документа
@@ -1007,7 +1007,7 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						new ParametersProvider(),
 						new OrderDiscountsController(new NomenclatureFixedPriceController(
-							new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository))),
+							new NomenclatureFixedPriceFactory())),
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener),
 					//функция идентификации документа 

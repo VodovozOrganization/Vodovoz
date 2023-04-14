@@ -32,7 +32,6 @@ namespace Vodovoz.Views.Goods
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Name)
 				.Finish();
 
-			//ytreeviewNomenclatures.Selection.Changed += OnNomenclatureSelectionChanged;
 			ytreeviewNomenclatures.Binding.AddBinding(ViewModel, vm => vm.FixedPriceNomenclatures, w => w.ItemsDataSource).InitializeFromSource();
 			ytreeviewNomenclatures.Binding.AddBinding(ViewModel, vm => vm.SelectedNomenclature, w => w.SelectedRow).InitializeFromSource();
 
@@ -42,12 +41,12 @@ namespace Vodovoz.Views.Goods
 				.AddColumn("Пользователь").AddTextRenderer(x => x.Entity.ChangeSet.UserName)
 				.AddColumn("Старое\nзначение").AddTextRenderer(x => x.OldFormatedDiffText, useMarkup: true)
 				.AddColumn("Новое\nзначение").AddTextRenderer(x => x.NewFormatedDiffText, useMarkup: true)
+				.AddColumn("Параметр").AddTextRenderer(x => x.FieldTitle)
 				.Finish();
 
 			ytreeviewFixedPricesChanges.Binding.AddBinding(ViewModel, vm => vm.SelectedPriceChanges, w => w.ItemsDataSource).InitializeFromSource();
 
 			ytreeviewFixedPriceAndCount.ColumnsConfig = FluentColumnsConfig<FixedPriceItemViewModel>.Create()
-				//.AddColumn("Номенклатура").AddTextRenderer(x => x.NomenclatureTitle)
 				.AddColumn("Минимальное\nколичество").AddNumericRenderer(x => x.MinCount).Editing()
 					.Adjustment(new Gtk.Adjustment(0, 0, 1e6, 1, 10, 10))
 				.AddColumn("Фиксированная\nцена").AddNumericRenderer(x => x.FixedPrice).Editing().Digits(2)
@@ -57,7 +56,6 @@ namespace Vodovoz.Views.Goods
 
 			ytreeviewFixedPriceAndCount.Binding.AddBinding(ViewModel, vm => vm.FixedPricesByNomenclature, w => w.ItemsDataSource).InitializeFromSource();
 			ytreeviewFixedPriceAndCount.Binding.AddBinding(ViewModel, vm => vm.SelectedFixedPrice, w => w.SelectedRow).InitializeFromSource();
-			//ytreeviewFixedPriceAndCount.Selection.Changed += OnPriceSelectionChanged;
 
 			buttonAdd.Clicked += (s, e) => ViewModel.AddNomenclatureCommand.Execute();
 			ViewModel.AddNomenclatureCommand.CanExecuteChanged += (sender, e) => buttonAdd.Sensitive = ViewModel.AddNomenclatureCommand.CanExecute();
@@ -70,18 +68,6 @@ namespace Vodovoz.Views.Goods
 			buttonDel.Clicked += (s, e) => ViewModel.RemoveFixedPriceCommand.Execute();
 			ViewModel.RemoveFixedPriceCommand.CanExecuteChanged += (sender, e) => buttonDel.Sensitive = ViewModel.RemoveFixedPriceCommand.CanExecute();
 			buttonDel.Sensitive = ViewModel.RemoveFixedPriceCommand.CanExecute();
-		}
-
-		void OnNomenclatureSelectionChanged(object sender, EventArgs e)
-		{
-			var selectedNomenclature = ytreeviewNomenclatures.GetSelectedObject() as Nomenclature;
-			ViewModel.SelectedNomenclature = selectedNomenclature;
-		}
-
-		void OnPriceSelectionChanged(object sender, EventArgs e)
-		{
-			var selectedPrice = ytreeviewFixedPriceAndCount.GetSelectedObject() as FixedPriceItemViewModel;
-			ViewModel.SelectedFixedPrice = selectedPrice;
 		}
 	}
 }

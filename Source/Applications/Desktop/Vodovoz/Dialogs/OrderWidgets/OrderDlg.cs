@@ -517,8 +517,7 @@ namespace Vodovoz
 			_canChoosePremiumDiscount =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
 			_nomenclatureFixedPriceProvider =
-				new NomenclatureFixedPriceController(
-					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(NomenclatureRepository));
+				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
