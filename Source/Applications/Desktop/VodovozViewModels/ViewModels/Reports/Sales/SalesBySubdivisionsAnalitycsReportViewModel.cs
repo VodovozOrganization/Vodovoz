@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Report;
+using FluentNHibernate.Utils;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
@@ -8,6 +9,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -20,6 +22,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.ViewModels.Reports;
@@ -32,11 +35,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		private const string _templatePath = @".\Reports\Sales\SalesBySubdivisionsAnalitycsReport.xlsx";
 		private const string _templateWithDynamicsPath = @".\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.xlsx";
 
+		private readonly UserSettings _userSettings;
 		private readonly SelectableParametersReportFilter _filter;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
 
-		private readonly IUnitOfWork _unitOfWork;
+		private readonly IUnitOfWork _userSettingsUnitOfWork;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IUserRepository _userRepository;
 		private bool _isSaving;
 		private bool _canSave = false;
 		private bool _isGenerating;
@@ -55,10 +60,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		public SalesBySubdivisionsAnalitycsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
-			INavigationManager navigation)
+			INavigationManager navigation,
+			IUserRepository userRepository,
+			IUserService userService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			if(userService is null)
+			{
+				throw new ArgumentNullException(nameof(userService));
+			}
+
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_userSettingsUnitOfWork = unitOfWorkFactory.CreateWithoutRoot();
+
+			_userSettings = _userRepository.GetUserSettings(_userSettingsUnitOfWork, userService.CurrentUserId);
 
 			TabName = "Аналитика продаж КБ";
 
@@ -191,8 +207,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 		private void ConfigureFilter()
 		{
-			var selectedWarehousesIds = new int[] { 1, 68 };
-
 			var nomenclatureTypeParam = _filter.CreateParameterSet(
 				"Склады",
 				nameof(Warehouse),
@@ -213,15 +227,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 						.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.EntityId)
 						.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.EntityTitle)
 						.Select(Projections.Conditional(
-							Restrictions.In(Projections.Property(() => warehouseAlias.Id), selectedWarehousesIds),
+							Restrictions.In(Projections.Property(() => warehouseAlias.Id),
+								_userSettings.SalesBySubdivisionsAnalitycsReportSubdivisions.ToArray()),
 							Projections.Constant(true),
 							Projections.Constant(false))).WithAlias(() => resultAlias.Selected)
 					);
 					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Warehouse>>());
 					return query.List<SelectableParameter>();
 				}));
-
-			var selectedSubdivisionsIds = new int[] { 2, 3, 14, 29, 58, 35, 11 };
 
 			_filter.CreateParameterSet(
 				"Подразделения",
@@ -243,7 +256,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 						.Select(() => subdivisionAlias.Id).WithAlias(() => resultAlias.EntityId)
 						.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.EntityTitle)
 						.Select(Projections.Conditional(
-							Restrictions.In(Projections.Property(() => subdivisionAlias.Id), selectedSubdivisionsIds),
+							Restrictions.In(Projections.Property(() => subdivisionAlias.Id),
+								_userSettings.SalesBySubdivisionsAnalitycsReportWarehouses.ToArray()),
 							Projections.Constant(true),
 							Projections.Constant(false))).WithAlias(() => resultAlias.Selected)
 					);
@@ -287,6 +301,29 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				SecondPeriodEndDate,
 				SplitByWarehouses);
 
+			var selectedSubdivisionsIds = _filter.ParameterSets
+				.Single(ps => ps.ParameterName == nameof(Subdivision))
+				.Parameters
+					.Where(p => p.Selected)
+					.Select(p => (int)p.Value)
+					.OrderBy(x => x);
+
+			var selectedWarehousesIds = _filter.ParameterSets
+					.Single(ps => ps.ParameterName == nameof(Warehouse))
+					.Parameters
+						.Where(p => p.Selected)
+						.Select(p => (int)p.Value)
+						.OrderBy(x => x);
+
+			_userSettings.SalesBySubdivisionsAnalitycsReportWarehouses = selectedWarehousesIds;
+			_userSettings.SalesBySubdivisionsAnalitycsReportSubdivisions = selectedSubdivisionsIds;
+
+			if(_userSettingsUnitOfWork.HasChanges)
+			{
+				_userSettingsUnitOfWork.Save(_userSettings);
+				_userSettingsUnitOfWork.Commit();
+			}
+
 			if(SecondPeriodStartDate is null && SecondPeriodEndDate is null)
 			{
 				return await SalesBySubdivisionsAnalitycsReport.Create(
@@ -295,8 +332,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 					SplitByNomenclatures,
 					SplitBySubdivisions,
 					SplitByWarehouses,
-					new int[] { 2, 3, 14, 29, 58, 35, 11 },
-					new int[] { 1, 68 },
+					selectedSubdivisionsIds.ToArray(),
+					selectedWarehousesIds.ToArray(),
 					GetData,
 					GetWarhousesBalances,
 					GetNomenclaturesAsync,
@@ -312,7 +349,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				SecondPeriodEndDate,
 				SplitByNomenclatures,
 				SplitBySubdivisions,
-				new int[] { 2, 3, 14, 29, 58, 35, 11 },
+				selectedSubdivisionsIds.ToArray(),
 				GetData,
 				GetNomenclaturesAsync,
 				GetProductGroupsAsync,
