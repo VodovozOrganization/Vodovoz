@@ -6,41 +6,28 @@ using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 {
 	public class EmployeesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Employee, EmployeeViewModel, EmployeeJournalNode, EmployeeFilterViewModel>
 	{
 		private readonly IAuthorizationServiceFactory _authorizationServiceFactory;
-		private readonly IContainer _container;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IAuthorizationService _authorizationService;
 
 		public EmployeesJournalViewModel(
@@ -48,14 +35,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			IAuthorizationServiceFactory authorizationServiceFactory,
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IContainer container,
+			ILifetimeScope lifetimeScope,
 			Action<EmployeeFilterViewModel> filterparams = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал сотрудников";
 
 			_authorizationServiceFactory =
 				authorizationServiceFactory ?? throw new ArgumentNullException(nameof(authorizationServiceFactory));
-			_container = container ?? throw new ArgumentNullException(nameof(container));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_authorizationService = _authorizationServiceFactory.CreateNewAuthorizationService();
 
 			if(filterparams != null)
@@ -444,9 +431,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 		}
 
 		protected override Func<EmployeeViewModel> CreateDialogFunction =>
-			() => _container.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()) });
+			() => _lifetimeScope.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate()) });
 
 		protected override Func<EmployeeJournalNode, EmployeeViewModel> OpenDialogFunction =>
-			(node) => _container.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)) });
+			(node) => _lifetimeScope.Resolve<EmployeeViewModel>(new TypedParameter[] { new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id)) });
 	}
 }
