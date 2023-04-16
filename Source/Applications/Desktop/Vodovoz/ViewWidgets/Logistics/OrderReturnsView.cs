@@ -490,7 +490,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker);
+				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
@@ -503,7 +503,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker);
+				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
@@ -512,7 +512,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
+			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Completed, CallTaskWorker, true);
 			_routeListItem.RestoreOrder();
 			_routeListItem.FirstFillClosing(_wageParameterService);
 			UpdateListsSentivity();

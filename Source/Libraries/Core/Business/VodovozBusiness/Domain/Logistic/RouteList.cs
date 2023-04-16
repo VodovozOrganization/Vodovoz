@@ -1473,9 +1473,10 @@ namespace Vodovoz.Domain.Logistic
 			UpdateStatus();
 		}
 
-		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus, ICallTaskWorker callTaskWorker)
+		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus,
+			ICallTaskWorker callTaskWorker, bool isEditAtCashier = false)
 		{
-			Addresses.First(a => a.Id == routeListAddressid).UpdateStatusAndCreateTask(uow, newAddressStatus, callTaskWorker);
+			Addresses.First(a => a.Id == routeListAddressid).UpdateStatusAndCreateTask(uow, newAddressStatus, callTaskWorker, isEditAtCashier);
 			UpdateStatus();
 		}
 
