@@ -614,10 +614,7 @@ namespace Vodovoz
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
 
-			if(!RouteListItem.GetUndeliveryStatuses().Contains(node.Status))
-			{
-				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node);
-			}
+			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node);
 
 			_hasActualCountsChangesItemIds.Add(node.Id);
 			((OrderReturnsView)sender).TabClosed -= OnOrderReturnsViewTabClosed;
