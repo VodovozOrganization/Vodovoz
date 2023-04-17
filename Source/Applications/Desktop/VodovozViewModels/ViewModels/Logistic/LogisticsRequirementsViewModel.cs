@@ -4,10 +4,10 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class LogisticsRequirementsViewModel : EntityWidgetViewModelBase<LogisticsRequirementsBase>
+	public class LogisticsRequirementsViewModel : EntityWidgetViewModelBase<LogisticsRequirements>
 	{
 		public LogisticsRequirementsViewModel(
-			LogisticsRequirementsBase entity,
+			LogisticsRequirements entity,
 			ICommonServices commonServices) : base(entity, commonServices) { }
 	}
 }

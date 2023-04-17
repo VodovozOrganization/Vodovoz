@@ -18,6 +18,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
@@ -485,6 +486,14 @@ namespace Vodovoz.Domain.Client
 		public virtual DateTime? CreateDate {
 			get => createDate;
 			set => SetField(ref createDate, value);
+		}
+
+		private LogisticsRequirements _logisticsRequirements;
+		[Display(Name = "Требования к логистике")]
+		public virtual LogisticsRequirements LogisticsRequirements
+		{
+			get => _logisticsRequirements;
+			set => SetField(ref _logisticsRequirements, value);
 		}
 
 		#region ОсобаяПечать

@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Orders
 		Prepositional = "требовании в логистике для заказа",
 		PrepositionalPlural = "требованиях в логистике для заказов")]
 	[HistoryTrace]
-	public class OrderLogisticsRequirements : LogisticsRequirementsBase
+	public class OrderLogisticsRequirements : LogisticsRequirements
 	{
 		private Order _order;
 		[Display(Name = "Заказ")]

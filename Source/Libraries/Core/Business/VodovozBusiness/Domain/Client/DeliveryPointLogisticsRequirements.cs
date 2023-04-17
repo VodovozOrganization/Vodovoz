@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Client
 		Prepositional = "требовании к логистике для точки доставки",
 		PrepositionalPlural = "требованиях к логистике для точек доставки")]
 	[HistoryTrace]
-	public class DeliveryPointLogisticsRequirements : LogisticsRequirementsBase
+	public class DeliveryPointLogisticsRequirements : LogisticsRequirements
 	{
 		private DeliveryPoint _deliveryPoint;
 		[Display(Name = "Точка доставки")]

@@ -1,13 +1,13 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz.HibernateMapping.Counterparty
+namespace Vodovoz.HibernateMapping.Logistic
 {
-	public class DeliveryPointLogisticsRequirementsMap : ClassMap<DeliveryPointLogisticsRequirements>
+	public class LogisticsRequirementsBaseMap : ClassMap<LogisticsRequirements>
 	{
-		public DeliveryPointLogisticsRequirementsMap()
+		public LogisticsRequirementsBaseMap()
 		{
-			Table("delivery_point_logistics_requirement");
+			Table("logistics_requirement");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
@@ -16,8 +16,6 @@ namespace Vodovoz.HibernateMapping.Counterparty
 			Map(x => x.RussianDriverRequired).Column("russian_driver_required");
 			Map(x => x.PassRequired).Column("pass_required");
 			Map(x => x.LagrusRequired).Column("lagrus_required");
-
-			References(x => x.DeliveryPoint).Column("delivery_point_id");
 		}
 	}
 }

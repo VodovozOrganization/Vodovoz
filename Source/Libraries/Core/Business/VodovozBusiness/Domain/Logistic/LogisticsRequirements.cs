@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Logistic
 {
-	public class LogisticsRequirementsBase : PropertyChangedBase, IDomainObject
+	public class LogisticsRequirements : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id {get; set; }
 
@@ -47,6 +47,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _lagrusRequired, value);
 		}
 
-		public abstract string Title { get; }
+		public virtual string Title => $"Требования к логистике";
 	}
 }

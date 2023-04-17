@@ -54,7 +54,7 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="Domain\Client\DeliveryPointLogisticsRequirements.cs" />
-    <Compile Include="Domain\Complaints\ComplaintLogisticsRequirements.cs" />
+    <Compile Include="Domain\Client\CounterpartyLogisticsRequirements.cs" />
     <Compile Include="Domain\Logistic\AddressTransferType.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
     <Compile Include="Controllers\ComplaintNotificationController.cs" />
@@ -199,7 +199,7 @@
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\FastDeliveryMaxDistanceParameterVersion.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
-    <Compile Include="Domain\Logistic\LogisticsRequirementsBase.cs" />
+    <Compile Include="Domain\Logistic\LogisticsRequirements.cs" />
     <Compile Include="Domain\Logistic\RouteListFastDeliveryMaxDistance.cs" />
     <Compile Include="Domain\Operations\DeliveryFreeBalanceOperation.cs" />
     <Compile Include="Domain\Orders\Documents\EdoContainer.cs" />
@@ -463,7 +463,7 @@
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\PayoutRequestBaseMap.cs" />
     <Compile Include="HibernateMapping\Complaints\CamplaintDetalizationMap.cs" />
-    <Compile Include="HibernateMapping\Complaints\ComplaintLogisticsRequirementsMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\CounterpartyLogisticsRequirementsMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintResultCommentMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintArrangementCommentMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintObjectMap.cs" />
@@ -533,6 +533,7 @@
     <Compile Include="HibernateMapping\Logistic\FastDelivery\FastDeliveryAvailabilityHistoryMap.cs" />
     <Compile Include="HibernateMapping\Logistic\LateArrivalReasonMap.cs" />
     <Compile Include="HibernateMapping\Logistic\ArchivedTrackPointMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\LogisticsRequirementsBaseMap.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteListFastDeliveryMaxDistanceMap.cs" />
     <Compile Include="HibernateMapping\Operations\CashDistributionOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\DeliveryFreeBalanceOperationMap.cs" />

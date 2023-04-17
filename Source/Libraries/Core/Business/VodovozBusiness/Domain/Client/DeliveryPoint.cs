@@ -352,7 +352,7 @@ namespace Vodovoz.Domain.Client
 		public virtual GenericObservableList<DeliveryPointResponsiblePerson> ObservableResponsiblePersons {
 			get {
 				if(observableResponsiblePersons == null)
-                    observableResponsiblePersons = new GenericObservableList<DeliveryPointResponsiblePerson>(ResponsiblePersons);
+					observableResponsiblePersons = new GenericObservableList<DeliveryPointResponsiblePerson>(ResponsiblePersons);
 				return observableResponsiblePersons;
 			}
 		}
@@ -556,6 +556,14 @@ namespace Vodovoz.Domain.Client
 					?? (observableDeliveryPointEstimatedCoordinates = new GenericObservableList<DeliveryPointEstimatedCoordinate>(DeliveryPointEstimatedCoordinates));
 		}
 
+		private LogisticsRequirements _logisticsRequirements;
+		[Display(Name = "Требования к логистике")]
+		public virtual LogisticsRequirements LogisticsRequirements
+		{
+			get => _logisticsRequirements;
+			set => SetField(ref _logisticsRequirements, value);
+		}
+
 		#region Временные поля для хранения фиксированных цен из 1с
 
 		private decimal fixPrice1;
@@ -665,10 +673,10 @@ namespace Vodovoz.Domain.Client
 
 		public virtual long СoordinatesHash => CachedDistance.GetHash(this);
 
-        #endregion
+		#endregion
 
-        //FIXME вынести зависимость
-        IDeliveryRepository deliveryRepository = new DeliveryRepository();
+		//FIXME вынести зависимость
+		IDeliveryRepository deliveryRepository = new DeliveryRepository();
 
 		/// <summary>
 		/// Возврат районов доставки, в которые попадает точка доставки

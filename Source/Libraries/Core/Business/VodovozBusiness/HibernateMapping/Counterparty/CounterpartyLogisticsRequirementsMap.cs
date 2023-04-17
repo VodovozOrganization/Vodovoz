@@ -3,11 +3,11 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HibernateMapping.Counterparty
 {
-	public class DeliveryPointLogisticsRequirementsMap : ClassMap<DeliveryPointLogisticsRequirements>
+	public class CounterpartyLogisticsRequirementsMap : ClassMap<CounterpartyLogisticsRequirements>
 	{
-		public DeliveryPointLogisticsRequirementsMap()
+		public CounterpartyLogisticsRequirementsMap()
 		{
-			Table("delivery_point_logistics_requirement");
+			Table("counterparty_logistics_requirement");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
@@ -17,7 +17,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
 			Map(x => x.PassRequired).Column("pass_required");
 			Map(x => x.LagrusRequired).Column("lagrus_required");
 
-			References(x => x.DeliveryPoint).Column("delivery_point_id");
+			References(x => x.Counterparty).Column("counterparty_id");
 		}
 	}
 }

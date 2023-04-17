@@ -11,11 +11,12 @@ namespace Vodovoz.HibernateMapping.Order
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			References(x => x.ForwarderRequired).Column("forwarder_required");
-			References(x => x.DocumentsRequired).Column("documents_required");
-			References(x => x.RussianDriverRequired).Column("russian_driver_required");
-			References(x => x.PassRequired).Column("pass_required");
-			References(x => x.LagrusRequired).Column("lagrus_required");
+			Map(x => x.ForwarderRequired).Column("forwarder_required");
+			Map(x => x.DocumentsRequired).Column("documents_required");
+			Map(x => x.RussianDriverRequired).Column("russian_driver_required");
+			Map(x => x.PassRequired).Column("pass_required");
+			Map(x => x.LagrusRequired).Column("lagrus_required");
+
 			References(x => x.Order).Column("order_id");
 		}
 	}
