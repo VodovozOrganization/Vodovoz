@@ -215,7 +215,7 @@ namespace Vodovoz.Controllers
 					.Select(n => new NomenclatureAmountNode
 					{
 						NomenclatureId = n.Key,
-						Nomenclature = n.FirstOrDefault().Nomenclature,
+						Nomenclature = n.First().Nomenclature,
 						Amount = n.Sum(s => s.CurrentCount)
 					})
 					.ToList();
@@ -260,7 +260,7 @@ namespace Vodovoz.Controllers
 					.Select(n => new NomenclatureAmountNode
 					{
 						NomenclatureId = n.Key,
-						Nomenclature = n.FirstOrDefault().Nomenclature,
+						Nomenclature = n.First().Nomenclature,
 						Amount = n.Sum(s => s.Amount)
 					})
 					.SingleOrDefault();
@@ -285,8 +285,7 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocumentItem.Amount = count * amountSign;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
-					.DeliveryFreeBalanceOperation);
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
 			}
 
 			var newItemsToDeliver = changedRouteListItem.Order.GetAllGoodsToDeliver(true)
@@ -300,8 +299,7 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocumentItem.Amount = item.Amount * amountSign;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
-					.DeliveryFreeBalanceOperation);
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
 			}
 
 			#endregion
@@ -318,7 +316,7 @@ namespace Vodovoz.Controllers
 					.Select(n => new NomenclatureAmountNode
 					{
 						NomenclatureId = n.Key,
-						Nomenclature = n.FirstOrDefault().Nomenclature,
+						Nomenclature = n.First().Nomenclature,
 						Amount = n.Sum(s => s.CurrentCount)
 					})
 					.ToList()
