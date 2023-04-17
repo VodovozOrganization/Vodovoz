@@ -9,87 +9,87 @@ using QS.DomainModel.UoW;
 namespace Vodovoz.Domain
 {
 	public class NomenclatureFixedPriceController : INomenclatureFixedPriceProvider 
-    {
-        private readonly INomenclatureFixedPriceFactory _nomenclatureFixedPriceFactory;
+	{
+		private readonly INomenclatureFixedPriceFactory _nomenclatureFixedPriceFactory;
 
-        public NomenclatureFixedPriceController(
+		public NomenclatureFixedPriceController(
 			INomenclatureFixedPriceFactory nomenclatureFixedPriceFactory) 
 		{
-            this._nomenclatureFixedPriceFactory = nomenclatureFixedPriceFactory ??
-            	throw new ArgumentNullException(nameof(nomenclatureFixedPriceFactory));
-        }
-        
-        public bool ContainsFixedPrice(Order order, Nomenclature nomenclature) 
-        {
-            if (order.DeliveryPoint != null)
-                return ContainsFixedPrice(order.DeliveryPoint, nomenclature);
+			this._nomenclatureFixedPriceFactory = nomenclatureFixedPriceFactory ??
+				throw new ArgumentNullException(nameof(nomenclatureFixedPriceFactory));
+		}
+		
+		public bool ContainsFixedPrice(Order order, Nomenclature nomenclature) 
+		{
+			if (order.DeliveryPoint != null)
+				return ContainsFixedPrice(order.DeliveryPoint, nomenclature);
 
-            return ContainsFixedPrice(order.Client, nomenclature);
-        }
+			return ContainsFixedPrice(order.Client, nomenclature);
+		}
 
-        public bool TryGetFixedPrice(Order order, Nomenclature nomenclature, out decimal fixedPrice) 
-        {
-            NomenclatureFixedPrice nomenclatureFixedPrice; 
-            
-            if (order.DeliveryPoint != null) {
-                nomenclatureFixedPrice =
-                    order.DeliveryPoint.NomenclatureFixedPrices.SingleOrDefault(x =>
-                        x.Nomenclature.Id == nomenclature.Id);
+		public bool TryGetFixedPrice(Order order, Nomenclature nomenclature, out decimal fixedPrice) 
+		{
+			NomenclatureFixedPrice nomenclatureFixedPrice; 
+			
+			if (order.DeliveryPoint != null) {
+				nomenclatureFixedPrice =
+					order.DeliveryPoint.NomenclatureFixedPrices.SingleOrDefault(x =>
+						x.Nomenclature.Id == nomenclature.Id);
 
-                if (nomenclatureFixedPrice != null) {
-                    fixedPrice = nomenclatureFixedPrice.Price;
-                    return true;
-                }
-            }
-            else {
-                nomenclatureFixedPrice = 
-                    order.Client.ObservableNomenclatureFixedPrices.SingleOrDefault(x =>
-                        x.Nomenclature.Id == nomenclature.Id);
-                
-                if (nomenclatureFixedPrice != null) {
-                    fixedPrice = nomenclatureFixedPrice.Price;
-                    return true;
-                }
-            }
+				if (nomenclatureFixedPrice != null) {
+					fixedPrice = nomenclatureFixedPrice.Price;
+					return true;
+				}
+			}
+			else {
+				nomenclatureFixedPrice = 
+					order.Client.ObservableNomenclatureFixedPrices.SingleOrDefault(x =>
+						x.Nomenclature.Id == nomenclature.Id);
+				
+				if (nomenclatureFixedPrice != null) {
+					fixedPrice = nomenclatureFixedPrice.Price;
+					return true;
+				}
+			}
 
-            fixedPrice = default(int);
-            return false;
-        }
+			fixedPrice = default(int);
+			return false;
+		}
 
-        public bool ContainsFixedPrice(Counterparty counterparty, Nomenclature nomenclature) => 
-            counterparty.ObservableNomenclatureFixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id);
+		public bool ContainsFixedPrice(Counterparty counterparty, Nomenclature nomenclature) => 
+			counterparty.ObservableNomenclatureFixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id);
 
-        public bool TryGetFixedPrice(Counterparty counterparty, Nomenclature nomenclature, out decimal fixedPrice) 
-        {
-            var nomenclatureFixedPrice = counterparty.ObservableNomenclatureFixedPrices
-            	.SingleOrDefault(x => x.Nomenclature.Id == nomenclature.Id);
+		public bool TryGetFixedPrice(Counterparty counterparty, Nomenclature nomenclature, out decimal fixedPrice) 
+		{
+			var nomenclatureFixedPrice = counterparty.ObservableNomenclatureFixedPrices
+				.SingleOrDefault(x => x.Nomenclature.Id == nomenclature.Id);
 
-            return CheckFixedPrice(out fixedPrice, nomenclatureFixedPrice);
-        }
+			return CheckFixedPrice(out fixedPrice, nomenclatureFixedPrice);
+		}
 
-        public bool ContainsFixedPrice(DeliveryPoint deliveryPoint, Nomenclature nomenclature) => 
-            deliveryPoint.ObservableNomenclatureFixedPrices.Any(x => x.Nomenclature == nomenclature);
+		public bool ContainsFixedPrice(DeliveryPoint deliveryPoint, Nomenclature nomenclature) => 
+			deliveryPoint.ObservableNomenclatureFixedPrices.Any(x => x.Nomenclature == nomenclature);
 
-        public bool TryGetFixedPrice(DeliveryPoint deliveryPoint, Nomenclature nomenclature, out decimal fixedPrice) 
-        {
-            var nomenclatureFixedPrice = deliveryPoint.ObservableNomenclatureFixedPrices
-            	.SingleOrDefault(x => x.Nomenclature.Id == nomenclature.Id);
+		public bool TryGetFixedPrice(DeliveryPoint deliveryPoint, Nomenclature nomenclature, out decimal fixedPrice) 
+		{
+			var nomenclatureFixedPrice = deliveryPoint.ObservableNomenclatureFixedPrices
+				.SingleOrDefault(x => x.Nomenclature.Id == nomenclature.Id);
 
-            return CheckFixedPrice(out fixedPrice, nomenclatureFixedPrice);
-        }
+			return CheckFixedPrice(out fixedPrice, nomenclatureFixedPrice);
+		}
 
-        private bool CheckFixedPrice(out decimal fixedPrice, NomenclatureFixedPrice nomenclatureFixedPrice) 
-        {
-            if (nomenclatureFixedPrice != null) {
-                fixedPrice = nomenclatureFixedPrice.Price;
-                return true;
-            }
+		private bool CheckFixedPrice(out decimal fixedPrice, NomenclatureFixedPrice nomenclatureFixedPrice) 
+		{
+			if (nomenclatureFixedPrice != null) {
+				fixedPrice = nomenclatureFixedPrice.Price;
+				return true;
+			}
 
-            fixedPrice = default(int);
-            return false;
-        }
-        
-        public void AddFixedPrice(IUnitOfWork uow, DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0)
+			fixedPrice = default(int);
+			return false;
+		}
+		
+		public void AddFixedPrice(IUnitOfWork uow, DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0)
 		{
 			if(uow == null)
 			{
@@ -110,13 +110,13 @@ namespace Vodovoz.Domain
 			{
 				AddWaterFixedPrice(uow, deliveryPoint, nomenclature, fixedPrice, minCount);
 			}
-            else 
+			else 
 			{
-                throw new NotSupportedException("Не поддерживается.");
-            }
-        }
-        
-        public void AddFixedPrice(IUnitOfWork uow, Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0) 
+				throw new NotSupportedException("Не поддерживается.");
+			}
+		}
+		
+		public void AddFixedPrice(IUnitOfWork uow, Counterparty counterparty, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0) 
 		{
 			if(uow == null)
 			{
@@ -137,11 +137,11 @@ namespace Vodovoz.Domain
 			{
 				AddWaterFixedPrice(uow, counterparty, nomenclature, fixedPrice, minCount, nomenclatureFixedPriceId);
 			}
-            else 
+			else 
 			{
-                throw new NotSupportedException("Не поддерживается.");
-            }
-        }
+				throw new NotSupportedException("Не поддерживается.");
+			}
+		}
 
 		public void UpdateFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice, decimal fixedPrice = 0, int minCount = 0)
 		{
@@ -161,18 +161,18 @@ namespace Vodovoz.Domain
 		}
 
 		public void DeleteFixedPrice(DeliveryPoint deliveryPoint, NomenclatureFixedPrice nomenclatureFixedPrice) 
-        {
-            if (deliveryPoint.ObservableNomenclatureFixedPrices.Contains(nomenclatureFixedPrice)) {
-                deliveryPoint.ObservableNomenclatureFixedPrices.Remove(nomenclatureFixedPrice);
-            }
-        }
-        
-        public void DeleteFixedPrice(Counterparty counterparty, NomenclatureFixedPrice nomenclatureFixedPrice) 
-        {
-            if (counterparty.ObservableNomenclatureFixedPrices.Contains(nomenclatureFixedPrice)) {
-                counterparty.ObservableNomenclatureFixedPrices.Remove(nomenclatureFixedPrice);
-            }
-        }
+		{
+			if (deliveryPoint.ObservableNomenclatureFixedPrices.Contains(nomenclatureFixedPrice)) {
+				deliveryPoint.ObservableNomenclatureFixedPrices.Remove(nomenclatureFixedPrice);
+			}
+		}
+		
+		public void DeleteFixedPrice(Counterparty counterparty, NomenclatureFixedPrice nomenclatureFixedPrice) 
+		{
+			if (counterparty.ObservableNomenclatureFixedPrices.Contains(nomenclatureFixedPrice)) {
+				counterparty.ObservableNomenclatureFixedPrices.Remove(nomenclatureFixedPrice);
+			}
+		}
 
 		private void AddWaterFixedPrice(IUnitOfWork uow, DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0, int nomenclatureFixedPriceId = 0)
 		{
@@ -212,13 +212,13 @@ namespace Vodovoz.Domain
 		}
 
 		private NomenclatureFixedPrice CreateNewNomenclatureFixedPrice(Nomenclature nomenclature, decimal fixedPrice, int minCount = 0) 
-        {
-            var nomenclatureFixedPrice = _nomenclatureFixedPriceFactory.Create();
-            nomenclatureFixedPrice.Nomenclature = nomenclature;
-            nomenclatureFixedPrice.Price = fixedPrice;
+		{
+			var nomenclatureFixedPrice = _nomenclatureFixedPriceFactory.Create();
+			nomenclatureFixedPrice.Nomenclature = nomenclature;
+			nomenclatureFixedPrice.Price = fixedPrice;
 			nomenclatureFixedPrice.MinCount = minCount;
 
 			return nomenclatureFixedPrice;
-        }
-    }
+		}
+	}
 }

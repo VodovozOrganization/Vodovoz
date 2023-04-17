@@ -16,9 +16,9 @@ namespace Vodovoz.Models
 
         public DeliveryPointFixedPricesModel(IUnitOfWork uow, DeliveryPoint deliveryPoint, NomenclatureFixedPriceController fixedPriceController)
         {
-            this._uow = uow ?? throw new ArgumentNullException(nameof(uow));
-            this._deliveryPoint = deliveryPoint ?? throw new ArgumentNullException(nameof(deliveryPoint));
-            this._fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
+            _uow = uow ?? throw new ArgumentNullException(nameof(uow));
+            _deliveryPoint = deliveryPoint ?? throw new ArgumentNullException(nameof(deliveryPoint));
+            _fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
             deliveryPoint.PropertyChanged += DeliveryPointOnPropertyChanged;
         }
 

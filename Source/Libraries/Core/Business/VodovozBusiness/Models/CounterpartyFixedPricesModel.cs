@@ -16,9 +16,9 @@ namespace Vodovoz.Models
 
 		public CounterpartyFixedPricesModel(IUnitOfWork uow, Counterparty counterparty, NomenclatureFixedPriceController fixedPriceController)
 		{
-			this._uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			this._counterparty = counterparty ?? throw new ArgumentNullException(nameof(counterparty));
-			this._fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_counterparty = counterparty ?? throw new ArgumentNullException(nameof(counterparty));
+			_fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
 			counterparty.PropertyChanged += CounterpartyOnPropertyChanged;
 		}
 		
