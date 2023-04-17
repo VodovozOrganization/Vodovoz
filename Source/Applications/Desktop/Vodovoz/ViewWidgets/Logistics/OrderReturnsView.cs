@@ -255,7 +255,7 @@ namespace Vodovoz
 			switch(nomenclature.Category)
 			{
 				case NomenclatureCategory.water:
-					_routeListItem.Order.AddWaterForSale(nomenclature, 0, 0);
+					_routeListItem.Order.AddWaterForSale(nomenclature, 0, 0, needRefreshNomenclaturePriceType: false);
 					break;
 				case NomenclatureCategory.master:
 					_routeListItem.Order.AddMasterNomenclature(nomenclature, 0);

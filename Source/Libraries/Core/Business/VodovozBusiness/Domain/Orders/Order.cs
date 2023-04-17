@@ -1881,13 +1881,13 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void RecalculateItemsPrice()
+		public virtual void RecalculateItemsPrice(bool needRefreshNomenclaturePriceType = true)
 		{
 			for(var i = 0; i < OrderItems.Count; i++)
 			{
 				if(OrderItems[i].Nomenclature.Category == NomenclatureCategory.water)
 				{
-					OrderItems[i].RecalculatePrice();
+					OrderItems[i].RecalculatePrice(needRefreshNomenclaturePriceType);
 				}
 			}
 		}
@@ -2011,7 +2011,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void AddWaterForSale(Nomenclature nomenclature, decimal count, decimal discount = 0, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
+		public virtual void AddWaterForSale(Nomenclature nomenclature, decimal count, decimal discount = 0, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null, bool needRefreshNomenclaturePriceType = true)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return;
@@ -2031,6 +2031,7 @@ namespace Vodovoz.Domain.Orders
 			decimal price = GetWaterPrice(nomenclature, proSet, count);
 
 			var oi = new OrderItem {
+				NeedRefreshNomenclaturePriceType = needRefreshNomenclaturePriceType,
 				Order = this,
 				Count = count,
 				Equipment = null,

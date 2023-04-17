@@ -112,9 +112,9 @@ namespace Vodovoz
 
 			price.Nomenclature = UoWGeneric.Root;
 
-			UoWGeneric.Session.Save(price);
-
 			PricesList.Add(price);
+
+			UoWGeneric.Save(price);
 		}
 
 		private void AddPriceRow(NomenclaturePriceBase newPrice) 
