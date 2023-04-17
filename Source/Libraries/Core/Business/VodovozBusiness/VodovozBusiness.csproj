@@ -53,6 +53,8 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Domain\Client\DeliveryPointLogisticsRequirements.cs" />
+    <Compile Include="Domain\Complaints\ComplaintLogisticsRequirements.cs" />
     <Compile Include="Domain\Logistic\AddressTransferType.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
     <Compile Include="Controllers\ComplaintNotificationController.cs" />
@@ -197,9 +199,11 @@
     <Compile Include="Domain\Logistic\Drivers\DriverMobileAppActionType.cs" />
     <Compile Include="Domain\Logistic\FastDeliveryMaxDistanceParameterVersion.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
+    <Compile Include="Domain\Logistic\LogisticsRequirementsBase.cs" />
     <Compile Include="Domain\Logistic\RouteListFastDeliveryMaxDistance.cs" />
     <Compile Include="Domain\Operations\DeliveryFreeBalanceOperation.cs" />
     <Compile Include="Domain\Orders\Documents\EdoContainer.cs" />
+    <Compile Include="Domain\Orders\OrderLogisticsRequirements.cs" />
     <Compile Include="Domain\Orders\TrueMarkApiDocument.cs" />
     <Compile Include="Domain\Organizations\OrganizationOwnershipType.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
@@ -459,6 +463,7 @@
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\PayoutRequestBaseMap.cs" />
     <Compile Include="HibernateMapping\Complaints\CamplaintDetalizationMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintLogisticsRequirementsMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintResultCommentMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintArrangementCommentMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintObjectMap.cs" />
@@ -471,6 +476,7 @@
     <Compile Include="HibernateMapping\Counterparty\BulkEmailEventMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\BulkEmailEventReasonMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyEdoOperatorMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DeliveryPointLogisticsRequirementsMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\OperatorEdoMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyPatronymicMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\RoboAtsCounterpartyNameMap.cs" />
@@ -531,6 +537,7 @@
     <Compile Include="HibernateMapping\Operations\CashDistributionOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\DeliveryFreeBalanceOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderLogisticsRequirementsMap.cs" />
     <Compile Include="HibernateMapping\Order\TrueMarkApiDocumentMap.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonNomenclatureCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\EdoContainerMap.cs" />
