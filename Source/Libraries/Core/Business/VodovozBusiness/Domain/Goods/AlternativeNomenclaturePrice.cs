@@ -7,5 +7,6 @@ namespace Vodovoz.Domain.Goods
 		Nominative = "альтернативная цена")]
 	public class AlternativeNomenclaturePrice : NomenclaturePriceBase
 	{
+		public override NomenclaturePriceType Type => NomenclaturePriceType.Alternative;
 	}
 }

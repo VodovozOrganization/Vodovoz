@@ -29,7 +29,6 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		decimal price;
-		private NomenclaturePriceType _type;
 
 		[Display (Name = "Стоимость")]
 		public virtual decimal Price {
@@ -37,11 +36,7 @@ namespace Vodovoz.Domain.Goods
 			set { SetField (ref price, value, () => Price); }
 		}
 
-		public virtual NomenclaturePriceType Type
-		{
-			get => _type;
-			set => SetField(ref _type, value);
-		}
+		public virtual NomenclaturePriceType Type { get; }
 
 		#endregion
 
