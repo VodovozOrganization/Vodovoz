@@ -205,8 +205,6 @@ namespace Vodovoz.Controllers
 			IList<NomenclatureAmountNode> oldEquipmentToPickupAmountNodes;
 			RouteListItem oldRouteListItem;
 
-			var hasChanges = false;
-
 			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
 			{
 				oldRouteListItem = uowLocal.GetById<RouteListItem>(changedRouteListItem.Id);
@@ -228,7 +226,7 @@ namespace Vodovoz.Controllers
 					.SingleOrDefault(x => x.RouteListItem.Id == changedRouteListItem.Id)
 				?? new RouteListAddressKeepingDocument();
 
-			var oldCount = routeListKeepingDocument.Items.Count;
+			var oldItemCount = routeListKeepingDocument.Items.Count;
 
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 			routeListKeepingDocument.RouteListItem = changedRouteListItem;
@@ -280,8 +278,6 @@ namespace Vodovoz.Controllers
 				{
 					count = -node.Amount;
 				}
-
-				hasChanges = true;
 
 				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
@@ -342,8 +338,6 @@ namespace Vodovoz.Controllers
 					count = -node.Amount;
 				}
 
-				hasChanges = true;
-
 				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
 				routeListKeepingDocumentItem.Nomenclature = node.Nomenclature;
@@ -401,15 +395,13 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocument.Items.Add(bottleRouteListKeepingDocumentItem);
 
 				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
-
-				hasChanges = true;
 			}
 
 			#endregion
 
 			uow.Save(routeListKeepingDocument);
 
-			return hasChanges || routeListKeepingDocument.Items.Count != oldCount;
+			return routeListKeepingDocument.Items.Count != oldItemCount;
 		}
 
 		public void RemoveRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem)
