@@ -3,7 +3,7 @@
 		<toolitem name='ActionAddOrder' action='ActionAddOrder'/>
 		<toolitem name='ActionOrdersTable' action='ActionOrdersTable'/>
 		<toolitem name='ActionCounterpartyHandbook' action='ActionCounterpartyHandbook'/>
-		<toolitem name='ActionLoadOrders' action='ActionLoadOrders'/>
+		<!--<toolitem name='ActionLoadOrders' action='ActionLoadOrders'/>-->
         <toolitem name='ActionWarehouseStock' action='ActionWarehouseStock'/>
         <toolitem name='ActionDeliveryPrice' action='ActionDeliveryPrice'/>
         <toolitem name='ActionUndeliveredOrders' action='ActionUndeliveredOrders'/>
