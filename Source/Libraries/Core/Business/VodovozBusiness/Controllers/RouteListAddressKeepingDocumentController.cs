@@ -55,8 +55,7 @@ namespace Vodovoz.Controllers
 
 			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
 			var pickupEquipments = routeListItem.Order.OrderEquipments.Where(x => x.Direction == Direction.PickUp).ToList();
-
-			int amountSign;
+			sbyte amountSign;
 			if(newStatus != RouteListItemStatus.Completed && oldStatus == RouteListItemStatus.Completed)
 			{
 				amountSign = -1;
@@ -148,7 +147,7 @@ namespace Vodovoz.Controllers
 				return;
 			}
 
-			int amountSign;
+			sbyte amountSign;
 			switch(deliveryFreeBalanceType)
 			{
 				case DeliveryFreeBalanceType.Increase:
@@ -200,22 +199,25 @@ namespace Vodovoz.Controllers
 			}
 		}
 
-		public void CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(IUnitOfWork uow, RouteListItem changedRouteListItem)
+		public bool CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(IUnitOfWork uow, RouteListItem changedRouteListItem)
 		{
 			IList<NomenclatureAmountNode> oldGoodsToDeliverAmountNodes;
 			IList<NomenclatureAmountNode> oldEquipmentToPickupAmountNodes;
+			RouteListItem oldRouteListItem;
+
+			var hasChanges = false;
 
 			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
 			{
-				var oldOrder = uowLocal.GetById<Order>(changedRouteListItem.Order.Id);
-				oldGoodsToDeliverAmountNodes = oldOrder.GetAllGoodsToDeliver(true);
-				oldEquipmentToPickupAmountNodes = oldOrder.OrderEquipments
+				oldRouteListItem = uowLocal.GetById<RouteListItem>(changedRouteListItem.Id);
+				oldGoodsToDeliverAmountNodes = oldRouteListItem.Order.GetAllGoodsToDeliver(true);
+				oldEquipmentToPickupAmountNodes = oldRouteListItem.Order.OrderEquipments
 					.Where(x => x.Direction == Direction.PickUp)
-					.GroupBy(n => new { n.Nomenclature.Id, n.Nomenclature })
+					.GroupBy(n => n.Nomenclature.Id)
 					.Select(n => new NomenclatureAmountNode
 					{
-						NomenclatureId = n.Key.Id,
-						Nomenclature = n.Key.Nomenclature,
+						NomenclatureId = n.Key,
+						Nomenclature = n.FirstOrDefault().Nomenclature,
 						Amount = n.Sum(s => s.CurrentCount)
 					})
 					.ToList();
@@ -226,13 +228,15 @@ namespace Vodovoz.Controllers
 					.SingleOrDefault(x => x.RouteListItem.Id == changedRouteListItem.Id)
 				?? new RouteListAddressKeepingDocument();
 
+			var oldCount = routeListKeepingDocument.Items.Count;
+
 			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
 			routeListKeepingDocument.RouteListItem = changedRouteListItem;
 			routeListKeepingDocument.Author = currentEmployee;
 
-			int amountSign = -1;
-
 			#region ToDeliver
+
+			sbyte amountSign = -1;
 
 			foreach(var node in oldGoodsToDeliverAmountNodes)
 			{
@@ -254,11 +258,11 @@ namespace Vodovoz.Controllers
 							Amount = e.CurrentCount
 						}))
 					.Where(n => n.Nomenclature.Id == node.NomenclatureId)
-					.GroupBy(n => new { n.Nomenclature.Id, n.Nomenclature })
+					.GroupBy(n => n.Nomenclature.Id)
 					.Select(n => new NomenclatureAmountNode
 					{
-						NomenclatureId = n.Key.Id,
-						Nomenclature = n.Key.Nomenclature,
+						NomenclatureId = n.Key,
+						Nomenclature = n.FirstOrDefault().Nomenclature,
 						Amount = n.Sum(s => s.Amount)
 					})
 					.SingleOrDefault();
@@ -277,13 +281,16 @@ namespace Vodovoz.Controllers
 					count = -node.Amount;
 				}
 
+				hasChanges = true;
+
 				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
 				routeListKeepingDocumentItem.Nomenclature = node.Nomenclature;
 				routeListKeepingDocumentItem.Amount = count * amountSign;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
 			}
 
 			var newItemsToDeliver = changedRouteListItem.Order.GetAllGoodsToDeliver(true)
@@ -297,7 +304,8 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocumentItem.Amount = item.Amount * amountSign;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
 			}
 
 			#endregion
@@ -310,11 +318,11 @@ namespace Vodovoz.Controllers
 
 				var foundInChanged = changedRouteListItem.Order.OrderEquipments
 					.Where(x => x.Direction == Direction.PickUp)
-					.GroupBy(n => new { n.Nomenclature.Id, n.Nomenclature })
+					.GroupBy(n => n.Nomenclature.Id)
 					.Select(n => new NomenclatureAmountNode
 					{
-						NomenclatureId = n.Key.Id,
-						Nomenclature = n.Key.Nomenclature,
+						NomenclatureId = n.Key,
+						Nomenclature = n.FirstOrDefault().Nomenclature,
 						Amount = n.Sum(s => s.CurrentCount)
 					})
 					.ToList()
@@ -334,13 +342,16 @@ namespace Vodovoz.Controllers
 					count = -node.Amount;
 				}
 
+				hasChanges = true;
+
 				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
 				routeListKeepingDocumentItem.Nomenclature = node.Nomenclature;
 				routeListKeepingDocumentItem.Amount = count;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
 			}
 
 			var newEquipmentsToPickup = changedRouteListItem.Order.OrderEquipments
@@ -357,12 +368,48 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocumentItem.Amount = item.CurrentCount;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
+			}
+
+			#endregion
+
+			#region bottles
+
+			sbyte bottlesAmountSign = 0;
+			if(changedRouteListItem.Status != RouteListItemStatus.Completed && oldRouteListItem.Status == RouteListItemStatus.Completed)
+			{
+				bottlesAmountSign = -1;
+			}
+			else if(changedRouteListItem.Status == RouteListItemStatus.Completed && oldRouteListItem.Status != RouteListItemStatus.Completed)
+			{
+				bottlesAmountSign = 1;
+			}
+
+			if(bottlesAmountSign != 0)
+			{
+				var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+
+				var bottleRouteListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
+				{
+					RouteListAddressKeepingDocument = routeListKeepingDocument,
+					Nomenclature = defaultBottleNomenclature,
+					Amount = (changedRouteListItem.DriverBottlesReturned ?? changedRouteListItem.Order.BottlesReturn ?? 0) * bottlesAmountSign
+				};
+
+				bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();
+				routeListKeepingDocument.Items.Add(bottleRouteListKeepingDocumentItem);
+
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+
+				hasChanges = true;
 			}
 
 			#endregion
 
 			uow.Save(routeListKeepingDocument);
+
+			return hasChanges || routeListKeepingDocument.Items.Count != oldCount;
 		}
 
 		public void RemoveRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem)

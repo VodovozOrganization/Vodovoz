@@ -600,9 +600,16 @@ namespace Vodovoz
 
 			if(_hasActualCountsChangesItemIds.Contains(node.Id))
 			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, "Этот заказ уже редактировался, нужно сохранить изменения,\nлибо переоткрыть диалог.");
-
-				return;
+				if(ServicesConfig.InteractiveService.Question(
+					   $"Перед повторным редактированием заказа №{node.Id} нужно сохранить текущие изменения.\nПродолжить?"))
+				{
+					UoW.Commit();
+					_hasActualCountsChangesItemIds.Remove(node.Id);
+				}
+				else
+				{
+					return;
+				}
 			}
 
 			var dlg = new OrderReturnsView(node, UoW);
@@ -610,13 +617,17 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
+
 		private void OnOrderReturnsViewTabClosed(object sender, EventArgs e)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
 
-			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node);
+			if(_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node))
+			{
+				_hasActualCountsChangesItemIds.Add(node.Id);
+				routelistdiscrepancyview.FindDiscrepancies();
+			}
 
-			_hasActualCountsChangesItemIds.Add(node.Id);
 			((OrderReturnsView)sender).TabClosed -= OnOrderReturnsViewTabClosed;
 		}
 

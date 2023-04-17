@@ -59,7 +59,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 			var iter = buffer.EndIter;
 			buffer.InsertWithTags(ref iter, "Свободные остатки в МЛ: ", _boldTag);
 
-			var groupedOperations = operations.GroupBy(o => o.Nomenclature).ToArray();
+			var groupedOperations = operations.GroupBy(o => o.Nomenclature.Id).ToArray();
 
 			int lastIndex = groupedOperations.Length - 1;
 			for(var i = 0; i < groupedOperations.Length; i++)
@@ -73,11 +73,11 @@ namespace Vodovoz.ViewWidgets.Logistics
 				}
 
 				iter = buffer.EndIter;
-				buffer.InsertWithTags(ref iter, item.Key.Name + ": ", _defaultTag);
+				buffer.InsertWithTags(ref iter, item.FirstOrDefault()?.Nomenclature.Name + ": ", _defaultTag);
 				iter = buffer.EndIter;
 				buffer.InsertWithTags(ref iter, sum.ToString("N0"), sum < 0 ? _redBoldTag : _boldTag);
 				iter = buffer.EndIter;
-				buffer.InsertWithTags(ref iter, " " + item.Key.Unit.Name + (i == lastIndex ? "" : ", "), _defaultTag);
+				buffer.InsertWithTags(ref iter, " " + item.FirstOrDefault()?.Nomenclature.Unit?.Name + (i == lastIndex ? "" : ", "), _defaultTag);
 			}
 		}
 

@@ -13,7 +13,7 @@ namespace Vodovoz.Controllers
 			RouteListItemStatus? oldStatus = null, RouteListItemStatus? newStatus = null);
 		void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uoW, RouteList routeList, DeliveryFreeBalanceType deliveryFreeBalanceType,
 			bool isFullRecreation, bool isActualCount);
-		void CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(IUnitOfWork uow, RouteListItem changedRouteListItem);
+		bool CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(IUnitOfWork uow, RouteListItem changedRouteListItem);
 		void RemoveRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem);
 	}
 }
