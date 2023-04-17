@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Autofac;
 using Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories;
@@ -24,6 +25,8 @@ namespace Vodovoz.SidePanel
 {
 	public static class PanelViewFactory
 	{
+		private static readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer;
+
 		public static Widget Create(PanelViewType type)
 		{
 			switch(type)
@@ -67,6 +70,8 @@ namespace Vodovoz.SidePanel
 					ITdiTab tdiTab = TDIMain.MainNotebook.CurrentTab;
 					var edoLightsMatrixPanelViewModel = new EdoLightsMatrixPanelViewModel(edoLightsMatrixViewModel, gtkTabsOpener, tdiTab);
 					return new EdoLightsMatrixPanelView(edoLightsMatrixPanelViewModel);
+				case PanelViewType.CarsMonitoringInfoPanelView:
+					return _lifetimeScope.Resolve<CarsMonitoringInfoPanelView>();
 				default:
 					throw new NotSupportedException();
 			}

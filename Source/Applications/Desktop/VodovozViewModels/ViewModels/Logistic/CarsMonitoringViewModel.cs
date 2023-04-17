@@ -28,13 +28,15 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.NHibernateProjections.Logistics;
 using Vodovoz.Services;
+using Vodovoz.SidePanel;
+using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class CarsMonitoringViewModel : DialogTabViewModelBase
+	public class CarsMonitoringViewModel : DialogTabViewModelBase, IInfoProvider
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -336,6 +338,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand RefreshFastDeliveryDistrictsCommand { get; }
 
 		public DelegateCommand RefreshLastDriverPositionsCommand { get; }
+
+		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CarsMonitoringInfoPanelView };
 		#endregion
 
 		#region Events
@@ -344,6 +348,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public event Action WorkingDriversChanged;
 
 		public event Action RouteListAddressesChanged;
+		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 		#endregion
 
 		#region Command Handlers
@@ -693,6 +698,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public IList<TrackPoint> GetRouteListTrackPoints(int id)
 		{
 			return _trackRepository.GetPointsForRouteList(UoW, id);
+		}
+
+		private void OnDataChanged(object sender, EventArgs e)
+		{
+			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
 		}
 
 		#region IDisposable
