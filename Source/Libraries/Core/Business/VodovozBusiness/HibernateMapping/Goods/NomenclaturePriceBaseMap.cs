@@ -14,7 +14,6 @@ namespace Vodovoz.HibernateMapping
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.MinCount).Column ("min_count");
 			Map (x => x.Price).Column ("price");
-			Map(x => x.Type).Column("type").CustomType<NomenclaturePriceBase.NomenclaturePriceTypeString>().ReadOnly();
 
 			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
 		}

@@ -52,11 +52,6 @@ namespace Vodovoz.Domain.Goods
 			[Display(Name = "Альтернативная")]
 			Alternative
 		}
-
-		public class NomenclaturePriceTypeString : NHibernate.Type.EnumStringType
-		{
-			public NomenclaturePriceTypeString() : base(typeof(NomenclaturePriceType)) { }
-		}
 	}
 }
 
