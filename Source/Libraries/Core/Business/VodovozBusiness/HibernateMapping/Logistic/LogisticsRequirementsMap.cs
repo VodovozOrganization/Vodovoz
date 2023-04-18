@@ -3,9 +3,9 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.HibernateMapping.Logistic
 {
-	public class LogisticsRequirementsBaseMap : ClassMap<LogisticsRequirements>
+	public class LogisticsRequirementsMap : ClassMap<LogisticsRequirements>
 	{
-		public LogisticsRequirementsBaseMap()
+		public LogisticsRequirementsMap()
 		{
 			Table("logistics_requirement");
 

@@ -329,6 +329,8 @@ namespace Vodovoz.Views.Client
 				deliverypointresponsiblepersonsview1.Visible = false;
 				labelResponsiblePersons.Visible = false;
 			}
+
+			logisticsrequirementsview.ViewModel = ViewModel.LogisticsRequirementsViewModel;
 		}
 
 		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
