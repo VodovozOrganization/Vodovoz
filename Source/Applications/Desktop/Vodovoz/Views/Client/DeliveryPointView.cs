@@ -330,7 +330,7 @@ namespace Vodovoz.Views.Client
 				labelResponsiblePersons.Visible = false;
 			}
 
-			logisticsrequirementsview.ViewModel = ViewModel.LogisticsRequirementsViewModel;
+			logisticsRequirementsView.ViewModel = ViewModel.LogisticsRequirementsViewModel;
 		}
 
 		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
