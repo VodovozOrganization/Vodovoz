@@ -948,9 +948,9 @@ namespace Vodovoz
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
 
-			logisticsrequirementsview.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
+			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
-			logisticsrequirementsview.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
@@ -1003,18 +1003,18 @@ namespace Vodovoz
 
 		private void UpdateEntityLogisticsRequirements()
 		{
-			Entity.LogisticsRequirements = logisticsrequirementsview.ViewModel.Entity;
+			Entity.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
 		}
 
 		private void SetLogisticsRequirementsCheckboxes()
 		{
 			var requirements = GetLogisticsRequirements();
 
-			logisticsrequirementsview.ViewModel.Entity.ForwarderRequired = requirements.ForwarderRequired;
-			logisticsrequirementsview.ViewModel.Entity.DocumentsRequired = requirements.DocumentsRequired;
-			logisticsrequirementsview.ViewModel.Entity.RussianDriverRequired= requirements.RussianDriverRequired;
-			logisticsrequirementsview.ViewModel.Entity.PassRequired = requirements.PassRequired;
-			logisticsrequirementsview.ViewModel.Entity.LagrusRequired = requirements.LagrusRequired;
+			logisticsRequirementsView.ViewModel.Entity.ForwarderRequired = requirements.ForwarderRequired;
+			logisticsRequirementsView.ViewModel.Entity.DocumentsRequired = requirements.DocumentsRequired;
+			logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired= requirements.RussianDriverRequired;
+			logisticsRequirementsView.ViewModel.Entity.PassRequired = requirements.PassRequired;
+			logisticsRequirementsView.ViewModel.Entity.LagrusRequired = requirements.LagrusRequired;
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
