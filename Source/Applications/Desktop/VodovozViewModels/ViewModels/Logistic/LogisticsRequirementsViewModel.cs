@@ -8,6 +8,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	{
 		public LogisticsRequirementsViewModel(
 			LogisticsRequirements entity,
-			ICommonServices commonServices) : base(entity, commonServices) { }
+			ICommonServices commonServices) : base(entity, commonServices) 
+		{ 
+		}
 	}
 }

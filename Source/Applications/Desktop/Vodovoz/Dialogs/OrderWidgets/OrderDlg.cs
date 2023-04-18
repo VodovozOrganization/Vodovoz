@@ -30,6 +30,7 @@ using QSWidgetLib;
 using SmsPaymentService;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -97,6 +98,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozInfrastructure.Configuration;
@@ -909,12 +911,18 @@ namespace Vodovoz
 					case nameof(Order.Client):
 						UpdateAvailableEnumSignatureTypes();
 						UpdateOrderAddressTypeWithUI();
+						SetLogisticsRequirementsCheckboxes();
+						UpdateEntityLogisticsRequirements();
 						break;
 					case nameof(Entity.OrderAddressType):
 						UpdateOrderAddressTypeUI();
 						break;
 					case nameof(Entity.Client.IsChainStore):
 						UpdateOrderAddressTypeWithUI();
+						break;
+					case nameof(Entity.DeliveryPoint):
+						SetLogisticsRequirementsCheckboxes();
+						UpdateEntityLogisticsRequirements();
 						break;
 				}
 			};
@@ -939,6 +947,74 @@ namespace Vodovoz
 
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
+
+			logisticsrequirementsview.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
+			UpdateEntityLogisticsRequirements();
+			logisticsrequirementsview.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+		}
+
+		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
+		{
+			UpdateEntityLogisticsRequirements();
+		}
+
+		private LogisticsRequirements GetLogisticsRequirements()
+		{
+			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements();
+
+			if (Counterparty?.LogisticsRequirements == null && DeliveryPoint?.LogisticsRequirements == null)
+			{
+				logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements();
+			}
+			else if (Counterparty?.LogisticsRequirements == null && DeliveryPoint?.LogisticsRequirements != null)
+			{
+				logisticsRequirementsFromCounterpartyAndDeliveryPoint = DeliveryPoint.LogisticsRequirements;
+			}
+			else if (Counterparty?.LogisticsRequirements != null && DeliveryPoint?.LogisticsRequirements == null)
+			{
+				logisticsRequirementsFromCounterpartyAndDeliveryPoint = Counterparty.LogisticsRequirements;
+			}
+			else
+			{
+				logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements()
+				{
+					ForwarderRequired = Counterparty.LogisticsRequirements.ForwarderRequired || DeliveryPoint.LogisticsRequirements.ForwarderRequired,
+					DocumentsRequired = Counterparty.LogisticsRequirements.DocumentsRequired || DeliveryPoint.LogisticsRequirements.DocumentsRequired,
+					RussianDriverRequired = Counterparty.LogisticsRequirements.RussianDriverRequired || DeliveryPoint.LogisticsRequirements.RussianDriverRequired,
+					PassRequired = Counterparty.LogisticsRequirements.PassRequired || DeliveryPoint.LogisticsRequirements.PassRequired,
+					LagrusRequired = Counterparty.LogisticsRequirements.LagrusRequired || DeliveryPoint.LogisticsRequirements.LagrusRequired
+				};
+			}
+
+			if (Entity.LogisticsRequirements != null)
+			{
+				return new LogisticsRequirements()
+				{
+					ForwarderRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.ForwarderRequired || Entity.LogisticsRequirements.ForwarderRequired,
+					DocumentsRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.DocumentsRequired || Entity.LogisticsRequirements.DocumentsRequired,
+					RussianDriverRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.RussianDriverRequired || Entity.LogisticsRequirements.RussianDriverRequired,
+					PassRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.PassRequired || Entity.LogisticsRequirements.PassRequired,
+					LagrusRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.LagrusRequired || Entity.LogisticsRequirements.LagrusRequired
+				};
+			}
+
+			return logisticsRequirementsFromCounterpartyAndDeliveryPoint;
+		}
+
+		private void UpdateEntityLogisticsRequirements()
+		{
+			Entity.LogisticsRequirements = logisticsrequirementsview.ViewModel.Entity;
+		}
+
+		private void SetLogisticsRequirementsCheckboxes()
+		{
+			var requirements = GetLogisticsRequirements();
+
+			logisticsrequirementsview.ViewModel.Entity.ForwarderRequired = requirements.ForwarderRequired;
+			logisticsrequirementsview.ViewModel.Entity.DocumentsRequired = requirements.DocumentsRequired;
+			logisticsrequirementsview.ViewModel.Entity.RussianDriverRequired= requirements.RussianDriverRequired;
+			logisticsrequirementsview.ViewModel.Entity.PassRequired = requirements.PassRequired;
+			logisticsrequirementsview.ViewModel.Entity.LagrusRequired = requirements.LagrusRequired;
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
