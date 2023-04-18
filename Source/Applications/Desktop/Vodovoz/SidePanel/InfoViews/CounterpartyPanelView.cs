@@ -59,8 +59,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			textviewComment.Buffer.Changed += OnTextviewCommentBufferChanged;
 			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
 
-			logisticsrequirementsview.ViewModel = new LogisticsRequirementsViewModel(GetLogisticsRequirements(), _commonServices);
-			logisticsrequirementsview.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(GetLogisticsRequirements(), _commonServices);
+			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 		}
 		
 		private void Refresh(object changedObj)
@@ -199,7 +199,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
 		{
-			_counterparty.LogisticsRequirements = logisticsrequirementsview.ViewModel.Entity;
+			_counterparty.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
 		}
 
 		public void OnCurrentObjectChanged(object changedObject)
@@ -238,11 +238,11 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			var requirements = GetLogisticsRequirements();
 
-			logisticsrequirementsview.ViewModel.Entity.ForwarderRequired = requirements.ForwarderRequired;
-			logisticsrequirementsview.ViewModel.Entity.DocumentsRequired = requirements.DocumentsRequired;
-			logisticsrequirementsview.ViewModel.Entity.RussianDriverRequired = requirements.RussianDriverRequired;
-			logisticsrequirementsview.ViewModel.Entity.PassRequired = requirements.PassRequired;
-			logisticsrequirementsview.ViewModel.Entity.LagrusRequired = requirements.LagrusRequired;
+			logisticsRequirementsView.ViewModel.Entity.ForwarderRequired = requirements.ForwarderRequired;
+			logisticsRequirementsView.ViewModel.Entity.DocumentsRequired = requirements.DocumentsRequired;
+			logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired = requirements.RussianDriverRequired;
+			logisticsRequirementsView.ViewModel.Entity.PassRequired = requirements.PassRequired;
+			logisticsRequirementsView.ViewModel.Entity.LagrusRequired = requirements.LagrusRequired;
 		}
 
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
