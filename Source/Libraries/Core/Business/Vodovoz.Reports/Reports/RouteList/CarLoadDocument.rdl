@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
@@ -115,7 +113,7 @@ ORDER BY clmn_for_sorting;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id AS route_list_id,
@@ -137,7 +135,13 @@ ORDER BY clmn_for_sorting;</CommandText>
                  '',
                  CONCAT(LEFT(forwaders.patronymic, 1), '.'))) AS forwader,
     cm.name AS model,
-    cars.reg_number AS reg_number
+    cars.reg_number AS reg_number,
+    q.daily_number,
+    (SELECT IFNULL(COUNT(o.id),0) &gt; 0
+    	FROM route_list_addresses rla
+    	INNER JOIN orders o on o.id = rla.order_id
+    	WHERE o.is_fast_delivery AND rla.route_list_id  = route_lists.id
+    ) as has_fast_delivery
 FROM
     route_lists
     LEFT JOIN
@@ -148,6 +152,8 @@ FROM
         cars ON cars.id = route_lists.car_id
     LEFT JOIN 
         car_models cm ON cars.model_id = cm.id
+    LEFT JOIN
+    	car_loading_daily_queue q on q.route_list_id = route_lists.id and q.`date` = DATE(route_lists.`date`)
 WHERE
     route_lists.id = @id
 GROUP BY route_lists.id
@@ -159,7 +165,7 @@ LIMIT 1
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -183,6 +189,14 @@ LIMIT 1
         <Field Name="reg_number">
           <DataField>reg_number</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="daily_number">
+          <DataField>daily_number</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="has_fast_delivery">
+          <DataField>has_fast_delivery</DataField>
+          <TypeName>System.Boolean</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -386,8 +400,7 @@ GROUP BY order_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -408,8 +421,7 @@ GROUP BY order_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -430,8 +442,7 @@ GROUP BY order_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -452,8 +463,7 @@ GROUP BY order_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox83">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -474,8 +484,7 @@ GROUP BY order_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox87">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -748,7 +757,7 @@ GROUP BY order_id</CommandText>
           </TableRows>
         </Details>
         <Left>0.8pt</Left>
-        <Top>54.7pt</Top>
+        <Top>64.3pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -808,8 +817,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -827,8 +835,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -846,8 +853,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -865,8 +871,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -890,7 +895,7 @@ GROUP BY order_id</CommandText>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
         <Left>148.1pt</Left>
-        <Top>127.5pt</Top>
+        <Top>137.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -904,7 +909,7 @@ GROUP BY order_id</CommandText>
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>1.7pt</Left>
-        <Top>127.7pt</Top>
+        <Top>137.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1033,7 +1038,7 @@ GROUP BY order_id</CommandText>
           </TableRows>
         </Details>
         <Left>311.0pt</Left>
-        <Top>62.6pt</Top>
+        <Top>72.2pt</Top>
         <ZIndex>2</ZIndex>
         <NoRows>Нет отгрузки со склада воды</NoRows>
       </Table>
@@ -1048,7 +1053,7 @@ GROUP BY order_id</CommandText>
           <BorderWidth />
         </Style>
         <Left>300.0pt</Left>
-        <Top>139.9pt</Top>
+        <Top>149.5pt</Top>
       </Line>
       <Table Name="Table4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
@@ -1332,7 +1337,7 @@ GROUP BY order_id</CommandText>
           </TableRows>
         </Details>
         <Left>25.5pt</Left>
-        <Top>198.8pt</Top>
+        <Top>208.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1392,8 +1397,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1411,8 +1415,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1430,8 +1433,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1449,8 +1451,7 @@ GROUP BY order_id</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1474,7 +1475,7 @@ GROUP BY order_id</CommandText>
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>27.8pt</Left>
-        <Top>250.1pt</Top>
+        <Top>259.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1488,7 +1489,7 @@ GROUP BY order_id</CommandText>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
         <Left>296.2pt</Left>
-        <Top>249.1pt</Top>
+        <Top>258.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1509,7 +1510,7 @@ GROUP BY order_id</CommandText>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>280.1pt</Top>
+        <Top>289.7pt</Top>
       </Line>
       <Textbox Name="Textbox82" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.24pt</Height>
@@ -1517,7 +1518,7 @@ GROUP BY order_id</CommandText>
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>29.0pt</Left>
-        <Top>365.9pt</Top>
+        <Top>375.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1531,7 +1532,7 @@ GROUP BY order_id</CommandText>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
         <Left>271.0pt</Left>
-        <Top>365.7pt</Top>
+        <Top>375.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1611,7 +1612,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>289.6pt</Top>
+        <Top>299.2pt</Top>
       </Table>
       <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1685,7 +1686,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>169.2pt</Top>
+        <Top>178.8pt</Top>
       </Table>
       <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1759,7 +1760,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>5.5pt</Top>
+        <Top>15.1pt</Top>
       </Table>
       <Table Name="Table12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -1833,7 +1834,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>301.0pt</Left>
-        <Top>5.5pt</Top>
+        <Top>15.1pt</Top>
       </Table>
       <Line Name="Line1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>0.07pt</Height>
@@ -1848,7 +1849,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>159.3pt</Top>
+        <Top>168.9pt</Top>
       </Line>
       <Table Name="Table13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Equipment</DataSetName>
@@ -1964,7 +1965,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>8.9pt</Left>
-        <Top>324.5pt</Top>
+        <Top>334.1pt</Top>
         <ZIndex>2</ZIndex>
       </Table>
       <Table Name="Table15">
@@ -2013,7 +2014,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>310.9pt</Left>
-        <Top>99.3pt</Top>
+        <Top>108.9pt</Top>
         <Details>
           <TableRows>
             <TableRow>
@@ -2066,8 +2067,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
       </Table>
       <Table Name="Table16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>EquipmentOnlineStore</DataSetName>
-        <NoRows>
-        </NoRows>
+        <NoRows></NoRows>
         <Style>
           <BorderStyle>
             <Default>None</Default>
@@ -2111,7 +2111,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>401.2pt</Left>
-        <Top>324.8pt</Top>
+        <Top>334.4pt</Top>
         <Details>
           <TableRows>
             <TableRow>
@@ -2168,7 +2168,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>Товар мной проверен. По количеству и качеству товара претензий не имею.</Value>
         <ZIndex>1</ZIndex>
         <Left>160.9pt</Left>
-        <Top>378.9pt</Top>
+        <Top>388.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2181,13 +2181,63 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>Товар мной проверен. По количеству и качеству товара претензий не имею.</Value>
         <ZIndex>1</ZIndex>
         <Left>125.3pt</Left>
-        <Top>138.6pt</Top>
+        <Top>148.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
         </Style>
       </Textbox>
+      <Table Name="Table3" >
+        <DataSetName>Doc</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>568.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>='!!Приоритет погрузки: ' + {daily_number} + Iif({has_fast_delivery}, ' Доставка за час', '')</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>0.0pt</Top>
+      </Table>
     </ReportItems>
     <Height>554.5pt</Height>
     <Columns>1</Columns>
@@ -2208,8 +2258,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
   <DataElementName>Report</DataElementName>
