@@ -761,6 +761,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string RouteListsText { get; set; }
 
 		public decimal? FastDeliveryMaxDistance { get; set; }
+
 		public string FastDeliveryMaxDistanceString => FastDeliveryMaxDistance.HasValue ? $"{FastDeliveryMaxDistance.Value:N1}" : "-";
 
 		public int CompletedPercent => AddressesAll == 0 ? 100 : (int)(((double)AddressesCompleted / AddressesAll) * 100);
