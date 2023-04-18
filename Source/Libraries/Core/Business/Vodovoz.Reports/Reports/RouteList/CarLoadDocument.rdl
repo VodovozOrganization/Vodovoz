@@ -137,7 +137,7 @@ ORDER BY clmn_for_sorting;</CommandText>
     cm.name AS model,
     cars.reg_number AS reg_number,
     q.daily_number,
-    (SELECT IFNULL(COUNT(o.id),0) &gt; 0
+    (SELECT IFNULL(COUNT(o.id), 0) &gt; 0
     	FROM route_list_addresses rla
     	INNER JOIN orders o on o.id = rla.order_id
     	WHERE o.is_fast_delivery AND rla.route_list_id  = route_lists.id
@@ -2215,7 +2215,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>='!!Приоритет погрузки: ' + {daily_number} + Iif({has_fast_delivery}, ' Доставка за час', '')</Value>
+                      <Value>='Приоритет погрузки: ' + {daily_number} + Iif({has_fast_delivery}, ' Доставка за час', '')</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>

@@ -100,7 +100,7 @@ ORDER BY clmn_for_sorting;</CommandText>
     cars.reg_number AS reg_number,
     scld.id AS car_load_document_id,
     q.daily_number,
-    (SELECT IFNULL(COUNT(o.id),0) &gt; 0
+    (SELECT IFNULL(COUNT(o.id), 0) &gt; 0
     	FROM route_list_addresses rla
     	INNER JOIN orders o on o.id = rla.order_id
     	WHERE o.is_fast_delivery AND rla.route_list_id  = route_lists.id
