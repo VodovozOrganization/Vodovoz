@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using Fias.Client;
 using Fias.Client.Cache;
@@ -11,6 +12,7 @@ using QS.Services;
 using QS.Tdi;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
@@ -19,6 +21,7 @@ using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Mango;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
@@ -33,19 +36,18 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly IPermissionResult _deliveryPointPermissionResult;
 		private readonly IPermissionResult _orderPermissionResult;
+		private readonly ICommonServices _commonServices;
+
 		DeliveryPoint DeliveryPoint { get; set; }
 		private bool _textviewcommentBufferChanged = false;
 		private bool _textviewcommentLogistBufferChanged = false;
 
 		public DeliveryPointPanelView(ICommonServices commonServices)
 		{
-			if(commonServices == null)
-			{
-				throw new ArgumentNullException(nameof(commonServices));
-			}
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			Build();
-			_deliveryPointPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
-			_orderPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
+			_deliveryPointPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
+			_orderPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
 			IParametersProvider parametersProvider = new ParametersProvider();
 			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
 			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
@@ -77,6 +79,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			textviewCommentLogist.Buffer.Changed += OnTextviewCommentLogistBufferChanged;
 			textviewCommentLogist.FocusOutEvent += OnTextviewCommentLogistFocusOut;
+
+			logisticsrequirementsview.ViewModel = new LogisticsRequirementsViewModel(GetLogisticsRequirements(), _commonServices);
+			logisticsrequirementsview.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 		}
 
 		private void Refresh(object changedObj)
@@ -88,6 +93,20 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			DeliveryPoint = changedObj as DeliveryPoint;
 			RefreshData();
+		}
+		private LogisticsRequirements GetLogisticsRequirements()
+		{
+			return DeliveryPoint?.LogisticsRequirements ?? new LogisticsRequirements();
+		}
+		private void SetLogisticsRequirementsCheckboxes()
+		{
+			var requirements = GetLogisticsRequirements();
+
+			logisticsrequirementsview.ViewModel.Entity.ForwarderRequired = requirements.ForwarderRequired;
+			logisticsrequirementsview.ViewModel.Entity.DocumentsRequired = requirements.DocumentsRequired;
+			logisticsrequirementsview.ViewModel.Entity.RussianDriverRequired = requirements.RussianDriverRequired;
+			logisticsrequirementsview.ViewModel.Entity.PassRequired = requirements.PassRequired;
+			logisticsrequirementsview.ViewModel.Entity.LagrusRequired = requirements.LagrusRequired;
 		}
 
 		#region IPanelView implementation
@@ -163,6 +182,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			buttonSaveComment.Sensitive = 
 				btn.Sensitive = 
 				textviewComment.Editable = _deliveryPointPermissionResult.CanUpdate;
+
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		public bool VisibleOnPanel
@@ -187,6 +208,10 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			var attr = enumerator.GetAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
 			return attr == null ? "" : attr.ShortName;
+		}
+		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
+		{
+			DeliveryPoint.LogisticsRequirements = logisticsrequirementsview.ViewModel.Entity;
 		}
 
 		void OnOrdersRowActivated(object sender, RowActivatedArgs args)
@@ -246,6 +271,15 @@ namespace Vodovoz.SidePanel.InfoViews
 			_textviewcommentLogistBufferChanged = false;
 		}
 
+		private void SaveLogisticsRequirements()
+		{
+			using(var uow =
+					UnitOfWorkFactory.CreateForRoot<Counterparty>(DeliveryPoint.Id, "Кнопка «Cохранить требования к логистике на панели точки доставки"))
+			{
+				uow.Save();
+			}
+		}
+
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
 			SaveComment();
@@ -254,6 +288,10 @@ namespace Vodovoz.SidePanel.InfoViews
 		protected void OnButtonSaveCommentLogistClicked(object sender, EventArgs e)
 		{
 			SaveCommentLogist();
+		}
+		protected void OnButtonSaveLogisticsRequirementsClicked(object sender, EventArgs e)
+		{
+			SaveLogisticsRequirements();
 		}
 
 		private void OnTextviewCommentBufferChanged(object sender, EventArgs e)
