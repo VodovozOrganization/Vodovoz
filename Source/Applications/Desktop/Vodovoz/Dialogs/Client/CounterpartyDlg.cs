@@ -94,6 +94,8 @@ using RevenueService.Client;
 using RevenueService.Client.Dto;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
@@ -654,6 +656,9 @@ namespace Vodovoz
 
 			buttonCloseDelivery.Sensitive = CanEdit;
 			SetVisibilityForCloseDeliveryComments();
+
+			logisticsrequirementsview.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
+			logisticsrequirementsview.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 		}
 
 		private void ConfigureTabContacts()
@@ -1265,7 +1270,6 @@ namespace Vodovoz
 			}
 		}
 
-
 		public void ActivateContactsTab()
 		{
 			if(radioContacts.Sensitive)
@@ -1335,6 +1339,11 @@ namespace Vodovoz
 			   null,
 			   filter,
 			   OpenPageOptions.IgnoreHash);
+		}
+
+		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
+		{
+			Entity.LogisticsRequirements = logisticsrequirementsview.ViewModel.Entity;
 		}
 
 		private bool _canClose = true;
