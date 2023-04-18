@@ -657,8 +657,8 @@ namespace Vodovoz
 			buttonCloseDelivery.Sensitive = CanEdit;
 			SetVisibilityForCloseDeliveryComments();
 
-			logisticsrequirementsview.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
-			logisticsrequirementsview.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
+			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 		}
 
 		private void ConfigureTabContacts()
@@ -1343,7 +1343,7 @@ namespace Vodovoz
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
 		{
-			Entity.LogisticsRequirements = logisticsrequirementsview.ViewModel.Entity;
+			Entity.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
 		}
 
 		private bool _canClose = true;
