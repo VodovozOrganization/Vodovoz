@@ -7,7 +7,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		public class DisplayRow
 		{
 			protected const string _numericDefaultFormat = "0";
-			protected const string _financialDefaultFormat = "0.00";
+			protected const string _financialDefaultFormat = "# ### ### ##0.00";
 
 			public virtual string Title { get; set; }
 
