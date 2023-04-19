@@ -102,7 +102,7 @@ namespace Vodovoz.Domain.Orders
 					value = Math.Truncate(value);
 				if(SetField(ref count, value)) 
 				{
-					Order?.RecalculateItemsPrice(NeedRefreshNomenclaturePriceType);
+					Order?.RecalculateItemsPrice();
 					RecalculateDiscount();
 					RecalculateVAT();
 					Order?.UpdateRentsCount();
@@ -497,26 +497,27 @@ namespace Vodovoz.Domain.Orders
 			return result;
 		}
 
-		public virtual void RecalculatePrice(bool needRefreshNomenclaturePriceType = true)
+		public virtual void RecalculatePrice()
 		{
 			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || order.GetFixedPriceOrNull(Nomenclature) != null)
 				return;
 
-			Price = GetPriceByTotalCount(needRefreshNomenclaturePriceType);
+			Price = GetPriceByTotalCount();
 		}
 
-		public virtual decimal GetPriceByTotalCount(bool needRefreshNomenclaturePriceType = true)
+		public virtual decimal GetPriceByTotalCount()
 		{
 			if(Nomenclature != null)
 			{
-				var canApplyAlternativePrice = needRefreshNomenclaturePriceType
-					? Order.UseAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any()
-					: IsAlternativePrice;
+				var curCount = Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count;
+				var canApplyAlternativePrice = KeepExistingPrices
+					? IsAlternativePrice
+					: Order.HasPermissionsForAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount);
 
 				if(Nomenclature.DependsOnNomenclature == null)
-					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count, canApplyAlternativePrice);
+					return Nomenclature.GetPrice(curCount, canApplyAlternativePrice);
 				if(Nomenclature.IsWater19L)
-					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count, canApplyAlternativePrice);
+					return Nomenclature.DependsOnNomenclature.GetPrice(curCount, canApplyAlternativePrice);
 			}
 			return 0m;
 		}
@@ -618,7 +619,7 @@ namespace Vodovoz.Domain.Orders
 			return canUseVAT;
 		}
 
-		public bool NeedRefreshNomenclaturePriceType { get; set; } = true;
+		public bool KeepExistingPrices { get; set; } = false;
 
 		#endregion
 	}

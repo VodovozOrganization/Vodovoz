@@ -852,18 +852,18 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		public virtual decimal GetPrice(decimal? itemsCount, bool isAlternativePrice = false)
+		public virtual decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
 		{
 			if(itemsCount < 1)
 				itemsCount = 1;
 			decimal price = 0m;
 			if(DependsOnNomenclature != null)
 			{
-				price = DependsOnNomenclature.GetPrice(itemsCount, isAlternativePrice);
+				price = DependsOnNomenclature.GetPrice(itemsCount, useAlternativePrice);
 			}
 			else
 			{
-				var nomPrice = (isAlternativePrice && AlternativeNomenclaturePrices.Any()
+				var nomPrice = (useAlternativePrice
 						? AlternativeNomenclaturePrices.Cast<NomenclaturePriceBase>()
 						: NomenclaturePrice.Cast<NomenclaturePriceBase>())
 					.OrderByDescending(p => p.MinCount)

@@ -3371,6 +3371,14 @@ namespace Vodovoz
 				foreach(var i in aIdx) {
 					OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
 
+					if(oItem?.CopiedFromUndelivery == null)
+					{
+						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : oItem.Count;
+						oItem.IsAlternativePrice = Entity.HasPermissionsForAlternativePrice
+						                           && oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
+						                           && oItem.GetWaterFixedPrice() == null;
+					}
+
 					FixPrice(aIdx[0]);
 
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
