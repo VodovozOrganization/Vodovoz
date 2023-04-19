@@ -26,7 +26,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private FastDeliveryIntervalFromEnum _fastDeliveryIntervalFrom;
 		private bool _isFastDeliveryOnly;
 
-		public CarsMonitoringInfoPanelView(IUnitOfWorkFactory unitOfWorkFactory)
+		public CarsMonitoringInfoPanelView(IUnitOfWorkFactory unitOfWorkFactory) : base()
 		{
 			if(unitOfWorkFactory is null)
 			{
@@ -205,6 +205,7 @@ namespace Vodovoz.SidePanel.InfoViews
 								$"{driver.Name.Substring(0, 1)}. " +
 								$"{driver.Patronymic.Substring(0, 1)}."
 							 let isFastDeliveryString = o.IsFastDelivery ? "Доставка за час" : string.Empty
+							 let deliveryBefore = rl.Date
 							 select new
 							 {
 								 DriverName = surnameWithInitials,
@@ -212,12 +213,15 @@ namespace Vodovoz.SidePanel.InfoViews
 								 CarNumber = car.RegistrationNumber,
 								 Address = $"{dp.Street} {dp.Building}{dp.Letter} {dp.Entrance}",
 								 DeliveryType = isFastDeliveryString,
-								 DeliveryBefore = rla.CreationDate.AddHours(1)
+								 DeliveryBefore = deliveryBefore
 							 };
 
-			var nodesToAdd = nodesQuery.ToList();
+			var nodesToAdd = nodesQuery
+				.ToList();
 
-			var nodeGroups = nodesToAdd.GroupBy(x => (x.DriverName, x.CarNumber, x.RouteListId));
+			var nodeGroups = nodesToAdd
+				.GroupBy(x => (x.DriverName, x.CarNumber, x.RouteListId))
+				.Where(group => !IsFastDeliveryOnly || group.Any(x => x.DeliveryType != string.Empty));
 
 			foreach(var group in nodeGroups)
 			{

@@ -307,8 +307,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		[PropertyChangedAlso(nameof(CoveragePercentString))]
 		public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
 			FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder).ToList(),
-			LastDriverPositions.ToList()
-			);
+			LastDriverPositions.ToList());
 
 		#endregion
 
@@ -348,6 +347,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public event Action WorkingDriversChanged;
 
 		public event Action RouteListAddressesChanged;
+
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 		#endregion
 
@@ -670,6 +670,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 
 			OnPropertyChanged(nameof(CoveragePercent));
+
+			CurrentObjectChanged?.Invoke(this, CurrentObjectChangedArgs.Empty);
 		}
 
 		private void RoutelistEntityConfigEntityUpdated(EntityChangeEvent[] changeEvents)
@@ -702,7 +704,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void OnDataChanged(object sender, EventArgs e)
 		{
-			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
+			CurrentObjectChanged?.Invoke(this, CurrentObjectChangedArgs.Empty);
 		}
 
 		#region IDisposable

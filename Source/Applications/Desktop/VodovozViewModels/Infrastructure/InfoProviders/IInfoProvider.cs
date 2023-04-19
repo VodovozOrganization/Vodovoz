@@ -12,11 +12,16 @@ namespace Vodovoz.SidePanel.InfoProviders
 
 	public class CurrentObjectChangedArgs : EventArgs
 	{
-		public object ChangedObject { get; set; }
+		private static CurrentObjectChangedArgs _s_empty => new CurrentObjectChangedArgs(null);
+
+		public object ChangedObject { get; }
+
 		public CurrentObjectChangedArgs(object obj)
 		{
-			this.ChangedObject = obj;
+			ChangedObject = obj;
 		}
+
+		public static new CurrentObjectChangedArgs Empty => _s_empty;
 	}
 }
 
