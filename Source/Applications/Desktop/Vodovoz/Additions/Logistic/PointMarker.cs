@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.Serialization;
 using GMap.NET;
 using GMap.NET.GtkSharp;
+using NHibernate.Util;
 
 namespace Vodovoz.Additions.Logistic
 {
@@ -73,6 +75,22 @@ namespace Vodovoz.Additions.Logistic
 			string iconPath = string.Join(".", Shape.ToString(), Type.ToString());
 			Bitmap = GetIcon(iconPath);
 			Size = new Size(Bitmap.Width, Bitmap.Height);
+
+			var logisticsRequirementsTypes = new List<PointMarkerType>()
+			{
+				PointMarkerType.logistics_requirements_forwarder,
+				PointMarkerType.logistics_requirements_documents,
+				PointMarkerType.logistics_requirements_nationality,
+				PointMarkerType.logistics_requirements_pass,
+				PointMarkerType.logistics_requirements_largus,
+				PointMarkerType.logistics_requirements_many
+			};
+
+			if(logisticsRequirementsTypes.Any(t => t == type))
+			{
+				Offset = new Point(Size.Width / 2 + 1, -Size.Height + 1);
+				return;
+			}
 
 			Offset = new Point(-Size.Width / 2, -Size.Height + 1);
 

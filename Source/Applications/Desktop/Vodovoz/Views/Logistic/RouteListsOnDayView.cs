@@ -47,6 +47,7 @@ namespace Vodovoz.Views.Logistic
 		private readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		private readonly GMapOverlay driverDistrictsOverlay = new GMapOverlay("driverDistricts");
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
+		private readonly GMapOverlay addressesLogisticsRequirementsOverlay = new GMapOverlay("addressesLogisticsRequirements");
 		private readonly GMapOverlay addressOverlapOverlay = new GMapOverlay("addressOverlaps");
 		private readonly GMapOverlay driverAddressesOverlay = new GMapOverlay("driverAddresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
@@ -81,6 +82,7 @@ namespace Vodovoz.Views.Logistic
 			gmapWidget.Overlays.Add(driverDistrictsOverlay);
 			gmapWidget.Overlays.Add(routeOverlay);
 			gmapWidget.Overlays.Add(addressesOverlay);
+			gmapWidget.Overlays.Add(addressesLogisticsRequirementsOverlay);
 			gmapWidget.Overlays.Add(addressOverlapOverlay);
 			gmapWidget.Overlays.Add(driverAddressesOverlay);
 			gmapWidget.Overlays.Add(selectionOverlay);
@@ -89,6 +91,8 @@ namespace Vodovoz.Views.Logistic
 			gmapWidget.ButtonPressEvent += GmapWidget_ButtonPressEvent;
 			gmapWidget.ButtonReleaseEvent += GmapWidget_ButtonReleaseEvent;
 			gmapWidget.MotionNotifyEvent += GmapWidget_MotionNotifyEvent;
+
+			addressesLogisticsRequirementsOverlay.IsVisibile = true;
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
@@ -488,6 +492,7 @@ namespace Vodovoz.Views.Logistic
 			totalBottlesCountAtDay = 0;
 			bottlesWithoutRL = 0;
 			addressesOverlay.Clear();
+			addressesLogisticsRequirementsOverlay.Clear();
 
 			//добавляем маркеры складов
 			foreach(var b in ViewModel.GeographicGroupsExceptEast)
@@ -537,8 +542,11 @@ namespace Vodovoz.Views.Logistic
 						type = PointMarkerType.white;
 
 					var addressMarker = FillAddressMarker(order, type, shape, addressesOverlay, route);
-
 					addressesOverlay.Markers.Add(addressMarker);
+
+					FillTypeAndShapeLogisticsRequrementsMarker(order, out PointMarkerShape shapeLogisticsRequrements, out PointMarkerType typeLogisticsRequrements);
+					var logisticsRequrementsMarker = FillAddressMarker(order, typeLogisticsRequrements, shapeLogisticsRequrements, addressesOverlay, route);
+					addressesLogisticsRequirementsOverlay.Markers.Add(logisticsRequrementsMarker);
 				}
 				else
 					addressesWithoutCoordinats++;
@@ -642,6 +650,19 @@ namespace Vodovoz.Views.Logistic
 
 			if (route != null)
 				type = ViewModel.GetAddressMarker(ViewModel.RoutesOnDay.IndexOf(route));
+		}
+
+		private void FillTypeAndShapeLogisticsRequrementsMarker(Order order, out PointMarkerShape shape, out PointMarkerType type)
+		{
+			if(order.LogisticsRequirements == null)
+			{
+				shape = PointMarkerShape.none; 
+				type = PointMarkerType.none;
+				return;
+			}
+
+			shape = PointMarkerShape.custom;
+			type = PointMarkerType.logistics_requirements_forwarder;
 		}
 
 		private PointMarker FillBaseMarker(GeoGroup geoGroup)

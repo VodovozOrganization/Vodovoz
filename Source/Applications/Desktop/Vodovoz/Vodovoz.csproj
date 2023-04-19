@@ -2407,6 +2407,14 @@
       <TargetPath>Reports\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_documents.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_forwarder.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_largus.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_many.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_nationality.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_pass.png" />
+  </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
