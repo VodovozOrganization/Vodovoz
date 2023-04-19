@@ -394,7 +394,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		private JournalAction GetManualSentAction()
 		{
-			var manualSentAction = new JournalAction("Отправить дубль принудительно",
+			var manualSentAction = new JournalAction("Отправить чек принудительно",
 				ManualSentActionSensitive,
 				(selected) => true,
 				ManualSent
