@@ -235,7 +235,8 @@ namespace Vodovoz.Views.Reports
 								|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsReport.TotalRow)
 								? $"<b>{row.DynamicColumns[index]}</b>"
 								: row.DynamicColumns[index],
-								useMarkup: true);
+								useMarkup: true)
+							.XAlign(1);
 					}
 				}
 
@@ -276,7 +277,8 @@ namespace Vodovoz.Views.Reports
 								|| row.GetType() == typeof(SalesBySubdivisionsAnalitycsWithDynamicsReport.TotalRow)
 								? $"<b>{row.DynamicColumns[index]}</b>"
 								: row.DynamicColumns[index],
-								useMarkup: true);
+								useMarkup: true)
+							.XAlign(1);
 					}
 				}
 
