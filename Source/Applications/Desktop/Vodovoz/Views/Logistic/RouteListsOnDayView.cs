@@ -654,15 +654,49 @@ namespace Vodovoz.Views.Logistic
 
 		private void FillTypeAndShapeLogisticsRequrementsMarker(Order order, out PointMarkerShape shape, out PointMarkerType type)
 		{
-			if(order.LogisticsRequirements == null)
+			shape = PointMarkerShape.none;
+			type = PointMarkerType.none;
+
+			if(order.LogisticsRequirements == null || order.LogisticsRequirements.SelectedRequirementsCount == 0)
 			{
-				shape = PointMarkerShape.none; 
-				type = PointMarkerType.none;
 				return;
 			}
 
 			shape = PointMarkerShape.custom;
-			type = PointMarkerType.logistics_requirements_forwarder;
+
+			var selectedRequrementsCount = order.LogisticsRequirements.SelectedRequirementsCount;
+
+			if(selectedRequrementsCount > 1)
+			{
+				type = PointMarkerType.logistics_requirements_many;
+				return;
+			}
+
+			if(order.LogisticsRequirements.ForwarderRequired)
+			{
+				type = PointMarkerType.logistics_requirements_forwarder;
+				return;
+			}
+			if(order.LogisticsRequirements.DocumentsRequired)
+			{
+				type = PointMarkerType.logistics_requirements_documents;
+				return;
+			}
+			if(order.LogisticsRequirements.RussianDriverRequired)
+			{
+				type = PointMarkerType.logistics_requirements_nationality;
+				return;
+			}
+			if(order.LogisticsRequirements.PassRequired)
+			{
+				type = PointMarkerType.logistics_requirements_pass;
+				return;
+			}
+			if(order.LogisticsRequirements.LargusRequired)
+			{
+				type = PointMarkerType.logistics_requirements_largus;
+				return;
+			}
 		}
 
 		private PointMarker FillBaseMarker(GeoGroup geoGroup)

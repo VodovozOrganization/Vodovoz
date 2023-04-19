@@ -88,7 +88,7 @@ namespace Vodovoz.Additions.Logistic
 
 			if(logisticsRequirementsTypes.Any(t => t == type))
 			{
-				Offset = new Point(Size.Width / 2 + 1, -Size.Height + 1);
+				Offset = new Point(Size.Width / 2 + 1, -Size.Height - 10);
 				return;
 			}
 

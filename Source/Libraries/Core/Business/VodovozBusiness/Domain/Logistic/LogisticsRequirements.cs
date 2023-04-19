@@ -39,14 +39,44 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _passRequired, value);
 		}
 
-		private bool _lagrusRequired;
+		private bool _largusRequired;
 		[Display(Name = "Требуется Ларгус (газель не проедет): \"Л\" на карте")]
-		public virtual bool LagrusRequired
+		public virtual bool LargusRequired
 		{
-			get => _lagrusRequired;
-			set => SetField(ref _lagrusRequired, value);
+			get => _largusRequired;
+			set => SetField(ref _largusRequired, value);
 		}
 
 		public virtual string Title => $"Требования к логистике";
+
+		public virtual int SelectedRequirementsCount => SelectedLogisticsRequirementsCount();
+
+		private int SelectedLogisticsRequirementsCount()
+		{
+			int selectedRequirementsCount = 0;
+
+			if(ForwarderRequired)
+			{
+				selectedRequirementsCount++;
+			}
+			if(DocumentsRequired)
+			{
+				selectedRequirementsCount++;
+			}
+			if(RussianDriverRequired)
+			{
+				selectedRequirementsCount++;
+			}
+			if(PassRequired)
+			{
+				selectedRequirementsCount++;
+			}
+			if(LargusRequired)
+			{
+				selectedRequirementsCount++;
+			}
+
+			return selectedRequirementsCount;
+		}
 	}
 }

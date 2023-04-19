@@ -982,7 +982,7 @@ namespace Vodovoz
 					DocumentsRequired = Counterparty.LogisticsRequirements.DocumentsRequired || DeliveryPoint.LogisticsRequirements.DocumentsRequired,
 					RussianDriverRequired = Counterparty.LogisticsRequirements.RussianDriverRequired || DeliveryPoint.LogisticsRequirements.RussianDriverRequired,
 					PassRequired = Counterparty.LogisticsRequirements.PassRequired || DeliveryPoint.LogisticsRequirements.PassRequired,
-					LagrusRequired = Counterparty.LogisticsRequirements.LagrusRequired || DeliveryPoint.LogisticsRequirements.LagrusRequired
+					LargusRequired = Counterparty.LogisticsRequirements.LargusRequired || DeliveryPoint.LogisticsRequirements.LargusRequired
 				};
 			}
 
@@ -994,7 +994,7 @@ namespace Vodovoz
 					DocumentsRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.DocumentsRequired || Entity.LogisticsRequirements.DocumentsRequired,
 					RussianDriverRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.RussianDriverRequired || Entity.LogisticsRequirements.RussianDriverRequired,
 					PassRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.PassRequired || Entity.LogisticsRequirements.PassRequired,
-					LagrusRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.LagrusRequired || Entity.LogisticsRequirements.LagrusRequired
+					LargusRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.LargusRequired || Entity.LogisticsRequirements.LargusRequired
 				};
 			}
 
@@ -1014,7 +1014,7 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel.Entity.DocumentsRequired = requirements.DocumentsRequired;
 			logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired= requirements.RussianDriverRequired;
 			logisticsRequirementsView.ViewModel.Entity.PassRequired = requirements.PassRequired;
-			logisticsRequirementsView.ViewModel.Entity.LagrusRequired = requirements.LagrusRequired;
+			logisticsRequirementsView.ViewModel.Entity.LargusRequired = requirements.LargusRequired;
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)

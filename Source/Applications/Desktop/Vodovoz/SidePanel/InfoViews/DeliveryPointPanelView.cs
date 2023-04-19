@@ -106,7 +106,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			logisticsRequirementsView.ViewModel.Entity.DocumentsRequired = requirements.DocumentsRequired;
 			logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired = requirements.RussianDriverRequired;
 			logisticsRequirementsView.ViewModel.Entity.PassRequired = requirements.PassRequired;
-			logisticsRequirementsView.ViewModel.Entity.LagrusRequired = requirements.LagrusRequired;
+			logisticsRequirementsView.ViewModel.Entity.LargusRequired = requirements.LargusRequired;
 		}
 
 		#region IPanelView implementation

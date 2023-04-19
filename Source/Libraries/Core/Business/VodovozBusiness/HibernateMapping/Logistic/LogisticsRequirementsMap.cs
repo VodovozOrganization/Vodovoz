@@ -15,7 +15,7 @@ namespace Vodovoz.HibernateMapping.Logistic
 			Map(x => x.DocumentsRequired).Column("documents_required");
 			Map(x => x.RussianDriverRequired).Column("russian_driver_required");
 			Map(x => x.PassRequired).Column("pass_required");
-			Map(x => x.LagrusRequired).Column("lagrus_required");
+			Map(x => x.LargusRequired).Column("lagrus_required");
 		}
 	}
 }

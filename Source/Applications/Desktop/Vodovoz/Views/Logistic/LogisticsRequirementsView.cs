@@ -22,7 +22,7 @@ namespace Vodovoz.Views.Logistic
 			ycheckbuttonDocuments.Binding.AddBinding(ViewModel.Entity, r => r.DocumentsRequired, w => w.Active).InitializeFromSource();
 			ycheckbuttonNationality.Binding.AddBinding(ViewModel.Entity, r => r.RussianDriverRequired, w => w.Active).InitializeFromSource();
 			ycheckbuttonPass.Binding.AddBinding(ViewModel.Entity, r => r.PassRequired, w => w.Active).InitializeFromSource();
-			ycheckbuttonLargus.Binding.AddBinding(ViewModel.Entity, r => r.LagrusRequired, w => w.Active).InitializeFromSource();
+			ycheckbuttonLargus.Binding.AddBinding(ViewModel.Entity, r => r.LargusRequired, w => w.Active).InitializeFromSource();
 		}
 	}
 }
