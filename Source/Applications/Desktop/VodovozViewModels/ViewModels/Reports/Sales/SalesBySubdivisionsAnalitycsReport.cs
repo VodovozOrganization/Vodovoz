@@ -381,8 +381,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				{
 					if(group.Key.NomenclatureId == nomenclatureId)
 					{
-						result[_subdivisionIndexes.IndexOf(group.Key.SubdivisionId) + 1].Amount = group.Sum(x => x.Amount);
-						result[_subdivisionIndexes.IndexOf(group.Key.SubdivisionId) + 1].Price = group.Sum(x => x.Price);
+						result[_subdivisionIndexes.IndexOf(group.Key.SubdivisionId)].Amount = group.Sum(x => x.Amount);
+						result[_subdivisionIndexes.IndexOf(group.Key.SubdivisionId)].Price = group.Sum(x => x.Price);
 					}
 				}
 
