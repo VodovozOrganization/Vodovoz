@@ -31,9 +31,11 @@ namespace Vodovoz.Models.TrueMark
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var cashReceipt = uow.GetById<CashReceipt>(receiptId);
-				if(cashReceipt.Status != CashReceiptStatus.DuplicateSum)
+				if(cashReceipt.Status != CashReceiptStatus.DuplicateSum
+					|| cashReceipt.Status != CashReceiptStatus.ReceiptNotNeeded)
 				{
-					throw new InvalidOperationException("Принудительная отправка чека возможна только если это чек дубль");
+					throw new InvalidOperationException(
+						"Принудительная отправка чека возможна если это чек дубль или чек не требуется");
 				}
 
 				cashReceipt.ManualSent = true;

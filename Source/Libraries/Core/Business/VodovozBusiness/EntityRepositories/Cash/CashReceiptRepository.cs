@@ -127,6 +127,31 @@ namespace Vodovoz.EntityRepositories.Cash
 				return result;
 			}
 		}
+		
+		/// <summary>
+		/// Получение Id доставляемых заказов, которые удовлетворяют условиям, но на них не были созданы чеки
+		/// (как вариант: заказ закрыт из программы ДВ, а не из водительского приложения)
+		/// </summary>
+		/// <returns>Id's заказов</returns>
+		public IEnumerable<int> GetDeliveryOrderIdsForCashReceipt()
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var query = uow.Session.QueryOver(() => _orderAlias)
+					.Inner.JoinAlias(() => _orderAlias.Client, () => _counterpartyAlias)
+					.Left.JoinAlias(() => _orderAlias.OrderItems, () => _orderItemAlias)
+					.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
+					.Where(GetMissingCashReceiptRestriction())
+					.And(GetPaymentTypeRestriction())
+					.And(GetPositiveSumRestriction())
+					.And(GetDeliveryDateRestriction())
+					.And(GetOrderStatusRestriction())
+					.And(() => !_orderAlias.SelfDelivery);
+
+				var result = query.Select(Projections.Id()).List<int>();
+				return result;
+			}
+		}
 
 		public IEnumerable<CashReceipt> GetCashReceiptsForSend(IUnitOfWork uow, int count)
 		{
@@ -345,6 +370,16 @@ namespace Vodovoz.EntityRepositories.Cash
 					.List<int>();
 				return result;
 			}
+		}
+		
+		public int GetCashReceiptsCountForOrder(IUnitOfWork uow, int orderId)
+		{
+			var result = uow.Session.QueryOver<CashReceipt>()
+				.Where(x => x.Order.Id == orderId)
+				.Select(Projections.Count(Projections.Id()))
+				.SingleOrDefault<int>();
+			
+			return result;
 		}
 	}
 }

@@ -8,17 +8,17 @@ namespace Vodovoz.Models.TrueMark
 	public class ReceiptsHandler
 	{
 		private readonly ReceiptPreparerFactory _receiptPreparerFactory;
-		private readonly SelfdeliveryReceiptCreatorFactory _selfdeliveryReceiptCreatorFactory;
+		private readonly OrderReceiptCreatorFactory _orderReceiptCreatorFactory;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 
 		public ReceiptsHandler(
 			ReceiptPreparerFactory receiptPreparerFactory,
-			SelfdeliveryReceiptCreatorFactory selfdeliveryReceiptCreatorFactory,
+			OrderReceiptCreatorFactory orderReceiptCreatorFactory,
 			ICashReceiptRepository cashReceiptRepository
 		)
 		{
 			_receiptPreparerFactory = receiptPreparerFactory ?? throw new ArgumentNullException(nameof(receiptPreparerFactory));
-			_selfdeliveryReceiptCreatorFactory = selfdeliveryReceiptCreatorFactory ?? throw new ArgumentNullException(nameof(selfdeliveryReceiptCreatorFactory));
+			_orderReceiptCreatorFactory = orderReceiptCreatorFactory ?? throw new ArgumentNullException(nameof(orderReceiptCreatorFactory));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 		}
 
@@ -34,12 +34,24 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
-		public async Task CreateSelfdeliveryReceiptsAsync(CancellationToken cancellationToken)
+		public async Task CreateSelfDeliveryReceiptsAsync(CancellationToken cancellationToken)
 		{
 			var orderIds = _cashReceiptRepository.GetSelfdeliveryOrderIdsForCashReceipt();
 			foreach(var orderId in orderIds)
 			{
-				using(var creator = _selfdeliveryReceiptCreatorFactory.Create(orderId))
+				using(var creator = _orderReceiptCreatorFactory.CreateSelfDeliveryReceiptCreator(orderId))
+				{
+					await creator.CreateReceiptAsync(cancellationToken);
+				}
+			}
+		}
+		
+		public async Task CreateDeliveryOrderReceiptsAsync(CancellationToken cancellationToken)
+		{
+			var orderIds = _cashReceiptRepository.GetDeliveryOrderIdsForCashReceipt();
+			foreach(var orderId in orderIds)
+			{
+				using(var creator = _orderReceiptCreatorFactory.CreateDeliveryOrderReceiptCreator(orderId))
 				{
 					await creator.CreateReceiptAsync(cancellationToken);
 				}

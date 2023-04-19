@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -6,9 +6,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.Factories;
 
 namespace Vodovoz.Models.TrueMark
 {
@@ -21,8 +23,10 @@ namespace Vodovoz.Models.TrueMark
 		private readonly TrueMarkCodesChecker _codeChecker;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
 		private readonly IOrganizationRepository _organizationRepository;
+		private readonly ICashReceiptFactory _cashReceiptFactory;
 		private readonly int _receiptId;
 		private IList<string> _ownersInn;
+		private IList<CashReceipt> _cashReceiptsToSave = new List<CashReceipt>();
 		private bool _disposed;
 
 		public ReceiptPreparer(
@@ -32,6 +36,7 @@ namespace Vodovoz.Models.TrueMark
 			TrueMarkCodesChecker codeChecker,
 			ICashReceiptRepository cashReceiptRepository,
 			IOrganizationRepository organizationRepository,
+			ICashReceiptFactory cashReceiptFactory,
 			int receiptId)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -40,6 +45,7 @@ namespace Vodovoz.Models.TrueMark
 			_codeChecker = codeChecker ?? throw new ArgumentNullException(nameof(codeChecker));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_cashReceiptFactory = cashReceiptFactory ?? throw new ArgumentNullException(nameof(cashReceiptFactory));
 
 			if(receiptId <= 0)
 			{
@@ -76,10 +82,15 @@ namespace Vodovoz.Models.TrueMark
 		private async Task PrepareReceipt(CancellationToken cancellationToken)
 		{
 			var receipt = _cashReceiptRepository.LoadReceipt(_uow, _receiptId);
+			_cashReceiptsToSave.Add(receipt);
 
 			await PrepareCodes(receipt, cancellationToken);
 
-			_uow.Save(receipt);
+			foreach(var cashReceipt in _cashReceiptsToSave)
+			{
+				_uow.Save(cashReceipt);
+			}
+			
 			_uow.Commit();
 			CommitPool();
 		}
@@ -89,15 +100,23 @@ namespace Vodovoz.Models.TrueMark
 			PrepareDefectiveCodes(receipt);
 
 			var receiptNeeded = _cashReceiptRepository.CashReceiptNeeded(_uow, receipt.Order.Id);
-			if(receiptNeeded)
+			if(receiptNeeded && !receipt.ManualSent)
 			{
-
 				await PrepareForFirstReceipt(receipt, cancellationToken);
+			}
+			else if(receipt.ManualSent)
+			{
+				await PrepareForReSendReceipt(receipt, cancellationToken);
 			}
 			else
 			{
 				await PrepareForReceiptNotNeeded(receipt, cancellationToken);
 			}
+		}
+
+		private async Task PrepareForReSendReceipt(CashReceipt receipt, CancellationToken cancellationToken)
+		{
+			await ProcessingReceiptBeforeSending(receipt, cancellationToken);
 		}
 
 		private async Task PrepareForReceiptNotNeeded(CashReceipt receipt, CancellationToken cancellationToken)
@@ -112,7 +131,6 @@ namespace Vodovoz.Models.TrueMark
 
 			receipt.Status = CashReceiptStatus.ReceiptNotNeeded;
 			receipt.ErrorDescription = null;
-			return;
 		}
 
 		private async Task PrepareForFirstReceiptIfReceiptNotNeeded(CashReceipt receipt, CancellationToken cancellationToken)
@@ -128,14 +146,15 @@ namespace Vodovoz.Models.TrueMark
 
 			receipt.Status = CashReceiptStatus.ReceiptNotNeeded;
 			receipt.ErrorDescription = null;
-			return;
 		}
 
 		private async Task PrepareForFirstReceipt(CashReceipt receipt, CancellationToken cancellationToken)
 		{
 			var orderSum = receipt.Order.OrderPositiveOriginalSum;
-			var hasReceiptBySum = _cashReceiptRepository.HasReceiptBySum(DateTime.Today, orderSum);
-			if(hasReceiptBySum && !receipt.ManualSent)
+			//не проверяем дубли по сумме у чеков под заказы  с 128+ позиций
+			var hasReceiptBySum = !receipt.InnerNumber.HasValue && _cashReceiptRepository.HasReceiptBySum(DateTime.Today, orderSum);
+			
+			if(hasReceiptBySum)
 			{
 				TryPutCodesToPool(receipt);
 
@@ -143,17 +162,15 @@ namespace Vodovoz.Models.TrueMark
 				receipt.ErrorDescription = null;
 				return;
 			}
-			else
-			{
-				receipt.Sum = orderSum;
-				await PrepareForReadyToSend(receipt, cancellationToken);
-			}
+
+			await ProcessingReceiptBeforeSending(receipt, cancellationToken);
 		}
 
 		private async Task PrepareForReadyToSend(CashReceipt receipt, CancellationToken cancellationToken)
 		{
 			var order = receipt.Order;
-			if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown)
+			if(order.Client.ReasonForLeaving == ReasonForLeaving.Unknown
+				&& order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark))
 			{
 				throw new TrueMarkException($"Невозможно обработать заказ {order.Id}. Неизвестная причина отпуска товара.");
 			}
@@ -161,7 +178,7 @@ namespace Vodovoz.Models.TrueMark
 			var codes = receipt.ScannedCodes.Where(x => !x.IsDefectiveSourceCode);
 
 			//valid codes
-			var validCodes = codes.Where(x => x.IsValid);
+			var validCodes = codes.Where(x => x.IsValid).ToList();
 			var checkResults = await _codeChecker.CheckCodesAsync(validCodes, cancellationToken);
 			foreach(var checkResult in checkResults)
 			{
@@ -185,21 +202,10 @@ namespace Vodovoz.Models.TrueMark
 
 					code.ResultCode = GetCodeFromPool(code.OrderItem.Nomenclature.Gtin);
 				}
-
-				_uow.Save(code);
 			}
 
 			//invalid codes
-			var invalidCodes = codes.Where(x => !x.IsValid);
-			foreach(var invalidCode in invalidCodes)
-			{
-				if(invalidCode.ResultCode != null)
-				{
-					_codesPool.PutCode(invalidCode.ResultCode.Id);
-				}
-
-				invalidCode.ResultCode = GetCodeFromPool(invalidCode.OrderItem.Nomenclature.Gtin);
-			}
+			ProcessingInvalidCodes(receipt, codes, validCodes.Count);
 
 			//unscanned codes
 			PrepareUnscannedAndExtraScannedCodes(receipt);
@@ -207,6 +213,49 @@ namespace Vodovoz.Models.TrueMark
 			//states
 			receipt.Status = CashReceiptStatus.ReadyToSend;
 			receipt.ErrorDescription = null;
+		}
+
+		private void ProcessingInvalidCodes(CashReceipt receipt, IEnumerable<CashReceiptProductCode> codes, int validCodesCount)
+		{
+			var invalidCodes = codes.Where(x => !x.IsValid).ToList();
+			var receiptCodesCount = validCodesCount + invalidCodes.Count;
+			var startNumber = CashReceipt.MaxMarkCodesInReceipt - validCodesCount;
+			var startCode = startNumber < 0 ? 0 : startNumber;
+
+			//Если у чека количество кодов превышает норму - обновляем те, которые входят в 128, остальное отправляем в пул
+			if(receiptCodesCount > CashReceipt.MaxMarkCodesInReceipt)
+			{
+				for(var i = 0; i < invalidCodes.Count; i++)
+				{
+					if(i < startCode)
+					{
+						if(invalidCodes[i].ResultCode != null)
+						{
+							_codesPool.PutCode(invalidCodes[i].ResultCode.Id);
+						}
+						invalidCodes[i].ResultCode = GetCodeFromPool(invalidCodes[i].OrderItem.Nomenclature.Gtin);
+					}
+					else
+					{
+						if(invalidCodes[i].ResultCode != null)
+						{
+							_codesPool.PutCode(invalidCodes[i].ResultCode.Id);
+						}
+						receipt.ScannedCodes.Remove(invalidCodes[i]);
+					}
+				}
+			}
+			else
+			{
+				foreach(var invalidCode in invalidCodes)
+				{
+					if(invalidCode.ResultCode != null)
+					{
+						_codesPool.PutCode(invalidCode.ResultCode.Id);
+					}
+					invalidCode.ResultCode = GetCodeFromPool(invalidCode.OrderItem.Nomenclature.Gtin);
+				}
+			}
 		}
 
 		private void TryPutCodesToPool(CashReceipt receipt)
@@ -249,11 +298,31 @@ namespace Vodovoz.Models.TrueMark
 
 		private void PrepareUnscannedAndExtraScannedCodes(CashReceipt receipt)
 		{
-			var orderItems = receipt.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark);
-			foreach(var orderItem in orderItems)
+			var markedOrderItems = receipt.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).ToList();
+			var markedOrderItemsCount = markedOrderItems.Sum(x => x.Count);
+			var codesToSkip = (CashReceipt.MaxMarkCodesInReceipt * receipt.InnerNumber ?? 0) - CashReceipt.MaxMarkCodesInReceipt;
+
+			if(markedOrderItemsCount > CashReceipt.MaxMarkCodesInReceipt && !receipt.InnerNumber.HasValue)
 			{
-				var codes = receipt.ScannedCodes.Where(x => x.OrderItem.Id == orderItem.Id);
-				var unscannedCodesCount = orderItem.Count - codes.Count();
+				throw new TrueMarkException($"Невозможно обработать коды по чеку {receipt.Id}. Не указан порядковый номер чека");
+			}
+			
+			if(markedOrderItemsCount <= CashReceipt.MaxMarkCodesInReceipt)
+			{
+				PrepareUnscannedAndExtraScannedCodes(receipt, markedOrderItems);
+			}
+			else
+			{
+				PrepareUnscannedAndExtraScannedCodes(receipt, markedOrderItems, codesToSkip);
+			}
+		}
+
+		private void PrepareUnscannedAndExtraScannedCodes(CashReceipt receipt, IList<OrderItem> markedOrderItems)
+		{
+			foreach(var orderItem in markedOrderItems)
+			{
+				var codes = receipt.ScannedCodes.Where(x => x.OrderItem.Id == orderItem.Id).ToList();
+				var unscannedCodesCount = orderItem.Count - codes.Count;
 				if(unscannedCodesCount == 0)
 				{
 					continue;
@@ -262,34 +331,77 @@ namespace Vodovoz.Models.TrueMark
 				//Extra scanned codes
 				if(unscannedCodesCount < 0)
 				{
-					var extraCodes = codes.Skip((int)orderItem.Count);
-					foreach(var extraCode in extraCodes.ToList())
-					{
-						if(!extraCode.IsValid)
-						{
-							continue;
-						}
-
-						_codesPool.PutCode(extraCode.SourceCode.Id);
-						receipt.ScannedCodes.Remove(extraCode);
-						_uow.Delete(extraCode);
-					}
-
+					PutValidSourceCodesToPoolAndRemoveFromReceipt(codes.Skip((int)orderItem.Count).ToList(), receipt);
 					continue;
 				}
 
 				//Unscanned codes
 				for(int i = 0; i < unscannedCodesCount; i++)
 				{
-					var newCode = new CashReceiptProductCode();
-					newCode.CashReceipt = receipt;
-					newCode.OrderItem = orderItem;
-					newCode.IsUnscannedSourceCode = true;
-					newCode.ResultCode = GetCodeFromPool(orderItem.Nomenclature.Gtin);
-
-					_uow.Save(newCode);
-					receipt.ScannedCodes.Add(newCode);
+					AddCodeToReceipt(receipt, orderItem);
 				}
+			}
+		}
+
+		private void PrepareUnscannedAndExtraScannedCodes(CashReceipt receipt, IList<OrderItem> markedOrderItems, int codesToSkip)
+		{
+			var unprocessedCodesCount = CashReceipt.MaxMarkCodesInReceipt;
+			
+			foreach(var orderItem in markedOrderItems)
+			{
+				var orderItemCount = (int)orderItem.Count;
+
+				if(codesToSkip > 0)
+				{
+					if(codesToSkip > orderItemCount)
+					{
+						codesToSkip -= orderItemCount;
+						continue;
+					}
+
+					if(codesToSkip == orderItemCount)
+					{
+						codesToSkip = 0;
+						continue;
+					}
+
+					if(codesToSkip < orderItemCount)
+					{
+						orderItemCount -= codesToSkip;
+						codesToSkip = 0;
+					}
+				}
+				
+				if(unprocessedCodesCount <= 0)
+				{
+					break;
+				}
+				
+				var codes = receipt.ScannedCodes.Where(x => x.OrderItem.Id == orderItem.Id);
+				var needCodes = orderItemCount <= unprocessedCodesCount ? orderItemCount : unprocessedCodesCount;
+				var unscannedCodesCount = needCodes - codes.Count();
+
+				if(unscannedCodesCount == 0)
+				{
+					unprocessedCodesCount -= needCodes;
+					continue;
+				}
+
+				//Extra scanned codes
+				if(unscannedCodesCount < 0)
+				{
+					PutValidSourceCodesToPoolAndRemoveFromReceipt(codes.Skip(needCodes).ToList(), receipt);
+					unprocessedCodesCount -= needCodes;
+					continue;
+				}
+
+				//Unscanned codes
+				for(var i = 0; i < unscannedCodesCount; i++)
+				{
+					AddCodeToReceipt(receipt, orderItem);
+				}
+				
+				unprocessedCodesCount -= needCodes;
 			}
 		}
 
@@ -310,6 +422,104 @@ namespace Vodovoz.Models.TrueMark
 		{
 			var codeId = _codesPool.TakeCode(gtin);
 			return _uow.GetById<TrueMarkWaterIdentificationCode>(codeId);
+		}
+
+		private bool CheckNeedCreateMoreReceiptsForOrder(Order order, out decimal countReceiptsNeeded)
+		{
+			var countMarkedNomenclatures = order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count);
+			countReceiptsNeeded = Math.Ceiling(countMarkedNomenclatures / CashReceipt.MaxMarkCodesInReceipt);
+			var countReceiptsForOrder = _cashReceiptRepository.GetCashReceiptsCountForOrder(_uow, order.Id);
+			
+			return countReceiptsNeeded > countReceiptsForOrder;
+		}
+		
+		private void CreateReceipts(Order order, decimal countReceiptsNeeded)
+		{
+			for(var i = 1; i < countReceiptsNeeded; i++)
+			{
+				var receipt = _cashReceiptFactory.CreateNewCashReceipt(order);
+				receipt.InnerNumber = i + 1;
+				_cashReceiptsToSave.Add(receipt);
+			}
+		}
+
+		private decimal GetOrderSum(CashReceipt receipt)
+		{
+			var cashReceiptSum = 0m;
+			var maxCodesCount = CashReceipt.MaxMarkCodesInReceipt;
+			var receiptNumber = receipt.InnerNumber ?? 0;
+			var unprocessedCodesCount = CashReceipt.MaxMarkCodesInReceipt * receiptNumber;
+			
+			foreach(var orderItem in receipt.Order.OrderItems)
+			{
+				if(orderItem.Count <= 0)
+				{
+					continue;
+				}
+
+				if(!orderItem.Nomenclature.IsAccountableInTrueMark && receiptNumber == 1)
+				{
+					cashReceiptSum += orderItem.Sum;
+					continue;
+				}
+				
+				if(unprocessedCodesCount == 0)
+				{
+					continue;
+				}
+				
+				if(orderItem.Count == 1)
+				{
+					if(unprocessedCodesCount > maxCodesCount)
+					{
+						unprocessedCodesCount -= 1;
+						continue;
+					}
+					
+					cashReceiptSum += orderItem.Sum;
+					unprocessedCodesCount -= 1;
+					continue;
+				}
+
+				var orderItemCountWithoutLast = orderItem.Count - 1;
+				var partDiscount = Math.Round(orderItem.DiscountMoney / orderItem.Count, 1);
+				var lastPartDiscount = Math.Round(orderItem.DiscountMoney - (orderItemCountWithoutLast * partDiscount), 2);
+
+				for(var i = 0; i < orderItem.Count; i++)
+				{
+					if(unprocessedCodesCount > maxCodesCount)
+					{
+						unprocessedCodesCount -= 1;
+						continue;
+					}
+					if(unprocessedCodesCount == 0)
+					{
+						break;
+					}
+
+					var discount = i == orderItemCountWithoutLast ? lastPartDiscount : partDiscount;
+					cashReceiptSum += orderItem.Price - discount;
+					unprocessedCodesCount -= 1;
+				}
+			}
+
+			return cashReceiptSum;
+		}
+		
+		private async Task ProcessingReceiptBeforeSending(CashReceipt receipt, CancellationToken cancellationToken)
+		{
+			var needMoreReceipts = CheckNeedCreateMoreReceiptsForOrder(receipt.Order, out var countReceiptsNeeded);
+			if(needMoreReceipts)
+			{
+				receipt.InnerNumber = 1;
+				CreateReceipts(receipt.Order, countReceiptsNeeded);
+			}
+
+			foreach(var cashReceipt in _cashReceiptsToSave)
+			{
+				cashReceipt.Sum = cashReceipt.InnerNumber.HasValue ? GetOrderSum(cashReceipt) : cashReceipt.Order.OrderPositiveOriginalSum;
+				await PrepareForReadyToSend(cashReceipt, cancellationToken);
+			}
 		}
 
 		private void CommitPool()
@@ -349,6 +559,33 @@ namespace Vodovoz.Models.TrueMark
 				uow.Save(trueMarkOrder);
 				uow.Commit();
 			}
+		}
+
+		private void PutValidSourceCodesToPoolAndRemoveFromReceipt(IEnumerable<CashReceiptProductCode> codes, CashReceipt receipt)
+		{
+			foreach(var code in codes)
+			{
+				if(!code.IsValid)
+				{
+					continue;
+				}
+
+				_codesPool.PutCode(code.SourceCode.Id);
+				receipt.ScannedCodes.Remove(code);
+			}
+		}
+		
+		private void AddCodeToReceipt(CashReceipt receipt, OrderItem orderItem)
+		{
+			var newCode = new CashReceiptProductCode
+			{
+				CashReceipt = receipt,
+				OrderItem = orderItem,
+				IsUnscannedSourceCode = true,
+				ResultCode = GetCodeFromPool(orderItem.Nomenclature.Gtin)
+			};
+
+			receipt.ScannedCodes.Add(newCode);
 		}
 
 		public void Dispose()

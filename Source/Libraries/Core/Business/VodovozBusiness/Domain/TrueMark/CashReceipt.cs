@@ -1,5 +1,4 @@
-﻿using NPOI.SS.Formula.Functions;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -31,6 +30,7 @@ namespace Vodovoz.Domain.TrueMark
 		private bool _manualSent;
 		private string _contact;
 		private bool _withoutMarks;
+		private int? _innerNumber;
 		private IList<CashReceiptProductCode> _scannedCodes = new List<CashReceiptProductCode>();
 		private GenericObservableList<CashReceiptProductCode> _observableScannedCodes;
 
@@ -133,6 +133,13 @@ namespace Vodovoz.Domain.TrueMark
 			get => _withoutMarks;
 			set => SetField(ref _withoutMarks, value);
 		}
+		
+		[Display(Name = "Порядковый номер чека")]
+		public virtual int? InnerNumber
+		{
+			get => _innerNumber;
+			set => SetField(ref _innerNumber, value);
+		}
 
 		[Display(Name = "Отсканированные коды")]
 		public virtual IList<CashReceiptProductCode> ScannedCodes
@@ -155,11 +162,13 @@ namespace Vodovoz.Domain.TrueMark
 			}
 		}
 
-		public static string GetDocumentId(int orderId)
+		public static string GetDocumentId(int orderId, int? innerNumber)
 		{
-			return $"vod_{orderId}";
+			return innerNumber is null ? $"vod_{orderId}" : $"vod_{orderId}_{innerNumber}";
 		}
 
-		public virtual string DocumentId => GetDocumentId(Order.Id);
+		public virtual string DocumentId => GetDocumentId(Order.Id, InnerNumber);
+
+		public static int MaxMarkCodesInReceipt => 128;
 	}
 }
