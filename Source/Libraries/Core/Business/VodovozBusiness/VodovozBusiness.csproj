@@ -611,6 +611,7 @@
     <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
     <Compile Include="Models\INomenclaturePurchasePriceModel.cs" />
+    <Compile Include="Models\IRouteListDailyNumberProvider.cs" />
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
     <Compile Include="Models\NomenclatureCostPriceModel.cs" />
     <Compile Include="Models\NomenclatureGroupPricingModel.cs" />
@@ -627,6 +628,7 @@
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
+    <Compile Include="Models\RouteListDailyNumberProvider.cs" />
     <Compile Include="Models\TrueMark\FiscalDocumentRefresher.cs" />
     <Compile Include="Models\TrueMark\FiscalizationResultSaver.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkOrderItemScannedInfo.cs" />
