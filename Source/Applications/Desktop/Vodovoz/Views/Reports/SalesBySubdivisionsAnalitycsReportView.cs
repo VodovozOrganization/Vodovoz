@@ -116,7 +116,7 @@ namespace Vodovoz.Views.Reports
 				}
 				catch(Exception ex)
 				{
-					//Application.Invoke((s, eventArgs) => { throw ex; });
+					Application.Invoke((s, eventArgs) => { throw ex; });
 				}
 				finally
 				{
