@@ -419,7 +419,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				{
 					if(group.Key.NomenclatureId == nomenclatureId)
 					{
-						result[_warehouseIndexes.IndexOf(group.Key.WarehouseId) + 1] = group.Sum(x => x.Residue);
+						result[_warehouseIndexes.IndexOf(group.Key.WarehouseId)] = group.Sum(x => x.Residue);
 					}
 				}
 
