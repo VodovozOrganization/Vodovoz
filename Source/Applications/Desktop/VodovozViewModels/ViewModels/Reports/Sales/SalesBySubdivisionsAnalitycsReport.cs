@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 					Warehouses.Add(warehouse);
 				}
 
-				_warehouseIndexes = warehouses.Keys.ToList();
+				_warehouseIndexes = Warehouses.Keys.ToList();
 
 				warehousesList.AddRange(Warehouses.Values);
 			}
