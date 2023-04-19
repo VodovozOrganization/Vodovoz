@@ -223,9 +223,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 					if(SplitBySubdivisions)
 					{
-						for(int i = 1; i < Subdivisions.Count; i++)
+						for(int i = 1; i < _subdivisionIndexes.Count; i++)
 						{
-							var currentSubdivisionId = _subdivisionIndexes[i - 1];
+							var currentSubdivisionId = _subdivisionIndexes[i];
 
 							subTotalRow.SalesBySubdivision[i].FirstPeriodAmount =
 								_firstPeriodSales
@@ -310,29 +310,29 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 				if(SplitBySubdivisions)
 				{
-					for(int i = 1; i < Subdivisions.Count; i++)
+					for(int i = 1; i < _subdivisionIndexes.Count; i++)
 					{
 						nomanclatureRow.SalesBySubdivision[i].FirstPeriodAmount =
 							_firstPeriodSales
-								.Where(x => x.SubdivisionId == _subdivisionIndexes[i - 1]
+								.Where(x => x.SubdivisionId == _subdivisionIndexes[i]
 									&& x.NomenclatureId == nomanclatureId)
 								.Sum(x => x.Amount);
 
 						nomanclatureRow.SalesBySubdivision[i].FirstPeriodPrice =
 							_firstPeriodSales
-								.Where(x => x.SubdivisionId == _subdivisionIndexes[i - 1]
+								.Where(x => x.SubdivisionId == _subdivisionIndexes[i]
 									&& x.NomenclatureId == nomanclatureId)
 								.Sum(x => x.Price);
 
 						nomanclatureRow.SalesBySubdivision[i].SecondPeriodAmount =
 							_secondPeriodSales
-								.Where(x => x.SubdivisionId == _subdivisionIndexes[i - 1]
+								.Where(x => x.SubdivisionId == _subdivisionIndexes[i]
 									&& x.NomenclatureId == nomanclatureId)
 								.Sum(x => x.Amount);
 
 						nomanclatureRow.SalesBySubdivision[i].SecondPeriodPrice =
 							_secondPeriodSales
-								.Where(x => x.SubdivisionId == _subdivisionIndexes[i - 1]
+								.Where(x => x.SubdivisionId == _subdivisionIndexes[i]
 									&& x.NomenclatureId == nomanclatureId)
 								.Sum(x => x.Price);
 					}

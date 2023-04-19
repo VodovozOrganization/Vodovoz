@@ -270,14 +270,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				{
 					result.NomenclatureRows = Enumerable.Empty<Row>().ToList();
 
-					for(int i = 0; i < _subdivisionIndexes.Count; i++)
+					for(int i = 1; i < _subdivisionIndexes.Count; i++)
 					{
-						result.SalesBySubdivision[i + 1].Amount =
+						result.SalesBySubdivision[i].Amount =
 							_sales
 								.Where(x => x.SubdivisionId == _subdivisionIndexes[i]
 									&& x.ProductGroupId == productGroupId)
 								.Sum(x => x.Amount);
-						result.SalesBySubdivision[i + 1].Price =
+						result.SalesBySubdivision[i].Price =
 							_sales
 								.Where(x => x.SubdivisionId == _subdivisionIndexes[i]
 									&& x.ProductGroupId == productGroupId)
@@ -305,9 +305,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				{
 					if(SplitByWarehouses)
 					{
-						for(int i = 0; i < _warehouseIndexes.Count; i++)
+						for(int i = 1; i < _warehouseIndexes.Count; i++)
 						{
-							result.ResiduesByWarehouse[i + 1] =
+							result.ResiduesByWarehouse[i] =
 								_residues
 									.Where(x => x.Key.WarehouseId == _warehouseIndexes[i]
 										&& _productGroupNomenclatures.ContainsKey(productGroupId)
@@ -509,8 +509,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 				if(splitByWarehouses)
 				{
-					warehouses = await getGetWarehousesFunc(
-						residueDataNodes.Where(x => dataNodes.Any(y => y.NomenclatureId == x.NomenclatureId)).Select(x => x.WarehouseId).Distinct());
+					warehouses = await getGetWarehousesFunc(warehousesIds);
 				}
 			}
 			else
@@ -536,7 +535,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 
 			if(splitBySubdivisions)
 			{
-				subdivisions = await getGetSubdivisionsFunc(dataNodes.Select(x => x.SubdivisionId).Distinct());
+				subdivisions = await getGetSubdivisionsFunc(subdivisionsIds);
 			}
 			else
 			{

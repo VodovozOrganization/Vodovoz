@@ -483,7 +483,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		{
 			if(warehouseIds is null || warehouseIds.Count() == 0)
 			{
-				return ImmutableDictionary<int, string>.Empty;
+				return new Dictionary<int, string>();
 			}
 
 			var query = from warehouse in UoW.Session.Query<Warehouse>()
@@ -499,7 +499,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		{
 			if(nomenclatureIds is null || nomenclatureIds.Count() == 0)
 			{
-				return ImmutableDictionary<int, string>.Empty;
+				return new Dictionary<int, string>();
 			}
 
 			var query = from nomenclature in UoW.Session.Query<Nomenclature>()
@@ -515,7 +515,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		{
 			if(productGroupIds is null || productGroupIds.Count() == 0)
 			{
-				return ImmutableDictionary<int, string>.Empty;
+				return new Dictionary<int, string>();
 			}
 
 			var query = from productGroup in UoW.Session.Query<ProductGroup>()
@@ -531,7 +531,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 		{
 			if(subdivisionIds is null || subdivisionIds.Count() == 0)
 			{
-				return ImmutableDictionary<int, string>.Empty;
+				return new Dictionary<int, string>();
 			}
 
 			var query = from subdivision in UoW.Session.Query<Subdivision>()

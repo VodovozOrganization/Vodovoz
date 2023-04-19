@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,6 +53,10 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Domain\Employees\IconsSize.cs" />
+    <Compile Include="Domain\Employees\ToolBarIconsSizeStringType.cs" />
+    <Compile Include="Domain\Employees\ToolbarStyle.cs" />
+    <Compile Include="Domain\Employees\ToolbarStyleStringType.cs" />
     <Compile Include="Domain\Client\ContractType.cs" />
     <Compile Include="Domain\Client\ContractTypeStringType.cs" />
     <Compile Include="Domain\Goods\AlternativeNomenclaturePrice.cs" />
