@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Logistic
 	{
 		public LogisticsRequirementsMap()
 		{
-			Table("logistics_requirement");
+			Table("logistics_requirements");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
