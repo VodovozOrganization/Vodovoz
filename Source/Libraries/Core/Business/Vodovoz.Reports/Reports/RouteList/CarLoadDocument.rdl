@@ -137,11 +137,7 @@ ORDER BY clmn_for_sorting;</CommandText>
     cm.name AS model,
     cars.reg_number AS reg_number,
     q.daily_number,
-    (SELECT IFNULL(COUNT(o.id), 0) &gt; 0
-    	FROM route_list_addresses rla
-    	INNER JOIN orders o on o.id = rla.order_id
-    	WHERE o.is_fast_delivery AND rla.route_list_id  = route_lists.id
-    ) as has_fast_delivery
+    route_lists.additional_loading_document_id IS NOT NULL as has_fast_delivery
 FROM
     route_lists
     LEFT JOIN
@@ -2188,7 +2184,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           <BorderWidth />
         </Style>
       </Textbox>
-      <Table Name="Table3" >
+      <Table Name="Table3">
         <DataSetName>Doc</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>

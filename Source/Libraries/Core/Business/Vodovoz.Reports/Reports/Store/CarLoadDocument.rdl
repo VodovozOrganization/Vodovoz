@@ -75,7 +75,7 @@ ORDER BY clmn_for_sorting;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id AS route_list_id,
@@ -100,11 +100,7 @@ ORDER BY clmn_for_sorting;</CommandText>
     cars.reg_number AS reg_number,
     scld.id AS car_load_document_id,
     q.daily_number,
-    (SELECT IFNULL(COUNT(o.id), 0) &gt; 0
-    	FROM route_list_addresses rla
-    	INNER JOIN orders o on o.id = rla.order_id
-    	WHERE o.is_fast_delivery AND rla.route_list_id  = route_lists.id
-    ) as has_fast_delivery
+    route_lists.additional_loading_document_id IS NOT NULL as has_fast_delivery
 FROM
     route_lists
     LEFT JOIN
@@ -130,7 +126,7 @@ LIMIT 1
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2524,10 +2520,10 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Style>
           <BorderStyle>
             <Default>None</Default>
-            <Left >None</Left>
-            <Right >None</Right>
-            <Top >None</Top>
-            <Bottom >None</Bottom>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
@@ -2550,10 +2546,10 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
