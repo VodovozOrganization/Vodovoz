@@ -15,9 +15,16 @@ using Action = System.Action;
 namespace Vodovoz.SidePanel.InfoViews
 {
 	[ToolboxItem(true)]
-	public partial class CarsMonitoringInfoPanelView : Gtk.Bin, IPanelView, INotifyPropertyChanged, IDisposable
+	public partial class CarsMonitoringInfoPanelView : Bin, IPanelView, INotifyPropertyChanged, IDisposable
 	{
+		private const string _radioButtonPrefix = "yrbtn";
+		private const string _groupFilterOrdersPrefix = "FilterOrders";
+		private const string _groupFastDeliveryIntervalFromPrefix = "FastDeliveryIntervalFrom";
+
 		private readonly IUnitOfWork _unitOfWork;
+		private FilterOrdersEnum _filterOrders;
+		private FastDeliveryIntervalFromEnum _fastDeliveryIntervalFrom;
+		private bool _isFastDeliveryOnly;
 
 		public CarsMonitoringInfoPanelView(IUnitOfWorkFactory unitOfWorkFactory)
 		{
@@ -30,6 +37,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			_unitOfWork.Session.DefaultReadOnly = true;
 
 			Nodes = new ObservableCollection<FastDeliveryMonitoringNode>();
+
+			SetDefaults();
 
 			Build();
 
@@ -46,6 +55,100 @@ namespace Vodovoz.SidePanel.InfoViews
 			NodesChanged += ytvAddressesInProcess.YTreeModel.EmitModelChanged;
 
 			buttonRefresh.Clicked += OnButtonRefreshClicked;
+
+			ycheckbuttonIsFastDeliveryOnly.Binding
+				.AddBinding(this, v => v.IsFastDeliveryOnly, w => w.Active)
+				.InitializeFromSource();
+
+			foreach(RadioButton button in yrbtnFilterOrdersAll.Group)
+			{
+				if(button.Active)
+				{
+					FilterOrdersGroupSelectionChanged(button, EventArgs.Empty);
+				}
+
+				button.Toggled += FilterOrdersGroupSelectionChanged;
+			}
+
+			foreach(RadioButton button in yrbtnFastDeliveryIntervalFromOrderCreated.Group)
+			{
+				if(button.Active)
+				{
+					FastDeliveryIntervalFromSelectionChanged(button, EventArgs.Empty);
+				}
+
+				button.Toggled += FastDeliveryIntervalFromSelectionChanged;
+			}
+		}
+
+		private void FastDeliveryIntervalFromSelectionChanged(object sender, EventArgs empty)
+		{
+			if(sender is RadioButton rbtn && rbtn.Active)
+			{
+				var trimmedName = rbtn.Name
+					.Replace(_radioButtonPrefix, string.Empty)
+					.Replace(_groupFastDeliveryIntervalFromPrefix, string.Empty);
+
+				FastDeliveryIntervalFrom = (FastDeliveryIntervalFromEnum)Enum.Parse(typeof(FastDeliveryIntervalFromEnum), trimmedName);
+			}
+		}
+
+		private void FilterOrdersGroupSelectionChanged(object sender, EventArgs e)
+		{
+			if(sender is RadioButton rbtn && rbtn.Active)
+			{
+				var trimmedName = rbtn.Name
+					.Replace(_radioButtonPrefix, string.Empty)
+					.Replace(_groupFilterOrdersPrefix, string.Empty);
+
+				FilterOrders = (FilterOrdersEnum)Enum.Parse(typeof(FilterOrdersEnum), trimmedName);
+			}
+		}
+
+		private void SetDefaults()
+		{
+			IsFastDeliveryOnly = true;
+			FilterOrders = FilterOrdersEnum.All;
+			FastDeliveryIntervalFrom = FastDeliveryIntervalFromEnum.OrderCreated;
+		}
+
+		public FilterOrdersEnum FilterOrders
+		{
+			get => _filterOrders;
+			set
+			{
+				if(_filterOrders != value)
+				{
+					_filterOrders = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FilterOrders)));
+				}
+			}
+		}
+
+		public bool IsFastDeliveryOnly
+		{
+			get => _isFastDeliveryOnly;
+			set
+			{
+				if(_isFastDeliveryOnly != value)
+				{
+					_isFastDeliveryOnly = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsFastDeliveryOnly)));
+				}
+			}
+		}
+
+		public FastDeliveryIntervalFromEnum FastDeliveryIntervalFrom
+		{
+			get => _fastDeliveryIntervalFrom;
+			set
+			{
+				if(_fastDeliveryIntervalFrom != value)
+				{
+					_fastDeliveryIntervalFrom = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FastDeliveryIntervalFrom)));
+				}
+			}
 		}
 
 		private void OnButtonRefreshClicked(object sender, EventArgs e)
@@ -94,7 +197,9 @@ namespace Vodovoz.SidePanel.InfoViews
 							 on rl.Car.Id equals car.Id
 							 where rl.Status == RouteListStatus.EnRoute
 								&& rla.Status == RouteListItemStatus.EnRoute
-								&& o.IsFastDelivery
+								&& (FilterOrders == FilterOrdersEnum.All
+									|| (FilterOrders == FilterOrdersEnum.WithFastDelivery && o.IsFastDelivery)
+									|| (FilterOrders == FilterOrdersEnum.WithoutFastDelivery && !o.IsFastDelivery))
 							 let surnameWithInitials =
 								$"{driver.LastName} " +
 								$"{driver.Name.Substring(0, 1)}. " +
@@ -131,11 +236,11 @@ namespace Vodovoz.SidePanel.InfoViews
 
 					var timeElapsedFormated = timeElapsed.ToString(spanFormat);
 
-					var timeElapsedString = timeElapsed.TotalMinutes < 20
+					var timeElapsedString = (timeElapsed.TotalMinutes <= 20 && timeElapsed.TotalMinutes > 0)
 						? Blue(timeElapsedFormated)
-						: timeElapsed.TotalMilliseconds > 0
+						: (timeElapsed.TotalMilliseconds > 0)
 							? timeElapsedFormated
-							: Red(timeElapsedFormated);
+							: Red("-" + timeElapsedFormated);
 
 					Nodes.Add(new FastDeliveryMonitoringNode
 					{
@@ -161,5 +266,19 @@ namespace Vodovoz.SidePanel.InfoViews
 		public string Column2 { get; set; }
 
 		public string Column3 { get; set; }
+	}
+
+	public enum FilterOrdersEnum
+	{
+		All,
+		WithFastDelivery,
+		WithoutFastDelivery
+	}
+
+	public enum FastDeliveryIntervalFromEnum
+	{
+		OrderCreated,
+		AddedInFirstRouteList,
+		RouteListItemTransfered
 	}
 }
