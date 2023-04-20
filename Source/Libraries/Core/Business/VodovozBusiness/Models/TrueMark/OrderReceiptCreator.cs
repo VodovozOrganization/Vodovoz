@@ -79,7 +79,7 @@ namespace Vodovoz.Models.TrueMark
 			catch(Exception ex)
 			{
 				RollbackPool();
-				Logger.LogError(ex, $"Ошибка создания чека для заказа самовывоза {OrderId}.");
+				Logger.LogError(ex, "Ошибка создания чека для заказа самовывоза {OrderId}.", OrderId);
 			}
 		}
 		
