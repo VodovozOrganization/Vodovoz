@@ -51,6 +51,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Models;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.JournalViewModels
@@ -83,6 +84,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly decimal _routeListProfitabilityIndicator;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
 		private readonly Employee _currentEmployee;
@@ -119,7 +121,8 @@ namespace Vodovoz.JournalViewModels
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
-			IWarehousePermissionService warehousePermissionService) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IWarehousePermissionService warehousePermissionService,
+			IRouteListDailyNumberProvider routeListDailyNumberProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -155,7 +158,8 @@ namespace Vodovoz.JournalViewModels
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
-			
+			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
+
 			_currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			_warehousePermissionValidator =
 				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService))).GetValidator();
@@ -764,6 +768,8 @@ namespace Vodovoz.JournalViewModels
 
 				var routeListFullyShipped = routeList.ShipIfCan(localUow, _callTaskWorker, out var notLoadedGoods, carLoadDocument);
 				localUow.Save(routeList);
+
+				_routeListDailyNumberProvider.GetOrCreateDailyNumber(routeList.Id, routeList.Date);
 
 				//Не погружен остался только терминал
 				var routeListShippedWithoutTerminal = notLoadedGoods.Count == 1
