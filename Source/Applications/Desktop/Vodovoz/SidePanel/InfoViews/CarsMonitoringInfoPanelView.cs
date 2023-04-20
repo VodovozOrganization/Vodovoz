@@ -208,7 +208,7 @@ namespace Vodovoz.SidePanel.InfoViews
 								? FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.OrderCreated ? o.CreateDate.Value.Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) :
 									FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.AddedInFirstRouteList ?
 										(from rlaFirst in _unitOfWork.Session.Query<RouteListItem>()
-										 where rlaFirst.RouteList.Id == rl.Id
+										 where rlaFirst.Order.Id == o.Id
 										 orderby rlaFirst.CreationDate ascending
 										 select rlaFirst.CreationDate).First().Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) :
 									FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered ? rla.CreationDate.Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) : rl.Date.Add(schedule.To)

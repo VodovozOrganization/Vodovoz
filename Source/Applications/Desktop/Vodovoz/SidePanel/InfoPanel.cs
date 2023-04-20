@@ -9,17 +9,18 @@ namespace Vodovoz.SidePanel
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class InfoPanel : Gtk.Bin
 	{
-		VBox content;
+		private VBox content;
 
-		IInfoProvider currentInfoProvider;
-		Dictionary<IInfoProvider,List<PanelViewContainer>> providerToViewMap;
+		public const int _defaultWithRequest = 300;
+		private IInfoProvider _currentInfoProvider;
+		private Dictionary<IInfoProvider, List<PanelViewContainer>> _providerToViewMap;
 
 		public InfoPanel()
 		{
-			this.Build();
+			Build();
 
 			content = new VBox();
-			content.WidthRequest = 250;
+			//content.WidthRequest = _defaultWithRequest;
 			content.Show();
 			var eventBox = new EventBox();
 			eventBox.ModifyBg(StateType.Normal, new Gdk.Color(0xff, 0xff, 0xff));
@@ -33,7 +34,7 @@ namespace Vodovoz.SidePanel
 			window.Show();
 
 			rightsidepanel1.Panel = window;
-			providerToViewMap = new Dictionary<IInfoProvider, List<PanelViewContainer>>();
+			_providerToViewMap = new Dictionary<IInfoProvider, List<PanelViewContainer>>();
 		}
 
 		public void OnCurrentObjectChanged(object sender, CurrentObjectChangedArgs args)
@@ -42,7 +43,8 @@ namespace Vodovoz.SidePanel
 			{
 				var provider = sender as IInfoProvider;
 				var views = GetListeners(provider);
-				foreach (var viewContainer in views) {
+				foreach(var viewContainer in views)
+				{
 					(viewContainer.Widget as IPanelView)?.OnCurrentObjectChanged(args.ChangedObject);
 					viewContainer.Visible = viewContainer.VisibleOnPanel;
 				}
@@ -54,18 +56,23 @@ namespace Vodovoz.SidePanel
 		protected IEnumerable<PanelViewContainer> GetListeners(IInfoProvider provider)
 		{
 			List<PanelViewContainer> views;
-			if (!providerToViewMap.TryGetValue(provider, out views))
+			if(!_providerToViewMap.TryGetValue(provider, out views))
+			{
 				return Enumerable.Empty<PanelViewContainer>();
+			}
+
 			return views.Where(c => !c.Pinned);
 		}
 
 		protected void OnContainerUnpinned(object sender, EventArgs args)
 		{
 			PanelViewContainer container = sender as PanelViewContainer;
-			if(this.currentInfoProvider!=container.InfoProvider)
+			if(this._currentInfoProvider != container.InfoProvider)
+			{
 				content.Remove(container);
-			
-			if (container.IsOrphan())
+			}
+
+			if(container.IsOrphan())
 			{
 				container.Widget.Destroy();
 				container.Dispose();
@@ -73,7 +80,7 @@ namespace Vodovoz.SidePanel
 			else
 			{
 				var maybePanelView = container.Widget as IPanelView;
-				if (maybePanelView != null)
+				if(maybePanelView != null)
 				{
 					maybePanelView.Refresh();
 					container.Visible = container.VisibleOnPanel;
@@ -84,10 +91,14 @@ namespace Vodovoz.SidePanel
 
 		public void SetInfoProvider(IInfoProvider provider)
 		{
-			if (this.currentInfoProvider == provider)
+			if(_currentInfoProvider == provider)
+			{
 				return;
-			this.currentInfoProvider = provider;
-			if (!providerToViewMap.ContainsKey(provider))
+			}
+
+			_currentInfoProvider = provider;
+			//content.WidthRequest = (_currentInfoProvider as ICustomWidthInfoProvider)?.WidthRequest ?? _defaultWithRequest;
+			if(!_providerToViewMap.ContainsKey(provider))
 			{
 				var views = PanelViewFactory.CreateAll(provider.InfoWidgets)
 					.Select(v => PanelViewContainer.Wrap(v))
@@ -95,20 +106,25 @@ namespace Vodovoz.SidePanel
 				views.ForEach(v => v.Unpinned += OnContainerUnpinned);
 				views.ForEach(v => v.InfoProvider = provider);
 				views.ForEach(v => (v.Widget as IPanelView)?.Refresh());
-				providerToViewMap.Add(provider, views);
+				_providerToViewMap.Add(provider, views);
 			}
 
 			var childrenToRemove = content.Children.Where(v => !(v as PanelViewContainer).Pinned);
-			foreach (var child in childrenToRemove)
+			foreach(var child in childrenToRemove)
+			{
 				content.Remove(child);
-			
+			}
+
 			List<PanelViewContainer> newViews;
-			if (!providerToViewMap.TryGetValue(provider,out newViews))
+			if(!_providerToViewMap.TryGetValue(provider, out newViews))
+			{
 				return;
-			foreach (var viewContainer in newViews)
+			}
+
+			foreach(var viewContainer in newViews)
 			{
 				bool alreadyOnPanel = viewContainer.Pinned;
-				if (!alreadyOnPanel)
+				if(!alreadyOnPanel)
 				{
 					content.Add(viewContainer);
 					content.SetChildPacking(viewContainer, false, false, 0, PackType.Start);
@@ -121,7 +137,7 @@ namespace Vodovoz.SidePanel
 		public Widget GetWidget(Type type)
 		{
 			var currentViews = content.Children.OfType<PanelViewContainer>();
-			var panelViewContainer =  currentViews.FirstOrDefault(x => x.Widget.GetType() == type);
+			var panelViewContainer = currentViews.FirstOrDefault(x => x.Widget.GetType() == type);
 
 			return panelViewContainer?.Widget;
 		}
@@ -129,20 +145,20 @@ namespace Vodovoz.SidePanel
 		public void OnInfoProviderDisposed(IInfoProvider provider)
 		{
 			List<PanelViewContainer> views;
-			if (providerToViewMap.TryGetValue(provider, out views))
+			if(_providerToViewMap.TryGetValue(provider, out views))
 			{
 				foreach(var view in views)
 				{
 					view.InfoProvider = null;
 				}
-				foreach (var view in views.Where(c=>!c.Pinned))
+				foreach(var view in views.Where(c => !c.Pinned))
 				{
 					content.Remove(view);
 					view.Unpinned -= OnContainerUnpinned;
 					view.Widget?.Destroy();
 					view.Dispose();
 				}
-				providerToViewMap.Remove(provider);
+				_providerToViewMap.Remove(provider);
 			}
 		}
 
@@ -150,7 +166,11 @@ namespace Vodovoz.SidePanel
 		{
 			var currentViews = content.Children.OfType<PanelViewContainer>();
 			if(!(rightsidepanel1.IsHided && rightsidepanel1.ClosedByUser))
-				rightsidepanel1.IsHided = !currentViews.Any() || currentViews.All(c => !c.VisibleOnPanel);
+			{
+				var noViews = !currentViews.Any();
+				rightsidepanel1.IsHided = noViews || currentViews.All(c => !c.VisibleOnPanel);
+				WidthRequest = noViews ? 0 : (_currentInfoProvider as ICustomWidthInfoProvider)?.WidthRequest ?? _defaultWithRequest;
+			}
 		}
 	}
 }

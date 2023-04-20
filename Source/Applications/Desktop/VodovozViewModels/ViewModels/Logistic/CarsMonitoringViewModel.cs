@@ -36,7 +36,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class CarsMonitoringViewModel : DialogTabViewModelBase, IInfoProvider
+	public class CarsMonitoringViewModel : DialogTabViewModelBase, ICustomWidthInfoProvider
 	{
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListRepository _routeListRepository;
@@ -337,6 +337,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand RefreshLastDriverPositionsCommand { get; }
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CarsMonitoringInfoPanelView };
+
+		public int? WidthRequest => 470;
 		#endregion
 
 		#region Events
