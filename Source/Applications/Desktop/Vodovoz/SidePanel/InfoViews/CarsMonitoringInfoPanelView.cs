@@ -71,6 +71,11 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			foreach(RadioButton button in yrbtnFilterOrdersAll.Group)
 			{
+				button.Active =
+					button.Name == _radioButtonPrefix +
+						_groupFilterOrdersPrefix +
+						Enum.GetName(typeof(FilterOrdersEnum), FilterOrders);
+
 				if(button.Active)
 				{
 					FilterOrdersGroupSelectionChanged(button, EventArgs.Empty);
@@ -81,6 +86,11 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			foreach(RadioButton button in yrbtnFastDeliveryIntervalFromOrderCreated.Group)
 			{
+				button.Active =
+					button.Name == _radioButtonPrefix +
+						_groupFastDeliveryIntervalFromPrefix +
+						Enum.GetName(typeof(FastDeliveryIntervalFromEnum), FastDeliveryIntervalFrom);
+
 				if(button.Active)
 				{
 					FastDeliveryIntervalFromSelectionChanged(button, EventArgs.Empty);
@@ -242,7 +252,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			var nodeGroups = nodesToAdd
 				.GroupBy(x => (x.DriverName, x.CarNumber, x.RouteListId))
-				.Where(group => !IsFastDeliveryOnly || group.Any(x => x.DeliveryType != string.Empty));
+				.Where(group => !IsFastDeliveryOnly || group.Any(x => x.DeliveryType != string.Empty))
+				.OrderBy(x => x.Key.DriverName);
 
 			foreach(var group in nodeGroups)
 			{
@@ -253,7 +264,9 @@ namespace Vodovoz.SidePanel.InfoViews
 					Column3 = Bold(group.Key.RouteListId.ToString())
 				});
 
-				foreach(var node in group)
+				var orderedGroup = group.OrderBy(x => x.DeliveryBefore);
+
+				foreach(var node in orderedGroup)
 				{
 					var timeElapsed = (node.DeliveryBefore - DateTime.Now);
 
