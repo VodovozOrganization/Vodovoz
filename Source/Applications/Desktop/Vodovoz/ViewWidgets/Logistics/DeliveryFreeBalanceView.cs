@@ -73,11 +73,11 @@ namespace Vodovoz.ViewWidgets.Logistics
 				}
 
 				iter = buffer.EndIter;
-				buffer.InsertWithTags(ref iter, item.FirstOrDefault()?.Nomenclature.Name + ": ", _defaultTag);
+				buffer.InsertWithTags(ref iter, item.First().Nomenclature.Name + ": ", _defaultTag);
 				iter = buffer.EndIter;
 				buffer.InsertWithTags(ref iter, sum.ToString("N0"), sum < 0 ? _redBoldTag : _boldTag);
 				iter = buffer.EndIter;
-				buffer.InsertWithTags(ref iter, " " + item.FirstOrDefault()?.Nomenclature.Unit?.Name + (i == lastIndex ? "" : ", "), _defaultTag);
+				buffer.InsertWithTags(ref iter, " " + item.First().Nomenclature.Unit?.Name + (i == lastIndex ? "" : ", "), _defaultTag);
 			}
 		}
 
