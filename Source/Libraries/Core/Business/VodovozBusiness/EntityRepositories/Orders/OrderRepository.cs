@@ -644,12 +644,12 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
 		{
-			var receipt = uow.Session.QueryOver<CashReceipt>()
+			var receipts = uow.Session.QueryOver<CashReceipt>()
 				.Where(x => x.Order.Id == orderId)
 				.Where(x => x.Status == CashReceiptStatus.Sended)
-				.SingleOrDefault();
+				.List();
 
-			return receipt != null;
+			return receipts.Any();
 		}
 
 		public bool HasFlyersOnStock(
