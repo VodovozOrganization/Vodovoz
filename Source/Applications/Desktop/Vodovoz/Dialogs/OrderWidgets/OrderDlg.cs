@@ -955,12 +955,66 @@ namespace Vodovoz
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
 		{
+			if (sender is LogisticsRequirements requirements)
+			{
+				string commentToAdd = string.Empty;
+
+				if(e.PropertyName == nameof(LogisticsRequirements.ForwarderRequired))
+				{
+					if(requirements.ForwarderRequired)
+					{
+						commentToAdd = "Требуется экспедитор на адресе: \"Э\" на карте";
+					}
+				}
+				if(e.PropertyName == nameof(LogisticsRequirements.DocumentsRequired))
+				{
+					if(requirements.DocumentsRequired)
+					{
+						commentToAdd = "Наличие паспорта/документов у водителя: \"Д\" на карте";
+					}
+				}
+				if(e.PropertyName == nameof(LogisticsRequirements.RussianDriverRequired))
+				{
+					if(requirements.RussianDriverRequired)
+					{
+						commentToAdd = "Требуется русский водитель: \"Р\" на карте";
+					}
+				}
+				if(e.PropertyName == nameof(LogisticsRequirements.PassRequired))
+				{
+					if(requirements.PassRequired)
+					{
+						commentToAdd = "Требуется пропуск: \"П\" на карте";
+					}
+				}
+				if(e.PropertyName == nameof(LogisticsRequirements.LargusRequired))
+				{
+					if(requirements.LargusRequired)
+					{
+						commentToAdd = "Только ларгус (газель не проедет): \"Л\" на карте";
+					}
+				}
+
+				if(commentToAdd.Length > 0)
+				{
+					Entity.Comment =
+						Entity.Comment.Length > 0
+						? Entity.Comment + "\n" + commentToAdd
+						: commentToAdd;
+				}
+			}
+
 			UpdateEntityLogisticsRequirements();
 		}
 
 		private LogisticsRequirements GetLogisticsRequirements()
 		{
 			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements();
+
+			if(Order.Id > 0)
+			{
+				return logisticsRequirementsFromCounterpartyAndDeliveryPoint;
+			}
 
 			if (Counterparty?.LogisticsRequirements == null && DeliveryPoint?.LogisticsRequirements == null)
 			{
