@@ -5,6 +5,7 @@ using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using Gamma.Widgets;
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
@@ -62,7 +63,7 @@ namespace Vodovoz
 			Widget foundWidget = null;
 			foreach(Widget wid in datatablePrices.AllChildren)
 			{
-				if(wid is IAdaptableContainer && (wid as IAdaptableContainer).Adaptor.Adaptor.FinalTarget == aObject)
+				if(wid is yValidatedEntry && (wid as yValidatedEntry).Tag == aObject)
 				{
 					foundWidget = wid;
 					break;
@@ -123,21 +124,26 @@ namespace Vodovoz
 
 			Gtk.Label textFromLabel = new Gtk.Label ("от (шт.)");
 			datatablePrices.Attach (textFromLabel, (uint)0, (uint)1, RowNum, RowNum + 1, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
+			textFromLabel.Show();
 
 			var countDataEntry = new ySpinButton(0, 9999, 1);
 			countDataEntry.Binding.AddBinding (newPrice, e => e.MinCount, w => w.ValueAsInt).InitializeFromSource ();
 			datatablePrices.Attach (countDataEntry, (uint)1, (uint)2, RowNum, RowNum + 1, AttachOptions.Expand | AttachOptions.Fill, (AttachOptions)0, (uint)0, (uint)0);
+			countDataEntry.Show();
 
 			Gtk.Label textCplLabel = new Gtk.Label (" - ");
 			datatablePrices.Attach (textCplLabel, (uint)2, (uint)3, RowNum, RowNum + 1, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
+			textCplLabel.Show();
 
 			var priceDataEntry = new ySpinButton (0, 999999, 1);
 			priceDataEntry.Digits = 2;
 			priceDataEntry.Binding.AddBinding (newPrice, e => e.Price, w => w.ValueAsDecimal).InitializeFromSource ();
 			datatablePrices.Attach (priceDataEntry, (uint)3, (uint)4, RowNum, RowNum + 1, AttachOptions.Expand | AttachOptions.Fill, (AttachOptions)0, (uint)0, (uint)0);
+			priceDataEntry.Show();
 
 			Gtk.Label textCurrencyLabel = new Gtk.Label ("руб.");
 			datatablePrices.Attach (textCurrencyLabel, (uint)4, (uint)5, RowNum, RowNum + 1, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
+			textCurrencyLabel.Show();
 
 			Gtk.Button deleteButton = new Gtk.Button ();
 			Gtk.Image image = new Gtk.Image ();
@@ -145,8 +151,12 @@ namespace Vodovoz
 			deleteButton.Image = image;
 			deleteButton.Clicked += OnButtonDeleteClicked;
 			datatablePrices.Attach (deleteButton, (uint)5, (uint)6, RowNum, RowNum + 1, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
+			deleteButton.Show();
 
-			datatablePrices.ShowAll ();
+			yValidatedEntry objectStore = new yValidatedEntry();
+			objectStore.Tag = newPrice;
+			objectStore.Visibility = false;
+			datatablePrices.Attach(objectStore, (uint)6, (uint)7, RowNum, RowNum + 1, AttachOptions.Shrink, (AttachOptions)0, (uint)10, (uint)0);
 
 			RowNum++;
 		}
@@ -157,7 +167,7 @@ namespace Vodovoz
 			Widget foundWidget = null;
 			foreach(Widget wid in datatablePrices.AllChildren)
 			{
-				if(wid is IAdaptableContainer && delButtonInfo.TopAttach == (datatablePrices[wid] as Table.TableChild).TopAttach)
+				if(wid is yValidatedEntry && delButtonInfo.TopAttach == (datatablePrices[wid] as Table.TableChild).TopAttach)
 				{
 					foundWidget = wid;
 					break;
@@ -169,9 +179,20 @@ namespace Vodovoz
 				return;
 			}
 
-			var found = (NomenclaturePriceBase)(foundWidget as IAdaptableContainer).Adaptor.Adaptor.FinalTarget;
-			UoWGeneric.Session.Delete(found);
+			var found = (NomenclaturePriceBase)(foundWidget as yValidatedEntry).Tag;
 			PricesList.Remove(found);
+			
+			switch(NomenclaturePriceType)
+			{
+				case NomenclaturePriceBase.NomenclaturePriceType.General:
+					UoWGeneric.Root.ObservableNomenclaturePrices.Remove(found as NomenclaturePrice);
+					break;
+				case NomenclaturePriceBase.NomenclaturePriceType.Alternative:
+					UoWGeneric.Root.ObservableAlternativeNomenclaturePrices.Remove(found as AlternativeNomenclaturePrice);
+					break;
+				default:
+					throw new NotSupportedException($"{NomenclaturePriceType} не поддерживается");
+			}
 		}
 
 		private void RemoveRow(uint Row)
@@ -193,7 +214,14 @@ namespace Vodovoz
 					uint Left = ((Table.TableChild)(this.datatablePrices [w])).LeftAttach;
 					uint Right = ((Table.TableChild)(this.datatablePrices [w])).RightAttach;
 					datatablePrices.Remove (w);
-					datatablePrices.Attach (w, Left, Right, Row - 1, Row, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
+					if(w.GetType() == typeof(ySpinButton))
+					{
+						datatablePrices.Attach(w, Left, Right, Row - 1, Row, AttachOptions.Fill | AttachOptions.Expand, (AttachOptions)0, (uint)0, (uint)0);
+					}
+					else
+					{
+						datatablePrices.Attach(w, Left, Right, Row - 1, Row, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
+					}
 				}
 		}
 
@@ -208,25 +236,5 @@ namespace Vodovoz
 
 		public NomenclaturePriceBase.NomenclaturePriceType NomenclaturePriceType { get; set; }
 
-		public void SaveChanges()
-		{
-			foreach(NomenclaturePriceBase price in PricesList.ToList())
-			{
-				if (price.Price == 0 && price.MinCount <= 1)
-					PricesList.Remove (price);
-			}
-
-			switch(NomenclaturePriceType)
-			{
-				case NomenclaturePriceBase.NomenclaturePriceType.General:
-					UoWGeneric.Root.ObservableNomenclaturePrices = new GenericObservableList<NomenclaturePrice>(PricesList.Cast<NomenclaturePrice>().ToList());
-					break;
-				case NomenclaturePriceBase.NomenclaturePriceType.Alternative:
-					UoWGeneric.Root.ObservableAlternativeNomenclaturePrices = new GenericObservableList<AlternativeNomenclaturePrice>(PricesList.Cast<AlternativeNomenclaturePrice>().ToList());
-					break;
-				default:
-					throw new NotSupportedException($"{NomenclaturePriceType} не поддерживается");
-			}
-		}
 	}
 }

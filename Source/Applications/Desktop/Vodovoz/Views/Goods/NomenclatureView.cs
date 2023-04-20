@@ -393,8 +393,6 @@ namespace Vodovoz.Views.Goods
 			alternativePricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEditAlternativeNomenclaturePrices &&  ViewModel.CanEdit;
 			alternativePricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.Alternative;
 
-			ViewModel.PricesViewSaveChanges += OnPricesViewSaveChanges;
-
 			#region Вкладка изображения
 
 			Imageslist.Sensitive = ViewModel.CanEdit;
@@ -417,12 +415,6 @@ namespace Vodovoz.Views.Goods
 			menuActions.Menu = menu;
 			menu.ShowAll();
 			menuActions.Sensitive = !ViewModel.UoWGeneric.IsNew && ViewModel.CanEdit;
-		}
-
-		private void OnPricesViewSaveChanges()
-		{
-			pricesView.SaveChanges();
-			alternativePricesView.SaveChanges();
 		}
 
 		private void YСolorBtnBottleCapColorOnColorSet(object sender, EventArgs e) {
@@ -564,10 +556,5 @@ namespace Vodovoz.Views.Goods
 
 		#endregion
 
-		public override void Destroy()
-		{
-			ViewModel.PricesViewSaveChanges -= OnPricesViewSaveChanges;
-			base.Destroy();
-		}
 	}
 }
