@@ -1,4 +1,5 @@
-﻿using Gtk;
+﻿using GLib;
+using Gtk;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using System;
@@ -20,7 +21,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class CarsMonitoringInfoPanelView : Bin, IPanelView, INotifyPropertyChanged, IDisposable
 	{
 		private static FastDeliveryMonitoringNode _emptyNode => new FastDeliveryMonitoringNode();
-
+		
 		private const string _radioButtonPrefix = "yrbtn";
 		private const string _groupFilterOrdersPrefix = "FilterOrders";
 		private const string _groupFastDeliveryIntervalFromPrefix = "FastDeliveryIntervalFrom";
@@ -33,6 +34,10 @@ namespace Vodovoz.SidePanel.InfoViews
 		private FastDeliveryIntervalFromEnum _fastDeliveryIntervalFrom;
 		private bool _isFastDeliveryOnly;
 		private IInfoProvider _infoProvider;
+
+		private IOrderedEnumerable<IGrouping<(string DriverName, string CarNumber, int RouteListId), DataNode>> _cachedNodeGroups;
+		private TimeoutHandler _timeoutTimerHandler;
+		private uint _timerId;
 
 		public CarsMonitoringInfoPanelView(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -59,6 +64,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				.AddColumn("").AddTextRenderer(x => x.Column3, useMarkup: true)
 				.Finish();
 
+			ytvAddressesInProcess.HeadersVisible = false;
 			ytvAddressesInProcess.EnableGridLines = TreeViewGridLines.Both;
 
 			ytvAddressesInProcess.ItemsDataSource = Nodes;
@@ -99,6 +105,19 @@ namespace Vodovoz.SidePanel.InfoViews
 				button.Toggled += FastDeliveryIntervalFromSelectionChanged;
 			}
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider;
+
+			_timeoutTimerHandler = new TimeoutHandler(RefreshNodesTimerHandler);
+			StartTimer(_timeoutTimerHandler);
+		}
+		private void StartTimer(TimeoutHandler timeoutHandler)
+		{
+			_timerId = GLib.Timeout.Add((uint)TimeSpan.FromSeconds(1).TotalMilliseconds, timeoutHandler);
+		}
+
+		private bool RefreshNodesTimerHandler()
+		{
+			RefreshDisplayNodes();
+			return true;
 		}
 
 		private void FastDeliveryIntervalFromSelectionChanged(object sender, EventArgs empty)
@@ -202,9 +221,6 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private void LoadData()
 		{
-			Nodes.Clear();
-			ytvAddressesInProcess.ItemsDataSource = Nodes;
-
 			var nodesQuery = from rl in _unitOfWork.Session.Query<RouteList>()
 							 join rla in _unitOfWork.Session.Query<RouteListItem>()
 							 on rl.Id equals rla.RouteList.Id
@@ -237,7 +253,7 @@ namespace Vodovoz.SidePanel.InfoViews
 										 select rlaFirst.CreationDate).First().Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) :
 									FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered ? rla.CreationDate.Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) : rl.Date.Add(schedule.To)
 								: rl.Date.Add(schedule.To)
-							 select new
+							 select new DataNode
 							 {
 								 DriverName = surnameWithInitials,
 								 RouteListId = rl.Id,
@@ -250,12 +266,20 @@ namespace Vodovoz.SidePanel.InfoViews
 			var nodesToAdd = nodesQuery
 				.ToList();
 
-			var nodeGroups = nodesToAdd
+			_cachedNodeGroups = nodesToAdd
 				.GroupBy(x => (x.DriverName, x.CarNumber, x.RouteListId))
 				.Where(group => !IsFastDeliveryOnly || group.Any(x => x.DeliveryType != string.Empty))
 				.OrderBy(x => x.Key.DriverName);
 
-			foreach(var group in nodeGroups)
+			RefreshDisplayNodes();
+		}
+
+		private void RefreshDisplayNodes()
+		{
+			Nodes.Clear();
+			ytvAddressesInProcess.ItemsDataSource = Nodes;
+
+			foreach(var group in _cachedNodeGroups)
 			{
 				Nodes.Add(new FastDeliveryMonitoringNode
 				{
@@ -300,31 +324,42 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public override void Destroy()
 		{
+			GLib.Source.Remove(_timerId);
 			ytvAddressesInProcess.Destroy();
 			base.Destroy();
 		}
-	}
 
-	public class FastDeliveryMonitoringNode
-	{
-		public string Column1 { get; set; }
+		internal class DataNode
+		{
+			public string DriverName { get; set; }
+			public int RouteListId { get; set; }
+			public string CarNumber { get; set; }
+			public string Address { get; set; }
+			public string DeliveryType { get; set; }
+			public DateTime DeliveryBefore { get; set; }
+		}
 
-		public string Column2 { get; set; }
+		public class FastDeliveryMonitoringNode
+		{
+			public string Column1 { get; set; }
 
-		public string Column3 { get; set; }
-	}
+			public string Column2 { get; set; }
 
-	public enum FilterOrdersEnum
-	{
-		All,
-		WithFastDelivery,
-		WithoutFastDelivery
-	}
+			public string Column3 { get; set; }
+		}
 
-	public enum FastDeliveryIntervalFromEnum
-	{
-		OrderCreated,
-		AddedInFirstRouteList,
-		RouteListItemTransfered
+		public enum FilterOrdersEnum
+		{
+			All,
+			WithFastDelivery,
+			WithoutFastDelivery
+		}
+
+		public enum FastDeliveryIntervalFromEnum
+		{
+			OrderCreated,
+			AddedInFirstRouteList,
+			RouteListItemTransfered
+		}
 	}
 }

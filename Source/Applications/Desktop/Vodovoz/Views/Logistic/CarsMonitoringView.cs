@@ -128,7 +128,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			if(ViewModel.ShowHistory)
 			{
-				GLib.Source.Remove(_timerId);
+				Source.Remove(_timerId);
 			}
 			else
 			{
@@ -731,7 +731,7 @@ namespace Vodovoz.Views.Logistic
 
 		public override void Destroy()
 		{
-			GLib.Source.Remove(_timerId);
+			Source.Remove(_timerId);
 			gmapWidget.Destroy();
 			_mapSeparateWindow?.Destroy();
 			yTreeViewDrivers?.Destroy();
