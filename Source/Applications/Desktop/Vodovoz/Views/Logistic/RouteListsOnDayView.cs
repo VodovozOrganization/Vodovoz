@@ -545,8 +545,11 @@ namespace Vodovoz.Views.Logistic
 					addressesOverlay.Markers.Add(addressMarker);
 
 					FillTypeAndShapeLogisticsRequrementsMarker(order, out PointMarkerShape shapeLogisticsRequrements, out PointMarkerType typeLogisticsRequrements);
-					var logisticsRequrementsMarker = FillAddressMarker(order, typeLogisticsRequrements, shapeLogisticsRequrements, addressesOverlay, route);
-					addressesLogisticsRequirementsOverlay.Markers.Add(logisticsRequrementsMarker);
+					if(typeLogisticsRequrements != PointMarkerType.none && shapeLogisticsRequrements != PointMarkerShape.none)
+					{
+						var logisticsRequrementsMarker = FillAddressMarker(order, typeLogisticsRequrements, shapeLogisticsRequrements, addressesOverlay, route);
+						addressesLogisticsRequirementsOverlay.Markers.Add(logisticsRequrementsMarker);
+					}
 				}
 				else
 					addressesWithoutCoordinats++;
@@ -736,6 +739,9 @@ namespace Vodovoz.Views.Logistic
 				order.DeliverySchedule?.Name ?? "Не назначено",
 				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.DistrictBorder.Contains(order.DeliveryPoint.NetTopologyPoint))?.DistrictName);
 
+			var comment = GetMarkerCommentValue(order);
+			ttText += string.Format($"\nКомментарий: {comment}");
+
 			var orderLat = (double)order.DeliveryPoint.Latitude;
 			var orderLong = (double)order.DeliveryPoint.Longitude;
 
@@ -749,6 +755,35 @@ namespace Vodovoz.Views.Logistic
 				addressMarker.ToolTipText += string.Format(" Везёт: {0}", route.Driver.ShortName);
 
 			return addressMarker;
+		}
+
+		private string GetMarkerCommentValue(Order order)
+		{
+			if(order.Comment?.Length > 0)
+			{
+				return order.Comment;
+			}
+			if(order.DeliveryPoint.Comment?.Length > 0)
+			{
+				return order.DeliveryPoint.Comment;
+			}
+			if(order.CommentManager?.Length > 0)
+			{
+				return order.CommentManager;
+			}
+			if(order.ODZComment?.Length > 0)
+			{
+				return order.ODZComment;
+			}
+			if(order.OPComment?.Length > 0)
+			{
+				return order.OPComment;
+			}
+			if(order.DriverMobileAppComment?.Length > 0)
+			{
+				return order.DriverMobileAppComment;
+			}
+			return "-";
 		}
 
 		private void Refresh()
