@@ -48,12 +48,6 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.Button buttonSaveComment;
 
-		private global::Gtk.Label label6;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
-
-		private global::Gtk.TextView textviewCommentLogist;
-
 		private global::Gamma.GtkWidgets.yVBox yvboxLogisticsRequirements;
 
 		private global::Gtk.Label labelRequirementsView;
@@ -65,8 +59,6 @@ namespace Vodovoz.SidePanel.InfoViews
 		private global::Gtk.Button buttonSaveLogisticsRequirements;
 
 		private global::Gtk.HBox hbox2;
-
-		private global::Gtk.Button buttonSaveCommentLogist;
 
 		protected virtual void Build()
 		{
@@ -283,31 +275,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			w22.Expand = false;
 			w22.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.label6 = new global::Gtk.Label();
-			this.label6.Name = "label6";
-			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Комментарий для логиста:</b>");
-			this.label6.UseMarkup = true;
-			this.vbox1.Add(this.label6);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.label6]));
-			w23.Position = 9;
-			w23.Expand = false;
-			w23.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
-			this.GtkScrolledWindow2.VscrollbarPolicy = ((global::Gtk.PolicyType)(2));
-			this.GtkScrolledWindow2.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
-			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
-			this.textviewCommentLogist = new global::Gtk.TextView();
-			this.textviewCommentLogist.CanFocus = true;
-			this.textviewCommentLogist.Name = "textviewCommentLogist";
-			this.textviewCommentLogist.WrapMode = ((global::Gtk.WrapMode)(3));
-			this.GtkScrolledWindow2.Add(this.textviewCommentLogist);
-			this.vbox1.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow2]));
-			w25.Position = 10;
-			// Container child vbox1.Gtk.Box+BoxChild
 			this.yvboxLogisticsRequirements = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxLogisticsRequirements.Name = "yvboxLogisticsRequirements";
 			this.yvboxLogisticsRequirements.Spacing = 6;
@@ -317,20 +284,20 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.labelRequirementsView.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Требования к логистике:</b>");
 			this.labelRequirementsView.UseMarkup = true;
 			this.yvboxLogisticsRequirements.Add(this.labelRequirementsView);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticsRequirements[this.labelRequirementsView]));
-			w26.Position = 0;
-			w26.Expand = false;
-			w26.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticsRequirements[this.labelRequirementsView]));
+			w23.Position = 0;
+			w23.Expand = false;
+			w23.Fill = false;
 			// Container child yvboxLogisticsRequirements.Gtk.Box+BoxChild
 			this.logisticsRequirementsView = new global::Vodovoz.Views.Logistic.LogisticsRequirementsView();
 			this.logisticsRequirementsView.HeightRequest = 170;
 			this.logisticsRequirementsView.Events = ((global::Gdk.EventMask)(256));
 			this.logisticsRequirementsView.Name = "logisticsRequirementsView";
 			this.yvboxLogisticsRequirements.Add(this.logisticsRequirementsView);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticsRequirements[this.logisticsRequirementsView]));
-			w27.Position = 1;
-			w27.Expand = false;
-			w27.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticsRequirements[this.logisticsRequirementsView]));
+			w24.Position = 1;
+			w24.Expand = false;
+			w24.Fill = false;
 			// Container child yvboxLogisticsRequirements.Gtk.Box+BoxChild
 			this.hboxSaveLogisticsRequirements = new global::Gtk.HBox();
 			this.hboxSaveLogisticsRequirements.Name = "hboxSaveLogisticsRequirements";
@@ -341,49 +308,33 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.buttonSaveLogisticsRequirements.Name = "buttonSaveLogisticsRequirements";
 			this.buttonSaveLogisticsRequirements.UseUnderline = true;
 			this.buttonSaveLogisticsRequirements.Label = global::Mono.Unix.Catalog.GetString("Сохранить требования");
-			global::Gtk.Image w28 = new global::Gtk.Image();
-			w28.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-floppy", global::Gtk.IconSize.Menu);
-			this.buttonSaveLogisticsRequirements.Image = w28;
+			global::Gtk.Image w25 = new global::Gtk.Image();
+			w25.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-floppy", global::Gtk.IconSize.Menu);
+			this.buttonSaveLogisticsRequirements.Image = w25;
 			this.hboxSaveLogisticsRequirements.Add(this.buttonSaveLogisticsRequirements);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hboxSaveLogisticsRequirements[this.buttonSaveLogisticsRequirements]));
-			w29.Position = 0;
-			w29.Expand = false;
-			w29.Fill = false;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hboxSaveLogisticsRequirements[this.buttonSaveLogisticsRequirements]));
+			w26.Position = 0;
+			w26.Expand = false;
+			w26.Fill = false;
 			this.yvboxLogisticsRequirements.Add(this.hboxSaveLogisticsRequirements);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticsRequirements[this.hboxSaveLogisticsRequirements]));
-			w30.Position = 2;
-			w30.Expand = false;
-			w30.Fill = false;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yvboxLogisticsRequirements[this.hboxSaveLogisticsRequirements]));
+			w27.Position = 2;
+			w27.Expand = false;
+			w27.Fill = false;
 			this.vbox1.Add(this.yvboxLogisticsRequirements);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yvboxLogisticsRequirements]));
-			w31.PackType = ((global::Gtk.PackType)(1));
-			w31.Position = 11;
-			w31.Expand = false;
-			w31.Fill = false;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yvboxLogisticsRequirements]));
+			w28.PackType = ((global::Gtk.PackType)(1));
+			w28.Position = 11;
+			w28.Expand = false;
+			w28.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox();
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonSaveCommentLogist = new global::Gtk.Button();
-			this.buttonSaveCommentLogist.CanFocus = true;
-			this.buttonSaveCommentLogist.Name = "buttonSaveCommentLogist";
-			this.buttonSaveCommentLogist.UseUnderline = true;
-			this.buttonSaveCommentLogist.Label = global::Mono.Unix.Catalog.GetString("Сохранить комментарий");
-			global::Gtk.Image w32 = new global::Gtk.Image();
-			w32.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-floppy", global::Gtk.IconSize.Menu);
-			this.buttonSaveCommentLogist.Image = w32;
-			this.hbox2.Add(this.buttonSaveCommentLogist);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonSaveCommentLogist]));
-			w33.Position = 0;
-			w33.Expand = false;
-			w33.Fill = false;
 			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w34.PackType = ((global::Gtk.PackType)(1));
-			w34.Position = 12;
-			w34.Expand = false;
-			w34.Fill = false;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w29.PackType = ((global::Gtk.PackType)(1));
+			w29.Position = 12;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -391,7 +342,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			this.Hide();
 			this.buttonSaveComment.Clicked += new global::System.EventHandler(this.OnButtonSaveCommentClicked);
-			this.buttonSaveCommentLogist.Clicked += new global::System.EventHandler(this.OnButtonSaveCommentClicked);
 			this.buttonSaveLogisticsRequirements.Clicked += new global::System.EventHandler(this.OnButtonSaveLogisticsRequirementsClicked);
 		}
 	}

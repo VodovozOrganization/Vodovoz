@@ -271,10 +271,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			SaveComment();
 		}
 
-		protected void OnButtonSaveCommentLogistClicked(object sender, EventArgs e)
-		{
-			//SaveCommentLogist();
-		}
 		protected void OnButtonSaveLogisticsRequirementsClicked(object sender, EventArgs e)
 		{
 			SaveLogisticsRequirements();
