@@ -467,7 +467,12 @@ namespace Vodovoz.Models.TrueMark
 				{
 					continue;
 				}
-				
+
+				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
+				{
+					continue;
+				}
+
 				if(orderItem.Count == 1)
 				{
 					if(unprocessedCodesCount > maxCodesCount)
