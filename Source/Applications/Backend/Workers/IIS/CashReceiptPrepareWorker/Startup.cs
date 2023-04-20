@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.TrueMark;
+using Vodovoz.Factories;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
@@ -80,6 +81,10 @@ namespace CashReceiptPrepareWorker
 				.As<IOrganizationRepository>()
 				.SingleInstance();
 
+			builder.RegisterType<CashReceiptFactory>()
+				.As<ICashReceiptFactory>()
+				.SingleInstance();
+
 			//Убрать когда IOrderParametersProvider заменится на IOrderSettings, будет зарегистрирована как модуль DatabaseSettingsModule
 			builder.RegisterType<OrderParametersProvider>()
 				.As<IOrderParametersProvider>()
@@ -94,7 +99,7 @@ namespace CashReceiptPrepareWorker
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
-			builder.RegisterType<SelfdeliveryReceiptCreatorFactory>()
+			builder.RegisterType<OrderReceiptCreatorFactory>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
@@ -111,6 +116,10 @@ namespace CashReceiptPrepareWorker
 				.InstancePerLifetimeScope();
 
 			builder.RegisterType<SelfdeliveryReceiptCreator>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+			
+			builder.RegisterType<DeliveryOrderReceiptCreator>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
