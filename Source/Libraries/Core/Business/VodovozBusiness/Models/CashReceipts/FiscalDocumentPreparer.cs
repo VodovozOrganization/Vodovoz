@@ -166,6 +166,11 @@ namespace Vodovoz.Models.CashReceipts
 					continue;
 				}
 
+				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
+				{
+					continue;
+				}
+
 				var orderItemsCodes =
 					new Queue<CashReceiptProductCode>(cashReceipt.ScannedCodes.Where(x => x.OrderItem.Id == orderItem.Id));
 
