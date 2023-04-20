@@ -239,7 +239,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				uow.Save();
 			}
 			_textviewcommentBufferChanged = false;
-		}		
+		}
 
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
