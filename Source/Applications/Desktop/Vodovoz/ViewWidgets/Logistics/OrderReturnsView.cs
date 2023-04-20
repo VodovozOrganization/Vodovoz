@@ -313,6 +313,8 @@ namespace Vodovoz
 						.Adjustment(new Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice && _canEditPrices)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("Альтерн.\nцена")
+					.AddToggleRenderer(x => x.OrderItem.IsAlternativePrice).Editing(false)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)

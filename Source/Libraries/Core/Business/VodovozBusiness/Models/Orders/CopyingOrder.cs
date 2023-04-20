@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Services;
@@ -301,7 +302,7 @@ namespace Vodovoz.Models.Orders
 				Order = _resultOrder,
 				Nomenclature = orderItem.Nomenclature,
 				PromoSet = orderItem.PromoSet,
-				Price = withPrices ? orderItem.Price : orderItem.Nomenclature.GetPrice(orderItem.Count, forceUseAlternativePrice),
+				Price = orderItem.Price,
 				IsUserPrice = withPrices,
 				IsAlternativePrice = forceUseAlternativePrice,
 				Count = orderItem.Count,
