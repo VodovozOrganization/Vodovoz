@@ -81,7 +81,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			textviewCommentLogist.FocusOutEvent += OnTextviewCommentLogistFocusOut;
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(GetLogisticsRequirements(), _commonServices);
-			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 		}
 
 		private void Refresh(object changedObj)
@@ -94,10 +93,13 @@ namespace Vodovoz.SidePanel.InfoViews
 			DeliveryPoint = changedObj as DeliveryPoint;
 			RefreshData();
 		}
+
+		#region LogisticsRequirements
 		private LogisticsRequirements GetLogisticsRequirements()
 		{
 			return DeliveryPoint?.LogisticsRequirements ?? new LogisticsRequirements();
 		}
+
 		private void SetLogisticsRequirementsCheckboxes()
 		{
 			var requirements = GetLogisticsRequirements();
@@ -108,6 +110,17 @@ namespace Vodovoz.SidePanel.InfoViews
 			logisticsRequirementsView.ViewModel.Entity.PassRequired = requirements.PassRequired;
 			logisticsRequirementsView.ViewModel.Entity.LargusRequired = requirements.LargusRequired;
 		}
+
+		private void SaveLogisticsRequirements()
+		{
+			using(var uow =
+					UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить требования к логистике на панели точки доставки"))
+			{
+				uow.Root.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
+				uow.Save();
+			}
+		}
+		#endregion
 
 		#region IPanelView implementation
 
@@ -209,10 +222,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			var attr = enumerator.GetAttribute<System.ComponentModel.DataAnnotations.DisplayAttribute>();
 			return attr == null ? "" : attr.ShortName;
 		}
-		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
-		{
-			DeliveryPoint.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
-		}
 
 		void OnOrdersRowActivated(object sender, RowActivatedArgs args)
 		{
@@ -269,15 +278,6 @@ namespace Vodovoz.SidePanel.InfoViews
 				uow.Save();
 			}
 			_textviewcommentLogistBufferChanged = false;
-		}
-
-		private void SaveLogisticsRequirements()
-		{
-			using(var uow =
-					UnitOfWorkFactory.CreateForRoot<Counterparty>(DeliveryPoint.Id, "Кнопка «Cохранить требования к логистике на панели точки доставки"))
-			{
-				uow.Save();
-			}
 		}
 
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)

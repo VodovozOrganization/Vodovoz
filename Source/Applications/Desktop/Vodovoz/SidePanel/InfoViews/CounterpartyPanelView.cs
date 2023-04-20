@@ -60,9 +60,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(GetLogisticsRequirements(), _commonServices);
-			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 		}
-		
+
 		private void Refresh(object changedObj)
 		{
 			if(InfoProvider == null)
@@ -73,6 +72,32 @@ namespace Vodovoz.SidePanel.InfoViews
 			_counterparty = changedObj as Counterparty;
 			RefreshData();
 		}
+
+		#region LogisticsRequirements
+		private LogisticsRequirements GetLogisticsRequirements()
+		{
+			return _counterparty?.LogisticsRequirements ?? new LogisticsRequirements();
+		}
+		private void SetLogisticsRequirementsCheckboxes()
+		{
+			var requirements = GetLogisticsRequirements();
+
+			logisticsRequirementsView.ViewModel.Entity.ForwarderRequired = requirements.ForwarderRequired;
+			logisticsRequirementsView.ViewModel.Entity.DocumentsRequired = requirements.DocumentsRequired;
+			logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired = requirements.RussianDriverRequired;
+			logisticsRequirementsView.ViewModel.Entity.PassRequired = requirements.PassRequired;
+			logisticsRequirementsView.ViewModel.Entity.LargusRequired = requirements.LargusRequired;
+		}
+		private void SaveLogisticsRequirements()
+		{
+			using(var uow =
+					UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить требования к логистике на панели контрагента"))
+			{
+				uow.Root.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
+				uow.Save();
+			}
+		}
+		#endregion
 
 		#region IPanelView implementation
 
@@ -197,11 +222,6 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public bool VisibleOnPanel => _counterparty != null;
 
-		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
-		{
-			_counterparty.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
-		}
-
 		public void OnCurrentObjectChanged(object changedObject)
 		{
 			if(changedObject is Counterparty)
@@ -219,31 +239,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				uow.Save();
 			}
 			_textviewcommentBufferChanged = false;
-		}
-
-		private void SaveLogisticsRequirements()
-		{
-			using(var uow =
-					UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить требования к логистике на панели контрагента"))
-			{
-				uow.Save();
-			}
-		}
-
-		private LogisticsRequirements GetLogisticsRequirements()
-		{
-			return _counterparty?.LogisticsRequirements ?? new LogisticsRequirements();
-		}
-		private void SetLogisticsRequirementsCheckboxes()
-		{
-			var requirements = GetLogisticsRequirements();
-
-			logisticsRequirementsView.ViewModel.Entity.ForwarderRequired = requirements.ForwarderRequired;
-			logisticsRequirementsView.ViewModel.Entity.DocumentsRequired = requirements.DocumentsRequired;
-			logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired = requirements.RussianDriverRequired;
-			logisticsRequirementsView.ViewModel.Entity.PassRequired = requirements.PassRequired;
-			logisticsRequirementsView.ViewModel.Entity.LargusRequired = requirements.LargusRequired;
-		}
+		}		
 
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
