@@ -57,7 +57,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/RegisterDriverActions")]
 		public async Task RegisterDriverActionsAsync([FromBody] IEnumerable<DriverActionDto> driverActionModels)
 		{
-
+			await Task.CompletedTask;
 		}
 
 		// POST: RegisterRouteListAddressCoordinates
@@ -77,15 +77,17 @@ namespace DriverAPI.Controllers
 
 			var resultMessage = "OK";
 
+			var actionTime = _actionTimeHelper.GetActionTime(routeListAddressCoordinate);
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, routeListAddressCoordinate.ActionTime);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, actionTime);
 
 				_aPIRouteListData.RegisterCoordinateForRouteListItem(
 					routeListAddressCoordinate.RouteListAddressId,
 					routeListAddressCoordinate.Latitude,
 					routeListAddressCoordinate.Longitude,
-					routeListAddressCoordinate.ActionTime,
+					actionTime,
 					driver.Id);
 			}
 			catch(Exception ex)
@@ -95,7 +97,7 @@ namespace DriverAPI.Controllers
 			}
 			finally
 			{
-				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.OpenOrderReceiptionPanel, routeListAddressCoordinate.ActionTime, recievedTime, resultMessage);
+				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.OpenOrderReceiptionPanel, actionTime, recievedTime, resultMessage);
 			}
 		}
 

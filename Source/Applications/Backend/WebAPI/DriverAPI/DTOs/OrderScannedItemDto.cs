@@ -3,7 +3,6 @@ using Vodovoz.Models.TrueMark;
 
 namespace DriverAPI.DTOs
 {
-
 	public class OrderScannedItemDto : ITrueMarkOrderItemScannedInfo
 	{
 		public int OrderSaleItemId { get; set; }

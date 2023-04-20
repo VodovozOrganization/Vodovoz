@@ -142,9 +142,11 @@ namespace DriverAPI.Controllers
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
+			var actionTime = _actionTimeHelper.GetActionTime(requestDto);
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, requestDto.ActionTime);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, actionTime);
 				_aPIRouteListData.RollbackRouteListAddressStatusEnRoute(requestDto.RoutelistAddressId, driver.Id);
 			}
 			catch(Exception ex)
@@ -156,7 +158,7 @@ namespace DriverAPI.Controllers
 			{
 				_driverMobileAppActionRecordModel.RegisterAction(driver,
 					DriverMobileAppActionType.RollbackRouteListAddressStatusEnRouteClicked,
-					requestDto.ActionTime,
+					actionTime,
 					recievedTime,
 					resultMessage);
 			}
