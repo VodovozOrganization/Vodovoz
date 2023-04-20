@@ -118,8 +118,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void SetDefaults()
 		{
 			IsFastDeliveryOnly = true;
-			FilterOrders = FilterOrdersEnum.All;
-			FastDeliveryIntervalFrom = FastDeliveryIntervalFromEnum.OrderCreated;
+			FilterOrders = FilterOrdersEnum.WithFastDelivery;
+			FastDeliveryIntervalFrom = FastDeliveryIntervalFromEnum.AddedInFirstRouteList;
 		}
 
 		public FilterOrdersEnum FilterOrders
