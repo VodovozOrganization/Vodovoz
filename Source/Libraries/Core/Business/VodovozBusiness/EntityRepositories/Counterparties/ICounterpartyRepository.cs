@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
@@ -16,6 +17,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		IList<Counterparty> GetCounterpartiesByINN(IUnitOfWork uow, string inn);
 		IList<Counterparty> GetNotArchivedCounterpartiesByPhoneNumber(IUnitOfWork uow, string phoneNumber);
 		IList<string> GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(IUnitOfWork uow, string phoneNumber, int currentCounterpartyId);
+		Dictionary<string, List<string>> GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(IUnitOfWork uow, List<Phone> phones, int currentCounterpartyId);
 		Counterparty GetCounterpartyByAccount(IUnitOfWork uow, string accountNumber);
 		IList<string> GetUniqueSignatoryPosts(IUnitOfWork uow);
 		IList<string> GetUniqueSignatoryBaseOf(IUnitOfWork uow);
