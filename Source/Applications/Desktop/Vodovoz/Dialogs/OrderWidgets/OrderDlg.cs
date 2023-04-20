@@ -2948,7 +2948,6 @@ namespace Vodovoz
 			UoW.Session.Refresh(DeliveryPoint);
 
 			AddCommentFromDeliveryPoint();
-			AddCommentLogistFromDeliveryPoint();
 
 			_previousDeliveryPointId = DeliveryPoint.Id;
 		}
@@ -2964,21 +2963,6 @@ namespace Vodovoz
 				if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment) && DeliveryPoint.Id != _previousDeliveryPointId)
 				{
 					Entity.Comment = string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
-				}
-			}
-		}
-
-		private void AddCommentLogistFromDeliveryPoint()
-		{
-			if(string.IsNullOrWhiteSpace(Entity.CommentLogist))
-			{
-				Entity.CommentLogist = DeliveryPoint.CommentLogist;
-			}
-			else
-			{
-				if(!string.IsNullOrWhiteSpace(DeliveryPoint.CommentLogist) && DeliveryPoint.Id != _previousDeliveryPointId)
-				{
-					Entity.CommentLogist = string.Join("\n", DeliveryPoint.CommentLogist, $"Предыдущий комментарий: {Entity.CommentLogist}");
 				}
 			}
 		}

@@ -299,14 +299,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref comment, value, () => Comment);
 		}
 
-		string commentLogist;
-		[Display(Name = "Комментарий логиста")]
-		public virtual string CommentLogist
-		{
-			get => commentLogist;
-			set => SetField(ref commentLogist, value, () => CommentLogist);
-		}
-
 		decimal? latitude;
 
 		/// <summary>

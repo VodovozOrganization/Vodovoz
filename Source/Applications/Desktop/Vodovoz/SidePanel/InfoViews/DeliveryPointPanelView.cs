@@ -77,9 +77,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			textviewComment.Buffer.Changed += OnTextviewCommentBufferChanged;
 			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
 
-			textviewCommentLogist.Buffer.Changed += OnTextviewCommentLogistBufferChanged;
-			textviewCommentLogist.FocusOutEvent += OnTextviewCommentLogistFocusOut;
-
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(GetLogisticsRequirements(), _commonServices);
 		}
 
@@ -182,7 +179,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
-			textviewCommentLogist.Buffer.Text = DeliveryPoint.CommentLogist;
 			_textviewcommentBufferChanged = false;
 			_textviewcommentLogistBufferChanged = false;
 
@@ -270,16 +266,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			_textviewcommentBufferChanged = false;
 		}
 
-		private void SaveCommentLogist()
-		{
-			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий для логиста» на панели точки доставки"))
-			{
-				uow.Root.CommentLogist = textviewCommentLogist.Buffer.Text;
-				uow.Save();
-			}
-			_textviewcommentLogistBufferChanged = false;
-		}
-
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
 			SaveComment();
@@ -287,7 +273,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonSaveCommentLogistClicked(object sender, EventArgs e)
 		{
-			SaveCommentLogist();
+			//SaveCommentLogist();
 		}
 		protected void OnButtonSaveLogisticsRequirementsClicked(object sender, EventArgs e)
 		{
@@ -297,11 +283,6 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void OnTextviewCommentBufferChanged(object sender, EventArgs e)
 		{
 			_textviewcommentBufferChanged = true;
-		}
-
-		private void OnTextviewCommentLogistBufferChanged(object sender, EventArgs e)
-		{
-			_textviewcommentLogistBufferChanged = true;
 		}
 
 		private void OnTextviewCommentFocusOut(object o, FocusOutEventArgs args)
@@ -319,26 +300,6 @@ namespace Vodovoz.SidePanel.InfoViews
 					{
 						textviewComment.Buffer.Text = DeliveryPoint.Comment ?? String.Empty;
 						_textviewcommentBufferChanged = false;
-					}
-				});
-			}
-		}
-
-		private void OnTextviewCommentLogistFocusOut(object o, FocusOutEventArgs args)
-		{
-			if(_textviewcommentLogistBufferChanged && buttonSaveCommentLogist.State != StateType.Prelight)
-			{
-				Application.Invoke((s, ea) =>
-				{
-					bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии для логиста?");
-					if(isRequiredToSaveComment)
-					{
-						SaveCommentLogist();
-					}
-					else
-					{
-						textviewCommentLogist.Buffer.Text = DeliveryPoint.CommentLogist ?? String.Empty;
-						_textviewcommentLogistBufferChanged = false;
 					}
 				});
 			}
@@ -372,9 +333,6 @@ namespace Vodovoz.SidePanel.InfoViews
 
 				textviewComment.Buffer.Changed -= OnTextviewCommentBufferChanged;
 				textviewComment.FocusOutEvent -= OnTextviewCommentFocusOut;
-
-				textviewCommentLogist.Buffer.Changed -= OnTextviewCommentLogistBufferChanged;
-				textviewCommentLogist.FocusOutEvent -= OnTextviewCommentLogistFocusOut;
 
 				base.Dispose();
 			}
