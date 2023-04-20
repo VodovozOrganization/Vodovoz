@@ -137,6 +137,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			RefreshRouteListAddressesCommand = new DelegateCommand<int>(RefreshRouteListAddresses);
 			RefreshFastDeliveryDistrictsCommand = new DelegateCommand(RefreshFastDeliveryDistricts);
 			RefreshLastDriverPositionsCommand = new DelegateCommand(RefreshLastDriverPositions);
+			RefreshAllCommand = new DelegateCommand(RefreshAll);
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(RoutelistEntityConfigEntityUpdated);
 		}
@@ -336,10 +337,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public DelegateCommand RefreshLastDriverPositionsCommand { get; }
 
+		public DelegateCommand RefreshAllCommand { get; }
+
+		#endregion
+
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CarsMonitoringInfoPanelView };
 
 		public int? WidthRequest => 470;
-		#endregion
 
 		#region Events
 		public event Action FastDeliveryDistrictChanged;
@@ -677,6 +681,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void RoutelistEntityConfigEntityUpdated(EntityChangeEvent[] changeEvents)
 		{
 			RefreshWorkingDrivers();
+		}
+
+		private void RefreshAll()
+		{
+			RefreshWorkingDriversCommand.Execute();
+			RefreshFastDeliveryDistrictsCommand.Execute();
 		}
 
 		#endregion

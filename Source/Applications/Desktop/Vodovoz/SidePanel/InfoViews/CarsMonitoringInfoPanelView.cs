@@ -1,4 +1,5 @@
 ﻿using Gtk;
+using QS.Commands;
 using QS.DomainModel.UoW;
 using System;
 using System.ComponentModel;
@@ -11,23 +12,27 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
 	[ToolboxItem(true)]
 	public partial class CarsMonitoringInfoPanelView : Bin, IPanelView, INotifyPropertyChanged, IDisposable
 	{
+		private static FastDeliveryMonitoringNode _emptyNode => new FastDeliveryMonitoringNode();
+
 		private const string _radioButtonPrefix = "yrbtn";
 		private const string _groupFilterOrdersPrefix = "FilterOrders";
 		private const string _groupFastDeliveryIntervalFromPrefix = "FastDeliveryIntervalFrom";
 
-		private static FastDeliveryMonitoringNode _emptyNode => new FastDeliveryMonitoringNode();
+		private DelegateCommand _refreshMonitoring;
 
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private FilterOrdersEnum _filterOrders;
 		private FastDeliveryIntervalFromEnum _fastDeliveryIntervalFrom;
 		private bool _isFastDeliveryOnly;
+		private IInfoProvider _infoProvider;
 
 		public CarsMonitoringInfoPanelView(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -159,13 +164,22 @@ namespace Vodovoz.SidePanel.InfoViews
 		private void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
 			Refresh();
+			_refreshMonitoring?.Execute();
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		public GenericObservableList<FastDeliveryMonitoringNode> Nodes { get; }
 
-		public IInfoProvider InfoProvider { get; set; }
+		public IInfoProvider InfoProvider
+		{
+			get => _infoProvider;
+			set
+			{
+				_infoProvider = value;
+				_refreshMonitoring = (_infoProvider as CarsMonitoringViewModel)?.RefreshAllCommand;
+			}
+		}
 
 		public bool VisibleOnPanel => true;
 

@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using GLib;
 using GMap.NET;
@@ -300,8 +300,7 @@ namespace Vodovoz.Views.Logistic
 		private void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
 			_logger.Info("Обновляем данные диалога...");
-			ViewModel.RefreshWorkingDriversCommand?.Execute();
-			ViewModel.RefreshFastDeliveryDistrictsCommand?.Execute();
+			ViewModel.RefreshAllCommand.Execute();
 			_logger.Info("Ок");
 			UpdateCarPosition();
 		}
