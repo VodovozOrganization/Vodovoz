@@ -1,16 +1,16 @@
 ﻿using Gtk;
 using QS.DomainModel.UoW;
 using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
-using Action = System.Action;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -21,12 +21,18 @@ namespace Vodovoz.SidePanel.InfoViews
 		private const string _groupFilterOrdersPrefix = "FilterOrders";
 		private const string _groupFastDeliveryIntervalFromPrefix = "FastDeliveryIntervalFrom";
 
+		private static FastDeliveryMonitoringNode _emptyNode => new FastDeliveryMonitoringNode();
+
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private FilterOrdersEnum _filterOrders;
 		private FastDeliveryIntervalFromEnum _fastDeliveryIntervalFrom;
 		private bool _isFastDeliveryOnly;
 
-		public CarsMonitoringInfoPanelView(IUnitOfWorkFactory unitOfWorkFactory) : base()
+		public CarsMonitoringInfoPanelView(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
+			: base()
 		{
 			if(unitOfWorkFactory is null)
 			{
@@ -36,7 +42,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Панель мониторинга автомобилей");
 			_unitOfWork.Session.DefaultReadOnly = true;
 
-			Nodes = new ObservableCollection<FastDeliveryMonitoringNode>();
+			Nodes = new GenericObservableList<FastDeliveryMonitoringNode>();
 
 			SetDefaults();
 
@@ -51,8 +57,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			ytvAddressesInProcess.EnableGridLines = TreeViewGridLines.Both;
 
 			ytvAddressesInProcess.ItemsDataSource = Nodes;
-
-			NodesChanged += ytvAddressesInProcess.YTreeModel.EmitModelChanged;
 
 			buttonRefresh.Clicked += OnButtonRefreshClicked;
 
@@ -79,6 +83,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 				button.Toggled += FastDeliveryIntervalFromSelectionChanged;
 			}
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider;
 		}
 
 		private void FastDeliveryIntervalFromSelectionChanged(object sender, EventArgs empty)
@@ -158,9 +163,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		public event Action NodesChanged;
-
-		public ObservableCollection<FastDeliveryMonitoringNode> Nodes { get; }
+		public GenericObservableList<FastDeliveryMonitoringNode> Nodes { get; }
 
 		public IInfoProvider InfoProvider { get; set; }
 
@@ -171,18 +174,12 @@ namespace Vodovoz.SidePanel.InfoViews
 		public void Refresh()
 		{
 			LoadData();
-			NodesChanged?.Invoke();
-		}
-
-		public override void Dispose()
-		{
-			NodesChanged -= ytvAddressesInProcess.YTreeModel.EmitModelChanged;
-			base.Dispose();
 		}
 
 		private void LoadData()
 		{
 			Nodes.Clear();
+			ytvAddressesInProcess.ItemsDataSource = Nodes;
 
 			var nodesQuery = from rl in _unitOfWork.Session.Query<RouteList>()
 							 join rla in _unitOfWork.Session.Query<RouteListItem>()
@@ -191,6 +188,8 @@ namespace Vodovoz.SidePanel.InfoViews
 							 on rla.Order.Id equals o.Id
 							 join dp in _unitOfWork.Session.Query<DeliveryPoint>()
 							 on o.DeliveryPoint.Id equals dp.Id
+							 join schedule in _unitOfWork.Session.Query<DeliverySchedule>()
+							 on o.DeliverySchedule.Id equals schedule.Id
 							 join driver in _unitOfWork.Session.Query<Employee>()
 							 on rl.Driver.Id equals driver.Id
 							 join car in _unitOfWork.Session.Query<Car>()
@@ -205,7 +204,15 @@ namespace Vodovoz.SidePanel.InfoViews
 								$"{driver.Name.Substring(0, 1)}. " +
 								$"{driver.Patronymic.Substring(0, 1)}."
 							 let isFastDeliveryString = o.IsFastDelivery ? "Доставка за час" : string.Empty
-							 let deliveryBefore = rl.Date
+							 let deliveryBefore = o.IsFastDelivery
+								? FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.OrderCreated ? o.CreateDate.Value.Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) :
+									FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.AddedInFirstRouteList ?
+										(from rlaFirst in _unitOfWork.Session.Query<RouteListItem>()
+										 where rlaFirst.RouteList.Id == rl.Id
+										 orderby rlaFirst.CreationDate ascending
+										 select rlaFirst.CreationDate).First().Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) :
+									FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered ? rla.CreationDate.Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) : rl.Date.Add(schedule.To)
+								: rl.Date.Add(schedule.To)
 							 select new
 							 {
 								 DriverName = surnameWithInitials,
@@ -253,6 +260,8 @@ namespace Vodovoz.SidePanel.InfoViews
 						Column3 = timeElapsedString
 					});
 				}
+
+				Nodes.Add(_emptyNode);
 			}
 		}
 
@@ -261,6 +270,12 @@ namespace Vodovoz.SidePanel.InfoViews
 		private static string Red(string input) => $"<span color=\"Red\">{input}</span>";
 
 		private static string Blue(string input) => $"<span color=\"Blue\">{input}</span>";
+
+		public override void Destroy()
+		{
+			ytvAddressesInProcess.Destroy();
+			base.Destroy();
+		}
 	}
 
 	public class FastDeliveryMonitoringNode

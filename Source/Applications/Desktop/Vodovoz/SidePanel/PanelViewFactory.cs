@@ -25,8 +25,6 @@ namespace Vodovoz.SidePanel
 {
 	public static class PanelViewFactory
 	{
-		private static readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer;
-
 		public static Widget Create(PanelViewType type)
 		{
 			switch(type)
@@ -71,7 +69,7 @@ namespace Vodovoz.SidePanel
 					var edoLightsMatrixPanelViewModel = new EdoLightsMatrixPanelViewModel(edoLightsMatrixViewModel, gtkTabsOpener, tdiTab);
 					return new EdoLightsMatrixPanelView(edoLightsMatrixPanelViewModel);
 				case PanelViewType.CarsMonitoringInfoPanelView:
-					return _lifetimeScope.Resolve<CarsMonitoringInfoPanelView>();
+					return new CarsMonitoringInfoPanelView(UnitOfWorkFactory.GetDefaultFactory, new DeliveryRulesParametersProvider(new ParametersProvider()));
 				default:
 					throw new NotSupportedException();
 			}

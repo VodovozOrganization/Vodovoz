@@ -38,8 +38,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class CarsMonitoringViewModel : DialogTabViewModelBase, IInfoProvider
 	{
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
