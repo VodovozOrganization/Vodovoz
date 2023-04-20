@@ -5,9 +5,9 @@ using Vodovoz.Factories;
 
 namespace Vodovoz.Models.TrueMark
 {
-	public class SelfdeliveryReceiptCreator : OrderReceiptCreator
+	public class DeliveryOrderReceiptCreator : OrderReceiptCreator
 	{
-		public SelfdeliveryReceiptCreator(
+		public DeliveryOrderReceiptCreator(
 			ILogger<OrderReceiptCreator> logger,
 			IUnitOfWorkFactory uowFactory,
 			ICashReceiptRepository cashReceiptRepository, 

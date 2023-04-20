@@ -1,5 +1,6 @@
 ﻿using RestSharp.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -11,6 +12,9 @@ namespace Vodovoz.Models.CashReceipts
 {
 	public class FiscalDocumentPreparer
 	{
+		private const string _notValidRawCode =
+			"У одного из кодов не заполнен итоговый код, который должен быть использован для записи в чек. " +
+			"Возможно он оказался не обработанным службой обработки кодов честного знака";
 		private readonly TrueMarkWaterCodeParser _codeParser;
 
 		public FiscalDocumentPreparer(TrueMarkWaterCodeParser codeParser)
@@ -41,8 +45,19 @@ namespace Vodovoz.Models.CashReceipts
 				fiscalDocument.ClientINN = order.Client.INN;
 			}
 
-			FillInventPositions(fiscalDocument, cashReceipt);
-			FillMoneyPositions(fiscalDocument, cashReceipt);
+			var countMarkedNomenclatures =
+				cashReceipt.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count);
+
+			if(countMarkedNomenclatures > CashReceipt.MaxMarkCodesInReceipt)
+			{
+				FillInventPositions(fiscalDocument, cashReceipt, out var cashReceiptSum);
+				FillMoneyPositions(fiscalDocument, cashReceipt.Order.PaymentType, cashReceiptSum);
+			}
+			else
+			{
+				FillInventPositions(fiscalDocument, cashReceipt);
+				FillMoneyPositions(fiscalDocument, cashReceipt);
+			}
 
 			ValidateDocument(fiscalDocument);
 
@@ -71,13 +86,13 @@ namespace Vodovoz.Models.CashReceipts
 
 				if(orderItemsCodes.Any(x => string.IsNullOrWhiteSpace(x.ResultCode.RawCode)))
 				{
-					throw new TrueMarkException("У одного из кодов не заполнен итоговый код который должен быть использован для записи в чек. " +
-						"Возможно он оказался не обработанным службной обработки кодов честного знака");
+					throw new TrueMarkException(_notValidRawCode);
 				}
 
 				if(orderItemsCodes.Count < orderItem.Count)
 				{
-					throw new TrueMarkException($"Невозможно сформировать строку в чеке. У номенклатуры Id {orderItem.Nomenclature.Id} " +
+					throw new TrueMarkException(
+						$"Невозможно сформировать строку в чеке. У номенклатуры Id {orderItem.Nomenclature.Id} " +
 						$"включена обязательная маркировка, но для строки заказа Id {orderItem.Id} количество кодов ({orderItemsCodes.Count}) не " +
 						$"совпадает с количеством товара ({orderItem.Count})");
 				}
@@ -95,7 +110,7 @@ namespace Vodovoz.Models.CashReceipts
 				//i == 1 чтобы пропуcтить последний элемент, у него расчет происходит из остатков
 				for(int i = 1; i <= orderItem.Count - 1; i++)
 				{
-					decimal partDiscount = Math.Floor(orderItem.DiscountMoney / orderItem.Count);
+					var partDiscount = Math.Round(orderItem.DiscountMoney / orderItem.Count, 1);
 					wholeDiscount += partDiscount;
 
 					var inventPosition = CreateInventPosition(orderItem);
@@ -117,6 +132,109 @@ namespace Vodovoz.Models.CashReceipts
 			}
 		}
 
+		private void FillInventPositions(FiscalDocument fiscalDocument, CashReceipt cashReceipt, out decimal cashReceiptSum)
+		{
+			cashReceiptSum = 0m;
+			var maxCodesCount = CashReceipt.MaxMarkCodesInReceipt;
+			var receiptNumber = cashReceipt.InnerNumber ?? 0;
+			var unprocessedCodesCount = maxCodesCount * receiptNumber;
+
+			if(unprocessedCodesCount == 0)
+			{
+				throw new InvalidOperationException(
+					$"{nameof(cashReceipt.InnerNumber)} внутренний номер чека должен быть указан," +
+					$" если маркированных позиций больше {maxCodesCount}");
+			}
+			
+			foreach(var orderItem in cashReceipt.Order.OrderItems)
+			{
+				if(orderItem.Count <= 0)
+				{
+					continue;
+				}
+
+				if(!orderItem.Nomenclature.IsAccountableInTrueMark && receiptNumber == 1)
+				{
+					var inventPosition = CreateInventPosition(orderItem);
+					fiscalDocument.InventPositions.Add(inventPosition);
+					cashReceiptSum += orderItem.Sum;
+					continue;
+				}
+				
+				if(unprocessedCodesCount == 0)
+				{
+					continue;
+				}
+
+				var orderItemsCodes =
+					new Queue<CashReceiptProductCode>(cashReceipt.ScannedCodes.Where(x => x.OrderItem.Id == orderItem.Id));
+
+				if(orderItemsCodes.Any(x => string.IsNullOrWhiteSpace(x.ResultCode.RawCode)))
+				{
+					throw new TrueMarkException(_notValidRawCode);
+				}
+
+				if(orderItem.Count == 1)
+				{
+					if(unprocessedCodesCount > maxCodesCount)
+					{
+						unprocessedCodesCount -= 1;
+						continue;
+					}
+					
+					var inventPosition = CreateInventPosition(orderItem);
+					inventPosition.ProductMark =
+						_codeParser.GetProductCodeForCashReceipt(TryGetCodeFromScannedCodes(orderItemsCodes, orderItem));
+					fiscalDocument.InventPositions.Add(inventPosition);
+					cashReceiptSum += orderItem.Sum;
+					unprocessedCodesCount -= 1;
+					continue;
+				}
+
+				var orderItemsCountWithoutLast = orderItem.Count - 1;
+				var partDiscount = Math.Round(orderItem.DiscountMoney / orderItem.Count, 1);
+				var lastPartDiscount = Math.Round(orderItem.DiscountMoney - (orderItemsCountWithoutLast * partDiscount), 2);
+
+				for(var i = 0; i < orderItem.Count; i++)
+				{
+					if(unprocessedCodesCount > maxCodesCount)
+					{
+						unprocessedCodesCount -= 1;
+						continue;
+					}
+					if(unprocessedCodesCount == 0)
+					{
+						break;
+					}
+
+					var discount = i == orderItemsCountWithoutLast ? lastPartDiscount : partDiscount;
+					
+					var inventPosition = CreateInventPosition(orderItem);
+					inventPosition.Quantity = 1;
+					inventPosition.DiscSum = discount;
+					inventPosition.ProductMark =
+						_codeParser.GetProductCodeForCashReceipt(TryGetCodeFromScannedCodes(orderItemsCodes, orderItem));
+					fiscalDocument.InventPositions.Add(inventPosition);
+					cashReceiptSum += inventPosition.PriceWithoutDiscount - discount;
+					unprocessedCodesCount -= 1;
+				}
+			}
+		}
+
+		private TrueMarkWaterIdentificationCode TryGetCodeFromScannedCodes(
+			Queue<CashReceiptProductCode> orderItemsCodes, OrderItem orderItem)
+		{
+			if(orderItemsCodes.Count == 0)
+			{
+				throw new TrueMarkException(
+					$"Невозможно сформировать строку в чеке. У номенклатуры Id {orderItem.Nomenclature.Id} " +
+					$"включена обязательная маркировка, но для строки заказа Id {orderItem.Id} количество кодов ({orderItemsCodes.Count}) не " +
+					$"совпадает с количеством товара ({orderItem.Count})");
+			}
+			
+			return orderItemsCodes.Dequeue().ResultCode;
+		}
+
 		private InventPosition CreateInventPosition(OrderItem orderItem)
 		{
 			var inventPosition = new InventPosition
@@ -136,18 +254,28 @@ namespace Vodovoz.Models.CashReceipts
 			var soldItems = order.OrderItems.Where(x => x.Count > 0);
 			var sum = soldItems.Sum(x => x.Sum);
 
+			AddMoneyPosition(fiscalDocument, order.PaymentType, sum);
+		}
+		
+		private void FillMoneyPositions(FiscalDocument fiscalDocument, PaymentType orderPaymentType, decimal cashReceiptSum)
+		{
+			AddMoneyPosition(fiscalDocument, orderPaymentType, cashReceiptSum);
+		}
+
+		private void AddMoneyPosition(FiscalDocument fiscalDocument, PaymentType orderPaymentType, decimal cashReceiptSum)
+		{
 			var moneyPosition = new MoneyPosition
 			{
-				Sum = sum,
-				PaymentType = GetPaymentType(order)
+				Sum = cashReceiptSum,
+				PaymentType = GetPaymentType(orderPaymentType)
 			};
 
 			fiscalDocument.MoneyPositions.Add(moneyPosition);
 		}
 
-		private string GetPaymentType(Order order)
+		private string GetPaymentType(PaymentType orderPaymentType)
 		{
-			switch(order.PaymentType)
+			switch(orderPaymentType)
 			{
 				case PaymentType.Terminal:
 				case PaymentType.ByCard:

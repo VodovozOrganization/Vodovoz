@@ -978,6 +978,20 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return result;
 		}
+
+		public decimal GetIsAccountableInTrueMarkOrderItemsCount(IUnitOfWork uow, int orderId)
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			
+			return uow.Session.QueryOver<VodovozOrder>()
+				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(o => o.Id == orderId)
+				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
+				.Select(Projections.Sum(() => orderItemAlias.Count))
+				.SingleOrDefault<decimal>();
+		}
 	}
 
 	public class NotFullyPaidOrderNode
