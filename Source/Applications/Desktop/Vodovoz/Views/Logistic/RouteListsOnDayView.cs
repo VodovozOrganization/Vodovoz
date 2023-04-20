@@ -547,7 +547,7 @@ namespace Vodovoz.Views.Logistic
 					FillTypeAndShapeLogisticsRequrementsMarker(order, out PointMarkerShape shapeLogisticsRequrements, out PointMarkerType typeLogisticsRequrements);
 					if(typeLogisticsRequrements != PointMarkerType.none && shapeLogisticsRequrements != PointMarkerShape.none)
 					{
-						var logisticsRequrementsMarker = FillAddressMarker(order, typeLogisticsRequrements, shapeLogisticsRequrements, addressesOverlay, route);
+						PointMarker logisticsRequrementsMarker = FillAddressMarker(order, typeLogisticsRequrements, shapeLogisticsRequrements, addressesOverlay, route);
 						addressesLogisticsRequirementsOverlay.Markers.Add(logisticsRequrementsMarker);
 					}
 				}
@@ -556,6 +556,7 @@ namespace Vodovoz.Views.Logistic
 			}
 
 			PushApartAddresses(addressesOverlay);
+			PushLogisticsRequrementsMarkers(addressesLogisticsRequirementsOverlay);
 
 			UpdateOrdersInfo();
 			logger.Info("Ок.");
@@ -624,6 +625,51 @@ namespace Vodovoz.Views.Logistic
 				};
 
 				addressOverlapOverlay.Markers.Add(overlapMarker);
+			}
+		}
+
+		/// <summary>
+		/// Разведение друг от друга близко расположенных маркеров требований к логистике по аналогии с маркерами адресов
+		/// </summary>
+		private void PushLogisticsRequrementsMarkers(GMapOverlay addressesLogisticsRequirementsOverlay)
+		{
+			var pushApartPrecision = 0.0001d;
+
+			var addressMarkers = addressesLogisticsRequirementsOverlay.Markers
+				.Where(x => x.Tag is Order)
+				.OrderBy(x => x.Position.Lat)
+				.ThenBy(x => x.Position.Lng)
+				.ToArray();
+
+			var overlapMarkers = new Dictionary<int, List<GMapMarker>>();
+
+			var index = 0;
+
+			foreach(var orderMarker in addressMarkers)
+			{
+				var intersections = addressMarkers
+					.Except(new[] { orderMarker })
+					.Where(g => Math.Abs(g.Position.Lat - orderMarker.Position.Lat) < pushApartPrecision
+								&& Math.Abs(g.Position.Lng - orderMarker.Position.Lng) < pushApartPrecision)
+					.ToList();
+
+				for(var i = 0; i < intersections.Count; i++)
+				{
+					var intersectMarker = addressMarkers.Single(x => x.Tag == intersections[i].Tag);
+
+					var lat = orderMarker.Position.Lat + (i + 1) * pushApartPrecision + pushApartPrecision / 10;
+					var lng = orderMarker.Position.Lng + (i + 1) * pushApartPrecision + pushApartPrecision / 10;
+
+					intersectMarker.Position = new PointLatLng(lat, lng);
+				}
+
+				if(intersections.Any() && !overlapMarkers.Values.Any(x => x.Contains(orderMarker)))
+				{
+					var intersectionsWithSelf = intersections.Concat(new[] { orderMarker }).ToList();
+					overlapMarkers.Add(index, intersectionsWithSelf);
+
+					index++;
+				}
 			}
 		}
 

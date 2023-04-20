@@ -911,17 +911,12 @@ namespace Vodovoz
 						UpdateAvailableEnumSignatureTypes();
 						UpdateOrderAddressTypeWithUI();
 						SetLogisticsRequirementsCheckboxes();
-						UpdateEntityLogisticsRequirements();
 						break;
 					case nameof(Entity.OrderAddressType):
 						UpdateOrderAddressTypeUI();
 						break;
 					case nameof(Entity.Client.IsChainStore):
 						UpdateOrderAddressTypeWithUI();
-						break;
-					case nameof(Entity.DeliveryPoint):
-						SetLogisticsRequirementsCheckboxes();
-						UpdateEntityLogisticsRequirements();
 						break;
 				}
 			};
@@ -954,43 +949,48 @@ namespace Vodovoz
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (sender is LogisticsRequirements requirements)
+			if (sender is LogisticsRequirements requirements && Entity.DeliveryPoint != null)
 			{
 				string commentToAdd = string.Empty;
 
 				if(e.PropertyName == nameof(LogisticsRequirements.ForwarderRequired))
 				{
-					if(requirements.ForwarderRequired)
+					var requirementComment = "Требуется экспедитор на адресе";
+					if(requirements.ForwarderRequired && !Entity.Comment.Contains(requirementComment))
 					{
-						commentToAdd = "Требуется экспедитор на адресе: \"Э\" на карте";
+						commentToAdd = requirementComment;
 					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.DocumentsRequired))
 				{
-					if(requirements.DocumentsRequired)
+					var requirementComment = "Наличие паспорта/документов у водителя";
+					if(requirements.DocumentsRequired && !Entity.Comment.Contains(requirementComment))
 					{
-						commentToAdd = "Наличие паспорта/документов у водителя: \"Д\" на карте";
+						commentToAdd = requirementComment;
 					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.RussianDriverRequired))
 				{
-					if(requirements.RussianDriverRequired)
+					var requirementComment = "Требуется русский водитель";
+					if(requirements.RussianDriverRequired && !Entity.Comment.Contains(requirementComment))
 					{
-						commentToAdd = "Требуется русский водитель: \"Р\" на карте";
+						commentToAdd = requirementComment;
 					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.PassRequired))
 				{
-					if(requirements.PassRequired)
+					var requirementComment = "Требуется пропуск";
+					if(requirements.PassRequired && !Entity.Comment.Contains(requirementComment))
 					{
-						commentToAdd = "Требуется пропуск: \"П\" на карте";
+						commentToAdd = requirementComment;
 					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.LargusRequired))
 				{
-					if(requirements.LargusRequired)
+					var requirementComment = "Только ларгус (газель не проедет)";
+					if(requirements.LargusRequired && !Entity.Comment.Contains(requirementComment))
 					{
-						commentToAdd = "Только ларгус (газель не проедет): \"Л\" на карте";
+						commentToAdd = requirementComment;
 					}
 				}
 
@@ -998,7 +998,7 @@ namespace Vodovoz
 				{
 					Entity.Comment =
 						Entity.Comment.Length > 0
-						? Entity.Comment + "\n" + commentToAdd
+						? commentToAdd + "\n" + Entity.Comment
 						: commentToAdd;
 				}
 			}
@@ -1010,7 +1010,7 @@ namespace Vodovoz
 		{
 			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements();
 
-			if(Order.Id > 0)
+			if(Order.Id > 0 || Entity.DeliveryPoint == null)
 			{
 				return logisticsRequirementsFromCounterpartyAndDeliveryPoint;
 			}
@@ -1068,6 +1068,8 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired= requirements.RussianDriverRequired;
 			logisticsRequirementsView.ViewModel.Entity.PassRequired = requirements.PassRequired;
 			logisticsRequirementsView.ViewModel.Entity.LargusRequired = requirements.LargusRequired;
+
+			UpdateEntityLogisticsRequirements();
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
@@ -2935,6 +2937,8 @@ namespace Vodovoz
 				OnFormOrderActions();
 
 			AddCommentsFromDeliveryPoint();
+
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		private void AddCommentsFromDeliveryPoint()
