@@ -211,7 +211,7 @@ namespace Vodovoz.SidePanel.InfoViews
 								 DriverName = surnameWithInitials,
 								 RouteListId = rl.Id,
 								 CarNumber = car.RegistrationNumber,
-								 Address = $"{dp.Street} {dp.Building}{dp.Letter} {dp.Entrance}",
+								 Address = $"{dp.Street} {dp.Building}{dp.Letter}",
 								 DeliveryType = isFastDeliveryString,
 								 DeliveryBefore = deliveryBefore
 							 };
