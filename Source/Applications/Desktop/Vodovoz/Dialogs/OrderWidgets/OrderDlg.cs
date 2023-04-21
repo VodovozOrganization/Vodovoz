@@ -3828,12 +3828,12 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblPhoneNumber.Text} {phone}").AppendLine();
 
-			string todayTommorowLable = string.Empty;
+			var todayTommorowLable = string.Empty;
 			if(Entity.DeliveryDate?.Date == DateTime.Today.Date)
 			{
 				todayTommorowLable = "Сегодня, ";
 			}
-			if(Entity.DeliveryDate?.Date == DateTime.Today.Date + TimeSpan.FromDays(1))
+			if(Entity.DeliveryDate?.Date == DateTime.Today.Date.AddDays(1))
 			{
 				todayTommorowLable = "Завтра, ";
 			}
