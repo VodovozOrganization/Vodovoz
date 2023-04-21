@@ -9,6 +9,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.EntityRepositories.Stock
@@ -142,48 +143,49 @@ namespace Vodovoz.EntityRepositories.Stock
 		//TODO проверить работу запроса
 		public Dictionary<int, decimal> NomenclatureInStock(
 			IUnitOfWork uow,
-			int warehouseId,
-			int[] nomenclaturesToInclude,
-			int[] nomenclaturesToExclude,
-			NomenclatureCategory[] nomenclatureTypeToInclude,
-			NomenclatureCategory[] nomenclatureTypeToExclude,
-			int[] productGroupToInclude,
-			int[] productGroupToExclude,
+			int storageId,
+			OperationTypeByStorage operationTypeByStorage,
+			IEnumerable<int> nomenclaturesToInclude,
+			IEnumerable<int> nomenclaturesToExclude,
+			IEnumerable<NomenclatureCategory> nomenclatureTypeToInclude,
+			IEnumerable<NomenclatureCategory> nomenclatureTypeToExclude,
+			IEnumerable<int> productGroupToInclude,
+			IEnumerable<int> productGroupToExclude,
 			DateTime? onDate = null)
 		{
 			Nomenclature nomenclatureAlias = null;
 
-			var query = uow.Session.QueryOver<WarehouseBulkGoodsAccountingOperation>()
+			var query = uow.Session.QueryOver<BulkGoodsAccountingOperation>()
 				.Left.JoinAlias(op => op.Nomenclature, () => nomenclatureAlias);
 
-			if(nomenclatureTypeToInclude?.Length > 0)
+			if(nomenclatureTypeToInclude != null && nomenclatureTypeToInclude.Any())
 			{
-				query.WhereRestrictionOn(() => nomenclatureAlias.Category).IsIn(nomenclatureTypeToInclude);
+				query.WhereRestrictionOn(() => nomenclatureAlias.Category).IsInG(nomenclatureTypeToInclude);
 			}
 			
 			if(productGroupToInclude != null && productGroupToInclude.Any())
 			{
-				query.Where(() => nomenclatureAlias.ProductGroup.Id.IsIn(productGroupToInclude));
+				query.WhereRestrictionOn(() => nomenclatureAlias.ProductGroup.Id).IsInG(productGroupToInclude);
 			}
 
 			if(nomenclaturesToInclude != null && nomenclaturesToInclude.Any())
 			{
-				query.Where(() => nomenclatureAlias.Id.IsIn(nomenclaturesToInclude));
+				query.WhereRestrictionOn(() => nomenclatureAlias.Id).IsInG(nomenclaturesToInclude);
 			}
 
-			if(nomenclatureTypeToExclude?.Length > 0)
+			if(nomenclatureTypeToExclude != null && nomenclatureTypeToExclude.Any())
 			{
-				query.WhereRestrictionOn(() => nomenclatureAlias.Category).Not.IsIn(nomenclatureTypeToExclude);
+				query.WhereRestrictionOn(() => nomenclatureAlias.Category).Not.IsInG(nomenclatureTypeToExclude);
 			}
 			
 			if(productGroupToExclude != null && productGroupToExclude.Any())
 			{
-				query.WhereRestrictionOn(() => nomenclatureAlias.ProductGroup).Not.IsIn(productGroupToExclude);
+				query.WhereRestrictionOn(() => nomenclatureAlias.ProductGroup).Not.IsInG(productGroupToExclude);
 			}
 
 			if(nomenclaturesToExclude != null && nomenclaturesToExclude.Any())
 			{
-				query.WhereRestrictionOn(() => nomenclatureAlias.Id).Not.IsIn(nomenclaturesToExclude);
+				query.WhereRestrictionOn(() => nomenclatureAlias.Id).Not.IsInG(nomenclaturesToExclude);
 			}
 
 			if(onDate.HasValue)
@@ -192,10 +194,10 @@ namespace Vodovoz.EntityRepositories.Stock
 			}
 
 			var stocklist = query
-				.Where(op => op.Warehouse.Id == warehouseId)
+				.Where(NomenclatureInstanceRepository.GetGoodsAccountingOperationCriterionByStorage(operationTypeByStorage, storageId))
 				.SelectList(list => list
 				   .SelectGroup(() => nomenclatureAlias.Id)
-				   .Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(op => op.Amount)))
+				   .Select(Projections.Sum<BulkGoodsAccountingOperation>(op => op.Amount)))
 				.TransformUsing(Transformers.AliasToBean<(int nomenclatureId, decimal amount)>())
 				.List<(int nomenclatureId, decimal amount)>();
 			

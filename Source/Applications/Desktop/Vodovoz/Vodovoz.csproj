@@ -1763,6 +1763,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.InventoryDocumentView.cs" />
     <Compile Include="Filters\Views\InventoryInstancesStockBalanceJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.InventoryInstancesStockBalanceJournalFilterView.cs" />
+    <Compile Include="Views\Warehouse\ShiftChangeResidueDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.ShiftChangeResidueDocumentView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

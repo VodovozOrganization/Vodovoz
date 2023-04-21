@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "строки входящей накладной",
 		Nominative = "строка входящей накладной")]
 	[HistoryTrace]
-	public abstract class IncomingInvoiceItem : PropertyChangedBase, IDomainObject
+	public class IncomingInvoiceItem : PropertyChangedBase, IDomainObject
 	{
 		private decimal _amount;
 		private decimal _primeCost;
@@ -69,11 +69,11 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual decimal Sum => PrimeCost * Amount;
 
-		public abstract string Name { get; }
+		public virtual string Name { get; }
 
-		public abstract string NumberString { get; }
+		public virtual string InventoryNumberString { get; }
 
-		public abstract bool CanEditAmount { get; }
+		public virtual bool CanEditAmount { get; }
 
 		public virtual GoodsAccountingOperation GoodsAccountingOperation { get; set; }
 
@@ -92,9 +92,11 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 		
-		public abstract AccountingType AccountingType { get; }
+		public virtual AccountingType AccountingType { get; }
 		
 		public override string ToString() => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
+		
+		public virtual int EntityId { get; }
 		
 		public virtual string Title =>
 			string.Format("[{2}] {0} - {1}",

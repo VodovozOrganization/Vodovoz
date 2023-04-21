@@ -1854,6 +1854,22 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.Finish()
 			);
+			
+			//InventoryNomenclaturesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<InventoryNomenclaturesJournalViewModel>(
+				() => FluentColumnsConfig<NomenclatureJournalNode>.Create()
+					.AddColumn("Код")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Номенклатура")
+						.AddTextRenderer(node => node.Name)
+					.AddColumn("Категория")
+						.AddTextRenderer(node => node.Category.GetEnumTitle())
+					.AddTextRenderer(node => node.AvailableText)
+						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? _colorBlack : _colorRed)
+					.AddColumn("Код в ИМ")
+						.AddTextRenderer(node => node.OnlineStoreExternalId)
+					.Finish()
+			);
 		}
 	}
 }

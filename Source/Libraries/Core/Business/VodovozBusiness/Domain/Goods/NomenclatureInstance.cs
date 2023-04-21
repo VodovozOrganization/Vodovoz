@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Goods
 {
-	public abstract class NomenclatureInstance : PropertyChangedBase, IDomainObject
+	public abstract class NomenclatureInstance : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private decimal _purchasePrice;
 		private decimal _costPrice;
@@ -50,6 +51,14 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		public abstract NomenclatureInstanceType Type { get; }
+		
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Nomenclature == null)
+			{
+				yield return new ValidationResult("Необходимо выбрать номенклатуру");
+			}
+		}
 	}
 
 	public enum NomenclatureInstanceType

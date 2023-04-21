@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
@@ -38,13 +37,16 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		public override string Name => InventoryNomenclatureInstance != null
-			? InventoryNomenclatureInstance.Nomenclature?.Name : "";
+			? InventoryNomenclatureInstance.Nomenclature?.Name
+			: string.Empty;
 		
-		public override string NumberString =>
+		public override string InventoryNumberString =>
 			InventoryNomenclatureInstance?.Nomenclature != null && InventoryNomenclatureInstance.Nomenclature.HasInventoryAccounting
 				? InventoryNomenclatureInstance.InventoryNumber
-				: "";
+				: string.Empty;
 		public override bool CanEditAmount => false;
+
+		public override int EntityId => InventoryNomenclatureInstance?.Id ?? default(int);
 
 		public virtual WarehouseInstanceGoodsAccountingOperation WarehouseInstanceGoodsAccountingOperation
 		{

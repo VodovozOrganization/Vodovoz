@@ -26,6 +26,7 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.ViewModels.Goods;
@@ -69,7 +70,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			NomenclaturePurchasePriceModel nomenclaturePurchasePriceModel,
 			IStockRepository stockRepository,
 			INavigationManager navigationManager)
-			: base(uowBuilder, unitOfWorkFactory, commonServices)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureSelectorFactory =
@@ -109,8 +110,6 @@ namespace Vodovoz.ViewModels.Warehouses
         
 		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; }
 
-		public bool isNew => Entity.Id == 0;
-
 		public bool CanEdit => 
 			(UoW.IsNew && PermissionResult.CanCreate) 
 			|| (PermissionResult.CanUpdate)
@@ -148,6 +147,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		public bool CanUpdate => PermissionResult.CanUpdate;
 		public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
 		public bool HasSelectedItem => SelectedItem != null;
+		public bool CanDuplicateInstance => CanAddItem && SelectedItem is InventoryInstanceIncomingInvoiceItem;
 
 		public IncomingInvoiceItem SelectedItem
 		{
@@ -157,6 +157,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				if(SetField(ref _selectedItem, value))
 				{
 					OnPropertyChanged(nameof(HasSelectedItem));
+					OnPropertyChanged(nameof(CanDuplicateInstance));
 				}
 			}
 		}
@@ -188,16 +189,17 @@ namespace Vodovoz.ViewModels.Warehouses
                         () => {
                             
                             var alreadyAddedNomenclatures = Entity.Items
-                                .Where(x => x.Nomenclature != null)
-                                .Select(x => x.Nomenclature.Id);
-                            
+                                .Where(x => x.Nomenclature != null && x.AccountingType == AccountingType.Bulk)
+                                .Select(x => x.EntityId);
                             
                             var nomenclatureSelector = _nomenclatureSelectorFactory
                                 .CreateNomenclatureSelector(alreadyAddedNomenclatures);
                             
-                            nomenclatureSelector.OnEntitySelectedResult += (sender, e) => {
+                            nomenclatureSelector.OnEntitySelectedResult += (sender, e) =>
+                            {
                                 var selectedNodes = e.SelectedNodes;
-                                if(!selectedNodes.Any()) {
+                                if(!selectedNodes.Any())
+                                {
                                     return;
                                 }
                                 
@@ -230,9 +232,11 @@ namespace Vodovoz.ViewModels.Warehouses
 							bool IsOnlineStoreOrders = true;
 							IEnumerable<OrderStatus> orderStatuses = new OrderStatus[] { OrderStatus.Accepted, OrderStatus.InTravelList, OrderStatus.OnLoading };
 							var orderSelector = _orderSelectorFactory.CreateOrderSelectorForDocument(IsOnlineStoreOrders, orderStatuses);
-							orderSelector.OnEntitySelectedResult += (sender, e) => {
+							orderSelector.OnEntitySelectedResult += (sender, e) =>
+							{
 								IEnumerable<OrderForMovDocJournalNode> selectedNodes = e.SelectedNodes.Cast<OrderForMovDocJournalNode>();
-								if(!selectedNodes.Any()) {
+								if(!selectedNodes.Any())
+								{
 									return;
 								}
 								var orders = UoW.GetById<Order>(selectedNodes.Select(x => x.Id));
@@ -246,18 +250,24 @@ namespace Vodovoz.ViewModels.Warehouses
 									nomsAmount = _stockRepository.NomenclatureInStock(UoW, nomIds.ToArray(), Entity.Warehouse.Id);
 								}
                                 //Если такие уже добавлены, то только увеличить их количество
-								foreach (var item in orderItems) {
-                                    var moveItem = Entity.Items.FirstOrDefault(x => x.Nomenclature.Id == item.Nomenclature.Id);
+								foreach (var item in orderItems)
+								{
+                                    var moveItem = Entity.Items.FirstOrDefault(
+	                                    x => x.AccountingType == AccountingType.Bulk
+										&& x.EntityId == item.Nomenclature.Id);
+                                    
                                     if (moveItem == null)
                                     {
                                         var count = item.Count > nomsAmount[item.Nomenclature.Id]
                                             ? nomsAmount[item.Nomenclature.Id]
                                             : item.Count;
                                         if ((count == 0) && item.Nomenclature.OnlineStore == null)
-                                            continue;
-                                        
+                                        {
+	                                        continue;
+                                        }
+
                                         if (item.Nomenclature.Category == NomenclatureCategory.service
-											|| item.Nomenclature.Category == NomenclatureCategory.master)
+                                            || item.Nomenclature.Category == NomenclatureCategory.master)
 										{
 											continue;
 										}
@@ -268,12 +278,17 @@ namespace Vodovoz.ViewModels.Warehouses
 											Amount = item.Count,
 											PrimeCost = item.Price
 										});
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         var count = (moveItem.Amount + item.Count) > nomsAmount[item.Nomenclature.Id] ?
                                             nomsAmount[item.Nomenclature.Id] :
                                             (moveItem.Amount + item.Count);
                                         if(count == 0)
-                                            continue;
+                                        {
+	                                        continue;
+                                        }
+
                                         moveItem.Amount = count;
                                     }
                                 }
@@ -295,10 +310,12 @@ namespace Vodovoz.ViewModels.Warehouses
             get {
                 if(_printCommand == null) {
                     _printCommand = new DelegateCommand(
-                        () => {
+                        () =>
+                        {
                             int? currentEmployeeId = _employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId)?.Id;
                             var doc = new IncomingInvoiceDocumentRDL(Entity, currentEmployeeId){Title = Entity.Title};
-                            if(doc is IPrintableRDLDocument) {
+                            if(doc is IPrintableRDLDocument)
+                            {
                                 _rdlPreviewOpener.OpenRldDocument(typeof(IncomingInvoice), doc);
                             }
                         },
@@ -314,9 +331,25 @@ namespace Vodovoz.ViewModels.Warehouses
 			_addInventoryInstanceCommand ?? (_addInventoryInstanceCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<InventoryInstancesJournalViewModel>(this);
+					IPage<InventoryInstancesJournalViewModel> page = null; 
+					var excludedInventoryInstancesIds =
+						Entity.ObservableItems.Where(x => x.AccountingType == AccountingType.Instance)
+							.Select(x => x.EntityId).ToArray();
+					if(excludedInventoryInstancesIds.Any())
+					{
+						page = NavigationManager
+							.OpenViewModel<InventoryInstancesJournalViewModel, Action<InventoryInstancesJournalFilterViewModel>>(
+								this,
+								f => f.ExcludedInventoryInstancesIds = excludedInventoryInstancesIds,
+								OpenPageOptions.AsSlave);
+					}
+					else
+					{
+						page = NavigationManager.OpenViewModel<InventoryInstancesJournalViewModel>(this, OpenPageOptions.AsSlave);
+					}
+					
 					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-					page.ViewModel.OnSelectResult += OnViewModelSelectResult;
+					page.ViewModel.OnSelectResult += OnInventoryInstanceSelectResult;
 				}));
 
 		public DelegateCommand CopyInventoryInstanceCommand =>
@@ -328,8 +361,11 @@ namespace Vodovoz.ViewModels.Warehouses
 						return;
 					}
 					
-					var page = NavigationManager.OpenViewModel<InventoryInstanceViewModel, InventoryNomenclatureInstance>(
-						this, inventoryInstanceItem.InventoryNomenclatureInstance);
+					var page = NavigationManager.OpenViewModel<InventoryInstanceViewModel, IEntityUoWBuilder, InventoryNomenclatureInstance>(
+						this,
+						EntityUoWBuilder.ForCreate(),
+						inventoryInstanceItem.InventoryNomenclatureInstance,
+						OpenPageOptions.AsSlave);
 
 					page.ViewModel.EntitySaved += (sender, args) =>
 					{
@@ -363,7 +399,9 @@ namespace Vodovoz.ViewModels.Warehouses
         {
 			var allowedWarehouses =
 				_warehousePermissionValidator.GetAllowedWarehouses(
-					isNew ? WarehousePermissionsType.IncomingInvoiceCreate : WarehousePermissionsType.IncomingInvoiceEdit, CurrentEmployee);
+					UoW.IsNew
+						? WarehousePermissionsType.IncomingInvoiceCreate
+						: WarehousePermissionsType.IncomingInvoiceEdit, CurrentEmployee);
             _allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
                 .Where(x => !x.IsArchive)
                 .WhereRestrictionOn(x => x.Id).IsIn(allowedWarehouses.Select(x => x.Id).ToArray())
@@ -379,13 +417,15 @@ namespace Vodovoz.ViewModels.Warehouses
 				return false;
 			}
 
-			if(UoW.IsNew) {
+			if(UoW.IsNew)
+			{
                 Entity.Author = CurrentEmployee;
                 Entity.TimeStamp = DateTime.Now;
             }
             else
             {
-                if(Entity.LastEditor == null) {
+                if(Entity.LastEditor == null)
+                {
                     throw new InvalidOperationException("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
                 }
             }
@@ -418,7 +458,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 		}
 		
-		private void OnViewModelSelectResult(object sender, JournalSelectedEventArgs e)
+		private void OnInventoryInstanceSelectResult(object sender, JournalSelectedEventArgs e)
 		{
 			var selectedItem = e.GetSelectedObjects<InventoryInstancesJournalNode>().FirstOrDefault();
 

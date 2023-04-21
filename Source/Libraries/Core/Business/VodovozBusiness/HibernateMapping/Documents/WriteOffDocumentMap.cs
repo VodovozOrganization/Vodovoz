@@ -28,7 +28,7 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.WriteOffFromEmployee).Column("write_off_from_employee_id");
 			References (x => x.WriteOffFromCar).Column("write_off_from_car_id");
 			
-			HasMany (x => x.Items).Cascade.AllDeleteOrphan().Inverse().KeyColumn("writeoff_document_id");
+			HasMany(x => x.Items).Cascade.AllDeleteOrphan().Inverse().KeyColumn("write_off_document_id");
 		}
 	}
 }

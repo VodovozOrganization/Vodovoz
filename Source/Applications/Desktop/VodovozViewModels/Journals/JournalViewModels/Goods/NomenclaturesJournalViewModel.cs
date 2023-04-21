@@ -147,6 +147,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 			var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias);
 
+			//Хардкодим выборку номенклатур не для инвентарного учета
+			itemsQuery.Where(() => !nomenclatureAlias.HasInventoryAccounting);
+			
 			if(!FilterViewModel.RestrictArchive)
 				itemsQuery.Where(() => !nomenclatureAlias.IsArchive);
 

@@ -2,6 +2,7 @@
 using System.Linq;
 using Autofac;
 using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -28,7 +29,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
 			IDeleteEntityService deleteEntityService = null,
-			params Action<InventoryInstancesJournalFilterViewModel>[] filterParams)
+			Action<InventoryInstancesJournalFilterViewModel> filterParams = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager, deleteEntityService,
 				commonServices.CurrentPermissionService)
 		{
@@ -86,7 +87,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 			var query = uow.Session.QueryOver(() => instanceAlias)
 				.JoinAlias(ini => ini.Nomenclature, () => nomenclatureAlias);
 			
-			query.Where(GetSearchCriterion(() => instanceAlias.InventoryNumber));
+			query.Where(GetSearchCriterion(
+				() => instanceAlias.Id,
+				() => nomenclatureAlias.Name));
+
+			if(!string.IsNullOrWhiteSpace(_filterViewModel.InventoryNumber))
+			{
+				query.Where(Restrictions.Like(
+					Projections.Property(() => instanceAlias.InventoryNumber),
+					_filterViewModel.InventoryNumber,
+					MatchMode.Anywhere));
+			}
+
+			if(_filterViewModel.ExcludedInventoryInstancesIds != null && _filterViewModel.ExcludedInventoryInstancesIds.Any())
+			{
+				query.WhereRestrictionOn(() => instanceAlias.Id).Not.IsIn(_filterViewModel.ExcludedInventoryInstancesIds);
+			}
 
 			return query.SelectList(list => list
 				.Select(() => instanceAlias.Id).WithAlias(() => resultAlias.Id)
@@ -96,11 +112,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 				.TransformUsing(Transformers.AliasToBean<InventoryInstancesJournalNode>());
 		}
 
-		private void CreateFilter(Action<InventoryInstancesJournalFilterViewModel>[] filterParams)
+		private void CreateFilter(Action<InventoryInstancesJournalFilterViewModel> filterParams)
 		{
 			Autofac.Core.Parameter[] parameters = {
 				new TypedParameter(typeof(DialogViewModelBase), this),
-				new TypedParameter(typeof(Action<InventoryInstancesJournalFilterViewModel>[]), filterParams)
+				new TypedParameter(typeof(Action<InventoryInstancesJournalFilterViewModel>), filterParams)
 			};
 
 			_filterViewModel = _scope.Resolve<InventoryInstancesJournalFilterViewModel>(parameters);

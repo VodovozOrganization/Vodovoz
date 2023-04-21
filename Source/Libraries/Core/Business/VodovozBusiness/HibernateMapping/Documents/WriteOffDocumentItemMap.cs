@@ -22,7 +22,7 @@ namespace Vodovoz.HibernateMapping
 			//References(x => x.Equipment).Column("equipment_id");
 			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
 			References(x => x.CullingCategory).Column("culling_category_id");
-			References(x => x.WarehouseWriteOffOperation)
+			References(x => x.GoodsAccountingOperation)
 				.Column("write_off_goods_accounting_operation_id")
 				.Cascade.All();
 			//References(x => x.CounterpartyWriteoffOperation).Column("writeoff_counterparty_movement_operation_id").Cascade.All();

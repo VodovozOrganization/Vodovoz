@@ -84,6 +84,7 @@
     <Compile Include="Journals\JournalViewModels\Logistic\CarModelJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\InventoryInstancesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\InventoryInstancesStockBalanceJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Nomenclatures\InventoryNomenclaturesJournalViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Nomenclatures\NomenclaturesForOrderJournalRestriction.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrderJournalViewModel.cs" />
@@ -482,6 +483,7 @@
     <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
     <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
     <Compile Include="TempAdapters\INomenclatureJournalFactory.cs" />
+    <Compile Include="ViewModels\Warehouses\ShiftChangeResidueDocumentViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\WriteOffDocumentViewModel.cs" />
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
     <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />

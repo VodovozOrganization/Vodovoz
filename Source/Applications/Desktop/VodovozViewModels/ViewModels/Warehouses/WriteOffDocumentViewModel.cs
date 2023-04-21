@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				if(SetField(ref _selectedItem, value))
 				{
 					OnPropertyChanged(nameof(CanDeleteItem));
-					OnPropertyChanged(nameof(CanAddOrDeleteFine));
+					OnPropertyChanged(nameof(HasSelectedFine));
 					OnPropertyChanged(nameof(AddOrEditFineTitle));
 				};
 			}
@@ -112,8 +112,8 @@ namespace Vodovoz.ViewModels.Warehouses
 		public bool CanShowEmployeeStorage => Entity.WriteOffType == WriteOffType.Employee;
 		public bool CanShowCarStorage => Entity.WriteOffType == WriteOffType.Car;
 		public bool CanDeleteItem => SelectedItem != null;
-		public bool CanAddOrDeleteFine => SelectedItem?.Fine != null;
-		public string AddOrEditFineTitle => SelectedItem?.Fine != null ? "Изменить штраф" : "Добавить штраф";
+		public bool HasSelectedFine => SelectedItem?.Fine != null;
+		public string AddOrEditFineTitle => HasSelectedFine ? "Изменить штраф" : "Добавить штраф";
 		public bool CanChangeItems =>
 			CanEditDocument
 			&& (Entity.WriteOffFromWarehouse != null
@@ -170,7 +170,7 @@ namespace Vodovoz.ViewModels.Warehouses
 					
 					var nomenclature = NomenclatureRepository.GetNomenclature(UoW, selectedNode.Id);
 					
-					if(Entity.Items.Any(x => x.Nomenclature.Id == nomenclature.Id))
+					if(Entity.Items.Any(x => x.AccountingType == AccountingType.Bulk && x.Nomenclature.Id == nomenclature.Id))
 					{
 						return;
 					}
@@ -184,7 +184,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			_addInventoryInstanceCommand ?? (_addInventoryInstanceCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<InventoryInstancesJournalViewModel>(this);
+					var page = NavigationManager.OpenViewModel<InventoryInstancesJournalViewModel>(this, OpenPageOptions.AsSlave);
 					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
 					page.ViewModel.OnSelectResult += OnInventoryInstanceSelectResult;
 				}));
@@ -222,7 +222,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				UoW.Delete(SelectedItem.Fine);
 				SelectedItem.Fine = null;
 				OnPropertyChanged(nameof(AddOrEditFineTitle));
-				OnPropertyChanged(nameof(CanAddOrDeleteFine));
+				OnPropertyChanged(nameof(HasSelectedFine));
 			}));
 		
 		public DelegateCommand EditSelectedItemCommand => _editSelectedItemCommand ?? (_editSelectedItemCommand = new DelegateCommand(
@@ -236,22 +236,22 @@ namespace Vodovoz.ViewModels.Warehouses
 				if(SelectedItem is InstanceWriteOffDocumentItem instanceItem)
 				{
 					var page = NavigationManager.OpenViewModel<InventoryInstanceViewModel, IEntityUoWBuilder>(
-						this, EntityUoWBuilder.ForOpen(SelectedItem.Id), OpenPageOptions.AsSlave);
-					page.ViewModel.EntitySaved += OnInstanceItemSaved;
+						this, EntityUoWBuilder.ForOpen(instanceItem.InventoryNomenclatureInstance.Id), OpenPageOptions.AsSlave);
+					page.ViewModel.EntitySaved += OnItemSaved;
 				}
 				else if(SelectedItem is BulkWriteOffDocumentItem bulkItem)
 				{
 					var page = NavigationManager.OpenViewModel<NomenclatureViewModel, IEntityUoWBuilder>(
-						this, EntityUoWBuilder.ForOpen(SelectedItem.Id), OpenPageOptions.AsSlave);
-					page.ViewModel.EntitySaved += OnInstanceItemSaved;
+						this, EntityUoWBuilder.ForOpen(bulkItem.Nomenclature.Id), OpenPageOptions.AsSlave);
+					page.ViewModel.EntitySaved += OnItemSaved;
 				}
 			}));
 
-		private void OnInstanceItemSaved(object sender, EntitySavedEventArgs e)
+		private void OnItemSaved(object sender, EntitySavedEventArgs e)
 		{
 			UoW.Session.Refresh(e.Entity);
 			OnPropertyChanged(nameof(AddOrEditFineTitle));
-			OnPropertyChanged(nameof(CanAddOrDeleteFine));
+			OnPropertyChanged(nameof(HasSelectedFine));
 		}
 
 		private INomenclatureRepository NomenclatureRepository =>
@@ -371,13 +371,13 @@ namespace Vodovoz.ViewModels.Warehouses
 		{
 			SelectedItem.Fine = e.GetEntity<Fine>();
 			OnPropertyChanged(nameof(AddOrEditFineTitle));
-			OnPropertyChanged(nameof(CanAddOrDeleteFine));
+			OnPropertyChanged(nameof(HasSelectedFine));
 		}
 
 		private void OnFineSaved(object sender, EntitySavedEventArgs e)
 		{
 			UoW.Session.Refresh(SelectedItem?.Fine);
-			OnPropertyChanged(nameof(CanAddOrDeleteFine));
+			OnPropertyChanged(nameof(HasSelectedFine));
 		}
 		
 		private void FireItemsChanged()
@@ -385,7 +385,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			OnPropertyChanged(nameof(CanChangeStorage));
 			OnPropertyChanged(nameof(CanDeleteItem));
 			OnPropertyChanged(nameof(AddOrEditFineTitle));
-			OnPropertyChanged(nameof(CanAddOrDeleteFine));
+			OnPropertyChanged(nameof(HasSelectedFine));
 		}
 		
 		private void OnInventoryInstanceSelectResult(object sender, JournalSelectedEventArgs e)
@@ -393,6 +393,11 @@ namespace Vodovoz.ViewModels.Warehouses
 			var selectedItem = e.GetSelectedObjects<InventoryInstancesJournalNode>().FirstOrDefault();
 
 			if(selectedItem is null)
+			{
+				return;
+			}
+
+			if(Entity.Items.Any(x => x.AccountingType == AccountingType.Instance && x.Nomenclature.Id == selectedItem.NomenclatureId))
 			{
 				return;
 			}

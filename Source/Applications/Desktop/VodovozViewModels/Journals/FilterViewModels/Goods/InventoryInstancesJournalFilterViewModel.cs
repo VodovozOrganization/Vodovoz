@@ -43,6 +43,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 			get => _nomenclature;
 			set => UpdateFilterField(ref _nomenclature, value);
 		}
+		
+		public int[] ExcludedInventoryInstancesIds { get; set; }
 
 		public string InventoryNumber { get; set; }
 		public bool CanChangeNomenclature { get; set; } = true;

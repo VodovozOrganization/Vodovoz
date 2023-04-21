@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Operations
 	{
 		public CarInstanceGoodsAccountingOperationMap()
 		{
-			DiscriminatorValue(nameof(GoodsAccountingOperationType.InstanceGoodsAccountingOperation));
+			DiscriminatorValue(nameof(OperationTypeByStorage.Car));
 			References(x => x.Car).Column("car_id");
 		}
 	}

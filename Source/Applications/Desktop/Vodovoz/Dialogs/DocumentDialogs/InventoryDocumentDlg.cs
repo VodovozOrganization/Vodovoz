@@ -228,7 +228,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			_inventoryDocumentController.UpdateOperations(UoW);
+			Entity.UpdateOperations(UoW);
 
 			logger.Info ("Сохраняем акт списания...");
 			UoWGeneric.Save ();
@@ -380,7 +380,7 @@ namespace Vodovoz
 
 			if(Entity.NomenclatureItems.Count == 0)
 			{
-				_inventoryDocumentController.FillNomenclatureItemsFromStock(
+				Entity.FillNomenclatureItemsFromStock(
 					UoW,
 					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
@@ -392,7 +392,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				_inventoryDocumentController.UpdateNomenclatureItemsFromStock(
+				Entity.UpdateNomenclatureItemsFromStock(
 					UoW,
 					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
@@ -434,7 +434,7 @@ namespace Vodovoz
 					}
 
 					var nomenclature = UoW.GetById<Nomenclature>(node.Id);
-					_inventoryDocumentController.AddNomenclatureItem(nomenclature, 0, 0);
+					Entity.AddNomenclatureItem(nomenclature, 0, 0);
 				}
 			}
 		}

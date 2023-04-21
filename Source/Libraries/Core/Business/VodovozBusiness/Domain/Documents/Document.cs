@@ -22,33 +22,37 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref _version, value);
 		}
 
-		public virtual DateTime TimeStamp {
-			get { return _timeStamp; }
-			set { SetField (ref _timeStamp, value, () => TimeStamp); }
+		public virtual DateTime TimeStamp
+		{
+			get => _timeStamp;
+			set => SetField (ref _timeStamp, value);
 		}
 
 		Employee author;
 
 		[Display (Name = "Автор")]
-		public virtual Employee Author {
-			get { return author; }
-			set { SetField (ref author, value, () => Author); }
+		public virtual Employee Author
+		{
+			get => author;
+			set => SetField(ref author, value);
 		}
 
 		Employee lastEditor;
 
 		[Display (Name = "Последний редактор")]
-		public virtual Employee LastEditor {
-			get { return lastEditor; }
-			set { SetField (ref lastEditor, value, () => LastEditor); }
+		public virtual Employee LastEditor
+		{
+			get => lastEditor;
+			set => SetField (ref lastEditor, value);
 		}
 
 		DateTime lastEditedTime;
 
 		[Display (Name = "Последние изменения")]
-		public virtual DateTime LastEditedTime {
-			get { return lastEditedTime; }
-			set { SetField (ref lastEditedTime, value, () => LastEditedTime); }
+		public virtual DateTime LastEditedTime
+		{
+			get => lastEditedTime;
+			set => SetField (ref lastEditedTime, value);
 		}
 
 		public virtual string DateString => TimeStamp.ToShortDateString () + " " + TimeStamp.ToShortTimeString ();
@@ -114,7 +118,7 @@ namespace Vodovoz.Domain.Documents
 		CarUnloadDocument,
 		[Display(Name = "Инвентаризация")]
 		InventoryDocument,
-		[Display(Name = "Акт передачи склада")]
+		[Display(Name = "Акт передачи остатков")]
 		ShiftChangeDocument,
 		[Display (Name = "Пересортица товаров")]
 		RegradingOfGoodsDocument,

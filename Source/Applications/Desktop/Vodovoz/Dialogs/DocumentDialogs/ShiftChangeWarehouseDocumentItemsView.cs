@@ -50,12 +50,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				if(documentUoW == value)
 					return;
 				documentUoW = value;
-				if(DocumentUoW.Root.Items == null)
-					DocumentUoW.Root.Items = new List<ShiftChangeWarehouseDocumentItem>();
+				if(DocumentUoW.Root.NomenclatureItems == null)
+					DocumentUoW.Root.NomenclatureItems = new List<ShiftChangeWarehouseDocumentItem>();
 
-				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableItems;
+				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableNomenclatureItems;
 				UpdateButtonState();
-				if(DocumentUoW.Root.Warehouse != null && DocumentUoW.Root.Items.Count == 0)
+				if(DocumentUoW.Root.Warehouse != null && DocumentUoW.Root.NomenclatureItems.Count == 0)
 					buttonFillItems.Click();
 				DocumentUoW.Root.PropertyChanged += DocumentUoW_Root_PropertyChanged;
 			}
@@ -73,7 +73,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		protected void OnButtonFillItemsClicked(object sender, EventArgs e)
 		{
-			if(DocumentUoW.Root.Items.Count == 0)
+			if(DocumentUoW.Root.NomenclatureItems.Count == 0)
 			{
 				DocumentUoW.Root.FillItemsFromStock(DocumentUoW, _stockRepository, Categories ?? null);
 			}
@@ -88,7 +88,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		private void UpdateButtonState()
 		{
 			buttonFillItems.Sensitive = DocumentUoW.Root.Warehouse != null;
-			if(DocumentUoW.Root.Items.Count == 0)
+			if(DocumentUoW.Root.NomenclatureItems.Count == 0)
 				buttonFillItems.Label = "Заполнить по складу";
 			else
 				buttonFillItems.Label = "Обновить остатки";
@@ -115,7 +115,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			}
 
 			var selectedNomenclature = UoW.GetById<Nomenclature>(selectedNode.Id);
-			if(DocumentUoW.Root.Items.Any(x => x.Nomenclature.Id == selectedNomenclature.Id))
+			if(DocumentUoW.Root.NomenclatureItems.Any(x => x.Nomenclature.Id == selectedNomenclature.Id))
 				return;
 
 			DocumentUoW.Root.AddItem(selectedNomenclature, 0, 0);

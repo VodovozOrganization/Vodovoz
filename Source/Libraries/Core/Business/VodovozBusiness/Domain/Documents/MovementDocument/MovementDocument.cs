@@ -293,8 +293,7 @@ namespace Vodovoz.Domain.Documents
 					_observableItems = new GenericObservableList<MovementDocumentItem>(Items);
 					_observableItems.PropertyOfElementChanged += (sender, e) =>
 					{
-						var item = sender as MovementDocumentItem;
-						if(item == null)
+						if(!(sender is MovementDocumentItem item))
 						{
 							return;
 						}
@@ -333,7 +332,9 @@ namespace Vodovoz.Domain.Documents
 
 			var amountOnStock = warehouseRepository.GetWarehouseNomenclatureStock(uow, FromWarehouse.Id ,Items.Select(x => x.Nomenclature.Id));
 			foreach(var item in Items)
-				item.AmountOnSource = amountOnStock.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id).Stock; 
+			{
+				item.AmountOnSource = amountOnStock.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id).Stock;
+			}
 		}
 
 		#region Вычисляемые

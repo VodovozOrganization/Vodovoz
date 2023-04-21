@@ -10,6 +10,7 @@ namespace Vodovoz.HibernateMapping
 		{
 			Table("warehouse_movement_operations");
 			DiscriminateSubClassesOnColumn("accounting_operation_type");
+			//DiscriminateSubClassesOnColumn("operation_type_by_storage");
 			Not.LazyLoad();
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
@@ -17,7 +18,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OperationTime).Column("operation_time").Not.Nullable();
 			Map(x => x.Amount).Column("amount");
 			Map(x => x.PrimeCost).Column("prime_cost");
-			Map(x => x.OperationTypeByStorage).Column("operation_type_by_storage");
 			
 			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
 			//References(x => x.Equipment).Column("equipment_id");

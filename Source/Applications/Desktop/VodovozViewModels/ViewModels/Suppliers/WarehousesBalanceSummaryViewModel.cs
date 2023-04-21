@@ -6,15 +6,19 @@ using System.Threading.Tasks;
 using ClosedXML.Excel;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Multi;
 using NHibernate.Transform;
 using NHibernate.Util;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -26,15 +30,17 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 	public class WarehousesBalanceSummaryViewModel : DialogTabViewModelBase
 	{
 		private const string _xlsxFileFilter = "XLSX File (*.xlsx)";
-		private readonly string _parameterNom = "nomenclatures";
-		private readonly string _parameterNomType = "nomenclature_type";
-		private readonly string _parameterProducGroups = "product_groups";
-		private readonly string _parameterWarehouses = "warehouses";
+		private const string _parameterNom = nameof(Nomenclature);
+		private const string _parameterNomType = nameof(NomenclatureCategory);
+		private const string _parameterProductGroups = nameof(ProductGroup);
+		private const string _parameterWarehouseStorages = nameof(Warehouse);
+		private const string _parameterEmployeeStorages = nameof(Employee);
+		private const string _parameterCarStorages = nameof(Car);
 		private readonly IFileDialogService _fileDialogService;
 		private SelectableParameterReportFilterViewModel _nomsViewModel;
-		private SelectableParameterReportFilterViewModel _warsViewModel;
+		private SelectableParameterReportFilterViewModel _storagesViewModel;
 		private SelectableParametersReportFilter _nomsFilter;
-		private SelectableParametersReportFilter _warsFilter;
+		private SelectableParametersReportFilter _storagesFilter;
 
 		private bool _isGenerating = false;
 		private BalanceSummaryReport _report;
@@ -62,10 +68,13 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public bool IsLessOrEqualZeroByWarehouse { get; set; }
 		public bool IsLessThanMinByWarehouse { get; set; }
 		public bool IsGreaterOrEqualThanMinByWarehouse { get; set; }
+		
+		public IList<SelectableParameterSet> StoragesParametersSets = new List<SelectableParameterSet>();
 
 		public SelectableParameterReportFilterViewModel NomsViewModel => _nomsViewModel ?? (_nomsViewModel = CreateNomsViewModel());
 
-		public SelectableParameterReportFilterViewModel WarsViewModel => _warsViewModel ?? (_warsViewModel = CreateWarsViewModel());
+		public SelectableParameterReportFilterViewModel StoragesViewModel =>
+			_storagesViewModel ?? (_storagesViewModel = CreateStoragesViewModel());
 
 		public bool IsGenerating
 		{
@@ -113,14 +122,20 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var noms = nomsSet?.GetIncludedParameters()?.ToList();
 			var typesSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNomType);
 			var types = typesSet?.GetIncludedParameters()?.ToList();
-			var groupsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterProducGroups);
+			var groupsSet = _nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterProductGroups);
 			var groups = groupsSet?.GetIncludedParameters()?.ToList();
-			var wars = _warsFilter.ParameterSets
-				.FirstOrDefault(ps => ps.ParameterName == _parameterWarehouses)?.GetIncludedParameters()?.ToList();
+			var warehouseStorages = _storagesFilter.ParameterSets
+				.FirstOrDefault(ps => ps.ParameterName == _parameterWarehouseStorages)?.GetIncludedParameters()?.ToList();
+			var employeeStorages = _storagesFilter.ParameterSets
+				.FirstOrDefault(ps => ps.ParameterName == _parameterEmployeeStorages)?.GetIncludedParameters()?.ToList();
+			var carStorages = _storagesFilter.ParameterSets
+				.FirstOrDefault(ps => ps.ParameterName == _parameterCarStorages)?.GetIncludedParameters()?.ToList();
 
 			Nomenclature nomAlias = null;
 
-			var warsIds = wars?.Select(x => (int)x.Value).ToArray();
+			var warehousesIds = warehouseStorages?.Select(x => (int)x.Value).ToArray();
+			var employeesIds = employeeStorages?.Select(x => (int)x.Value).ToArray();
+			var carsIds = carStorages?.Select(x => (int)x.Value).ToArray();
 			var groupsIds = groups?.Select(x => (int)x.Value).ToArray();
 			var groupsSelected = groups?.Any() ?? false;
 			var typesSelected = types?.Any() ?? false;
@@ -152,84 +167,195 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			var report = new BalanceSummaryReport
 			{
 				EndDate = endDate,
-				WarehousesTitles = wars?.Select(x => x.Title).ToList(),
+				WarehouseStoragesTitles = warehouseStorages?.Select(x => x.Title).ToList(),
+				EmployeeStoragesTitles = employeeStorages?.Select(x => x.Title).ToList(),
+				CarStoragesTitles = carStorages?.Select(x => x.Title).ToList(),
 				SummaryRows = new List<BalanceSummaryRow>()
 			};
 
 			#region Запросы
 
-			WarehouseBulkGoodsAccountingOperation operationAlias = null;
+			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
+			WarehouseInstanceGoodsAccountingOperation warehouseInstanceOperationAlias = null;
+			EmployeeBulkGoodsAccountingOperation employeeBulkOperationAlias = null;
+			EmployeeInstanceGoodsAccountingOperation employeeInstanceOperationAlias = null;
+			CarBulkGoodsAccountingOperation carBulkOperationAlias = null;
+			CarInstanceGoodsAccountingOperation carInstanceOperationAlias = null;
 			GoodsAccountingOperation woAlias = null;
 			BalanceBean resultAlias = null;
 
-			var balanceQuery = localUow.Session.QueryOver(() => operationAlias)
-				.Where(() => operationAlias.OperationTime <= endDate)
-				.AndNot(() => nomAlias.IsArchive)
-				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
-				.WhereRestrictionOn(() => operationAlias.Warehouse.Id).IsIn(warsIds)
-				.SelectList(list => list
-					.SelectGroup(() => operationAlias.Warehouse.Id).WithAlias(() => resultAlias.WarehouseId)
-					.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
-					.Select(Projections.Sum(Projections.Property(() => operationAlias.Amount))).WithAlias(() => resultAlias.Amount)
-				)
-				.OrderBy(() => nomAlias.Id).Asc
-				.ThenBy(() => operationAlias.Warehouse.Id).Asc
-				.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+			IQueryOver<WarehouseBulkGoodsAccountingOperation, WarehouseBulkGoodsAccountingOperation> bulkBalanceByWarehousesQuery = null;
+			IQueryOver<WarehouseInstanceGoodsAccountingOperation, WarehouseInstanceGoodsAccountingOperation> instanceBalanceByWarehousesQuery = null;
 
-			/*var woQuery = localUow.Session.QueryOver(() => woAlias)
-				.Where(() => woAlias.OperationTime <= endDate)
-				.AndNot(() => nomAlias.IsArchive)
-				.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
-				.Where(Restrictions.In(Projections.Property(() => woAlias.WriteOffWarehouse.Id), warsIds))
-				.SelectList(list => list
-					.SelectGroup(() => woAlias.WriteOffWarehouse.Id).WithAlias(() => resultAlias.WarehouseId)
-					.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
-					.Select(Projections.Sum(Projections.Property(() => woAlias.Amount))).WithAlias(() => resultAlias.Amount)
-				)
-				.OrderBy(() => nomAlias.Id).Asc
-				.ThenBy(() => woAlias.WriteOffWarehouse.Id).Asc
-				.TransformUsing(Transformers.AliasToBean<BalanceBean>());*/
+			if(warehousesIds != null)
+			{
+				bulkBalanceByWarehousesQuery = localUow.Session.QueryOver(() => warehouseBulkOperationAlias)
+					.Where(() => warehouseBulkOperationAlias.OperationTime <= endDate)
+					.AndNot(() => nomAlias.IsArchive)
+					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => warehouseBulkOperationAlias.Warehouse.Id).IsIn(warehousesIds)
+					.SelectList(list => list
+						.SelectGroup(() => warehouseBulkOperationAlias.Warehouse.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
+						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
+						.SelectSum(() => warehouseBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.OrderBy(() => nomAlias.Id).Asc
+					.ThenBy(() => warehouseBulkOperationAlias.Warehouse.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+				
+				instanceBalanceByWarehousesQuery = localUow.Session.QueryOver(() => warehouseInstanceOperationAlias)
+					.Where(() => warehouseInstanceOperationAlias.OperationTime <= endDate)
+					.AndNot(() => nomAlias.IsArchive)
+					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => warehouseInstanceOperationAlias.Warehouse.Id).IsIn(warehousesIds)
+					.SelectList(list => list
+						.SelectGroup(() => warehouseInstanceOperationAlias.Warehouse.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
+						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
+						.SelectSum(() => warehouseInstanceOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.OrderBy(() => nomAlias.Id).Asc
+					.ThenBy(() => warehouseInstanceOperationAlias.Warehouse.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+			}
 
-			var minStockQuery = localUow.Session.QueryOver(() => nomAlias)
+			IQueryOver<EmployeeBulkGoodsAccountingOperation, EmployeeBulkGoodsAccountingOperation> bulkBalanceByEmployeesQuery = null;
+			IQueryOver<EmployeeInstanceGoodsAccountingOperation, EmployeeInstanceGoodsAccountingOperation> instanceBalanceByEmployeesQuery = null;
+
+			if(employeesIds != null)
+			{
+				bulkBalanceByEmployeesQuery = localUow.Session.QueryOver(() => employeeBulkOperationAlias)
+					.Where(() => employeeBulkOperationAlias.OperationTime <= endDate)
+					.AndNot(() => nomAlias.IsArchive)
+					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => employeeBulkOperationAlias.Employee.Id).IsIn(employeesIds)
+					.SelectList(list => list
+						.SelectGroup(() => employeeBulkOperationAlias.Employee.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
+						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
+						.SelectSum(() => employeeBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.OrderBy(() => nomAlias.Id).Asc
+					.ThenBy(() => employeeBulkOperationAlias.Employee.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+				
+				instanceBalanceByEmployeesQuery = localUow.Session.QueryOver(() => employeeInstanceOperationAlias)
+					.Where(() => employeeBulkOperationAlias.OperationTime <= endDate)
+					.AndNot(() => nomAlias.IsArchive)
+					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => employeeBulkOperationAlias.Employee.Id).IsIn(employeesIds)
+					.SelectList(list => list
+						.SelectGroup(() => employeeBulkOperationAlias.Employee.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
+						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
+						.SelectSum(() => employeeBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.OrderBy(() => nomAlias.Id).Asc
+					.ThenBy(() => employeeBulkOperationAlias.Employee.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+			}
+
+			IQueryOver<CarBulkGoodsAccountingOperation, CarBulkGoodsAccountingOperation> bulkBalanceByCarsQuery = null;
+			IQueryOver<CarInstanceGoodsAccountingOperation, CarInstanceGoodsAccountingOperation> instanceBalanceByCarsQuery = null;
+
+			if(carsIds != null)
+			{
+				bulkBalanceByCarsQuery = localUow.Session.QueryOver(() => carBulkOperationAlias)
+					.Where(() => carBulkOperationAlias.OperationTime <= endDate)
+					.AndNot(() => nomAlias.IsArchive)
+					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => carBulkOperationAlias.Car.Id).IsIn(carsIds)
+					.SelectList(list => list
+						.SelectGroup(() => carBulkOperationAlias.Car.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
+						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
+						.SelectSum(() => carBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.OrderBy(() => nomAlias.Id).Asc
+					.ThenBy(() => carBulkOperationAlias.Car.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+				
+				instanceBalanceByCarsQuery = localUow.Session.QueryOver(() => carInstanceOperationAlias)
+					.Where(() => carBulkOperationAlias.OperationTime <= endDate)
+					.AndNot(() => nomAlias.IsArchive)
+					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => carBulkOperationAlias.Car.Id).IsIn(carsIds)
+					.SelectList(list => list
+						.SelectGroup(() => carBulkOperationAlias.Car.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
+						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
+						.SelectSum(() => carBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					)
+					.OrderBy(() => nomAlias.Id).Asc
+					.ThenBy(() => carBulkOperationAlias.Car.Id).Asc
+					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
+			}
+
+			/*var minStockQuery = localUow.Session.QueryOver(() => nomAlias)
 				.WhereNot(() => nomAlias.IsArchive)
 				.Select(n => n.MinStockCount)
-				.OrderBy(n => n.Id).Asc;
+				.OrderBy(n => n.Id).Asc;*/
 
 			if(typesSelected)
 			{
 				var typesIds = types.Select(x => (int)x.Value).ToArray();
-				balanceQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+
+				bulkBalanceByWarehousesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				bulkBalanceByEmployeesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				bulkBalanceByCarsQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 				//woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
-				minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				//minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 			}
 
 			if(nomsSelected && !allNomsSelected)
 			{
-				balanceQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				bulkBalanceByWarehousesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				bulkBalanceByEmployeesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				bulkBalanceByCarsQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				//woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
-				minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				//minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 			}
 
 			if(groupsSelected)
 			{
-				balanceQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				bulkBalanceByWarehousesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				bulkBalanceByEmployeesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				bulkBalanceByCarsQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 				//woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
-				minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				//minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 			}
 
 			#endregion
 
 			var batch = localUow.Session.CreateQueryBatch()
-				.Add<BalanceBean>("in", balanceQuery)
+				.Add<BalanceBean>("in", bulkBalanceByWarehousesQuery);
 				//.Add<BalanceBean>("wo", woQuery)
-				.Add<decimal>("ms", minStockQuery);
+				//.Add<decimal>("ms", minStockQuery);
 
-			var inResult = batch.GetResult<BalanceBean>("in").ToArray();
+			var bulkWarehouseResult =
+				batch.GetResult<BalanceBean>("bulkWarehouse").ToDictionary(x => x.NomId);
+			var instanceWarehouseResult =
+				batch.GetResult<BalanceBean>("instanceWarehouse").ToDictionary(x => x.NomId);
 			//var woResult = batch.GetResult<BalanceBean>("wo").ToArray();
-			var msResult = batch.GetResult<decimal>("ms").ToArray();
+			//var msResult = batch.GetResult<decimal>("ms").ToArray();
 
+			for(int i = 0; i < bulkWarehouseResult.Count; i++)
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				var row = new BalanceSummaryRow
+				{
+					NomId = (int)noms[i].Value,
+					NomTitle = noms[i].Title,
+					Separate = new List<decimal>(),
+					Min = 0m //bulkWarehouseResult[]
+				};
+				
+				AddRow(ref report, row);
+			}
+			
 			//Кол-во списаний != кол-во начислений, используется два счетчика
-			var addedCounter = 0;
+			/*var addedCounter = 0;
 			var removedCounter = 0;
 			for(var nomsCounter = 0; nomsCounter < noms?.Count; nomsCounter++)
 			{
@@ -239,14 +365,14 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					NomId = (int)noms[nomsCounter].Value,
 					NomTitle = noms[nomsCounter].Title,
 					Separate = new List<decimal>(),
-					Min = msResult[nomsCounter]
+					Min = noms[nomsCounter].
 				};
 
-				for(var warsCounter = 0; warsCounter < wars?.Count; warsCounter++)
+				for(var warsCounter = 0; warsCounter < warehouseStorages?.Count; warsCounter++)
 				{
 					row.Separate.Add(0);
 					//Т.к. данные запросов упорядочены, тут реализован доступ по индексам
-					var warId = (int)wars[warsCounter].Value;
+					var warId = (int)warehouseStorages[warsCounter].Value;
 					if(addedCounter != inResult.Length)
 					{
 						var tempIn = inResult[addedCounter];
@@ -265,11 +391,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 							row.Separate[warsCounter] -= tempWo.Amount;
 							removedCounter++;
 						}
-					}*/
+					}
 				}
 
 				AddRow(ref report, row);
-			}
+			}*/
 
 			RemoveWarehousesByFilterCondition(ref report, cancellationToken);
 
@@ -329,14 +455,14 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				index++;
 			}
 			ws.Cell(2, 1).InsertData(rows);
-			AddWarehouseCloumns(ws, index);
+			AddWarehouseColumns(ws, index);
 		}
 
-		private void AddWarehouseCloumns(IXLWorksheet ws, int startIndex)
+		private void AddWarehouseColumns(IXLWorksheet ws, int startIndex)
 		{
-			for(var i = 0; i < Report.WarehousesTitles.Count; i++)
+			for(var i = 0; i < Report.WarehouseStoragesTitles.Count; i++)
 			{
-				ws.Cell(1, startIndex + i).Value = $"{Report.WarehousesTitles[i]}";
+				ws.Cell(1, startIndex + i).Value = $"{Report.WarehouseStoragesTitles[i]}";
 				ws.Cell(2, startIndex + i).InsertData(Report.SummaryRows.Select(sr => sr.Separate[i]));
 			}
 		}
@@ -348,7 +474,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				return;
 			}
 
-			for(var warCounter = 0; warCounter < report.WarehousesTitles.Count; warCounter++)
+			for(var warCounter = 0; warCounter < report.WarehouseStoragesTitles.Count; warCounter++)
 			{
 				if(IsGreaterThanZeroByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] > 0) == null
 				|| IsLessOrEqualZeroByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] <= 0) == null
@@ -363,7 +489,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private void RemoveWarehouseByIndex(ref BalanceSummaryReport report, ref int warCounter, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			report.WarehousesTitles.RemoveAt(warCounter);
+			report.WarehouseStoragesTitles.RemoveAt(warCounter);
 			var i = warCounter;
 			report.SummaryRows.ForEach(row => row.Separate.RemoveAt(i));
 			warCounter--;
@@ -372,10 +498,10 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private void AddRow(ref BalanceSummaryReport report, BalanceSummaryRow row)
 		{
 			if(AllNomenclatures
-			|| IsGreaterThanZeroByNomenclature && row.Separate.FirstOrDefault(war => war > 0) > 0
-			|| IsLessOrEqualZeroByNomenclature && row.Separate.FirstOrDefault(war => war <= 0) <= 0
-			|| IsLessThanMinByNomenclature && row.Separate.FirstOrDefault(war => war < row.Min) < row.Min
-			|| IsGreaterOrEqualThanMinByNomenclature && row.Separate.FirstOrDefault(war => war >= row.Min) >= row.Min)
+				|| IsGreaterThanZeroByNomenclature && row.Separate.FirstOrDefault(war => war > 0) > 0
+				|| IsLessOrEqualZeroByNomenclature && row.Separate.FirstOrDefault(war => war <= 0) <= 0
+				|| IsLessThanMinByNomenclature && row.Separate.FirstOrDefault(war => war < row.Min) < row.Min
+				|| IsGreaterOrEqualThanMinByNomenclature && row.Separate.FirstOrDefault(war => war >= row.Min) >= row.Min)
 			{
 				report.SummaryRows.Add(row);
 			}
@@ -428,7 +554,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
 
-			_nomsFilter.CreateParameterSet("Группы товаров", _parameterProducGroups,
+			_nomsFilter.CreateParameterSet("Группы товаров", _parameterProductGroups,
 				new RecursiveParametersFactory<ProductGroup>(UoW, (filters) =>
 					{
 						var query = UoW.Session.QueryOver<ProductGroup>()
@@ -451,34 +577,116 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			return new SelectableParameterReportFilterViewModel(_nomsFilter);
 		}
 
-		private SelectableParameterReportFilterViewModel CreateWarsViewModel()
+		private SelectableParameterReportFilterViewModel CreateStoragesViewModel()
 		{
-			_warsFilter = new SelectableParametersReportFilter(UoW);
+			_storagesFilter = new SelectableParametersReportFilter(UoW);
 
-			_warsFilter.CreateParameterSet("Склады", _parameterWarehouses, new ParametersFactory(UoW, (filters) =>
-			{
-				SelectableEntityParameter<Warehouse> resultAlias = null;
-				var query = UoW.Session.QueryOver<Warehouse>().Where(x => !x.IsArchive);
-				if(filters != null && EnumerableExtensions.Any(filters))
-				{
-					foreach(var f in filters)
+			StoragesParametersSets.Add(_storagesFilter.CreateParameterSet(
+				"Склады",
+				_parameterWarehouseStorages,
+				new ParametersFactory(
+					UoW,
+					filters =>
 					{
-						var filterCriterion = f();
-						if(filterCriterion != null)
+						SelectableEntityParameter<Warehouse> resultAlias = null;
+						var query = UoW.Session.QueryOver<Warehouse>().Where(x => !x.IsArchive);
+						if(filters != null && EnumerableExtensions.Any(filters))
 						{
-							query.Where(filterCriterion);
+							foreach(var f in filters)
+							{
+								var filterCriterion = f();
+								if(filterCriterion != null)
+								{
+									query.Where(filterCriterion);
+								}
+							}
 						}
-					}
-				}
 
-				query.SelectList(list => list
-					.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-					.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
-				).TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Warehouse>>());
-				return query.List<SelectableParameter>();
-			}));
+						query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+						).TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Warehouse>>());
+						return query.List<SelectableParameter>();
+					})));
+			
+			StoragesParametersSets.Add(_storagesFilter.CreateParameterSet(
+				"Сотрудники",
+				_parameterEmployeeStorages,
+				new ParametersFactory(
+					UoW,
+					filters =>
+					{
+						SelectableEntityParameter<Employee> resultAlias = null;
+						var query = UoW.Session.QueryOver<Employee>()
+							.Where(e => e.Status == EmployeeStatus.IsWorking);
+						
+						var employeeName = CustomProjections.Concat_WS(
+							" ",
+							Projections.Property<Employee>(x => x.LastName),
+							Projections.Property<Employee>(x => x.Name),
+							Projections.Property<Employee>(x => x.Patronymic)
+						);
+						
+						if(filters != null && EnumerableExtensions.Any(filters))
+						{
+							foreach(var f in filters)
+							{
+								var filterCriterion = f();
+								if(filterCriterion != null)
+								{
+									query.Where(filterCriterion);
+								}
+							}
+						}
 
-			return new SelectableParameterReportFilterViewModel(_warsFilter);
+						query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(employeeName).WithAlias(() => resultAlias.EntityTitle)
+						).TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+						return query.List<SelectableParameter>();
+					})));
+			
+			StoragesParametersSets.Add(_storagesFilter.CreateParameterSet(
+				"Автомобили",
+				_parameterCarStorages,
+				new ParametersFactory(
+					UoW,
+					filters =>
+					{
+						SelectableEntityParameter<Car> resultAlias = null;
+						Car carAlias = null;
+						CarModel carModelAlias = null;
+						
+						var query = UoW.Session.QueryOver(() => carAlias)
+							.JoinAlias(c => c.CarModel, () => carModelAlias)
+							.Where(x => !x.IsArchive);
+
+						var customName = CustomProjections.Concat(
+							Projections.Property(() => carModelAlias.Name),
+							Projections.Constant(" ("),
+							Projections.Property(() => carAlias.RegistrationNumber),
+							Projections.Constant(")"));
+
+						if(filters != null && EnumerableExtensions.Any(filters))
+						{
+							foreach(var f in filters)
+							{
+								var filterCriterion = f();
+								if(filterCriterion != null)
+								{
+									query.Where(filterCriterion);
+								}
+							}
+						}
+
+						query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(customName).WithAlias(() => resultAlias.EntityTitle)
+						).TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Car>>());
+						return query.List<SelectableParameter>();
+					})));
+
+			return new SelectableParameterReportFilterViewModel(_storagesFilter);
 		}
 
 		#endregion
@@ -488,6 +696,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 	{
 		public int NomId { get; set; }
 		public string NomTitle { get; set; }
+		public string InventoryNumber { get; set; }
 		public decimal Min { get; set; }
 		public decimal Common => Separate.Sum();
 		public decimal Diff => Common - Min;
@@ -497,7 +706,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 	public class BalanceSummaryReport
 	{
 		public DateTime EndDate { get; set; }
-		public List<string> WarehousesTitles { get; set; }
+		public List<string> WarehouseStoragesTitles { get; set; }
+		public List<string> EmployeeStoragesTitles { get; set; }
+		public List<string> CarStoragesTitles { get; set; }
 		public List<BalanceSummaryRow> SummaryRows { get; set; }
 	}
 
@@ -506,5 +717,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public int NomId { get; set; }
 		public int WarehouseId { get; set; }
 		public decimal Amount { get; set; }
+		public decimal MinStockCount { get; set; }
 	}
 }

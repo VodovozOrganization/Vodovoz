@@ -104,7 +104,6 @@ namespace Vodovoz
 					buttonFillItems.Click();
 				}
 
-				_inventoryDocumentController = new InventoryDocumentController(DocumentUoW.Root, ServicesConfig.InteractiveService);
 				DocumentUoW.Root.PropertyChanged += DocumentUoW_Root_PropertyChanged;
 			}
 		}
@@ -167,7 +166,7 @@ namespace Vodovoz
 				return;
 			}
 
-			_inventoryDocumentController.AddNomenclatureItem(selectedNomenclature, 0, 0);
+			DocumentUoW.Root.AddNomenclatureItem(selectedNomenclature, 0, 0);
 		}
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)

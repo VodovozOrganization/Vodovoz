@@ -101,26 +101,8 @@ namespace Vodovoz
 						.OpenViewModelOnTdi<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.IncomingInvoice:
-					TabParent.OpenTab(
-						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
-						() => new IncomingInvoiceViewModel(
-							EntityUoWBuilder.ForCreate(),
-							UnitOfWorkFactory.GetDefaultFactory,
-							new WarehousePermissionService(),
-							VodovozGtkServicesConfig.EmployeeService,
-							new EntityExtendedPermissionValidator(
-								PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-							new NomenclatureJournalFactory(),
-							new OrderSelectorFactory(),
-							new WarehouseRepository(),
-							new RdlPreviewOpener(),
-							ServicesConfig.CommonServices,
-							new NomenclaturePurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
-							new StockRepository(),
-							MainClass.MainWin.NavigationManager
-						),
-						this
-					);
+					MainClass.MainWin.NavigationManager
+						.OpenViewModelOnTdi<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.WriteoffDocument:
 					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(
@@ -130,11 +112,14 @@ namespace Vodovoz
 					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<InventoryDocumentViewModel, IEntityUoWBuilder>(
 						this, EntityUoWBuilder.ForCreate());
 					break;
+				case DocumentType.ShiftChangeDocument:
+					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForCreate());
+					break;
 				case DocumentType.IncomingWater:
 				case DocumentType.SelfDeliveryDocument:
 				case DocumentType.CarLoadDocument:
 				case DocumentType.CarUnloadDocument:
-				case DocumentType.ShiftChangeDocument:
 				case DocumentType.RegradingOfGoodsDocument:
 				default:
 					TabParent.OpenTab(
@@ -160,27 +145,8 @@ namespace Vodovoz
 
 				switch (DocType) {
 					case DocumentType.IncomingInvoice:
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<IncomingInvoice>(id),
-							() => new IncomingInvoiceViewModel(
-								EntityUoWBuilder.ForOpen(id),
-								UnitOfWorkFactory.GetDefaultFactory,
-								new WarehousePermissionService(),
-								VodovozGtkServicesConfig.EmployeeService,
-								new EntityExtendedPermissionValidator(
-									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-								new NomenclatureJournalFactory(),
-								new OrderSelectorFactory(),
-								new WarehouseRepository(),
-								new RdlPreviewOpener(),
-								ServicesConfig.CommonServices,
-								new NomenclaturePurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
-								new StockRepository(),
-								MainClass.MainWin.NavigationManager
-							),
-							this
-						);
-
+						MainClass.MainWin.NavigationManager
+							.OpenViewModelOnTdi<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.IncomingWater:
 						TabParent.OpenTab(
@@ -225,10 +191,8 @@ namespace Vodovoz
 							this);
 						break;
 					case DocumentType.ShiftChangeDocument:
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<ShiftChangeWarehouseDocument>(id),
-							() => new ShiftChangeWarehouseDocumentDlg(id),
-							this);
+						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.RegradingOfGoodsDocument:
 						TabParent.OpenTab(

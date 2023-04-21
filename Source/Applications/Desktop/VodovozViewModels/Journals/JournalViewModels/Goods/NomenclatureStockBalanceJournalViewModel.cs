@@ -70,6 +70,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 			var queryStock = uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.Unit, () => measurementUnitsAlias);
+			
+			//Хардкодим выборку номенклатур не для инвентарного учета
+			queryStock.Where(() => !nomenclatureAlias.HasInventoryAccounting);
 
 			if(FilterViewModel != null) {
 				if(!FilterViewModel.ShowArchive) {

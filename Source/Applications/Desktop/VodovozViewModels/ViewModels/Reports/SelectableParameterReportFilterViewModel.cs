@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Reports
 
 		public SelectableParameterReportFilterViewModel(SelectableParametersReportFilter reportFilter)
 		{
-			this.ReportFilter = reportFilter;
+			ReportFilter = reportFilter;
 		}
 
 		void CurrentParameterSet_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

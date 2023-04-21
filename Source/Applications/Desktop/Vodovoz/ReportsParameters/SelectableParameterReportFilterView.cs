@@ -102,6 +102,10 @@ namespace Vodovoz.ReportsParameters
 				return;
 			}
 
+			if(viewModel.CurrentParameterSet == null)
+			{
+				return;
+			}
 			var selectedIter = ytreeviewParameterSets.YTreeModel.IterFromNode(viewModel.CurrentParameterSet);
 			if(selectedIter.UserData == IntPtr.Zero) {
 				return;

@@ -8,7 +8,7 @@ using QS.DomainModel.UoW;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Dialogs.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
@@ -46,7 +46,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
 			NomenclatureViewModel = builder.ForProperty(x => x.Nomenclature)
 				.UseViewModelDialog<NomenclatureViewModel>()
-				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<InventoryNomenclaturesJournalViewModel>()
 				.Finish();
 		}
 		

@@ -10,6 +10,14 @@ namespace Vodovoz.Domain.Goods
 		InventoryNomenclatureInstance GetInventoryNomenclatureInstance(IUnitOfWork uow, int id);
 
 		IList<NomenclatureInstanceRepository.NomenclatureInstanceBalanceNode> GetInventoryInstancesByStorage(
-			IUnitOfWork uow, OperationTypeByStorage operationTypeByStorage, int storageId);
+			IUnitOfWork uow,
+			OperationTypeByStorage operationTypeByStorage,
+			int storageId,
+			IEnumerable<int> nomenclaturesToInclude,
+			IEnumerable<int> nomenclaturesToExclude,
+			IEnumerable<NomenclatureCategory> nomenclatureTypeToInclude,
+			IEnumerable<NomenclatureCategory> nomenclatureTypeToExclude,
+			IEnumerable<int> productGroupToInclude,
+			IEnumerable<int> productGroupToExclude);
 	}
 }

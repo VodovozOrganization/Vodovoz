@@ -20,9 +20,8 @@ namespace Vodovoz.Views.Warehouse
 
 		void ConfigureDlg()
 		{
-			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			buttonPrint.Clicked += (sender, args) => ViewModel.PrintCommand.Execute();
+			buttonSave.Clicked += OnSaveClicked;
+			buttonCancel.Clicked += OnCancelClicked;
 
 			labelTimeStamp.Binding
 				.AddBinding(ViewModel.Entity, e => e.DateString, w => w.LabelProp)
@@ -94,11 +93,11 @@ namespace Vodovoz.Views.Warehouse
 
 			ConfigureTreeItems();
 
-			btnAddNomenclature.Clicked += (sender, args) => ViewModel.AddNomenclatureCommand.Execute();
-			btnAddNomenclatureInstance.Clicked += (sender, args) => ViewModel.AddInventoryInstanceCommand.Execute();
-			btnDelete.Clicked += (sender, args) => ViewModel.DeleteItemCommand.Execute();
-			btnAddFine.Clicked += (sender, args) => ViewModel.AddOrEditFineCommand.Execute();
-			btnDeleteFine.Clicked += (sender, args) => ViewModel.DeleteFineCommand.Execute();
+			btnAddNomenclature.Clicked += OnAddNomenclatureClicked;
+			btnAddNomenclatureInstance.Clicked += OnAddNomenclatureInstanceClicked;
+			btnDelete.Clicked += OnDeleteItemClicked;
+			btnAddFine.Clicked += OnAddFineClicked;
+			btnDeleteFine.Clicked += OnDeleteFineClicked;
 			
 			btnDelete.Binding
 				.AddBinding(ViewModel, vm => vm.CanDeleteItem, w => w.Sensitive)
@@ -106,10 +105,10 @@ namespace Vodovoz.Views.Warehouse
 			btnAddFine.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.AddOrEditFineTitle, w => w.Label)
-				.AddBinding(vm => vm.CanAddOrDeleteFine, w => w.Sensitive)
+				.AddBinding(vm => vm.HasSelectedFine, w => w.Sensitive)
 				.InitializeFromSource();
 			btnDeleteFine.Binding
-				.AddBinding(ViewModel, vm => vm.CanAddOrDeleteFine, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.HasSelectedFine, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 
@@ -148,6 +147,18 @@ namespace Vodovoz.Views.Warehouse
 			treeItemsList.RowActivated += OnTreeItemsListRowActivated;
 		}
 
+		#region ButtonHandlers
+
+		private void OnSaveClicked(object sender, EventArgs e)
+		{
+			ViewModel.SaveAndClose();
+		}
+		
+		private void OnCancelClicked(object sender, EventArgs e)
+		{
+			ViewModel.Close(false, CloseSource.Cancel);
+		}
+
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
 			ViewModel.PrintCommand.Execute();
@@ -157,5 +168,32 @@ namespace Vodovoz.Views.Warehouse
 		{
 			ViewModel.EditSelectedItemCommand.Execute();
 		}
+		
+		private void OnAddNomenclatureClicked(object sender, EventArgs e)
+		{
+			ViewModel.AddNomenclatureCommand.Execute();
+		}
+		
+		private void OnAddNomenclatureInstanceClicked(object sender, EventArgs e)
+		{
+			ViewModel.AddInventoryInstanceCommand.Execute();
+		}
+		
+		private void OnDeleteItemClicked(object sender, EventArgs e)
+		{
+			ViewModel.DeleteItemCommand.Execute();
+		}
+		
+		private void OnAddFineClicked(object sender, EventArgs e)
+		{
+			ViewModel.AddOrEditFineCommand.Execute();
+		}
+		
+		private void OnDeleteFineClicked(object sender, EventArgs e)
+		{
+			ViewModel.DeleteFineCommand.Execute();
+		}
+
+		#endregion
 	}
 }

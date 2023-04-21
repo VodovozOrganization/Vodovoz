@@ -5,7 +5,7 @@ namespace Vodovoz.HibernateMapping.Operations
 {
 	public class BulkGoodsAccountingOperationMap : SubclassMap<BulkGoodsAccountingOperation>
 	{
-		public BulkGoodsAccountingOperationMap()
+		public BulkGoodsAccountingOperationMap() : base()
 		{
 			DiscriminatorValue(nameof(GoodsAccountingOperationType.BulkGoodsAccountingOperation));
 		}

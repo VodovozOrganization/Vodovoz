@@ -1,13 +1,20 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Gamma.ColumnConfig;
+using Gamma.Widgets;
 using Gtk;
 using QS.Views.GtkUI;
+using TISystems.TTC.CRM.BE.Staff;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Views.Suppliers
 {
@@ -58,9 +65,14 @@ namespace Vodovoz.Views.Suppliers
 			vboxNomsFilter.Add(nomsWidget);
 			nomsWidget.Show();
 
-			var warsWidget = new SelectableParameterReportFilterView(ViewModel.WarsViewModel);
+			var warsWidget = new SelectableParameterReportFilterView(ViewModel.StoragesViewModel);
 			vboxWarsFilter.Add(warsWidget);
 			warsWidget.Show();
+			
+			enumChkListStorages.EnumType = typeof(Storage);
+			enumChkListStorages.SelectAll();
+			enumChkListStorages.CheckStateChanged += EnumChkListStoragesOnCheckStateChanged;
+			enumChkListStorages.OnlySelectAt(0);
 
 			eventboxArrow.ButtonPressEvent += (o, args) =>
 			{
@@ -71,19 +83,79 @@ namespace Vodovoz.Views.Suppliers
 			treeData.EnableGridLines = TreeViewGridLines.Both;
 		}
 
+		private void EnumChkListStoragesOnCheckStateChanged(object sender, CheckStateChangedEventArgs e)
+		{
+			SelectableParameterSet parameterSet = null;
+			switch(e.Item)
+			{
+				case Storage.Warehouse:
+					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(x => x.ParameterName == nameof(Warehouse));
+					break;
+				case Storage.Employee:
+					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(x => x.ParameterName == nameof(Employee));
+					break;
+				case Storage.Car:
+					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(x => x.ParameterName == nameof(Car));
+					break;
+			}
+
+			if(parameterSet is null)
+			{
+				return;
+			}
+
+			parameterSet.IsVisible = e.IsChecked;
+		}
+
 		private void ConfigureTreeView()
 		{
 			var columnsConfig = FluentColumnsConfig<BalanceSummaryRow>.Create()
-				.AddColumn("Код").AddNumericRenderer(row => row.NomId).XAlign(0.5f)
-				.AddColumn("Наименование").AddTextRenderer(row => row.NomTitle).XAlign(0.5f)
-				.AddColumn("Мин. остаток").AddNumericRenderer(row => row.Min).XAlign(0.5f)
-				.AddColumn("Общий остаток").AddNumericRenderer(row => row.Common).XAlign(0.5f)
-				.AddColumn("Разница").AddNumericRenderer(row => row.Diff).XAlign(0.5f);
+				.AddColumn("Код")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(row => row.NomId)
+					.XAlign(0.5f)
+				.AddColumn("Наименование")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(row => row.NomTitle)
+					.WrapWidth(500).WrapMode(WrapMode.Word)
+					.XAlign(0.5f)
+				.AddColumn("Инвентарный\nномер")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(row => row.InventoryNumber)
+				.AddColumn("Мин. остаток")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(row => row.Min)
+					.XAlign(0.5f)
+				.AddColumn("Общий остаток")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(row => row.Common)
+					.XAlign(0.5f)
+				.AddColumn("Разница")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(row => row.Diff)
+					.XAlign(0.5f);
 
-			for(var i = 0; i < ViewModel.Report.WarehousesTitles.Count; i++)
+			for(var i = 0; i < ViewModel.Report.WarehouseStoragesTitles.Count; i++)
 			{
 				var index = i;
-				columnsConfig.AddColumn($"{ViewModel.Report.WarehousesTitles[i]}").AddNumericRenderer(row => row.Separate[index])
+				columnsConfig.AddColumn($"{ViewModel.Report.WarehouseStoragesTitles[i]}")
+					.AddNumericRenderer(row => row.Separate[index])
+					.XAlign(0.5f);
+			}
+			
+			for(var i = 0; i < ViewModel.Report.EmployeeStoragesTitles.Count; i++)
+			{
+				var index = i;
+				columnsConfig.AddColumn($"{ViewModel.Report.EmployeeStoragesTitles[i]}")
+					.AddNumericRenderer(row => row.Separate[index])
+					.XAlign(0.5f);
+			}
+			
+			for(var i = 0; i < ViewModel.Report.CarStoragesTitles.Count; i++)
+			{
+				var index = i;
+				columnsConfig.AddColumn($"{ViewModel.Report.CarStoragesTitles[i]}")
+					.AddNumericRenderer(row => row.Separate[index])
 					.XAlign(0.5f);
 			}
 

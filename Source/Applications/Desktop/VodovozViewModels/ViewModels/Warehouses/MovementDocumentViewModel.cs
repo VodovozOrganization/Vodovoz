@@ -40,14 +40,14 @@ namespace Vodovoz.ViewModels.Warehouses
 	public class MovementDocumentViewModel : EntityTabViewModelBase<MovementDocument>
 	{
 		private readonly ILifetimeScope _scope;
-		private IEmployeeService _employeeService;
-		private INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private IOrderSelectorFactory _orderSelectorFactory;
-		private IUserRepository _userRepository;
-		private IRDLPreviewOpener _rdlPreviewOpener;
-		private IStockRepository _stockRepository;
-		private IWarehousePermissionValidator _warehousePermissionValidator;
-		private INomenclatureInstanceRepository _nomenclatureInstanceRepository;
+		private readonly IEmployeeService _employeeService;
+		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly IOrderSelectorFactory _orderSelectorFactory;
+		private readonly IUserRepository _userRepository;
+		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly IStockRepository _stockRepository;
+		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
+		private readonly INomenclatureInstanceRepository _nomenclatureInstanceRepository;
 		private bool _canEditRectroactively;
 		private bool _canChangeAcceptedMovementDoc;
 		private bool _canAcceptMovementDocumentDiscrepancy;
@@ -66,9 +66,33 @@ namespace Vodovoz.ViewModels.Warehouses
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
+			IEmployeeService employeeService,
+			IRDLPreviewOpener rdlPreviewOpener,
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
+			IOrderSelectorFactory orderSelectorFactory,
+			IWarehousePermissionValidator warehousePermissionValidator,
+			INomenclatureInstanceRepository nomenclatureInstanceRepository,
+			IUserRepository userRepository,
+			IStockRepository stockRepository,
 			ILifetimeScope scope) 
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(navigationManager == null)
+			{
+				throw new ArgumentNullException(nameof(navigationManager));
+			}
+
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+			_nomenclatureSelectorFactory =
+				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
+			_warehousePermissionValidator =
+				warehousePermissionValidator ?? throw new ArgumentNullException(nameof(warehousePermissionValidator));
+			_nomenclatureInstanceRepository = 
+				nomenclatureInstanceRepository ?? throw new ArgumentNullException(nameof(nomenclatureInstanceRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			
 			ResolveInnerDependencies();
@@ -84,15 +108,6 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		private void ResolveInnerDependencies()
 		{
-			_employeeService = _scope.Resolve<IEmployeeService>();
-			_nomenclatureSelectorFactory = _scope.Resolve<INomenclatureJournalFactory>();
-			_orderSelectorFactory = _scope.Resolve<IOrderSelectorFactory>();
-			_userRepository = _scope.Resolve<IUserRepository>();
-			_rdlPreviewOpener = _scope.Resolve<IRDLPreviewOpener>();
-			_warehousePermissionValidator = _scope.Resolve<IWarehousePermissionValidator>();
-			_stockRepository = _scope.Resolve<IStockRepository>();
-			_nomenclatureInstanceRepository = _scope.Resolve<INomenclatureInstanceRepository>();
-			
 			var entityExtendedPermissionValidator = _scope.Resolve<IEntityExtendedPermissionValidator>();
 			var warehouseRepository = _scope.Resolve<IWarehouseRepository>();
 

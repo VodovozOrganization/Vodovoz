@@ -1,5 +1,4 @@
-﻿using System;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Project.Journal.EntitySelector;
 using QS.Views.GtkUI;
@@ -23,6 +22,7 @@ namespace Vodovoz.Views.Warehouse
 		private void ConfigureView()
 		{
 			#region Bindings
+			
 			ylabelSum.Binding.AddBinding(ViewModel, vm => vm.TotalSum, w => w.LabelProp).InitializeFromSource();
 			
 			ybtnAdd.Clicked += (sender, args) => ViewModel.AddItemCommand.Execute();
@@ -59,9 +59,12 @@ namespace Vodovoz.Views.Warehouse
 			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 			btnAddInventoryInstance.Clicked += (sender, args) => ViewModel.AddInventoryInstanceCommand.Execute();
+			btnAddInventoryInstance.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddItem, w => w.Sensitive)
+				.InitializeFromSource();
 			btnCopyInventoryInstance.Clicked += (sender, args) => ViewModel.CopyInventoryInstanceCommand.Execute();
 			btnCopyInventoryInstance.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedItem, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanDuplicateInstance, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			#endregion
@@ -70,13 +73,21 @@ namespace Vodovoz.Views.Warehouse
 
 			treeItemsList.ColumnsConfig =  FluentColumnsConfig<IncomingInvoiceItem>.Create()
 				.AddColumn("№ п/п")
+					.HeaderAlignment(0.5f)
 					.AddTextRenderer(i => (i.Document.Items.IndexOf(i)+ 1).ToString())
 				.AddColumn("Наименование")
+					.HeaderAlignment(0.5f)
 					.AddTextRenderer (i => i.Name)
-				.AddColumn("Инвентарный номер")
-					.AddTextRenderer (i => i.NumberString)
-				.AddColumn("% НДС").AddEnumRenderer (i => i.VAT).Editing()
+				.AddColumn("Инвентарный\nномер")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer (i => i.InventoryNumberString)
+					.XAlign(0.5f)
+				.AddColumn("% НДС")
+					.HeaderAlignment(0.5f)
+					.AddEnumRenderer (i => i.VAT)
+					.Editing()
 				.AddColumn("Количество")
+					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(i => i.Amount)
 					.WidthChars(10)
 					.AddSetter((c, i) =>
@@ -84,12 +95,17 @@ namespace Vodovoz.Views.Warehouse
 					.AddSetter((c, i) => c.Editable = i.CanEditAmount)
 					.Adjustment(new Adjustment (0, 0, 1000000, 1, 100, 0))
 					.AddTextRenderer(i => i.Nomenclature.Unit == null ? string.Empty: i.Nomenclature.Unit.Name, false)
-				.AddColumn("Цена закупки").AddNumericRenderer(i => i.PrimeCost)
+				.AddColumn("Цена\nзакупки")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(i => i.PrimeCost)
 					.Digits(2)
 					.Editing()
 					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 					.AddTextRenderer(i => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn("Сумма").AddTextRenderer(i => CurrencyWorks.GetShortCurrencyString(i.Sum))
+				.AddColumn("Сумма")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(i => CurrencyWorks.GetShortCurrencyString(i.Sum))
+				.AddColumn("")
 				.Finish();
 			
 			treeItemsList.ItemsDataSource = ViewModel.Entity.ObservableItems;

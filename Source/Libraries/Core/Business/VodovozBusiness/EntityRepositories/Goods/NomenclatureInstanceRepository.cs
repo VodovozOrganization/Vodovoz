@@ -18,7 +18,15 @@ namespace Vodovoz.EntityRepositories.Goods
 			=> uow.GetById<InventoryNomenclatureInstance>(id);
 
 		public IList<NomenclatureInstanceBalanceNode> GetInventoryInstancesByStorage(
-			IUnitOfWork uow, OperationTypeByStorage operationTypeByStorage, int storageId)
+			IUnitOfWork uow,
+			OperationTypeByStorage operationTypeByStorage,
+			int storageId,
+			IEnumerable<int> nomenclaturesToInclude,
+			IEnumerable<int> nomenclaturesToExclude,
+			IEnumerable<NomenclatureCategory> nomenclatureTypeToInclude,
+			IEnumerable<NomenclatureCategory> nomenclatureTypeToExclude,
+			IEnumerable<int> productGroupToInclude,
+			IEnumerable<int> productGroupToExclude)
 		{
 			InstanceGoodsAccountingOperation instanceGoodsAccountingOperationAlias = null;
 			InventoryNomenclatureInstance inventoryNomenclatureInstanceAlias = null;
@@ -31,18 +39,49 @@ namespace Vodovoz.EntityRepositories.Goods
 					() => instanceGoodsAccountingOperationAlias.InventoryNomenclatureInstance,
 					() => inventoryNomenclatureInstanceAlias)
 				.JoinAlias(() => inventoryNomenclatureInstanceAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(GetCriterionByStorage(operationTypeByStorage, storageId))
-				.SelectList(list => list
-					.SelectGroup(() => inventoryNomenclatureInstanceAlias.Id).WithAlias(() => resultAlias.InstanceId)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.InstanceName)
-					.Select(() => inventoryNomenclatureInstanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
-					.Select(Projections.Entity(() => inventoryNomenclatureInstanceAlias)).WithAlias(() => resultAlias.InventoryNomenclatureInstance)
-					.SelectSum(() => instanceGoodsAccountingOperationAlias.Amount).WithAlias(() => resultAlias.Balance))
-				.Where(Restrictions.Gt(Projections.Sum<WarehouseInstanceGoodsAccountingOperation>(w => w.Amount), 0))
-				.TransformUsing(Transformers.AliasToBean<NomenclatureInstanceBalanceNode>())
-				.List<NomenclatureInstanceBalanceNode>();
+				.Where(GetGoodsAccountingOperationCriterionByStorage(operationTypeByStorage, storageId));
 
-			return query;
+			if(nomenclaturesToInclude != null && nomenclaturesToInclude.Any())
+			{
+				query.AndRestrictionOn(() => nomenclatureAlias.Id).IsInG(nomenclaturesToInclude);
+			}
+
+			if(nomenclaturesToExclude != null && nomenclaturesToExclude.Any())
+			{
+				query.AndRestrictionOn(() => nomenclatureAlias.Id).Not.IsInG(nomenclaturesToExclude);
+			}
+			
+			if(nomenclatureTypeToInclude != null && nomenclatureTypeToInclude.Any())
+			{
+				query.AndRestrictionOn(() => nomenclatureAlias.Category).IsInG(nomenclatureTypeToInclude);
+			}
+
+			if(nomenclatureTypeToExclude != null && nomenclatureTypeToExclude.Any())
+			{
+				query.AndRestrictionOn(() => nomenclatureAlias.Category).Not.IsInG(nomenclatureTypeToExclude);
+			}
+			
+			if(productGroupToInclude != null && productGroupToInclude.Any())
+			{
+				query.AndRestrictionOn(() => nomenclatureAlias.ProductGroup.Id).IsInG(productGroupToInclude);
+			}
+
+			if(productGroupToExclude != null && productGroupToExclude.Any())
+			{
+				query.AndRestrictionOn(() => nomenclatureAlias.ProductGroup.Id).Not.IsInG(productGroupToExclude);
+			}
+				
+			var result = query.SelectList(list => list
+				.SelectGroup(() => inventoryNomenclatureInstanceAlias.Id).WithAlias(() => resultAlias.InstanceId)
+				.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.InstanceName)
+				.Select(() => inventoryNomenclatureInstanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+				.Select(Projections.Entity(() => inventoryNomenclatureInstanceAlias)).WithAlias(() => resultAlias.InventoryNomenclatureInstance)
+				.SelectSum(() => instanceGoodsAccountingOperationAlias.Amount).WithAlias(() => resultAlias.Balance))
+			.Where(Restrictions.Gt(Projections.Sum<WarehouseInstanceGoodsAccountingOperation>(w => w.Amount), 0))
+			.TransformUsing(Transformers.AliasToBean<NomenclatureInstanceBalanceNode>())
+			.List<NomenclatureInstanceBalanceNode>();
+
+			return result;
 		}
 		
 		public IList<FindingInfoInventoryInstanceNode> GetFindingInfoInventoryInstance(IUnitOfWork uow, int instanceId)
@@ -145,7 +184,7 @@ namespace Vodovoz.EntityRepositories.Goods
 			return query;
 		}
 
-		private ICriterion GetCriterionByStorage(OperationTypeByStorage operationTypeByStorage, int storageId)
+		public static ICriterion GetGoodsAccountingOperationCriterionByStorage(OperationTypeByStorage operationTypeByStorage, int storageId)
 		{
 			switch(operationTypeByStorage)
 			{

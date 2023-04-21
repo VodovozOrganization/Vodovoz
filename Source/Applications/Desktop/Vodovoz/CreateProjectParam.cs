@@ -343,6 +343,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<InventoryInstanceViewModel, InventoryInstanceView>()
 				.RegisterWidgetForTabViewModel<WriteOffDocumentViewModel, WriteoffDocumentView>()
 				.RegisterWidgetForTabViewModel<InventoryDocumentViewModel, InventoryDocumentView>()
+				.RegisterWidgetForTabViewModel<ShiftChangeResidueDocumentViewModel, ShiftChangeResidueDocumentView>()
 				;
 
 			//Регистрация виджетов
