@@ -620,6 +620,7 @@ namespace Vodovoz
 
 			pickerDeliveryDate1.IsEditable = true;
 			pickerDeliveryDate1.AutoSeparation = true;
+			pickerDeliveryDate1.WithTime = true;
 			pickerDeliveryDate1.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerDeliveryDate1.DateChanged += PickerDeliveryDate1_DateChanged;
 
