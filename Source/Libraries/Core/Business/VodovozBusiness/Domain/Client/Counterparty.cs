@@ -1338,6 +1338,16 @@ namespace Vodovoz.Domain.Client
 			StringBuilder phonesValidationStringBuilder = new StringBuilder();			
 			List<string> phoneNumberDuplicatesIsChecked = new List<string>();
 
+			var phonesDuplicates = counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(UoW, Phones.ToList(), this.Id);
+			foreach(var phone in phonesDuplicates)
+			{
+				phonesValidationStringBuilder.AppendLine($"Телефон {phone.Key} уже указан у контрагентов:");
+				foreach(var message in phone.Value)
+				{
+					phonesValidationStringBuilder.AppendLine($"\t{message}");
+				}
+			}
+
 			foreach(var phone in Phones)
 			{
 				if(phone.RoboAtsCounterpartyName == null)
@@ -1359,15 +1369,6 @@ namespace Vodovoz.Domain.Client
 						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} в карточке контрагента указан несколько раз.");
 					}
 
-					var counterpartiesWithTheSamePhoneNumber = counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(UoW, phone.Number, this.Id);
-					if(counterpartiesWithTheSamePhoneNumber.Count() > 0)
-					{
-						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} уже указан у контрагентов:");
-						foreach(var c in counterpartiesWithTheSamePhoneNumber)
-						{
-							phonesValidationStringBuilder.AppendLine($"\t{c}");
-						}
-					}
 					phoneNumberDuplicatesIsChecked.Add(phone.Number);
 				}
 				#endregion

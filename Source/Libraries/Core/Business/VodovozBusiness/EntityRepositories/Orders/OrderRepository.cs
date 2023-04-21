@@ -644,12 +644,12 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
 		{
-			var receipt = uow.Session.QueryOver<CashReceipt>()
+			var receipts = uow.Session.QueryOver<CashReceipt>()
 				.Where(x => x.Order.Id == orderId)
 				.Where(x => x.Status == CashReceiptStatus.Sended)
-				.SingleOrDefault();
+				.List();
 
-			return receipt != null;
+			return receipts.Any();
 		}
 
 		public bool HasFlyersOnStock(
@@ -977,6 +977,20 @@ namespace Vodovoz.EntityRepositories.Orders
 				.List();
 
 			return result;
+		}
+
+		public decimal GetIsAccountableInTrueMarkOrderItemsCount(IUnitOfWork uow, int orderId)
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			
+			return uow.Session.QueryOver<VodovozOrder>()
+				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(o => o.Id == orderId)
+				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
+				.Select(Projections.Sum(() => orderItemAlias.Count))
+				.SingleOrDefault<decimal>();
 		}
 	}
 

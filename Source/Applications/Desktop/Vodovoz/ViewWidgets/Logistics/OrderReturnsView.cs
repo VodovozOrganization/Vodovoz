@@ -255,7 +255,7 @@ namespace Vodovoz
 			switch(nomenclature.Category)
 			{
 				case NomenclatureCategory.water:
-					_routeListItem.Order.AddWaterForSale(nomenclature, 0, 0);
+					_routeListItem.Order.AddWaterForSale(nomenclature, 0, 0, keepExistingPrices: true);
 					break;
 				case NomenclatureCategory.master:
 					_routeListItem.Order.AddMasterNomenclature(nomenclature, 0);
@@ -313,6 +313,8 @@ namespace Vodovoz
 						.Adjustment(new Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice && _canEditPrices)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("Альтерн.\nцена")
+					.AddToggleRenderer(x => x.OrderItem.IsAlternativePrice).Editing(false)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
@@ -490,7 +492,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker);
+				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
@@ -503,7 +505,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker);
+				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
@@ -512,7 +514,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
+			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Completed, CallTaskWorker, true);
 			_routeListItem.RestoreOrder();
 			_routeListItem.FirstFillClosing(_wageParameterService);
 			UpdateListsSentivity();

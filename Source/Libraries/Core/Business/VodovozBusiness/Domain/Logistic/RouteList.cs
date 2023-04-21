@@ -1000,9 +1000,11 @@ namespace Vodovoz.Domain.Logistic
 
 			#region Талон разгрузки
 
-			var shipmentCategoriesWithoutBottle = Nomenclature.GetCategoriesForShipment().Where(c => c != NomenclatureCategory.bottle).ToArray();
-			
-			var allUnloaded = _routeListRepository.GetReturnsToWarehouse(UoW, Id, shipmentCategoriesWithoutBottle)
+			var shipmentCategories = Nomenclature.GetCategoriesForShipment().ToArray();
+
+			var defaultBottleNomenclatureId = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(UoW).Id;
+
+			var allUnloaded = _routeListRepository.GetReturnsToWarehouse(UoW, Id, shipmentCategories, new []{ defaultBottleNomenclatureId })
 				.Select(x => new GoodsInRouteListResult { NomenclatureId = x.NomenclatureId, Amount = x.Amount });
 			
 			AddDiscrepancy(allUnloaded, result, (discrepancy, amount) => discrepancy.ToWarehouse = amount);
@@ -1473,9 +1475,10 @@ namespace Vodovoz.Domain.Logistic
 			UpdateStatus();
 		}
 
-		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus, ICallTaskWorker callTaskWorker)
+		public virtual void ChangeAddressStatusAndCreateTask(IUnitOfWork uow, int routeListAddressid, RouteListItemStatus newAddressStatus,
+			ICallTaskWorker callTaskWorker, bool isEditAtCashier = false)
 		{
-			Addresses.First(a => a.Id == routeListAddressid).UpdateStatusAndCreateTask(uow, newAddressStatus, callTaskWorker);
+			Addresses.First(a => a.Id == routeListAddressid).UpdateStatusAndCreateTask(uow, newAddressStatus, callTaskWorker, isEditAtCashier);
 			UpdateStatus();
 		}
 

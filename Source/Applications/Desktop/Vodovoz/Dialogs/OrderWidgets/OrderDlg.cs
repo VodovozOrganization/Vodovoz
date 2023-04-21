@@ -450,7 +450,7 @@ namespace Vodovoz
 				.CopyFields()
 				.CopyStockBottle()
 				.CopyPromotionalSets()
-				.CopyOrderItems(true, true)
+				.CopyOrderItems(true, true, true)
 				.CopyPaidDeliveryItem()
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
@@ -1435,6 +1435,8 @@ namespace Vodovoz
 						}
 					})
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("Альтерн.\nцена")
+					.AddToggleRenderer(x => x.IsAlternativePrice).Editing(false)
 				.AddColumn("В т.ч. НДС")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS ?? 0))
@@ -3485,6 +3487,14 @@ namespace Vodovoz
 			if(aList is GenericObservableList<OrderItem>) {
 				foreach(var i in aIdx) {
 					OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
+
+					if(oItem?.CopiedFromUndelivery == null)
+					{
+						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : oItem.Count;
+						oItem.IsAlternativePrice = Entity.HasPermissionsForAlternativePrice
+						                           && oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
+						                           && oItem.GetWaterFixedPrice() == null;
+					}
 
 					FixPrice(aIdx[0]);
 

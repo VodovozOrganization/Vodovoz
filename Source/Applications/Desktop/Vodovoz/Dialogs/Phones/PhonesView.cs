@@ -1,48 +1,51 @@
-﻿using System.Collections.Generic;
+﻿using Gamma.GtkWidgets;
 using Gamma.Widgets;
 using Gtk;
-using System.Linq;
-using Gamma.GtkWidgets;
 using QS.Widgets.GtkUI;
 using QSWidgetLib;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.ViewModels.ViewModels;
-using Vodovoz.ViewWidgets.Mango;
 using Vodovoz.ViewModels.ViewModels.Contacts;
+using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz.Dialogs.Phones
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PhonesView : Gtk.Bin
+	public partial class PhonesView : Bin
 	{
-		private PhonesViewModel viewModel;
+		private PhonesViewModel _viewModel;
 
-		private IList<HBox> hBoxList;
+		private IList<HBox> _hBoxList;
 
-		public PhonesViewModel ViewModel {
-			get { return viewModel; }
-			set {
-				viewModel = value;
+		public PhonesViewModel ViewModel
+		{
+			get { return _viewModel; }
+			set
+			{
+				_viewModel = value;
 				ConfigureDlg();
 			}
 		}
 
 		public PhonesView()
 		{
-			this.Build();
+			Build();
 		}
 
 		private void ConfigureDlg()
 		{
-			viewModel.PhonesListReplaced += ConfigureDlg;
+			ViewModel.PhonesListReplaced += ConfigureDlg;
 
-			if(viewModel.PhonesList == null)
+			if(ViewModel.PhonesList == null)
+			{
 				return;
+			}
 
-			buttonAddPhone.Clicked += (sender, e) => viewModel.AddItemCommand.Execute();
-			buttonAddPhone.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+			buttonAddPhone.Clicked += (sender, e) => ViewModel.AddItemCommand.Execute();
+			buttonAddPhone.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 
-			viewModel.PhonesList.PropertyChanged += (sender, e) => Redraw();
+			ViewModel.PhonesList.PropertyChanged += (sender, e) => Redraw();
 			Redraw();
 		}
 
@@ -51,17 +54,19 @@ namespace Vodovoz.Dialogs.Phones
 		{
 			PhoneViewModel phoneViewModel = ViewModel.GetPhoneViewModel(newPhone);
 
-			if(hBoxList?.FirstOrDefault() == null) 
-				hBoxList = new List<HBox>();
+			if(_hBoxList?.FirstOrDefault() == null)
+			{
+				_hBoxList = new List<HBox>();
+			}
 
 			HBox hBox = new HBox();
 
 			var phoneDataCombo = new yListComboBox();
 			phoneDataCombo.WidthRequest = 100;
 			phoneDataCombo.SetRenderTextFunc((PhoneType x) => x.Name);
-			phoneDataCombo.ItemsList = viewModel.PhoneTypes;
+			phoneDataCombo.ItemsList = ViewModel.PhoneTypes;
 			phoneDataCombo.Binding.AddBinding(phoneViewModel, pvm => pvm.SelectedPhoneType, w => w.SelectedItem).InitializeFromSource();
-			phoneDataCombo.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+			phoneDataCombo.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 			hBox.Add(phoneDataCombo);
 			hBox.SetChildPacking(phoneDataCombo, true, true, 0, PackType.Start);
 
@@ -75,7 +80,7 @@ namespace Vodovoz.Dialogs.Phones
 			phoneDataEntry.WidthRequest = 110;
 			phoneDataEntry.WidthChars = 19;
 			phoneDataEntry.Binding.AddBinding(newPhone, e => e.Number, w => w.Text).InitializeFromSource();
-			phoneDataEntry.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
+			phoneDataEntry.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
 			hBox.Add(phoneDataEntry);
 			hBox.SetChildPacking(phoneDataEntry, false, false, 0, PackType.Start);
 
@@ -84,7 +89,7 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.Add(handset);
 			hBox.SetChildPacking(handset, false, false, 0, PackType.Start);
 
-			var textAdditionalLabel = new Gtk.Label("доб.");
+			var textAdditionalLabel = new Label("доб.");
 			hBox.Add(textAdditionalLabel);
 			hBox.SetChildPacking(textAdditionalLabel, false, false, 0, PackType.Start);
 
@@ -92,7 +97,7 @@ namespace Vodovoz.Dialogs.Phones
 			additionalDataEntry.WidthRequest = 40;
 			additionalDataEntry.MaxLength = 10;
 			additionalDataEntry.Binding.AddBinding(newPhone, e => e.Additional, w => w.Text).InitializeFromSource();
-			additionalDataEntry.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
+			additionalDataEntry.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
 			hBox.Add(additionalDataEntry);
 			hBox.SetChildPacking(additionalDataEntry, false, false, 0, PackType.Start);
 
@@ -103,7 +108,7 @@ namespace Vodovoz.Dialogs.Phones
 			var entryComment = new yEntry();
 			entryComment.MaxLength = 150;
 			entryComment.Binding.AddBinding(newPhone, e => e.Comment, w => w.Text).InitializeFromSource();
-			entryComment.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
+			entryComment.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
 			hBox.Add(entryComment);
 			hBox.SetChildPacking(entryComment, true, true, 0, PackType.Start);
 
@@ -113,12 +118,12 @@ namespace Vodovoz.Dialogs.Phones
 				hBox.PackStart(labelName, false, false, 0);
 
 				var entityviewmodelentryName = new EntityViewModelEntry();
-				entityviewmodelentryName.Binding.AddBinding(viewModel, vm => vm.CanEditCounterpartyName, w => w.CanEditReference)
+				entityviewmodelentryName.Binding.AddBinding(ViewModel, vm => vm.CanEditCounterpartyName, w => w.CanEditReference)
 					.InitializeFromSource();
 				entityviewmodelentryName.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyName, w => w.Subject)
 					.InitializeFromSource();
 				entityviewmodelentryName.Binding
-					.AddFuncBinding(viewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyName, w => w.IsEditable).InitializeFromSource();
+					.AddFuncBinding(ViewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyName, w => w.IsEditable).InitializeFromSource();
 				entityviewmodelentryName.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyNameSelectorFactory);
 				entityviewmodelentryName.WidthRequest = 170;
 				hBox.PackStart(entityviewmodelentryName, true, true, 0);
@@ -128,27 +133,27 @@ namespace Vodovoz.Dialogs.Phones
 			{
 
 				var labelPatronymic = new Label("отч.:");
-				hBox.PackStart(labelPatronymic,false,false,0);
+				hBox.PackStart(labelPatronymic, false, false, 0);
 
 				var entityviewmodelentryPatronymic = new EntityViewModelEntry();
 				entityviewmodelentryPatronymic.Binding
-					.AddBinding(viewModel, vm => vm.CanEditCounterpartyPatronymic, w => w.CanEditReference).InitializeFromSource();
+					.AddBinding(ViewModel, vm => vm.CanEditCounterpartyPatronymic, w => w.CanEditReference).InitializeFromSource();
 				entityviewmodelentryPatronymic.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyPatronymic, w => w.Subject)
 					.InitializeFromSource();
 				entityviewmodelentryPatronymic.Binding
-					.AddFuncBinding(viewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyPatronymic, w => w.IsEditable)
+					.AddFuncBinding(ViewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyPatronymic, w => w.IsEditable)
 					.InitializeFromSource();
 				entityviewmodelentryPatronymic.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory);
 				entityviewmodelentryPatronymic.WidthRequest = 170;
-				hBox.PackStart(entityviewmodelentryPatronymic, true,true,0);
+				hBox.PackStart(entityviewmodelentryPatronymic, true, true, 0);
 			}
 
 			yButton deleteButton = new yButton();
 			Image image = new Image();
 			image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-delete", IconSize.Menu);
 			deleteButton.Image = image;
-			deleteButton.Clicked += (sender, e) => viewModel.DeleteItemCommand.Execute(hBox.Data["phone"] as Phone);
-			deleteButton.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+			deleteButton.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute(hBox.Data["phone"] as Phone);
+			deleteButton.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 			hBox.Add(deleteButton);
 			hBox.SetChildPacking(deleteButton, false, false, 0, PackType.Start);
 
@@ -157,8 +162,7 @@ namespace Vodovoz.Dialogs.Phones
 
 			vboxPhones.Add(hBox);
 			vboxPhones.ShowAll();
-			hBoxList.Add(hBox);
-
+			_hBoxList.Add(hBox);
 		}
 
 		private void Redraw()
@@ -171,7 +175,7 @@ namespace Vodovoz.Dialogs.Phones
 				vboxPhones.Remove(child);
 			}
 
-			foreach(Phone phone in viewModel.PhonesList) 
+			foreach(Phone phone in ViewModel.PhonesList)
 			{
 				DrawNewRow(phone);
 			}

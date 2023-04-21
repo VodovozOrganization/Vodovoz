@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,6 +53,8 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Domain\Goods\AlternativeNomenclaturePrice.cs" />
+    <Compile Include="Domain\Goods\NomenclaturePriceBase.cs" />
     <Compile Include="Domain\Logistic\AddressTransferType.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
     <Compile Include="Controllers\ComplaintNotificationController.cs" />
@@ -433,9 +435,11 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
     <Compile Include="Extensions\DriverPositionExtensions.cs" />
+    <Compile Include="Factories\CashReceiptFactory.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
     <Compile Include="Factories\EmployeeRegistrationFactory.cs" />
     <Compile Include="Factories\EmployeeRegistrationVersionFactory.cs" />
+    <Compile Include="Factories\ICashReceiptFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationFactory.cs" />
     <Compile Include="Factories\IEmployeeRegistrationVersionFactory.cs" />
     <Compile Include="Factories\IRoboatsFileStorageFactory.cs" />
@@ -613,6 +617,7 @@
     <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
     <Compile Include="Models\INomenclaturePurchasePriceModel.cs" />
+    <Compile Include="Models\IRouteListDailyNumberProvider.cs" />
     <Compile Include="Models\NewDriverAdvanceModel.cs" />
     <Compile Include="Models\NomenclatureCostPriceModel.cs" />
     <Compile Include="Models\NomenclatureGroupPricingModel.cs" />
@@ -629,15 +634,18 @@
     <Compile Include="Models\FinancialDistrictProvider.cs" />
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
+    <Compile Include="Models\RouteListDailyNumberProvider.cs" />
+    <Compile Include="Models\TrueMark\DeliveryOrderReceiptCreator.cs" />
     <Compile Include="Models\TrueMark\FiscalDocumentRefresher.cs" />
     <Compile Include="Models\TrueMark\FiscalizationResultSaver.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkOrderItemScannedInfo.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkOrderScannedInfo.cs" />
     <Compile Include="Models\TrueMark\ITrueMarkWaterCode.cs" />
+    <Compile Include="Models\TrueMark\OrderReceiptCreator.cs" />
+    <Compile Include="Models\TrueMark\OrderReceiptCreatorFactory.cs" />
     <Compile Include="Models\TrueMark\ReceiptManualController.cs" />
     <Compile Include="Models\TrueMark\ReceiptPreparer.cs" />
     <Compile Include="Models\TrueMark\ReceiptPreparerFactory.cs" />
-    <Compile Include="Models\TrueMark\SelfdeliveryReceiptCreatorFactory.cs" />
     <Compile Include="Models\TrueMark\StaleReceiptDocumentsRefresher.cs" />
     <Compile Include="Models\TrueMark\TrueMarkApiRegistrationStatusConverter.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCheckResult.cs" />
@@ -865,7 +873,7 @@
     <Compile Include="HibernateMapping\Goods\EquipmentKindMap.cs" />
     <Compile Include="HibernateMapping\Goods\ManufacturerMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureMap.cs" />
-    <Compile Include="HibernateMapping\Goods\NomenclaturePriceMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclaturePriceBaseMap.cs" />
     <Compile Include="HibernateMapping\Handbooks\MeasurementUnitsMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryShiftMap.cs" />
