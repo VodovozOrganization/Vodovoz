@@ -235,6 +235,12 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				.Select(x => x.Price)
 				.Take(1);
 
+			var alternativePriceSubquery = QueryOver.Of<AlternativeNomenclaturePrice>()
+				.Where(x => x.Nomenclature.Id == nomAlias.Id)
+				.OrderBy(x => x.MinCount).Asc
+				.Select(x => x.Price)
+				.Take(1);
+
 			if(typesSelected)
 			{
 				var typesIds = types.Select(x => (int)x.Value).ToArray();
@@ -287,6 +293,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			}
 
 			List<PriceNode> prices = new List<PriceNode>();
+			List<PriceNode> alternativePrices = new List<PriceNode>();
 			List<PriceNode> purchasePrices = new List<PriceNode>();
 
 			if(withPrices)
@@ -294,6 +301,13 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				prices = nomenclatureQuery.SelectList(list => list
 						.Select(() => nomAlias.Id).WithAlias(() => priceResult.NomenclatureId)
 						.SelectSubQuery(priceSubquery).WithAlias(() => priceResult.Amount))
+					.TransformUsing(Transformers.AliasToBean<PriceNode>())
+					.List<PriceNode>()
+					.ToList();
+
+				alternativePrices = nomenclatureQuery.SelectList(list => list
+						.Select(() => nomAlias.Id).WithAlias(() => priceResult.NomenclatureId)
+						.SelectSubQuery(alternativePriceSubquery).WithAlias(() => priceResult.Amount))
 					.TransformUsing(Transformers.AliasToBean<PriceNode>())
 					.List<PriceNode>()
 					.ToList();
@@ -315,6 +329,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 				var row = new BalanceSummaryRow
 				{
+					Num = nomsCounter + 1,
 					NomId = (int)noms[nomsCounter].Value,
 					NomTitle = noms[nomsCounter].Title,
 					Separate = new List<decimal>(),
@@ -323,6 +338,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						.Where(i => i.ItemId == (int)noms[nomsCounter].Value)
 						.Select(i => i.ReservedItemsAmount).FirstOrDefault() ?? 0,
 					Price = prices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0,
+					AlternativePrice = alternativePrices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0,
 					PurchasePrice = purchasePrices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0
 				};
 
@@ -403,18 +419,20 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private void InsertValues(IXLWorksheet ws)
 		{
-			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "Общий остаток", "Разница", "Цена закупки", "Цена" };
+			var colNames = new string[] { "№", "Код", "Наименование", "Мин. Остаток", "Общий остаток", "Разница", "Цена закупки", "Цена", "Цена Kuler Sale" };
 
 			var rows = from row in Report.SummaryRows
 					   select new
 					   {
+						   row.Num,
 						   row.NomId,
 						   row.NomTitle,
 						   row.Min,
 						   row.Common,
 						   row.Diff,
 						   row.PurchasePrice,
-						   row.Price
+						   row.Price,
+						   row.AlternativePrice
 					   };
 			int index = 1;
 			foreach(var name in colNames)
@@ -428,10 +446,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private void InsertValuesWithReserveAmount(IXLWorksheet ws)
 		{
-			var colNames = new string[] { "Код", "Наименование", "Мин. Остаток", "В резерве", "Доступно для заказа", "Общий остаток", "Разница", "Цена закупки", "Цена" };
+			var colNames = new string[] { "№", "Код", "Наименование", "Мин. Остаток", "В резерве", "Доступно для заказа", "Общий остаток", "Разница", "Цена закупки", "Цена", "Цена Kuler Sale" };
 			var rows = from row in Report.SummaryRows
 					   select new
 					   {
+						   row.Num,
 						   row.NomId,
 						   row.NomTitle,
 						   row.Min,
@@ -440,7 +459,8 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						   row.Common,
 						   row.Diff,
 						   row.PurchasePrice,
-						   row.Price
+						   row.Price,
+						   row.AlternativePrice
 					   };
 			int index = 1;
 			foreach(var name in colNames)
@@ -613,6 +633,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 	public class BalanceSummaryRow
 	{
+		public int Num { get; set; }
 		public int NomId { get; set; }
 		public string NomTitle { get; set; }
 		public decimal Min { get; set; }
@@ -623,6 +644,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		public decimal? AvailableItemsAmount => Common - ReservedItemsAmount;
 		public decimal PurchasePrice { get; set; }
 		public decimal Price { get; set; }
+		public decimal AlternativePrice { get; set; }
 	}
 
 	public class BalanceSummaryReport

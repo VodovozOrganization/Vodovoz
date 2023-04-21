@@ -29,6 +29,8 @@ namespace Vodovoz.Domain.Orders
 
 		private OrderItem _copiedFromUndelivery;
 
+		private bool _isAlternativePrice;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -98,7 +100,8 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(Nomenclature?.Unit?.Digits == 0 && value % 1 != 0)
 					value = Math.Truncate(value);
-				if(SetField(ref count, value)) {
+				if(SetField(ref count, value)) 
+				{
 					Order?.RecalculateItemsPrice();
 					RecalculateDiscount();
 					RecalculateVAT();
@@ -223,6 +226,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual PromotionalSet PromoSet {
 			get => promoSet;
 			set => SetField(ref promoSet, value, () => PromoSet);
+		}
+
+		[Display(Name = "Альтернативная цена?")]
+		public virtual bool IsAlternativePrice
+		{
+			get => _isAlternativePrice;
+			set => SetField(ref _isAlternativePrice, value);
 		}
 
 		#region Аренда
@@ -497,11 +507,17 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal GetPriceByTotalCount()
 		{
-			if(Nomenclature != null) {
+			if(Nomenclature != null)
+			{
+				var curCount = Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count;
+				var canApplyAlternativePrice = KeepExistingPrices
+					? IsAlternativePrice
+					: Order.HasPermissionsForAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount);
+
 				if(Nomenclature.DependsOnNomenclature == null)
-					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
+					return Nomenclature.GetPrice(curCount, canApplyAlternativePrice);
 				if(Nomenclature.IsWater19L)
-					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
+					return Nomenclature.DependsOnNomenclature.GetPrice(curCount, canApplyAlternativePrice);
 			}
 			return 0m;
 		}
@@ -602,6 +618,8 @@ namespace Vodovoz.Domain.Orders
 
 			return canUseVAT;
 		}
+
+		public bool KeepExistingPrices { get; set; } = false;
 
 		#endregion
 	}

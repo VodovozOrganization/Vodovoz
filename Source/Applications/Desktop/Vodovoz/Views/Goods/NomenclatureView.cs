@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.BusinessCommon.Domain;
@@ -10,12 +8,13 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Views.GtkUI;
 using QSOrmProject;
 using QSWidgetLib;
+using System;
+using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Representations;
 using Vodovoz.Representations.ProductGroups;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
@@ -385,8 +384,14 @@ namespace Vodovoz.Views.Goods
 			entityViewModelEntryNomenclature.CanEditReference = true;
 
 			pricesView.UoWGeneric = ViewModel.UoWGeneric;
+			pricesView.Prices = ViewModel.UoWGeneric.Root.NomenclaturePrice.Cast<NomenclaturePriceBase>().ToList();
 			pricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEdit;
-			ViewModel.PricesViewSaveChanges += () => pricesView.SaveChanges();
+			pricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.General;
+
+			alternativePricesView.UoWGeneric = ViewModel.UoWGeneric;
+			alternativePricesView.Prices = ViewModel.UoWGeneric.Root.AlternativeNomenclaturePrices.Cast<NomenclaturePriceBase>().ToList();
+			alternativePricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEditAlternativeNomenclaturePrices &&  ViewModel.CanEdit;
+			alternativePricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.Alternative;
 
 			#region Вкладка изображения
 
@@ -411,7 +416,7 @@ namespace Vodovoz.Views.Goods
 			menu.ShowAll();
 			menuActions.Sensitive = !ViewModel.UoWGeneric.IsNew && ViewModel.CanEdit;
 		}
-		
+
 		private void YСolorBtnBottleCapColorOnColorSet(object sender, EventArgs e) {
 			var color = (sender as yColorButton).Color;
 
@@ -550,5 +555,6 @@ namespace Vodovoz.Views.Goods
 		}
 
 		#endregion
+
 	}
 }
