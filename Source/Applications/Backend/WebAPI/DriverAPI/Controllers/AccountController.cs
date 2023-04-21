@@ -22,6 +22,7 @@ namespace DriverAPI.Controllers
 
 		[HttpPost]
 		[AllowAnonymous]
+		[Route("/api/v1/Register")]
 		[Route("/api/Register")]
 		public async Task Post([FromBody] RegisterRequestDto loginRequestModel)
 		{

@@ -40,6 +40,7 @@ namespace DriverAPI.Controllers
 		}
 
 		[HttpPost]
+		[Route("/api/v1/Authenticate")]
 		[Route("/api/Authenticate")]
 		public async Task<TokenResponseDto> Post([FromBody] LoginRequestDto loginRequestModel)
 		{
