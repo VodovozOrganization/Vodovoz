@@ -3821,6 +3821,13 @@ namespace Vodovoz
 				return;
 			}
 
+			if(Entity.Client.PaymentMethod != Entity.PaymentType
+				&& !MessageDialogHelper.RunQuestionDialog($"Вы выбрали форму оплаты <{Entity.PaymentType.GetEnumTitle()}>." +
+				$" У клиента по умолчанию установлено <{Entity.Client.PaymentMethod.GetEnumTitle()}>. Вы уверены, что хотите продолжить?"))
+			{
+				return;
+			}
+
 			_summaryInfoBuilder.Clear();
 
 			var clientFIO = Entity.Client.FullName.ToUpper();
