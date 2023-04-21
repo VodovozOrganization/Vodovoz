@@ -45,6 +45,7 @@ namespace DriverAPI.Controllers
 		/// </summary>
 		/// <param name="enablePushNotificationsRequest"></param>
 		[HttpPost]
+		[Route("/api/v1/EnablePushNotifications")]
 		[Route("/api/EnablePushNotifications")]
 		public async Task EnablePushNotificationsAsync([FromBody] EnablePushNotificationsRequestDto enablePushNotificationsRequest)
 		{
@@ -63,6 +64,7 @@ namespace DriverAPI.Controllers
 		/// Эндпоинт отключения PUSH уведомлений
 		/// </summary>
 		[HttpPost]
+		[Route("/api/v1/DisablePushNotifications")]
 		[Route("/api/DisablePushNotifications")]
 		public async Task DisablePushNotificationsAsync()
 		{
@@ -83,6 +85,7 @@ namespace DriverAPI.Controllers
 		/// <param name="orderId">Id заказа</param>
 		[HttpPost]
 		[AllowAnonymous]
+		[Route("/api/v1/NotifyOfSmsPaymentStatusChanged")]
 		[Route("/api/NotifyOfSmsPaymentStatusChanged")]
 		public async Task NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
 		{
@@ -91,6 +94,7 @@ namespace DriverAPI.Controllers
 		
 		[HttpPost]
 		[AllowAnonymous]
+		[Route("/api/v1/NotifyOfFastPaymentStatusChanged")]
 		[Route("/api/NotifyOfFastPaymentStatusChanged")]
 		public async Task NotifyOfFastPaymentStatusChanged([FromBody] int orderId)
 		{
@@ -117,6 +121,7 @@ namespace DriverAPI.Controllers
 		/// <param name="orderId">Id заказа</param>
 		[HttpPost]
 		[AllowAnonymous]
+		[Route("/api/v1/NotifyOfFastDeliveryOrderAdded")]
 		[Route("/api/NotifyOfFastDeliveryOrderAdded")]
 		public async Task NotifyOfFastDeliveryOrderAdded([FromBody] int orderId)
 		{

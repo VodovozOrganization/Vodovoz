@@ -54,6 +54,7 @@ namespace DriverAPI.Controllers
 		/// <param name="driverActionModels">Список действий из лога для регистрации</param>
 		/// <returns></returns>
 		[HttpPost]
+		[Route("/api/v1/RegisterDriverActions")]
 		[Route("/api/RegisterDriverActions")]
 		public async Task RegisterDriverActionsAsync([FromBody] IEnumerable<DriverActionDto> driverActionModels)
 		{
@@ -62,6 +63,7 @@ namespace DriverAPI.Controllers
 
 		// POST: RegisterRouteListAddressCoordinates
 		[HttpPost]
+		[Route("/api/v1/RegisterRouteListAddressCoordinates")]
 		[Route("/api/RegisterRouteListAddressCoordinates")]
 		public async Task RegisterRouteListAddressCoordinateAsync([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
@@ -107,6 +109,7 @@ namespace DriverAPI.Controllers
 		/// <param name="registerTrackCoordinateRequestModel"></param>
 		/// <returns></returns>
 		[HttpPost]
+		[Route("/api/v1/RegisterTrackCoordinates")]
 		[Route("/api/RegisterTrackCoordinates")]
 		public async Task RegisterTrackCoordinatesAsync([FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
 		{
