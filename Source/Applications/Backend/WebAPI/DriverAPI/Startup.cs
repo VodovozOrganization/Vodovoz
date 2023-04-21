@@ -2,6 +2,7 @@
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using DriverAPI.Middleware;
+using DriverAPI.Options;
 using DriverAPI.Services;
 using DriverAPI.Workers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +18,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using MySql.Data.MySqlClient;
 using NLog.Web;
 using QS.Attachments.Domain;
@@ -24,6 +25,7 @@ using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -151,10 +153,9 @@ namespace DriverAPI
 				config.SubstituteApiVersionInUrl = true;
 			});
 
-			services.AddSwaggerGen(c =>
-			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "DriverAPI", Version = "v1" });
-			});
+			services.AddSwaggerGen();
+
+			services.ConfigureOptions<ConfigureSwaggerOptions>();
 			
 			services.AddHttpClient<IFastPaymentsServiceAPIHelper, FastPaymentsesServiceApiHelper>(c =>
 			{
@@ -179,13 +180,22 @@ namespace DriverAPI
 			app.UseRequestResponseLogging();
 
 			app.UseSwagger();
-			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DriverAPI v1"));
+			app.UseSwaggerUI(options =>
+			{
+				var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+
+				foreach(var description in provider.ApiVersionDescriptions)
+				{
+					options.SwaggerEndpoint(
+						 $"/swagger/{description.GroupName}/swagger.json",
+						 description.ApiVersion.ToString());
+				}
+			});
 
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseMigrationsEndPoint();
-				
 			}
 			else
 			{
@@ -193,8 +203,6 @@ namespace DriverAPI
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
-
-			
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
