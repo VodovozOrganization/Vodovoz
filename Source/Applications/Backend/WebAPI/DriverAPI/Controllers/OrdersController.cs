@@ -49,6 +49,7 @@ namespace DriverAPI.Controllers
 		/// </summary>
 		/// <param name="orderId">Идентификатор заказа</param>
 		[HttpGet]
+		[Route("/api/v1/GetOrder")]
 		[Route("/api/GetOrder")]
 		public OrderDto Get(int orderId)
 		{
@@ -61,6 +62,7 @@ namespace DriverAPI.Controllers
 
 		// POST: CompleteOrderDelivery / CompleteRouteListAddress
 		[HttpPost]
+		[Route("/api/v1/CompleteOrderDelivery")]
 		[Route("/api/CompleteOrderDelivery")]
 		public async Task CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
@@ -104,6 +106,7 @@ namespace DriverAPI.Controllers
 		/// </summary>
 		/// <param name="changeOrderPaymentTypeRequestModel">Модель данных входящего запроса</param>
 		[HttpPost]
+		[Route("/api/v1/ChangeOrderPaymentType")]
 		[Route("/api/ChangeOrderPaymentType")]
 		public async Task ChangeOrderPaymentTypeAsync(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
