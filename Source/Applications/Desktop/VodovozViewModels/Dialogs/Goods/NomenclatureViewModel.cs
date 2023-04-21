@@ -83,6 +83,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool WithoutDependsOnNomenclature => Entity.DependsOnNomenclature == null;
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
 		public bool CanCreateAndArcNomenclatures { get; private set; }
+		public bool CanEditAlternativeNomenclaturePrices { get; private set; }
 		public bool AskSaveOnClose => CanEdit;
 		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; }
 		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; }
@@ -170,6 +171,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			CanCreateAndArcNomenclatures =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
+
+			CanEditAlternativeNomenclaturePrices =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
 		}
 
 		protected override void BeforeValidation() {

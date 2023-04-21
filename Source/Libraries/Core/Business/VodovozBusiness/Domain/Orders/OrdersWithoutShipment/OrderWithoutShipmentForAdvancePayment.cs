@@ -14,6 +14,7 @@ using Vodovoz.Domain.StoredEmails;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Parameters;
+using NPOI.SS.Formula.Functions;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -67,11 +68,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, bool discountInMoney = false, DiscountReason discountReason = null, PromotionalSet proSet = null)
 		{
+			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
+			                               && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
+
 			OrderWithoutShipmentForAdvancePaymentItem oi = new OrderWithoutShipmentForAdvancePaymentItem {
 				OrderWithoutDeliveryForAdvancePayment = this,
 				Count = count,
 				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1),
+				Price = nomenclature.GetPrice(1, canApplyAlternativePrice),
 				IsDiscountInMoney = discountInMoney,
 				DiscountSetter = discount,
 				DiscountReason = discountReason
@@ -81,10 +85,13 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public virtual void AddItemWithNomenclatureForSale(OrderWithoutShipmentForAdvancePaymentItem orderItem)
 		{
+			var canApplyAlternativePrice = HasPermissionsForAlternativePrice 
+			                               && orderItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= orderItem.Count);
 			var acceptableCategories = Nomenclature.GetCategoriesForSale();
 			if(orderItem?.Nomenclature == null || !acceptableCategories.Contains(orderItem.Nomenclature.Category))
 				return;
-			
+
+			orderItem.IsAlternativePrice = canApplyAlternativePrice;
 			ObservableOrderWithoutDeliveryForAdvancePaymentItems.Add(orderItem);
 		}
 
