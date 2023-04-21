@@ -253,12 +253,13 @@ namespace Vodovoz.SidePanel.InfoViews
 										 select rlaFirst.CreationDate).First().Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) :
 									FastDeliveryIntervalFrom == FastDeliveryIntervalFromEnum.RouteListItemTransfered ? rla.CreationDate.Add(_deliveryRulesParametersProvider.MaxTimeForFastDelivery) : rl.Date.Add(schedule.To)
 								: rl.Date.Add(schedule.To)
+							 let address = $"{dp.Street} {dp.Building}{dp.Letter}"
 							 select new DataNode
 							 {
 								 DriverName = surnameWithInitials,
 								 RouteListId = rl.Id,
 								 CarNumber = car.RegistrationNumber,
-								 Address = $"{dp.Street} {dp.Building}{dp.Letter}",
+								 Address = address,
 								 DeliveryType = isFastDeliveryString,
 								 DeliveryBefore = deliveryBefore
 							 };
@@ -306,7 +307,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 					Nodes.Add(new FastDeliveryMonitoringNode
 					{
-						Column1 = node.Address,
+						Column1 = node.Address.Length > 35 ? node.Address.Substring(0, 32) + "..." : node.Address,
 						Column2 = node.DeliveryType,
 						Column3 = timeElapsedString
 					});

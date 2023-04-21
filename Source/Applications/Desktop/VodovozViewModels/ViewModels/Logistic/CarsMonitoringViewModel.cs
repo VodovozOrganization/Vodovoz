@@ -343,7 +343,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CarsMonitoringInfoPanelView };
 
-		public int? WidthRequest => 470;
+		public int? WidthRequest => 420;
 
 		#region Events
 		public event Action FastDeliveryDistrictChanged;
