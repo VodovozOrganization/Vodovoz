@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers.V1
 {
-	[Route("api/[controller]")]
+	[ApiVersion("1.0")]
+	[Route("api/v{version:apiVersion}")]
 	[ApiController]
 	[Authorize]
 	public class AccountController : ControllerBase
@@ -22,7 +23,7 @@ namespace DriverAPI.Controllers.V1
 
 		[HttpPost]
 		[AllowAnonymous]
-		[Route("/api/v1/Register")]
+		[Route("Register")]
 		[Route("/api/Register")]
 		public async Task Post([FromBody] RegisterRequestDto loginRequestModel)
 		{

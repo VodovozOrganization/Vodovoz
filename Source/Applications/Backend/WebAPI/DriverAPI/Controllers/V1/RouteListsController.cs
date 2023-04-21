@@ -5,19 +5,18 @@ using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
-using QS.Project.Domain;
 
 namespace DriverAPI.Controllers.V1
 {
-	[Route("api/[controller]")]
+	[ApiVersion("1.0")]
+	[Route("api/v{version:apiVersion}")]
 	[ApiController]
 	[Authorize]
 	public class RouteListsController : ControllerBase
@@ -55,7 +54,7 @@ namespace DriverAPI.Controllers.V1
 		/// <param name="routeListsIds">Список идентификаторов МЛ</param>
 		/// <returns>GetRouteListsDetailsResponseModel</returns>
 		[HttpPost]
-		[Route("/api/v1/GetRouteListsDetails")]
+		[Route("GetRouteListsDetails")]
 		[Route("/api/GetRouteListsDetails")]
 		public GetRouteListsDetailsResponseDto Get([FromBody] int[] routeListsIds)
 		{
@@ -92,7 +91,7 @@ namespace DriverAPI.Controllers.V1
 		/// <param name="routeListId">Идентификатор МЛ</param>
 		/// <returns>APIRouteList или null</returns>
 		[HttpGet]
-		[Route("/api/v1/GetRouteList")]
+		[Route("GetRouteList")]
 		[Route("/api/GetRouteList")]
 		public RouteListDto Get(int routeListId)
 		{
@@ -110,7 +109,7 @@ namespace DriverAPI.Controllers.V1
 		/// </summary>
 		/// <returns>IEnumerable<int> - список идентификаторов МЛ</returns>
 		[HttpGet]
-		[Route("/api/v1/GetRouteListsIds")]
+		[Route("GetRouteListsIds")]
 		[Route("/api/GetRouteListsIds")]
 		public async Task<IEnumerable<int>> GetIds()
 		{
@@ -130,7 +129,7 @@ namespace DriverAPI.Controllers.V1
 		/// <param name="routelistAddressId">идентификатор адреса МЛ</param>
 		/// <returns></returns>
 		[HttpPost]
-		[Route("/api/v1/RollbackRouteListAddressStatusEnRoute")]
+		[Route("RollbackRouteListAddressStatusEnRoute")]
 		[Route("/api/RollbackRouteListAddressStatusEnRoute")]
 		public async Task RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
 		{

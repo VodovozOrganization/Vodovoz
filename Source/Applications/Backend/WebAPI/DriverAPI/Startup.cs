@@ -145,6 +145,12 @@ namespace DriverAPI
 				config.ApiVersionReader = new UrlSegmentApiVersionReader();
 			});
 
+			services.AddVersionedApiExplorer(config =>
+			{
+				config.GroupNameFormat = "'v'VVV";
+				config.SubstituteApiVersionInUrl = true;
+			});
+
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "DriverAPI", Version = "v1" });

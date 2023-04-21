@@ -14,7 +14,8 @@ using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers.V1
 {
-	[Route("api/[controller]")]
+	[ApiVersion("1.0")]
+	[Route("api/v{version:apiVersion}")]
 	[ApiController]
 	public class TokenController : ControllerBase
 	{
@@ -40,7 +41,7 @@ namespace DriverAPI.Controllers.V1
 		}
 
 		[HttpPost]
-		[Route("/api/v1/Authenticate")]
+		[Route("Authenticate")]
 		[Route("/api/Authenticate")]
 		public async Task<TokenResponseDto> Post([FromBody] LoginRequestDto loginRequestModel)
 		{

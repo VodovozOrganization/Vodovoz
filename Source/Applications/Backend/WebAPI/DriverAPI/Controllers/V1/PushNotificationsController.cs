@@ -1,18 +1,19 @@
-﻿using DriverAPI.Library.Models;
+﻿using DriverAPI.DTOs;
 using DriverAPI.Library.Helpers;
-using DriverAPI.DTOs;
+using DriverAPI.Library.Models;
+using DriverAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Threading.Tasks;
-using Microsoft.Net.Http.Headers;
-using DriverAPI.Services;
 
 namespace DriverAPI.Controllers.V1
 {
-	[Route("api/[controller]")]
+	[ApiVersion("1.0")]
+	[Route("api/v{version:apiVersion}")]
 	[ApiController]
 	[Authorize]
 	public class PushNotificationsController : ControllerBase
@@ -45,7 +46,7 @@ namespace DriverAPI.Controllers.V1
 		/// </summary>
 		/// <param name="enablePushNotificationsRequest"></param>
 		[HttpPost]
-		[Route("/api/v1/EnablePushNotifications")]
+		[Route("EnablePushNotifications")]
 		[Route("/api/EnablePushNotifications")]
 		public async Task EnablePushNotificationsAsync([FromBody] EnablePushNotificationsRequestDto enablePushNotificationsRequest)
 		{
@@ -64,7 +65,7 @@ namespace DriverAPI.Controllers.V1
 		/// Эндпоинт отключения PUSH уведомлений
 		/// </summary>
 		[HttpPost]
-		[Route("/api/v1/DisablePushNotifications")]
+		[Route("DisablePushNotifications")]
 		[Route("/api/DisablePushNotifications")]
 		public async Task DisablePushNotificationsAsync()
 		{
@@ -85,7 +86,7 @@ namespace DriverAPI.Controllers.V1
 		/// <param name="orderId">Id заказа</param>
 		[HttpPost]
 		[AllowAnonymous]
-		[Route("/api/v1/NotifyOfSmsPaymentStatusChanged")]
+		[Route("NotifyOfSmsPaymentStatusChanged")]
 		[Route("/api/NotifyOfSmsPaymentStatusChanged")]
 		public async Task NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
 		{
@@ -94,7 +95,7 @@ namespace DriverAPI.Controllers.V1
 
 		[HttpPost]
 		[AllowAnonymous]
-		[Route("/api/v1/NotifyOfFastPaymentStatusChanged")]
+		[Route("NotifyOfFastPaymentStatusChanged")]
 		[Route("/api/NotifyOfFastPaymentStatusChanged")]
 		public async Task NotifyOfFastPaymentStatusChanged([FromBody] int orderId)
 		{
@@ -121,7 +122,7 @@ namespace DriverAPI.Controllers.V1
 		/// <param name="orderId">Id заказа</param>
 		[HttpPost]
 		[AllowAnonymous]
-		[Route("/api/v1/NotifyOfFastDeliveryOrderAdded")]
+		[Route("NotifyOfFastDeliveryOrderAdded")]
 		[Route("/api/NotifyOfFastDeliveryOrderAdded")]
 		public async Task NotifyOfFastDeliveryOrderAdded([FromBody] int orderId)
 		{

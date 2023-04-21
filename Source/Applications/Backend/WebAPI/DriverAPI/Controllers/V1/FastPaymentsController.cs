@@ -13,7 +13,8 @@ using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers.V1
 {
-	[Route("api/[controller]")]
+	[ApiVersion("1.0")]
+	[Route("api/v{version:apiVersion}")]
 	[ApiController]
 	[Authorize]
 	public class FastPaymentsController : ControllerBase
@@ -53,7 +54,7 @@ namespace DriverAPI.Controllers.V1
 		/// <param name="orderId">Идентификатор заказа</param>
 		/// <returns>OrderPaymentStatusResponseModel или null</returns>
 		[HttpGet]
-		[Route("/api/v1/GetOrderQRPaymentStatus")]
+		[Route("GetOrderQRPaymentStatus")]
 		[Route("/api/GetOrderQRPaymentStatus")]
 		public OrderQRPaymentStatusResponseDto GetOrderQRPaymentStatus(int orderId)
 		{
@@ -75,7 +76,7 @@ namespace DriverAPI.Controllers.V1
 		/// </summary>
 		/// <param name="payByQRRequestDTO"></param>
 		[HttpPost]
-		[Route("/api/v1/PayByQR")]
+		[Route("PayByQR")]
 		[Route("/api/PayByQR")]
 		public async Task<PayByQRResponseDTO> PayByQR(PayByQRRequestDTO payByQRRequestDTO)
 		{
