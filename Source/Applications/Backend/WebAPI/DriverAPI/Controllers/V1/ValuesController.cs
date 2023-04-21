@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using Vodovoz.Services;
 
-namespace DriverAPI.Controllers
+namespace DriverAPI.Controllers.V1
 {
 	[Route("api/[controller]")]
 	[ApiController]

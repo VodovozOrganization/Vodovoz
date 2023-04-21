@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Domain.Logistic.Drivers;
 
-namespace DriverAPI.Controllers
+namespace DriverAPI.Controllers.V1
 {
 	[Route("api/[controller]")]
 	[ApiController]
@@ -80,7 +80,7 @@ namespace DriverAPI.Controllers
 		public async Task<PayByQRResponseDTO> PayByQR(PayByQRRequestDTO payByQRRequestDTO)
 		{
 			var recievedTime = DateTime.Now;
-			
+
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 

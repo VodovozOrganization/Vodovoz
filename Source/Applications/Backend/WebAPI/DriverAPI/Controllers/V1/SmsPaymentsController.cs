@@ -12,7 +12,7 @@ using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
 using System.Threading.Tasks;
 
-namespace DriverAPI.Controllers
+namespace DriverAPI.Controllers.V1
 {
 	[Route("api/[controller]")]
 	[ApiController]

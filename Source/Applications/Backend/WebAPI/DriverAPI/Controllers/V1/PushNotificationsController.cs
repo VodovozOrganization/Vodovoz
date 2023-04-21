@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Net.Http.Headers;
 using DriverAPI.Services;
 
-namespace DriverAPI.Controllers
+namespace DriverAPI.Controllers.V1
 {
 	[Route("api/[controller]")]
 	[ApiController]
@@ -91,7 +91,7 @@ namespace DriverAPI.Controllers
 		{
 			await SendPaymentStatusChangedPushNotificationAsync(orderId);
 		}
-		
+
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/api/v1/NotifyOfFastPaymentStatusChanged")]

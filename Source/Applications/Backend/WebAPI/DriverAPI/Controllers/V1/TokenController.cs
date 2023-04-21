@@ -12,7 +12,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DriverAPI.Controllers
+namespace DriverAPI.Controllers.V1
 {
 	[Route("api/[controller]")]
 	[ApiController]
@@ -44,7 +44,7 @@ namespace DriverAPI.Controllers
 		[Route("/api/Authenticate")]
 		public async Task<TokenResponseDto> Post([FromBody] LoginRequestDto loginRequestModel)
 		{
-			if (await IsValidCredentials(loginRequestModel.Username, loginRequestModel.Password))
+			if(await IsValidCredentials(loginRequestModel.Username, loginRequestModel.Password))
 			{
 				return await GenerateToken(loginRequestModel.Username);
 			}
@@ -80,7 +80,7 @@ namespace DriverAPI.Controllers
 				new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddMinutes(_tokenLifetime)).ToUnixTimeSeconds().ToString())
 			};
 
-			foreach (var role in roles)
+			foreach(var role in roles)
 			{
 				claims.Add(new Claim(ClaimTypes.Role, role.Name));
 			}
