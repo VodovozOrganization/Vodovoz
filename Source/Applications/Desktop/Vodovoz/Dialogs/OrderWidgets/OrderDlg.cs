@@ -618,11 +618,11 @@ namespace Vodovoz
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
 
-			pickerDeliveryDate1.IsEditable = true;
-			pickerDeliveryDate1.AutoSeparation = true;
-			pickerDeliveryDate1.WithTime = true;
-			pickerDeliveryDate1.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
-			pickerDeliveryDate1.DateChanged += PickerDeliveryDate1_DateChanged;
+			//pickerDeliveryDate1.IsEditable = true;
+			//pickerDeliveryDate1.AutoSeparation = true;
+			//pickerDeliveryDate1.WithTime = true;
+			//pickerDeliveryDate1.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
+			//pickerDeliveryDate1.DateChanged += PickerDeliveryDate1_DateChanged;
 
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			pickerBillDate.Binding.AddBinding(Entity, s => s.BillDate, w => w.DateOrNull).InitializeFromSource();
@@ -2697,23 +2697,23 @@ namespace Vodovoz
 			}
 		}
 
-		void PickerDeliveryDate1_DateChanged(object sender, EventArgs e)
-		{
-			if(pickerDeliveryDate1.Date < DateTime.Today && !_canCreateOrderInAdvance)
-			{
-				pickerDeliveryDate1.ModifyBase(StateType.Normal, new Gdk.Color(255, 0, 0));
-			}
-			else
-			{
-				pickerDeliveryDate1.ModifyBase(StateType.Normal, new Gdk.Color(255, 255, 255));
-			}
+		//void PickerDeliveryDate1_DateChanged(object sender, EventArgs e)
+		//{
+			//if(pickerDeliveryDate1.Date < DateTime.Today && !_canCreateOrderInAdvance)
+			//{
+				//pickerDeliveryDate1.ModifyBase(StateType.Normal, new Gdk.Color(255, 0, 0));
+			//}
+			//else
+			//{
+				//pickerDeliveryDate1.ModifyBase(StateType.Normal, new Gdk.Color(255, 255, 255));
+			//}
 
-			if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
-			{
-				OnFormOrderActions();
-				TryAddFlyers();
-			}
-		}
+			//if(Entity.DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
+			//{
+				//OnFormOrderActions();
+				//TryAddFlyers();
+			//}
+		//}
 
 		protected void OnEntityVMEntryClientChanged(object sender, EventArgs e)
 		{
@@ -3540,7 +3540,7 @@ namespace Vodovoz
 
 			if(isEditOrderClicked)
 			{
-				pickerDeliveryDate.Sensitive = pickerDeliveryDate1.Sensitive =
+				pickerDeliveryDate.Sensitive = //pickerDeliveryDate1.Sensitive =
 					Order.OrderStatus == OrderStatus.NewOrder
 					&& Order.Id != 0
 					&& _canEditDeliveryDateAfterOrderConfirmation;
@@ -3549,7 +3549,8 @@ namespace Vodovoz
 			{
 				if(Order.OrderStatus == OrderStatus.NewOrder && Order.Id != 0)
 				{
-					pickerDeliveryDate.Sensitive = pickerDeliveryDate1.Sensitive = _canEditDeliveryDateAfterOrderConfirmation;
+					pickerDeliveryDate.Sensitive = //pickerDeliveryDate1.Sensitive = 
+					_canEditDeliveryDateAfterOrderConfirmation;
 				}
 			}
 		}
