@@ -67,7 +67,7 @@ namespace Vodovoz.SidePanel
 		protected void OnContainerUnpinned(object sender, EventArgs args)
 		{
 			PanelViewContainer container = sender as PanelViewContainer;
-			if(this._currentInfoProvider != container.InfoProvider)
+			if(_currentInfoProvider != container.InfoProvider)
 			{
 				content.Remove(container);
 			}
@@ -170,6 +170,10 @@ namespace Vodovoz.SidePanel
 				var noViews = !currentViews.Any();
 				rightsidepanel1.IsHided = noViews || currentViews.All(c => !c.VisibleOnPanel);
 				WidthRequest = noViews ? 0 : (_currentInfoProvider as ICustomWidthInfoProvider)?.WidthRequest ?? _defaultWithRequest;
+			}
+			if(rightsidepanel1.IsHided)
+			{
+				WidthRequest = 0;
 			}
 		}
 	}
