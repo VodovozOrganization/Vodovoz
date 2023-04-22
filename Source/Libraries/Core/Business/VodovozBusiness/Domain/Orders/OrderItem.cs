@@ -31,6 +31,8 @@ namespace Vodovoz.Domain.Orders
 
 		private bool _isAlternativePrice;
 
+		private bool _isFixedPrice;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -74,9 +76,9 @@ namespace Vodovoz.Domain.Orders
 			set {
 				//Если цена не отличается от той которая должна быть по прайсам в 
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
-				IsUserPrice = value != GetPriceByTotalCount() && value != 0;
+				IsUserPrice = value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice;
 				if(IsUserPrice)
-					IsUserPrice = value != GetPriceByTotalCount() && value != 0;
+					IsUserPrice = value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice;
 
 				if(SetField(ref price, value, () => Price)) {
 					RecalculateDiscount();
@@ -233,6 +235,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _isAlternativePrice;
 			set => SetField(ref _isAlternativePrice, value);
+		}
+
+		[Display(Name = "Установлена фиксированная цена?")]
+		public virtual bool IsFixedPrice
+		{
+			get => _isFixedPrice;
+			set => SetField(ref _isFixedPrice, value);
 		}
 
 		#region Аренда
@@ -499,15 +508,25 @@ namespace Vodovoz.Domain.Orders
 			return result;
 		}
 
+		public decimal TotalWater19LCountInOrder => 
+			Nomenclature.IsWater19L 
+			? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) 
+			: Count;
+
 		public virtual void RecalculatePrice()
 		{
-			if (order.GetFixedPriceOrNull(Nomenclature, Count) != null)
+			var curCount = TotalWater19LCountInOrder;
+			if (Order.GetFixedPriceOrNull(Nomenclature, curCount) != null)
 			{
-				Price = order.GetFixedPriceOrNull(Nomenclature, Count).Price;
+				Price = Order.GetFixedPriceOrNull(Nomenclature, curCount).Price;
+				IsFixedPrice = true;
+				//IsAlternativePrice = false;
 				return;
 			}
 
-			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || order.GetFixedPriceOrNull(Nomenclature, Count) != null)
+			IsFixedPrice = false;
+
+			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed)
 				return;
 
 			Price = GetPriceByTotalCount();

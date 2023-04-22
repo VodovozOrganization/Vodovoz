@@ -1295,7 +1295,7 @@ namespace Vodovoz
 						if(Entity.OrderStatus == OrderStatus.NewOrder || (Entity.OrderStatus == OrderStatus.WaitForPayment && !Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
 							c.ForegroundGdk = colorBlack;
-							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature, node.Count);
+							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature, node.TotalWater19LCountInOrder);
 							if(fixedPrice != null && node.PromoSet == null) {
 								c.ForegroundGdk = colorGreen;
 							} else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
