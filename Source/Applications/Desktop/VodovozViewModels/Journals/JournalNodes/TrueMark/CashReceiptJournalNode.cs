@@ -23,7 +23,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 		public string ReceiptOrProductCodeId => Id == 0 ? "" : Id.ToString();
 
 		//Id чека
-		public string ReceiptDocId => NodeType == CashReceiptNodeType.Receipt ? CashReceipt.GetDocumentId(OrderAndItemId) : "";
+		public string ReceiptDocId =>
+			NodeType == CashReceiptNodeType.Receipt ? CashReceipt.GetDocumentId(OrderAndItemId, ReceiptInnerNumber) : "";
 
 		//Создан
 		public DateTime? Created { get; set; }
@@ -52,6 +53,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Roboats
 
 		//Код заказа / Код строки заказа
 		public int OrderAndItemId { get; set; }
+		public int? ReceiptInnerNumber { get; set; }
 
 		//Статус фиск. док. / Исх. GTIN
 		public FiscalDocumentStatus? FiscalDocStatus { get; set; }

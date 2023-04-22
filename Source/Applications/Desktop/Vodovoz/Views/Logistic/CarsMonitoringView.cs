@@ -53,7 +53,7 @@ namespace Vodovoz.Views.Logistic
 			_lastSelectedDrivers = new Dictionary<int, CarMarkerType>();
 			_tracksDistanceTextInfo = new List<DistanceTextInfo>();
 
-			_timeoutTimerHandler = new GLib.TimeoutHandler(UpdateCarPosition);
+			_timeoutTimerHandler = new GLib.TimeoutHandler(AutoRefresh);
 
 			Build();
 
@@ -407,6 +407,34 @@ namespace Vodovoz.Views.Logistic
 				ViewModel.SelectedWorkingDrivers.Add(selectedNode);
 			}
 			SelectedDriversChanged();
+		}
+
+		private bool AutoRefresh()
+		{
+			try
+			{
+				var selectedRows = yTreeViewDrivers.Selection.GetSelectedRows();
+				var position = yTreeViewDrivers.Vadjustment.Value;
+
+				Application.Invoke((s, arg) => ViewModel.RefreshWorkingDriversCommand?.Execute());
+
+				GtkHelper.WaitRedraw();
+
+				foreach(var row in selectedRows)
+				{
+					yTreeViewDrivers.Selection.SelectPath(row);
+				}
+
+				yTreeViewDrivers.Vadjustment.Value = position;
+			}
+			catch(Exception e)
+			{
+				_logger.Error("Ошибка при автообновлении: {AutoRefreshError}", e);
+
+				return false;
+			}
+
+			return true;
 		}
 
 		private bool UpdateCarPosition()

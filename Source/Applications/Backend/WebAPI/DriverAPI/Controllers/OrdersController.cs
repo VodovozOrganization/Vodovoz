@@ -49,6 +49,7 @@ namespace DriverAPI.Controllers
 		/// </summary>
 		/// <param name="orderId">Идентификатор заказа</param>
 		[HttpGet]
+		[Route("/api/v1/GetOrder")]
 		[Route("/api/GetOrder")]
 		public OrderDto Get(int orderId)
 		{
@@ -61,6 +62,7 @@ namespace DriverAPI.Controllers
 
 		// POST: CompleteOrderDelivery / CompleteRouteListAddress
 		[HttpPost]
+		[Route("/api/v1/CompleteOrderDelivery")]
 		[Route("/api/CompleteOrderDelivery")]
 		public async Task CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
@@ -76,9 +78,11 @@ namespace DriverAPI.Controllers
 
 			var resultMessage = "OK";
 
+			var actionTime = _actionTimeHelper.GetActionTime(completedOrderRequestModel);
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, completedOrderRequestModel.ActionTime);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, actionTime);
 
 				_aPIOrderData.CompleteOrderDelivery(
 					recievedTime,
@@ -93,7 +97,7 @@ namespace DriverAPI.Controllers
 			}
 			finally
 			{
-				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, completedOrderRequestModel.ActionTime, recievedTime, resultMessage);
+				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, actionTime, recievedTime, resultMessage);
 			}
 		}
 
@@ -102,6 +106,7 @@ namespace DriverAPI.Controllers
 		/// </summary>
 		/// <param name="changeOrderPaymentTypeRequestModel">Модель данных входящего запроса</param>
 		[HttpPost]
+		[Route("/api/v1/ChangeOrderPaymentType")]
 		[Route("/api/ChangeOrderPaymentType")]
 		public async Task ChangeOrderPaymentTypeAsync(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
@@ -124,9 +129,11 @@ namespace DriverAPI.Controllers
 
 			var resultMessage = "OK";
 
+			var actionTime = _actionTimeHelper.GetActionTime(changeOrderPaymentTypeRequestModel);
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, changeOrderPaymentTypeRequestModel.ActionTime);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, actionTime);
 
 				IEnumerable<PaymentDtoType> availableTypesToChange = _aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
 
@@ -165,7 +172,7 @@ namespace DriverAPI.Controllers
 			}
 			finally
 			{
-				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.ChangeOrderPaymentTypeClicked, changeOrderPaymentTypeRequestModel.ActionTime, recievedTime, resultMessage);
+				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.ChangeOrderPaymentTypeClicked, actionTime, recievedTime, resultMessage);
 			}
 		}
 	}

@@ -23,6 +23,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Models;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -35,6 +36,7 @@ namespace Vodovoz
 		private readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
 		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider = new RouteListDailyNumberProvider(UnitOfWorkFactory.GetDefaultFactory);
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -259,6 +261,8 @@ namespace Vodovoz
 					return;
 				}
 			}
+
+			_routeListDailyNumberProvider.GetOrCreateDailyNumber(Entity.RouteList.Id, Entity.RouteList.Date);
 
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = Entity.Title,

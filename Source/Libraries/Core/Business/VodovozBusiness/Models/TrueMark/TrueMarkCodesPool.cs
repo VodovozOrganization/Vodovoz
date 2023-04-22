@@ -83,6 +83,11 @@ namespace Vodovoz.Models.TrueMark
 					.SetParameter("gtin", gtin)
 					.UniqueResult<uint>();
 
+				if(deletingCodeId == 0)
+				{
+					return 0;
+				}
+				
 				var result = (int)uow.Session.CreateSQLQuery(query)
 					.SetParameter("deletingCodeId", deletingCodeId)
 					.UniqueResult<uint>();

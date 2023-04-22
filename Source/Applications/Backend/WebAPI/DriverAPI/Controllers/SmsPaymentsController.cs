@@ -59,6 +59,7 @@ namespace DriverAPI.Controllers
 		/// <param name="orderId">Идентификатор заказа</param>
 		/// <returns>OrderPaymentStatusResponseModel или null</returns>
 		[HttpGet]
+		[Route("/api/v1/GetOrderSmsPaymentStatus")]
 		[Route("/api/GetOrderSmsPaymentStatus")]
 		public OrderSmsPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
 		{
@@ -87,6 +88,7 @@ namespace DriverAPI.Controllers
 		/// </summary>
 		/// <param name="payBySmsRequestModel"></param>
 		[HttpPost]
+		[Route("/api/v1/PayBySms")]
 		[Route("/api/PayBySms")]
 		public async Task PayBySmsAsync(PayBySmsRequestDto payBySmsRequestModel)
 		{
@@ -105,9 +107,11 @@ namespace DriverAPI.Controllers
 
 			var resultMessage = "OK";
 
+			var actionTime = _actionTimeHelper.GetActionTime(payBySmsRequestModel);
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, payBySmsRequestModel.ActionTime);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, actionTime);
 
 				_aPIOrderData.SendSmsPaymentRequest(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber, driver.Id);
 			}
@@ -120,7 +124,7 @@ namespace DriverAPI.Controllers
 			{
 				_driverMobileAppActionRecordModel.RegisterAction(driver,
 					DriverMobileAppActionType.PayBySmsClicked,
-					payBySmsRequestModel.ActionTime,
+					actionTime,
 					recievedTime,
 					resultMessage);
 			}

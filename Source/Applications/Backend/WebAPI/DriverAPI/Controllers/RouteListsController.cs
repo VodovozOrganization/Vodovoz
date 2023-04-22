@@ -55,6 +55,7 @@ namespace DriverAPI.Controllers
 		/// <param name="routeListsIds">Список идентификаторов МЛ</param>
 		/// <returns>GetRouteListsDetailsResponseModel</returns>
 		[HttpPost]
+		[Route("/api/v1/GetRouteListsDetails")]
 		[Route("/api/GetRouteListsDetails")]
 		public GetRouteListsDetailsResponseDto Get([FromBody] int[] routeListsIds)
 		{
@@ -91,6 +92,7 @@ namespace DriverAPI.Controllers
 		/// <param name="routeListId">Идентификатор МЛ</param>
 		/// <returns>APIRouteList или null</returns>
 		[HttpGet]
+		[Route("/api/v1/GetRouteList")]
 		[Route("/api/GetRouteList")]
 		public RouteListDto Get(int routeListId)
 		{
@@ -108,6 +110,7 @@ namespace DriverAPI.Controllers
 		/// </summary>
 		/// <returns>IEnumerable<int> - список идентификаторов МЛ</returns>
 		[HttpGet]
+		[Route("/api/v1/GetRouteListsIds")]
 		[Route("/api/GetRouteListsIds")]
 		public async Task<IEnumerable<int>> GetIds()
 		{
@@ -127,6 +130,7 @@ namespace DriverAPI.Controllers
 		/// <param name="routelistAddressId">идентификатор адреса МЛ</param>
 		/// <returns></returns>
 		[HttpPost]
+		[Route("/api/v1/RollbackRouteListAddressStatusEnRoute")]
 		[Route("/api/RollbackRouteListAddressStatusEnRoute")]
 		public async Task RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
 		{
@@ -142,9 +146,11 @@ namespace DriverAPI.Controllers
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
+			var actionTime = _actionTimeHelper.GetActionTime(requestDto);
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, requestDto.ActionTime);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, actionTime);
 				_aPIRouteListData.RollbackRouteListAddressStatusEnRoute(requestDto.RoutelistAddressId, driver.Id);
 			}
 			catch(Exception ex)
@@ -156,7 +162,7 @@ namespace DriverAPI.Controllers
 			{
 				_driverMobileAppActionRecordModel.RegisterAction(driver,
 					DriverMobileAppActionType.RollbackRouteListAddressStatusEnRouteClicked,
-					requestDto.ActionTime,
+					actionTime,
 					recievedTime,
 					resultMessage);
 			}
