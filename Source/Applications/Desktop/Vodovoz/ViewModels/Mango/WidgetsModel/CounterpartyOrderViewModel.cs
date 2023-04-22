@@ -203,10 +203,10 @@ namespace Vodovoz.ViewModels.Mango
 			var page = tdiNavigation.OpenTdiTab<OrderDlg, int>(null, id, OpenPageOptions.IgnoreHash);
 		}
 
-		public void RepeatOrder(Order order)
+		public void RepeatOrder(int orderId)
 		{
-			if(order != null)
-				tdiNavigation.OpenTdiTab<OrderDlg, Order, bool>(null, order, true, OpenPageOptions.IgnoreHash);
+			if(orderId != 0)
+				tdiNavigation.OpenTdiTab<OrderDlg, int, bool>(null, orderId, true, OpenPageOptions.IgnoreHash);
 		}
 
 		public void OpenRoutedList(Order order)

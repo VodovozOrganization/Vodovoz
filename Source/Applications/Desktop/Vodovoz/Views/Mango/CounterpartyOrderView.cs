@@ -53,7 +53,7 @@ namespace Vodovoz.Views.Mango
 			if(e.Event.Button == 3 && selectedOrder != null) {
 				Gtk.Menu popupMenu = new Menu();
 				MenuItem item1 = new MenuItem("Повторить заказ");
-				item1.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.RepeatOrder(selectedOrder); };
+				item1.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.RepeatOrder(selectedOrder.Id); };
 				popupMenu.Add(item1);
 
 				MenuItem item2 = new MenuItem("Перейти в заказ");
