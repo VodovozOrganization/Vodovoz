@@ -218,7 +218,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 				price = fixPrice == null ? 0 : fixPrice.FixedPrice;
 			}
 
-			_fixedPricesModel.AddFixedPrice(nomenclature, price, 0, 0);
+			_fixedPricesModel.AddFixedPrice(nomenclature, price, 0);
 		}
 		#endregion
 
