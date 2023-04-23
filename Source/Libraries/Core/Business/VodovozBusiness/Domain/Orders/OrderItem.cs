@@ -499,7 +499,7 @@ namespace Vodovoz.Domain.Orders
 			//влияющая номенклатура
 			if(Nomenclature.Category == NomenclatureCategory.water) 
 			{
-				var fixedPrice = order.GetFixedPriceOrNull(Nomenclature, Count);
+				var fixedPrice = order.GetFixedPriceOrNull(Nomenclature, TotalWater19LCountInOrder);
 				if (fixedPrice != null) 
 				{
 					return fixedPrice.Price;
@@ -520,7 +520,6 @@ namespace Vodovoz.Domain.Orders
 			{
 				Price = Order.GetFixedPriceOrNull(Nomenclature, curCount).Price;
 				IsFixedPrice = true;
-				//IsAlternativePrice = false;
 				return;
 			}
 

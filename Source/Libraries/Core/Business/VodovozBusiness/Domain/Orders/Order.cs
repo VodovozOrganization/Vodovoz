@@ -1,4 +1,4 @@
-using fyiReporting.RDL;
+﻿using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -2081,7 +2081,7 @@ namespace Vodovoz.Domain.Orders
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount, out bool isFixPrice)
 		{
 			isFixPrice = false;
-			var fixedPrice = GetFixedPriceOrNull(nomenclature, bottlesCount);
+			var fixedPrice = GetFixedPriceOrNull(nomenclature, GetTotalWater19LCount() + bottlesCount);
 			if (fixedPrice != null && promoSet == null) {
 				isFixPrice = true;
 				return fixedPrice.Price;
