@@ -1,7 +1,7 @@
 ﻿using DriverAPI.Library.DTOs;
 using System;
 
-namespace DriverAPI.DTOs
+namespace DriverAPI.DTOs.V2
 {
 	public class ChangeOrderPaymentTypeRequestDto : IActionTimeTrackable
 	{

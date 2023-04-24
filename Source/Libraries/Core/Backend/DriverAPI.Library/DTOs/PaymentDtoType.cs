@@ -2,6 +2,7 @@
 
 namespace DriverAPI.Library.DTOs
 {
+	// новый
 	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum PaymentDtoType
 	{

@@ -1,9 +1,8 @@
 ﻿using DriverAPI.Library.DTOs;
-using Microsoft.Extensions.Logging;
+using QS.Utilities.Numeric;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using QS.Utilities.Numeric;
 using Vodovoz.Domain;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
@@ -14,14 +13,14 @@ namespace DriverAPI.Library.Converters
 	{
 		private readonly DeliveryPointConverter _deliveryPointConverter;
 		private readonly SmsPaymentStatusConverter _smsPaymentConverter;
-		private readonly PaymentTypeConverter _paymentTypeConverter;
+		private readonly Deprecated.Converters.PaymentTypeConverter _paymentTypeConverter;
 		private readonly SignatureTypeConverter _signatureTypeConverter;
 		private readonly QRPaymentConverter _qrPaymentConverter;
 
 		public OrderConverter(
 			DeliveryPointConverter deliveryPointConverter,
 			SmsPaymentStatusConverter smsPaymentConverter,
-			PaymentTypeConverter paymentTypeConverter,
+			Deprecated.Converters.PaymentTypeConverter paymentTypeConverter,
 			SignatureTypeConverter signatureTypeConverter,
 			QRPaymentConverter qrPaymentConverter)
 		{
@@ -32,7 +31,7 @@ namespace DriverAPI.Library.Converters
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 		}
 
-		public OrderDto ConvertToAPIOrder(
+		public Deprecated.DTOs.OrderDto ConvertToAPIOrder(
 			Order vodovozOrder,
 			DateTime addedToRouteListTime,
 			SmsPaymentStatus? smsPaymentStatus,
@@ -40,7 +39,7 @@ namespace DriverAPI.Library.Converters
 		{
 			var pairOfSplitedLists = SplitDeliveryItems(vodovozOrder.OrderEquipments);
 
-			var apiOrder = new OrderDto
+			var apiOrder = new Deprecated.DTOs.OrderDto
 			{
 				OrderId = vodovozOrder.Id,
 				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(smsPaymentStatus),

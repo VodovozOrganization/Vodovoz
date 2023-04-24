@@ -1,4 +1,5 @@
 ﻿using DriverAPI.Library.Converters;
+using DriverAPI.Library.Deprecated.DTOs;
 using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
 using Microsoft.Extensions.Logging;

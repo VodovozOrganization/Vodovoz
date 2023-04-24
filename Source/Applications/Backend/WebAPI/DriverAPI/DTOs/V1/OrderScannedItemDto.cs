@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Vodovoz.Models.TrueMark;
 
-namespace DriverAPI.DTOs
+namespace DriverAPI.DTOs.V1
 {
 	public class OrderScannedItemDto : ITrueMarkOrderItemScannedInfo
 	{

@@ -1,7 +1,8 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Deprecated.DTOs;
+using DriverAPI.Library.DTOs;
 using System.Collections.Generic;
 
-namespace DriverAPI.DTOs
+namespace DriverAPI.DTOs.V1
 {
 	public class OrderSmsPaymentStatusResponseDto
 	{

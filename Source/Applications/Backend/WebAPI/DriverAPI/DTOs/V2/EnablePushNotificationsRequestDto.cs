@@ -1,4 +1,4 @@
-﻿namespace DriverAPI.DTOs
+﻿namespace DriverAPI.DTOs.V2
 {
 	public class EnablePushNotificationsRequestDto
 	{

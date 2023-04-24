@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DriverAPI.DTOs;
+using DriverAPI.DTOs.V1;
 using DriverAPI.Library.Converters;
+using DriverAPI.Library.Deprecated.Models;
 using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;

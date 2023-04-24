@@ -1,4 +1,5 @@
 ﻿using DriverAPI.Data;
+using DriverAPI.Library.Deprecated.Models;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using DriverAPI.Middleware;

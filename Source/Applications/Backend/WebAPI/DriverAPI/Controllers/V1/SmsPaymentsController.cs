@@ -1,5 +1,4 @@
-﻿using DriverAPI.DTOs;
-using DriverAPI.Library.Converters;
+﻿using DriverAPI.Library.Converters;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +10,8 @@ using System;
 using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
 using System.Threading.Tasks;
+using DriverAPI.Library.Deprecated.Models;
+using DriverAPI.DTOs.V1;
 
 namespace DriverAPI.Controllers.V1
 {

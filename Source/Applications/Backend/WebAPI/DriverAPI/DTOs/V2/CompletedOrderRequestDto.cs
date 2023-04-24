@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Models.TrueMark;
 
-namespace DriverAPI.DTOs
+namespace DriverAPI.DTOs.V2
 {
 	public class CompletedOrderRequestDto : IDriverCompleteOrderInfo, IActionTimeTrackable
 	{

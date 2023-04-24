@@ -1,4 +1,4 @@
-﻿using DriverAPI.DTOs;
+﻿using DriverAPI.DTOs.V1;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using DriverAPI.Services;

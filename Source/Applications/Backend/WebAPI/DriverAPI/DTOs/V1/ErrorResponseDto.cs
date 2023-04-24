@@ -1,4 +1,4 @@
-﻿namespace DriverAPI.DTOs
+﻿namespace DriverAPI.DTOs.V1
 {
 	public class ErrorResponseDto
 	{
