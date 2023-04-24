@@ -558,6 +558,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 			template.SaveAs(path);
 		}
 
+		public void ShowInfo()
+		{
+			var info = "Первый раз нужно выбрать необходимые склады и подразделения\n" +
+				"Далее отчет формируется по выбранным Складам и Подразделениям\n" +
+				"Склады и Подразделения запоминаются при формировании отчета\n" +
+				"Остатки по складам формируются только при выборе 1 периода с интервалом в 1 день";
+
+			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Информация");
+		}
+
 		private static void ValidateParameters(
 			DateTime firstPeriodStartDate,
 			DateTime firstPeriodEndDate,
