@@ -487,7 +487,7 @@ namespace Vodovoz
 					x => x.Client,
 					x => x.DeliveryPoint,
 					x => x.OrderAddressType,
-					x => x.PaymentType,
+					x => x.Client.PaymentMethod,
 					x => x.ContactPhone
 				)
 				.CopyPromotionalSets()
@@ -3822,8 +3822,8 @@ namespace Vodovoz
 			}
 
 			if(Entity.Client.PaymentMethod != Entity.PaymentType
-				&& !MessageDialogHelper.RunQuestionDialog($"Вы выбрали форму оплаты <{Entity.PaymentType.GetEnumTitle()}>." +
-				$" У клиента по умолчанию установлено <{Entity.Client.PaymentMethod.GetEnumTitle()}>. Вы уверены, что хотите продолжить?"))
+				&& !MessageDialogHelper.RunQuestionDialog($"Вы выбрали форму оплаты &lt;{Entity.PaymentType.GetEnumTitle()}&gt;." +
+				$" У клиента по умолчанию установлено &lt;{Entity.Client.PaymentMethod.GetEnumTitle()}&gt;. Вы уверены, что хотите продолжить?"))
 			{
 				return;
 			}

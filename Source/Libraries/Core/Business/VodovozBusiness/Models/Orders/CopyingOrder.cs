@@ -65,7 +65,7 @@ namespace Vodovoz.Models.Orders
 				_resultOrder.Client = _copiedOrder.Client;
 				_resultOrder.SelfDelivery = _copiedOrder.SelfDelivery;
 				_resultOrder.DeliveryPoint = _copiedOrder.DeliveryPoint;
-				_resultOrder.PaymentType = _copiedOrder.Client.PaymentMethod;
+				_resultOrder.PaymentType = _copiedOrder.PaymentType;
 				_resultOrder.Author = _copiedOrder.Author;
 				_resultOrder.Comment = _copiedOrder.Comment;
 				_resultOrder.CommentLogist = _copiedOrder.CommentLogist;
