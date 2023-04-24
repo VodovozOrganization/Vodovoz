@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -184,6 +184,13 @@ namespace Vodovoz.Models.TrueMark
 			{
 				var code = checkResult.Code;
 				var isOurOrganizationOwner = _ownersInn.Contains(checkResult.OwnerInn);
+				if(!isOurOrganizationOwner)
+				{
+					_logger.LogInformation("У проверенного кода {serialNumber} владелец не наша организация {organizationINN}. Код исключается из обработки.", 
+						code?.SourceCode?.SerialNumber, 
+						checkResult.OwnerInn);
+				}
+
 				if(checkResult.Introduced && isOurOrganizationOwner)
 				{
 					if(code.ResultCode != null && !code.ResultCode.Equals(code.SourceCode))
