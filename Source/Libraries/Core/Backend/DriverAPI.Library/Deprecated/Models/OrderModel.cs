@@ -28,6 +28,7 @@ using QRPaymentConverter = DriverAPI.Library.Deprecated.Converters.QRPaymentConv
 
 namespace DriverAPI.Library.Deprecated.Models
 {
+	[Obsolete("Будет удален с прекращением поддержки API v1")]
 	public class OrderModel : IOrderModel
 	{
 		private readonly ILogger<OrderModel> _logger;
