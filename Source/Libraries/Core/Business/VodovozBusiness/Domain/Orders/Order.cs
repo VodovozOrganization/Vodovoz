@@ -2308,11 +2308,11 @@ namespace Vodovoz.Domain.Orders
 						Order = this,
 						Count = count,
 						Nomenclature = nomenclature,
+						Price = nomenclature.GetPrice(1, canApplyAlternativePrice),
 						IsDiscountInMoney = discountInMoney,
 						DiscountSetter = discount,
 						DiscountReason = discountReason,
-						PromoSet = proSet,
-						Price = nomenclature.GetPrice(1, canApplyAlternativePrice)
+						PromoSet = proSet
 					};
 					AddItemWithNomenclatureForSale(oi);
 					break;

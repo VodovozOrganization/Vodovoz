@@ -15,12 +15,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {
 	public class ResponsibleJournalViewModel : SingleEntityJournalViewModelBase<Responsible, ResponsibleViewModel, ResponsibleJournalNode>
 	{
-
-		public ResponsibleJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, RoboatsViewModelFactory roboatsViewModelFactory, ICommonServices commonServices)
+		public ResponsibleJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
 			: base(unitOfWorkFactory, commonServices)
 		{
 			TabName = "Ответственные";
-
 			UpdateOnChanges(typeof(Responsible));
 		}
 

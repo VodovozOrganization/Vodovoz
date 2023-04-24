@@ -1895,6 +1895,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.TrueMarkReceiptJournalFilterView.cs" />
     <Compile Include="Views\Cash\PaymentOnlineView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentOnlineView.cs" />
+    <Compile Include="Views\Reports\SalesBySubdivisionsAnalitycsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.SalesBySubdivisionsAnalitycsReportView.cs" />
     <Compile Include="Views\Complaints\ComplaintsJournalsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintsJournalsView.cs" />
     <Compile Include="Filters\GtkViews\WarehouseDocumentsItemsJournalFilterView.cs" />
@@ -1970,6 +1972,9 @@
     <PackageReference Include="NLog" Version="5.0.1" />
     <PackageReference Include="NLog.Extensions.Logging">
       <Version>5.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="OneOf">
+      <Version>3.0.243</Version>
     </PackageReference>
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="RabbitMQ.Client">

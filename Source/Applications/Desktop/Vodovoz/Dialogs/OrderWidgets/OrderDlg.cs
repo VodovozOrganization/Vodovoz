@@ -419,10 +419,11 @@ namespace Vodovoz
 		/// </summary>
 		/// <param name="copiedOrder">Конструктор копирует заказ по Id заказа</param>
 		/// <param name="NeedCopy"><c>true</c> копировать заказ, <c>false</c> работает как обычный конструктор.</param>
-		public OrderDlg(Order copiedOrder, bool NeedCopy) : this()
+		public OrderDlg(int orderId, bool NeedCopy) : this()
 		{
 			if(NeedCopy)
 			{
+				var copiedOrder = UoW.GetById<Order>(orderId);
 				Entity.Client = UoW.GetById<Counterparty>(copiedOrder.Client.Id);
 
 				if(copiedOrder.DeliveryPoint != null)

@@ -154,6 +154,7 @@ using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
+using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Interfaces;
@@ -2706,5 +2707,10 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionComplaintDetalizationJournalActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<ComplaintDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnSalesBySubdivisionsAnalitycsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<SalesBySubdivisionsAnalitycsReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }
