@@ -499,7 +499,7 @@ namespace Vodovoz.Domain.Orders
 			//влияющая номенклатура
 			if(Nomenclature.Category == NomenclatureCategory.water) 
 			{
-				var fixedPrice = order.GetFixedPriceOrNull(Nomenclature, TotalWater19LCountInOrder);
+				var fixedPrice = order.GetFixedPriceOrNull(Nomenclature, TotalCountInOrder);
 				if (fixedPrice != null) 
 				{
 					return fixedPrice.Price;
@@ -508,14 +508,14 @@ namespace Vodovoz.Domain.Orders
 			return result;
 		}
 
-		public decimal TotalWater19LCountInOrder => 
+		public decimal TotalCountInOrder => 
 			Nomenclature.IsWater19L 
 			? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) 
 			: Count;
 
 		public virtual void RecalculatePrice()
 		{
-			var curCount = TotalWater19LCountInOrder;
+			var curCount = TotalCountInOrder;
 			if (Order.GetFixedPriceOrNull(Nomenclature, curCount) != null)
 			{
 				Price = Order.GetFixedPriceOrNull(Nomenclature, curCount).Price;

@@ -18,76 +18,12 @@ namespace Vodovoz.Domain
 			this._nomenclatureFixedPriceFactory = nomenclatureFixedPriceFactory ??
 				throw new ArgumentNullException(nameof(nomenclatureFixedPriceFactory));
 		}
-		
-		//public bool ContainsFixedPrice(Order order, Nomenclature nomenclature) 
-		//{
-		//	if (order.DeliveryPoint != null)
-		//		return ContainsFixedPrice(order.DeliveryPoint, nomenclature);
-
-		//	return ContainsFixedPrice(order.Client, nomenclature);
-		//}
-
-		//public bool TryGetFixedPrice(Order order, Nomenclature nomenclature, out decimal fixedPrice) 
-		//{
-		//	NomenclatureFixedPrice nomenclatureFixedPrice; 
-			
-		//	if (order.DeliveryPoint != null) {
-		//		nomenclatureFixedPrice =
-		//			order.DeliveryPoint.NomenclatureFixedPrices.SingleOrDefault(x =>
-		//				x.Nomenclature.Id == nomenclature.Id);
-
-		//		if (nomenclatureFixedPrice != null) {
-		//			fixedPrice = nomenclatureFixedPrice.Price;
-		//			return true;
-		//		}
-		//	}
-		//	else {
-		//		nomenclatureFixedPrice = 
-		//			order.Client.ObservableNomenclatureFixedPrices.SingleOrDefault(x =>
-		//				x.Nomenclature.Id == nomenclature.Id);
-				
-		//		if (nomenclatureFixedPrice != null) {
-		//			fixedPrice = nomenclatureFixedPrice.Price;
-		//			return true;
-		//		}
-		//	}
-
-		//	fixedPrice = default(int);
-		//	return false;
-		//}
 
 		public bool ContainsFixedPrice(Counterparty counterparty, Nomenclature nomenclature, decimal bottlesCount) => 
 			counterparty.ObservableNomenclatureFixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && bottlesCount >= x.MinCount);
 
-		public bool TryGetFixedPrice(Counterparty counterparty, Nomenclature nomenclature, decimal bottlesCount, out decimal fixedPrice) 
-		{
-			var nomenclatureFixedPrice = counterparty.ObservableNomenclatureFixedPrices
-				.OrderBy(x => x.MinCount).Last(x => x.Nomenclature.Id == nomenclature.Id && bottlesCount >= x.MinCount);
-
-			return CheckFixedPrice(out fixedPrice, nomenclatureFixedPrice);
-		}
-
 		public bool ContainsFixedPrice(DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal bottlesCount) => 
 			deliveryPoint.ObservableNomenclatureFixedPrices.Any(x => x.Nomenclature == nomenclature && bottlesCount >= x.MinCount);
-
-		public bool TryGetFixedPrice(DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal bottlesCount, out decimal fixedPrice) 
-		{
-			var nomenclatureFixedPrice = deliveryPoint.ObservableNomenclatureFixedPrices
-				.OrderBy(x => x.MinCount).Last(x => x.Nomenclature.Id == nomenclature.Id && bottlesCount >= x.MinCount);
-
-			return CheckFixedPrice(out fixedPrice, nomenclatureFixedPrice);
-		}
-
-		private bool CheckFixedPrice(out decimal fixedPrice, NomenclatureFixedPrice nomenclatureFixedPrice) 
-		{
-			if (nomenclatureFixedPrice != null) {
-				fixedPrice = nomenclatureFixedPrice.Price;
-				return true;
-			}
-
-			fixedPrice = default(int);
-			return false;
-		}
 		
 		public void AddFixedPrice(IUnitOfWork uow, DeliveryPoint deliveryPoint, Nomenclature nomenclature, decimal fixedPrice = 0, int minCount = 0)
 		{

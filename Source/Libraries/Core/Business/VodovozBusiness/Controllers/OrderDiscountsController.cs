@@ -112,23 +112,18 @@ namespace Vodovoz.Controllers
 				return true;
 			}
 
-			var totalWater19LInOrderCount = 
-				orderItem.Nomenclature.IsWater19L 
-				? orderItem.Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) 
-				: orderItem.Count;
-
 			if(orderItem.Order.SelfDelivery)
 			{
 				if(orderItem.Order.Client != null)
 				{
-					return _fixedPriceProvider.ContainsFixedPrice(orderItem.Order.Client, orderItem.Nomenclature, totalWater19LInOrderCount);
+					return _fixedPriceProvider.ContainsFixedPrice(orderItem.Order.Client, orderItem.Nomenclature, orderItem.TotalCountInOrder);
 				}
 			}
 			else
 			{
 				if(orderItem.Order.DeliveryPoint != null)
 				{
-					return _fixedPriceProvider.ContainsFixedPrice(orderItem.Order.DeliveryPoint, orderItem.Nomenclature, totalWater19LInOrderCount);
+					return _fixedPriceProvider.ContainsFixedPrice(orderItem.Order.DeliveryPoint, orderItem.Nomenclature, orderItem.TotalCountInOrder);
 				}
 			}
 
