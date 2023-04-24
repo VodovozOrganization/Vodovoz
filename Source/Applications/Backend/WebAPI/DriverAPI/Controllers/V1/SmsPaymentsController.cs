@@ -1,4 +1,5 @@
-﻿using DriverAPI.Library.Converters;
+﻿using DriverAPI.DTOs.V1;
+using DriverAPI.Library.Converters;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -6,12 +7,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
 using Microsoft.Net.Http.Headers;
-using Vodovoz.Domain.Logistic.Drivers;
+using System;
 using System.Threading.Tasks;
-using DriverAPI.Library.Deprecated.Models;
-using DriverAPI.DTOs.V1;
+using Vodovoz.Domain.Logistic.Drivers;
+using IOrderModel = DriverAPI.Library.Deprecated.Models.IOrderModel;
 
 namespace DriverAPI.Controllers.V1
 {

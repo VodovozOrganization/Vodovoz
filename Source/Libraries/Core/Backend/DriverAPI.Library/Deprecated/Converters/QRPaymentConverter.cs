@@ -1,8 +1,12 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Converters;
+using DriverAPI.Library.DTOs;
+using System;
 using Vodovoz.Domain.FastPayments;
+using PayByQRResponseDTO = DriverAPI.Library.Deprecated.DTOs.PayByQRResponseDTO;
 
-namespace DriverAPI.Library.Converters
+namespace DriverAPI.Library.Deprecated.Converters
 {
+	[Obsolete("Будет удален с прекращением поддержки API v1")]
 	public class QRPaymentConverter
 	{
 		public QRPaymentDTOStatus? ConvertToAPIPaymentStatus(FastPaymentStatus? fastPaymentStatus)

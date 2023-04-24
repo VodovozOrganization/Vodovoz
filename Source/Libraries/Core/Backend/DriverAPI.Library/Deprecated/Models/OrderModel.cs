@@ -1,5 +1,4 @@
-﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.Extensions.Logging;
@@ -25,6 +24,7 @@ using OrderConverter = DriverAPI.Library.Deprecated.Converters.OrderConverter;
 using OrderDto = DriverAPI.Library.Deprecated.DTOs.OrderDto;
 using PayByQRResponseDTO = DriverAPI.Library.Deprecated.DTOs.PayByQRResponseDTO;
 using PaymentDtoType = DriverAPI.Library.Deprecated.DTOs.PaymentDtoType;
+using QRPaymentConverter = DriverAPI.Library.Deprecated.Converters.QRPaymentConverter;
 
 namespace DriverAPI.Library.Deprecated.Models
 {

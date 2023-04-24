@@ -1,9 +1,4 @@
-﻿using DriverAPI.DTOs.V1;
-using DriverAPI.DTOs.V2;
-using DriverAPI.Library.Deprecated.DTOs;
-using DriverAPI.Library.Deprecated.Models;
-using DriverAPI.Library.DTOs;
-using DriverAPI.Library.Helpers;
+﻿using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +10,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using ChangeOrderPaymentTypeRequestDto = DriverAPI.DTOs.V1.ChangeOrderPaymentTypeRequestDto;
+using CompletedOrderRequestDto = DriverAPI.DTOs.V1.CompletedOrderRequestDto;
+using IOrderModel = DriverAPI.Library.Deprecated.Models.IOrderModel;
+using OrderDto = DriverAPI.Library.Deprecated.DTOs.OrderDto;
+using PaymentDtoType = DriverAPI.Library.Deprecated.DTOs.PaymentDtoType;
 
 namespace DriverAPI.Controllers.V1
 {

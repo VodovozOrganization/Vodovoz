@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using IOrderModel = DriverAPI.Library.Deprecated.Models.IOrderModel;
+using OrderDto = DriverAPI.Library.Deprecated.DTOs.OrderDto;
 
 namespace DriverAPI.Controllers.V1
 {

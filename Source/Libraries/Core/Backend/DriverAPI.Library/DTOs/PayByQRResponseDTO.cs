@@ -1,5 +1,4 @@
-﻿using DriverAPI.Library.Deprecated.DTOs;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace DriverAPI.Library.DTOs
 {
