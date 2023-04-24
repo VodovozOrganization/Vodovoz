@@ -6,17 +6,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Net.Http.Headers;
-using Vodovoz.Domain.Logistic.Drivers;
-using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Domain.Logistic.Drivers;
 
-namespace DriverAPI.Controllers
+namespace DriverAPI.Controllers.V1
 {
-	[Route("api/[controller]")]
+	[ApiVersion("1.0")]
+	[Route("api/v{version:apiVersion}")]
 	[ApiController]
 	[Authorize]
 	public class RegistrationsController : ControllerBase
@@ -54,7 +54,7 @@ namespace DriverAPI.Controllers
 		/// <param name="driverActionModels">Список действий из лога для регистрации</param>
 		/// <returns></returns>
 		[HttpPost]
-		[Route("/api/v1/RegisterDriverActions")]
+		[Route("RegisterDriverActions")]
 		[Route("/api/RegisterDriverActions")]
 		public async Task RegisterDriverActionsAsync([FromBody] IEnumerable<DriverActionDto> driverActionModels)
 		{
@@ -63,7 +63,7 @@ namespace DriverAPI.Controllers
 
 		// POST: RegisterRouteListAddressCoordinates
 		[HttpPost]
-		[Route("/api/v1/RegisterRouteListAddressCoordinates")]
+		[Route("RegisterRouteListAddressCoordinates")]
 		[Route("/api/RegisterRouteListAddressCoordinates")]
 		public async Task RegisterRouteListAddressCoordinateAsync([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
 		{
@@ -109,7 +109,7 @@ namespace DriverAPI.Controllers
 		/// <param name="registerTrackCoordinateRequestModel"></param>
 		/// <returns></returns>
 		[HttpPost]
-		[Route("/api/v1/RegisterTrackCoordinates")]
+		[Route("RegisterTrackCoordinates")]
 		[Route("/api/RegisterTrackCoordinates")]
 		public async Task RegisterTrackCoordinatesAsync([FromBody] RegisterTrackCoordinateRequestDto registerTrackCoordinateRequestModel)
 		{

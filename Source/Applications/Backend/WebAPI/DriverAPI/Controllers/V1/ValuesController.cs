@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using Vodovoz.Services;
 
-namespace DriverAPI.Controllers
+namespace DriverAPI.Controllers.V1
 {
-	[Route("api/[controller]")]
+	[ApiVersion("1.0")]
+	[Route("api/v{version:apiVersion}")]
 	[ApiController]
 	[Authorize]
 	public class ValuesController : ControllerBase
@@ -21,7 +22,7 @@ namespace DriverAPI.Controllers
 		// GET: GetRouteList 
 		[HttpGet]
 		[AllowAnonymous]
-		[Route("/api/v1/GetCompanyPhoneNumber")]
+		[Route("GetCompanyPhoneNumber")]
 		[Route("/api/GetCompanyPhoneNumber")]
 		public CompanyNumberResponseDto GetCompanyPhoneNumber()
 		{

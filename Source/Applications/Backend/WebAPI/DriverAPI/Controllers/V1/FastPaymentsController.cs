@@ -11,9 +11,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Domain.Logistic.Drivers;
 
-namespace DriverAPI.Controllers
+namespace DriverAPI.Controllers.V1
 {
-	[Route("api/[controller]")]
+	[ApiVersion("1.0")]
+	[Route("api/v{version:apiVersion}")]
 	[ApiController]
 	[Authorize]
 	public class FastPaymentsController : ControllerBase
@@ -53,7 +54,7 @@ namespace DriverAPI.Controllers
 		/// <param name="orderId">Идентификатор заказа</param>
 		/// <returns>OrderPaymentStatusResponseModel или null</returns>
 		[HttpGet]
-		[Route("/api/v1/GetOrderQRPaymentStatus")]
+		[Route("GetOrderQRPaymentStatus")]
 		[Route("/api/GetOrderQRPaymentStatus")]
 		public OrderQRPaymentStatusResponseDto GetOrderQRPaymentStatus(int orderId)
 		{
@@ -75,12 +76,12 @@ namespace DriverAPI.Controllers
 		/// </summary>
 		/// <param name="payByQRRequestDTO"></param>
 		[HttpPost]
-		[Route("/api/v1/PayByQR")]
+		[Route("PayByQR")]
 		[Route("/api/PayByQR")]
 		public async Task<PayByQRResponseDTO> PayByQR(PayByQRRequestDTO payByQRRequestDTO)
 		{
 			var recievedTime = DateTime.Now;
-			
+
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 

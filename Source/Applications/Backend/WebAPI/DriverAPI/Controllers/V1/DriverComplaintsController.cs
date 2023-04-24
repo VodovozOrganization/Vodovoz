@@ -5,9 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 
-namespace DriverAPI.Controllers
+namespace DriverAPI.Controllers.V1
 {
-	[Route("api/[controller]")]
+	[ApiVersion("1.0")]
+	[Route("api/v{version:apiVersion}")]
 	[ApiController]
 	[Authorize]
 	public class DriverComplaintsController : ControllerBase
@@ -24,7 +25,7 @@ namespace DriverAPI.Controllers
 		/// </summary>
 		/// <returns>Список популярных причин</returns>
 		[HttpGet]
-		[Route("/api/v1/GetDriverComplaintReasons")]
+		[Route("GetDriverComplaintReasons")]
 		[Route("/api/GetDriverComplaintReasons")]
 		public IEnumerable<DriverComplaintReasonDto> GetDriverComplaintReasons()
 		{
