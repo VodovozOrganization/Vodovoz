@@ -75,15 +75,6 @@ namespace Vodovoz.EntityRepositories.Organizations
 			return uow.Session.QueryOver<OrganizationOwnershipType>()
 				.List<OrganizationOwnershipType>();
 		}
-
-		public IList<string> GetTrueMarkCodesOwnersInns(IUnitOfWork uow)
-		{
-			Organization organizationAlias = null;
-			var query = uow.Session.QueryOver(() => organizationAlias)
-				.Select(Projections.Property(() => organizationAlias.INN));
-			var result = query.List<string>();
-			return result;
-		}
 	}
 }
 
