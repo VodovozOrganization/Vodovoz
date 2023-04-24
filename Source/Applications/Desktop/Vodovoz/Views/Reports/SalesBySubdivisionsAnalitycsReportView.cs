@@ -76,6 +76,7 @@ namespace Vodovoz.Views.Reports
 			ybuttonSave.Clicked += OnYbuttonSaveClicked;
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
+			btnReportInfo.Clicked += (s, e) => ViewModel.ShowInfo();
 
 			ShowFilter();
 		}
