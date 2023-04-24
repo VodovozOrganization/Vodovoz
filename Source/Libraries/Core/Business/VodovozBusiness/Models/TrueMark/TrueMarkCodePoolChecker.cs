@@ -11,14 +11,14 @@ namespace Vodovoz.Models.TrueMark
 {
 	public class TrueMarkCodePoolChecker
 	{
-		private readonly ILogger<SelfdeliveryReceiptCreator> _logger;
+		private readonly ILogger<TrueMarkCodePoolChecker> _logger;
 		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IEdoSettings _edoSettings;
 
 		public TrueMarkCodePoolChecker(
-			ILogger<SelfdeliveryReceiptCreator> logger,
+			ILogger<TrueMarkCodePoolChecker> logger,
 			TrueMarkCodesPool trueMarkCodesPool,
 			TrueMarkCodesChecker trueMarkCodesChecker,
 			ITrueMarkRepository trueMarkRepository,

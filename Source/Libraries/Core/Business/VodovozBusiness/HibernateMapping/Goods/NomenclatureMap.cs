@@ -1,4 +1,5 @@
-﻿using FluentNHibernate.Mapping;
+﻿using System;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.HibernateMapping
@@ -93,7 +94,15 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.FuelType).Column("fuel_type_id");
 			References(x => x.OnlineStore).Column("online_store_id");
 
-			HasMany(x => x.NomenclaturePrice).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+
+			HasMany(x => x.NomenclaturePrice)
+				.Where($"type='{NomenclaturePriceBase.NomenclaturePriceType.General}'")
+				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+
+			HasMany(x => x.AlternativeNomenclaturePrices)
+				.Where($"type='{NomenclaturePriceBase.NomenclaturePriceType.Alternative}'")
+				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+
 			HasMany(x => x.Images).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.CostPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.PurchasePrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");

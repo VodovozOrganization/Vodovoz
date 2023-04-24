@@ -28,6 +28,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OrderItemRentSubType).Column("rent_sub_type").CustomType<OrderItemRentSubTypeStringType>();
 			Map(x => x.RentCount).Column("rent_count");
 			Map(x => x.RentEquipmentCount).Column("rent_equipment_count");
+			Map(x => x.IsAlternativePrice).Column("is_alternative_price");
 
 
 			References(x => x.CounterpartyMovementOperation).Column("counterparty_movement_operation_id").Cascade.All();

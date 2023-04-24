@@ -84,8 +84,9 @@ namespace Vodovoz.Views.Suppliers
 		private void ConfigureTreeView()
 		{
 			var columnsConfig = FluentColumnsConfig<BalanceSummaryRow>.Create()
+				.AddColumn("№").AddNumericRenderer(row => row.Num).XAlign(0.5f)
 				.AddColumn("Код").AddNumericRenderer(row => row.NomId).XAlign(0.5f)
-				.AddColumn("Наименование").AddTextRenderer(row => row.NomTitle).XAlign(0.5f)
+				.AddColumn("Наименование").AddTextRenderer(row => row.NomTitle)
 				.AddColumn("Мин. остаток").AddNumericRenderer(row => row.Min).XAlign(0.5f);
 
 			if(ViewModel.ShowReserve)
@@ -103,7 +104,8 @@ namespace Vodovoz.Views.Suppliers
 			{
 				columnsConfig
 					.AddColumn("Цена закупки").AddNumericRenderer(row => row.PurchasePrice).XAlign(0.5f).Digits(2)
-					.AddColumn("Цена").AddNumericRenderer(row => row.Price).XAlign(0.5f).Digits(2);
+					.AddColumn("Цена").AddNumericRenderer(row => row.Price).XAlign(0.5f).Digits(2)
+					.AddColumn("Цена KulerSale").AddNumericRenderer(row => row.AlternativePrice).XAlign(0.5f).Digits(2);
 			}
 
 			for(var i = 0; i < ViewModel.Report.WarehousesTitles.Count; i++)

@@ -132,14 +132,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			CreateHelpAction();
 			CreateAutorefreshAction();
 			CreateNodeManualSendAction();
-			CreateNodeRefrechFiscalDocAction();
+			CreateNodeRefreshFiscalDocAction();
 		}
 
 		protected override void CreatePopupActions()
 		{
 			PopupActionsList.Clear();
 			CreatePopupManualSendAction();
-			CreatePopupRefrechFiscalDocAction();
+			CreatePopupRefreshFiscalDocAction();
 		}
 
 		#region Queries
@@ -213,6 +213,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				.Select(Projections.Property(() => driverAlias.LastName)).WithAlias(() => resultAlias.DriverLastName)
 				.Select(Projections.Property(() => driverAlias.Patronymic)).WithAlias(() => resultAlias.DriverPatronimyc)
 				.Select(Projections.Property(() => cashReceiptAlias.Order.Id)).WithAlias(() => resultAlias.OrderAndItemId)
+				.Select(Projections.Property(() => cashReceiptAlias.InnerNumber)).WithAlias(() => resultAlias.ReceiptInnerNumber)
 				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentStatus)).WithAlias(() => resultAlias.FiscalDocStatus)
 				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentNumber)).WithAlias(() => resultAlias.FiscalDocNumber)
 				.Select(Projections.Property(() => cashReceiptAlias.FiscalDocumentDate)).WithAlias(() => resultAlias.FiscalDocDate)
@@ -393,10 +394,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		private JournalAction GetManualSentAction()
 		{
-			var manualSentAction = new JournalAction("Отправить дубль принудительно",
-				(selected) => ManualSentActionSensitive(selected),
+			var manualSentAction = new JournalAction("Отправить чек принудительно",
+				ManualSentActionSensitive,
 				(selected) => true,
-				(selected) => ManualSent(selected)
+				ManualSent
 			);
 			return manualSentAction;
 		}
@@ -426,7 +427,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				return false;
 			}
 
-			if(node.ReceiptStatus == CashReceiptStatus.DuplicateSum)
+			if(node.ReceiptStatus == CashReceiptStatus.DuplicateSum || node.ReceiptStatus == CashReceiptStatus.ReceiptNotNeeded)
 			{
 				return true;
 			}
@@ -445,29 +446,29 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		#region Refresh fiscal document
 
-		private void CreatePopupRefrechFiscalDocAction()
+		private void CreatePopupRefreshFiscalDocAction()
 		{
-			var refrechFiscalDocAction = GetRefrechFiscalDocAction();
-			PopupActionsList.Add(refrechFiscalDocAction);
+			var refreshFiscalDocAction = GetRefreshFiscalDocAction();
+			PopupActionsList.Add(refreshFiscalDocAction);
 		}
 
-		private void CreateNodeRefrechFiscalDocAction()
+		private void CreateNodeRefreshFiscalDocAction()
 		{
-			var refrechFiscalDocAction = GetRefrechFiscalDocAction();
-			NodeActionsList.Add(refrechFiscalDocAction);
+			var refreshFiscalDocAction = GetRefreshFiscalDocAction();
+			NodeActionsList.Add(refreshFiscalDocAction);
 		}
 
-		private JournalAction GetRefrechFiscalDocAction()
+		private JournalAction GetRefreshFiscalDocAction()
 		{
 			var manualSentAction = new JournalAction("Обновить статус фиск. документа",
-				(selected) => RefrechFiscalDocActionSensitive(selected),
+				(selected) => RefreshFiscalDocActionSensitive(selected),
 				(selected) => true,
-				(selected) => RefrechFiscalDoc(selected)
+				RefreshFiscalDoc
 			);
 			return manualSentAction;
 		}
 
-		private bool RefrechFiscalDocActionSensitive(object[] selectedNodes)
+		private bool RefreshFiscalDocActionSensitive(object[] selectedNodes)
 		{
 			var nodes = selectedNodes.OfType<CashReceiptJournalNode>();
 			if(!nodes.Any())
@@ -495,7 +496,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			return false;
 		}
 
-		private void RefrechFiscalDoc(object[] selectedNodes)
+		private void RefreshFiscalDoc(object[] selectedNodes)
 		{
 			var node = selectedNodes.OfType<CashReceiptJournalNode>().Single();
 

@@ -43,7 +43,10 @@ namespace CashReceiptPrepareWorker
 				await _receiptsHandler.HandleReceiptsAsync(stoppingToken);
 
 				_logger.LogInformation("Вызов создания чеков для самовывозов");
-				await _receiptsHandler.CreateSelfdeliveryReceiptsAsync(stoppingToken);
+				await _receiptsHandler.CreateSelfDeliveryReceiptsAsync(stoppingToken);
+				
+				_logger.LogInformation("Вызов создания чеков для обычных заказов");
+				await _receiptsHandler.CreateDeliveryOrderReceiptsAsync(stoppingToken);
 			}
 			catch(Exception ex)
 			{
