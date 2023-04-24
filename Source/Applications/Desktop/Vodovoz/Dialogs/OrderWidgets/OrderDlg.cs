@@ -1063,11 +1063,7 @@ namespace Vodovoz
 		{
 			var requirements = GetLogisticsRequirements();
 
-			logisticsRequirementsView.ViewModel.Entity.ForwarderRequired = requirements.ForwarderRequired;
-			logisticsRequirementsView.ViewModel.Entity.DocumentsRequired = requirements.DocumentsRequired;
-			logisticsRequirementsView.ViewModel.Entity.RussianDriverRequired= requirements.RussianDriverRequired;
-			logisticsRequirementsView.ViewModel.Entity.PassRequired = requirements.PassRequired;
-			logisticsRequirementsView.ViewModel.Entity.LargusRequired = requirements.LargusRequired;
+			logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(requirements);
 
 			UpdateEntityLogisticsRequirements();
 		}

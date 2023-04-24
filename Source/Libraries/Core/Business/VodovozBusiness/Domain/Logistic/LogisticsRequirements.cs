@@ -5,9 +5,14 @@ namespace Vodovoz.Domain.Logistic
 {
 	public class LogisticsRequirements : PropertyChangedBase, IDomainObject
 	{
+		private bool _forwarderRequired;
+		private bool _documentsRequired;
+		private bool _russianDriverRequired;
+		private bool _passRequired;
+		private bool _largusRequired;
+
 		public virtual int Id {get; set; }
 
-		private bool _forwarderRequired;
 		[Display(Name = "Требуется экспедитор на адресе: \"Э\" на карте")]
 		public virtual bool ForwarderRequired
 		{
@@ -15,7 +20,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _forwarderRequired, value);
 		}
 
-		private bool _documentsRequired;
 		[Display(Name = "Требуется наличие паспорта/документов у водителя: \"Д\" на карте")]
 		public virtual bool DocumentsRequired
 		{
@@ -23,7 +27,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _documentsRequired, value);
 		}
 
-		private bool _russianDriverRequired;
 		[Display(Name = "Требуется русский водитель: \"Р\" на карте")]
 		public virtual bool RussianDriverRequired
 		{
@@ -31,7 +34,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _russianDriverRequired, value);
 		}
 
-		private bool _passRequired;
 		[Display(Name = "Требуется пропуск: \"П\" на карте")]
 		public virtual bool PassRequired
 		{
@@ -39,7 +41,6 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _passRequired, value);
 		}
 
-		private bool _largusRequired;
 		[Display(Name = "Требуется Ларгус (газель не проедет): \"Л\" на карте")]
 		public virtual bool LargusRequired
 		{
@@ -77,6 +78,15 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			return selectedRequirementsCount;
+		}
+
+		public virtual void CopyRequirementPropertiesValues(LogisticsRequirements copyFromRequirements)
+		{
+			ForwarderRequired = copyFromRequirements.ForwarderRequired;
+			DocumentsRequired = copyFromRequirements.DocumentsRequired;
+			RussianDriverRequired = copyFromRequirements.RussianDriverRequired;
+			PassRequired = copyFromRequirements.PassRequired;
+			LargusRequired = copyFromRequirements.LargusRequired;
 		}
 	}
 }
