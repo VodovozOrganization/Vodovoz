@@ -1,8 +1,10 @@
 ﻿using DriverAPI.Library.DTOs;
+using System;
 using System.Collections.Generic;
 
 namespace DriverAPI.Library.Deprecated.DTOs
 {
+	[Obsolete("Будет удален с прекращением поддержки API v1")]
 	public class OrderDto
 	{
 		public int OrderId { get; set; }

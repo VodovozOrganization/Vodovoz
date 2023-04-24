@@ -1,4 +1,5 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Deprecated.DTOs;
+using DriverAPI.Library.DTOs;
 using Vodovoz.Domain.FastPayments;
 
 namespace DriverAPI.Library.Converters

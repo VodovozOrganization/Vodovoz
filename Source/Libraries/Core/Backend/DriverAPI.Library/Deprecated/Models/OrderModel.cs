@@ -1,6 +1,7 @@
 ﻿using DriverAPI.Library.Converters;
 using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Models;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -19,8 +20,13 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
+using OrderAdditionalInfoDto = DriverAPI.Library.Deprecated.DTOs.OrderAdditionalInfoDto;
+using OrderConverter = DriverAPI.Library.Deprecated.Converters.OrderConverter;
+using OrderDto = DriverAPI.Library.Deprecated.DTOs.OrderDto;
+using PayByQRResponseDTO = DriverAPI.Library.Deprecated.DTOs.PayByQRResponseDTO;
+using PaymentDtoType = DriverAPI.Library.Deprecated.DTOs.PaymentDtoType;
 
-namespace DriverAPI.Library.Models
+namespace DriverAPI.Library.Deprecated.Models
 {
 	public class OrderModel : IOrderModel
 	{
@@ -84,7 +90,7 @@ namespace DriverAPI.Library.Models
 		public OrderDto Get(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
 
 			var order = _orderConverter.ConvertToAPIOrder(
@@ -128,7 +134,7 @@ namespace DriverAPI.Library.Models
 		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			return GetAvailableToChangePaymentTypes(vodovozOrder);
 		}
@@ -163,7 +169,7 @@ namespace DriverAPI.Library.Models
 		public OrderAdditionalInfoDto GetAdditionalInfo(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			return GetAdditionalInfo(vodovozOrder);
 		}
@@ -193,7 +199,7 @@ namespace DriverAPI.Library.Models
 		{
 			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
-		
+
 		/// <summary>
 		/// Проверка возможности отправки QR-кода для оплаты
 		/// </summary>
@@ -212,7 +218,7 @@ namespace DriverAPI.Library.Models
 			}
 
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)
 			{
@@ -290,7 +296,7 @@ namespace DriverAPI.Library.Models
 
 			routeList.ChangeAddressStatus(_uow, routeListAddress.Id, RouteListItemStatus.Completed);
 
-			if (completeOrderInfo.Rating < _maxClosingRating)
+			if(completeOrderInfo.Rating < _maxClosingRating)
 			{
 				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_uow, completeOrderInfo.DriverComplaintReasonId);
 				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiParametersProvider.ComplaintSourceId);
@@ -390,7 +396,7 @@ namespace DriverAPI.Library.Models
 		private void CreateCashReceipt(ITrueMarkOrderScannedInfo completeOrderInfo, int orderId, DateTime actionTime)
 		{
 			var trueMarkCashReceiptOrder = GetNewCashReceipt(completeOrderInfo, orderId, actionTime);
-			
+
 			FillCashReceiptByScannedCodes(completeOrderInfo.ScannedItems, trueMarkCashReceiptOrder);
 
 			_uow.Save(trueMarkCashReceiptOrder);
@@ -484,7 +490,7 @@ namespace DriverAPI.Library.Models
 				foreach(var code in scannedItem.BottleCodes)
 				{
 					var orderCode = CreateCashReceiptProductCode(code, cashReceipt, orderItem);
-					
+
 					cashReceipt.ScannedCodes.Add(orderCode);
 				}
 			}
@@ -528,7 +534,7 @@ namespace DriverAPI.Library.Models
 
 			_smsPaymentServiceAPIHelper.SendPayment(orderId, phoneNumber).Wait();
 		}
-		
+
 		public async Task<PayByQRResponseDTO> SendQRPaymentRequestAsync(int orderId, int driverId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);

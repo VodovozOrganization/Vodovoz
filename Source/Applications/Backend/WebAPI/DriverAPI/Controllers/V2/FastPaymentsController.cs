@@ -1,15 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
-using DriverAPI.DTOs.V2;
+﻿using DriverAPI.DTOs.V2;
 using DriverAPI.Library.Converters;
-using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using PayByQRResponseDTO = DriverAPI.Library.DTOs.PayByQRResponseDTO;
 
 namespace DriverAPI.Controllers.V2
 {

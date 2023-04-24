@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace DriverAPI.Library.DTOs
+namespace DriverAPI.Library.Deprecated.DTOs
 {
+	[Obsolete("Будет удален с прекращением поддержки API v1")]
 	public class OrderAdditionalInfoDto
 	{
 		public IEnumerable<PaymentDtoType> AvailablePaymentTypes { get; set; }

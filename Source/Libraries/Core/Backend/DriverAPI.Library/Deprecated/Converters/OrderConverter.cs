@@ -1,4 +1,5 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Converters;
+using DriverAPI.Library.DTOs;
 using QS.Utilities.Numeric;
 using System;
 using System.Collections.Generic;
@@ -6,9 +7,11 @@ using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
+using OrderDto = DriverAPI.Library.Deprecated.DTOs.OrderDto;
 
-namespace DriverAPI.Library.Converters
+namespace DriverAPI.Library.Deprecated.Converters
 {
+	[Obsolete("Будет удален с прекращением поддержки API v1")]
 	public class OrderConverter
 	{
 		private readonly DeliveryPointConverter _deliveryPointConverter;
@@ -72,20 +75,20 @@ namespace DriverAPI.Library.Converters
 			var deliveryPointPhones = vodovozOrder.DeliveryPoint.Phones
 				.Where(p => !p.IsArchive)
 				.GroupBy(p => p.DigitsNumber)
-				.Select(x => new PhoneDto 
-				{ 
+				.Select(x => new PhoneDto
+				{
 					Number = phoneFormatter.FormatString(x.First().DigitsNumber),
-					PhoneType = PhoneDtoType.DeliveryPoint 
+					PhoneType = PhoneDtoType.DeliveryPoint
 				})
 				.ToList();
 
 			var counterpartyPhones = vodovozOrder.Client.Phones
 				.Where(p => !p.IsArchive)
 				.GroupBy(p => p.DigitsNumber)
-				.Select(x => new PhoneDto 
-				{ 
+				.Select(x => new PhoneDto
+				{
 					Number = phoneFormatter.FormatString(x.First().DigitsNumber),
-					PhoneType = PhoneDtoType.Counterparty 
+					PhoneType = PhoneDtoType.Counterparty
 				})
 				.ToList();
 
@@ -127,13 +130,13 @@ namespace DriverAPI.Library.Converters
 			var deliveryItems = new List<OrderDeliveryItemDto>();
 			var receptionItems = new List<OrderReceptionItemDto>();
 
-			foreach (var transferItem in orderEquipment)
+			foreach(var transferItem in orderEquipment)
 			{
-				if (transferItem.Direction == Direction.Deliver)
+				if(transferItem.Direction == Direction.Deliver)
 				{
 					deliveryItems.Add(ConvertToAPIOrderDeliveryItem(transferItem));
 				}
-				else if (transferItem.Direction == Direction.PickUp)
+				else if(transferItem.Direction == Direction.PickUp)
 				{
 					receptionItems.Add(ConvertToAPIOrderReceptionItem(transferItem));
 				}
@@ -146,7 +149,7 @@ namespace DriverAPI.Library.Converters
 		{
 			var result = new List<OrderSaleItemDto>();
 
-			foreach (var saleItem in orderItems)
+			foreach(var saleItem in orderItems)
 			{
 				result.Add(ConvertToAPIOrderSaleItem(saleItem));
 			}
