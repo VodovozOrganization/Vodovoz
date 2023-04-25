@@ -189,7 +189,7 @@ namespace Vodovoz.SidePanel
 				rightsidepanel1.IsHided = true;
 				var noViews = !currentViews.Any();
 				rightsidepanel1.IsHided = noViews || currentViews.All(c => !c.VisibleOnPanel);
-				_content.WidthRequest = rightsidepanel1.IsHided ? 0 : (_currentInfoProvider as ICustomWidthInfoProvider)?.WidthRequest ?? _defaultWithRequest;
+				_content.WidthRequest = (_currentInfoProvider as ICustomWidthInfoProvider)?.WidthRequest ?? _defaultWithRequest;
 			}
 		}
 	}
