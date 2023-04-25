@@ -6,13 +6,13 @@ namespace Vodovoz.Domain.Client
 	{
 		[Display(Name = "Наличная", ShortName = "нал.")]
 		Cash,
-		[Display(Name = "Терминал", ShortName = "терм.")]
+		[Display(Name = "Терминал (QR-код терминал)", ShortName = "терм.")]
 		TerminalQR,
-		[Display(Name = "Безналичная", ShortName = "б/н.")]
+		[Display(Name = "МП водителя (QR-код)", ShortName = "МП вод.")]
 		DriverApplicationQR,
-		[Display(Name = "Безналичная", ShortName = "б/н.")]
+		[Display(Name = "SMS (QR-код)", ShortName = "смс qr")]
 		SmsQR,
-		[Display(Name = "По карте/SMS", ShortName = "карта")]
+		[Display(Name = "Оплачено онлайн", ShortName = "онлайн")]
 		PaidOnline,
 		[Display(Name = "Бартер", ShortName = "бар.")]
 		Barter,
