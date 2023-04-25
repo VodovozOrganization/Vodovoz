@@ -47,10 +47,14 @@
 		ELSE orders.signature_type
 	END AS order_signature_type,
 	CASE orders.payment_type 
-		WHEN 'cash' THEN 'НАЛ'
-		WHEN 'cashless' THEN 'БЕЗНАЛ'
-		WHEN 'ByCard' THEN 'ПО КАРТЕ'
-		WHEN 'Terminal' THEN 'ТЕРМИНАЛ'
+		WHEN 'Cash' THEN 'Наличные'
+		WHEN 'TerminalQR' THEN 'По терминалу (QR-код терминал)'
+		WHEN 'DriverApplicationQR' THEN 'По QR-коду (приложение водителя)'
+		WHEN 'SmsQR' THEN IF(orders.order_payment_status = 'Paid', 'Оплачено', 'По QR-коду (приложение водителя)')
+		WHEN 'PaidOnline' THEN 'Оплачено'
+		WHEN 'Barter' THEN 'Оплачено'
+		WHEN 'ContractDocumentation' THEN 'Оплачено'
+		WHEN 'Cashless' THEN 'Безналичная'
 		ELSE orders.payment_type
 	END AS pay_type,
 	orders.payment_type AS order_payment_type,
