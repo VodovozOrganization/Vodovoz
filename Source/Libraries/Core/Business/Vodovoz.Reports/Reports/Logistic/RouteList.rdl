@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -132,7 +132,7 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>4</ColSpan>
@@ -288,7 +288,7 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>4</ColSpan>
@@ -907,7 +907,7 @@
                         <FontStyle>Normal</FontStyle>
                         <FontSize>8pt</FontSize>
                         <PaddingBottom>=Len({phone_and_name_and_order}) / 3 + "pt"</PaddingBottom>
-                        <PaddingTop >=Len({phone_and_name_and_order}) / 6 + "pt"</PaddingTop>
+                        <PaddingTop>=Len({phone_and_name_and_order}) / 6 + "pt"</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1035,16 +1035,14 @@
                     <Textbox Name="Textbox69">
                       <Value>=
 Switch(
-   {payment_type}='ByCard', 'Оплачено',
-   {payment_type}='Cashless', 'Б/Н \n Подписать \n УПД',
+   {payment_type}='Cash', 'Наличными',
+   {payment_type}='TerminalQR', 'По терминалу (QR-код терминал)',
+   {payment_type}='DriverApplicationQR', 'По QR-коду (приложение водителя)',
+   {payment_type}='SmsQR', Iif(payment_status = 'Paid', 'Оплачено', 'По QR-коду (приложение водителя)'),
+   {payment_type}='PaidOnline', 'Оплачено',
    {payment_type}='Barter', 'Оплачено',
    {payment_type}='ContractDocumentation', 'Оплачено',
-   {payment_type}='TerminalQR', 'Терминал',
-   {payment_type}='Cash',
-        Iif({payment_by_sms} = false AND {payment_by_qr} = false, 'Наличными',
-            Iif({payment_by_sms} = true AND {payment_by_qr} = false,
-            'Наличными \n или смс',
-            'Наличными \n или qr')
+   {payment_type}='Cashless', 'Б/Н \n Подписать \n УПД')
         )
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1409,7 +1407,9 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox90">
-                      <Value><!--table_cell_total_without_stock--></Value>
+                      <Value>
+                        <!--table_cell_total_without_stock-->
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2317,8 +2317,8 @@ LIMIT 1
     route_list_addresses.status AS Status,
     orders.payment_type AS payment_type,
     orders.payment_by_sms AS payment_by_sms,
-    orders.payment_by_qr AS payment_by_qr
-    <!--sql_select-->
+    orders.payment_by_qr AS payment_by_qr,
+    orders.order_payment_status AS payment_status
 FROM route_list_addresses
          LEFT JOIN orders ON orders.id = route_list_addresses.order_id
          LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
@@ -2420,7 +2420,7 @@ LEFT JOIN (
 LEFT JOIN (
 SELECT
 order_items.order_id AS order_id
-<!--sql_select_subquery-->
+
 FROM route_list_addresses
 LEFT JOIN order_items ON route_list_addresses.order_id = order_items.order_id
 LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
@@ -2438,7 +2438,7 @@ ORDER BY order_in_route
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2527,7 +2527,10 @@ ORDER BY order_in_route
           <DataField>payment_by_qr</DataField>
           <TypeName>System.Boolean</TypeName>
         </Field>
-        <!--fields-->
+        <Field Name="payment_status">
+          <DataField>payment_status</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Images">
