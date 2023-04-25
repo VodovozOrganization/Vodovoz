@@ -2,21 +2,13 @@
 using DriverAPI.Library.Deprecated.DTOs;
 using System;
 using Vodovoz.Domain.Client;
-using Vodovoz.Services;
 
 namespace DriverAPI.Library.Deprecated.Converters
 {
 	[Obsolete("Будет удален с прекращением поддержки API v1")]
 	public class PaymentTypeConverter
 	{
-		private readonly IOrderParametersProvider _orderParametersProvider;
-
-		public PaymentTypeConverter(IOrderParametersProvider orderParametersProvider)
-		{
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-		}
-
-		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, Vodovoz.Domain.Orders.PaymentFrom paymentByCardFrom)
+		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, bool paid)
 		{
 			switch(paymentType)
 			{
@@ -25,16 +17,19 @@ namespace DriverAPI.Library.Deprecated.Converters
 				case PaymentType.Cashless:
 					return PaymentDtoType.Cashless;
 				case PaymentType.PaidOnline:
-					if(paymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId)
+					return PaymentDtoType.ByCard; //В прошлой версии отсутствует "оплачено" заглушено через по карте
+				case PaymentType.DriverApplicationQR: //В прошлой версии отсутствует оплата через МП заглушено через терминал
+				case PaymentType.TerminalQR:
+					return PaymentDtoType.Terminal;
+				case PaymentType.SmsQR:
+					if(paid)
 					{
-						return PaymentDtoType.ByCardFromSms;
+						return PaymentDtoType.ByCardFromSms; //В прошлой версии отсутствует "оплачено" заглушено через по карте по смс
 					}
 					else
 					{
-						return PaymentDtoType.ByCard;
+						return PaymentDtoType.Terminal; //В прошлой версии отсутствует оплата через МП заглушено через терминал
 					}
-				case PaymentType.TerminalQR:
-					return PaymentDtoType.Terminal;
 				case PaymentType.Barter:
 					return PaymentDtoType.Barter;
 				case PaymentType.ContractDocumentation:

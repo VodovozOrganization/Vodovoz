@@ -49,7 +49,7 @@ namespace DriverAPI.Library.Converters
 				EmptyBottlesToReturn = (vodovozOrder.BottlesReturn ?? 0) + vodovozOrder.BottlesByStockCount,
 				Counterparty = vodovozOrder.Client.FullName,
 				PhoneNumbers = CreatePhoneList(vodovozOrder),
-				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, vodovozOrder.PaymentByCardFrom),
+				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == FastPaymentStatus.Performed),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderComment = vodovozOrder.Comment,
 				OrderSum = vodovozOrder.OrderSum,

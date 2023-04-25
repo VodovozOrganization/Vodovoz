@@ -144,7 +144,7 @@ namespace DriverAPI.Library.Models
 
 			if(order.PaymentType == PaymentType.Cash)
 			{
-				availablePaymentTypes.Add(PaymentDtoType.Terminal);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
 			}
 
 			if(order.PaymentType == PaymentType.TerminalQR)
