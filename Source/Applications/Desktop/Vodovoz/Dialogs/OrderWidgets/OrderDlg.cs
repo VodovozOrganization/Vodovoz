@@ -486,15 +486,19 @@ namespace Vodovoz
 				.CopyFields(
 					x => x.Client,
 					x => x.DeliveryPoint,
+					x => x.PaymentType,
 					x => x.OrderAddressType,
-					x => x.Client.PaymentMethod,
-					x => x.ContactPhone
-				)
+					x => x.ContactPhone)
 				.CopyPromotionalSets()
 				.CopyOrderItems()
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
+
+			if(Entity.Client.PersonType == PersonType.legal)
+			{
+				Entity.PaymentType = Entity.Client.PaymentMethod;
+			}
 
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
