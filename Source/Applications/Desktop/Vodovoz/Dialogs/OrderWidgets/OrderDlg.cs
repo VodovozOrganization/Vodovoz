@@ -617,6 +617,7 @@ namespace Vodovoz
 
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
+
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			pickerBillDate.Binding.AddBinding(Entity, s => s.BillDate, w => w.DateOrNull).InitializeFromSource();
 
@@ -3837,7 +3838,17 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblPhoneNumber.Text} {phone}").AppendLine();
 
-			var deliveryDate = Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
+			var todayTommorowLable = string.Empty;
+			if(Entity.DeliveryDate?.Date == DateTime.Today.Date)
+			{
+				todayTommorowLable = "Сегодня, ";
+			}
+			if(Entity.DeliveryDate?.Date == DateTime.Today.Date.AddDays(1))
+			{
+				todayTommorowLable = "Завтра, ";
+			}
+
+			var deliveryDate = todayTommorowLable + Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
 			ylblDeliveryDate.Text = deliveryDate;
 
 			_summaryInfoBuilder.AppendLine($"{lblDeliveryDate.Text} {deliveryDate}").AppendLine();

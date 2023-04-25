@@ -146,7 +146,7 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.DatePicker pickerBillDate;
 
-		private global::QS.Widgets.GtkUI.DatePicker pickerDeliveryDate;
+		private global::QS.Widgets.GtkUI.SimpleSelectionDatePicker pickerDeliveryDate;
 
 		private global::Gtk.VBox vboxOrderComment;
 
@@ -1329,10 +1329,9 @@ namespace Vodovoz
 			w69.XOptions = ((global::Gtk.AttachOptions)(4));
 			w69.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.pickerDeliveryDate = new global::QS.Widgets.GtkUI.DatePicker();
+			this.pickerDeliveryDate = new global::QS.Widgets.GtkUI.SimpleSelectionDatePicker();
 			this.pickerDeliveryDate.Events = ((global::Gdk.EventMask)(256));
 			this.pickerDeliveryDate.Name = "pickerDeliveryDate";
-			this.pickerDeliveryDate.WithTime = false;
 			this.pickerDeliveryDate.HideCalendarButton = false;
 			this.pickerDeliveryDate.Date = new global::System.DateTime(0);
 			this.pickerDeliveryDate.IsEditable = true;
@@ -1344,7 +1343,7 @@ namespace Vodovoz
 			w70.LeftAttach = ((uint)(1));
 			w70.RightAttach = ((uint)(2));
 			w70.XOptions = ((global::Gtk.AttachOptions)(4));
-			w70.YOptions = ((global::Gtk.AttachOptions)(0));
+			w70.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.vboxOrderComment = new global::Gtk.VBox();
 			this.vboxOrderComment.Name = "vboxOrderComment";
