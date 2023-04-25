@@ -63,6 +63,8 @@
     <Compile Include="Factories\IRoboatsViewModelFactory.cs" />
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Infrastructure\InfoProviders\CurrentObjectChangedArgs.cs" />
+    <Compile Include="Infrastructure\InfoProviders\ICustomWidthInfoProvider.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSelectionChangedEventArgs.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSetSelectionChanged.cs" />
     <Compile Include="Infrastructure\Services\IStoreDocumentHelper.cs" />

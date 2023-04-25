@@ -1,5 +1,10 @@
-﻿using QS.DomainModel.UoW;
+﻿using MoreLinq;
+using NHibernate.Criterion;
+using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.EntityRepositories.TrueMark
@@ -11,6 +16,27 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		public TrueMarkRepository(IUnitOfWorkFactory uowFactory)
 		{
 			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
+		}
+
+		public ISet<string> GetAllowedCodeOwnersInn()
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				Organization organizationAlias = null;
+				var queryOrganization = uow.Session.QueryOver(() => organizationAlias)
+					.Select(Projections.Property(() => organizationAlias.INN));
+				var organizations = queryOrganization.List<string>();
+
+				Counterparty counterpartyAlias = null;
+				var queryCounterparty = uow.Session.QueryOver(() => counterpartyAlias)
+					.Where(() => counterpartyAlias.CounterpartyType == CounterpartyType.Supplier)
+					.Select(Projections.Property(() => counterpartyAlias.INN));
+				var counterparties = queryCounterparty.List<string>();
+
+				var innList = organizations.Union(counterparties);
+				var result = innList.Distinct().ToHashSet();
+				return result;
+			}
 		}
 
 		public IEnumerable<TrueMarkWaterIdentificationCode> LoadWaterCodes(List<int> codeIds)

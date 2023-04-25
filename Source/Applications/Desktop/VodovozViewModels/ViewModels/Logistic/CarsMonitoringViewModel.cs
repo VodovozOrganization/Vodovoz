@@ -28,16 +28,16 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.NHibernateProjections.Logistics;
 using Vodovoz.Services;
+using Vodovoz.SidePanel;
+using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class CarsMonitoringViewModel : DialogTabViewModelBase
+	public class CarsMonitoringViewModel : DialogTabViewModelBase, ICustomWidthInfoProvider
 	{
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			UoW.Session.DefaultReadOnly = true;
 
-			CarRefreshInterval = TimeSpan.FromSeconds(30);
+			CarRefreshInterval = TimeSpan.FromSeconds(_deliveryRulesParametersProvider.CarsMonitoringResfreshInSeconds);
 
 			DefaultMapCenterPosition = new Coordinate(59.93900, 30.31646);
 			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-20);
@@ -137,6 +137,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			RefreshRouteListAddressesCommand = new DelegateCommand<int>(RefreshRouteListAddresses);
 			RefreshFastDeliveryDistrictsCommand = new DelegateCommand(RefreshFastDeliveryDistricts);
 			RefreshLastDriverPositionsCommand = new DelegateCommand(RefreshLastDriverPositions);
+			RefreshAllCommand = new DelegateCommand(RefreshAll);
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(RoutelistEntityConfigEntityUpdated);
 		}
@@ -305,8 +306,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		[PropertyChangedAlso(nameof(CoveragePercentString))]
 		public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
 			FastDeliveryDistricts.Select(fdd => fdd.DistrictBorder).ToList(),
-			LastDriverPositions.ToList()
-			);
+			LastDriverPositions.ToList());
 
 		#endregion
 
@@ -336,7 +336,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public DelegateCommand RefreshFastDeliveryDistrictsCommand { get; }
 
 		public DelegateCommand RefreshLastDriverPositionsCommand { get; }
+
+		public DelegateCommand RefreshAllCommand { get; }
+
 		#endregion
+
+		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CarsMonitoringInfoPanelView };
+
+		public int? WidthRequest => 420;
 
 		#region Events
 		public event Action FastDeliveryDistrictChanged;
@@ -344,6 +351,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public event Action WorkingDriversChanged;
 
 		public event Action RouteListAddressesChanged;
+
+		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 		#endregion
 
 		#region Command Handlers
@@ -665,11 +674,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 
 			OnPropertyChanged(nameof(CoveragePercent));
+
+			CurrentObjectChanged?.Invoke(this, CurrentObjectChangedArgs.Empty);
 		}
 
 		private void RoutelistEntityConfigEntityUpdated(EntityChangeEvent[] changeEvents)
 		{
 			RefreshWorkingDrivers();
+		}
+
+		private void RefreshAll()
+		{
+			RefreshWorkingDriversCommand.Execute();
+			RefreshFastDeliveryDistrictsCommand.Execute();
 		}
 
 		#endregion
@@ -693,6 +710,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public IList<TrackPoint> GetRouteListTrackPoints(int id)
 		{
 			return _trackRepository.GetPointsForRouteList(UoW, id);
+		}
+
+		private void OnDataChanged(object sender, EventArgs e)
+		{
+			CurrentObjectChanged?.Invoke(this, CurrentObjectChangedArgs.Empty);
 		}
 
 		#region IDisposable
@@ -751,6 +773,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public string RouteListsText { get; set; }
 
 		public decimal? FastDeliveryMaxDistance { get; set; }
+
 		public string FastDeliveryMaxDistanceString => FastDeliveryMaxDistance.HasValue ? $"{FastDeliveryMaxDistance.Value:N1}" : "-";
 
 		public int CompletedPercent => AddressesAll == 0 ? 100 : (int)(((double)AddressesCompleted / AddressesAll) * 100);

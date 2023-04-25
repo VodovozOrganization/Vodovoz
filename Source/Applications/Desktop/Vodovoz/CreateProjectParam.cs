@@ -96,6 +96,7 @@ using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.Services;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
+using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -834,6 +835,12 @@ namespace Vodovoz
 			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 			builder.RegisterType<PasswordGenerator>().As<IPasswordGenerator>();
+
+			#endregion
+
+			#region InfoPanelViews
+
+			builder.RegisterType<CarsMonitoringInfoPanelView>().AsSelf();
 
 			#endregion
 		}
