@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -581,7 +581,7 @@ FROM
     ON proxy_persons.counterparty_proxy_id = counterparty_proxies.id
 WHERE 
 	orders.id = @order_id
-    AND orders.payment_type = 'cash'
+    AND orders.payment_type = 'Cash'
     AND orders.signature_type = 'ByProxy'</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -2085,7 +2085,7 @@ WHERE stored_resource.id = @id1</CommandText>
                       <Value>=Iif(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund') &gt;= 0,
    "Всего получить от клиента: " +Code.SummaString_Val(
         Convert.ToString(
-            Iif(First({order_payment_type}, "Order")!='ByCard',
+            Iif(First({order_payment_type}, "Order")!='PaidOnline',
                 Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
                 0
             )
@@ -2093,7 +2093,7 @@ WHERE stored_resource.id = @id1</CommandText>
     )
     +"    ("+
     Format(
-        Iif(First({order_payment_type}, "Order")!='ByCard',
+        Iif(First({order_payment_type}, "Order")!='PaidOnline',
             Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
             0
         )
@@ -2102,7 +2102,7 @@ WHERE stored_resource.id = @id1</CommandText>
     + "р.)",
    "Всего вернуть клиенту: "+Code.SummaString_Val(
         Convert.ToString(
-            Iif(First({order_payment_type}, "Order")!='ByCard',
+            Iif(First({order_payment_type}, "Order")!='PaidOnline',
                 -Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
                 0
             )
@@ -2110,7 +2110,7 @@ WHERE stored_resource.id = @id1</CommandText>
     )
     +"    ("+
     Format(
-        Iif(First({order_payment_type}, "Order")!='ByCard',
+        Iif(First({order_payment_type}, "Order")!='PaidOnline',
             -Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
             0
         )
@@ -3369,8 +3369,8 @@ WHERE stored_resource.id = @id1</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox62">
                       <Value>= Switch(
-    First({order_payment_type}, "Order")='ByCard', "ОПЛАЧЕНО",
-    First({order_payment_type}, "Order")='cash',
+    First({order_payment_type}, "Order")='PaidOnline', "ОПЛАЧЕНО",
+    First({order_payment_type}, "Order")='Cash',
     Iif({?payment_by_sms} = false AND {?payment_by_qr} = false, 
         "К оплате: НАЛИЧНЫМИ " +
         Convert.ToString
@@ -3395,13 +3395,13 @@ WHERE stored_resource.id = @id1</CommandText>
             )
         )
     ),
-    First({order_payment_type}, "Order") = "Terminal",
+    First({order_payment_type}, "Order") = "TerminalQR",
     "К оплате: \nПО ТЕРМИНАЛУ "+
     Convert.ToString
     (
         (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
     ),
-    First({order_payment_type}, "Order") = "cashless", "БЕЗНАЛ"
+    First({order_payment_type}, "Order") = "Cashless", "БЕЗНАЛ"
 )</Value>
                       <CanGrow>true</CanGrow>
                       <Style>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -39,7 +39,7 @@ FROM
     LEFT JOIN doc_residue 	 ON money_movement_operations.id = doc_residue.money_movement_operation_id
 WHERE 
 	money_movement_operations.counterparty_id=@counterparty_id
-	AND money_movement_operations.payment_type='cashless'
+	AND money_movement_operations.payment_type='Cashless'
 	AND	@date_start &lt;= operation_time
 	AND operation_time &lt;= DATE_ADD(@date_end, INTERVAL 1 DAY)
 ORDER BY date ASC</CommandText>
@@ -147,7 +147,7 @@ FROM
 where 
 money_movement_operations.counterparty_id=@counterparty_id
 and 
-money_movement_operations.payment_type='cashless'
+money_movement_operations.payment_type='Cashless'
 and operation_time &lt; @date_start
 </CommandText>
         <QueryParameters>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1036,11 +1036,11 @@
                       <Value>=
 Switch(
    {payment_type}='ByCard', 'Оплачено',
-   {payment_type}='cashless', 'Б/Н \n Подписать \n УПД',
-   {payment_type}='barter', 'Оплачено',
-   {payment_type}='ContractDoc', 'Оплачено',
-   {payment_type}='Terminal', 'Терминал',
-   {payment_type}='cash',
+   {payment_type}='Cashless', 'Б/Н \n Подписать \n УПД',
+   {payment_type}='Barter', 'Оплачено',
+   {payment_type}='ContractDocumentation', 'Оплачено',
+   {payment_type}='TerminalQR', 'Терминал',
+   {payment_type}='Cash',
         Iif({payment_by_sms} = false AND {payment_by_qr} = false, 'Наличными',
             Iif({payment_by_sms} = true AND {payment_by_qr} = false,
             'Наличными \n или смс',
@@ -2252,8 +2252,8 @@ LIMIT 1
     CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
     CONCAT(DATE_FORMAT(route_list_addresses.plan_time_start, '%H:%i'),'-', DATE_FORMAT(route_list_addresses.plan_time_end, '%H:%i')) AS PlanTime,
     IFNULL(orders.bottles_return, 0) + IFNULL(orders.bottles_by_stock_count, 0) AS empty_btls_from_client,
-    IF(orders.payment_type in ('cash', 'BeveragesWorld'), orders.sum_to_receive, 0) AS Total,
-    IF(orders.payment_type = 'Terminal',
+    IF(orders.payment_type = 'Cash', orders.sum_to_receive, 0) AS Total,
+    IF(orders.payment_type = 'TerminalQR',
         (
             SELECT Round(SUM(IFNULL(actual_count, count) * price - discount_money), 2)
             FROM order_items

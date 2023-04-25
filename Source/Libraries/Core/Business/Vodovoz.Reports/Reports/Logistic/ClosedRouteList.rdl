@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1731,7 +1731,7 @@ SELECT
     #orders.bottles_return AS EmptyBottles,
     route_list_addresses.bottles_returned AS EmptyBottles,
     route_list_addresses.total_cash AS Total,
-    IF(orders.payment_type = 'Terminal' AND route_list_addresses.status != 'Transfered',
+    IF(orders.payment_type = 'TerminalQR' AND route_list_addresses.status != 'Transfered',
        (
            SELECT SUM(IFNULL(actual_count, count) * price - discount_money)
            FROM order_items
