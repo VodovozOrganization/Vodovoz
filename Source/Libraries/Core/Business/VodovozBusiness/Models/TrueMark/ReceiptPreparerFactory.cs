@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using System;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
 
 namespace Vodovoz.Models.TrueMark
@@ -13,6 +14,7 @@ namespace Vodovoz.Models.TrueMark
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly TrueMarkCodesChecker _codeChecker;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ICashReceiptFactory _cashReceiptFactory;
 
@@ -21,7 +23,7 @@ namespace Vodovoz.Models.TrueMark
 			IUnitOfWorkFactory uowFactory, 
 			TrueMarkCodesChecker codeChecker,
 			ICashReceiptRepository cashReceiptRepository,
-			IOrganizationRepository organizationRepository,
+			ITrueMarkRepository trueMarkRepository,
 			ICashReceiptFactory cashReceiptFactory
 		)
 		{
@@ -29,7 +31,7 @@ namespace Vodovoz.Models.TrueMark
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_codeChecker = codeChecker ?? throw new ArgumentNullException(nameof(codeChecker));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
-			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_cashReceiptFactory = cashReceiptFactory ?? throw new ArgumentNullException(nameof(cashReceiptFactory));
 		}
 
@@ -37,7 +39,7 @@ namespace Vodovoz.Models.TrueMark
 		{
 			var codePool = new TrueMarkTransactionalCodesPool(_uowFactory);
 			var preparer = new ReceiptPreparer(
-				_logger, _uowFactory, codePool, _codeChecker, _cashReceiptRepository, _organizationRepository, _cashReceiptFactory,
+				_logger, _uowFactory, codePool, _codeChecker, _cashReceiptRepository, _trueMarkRepository, _cashReceiptFactory,
 				receiptId);
 			return preparer;
 		}

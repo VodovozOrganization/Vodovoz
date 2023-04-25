@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Factories;
 
 namespace Vodovoz.Models.TrueMark
@@ -22,10 +23,11 @@ namespace Vodovoz.Models.TrueMark
 		private readonly TrueMarkTransactionalCodesPool _codesPool;
 		private readonly TrueMarkCodesChecker _codeChecker;
 		private readonly ICashReceiptRepository _cashReceiptRepository;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ICashReceiptFactory _cashReceiptFactory;
 		private readonly int _receiptId;
-		private IList<string> _ownersInn;
+		private ISet<string> _ownersInn;
 		private IList<CashReceipt> _cashReceiptsToSave = new List<CashReceipt>();
 		private bool _disposed;
 
@@ -35,7 +37,7 @@ namespace Vodovoz.Models.TrueMark
 			TrueMarkTransactionalCodesPool codesPool,
 			TrueMarkCodesChecker codeChecker,
 			ICashReceiptRepository cashReceiptRepository,
-			IOrganizationRepository organizationRepository,
+			ITrueMarkRepository trueMarkRepository,
 			ICashReceiptFactory cashReceiptFactory,
 			int receiptId)
 		{
@@ -44,7 +46,7 @@ namespace Vodovoz.Models.TrueMark
 			_codesPool = codesPool ?? throw new ArgumentNullException(nameof(codesPool));
 			_codeChecker = codeChecker ?? throw new ArgumentNullException(nameof(codeChecker));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
-			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_cashReceiptFactory = cashReceiptFactory ?? throw new ArgumentNullException(nameof(cashReceiptFactory));
 
 			if(receiptId <= 0)
@@ -54,7 +56,7 @@ namespace Vodovoz.Models.TrueMark
 			_receiptId = receiptId;
 			_uow = _uowFactory.CreateWithoutRoot();
 
-			_ownersInn = _organizationRepository.GetTrueMarkCodesOwnersInns(_uow);
+			_ownersInn = _trueMarkRepository.GetAllowedCodeOwnersInn();
 		}
 
 		public async Task PrepareAsync(CancellationToken cancellationToken)
@@ -184,6 +186,13 @@ namespace Vodovoz.Models.TrueMark
 			{
 				var code = checkResult.Code;
 				var isOurOrganizationOwner = _ownersInn.Contains(checkResult.OwnerInn);
+				if(!isOurOrganizationOwner)
+				{
+					_logger.LogInformation("У проверенного кода {serialNumber} владелец не наша организация {organizationINN}. Код исключается из обработки.", 
+						code?.SourceCode?.SerialNumber, 
+						checkResult.OwnerInn);
+				}
+
 				if(checkResult.Introduced && isOurOrganizationOwner)
 				{
 					if(code.ResultCode != null && !code.ResultCode.Equals(code.SourceCode))
