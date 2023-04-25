@@ -122,16 +122,16 @@ namespace Vodovoz.Models
 			int organizationId;
 			switch(paymentType)
 			{
-				case PaymentType.barter:
-				case PaymentType.cashless:
-				case PaymentType.ContractDoc:
+				case PaymentType.Barter:
+				case PaymentType.Cashless:
+				case PaymentType.ContractDocumentation:
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
-				case PaymentType.cash:
-				case PaymentType.Terminal:
+				case PaymentType.Cash:
+				case PaymentType.TerminalQR:
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
-				case PaymentType.ByCard:
+				case PaymentType.PaidOnline:
 					organizationId = GetOrganizationIdForByCard(uow, paymentFrom, geographicGroup, orderCreateDate, onlineOrderId);
 					break;
 				default:
@@ -161,16 +161,16 @@ namespace Vodovoz.Models
 			int organizationId;
 			switch(paymentType)
 			{
-				case PaymentType.barter:
-				case PaymentType.cashless:
-				case PaymentType.ContractDoc:
+				case PaymentType.Barter:
+				case PaymentType.Cashless:
+				case PaymentType.ContractDocumentation:
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
-				case PaymentType.cash:
-				case PaymentType.Terminal:
+				case PaymentType.Cash:
+				case PaymentType.TerminalQR:
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
-				case PaymentType.ByCard:
+				case PaymentType.PaidOnline:
 					organizationId = GetOrganizationIdForByCard(uow, paymentFrom, geographicGroup, orderCreateDate, onlineOrderId);
 					break;
 				default:

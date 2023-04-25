@@ -158,7 +158,7 @@ namespace Vodovoz.Domain.FastPayments
 		{
 			FastPaymentStatus = FastPaymentStatus.Performed;
 
-			if(Order.PaymentType == PaymentType.cash
+			if(Order.PaymentType == PaymentType.Cash
 				&& Order.SelfDelivery
 				&& Order.OrderStatus == OrderStatus.WaitForPayment
 				&& Order.PayAfterShipment)
@@ -172,7 +172,7 @@ namespace Vodovoz.Domain.FastPayments
 				Order.IsSelfDeliveryPaid = true;
 			}
 
-			if(Order.PaymentType == PaymentType.cash
+			if(Order.PaymentType == PaymentType.Cash
 				&& Order.SelfDelivery
 				&& Order.OrderStatus == OrderStatus.WaitForPayment
 				&& !Order.PayAfterShipment)
@@ -183,7 +183,7 @@ namespace Vodovoz.Domain.FastPayments
 			
 			PaidDate = paidDate;
 			Order.OnlineOrder = ExternalId;
-			Order.PaymentType = PaymentType.ByCard;
+			Order.PaymentType = PaymentType.PaidOnline;
 			Order.PaymentByCardFrom = PaymentByCardFrom;
 			Order.ForceUpdateContract(Organization);
 

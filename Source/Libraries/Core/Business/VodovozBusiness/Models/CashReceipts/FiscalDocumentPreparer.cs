@@ -282,8 +282,8 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			switch(orderPaymentType)
 			{
-				case PaymentType.Terminal:
-				case PaymentType.ByCard:
+				case PaymentType.TerminalQR:
+				case PaymentType.PaidOnline:
 					return "CARD";
 				default:
 					return "CASH";

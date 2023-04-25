@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -85,7 +85,7 @@ namespace Vodovoz.ExportTo1c
 		public void AddOrder(Order order)
 		{
 			OrdersTotalSum += order.OrderSum;
-			if(order.PaymentType == PaymentType.ByCard || order.PaymentType == PaymentType.cash || order.PaymentType == PaymentType.Terminal) {
+			if(order.PaymentType == PaymentType.PaidOnline || order.PaymentType == PaymentType.Cash || order.PaymentType == PaymentType.TerminalQR) {
 				CreateRetailDocument(order);
 			}
 			else
@@ -366,7 +366,7 @@ namespace Vodovoz.ExportTo1c
 				exportRetailDocument.Tables.Add(exportRefundTerminalTable);
 			}
 
-			bool isTerminalPaid = (order.PaymentType == PaymentType.ByCard || order.PaymentType == PaymentType.Terminal);
+			bool isTerminalPaid = (order.PaymentType == PaymentType.PaidOnline || order.PaymentType == PaymentType.TerminalQR);
 			
 			foreach (var orderItem in order.OrderItems)
 			{				

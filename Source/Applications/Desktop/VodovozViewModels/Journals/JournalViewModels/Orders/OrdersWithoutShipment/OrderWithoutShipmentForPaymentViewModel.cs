@@ -152,7 +152,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 					.Where(x => x.OrderStatus == OrderStatus.Closed)
-					.Where(x => x.PaymentType == PaymentType.cashless);
+					.Where(x => x.PaymentType == PaymentType.Cashless);
 
 			if(Entity.Client != null)
 			{

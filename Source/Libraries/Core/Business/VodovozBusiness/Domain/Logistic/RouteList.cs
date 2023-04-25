@@ -736,7 +736,7 @@ namespace Vodovoz.Domain.Logistic
 			foreach(var order in Addresses
 				.Where(a => a.Status != RouteListItemStatus.Transfered)
 				.Select(a => a.Order)
-				.Where(o => o.PaymentType == Client.PaymentType.cash))
+				.Where(o => o.PaymentType == Client.PaymentType.Cash))
 			{
 				var change = (order?.Trifle ?? 0) - order.OrderSum;
 

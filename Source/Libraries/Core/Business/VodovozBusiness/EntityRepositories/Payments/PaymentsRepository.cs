@@ -225,7 +225,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(() => orderAlias.OrderStatus == OrderStatus.Shipped
 					|| orderAlias.OrderStatus == OrderStatus.UnloadingOnStock
 					|| orderAlias.OrderStatus == OrderStatus.Closed)
-				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.And(() => deliveryScheduleAlias.Id != closingDocumentDeliveryScheduleId)
 				.Select(orderSumProjection)
@@ -243,7 +243,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(() => orderAlias2.OrderStatus == OrderStatus.Shipped
 					|| orderAlias2.OrderStatus == OrderStatus.UnloadingOnStock
 					|| orderAlias2.OrderStatus == OrderStatus.Closed)
-				.And(() => orderAlias2.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias2.PaymentType == PaymentType.Cashless)
 				.And(() => orderAlias2.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
 				.And(() => deliveryScheduleAlias2.Id != closingDocumentDeliveryScheduleId)
 				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));

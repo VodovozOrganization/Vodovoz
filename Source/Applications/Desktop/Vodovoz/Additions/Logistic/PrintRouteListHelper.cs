@@ -220,7 +220,7 @@ namespace Vodovoz.Additions.Logistic
 #endif
 
 			string printDatestr = $"Дата печати: { DateTime.Now:g}";
-			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
+			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.TerminalQR);
 
 			return new ReportInfo
 			{

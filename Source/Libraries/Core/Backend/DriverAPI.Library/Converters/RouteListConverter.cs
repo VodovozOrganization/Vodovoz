@@ -47,15 +47,15 @@ namespace DriverAPI.Library.Converters
 					RouteListStatus = _routeListStatusConverter.convertToAPIRouteListStatus(routeList.Status),
 					CashMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
-							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.cash)
+							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cash)
 						.Sum(rla => rla.Order.OrderSum),
 					TerminalMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
-							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal)
+							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.TerminalQR)
 						.Sum(rla => rla.Order.OrderSum),
 					TerminalOrdersCount = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
-							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal)
+							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.TerminalQR)
 						.Count(),
 					FullBottlesToReturn = (int)fullBottlesToReturn,
 					EmptyBottlesToReturn = routeList.Addresses

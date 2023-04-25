@@ -30,7 +30,7 @@ namespace Vodovoz.Views.Cash
 
 			enumPaymentType.ItemsEnum = typeof(PaymentType);
 			enumPaymentType.Binding.AddBinding(ViewModel, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource();
-			enumPaymentType.AddEnumToHideList(PaymentType.barter, PaymentType.ByCard, PaymentType.cash, PaymentType.cashless, PaymentType.ContractDoc);
+			enumPaymentType.AddEnumToHideList(PaymentType.Barter, PaymentType.PaidOnline, PaymentType.Cash, PaymentType.Cashless, PaymentType.ContractDocumentation);
 			enumPaymentType.SelectedItem = ViewModel.PaymentType;
 		}
 	}

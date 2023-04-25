@@ -508,7 +508,7 @@ namespace Vodovoz
 
 		private decimal GetTerminalOrdersSum()
 		{
-			var result = Entity.Addresses.Where(x => x.Order.PaymentType == PaymentType.Terminal
+			var result = Entity.Addresses.Where(x => x.Order.PaymentType == PaymentType.TerminalQR
 					&& x.Status != RouteListItemStatus.Transfered)
 				.Sum(x => x.Order.OrderSum);
 

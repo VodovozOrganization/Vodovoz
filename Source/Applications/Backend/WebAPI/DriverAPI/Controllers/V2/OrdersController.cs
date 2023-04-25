@@ -147,11 +147,11 @@ namespace DriverAPI.Controllers.V2
 
 				if(newPaymentType == PaymentDtoType.Terminal)
 				{
-					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.Terminal;
+					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.TerminalQR;
 				}
 				else if(newPaymentType == PaymentDtoType.Cash)
 				{
-					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.cash;
+					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.Cash;
 				}
 				else
 				{

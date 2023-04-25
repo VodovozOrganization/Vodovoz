@@ -39,7 +39,7 @@ namespace DriverAPI.Library.Models
 		private readonly QRPaymentConverter _qrPaymentConverter;
 		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly int _maxClosingRating = 5;
-		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
+		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		public OrderModel(
@@ -142,12 +142,12 @@ namespace DriverAPI.Library.Models
 		{
 			var availablePaymentTypes = new List<PaymentDtoType>();
 
-			if(order.PaymentType == PaymentType.cash)
+			if(order.PaymentType == PaymentType.Cash)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Terminal);
 			}
 
-			if(order.PaymentType == PaymentType.Terminal)
+			if(order.PaymentType == PaymentType.TerminalQR)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
 			}

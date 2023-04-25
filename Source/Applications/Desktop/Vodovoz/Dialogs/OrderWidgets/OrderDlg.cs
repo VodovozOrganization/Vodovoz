@@ -463,7 +463,7 @@ namespace Vodovoz
 				.CopyAttachedDocuments();
 
 			Entity.IsCopiedFromUndelivery = true;
-			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard)
+			if(copying.GetCopiedOrder.PaymentType == PaymentType.PaidOnline)
 			{
 				var currentPaymentFromTypes = ySpecPaymentFrom.ItemsList.Cast<PaymentFrom>().ToList();
 
@@ -634,7 +634,7 @@ namespace Vodovoz
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
 
-			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
+			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.Cashless;
 			pickerBillDate.Binding.AddBinding(Entity, s => s.BillDate, w => w.DateOrNull).InitializeFromSource();
 
 			textComments.Binding.AddBinding(Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
@@ -1531,7 +1531,7 @@ namespace Vodovoz
 				.AddColumn("В т.ч. НДС")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS ?? 0))
-					.AddSetter((c, n) => c.Visible = Entity.PaymentType == PaymentType.cashless)
+					.AddSetter((c, n) => c.Visible = Entity.PaymentType == PaymentType.Cashless)
 				.AddColumn("Сумма")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.ActualSum))
@@ -1879,7 +1879,7 @@ namespace Vodovoz
 				}
 
 				if(Entity.Id == 0 &&
-					Entity.PaymentType == PaymentType.cashless) {
+					Entity.PaymentType == PaymentType.Cashless) {
 					Entity.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
 				}
 
@@ -2022,7 +2022,7 @@ namespace Vodovoz
 			var edoLightsMatrixViewModel = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel;
 			edoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
 
-			var edoLightsMatrixPaymentType = Entity.PaymentType == PaymentType.cashless
+			var edoLightsMatrixPaymentType = Entity.PaymentType == PaymentType.Cashless
 				? EdoLightsMatrixPaymentType.Cashless
 				: EdoLightsMatrixPaymentType.Receipt;
 
@@ -2041,7 +2041,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(Entity.PaymentType == PaymentType.cashless)
+			if(Entity.PaymentType == PaymentType.Cashless)
 			{
 				var hasUnknownEdoLightsType = edoLightsMatrixViewModel.HasUnknown();
 
@@ -2936,10 +2936,10 @@ namespace Vodovoz
 				if(Entity.Client.PersonType == PersonType.natural) {
 					chkContractCloser.Active = false;
 					chkContractCloser.Visible = false;
-					enumPaymentType.AddEnumToHideList(PaymentType.cashless);
+					enumPaymentType.AddEnumToHideList(PaymentType.Cashless);
 				} else {
 					chkContractCloser.Visible = true;
-					enumPaymentType.RemoveEnumFromHideList(PaymentType.cashless);
+					enumPaymentType.RemoveEnumFromHideList(PaymentType.Cashless);
 				}
 
 				var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
@@ -2948,7 +2948,7 @@ namespace Vodovoz
 				if(previousPaymentType.HasValue) {
 					if(previousPaymentType.Value == Entity.PaymentType) {
 						enumPaymentType.SelectedItem = previousPaymentType.Value;
-					} else if(Entity.Id == 0 || Entity.PaymentType == PaymentType.cashless) {
+					} else if(Entity.Id == 0 || Entity.PaymentType == PaymentType.Cashless) {
 						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
 						OnEnumPaymentTypeChanged(null, e);
 					} else {
@@ -3128,7 +3128,7 @@ namespace Vodovoz
 
 			checkDelivered.Visible = enumDocumentType.Visible = labelDocumentType.Visible = IsPaymentTypeCashless();
 
-			if(Entity.PaymentType != PaymentType.cash) {
+			if(Entity.PaymentType != PaymentType.Cash) {
 				ycheckPaymentBySms.Visible = ycheckPaymentBySms.Active = false;
 				chkPaymentByQr.Visible = chkPaymentByQr.Active = false;
 			}
@@ -3138,17 +3138,17 @@ namespace Vodovoz
 			}
 
 			enumSignatureType.Visible = labelSignatureType.Visible =
-				Entity.Client != null && (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless);
+				Entity.Client != null && (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.Cashless);
 
 			hbxOnlineOrder.Visible = UpdateVisibilityHboxOnlineOrder();
-			ySpecPaymentFrom.Visible = Entity.PaymentType == PaymentType.ByCard;
+			ySpecPaymentFrom.Visible = Entity.PaymentType == PaymentType.PaidOnline;
 
 			if(treeItems.Columns.Any())
-				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
+				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.Cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
-				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash);
+				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.Cash);
 			spinSumDifference.Visible = spinSumDifference.Visible && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_order_extra_cash");
-			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
+			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.Cashless;
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 			UpdateUIState();
@@ -3156,9 +3156,9 @@ namespace Vodovoz
 
 		private bool UpdateVisibilityHboxOnlineOrder() {
 			switch(Entity.PaymentType) {
-				case PaymentType.ByCard:
+				case PaymentType.PaidOnline:
 					return true;
-				case PaymentType.Terminal:
+				case PaymentType.TerminalQR:
 					return Entity.OnlineOrder != null;
 				default:
 					return false;
@@ -3217,9 +3217,9 @@ namespace Vodovoz
 				string message = "Стоп отгрузки!!!" + Environment.NewLine + "Комментарий от фин.отдела: " + Entity.Client?.CloseDeliveryComment;
 				MessageDialogHelper.RunInfoDialog(message);
 				Enum[] hideEnums = {
-					PaymentType.barter,
-					PaymentType.ContractDoc,
-					PaymentType.cashless
+					PaymentType.Barter,
+					PaymentType.ContractDocumentation,
+					PaymentType.Cashless
 				};
 				enumPaymentType.AddEnumToHideList(hideEnums);
 			}
@@ -3306,7 +3306,7 @@ namespace Vodovoz
 
 		private void UpdateOnlineOrderText()
 		{
-			if(Entity.PaymentType != PaymentType.ByCard)
+			if(Entity.PaymentType != PaymentType.PaidOnline)
 				entOnlineOrder.Text = string.Empty; //костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
 		}
 
@@ -3475,12 +3475,12 @@ namespace Vodovoz
 		/// <summary>
 		/// Is the payment type barter or cashless?
 		/// </summary>
-		private bool IsPaymentTypeBarterOrCashless() => Entity.PaymentType == PaymentType.barter || Entity.PaymentType == PaymentType.cashless;
+		private bool IsPaymentTypeBarterOrCashless() => Entity.PaymentType == PaymentType.Barter || Entity.PaymentType == PaymentType.Cashless;
 
 		/// <summary>
 		/// Is the payment type cashless?
 		/// </summary>
-		private bool IsPaymentTypeCashless() => Entity.PaymentType == PaymentType.cashless;
+		private bool IsPaymentTypeCashless() => Entity.PaymentType == PaymentType.Cashless;
 		#endregion
 
 		//реализация метода интерфейса ITdiTabAddedNotifier
@@ -3784,7 +3784,7 @@ namespace Vodovoz
 		void SetSensitivityOfPaymentType()
 		{
 			if(chkContractCloser.Active) {
-				Entity.PaymentType = PaymentType.cashless;
+				Entity.PaymentType = PaymentType.Cashless;
 				UpdateUIState();
 			} else {
 				UpdateUIState();
@@ -3834,7 +3834,7 @@ namespace Vodovoz
 				&& Entity.OrderStatus == OrderStatus.Accepted
 				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 			menuItemSelfDeliveryPaid.Sensitive = Entity.SelfDelivery
-				&& (Entity.PaymentType == PaymentType.cashless || Entity.PaymentType == PaymentType.ByCard)
+				&& (Entity.PaymentType == PaymentType.Cashless || Entity.PaymentType == PaymentType.PaidOnline)
 				&& Entity.OrderStatus == OrderStatus.WaitForPayment
 				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
 
@@ -3845,7 +3845,7 @@ namespace Vodovoz
 		void UpdateProxyInfo()
 		{
 			bool canShow = Entity.Client != null && Entity.DeliveryDate.HasValue &&
-								 (Entity.Client?.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless);
+								 (Entity.Client?.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.Cashless);
 
 			labelProxyInfo.Visible = canShow;
 
@@ -4134,7 +4134,7 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblDeliveryInterval.Text} {deliveryTime}").AppendLine();
 
-			var isPaymentTypeCashless = Entity.PaymentType == PaymentType.cashless;
+			var isPaymentTypeCashless = Entity.PaymentType == PaymentType.Cashless;
 			var documentSigning = isPaymentTypeCashless
 				? Entity.SignatureType?.GetEnumTitle().ToUpper() ?? ""
 				: "";
@@ -4202,7 +4202,7 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblBottlesPlannedToReturn.Text} {bottlesToReturn}").AppendLine();
 
-			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
+			var isPaymentTypeCash = Entity.PaymentType == PaymentType.Cash;
 			var paymentType = !isPaymentTypeCash
 				? Entity.PaymentType.GetEnumTitle().ToUpper()
 				: Entity.PaymentByQr

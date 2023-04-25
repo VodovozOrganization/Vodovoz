@@ -1581,12 +1581,12 @@ namespace Vodovoz
 
 		protected void OnEnumPaymentEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			enumDefaultDocumentType.Visible = labelDefaultDocumentType.Visible = (PaymentType)e.SelectedItem == PaymentType.cashless;
+			enumDefaultDocumentType.Visible = labelDefaultDocumentType.Visible = (PaymentType)e.SelectedItem == PaymentType.Cashless;
 		}
 
 		protected void OnEnumPaymentChangedByUser(object sender, EventArgs e)
 		{
-			if(Entity.PaymentMethod == PaymentType.cashless)
+			if(Entity.PaymentMethod == PaymentType.Cashless)
 			{
 				Entity.DefaultDocumentType = DefaultDocumentType.upd;
 			}

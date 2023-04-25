@@ -85,11 +85,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
-						.Add(() => orderAlias.PaymentType == PaymentType.cashless))
+						.Add(() => orderAlias.PaymentType == PaymentType.Cashless))
 					.Add(Restrictions.Conjunction()
-						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
 						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))))
-				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc);
+				.And(() => orderAlias.PaymentType != PaymentType.ContractDocumentation);
 
 			switch(ReportType)
 			{

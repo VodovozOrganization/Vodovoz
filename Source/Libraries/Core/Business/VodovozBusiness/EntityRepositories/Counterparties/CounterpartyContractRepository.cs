@@ -81,18 +81,18 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		public ContractType GetContractTypeForPaymentType(PersonType clientType, PaymentType paymentType)
 		{
 			switch(paymentType) {
-				case PaymentType.cash:
-				case PaymentType.ByCard:
-				case PaymentType.Terminal:
+				case PaymentType.Cash:
+				case PaymentType.PaidOnline:
+				case PaymentType.TerminalQR:
 					if(clientType == PersonType.legal) {
 						return ContractType.CashUL;
 					}else {
 						return ContractType.CashFL;
 					}
-				case PaymentType.cashless:
-				case PaymentType.ContractDoc:
+				case PaymentType.Cashless:
+				case PaymentType.ContractDocumentation:
 					return ContractType.Cashless;
-				case PaymentType.barter:
+				case PaymentType.Barter:
 					return ContractType.Barter;
 				default:
 					return ContractType.Cashless;

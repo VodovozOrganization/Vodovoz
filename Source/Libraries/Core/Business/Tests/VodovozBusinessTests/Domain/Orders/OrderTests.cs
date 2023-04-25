@@ -131,7 +131,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Counterparty testClient = new Counterparty();
 			testOrder.Client = testClient;
 			testClient.DefaultDocumentType = DefaultDocumentType.torg12;
-			testClient.PaymentMethod = PaymentType.cashless;
+			testClient.PaymentMethod = PaymentType.Cashless;
 
 			DeliveryPoint testDeliveryPoint = new DeliveryPoint();
 			testDeliveryPoint.Id = 45;

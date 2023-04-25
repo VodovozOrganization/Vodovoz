@@ -483,7 +483,7 @@ namespace Vodovoz.ViewWidgets
 				_newOrder.Author = this._oldOrder.Author;
 				SetLabelsAcordingToNewOrder();
 				_undelivery.NewDeliverySchedule = _newOrder.DeliverySchedule;
-				if ((_oldOrder.PaymentType == Domain.Client.PaymentType.ByCard) &&
+				if ((_oldOrder.PaymentType == Domain.Client.PaymentType.PaidOnline) &&
 					(_oldOrder.OrderSum == _newOrder.OrderSum) &&
 					MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?")){
 					_newOrder.PaymentType = _oldOrder.PaymentType;

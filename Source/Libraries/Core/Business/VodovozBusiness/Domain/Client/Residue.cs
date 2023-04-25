@@ -180,7 +180,7 @@ namespace Vodovoz.Domain.Client
 			newItem.Nomenclature = nomenclature;
 			newItem.EquipmentCount = 1;
 			newItem.DepositCount = 1;
-			newItem.PaymentType = PaymentType.cash;
+			newItem.PaymentType = PaymentType.Cash;
 			ObservableEquipmentDepositItems.Add(newItem);
 		}
 

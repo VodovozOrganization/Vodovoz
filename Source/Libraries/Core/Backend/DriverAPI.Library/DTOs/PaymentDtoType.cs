@@ -2,16 +2,13 @@
 
 namespace DriverAPI.Library.DTOs
 {
-	// новый
 	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum PaymentDtoType
 	{
 		Cash,
+		TerminalQR,
+		DriverApplicationQR,
+		Paid,
 		Cashless,
-		Barter,
-		Terminal,
-		ByCard,
-		ByCardFromSms,
-		ContractDocumentation
 	}
 }

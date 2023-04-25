@@ -364,7 +364,7 @@ namespace Vodovoz
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 
-			if (_routeListItem.Order.PaymentType == PaymentType.ByCard)
+			if (_routeListItem.Order.PaymentType == PaymentType.PaidOnline)
 			{
 				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>()
 					.Where(
@@ -378,7 +378,7 @@ namespace Vodovoz
 			}				
 			
 			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
-			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.ByCard, w => w.Visible)
+			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.PaidOnline, w => w.Visible)
 				.InitializeFromSource();
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -578,7 +578,7 @@ namespace Vodovoz
 			}
 			
 			PaymentType? previousPaymentType = yenumcomboOrderPayment.SelectedItem as PaymentType?;
-			Enum[] hideEnums = {PaymentType.cashless};
+			Enum[] hideEnums = {PaymentType.Cashless};
 			PersonType personType = (referenceClient.Subject as Counterparty).PersonType;
 			if(personType == PersonType.natural)
 				yenumcomboOrderPayment.AddEnumToHideList(hideEnums);
@@ -588,7 +588,7 @@ namespace Vodovoz
 			if(previousPaymentType.HasValue)
 			{
 				if(personType == PersonType.natural && hideEnums.Contains(previousPaymentType.Value))
-					yenumcomboOrderPayment.SelectedItem = PaymentType.cash;
+					yenumcomboOrderPayment.SelectedItem = PaymentType.Cash;
 				else
 					yenumcomboOrderPayment.SelectedItem = previousPaymentType;
 			}
@@ -642,8 +642,8 @@ namespace Vodovoz
 		private void OnlineOrderVisible()
 		{
 			labelOnlineOrder.Visible = entryOnlineOrder.Visible =
-				(_routeListItem.Order.PaymentType == PaymentType.ByCard
-				 || _routeListItem.Order.PaymentType == PaymentType.Terminal);
+				(_routeListItem.Order.PaymentType == PaymentType.PaidOnline
+				 || _routeListItem.Order.PaymentType == PaymentType.TerminalQR);
 		}
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)

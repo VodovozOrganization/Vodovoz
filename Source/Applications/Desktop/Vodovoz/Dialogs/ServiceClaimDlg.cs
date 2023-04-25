@@ -297,13 +297,13 @@ namespace Vodovoz
 			ITdiTab dlg;
 			string paymentTypeString="";
 			switch (UoWGeneric.Root.Payment) {
-			case PaymentType.cash:
+			case PaymentType.Cash:
 				paymentTypeString = "наличной";
 				break;
-			case PaymentType.cashless:
+			case PaymentType.Cashless:
 				paymentTypeString = "безналичной";
 				break;
-			case PaymentType.barter:
+			case PaymentType.Barter:
 				paymentTypeString = "бартерной";
 				break;
 			}

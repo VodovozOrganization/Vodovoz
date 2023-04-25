@@ -20,11 +20,11 @@ namespace DriverAPI.Library.Deprecated.Converters
 		{
 			switch(paymentType)
 			{
-				case PaymentType.cash:
+				case PaymentType.Cash:
 					return PaymentDtoType.Cash;
-				case PaymentType.cashless:
+				case PaymentType.Cashless:
 					return PaymentDtoType.Cashless;
-				case PaymentType.ByCard:
+				case PaymentType.PaidOnline:
 					if(paymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId)
 					{
 						return PaymentDtoType.ByCardFromSms;
@@ -33,11 +33,11 @@ namespace DriverAPI.Library.Deprecated.Converters
 					{
 						return PaymentDtoType.ByCard;
 					}
-				case PaymentType.Terminal:
+				case PaymentType.TerminalQR:
 					return PaymentDtoType.Terminal;
-				case PaymentType.barter:
+				case PaymentType.Barter:
 					return PaymentDtoType.Barter;
-				case PaymentType.ContractDoc:
+				case PaymentType.ContractDocumentation:
 					return PaymentDtoType.ContractDocumentation;
 				default:
 					throw new ConverterException(nameof(paymentType), paymentType, $"Значение {paymentType} не поддерживается");

@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -255,7 +255,7 @@ namespace Vodovoz.Domain.Cash
 				var existsIncome = cashRepository.GetIncomePaidSumForOrder(uow, Order.Id);
 				decimal orderCash = 0m;
 
-				if(Order.PaymentType == PaymentType.cash)
+				if(Order.PaymentType == PaymentType.Cash)
 				{
 					orderCash = Order.OrderSum;
 				}
@@ -300,7 +300,7 @@ namespace Vodovoz.Domain.Cash
 				}
 				else
 				{
-					if(Order.PaymentType != PaymentType.cash)
+					if(Order.PaymentType != PaymentType.Cash)
 					{
 						yield return new ValidationResult("Должен быть выбран наличный заказ");
 					}

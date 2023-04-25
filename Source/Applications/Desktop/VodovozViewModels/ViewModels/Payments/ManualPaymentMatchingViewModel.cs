@@ -406,7 +406,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						FullName = Entity.CounterpartyName,
 						INN = Entity.CounterpartyInn,
 						KPP = Entity.CounterpartyKpp ?? string.Empty,
-						PaymentMethod = PaymentType.cashless,
+						PaymentMethod = PaymentType.Cashless,
 						TypeOfOwnership = TryGetOrganizationType(Entity.CounterpartyName)
 					};
 
@@ -602,7 +602,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				.Left.JoinAlias(o => o.Contract, () => contractAlias)
 				.Left.JoinAlias(() => contractAlias.Organization, () => organisationAlias)
 				.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(_orderRepository.GetUndeliveryStatuses())
-				.And(o => o.PaymentType == PaymentType.cashless)
+				.And(o => o.PaymentType == PaymentType.Cashless)
 				.And(() => organisationAlias.Id == Entity.Organization.Id);
 
 			if(Entity.Counterparty != null)

@@ -16,29 +16,29 @@ namespace DriverAPI.Library.Converters
 
 		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, Vodovoz.Domain.Orders.PaymentFrom paymentByCardFrom)
 		{
-			switch (paymentType)
+			switch(paymentType)
 			{
-				case PaymentType.cash:
+				case PaymentType.Cash:
 					return PaymentDtoType.Cash;
-				case PaymentType.cashless:
+				case PaymentType.Cashless:
 					return PaymentDtoType.Cashless;
-				case PaymentType.ByCard:
-					if (paymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId)
-					{
-						return PaymentDtoType.ByCardFromSms;
-					}
-					else
-					{
-						return PaymentDtoType.ByCard;
-					}
-				case PaymentType.Terminal:
-					return PaymentDtoType.Terminal;
-				case PaymentType.barter:
-					return PaymentDtoType.Barter;
-				case PaymentType.ContractDoc:
-					return PaymentDtoType.ContractDocumentation;
+				//case PaymentType.ByCard:
+				//	if (paymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId)
+				//	{
+				//		return PaymentDtoType.ByCardFromSms;
+				//	}
+				//	else
+				//	{
+				//		return PaymentDtoType.ByCard;
+				//	}
+				//case PaymentType.Terminal:
+				//	return PaymentDtoType.Terminal;
+				case PaymentType.Barter:
+					return PaymentDtoType.Paid;
+				case PaymentType.ContractDocumentation:
+					return PaymentDtoType.Paid;
 				default:
-					throw new ConverterException(nameof(paymentType), paymentType, $"Значение { paymentType } не поддерживается");
+					throw new ConverterException(nameof(paymentType), paymentType, $"Значение {paymentType} не поддерживается");
 			}
 		}
 	}
