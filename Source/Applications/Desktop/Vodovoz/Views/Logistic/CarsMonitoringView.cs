@@ -10,7 +10,6 @@ using QS.Utilities;
 using QS.Views.GtkUI;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -129,7 +128,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			if(ViewModel.ShowHistory)
 			{
-				GLib.Source.Remove(_timerId);
+				Source.Remove(_timerId);
 			}
 			else
 			{
@@ -168,7 +167,6 @@ namespace Vodovoz.Views.Logistic
 
 		private void SubscribeToEvents()
 		{
-			ViewModel.WorkingDriversChanged += yTreeViewDrivers.YTreeModel.EmitModelChanged;
 			ViewModel.RouteListAddressesChanged += yTreeAddresses.YTreeModel.EmitModelChanged;
 			ViewModel.FastDeliveryDistrictChanged += UpdateDeliveryDistrictsOverlay;
 			ViewModel.WorkingDriversChanged += WorkingDriversChanged;
@@ -190,9 +188,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void UnSubscribeFromEvents()
 		{
-			ViewModel.WorkingDriversChanged -= yTreeViewDrivers.YTreeModel.EmitModelChanged;
 			ViewModel.RouteListAddressesChanged -= yTreeAddresses.YTreeModel.EmitModelChanged;
-
 			ViewModel.FastDeliveryDistrictChanged -= UpdateDeliveryDistrictsOverlay;
 			ViewModel.WorkingDriversChanged -= WorkingDriversChanged;
 			
@@ -216,6 +212,7 @@ namespace Vodovoz.Views.Logistic
 			_tracksOverlay.Clear();
 			_carsOverlay.Clear();
 			UpdateCarPosition();
+			yTreeViewDrivers.ItemsDataSource = ViewModel.WorkingDrivers;
 		}
 
 		private void SelectedDriversChanged()
@@ -303,8 +300,7 @@ namespace Vodovoz.Views.Logistic
 		private void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
 			_logger.Info("Обновляем данные диалога...");
-			ViewModel.RefreshWorkingDriversCommand?.Execute();
-			ViewModel.RefreshFastDeliveryDistrictsCommand?.Execute();
+			ViewModel.RefreshAllCommand.Execute();
 			_logger.Info("Ок");
 			UpdateCarPosition();
 		}
@@ -735,9 +731,13 @@ namespace Vodovoz.Views.Logistic
 
 		public override void Destroy()
 		{
-			GLib.Source.Remove(_timerId);
+			Source.Remove(_timerId);
 			gmapWidget.Destroy();
 			_mapSeparateWindow?.Destroy();
+			yTreeViewDrivers?.Destroy();
+			yTreeAddresses?.Destroy();
+			yspeccomboboxHistoryHour.Destroy();
+			yenumcomboMapType.Destroy();
 			base.Destroy();
 		}
 
