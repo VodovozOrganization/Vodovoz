@@ -486,15 +486,19 @@ namespace Vodovoz
 				.CopyFields(
 					x => x.Client,
 					x => x.DeliveryPoint,
-					x => x.OrderAddressType,
 					x => x.PaymentType,
-					x => x.ContactPhone
-				)
+					x => x.OrderAddressType,
+					x => x.ContactPhone)
 				.CopyPromotionalSets()
 				.CopyOrderItems()
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
+
+			if(Entity.Client.PersonType == PersonType.legal)
+			{
+				Entity.PaymentType = Entity.Client.PaymentMethod;
+			}
 
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
@@ -3818,6 +3822,13 @@ namespace Vodovoz
 			if(Entity.Client is null)
 			{
 				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не выбран контрагент в заказе!");
+				return;
+			}
+
+			if(Entity.Client.PaymentMethod != Entity.PaymentType
+				&& !MessageDialogHelper.RunQuestionDialog($"Вы выбрали форму оплаты &lt;{Entity.PaymentType.GetEnumTitle()}&gt;." +
+				$" У клиента по умолчанию установлено &lt;{Entity.Client.PaymentMethod.GetEnumTitle()}&gt;. Вы уверены, что хотите продолжить?"))
+			{
 				return;
 			}
 
