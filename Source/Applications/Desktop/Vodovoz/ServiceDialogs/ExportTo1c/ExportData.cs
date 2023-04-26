@@ -367,23 +367,14 @@ namespace Vodovoz.ExportTo1c
 			}
 
 			bool isTerminalPaid = (order.PaymentType == PaymentType.ByCard || order.PaymentType == PaymentType.Terminal);
-
-			bool isRefund = false;
 			
 			foreach (var orderItem in order.OrderItems)
-			{
-
-				isRefund = (orderItem.ActualSum < 0);
-				
-				if(orderItem.ActualSum != 0){
+			{				
+				if(orderItem.Sum != 0){
 				
 					var record = CreateRetailRecord(orderItem);
 
-					exportRetailDocument.Tables[0].Records.Add(record); //Товары
-
-					if(isRefund){
-						exportRetailDocument.Tables[2].Records.Add(record);	
-					}
+					exportRetailDocument.Tables[0].Records.Add(record);
 					
 					if (isTerminalPaid)
 					{
@@ -391,14 +382,11 @@ namespace Vodovoz.ExportTo1c
 						recordPayment.Properties.Add(
 							new PropertyNode("СуммаОплаты",
 								Common1cTypes.Numeric,
-								orderItem.ActualSum
+								orderItem.Sum
 							)
-						);//оплаты безналом
+						);
+
 						exportRetailDocument.Tables[1].Records.Add(recordPayment);
-						
-						if(isRefund){
-							exportRetailDocument.Tables[3].Records.Add(recordPayment);	
-						}
 					}
 					
 				}
@@ -500,7 +488,6 @@ namespace Vodovoz.ExportTo1c
 		public TableRecordNode CreateRetailRecord(OrderItem orderItem)
 		{
 			var record = new TableRecordNode();
-			bool isService = false;
 			var nomenclatureReference = NomenclatureCatalog.CreateReferenceTo(orderItem.Nomenclature);
 			record.Properties.Add(
 				new PropertyNode("Номенклатура",
@@ -521,13 +508,13 @@ namespace Vodovoz.ExportTo1c
 					Common1cTypes.Numeric,
 					orderItem.Price));
 
-			ExportedTotalSum += orderItem.ActualSum;
+			ExportedTotalSum += orderItem.Sum;
 
 			record.Properties.Add(
 				new PropertyNode(
 					"Сумма",
 					Common1cTypes.Numeric,
-					orderItem.ActualSum
+					orderItem.Sum
 				)
 			);
 
