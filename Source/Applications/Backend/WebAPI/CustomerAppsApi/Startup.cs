@@ -2,6 +2,7 @@
 using System.Reflection;
 using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
+using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Models;
 using CustomerAppsApi.Validators;
 using Microsoft.AspNetCore.Builder;
@@ -75,6 +76,7 @@ namespace CustomerAppsApi
 			services.AddSingleton<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>();
 			services.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>();
 			services.AddSingleton<CounterpartyModelFactory>();
+			services.AddSingleton<ICounterpartyFactory, CounterpartyFactory>();
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
 			services.AddSingleton<ICameFromConverter, CameFromConverter>();

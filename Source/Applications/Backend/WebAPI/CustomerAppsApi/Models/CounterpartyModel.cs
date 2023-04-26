@@ -2,6 +2,7 @@ using System;
 using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Dto;
+using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Validators;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -30,6 +31,7 @@ namespace CustomerAppsApi.Models
 		private readonly CounterpartyModelFactory _counterpartyModelFactory;
 		private readonly CounterpartyModelValidator _counterpartyModelValidator;
 		private readonly IContactManagerForExternalCounterparty _contactManagerForExternalCounterparty;
+		private readonly ICounterpartyFactory _counterpartyFactory;
 
 		public CounterpartyModel(
 			ILogger<CounterpartyModel> logger,
@@ -42,7 +44,8 @@ namespace CustomerAppsApi.Models
 			ICameFromConverter cameFromConverter,
 			CounterpartyModelFactory counterpartyModelFactory,
 			CounterpartyModelValidator counterpartyModelValidator,
-			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty)
+			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty,
+			ICounterpartyFactory counterpartyFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -58,6 +61,7 @@ namespace CustomerAppsApi.Models
 			_counterpartyModelValidator = counterpartyModelValidator ?? throw new ArgumentNullException(nameof(counterpartyModelValidator));
 			_contactManagerForExternalCounterparty =
 				contactManagerForExternalCounterparty ?? throw new ArgumentNullException(nameof(contactManagerForExternalCounterparty));
+			_counterpartyFactory = counterpartyFactory ?? throw new ArgumentNullException(nameof(counterpartyFactory));
 		}
 
 		public CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto)
@@ -88,7 +92,9 @@ namespace CustomerAppsApi.Models
 
 			if(externalCounterparty != null)
 			{
-				_logger.LogInformation("Нашли соответствие по телефону и ExternalId");
+				_logger.LogInformation("Нашли соответствие по телефону {PhoneNumber} и {ExternalId}",
+					phoneNumber,
+					counterpartyContactInfoDto.ExternalCounterpartyId);
 				return _counterpartyModelFactory.CreateSuccessCounterpartyIdentificationDto(externalCounterparty);
 			}
 			
@@ -198,27 +204,7 @@ namespace CustomerAppsApi.Models
 			}
 			
 			//Создаем нового контрагента и валидируем полученную сущность
-			var counterparty = new Counterparty();
-			
-			switch(counterpartyDto.PersonType)
-			{
-				case PersonType.legal:
-					counterparty.Name = counterpartyDto.Name;
-					counterparty.FullName = counterpartyDto.FullName ?? counterpartyDto.Name;
-					counterparty.TypeOfOwnership = counterpartyDto.TypeOfOwnership;
-					counterparty.TaxType = counterpartyDto.TaxType.Value;
-					counterparty.INN = counterpartyDto.Inn;
-					counterparty.KPP = counterpartyDto.Kpp;
-					counterparty.JurAddress = counterpartyDto.JurAddress;
-					break;
-				case PersonType.natural:
-					counterparty.FirstName = counterpartyDto.FirstName;
-					counterparty.Surname = counterpartyDto.Surname;
-					counterparty.Patronymic = counterpartyDto.Patronymic;
-					counterparty.Name = $"{counterparty.Surname} {counterparty.FirstName} {counterparty.Patronymic}";
-					break;
-			}
-
+			var counterparty = _counterpartyFactory.CreateCounterpartyFromExternalSource(counterpartyDto);
 			counterparty.CameFrom = _uow.GetById<ClientCameFrom>(counterpartyDto.CameFromId);
 
 			//Создаем новый контакт для клиента
@@ -248,6 +234,7 @@ namespace CustomerAppsApi.Models
 				counterpartyDto.ExternalCounterpartyId,
 				counterpartyDto.PhoneNumber,
 				counterparty.Id);
+			
 			return _counterpartyModelFactory.CreateRegisteredCounterpartyRegistrationDto(counterparty.Id);
 		}
 

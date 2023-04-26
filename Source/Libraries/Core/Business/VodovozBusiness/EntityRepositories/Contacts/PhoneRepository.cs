@@ -14,11 +14,6 @@ namespace Vodovoz.EntityRepositories
 {
 	public class PhoneRepository : IPhoneRepository
 	{
-		public PhoneRepository()
-		{
-			
-		}
-		
 		#region PhoneType
 
 		public IList<PhoneType> GetPhoneTypes(IUnitOfWork uow)

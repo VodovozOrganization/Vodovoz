@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace CustomerAppsApi.Controllers
 {
 	[ApiController]
-	[Route("[controller]")]
+	[Route("/api/")]
 	public class CounterpartyController : ControllerBase
 	{
 		private readonly ILogger<CounterpartyController> _logger;
@@ -22,7 +22,7 @@ namespace CustomerAppsApi.Controllers
 		}
 
 		[HttpPost]
-		[Route("/api/GetCounterparty")]
+		[Route("GetCounterparty")]
 		public CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto)
 		{
 			try
@@ -37,7 +37,7 @@ namespace CustomerAppsApi.Controllers
 		}
 		
 		[HttpPost]
-		[Route("/api/RegisterCounterparty")]
+		[Route("RegisterCounterparty")]
 		public CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto)
 		{
 			try
@@ -52,7 +52,7 @@ namespace CustomerAppsApi.Controllers
 		}
 		
 		[HttpPost]
-		[Route("/api/UpdateCounterpartyInfo")]
+		[Route("UpdateCounterpartyInfo")]
 		public CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto)
 		{
 			try

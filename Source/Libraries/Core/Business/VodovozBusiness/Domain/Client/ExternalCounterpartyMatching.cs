@@ -68,12 +68,4 @@ namespace Vodovoz.Domain.Client
 			Status = ExternalCounterpartyMatchingStatus.Processed;
 		}
 	}
-
-	public enum ExternalCounterpartyMatchingStatus
-	{
-		[Display(Name = "Ожидает обработки")]
-		AwaitingProcessing,
-		[Display(Name = "Обработан")]
-		Processed
-	}
 }
