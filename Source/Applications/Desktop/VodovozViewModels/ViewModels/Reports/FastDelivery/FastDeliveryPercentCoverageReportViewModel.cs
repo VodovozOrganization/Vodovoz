@@ -209,18 +209,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 				var routeListsIds = query.Select(Projections.Property(() => routeListAlias.Id)).List<int>().ToArray();
 
-				var lastDriversCoordinates = _trackRepository.GetLastPointForRouteLists(UoW, routeListsIds, date);
+				var lastDriversCoordinates = _trackRepository.GetLastPointForRouteListsWithRadius(UoW, routeListsIds, date);
 
 				var carsCount = lastDriversCoordinates.Count;
-
-				var serviceRadiusAtDateTime = _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date);
+				
+				var serviceRadiusAtDateTime =
+					carsCount > 0 
+					? lastDriversCoordinates.Average(d => d.FastDeliveryRadius)
+					: _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date);
+								
 
 				var activeDistrictsAtDateTime = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDeliveryAtDateTime(UoW, date).Select(d => d.DistrictBorder);
 
 				var percentCoverage = DistanceCalculator.CalculateCoveragePercent(
 					activeDistrictsAtDateTime.ToList(),
-					lastDriversCoordinates.Select(coordinate => coordinate.ToCoordinate()).ToList(),
-					serviceRadiusAtDateTime);
+					lastDriversCoordinates);
 
 				rawRows.Add(new ValueRow(date, carsCount, serviceRadiusAtDateTime, percentCoverage));
 			}

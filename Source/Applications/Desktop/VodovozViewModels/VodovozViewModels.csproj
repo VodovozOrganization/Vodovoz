@@ -42,6 +42,7 @@
     <Reference Include="mscorlib" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dialogs\Complaints\ComplaintsJournalsViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />
     <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
@@ -62,6 +63,8 @@
     <Compile Include="Factories\IRoboatsViewModelFactory.cs" />
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="Infrastructure\InfoProviders\CurrentObjectChangedArgs.cs" />
+    <Compile Include="Infrastructure\InfoProviders\ICustomWidthInfoProvider.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSelectionChangedEventArgs.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSetSelectionChanged.cs" />
     <Compile Include="Infrastructure\Services\IStoreDocumentHelper.cs" />
@@ -93,6 +96,7 @@
     <Compile Include="Journals\JournalViewModels\Client\EdoOperatorsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\ExternalCounterpartiesMatchingJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Client\PhonesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Complaints\ComplaintsWithDepartmentsReactionJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Organizations\OrganizationOwnershipTypeJournalViewModel.cs" />
@@ -108,6 +112,7 @@
     <Compile Include="Journals\JournalViewModels\TrueMark\CashReceiptsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Store\WarehouseDocumentsItemsJournalViewModel.cs" />
     <Compile Include="TempAdapters\IComplaintDetalizationAutocompleteSelectionFactory.cs" />
+    <Compile Include="TempAdapters\IComplaintsJournalFactory.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintDetalizationViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyDetailsFromRevenueServiceViewModel.cs" />
     <Compile Include="ViewModels\Employees\EmployeeRegistrationViewModel.cs" />
@@ -129,6 +134,7 @@
     <Compile Include="ViewModels\Counterparty\EdoOperatorViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarsMonitoringViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListFastDeliveryMaxDistanceViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageCheckViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListMileageDistributionNode.cs" />
@@ -447,6 +453,7 @@
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintsJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\ComplaintsJournalReport\ComplaintWithDepartmentsReactionJournalReport.cs" />
     <Compile Include="ViewModels\Reports\Counterparty\CounterpartyRevenueServiceReport.cs" />
     <Compile Include="ViewModels\Reports\DebtorsJournalReport\DebtorsJournalReport.cs" />
     <Compile Include="ViewModels\Reports\EdoUpdReport\EdoUpdReport.cs" />
@@ -488,6 +495,25 @@
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportNode.cs" />
     <Compile Include="ViewModels\Reports\ProductionWarehouseMovementReport\ProductionWarehouseMovementReportTitleNode.cs" />
     <Compile Include="ViewModels\Reports\SalaryByEmployeeJournalReport\SalaryByEmployeeJournalReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.DisplayRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.HeaderRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReportViewModel.AmountPricePair.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReportViewModel.ResidueDataNode.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.Row.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReportViewModel.SalesDataNode.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.SubHeaderRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.SubTotalRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReport.TotalRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.DisplayRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.HeaderRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.Row.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.SalesBySubdivisionRowPart.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.SubHeaderRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.SubTotalRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.TotalRow.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.GroupingBy.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.MeasurementUnit.cs" />
@@ -628,6 +654,7 @@
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintDetalizationJournalViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ComplaintDetalizationJournalNode.cs" />
     <Compile Include="Journals\FilterViewModels\Complaints\ComplaintDetalizationJournalFilterViewModel.cs" />
+    <Compile Include="ViewModels\Settings\SubdivisionSettingsViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
@@ -647,7 +674,7 @@
       <Name>RabbitMQ.Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\RevenueService.Client\RevenueService.Client.csproj">
-      <Project>{08DCE339-CA3B-4D68-AF84-9625483283D5}</Project>
+      <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Editing\Vodovoz.Reports.Editing.csproj">
@@ -746,6 +773,9 @@
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NLog" Version="5.0.1" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.0.1" />
+    <PackageReference Include="OneOf">
+      <Version>3.0.243</Version>
+    </PackageReference>
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />

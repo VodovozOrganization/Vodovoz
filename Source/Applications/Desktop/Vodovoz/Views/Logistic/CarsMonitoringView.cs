@@ -10,7 +10,6 @@ using QS.Utilities;
 using QS.Views.GtkUI;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -53,11 +52,12 @@ namespace Vodovoz.Views.Logistic
 			_lastSelectedDrivers = new Dictionary<int, CarMarkerType>();
 			_tracksDistanceTextInfo = new List<DistanceTextInfo>();
 
-			_timeoutTimerHandler = new GLib.TimeoutHandler(UpdateCarPosition);
+			_timeoutTimerHandler = new GLib.TimeoutHandler(AutoRefresh);
 
 			Build();
 
 			ybtnOpenKeeping.Binding.AddBinding(ViewModel, vm => vm.CanOpenKeepingTab, w => w.Sensitive);
+			ybtnChangeFastDeliveryDistance.Binding.AddBinding(ViewModel, vm => vm.CanEditRouteListFastDeliveryMaxDistance, w => w.Sensitive);
 
 			ytbtnShowAddressesList.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowAddresses, w => w.Active)
@@ -128,7 +128,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			if(ViewModel.ShowHistory)
 			{
-				GLib.Source.Remove(_timerId);
+				Source.Remove(_timerId);
 			}
 			else
 			{
@@ -155,6 +155,7 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Имя").AddTextRenderer(node => node.ShortName)
 				.AddColumn("Машина").AddTextRenderer().AddSetter((c, node) => c.Markup = node.CarText)
 				.AddColumn("МЛ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.RouteListsText)
+				.AddColumn("Радиус").AddTextRenderer().AddSetter((c, node) => c.Markup = node.FastDeliveryMaxDistanceString)
 				.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent).AddSetter((c, n) => c.Text = n.CompletedText)
 				.AddColumn("Остаток бут.").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.BottlesLeft:N0}")
 				.AddColumn("Остаток запаса").AddTextRenderer().AddSetter((c, node) => c.Markup = $"{node.Water19LReserve:N0}")
@@ -166,7 +167,6 @@ namespace Vodovoz.Views.Logistic
 
 		private void SubscribeToEvents()
 		{
-			ViewModel.WorkingDriversChanged += yTreeViewDrivers.YTreeModel.EmitModelChanged;
 			ViewModel.RouteListAddressesChanged += yTreeAddresses.YTreeModel.EmitModelChanged;
 			ViewModel.FastDeliveryDistrictChanged += UpdateDeliveryDistrictsOverlay;
 			ViewModel.WorkingDriversChanged += WorkingDriversChanged;
@@ -176,6 +176,7 @@ namespace Vodovoz.Views.Logistic
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			yTreeViewDrivers.RowActivated += OnYTreeViewDriversRowActivated;
 			ybtnOpenKeeping.Clicked += OnButtonOpenKeepingClicked;
+			ybtnChangeFastDeliveryDistance.Clicked += OnButtonChangeFastDeliveryDistanceClicked;
 			ychkbtnShowHistory.Toggled += ShowHistoryToggled;
 
 			ybuttonTrackPoints.Clicked += OnButtonTrackPointsClicked;
@@ -187,9 +188,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void UnSubscribeFromEvents()
 		{
-			ViewModel.WorkingDriversChanged -= yTreeViewDrivers.YTreeModel.EmitModelChanged;
 			ViewModel.RouteListAddressesChanged -= yTreeAddresses.YTreeModel.EmitModelChanged;
-
 			ViewModel.FastDeliveryDistrictChanged -= UpdateDeliveryDistrictsOverlay;
 			ViewModel.WorkingDriversChanged -= WorkingDriversChanged;
 			
@@ -198,6 +197,7 @@ namespace Vodovoz.Views.Logistic
 			yTreeViewDrivers.Selection.Changed -= OnSelectionChanged;
 			yTreeViewDrivers.RowActivated -= OnYTreeViewDriversRowActivated;
 			ybtnOpenKeeping.Clicked -= OnButtonOpenKeepingClicked;
+			ybtnChangeFastDeliveryDistance.Clicked -= OnButtonChangeFastDeliveryDistanceClicked;
 			ychkbtnShowHistory.Toggled -= ShowHistoryToggled;
 
 			ybuttonTrackPoints.Clicked -= OnButtonTrackPointsClicked;
@@ -212,6 +212,7 @@ namespace Vodovoz.Views.Logistic
 			_tracksOverlay.Clear();
 			_carsOverlay.Clear();
 			UpdateCarPosition();
+			yTreeViewDrivers.ItemsDataSource = ViewModel.WorkingDrivers;
 		}
 
 		private void SelectedDriversChanged()
@@ -237,6 +238,8 @@ namespace Vodovoz.Views.Logistic
 					_lastSelectedDrivers.Remove(pair.Key);
 				}
 			}
+
+			ViewModel.CanEditRouteListFastDeliveryMaxDistance = ViewModel.SelectedWorkingDrivers.Count == 1;
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -297,8 +300,7 @@ namespace Vodovoz.Views.Logistic
 		private void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
 			_logger.Info("Обновляем данные диалога...");
-			ViewModel.RefreshWorkingDriversCommand?.Execute();
-			ViewModel.RefreshFastDeliveryDistrictsCommand?.Execute();
+			ViewModel.RefreshAllCommand.Execute();
 			_logger.Info("Ок");
 			UpdateCarPosition();
 		}
@@ -316,6 +318,18 @@ namespace Vodovoz.Views.Logistic
 				foreach(var routeListId in driver.RouteListsIds.Select(x => x.Key))
 				{
 					ViewModel.OpenKeepingDialogCommand?.Execute(routeListId);
+				}
+			}
+		}
+
+		private void OnButtonChangeFastDeliveryDistanceClicked(object sender, EventArgs e)
+		{
+			var selectedDrivers = ViewModel.SelectedWorkingDrivers;
+			foreach(var driver in selectedDrivers)
+			{
+				foreach(var routeListId in driver.RouteListsIds.Select(x => x.Key))
+				{
+					ViewModel.ChangeRouteListFastDeliveryMaxDistanceCommand?.Execute(routeListId);
 				}
 			}
 		}
@@ -391,6 +405,34 @@ namespace Vodovoz.Views.Logistic
 			SelectedDriversChanged();
 		}
 
+		private bool AutoRefresh()
+		{
+			try
+			{
+				var selectedRows = yTreeViewDrivers.Selection.GetSelectedRows();
+				var position = yTreeViewDrivers.Vadjustment.Value;
+
+				Application.Invoke((s, arg) => ViewModel.RefreshWorkingDriversCommand?.Execute());
+
+				GtkHelper.WaitRedraw();
+
+				foreach(var row in selectedRows)
+				{
+					yTreeViewDrivers.Selection.SelectPath(row);
+				}
+
+				yTreeViewDrivers.Vadjustment.Value = position;
+			}
+			catch(Exception e)
+			{
+				_logger.Error("Ошибка при автообновлении: {AutoRefreshError}", e);
+
+				return false;
+			}
+
+			return true;
+		}
+
 		private bool UpdateCarPosition()
 		{
 			try
@@ -446,7 +488,7 @@ namespace Vodovoz.Views.Logistic
 					{
 						_fastDeliveryCarCirclesOverlay.Polygons.Add(CustomPolygons.CreateCirclePolygon(
 							lastPoint.ToPointLatLng(),
-							ViewModel.FastDeliveryMaxDistance,
+							lastPoint.FastDeliveryRadius,
 							ViewModel.FastDeliveryCircleFillColor));
 					}
 
@@ -689,9 +731,13 @@ namespace Vodovoz.Views.Logistic
 
 		public override void Destroy()
 		{
-			GLib.Source.Remove(_timerId);
+			Source.Remove(_timerId);
 			gmapWidget.Destroy();
 			_mapSeparateWindow?.Destroy();
+			yTreeViewDrivers?.Destroy();
+			yTreeAddresses?.Destroy();
+			yspeccomboboxHistoryHour.Destroy();
+			yenumcomboMapType.Destroy();
 			base.Destroy();
 		}
 

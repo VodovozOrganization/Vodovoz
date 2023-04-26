@@ -691,7 +691,7 @@ namespace Vodovoz.ViewModels.Complaints
 					.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
 					.Select(s => s.Name);
 
-				if(Entity.ComplaintResultOfEmployees.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
+				if(Entity.ComplaintResultOfEmployees?.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
 					&& interserctedSubdivisionsToInformIds.Any()
 					&& Entity.Driver is null
 					&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",

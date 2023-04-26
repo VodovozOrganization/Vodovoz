@@ -4,7 +4,6 @@ using NSubstitute;
 using Vodovoz.Domain.Employees;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace VodovozBusinessTests.Employees
 {
@@ -79,7 +78,7 @@ namespace VodovozBusinessTests.Employees
 		public void ChangeTraineeToEmployeeTestCase()
 		{
 			//Тестируемое действие
-			Personnel.ChangeTraineeToEmployee(uowEmployeeMock, traineeMock);
+			Personnel.ChangeTraineeToEmployee(uowEmployeeMock.Root, traineeMock);
 
 			//Проверка результата
 			string output = "Не верно перенесены следующие свойства: ";

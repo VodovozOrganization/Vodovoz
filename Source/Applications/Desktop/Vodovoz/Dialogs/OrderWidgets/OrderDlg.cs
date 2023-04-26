@@ -353,7 +353,7 @@ namespace Vodovoz
 
 		public OrderDlg()
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
 			Entity.Author = _currentEmployee = _employeeService.GetEmployeeForUser(UoW, _userRepository.GetCurrentUser(UoW).Id);
 			if(Entity.Author == null)
@@ -401,17 +401,15 @@ namespace Vodovoz
 
 			AddCommentsFromDeliveryPoint();
 			CheckForStopDelivery();
-			UpdateOrderAddressTypeWithUI();
 		}
 
 		public OrderDlg(int id)
 		{
-			this.Build();
+			Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
 			IsForRetail = UoWGeneric.Root.Client.IsForRetail;
 			IsForSalesDepartment = UoWGeneric.Root.Client.IsForSalesDepartment;
 			ConfigureDlg();
-			UpdateOrderAddressTypeWithUI();
 		}
 
 		public OrderDlg(Order sub) : this(sub.Id)
@@ -423,10 +421,11 @@ namespace Vodovoz
 		/// </summary>
 		/// <param name="copiedOrder">Конструктор копирует заказ по Id заказа</param>
 		/// <param name="NeedCopy"><c>true</c> копировать заказ, <c>false</c> работает как обычный конструктор.</param>
-		public OrderDlg(Order copiedOrder, bool NeedCopy) : this()
+		public OrderDlg(int orderId, bool NeedCopy) : this()
 		{
 			if(NeedCopy)
 			{
+				var copiedOrder = UoW.GetById<Order>(orderId);
 				Entity.Client = UoW.GetById<Counterparty>(copiedOrder.Client.Id);
 
 				if(copiedOrder.DeliveryPoint != null)
@@ -444,8 +443,6 @@ namespace Vodovoz
 				CheckForStopDelivery();
 				AddCommentsFromDeliveryPoint();
 			}
-
-			UpdateOrderAddressTypeWithUI();
 		}
 
 		public void CopyOrderFrom(int orderId)
@@ -456,15 +453,14 @@ namespace Vodovoz
 				.CopyFields()
 				.CopyStockBottle()
 				.CopyPromotionalSets()
-				.CopyOrderItems(true, true)
+				.CopyOrderItems(true, true, true)
 				.CopyPaidDeliveryItem()
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
 
 			Entity.IsCopiedFromUndelivery = true;
-			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard
-				&& MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?"))
+			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard)
 			{
 				var currentPaymentFromTypes = ySpecPaymentFrom.ItemsList.Cast<PaymentFrom>().ToList();
 
@@ -494,15 +490,19 @@ namespace Vodovoz
 				.CopyFields(
 					x => x.Client,
 					x => x.DeliveryPoint,
-					x => x.OrderAddressType,
 					x => x.PaymentType,
-					x => x.ContactPhone
-				)
+					x => x.OrderAddressType,
+					x => x.ContactPhone)
 				.CopyPromotionalSets()
 				.CopyOrderItems()
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
+
+			if(Entity.Client.PersonType == PersonType.legal)
+			{
+				Entity.PaymentType = Entity.Client.PaymentMethod;
+			}
 
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
@@ -525,8 +525,7 @@ namespace Vodovoz
 			_canChoosePremiumDiscount =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
 			_nomenclatureFixedPriceProvider =
-				new NomenclatureFixedPriceController(
-					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(NomenclatureRepository));
+				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
@@ -604,8 +603,8 @@ namespace Vodovoz
 				.AddFuncBinding(Entity, s => s.CreateDate.HasValue ? s.CreateDate.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp)
 				.InitializeFromSource();
 
-			ylabelOrderStatus.Binding.AddFuncBinding(Entity, e => e.OrderStatus.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
-			ylabelOrderAddressType.Binding.AddFuncBinding(Entity, e => "Тип адреса: " + e.OrderAddressType.GetEnumTitle(), w => w.LabelProp)
+			ylabelOrderStatus.Binding
+				.AddFuncBinding(Entity, e => e.OrderStatus.GetEnumTitle(), w => w.LabelProp)
 				.InitializeFromSource();
 			ylabelNumber.Binding
 				.AddFuncBinding(Entity, e => e.Code1c + (e.DailyNumber.HasValue ? $" ({e.DailyNumber})" : ""), w => w.LabelProp)
@@ -625,6 +624,7 @@ namespace Vodovoz
 
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
+
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			pickerBillDate.Binding.AddBinding(Entity, s => s.BillDate, w => w.DateOrNull).InitializeFromSource();
 
@@ -794,7 +794,7 @@ namespace Vodovoz
 					OnFormOrderActions();
 				}
 
-				UpdateOrderAddressTypeWithUI();
+				UpdateOrderAddressTypeUI();
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -898,7 +898,7 @@ namespace Vodovoz
 			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
 			chkPaymentByQr.Binding.AddBinding(Entity, e => e.PaymentByQr, w => w.Active).InitializeFromSource();
 
-			UpdateOrderAddressTypeWithUI();
+			UpdateOrderAddressTypeUI();
 
 			Entity.InteractiveService = new CastomInteractiveService();
 
@@ -915,15 +915,10 @@ namespace Vodovoz
 						break;
 					case nameof(Order.Client):
 						UpdateAvailableEnumSignatureTypes();
-						if(Entity.Client != null && Entity.Client.IsChainStore && !Entity.OrderItems.Any(x => x.IsMasterNomenclature))
-						{
-							Entity.OrderAddressType = OrderAddressType.ChainStore;
-						}
-
 						UpdateOrderAddressTypeWithUI();
 						break;
 					case nameof(Entity.OrderAddressType):
-						UpdateOrderAddressTypeWithUI();
+						UpdateOrderAddressTypeUI();
 						break;
 					case nameof(Entity.Client.IsChainStore):
 						UpdateOrderAddressTypeWithUI();
@@ -937,8 +932,13 @@ namespace Vodovoz
 				Entity.CheckDocumentExportPermissions();
 			}
 
-			ybuttonToStorageLogicAddressType.Sensitive = ybuttonToDeliveryAddressType.Sensitive =
+			ylabelOrderAddressType.Binding
+				.AddFuncBinding(Entity, e => "Тип адреса: " + e.OrderAddressType.GetEnumTitle(), w => w.LabelProp)
+				.InitializeFromSource();
+			var canChangeOrderAddressType =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_order_address_type");
+			ybuttonToStorageLogicAddressType.Sensitive = canChangeOrderAddressType;
+			ybuttonToDeliveryAddressType.Sensitive = canChangeOrderAddressType;
 
 			UpdateAvailableEnumSignatureTypes();
 
@@ -1302,7 +1302,7 @@ namespace Vodovoz
 						if(Entity.OrderStatus == OrderStatus.NewOrder || (Entity.OrderStatus == OrderStatus.WaitForPayment && !Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
 							c.ForegroundGdk = colorBlack;
-							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature);
+							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature, node.TotalCountInOrder);
 							if(fixedPrice != null && node.PromoSet == null) {
 								c.ForegroundGdk = colorGreen;
 							} else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
@@ -1311,6 +1311,8 @@ namespace Vodovoz
 						}
 					})
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("Альтерн.\nцена")
+					.AddToggleRenderer(x => x.IsAlternativePrice).Editing(false)
 				.AddColumn("В т.ч. НДС")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS ?? 0))
@@ -2549,9 +2551,10 @@ namespace Vodovoz
 
 		public void FillOrderItems(Order order)
 		{
-
 			if(Entity.OrderStatus != OrderStatus.NewOrder
-			   || Entity.ObservableOrderItems.Any() && !MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите удалить все позиции текущего из заказа и заполнить его позициями из выбранного?")) {
+				|| Entity.ObservableOrderItems.Any() && !MessageDialogHelper.RunQuestionDialog(
+					"Вы уверены, что хотите удалить все позиции из текущего заказа и заполнить его позициями из выбранного?"))
+			{
 				return;
 			}
 
@@ -2569,7 +2572,8 @@ namespace Vodovoz
 						continue;
 				}
 			}
-			Entity?.RecalculateItemsPrice();
+			Entity.RecalculateItemsPrice();
+			UpdateOrderAddressTypeWithUI();
 		}
 		#endregion
 
@@ -3374,6 +3378,14 @@ namespace Vodovoz
 				foreach(var i in aIdx) {
 					OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
 
+					if(oItem?.CopiedFromUndelivery == null)
+					{
+						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : oItem.Count;
+						oItem.IsAlternativePrice = Entity.HasPermissionsForAlternativePrice
+						                           && oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
+						                           && oItem.GetWaterFixedPrice() == null;
+					}
+
 					FixPrice(aIdx[0]);
 
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
@@ -3815,6 +3827,13 @@ namespace Vodovoz
 				return;
 			}
 
+			if(Entity.Client.PaymentMethod != Entity.PaymentType
+				&& !MessageDialogHelper.RunQuestionDialog($"Вы выбрали форму оплаты &lt;{Entity.PaymentType.GetEnumTitle()}&gt;." +
+				$" У клиента по умолчанию установлено &lt;{Entity.Client.PaymentMethod.GetEnumTitle()}&gt;. Вы уверены, что хотите продолжить?"))
+			{
+				return;
+			}
+
 			_summaryInfoBuilder.Clear();
 
 			var clientFIO = Entity.Client.FullName.ToUpper();
@@ -3832,7 +3851,17 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblPhoneNumber.Text} {phone}").AppendLine();
 
-			var deliveryDate = Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
+			var todayTommorowLable = string.Empty;
+			if(Entity.DeliveryDate?.Date == DateTime.Today.Date)
+			{
+				todayTommorowLable = "Сегодня, ";
+			}
+			if(Entity.DeliveryDate?.Date == DateTime.Today.Date.AddDays(1))
+			{
+				todayTommorowLable = "Завтра, ";
+			}
+
+			var deliveryDate = todayTommorowLable + Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
 			ylblDeliveryDate.Text = deliveryDate;
 
 			_summaryInfoBuilder.AppendLine($"{lblDeliveryDate.Text} {deliveryDate}").AppendLine();
@@ -4014,7 +4043,7 @@ namespace Vodovoz
 				.Where(oe => oe.OwnType == OwnTypes.Rent
 					&& oe.Reason == Reason.Rent
 					&& oe.Direction == Domain.Orders.Direction.Deliver
-					&& oe.OrderRentDepositItem.RentType == OrderRentType.DailyRent)
+					&& oe.OrderRentDepositItem?.RentType == OrderRentType.DailyRent)
 				.Select(oe => (oe.Nomenclature, oe.Count)).ToList();
 
 			foreach(var equipmentItem in equipmentItems)
@@ -4252,7 +4281,11 @@ namespace Vodovoz
 		private void UpdateOrderAddressTypeWithUI()
 		{
 			Entity.UpdateAddressType();
-
+			UpdateOrderAddressTypeUI();
+		}
+		
+		private void UpdateOrderAddressTypeUI()
+		{
 			if(Entity.SelfDelivery)
 			{
 				ylabelOrderAddressType.Visible = false;

@@ -44,6 +44,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Additions;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
@@ -95,6 +96,7 @@ using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.Services;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
+using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -130,6 +132,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Orders;
@@ -157,6 +160,7 @@ using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
+using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Retail;
 using Vodovoz.ViewModels.ViewModels.Sale;
 using Vodovoz.ViewModels.ViewModels.Security;
@@ -268,6 +272,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<EmployeeWageParameterViewModel, WageParameterView>()
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
+				.RegisterWidgetForTabViewModel<RouteListFastDeliveryMaxDistanceViewModel, RouteListFastDeliveryMaxDistanceView>()
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
 				.RegisterWidgetForTabViewModel<DriverWorkScheduleSetViewModel, DriverWorkScheduleSetView>()
 				.RegisterWidgetForTabViewModel<DriverDistrictPrioritySetViewModel, DriverDistrictPrioritySetView>()
@@ -334,6 +339,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<TariffZoneViewModel, TariffZoneView>()
 				.RegisterWidgetForTabViewModel<DeliveryScheduleViewModel, DeliveryScheduleView>()
 				.RegisterWidgetForTabViewModel<RoboatsCatalogExportViewModel, RoboatsCatalogExportView>()
+				.RegisterWidgetForTabViewModel<ComplaintsJournalsViewModel, ComplaintsJournalsView>()
 				.RegisterWidgetForTabViewModel<RoboatsWaterTypeViewModel, RoboatsWaterTypeView>()
 				.RegisterWidgetForTabViewModel<RoboatsStreetViewModel, RoboatsStreetView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryAvailabilityHistoryViewModel, FastDeliveryAvailabilityHistoryView>()
@@ -433,6 +439,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UsersJournalFilterViewModel, UsersJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<CarsMonitoringViewModel, CarsMonitoringView>()
 				.RegisterWidgetForWidgetViewModel<TurnoverWithDynamicsReportViewModel, TurnoverWithDynamicsReportView>()
+				.RegisterWidgetForWidgetViewModel<SalesBySubdivisionsAnalitycsReportViewModel, SalesBySubdivisionsAnalitycsReportView>()
 				.RegisterWidgetForWidgetViewModel<FastDeliveryPercentCoverageReportViewModel, FastDeliveryPercentCoverageReportView>()
 				.RegisterWidgetForWidgetViewModel<CashReceiptJournalFilterViewModel, TrueMarkReceiptJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehouseDocumentsItemsJournalFilterViewModel, WarehouseDocumentsItemsJournalFilterView>()
@@ -622,6 +629,7 @@ namespace Vodovoz
 			builder.RegisterType<UndeliveredOrdersJournalOpener>().As<IUndeliveredOrdersJournalOpener>();
 			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 			builder.RegisterType<GtkReportViewOpener>().As<IReportViewOpener>().SingleInstance();
+			builder.RegisterType<RoboatsJournalsFactory>().AsSelf().InstancePerLifetimeScope();
 
 			builder.RegisterAssemblyTypes(
 					Assembly.GetExecutingAssembly(),
@@ -670,6 +678,7 @@ namespace Vodovoz
 			builder.RegisterType<UsersPresetPermissionValuesGetter>().AsSelf();
 			builder.RegisterType<UsersEntityPermissionValuesGetter>().AsSelf();
 			builder.RegisterType<UserPermissionsExporter>().AsSelf();
+			builder.RegisterType<AuthorizationService>().As<IAuthorizationService>();
 
 			#endregion
 
@@ -826,6 +835,14 @@ namespace Vodovoz
 			builder.Register(c => CurrentUserSettings.Settings).As<UserSettings>();
 
 			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
+
+			builder.RegisterType<PasswordGenerator>().As<IPasswordGenerator>();
+
+			#endregion
+
+			#region InfoPanelViews
+
+			builder.RegisterType<CarsMonitoringInfoPanelView>().AsSelf();
 
 			#endregion
 		}

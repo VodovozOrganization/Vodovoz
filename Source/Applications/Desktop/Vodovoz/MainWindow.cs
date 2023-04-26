@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
 using Gtk;
@@ -62,6 +62,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
@@ -109,6 +110,7 @@ using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Roboats;
@@ -152,6 +154,7 @@ using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
+using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Interfaces;
@@ -170,7 +173,10 @@ public partial class MainWindow : Gtk.Window
 	private readonly IPasswordValidator passwordValidator;
 	private readonly IApplicationConfigurator applicationConfigurator;
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
+	private readonly IComplaintNotificationController _complaintNotificationController;
 	private readonly bool _hasAccessToSalariesForLogistics;
+	private readonly int _currentUserSubdivisionId;
+	private readonly bool _hideComplaintsNotifications;
 
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
@@ -191,6 +197,7 @@ public partial class MainWindow : Gtk.Window
 		var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
 		var keepTabColor = CurrentUserSettings.Settings.KeepTabColor;
 		var reorderTabs = CurrentUserSettings.Settings.ReorderTabs;
+		_hideComplaintsNotifications = CurrentUserSettings.Settings.HideComplaintNotification;
 		var tabsParametersProvider = new TabsParametersProvider(new ParametersProvider());
 		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
 		TDIMain.SetTabsReordering(reorderTabs);
@@ -316,11 +323,11 @@ public partial class MainWindow : Gtk.Window
 		#endregion
 
 		#region Уведомление об отправленных перемещениях для подразделения
-
+		
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			var employeeSubdivisionId = GetEmployeeSubdivisionId(uow);
-			_movementsNotificationsController = autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), employeeSubdivisionId));
+			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
+			_movementsNotificationsController = autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
@@ -332,9 +339,30 @@ public partial class MainWindow : Gtk.Window
 			}
 		}
 
-		btnUpdateMovementsNotification.Clicked += OnBtnUpdateMovementsNotificationClicked;
+		btnUpdateNotifications.Clicked += OnBtnUpdateNotificationClicked;
 
 		#endregion
+
+		#region Уведомление о наличии незакрытых рекламаций без комментариев в добавленной дискуссии для отдела
+
+		_complaintNotificationController = autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
+		
+		if (!_hideComplaintsNotifications)
+		{
+			_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
+
+			var complaintNotificationDetails = GetComplaintNotificationDetails();
+			UpdateSendedComplaintsNotification(complaintNotificationDetails);
+
+			btnOpenComplaint.Clicked += OnBtnOpenComplaintClicked;
+		}
+		else
+		{
+			hboxComplaintsNotification.Visible = false;
+		}
+		#endregion
+
+		hboxNotifications.Visible = hboxMovementsNotification.Visible || !_hideComplaintsNotifications;
 
 		BanksUpdater.CheckBanksUpdate(false);
 
@@ -403,8 +431,7 @@ public partial class MainWindow : Gtk.Window
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ProfitabilitySalesReportViewModel));
 	}
 
-	#region Методы для уведомления об отправленных перемещениях для подразделения
-
+	#region Уведомления об отправленных перемещениях и о наличии рекламаций
 	private int GetEmployeeSubdivisionId(IUnitOfWork uow)
 	{
 		var currentEmployee =
@@ -413,12 +440,19 @@ public partial class MainWindow : Gtk.Window
 		return currentEmployee?.Subdivision.Id ?? 0;
 	}
 
-	private void OnBtnUpdateMovementsNotificationClicked(object sender, EventArgs e)
+	#region Методы для уведомления об отправленных перемещениях для подразделения
+	private void OnBtnUpdateNotificationClicked(object sender, EventArgs e)
 	{
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			var notification = _movementsNotificationsController.GetNotificationMessageBySubdivision(uow);
-			UpdateSendedMovementsNotification(notification);
+			var movementsNotification = _movementsNotificationsController.GetNotificationMessageBySubdivision(uow);
+			UpdateSendedMovementsNotification(movementsNotification);
+		}
+
+		if(!_hideComplaintsNotifications)
+		{
+			var complaintsNotifications = GetComplaintNotificationDetails();
+			UpdateSendedComplaintsNotification(complaintsNotifications);
 		}
 	}
 
@@ -426,6 +460,43 @@ public partial class MainWindow : Gtk.Window
 	{
 		lblMovementsNotification.Markup = notification;
 	}
+	#endregion
+
+	#region Методы для уведомления о наличии незакрытых рекламаций без комментариев для подразделения
+	private void UpdateSendedComplaintsNotification(SendedComplaintNotificationDetails notificationDetails)
+	{
+		lblComplaintsNotification.Markup = notificationDetails.NotificationMessage;
+		hboxComplaintsNotification.Visible = notificationDetails.NeedNotify;
+	}
+
+	private SendedComplaintNotificationDetails GetComplaintNotificationDetails()
+	{
+		SendedComplaintNotificationDetails notificationDetails;
+
+		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			notificationDetails = _complaintNotificationController.GetNotificationDetails(uow);
+		}
+
+		return notificationDetails;
+	}
+
+	private void OnBtnOpenComplaintClicked(object sender, EventArgs e)
+	{
+		var notificationDetails = GetComplaintNotificationDetails();
+
+		UpdateSendedComplaintsNotification(notificationDetails);
+
+		if(notificationDetails.SendedComplaintsCount > 0)
+		{
+			NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
+				null,
+				EntityUoWBuilder.ForOpen(notificationDetails.SendedComplaintsIds.Min()),
+				OpenPageOptions.None
+				);
+		}
+	}
+	#endregion
 
 	#endregion
 
@@ -1078,7 +1149,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)
@@ -2640,6 +2711,11 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionComplaintDetalizationJournalActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<ComplaintDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnSalesBySubdivisionsAnalitycsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<SalesBySubdivisionsAnalitycsReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnExternalCounterpartiesMatchingActionActivated(object sender, EventArgs e)

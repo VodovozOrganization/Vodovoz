@@ -509,12 +509,16 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		protected internal virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, ICallTaskWorker callTaskWorker)
+		protected internal virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, ICallTaskWorker callTaskWorker, bool isEditAtCashier = false)
 		{
 			if(Status == status)
 				return;
 
-			var oldStatus = Status;
+			if(!isEditAtCashier)
+			{
+				CreateDeliveryFreeBalanceOperation(uow, Status, status);
+			}
+
 			Status = status;
 			StatusLastUpdate = DateTime.Now;
 
@@ -540,8 +544,6 @@ namespace Vodovoz.Domain.Logistic
 					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
-
-			CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
 
 			uow.Save(Order);
 		}

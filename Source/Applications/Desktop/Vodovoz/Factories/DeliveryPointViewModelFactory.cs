@@ -56,11 +56,7 @@ namespace Vodovoz.Factories
 
 		public DeliveryPointViewModel GetForOpenDeliveryPointViewModel(int id)
 		{
-			var controller = new NomenclatureFixedPriceController(
-				new NomenclatureFixedPriceFactory(),
-				new WaterFixedPricesGenerator(
-					new NomenclatureRepository(
-						new NomenclatureParametersProvider(_parametersProvider))));
+			var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
 
 			var dpViewModel = new DeliveryPointViewModel(
 				new UserRepository(),
@@ -85,11 +81,7 @@ namespace Vodovoz.Factories
 
 		public DeliveryPointViewModel GetForCreationDeliveryPointViewModel(Counterparty client)
 		{
-			var controller = new NomenclatureFixedPriceController(
-				new NomenclatureFixedPriceFactory(),
-				new WaterFixedPricesGenerator(
-					new NomenclatureRepository(
-						new NomenclatureParametersProvider(_parametersProvider))));
+			var controller = new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
 
 			var dpViewModel = new DeliveryPointViewModel(
 				new UserRepository(),

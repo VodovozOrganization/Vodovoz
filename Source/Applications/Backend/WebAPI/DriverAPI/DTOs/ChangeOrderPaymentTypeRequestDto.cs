@@ -3,10 +3,11 @@ using System;
 
 namespace DriverAPI.DTOs
 {
-	public class ChangeOrderPaymentTypeRequestDto
+	public class ChangeOrderPaymentTypeRequestDto : IActionTimeTrackable
 	{
 		public int OrderId { get; set; }
 		public PaymentDtoType NewPaymentType { get; set; }
-		public DateTime ActionTime { get; set; }
+		public DateTime? ActionTime { get; set; }
+		public DateTime? ActionTimeUtc { get; set; }
 	}
 }

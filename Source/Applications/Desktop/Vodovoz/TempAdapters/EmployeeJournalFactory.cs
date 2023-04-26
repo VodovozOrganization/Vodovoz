@@ -88,24 +88,9 @@ namespace Vodovoz.TempAdapters
 			return new EmployeesJournalViewModel(
 				filterViewModel ?? _employeeJournalFilter ?? new EmployeeFilterViewModel(),
 				_authorizationServiceFactory,
-				_employeeWageParametersFactory,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_employeePostsJournalFactory,
-				_cashDistributionCommonOrganisationProvider,
-				_subdivisionParametersProvider,
-				_wageCalculationRepository,
-				_employeeRepository,
-				_warehouseRepository,
-				_routeListRepository,
-				CurrentUserSettings.Settings,
-				_validationContextFactory,
-				_phonesViewModelFactory,
-				_driverApiUserRegisterEndpoint,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory,
-				_attachmentsViewModelFactory,
-				_navigationManager
+				MainClass.AppDIContainer
 			);
 		}
 
@@ -187,24 +172,9 @@ namespace Vodovoz.TempAdapters
 					return new EmployeesJournalViewModel(
 						filter,
 						_authorizationServiceFactory,
-						_employeeWageParametersFactory,
-						_employeeJournalFactory,
-						_subdivisionJournalFactory,
-						_employeePostsJournalFactory,
-						_cashDistributionCommonOrganisationProvider,
-						_subdivisionParametersProvider,
-						_wageCalculationRepository,
-						_employeeRepository,
-						_warehouseRepository,
-						_routeListRepository,
-						CurrentUserSettings.Settings,
-						_validationContextFactory,
-						_phonesViewModelFactory,
-						_driverApiUserRegisterEndpoint,
 						ServicesConfig.CommonServices,
 						UnitOfWorkFactory.GetDefaultFactory,
-						_attachmentsViewModelFactory,
-						_navigationManager
+						MainClass.AppDIContainer
 					);
 				}
 			);

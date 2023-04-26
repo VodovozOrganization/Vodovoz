@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -40,7 +40,15 @@ namespace Vodovoz.Domain.Goods
         public virtual decimal Price {
             get => price;
             set => SetField(ref price, value);
-        }
+		}
+
+		private int _minCount;
+		[Display(Name = "Минимальное количество")]
+		public virtual int MinCount
+		{
+			get => _minCount;
+			set => SetField(ref _minCount, value);
+		}
 
 		public virtual string Title
 		{
@@ -56,9 +64,15 @@ namespace Vodovoz.Domain.Goods
 
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Price <= 0) {
+            if (Price <= 0) 
+			{
                 yield return new ValidationResult($"Фиксированная цена для {Nomenclature.Name} должна быть больше нуля", new []{ nameof(Price) });
             }
-        }
+
+			if(MinCount < 1)
+			{
+				yield return new ValidationResult($"Значение минимального количества бутылей для {Nomenclature.Name} должно быть больше нуля", new[] { nameof(MinCount) });
+			}
+		}
     }
 }

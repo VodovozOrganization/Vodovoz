@@ -159,19 +159,9 @@ namespace Vodovoz.Domain.Documents
 				TypeOfDefect = typeOfDefect
 			};
 
-			if(reciveType != ReciveTypes.Defective && nomenclature.Id != terminalId)
-			{
-				var deliveryFreeBalanceOperation = new DeliveryFreeBalanceOperation
-				{
-					Amount = -amount,
-					Nomenclature = nomenclature,
-					RouteList = RouteList
-				};
-
-				item.DeliveryFreeBalanceOperation = deliveryFreeBalanceOperation;
-			}
-
 			AddItem(item);
+
+			item.CreateOrUpdateDeliveryFreeBalanceOperation(terminalId);
 		}
 
 		public virtual void UpdateWarehouse()

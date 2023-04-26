@@ -1,6 +1,5 @@
 ﻿using DriverAPI.Library.DTOs;
 using System.Collections.Generic;
-using Vodovoz.Domain.FastPayments;
 
 namespace DriverAPI.DTOs
 {

@@ -147,6 +147,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
 		IList<Order> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		IList<Order> GetOrdersWithSendErrorsForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
+		decimal GetIsAccountableInTrueMarkOrderItemsCount(IUnitOfWork uow, int orderId);
 	}
 
 	public class ClientEquipmentNode

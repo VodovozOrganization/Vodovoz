@@ -112,6 +112,10 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 
 		public string Comment { get; set; }
 
+		public string Source { get; set; } = string.Empty;
+
+		public string Target { get; set; } = string.Empty;
+
 		public string CarNumber { get; set; }
 
 		public int RouteListId { get; set; }

@@ -168,7 +168,9 @@ namespace TrueMarkApi.Controllers
 					var productInstancesInfo = cisesInformation.Select(x =>
 						new ProductInstanceStatus { 
 							IdentificationCode = x.CisInfo.RequestedCis, 
-							Status = GetStatus(x.CisInfo.Status) 
+							Status = GetStatus(x.CisInfo.Status),
+							OwnerInn = x.CisInfo.OwnerInn,
+							OwnerName = x.CisInfo.OwnerName
 						}
 					);
 

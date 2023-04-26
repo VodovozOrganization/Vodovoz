@@ -972,9 +972,8 @@ namespace Vodovoz
 
 		private void ConfigureTabFixedPrices()
 		{
-			var waterFixedPricesGenerator = new WaterFixedPricesGenerator(NomenclatureRepository);
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
-			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory, waterFixedPricesGenerator);
+			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory);
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
 			var nomSelectorFactory = new NomenclatureJournalFactory();
 			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
