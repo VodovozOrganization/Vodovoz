@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -2316,8 +2316,6 @@ LIMIT 1
     IF(route_list_addresses.deposits_collected IS NULL, 0, route_list_addresses.deposits_collected) AS BottlesDeposit,
     route_list_addresses.status AS Status,
     orders.payment_type AS payment_type,
-    orders.payment_by_sms AS payment_by_sms,
-    orders.payment_by_qr AS payment_by_qr,
     orders.order_payment_status AS payment_status
 FROM route_list_addresses
          LEFT JOIN orders ON orders.id = route_list_addresses.order_id
@@ -2511,10 +2509,6 @@ ORDER BY order_in_route
           <DataField>payment_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="payment_by_sms">
-          <DataField>payment_by_sms</DataField>
-          <TypeName>System.Boolean</TypeName>
-        </Field>
         <Field Name="terminals_sum">
           <DataField>terminals_sum</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -2522,10 +2516,6 @@ ORDER BY order_in_route
         <Field Name="phone_and_name_and_order">
           <DataField>phone_and_name_and_order</DataField>
           <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="payment_by_qr">
-          <DataField>payment_by_qr</DataField>
-          <TypeName>System.Boolean</TypeName>
         </Field>
         <Field Name="payment_status">
           <DataField>payment_status</DataField>
