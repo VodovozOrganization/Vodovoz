@@ -3344,6 +3344,16 @@ namespace Vodovoz
 
 		void FixPrice(int id)
 		{
+			if(Entity.ObservableOrderItems.Count == 0)
+			{
+				return;
+			}
+
+			if(id >= Entity.ObservableOrderItems.Count)
+			{
+				id = Entity.ObservableOrderItems.Count - 1;
+			}
+
 			OrderItem item = Entity.ObservableOrderItems[id];
 			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0)
 				return;
