@@ -672,8 +672,8 @@ namespace Vodovoz
 			var excludedPaymentFromIds = new[]
 			{
 				_orderParametersProvider.PaymentByCardFromSmsId,
-				//_orderParametersProvider.GetPaymentByCardFromAvangardId,
-				//_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
+				_orderParametersProvider.GetPaymentByCardFromAvangardId,
+				_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId,
 				_orderParametersProvider.PaymentByCardFromOnlineStoreId
 			};
 
@@ -3464,7 +3464,7 @@ namespace Vodovoz
 		private void UpdateUIState()
 		{
 			bool val = Entity.CanEditByStatus && CanEditByPermission;
-			/*enumPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
+			enumPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
 			evmeDeliveryPoint.IsEditable = entityVMEntryClient.IsEditable = val;
 			entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
 			ybuttonFastDeliveryCheck.Sensitive = ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && val && Entity.CanChangeFastDelivery;
@@ -3489,7 +3489,7 @@ namespace Vodovoz
 			lblTax.Visible = enumTax.Visible = val && IsEnumTaxVisible();
 
 			if(Entity != null)
-				yCmbPromoSets.Sensitive = val;*/
+				yCmbPromoSets.Sensitive = val;
 		}
 
 		void ChangeOrderEditable(bool val)
