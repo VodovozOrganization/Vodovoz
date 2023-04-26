@@ -24,8 +24,6 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "without_advertising", WithoutAdvertising },
 					{ "hide_signature", HideSignature },
 					{ "contactless_delivery", Order.ContactlessDelivery },
-					{ "payment_by_sms", Order.PaymentBySms },
-					{ "payment_by_qr", Order.PaymentByQr },
 					{ "need_terminal", Order.PaymentType == PaymentType.TerminalQR }
 			}
 			};
@@ -33,32 +31,32 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => String.Format("Накладная №{0}", Order.Id);
+		public override string Name => string.Format("Накладная №{0}", Order.Id);
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 
 		public override PrinterType PrintType => PrinterType.RDL;
 
-		int copiesToPrint = 1;
+		int _copiesToPrint = 1;
 		public override int CopiesToPrint {
-			get => copiesToPrint;
-			set => copiesToPrint = value;
+			get => _copiesToPrint;
+			set => _copiesToPrint = value;
 		}
 
 		#region Свои свойства
 
-		bool withoutAdvertising;
+		bool _withoutAdvertising;
 		[Display(Name = "Без рекламы")]
 		public virtual bool WithoutAdvertising {
-			get => withoutAdvertising;
-			set => SetField(ref withoutAdvertising, value, () => WithoutAdvertising);
+			get => _withoutAdvertising;
+			set => SetField(ref _withoutAdvertising, value, () => WithoutAdvertising);
 		}
 
-		bool hideSignature = true;
+		bool _hideSignature = true;
 		[Display(Name = "Без подписей и печати")]
 		public virtual bool HideSignature {
-			get => hideSignature;
-			set => SetField(ref hideSignature, value, () => HideSignature);
+			get => _hideSignature;
+			set => SetField(ref _hideSignature, value, () => HideSignature);
 		}
 
 		#endregion

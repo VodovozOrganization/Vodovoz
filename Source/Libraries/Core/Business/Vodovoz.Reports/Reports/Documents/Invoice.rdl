@@ -19,6 +19,7 @@
 	orders.delivery_date AS order_date,
 	delivery_points.organization as organization,
 	orders.order_status AS order_status,
+    orders.order_payment_status AS order_payment_status
 	IF(is_bottle_stock, 
 		orders.bottles_by_stock_count,
 		orders.bottles_return
@@ -246,6 +247,10 @@ WHERE
         </Field>
         <Field Name="lunch_time">
           <DataField>lunch_time</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_payment_status">
+          <DataField>order_payment_status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -3373,9 +3378,7 @@ WHERE stored_resource.id = @id1</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox62">
                       <Value>= Switch(
-    First({order_payment_type}, "Order")='PaidOnline', "ОПЛАЧЕНО",
-    First({order_payment_type}, "Order")='Cash',
-    Iif({?payment_by_sms} = false AND {?payment_by_qr} = false, 
+    First({order_payment_type}, "Order") = 'Cash',
         "К оплате: НАЛИЧНЫМИ " +
         Convert.ToString
         (
@@ -3384,27 +3387,29 @@ WHERE stored_resource.id = @id1</CommandText>
         + "\n" +
         Iif(First({trifle},'Order')&gt;0,
             "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
-            " "
-        ),
-        Iif({?payment_by_sms} = true AND {?payment_by_qr} = false,
-            "К оплате: НАЛИЧНЫМИ ИЛИ ПО SMS \n" +
-            Iif(First({trifle},'Order') &gt; 0,
-                "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
-                " "
-            ),
-            "К оплате: НАЛИЧНЫМИ ИЛИ ПО QR \n" +
-            Iif(First({trifle},'Order') &gt; 0,
-                "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
-                " "
-            )
-        )
-    ),
     First({order_payment_type}, "Order") = "TerminalQR",
-    "К оплате: \nПО ТЕРМИНАЛУ "+
-    Convert.ToString
-    (
-        (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
-    ),
+        "К оплате: \nПО ТЕРМИНАЛУ "+
+        Convert.ToString
+        (
+            (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
+        ),
+    First({order_payment_type}, "Order") = 'DriverApplicationQR',
+        "К оплате: \nПО QR-КОДУ МП "+
+        Convert.ToString
+        (
+            (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
+        ),
+    First({order_payment_type}, "Order") = 'SmsQR',
+        lif(First({order_payment_status},'Order') = 'Paid',
+        "ОПЛАЧЕНО",
+        "К оплате: \nПО QR-КОДУ SMS "+
+        Convert.ToString
+        (
+            (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
+        )),
+    First({order_payment_type}, "Order") = 'PaidOnline', "ОПЛАЧЕНО",
+    First({order_payment_type}, "Order") = 'Barter', "ОПЛАЧЕНО",
+    First({order_payment_type}, "Order") = 'ContractDocumentation', "ОПЛАЧЕНО",
     First({order_payment_type}, "Order") = "Cashless", "БЕЗНАЛ"
 )</Value>
                       <CanGrow>true</CanGrow>
@@ -3899,26 +3904,12 @@ WHERE stored_resource.id = @id1</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="payment_by_sms">
-      <DataType>Boolean</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
     <ReportParameter Name="need_terminal">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="payment_by_qr">
-      <DataType>Boolean</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
