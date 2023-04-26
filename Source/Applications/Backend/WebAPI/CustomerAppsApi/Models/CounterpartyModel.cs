@@ -118,7 +118,7 @@ namespace CustomerAppsApi.Models
 				return SendToManualHandling(counterpartyContactInfoDto, counterpartyFrom);
 			}
 
-			_logger.LogInformation("Ищем зарегистрированног пользователя, но на другой площадке");
+			_logger.LogInformation("Ищем зарегистрированного пользователя, но на другой площадке");
 			/*
 			 * Ищем зарегистрированного клиента с другой площадки
 			 * если запрос пришел от мобилки, то смотрим клиента с таким номером телефона, зарегистрированного через сайт
@@ -270,12 +270,8 @@ namespace CustomerAppsApi.Models
 				return _counterpartyModelFactory.CreateNotFoundCounterpartyUpdateDto();
 			}
 
-			//Обновляем сущность и валидируем ее, затем сохраняем изменения
 			var counterparty = externalCounterparty.Phone.Counterparty;
-			if(counterparty.CameFrom.Id != counterpartyDto.CameFromId)
-			{
-				counterparty.CameFrom = _uow.GetById<ClientCameFrom>(counterpartyDto.CameFromId);
-			}
+			counterparty.CameFrom ??= _uow.GetById<ClientCameFrom>(counterpartyDto.CameFromId);
 
 			switch(counterpartyDto.PersonType)
 			{
@@ -300,8 +296,6 @@ namespace CustomerAppsApi.Models
 			{
 				externalCounterparty.Email = CreateNewEmail(counterpartyDto.Email, counterparty);
 			}
-			
-			//валидация?
 
 			_uow.Save(counterparty);
 			_uow.Save(externalCounterparty);
@@ -316,11 +310,6 @@ namespace CustomerAppsApi.Models
 		private Email GetCounterpartyEmailForExternalCounterparty(int counterpartyId)
 		{
 			return _emailRepository.GetEmailForExternalCounterparty(_uow, counterpartyId);
-		}
-
-		private bool ValidateCounterpartyDto(CounterpartyDto counterpartyDto)
-		{
-			throw new NotImplementedException();
 		}
 
 		private Email CreateNewEmail(string emailAddress, Counterparty counterparty)
@@ -345,7 +334,6 @@ namespace CustomerAppsApi.Models
 				return new CounterpartyRegistrationDto
 				{
 					ErpCounterpartyId = externalCounterparty.Phone.Counterparty.Id,
-					//ErrorDescription = "Контрагент с таким внешним номером уже зарегистрирован",
 					CounterpartyRegistrationStatus = CounterpartyRegistrationStatus.CounterpartyWithSameExternalIdExists
 				};
 			}
@@ -365,7 +353,6 @@ namespace CustomerAppsApi.Models
 				return new CounterpartyRegistrationDto
 				{
 					ErpCounterpartyId = externalCounterparty.Phone.Counterparty.Id,
-					//ErrorDescription = "Контрагент с таким номером телефона уже зарегистрирован",
 					CounterpartyRegistrationStatus = CounterpartyRegistrationStatus.CounterpartyWithSamePhoneNumberExists
 				};
 			}

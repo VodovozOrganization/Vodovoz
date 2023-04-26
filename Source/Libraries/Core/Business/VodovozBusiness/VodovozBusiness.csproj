@@ -53,6 +53,8 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Domain\Client\MobileAppCounterparty.cs" />
+    <Compile Include="Domain\Client\WebSiteCounterparty.cs" />
     <Compile Include="Domain\Logistic\AddressTransferType.cs" />
     <Compile Include="Controllers\CarFuelVersionsController.cs" />
     <Compile Include="Controllers\ContactManagerForExternalCounterparty.cs" />

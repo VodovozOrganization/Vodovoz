@@ -5,23 +5,13 @@ using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Domain.Client
 {
-	public class MobileAppCounterparty : ExternalCounterparty
-	{
-		public override CounterpartyFrom CounterpartyFrom => CounterpartyFrom.MobileApp;
-	}
-
-	public class WebSiteCounterparty : ExternalCounterparty
-	{
-		public override CounterpartyFrom CounterpartyFrom => CounterpartyFrom.WebSite;
-	}
-
 	public class ExternalCounterparty : PropertyChangedBase, IDomainObject
 	{
 		private Guid _externalCounterpartyId;
 		private Phone _phone;
 		private Email _email;
 		private bool _isArchive;
-		private DateTime? _created;
+		private DateTime? _creationDate;
 
 		public virtual int Id { get; set; }
 
@@ -35,8 +25,8 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreationDate
 		{
-			get => _created;
-			set => SetField(ref _created, value);
+			get => _creationDate;
+			set => SetField(ref _creationDate, value);
 		}
 
 		[Display(Name = "Телефон клиента")]

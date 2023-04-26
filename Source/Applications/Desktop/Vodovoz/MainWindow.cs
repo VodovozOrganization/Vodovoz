@@ -390,6 +390,10 @@ public partial class MainWindow : Gtk.Window
 		ProfitabilityConstantsAction.Sensitive =
 			commonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
 
+		ExternalCounterpartiesMatchingAction.Label = "Сопоставление клиентов из внешних источников";
+		ExternalCounterpartiesMatchingAction.Sensitive =
+			commonServices.CurrentPermissionService.ValidatePresetPermission("can_matching_counterparties_from_external_sources");
+
 		ActionGroupPricing.Activated += ActionGroupPricingActivated;
 		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
 	}

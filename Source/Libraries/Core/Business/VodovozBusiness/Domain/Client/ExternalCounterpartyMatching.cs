@@ -6,10 +6,10 @@ using QS.HistoryLog;
 namespace Vodovoz.Domain.Client
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Сопоставления клиента с контактом",
-		Nominative = "Сопоставление клиента с контактом",
-		Prepositional = "Сопоставлении клиента с контактом",
-		PrepositionalPlural = "Сопоставлениях клиента с контактом"
+		NominativePlural = "Сопоставления клиента из внешнего источника",
+		Nominative = "Сопоставление клиента из внешнего источника",
+		Prepositional = "Сопоставлении клиента из внешнего источника",
+		PrepositionalPlural = "Сопоставлениях клиента из внешнего источника"
 	)]
 	[HistoryTrace]
 	public class ExternalCounterpartyMatching : PropertyChangedBase, IDomainObject

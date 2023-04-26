@@ -5,6 +5,7 @@ using Gtk;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
+using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;

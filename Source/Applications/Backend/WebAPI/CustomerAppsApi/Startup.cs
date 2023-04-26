@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MySql.Data.MySqlClient;
 using NLog.Web;
@@ -49,7 +49,12 @@ namespace CustomerAppsApi
 			services.AddControllers();
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "CustomerAppsApi", Version = "v1" }); });
 			
-			NLogBuilder.ConfigureNLog("NLog.config");
+			services.AddLogging(
+				logging =>
+				{
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+				});
 
 			RegisterDependencies(services);
 			CreateBaseConfig();
@@ -94,10 +99,7 @@ namespace CustomerAppsApi
 			}
 
 			app.UseHttpsRedirection();
-
 			app.UseRouting();
-
-			//app.UseAuthorization();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 		}
@@ -120,8 +122,7 @@ namespace CustomerAppsApi
 			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(connectionString)
-				.AdoNetBatchSize(100)
-				.Driver<LoggedMySqlClientDriver>();
+				.AdoNetBatchSize(100);
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(

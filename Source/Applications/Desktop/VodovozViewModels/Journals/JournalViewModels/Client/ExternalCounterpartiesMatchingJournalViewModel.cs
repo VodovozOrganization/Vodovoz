@@ -15,6 +15,7 @@ using QS.Utilities.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
+using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
@@ -34,23 +35,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 		{
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			var dataLoader = new ThreadDataLoader<ExternalCounterpartyMatchingJournalNode>(unitOfWorkFactory);
-			//dataLoader.CurrentPermissionService = currentPermissionService;
-			dataLoader.AddQuery<ExternalCounterpartyMatching>(ItemsQuery/*, ItemsCountFunction*/);
+			dataLoader.AddQuery(ItemsQuery);
 			DataLoader = dataLoader;
 
-			/*if(currentPermissionService != null
-				&& !currentPermissionService.ValidateEntityPermission(typeof(ExternalCounterpartyMatching)).CanRead)
-			{
-				throw new AbortCreatingPageException(
-					$"У вас нет прав для просмотра документов типа: {typeof(ExternalCounterpartyMatching).GetSubjectName()}",
-					"Невозможно открыть журнал");
-			}*/
-
 			var names = typeof(ExternalCounterpartyMatching).GetSubjectNames();
-			if(!String.IsNullOrEmpty(names?.NominativePlural))
-			{
-				TabName = names.NominativePlural.StringToTitleCase();
-			}
+			
+			TabName = "Сопоставление клиентов из внешних источников";
 
 			ConfigureFilter(filterParams);
 			CreateNodeActions();
@@ -173,16 +163,5 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
 			base.Dispose();
 		}
-	}
-
-	public class ExternalCounterpartyMatchingJournalNode : JournalNodeBase
-	{
-		public int Id { get; set; }
-		public string PhoneNumber { get; set; }
-		public CounterpartyFrom CounterpartyFrom { get; set; }
-		public DateTime Created { get; set; }
-		public ExternalCounterpartyMatchingStatus Status { get; set; }
-		public int? CounterpartyId { get; set; }
-		public string CounterpartyName { get; set; }
 	}
 }
