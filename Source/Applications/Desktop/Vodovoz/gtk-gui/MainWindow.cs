@@ -1603,7 +1603,9 @@ public partial class MainWindow
 				"yPost\' action=\'ActionCounterpartyPost\'/><separator/><menuitem name=\'ActionRoboAt" +
 				"sCounterpartyName\' action=\'ActionRoboAtsCounterpartyName\'/><menuitem name=\'Actio" +
 				"nRoboAtsCounterpartyPatronymic\' action=\'ActionRoboAtsCounterpartyPatronymic\'/><s" +
-				"eparator/><menuitem name=\'ActionLoad1c\' action=\'ActionLoad1c\'/></menu><menu name" +
+				"eparator/><menuitem name=\'ActionLoad1c\' action=\'ActionLoad1c\'/><menuitem name=\'" +
+				"ExternalCounterpartiesMatchingAction\' action=\'ExternalCounterpartiesMatchingAction\'/>" +
+				"</menu><menu name" +
 				"=\'ActionMenuLogistic\' action=\'ActionMenuLogistic\'><menuitem name=\'ActionDelivery" +
 				"Schedule\' action=\'ActionDeliverySchedule\'/><menuitem name=\'ActionDeliveryPriceRu" +
 				"les\' action=\'ActionDeliveryPriceRules\'/><menuitem name=\'ActionTariffZones\' actio" +
@@ -1751,7 +1753,6 @@ public partial class MainWindow
 				"me=\'aboutAction\' action=\'aboutAction\'/></menu><menu name=\'ActionProposals\' actio" +
 				"n=\'ActionProposals\'><menuitem name=\'ActionOpenProposalsJournal\' action=\'ActionOp" +
 				"enProposalsJournal\'/></menu></menubar></ui>");
-				"ts\' action=\'ActionCommentsForLogists\'/><menuitem name=\'ActionOrdersByDistrict\' a" +
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
