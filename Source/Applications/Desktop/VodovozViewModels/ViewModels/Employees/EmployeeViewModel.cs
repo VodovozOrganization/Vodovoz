@@ -845,13 +845,19 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			if(CanRegisterMobileUser 
 			&& !string.IsNullOrWhiteSpace(Entity.AndroidLogin)
-			&& !string.IsNullOrWhiteSpace(Entity.AndroidPassword)
-			&& _commonServices.InteractiveService.Question("Данные пользовтеля водительского приложения были внесены,\n" +
+			&& !string.IsNullOrWhiteSpace(Entity.AndroidPassword))
+			{
+				if(_commonServices.InteractiveService.Question("Данные пользовтеля водительского приложения были внесены,\n" +
 														   "но пользователь не был сохранен. Эти данные будут очищены,\n" +
 														   "а пользователь водительского приложения не будет сохранен", "Вы уверены?"))
-			{
-				Entity.AndroidLogin = null;
-				Entity.AndroidPassword = null;
+				{
+					Entity.AndroidLogin = null;
+					Entity.AndroidPassword = null;
+				}
+				else
+				{
+					return false;
+				}
 			}
 
 			if(!Validate())
