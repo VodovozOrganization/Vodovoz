@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -38,7 +38,7 @@ WHERE order_equipment.order_id = @order_id AND order_equipment.direction = 'Pick
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	orders.id,
@@ -47,6 +47,9 @@ WHERE order_equipment.order_id = @order_id AND order_equipment.direction = 'Pick
 	'-',counterparty_contract.subnumber) AS contract_number,
 	organizations.full_name as organization,
 	counterparty.full_name as client,
+    IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
+       CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
+       counterparty.special_contract_name) AS special_contract_number,
 	leader.last_name AS leader_last_name,
     LEFT(leader.name, 1) AS leader_name,
     LEFT(leader.patronymic, 1) AS leader_patronymic
@@ -71,7 +74,7 @@ WHERE orders.id = @order_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -102,6 +105,10 @@ WHERE orders.id = @order_id</CommandText>
         </Field>
         <Field Name="leader_patronymic">
           <DataField>leader_patronymic</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_contract_number">
+          <DataField>special_contract_number</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -346,8 +353,8 @@ WHERE orders.id = @order_id</CommandText>
       </Textbox>
       <Textbox Name="Textbox6">
         <Height>15.75pt</Height>
-        <Width>161.11pt</Width>
-        <Value>="по договору № " + First({contract_number}, "Order")</Value>
+        <Width>228.68pt</Width>
+        <Value>=Iif(String.IsNullOrWhiteSpace(First({special_contract_number}, "Order")) = false,First({special_contract_number}, "Order"), "по договору № " +  First({contract_number}, "Order"))</Value>
         <ZIndex>1</ZIndex>
         <Left>2.50pt</Left>
         <Top>35.10pt</Top>
