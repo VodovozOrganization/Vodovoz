@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -131,6 +131,9 @@ namespace Vodovoz.Models
 				case PaymentType.TerminalQR:
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
+				case PaymentType.SmsQR:
+					organizationId = GetOrganizationIdForByCard(uow, uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId), geographicGroup, orderCreateDate, onlineOrderId); 
+					break;
 				case PaymentType.PaidOnline:
 					organizationId = GetOrganizationIdForByCard(uow, paymentFrom, geographicGroup, orderCreateDate, onlineOrderId);
 					break;
@@ -158,6 +161,7 @@ namespace Vodovoz.Models
 		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
 			PaymentFrom paymentFrom, GeoGroup geographicGroup, int? onlineOrderId)
 		{
+			
 			int organizationId;
 			switch(paymentType)
 			{
@@ -169,6 +173,10 @@ namespace Vodovoz.Models
 				case PaymentType.Cash:
 				case PaymentType.TerminalQR:
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
+					break;
+				case PaymentType.DriverApplicationQR:
+				case PaymentType.SmsQR:
+					organizationId = GetOrganizationIdForByCard(uow, uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId), geographicGroup, orderCreateDate, onlineOrderId);
 					break;
 				case PaymentType.PaidOnline:
 					organizationId = GetOrganizationIdForByCard(uow, paymentFrom, geographicGroup, orderCreateDate, onlineOrderId);
