@@ -38,18 +38,28 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			var personType = order.Client.PersonType;
 			var paymentType = order.PaymentType;
 			var contractType = GetContractTypeForPaymentType(personType, paymentType);
-			var organization = organizationProvider.GetOrganization(uow, order);
-			if(organization == null)
-				return null;
-
-			var result = GetCounterpartyContractsOrderByIssueDateDesc(uow, order, organization, contractType);
-			
-			if(result.Count > 1 && errorReporter != null)
+			try
 			{
-				Exception ex = new ArgumentException("Query returned >1 CounterpartyContract");
-				errorReporter.AutomaticSendErrorReport($"Ошибка в {nameof(CounterpartyContractRepository)}, GetCounterpartyContract() вернул больше 1 контракта", ex);
+				var organization = organizationProvider.GetOrganization(uow, order);
+				if(organization == null)
+				{
+					return null;
+				}
+
+				var result = GetCounterpartyContractsOrderByIssueDateDesc(uow, order, organization, contractType);
+
+				if(result.Count > 1 && errorReporter != null)
+				{
+					Exception ex = new ArgumentException("Query returned >1 CounterpartyContract");
+					errorReporter.AutomaticSendErrorReport($"Ошибка в {nameof(CounterpartyContractRepository)}, GetCounterpartyContract() вернул больше 1 контракта", ex);
+				}
+				return result.FirstOrDefault();
+
 			}
-			return result.FirstOrDefault();
+			catch(NotSupportedException)
+			{
+				return null;
+			}
 		}
 
 		public CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, Organization organization)

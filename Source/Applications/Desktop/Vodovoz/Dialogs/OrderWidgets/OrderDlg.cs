@@ -789,6 +789,31 @@ namespace Vodovoz
 
 			checkSelfDelivery.Toggled += (sender, e) =>
 			{
+				if(checkSelfDelivery.Active)
+				{
+					if(!enumPaymentType.HiddenItems.Contains(PaymentType.DriverApplicationQR))
+					{
+						enumPaymentType.AddEnumToHideList(PaymentType.DriverApplicationQR);
+					}
+
+					if(Entity.PaymentType == PaymentType.DriverApplicationQR)
+					{
+						if(Entity.Client?.PaymentMethod != PaymentType.DriverApplicationQR)
+						{
+							Entity.PaymentType = Entity.Client.PaymentMethod;
+						}
+						else
+						{
+							MessageDialogHelper.RunWarningDialog("Не возможно определить тип оплаты автоматически", "Тип оплаты был сброшен!");
+							Entity.PaymentType = PaymentType.Cash;
+						}
+					}
+				}
+				else
+				{
+					enumPaymentType.RemoveEnumFromHideList(PaymentType.DriverApplicationQR);
+				}
+
 				entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
 				ybuttonFastDeliveryCheck.Sensitive =
 					ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
@@ -3307,7 +3332,9 @@ namespace Vodovoz
 		private void UpdateOnlineOrderText()
 		{
 			if(Entity.PaymentType != PaymentType.PaidOnline)
+			{
 				entOnlineOrder.Text = string.Empty; //костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
+			}
 		}
 
 		protected void OnButtonWaitForPaymentClicked(object sender, EventArgs e)

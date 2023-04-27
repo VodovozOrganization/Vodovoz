@@ -1267,6 +1267,14 @@ namespace Vodovoz.Domain.Orders
 				);
 			}
 
+			if(SelfDelivery && PaymentType == PaymentType.DriverApplicationQR)
+			{
+				yield return new ValidationResult(
+					"Тип оплаты - Qr-код МП водителя невозможен для самовывоза",
+					new[] { this.GetPropertyName(o => o.PaymentType) }
+				);
+			}
+
 			if(IsFastDelivery)
 			{
 				AddFastDeliveryNomenclatureIfNeeded();
