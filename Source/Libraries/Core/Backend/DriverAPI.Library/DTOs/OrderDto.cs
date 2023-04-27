@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Vodovoz.Domain.Orders;
+﻿using System.Collections.Generic;
 
 namespace DriverAPI.Library.DTOs
 {

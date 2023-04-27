@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Parameters
+namespace Vodovoz.Parameters
 {
 	public interface IRoboatsSettings
 	{

@@ -1,5 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using MoreLinq;
 using QS.Commands;
 using QS.Services;
 using QS.ViewModels;
@@ -30,10 +32,10 @@ namespace Vodovoz.ViewModels.ViewModels.SidePanels
         public IEnumerable<NomenclatureFixedPrice> FixedPrices {
             get {
                 if(deliveryPoint != null) {
-                    return deliveryPoint.NomenclatureFixedPrices;
+                    return deliveryPoint.NomenclatureFixedPrices.OrderBy(p => p.Nomenclature.Name, OrderByDirection.Ascending).ThenBy(p => p.MinCount, OrderByDirection.Ascending).ToList();
                 }
                 if (counterparty != null) {
-                    return counterparty.NomenclatureFixedPrices;
+                    return counterparty.NomenclatureFixedPrices.OrderBy(p => p.Nomenclature.Name, OrderByDirection.Ascending).ThenBy(p => p.MinCount, OrderByDirection.Ascending).ToList();
                 }
                 return new List<NomenclatureFixedPrice>();
             }

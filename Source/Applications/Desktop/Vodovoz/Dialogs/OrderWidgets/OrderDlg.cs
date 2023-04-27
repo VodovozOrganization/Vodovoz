@@ -97,6 +97,10 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Orders;
+using QS.Dialog.GtkUI.FileDialog;
+using Vodovoz.Settings.Database;
+using Vodovoz.SidePanel.InfoViews;
+using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozInfrastructure.Configuration;
@@ -449,15 +453,14 @@ namespace Vodovoz
 				.CopyFields()
 				.CopyStockBottle()
 				.CopyPromotionalSets()
-				.CopyOrderItems(true, true, true)
+				.CopyOrderItems(true, true)
 				.CopyPaidDeliveryItem()
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
 
 			Entity.IsCopiedFromUndelivery = true;
-			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard
-				&& MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?"))
+			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard)
 			{
 				var currentPaymentFromTypes = ySpecPaymentFrom.ItemsList.Cast<PaymentFrom>().ToList();
 
@@ -487,15 +490,19 @@ namespace Vodovoz
 				.CopyFields(
 					x => x.Client,
 					x => x.DeliveryPoint,
-					x => x.OrderAddressType,
 					x => x.PaymentType,
-					x => x.ContactPhone
-				)
+					x => x.OrderAddressType,
+					x => x.ContactPhone)
 				.CopyPromotionalSets()
 				.CopyOrderItems()
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
 				.CopyAttachedDocuments();
+
+			if(Entity.Client.PersonType == PersonType.legal)
+			{
+				Entity.PaymentType = Entity.Client.PaymentMethod;
+			}
 
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
@@ -518,8 +525,7 @@ namespace Vodovoz
 			_canChoosePremiumDiscount =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
 			_nomenclatureFixedPriceProvider =
-				new NomenclatureFixedPriceController(
-					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(NomenclatureRepository));
+				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
 			_discountsController = new OrderDiscountsController(_nomenclatureFixedPriceProvider);
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(_paymentItemsRepository, _orderRepository, _paymentsRepository);
@@ -618,6 +624,7 @@ namespace Vodovoz
 
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
+
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			pickerBillDate.Binding.AddBinding(Entity, s => s.BillDate, w => w.DateOrNull).InitializeFromSource();
 
@@ -705,9 +712,8 @@ namespace Vodovoz
 				.AddFuncBinding(e => e.Client != null, w => w.Sensitive)
 				.InitializeFromSource();
 
-			var roboatsSettings = new RoboatsSettings(_parametersProvider);
-			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService,
-				ErrorReporter.Instance);
+			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var deliveryScheduleRepository = new DeliveryScheduleRepository();
 			var fileDialogService = new FileDialogService();
 			var _roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService,
@@ -753,6 +759,7 @@ namespace Vodovoz
 				{
 					Entity.DeliveryPoint = null;
 				}
+				UpdateOrderItemsPrices();
 			};
 
 			chkContractCloser.Sensitive =
@@ -789,6 +796,8 @@ namespace Vodovoz
 				}
 
 				UpdateOrderAddressTypeUI();
+				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+				UpdateOrderItemsPrices();
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -1093,6 +1102,7 @@ namespace Vodovoz
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+			UpdateOrderItemsPrices();
 		}
 
 		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
@@ -1296,8 +1306,8 @@ namespace Vodovoz
 						if(Entity.OrderStatus == OrderStatus.NewOrder || (Entity.OrderStatus == OrderStatus.WaitForPayment && !Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
 							c.ForegroundGdk = colorBlack;
-							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature);
-							if(fixedPrice != null && node.PromoSet == null) {
+							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature, node.TotalCountInOrder);
+							if(fixedPrice != null && node.PromoSet == null && node.CopiedFromUndelivery == null) {
 								c.ForegroundGdk = colorGreen;
 							} else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 								c.ForegroundGdk = colorBlue;
@@ -3339,6 +3349,14 @@ namespace Vodovoz
 			column.Visible = Entity.ObservableOrderDocuments.Any(x => x.Order.Id != x.AttachedToOrder.Id);
 		}
 
+		private void UpdateOrderItemsPrices()
+		{
+			for(int i = 0; i < Entity.ObservableOrderItems.Count; i++)
+			{
+				FixPrice(i);
+			}
+		}
+
 		void FixPrice(int id)
 		{
 			OrderItem item = Entity.ObservableOrderItems[id];
@@ -3372,6 +3390,8 @@ namespace Vodovoz
 				foreach(var i in aIdx) {
 					OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
 
+					FixPrice(aIdx[0]);
+
 					if(oItem?.CopiedFromUndelivery == null)
 					{
 						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : oItem.Count;
@@ -3379,8 +3399,6 @@ namespace Vodovoz
 						                           && oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
 						                           && oItem.GetWaterFixedPrice() == null;
 					}
-
-					FixPrice(aIdx[0]);
 
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
 						HboxReturnTareReasonCategoriesShow();
@@ -3785,6 +3803,7 @@ namespace Vodovoz
 			if(!checkSelfDelivery.Active) {
 				checkPayAfterLoad.Active = false;
 			}
+			UpdateOrderItemsPrices();
 		}
 
 		void ObservablePromotionalSets_ListChanged(object aList)
@@ -3821,6 +3840,13 @@ namespace Vodovoz
 				return;
 			}
 
+			if(Entity.Client.PaymentMethod != Entity.PaymentType
+				&& !MessageDialogHelper.RunQuestionDialog($"Вы выбрали форму оплаты &lt;{Entity.PaymentType.GetEnumTitle()}&gt;." +
+				$" У клиента по умолчанию установлено &lt;{Entity.Client.PaymentMethod.GetEnumTitle()}&gt;. Вы уверены, что хотите продолжить?"))
+			{
+				return;
+			}
+
 			_summaryInfoBuilder.Clear();
 
 			var clientFIO = Entity.Client.FullName.ToUpper();
@@ -3838,7 +3864,17 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblPhoneNumber.Text} {phone}").AppendLine();
 
-			var deliveryDate = Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
+			var todayTommorowLable = string.Empty;
+			if(Entity.DeliveryDate?.Date == DateTime.Today.Date)
+			{
+				todayTommorowLable = "Сегодня, ";
+			}
+			if(Entity.DeliveryDate?.Date == DateTime.Today.Date.AddDays(1))
+			{
+				todayTommorowLable = "Завтра, ";
+			}
+
+			var deliveryDate = todayTommorowLable + Entity.DeliveryDate?.ToString("dd.MM.yyyy, dddd") ?? "";
 			ylblDeliveryDate.Text = deliveryDate;
 
 			_summaryInfoBuilder.AppendLine($"{lblDeliveryDate.Text} {deliveryDate}").AppendLine();

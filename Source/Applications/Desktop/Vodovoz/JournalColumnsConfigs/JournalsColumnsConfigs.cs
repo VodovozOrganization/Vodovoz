@@ -5,7 +5,9 @@ using Gtk;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
+using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -90,6 +92,23 @@ namespace Vodovoz.JournalColumnsConfigs
 							cell.CellBackgroundGdk = color;
 						}
 					)
+					.Finish()
+			);
+			
+			//ExternalCounterpartiesMatchingJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ExternalCounterpartiesMatchingJournalViewModel>(
+				() => FluentColumnsConfig<ExternalCounterpartyMatchingJournalNode>.Create()
+					.AddColumn("Телефон")
+						.AddTextRenderer(node => node.PhoneNumber)
+					.AddColumn("Источник")
+						.AddEnumRenderer(node => node.CounterpartyFrom)
+					.AddColumn("Дата/время")
+						.AddTextRenderer(node => node.Created.ToString("g"))
+					.AddColumn("Статус")
+						.AddEnumRenderer(node => node.Status)
+					.AddColumn("Присвоенный КА")
+						.AddTextRenderer(node => node.CounterpartyName)
+					.AddColumn("")
 					.Finish()
 			);
 		}

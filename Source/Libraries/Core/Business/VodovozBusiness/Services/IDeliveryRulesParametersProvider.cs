@@ -26,6 +26,7 @@ namespace Vodovoz.Services
 		double MaxDistanceToLatestTrackPointKm { get; }
 		int FlyerForNewCounterpartyBottlesCount { get; }
 		bool FlyerForNewCounterpartyEnabled { get; }
+		double CarsMonitoringResfreshInSeconds { get; }
 
 		void UpdateFastDeliveryMaxDistanceParameter(double value);
 		void UpdateFlyerForNewCounterpartyBottlesCountParameter(string value);
