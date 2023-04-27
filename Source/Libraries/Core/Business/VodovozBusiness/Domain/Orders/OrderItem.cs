@@ -76,9 +76,9 @@ namespace Vodovoz.Domain.Orders
 			set {
 				//Если цена не отличается от той которая должна быть по прайсам в 
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
-				IsUserPrice = value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice;
+				IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
 				if(IsUserPrice)
-					IsUserPrice = value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice;
+					IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
 
 				if(SetField(ref price, value, () => Price)) {
 					RecalculateDiscount();
@@ -517,7 +517,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			var fixedPrice = Order.GetFixedPriceOrNull(Nomenclature, TotalCountInOrder);
 
-			if (fixedPrice != null)
+			if (fixedPrice != null && CopiedFromUndelivery == null)
 			{
 				if(Price != fixedPrice.Price)
 				{
@@ -529,7 +529,7 @@ namespace Vodovoz.Domain.Orders
 
 			IsFixedPrice = false;
 
-			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed)
+			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || CopiedFromUndelivery != null)
 				return;
 
 			Price = GetPriceByTotalCount();

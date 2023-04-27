@@ -922,6 +922,7 @@ namespace Vodovoz
 						break;
 					case nameof(Entity.SelfDelivery):
 					case nameof(Entity.DeliveryPoint):
+					case nameof(Entity.OurOrganization):
 						UpdateOrderItemsPrices();
 						break;
 				}
@@ -1304,7 +1305,7 @@ namespace Vodovoz
 						{
 							c.ForegroundGdk = colorBlack;
 							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature, node.TotalCountInOrder);
-							if(fixedPrice != null && node.PromoSet == null) {
+							if(fixedPrice != null && node.PromoSet == null && node.CopiedFromUndelivery == null) {
 								c.ForegroundGdk = colorGreen;
 							} else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 								c.ForegroundGdk = colorBlue;
