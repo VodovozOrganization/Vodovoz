@@ -153,6 +153,10 @@ namespace DriverAPI.Controllers.V2
 				{
 					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.Cash;
 				}
+				else if(newPaymentType == PaymentDtoType.DriverApplicationQR)
+				{
+					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.DriverApplicationQR;
+				}
 				else
 				{
 					var errorFormat = "Попытка сменить тип оплаты у заказа {OrderId} на не поддерживаемый для смены тип оплаты {PaymentType}";

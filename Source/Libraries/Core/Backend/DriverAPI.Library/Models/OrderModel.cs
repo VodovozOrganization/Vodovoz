@@ -145,11 +145,19 @@ namespace DriverAPI.Library.Models
 			if(order.PaymentType == PaymentType.Cash)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
+				availablePaymentTypes.Add(PaymentDtoType.DriverApplicationQR);
 			}
 
 			if(order.PaymentType == PaymentType.TerminalQR)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
+				availablePaymentTypes.Add(PaymentDtoType.DriverApplicationQR);
+			}
+
+			if(order.PaymentType == PaymentType.DriverApplicationQR)
+			{
+				availablePaymentTypes.Add(PaymentDtoType.Cash);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
 			}
 
 			return availablePaymentTypes;
