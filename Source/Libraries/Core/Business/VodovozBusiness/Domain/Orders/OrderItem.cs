@@ -515,10 +515,14 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculatePrice()
 		{
-			var curCount = TotalCountInOrder;
-			if (Order.GetFixedPriceOrNull(Nomenclature, curCount) != null)
+			var fixedPrice = Order.GetFixedPriceOrNull(Nomenclature, TotalCountInOrder);
+
+			if (fixedPrice != null)
 			{
-				Price = Order.GetFixedPriceOrNull(Nomenclature, curCount).Price;
+				if(Price != fixedPrice.Price)
+				{
+					Price = fixedPrice.Price;
+				}
 				IsFixedPrice = true;
 				return;
 			}
