@@ -84,7 +84,7 @@ namespace DriverAPI.Library.Models
 		public OrderDto Get(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
 
 			var order = _orderConverter.ConvertToAPIOrder(
@@ -128,7 +128,7 @@ namespace DriverAPI.Library.Models
 		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			return GetAvailableToChangePaymentTypes(vodovozOrder);
 		}
@@ -137,7 +137,7 @@ namespace DriverAPI.Library.Models
 		/// Получение типов оплаты на которые можно изменить тип оплаты заказа переданного в аргументе
 		/// </summary>
 		/// <param name="order">Заказ программы ДВ</param>
-		/// <returns>IEnumerable APIPaymentType</returns>
+		/// <returns>IEnumerable<see cref="PaymentDtoType"/></returns>
 		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Order order)
 		{
 			var availablePaymentTypes = new List<PaymentDtoType>();
@@ -171,7 +171,7 @@ namespace DriverAPI.Library.Models
 		public OrderAdditionalInfoDto GetAdditionalInfo(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			return GetAdditionalInfo(vodovozOrder);
 		}
@@ -201,7 +201,7 @@ namespace DriverAPI.Library.Models
 		{
 			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
-		
+
 		/// <summary>
 		/// Проверка возможности отправки QR-кода для оплаты
 		/// </summary>
@@ -220,7 +220,7 @@ namespace DriverAPI.Library.Models
 			}
 
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)
 			{
@@ -298,7 +298,7 @@ namespace DriverAPI.Library.Models
 
 			routeList.ChangeAddressStatus(_uow, routeListAddress.Id, RouteListItemStatus.Completed);
 
-			if (completeOrderInfo.Rating < _maxClosingRating)
+			if(completeOrderInfo.Rating < _maxClosingRating)
 			{
 				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_uow, completeOrderInfo.DriverComplaintReasonId);
 				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiParametersProvider.ComplaintSourceId);
@@ -398,7 +398,7 @@ namespace DriverAPI.Library.Models
 		private void CreateCashReceipt(ITrueMarkOrderScannedInfo completeOrderInfo, int orderId, DateTime actionTime)
 		{
 			var trueMarkCashReceiptOrder = GetNewCashReceipt(completeOrderInfo, orderId, actionTime);
-			
+
 			FillCashReceiptByScannedCodes(completeOrderInfo.ScannedItems, trueMarkCashReceiptOrder);
 
 			_uow.Save(trueMarkCashReceiptOrder);
@@ -492,7 +492,7 @@ namespace DriverAPI.Library.Models
 				foreach(var code in scannedItem.BottleCodes)
 				{
 					var orderCode = CreateCashReceiptProductCode(code, cashReceipt, orderItem);
-					
+
 					cashReceipt.ScannedCodes.Add(orderCode);
 				}
 			}
@@ -536,7 +536,7 @@ namespace DriverAPI.Library.Models
 
 			_smsPaymentServiceAPIHelper.SendPayment(orderId, phoneNumber).Wait();
 		}
-		
+
 		public async Task<PayByQRResponseDTO> SendQRPaymentRequestAsync(int orderId, int driverId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
