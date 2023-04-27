@@ -74,6 +74,7 @@ namespace CustomerAppsApi.Models
 			var validationResult = _counterpartyModelValidator.CounterpartyContactInfoDtoValidate(counterpartyContactInfoDto);
 			if(!string.IsNullOrWhiteSpace(validationResult))
 			{
+				_logger.LogInformation("Не прошли валидацию при авторизации {ValidationResult}", validationResult);
 				return _counterpartyModelFactory.CreateErrorCounterpartyIdentificationDto(validationResult);
 			}
 
@@ -179,7 +180,7 @@ namespace CustomerAppsApi.Models
 
 		public CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto)
 		{
-			_logger.LogInformation("Запрос на регистрацию");
+			_logger.LogInformation("Запрос на регистрацию {ExternalId}", counterpartyDto.ExternalCounterpartyId);
 			var validationResult = _counterpartyModelValidator.CounterpartyDtoValidate(counterpartyDto);
 			if(!string.IsNullOrWhiteSpace(validationResult))
 			{
@@ -193,6 +194,9 @@ namespace CustomerAppsApi.Models
 
 			if(counterpartyRegistrationDto != null)
 			{
+				_logger.LogInformation("Нашли другого контрагента {CounterpartyId} при регистрации с таким же {ExternalId}",
+					counterpartyRegistrationDto.ErpCounterpartyId,
+					counterpartyDto.ExternalCounterpartyId);
 				return counterpartyRegistrationDto;
 			}
 
@@ -200,6 +204,9 @@ namespace CustomerAppsApi.Models
 			
 			if(counterpartyRegistrationDto != null)
 			{
+				_logger.LogInformation("Нашли другого контрагента {CounterpartyId} при регистрации с таким же {PhoneNumber}",
+					counterpartyRegistrationDto.ErpCounterpartyId,
+					counterpartyDto.PhoneNumber);
 				return counterpartyRegistrationDto;
 			}
 			
@@ -240,7 +247,7 @@ namespace CustomerAppsApi.Models
 
 		public CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto)
 		{
-			_logger.LogInformation("Запрос на обновление данных");
+			_logger.LogInformation("Запрос на обновление данных {ExternalId}", counterpartyDto.ExternalCounterpartyId);
 			var validationResult = _counterpartyModelValidator.CounterpartyDtoValidate(counterpartyDto);
 			if(!string.IsNullOrWhiteSpace(validationResult))
 			{
@@ -254,6 +261,8 @@ namespace CustomerAppsApi.Models
 
 			if(externalCounterparty is null)
 			{
+				_logger.LogInformation("При запросе обновления данных {ExternalId} контрагент не найден",
+					counterpartyDto.ExternalCounterpartyId);
 				return _counterpartyModelFactory.CreateNotFoundCounterpartyUpdateDto();
 			}
 
@@ -287,7 +296,8 @@ namespace CustomerAppsApi.Models
 			_uow.Save(counterparty);
 			_uow.Save(externalCounterparty);
 			_uow.Commit();
-
+			
+			_logger.LogInformation("Успешно обновили данные {ExternalId}", counterpartyDto.ExternalCounterpartyId);
 			return new CounterpartyUpdateDto
 			{
 				CounterpartyUpdateStatus = CounterpartyUpdateStatus.CounterpartyUpdated
