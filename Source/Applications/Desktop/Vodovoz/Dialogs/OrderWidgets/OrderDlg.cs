@@ -923,9 +923,6 @@ namespace Vodovoz
 					case nameof(Entity.Client.IsChainStore):
 						UpdateOrderAddressTypeWithUI();
 						break;
-					//case nameof(Entity.DeliveryPoint):
-					//	UpdateOrderItemsPrices();
-					//	break;
 				}
 			};
 			OnContractChanged();
