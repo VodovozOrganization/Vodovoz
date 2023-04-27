@@ -7,7 +7,6 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
-using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
@@ -116,6 +115,8 @@ namespace Vodovoz
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
 		int defectiveBottlesReturnedToWarehouse;
+
+		private IList<RouteListAddressKeepingDocumentItem> _addressKeepingDocumentItemsCacheList;
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -597,26 +598,19 @@ namespace Vodovoz
 		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
-
-			if(_hasActualCountsChangesItemIds.Contains(node.Id))
-			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, "Этот заказ уже редактировался, нужно сохранить изменения,\nлибо переоткрыть диалог.");
-
-				return;
-			}
-
 			var dlg = new OrderReturnsView(node, UoW);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
+
 		private void OnOrderReturnsViewTabClosed(object sender, EventArgs e)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
+			_addressKeepingDocumentItemsCacheList = _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentItemsCacheList);
 
-			_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node);
+			ReloadDiscrepancies();
 
-			_hasActualCountsChangesItemIds.Add(node.Id);
 			((OrderReturnsView)sender).TabClosed -= OnOrderReturnsViewTabClosed;
 		}
 

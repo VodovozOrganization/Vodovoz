@@ -108,6 +108,9 @@ parallel (
 						PublishBuildWebServiceToFolder('CashReceiptApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CashReceiptApi\\CashReceiptApi.csproj',
 							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CashReceiptApi\\bin\\Release\\net5.0_publish')
 
+						PublishBuildWebServiceToFolder('CustomerAppsApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CustomerAppsApi\\CustomerAppsApi.csproj',
+							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CustomerAppsApi\\bin\\Release\\net5.0_publish')
+
 						PublishBuildWebServiceToFolder('CashReceiptPrepareWorker', 'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\CashReceiptPrepareWorker.csproj',
 							'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\bin\\Release\\net5.0_publish')
 
@@ -329,6 +332,9 @@ def PublishWebServices(){
 				},
 				"Publish CashReceiptApi" : {
 					PublishWebService('CashReceiptApi')
+				},
+				"Publish CustomerAppsApi" : {
+					PublishWebService('CustomerAppsApi')
 				},
 				"Publish CashReceiptPrepareWorker" : {
 					PublishWebService('CashReceiptPrepareWorker')

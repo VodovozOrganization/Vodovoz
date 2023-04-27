@@ -2081,7 +2081,7 @@ namespace Vodovoz.Domain.Orders
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount, out bool isFixPrice)
 		{
 			isFixPrice = false;
-			var fixedPrice = GetFixedPriceOrNull(nomenclature);
+			var fixedPrice = GetFixedPriceOrNull(nomenclature, GetTotalWater19LCount() + bottlesCount);
 			if (fixedPrice != null && promoSet == null) {
 				isFixPrice = true;
 				return fixedPrice.Price;
@@ -2095,7 +2095,7 @@ namespace Vodovoz.Domain.Orders
 			return nomenclature.GetPrice(count, canApplyAlternativePrice);
 		}
 
-		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature)
+		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature, decimal bottlesCount)
 		{
 			IList<NomenclatureFixedPrice> fixedPrices;
 
@@ -2113,12 +2113,14 @@ namespace Vodovoz.Domain.Orders
 
 			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
 
-			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && influentialNomenclature == null)) {
-				return fixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id);
+			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && bottlesCount >= x.MinCount && influentialNomenclature == null)) 
+			{
+				return fixedPrices.OrderBy(x=>x.MinCount).Last(x => x.Nomenclature.Id == nomenclature.Id && bottlesCount >= x.MinCount);
 			}
 
-			if(influentialNomenclature != null && fixedPrices.Any(x => x.Nomenclature.Id == influentialNomenclature.Id)) {
-				return fixedPrices.First(x => x.Nomenclature.Id == influentialNomenclature?.Id);
+			if(influentialNomenclature != null && fixedPrices.Any(x => x.Nomenclature.Id == influentialNomenclature.Id && bottlesCount >= x.MinCount)) 
+			{
+				return fixedPrices.OrderBy(x => x.MinCount).Last(x => x.Nomenclature.Id == influentialNomenclature?.Id && bottlesCount >= x.MinCount);
 			}
 
 			return null;

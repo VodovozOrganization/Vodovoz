@@ -10,7 +10,9 @@ namespace Vodovoz.Models
 		
 		event EventHandler FixedPricesUpdated;
 
-		void AddOrUpdateFixedPrice(Nomenclature nomenclature, decimal fixedPrice);
+		void AddFixedPrice(Nomenclature nomenclature, decimal fixedPrice, int minCount);
+
+		void UpdateFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice, decimal fixedPrice, int minCount);
 
 		void RemoveFixedPrice(NomenclatureFixedPrice nomenclatureFixedPrice);
 

@@ -418,6 +418,10 @@ public partial class MainWindow : Gtk.Window
 		ProfitabilityConstantsAction.Sensitive =
 			commonServices.CurrentPermissionService.ValidatePresetPermission("can_read_and_edit_profitability_constants");
 
+		ExternalCounterpartiesMatchingAction.Label = "Сопоставление клиентов из внешних источников";
+		ExternalCounterpartiesMatchingAction.Sensitive =
+			commonServices.CurrentPermissionService.ValidatePresetPermission("can_matching_counterparties_from_external_sources");
+
 		ActionGroupPricing.Activated += ActionGroupPricingActivated;
 		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
 	}
@@ -2712,5 +2716,10 @@ public partial class MainWindow : Gtk.Window
 	protected void OnSalesBySubdivisionsAnalitycsActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<SalesBySubdivisionsAnalitycsReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnExternalCounterpartiesMatchingActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ExternalCounterpartiesMatchingJournalViewModel>(null);
 	}
 }

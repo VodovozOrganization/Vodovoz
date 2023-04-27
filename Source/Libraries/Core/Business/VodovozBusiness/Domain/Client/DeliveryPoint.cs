@@ -352,7 +352,7 @@ namespace Vodovoz.Domain.Client
 		public virtual GenericObservableList<DeliveryPointResponsiblePerson> ObservableResponsiblePersons {
 			get {
 				if(observableResponsiblePersons == null)
-                    observableResponsiblePersons = new GenericObservableList<DeliveryPointResponsiblePerson>(ResponsiblePersons);
+					observableResponsiblePersons = new GenericObservableList<DeliveryPointResponsiblePerson>(ResponsiblePersons);
 				return observableResponsiblePersons;
 			}
 		}
@@ -665,10 +665,10 @@ namespace Vodovoz.Domain.Client
 
 		public virtual long СoordinatesHash => CachedDistance.GetHash(this);
 
-        #endregion
+		#endregion
 
-        //FIXME вынести зависимость
-        IDeliveryRepository deliveryRepository = new DeliveryRepository();
+		//FIXME вынести зависимость
+		IDeliveryRepository deliveryRepository = new DeliveryRepository();
 
 		/// <summary>
 		/// Возврат районов доставки, в которые попадает точка доставки
@@ -855,6 +855,20 @@ namespace Vodovoz.Domain.Client
 					yield return new ValidationResult(
 						string.Format("Длина строки \"Организация\" не должна превышать 45 символов"),
 						new[] { this.GetPropertyName(o => o.Organization) });
+			}
+
+			var everyAddedMinCountValueCount = NomenclatureFixedPrices
+				.GroupBy(p => new { p.Nomenclature, p.MinCount })
+				.Select(p => new { NomenclatureName = p.Key.Nomenclature?.Name, MinCountValue = p.Key.MinCount, Count = p.Count() });
+
+			foreach(var p in everyAddedMinCountValueCount)
+			{
+				if(p.Count > 1)
+				{
+					yield return new ValidationResult(
+							$"\"{p.NomenclatureName}\": фиксированная цена для количества \"{p.MinCountValue}\" указана {p.Count} раз(а)",
+							new[] { this.GetPropertyName(o => o.NomenclatureFixedPrices) });
+				}
 			}
 
 			foreach (var fixedPrice in NomenclatureFixedPrices) {
