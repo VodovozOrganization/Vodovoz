@@ -756,6 +756,7 @@ namespace Vodovoz
 				{
 					Entity.DeliveryPoint = null;
 				}
+				UpdateOrderItemsPrices();
 			};
 
 			chkContractCloser.Sensitive =
@@ -792,6 +793,8 @@ namespace Vodovoz
 				}
 
 				UpdateOrderAddressTypeUI();
+				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+				UpdateOrderItemsPrices();
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -920,11 +923,9 @@ namespace Vodovoz
 					case nameof(Entity.Client.IsChainStore):
 						UpdateOrderAddressTypeWithUI();
 						break;
-					case nameof(Entity.SelfDelivery):
-					case nameof(Entity.DeliveryPoint):
-					case nameof(Entity.OurOrganization):
-						UpdateOrderItemsPrices();
-						break;
+					//case nameof(Entity.DeliveryPoint):
+					//	UpdateOrderItemsPrices();
+					//	break;
 				}
 			};
 			OnContractChanged();
@@ -1101,6 +1102,7 @@ namespace Vodovoz
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+			UpdateOrderItemsPrices();
 		}
 
 		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
@@ -3801,6 +3803,7 @@ namespace Vodovoz
 			if(!checkSelfDelivery.Active) {
 				checkPayAfterLoad.Active = false;
 			}
+			UpdateOrderItemsPrices();
 		}
 
 		void ObservablePromotionalSets_ListChanged(object aList)
