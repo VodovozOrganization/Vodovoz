@@ -354,6 +354,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
 				.RegisterWidgetForTabViewModel<CounterpartyDetailsFromRevenueServiceViewModel, CounterpartyDetailsFromRevenueServiceView>()
 				.RegisterWidgetForTabViewModel<DeliveryPriceRuleViewModel, DeliveryPriceRuleView>()
+				.RegisterWidgetForTabViewModel<ExternalCounterpartyMatchingViewModel, ExternalCounterpartyMatchingView>()
 				;
 
 			//Регистрация виджетов
@@ -442,6 +443,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<FastDeliveryPercentCoverageReportViewModel, FastDeliveryPercentCoverageReportView>()
 				.RegisterWidgetForWidgetViewModel<CashReceiptJournalFilterViewModel, TrueMarkReceiptJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehouseDocumentsItemsJournalFilterViewModel, WarehouseDocumentsItemsJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<ExternalCounterpartiesMatchingJournalFilterViewModel, ExternalCounterpartiesMatchingJournalFilterView>()
 				;
 			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
