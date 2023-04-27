@@ -4203,17 +4203,14 @@ namespace Vodovoz
 			_summaryInfoBuilder.AppendLine($"{lblBottlesPlannedToReturn.Text} {bottlesToReturn}").AppendLine();
 
 			var isPaymentTypeCash = Entity.PaymentType == PaymentType.Cash;
-			var paymentType = !isPaymentTypeCash
-				? Entity.PaymentType.GetEnumTitle().ToUpper()
-				: Entity.PaymentByQr
-					? "Оплата по QR"
-					: Entity.PaymentType.GetEnumTitle().ToUpper();
+			var paymentType = Entity.PaymentType.GetEnumTitle().ToUpper();
 			var isIncorrectLegalClientPaymentType =
-				Entity.Client.PersonType == PersonType.legal && Entity.PaymentType != Entity.Client.PaymentMethod;
+				Entity.Client.PersonType == PersonType.legal
+					&& Entity.PaymentType != Entity.Client.PaymentMethod;
+
 			ylblPaymentType.LabelProp = isIncorrectLegalClientPaymentType
 				? $"<span foreground='red'>{paymentType}</span>"
 				: paymentType;
-			;
 
 			_summaryInfoBuilder.AppendLine($"{lblPaymentType.Text} {paymentType}").AppendLine();
 
@@ -4222,10 +4219,13 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblPlannedSum.Text} {plannedSum}").AppendLine();
 
+			lblTrifleFrom.Visible = isPaymentTypeCash;
+			ylblTrifleFrom.Visible = isPaymentTypeCash;
+
 			var trifle = isPaymentTypeCash
 				? $"{Entity.Trifle ?? 0} руб."
 				: "";
-			lblTrifleFrom.Visible = ylblTrifleFrom.Visible = isPaymentTypeCash;
+
 			ylblTrifleFrom.Text = trifle;
 
 			if(lblTrifleFrom.Visible)

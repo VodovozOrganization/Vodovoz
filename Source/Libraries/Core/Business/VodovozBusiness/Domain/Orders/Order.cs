@@ -812,21 +812,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref contactlessDelivery, value, () => ContactlessDelivery);
 		}
 
-		bool paymentBySms;
-		[Display(Name = "Оплата по SMS")]
-		public virtual bool PaymentBySms {
-			get => paymentBySms;
-			set => SetField(ref paymentBySms, value, () => PaymentBySms);
-		}
-		
-		bool _paymentByQr;
-		[Display(Name = "Оплата по QR")]
-		public virtual bool PaymentByQr
-		{
-			get => _paymentByQr;
-			set => SetField(ref _paymentByQr, value);
-		}
-
 		ReturnTareReason returnTareReason;
 		[Display(Name = "Причина забора тары")]
 		public virtual ReturnTareReason ReturnTareReason {

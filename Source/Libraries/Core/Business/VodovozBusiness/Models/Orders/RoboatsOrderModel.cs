@@ -236,10 +236,8 @@ namespace Vodovoz.Models.Orders
 					order.PaymentType = PaymentType.TerminalQR;
 					break;
 				case RoboAtsOrderPayment.QrCode:
-					order.PaymentType = PaymentType.Cash;
+					order.PaymentType = PaymentType.DriverApplicationQR; // точно? предположение
 					order.Trifle = 0;
-					order.PaymentByQr = true;
-					order.PaymentBySms = false;
 					break;
 				default:
 					throw new NotSupportedException("Неподдерживаемый тип оплаты через Roboats");
