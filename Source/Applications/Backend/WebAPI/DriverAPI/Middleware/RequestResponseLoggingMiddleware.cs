@@ -90,12 +90,14 @@ namespace DriverAPI.Middleware
 
 			_logger.LogInformation("Http Response Information: " +
 								   "Schema: {RequestScheme} " +
+								   "Code: {Code}" +
 								   "Host: {RequestHost} " +
 								   "Path: {RequestPath} " +
 								   "QueryString: {RequestQueryString} " +
 								   "Response Body: {RequestBody} | " +
 								   "Elapsed: {RequestTotalMilliseconds}ms",
 								   context.Request.Scheme,
+								   context.Response.StatusCode,
 								   context.Request.Host,
 								   context.Request.Path,
 								   context.Request.QueryString,
