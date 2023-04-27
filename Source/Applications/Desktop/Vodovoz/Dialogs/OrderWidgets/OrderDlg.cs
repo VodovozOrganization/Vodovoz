@@ -920,6 +920,10 @@ namespace Vodovoz
 					case nameof(Entity.Client.IsChainStore):
 						UpdateOrderAddressTypeWithUI();
 						break;
+					case nameof(Entity.SelfDelivery):
+					case nameof(Entity.DeliveryPoint):
+						UpdateOrderItemsPrices();
+						break;
 				}
 			};
 			OnContractChanged();
@@ -3342,18 +3346,16 @@ namespace Vodovoz
 			column.Visible = Entity.ObservableOrderDocuments.Any(x => x.Order.Id != x.AttachedToOrder.Id);
 		}
 
+		private void UpdateOrderItemsPrices()
+		{
+			for(int i = 0; i < Entity.ObservableOrderItems.Count; i++)
+			{
+				FixPrice(i);
+			}
+		}
+
 		void FixPrice(int id)
 		{
-			if(Entity.ObservableOrderItems.Count == 0)
-			{
-				return;
-			}
-
-			if(id >= Entity.ObservableOrderItems.Count)
-			{
-				id = Entity.ObservableOrderItems.Count - 1;
-			}
-
 			OrderItem item = Entity.ObservableOrderItems[id];
 			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0)
 				return;
@@ -3385,6 +3387,8 @@ namespace Vodovoz
 				foreach(var i in aIdx) {
 					OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
 
+					FixPrice(aIdx[0]);
+
 					if(oItem?.CopiedFromUndelivery == null)
 					{
 						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : oItem.Count;
@@ -3392,8 +3396,6 @@ namespace Vodovoz
 						                           && oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
 						                           && oItem.GetWaterFixedPrice() == null;
 					}
-
-					FixPrice(aIdx[0]);
 
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
 						HboxReturnTareReasonCategoriesShow();
