@@ -97,6 +97,10 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Orders;
+using QS.Dialog.GtkUI.FileDialog;
+using Vodovoz.Settings.Database;
+using Vodovoz.SidePanel.InfoViews;
+using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using VodovozInfrastructure.Configuration;
@@ -708,9 +712,8 @@ namespace Vodovoz
 				.AddFuncBinding(e => e.Client != null, w => w.Sensitive)
 				.InitializeFromSource();
 
-			var roboatsSettings = new RoboatsSettings(_parametersProvider);
-			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService,
-				ErrorReporter.Instance);
+			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var deliveryScheduleRepository = new DeliveryScheduleRepository();
 			var fileDialogService = new FileDialogService();
 			var _roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService,

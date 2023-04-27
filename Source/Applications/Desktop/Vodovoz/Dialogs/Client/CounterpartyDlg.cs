@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -139,7 +139,8 @@ namespace Vodovoz
 		private TrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings = new EdoSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
-		private ICounterpartySettings _counterpartySettings = new CounterpartySettings(new ParametersProvider());
+		private ICounterpartySettings _counterpartySettings =
+			new CounterpartySettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 		private IRevenueServiceClient _revenueServiceClient;
 
@@ -312,7 +313,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			var roboatsSettings = new RoboatsSettings(new ParametersProvider());
+			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);

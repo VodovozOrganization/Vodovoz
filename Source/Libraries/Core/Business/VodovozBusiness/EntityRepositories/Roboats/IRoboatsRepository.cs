@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Roboats;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -28,5 +29,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 		IEnumerable<RoboatsWaterType> GetWaterTypes();
 		IEnumerable<RoboatsCall> GetStaleCalls(IUnitOfWork uow);
 		RoboatsCall GetCall(IUnitOfWork uow, Guid callGuid);
+		RoboAtsCounterpartyName GetCounterpartyName(IUnitOfWork uow, string name);
+		RoboAtsCounterpartyPatronymic GetCounterpartyPatronymic(IUnitOfWork uow, string patronymic);
 	}
 }

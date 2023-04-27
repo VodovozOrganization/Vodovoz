@@ -24,6 +24,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
@@ -125,8 +126,7 @@ namespace Vodovoz.ViewWidgets
 			if(undelivery.Id <= 0)
 				yDateDispatcherCallTime.DateOrNull = DateTime.Now;
 
-
-			var roboatsSettings = new RoboatsSettings(new ParametersProvider());
+			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var deliveryScheduleRepository = new DeliveryScheduleRepository();
 			var fileDialogService = new FileDialogService();
