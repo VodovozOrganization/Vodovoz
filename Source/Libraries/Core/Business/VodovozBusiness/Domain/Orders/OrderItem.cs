@@ -536,9 +536,7 @@ namespace Vodovoz.Domain.Orders
 			if(Nomenclature != null)
 			{
 				var curCount = Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count;
-				var canApplyAlternativePrice = KeepExistingPrices
-					? IsAlternativePrice
-					: Order.HasPermissionsForAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount);
+				var canApplyAlternativePrice = Order.HasPermissionsForAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount);
 
 				if(Nomenclature.DependsOnNomenclature == null)
 					return Nomenclature.GetPrice(curCount, canApplyAlternativePrice);
@@ -644,8 +642,6 @@ namespace Vodovoz.Domain.Orders
 
 			return canUseVAT;
 		}
-
-		public bool KeepExistingPrices { get; set; } = false;
 
 		#endregion
 	}
