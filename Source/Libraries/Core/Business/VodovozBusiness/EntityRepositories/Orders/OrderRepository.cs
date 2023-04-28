@@ -101,6 +101,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			DateTime endDate,
 			int? organizationId = null)
 		{
+			var oldReceiptFromYouKassa = new[] {
+				orderParametersProvider.PaymentByCardFromSiteId,
+				orderParametersProvider.PaymentByCardFromMobileAppId
+			};
+
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 
@@ -146,6 +151,9 @@ namespace Vodovoz.EntityRepositories.Orders
 						.Where(Restrictions.Disjunction()
 							.Add(() => orderAlias.PaymentType == PaymentType.cashless)
 							.Add(Restrictions.Where(() => cashReceiptAlias.Status == CashReceiptStatus.Sended))
+							//Включение в выгрузку старых заказов, на которых нет чеков
+							//(с 26.04.2023 16:10 заказы с этими источниками оплаты имеют чеки сформированные через ДВ)
+							.Add(Restrictions.On(() => orderAlias.PaymentByCardFrom.Id).IsIn(oldReceiptFromYouKassa))
 						);
 					break;
 				case Export1cMode.IPForTinkoff:
