@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using Polly.Retry;
+using Polly;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -8,10 +8,10 @@ namespace VodovozMangoService.Extensions
 {
 	public static class DapperExtensions
 	{
-		public static async Task<IEnumerable<T>> QueryAsyncWithRetry<T>(
+		public static async Task<IEnumerable<T>> QueryAsyncWithPolicy<T>(
 			this IDbConnection connection,
 			string query,
-			AsyncRetryPolicy policy,
+			IAsyncPolicy policy,
 			object param = null) =>
 			await policy.ExecuteAsync(async () => await connection.QueryAsync<T>(query, param));
 	}
