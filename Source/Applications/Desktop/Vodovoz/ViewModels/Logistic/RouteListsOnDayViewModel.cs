@@ -1,20 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Text;
-using FluentNHibernate.Utils;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QS.Utilities;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Domain.Cash;
@@ -22,23 +24,21 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
-using Order = Vodovoz.Domain.Orders.Order;
-using QS.Navigation;
-using QS.DomainModel.UoW;
-using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Services;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Sale;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -448,7 +448,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public IList<UndeliveryOrderNode> UndeliveredOrdersOnDay { get; set; }
 
-		public IList<Order> OrdersOnDay { get; set; }
+		public IList<OrderNode> OrdersOnDay { get; set; }
 
 		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; private set; }
 
@@ -1177,7 +1177,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(OrdersOnDay == null)
 			{
-				OrdersOnDay = new List<Order>();
+				OrdersOnDay = new List<OrderNode>();
 			}
 			else
 			{
@@ -1226,43 +1226,68 @@ namespace Vodovoz.ViewModels.Logistic
 
 				baseOrderQuery.Fetch(SelectMode.Fetch, x => x.OrderItems).Future();
 
+				var resultOrdersQuery = ordersQuery;
+
 				switch(DeliveryScheduleType)
 				{
 					case DeliveryScheduleFilterType.DeliveryStart:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-								.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
-								.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
-								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-								.Distinct().ToList()
+						resultOrdersQuery = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+							.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
+							.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
+							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
 							;
+
 						break;
 					case DeliveryScheduleFilterType.DeliveryEnd:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-								.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
-								.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
-								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-								.Distinct().ToList()
+						resultOrdersQuery = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+							.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
+							.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
+							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
 							;
 						break;
 					case DeliveryScheduleFilterType.DeliveryStartAndEnd:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-								.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
-								.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
-								.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
-								.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
-								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-								.Distinct().ToList()
+						resultOrdersQuery = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+							.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
+							.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
+							.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
+							.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
+							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
 							;
 						break;
 					case DeliveryScheduleFilterType.OrderCreateDate:
-						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-								.Where(x => x.CreateDate.Value.TimeOfDay >= DeliveryFromTime)
-								.Where(x => x.CreateDate.Value.TimeOfDay <= DeliveryToTime)
-								.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-								.Distinct().ToList()
+						resultOrdersQuery = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+							.Where(x => x.CreateDate.Value.TimeOfDay >= DeliveryFromTime)
+							.Where(x => x.CreateDate.Value.TimeOfDay <= DeliveryToTime)
+							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
 							;
 						break;
 				}
+
+				OrdersOnDay = resultOrdersQuery
+						.Distinct()
+						.Select(o => new OrderNode
+						{
+							OrderId = o.Id,
+							DeliveryPointLatitude = o.DeliveryPoint.Latitude,
+							DeliveryPointLongitude = o.DeliveryPoint.Longitude,
+							DeliveryPointShortAddress = o.DeliveryPoint.ShortAddress,
+							DeliveryPointNetTopologyPoint = o.DeliveryPoint.NetTopologyPoint,
+							DeliveryPointDistrictId = o.DeliveryPoint.District.Id,
+							LogisticsRequirements = o.LogisticsRequirements,
+							OrderAddressType = o.OrderAddressType,
+							DeliverySchedule = o.DeliverySchedule,
+							Total19LBottlesToDeliver = o.Total19LBottlesToDeliver,
+							Total6LBottlesToDeliver = o.Total6LBottlesToDeliver,
+							Total600mlBottlesToDeliver = o.Total600mlBottlesToDeliver,
+							BottlesReturn = o.BottlesReturn,
+							OrderComment = o.Comment,
+							DeliveryPointComment = o.DeliveryPoint.Comment,
+							CommentManager = o.CommentManager,
+							ODZComment = o.ODZComment,
+							OPComment = o.OPComment,
+							DriverMobileAppComment = o.DriverMobileAppComment
+						})
+						.ToList();
 
 
 				UndeliveredOrder undeliveredOrderAlias = null;
@@ -1355,9 +1380,11 @@ namespace Vodovoz.ViewModels.Logistic
 				return false;
 			}
 
+			var orderIds = OrdersOnDay.Select(o => o.OrderId).Distinct().ToList();
+
 			Optimizer.UoW = UoW;
 			Optimizer.Routes = RoutesOnDay;
-			Optimizer.Orders = OrdersOnDay;
+			Optimizer.Orders = UoW.GetAll<Order>().Where(o => orderIds.Contains(o.Id)).ToList();
 			Optimizer.Drivers = DriversOnDay;
 			Optimizer.Forwarders = ForwardersOnDay;
 			Optimizer.StatisticsTxtAction = statisticsUpdateAction;
@@ -1564,5 +1591,28 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 
 		public bool CanСreateRoutelistInPastPeriod { get; }
+	}
+
+	public class OrderNode
+	{
+		public int OrderId { get; set; }
+		public decimal? DeliveryPointLatitude { get; set; }
+		public decimal? DeliveryPointLongitude { get; set; }
+		public string DeliveryPointShortAddress { get; set; }
+		public Point DeliveryPointNetTopologyPoint { get; set; }
+		public int DeliveryPointDistrictId { get; set; }
+		public LogisticsRequirements LogisticsRequirements { get; set; }
+		public OrderAddressType OrderAddressType { get; set; }
+		public DeliverySchedule DeliverySchedule { get; set; }
+		public int Total19LBottlesToDeliver { get; set; }
+		public int Total6LBottlesToDeliver { get; set; }
+		public int Total600mlBottlesToDeliver { get; set; }
+		public int? BottlesReturn { get; set; }
+		public string OrderComment { get; set; }
+		public string DeliveryPointComment { get; set; }
+		public string CommentManager { get; set; }
+		public string ODZComment { get; set; }
+		public string OPComment { get; set; }
+		public string DriverMobileAppComment { get; set; }
 	}
 }
