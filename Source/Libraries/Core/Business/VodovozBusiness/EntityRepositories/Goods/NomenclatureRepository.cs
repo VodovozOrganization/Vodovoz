@@ -537,6 +537,16 @@ namespace Vodovoz.EntityRepositories.Goods
 
 			return query.Sum(x => x.WarehouseExpensesSum);
 		}
+
+		public bool Has19LWater(IUnitOfWork uow, int[] siteNomenclaturesIds)
+		{
+			return uow.Session.QueryOver<Nomenclature>()
+				.WhereRestrictionOn(n => n.Id).IsIn(siteNomenclaturesIds)
+				.And(n => n.Category == NomenclatureCategory.water)
+				.And(n => n.TareVolume == TareVolume.Vol19L)
+				.List()
+				.Any();
+		}
 	}
 
 	public class NomenclatureAmountNode
