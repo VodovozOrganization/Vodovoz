@@ -541,7 +541,7 @@ namespace Vodovoz.Views.Logistic
 					if(selectedMarkers.FirstOrDefault(m => (m.Tag as OrderNode)?.OrderId == order.OrderId) != null)
 						type = PointMarkerType.white;
 
-					var addressMarker = FillAddressMarker(order, type, shape, addressesOverlay, route);
+					var addressMarker = FillAddressMarker(order, type, shape, logisticsRequrementsType, logisticsRequrementsShape, addressesOverlay, route);
 					addressesOverlay.Markers.Add(addressMarker);
 
 					//FillTypeAndShapeLogisticsRequrementsMarker(order, out PointMarkerShape shapeLogisticsRequrements, out PointMarkerType typeLogisticsRequrements);
@@ -836,7 +836,7 @@ namespace Vodovoz.Views.Logistic
 			return addressMarker;
 		}
 
-		private PointMarker FillAddressMarker(OrderNode order, PointMarkerType type, PointMarkerShape shape, GMapOverlay overlay, RouteList route)
+		private PointMarker FillAddressMarker(OrderNode order, PointMarkerType type, PointMarkerShape shape, PointMarkerType logisticsRequirementsType, PointMarkerShape logisticsRequirementsShape, GMapOverlay overlay, RouteList route)
 		{
 			string ttText = order.DeliveryPointShortAddress;
 			if(order.Total19LBottlesToDeliver > 0)
@@ -858,7 +858,7 @@ namespace Vodovoz.Views.Logistic
 			var orderLat = (double)order.DeliveryPointLatitude;
 			var orderLong = (double)order.DeliveryPointLongitude;
 
-			var addressMarker = new PointMarker(new PointLatLng(orderLat, orderLong), type, shape)
+			var addressMarker = new PointMarker(new PointLatLng(orderLat, orderLong), type, shape, logisticsRequirementsType, logisticsRequirementsShape)
 			{
 				Tag = order,
 				ToolTipText = ttText

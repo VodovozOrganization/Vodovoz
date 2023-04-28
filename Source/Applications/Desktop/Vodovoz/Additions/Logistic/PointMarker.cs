@@ -14,6 +14,7 @@ namespace Vodovoz.Additions.Logistic
 	{
 		Bitmap Bitmap;
 		Bitmap BitmapShadow;
+		Bitmap _bitmapLogisticsRequirements;
 
 		private PointMarkerType type;
 		public PointMarkerType Type
@@ -58,6 +59,22 @@ namespace Vodovoz.Additions.Logistic
 			}
 		}
 
+		private PointMarkerShape? _logisticsRequirementsMarkerShape;
+		public PointMarkerShape? LogisticsRequirementsMarkerShape
+		{
+			get { return _logisticsRequirementsMarkerShape; }
+			set { _logisticsRequirementsMarkerShape = value; }
+		}
+
+		private PointMarkerType? _logisticsRequirementsMarkerType;
+
+		public PointMarkerType? LogisticsRequirementsMarkerType
+		{
+			get { return _logisticsRequirementsMarkerType; }
+			set { _logisticsRequirementsMarkerType = value; }
+		}
+
+
 		public PointMarker(PointLatLng p, PointMarkerType type)
 			: base(p)
 		{
@@ -70,32 +87,49 @@ namespace Vodovoz.Additions.Logistic
 			this.Shape = shape;
 		}
 
+		public PointMarker(PointLatLng p, PointMarkerType type, PointMarkerShape shape, PointMarkerType logisticsRequirementsType, PointMarkerShape logisticsRequirementsShape)
+			: this(p, type)
+		{
+			LogisticsRequirementsMarkerShape = logisticsRequirementsShape;
+			LogisticsRequirementsMarkerType = logisticsRequirementsType;
+			Shape = shape;
+		}
+
 		void LoadBitmap()
 		{
 			string iconPath = string.Join(".", Shape.ToString(), Type.ToString());
 			Bitmap = GetIcon(iconPath);
 			Size = new Size(Bitmap.Width, Bitmap.Height);
 
-			var logisticsRequirementsTypes = new List<PointMarkerType>()
-			{
-				PointMarkerType.logistics_requirements_forwarder,
-				PointMarkerType.logistics_requirements_documents,
-				PointMarkerType.logistics_requirements_nationality,
-				PointMarkerType.logistics_requirements_pass,
-				PointMarkerType.logistics_requirements_largus,
-				PointMarkerType.logistics_requirements_many
-			};
+			//var logisticsRequirementsTypes = new List<PointMarkerType>()
+			//{
+			//	PointMarkerType.logistics_requirements_forwarder,
+			//	PointMarkerType.logistics_requirements_documents,
+			//	PointMarkerType.logistics_requirements_nationality,
+			//	PointMarkerType.logistics_requirements_pass,
+			//	PointMarkerType.logistics_requirements_largus,
+			//	PointMarkerType.logistics_requirements_many
+			//};
 
-			if(logisticsRequirementsTypes.Any(t => t == type))
-			{
-				Offset = new Point(Size.Width / 2, -Size.Height - 10);
-				return;
-			}
+			//if(logisticsRequirementsTypes.Any(t => t == type))
+			//{
+			//	Offset = new Point(Size.Width / 2, -Size.Height - 10);
+			//	return;
+			//}
 
 			Offset = new Point(-Size.Width / 2, -Size.Height + 1);
 
 			string shadowPath = string.Join(".", Shape.ToString(), "marker_shadow");
 			BitmapShadow = GetIcon(shadowPath);
+
+			if (LogisticsRequirementsMarkerShape != null 
+				&& LogisticsRequirementsMarkerType != null 
+				&& LogisticsRequirementsMarkerShape != PointMarkerShape.none 
+				&& LogisticsRequirementsMarkerType != PointMarkerType.none)
+			{
+				string logisticsRequirementsIconPath = string.Join(".", LogisticsRequirementsMarkerShape.ToString(), LogisticsRequirementsMarkerType.ToString());
+				_bitmapLogisticsRequirements = GetIcon(logisticsRequirementsIconPath);
+			}
 		}
 
 		static readonly Dictionary<string, Bitmap> iconCache = new Dictionary<string, Bitmap>();
@@ -123,7 +157,11 @@ namespace Vodovoz.Additions.Logistic
 			if(BitmapShadow != null)
 			{
 				g.DrawImage(BitmapShadow, LocalPosition.X, LocalPosition.Y, BitmapShadow.Width, BitmapShadow.Height);
-			}                
+			}
+			if(_bitmapLogisticsRequirements != null)
+			{
+				g.DrawImage(_bitmapLogisticsRequirements, LocalPosition.X + Size.Width, LocalPosition.Y - Size.Height + 8, 10, 15);
+			}
 			g.DrawImage(Bitmap, LocalPosition.X, LocalPosition.Y, Size.Width, Size.Height);
 		}
 
