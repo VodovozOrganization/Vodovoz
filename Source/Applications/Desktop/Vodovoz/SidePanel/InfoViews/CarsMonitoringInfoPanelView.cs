@@ -20,8 +20,6 @@ namespace Vodovoz.SidePanel.InfoViews
 	[ToolboxItem(true)]
 	public partial class CarsMonitoringInfoPanelView : Bin, IPanelView, INotifyPropertyChanged, IDisposable
 	{
-		private static FastDeliveryMonitoringNode _emptyNode => new FastDeliveryMonitoringNode();
-		
 		private const string _radioButtonPrefix = "yrbtn";
 		private const string _groupFilterOrdersPrefix = "FilterOrders";
 		private const string _groupFastDeliveryIntervalFromPrefix = "FastDeliveryIntervalFrom";
@@ -71,6 +69,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			buttonRefresh.Clicked += OnButtonRefreshClicked;
 
+			ytbtnShowFilters.Toggled += OnYtbtnShowFiltersToggled;
+
 			ycheckbuttonIsFastDeliveryOnly.Binding
 				.AddBinding(this, v => v.IsFastDeliveryOnly, w => w.Active)
 				.InitializeFromSource();
@@ -109,6 +109,12 @@ namespace Vodovoz.SidePanel.InfoViews
 			_timeoutTimerHandler = new TimeoutHandler(RefreshNodesTimerHandler);
 			StartTimer(_timeoutTimerHandler);
 		}
+
+		private void OnYtbtnShowFiltersToggled(object sender, EventArgs e)
+		{
+			vboxFilterContainer.Visible = ytbtnShowFilters.Active;
+		}
+
 		private void StartTimer(TimeoutHandler timeoutHandler)
 		{
 			_timerId = GLib.Timeout.Add((uint)TimeSpan.FromSeconds(1).TotalMilliseconds, timeoutHandler);
@@ -312,8 +318,6 @@ namespace Vodovoz.SidePanel.InfoViews
 						Column3 = timeElapsedString
 					});
 				}
-
-				Nodes.Add(_emptyNode);
 			}
 		}
 
@@ -325,7 +329,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public override void Destroy()
 		{
-			GLib.Source.Remove(_timerId);
+			Source.Remove(_timerId);
 			ytvAddressesInProcess.Destroy();
 			base.Destroy();
 		}
