@@ -5,6 +5,9 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate.Dialect.Function;
+using NPOI.SS.Formula.Functions;
+using QS.Project.DB;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Goods;
@@ -496,6 +499,34 @@ namespace Vodovoz.EntityRepositories.Roboats
 				.Where(() => roboatsCallAlias.CallGuid == callGuid)
 				.SingleOrDefault();
 			return call;
+		}
+
+		public RoboAtsCounterpartyName GetCounterpartyName(IUnitOfWork uow, string name)
+		{
+			if(string.IsNullOrWhiteSpace(name))
+			{
+				return null;
+			}
+			
+			return uow.Session.QueryOver<RoboAtsCounterpartyName>()
+				.Where(Restrictions.Eq(
+					CustomProjections.Lower<RoboAtsCounterpartyName>(rn => rn.Name),
+					name.ToLower()))
+				.SingleOrDefault();
+		}
+		
+		public RoboAtsCounterpartyPatronymic GetCounterpartyPatronymic(IUnitOfWork uow, string patronymic)
+		{
+			if(string.IsNullOrWhiteSpace(patronymic))
+			{
+				return null;
+			}
+			
+			return uow.Session.QueryOver<RoboAtsCounterpartyPatronymic>()
+				.Where(Restrictions.Eq(
+					CustomProjections.Lower<RoboAtsCounterpartyPatronymic>(rp => rp.Patronymic),
+					patronymic.ToLower()))
+				.SingleOrDefault();
 		}
 	}
 }

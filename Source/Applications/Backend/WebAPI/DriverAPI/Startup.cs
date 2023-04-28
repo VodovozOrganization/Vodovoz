@@ -2,27 +2,35 @@
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using DriverAPI.Middleware;
+using DriverAPI.Options;
+using DriverAPI.Services;
+using DriverAPI.Workers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using MySql.Data.MySqlClient;
 using NLog.Web;
+using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Linq;
+using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text;
-using QS.Attachments.Domain;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
@@ -30,16 +38,12 @@ using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Tools;
 using Vodovoz.Settings.Database;
-using System.Reflection;
-using Vodovoz.Models.TrueMark;
-using DriverAPI.Services;
-using DriverAPI.Workers;
-using System.Net.Http.Headers;
+using Vodovoz.Tools;
 
 namespace DriverAPI
 {
@@ -135,10 +139,23 @@ namespace DriverAPI
 			services.AddControllersWithViews();
 			services.AddControllers();
 			
-			services.AddSwaggerGen(c =>
+			services.AddApiVersioning(config =>
 			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "DriverAPI", Version = "v1" });
+				config.DefaultApiVersion = new ApiVersion(1, 0);
+				config.AssumeDefaultVersionWhenUnspecified = true;
+				config.ReportApiVersions = true;
+				config.ApiVersionReader = new UrlSegmentApiVersionReader();
 			});
+
+			services.AddVersionedApiExplorer(config =>
+			{
+				config.GroupNameFormat = "'v'VVV";
+				config.SubstituteApiVersionInUrl = true;
+			});
+
+			services.AddSwaggerGen();
+
+			services.ConfigureOptions<ConfigureSwaggerOptions>();
 			
 			services.AddHttpClient<IFastPaymentsServiceAPIHelper, FastPaymentsesServiceApiHelper>(c =>
 			{
@@ -163,13 +180,22 @@ namespace DriverAPI
 			app.UseRequestResponseLogging();
 
 			app.UseSwagger();
-			app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DriverAPI v1"));
+			app.UseSwaggerUI(options =>
+			{
+				var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+
+				foreach(var description in provider.ApiVersionDescriptions)
+				{
+					options.SwaggerEndpoint(
+						 $"/swagger/{description.GroupName}/swagger.json",
+						 description.ApiVersion.ToString());
+				}
+			});
 
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseMigrationsEndPoint();
-				
 			}
 			else
 			{
@@ -177,8 +203,6 @@ namespace DriverAPI
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
-
-			
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();

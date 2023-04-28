@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
@@ -30,7 +30,10 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
                 case nameof(NomenclatureFixedPrice.Price):
                     OnPropertyChanged(nameof(FixedPrice));
                     break;
-            }
+				case nameof(NomenclatureFixedPrice.MinCount):
+					OnPropertyChanged(nameof(MinCount));
+					break;
+			}
         }
 		
         private void NomenclatureOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -46,7 +49,13 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 
         public decimal FixedPrice {
             get => NomenclatureFixedPrice.Price;
-            set => fixedPriceModel.AddOrUpdateFixedPrice(NomenclatureFixedPrice.Nomenclature, value);
+            set => fixedPriceModel.UpdateFixedPrice(NomenclatureFixedPrice, value, MinCount);
         }
-    }
+
+		public int MinCount
+		{
+			get => NomenclatureFixedPrice.MinCount;
+			set => fixedPriceModel.UpdateFixedPrice(NomenclatureFixedPrice, FixedPrice, value);
+		}
+	}
 }

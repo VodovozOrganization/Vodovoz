@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
@@ -200,6 +201,89 @@ namespace Vodovoz.EntityRepositories
 			return uow.GetById<BulkEmailEventReason>(emailParametersProvider.BulkEmailEventOperatorReasonId);
 		}
 
+		public Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
+		{
+			Email email = null;
+
+			IList<Func<IUnitOfWork, int, Email>> queries = new List<Func<IUnitOfWork, int, Email>>
+			{
+				GetBillsEmailForExternalCounterparty,
+				GetWorkEmailForExternalCounterparty,
+				GetPersonalEmailForExternalCounterparty,
+				GetReceiptsEmailForExternalCounterparty,
+				GetEmailWithoutTypeForExternalCounterparty
+			};
+
+			for(var i = 0; i < queries.Count; i++)
+			{
+				email = queries[i].Invoke(uow, counterpartyId);
+
+				if(email != null)
+				{
+					return email;
+				}
+			}
+			
+			return email;
+		}
+
+		private Email GetBillsEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
+		{
+			return GetEmailByTypeForExternalCounterparty(counterpartyId, EmailPurpose.ForBills)
+				.GetExecutableQueryOver(uow.Session)
+				.SingleOrDefault();
+		}
+		
+		private Email GetWorkEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
+		{
+			return GetEmailByTypeForExternalCounterparty(counterpartyId, EmailPurpose.Work)
+				.GetExecutableQueryOver(uow.Session)
+				.SingleOrDefault();
+		}
+		
+		private Email GetPersonalEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
+		{
+			return GetEmailByTypeForExternalCounterparty(counterpartyId, EmailPurpose.Personal)
+				.GetExecutableQueryOver(uow.Session)
+				.SingleOrDefault();
+		}
+		
+		private Email GetReceiptsEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
+		{
+			return GetEmailByTypeForExternalCounterparty(counterpartyId, EmailPurpose.ForReceipts)
+				.GetExecutableQueryOver(uow.Session)
+				.SingleOrDefault();
+		}
+		
+		private QueryOver<Email> GetEmailByTypeForExternalCounterparty(int counterpartyId, EmailPurpose emailPurpose)
+		{
+			EmailType emailTypeAlias = null;
+
+			return QueryOver.Of<Email>()
+				.JoinAlias(e => e.EmailType, () => emailTypeAlias)
+				.Where(e => e.Counterparty.Id == counterpartyId)
+				.And(() => emailTypeAlias.EmailPurpose == emailPurpose)
+				.Take(1);
+		}
+		
+		private Email GetEmailWithoutTypeForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
+		{
+			return GetEmailWithoutTypeForExternalCounterparty(counterpartyId)
+				.GetExecutableQueryOver(uow.Session)
+				.SingleOrDefault();
+		}
+		
+		private QueryOver<Email> GetEmailWithoutTypeForExternalCounterparty(int counterpartyId)
+		{
+			EmailType emailTypeAlias = null;
+
+			return QueryOver.Of<Email>()
+				.Left.JoinAlias(e => e.EmailType, () => emailTypeAlias)
+				.Where(e => e.Counterparty.Id == counterpartyId)
+				.And(() => emailTypeAlias.Id == null)
+				.Take(1);
+		}
+
 		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailParametersProvider emailParametersProvider, bool isForUnsubscribePage = false)
 		{
 			BulkEmailEventReason bulkEmailEventReasonAlias = null;
@@ -222,6 +306,13 @@ namespace Vodovoz.EntityRepositories
 		public IList<EmailType> GetEmailTypes(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<EmailType>().List<EmailType>();
+		}
+		
+		public EmailType GetEmailTypeForReceipts(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<EmailType>()
+				.Where(et => et.EmailPurpose == EmailPurpose.ForReceipts)
+				.SingleOrDefault();
 		}
 
 		public EmailType EmailTypeWithPurposeExists(IUnitOfWork uow, EmailPurpose emailPurpose)

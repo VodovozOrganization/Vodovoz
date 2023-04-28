@@ -20,7 +20,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			base.ConfigureWidget();
 
 			ytreeviewFixedPrices.ColumnsConfig = FluentColumnsConfig<NomenclatureFixedPrice>.Create()
-				.AddColumn("Фиксированная цена").AddNumericRenderer(x => x.Price).Digits(2)
+				.AddColumn("Мин.\nкол.").AddNumericRenderer(x => x.MinCount)
+				.AddColumn("Фиксированная\nцена").AddNumericRenderer(x => x.Price).Digits(2)
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
 				.Finish();
 			ytreeviewFixedPrices.Binding.AddFuncBinding(ViewModel, vm => vm.FixedPrices, w => w.ItemsDataSource).InitializeFromSource();

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1907,6 +1907,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListFastDeliveryMaxDistanceView.cs" />
     <Compile Include="Views\Logistic\LogisticsRequirementsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.LogisticsRequirementsView.cs" />
+    <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CarsMonitoringInfoPanelView.cs" />
+    <Compile Include="Filters\Views\ExternalCounterpartiesMatchingJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.ExternalCounterpartiesMatchingJournalFilterView.cs" />
+    <Compile Include="Views\Client\ExternalCounterpartyMatchingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.ExternalCounterpartyMatchingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

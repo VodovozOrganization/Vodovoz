@@ -255,7 +255,7 @@ namespace Vodovoz
 			switch(nomenclature.Category)
 			{
 				case NomenclatureCategory.water:
-					_routeListItem.Order.AddWaterForSale(nomenclature, 0, 0, keepExistingPrices: true);
+					_routeListItem.Order.AddWaterForSale(nomenclature, 0, 0);
 					break;
 				case NomenclatureCategory.master:
 					_routeListItem.Order.AddMasterNomenclature(nomenclature, 0);
@@ -277,8 +277,7 @@ namespace Vodovoz
 		{
 			_nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			_nomenclatureFixedPriceProvider =
-				new NomenclatureFixedPriceController(
-					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository));
+				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
 			_canEditPrices =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
 			_orderNode = new OrderNode(_routeListItem.Order);

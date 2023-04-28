@@ -857,6 +857,20 @@ namespace Vodovoz.Domain.Client
 						new[] { this.GetPropertyName(o => o.Organization) });
 			}
 
+			var everyAddedMinCountValueCount = NomenclatureFixedPrices
+				.GroupBy(p => new { p.Nomenclature, p.MinCount })
+				.Select(p => new { NomenclatureName = p.Key.Nomenclature?.Name, MinCountValue = p.Key.MinCount, Count = p.Count() });
+
+			foreach(var p in everyAddedMinCountValueCount)
+			{
+				if(p.Count > 1)
+				{
+					yield return new ValidationResult(
+							$"\"{p.NomenclatureName}\": фиксированная цена для количества \"{p.MinCountValue}\" указана {p.Count} раз(а)",
+							new[] { this.GetPropertyName(o => o.NomenclatureFixedPrices) });
+				}
+			}
+
 			foreach (var fixedPrice in NomenclatureFixedPrices) {
 				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
 				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {

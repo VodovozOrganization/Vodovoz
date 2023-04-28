@@ -1634,17 +1634,18 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Добавление/удаление товаров
-		public virtual void AddOrderItem(OrderItem orderItem, bool forceUseAlternativePrice = false, bool isFixPrice = false)
+		public virtual void AddOrderItem(OrderItem orderItem, bool forceUseAlternativePrice = false)
 		{
-			var curCount = orderItem.Nomenclature.IsWater19L ? GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : orderItem.Count;
-			var canApplyAlternativePrice = forceUseAlternativePrice 
-			                               || (HasPermissionsForAlternativePrice 
-			                                   && orderItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
-			                                   && !isFixPrice);
-
 			if(ObservableOrderItems.Contains(orderItem)) {
 				return;
 			}
+
+			var curCount = orderItem.Nomenclature.IsWater19L ? GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : orderItem.Count;
+			var isAlternativePriceCopiedFromUndelivery = orderItem.CopiedFromUndelivery != null && orderItem.IsAlternativePrice;
+			var canApplyAlternativePrice = isAlternativePriceCopiedFromUndelivery
+			                               || (HasPermissionsForAlternativePrice
+			                                   && orderItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
+			                                   && orderItem.GetWaterFixedPrice() == null);
 
 			orderItem.IsAlternativePrice = canApplyAlternativePrice;
 
@@ -2026,7 +2027,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void AddWaterForSale(Nomenclature nomenclature, decimal count, decimal discount = 0, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null, bool keepExistingPrices = false)
+		public virtual void AddWaterForSale(Nomenclature nomenclature, decimal count, decimal discount = 0, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return;
@@ -2043,13 +2044,7 @@ namespace Vodovoz.Domain.Orders
 				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
 			}
 
-			decimal price = GetWaterPrice(nomenclature, proSet, count, out var isFixPrice);
-
-			//Помечаем, зафиксировать ли цену у существующих позиций (нужно ли пересчитывать цену)
-			foreach(var item in OrderItems)
-			{
-				item.KeepExistingPrices = keepExistingPrices;
-			}
+			decimal price = GetWaterPrice(nomenclature, proSet, count);
 
 			var oi = new OrderItem {
 				Order = this,
@@ -2062,7 +2057,7 @@ namespace Vodovoz.Domain.Orders
 				DiscountReason = reason,
 				PromoSet = proSet
 			};
-			AddOrderItem(oi, isFixPrice: isFixPrice);
+			AddOrderItem(oi);
 		}
 
 		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
@@ -2086,12 +2081,10 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount, out bool isFixPrice)
+		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
 		{
-			isFixPrice = false;
-			var fixedPrice = GetFixedPriceOrNull(nomenclature);
+			var fixedPrice = GetFixedPriceOrNull(nomenclature, GetTotalWater19LCount() + bottlesCount);
 			if (fixedPrice != null && promoSet == null) {
-				isFixPrice = true;
 				return fixedPrice.Price;
 			}
 
@@ -2103,7 +2096,7 @@ namespace Vodovoz.Domain.Orders
 			return nomenclature.GetPrice(count, canApplyAlternativePrice);
 		}
 
-		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature)
+		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature, decimal bottlesCount)
 		{
 			IList<NomenclatureFixedPrice> fixedPrices;
 
@@ -2121,12 +2114,14 @@ namespace Vodovoz.Domain.Orders
 
 			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
 
-			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && influentialNomenclature == null)) {
-				return fixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id);
+			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && bottlesCount >= x.MinCount && influentialNomenclature == null)) 
+			{
+				return fixedPrices.OrderBy(x=>x.MinCount).Last(x => x.Nomenclature.Id == nomenclature.Id && bottlesCount >= x.MinCount);
 			}
 
-			if(influentialNomenclature != null && fixedPrices.Any(x => x.Nomenclature.Id == influentialNomenclature.Id)) {
-				return fixedPrices.First(x => x.Nomenclature.Id == influentialNomenclature?.Id);
+			if(influentialNomenclature != null && fixedPrices.Any(x => x.Nomenclature.Id == influentialNomenclature.Id && bottlesCount >= x.MinCount)) 
+			{
+				return fixedPrices.OrderBy(x => x.MinCount).Last(x => x.Nomenclature.Id == influentialNomenclature?.Id && bottlesCount >= x.MinCount);
 			}
 
 			return null;

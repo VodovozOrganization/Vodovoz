@@ -22,10 +22,12 @@ namespace Vodovoz.EntityRepositories
 		BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId);
 		BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uoW, IEmailParametersProvider emailParametersProvider);
 		BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uoW, IEmailParametersProvider emailParametersProvider);
+		Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId);
 
 		#region EmailType
 
 		IList<EmailType> GetEmailTypes(IUnitOfWork uow);
+		EmailType GetEmailTypeForReceipts(IUnitOfWork uow);
 		EmailType EmailTypeWithPurposeExists(IUnitOfWork uow, EmailPurpose emailPurpose);
 		StoredEmail GetById(IUnitOfWork unitOfWork, int id);
 
