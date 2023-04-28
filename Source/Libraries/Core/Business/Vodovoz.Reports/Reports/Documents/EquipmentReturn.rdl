@@ -38,7 +38,7 @@ WHERE order_equipment.order_id = @order_id AND order_equipment.direction = 'Pick
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	orders.id,
@@ -74,7 +74,7 @@ WHERE orders.id = @order_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -352,8 +352,8 @@ WHERE orders.id = @order_id</CommandText>
         </Style>
       </Textbox>
       <Textbox Name="Textbox6">
-        <Height>15.75pt</Height>
-        <Width>228.68pt</Width>
+        <Height>13.53pt</Height>
+        <Width>266.95pt</Width>
         <Value>=Iif(String.IsNullOrWhiteSpace(First({special_contract_number}, "Order")) = false,First({special_contract_number}, "Order"), "по договору № " +  First({contract_number}, "Order"))</Value>
         <ZIndex>1</ZIndex>
         <Left>2.50pt</Left>

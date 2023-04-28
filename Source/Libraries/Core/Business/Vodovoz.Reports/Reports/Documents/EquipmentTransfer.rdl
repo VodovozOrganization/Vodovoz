@@ -11,7 +11,7 @@
   <BottomMargin>10mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id, 
@@ -37,7 +37,7 @@ WHERE orders.id = @order_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -129,11 +129,11 @@ WHERE
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>19.49pt</Height>
-        <Width>261.66pt</Width>
+        <Width>307.44pt</Width>
         <Value>=Iif(String.IsNullOrWhiteSpace(First({special_contract_number}, "Order")) = false,First({special_contract_number}, "Order"), "по договору № " +  Max({contract}, "Order"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>134.30pt</Left>
-        <Top>115.20pt</Top>
+        <Left>87.7pt</Left>
+        <Top>114.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1103,13 +1103,14 @@ WHERE
         <Top>175.3pt</Top>
       </Table>
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>30.00pt</Height>
-        <Width>347.24pt</Width>
+        <Height>42.00pt</Height>
+        <Width>315.70pt</Width>
         <Value>="АКТ
-приема-передачи оборудования №"+{?order_id}</Value>
+приема-передачи оборудования 
+№"+{?order_id}</Value>
         <ZIndex>1</ZIndex>
-        <Left>87.69pt</Left>
-        <Top>84.60pt</Top>
+        <Left>88.5pt</Left>
+        <Top>72.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
