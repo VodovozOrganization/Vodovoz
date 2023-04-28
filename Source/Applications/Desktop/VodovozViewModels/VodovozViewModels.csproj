@@ -584,6 +584,7 @@
     <Compile Include="ViewModels\Goods\InventoryInstanceViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\InventoryDocumentViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\InventoryInstancesStockBalanceJournalFilterViewModel.cs" />
+    <Compile Include="ViewModels\Warehouses\InventoryInstanceMovementReportViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
