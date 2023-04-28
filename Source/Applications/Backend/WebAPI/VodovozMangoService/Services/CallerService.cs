@@ -35,9 +35,9 @@ namespace VodovozMangoService.Services
 			var connectionStringBuilder = new MySqlConnectionStringBuilder();
 			connectionStringBuilder.Server = configuration["Mysql:mysql_server_host_name"];
 			connectionStringBuilder.Port = uint.Parse(configuration["Mysql:mysql_server_port"]);
-			connectionStringBuilder.Database = configuration["Mysql:mysql_database"]; ;
-			connectionStringBuilder.UserID = configuration["Mysql:mysql_user"]; ;
-			connectionStringBuilder.Password = configuration["Mysql:mysql_password"]; ;
+			connectionStringBuilder.Database = configuration["Mysql:mysql_database"];
+			connectionStringBuilder.UserID = configuration["Mysql:mysql_user"];
+			connectionStringBuilder.Password = configuration["Mysql:mysql_password"];
 			connectionStringBuilder.SslMode = MySqlSslMode.Disabled;
 			connectionStringBuilder.DefaultCommandTimeout = _commandTimeout;
 			_connectionString = connectionStringBuilder.GetConnectionString(true);
