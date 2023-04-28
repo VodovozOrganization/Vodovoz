@@ -12,6 +12,10 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonIsFastDeliveryOnly;
 
+		private global::Gamma.GtkWidgets.yToggleButton ytbtnShowFilters;
+
+		private global::Gtk.VBox vboxFilterContainer;
+
 		private global::Gtk.Frame frameFilterOrders;
 
 		private global::Gtk.Alignment GtkAlignment1;
@@ -28,7 +32,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.Frame frame1;
 
-		private global::Gtk.Alignment GtkAlignment;
+		private global::Gtk.Alignment GtkAlignment2;
 
 		private global::Gtk.VBox vboxFastDeliveryIntervalFrom;
 
@@ -77,6 +81,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.ycheckbuttonIsFastDeliveryOnly.CanFocus = true;
 			this.ycheckbuttonIsFastDeliveryOnly.Name = "ycheckbuttonIsFastDeliveryOnly";
 			this.ycheckbuttonIsFastDeliveryOnly.Label = global::Mono.Unix.Catalog.GetString("Доставка за час");
+			this.ycheckbuttonIsFastDeliveryOnly.Active = true;
 			this.ycheckbuttonIsFastDeliveryOnly.DrawIndicator = true;
 			this.ycheckbuttonIsFastDeliveryOnly.UseUnderline = true;
 			this.hboxControlsContainer.Add(this.ycheckbuttonIsFastDeliveryOnly);
@@ -84,12 +89,28 @@ namespace Vodovoz.SidePanel.InfoViews
 			w3.Position = 1;
 			w3.Expand = false;
 			w3.Fill = false;
-			this.vboxPanelContainer.Add(this.hboxControlsContainer);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxPanelContainer[this.hboxControlsContainer]));
-			w4.Position = 0;
+			// Container child hboxControlsContainer.Gtk.Box+BoxChild
+			this.ytbtnShowFilters = new global::Gamma.GtkWidgets.yToggleButton();
+			this.ytbtnShowFilters.CanFocus = true;
+			this.ytbtnShowFilters.Name = "ytbtnShowFilters";
+			this.ytbtnShowFilters.UseUnderline = true;
+			this.ytbtnShowFilters.Active = true;
+			this.ytbtnShowFilters.Label = global::Mono.Unix.Catalog.GetString("↑↓ Фильтр");
+			this.hboxControlsContainer.Add(this.ytbtnShowFilters);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxControlsContainer[this.ytbtnShowFilters]));
+			w4.Position = 2;
 			w4.Expand = false;
 			w4.Fill = false;
+			this.vboxPanelContainer.Add(this.hboxControlsContainer);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxPanelContainer[this.hboxControlsContainer]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child vboxPanelContainer.Gtk.Box+BoxChild
+			this.vboxFilterContainer = new global::Gtk.VBox();
+			this.vboxFilterContainer.Name = "vboxFilterContainer";
+			this.vboxFilterContainer.Spacing = 6;
+			// Container child vboxFilterContainer.Gtk.Box+BoxChild
 			this.frameFilterOrders = new global::Gtk.Frame();
 			this.frameFilterOrders.Name = "frameFilterOrders";
 			this.frameFilterOrders.BorderWidth = ((uint)(1));
@@ -110,10 +131,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.yrbtnFilterOrdersAll.UseUnderline = true;
 			this.yrbtnFilterOrdersAll.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.vboxFilterOrdersContainer.Add(this.yrbtnFilterOrdersAll);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxFilterOrdersContainer[this.yrbtnFilterOrdersAll]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxFilterOrdersContainer[this.yrbtnFilterOrdersAll]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child vboxFilterOrdersContainer.Gtk.Box+BoxChild
 			this.yrbtnFilterOrdersWithFastDelivery = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnFilterOrdersWithFastDelivery.CanFocus = true;
@@ -123,10 +144,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.yrbtnFilterOrdersWithFastDelivery.UseUnderline = true;
 			this.yrbtnFilterOrdersWithFastDelivery.Group = this.yrbtnFilterOrdersAll.Group;
 			this.vboxFilterOrdersContainer.Add(this.yrbtnFilterOrdersWithFastDelivery);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxFilterOrdersContainer[this.yrbtnFilterOrdersWithFastDelivery]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxFilterOrdersContainer[this.yrbtnFilterOrdersWithFastDelivery]));
+			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child vboxFilterOrdersContainer.Gtk.Box+BoxChild
 			this.yrbtnFilterOrdersWithoutFastDelivery = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnFilterOrdersWithoutFastDelivery.CanFocus = true;
@@ -136,10 +157,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.yrbtnFilterOrdersWithoutFastDelivery.UseUnderline = true;
 			this.yrbtnFilterOrdersWithoutFastDelivery.Group = this.yrbtnFilterOrdersAll.Group;
 			this.vboxFilterOrdersContainer.Add(this.yrbtnFilterOrdersWithoutFastDelivery);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxFilterOrdersContainer[this.yrbtnFilterOrdersWithoutFastDelivery]));
-			w7.Position = 2;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxFilterOrdersContainer[this.yrbtnFilterOrdersWithoutFastDelivery]));
+			w8.Position = 2;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.GtkAlignment1.Add(this.vboxFilterOrdersContainer);
 			this.frameFilterOrders.Add(this.GtkAlignment1);
 			this.lblFrameFilterOrders = new global::Gtk.Label();
@@ -147,20 +168,20 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.lblFrameFilterOrders.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Отображать заказы:</b>");
 			this.lblFrameFilterOrders.UseMarkup = true;
 			this.frameFilterOrders.LabelWidget = this.lblFrameFilterOrders;
-			this.vboxPanelContainer.Add(this.frameFilterOrders);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxPanelContainer[this.frameFilterOrders]));
-			w10.Position = 1;
-			w10.Expand = false;
-			w10.Fill = false;
-			// Container child vboxPanelContainer.Gtk.Box+BoxChild
+			this.vboxFilterContainer.Add(this.frameFilterOrders);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxFilterContainer[this.frameFilterOrders]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child vboxFilterContainer.Gtk.Box+BoxChild
 			this.frame1 = new global::Gtk.Frame();
 			this.frame1.Name = "frame1";
 			this.frame1.BorderWidth = ((uint)(1));
 			// Container child frame1.Gtk.Container+ContainerChild
-			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
-			this.GtkAlignment.Name = "GtkAlignment";
-			this.GtkAlignment.LeftPadding = ((uint)(12));
-			// Container child GtkAlignment.Gtk.Container+ContainerChild
+			this.GtkAlignment2 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment2.Name = "GtkAlignment2";
+			this.GtkAlignment2.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment2.Gtk.Container+ContainerChild
 			this.vboxFastDeliveryIntervalFrom = new global::Gtk.VBox();
 			this.vboxFastDeliveryIntervalFrom.Name = "vboxFastDeliveryIntervalFrom";
 			this.vboxFastDeliveryIntervalFrom.Spacing = 6;
@@ -173,10 +194,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.yrbtnFastDeliveryIntervalFromOrderCreated.UseUnderline = true;
 			this.yrbtnFastDeliveryIntervalFromOrderCreated.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.vboxFastDeliveryIntervalFrom.Add(this.yrbtnFastDeliveryIntervalFromOrderCreated);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxFastDeliveryIntervalFrom[this.yrbtnFastDeliveryIntervalFromOrderCreated]));
-			w11.Position = 0;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxFastDeliveryIntervalFrom[this.yrbtnFastDeliveryIntervalFromOrderCreated]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vboxFastDeliveryIntervalFrom.Gtk.Box+BoxChild
 			this.yrbtnFastDeliveryIntervalFromRouteListItemTransfered = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnFastDeliveryIntervalFromRouteListItemTransfered.CanFocus = true;
@@ -186,10 +207,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.yrbtnFastDeliveryIntervalFromRouteListItemTransfered.UseUnderline = true;
 			this.yrbtnFastDeliveryIntervalFromRouteListItemTransfered.Group = this.yrbtnFastDeliveryIntervalFromOrderCreated.Group;
 			this.vboxFastDeliveryIntervalFrom.Add(this.yrbtnFastDeliveryIntervalFromRouteListItemTransfered);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxFastDeliveryIntervalFrom[this.yrbtnFastDeliveryIntervalFromRouteListItemTransfered]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxFastDeliveryIntervalFrom[this.yrbtnFastDeliveryIntervalFromRouteListItemTransfered]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child vboxFastDeliveryIntervalFrom.Gtk.Box+BoxChild
 			this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.CanFocus = true;
@@ -199,22 +220,27 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.UseUnderline = true;
 			this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList.Group = this.yrbtnFastDeliveryIntervalFromOrderCreated.Group;
 			this.vboxFastDeliveryIntervalFrom.Add(this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxFastDeliveryIntervalFrom[this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList]));
-			w13.Position = 2;
-			w13.Expand = false;
-			w13.Fill = false;
-			this.GtkAlignment.Add(this.vboxFastDeliveryIntervalFrom);
-			this.frame1.Add(this.GtkAlignment);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxFastDeliveryIntervalFrom[this.yrbtnFastDeliveryIntervalFromAddedInFirstRouteList]));
+			w14.Position = 2;
+			w14.Expand = false;
+			w14.Fill = false;
+			this.GtkAlignment2.Add(this.vboxFastDeliveryIntervalFrom);
+			this.frame1.Add(this.GtkAlignment2);
 			this.lblFrameFastDeliveryIntervalFrom = new global::Gtk.Label();
 			this.lblFrameFastDeliveryIntervalFrom.Name = "lblFrameFastDeliveryIntervalFrom";
 			this.lblFrameFastDeliveryIntervalFrom.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Для экспресс доставки считать интервал от:</b>");
 			this.lblFrameFastDeliveryIntervalFrom.UseMarkup = true;
 			this.frame1.LabelWidget = this.lblFrameFastDeliveryIntervalFrom;
-			this.vboxPanelContainer.Add(this.frame1);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxPanelContainer[this.frame1]));
-			w16.Position = 2;
-			w16.Expand = false;
-			w16.Fill = false;
+			this.vboxFilterContainer.Add(this.frame1);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxFilterContainer[this.frame1]));
+			w17.Position = 1;
+			w17.Expand = false;
+			w17.Fill = false;
+			this.vboxPanelContainer.Add(this.vboxFilterContainer);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxPanelContainer[this.vboxFilterContainer]));
+			w18.Position = 1;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child vboxPanelContainer.Gtk.Box+BoxChild
 			this.gswAddressesInProcess = new global::Gtk.ScrolledWindow();
 			this.gswAddressesInProcess.Name = "gswAddressesInProcess";
@@ -227,8 +253,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.ytvAddressesInProcess.Name = "ytvAddressesInProcess";
 			this.gswAddressesInProcess.Add(this.ytvAddressesInProcess);
 			this.vboxPanelContainer.Add(this.gswAddressesInProcess);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxPanelContainer[this.gswAddressesInProcess]));
-			w18.Position = 3;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxPanelContainer[this.gswAddressesInProcess]));
+			w20.Position = 2;
 			this.Add(this.vboxPanelContainer);
 			if ((this.Child != null))
 			{

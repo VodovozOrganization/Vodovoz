@@ -76,9 +76,9 @@ namespace Vodovoz.Domain.Orders
 			set {
 				//Если цена не отличается от той которая должна быть по прайсам в 
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
-				IsUserPrice = value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice;
+				IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
 				if(IsUserPrice)
-					IsUserPrice = value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice;
+					IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
 
 				if(SetField(ref price, value, () => Price)) {
 					RecalculateDiscount();
@@ -515,17 +515,21 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculatePrice()
 		{
-			var curCount = TotalCountInOrder;
-			if (Order.GetFixedPriceOrNull(Nomenclature, curCount) != null)
+			var fixedPrice = Order.GetFixedPriceOrNull(Nomenclature, TotalCountInOrder);
+
+			if (fixedPrice != null && CopiedFromUndelivery == null)
 			{
-				Price = Order.GetFixedPriceOrNull(Nomenclature, curCount).Price;
+				if(Price != fixedPrice.Price)
+				{
+					Price = fixedPrice.Price;
+				}
 				IsFixedPrice = true;
 				return;
 			}
 
 			IsFixedPrice = false;
 
-			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed)
+			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || CopiedFromUndelivery != null)
 				return;
 
 			Price = GetPriceByTotalCount();
@@ -536,9 +540,7 @@ namespace Vodovoz.Domain.Orders
 			if(Nomenclature != null)
 			{
 				var curCount = Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count;
-				var canApplyAlternativePrice = KeepExistingPrices
-					? IsAlternativePrice
-					: Order.HasPermissionsForAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount);
+				var canApplyAlternativePrice = Order.HasPermissionsForAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount);
 
 				if(Nomenclature.DependsOnNomenclature == null)
 					return Nomenclature.GetPrice(curCount, canApplyAlternativePrice);
@@ -644,8 +646,6 @@ namespace Vodovoz.Domain.Orders
 
 			return canUseVAT;
 		}
-
-		public bool KeepExistingPrices { get; set; } = false;
 
 		#endregion
 	}

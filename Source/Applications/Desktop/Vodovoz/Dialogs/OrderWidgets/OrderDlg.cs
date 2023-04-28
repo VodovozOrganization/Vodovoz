@@ -453,7 +453,7 @@ namespace Vodovoz
 				.CopyFields()
 				.CopyStockBottle()
 				.CopyPromotionalSets()
-				.CopyOrderItems(true, true, true)
+				.CopyOrderItems(true, true)
 				.CopyPaidDeliveryItem()
 				.CopyAdditionalOrderEquipments()
 				.CopyOrderDepositItems()
@@ -759,6 +759,7 @@ namespace Vodovoz
 				{
 					Entity.DeliveryPoint = null;
 				}
+				UpdateOrderItemsPrices();
 			};
 
 			chkContractCloser.Sensitive =
@@ -795,6 +796,8 @@ namespace Vodovoz
 				}
 
 				UpdateOrderAddressTypeUI();
+				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+				UpdateOrderItemsPrices();
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -1099,6 +1102,7 @@ namespace Vodovoz
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
 		{
 			Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
+			UpdateOrderItemsPrices();
 		}
 
 		private readonly Label torg12OnlyLabel = new Label("Торг12 (2шт.)");
@@ -1303,7 +1307,7 @@ namespace Vodovoz
 						{
 							c.ForegroundGdk = colorBlack;
 							var fixedPrice = Order.GetFixedPriceOrNull(node.Nomenclature, node.TotalCountInOrder);
-							if(fixedPrice != null && node.PromoSet == null) {
+							if(fixedPrice != null && node.PromoSet == null && node.CopiedFromUndelivery == null) {
 								c.ForegroundGdk = colorGreen;
 							} else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 								c.ForegroundGdk = colorBlue;
@@ -3345,6 +3349,14 @@ namespace Vodovoz
 			column.Visible = Entity.ObservableOrderDocuments.Any(x => x.Order.Id != x.AttachedToOrder.Id);
 		}
 
+		private void UpdateOrderItemsPrices()
+		{
+			for(int i = 0; i < Entity.ObservableOrderItems.Count; i++)
+			{
+				FixPrice(i);
+			}
+		}
+
 		void FixPrice(int id)
 		{
 			OrderItem item = Entity.ObservableOrderItems[id];
@@ -3378,6 +3390,8 @@ namespace Vodovoz
 				foreach(var i in aIdx) {
 					OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
 
+					FixPrice(aIdx[0]);
+
 					if(oItem?.CopiedFromUndelivery == null)
 					{
 						var curCount = oItem.Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : oItem.Count;
@@ -3385,8 +3399,6 @@ namespace Vodovoz
 						                           && oItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
 						                           && oItem.GetWaterFixedPrice() == null;
 					}
-
-					FixPrice(aIdx[0]);
 
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
 						HboxReturnTareReasonCategoriesShow();
@@ -3791,6 +3803,7 @@ namespace Vodovoz
 			if(!checkSelfDelivery.Active) {
 				checkPayAfterLoad.Active = false;
 			}
+			UpdateOrderItemsPrices();
 		}
 
 		void ObservablePromotionalSets_ListChanged(object aList)

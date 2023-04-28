@@ -82,5 +82,6 @@ namespace Vodovoz.EntityRepositories.Goods
 		RouteExpensesNode GetOtherRouteExpenses(
 			IUnitOfWork uow, int routeListId, decimal administrativeExpenses, decimal routeExpenses);
 		decimal GetWarehouseExpensesForRoute(IUnitOfWork uow, int routeListId, decimal warehouseExpenses);
+		bool Has19LWater(IUnitOfWork uow, int[] nomenclaturesIds);
 	}
 }
