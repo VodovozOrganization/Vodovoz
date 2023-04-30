@@ -512,6 +512,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 				.Where(Restrictions.Eq(
 					CustomProjections.Lower<RoboAtsCounterpartyName>(rn => rn.Name),
 					name.ToLower()))
+				.Take(1)
 				.SingleOrDefault();
 		}
 		
@@ -526,6 +527,7 @@ namespace Vodovoz.EntityRepositories.Roboats
 				.Where(Restrictions.Eq(
 					CustomProjections.Lower<RoboAtsCounterpartyPatronymic>(rp => rp.Patronymic),
 					patronymic.ToLower()))
+				.Take(1)
 				.SingleOrDefault();
 		}
 	}
