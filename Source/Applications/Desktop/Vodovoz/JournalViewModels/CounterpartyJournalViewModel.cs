@@ -12,6 +12,8 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
+using QS.Project.Domain;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -38,13 +40,14 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
-        protected override void CreateNodeActions()
-        {
+		protected override void CreateNodeActions()
+		{
 			NodeActionsList.Clear();
 			CreateCustomSelectAction();
 			CreateDefaultAddActions();
 			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
+			CreateOpneCloseSupplyAction();
 		}
 
 		private void CreateCustomEditAction()
@@ -111,6 +114,56 @@ namespace Vodovoz.JournalViewModels
 			NodeActionsList.Add(selectAction);
 		}
 
+		private void CreateOpneCloseSupplyAction()
+		{
+			var openCloseAction = new JournalAction("Закрыть/открыть поставки",
+				(selected) => {
+					var selectedNodes = selected.OfType<CounterpartyJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					CounterpartyJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanRead;
+				},
+				(selected) => selected.All(x => (x as CounterpartyJournalNode).Sensitive),
+				(selected) => {
+					if(!selected.All(x => (x as CounterpartyJournalNode).Sensitive))
+					{
+						return;
+					}
+					var selectedNodes = selected.OfType<CounterpartyJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					CounterpartyJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					var orderPage = MainClass.MainWin.NavigationManager.OpenViewModel<CloseSupplyToCounterpartyViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id));
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = openCloseAction;
+			}
+			NodeActionsList.Add(openCloseAction);
+		}
+
 		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
 			CounterpartyJournalNode resultAlias = null;
 			Counterparty counterpartyAlias = null;
@@ -131,7 +184,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					query.Left.JoinAlias(c => c.SalesChannels, () => salesChannelAlias);
 					query.Where(() => salesChannelAlias.Id.IsIn(FilterViewModel.SalesChannels.Where(x => x.Selected).Select(x => x.Id).ToArray()));
-                }
+				}
 			}
 
 			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {
@@ -284,7 +337,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					query.Left.JoinAlias(c => c.SalesChannels, () => salesChannelAlias);
 					query.Where(() => salesChannelAlias.Id.IsIn(FilterViewModel.SalesChannels.Where(x => x.Selected).Select(x => x.Id).ToArray()));
-                }
+				}
 			}
 
 			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {

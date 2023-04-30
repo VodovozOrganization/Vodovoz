@@ -5,14 +5,15 @@ using Vodovoz.ViewModels.Dialogs.Counterparty;
 namespace Vodovoz.Views.Client
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CloseSupplyToCounterpartyView : WidgetViewBase<CounterpartyFilesViewModel>
+	public partial class CloseSupplyToCounterpartyView : TabViewBase<CloseSupplyToCounterpartyViewModel>
 	{
-		public CloseSupplyToCounterpartyView()
+		public CloseSupplyToCounterpartyView(CloseSupplyToCounterpartyViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
+			ConfigureDlg();
 		}
 
-		protected override void ConfigureWidget()
+		protected void ConfigureDlg()
 		{
 			if(ViewModel == null)
 			{
