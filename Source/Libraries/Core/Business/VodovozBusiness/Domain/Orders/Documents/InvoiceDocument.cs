@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Print;
@@ -9,6 +9,15 @@ namespace Vodovoz.Domain.Orders.Documents
 {
 	public class InvoiceDocument : PrintableOrderDocument, IPrintableRDLDocument, IAdvertisable, ISignableDocument
 	{
+		int _copiesToPrint = 1;
+		bool _withoutAdvertising;
+		bool _hideSignature = true;
+
+		public override string Name => string.Format("Накладная №{0}", Order.Id);
+
+		public override DateTime? DocumentDate => Order?.DeliveryDate;
+
+		public override PrinterType PrintType => PrinterType.RDL;
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.Invoice;
 		#endregion
@@ -28,16 +37,8 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 			};
 		}
-		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => string.Format("Накладная №{0}", Order.Id);
-
-		public override DateTime? DocumentDate => Order?.DeliveryDate;
-
-		public override PrinterType PrintType => PrinterType.RDL;
-
-		int _copiesToPrint = 1;
 		public override int CopiesToPrint {
 			get => _copiesToPrint;
 			set => _copiesToPrint = value;
@@ -45,18 +46,16 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		#region Свои свойства
 
-		bool _withoutAdvertising;
 		[Display(Name = "Без рекламы")]
 		public virtual bool WithoutAdvertising {
 			get => _withoutAdvertising;
-			set => SetField(ref _withoutAdvertising, value, () => WithoutAdvertising);
+			set => SetField(ref _withoutAdvertising, value);
 		}
 
-		bool _hideSignature = true;
 		[Display(Name = "Без подписей и печати")]
 		public virtual bool HideSignature {
 			get => _hideSignature;
-			set => SetField(ref _hideSignature, value, () => HideSignature);
+			set => SetField(ref _hideSignature, value);
 		}
 
 		#endregion
