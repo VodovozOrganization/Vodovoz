@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
 using Gtk;
@@ -212,7 +212,7 @@ public partial class MainWindow : Gtk.Window
 		if(isWindows)
 			KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
 
-		Title = $"{applicationInfo.ProductTitle} v{applicationInfo.Version} от {applicationInfo.BuildDate:dd.MM.yyyy HH:mm}";
+		Title = $"{applicationInfo.ProductTitle} v{applicationInfo.Version.Major}.{applicationInfo.Version.Minor} от {GetDateTimeFGromVersion(applicationInfo.Version):dd.MM.yyyy HH:mm}";
 		//Настраиваем модули
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
@@ -2722,4 +2722,9 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<ExternalCounterpartiesMatchingJournalViewModel>(null);
 	}
+
+	private DateTime GetDateTimeFGromVersion(Version version) =>
+		new DateTime(2000, 1, 1)
+			.AddDays(version.Build)
+			.AddSeconds(version.Revision * 2);
 }
