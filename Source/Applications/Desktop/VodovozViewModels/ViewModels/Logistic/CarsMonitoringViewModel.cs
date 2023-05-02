@@ -76,7 +76,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private DateTime _historyDate;
 		private TimeSpan _historyHour;
 
-		private int _fastDeliveryDistrictsLastVersionId;
+		private int _fastDeliveryDistrictsLastVersionId = -1;
 		private IList<District> _cachedFastDeliveryDistricts;
 
 		public CarsMonitoringViewModel(
