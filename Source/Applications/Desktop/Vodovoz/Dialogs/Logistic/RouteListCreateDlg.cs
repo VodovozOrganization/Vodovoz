@@ -95,7 +95,8 @@ namespace Vodovoz
 		private DateTime _previousSelectedDate;
 		private bool _isLogistican;
 		private bool _canСreateRoutelistInPastPeriod;
-		private GenericObservableList<RouteListProfitability> _routeListProfitabilities; 
+		private GenericObservableList<RouteListProfitability> _routeListProfitabilities;
+		private bool _isAccepted;
 
 		public RouteListCreateDlg()
 		{
@@ -571,8 +572,11 @@ namespace Vodovoz
 			_logger.Debug("Закончили пересчет рентабельности МЛ");
 			UoW.Save(Entity.RouteListProfitability);
 
-			UoW.Commit();
-			
+			if(!_isAccepted)
+			{
+				UoW.Commit();
+			}
+
 			return true;
 		}
 
@@ -666,6 +670,7 @@ namespace Vodovoz
 		{
 			try
 			{
+				_isAccepted = true;
 				SetSensetivity(false);
 				var callTaskWorker = new CallTaskWorker(
 					CallTaskSingletonFactory.GetInstance(),
@@ -830,9 +835,12 @@ namespace Vodovoz
 					UpdateButtonStatus();
 					return;
 				}
+
+				UoW.Commit();
 			}
 			finally
 			{
+				_isAccepted = false;
 				SetSensetivity(true);
 			}
 			UpdateDlg(_isLogistican);
