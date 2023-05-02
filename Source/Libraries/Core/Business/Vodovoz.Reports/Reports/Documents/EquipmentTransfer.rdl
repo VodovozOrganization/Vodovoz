@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>296.926mm</PageHeight>
   <PageWidth>209.804mm</PageWidth>
   <Width>180mm</Width>
@@ -21,6 +19,9 @@
 	counterparty.full_name AS client_name, 
 	counterparty.jur_address AS client_address, 
 	counterparty.inn, counterparty.kpp,
+    IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
+       CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
+       counterparty.special_contract_name) AS special_contract_number,
 	GROUP_CONCAT(CONCAT('+7 ', phones.digits_number), ', ') AS phone,
 	delivery_points.compiled_address as delivery_address,
 	CONCAT(counterparty.vod_internal_id, '-', counterparty_contract.subnumber) AS contract
@@ -73,6 +74,10 @@ WHERE orders.id = @order_id</CommandText>
           <DataField>contract</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="special_contract_number">
+          <DataField>special_contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="equipments">
@@ -123,14 +128,12 @@ WHERE
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Height>42.00pt</Height>
-        <Width>260.91pt</Width>
-        <Value>="АКТ
-приема-передачи оборудования №"+{?order_id}+" 
-по договору №" + Max({contract}, "Order")</Value>
+        <Height>19.49pt</Height>
+        <Width>307.44pt</Width>
+        <Value>=Iif(String.IsNullOrWhiteSpace(First({special_contract_number}, "Order")) = false,First({special_contract_number}, "Order"), "по договору № " +  Max({contract}, "Order"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>123.9pt</Left>
-        <Top>83.2pt</Top>
+        <Left>87.7pt</Left>
+        <Top>114.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -156,7 +159,7 @@ WHERE
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>10pt</FontSize>
         </Style>
-        <CanGrow >true</CanGrow>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox38">
         <Height>27.85pt</Height>
@@ -266,8 +269,7 @@ WHERE
                         <FontSize>10pt</FontSize>
                         <PaddingTop>0pt</PaddingTop>
                       </Style>
-                      <Visibility>
-                      </Visibility>
+                      <Visibility></Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -315,8 +317,7 @@ WHERE
         <PageBreakAtEnd>false</PageBreakAtEnd>
         <PageBreakAtStart>false</PageBreakAtStart>
         <DataElementOutput>Output</DataElementOutput>
-        <Visibility>
-        </Visibility>
+        <Visibility></Visibility>
         <Details>
           <TableRows>
             <TableRow>
@@ -347,8 +348,7 @@ WHERE
                         </BorderStyle>
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -363,8 +363,7 @@ WHERE
                         <BorderWidth />
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -391,8 +390,7 @@ WHERE
       <Textbox Name="Textbox41">
         <Height>14.25pt</Height>
         <Width>100.02pt</Width>
-        <Value>
-        </Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>131.9pt</Left>
         <Top>252.8pt</Top>
@@ -555,8 +553,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -569,8 +566,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -583,8 +579,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -602,8 +597,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -616,8 +610,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -632,8 +625,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -657,8 +649,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -677,8 +668,7 @@ WHERE
                         </BorderStyle>
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -691,8 +681,7 @@ WHERE
                         </BorderStyle>
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -704,8 +693,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -718,8 +706,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -732,8 +719,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -751,8 +737,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -765,8 +750,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -779,8 +763,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -798,8 +781,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -812,8 +794,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -826,8 +807,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -956,8 +936,7 @@ WHERE
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundColor>
-          </BackgroundColor>
+          <BackgroundColor></BackgroundColor>
           <BackgroundGradientType>None</BackgroundGradientType>
           <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
           <TextAlign>Left</TextAlign>
@@ -1123,6 +1102,25 @@ WHERE
         <Left>10.1pt</Left>
         <Top>175.3pt</Top>
       </Table>
+      <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>42.00pt</Height>
+        <Width>315.70pt</Width>
+        <Value>="АКТ
+приема-передачи оборудования 
+№"+{?order_id}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>88.5pt</Left>
+        <Top>72.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <FontFamily>Times New Roman</FontFamily>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -1559,8 +1557,7 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
   <DataSources>
