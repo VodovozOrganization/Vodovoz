@@ -47,7 +47,7 @@ stage('Prepare sources'){
 	parallel (
 		"Win" : {
 			node('WIN_BUILD'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86 -maxcpucount:2'
+				powershell '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86 -maxcpucount:2'
 			}
 		},
 		"Linux" : {
@@ -65,7 +65,7 @@ parallel (
 	"Win" : {
 		node('WIN_BUILD'){
 			stage('Build Desktop'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=WinDesktop -p:Platform=x86 -maxcpucount:2'
+				powershell '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=WinDesktop -p:Platform=x86 -maxcpucount:2'
 				
 				if (fileExists("Vodovoz${ARCHIVE_EXTENTION}")) {
 					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz${ARCHIVE_EXTENTION}")])
@@ -123,7 +123,7 @@ parallel (
 					else
 					{
 						//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
-						bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=Web -p:Platform=x86 -maxcpucount:2'
+						powershell '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=Web -p:Platform=x86 -maxcpucount:2'
 					}
 				}
 			}
@@ -259,7 +259,7 @@ def PublishBuildWebServiceToFolder(serviceName, csprojPath, outputPath) {
 	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
 	
 	echo "Publish ${serviceName} to folder (${env.BRANCH_NAME})"
-	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile -maxcpucount:2'
+	powershell '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile -maxcpucount:2'
 
 	if (fileExists("${serviceName}${ARCHIVE_EXTENTION}")) {
 		fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}${ARCHIVE_EXTENTION}")])
@@ -393,7 +393,7 @@ def CompressArtifact(sourcePath, artifactName) {
 		sh "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
 	}
 	else {
-		bat "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
+		powershell "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
 	}
 }
 
@@ -403,6 +403,6 @@ def DecompressArtifact(targetPath, artifactName) {
 		sh "7z x -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
 	}
 	else {
-		bat "7z x -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
+		powershell "7z x -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
 	}
 }
