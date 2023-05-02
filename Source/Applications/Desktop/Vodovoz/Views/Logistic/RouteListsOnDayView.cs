@@ -429,12 +429,17 @@ namespace Vodovoz.Views.Logistic
 
 		void UpdateSelectedInfo(List<GMapMarker> selected)
 		{
-			var orders = selected.Select(x => x.Tag).OfType<Order>();
+			var orderIds = selected.Select(x => x.Tag).OfType<OrderNode>()
+				.Select(o => o.OrderId)
+				.ToList();
+			var orders = ViewModel.UoW.GetAll<Order>().Where(o => orderIds.Contains(o.Id)).ToList();
+
 			if(!orders.Any()) {
 				labelSelected.Markup = "Адресов\nне выбрано";
 				menuAddToRL.Sensitive = false;
 				return;
 			}
+
 			var selectedBottle = orders.Sum(o => o.Total19LBottlesToDeliver);
 			var selectedKilos = orders.Sum(o => o.TotalWeight);
 			var selectedCbm = orders.Sum(o => o.TotalVolume);
@@ -536,27 +541,19 @@ namespace Vodovoz.Views.Logistic
 						overdueOrder = true;
 					}
 
-					FillTypeAndShapeMarker(order, route, orderRls, out PointMarkerShape shape, out PointMarkerType type, out PointMarkerShape logisticsRequrementsShape, out PointMarkerType logisticsRequrementsType, overdueOrder);
+					FillTypeAndShapeMarker(order, route, orderRls, out PointMarkerShape shape, out PointMarkerType type, overdueOrder);
 
 					if(selectedMarkers.FirstOrDefault(m => (m.Tag as OrderNode)?.OrderId == order.OrderId) != null)
 						type = PointMarkerType.white;
 
-					var addressMarker = FillAddressMarker(order, type, shape, logisticsRequrementsType, logisticsRequrementsShape, addressesOverlay, route);
+					var addressMarker = FillAddressMarker(order, type, shape, addressesOverlay, route);
 					addressesOverlay.Markers.Add(addressMarker);
-
-					//FillTypeAndShapeLogisticsRequrementsMarker(order, out PointMarkerShape shapeLogisticsRequrements, out PointMarkerType typeLogisticsRequrements);
-					//if(typeLogisticsRequrements != PointMarkerType.none && shapeLogisticsRequrements != PointMarkerShape.none)
-					//{
-					//	PointMarker logisticsRequrementsMarker = FillAddressMarker(order, typeLogisticsRequrements, shapeLogisticsRequrements, addressesOverlay, route);
-					//	addressesLogisticsRequirementsOverlay.Markers.Add(logisticsRequrementsMarker);
-					//}
 				}
 				else
 					addressesWithoutCoordinats++;
 			}
 
 			PushApartAddresses(addressesOverlay);
-			PushLogisticsRequrementsMarkers(addressesLogisticsRequirementsOverlay);
 
 			UpdateOrdersInfo();
 			logger.Info("Ок.");
@@ -574,7 +571,7 @@ namespace Vodovoz.Views.Logistic
 			var pushApartPrecision = 0.0001d;
 
 			var addressMarkers = addressOverlay.Markers
-				.Where(x => x.Tag is Order)
+				.Where(x => x.Tag is OrderNode)
 				.OrderBy(x => x.Position.Lat)
 				.ThenBy(x => x.Position.Lng)
 				.ToArray();
@@ -628,51 +625,6 @@ namespace Vodovoz.Views.Logistic
 			}
 		}
 
-		/// <summary>
-		/// Разведение друг от друга близко расположенных маркеров требований к логистике по аналогии с маркерами адресов
-		/// </summary>
-		private void PushLogisticsRequrementsMarkers(GMapOverlay addressesLogisticsRequirementsOverlay)
-		{
-			var pushApartPrecision = 0.0001d;
-
-			var addressMarkers = addressesLogisticsRequirementsOverlay.Markers
-				.Where(x => x.Tag is Order)
-				.OrderBy(x => x.Position.Lat)
-				.ThenBy(x => x.Position.Lng)
-				.ToArray();
-
-			var overlapMarkers = new Dictionary<int, List<GMapMarker>>();
-
-			var index = 0;
-
-			foreach(var orderMarker in addressMarkers)
-			{
-				var intersections = addressMarkers
-					.Except(new[] { orderMarker })
-					.Where(g => Math.Abs(g.Position.Lat - orderMarker.Position.Lat) < pushApartPrecision
-								&& Math.Abs(g.Position.Lng - orderMarker.Position.Lng) < pushApartPrecision)
-					.ToList();
-
-				for(var i = 0; i < intersections.Count; i++)
-				{
-					var intersectMarker = addressMarkers.Single(x => x.Tag == intersections[i].Tag);
-
-					var lat = orderMarker.Position.Lat + (i + 1) * pushApartPrecision + pushApartPrecision / 10;
-					var lng = orderMarker.Position.Lng + (i + 1) * pushApartPrecision + pushApartPrecision / 10;
-
-					intersectMarker.Position = new PointLatLng(lat, lng);
-				}
-
-				if(intersections.Any() && !overlapMarkers.Values.Any(x => x.Contains(orderMarker)))
-				{
-					var intersectionsWithSelf = intersections.Concat(new[] { orderMarker }).ToList();
-					overlapMarkers.Add(index, intersectionsWithSelf);
-
-					index++;
-				}
-			}
-		}
-
 		private void FillTypeAndShapeMarker(OrderNode order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type, bool overdueOrder = false)
 		{
 			shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver, overdueOrder);
@@ -699,39 +651,6 @@ namespace Vodovoz.Views.Logistic
 
 			if (route != null)
 				type = ViewModel.GetAddressMarker(ViewModel.RoutesOnDay.IndexOf(route));
-		}
-
-		private void FillTypeAndShapeMarker(OrderNode order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type, out PointMarkerShape logisticsRequirementsShape, out PointMarkerType logisticsRequirementsType, bool overdueOrder = false)
-		{
-			shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver, overdueOrder);
-			type = PointMarkerType.black;
-
-			if(!orderRlsIds.Any())
-			{
-				if((order.DeliverySchedule.To - order.DeliverySchedule.From).TotalHours <= 1)
-					type = PointMarkerType.black_and_red;
-				else
-				{
-					double from = order.DeliverySchedule.From.TotalMinutes;
-					double to = order.DeliverySchedule.To.TotalMinutes;
-					if(from >= 1080 && to <= 1439)//>= 18:00, <= 23:59
-						type = PointMarkerType.grey_stripes;
-					else if(from >= 0)
-					{
-						if(to <= 720)//<= 12:00
-							type = PointMarkerType.red_stripes;
-						else if(to <= 900)//<=15:00
-							type = PointMarkerType.yellow_stripes;
-						else if(to <= 1080)//<= 18:00
-							type = PointMarkerType.green_stripes;
-					}
-				}
-			}
-
-			if(route != null)
-				type = ViewModel.GetAddressMarker(ViewModel.RoutesOnDay.IndexOf(route));
-
-			FillTypeAndShapeLogisticsRequrementsMarker(order, out logisticsRequirementsShape, out logisticsRequirementsType);
 		}
 
 		private void FillTypeAndShapeLogisticsRequrementsMarker(OrderNode order, out PointMarkerShape shape, out PointMarkerType type)
@@ -824,39 +743,7 @@ namespace Vodovoz.Views.Logistic
 			var orderLat = (double)order.DeliveryPointLatitude;
 			var orderLong = (double)order.DeliveryPointLongitude;
 
-			var addressMarker = new PointMarker(new PointLatLng(orderLat, orderLong), type, shape)
-			{
-				Tag = order,
-				ToolTipText = ttText
-			};
-
-			if(route != null)
-				addressMarker.ToolTipText += string.Format(" Везёт: {0}", route.Driver.ShortName);
-
-			return addressMarker;
-		}
-
-		private PointMarker FillAddressMarker(OrderNode order, PointMarkerType type, PointMarkerShape shape, PointMarkerType logisticsRequirementsType, PointMarkerShape logisticsRequirementsShape, GMapOverlay overlay, RouteList route)
-		{
-			string ttText = order.DeliveryPointShortAddress;
-			if(order.Total19LBottlesToDeliver > 0)
-				ttText += string.Format("\nБутылей 19л: {0}", order.Total19LBottlesToDeliver);
-			if(order.Total6LBottlesToDeliver > 0)
-				ttText += string.Format("\nБутылей 6л: {0}", order.Total6LBottlesToDeliver);
-			if(order.Total600mlBottlesToDeliver > 0)
-				ttText += string.Format("\nБутылей 0,6л: {0}", order.Total600mlBottlesToDeliver);
-
-			ttText += string.Format($"\nЗабор бутылей: {order.BottlesReturn}");
-
-			ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
-				order.DeliverySchedule?.Name ?? "Не назначено",
-				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.DistrictBorder.Contains(order.DeliveryPointNetTopologyPoint))?.DistrictName);
-
-			var comment = GetMarkerCommentValue(order);
-			ttText += string.Format($"\nКомментарий: {comment}");
-
-			var orderLat = (double)order.DeliveryPointLatitude;
-			var orderLong = (double)order.DeliveryPointLongitude;
+			FillTypeAndShapeLogisticsRequrementsMarker(order, out PointMarkerShape logisticsRequirementsShape, out PointMarkerType logisticsRequirementsType);
 
 			var addressMarker = new PointMarker(new PointLatLng(orderLat, orderLong), type, shape, logisticsRequirementsType, logisticsRequirementsShape)
 			{
@@ -993,23 +880,30 @@ namespace Vodovoz.Views.Logistic
 			routeOverlay.Clear();
 		}
 
-		private IList<Order> GetSelectedOrders()
+		private IList<OrderNode> GetSelectedOrders()
 		{
-			List<Order> orders = new List<Order>();
+			var orders = new List<OrderNode>();
 			//Добавление заказов из кликов по маркеру
-			orders.AddRange(selectedMarkers.Select(m => m.Tag).OfType<Order>().ToList());
+			var selectedOrderMarkers = selectedMarkers
+				.Select(m => m.Tag).OfType<OrderNode>()
+				.ToList();
+			orders.AddRange(selectedOrderMarkers);
 			//Добавление заказов из квадратного выделения
-			orders.AddRange(addressesOverlay.Markers
+			var squareSelectionOrdersIds = addressesOverlay.Markers
 				.Where(m => gmapWidget.SelectedArea.Contains(m.Position))
-				.Select(x => x.Tag).OfType<Order>().ToList());
+				.Select(x => x.Tag).OfType<OrderNode>()
+				.ToList();
+			orders.AddRange(squareSelectionOrdersIds);
 			//Добавление закзаов через непрямоугольную область
 			GMapOverlay overlay = gmapWidget.Overlays.FirstOrDefault(o => o.Id.Contains(selectionOverlay.Id));
 			GMapPolygon polygons = overlay?.Polygons.FirstOrDefault(p => p.Name.ToLower().Contains("выделение"));
-			if(polygons != null) {
-				var temp = addressesOverlay.Markers
+			if(polygons != null) 
+			{
+				var rectangleSelectionOrdersIds = addressesOverlay.Markers
 					.Where(m => polygons.IsInside(m.Position))
-					.Select(x => x.Tag).OfType<Order>().ToList();
-				orders.AddRange(temp);
+					.Select(x => x.Tag).OfType<OrderNode>()
+					.ToList();
+				orders.AddRange(rectangleSelectionOrdersIds);
 			}
 
 			return orders;

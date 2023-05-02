@@ -1043,11 +1043,11 @@ namespace Vodovoz.ViewModels.Logistic
 			CanTake = string.Join("\n", text);
 		}
 
-		public bool CheckAlreadyAddedAddress(Order order)
+		public bool CheckAlreadyAddedAddress(OrderNode order)
 		{
-			var routeList = routeListRepository.GetActualRouteListByOrder(UoW, order);
+			var routeList = routeListRepository.GetActualRouteListByOrder(UoW, order.OrderId);
 			if(routeList != null)
-				ShowWarningMessage($"Адрес ({order.DeliveryPoint.CompiledAddress}) уже был кем-то добавлен в МЛ ({routeList.Id}). Обновите данные.");
+				ShowWarningMessage($"Адрес ({order.DeliveryPointCompiledAddress}) уже был кем-то добавлен в МЛ ({routeList.Id}). Обновите данные.");
 			return routeList == null;
 		}
 
@@ -1065,25 +1065,25 @@ namespace Vodovoz.ViewModels.Logistic
 			RouteList.RecalculateOnLoadTime(RoutesOnDay, DistanceCalculator);
 		}
 
-		public bool AddOrdersToRouteList(IList<Order> selectedOrders, RouteList routeList)
+		public bool AddOrdersToRouteList(IList<OrderNode> selectedOrderNodes, RouteList routeList)
 		{
 			bool recalculateLoading = false;
 
 			if(IsAutoroutingModeActive) {
-				foreach(var order in selectedOrders) {
+				foreach(var order in selectedOrderNodes) {
 					if(order.OrderStatus == OrderStatus.InTravelList) {
-						var alreadyIn = RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
+						var alreadyIn = RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.OrderId));
 						if(alreadyIn == null)
-							throw new InvalidProgramException(string.Format("Маршрутный лист, в котором добавлен заказ {0} не найден.", order.Id));
+							throw new InvalidProgramException(string.Format("Маршрутный лист, в котором добавлен заказ {0} не найден.", order.OrderId));
 						if(alreadyIn.Id == routeList.Id) // Уже в нужном маршрутном листе.
 							continue;
-						var toRemoveAddress = alreadyIn.Addresses.First(x => x.Order.Id == order.Id);
+						var toRemoveAddress = alreadyIn.Addresses.First(x => x.Order.Id == order.OrderId);
 						if(toRemoveAddress.IndexInRoute == 0)
 							recalculateLoading = true;
 						alreadyIn.RemoveAddress(toRemoveAddress);
 						UoW.Save(alreadyIn);
 					}
-					var item = routeList.AddAddressFromOrder(order);
+					var item = routeList.AddAddressFromOrder(order.OrderId);
 					if(item.IndexInRoute == 0)
 						recalculateLoading = true;
 				}
@@ -1091,11 +1091,11 @@ namespace Vodovoz.ViewModels.Logistic
 				routeList.RecalculatePlanedDistance(DistanceCalculator);
 				UoW.Save(routeList);
 			} else {
-				foreach(var order in selectedOrders) {
+				foreach(var order in selectedOrderNodes) {
 					if(!CheckAlreadyAddedAddress(order))
 						return false;
 
-					var item = routeList.AddAddressFromOrder(order);
+					var item = routeList.AddAddressFromOrder(order.OrderId);
 					if(item.IndexInRoute == 0)
 						recalculateLoading = true;
 				}
@@ -1106,7 +1106,7 @@ namespace Vodovoz.ViewModels.Logistic
 				routeList.RecalculatePlanedDistance(DistanceCalculator);
 				SaveRouteList(routeList);
 			}
-			logger.Info("В МЛ №{0} добавлено {1} адресов.", routeList.Id, selectedOrders.Count);
+			logger.Info("В МЛ №{0} добавлено {1} адресов.", routeList.Id, selectedOrderNodes.Count);
 			if(recalculateLoading)
 				RecalculateOnLoadTime();
 
@@ -1268,9 +1268,11 @@ namespace Vodovoz.ViewModels.Logistic
 						.Select(o => new OrderNode
 						{
 							OrderId = o.Id,
+							OrderStatus = o.OrderStatus,
 							DeliveryPointLatitude = o.DeliveryPoint.Latitude,
 							DeliveryPointLongitude = o.DeliveryPoint.Longitude,
 							DeliveryPointShortAddress = o.DeliveryPoint.ShortAddress,
+							DeliveryPointCompiledAddress = o.DeliveryPoint.CompiledAddress,
 							DeliveryPointNetTopologyPoint = o.DeliveryPoint.NetTopologyPoint,
 							DeliveryPointDistrictId = o.DeliveryPoint.District.Id,
 							LogisticsRequirements = o.LogisticsRequirements,
@@ -1591,14 +1593,29 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 
 		public bool CanСreateRoutelistInPastPeriod { get; }
+
+		public override void Dispose()
+		{
+			RoutesOnDay = null;
+			UndeliveredOrdersOnDay = null;
+			OrdersOnDay = null;
+			ForwardersOnDay = null;
+			DriversOnDay = null;
+			LogisticanDistricts = null;
+			DeliverySummary = null;
+
+			base.Dispose();
+		}
 	}
 
 	public class OrderNode
 	{
 		public int OrderId { get; set; }
+		public OrderStatus OrderStatus { get; set; }
 		public decimal? DeliveryPointLatitude { get; set; }
 		public decimal? DeliveryPointLongitude { get; set; }
 		public string DeliveryPointShortAddress { get; set; }
+		public string DeliveryPointCompiledAddress { get; set; }
 		public Point DeliveryPointNetTopologyPoint { get; set; }
 		public int DeliveryPointDistrictId { get; set; }
 		public LogisticsRequirements LogisticsRequirements { get; set; }
