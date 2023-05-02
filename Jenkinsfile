@@ -47,7 +47,7 @@ stage('Prepare sources'){
 	parallel (
 		"Win" : {
 			node('WIN_BUILD'){
-				powershell '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" .\\Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86 -maxcpucount:2'
+				powershell '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" \".\\Vodovoz\\Source\\Vodovoz.sln\" -t:Restore -p:Configuration=DebugWin -p:Platform=x86 -maxcpucount:2'
 			}
 		},
 		"Linux" : {
@@ -65,7 +65,7 @@ parallel (
 	"Win" : {
 		node('WIN_BUILD'){
 			stage('Build Desktop'){
-				powershell '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" .\\Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=WinDesktop -p:Platform=x86 -maxcpucount:2'
+				powershell '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" \".\\Vodovoz\\Source\\Vodovoz.sln\" -t:Build -p:Configuration=WinDesktop -p:Platform=x86 -maxcpucount:2'
 				
 				if (fileExists("Vodovoz${ARCHIVE_EXTENTION}")) {
 					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz${ARCHIVE_EXTENTION}")])
@@ -123,7 +123,7 @@ parallel (
 					else
 					{
 						//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
-						powershell '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=Web -p:Platform=x86 -maxcpucount:2'
+						powershell '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" \".\\Vodovoz\\Source\\Vodovoz.sln\" -t:Build -p:Configuration=Web -p:Platform=x86 -maxcpucount:2'
 					}
 				}
 			}
