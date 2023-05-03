@@ -4,18 +4,36 @@
 
 //0. Настройки
 //Global
-APP_PATH = "Vodovoz\\Source\\Applications"
+APP_PATH_WIN = "Vodovoz\\Source\\Applications"
+APP_PATH_LINUX = "Vodovoz/Source/Applications"
 WEB_BUILD_OUTPUT_CATALOG = "bin\\Release\\net5.0_publish"
-
-//Build
 WIN_BUILD_TOOL = "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
 LINUX_BUILD_TOOL = "msbuild"
+VOD1 = "Vod1"
+VOD3 = "Vod3"
+VOD5 = "Vod5"
+VOD6 = "Vod6"
+VOD7 = "Vod7"
+VOD9 = "Vod9"
+VOD1_WORKSPACE_PATH = ""
+
+//Build
+CAN_BUILD_DESKTOP = env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'Beta' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
 CAN_PUBLISH_BUILD_WEB = env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
+CAN_BUILD_WCF = env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
 
 //Compress
+CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
+CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP
+CAN_COMPRESS_WCF = CAN_BUILD_WCF
 
-
-//Copy
+//Delivery
+WIN_DELIVERY_SHARED_FOLDER_NAME
+VOD1_DELIVERY_PATH = "\\\\${VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}"
+VOD3_DELIVERY_PATH = "\\\\${VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}"
+VOD5_DELIVERY_PATH = "\\\\${VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}"
+VOD6_DELIVERY_PATH = "\\\\${VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}"
+VOD7_DELIVERY_PATH = "\\\\${VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}"
 
 //Deploy
 
@@ -89,28 +107,25 @@ stage('Build'){
 			node('WIN_BUILD'){
 				stage('Build Desktop'){
 					Build("WinDesktop")
-					
-					//CompressArtifact('Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin', 'Vodovoz')
-					//archiveArtifacts artifacts: "Vodovoz${ARCHIVE_EXTENTION}", onlyIfSuccessful: true			
 				}
 				stage('Build WEB'){
 					script{
 						if(CAN_PUBLISH_BUILD_WEB)
 						{
-							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj")
-							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj")
-							PublishBuild("${APP_PATH}\\Frontend\\PayPageAPI\\PayPageAPI.csproj")
-							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj")
-							PublishBuild("${APP_PATH}\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj")
-							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj")
-							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\RoboatsService\\RoboatsService.csproj")
-							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj")
-							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\TaxcomEdoApi\\TaxcomEdoApi.csproj")
-							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\CashReceiptApi\\CashReceiptApi.csproj")
-							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\CustomerAppsApi\\CustomerAppsApi.csproj")
-							PublishBuild("${APP_PATH}\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\CashReceiptPrepareWorker.csproj")
-							PublishBuild("${APP_PATH}\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\CashReceiptSendWorker.csproj")
-							PublishBuild("${APP_PATH}\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\TrueMarkCodePoolCheckWorker.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Frontend\\PayPageAPI\\PayPageAPI.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\RoboatsService\\RoboatsService.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\TaxcomEdoApi\\TaxcomEdoApi.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\CashReceiptApi\\CashReceiptApi.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\CustomerAppsApi\\CustomerAppsApi.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\CashReceiptPrepareWorker.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\CashReceiptSendWorker.csproj")
+							PublishBuild("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\TrueMarkCodePoolCheckWorker.csproj")
 						}
 						else
 						{
@@ -125,36 +140,31 @@ stage('Build'){
 			node('LINUX_BUILD'){
 				stage('Build WCF'){
 					Build("WCF")
-					sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:2'
-
-					if (fileExists("Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/SmsPaymentService${ARCHIVE_EXTENTION}")) {
-						fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/SmsPaymentService${ARCHIVE_EXTENTION}")])
-					}
-
-					if (fileExists("Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/SmsInformerService${ARCHIVE_EXTENTION}")) {
-						fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/SmsInformerService${ARCHIVE_EXTENTION}")])
-					}
-
-					CompressArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug', 'SmsInformerService')
-					CompressArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug', 'SmsPaymentService')
-
-					archiveArtifacts artifacts: "*Service${ARCHIVE_EXTENTION}", onlyIfSuccessful: true
 				}
 			}
 		}
 	)
 }
 
-
 //4. Архивация
 stage('Compress'){
 	parallel (
-
+		"Win" : {
+			node('WIN_BUILD'){
+				CompressDesktopArtifacts()
+				CompressWebArtifacts()
+			}
+		},
+		"Linux" : {
+			node('LINUX_BUILD'){
+				CompressWcfArtifacts()
+			}
+		}
 	)
 }
 
-//5. Копирование на ноды
-stage('Copy'){
+//5. Доставка сборок на ноды
+stage('Delivery'){
 	node('Vod1'){
 		CopyDesktopArtifacts("Vod1")
 	}
@@ -269,6 +279,72 @@ def PublishBuildWebServiceToFolder(serviceName, projectPath) {
 }
 
 
+//Compress functions
+
+def CompressDesktopArtifacts(){
+	if(CAN_COMPRESS_DESKTOP)
+	{
+		CompressArtifact("Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin", "VodovozDesktop") 
+	} 
+	else
+	{
+		echo "Compress Desktop artifacts not needed"
+	}
+}
+
+def CompressWebArtifacts(){
+	if(CAN_COMPRESS_WEB)
+	{
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\DriverAPI\\${WEB_BUILD_OUTPUT_CATALOG}", "DriverAPI")
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\FastPaymentsAPI\\${WEB_BUILD_OUTPUT_CATALOG}", "FastPaymentsAPI")
+		CompressArtifact("${APP_PATH_WIN}\\Frontend\\PayPageAPI\\${WEB_BUILD_OUTPUT_CATALOG}", "PayPageAPI")
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\${WEB_BUILD_OUTPUT_CATALOG}", "MailjetEventsDistributorAPI")
+		CompressArtifact("${APP_PATH_WIN}\\Frontend\\UnsubscribePage\\${WEB_BUILD_OUTPUT_CATALOG}", "UnsubscribePage")
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\DeliveryRulesService\\${WEB_BUILD_OUTPUT_CATALOG}", "DeliveryRulesService")
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\RoboatsService\\${WEB_BUILD_OUTPUT_CATALOG}", "RoboatsService")
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\TrueMarkAPI\\${WEB_BUILD_OUTPUT_CATALOG}", "TrueMarkAPI")
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\TaxcomEdoApi\\${WEB_BUILD_OUTPUT_CATALOG}", "TaxcomEdoApi")
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\CashReceiptApi\\${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptApi")
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\CustomerAppsApi\\${WEB_BUILD_OUTPUT_CATALOG}", "CustomerAppsApi")
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptPrepareWorker")
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptSendWorker")
+		CompressArtifact("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\${WEB_BUILD_OUTPUT_CATALOG}", "TrueMarkCodePoolCheckWorker")
+	} 
+	else
+	{
+		echo "Compress Web artifacts not needed"
+	}
+}
+
+def CompressWcfArtifacts(){
+	if(CAN_COMPRESS_WCF)
+	{
+		CompressArtifact("${APP_PATH_LINUX}/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug", "SmsInformerService")
+		CompressArtifact("${APP_PATH_LINUX}/Backend/WCF/VodovozSmsPaymentService/bin/Debug", "SmsPaymentService")
+	} 
+	else
+	{
+		echo "Compress WCF artifacts not needed"
+	}
+}
+
+
+//Delivery functions
+
+def DeliveryWinArtifacts(){
+	RunPowerShell("""
+		Copy-Item -Path D:\\TestCopy\\TestFile.zip -Destination ${deployPath}
+	""")
+}
+
+def DeliveryWinArtifact(artifactPath, deliveryPath){
+	node(VOD9){
+		RunPowerShell("""
+			Copy-Item -Path ${artifactPath} -Destination ${deployPath}
+		""")
+	}
+}
+
 def CopyDesktopArtifacts(serverName){
 	script{
 		echo "Can copy artifacts for desktop ${serverName}: ${CAN_COPY_DESKTOP_ARTIFACTS}"
@@ -283,6 +359,7 @@ def CopyDesktopArtifacts(serverName){
 		}
 	}
 }
+
 
 def PublishMasterDesktop() {
 	script{
@@ -300,7 +377,7 @@ def PublishMasterDesktop() {
 
 def PublishWebServices(){
 	script{
-		if(CAN_PUBLISH_WEB_ARTIFACTS)
+		if(CAN_PUBLISH_BUILD_WEB)
 		{
 			parallel (
 				"Publish DriversAPI" : {
@@ -402,7 +479,7 @@ def CompressArtifact(sourcePath, artifactName) {
 def DecompressArtifact(destPath, artifactName) {
 	def archive_file = ${artifactName}${ARCHIVE_EXTENTION}
 
-	echo "Decompressing archive ${archive_file} to ${destPath}"
+	echo "Decompressing artifact ${archive_file} to ${destPath}"
 	UnzipFiles(archive_file, destPath)
 }
 
@@ -437,4 +514,17 @@ def UnzipFiles(archiveFile, destPath){
 	else {
 		bat "7z x -y -o\"${destPath}\" ${archiveFile}"
 	}
+}
+
+def RunPowerShell(psScript){
+	powershell"""
+		\$ErrorActionPreference = "Stop";
+		${psScript}
+        """
+}
+
+def GetWorkspacePath (nodeName)  {  
+	node(nodeName){
+		return ${env.WORKSPACE}
+	}  
 }
