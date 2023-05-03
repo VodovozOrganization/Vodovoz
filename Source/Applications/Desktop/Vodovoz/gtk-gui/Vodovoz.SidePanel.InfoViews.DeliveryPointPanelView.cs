@@ -290,7 +290,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			w23.Fill = false;
 			// Container child yvboxLogisticsRequirements.Gtk.Box+BoxChild
 			this.logisticsRequirementsView = new global::Vodovoz.Views.Logistic.LogisticsRequirementsView();
-			this.logisticsRequirementsView.HeightRequest = 170;
+			this.logisticsRequirementsView.HeightRequest = 160;
 			this.logisticsRequirementsView.Events = ((global::Gdk.EventMask)(256));
 			this.logisticsRequirementsView.Name = "logisticsRequirementsView";
 			this.yvboxLogisticsRequirements.Add(this.logisticsRequirementsView);
@@ -340,6 +340,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				this.Child.ShowAll();
 			}
+			this.yvboxLogisticsRequirements.Hide();
 			this.Hide();
 			this.buttonSaveComment.Clicked += new global::System.EventHandler(this.OnButtonSaveCommentClicked);
 			this.buttonSaveLogisticsRequirements.Clicked += new global::System.EventHandler(this.OnButtonSaveLogisticsRequirementsClicked);

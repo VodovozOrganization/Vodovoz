@@ -170,7 +170,11 @@ namespace Vodovoz.SidePanel.InfoViews
 			PhonesTable.ShowAll();
 			btn.Sensitive = buttonSaveComment.Sensitive = _counterpartyPermissionResult.CanUpdate && _counterparty.Id != 0;
 
-			SetLogisticsRequirementsCheckboxes();
+			if(InfoProvider is OrderDlg)
+			{
+				yvboxLogisticsRequirements.Visible = true;
+				SetLogisticsRequirementsCheckboxes();
+			}
 		}
 
 		private void SetupPersonalManagers()

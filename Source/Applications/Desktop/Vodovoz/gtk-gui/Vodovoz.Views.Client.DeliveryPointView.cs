@@ -1183,7 +1183,7 @@ namespace Vodovoz.Views.Client
 			w88.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMainInfo.Gtk.Table+TableChild
 			this.logisticsRequirementsView = new global::Vodovoz.Views.Logistic.LogisticsRequirementsView();
-			this.logisticsRequirementsView.HeightRequest = 160;
+			this.logisticsRequirementsView.HeightRequest = 150;
 			this.logisticsRequirementsView.Events = ((global::Gdk.EventMask)(256));
 			this.logisticsRequirementsView.Name = "logisticsRequirementsView";
 			this.tableMainInfo.Add(this.logisticsRequirementsView);

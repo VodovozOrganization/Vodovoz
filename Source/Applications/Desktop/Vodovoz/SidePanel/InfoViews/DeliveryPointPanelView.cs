@@ -188,7 +188,11 @@ namespace Vodovoz.SidePanel.InfoViews
 				btn.Sensitive = 
 				textviewComment.Editable = _deliveryPointPermissionResult.CanUpdate;
 
-			SetLogisticsRequirementsCheckboxes();
+			if(InfoProvider is OrderDlg)
+			{
+				yvboxLogisticsRequirements.Visible = true;
+				SetLogisticsRequirementsCheckboxes();
+			}
 		}
 
 		public bool VisibleOnPanel
