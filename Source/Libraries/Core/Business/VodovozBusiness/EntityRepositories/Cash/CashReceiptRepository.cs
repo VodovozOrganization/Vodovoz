@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -52,6 +52,8 @@ namespace Vodovoz.EntityRepositories.Cash
 			var restriction = Restrictions.Disjunction()
 				.Add(() => _orderAlias.PaymentType == PaymentType.TerminalQR)
 				.Add(() => _orderAlias.PaymentType == PaymentType.Cash)
+				.Add(() => _orderAlias.PaymentType == PaymentType.DriverApplicationQR)
+				.Add(() => _orderAlias.PaymentType == PaymentType.SmsQR)
 				.Add(Restrictions.Conjunction()
 					.Add(() => _orderAlias.PaymentType == PaymentType.PaidOnline)
 					.Add(Restrictions.Disjunction()
