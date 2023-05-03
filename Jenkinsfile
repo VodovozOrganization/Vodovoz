@@ -2,6 +2,26 @@
 //Deploy - разархивация сборок на ноде в каталог для соответствующей ветки
 //Publish - разархивация сборок на ноде в каталог для нового релиза
 
+//0. Настройки
+//Global
+APP_PATH = "Vodovoz\\Source\\Applications"
+WEB_BUILD_OUTPUT_CATALOG = "bin\\Release\\net5.0_publish"
+
+//Build
+WIN_BUILD_TOOL = "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
+LINUX_BUILD_TOOL = "msbuild"
+CAN_PUBLISH_BUILD_WEB = env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
+
+//Compress
+
+
+//Copy
+
+//Deploy
+
+//Publish
+
+
 //Desktop
 CAN_DEPLOY_DESKTOP_BRANCH = env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'Beta' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
 CAN_DEPLOY_DESKTOP_PR = env.CHANGE_ID != null
@@ -28,9 +48,8 @@ echo "CAN_COPY_WEB_ARTIFACTS: ${CAN_COPY_WEB_ARTIFACTS}"
 echo "CAN_PUBLISH_WCF_ARTIFACTS: ${CAN_PUBLISH_WCF_ARTIFACTS}"
 echo "CAN_COPY_WCF_ARTIFACTS: ${CAN_COPY_WCF_ARTIFACTS}"
 
-//Подготовка репозитория и проектов
-stage('Prepare sources'){
-	echo "Checkout"
+//1. Подготовка репозиториев
+stage('Checkout'){
 	parallel (
 		"Win" : {
 			node('WIN_BUILD'){
@@ -43,11 +62,14 @@ stage('Prepare sources'){
 			}
 		}
 	)
-	echo "Restore packages"
+}
+
+//2. Восстановление пакетов для проектов
+stage('Restore'){
 	parallel (
 		"Win" : {
 			node('WIN_BUILD'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Restore -p:Configuration=DebugWin -p:Platform=x86 -maxcpucount:2'
+				bat '"$WIN_BUILD_TOOL" Vodovoz\\Source\\Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2'
 			}
 		},
 		"Linux" : {
@@ -60,99 +82,79 @@ stage('Prepare sources'){
 	)
 }
 
-//Сборка проектов
-parallel (
-	"Win" : {
-		node('WIN_BUILD'){
-			stage('Build Desktop'){
-				bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=WinDesktop -p:Platform=x86 -maxcpucount:2'
-				
-				if (fileExists("Vodovoz${ARCHIVE_EXTENTION}")) {
-					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz${ARCHIVE_EXTENTION}")])
+//3. Сборка проектов
+stage('Build'){
+	parallel (
+		"Win" : {
+			node('WIN_BUILD'){
+				stage('Build Desktop'){
+					Build("WinDesktop")
+					
+					//CompressArtifact('Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin', 'Vodovoz')
+					//archiveArtifacts artifacts: "Vodovoz${ARCHIVE_EXTENTION}", onlyIfSuccessful: true			
 				}
-
-				CompressArtifact('Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin', 'Vodovoz')
-				archiveArtifacts artifacts: "Vodovoz${ARCHIVE_EXTENTION}", onlyIfSuccessful: true			
-			}
-			stage('Build WEB'){
-				script{
-					if(env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/)
-					{
-						PublishBuildWebServiceToFolder('DriversAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DriverAPI\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('FastPaymentsAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\FastPaymentsAPI\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('PayPageAPI', 'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\PayPageAPI.csproj',
-							'Vodovoz\\Source\\Applications\\Frontend\\PayPageAPI\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('MailjetEventsDistributorAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\bin\\Release\\net5.0_publish')
-							
-						PublishBuildWebServiceToFolder('UnsubscribePage', 'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj',
-							'Vodovoz\\Source\\Applications\\Frontend\\UnsubscribePage\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('DeliveryRulesService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\DeliveryRulesService\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('RoboatsService', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\RoboatsService.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\RoboatsService\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('TrueMarkAPI', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TrueMarkAPI\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('TaxcomEdoApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\TaxcomEdoApi.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\TaxcomEdoApi\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('CashReceiptApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CashReceiptApi\\CashReceiptApi.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CashReceiptApi\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('CustomerAppsApi', 'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CustomerAppsApi\\CustomerAppsApi.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\WebAPI\\CustomerAppsApi\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('CashReceiptPrepareWorker', 'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\CashReceiptPrepareWorker.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('CashReceiptSendWorker', 'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\CashReceiptSendWorker.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\bin\\Release\\net5.0_publish')
-
-						PublishBuildWebServiceToFolder('TrueMarkCodePoolCheckWorker', 'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\TrueMarkCodePoolCheckWorker.csproj',
-							'Vodovoz\\Source\\Applications\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\bin\\Release\\net5.0_publish')
-					}
-					else
-					{
-						//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
-						bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" Vodovoz\\Source\\Vodovoz.sln -t:Build -p:Configuration=Web -p:Platform=x86 -maxcpucount:2'
+				stage('Build WEB'){
+					script{
+						if(CAN_PUBLISH_BUILD_WEB)
+						{
+							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj")
+							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj")
+							PublishBuild("${APP_PATH}\\Frontend\\PayPageAPI\\PayPageAPI.csproj")
+							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj")
+							PublishBuild("${APP_PATH}\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj")
+							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj")
+							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\RoboatsService\\RoboatsService.csproj")
+							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj")
+							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\TaxcomEdoApi\\TaxcomEdoApi.csproj")
+							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\CashReceiptApi\\CashReceiptApi.csproj")
+							PublishBuild("${APP_PATH}\\Backend\\WebAPI\\CustomerAppsApi\\CustomerAppsApi.csproj")
+							PublishBuild("${APP_PATH}\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\CashReceiptPrepareWorker.csproj")
+							PublishBuild("${APP_PATH}\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\CashReceiptSendWorker.csproj")
+							PublishBuild("${APP_PATH}\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\TrueMarkCodePoolCheckWorker.csproj")
+						}
+						else
+						{
+							//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
+							Build("Web")
+						}
 					}
 				}
 			}
-		}
-	},
-	"Linux" : {
-		node('LINUX_BUILD'){
-			stage('Build WCF'){
-				sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:2'
+		},
+		"Linux" : {
+			node('LINUX_BUILD'){
+				stage('Build WCF'){
+					Build("WCF")
+					sh 'msbuild /p:Configuration=WCF /p:Platform=x86 Vodovoz/Source/Vodovoz.sln -maxcpucount:2'
 
-				if (fileExists("Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/SmsPaymentService${ARCHIVE_EXTENTION}")) {
-					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/SmsPaymentService${ARCHIVE_EXTENTION}")])
+					if (fileExists("Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/SmsPaymentService${ARCHIVE_EXTENTION}")) {
+						fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug/SmsPaymentService${ARCHIVE_EXTENTION}")])
+					}
+
+					if (fileExists("Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/SmsInformerService${ARCHIVE_EXTENTION}")) {
+						fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/SmsInformerService${ARCHIVE_EXTENTION}")])
+					}
+
+					CompressArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug', 'SmsInformerService')
+					CompressArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug', 'SmsPaymentService')
+
+					archiveArtifacts artifacts: "*Service${ARCHIVE_EXTENTION}", onlyIfSuccessful: true
 				}
-
-				if (fileExists("Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/SmsInformerService${ARCHIVE_EXTENTION}")) {
-					fileOperations([fileDeleteOperation(excludes: '', includes: "Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug/SmsInformerService${ARCHIVE_EXTENTION}")])
-				}
-
-				CompressArtifact('Vodovoz/Source/Applications/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug', 'SmsInformerService')
-				CompressArtifact('Vodovoz/Source/Applications/Backend/WCF/VodovozSmsPaymentService/bin/Debug', 'SmsPaymentService')
-
-				archiveArtifacts artifacts: "*Service${ARCHIVE_EXTENTION}", onlyIfSuccessful: true
 			}
 		}
-	}
-)
+	)
+}
 
-//Копирование на ноды
-stage('Copy artifacts'){
+
+//4. Архивация
+stage('Compress'){
+	parallel (
+
+	)
+}
+
+//5. Копирование на ноды
+stage('Copy'){
 	node('Vod1'){
 		CopyDesktopArtifacts("Vod1")
 	}
@@ -195,6 +197,7 @@ stage('Copy artifacts'){
 	}	
 }
 
+//6. Развертывание
 stage('Deploy'){
 	script{
 		node('Vod3'){
@@ -219,6 +222,7 @@ stage('Deploy'){
 	}
 }
 
+//7.Публикация
 stage('Publish'){
 	node('Vod1'){
 		PublishMasterDesktop()
@@ -255,19 +259,15 @@ def PrepareSources(jenkinsHome) {
 	])
 }
 
-def PublishBuildWebServiceToFolder(serviceName, csprojPath, outputPath) {
-	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
-	
+def PublishBuildWebServiceToFolder(serviceName, projectPath) {
+	def branch_name = env.BRANCH_NAME.replaceAll('/','') + '\\'
+	def csproj_path = "${projectPath}\\${serviceName}.csproj"
 	echo "Publish ${serviceName} to folder (${env.BRANCH_NAME})"
-	bat '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" ' + csprojPath + ' /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile -maxcpucount:2'
+	PublishBuild(csproj_path)
 
-	if (fileExists("${serviceName}${ARCHIVE_EXTENTION}")) {
-		fileOperations([fileDeleteOperation(excludes: '', includes: "${serviceName}${ARCHIVE_EXTENTION}")])
-	}
-
-	CompressArtifact(outputPath, serviceName)
-	archiveArtifacts artifacts: "${serviceName}${ARCHIVE_EXTENTION}", onlyIfSuccessful: true
+	//CompressArtifact(outputPath, serviceName)
 }
+
 
 def CopyDesktopArtifacts(serverName){
 	script{
@@ -388,21 +388,53 @@ def PublishWCFService(serviceName) {
 }
 
 def CompressArtifact(sourcePath, artifactName) {
-	echo "Compressing archive ${artifactName}${ARCHIVE_EXTENTION} from ./${sourcePath}/*"
+	def archive_file = ${artifactName}${ARCHIVE_EXTENTION}
+
+	if (fileExists("${archive_file}")) {
+		echo "Delete exiting artifact ${archive_file} from ./${sourcePath}/*"
+		fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
+	}
+
+	echo "Compressing artifact ${archive_file} from ./${sourcePath}/*"
+	ZipFiles(sourcePath, archive_file)
+}
+
+def DecompressArtifact(destPath, artifactName) {
+	def archive_file = ${artifactName}${ARCHIVE_EXTENTION}
+
+	echo "Decompressing archive ${archive_file} to ${destPath}"
+	UnzipFiles(archive_file, destPath)
+}
+
+def PublishBuild(projectPath){
+	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Rebuild /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /maxcpucount:2"
+}
+
+def Build(config){
 	if (isUnix()) {
-		sh "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
+		sh "${LINUX_BUILD_TOOL} Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
 	}
 	else {
-		bat "7z a -stl ${artifactName}${ARCHIVE_EXTENTION} ./${sourcePath}/*"
+		bat "\"${WIN_BUILD_TOOL}\" Vodovoz\\Source\\Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
 	}
 }
 
-def DecompressArtifact(targetPath, artifactName) {
-	echo "Decompressing archive ${artifactName}${ARCHIVE_EXTENTION} to ${targetPath}"
+//Utility functions
+
+def ZipFiles(sourcePath, archiveFile){
 	if (isUnix()) {
-		sh "7z x -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
+		sh "7z a -stl ${archiveFile} ./${sourcePath}/*"
 	}
 	else {
-		bat "7z x -y -o\"${targetPath}\" ${artifactName}${ARCHIVE_EXTENTION}"
+		bat "7z a -stl ${archiveFile} ./${sourcePath}/*"
+	}
+}
+
+def UnzipFiles(archiveFile, destPath){
+	if (isUnix()) {
+		sh "7z x -y -o\"${destPath}\" ${archiveFile}"
+	}
+	else {
+		bat "7z x -y -o\"${destPath}\" ${archiveFile}"
 	}
 }
