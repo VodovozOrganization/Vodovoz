@@ -1604,6 +1604,8 @@ namespace Vodovoz.ViewModels.Logistic
 			LogisticanDistricts = null;
 			DeliverySummary = null;
 
+			UoW?.Dispose();
+
 			base.Dispose();
 		}
 	}
