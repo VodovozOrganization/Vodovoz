@@ -48,7 +48,7 @@ namespace DriverAPI
 {
 	public class Startup
 	{
-		private const string _nLogSectionName = "NLog";
+		private const string _nLogSectionName = nameof(NLog);
 		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
