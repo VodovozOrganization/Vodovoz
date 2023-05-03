@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -962,45 +962,71 @@ namespace Vodovoz
 			if (sender is LogisticsRequirements requirements && Entity.DeliveryPoint != null)
 			{
 				string commentToAdd = string.Empty;
+				string commentToRemove = string.Empty;
 
 				if(e.PropertyName == nameof(LogisticsRequirements.ForwarderRequired))
 				{
-					var requirementComment = "Требуется экспедитор на адресе";
+					var requirementComment = "Требуется экспедитор на адресе\n";
 					if(requirements.ForwarderRequired && !Entity.Comment.Contains(requirementComment))
 					{
 						commentToAdd = requirementComment;
 					}
+
+					if(!requirements.ForwarderRequired && Entity.Comment.Contains(requirementComment))
+					{
+						commentToRemove = requirementComment;
+					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.DocumentsRequired))
 				{
-					var requirementComment = "Наличие паспорта/документов у водителя";
+					var requirementComment = "Наличие паспорта/документов у водителя\n";
 					if(requirements.DocumentsRequired && !Entity.Comment.Contains(requirementComment))
 					{
 						commentToAdd = requirementComment;
 					}
+
+					if(!requirements.DocumentsRequired && Entity.Comment.Contains(requirementComment))
+					{
+						commentToRemove = requirementComment;
+					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.RussianDriverRequired))
 				{
-					var requirementComment = "Требуется русский водитель";
+					var requirementComment = "Требуется русский водитель\n";
 					if(requirements.RussianDriverRequired && !Entity.Comment.Contains(requirementComment))
 					{
 						commentToAdd = requirementComment;
 					}
+
+					if(!requirements.RussianDriverRequired && Entity.Comment.Contains(requirementComment))
+					{
+						commentToRemove = requirementComment;
+					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.PassRequired))
 				{
-					var requirementComment = "Требуется пропуск";
+					var requirementComment = "Требуется пропуск\n";
 					if(requirements.PassRequired && !Entity.Comment.Contains(requirementComment))
 					{
 						commentToAdd = requirementComment;
 					}
+
+					if(!requirements.PassRequired && Entity.Comment.Contains(requirementComment))
+					{
+						commentToRemove = requirementComment;
+					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.LargusRequired))
 				{
-					var requirementComment = "Только ларгус (газель не проедет)";
+					var requirementComment = "Только ларгус (газель не проедет)\n";
 					if(requirements.LargusRequired && !Entity.Comment.Contains(requirementComment))
 					{
 						commentToAdd = requirementComment;
+					}
+
+					if(!requirements.LargusRequired && Entity.Comment.Contains(requirementComment))
+					{
+						commentToRemove = requirementComment;
 					}
 				}
 
@@ -1008,8 +1034,13 @@ namespace Vodovoz
 				{
 					Entity.Comment =
 						Entity.Comment.Length > 0
-						? commentToAdd + "\n" + Entity.Comment
+						? commentToAdd + Entity.Comment
 						: commentToAdd;
+				}
+
+				if(commentToRemove.Length > 0)
+				{
+					Entity.Comment = Entity.Comment.Replace(commentToRemove, "");
 				}
 			}
 
@@ -2925,6 +2956,8 @@ namespace Vodovoz
 			{
 				RemoveFlyers();
 			}
+
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		private void RemoveFlyers()
@@ -2947,7 +2980,7 @@ namespace Vodovoz
 
 			AddCommentsFromDeliveryPoint();
 
-			SetLogisticsRequirementsCheckboxes();
+			//SetLogisticsRequirementsCheckboxes();
 		}
 
 		private void AddCommentsFromDeliveryPoint()
@@ -4110,10 +4143,10 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblCommentForDriver.Text} {commentForDriver}").AppendLine();
 
-			var commentForLogist = Entity.CommentLogist?.ToUpper();
-			//ylblCommentForLogist.Text = commentForLogist;
+			var logisticsRequirementsSummary = Entity.LogisticsRequirements?.GetSummaryString();
+			ylblResumeLogisticsRequirementsSummary.Text = logisticsRequirementsSummary;
 
-			//_summaryInfoBuilder.Append($"{lblCommentForLogist.Text} {commentForLogist}");
+			_summaryInfoBuilder.Append($"{lblResumeLogisticsRequirements.Text} {logisticsRequirementsSummary}");
 
 			ntbOrder.GetNthPage(1).Hide();
 			ntbOrder.GetNthPage(1).Show();

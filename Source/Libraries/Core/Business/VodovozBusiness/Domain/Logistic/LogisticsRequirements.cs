@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -87,6 +88,34 @@ namespace Vodovoz.Domain.Logistic
 			RussianDriverRequired = copyFromRequirements.RussianDriverRequired;
 			PassRequired = copyFromRequirements.PassRequired;
 			LargusRequired = copyFromRequirements.LargusRequired;
+		}
+
+		public virtual string GetSummaryString()
+		{
+			var summary = new StringBuilder();
+
+			if(ForwarderRequired)
+			{
+				summary.AppendLine("Требуется экспедитор на адресе");
+			}
+			if(DocumentsRequired)
+			{
+				summary.AppendLine("Требуется наличие паспорта/документов у водителя");
+			}
+			if(RussianDriverRequired)
+			{
+				summary.AppendLine("Требуется русский водитель");
+			}
+			if(PassRequired)
+			{
+				summary.AppendLine("Требуется пропуск");
+			}
+			if(LargusRequired)
+			{
+				summary.AppendLine("Требуется Ларгус (газель не проедет)");
+			}
+
+			return summary.ToString();
 		}
 	}
 }
