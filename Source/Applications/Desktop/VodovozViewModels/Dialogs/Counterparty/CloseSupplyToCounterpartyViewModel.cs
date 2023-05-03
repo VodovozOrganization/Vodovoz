@@ -5,24 +5,20 @@ using QS.DomainModel.UoW;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.EntityRepositories;
+using QS.Navigation;
+using QS.Project.Domain;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
-	public class CloseSupplyToCounterpartyViewModel : EntityWidgetViewModelBase<Domain.Client.Counterparty>, ITDICloseControlTab, IAskSaveOnCloseViewModel
+	public class CloseSupplyToCounterpartyViewModel : EntityTabViewModelBase<Domain.Client.Counterparty>
 	{
 		public CloseSupplyToCounterpartyViewModel(
-			Domain.Client.Counterparty entity,
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			IUnitOfWork uow) : base(entity, commonServices)
+			INavigationManager navigationManager) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
-			UoW = uow ?? throw new System.ArgumentNullException(nameof(uow));
-		}
-		
-		public bool AskSaveOnClose => throw new System.NotImplementedException();
 
-		public bool CanClose()
-		{
-			throw new System.NotImplementedException();
 		}
 	}
 }
