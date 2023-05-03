@@ -4111,9 +4111,9 @@ namespace Vodovoz
 			_summaryInfoBuilder.AppendLine($"{lblCommentForDriver.Text} {commentForDriver}").AppendLine();
 
 			var commentForLogist = Entity.CommentLogist?.ToUpper();
-			ylblCommentForLogist.Text = commentForLogist;
+			//ylblCommentForLogist.Text = commentForLogist;
 
-			_summaryInfoBuilder.Append($"{lblCommentForLogist.Text} {commentForLogist}");
+			//_summaryInfoBuilder.Append($"{lblCommentForLogist.Text} {commentForLogist}");
 
 			ntbOrder.GetNthPage(1).Hide();
 			ntbOrder.GetNthPage(1).Show();

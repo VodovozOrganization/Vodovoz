@@ -450,8 +450,6 @@ namespace Vodovoz
 
 		private global::Gtk.Label lblCommentForDriver;
 
-		private global::Gtk.Label lblCommentForLogist;
-
 		private global::Gtk.Label lblContactlessDelivery;
 
 		private global::Gamma.GtkWidgets.yLabel lblContactlessDeliveryText;
@@ -476,6 +474,8 @@ namespace Vodovoz
 
 		private global::Gtk.Label lblPlannedSum;
 
+		private global::Gtk.Label lblResumeLogisticsRequirements;
+
 		private global::Gtk.Label lblReturns;
 
 		private global::Gtk.Label lblTrifleFrom;
@@ -483,8 +483,6 @@ namespace Vodovoz
 		private global::Gamma.GtkWidgets.yLabel ylblBottlesPlannedToReturn;
 
 		private global::Gamma.GtkWidgets.yLabel ylblCommentForDriver;
-
-		private global::Gamma.GtkWidgets.yLabel ylblCommentForLogist;
 
 		private global::Gamma.GtkWidgets.yLabel ylblCounterpartyFIO;
 
@@ -505,6 +503,8 @@ namespace Vodovoz
 		private global::Gamma.GtkWidgets.yLabel ylblPhoneNumber;
 
 		private global::Gamma.GtkWidgets.yLabel ylblPlannedSum;
+
+		private global::Gamma.GtkWidgets.yLabel ylblResumeLogisticsRequirementsSummary;
 
 		private global::Gamma.GtkWidgets.yLabel ylblReturns;
 
@@ -530,7 +530,7 @@ namespace Vodovoz
 			this.ntbOrder = new global::Gtk.Notebook();
 			this.ntbOrder.CanFocus = true;
 			this.ntbOrder.Name = "ntbOrder";
-			this.ntbOrder.CurrentPage = 0;
+			this.ntbOrder.CurrentPage = 1;
 			this.ntbOrder.ShowBorder = false;
 			// Container child ntbOrder.Gtk.Notebook+NotebookChild
 			this.vbox2 = new global::Gtk.VBox();
@@ -2868,31 +2868,18 @@ namespace Vodovoz
 			w234.XOptions = ((global::Gtk.AttachOptions)(4));
 			w234.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
-			this.lblCommentForLogist = new global::Gtk.Label();
-			this.lblCommentForLogist.Name = "lblCommentForLogist";
-			this.lblCommentForLogist.Xalign = 1F;
-			this.lblCommentForLogist.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Комментарий для логиста: </b>");
-			this.lblCommentForLogist.UseMarkup = true;
-			this.tblOrderSummaryContainer.Add(this.lblCommentForLogist);
-			global::Gtk.Table.TableChild w235 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblCommentForLogist]));
-			w235.TopAttach = ((uint)(15));
-			w235.BottomAttach = ((uint)(16));
-			w235.YPadding = ((uint)(5));
-			w235.XOptions = ((global::Gtk.AttachOptions)(4));
-			w235.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblContactlessDelivery = new global::Gtk.Label();
 			this.lblContactlessDelivery.Name = "lblContactlessDelivery";
 			this.lblContactlessDelivery.Xalign = 1F;
 			this.lblContactlessDelivery.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Бесконтактная доставка: </b>");
 			this.lblContactlessDelivery.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblContactlessDelivery);
-			global::Gtk.Table.TableChild w236 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblContactlessDelivery]));
-			w236.TopAttach = ((uint)(13));
-			w236.BottomAttach = ((uint)(14));
-			w236.YPadding = ((uint)(5));
-			w236.XOptions = ((global::Gtk.AttachOptions)(4));
-			w236.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w235 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblContactlessDelivery]));
+			w235.TopAttach = ((uint)(13));
+			w235.BottomAttach = ((uint)(14));
+			w235.YPadding = ((uint)(5));
+			w235.XOptions = ((global::Gtk.AttachOptions)(4));
+			w235.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblContactlessDeliveryText = new global::Gamma.GtkWidgets.yLabel();
 			this.lblContactlessDeliveryText.Name = "lblContactlessDeliveryText";
@@ -2900,13 +2887,13 @@ namespace Vodovoz
 			this.lblContactlessDeliveryText.LabelProp = global::Mono.Unix.Catalog.GetString("да");
 			this.lblContactlessDeliveryText.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblContactlessDeliveryText);
-			global::Gtk.Table.TableChild w237 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblContactlessDeliveryText]));
-			w237.TopAttach = ((uint)(13));
-			w237.BottomAttach = ((uint)(14));
-			w237.LeftAttach = ((uint)(1));
-			w237.RightAttach = ((uint)(2));
-			w237.XOptions = ((global::Gtk.AttachOptions)(4));
-			w237.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w236 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblContactlessDeliveryText]));
+			w236.TopAttach = ((uint)(13));
+			w236.BottomAttach = ((uint)(14));
+			w236.LeftAttach = ((uint)(1));
+			w236.RightAttach = ((uint)(2));
+			w236.XOptions = ((global::Gtk.AttachOptions)(4));
+			w236.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblCounterpartyFIO = new global::Gtk.Label();
 			this.lblCounterpartyFIO.Name = "lblCounterpartyFIO";
@@ -2914,10 +2901,10 @@ namespace Vodovoz
 			this.lblCounterpartyFIO.LabelProp = global::Mono.Unix.Catalog.GetString("<b>ФИО контрагента: </b>");
 			this.lblCounterpartyFIO.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblCounterpartyFIO);
-			global::Gtk.Table.TableChild w238 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblCounterpartyFIO]));
-			w238.YPadding = ((uint)(5));
-			w238.XOptions = ((global::Gtk.AttachOptions)(4));
-			w238.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w237 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblCounterpartyFIO]));
+			w237.YPadding = ((uint)(5));
+			w237.XOptions = ((global::Gtk.AttachOptions)(4));
+			w237.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblDeliveryAddress = new global::Gtk.Label();
 			this.lblDeliveryAddress.Name = "lblDeliveryAddress";
@@ -2925,12 +2912,12 @@ namespace Vodovoz
 			this.lblDeliveryAddress.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Адрес доставки: </b>");
 			this.lblDeliveryAddress.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblDeliveryAddress);
-			global::Gtk.Table.TableChild w239 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblDeliveryAddress]));
-			w239.TopAttach = ((uint)(1));
-			w239.BottomAttach = ((uint)(2));
-			w239.YPadding = ((uint)(5));
-			w239.XOptions = ((global::Gtk.AttachOptions)(4));
-			w239.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w238 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblDeliveryAddress]));
+			w238.TopAttach = ((uint)(1));
+			w238.BottomAttach = ((uint)(2));
+			w238.YPadding = ((uint)(5));
+			w238.XOptions = ((global::Gtk.AttachOptions)(4));
+			w238.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblDeliveryDate = new global::Gtk.Label();
 			this.lblDeliveryDate.Name = "lblDeliveryDate";
@@ -2938,12 +2925,12 @@ namespace Vodovoz
 			this.lblDeliveryDate.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Дата доставки: </b>");
 			this.lblDeliveryDate.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblDeliveryDate);
-			global::Gtk.Table.TableChild w240 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblDeliveryDate]));
-			w240.TopAttach = ((uint)(3));
-			w240.BottomAttach = ((uint)(4));
-			w240.YPadding = ((uint)(5));
-			w240.XOptions = ((global::Gtk.AttachOptions)(4));
-			w240.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w239 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblDeliveryDate]));
+			w239.TopAttach = ((uint)(3));
+			w239.BottomAttach = ((uint)(4));
+			w239.YPadding = ((uint)(5));
+			w239.XOptions = ((global::Gtk.AttachOptions)(4));
+			w239.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblDeliveryInterval = new global::Gtk.Label();
 			this.lblDeliveryInterval.Name = "lblDeliveryInterval";
@@ -2951,12 +2938,12 @@ namespace Vodovoz
 			this.lblDeliveryInterval.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Интервал доставки: </b>");
 			this.lblDeliveryInterval.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblDeliveryInterval);
-			global::Gtk.Table.TableChild w241 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblDeliveryInterval]));
-			w241.TopAttach = ((uint)(4));
-			w241.BottomAttach = ((uint)(5));
-			w241.YPadding = ((uint)(5));
-			w241.XOptions = ((global::Gtk.AttachOptions)(4));
-			w241.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w240 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblDeliveryInterval]));
+			w240.TopAttach = ((uint)(4));
+			w240.BottomAttach = ((uint)(5));
+			w240.YPadding = ((uint)(5));
+			w240.XOptions = ((global::Gtk.AttachOptions)(4));
+			w240.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblDocumentSigning = new global::Gtk.Label();
 			this.lblDocumentSigning.Name = "lblDocumentSigning";
@@ -2964,12 +2951,12 @@ namespace Vodovoz
 			this.lblDocumentSigning.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Подписание документов: </b>");
 			this.lblDocumentSigning.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblDocumentSigning);
-			global::Gtk.Table.TableChild w242 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblDocumentSigning]));
-			w242.TopAttach = ((uint)(5));
-			w242.BottomAttach = ((uint)(6));
-			w242.YPadding = ((uint)(5));
-			w242.XOptions = ((global::Gtk.AttachOptions)(4));
-			w242.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w241 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblDocumentSigning]));
+			w241.TopAttach = ((uint)(5));
+			w241.BottomAttach = ((uint)(6));
+			w241.YPadding = ((uint)(5));
+			w241.XOptions = ((global::Gtk.AttachOptions)(4));
+			w241.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblEquipment1 = new global::Gtk.Label();
 			this.lblEquipment1.Name = "lblEquipment1";
@@ -2977,12 +2964,12 @@ namespace Vodovoz
 			this.lblEquipment1.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Оборудование: </b>");
 			this.lblEquipment1.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblEquipment1);
-			global::Gtk.Table.TableChild w243 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblEquipment1]));
-			w243.TopAttach = ((uint)(7));
-			w243.BottomAttach = ((uint)(8));
-			w243.YPadding = ((uint)(5));
-			w243.XOptions = ((global::Gtk.AttachOptions)(4));
-			w243.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w242 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblEquipment1]));
+			w242.TopAttach = ((uint)(7));
+			w242.BottomAttach = ((uint)(8));
+			w242.YPadding = ((uint)(5));
+			w242.XOptions = ((global::Gtk.AttachOptions)(4));
+			w242.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblGoods = new global::Gtk.Label();
 			this.lblGoods.Name = "lblGoods";
@@ -2990,12 +2977,12 @@ namespace Vodovoz
 			this.lblGoods.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Товары: </b>");
 			this.lblGoods.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblGoods);
-			global::Gtk.Table.TableChild w244 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblGoods]));
-			w244.TopAttach = ((uint)(6));
-			w244.BottomAttach = ((uint)(7));
-			w244.YPadding = ((uint)(5));
-			w244.XOptions = ((global::Gtk.AttachOptions)(4));
-			w244.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w243 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblGoods]));
+			w243.TopAttach = ((uint)(6));
+			w243.BottomAttach = ((uint)(7));
+			w243.YPadding = ((uint)(5));
+			w243.XOptions = ((global::Gtk.AttachOptions)(4));
+			w243.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblPaymentType = new global::Gtk.Label();
 			this.lblPaymentType.Name = "lblPaymentType";
@@ -3003,12 +2990,12 @@ namespace Vodovoz
 			this.lblPaymentType.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Форма оплаты: </b>");
 			this.lblPaymentType.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblPaymentType);
-			global::Gtk.Table.TableChild w245 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblPaymentType]));
-			w245.TopAttach = ((uint)(10));
-			w245.BottomAttach = ((uint)(11));
-			w245.YPadding = ((uint)(5));
-			w245.XOptions = ((global::Gtk.AttachOptions)(4));
-			w245.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w244 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblPaymentType]));
+			w244.TopAttach = ((uint)(10));
+			w244.BottomAttach = ((uint)(11));
+			w244.YPadding = ((uint)(5));
+			w244.XOptions = ((global::Gtk.AttachOptions)(4));
+			w244.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblPhoneNumber = new global::Gtk.Label();
 			this.lblPhoneNumber.Name = "lblPhoneNumber";
@@ -3016,12 +3003,12 @@ namespace Vodovoz
 			this.lblPhoneNumber.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Номер телефона для связи: </b>");
 			this.lblPhoneNumber.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblPhoneNumber);
-			global::Gtk.Table.TableChild w246 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblPhoneNumber]));
-			w246.TopAttach = ((uint)(2));
-			w246.BottomAttach = ((uint)(3));
-			w246.YPadding = ((uint)(5));
-			w246.XOptions = ((global::Gtk.AttachOptions)(4));
-			w246.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w245 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblPhoneNumber]));
+			w245.TopAttach = ((uint)(2));
+			w245.BottomAttach = ((uint)(3));
+			w245.YPadding = ((uint)(5));
+			w245.XOptions = ((global::Gtk.AttachOptions)(4));
+			w245.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.lblPlannedSum = new global::Gtk.Label();
 			this.lblPlannedSum.Name = "lblPlannedSum";
@@ -3029,9 +3016,22 @@ namespace Vodovoz
 			this.lblPlannedSum.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Сумма: </b>");
 			this.lblPlannedSum.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.lblPlannedSum);
-			global::Gtk.Table.TableChild w247 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblPlannedSum]));
-			w247.TopAttach = ((uint)(11));
-			w247.BottomAttach = ((uint)(12));
+			global::Gtk.Table.TableChild w246 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblPlannedSum]));
+			w246.TopAttach = ((uint)(11));
+			w246.BottomAttach = ((uint)(12));
+			w246.YPadding = ((uint)(5));
+			w246.XOptions = ((global::Gtk.AttachOptions)(4));
+			w246.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
+			this.lblResumeLogisticsRequirements = new global::Gtk.Label();
+			this.lblResumeLogisticsRequirements.Name = "lblResumeLogisticsRequirements";
+			this.lblResumeLogisticsRequirements.Xalign = 1F;
+			this.lblResumeLogisticsRequirements.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Требования к логистике: </b>");
+			this.lblResumeLogisticsRequirements.UseMarkup = true;
+			this.tblOrderSummaryContainer.Add(this.lblResumeLogisticsRequirements);
+			global::Gtk.Table.TableChild w247 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.lblResumeLogisticsRequirements]));
+			w247.TopAttach = ((uint)(15));
+			w247.BottomAttach = ((uint)(16));
 			w247.YPadding = ((uint)(5));
 			w247.XOptions = ((global::Gtk.AttachOptions)(4));
 			w247.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -3088,29 +3088,16 @@ namespace Vodovoz
 			w251.XOptions = ((global::Gtk.AttachOptions)(4));
 			w251.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
-			this.ylblCommentForLogist = new global::Gamma.GtkWidgets.yLabel();
-			this.ylblCommentForLogist.Name = "ylblCommentForLogist";
-			this.ylblCommentForLogist.Xalign = 0F;
-			this.ylblCommentForLogist.LabelProp = global::Mono.Unix.Catalog.GetString("Текста какого - нибудь комментария для логиста.");
-			this.tblOrderSummaryContainer.Add(this.ylblCommentForLogist);
-			global::Gtk.Table.TableChild w252 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblCommentForLogist]));
-			w252.TopAttach = ((uint)(15));
-			w252.BottomAttach = ((uint)(16));
-			w252.LeftAttach = ((uint)(1));
-			w252.RightAttach = ((uint)(2));
-			w252.XOptions = ((global::Gtk.AttachOptions)(4));
-			w252.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.ylblCounterpartyFIO = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblCounterpartyFIO.Name = "ylblCounterpartyFIO";
 			this.ylblCounterpartyFIO.Xalign = 0F;
 			this.ylblCounterpartyFIO.LabelProp = global::Mono.Unix.Catalog.GetString("Рыбатекстов Рыбатекст Рыбатекстович");
 			this.tblOrderSummaryContainer.Add(this.ylblCounterpartyFIO);
-			global::Gtk.Table.TableChild w253 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblCounterpartyFIO]));
-			w253.LeftAttach = ((uint)(1));
-			w253.RightAttach = ((uint)(2));
-			w253.XOptions = ((global::Gtk.AttachOptions)(4));
-			w253.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w252 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblCounterpartyFIO]));
+			w252.LeftAttach = ((uint)(1));
+			w252.RightAttach = ((uint)(2));
+			w252.XOptions = ((global::Gtk.AttachOptions)(4));
+			w252.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.ylblDeliveryAddress = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblDeliveryAddress.Name = "ylblDeliveryAddress";
@@ -3119,76 +3106,76 @@ namespace Vodovoz
 					"мель подсобного хозяйства Всесоюзного центрального совета профессиональных союзо" +
 					"в для организации крестьянского хозяйства, дом 17");
 			this.tblOrderSummaryContainer.Add(this.ylblDeliveryAddress);
-			global::Gtk.Table.TableChild w254 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblDeliveryAddress]));
-			w254.TopAttach = ((uint)(1));
-			w254.BottomAttach = ((uint)(2));
-			w254.LeftAttach = ((uint)(1));
-			w254.RightAttach = ((uint)(2));
-			w254.XOptions = ((global::Gtk.AttachOptions)(4));
-			w254.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w253 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblDeliveryAddress]));
+			w253.TopAttach = ((uint)(1));
+			w253.BottomAttach = ((uint)(2));
+			w253.LeftAttach = ((uint)(1));
+			w253.RightAttach = ((uint)(2));
+			w253.XOptions = ((global::Gtk.AttachOptions)(4));
+			w253.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.ylblDeliveryDate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblDeliveryDate.Name = "ylblDeliveryDate";
 			this.ylblDeliveryDate.Xalign = 0F;
 			this.ylblDeliveryDate.LabelProp = global::Mono.Unix.Catalog.GetString("31 февраля 9999г.");
 			this.tblOrderSummaryContainer.Add(this.ylblDeliveryDate);
-			global::Gtk.Table.TableChild w255 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblDeliveryDate]));
-			w255.TopAttach = ((uint)(3));
-			w255.BottomAttach = ((uint)(4));
-			w255.LeftAttach = ((uint)(1));
-			w255.RightAttach = ((uint)(2));
-			w255.XOptions = ((global::Gtk.AttachOptions)(4));
-			w255.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w254 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblDeliveryDate]));
+			w254.TopAttach = ((uint)(3));
+			w254.BottomAttach = ((uint)(4));
+			w254.LeftAttach = ((uint)(1));
+			w254.RightAttach = ((uint)(2));
+			w254.XOptions = ((global::Gtk.AttachOptions)(4));
+			w254.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.ylblDeliveryInterval = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblDeliveryInterval.Name = "ylblDeliveryInterval";
 			this.ylblDeliveryInterval.Xalign = 0F;
 			this.ylblDeliveryInterval.LabelProp = global::Mono.Unix.Catalog.GetString("10:00 - 12:00");
 			this.tblOrderSummaryContainer.Add(this.ylblDeliveryInterval);
-			global::Gtk.Table.TableChild w256 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblDeliveryInterval]));
-			w256.TopAttach = ((uint)(4));
-			w256.BottomAttach = ((uint)(5));
-			w256.LeftAttach = ((uint)(1));
-			w256.RightAttach = ((uint)(2));
-			w256.XOptions = ((global::Gtk.AttachOptions)(4));
-			w256.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w255 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblDeliveryInterval]));
+			w255.TopAttach = ((uint)(4));
+			w255.BottomAttach = ((uint)(5));
+			w255.LeftAttach = ((uint)(1));
+			w255.RightAttach = ((uint)(2));
+			w255.XOptions = ((global::Gtk.AttachOptions)(4));
+			w255.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.ylblDocumentSigning = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblDocumentSigning.Name = "ylblDocumentSigning";
 			this.ylblDocumentSigning.Xalign = 0F;
 			this.ylblDocumentSigning.LabelProp = global::Mono.Unix.Catalog.GetString("по печати");
 			this.tblOrderSummaryContainer.Add(this.ylblDocumentSigning);
-			global::Gtk.Table.TableChild w257 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblDocumentSigning]));
-			w257.TopAttach = ((uint)(5));
-			w257.BottomAttach = ((uint)(6));
-			w257.LeftAttach = ((uint)(1));
-			w257.RightAttach = ((uint)(2));
-			w257.XOptions = ((global::Gtk.AttachOptions)(4));
-			w257.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w256 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblDocumentSigning]));
+			w256.TopAttach = ((uint)(5));
+			w256.BottomAttach = ((uint)(6));
+			w256.LeftAttach = ((uint)(1));
+			w256.RightAttach = ((uint)(2));
+			w256.XOptions = ((global::Gtk.AttachOptions)(4));
+			w256.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.ylblEquipment = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblEquipment.Name = "ylblEquipment";
 			this.ylblEquipment.Xalign = 0F;
 			this.ylblEquipment.LabelProp = global::Mono.Unix.Catalog.GetString("Оборудование 1шт.");
 			this.tblOrderSummaryContainer.Add(this.ylblEquipment);
-			global::Gtk.Table.TableChild w258 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblEquipment]));
-			w258.TopAttach = ((uint)(7));
-			w258.BottomAttach = ((uint)(8));
-			w258.LeftAttach = ((uint)(1));
-			w258.RightAttach = ((uint)(2));
-			w258.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w257 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblEquipment]));
+			w257.TopAttach = ((uint)(7));
+			w257.BottomAttach = ((uint)(8));
+			w257.LeftAttach = ((uint)(1));
+			w257.RightAttach = ((uint)(2));
+			w257.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.ylblGoods = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblGoods.Name = "ylblGoods";
 			this.ylblGoods.Xalign = 0F;
 			this.ylblGoods.LabelProp = global::Mono.Unix.Catalog.GetString("Товар - 1шт.");
 			this.tblOrderSummaryContainer.Add(this.ylblGoods);
-			global::Gtk.Table.TableChild w259 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblGoods]));
-			w259.TopAttach = ((uint)(6));
-			w259.BottomAttach = ((uint)(7));
-			w259.LeftAttach = ((uint)(1));
-			w259.RightAttach = ((uint)(2));
-			w259.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w258 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblGoods]));
+			w258.TopAttach = ((uint)(6));
+			w258.BottomAttach = ((uint)(7));
+			w258.LeftAttach = ((uint)(1));
+			w258.RightAttach = ((uint)(2));
+			w258.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.ylblPaymentType = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblPaymentType.Name = "ylblPaymentType";
@@ -3196,35 +3183,48 @@ namespace Vodovoz
 			this.ylblPaymentType.LabelProp = global::Mono.Unix.Catalog.GetString("наличная");
 			this.ylblPaymentType.UseMarkup = true;
 			this.tblOrderSummaryContainer.Add(this.ylblPaymentType);
-			global::Gtk.Table.TableChild w260 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblPaymentType]));
-			w260.TopAttach = ((uint)(10));
-			w260.BottomAttach = ((uint)(11));
-			w260.LeftAttach = ((uint)(1));
-			w260.RightAttach = ((uint)(2));
-			w260.XOptions = ((global::Gtk.AttachOptions)(4));
-			w260.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w259 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblPaymentType]));
+			w259.TopAttach = ((uint)(10));
+			w259.BottomAttach = ((uint)(11));
+			w259.LeftAttach = ((uint)(1));
+			w259.RightAttach = ((uint)(2));
+			w259.XOptions = ((global::Gtk.AttachOptions)(4));
+			w259.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.ylblPhoneNumber = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblPhoneNumber.Name = "ylblPhoneNumber";
 			this.ylblPhoneNumber.Xalign = 0F;
 			this.ylblPhoneNumber.LabelProp = global::Mono.Unix.Catalog.GetString("+7 911 000 0000");
 			this.tblOrderSummaryContainer.Add(this.ylblPhoneNumber);
-			global::Gtk.Table.TableChild w261 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblPhoneNumber]));
-			w261.TopAttach = ((uint)(2));
-			w261.BottomAttach = ((uint)(3));
-			w261.LeftAttach = ((uint)(1));
-			w261.RightAttach = ((uint)(2));
-			w261.XOptions = ((global::Gtk.AttachOptions)(4));
-			w261.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w260 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblPhoneNumber]));
+			w260.TopAttach = ((uint)(2));
+			w260.BottomAttach = ((uint)(3));
+			w260.LeftAttach = ((uint)(1));
+			w260.RightAttach = ((uint)(2));
+			w260.XOptions = ((global::Gtk.AttachOptions)(4));
+			w260.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
 			this.ylblPlannedSum = new global::Gamma.GtkWidgets.yLabel();
 			this.ylblPlannedSum.Name = "ylblPlannedSum";
 			this.ylblPlannedSum.Xalign = 0F;
 			this.ylblPlannedSum.LabelProp = global::Mono.Unix.Catalog.GetString("3600 руб.");
 			this.tblOrderSummaryContainer.Add(this.ylblPlannedSum);
-			global::Gtk.Table.TableChild w262 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblPlannedSum]));
-			w262.TopAttach = ((uint)(11));
-			w262.BottomAttach = ((uint)(12));
+			global::Gtk.Table.TableChild w261 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblPlannedSum]));
+			w261.TopAttach = ((uint)(11));
+			w261.BottomAttach = ((uint)(12));
+			w261.LeftAttach = ((uint)(1));
+			w261.RightAttach = ((uint)(2));
+			w261.XOptions = ((global::Gtk.AttachOptions)(4));
+			w261.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tblOrderSummaryContainer.Gtk.Table+TableChild
+			this.ylblResumeLogisticsRequirementsSummary = new global::Gamma.GtkWidgets.yLabel();
+			this.ylblResumeLogisticsRequirementsSummary.Name = "ylblResumeLogisticsRequirementsSummary";
+			this.ylblResumeLogisticsRequirementsSummary.Xalign = 0F;
+			this.ylblResumeLogisticsRequirementsSummary.LabelProp = global::Mono.Unix.Catalog.GetString("Перечень требований к логистике.");
+			this.tblOrderSummaryContainer.Add(this.ylblResumeLogisticsRequirementsSummary);
+			global::Gtk.Table.TableChild w262 = ((global::Gtk.Table.TableChild)(this.tblOrderSummaryContainer[this.ylblResumeLogisticsRequirementsSummary]));
+			w262.TopAttach = ((uint)(15));
+			w262.BottomAttach = ((uint)(16));
 			w262.LeftAttach = ((uint)(1));
 			w262.RightAttach = ((uint)(2));
 			w262.XOptions = ((global::Gtk.AttachOptions)(4));
