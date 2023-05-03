@@ -545,6 +545,7 @@ namespace Vodovoz
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint, Phone>(OnDeliveryPointChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Counterparty, Phone>(OnCounterpartyChanged);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<LogisticsRequirements>(OnLogisticsRequirementsChanged);
 
 			ConfigureTrees();
 			ConfigureAcceptButtons();
@@ -1362,6 +1363,11 @@ namespace Vodovoz
 			{
 				RefreshCounterpartyWithPhones();
 			}
+		}
+
+		private void OnLogisticsRequirementsChanged(EntityChangeEvent[] changeevents)
+		{
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		private void RefreshEntity<T>(T entity)
