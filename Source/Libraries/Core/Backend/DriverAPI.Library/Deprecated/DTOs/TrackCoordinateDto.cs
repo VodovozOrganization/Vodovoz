@@ -1,7 +1,6 @@
-﻿using DriverAPI.Library.Deprecated.DTOs;
-using System;
+﻿using System;
 
-namespace DriverAPI.Library.DTOs
+namespace DriverAPI.Library.Deprecated.DTOs
 {
 	public class TrackCoordinateDto : IActionTimeTrackable
 	{

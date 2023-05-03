@@ -1,5 +1,5 @@
-﻿using DriverAPI.Library.DTOs;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using TrackCoordinateDto = DriverAPI.Library.Deprecated.DTOs.TrackCoordinateDto;
 
 namespace DriverAPI.DTOs.V1
 {

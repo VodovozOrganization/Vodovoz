@@ -1,4 +1,5 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Deprecated.Helpers;
+using DriverAPI.Library.Models;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -6,9 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
+using TrackCoordinateDto = DriverAPI.Library.Deprecated.DTOs.TrackCoordinateDto;
 
-namespace DriverAPI.Library.Models
+namespace DriverAPI.Library.Deprecated.Models
 {
+	[Obsolete("Будет удален с прекращением поддержки API v1")]
 	public class TrackPointsModel : ITrackPointsModel
 	{
 		private readonly ILogger<TrackPointsModel> _logger;
@@ -16,18 +19,21 @@ namespace DriverAPI.Library.Models
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListModel _routeListModel;
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IActionTimeHelper _actionTimeHelper;
 
 		public TrackPointsModel(ILogger<TrackPointsModel> logger,
 			ITrackRepository trackRepository,
 			IRouteListRepository routeListRepository,
 			IRouteListModel routeListModel,
-			IUnitOfWork unitOfWork)
+			IUnitOfWork unitOfWork,
+			IActionTimeHelper actionTimeHelper)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListModel = routeListModel ?? throw new ArgumentNullException(nameof(routeListModel));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 		}
 
 		public void RegisterForRouteList(int routeListId, IList<TrackCoordinateDto> trackList, int driverId)
@@ -66,17 +72,19 @@ namespace DriverAPI.Library.Models
 
 			foreach(var trackPoint in trackList)
 			{
+				var actionTime = _actionTimeHelper.GetActionTime(trackPoint);
+
 				trackPoint.Latitude = Math.Round(trackPoint.Latitude, 8);
 				trackPoint.Longitude = Math.Round(trackPoint.Longitude, 8);
-				trackPoint.ActionTimeUtc =
+				trackPoint.ActionTime =
 					new DateTime(
-						trackPoint.ActionTimeUtc.Year,
-						trackPoint.ActionTimeUtc.Month,
-						trackPoint.ActionTimeUtc.Day,
-						trackPoint.ActionTimeUtc.Hour,
-						trackPoint.ActionTimeUtc.Minute,
-						trackPoint.ActionTimeUtc.Second,
-						trackPoint.ActionTimeUtc.Kind
+						actionTime.Year,
+						actionTime.Month,
+						actionTime.Day,
+						actionTime.Hour,
+						actionTime.Minute,
+						actionTime.Second,
+						actionTime.Kind
 					);
 			}
 
@@ -84,7 +92,7 @@ namespace DriverAPI.Library.Models
 				.GroupBy(x =>
 					new
 					{
-						x.ActionTimeUtc,
+						ActionTime = x.ActionTime.Value,
 						x.Latitude,
 						x.Longitude
 					})
@@ -94,7 +102,7 @@ namespace DriverAPI.Library.Models
 						Track = track,
 						Latitude = decimal.ToDouble(group.Key.Latitude),
 						Longitude = decimal.ToDouble(group.Key.Longitude),
-						TimeStamp = group.Key.ActionTimeUtc
+						TimeStamp = group.Key.ActionTime
 					});
 
 			foreach(var trackPoint in trackPoints)

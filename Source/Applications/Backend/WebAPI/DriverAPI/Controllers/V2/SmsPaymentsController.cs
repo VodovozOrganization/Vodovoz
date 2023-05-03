@@ -1,5 +1,4 @@
 ﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +10,7 @@ using Microsoft.Net.Http.Headers;
 using Vodovoz.Domain.Logistic.Drivers;
 using System.Threading.Tasks;
 using DriverAPI.DTOs.V2;
+using DriverAPI.Library.Helpers;
 
 namespace DriverAPI.Controllers.V2
 {
@@ -106,11 +106,9 @@ namespace DriverAPI.Controllers.V2
 
 			var resultMessage = "OK";
 
-			var actionTime = _actionTimeHelper.GetActionTime(payBySmsRequestModel);
-
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, actionTime);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, payBySmsRequestModel.ActionTimeUtc);
 
 				_aPIOrderData.SendSmsPaymentRequest(payBySmsRequestModel.OrderId, payBySmsRequestModel.PhoneNumber, driver.Id);
 			}
@@ -123,7 +121,7 @@ namespace DriverAPI.Controllers.V2
 			{
 				_driverMobileAppActionRecordModel.RegisterAction(driver,
 					DriverMobileAppActionType.PayBySmsClicked,
-					actionTime,
+					payBySmsRequestModel.ActionTimeUtc,
 					recievedTime,
 					resultMessage);
 			}

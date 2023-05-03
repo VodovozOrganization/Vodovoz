@@ -1,12 +1,11 @@
-﻿using DriverAPI.Library.DTOs;
-using DriverAPI.Library.Models;
+﻿using DriverAPI.Library.Models;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Models.TrueMark;
 
 namespace DriverAPI.DTOs.V2
 {
-	public class CompletedOrderRequestDto : IDriverCompleteOrderInfo, IActionTimeTrackable
+	public class CompletedOrderRequestDto : IDriverCompleteOrderInfo
 	{
 		public int OrderId { get; set; }
 		public int BottlesReturnCount { get; set; }
@@ -16,8 +15,7 @@ namespace DriverAPI.DTOs.V2
 		public string DriverComment { get; set; }
 		public IEnumerable<OrderScannedItemDto> ScannedBottles { get; set; }
 		public string UnscannedBottlesReason { get; set; }
-		public DateTime? ActionTime { get; set; }
-		public DateTime? ActionTimeUtc { get; set; }
+		public DateTime ActionTimeUtc { get; set; }
 		IEnumerable<ITrueMarkOrderItemScannedInfo> ITrueMarkOrderScannedInfo.ScannedItems => ScannedBottles;
 		string ITrueMarkOrderScannedInfo.UnscannedCodesReason => UnscannedBottlesReason;
 	}

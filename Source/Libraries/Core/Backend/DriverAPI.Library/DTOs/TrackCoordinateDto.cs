@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace DriverAPI.DTOs.V2
+namespace DriverAPI.Library.DTOs
 {
-	public class RouteListAddressCoordinateDto
+	public class TrackCoordinateDto
 	{
-		public int RouteListAddressId { get; set; }
 		public decimal Latitude { get; set; }
 		public decimal Longitude { get; set; }
 		public DateTime ActionTimeUtc { get; set; }

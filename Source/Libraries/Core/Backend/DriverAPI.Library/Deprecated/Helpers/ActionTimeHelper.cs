@@ -1,9 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using DriverAPI.Library.Deprecated.DTOs;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace DriverAPI.Library.Helpers
+namespace DriverAPI.Library.Deprecated.Helpers
 {
+	[Obsolete("Будет удален с прекращением поддержки API v1")]
 	public class ActionTimeHelper : IActionTimeHelper
 	{
 		private readonly int _timeout;
@@ -20,6 +22,23 @@ namespace DriverAPI.Library.Helpers
 			_timeout = configuration.GetValue<int>("PostActionTimeTimeOutMinutes");
 			_futureTimeout = configuration.GetValue<int>("FutureActionTimeTimeOutMinutes");
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+		}
+
+		public DateTime GetActionTime(IActionTimeTrackable actionTimeTrackable)
+		{
+			_logger.LogTrace("Proceeding IActionTimeTrackable: {ActionTime} : {ActionTimeUtc}", actionTimeTrackable.ActionTime, actionTimeTrackable.ActionTimeUtc);
+
+			if(actionTimeTrackable.ActionTimeUtc is null)
+			{
+				if(actionTimeTrackable.ActionTime is null)
+				{
+					_logger.LogError("ActionTime и ActionTimeUtc пусты");
+					throw new InvalidOperationException("ActionTime и ActionTimeUtc пусты");
+				}
+				return actionTimeTrackable.ActionTime.Value;
+			}
+
+			return actionTimeTrackable.ActionTimeUtc.Value.ToLocalTime();
 		}
 
 		public void ThrowIfNotValid(DateTime recievedTime, DateTime actionTime)

@@ -2,8 +2,18 @@
 using DriverAPI.Library.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
-using IDeprecatedOrderModel = DriverAPI.Library.Deprecated.Models.IOrderModel;
+using ActionTimeHelper = DriverAPI.Library.Helpers.ActionTimeHelper;
+using DeprecatedActionTimeHelper = DriverAPI.Library.Deprecated.Helpers.ActionTimeHelper;
 using DeprecatedOrderModel = DriverAPI.Library.Deprecated.Models.OrderModel;
+using DeprecatedTrackPointsModel = DriverAPI.Library.Deprecated.Models.TrackPointsModel;
+using IActionTimeHelper = DriverAPI.Library.Helpers.IActionTimeHelper;
+using IDeprecatedActionTimeHelper = DriverAPI.Library.Deprecated.Helpers.IActionTimeHelper;
+using IDeprecatedOrderModel = DriverAPI.Library.Deprecated.Models.IOrderModel;
+using IDeprecatedTrackPointsModel = DriverAPI.Library.Deprecated.Models.ITrackPointsModel;
+using IOrderModel = DriverAPI.Library.Models.IOrderModel;
+using ITrackPointsModel = DriverAPI.Library.Models.ITrackPointsModel;
+using OrderModel = DriverAPI.Library.Models.OrderModel;
+using TrackPointsModel = DriverAPI.Library.Models.TrackPointsModel;
 
 namespace DriverAPI.Library
 {
@@ -39,6 +49,8 @@ namespace DriverAPI.Library
 
 			// Deprecated
 			services.AddScoped<IDeprecatedOrderModel, DeprecatedOrderModel>();
+			services.AddScoped<IDeprecatedTrackPointsModel, DeprecatedTrackPointsModel>();
+			services.AddScoped<IDeprecatedActionTimeHelper, DeprecatedActionTimeHelper>();
 
 			return services;
 		}
