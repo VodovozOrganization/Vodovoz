@@ -1163,6 +1163,16 @@ namespace Vodovoz.Views.Logistic
 		{
 			ViewModel.Dispose();
 			gmapWidget.Destroy();
+			ytreeRoutes.Destroy();
+			ytreeviewOnDayDrivers.Destroy();
+			ytreeviewOnDayForwarders.Destroy();
+			ytreeviewShift.Destroy();
+			ytreeviewGeographicGroup.Destroy();
+			ytreeviewAddressesTypes.Destroy();
+			viewDeliverySummary.Destroy();
+			yenumcomboMapType.Destroy();
+			enumCmbDeliveryType.Destroy();
+
 			base.Destroy();
 		}
 	}
