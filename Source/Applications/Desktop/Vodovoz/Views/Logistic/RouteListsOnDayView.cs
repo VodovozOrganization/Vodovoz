@@ -82,7 +82,6 @@ namespace Vodovoz.Views.Logistic
 			gmapWidget.Overlays.Add(driverDistrictsOverlay);
 			gmapWidget.Overlays.Add(routeOverlay);
 			gmapWidget.Overlays.Add(addressesOverlay);
-			gmapWidget.Overlays.Add(addressesLogisticsRequirementsOverlay);
 			gmapWidget.Overlays.Add(addressOverlapOverlay);
 			gmapWidget.Overlays.Add(driverAddressesOverlay);
 			gmapWidget.Overlays.Add(selectionOverlay);
@@ -91,8 +90,6 @@ namespace Vodovoz.Views.Logistic
 			gmapWidget.ButtonPressEvent += GmapWidget_ButtonPressEvent;
 			gmapWidget.ButtonReleaseEvent += GmapWidget_ButtonReleaseEvent;
 			gmapWidget.MotionNotifyEvent += GmapWidget_MotionNotifyEvent;
-
-			addressesLogisticsRequirementsOverlay.IsVisibile = true;
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 			yenumcomboMapType.TooltipText = "Если карта отображается некорректно или не отображается вовсе - смените тип карты";
@@ -497,7 +494,6 @@ namespace Vodovoz.Views.Logistic
 			totalBottlesCountAtDay = 0;
 			bottlesWithoutRL = 0;
 			addressesOverlay.Clear();
-			addressesLogisticsRequirementsOverlay.Clear();
 
 			//добавляем маркеры складов
 			foreach(var b in ViewModel.GeographicGroupsExceptEast)
@@ -999,9 +995,11 @@ namespace Vodovoz.Views.Logistic
 							Order = new OrderNode
 							{
 								OrderId = a.Order.Id,
+								OrderStatus = a.Order.OrderStatus,
 								DeliveryPointLatitude = a.Order.DeliveryPoint.Latitude,
 								DeliveryPointLongitude = a.Order.DeliveryPoint.Longitude,
 								DeliveryPointShortAddress = a.Order.DeliveryPoint.ShortAddress,
+								DeliveryPointCompiledAddress = a.Order.DeliveryPoint.CompiledAddress,
 								DeliveryPointNetTopologyPoint = a.Order.DeliveryPoint.NetTopologyPoint,
 								DeliveryPointDistrictId = a.Order.DeliveryPoint.District.Id,
 								LogisticsRequirements = a.Order.LogisticsRequirements,
@@ -1165,6 +1163,7 @@ namespace Vodovoz.Views.Logistic
 		public override void Destroy()
 		{
 			ViewModel.Dispose();
+			gmapWidget.Destroy();
 			base.Destroy();
 		}
 	}

@@ -101,22 +101,6 @@ namespace Vodovoz.Additions.Logistic
 			Bitmap = GetIcon(iconPath);
 			Size = new Size(Bitmap.Width, Bitmap.Height);
 
-			//var logisticsRequirementsTypes = new List<PointMarkerType>()
-			//{
-			//	PointMarkerType.logistics_requirements_forwarder,
-			//	PointMarkerType.logistics_requirements_documents,
-			//	PointMarkerType.logistics_requirements_nationality,
-			//	PointMarkerType.logistics_requirements_pass,
-			//	PointMarkerType.logistics_requirements_largus,
-			//	PointMarkerType.logistics_requirements_many
-			//};
-
-			//if(logisticsRequirementsTypes.Any(t => t == type))
-			//{
-			//	Offset = new Point(Size.Width / 2, -Size.Height - 10);
-			//	return;
-			//}
-
 			Offset = new Point(-Size.Width / 2, -Size.Height + 1);
 
 			string shadowPath = string.Join(".", Shape.ToString(), "marker_shadow");
