@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -19,7 +19,11 @@
 	orders.delivery_date AS order_date,
 	delivery_points.organization as organization,
 	orders.order_status AS order_status,
-    orders.order_payment_status AS order_payment_status
+    (SELECT count(*) > 0
+     FROM fast_payments fp
+     WHERE (fp.order_id = order_id
+         OR fp.external_id = order_id)
+     AND fp.payment_status = 'Performed') AS fast_payment_paid
 	IF(is_bottle_stock, 
 		orders.bottles_by_stock_count,
 		orders.bottles_return
@@ -249,9 +253,9 @@ WHERE
           <DataField>lunch_time</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="order_payment_status">
-          <DataField>order_payment_status</DataField>
-          <TypeName>System.String</TypeName>
+        <Field Name="fast_payment_paid">
+          <DataField>fast_payment_paid</DataField>
+          <TypeName>System.Boolean</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -3400,7 +3404,7 @@ WHERE stored_resource.id = @id1</CommandText>
             (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
         ),
     First({order_payment_type}, "Order") = 'SmsQR',
-        lif(First({order_payment_status},'Order') = 'Paid',
+        lif(First({fast_payment_paid},'Order'),
         "ОПЛАЧЕНО",
         "К оплате: \nПО QR-КОДУ SMS "+
         Convert.ToString

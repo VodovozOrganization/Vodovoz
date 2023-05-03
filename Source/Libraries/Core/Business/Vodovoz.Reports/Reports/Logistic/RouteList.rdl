@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1038,12 +1038,11 @@ Switch(
    {payment_type}='Cash', 'Наличными',
    {payment_type}='TerminalQR', 'По терминалу (QR-код терминал)',
    {payment_type}='DriverApplicationQR', 'По QR-коду (приложение водителя)',
-   {payment_type}='SmsQR', Iif(payment_status = 'Paid', 'Оплачено', 'По QR-коду (приложение водителя)'),
+   {payment_type}='SmsQR', Iif({fast_payment_paid}, 'Оплачено', 'По QR-коду (приложение водителя)'),
    {payment_type}='PaidOnline', 'Оплачено',
    {payment_type}='Barter', 'Оплачено',
    {payment_type}='ContractDocumentation', 'Оплачено',
-   {payment_type}='Cashless', 'Б/Н \n Подписать \n УПД')
-        )
+   {payment_type}='Cashless', 'Б/Н \n Подписать \n УПД'
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1407,9 +1406,7 @@ Switch(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox90">
-                      <Value>
-                        <!--table_cell_total_without_stock-->
-                      </Value>
+                      <Value><!--table_cell_total_without_stock--></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2238,7 +2235,7 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId,
@@ -2316,7 +2313,12 @@ LIMIT 1
     IF(route_list_addresses.deposits_collected IS NULL, 0, route_list_addresses.deposits_collected) AS BottlesDeposit,
     route_list_addresses.status AS Status,
     orders.payment_type AS payment_type,
-    orders.order_payment_status AS payment_status
+    (SELECT count(*) > 0
+     FROM fast_payments fp
+     WHERE (fp.order_id = order_id
+         OR fp.external_id = order_id)
+     AND fp.payment_status = 'Performed') AS fast_payment_paid
+    <!--sql_select-->
 FROM route_list_addresses
          LEFT JOIN orders ON orders.id = route_list_addresses.order_id
          LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
@@ -2418,7 +2420,7 @@ LEFT JOIN (
 LEFT JOIN (
 SELECT
 order_items.order_id AS order_id
-
+<!--sql_select_subquery-->
 FROM route_list_addresses
 LEFT JOIN order_items ON route_list_addresses.order_id = order_items.order_id
 LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
@@ -2517,10 +2519,11 @@ ORDER BY order_in_route
           <DataField>phone_and_name_and_order</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="payment_status">
-          <DataField>payment_status</DataField>
-          <TypeName>System.String</TypeName>
+        <Field Name="fast_payment_paid">
+          <DataField>fast_payment_paid</DataField>
+          <TypeName>System.Boolean</TypeName>
         </Field>
+        <!--fields-->
       </Fields>
     </DataSet>
     <DataSet Name="Images">
