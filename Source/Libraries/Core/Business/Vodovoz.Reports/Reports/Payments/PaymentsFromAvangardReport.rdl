@@ -1139,18 +1139,22 @@ FROM
         JOIN
             order_items i ON o_sub.id = i.order_id
         WHERE
-            o_sub.payment_type = 'PaidOnline'
+          ((o_sub.payment_type = 'PaidOnline'
+                AND o_sub.payment_from_id IN (10, 11, 12))
+              OR o_sub.payment_type = 'SmsQR'
+              OR o_sub.payment_type = 'DriverApplicationQR')
           AND o_sub.online_order IS NOT NULL
-          AND o_sub.payment_from_id IN (10, 11, 12)
           AND o_sub.delivery_date &gt;= @startDate
           AND o_sub.delivery_date &lt;= @endDate
         GROUP BY
             i.order_id
     ) o_sum ON o.id = o_sum.order_id
 WHERE
-    o.payment_type = 'PaidOnline'
+  (( o.payment_type = 'PaidOnline'
+        AND o.payment_from_id IN (10, 11, 12, 13))
+      OR o.payment_type = 'SmsQR'
+      OR o.payment_type = 'DriverApplicationQR')
   AND o.online_order IS NOT NULL
-  AND o.payment_from_id IN (10, 11, 12, 13)
   AND o.delivery_date &gt;= @startDate
   AND o.delivery_date &lt;= @endDate
 ORDER BY order_satus_numbered DESC;</CommandText>
@@ -1253,8 +1257,11 @@ ORDER BY order_satus_numbered DESC;</CommandText>
     ) AS pay_type
 FROM payments_from_avangard pfa
 LEFT JOIN orders o ON o.online_order = pfa.order_num
-    AND payment_from_id IN (10, 11, 12, 13)
-    AND delivery_date &gt;= @startDate
+  AND (( o.payment_type = 'PaidOnline'
+        AND o.payment_from_id IN (10, 11, 12, 13))
+      OR o.payment_type = 'SmsQR'
+      OR o.payment_type = 'DriverApplicationQR')
+    AND o.delivery_date &gt;= @startDate
 WHERE
     o.id is null
     AND pfa.paid_date &gt;= @startDate
