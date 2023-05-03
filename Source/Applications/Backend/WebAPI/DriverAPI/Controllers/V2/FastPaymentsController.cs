@@ -90,10 +90,11 @@ namespace DriverAPI.Controllers.V2
 				driver?.Id);
 
 			var resultMessage = "OK";
+			var localActionTime = payByQRRequestDTO.ActionTimeUtc.ToLocalTime();
 
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, payByQRRequestDTO.ActionTimeUtc);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
 
 				if(payByQRRequestDTO.BottlesByStockActualCount.HasValue)
 				{
@@ -112,7 +113,7 @@ namespace DriverAPI.Controllers.V2
 				_driverMobileAppActionRecordModel.RegisterAction(
 					driver,
 					DriverMobileAppActionType.PayByQRClicked,
-					payByQRRequestDTO.ActionTimeUtc,
+					localActionTime,
 					recievedTime,
 					resultMessage);
 			}

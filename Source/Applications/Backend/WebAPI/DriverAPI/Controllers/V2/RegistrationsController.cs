@@ -77,15 +77,17 @@ namespace DriverAPI.Controllers.V2
 
 			var resultMessage = "OK";
 
+			var localActionTime = routeListAddressCoordinate.ActionTimeUtc.ToLocalTime();
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, routeListAddressCoordinate.ActionTimeUtc);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
 
 				_aPIRouteListData.RegisterCoordinateForRouteListItem(
 					routeListAddressCoordinate.RouteListAddressId,
 					routeListAddressCoordinate.Latitude,
 					routeListAddressCoordinate.Longitude,
-					routeListAddressCoordinate.ActionTimeUtc,
+					localActionTime,
 					driver.Id);
 			}
 			catch(Exception ex)
@@ -95,7 +97,7 @@ namespace DriverAPI.Controllers.V2
 			}
 			finally
 			{
-				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.OpenOrderReceiptionPanel, routeListAddressCoordinate.ActionTimeUtc, recievedTime, resultMessage);
+				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.OpenOrderReceiptionPanel, localActionTime, recievedTime, resultMessage);
 			}
 		}
 

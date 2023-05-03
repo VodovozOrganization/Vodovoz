@@ -77,9 +77,11 @@ namespace DriverAPI.Controllers.V2
 
 			var resultMessage = "OK";
 
+			var localActionTime = completedOrderRequestModel.ActionTimeUtc.ToLocalTime();
+
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, completedOrderRequestModel.ActionTimeUtc);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
 
 				_aPIOrderData.CompleteOrderDelivery(
 					recievedTime,
@@ -94,7 +96,7 @@ namespace DriverAPI.Controllers.V2
 			}
 			finally
 			{
-				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, completedOrderRequestModel.ActionTimeUtc, recievedTime, resultMessage);
+				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, localActionTime, recievedTime, resultMessage);
 			}
 		}
 
@@ -111,11 +113,13 @@ namespace DriverAPI.Controllers.V2
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;
 
+			var localActionTime = changeOrderPaymentTypeRequestModel.ActionTimeUtc.ToLocalTime();
+
 			_logger.LogInformation("Смена типа оплаты заказа: {OrderId} на {PaymentType}" +
 				" на стороне мобильного приложения в {ActionTime} пользователем {Username} в {RecievedTime} | User token: {AccessToken}",
 				orderId,
 				newPaymentType,
-				changeOrderPaymentTypeRequestModel.ActionTimeUtc,
+				localActionTime,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				recievedTime,
 				Request.Headers[HeaderNames.Authorization]);
@@ -127,7 +131,7 @@ namespace DriverAPI.Controllers.V2
 
 			try
 			{
-				_actionTimeHelper.ThrowIfNotValid(recievedTime, changeOrderPaymentTypeRequestModel.ActionTimeUtc);
+				_actionTimeHelper.ThrowIfNotValid(recievedTime, localActionTime);
 
 				IEnumerable<PaymentDtoType> availableTypesToChange = _aPIOrderData.GetAvailableToChangePaymentTypes(orderId);
 
@@ -170,7 +174,7 @@ namespace DriverAPI.Controllers.V2
 			}
 			finally
 			{
-				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.ChangeOrderPaymentTypeClicked, changeOrderPaymentTypeRequestModel.ActionTimeUtc, recievedTime, resultMessage);
+				_driverMobileAppActionRecordModel.RegisterAction(driver, DriverMobileAppActionType.ChangeOrderPaymentTypeClicked, localActionTime, recievedTime, resultMessage);
 			}
 		}
 	}
