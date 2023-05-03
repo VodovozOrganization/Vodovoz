@@ -47,7 +47,6 @@ namespace Vodovoz.Views.Logistic
 		private readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		private readonly GMapOverlay driverDistrictsOverlay = new GMapOverlay("driverDistricts");
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
-		private readonly GMapOverlay addressesLogisticsRequirementsOverlay = new GMapOverlay("addressesLogisticsRequirements");
 		private readonly GMapOverlay addressOverlapOverlay = new GMapOverlay("addressOverlaps");
 		private readonly GMapOverlay driverAddressesOverlay = new GMapOverlay("driverAddresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
