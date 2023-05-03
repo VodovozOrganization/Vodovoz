@@ -3148,6 +3148,8 @@ namespace Vodovoz
 				case PaymentType.PaidOnline:
 					return true;
 				case PaymentType.TerminalQR:
+				case PaymentType.SmsQR:
+				case PaymentType.DriverApplicationQR:
 					return Entity.OnlineOrder != null;
 				default:
 					return false;
