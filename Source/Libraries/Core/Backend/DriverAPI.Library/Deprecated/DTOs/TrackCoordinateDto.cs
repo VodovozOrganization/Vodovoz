@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DriverAPI.Library.Deprecated.DTOs;
+using System;
 
 namespace DriverAPI.Library.DTOs
 {

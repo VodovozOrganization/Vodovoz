@@ -1,5 +1,5 @@
 ﻿using System;
-using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Deprecated.DTOs;
 
 namespace DriverAPI.Library.Helpers
 {

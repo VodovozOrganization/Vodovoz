@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DriverAPI.Library.DTOs
+namespace DriverAPI.Library.Deprecated.DTOs
 {
 	public interface IActionTimeTrackable
 	{

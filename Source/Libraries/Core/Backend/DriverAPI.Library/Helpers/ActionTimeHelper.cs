@@ -1,4 +1,4 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Deprecated.DTOs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -23,6 +23,7 @@ namespace DriverAPI.Library.Helpers
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
+		[Obsolete("Будет убрано по завершщению поддержки API v1")]
 		public DateTime GetActionTime(IActionTimeTrackable actionTimeTrackable)
 		{
 			_logger.LogTrace("Proceeding IActionTimeTrackable: {ActionTime} : {ActionTimeUtc}", actionTimeTrackable.ActionTime, actionTimeTrackable.ActionTimeUtc);
