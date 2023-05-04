@@ -481,6 +481,7 @@ namespace Vodovoz
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
@@ -510,6 +511,7 @@ namespace Vodovoz
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 			AddCommentsFromDeliveryPoint();
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		public void ConfigureDlg()
@@ -800,6 +802,7 @@ namespace Vodovoz
 				UpdateOrderAddressTypeUI();
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				UpdateOrderItemsPrices();
+				SetLogisticsRequirementsCheckboxes();
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -960,126 +963,126 @@ namespace Vodovoz
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if (sender is LogisticsRequirements requirements && Entity.DeliveryPoint != null)
+			if (sender is LogisticsRequirements requirements)
 			{
-				string commentToAdd = string.Empty;
-				string commentToRemove = string.Empty;
-
 				if(e.PropertyName == nameof(LogisticsRequirements.ForwarderRequired))
 				{
 					var requirementComment = "Требуется экспедитор на адресе\n";
-					if(requirements.ForwarderRequired && !Entity.Comment.Contains(requirementComment))
+					if(requirements.ForwarderRequired)
 					{
-						commentToAdd = requirementComment;
+						AddLogisticsRequirementsCommentToOrderComment(requirementComment);
 					}
-
-					if(!requirements.ForwarderRequired && Entity.Comment.Contains(requirementComment))
+					else
 					{
-						commentToRemove = requirementComment;
+						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
 					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.DocumentsRequired))
 				{
 					var requirementComment = "Наличие паспорта/документов у водителя\n";
-					if(requirements.DocumentsRequired && !Entity.Comment.Contains(requirementComment))
+					if(requirements.DocumentsRequired)
 					{
-						commentToAdd = requirementComment;
+						AddLogisticsRequirementsCommentToOrderComment(requirementComment);
 					}
-
-					if(!requirements.DocumentsRequired && Entity.Comment.Contains(requirementComment))
+					else
 					{
-						commentToRemove = requirementComment;
+						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
 					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.RussianDriverRequired))
 				{
 					var requirementComment = "Требуется русский водитель\n";
-					if(requirements.RussianDriverRequired && !Entity.Comment.Contains(requirementComment))
+					if(requirements.RussianDriverRequired)
 					{
-						commentToAdd = requirementComment;
+						AddLogisticsRequirementsCommentToOrderComment(requirementComment);
 					}
-
-					if(!requirements.RussianDriverRequired && Entity.Comment.Contains(requirementComment))
+					else
 					{
-						commentToRemove = requirementComment;
+						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
 					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.PassRequired))
 				{
 					var requirementComment = "Требуется пропуск\n";
-					if(requirements.PassRequired && !Entity.Comment.Contains(requirementComment))
+					if(requirements.PassRequired)
 					{
-						commentToAdd = requirementComment;
+						AddLogisticsRequirementsCommentToOrderComment(requirementComment);
 					}
-
-					if(!requirements.PassRequired && Entity.Comment.Contains(requirementComment))
+					else
 					{
-						commentToRemove = requirementComment;
+						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
 					}
 				}
 				if(e.PropertyName == nameof(LogisticsRequirements.LargusRequired))
 				{
 					var requirementComment = "Только ларгус (газель не проедет)\n";
-					if(requirements.LargusRequired && !Entity.Comment.Contains(requirementComment))
+					if(requirements.LargusRequired)
 					{
-						commentToAdd = requirementComment;
+						AddLogisticsRequirementsCommentToOrderComment(requirementComment);
 					}
-
-					if(!requirements.LargusRequired && Entity.Comment.Contains(requirementComment))
+					else
 					{
-						commentToRemove = requirementComment;
+						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
 					}
-				}
-
-				if(commentToAdd.Length > 0)
-				{
-					Entity.Comment =
-						Entity.Comment.Length > 0
-						? commentToAdd + Entity.Comment
-						: commentToAdd;
-				}
-
-				if(commentToRemove.Length > 0)
-				{
-					Entity.Comment = Entity.Comment.Replace(commentToRemove, "");
 				}
 			}
 
 			UpdateEntityLogisticsRequirements();
 		}
 
+		private void AddLogisticsRequirementsCommentToOrderComment(string comment)
+		{
+			if (!Entity.Comment.Contains(comment))
+			{
+				Entity.Comment = comment + Entity.Comment;
+			}
+		}
+
+		private void RemoveLogisticsRequirementsCommentFromOrderComment(string comment)
+		{
+			if(Entity.Comment.Contains(comment))
+			{
+				Entity.Comment = Entity.Comment.Replace(comment, "");
+			}
+		}
+
 		private LogisticsRequirements GetLogisticsRequirements()
 		{
+			if(Entity.LogisticsRequirements != null && Entity.IsCopiedFromUndelivery)
+			{
+				return Entity.LogisticsRequirements;
+			}
+
 			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements();
 
-			if(Order.Id > 0 || Entity.DeliveryPoint == null)
+			var counterpartyLogisticsRequirements = new LogisticsRequirements();
+			var deliveryPointLogisticsRequirements = new LogisticsRequirements();
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				if(Entity.Client?.LogisticsRequirements?.Id > 0)
+				{
+					counterpartyLogisticsRequirements = uow.GetById<LogisticsRequirements>(Entity.Client.LogisticsRequirements.Id) ?? new LogisticsRequirements();
+				}
+				if(Entity.DeliveryPoint?.LogisticsRequirements?.Id > 0)
+				{
+					deliveryPointLogisticsRequirements = uow.GetById<LogisticsRequirements>(Entity.DeliveryPoint.LogisticsRequirements.Id) ?? new LogisticsRequirements();
+				}
+			}
+
+			if(Order.Id > 0 || (Entity.DeliveryPoint == null && !Entity.SelfDelivery))
 			{
 				return logisticsRequirementsFromCounterpartyAndDeliveryPoint;
 			}
 
-			if (Counterparty?.LogisticsRequirements == null && DeliveryPoint?.LogisticsRequirements == null)
+			logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements()
 			{
-				logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements();
-			}
-			else if (Counterparty?.LogisticsRequirements == null && DeliveryPoint?.LogisticsRequirements != null)
-			{
-				logisticsRequirementsFromCounterpartyAndDeliveryPoint = DeliveryPoint.LogisticsRequirements;
-			}
-			else if (Counterparty?.LogisticsRequirements != null && DeliveryPoint?.LogisticsRequirements == null)
-			{
-				logisticsRequirementsFromCounterpartyAndDeliveryPoint = Counterparty.LogisticsRequirements;
-			}
-			else
-			{
-				logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements()
-				{
-					ForwarderRequired = Counterparty.LogisticsRequirements.ForwarderRequired || DeliveryPoint.LogisticsRequirements.ForwarderRequired,
-					DocumentsRequired = Counterparty.LogisticsRequirements.DocumentsRequired || DeliveryPoint.LogisticsRequirements.DocumentsRequired,
-					RussianDriverRequired = Counterparty.LogisticsRequirements.RussianDriverRequired || DeliveryPoint.LogisticsRequirements.RussianDriverRequired,
-					PassRequired = Counterparty.LogisticsRequirements.PassRequired || DeliveryPoint.LogisticsRequirements.PassRequired,
-					LargusRequired = Counterparty.LogisticsRequirements.LargusRequired || DeliveryPoint.LogisticsRequirements.LargusRequired
-				};
-			}
+				ForwarderRequired = counterpartyLogisticsRequirements.ForwarderRequired || deliveryPointLogisticsRequirements.ForwarderRequired,
+				DocumentsRequired = counterpartyLogisticsRequirements.DocumentsRequired || deliveryPointLogisticsRequirements.DocumentsRequired,
+				RussianDriverRequired = counterpartyLogisticsRequirements.RussianDriverRequired || deliveryPointLogisticsRequirements.RussianDriverRequired,
+				PassRequired = counterpartyLogisticsRequirements.PassRequired || deliveryPointLogisticsRequirements.PassRequired,
+				LargusRequired = counterpartyLogisticsRequirements.LargusRequired || deliveryPointLogisticsRequirements.LargusRequired
+			};
 
 			if (Entity.LogisticsRequirements != null)
 			{
@@ -1103,11 +1106,12 @@ namespace Vodovoz
 
 		private void SetLogisticsRequirementsCheckboxes()
 		{
-			var requirements = GetLogisticsRequirements();
-
-			logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(requirements);
-
-			UpdateEntityLogisticsRequirements();
+			if(logisticsRequirementsView.ViewModel != null)
+			{
+				var requirements = GetLogisticsRequirements();
+				logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(requirements);
+				UpdateEntityLogisticsRequirements();
+			}
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
@@ -2962,8 +2966,6 @@ namespace Vodovoz
 			{
 				RemoveFlyers();
 			}
-
-			SetLogisticsRequirementsCheckboxes();
 		}
 
 		private void RemoveFlyers()
@@ -2986,7 +2988,7 @@ namespace Vodovoz
 
 			AddCommentsFromDeliveryPoint();
 
-			//SetLogisticsRequirementsCheckboxes();
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		private void AddCommentsFromDeliveryPoint()
@@ -3143,6 +3145,8 @@ namespace Vodovoz
 			{
 				AddCommentsFromDeliveryPoint();
 			}
+
+			SetLogisticsRequirementsCheckboxes();
 
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();
