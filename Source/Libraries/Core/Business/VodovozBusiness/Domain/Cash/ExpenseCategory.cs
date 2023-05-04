@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
-using NHibernate;
+﻿using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -17,30 +15,33 @@ namespace Vodovoz.Domain.Cash
 	[HistoryTrace]
 	public class ExpenseCategory : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		private const int _nameLimit = 45;
+		private const int _maxNameLength = 45;
+
+		private string _name;
+		private ExpenseInvoiceDocumentType _expenseDocumentType;
+		private Subdivision _subdivision;
+		private bool _isArchive;
+		private string _numbering;
+		private ExpenseCategory _parent;
+		private IList<ExpenseCategory> _childs;
+		private bool _isChildsFetched = false;
 
 		public ExpenseCategory()
 		{
-			Name = String.Empty;
+			Name = string.Empty;
 		}
-
-		#region Свойства
 
 		public virtual int Id { get; }
 
 		public virtual string Title => $"{Name}";
 
-		string name;
-
 		[Required(ErrorMessage = "Название статьи должно быть заполнено.")]
 		[Display(Name = "Название")]
 		public virtual string Name
 		{
-			get => name;
-			set => SetField(ref name, value);
+			get => _name;
+			set => SetField(ref _name, value);
 		}
-
-		ExpenseInvoiceDocumentType expenseDocumentType;
 
 		/// <summary>
 		/// Тип расходного ордера для которого возможно будет выбрать эту категорию
@@ -49,94 +50,75 @@ namespace Vodovoz.Domain.Cash
 		[Display(Name = "Тип расходного ордера")]
 		public virtual ExpenseInvoiceDocumentType ExpenseDocumentType
 		{
-			get => expenseDocumentType;
-			set => SetField(ref expenseDocumentType, value);
+			get => _expenseDocumentType;
+			set => SetField(ref _expenseDocumentType, value);
 		}
-
-		Subdivision subdivision;
 
 		[Display(Name = "Подразделение")]
 		public virtual Subdivision Subdivision
 		{
-			get => subdivision;
-			set => SetField(ref subdivision, value);
+			get => _subdivision;
+			set => SetField(ref _subdivision, value);
 		}
-
-		private bool isArchive;
 
 		[Display(Name = "Категория архивирована")]
 		public virtual bool IsArchive
 		{
-			get => isArchive;
-			set => SetField(ref isArchive, value);
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
-
-		private string numbering;
 
 		[Display(Name = "Нумерация")]
 		public virtual string Numbering
 		{
-			get => numbering;
-			set => SetField(ref numbering, value);
+			get => _numbering;
+			set => SetField(ref _numbering, value);
 		}
-
-		#region ParentChilds
-
-		private ExpenseCategory parent;
 
 		[Display(Name = "Родительская группа")]
 		public virtual ExpenseCategory Parent
 		{
-			get => parent;
-			set => SetField(ref parent, value);
+			get => _parent;
+			set => SetField(ref _parent, value);
 		}
-
-		private IList<ExpenseCategory> childs;
 
 		[Display(Name = "Дочерние группы")]
 		public virtual IList<ExpenseCategory> Childs
 		{
-			get => childs;
-			set => SetField(ref childs, value);
+			get => _childs;
+			set => SetField(ref _childs, value);
 		}
-
-		#endregion
-
-		#endregion // свойства
-
-		#region Функции
 
 		public virtual void SetIsArchiveRecursively(bool value)
 		{
 			IsArchive = value;
 			foreach(var child in Childs)
+			{
 				child.SetIsArchiveRecursively(value);
+			}
 		}
-
-		private bool isChildsFetched = false;
 
 		public virtual void FetchChilds(IUnitOfWork uow)
 		{
-			if(isChildsFetched)
+			if(_isChildsFetched)
+			{
 				return;
+			}
 
 			uow.Session.QueryOver<ExpenseCategory>().Fetch(SelectMode.Fetch, x => x.Childs).List();
-			isChildsFetched = true;
+			_isChildsFetched = true;
 		}
-
-		#endregion
 
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Name?.Length > _nameLimit)
+			if(Name?.Length > _maxNameLength)
 			{
-				yield return new ValidationResult($"Длина названия статьи превышена на {Name.Length - _nameLimit}");
+				yield return new ValidationResult($"Длина названия статьи превышена на {Name.Length - _maxNameLength}");
 			}
 		}
 
 		#endregion IValidatableObject implementation
 	}
 }
-
