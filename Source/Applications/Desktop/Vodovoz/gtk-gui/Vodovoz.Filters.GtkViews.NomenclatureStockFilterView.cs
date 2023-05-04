@@ -8,17 +8,17 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Table table1;
 
-		private global::QS.Views.Control.EntityEntry CarStorageEntry;
-
 		private global::QS.Views.Control.EntityEntry employeeStorageEntry;
 
-		private global::Gtk.Label lblCarStorage;
+		private global::Gamma.GtkWidgets.yLabel lblCarStorage;
 
-		private global::Gtk.Label lblEmployeeStorage;
+		private global::Gamma.GtkWidgets.yLabel lblEmployeeStorage;
 
 		private global::Gtk.Label lblWarehouse;
 
 		private global::QS.Views.Control.EntityEntry warehouseEntry;
+
+		private global::QS.Views.Control.EntityEntry сarStorageEntry;
 
 		private global::Gamma.GtkWidgets.yHBox yhbox1;
 
@@ -42,66 +42,66 @@ namespace Vodovoz.Filters.GtkViews
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.CarStorageEntry = new global::QS.Views.Control.EntityEntry();
-			this.CarStorageEntry.Events = ((global::Gdk.EventMask)(256));
-			this.CarStorageEntry.Name = "CarStorageEntry";
-			this.table1.Add(this.CarStorageEntry);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.CarStorageEntry]));
-			w1.TopAttach = ((uint)(2));
-			w1.BottomAttach = ((uint)(3));
+			this.employeeStorageEntry = new global::QS.Views.Control.EntityEntry();
+			this.employeeStorageEntry.Events = ((global::Gdk.EventMask)(256));
+			this.employeeStorageEntry.Name = "employeeStorageEntry";
+			this.table1.Add(this.employeeStorageEntry);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.employeeStorageEntry]));
+			w1.TopAttach = ((uint)(1));
+			w1.BottomAttach = ((uint)(2));
 			w1.LeftAttach = ((uint)(1));
 			w1.RightAttach = ((uint)(2));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.employeeStorageEntry = new global::QS.Views.Control.EntityEntry();
-			this.employeeStorageEntry.Events = ((global::Gdk.EventMask)(256));
-			this.employeeStorageEntry.Name = "employeeStorageEntry";
-			this.table1.Add(this.employeeStorageEntry);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.employeeStorageEntry]));
-			w2.TopAttach = ((uint)(1));
-			w2.BottomAttach = ((uint)(2));
-			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(2));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.lblCarStorage = new global::Gtk.Label();
+			this.lblCarStorage = new global::Gamma.GtkWidgets.yLabel();
 			this.lblCarStorage.Name = "lblCarStorage";
 			this.lblCarStorage.Xalign = 1F;
 			this.lblCarStorage.LabelProp = global::Mono.Unix.Catalog.GetString("Автомобиль:");
 			this.table1.Add(this.lblCarStorage);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.lblCarStorage]));
-			w3.TopAttach = ((uint)(2));
-			w3.BottomAttach = ((uint)(3));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.lblCarStorage]));
+			w2.TopAttach = ((uint)(2));
+			w2.BottomAttach = ((uint)(3));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.lblEmployeeStorage = new global::Gtk.Label();
+			this.lblEmployeeStorage = new global::Gamma.GtkWidgets.yLabel();
 			this.lblEmployeeStorage.Name = "lblEmployeeStorage";
 			this.lblEmployeeStorage.Xalign = 1F;
 			this.lblEmployeeStorage.LabelProp = global::Mono.Unix.Catalog.GetString("Сотрудник:");
 			this.table1.Add(this.lblEmployeeStorage);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.lblEmployeeStorage]));
-			w4.TopAttach = ((uint)(1));
-			w4.BottomAttach = ((uint)(2));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.lblEmployeeStorage]));
+			w3.TopAttach = ((uint)(1));
+			w3.BottomAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.lblWarehouse = new global::Gtk.Label();
 			this.lblWarehouse.Name = "lblWarehouse";
 			this.lblWarehouse.Xalign = 1F;
 			this.lblWarehouse.LabelProp = global::Mono.Unix.Catalog.GetString("Склад:");
 			this.table1.Add(this.lblWarehouse);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.lblWarehouse]));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.lblWarehouse]));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.warehouseEntry = new global::QS.Views.Control.EntityEntry();
 			this.warehouseEntry.Events = ((global::Gdk.EventMask)(256));
 			this.warehouseEntry.Name = "warehouseEntry";
 			this.table1.Add(this.warehouseEntry);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.warehouseEntry]));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.warehouseEntry]));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.сarStorageEntry = new global::QS.Views.Control.EntityEntry();
+			this.сarStorageEntry.Events = ((global::Gdk.EventMask)(256));
+			this.сarStorageEntry.Name = "сarStorageEntry";
+			this.table1.Add(this.сarStorageEntry);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.сarStorageEntry]));
+			w6.TopAttach = ((uint)(2));
+			w6.BottomAttach = ((uint)(3));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
