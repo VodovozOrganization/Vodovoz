@@ -23,7 +23,7 @@
      FROM fast_payments fp
      WHERE (fp.order_id = order_id
          OR fp.external_id = order_id)
-     AND fp.payment_status = 'Performed') AS fast_payment_paid
+     AND fp.payment_status = 'Performed') AS fast_payment_paid,
 	IF(is_bottle_stock, 
 		orders.bottles_by_stock_count,
 		orders.bottles_return
