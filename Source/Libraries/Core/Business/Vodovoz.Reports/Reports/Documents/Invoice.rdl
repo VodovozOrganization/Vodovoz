@@ -55,7 +55,12 @@
 		WHEN 'Cash' THEN 'Наличные'
 		WHEN 'TerminalQR' THEN 'По терминалу (QR-код терминал)'
 		WHEN 'DriverApplicationQR' THEN 'По QR-коду (приложение водителя)'
-		WHEN 'SmsQR' THEN IF(fast_payment_paid, 'Оплачено', 'По QR-коду (приложение водителя)')
+		WHEN 'SmsQR' THEN IF(
+        (SELECT count(*) &gt; 0
+         FROM fast_payments fp
+         WHERE (fp.order_id = order_id
+             OR fp.external_id = order_id)
+         AND fp.payment_status = 'Performed'), 'Оплачено', 'По QR-коду (приложение водителя)')
 		WHEN 'PaidOnline' THEN 'Оплачено'
 		WHEN 'Barter' THEN 'Оплачено'
 		WHEN 'ContractDocumentation' THEN 'Оплачено'
@@ -3257,7 +3262,7 @@ WHERE stored_resource.id = @id1</CommandText>
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>=iif({?payment_by_sms}, First( {IM10}, "Image" ), iif({?need_terminal}, First( {IM11}, "Image" ), NULL))</Value>
+            <Value>=iif({?need_terminal}, First( {IM11}, "Image" ), NULL)</Value>
             <Sizing>FitProportional</Sizing>
             <MIMEType>image/jpeg</MIMEType>
           </Image>
@@ -3391,6 +3396,7 @@ WHERE stored_resource.id = @id1</CommandText>
         + "\n" +
         Iif(First({trifle},'Order')&gt;0,
             "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
+            " "),
     First({order_payment_type}, "Order") = "TerminalQR",
         "К оплате: \nПО ТЕРМИНАЛУ "+
         Convert.ToString
@@ -3404,7 +3410,7 @@ WHERE stored_resource.id = @id1</CommandText>
             (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
         ),
     First({order_payment_type}, "Order") = 'SmsQR',
-        lif(First({fast_payment_paid},'Order'),
+        Iif(First({fast_payment_paid},'Order'),
         "ОПЛАЧЕНО",
         "К оплате: \nПО QR-КОДУ SMS "+
         Convert.ToString
