@@ -1,6 +1,5 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.FilterViewModels.Goods;
-using QS.Widgets.GtkUI;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -15,15 +14,10 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			var warehouseEntry = new EntityViewModelEntry();
-			warehouseEntry.SetEntityAutocompleteSelectorFactory(ViewModel.WarehouseSelectorFactory);
-			warehouseEntry.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.Warehouse, w => w.Subject)
+			warehouseEntry.Binding
+				.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeWarehouse, w => w.Sensitive)
 				.InitializeFromSource();
-
-			warehouseEntry.Show();
-			yhboxWarehouse.Add(warehouseEntry);
 
 			checkShowArchive.Binding
 				.AddSource(ViewModel)
