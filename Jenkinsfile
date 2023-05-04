@@ -3,43 +3,80 @@
 //Publish - разархивация сборок на ноде в каталог для нового релиза
 
 //0. Настройки
+//Nodes
+NODE_VOD1 = "Vod1"
+NODE_VOD3 = "Vod3"
+NODE_VOD5 = "Vod5"
+NODE_VOD6 = "Vod6"
+NODE_VOD7 = "Vod7"
+NODE_WIN_BUILD = "WIN_BUILD"
+NODE_LINUX_BUILD = "LINUX_BUILD"
+NODE_LINUX_RUNTIME = "LINUX_RUNTIME"
+
 //Global
-APP_PATH_WIN = "Vodovoz\\Source\\Applications"
-APP_PATH_LINUX = "Vodovoz/Source/Applications"
-WEB_BUILD_OUTPUT_CATALOG = "bin\\Release\\net5.0_publish"
-WIN_BUILD_TOOL = "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
+ARCHIVE_EXTENTION = '.7z'
+APP_PATH = "Vodovoz/Source/Applications"
+WEB_BUILD_OUTPUT_CATALOG = "bin/Release/net5.0_publish"
+WIN_BUILD_TOOL = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe"
+DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
+DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
+RELEASE_LOCKER_PATH = "C:/Program Files (x86)/Vodovoz/VodovozLauncher/ReleaseLocker.exe"
+UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/update.lock"
 LINUX_BUILD_TOOL = "msbuild"
-VOD1 = "Vod1"
-VOD3 = "Vod3"
-VOD5 = "Vod5"
-VOD6 = "Vod6"
-VOD7 = "Vod7"
-VOD9 = "Vod9"
-VOD1_WORKSPACE_PATH = ""
+JOB_FOLDER_NAME = GetJobFolderName()
+IS_PULL_REQUEST = env.CHANGE_ID != null
+IS_HOTFIX = env.BRANCH_NAME == 'master'
+IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
+IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
 //Build
-CAN_BUILD_DESKTOP = env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'Beta' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
-CAN_PUBLISH_BUILD_WEB = env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
-CAN_BUILD_WCF = env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
+CAN_BUILD_DESKTOP = true
+CAN_BUILD_WEB = true
+CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
+CAN_BUILD_WCF = true
 
 //Compress
+CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
 CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
-CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP
-CAN_COMPRESS_WCF = CAN_BUILD_WCF
+CAN_COMPRESS_WCF = CAN_BUILD_WCF && (IS_HOTFIX || IS_RELEASE)
 
 //Delivery
-WIN_DELIVERY_SHARED_FOLDER_NAME
-VOD1_DELIVERY_PATH = "\\\\${VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}"
-VOD3_DELIVERY_PATH = "\\\\${VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}"
-VOD5_DELIVERY_PATH = "\\\\${VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}"
-VOD6_DELIVERY_PATH = "\\\\${VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}"
-VOD7_DELIVERY_PATH = "\\\\${VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}"
+CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP
+CAN_DELIVERY_WEB = CAN_COMPRESS_WEB
+CAN_DELIVERY_WCF = CAN_COMPRESS_WCF
+WIN_DELIVERY_SHARED_FOLDER_NAME = "JenkinsWorkspace"
+DESKTOP_VOD1_DELIVERY_PATH = "\\\\${NODE_VOD1}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+DESKTOP_VOD3_DELIVERY_PATH = "\\\\${NODE_VOD3}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+DESKTOP_VOD5_DELIVERY_PATH = "\\\\${NODE_VOD5}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+DESKTOP_VOD7_DELIVERY_PATH = "\\\\${NODE_VOD7}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
+LINUX_RUNTIME_DELIVERY_PATH = GetWorkspacePath(NODE_LINUX_RUNTIME)
 
 //Deploy
+DEPLOY_PATH = "F:/WORK/_BUILDS"
+CAN_DEPLOY_DESKTOP = CAN_DELIVERY_DESKTOP && (env.BRANCH_NAME == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD)
+CAN_DEPLOY_WEB = false
+CAN_DEPLOY_WCF = false
 
 //Publish
+CAN_PUBLISH_DESKTOP = CAN_DELIVERY_DESKTOP && (IS_HOTFIX || IS_RELEASE)
+CAN_PUBLISH_WEB = CAN_DELIVERY_WEB
+CAN_PUBLISH_WCF = CAN_DELIVERY_WCF
+//Release потому что правила именования фиксов/релизов Release_MMDD_HHMM
+NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX = "Release"
+NEW_WEB_HOTFIX_FOLDER_NAME = "Hotfix"
+NEW_WCF_HOTFIX_FOLDER_NAME = NEW_WEB_HOTFIX_FOLDER_NAME
+DESKTOP_HOTFIX_PUBLISH_PATH = DESKTOP_WORK_PATH
+DESKTOP_NEW_RELEASE_PUBLISH_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/NewRelease"
+WEB_PUBLISH_PATH = "E:/CD"
+WCF_PUBLISH_PATH = "/opt/jenkins/builds"
 
-
+//Разархивируем 
+//release/ в NewRelease
+//master в NewHotfix
+//Beta в F:\\WORK\\_BUILDS\\Beta
+//PR в F:\\WORK\\_BUILDS\\pull_requests\ID
+/*
 //Desktop
 CAN_DEPLOY_DESKTOP_BRANCH = env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'Beta' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
 CAN_DEPLOY_DESKTOP_PR = env.CHANGE_ID != null
@@ -55,7 +92,6 @@ CAN_PUBLISH_WCF_ARTIFACTS = env.BRANCH_NAME == 'master'
 CAN_COPY_WCF_ARTIFACTS = CAN_PUBLISH_WCF_ARTIFACTS
 
 //ARCHIVATION
-ARCHIVE_EXTENTION = '.7z'
 
 echo "CAN_DEPLOY_DESKTOP_BRANCH: ${CAN_DEPLOY_DESKTOP_BRANCH}"
 echo "CAN_DEPLOY_DESKTOP_PR: ${CAN_DEPLOY_DESKTOP_PR}"
@@ -64,18 +100,18 @@ echo "CAN_PUBLISH_DESKTOP: ${CAN_PUBLISH_DESKTOP}"
 echo "CAN_PUBLISH_WEB_ARTIFACTS: ${CAN_PUBLISH_WEB_ARTIFACTS}"
 echo "CAN_COPY_WEB_ARTIFACTS: ${CAN_COPY_WEB_ARTIFACTS}"
 echo "CAN_PUBLISH_WCF_ARTIFACTS: ${CAN_PUBLISH_WCF_ARTIFACTS}"
-echo "CAN_COPY_WCF_ARTIFACTS: ${CAN_COPY_WCF_ARTIFACTS}"
+echo "CAN_COPY_WCF_ARTIFACTS: ${CAN_COPY_WCF_ARTIFACTS}"*/
 
 //1. Подготовка репозиториев
 stage('Checkout'){
 	parallel (
 		"Win" : {
-			node('WIN_BUILD'){
+			node(NODE_WIN_BUILD){
 				PrepareSources("${JENKINS_HOME_WIN}")
 			}
 		},
 		"Linux" : {
-			node('LINUX_BUILD'){
+			node(NODE_LINUX_BUILD){
 				PrepareSources("${JENKINS_HOME}")
 			}
 		}
@@ -86,12 +122,12 @@ stage('Checkout'){
 stage('Restore'){
 	parallel (
 		"Win" : {
-			node('WIN_BUILD'){
-				bat '"$WIN_BUILD_TOOL" Vodovoz\\Source\\Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2'
+			node(NODE_WIN_BUILD){
+				bat '"$WIN_BUILD_TOOL" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2'
 			}
 		},
 		"Linux" : {
-			node('LINUX_BUILD'){
+			node(NODE_LINUX_BUILD){
 				sh 'nuget restore Vodovoz/Source/Vodovoz.sln'
 				sh 'nuget restore Vodovoz/Source/Libraries/External/QSProjects/QSProjectsLib.sln'
 				sh 'nuget restore Vodovoz/Source/Libraries/External/My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
@@ -104,42 +140,58 @@ stage('Restore'){
 stage('Build'){
 	parallel (
 		"Win" : {
-			node('WIN_BUILD'){
+			node(NODE_WIN_BUILD){
 				stage('Build Desktop'){
-					Build("WinDesktop")
+					if(CAN_BUILD_DESKTOP)
+					{
+						Build("WinDesktop")
+					}
+					else
+					{
+						echo "Build Desktop not needed"
+					}
 				}
 				stage('Build WEB'){
-					script{
-						if(CAN_PUBLISH_BUILD_WEB)
-						{
-							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\DriverAPI\\DriverAPI.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\FastPaymentsAPI\\FastPaymentsAPI.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Frontend\\PayPageAPI\\PayPageAPI.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\MailjetEventsDistributorAPI.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Frontend\\UnsubscribePage\\UnsubscribePage.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\DeliveryRulesService\\DeliveryRulesService.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\RoboatsService\\RoboatsService.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\TrueMarkAPI\\TrueMarkAPI.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\TaxcomEdoApi\\TaxcomEdoApi.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\CashReceiptApi\\CashReceiptApi.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Backend\\WebAPI\\CustomerAppsApi\\CustomerAppsApi.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\CashReceiptPrepareWorker.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\CashReceiptSendWorker.csproj")
-							PublishBuild("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\TrueMarkCodePoolCheckWorker.csproj")
-						}
-						else
-						{
-							//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
-							Build("Web")
-						}
+					if(CAN_PUBLISH_BUILD_WEB)
+					{
+						PublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
+						PublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
+						PublishBuild("${APP_PATH}/Frontend/PayPageAPI/PayPageAPI.csproj")
+						PublishBuild("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/MailjetEventsDistributorAPI.csproj")
+						PublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
+						PublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
+						PublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
+						PublishBuild("${APP_PATH}/Backend/WebAPI/TrueMarkAPI/TrueMarkAPI.csproj")
+						PublishBuild("${APP_PATH}/Backend/WebAPI/TaxcomEdoApi/TaxcomEdoApi.csproj")
+						PublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
+						PublishBuild("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/CustomerAppsApi.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/CashReceiptPrepareWorker.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/CashReceiptSendWorker.csproj")
+						PublishBuild("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/TrueMarkCodePoolCheckWorker.csproj")
+					}
+					else if(CAN_BUILD_WEB)
+					{
+						//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
+						Build("Web")
+					}
+					else
+					{
+						echo "Build Web not needed"
 					}
 				}
 			}
 		},
 		"Linux" : {
-			node('LINUX_BUILD'){
+			node(NODE_LINUX_BUILD){
 				stage('Build WCF'){
-					Build("WCF")
+					if(CAN_BUILD_WCF)
+					{
+						Build("WCF")
+					}
+					else
+					{
+						echo "Build WCF not needed"
+					}
 				}
 			}
 		}
@@ -165,93 +217,63 @@ stage('Compress'){
 
 //5. Доставка сборок на ноды
 stage('Delivery'){
-	node('Vod1'){
-		CopyDesktopArtifacts("Vod1")
-	}
-	node('Vod3'){
-		CopyDesktopArtifacts("Vod3")
-	}
-	node('Vod5'){
-		CopyDesktopArtifacts("Vod5")
-	}
-	node('Vod7'){
-		CopyDesktopArtifacts("Vod7")
-	}
-	node('WIN_WEB_RUNTIME'){
-		script{
-			echo "Can copy artifacts for web: ${CAN_COPY_WEB_ARTIFACTS}"
-			if(CAN_COPY_WEB_ARTIFACTS)
-			{
-				echo "Copy web artifacts"
-				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-			}
-			else
-			{
-				echo "Copy web artifacts not needed"
-			}
-		}
-	}
-	node('LINUX_RUNTIME'){
-		script{
-			echo "Can copy artifacts for WCF: ${CAN_COPY_WCF_ARTIFACTS}"
-			if(CAN_COPY_WCF_ARTIFACTS)
-			{
-				echo "Copy WCF artifacts"
-				copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-			}
-			else
-			{
-				echo "Copy WCF artifacts not needed"
-			}
-		}
-	}	
+	parallel(
+		"Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(DESKTOP_VOD1_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD3}" : { DeliveryDesktopArtifact(DESKTOP_VOD3_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD5}" : { DeliveryDesktopArtifact(DESKTOP_VOD5_DELIVERY_PATH) },
+		"Desktop ${NODE_VOD7}" : { DeliveryDesktopArtifact(DESKTOP_VOD7_DELIVERY_PATH) },
+
+		"DriverAPI" : { DeliveryWebArtifact("DriverAPI") },
+		"FastPaymentsAPI" : { DeliveryWebArtifact("FastPaymentsAPI") },
+		"PayPageAPI" : { DeliveryWebArtifact("PayPageAPI") },
+		"MailjetEventsDistributorAPI" : { DeliveryWebArtifact("MailjetEventsDistributorAPI") },
+		"UnsubscribePage" : { DeliveryWebArtifact("UnsubscribePage") },
+		"DeliveryRulesService" : { DeliveryWebArtifact("DeliveryRulesService") },
+		"RoboatsService" : { DeliveryWebArtifact("RoboatsService") },
+		"TrueMarkAPI" : { DeliveryWebArtifact("TrueMarkAPI") },
+		"TaxcomEdoApi" : { DeliveryWebArtifact("TaxcomEdoApi") },
+		"CashReceiptApi" : { DeliveryWebArtifact("CashReceiptApi") },
+		"CustomerAppsApi" : { DeliveryWebArtifact("CustomerAppsApi") },
+		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
+		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
+		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
+
+		"SmsInformerService" : { DeliveryWcfArtifact("SmsInformerService") },
+		"SmsPaymentService" : { DeliveryWcfArtifact("SmsPaymentService") },
+	)
 }
 
 //6. Развертывание
 stage('Deploy'){
-	script{
-		node('Vod3'){
-			def BUILDS_PATH = "F:\\WORK\\_BUILDS\\"
-			if(CAN_DEPLOY_DESKTOP_BRANCH)
-			{
-				echo "Deploy branches build to desktop vod3"
-				def OUTPUT_PATH = BUILDS_PATH + env.BRANCH_NAME
-				DecompressArtifact(OUTPUT_PATH, 'Vodovoz')
-			}
-			else if(CAN_DEPLOY_DESKTOP_PR)
-			{
-				echo "Deploy pull request build to desktop vod3"
-				def OUTPUT_PATH = BUILDS_PATH + "pull_requests\\" + env.CHANGE_ID
-				DecompressArtifact(OUTPUT_PATH, 'Vodovoz')
-			}
-			else
-			{
-				echo "Deploy desktop builds not needed"
-			}
-		}	
-	}
+	DeployDesktop()
 }
 
 //7.Публикация
 stage('Publish'){
-	node('Vod1'){
-		PublishMasterDesktop()
-	}
-	node('Vod3'){
-		PublishMasterDesktop()
-	}
-	node('Vod5'){
-		PublishMasterDesktop()
-	}
-	node('Vod7'){
-		PublishMasterDesktop()
-	}
-	node('WIN_WEB_RUNTIME'){
-		PublishWebServices()
-	}
-	node('LINUX_RUNTIME'){
-		PublishWCFServices()
-	}
+	parallel(
+		"Desktop ${NODE_VOD1}" : { PublishDesktop(NODE_VOD1) },
+		"Desktop ${NODE_VOD3}" : { PublishDesktop(NODE_VOD3) },
+		"Desktop ${NODE_VOD5}" : { PublishDesktop(NODE_VOD5) },
+		"Desktop ${NODE_VOD7}" : { PublishDesktop(NODE_VOD7) },
+
+		"DriverAPI" : { PublishWeb("DriverAPI") },
+		"FastPaymentsAPI" : { PublishWeb("FastPaymentsAPI") },
+		"PayPageAPI" : { PublishWeb("PayPageAPI") },
+		"MailjetEventsDistributorAPI" : { PublishWeb("MailjetEventsDistributorAPI") },
+		"UnsubscribePage" : { PublishWeb("UnsubscribePage") },
+		"DeliveryRulesService" : { PublishWeb("DeliveryRulesService") },
+		"RoboatsService" : { PublishWeb("RoboatsService") },
+		"TrueMarkAPI" : { PublishWeb("TrueMarkAPI") },
+		"TaxcomEdoApi" : { PublishWeb("TaxcomEdoApi") },
+		"CashReceiptApi" : { PublishWeb("CashReceiptApi") },
+		"CustomerAppsApi" : { PublishWeb("CustomerAppsApi") },
+		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
+		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
+		"TrueMarkCodePoolCheckWorker" : { PublishWeb("TrueMarkCodePoolCheckWorker") },
+
+		"SmsInformerService" : { PublishWCF("SmsInformerService") },
+		"SmsPaymentService" : { PublishWCF("SmsPaymentService") },
+	)
 }
 
 def PrepareSources(jenkinsHome) {
@@ -269,6 +291,7 @@ def PrepareSources(jenkinsHome) {
 	])
 }
 
+/*
 def PublishBuildWebServiceToFolder(serviceName, projectPath) {
 	def branch_name = env.BRANCH_NAME.replaceAll('/','') + '\\'
 	def csproj_path = "${projectPath}\\${serviceName}.csproj"
@@ -277,14 +300,14 @@ def PublishBuildWebServiceToFolder(serviceName, projectPath) {
 
 	//CompressArtifact(outputPath, serviceName)
 }
-
+*/
 
 //Compress functions
 
 def CompressDesktopArtifacts(){
 	if(CAN_COMPRESS_DESKTOP)
 	{
-		CompressArtifact("Vodovoz/Source/Applications/Desktop/Vodovoz/bin/DebugWin", "VodovozDesktop") 
+		CompressArtifact("${APP_PATH}/Desktop/Vodovoz/bin/DebugWin", "VodovozDesktop") 
 	} 
 	else
 	{
@@ -295,20 +318,20 @@ def CompressDesktopArtifacts(){
 def CompressWebArtifacts(){
 	if(CAN_COMPRESS_WEB)
 	{
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\DriverAPI\\${WEB_BUILD_OUTPUT_CATALOG}", "DriverAPI")
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\FastPaymentsAPI\\${WEB_BUILD_OUTPUT_CATALOG}", "FastPaymentsAPI")
-		CompressArtifact("${APP_PATH_WIN}\\Frontend\\PayPageAPI\\${WEB_BUILD_OUTPUT_CATALOG}", "PayPageAPI")
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\Email\\MailjetEventsDistributorAPI\\${WEB_BUILD_OUTPUT_CATALOG}", "MailjetEventsDistributorAPI")
-		CompressArtifact("${APP_PATH_WIN}\\Frontend\\UnsubscribePage\\${WEB_BUILD_OUTPUT_CATALOG}", "UnsubscribePage")
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\DeliveryRulesService\\${WEB_BUILD_OUTPUT_CATALOG}", "DeliveryRulesService")
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\RoboatsService\\${WEB_BUILD_OUTPUT_CATALOG}", "RoboatsService")
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\TrueMarkAPI\\${WEB_BUILD_OUTPUT_CATALOG}", "TrueMarkAPI")
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\TaxcomEdoApi\\${WEB_BUILD_OUTPUT_CATALOG}", "TaxcomEdoApi")
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\CashReceiptApi\\${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptApi")
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\WebAPI\\CustomerAppsApi\\${WEB_BUILD_OUTPUT_CATALOG}", "CustomerAppsApi")
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\CashReceiptPrepareWorker\\${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptPrepareWorker")
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\CashReceiptSendWorker\\${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptSendWorker")
-		CompressArtifact("${APP_PATH_WIN}\\Backend\\Workers\\IIS\\TrueMarkCodePoolCheckWorker\\${WEB_BUILD_OUTPUT_CATALOG}", "TrueMarkCodePoolCheckWorker")
+		CompressArtifact("${APP_PATH}/Backend/WebAPI/DriverAPI/${WEB_BUILD_OUTPUT_CATALOG}", "DriverAPI")
+		CompressArtifact("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/${WEB_BUILD_OUTPUT_CATALOG}", "FastPaymentsAPI")
+		CompressArtifact("${APP_PATH}/Frontend/PayPageAPI/${WEB_BUILD_OUTPUT_CATALOG}", "PayPageAPI")
+		CompressArtifact("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/${WEB_BUILD_OUTPUT_CATALOG}", "MailjetEventsDistributorAPI")
+		CompressArtifact("${APP_PATH}/Frontend/UnsubscribePage/${WEB_BUILD_OUTPUT_CATALOG}", "UnsubscribePage")
+		CompressArtifact("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/${WEB_BUILD_OUTPUT_CATALOG}", "DeliveryRulesService")
+		CompressArtifact("${APP_PATH}/Backend/WebAPI/RoboatsService/${WEB_BUILD_OUTPUT_CATALOG}", "RoboatsService")
+		CompressArtifact("${APP_PATH}/Backend/WebAPI/TrueMarkAPI/${WEB_BUILD_OUTPUT_CATALOG}", "TrueMarkAPI")
+		CompressArtifact("${APP_PATH}/Backend/WebAPI/TaxcomEdoApi/${WEB_BUILD_OUTPUT_CATALOG}", "TaxcomEdoApi")
+		CompressArtifact("${APP_PATH}/Backend/WebAPI/CashReceiptApi/${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptApi")
+		CompressArtifact("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/${WEB_BUILD_OUTPUT_CATALOG}", "CustomerAppsApi")
+		CompressArtifact("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptPrepareWorker")
+		CompressArtifact("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptSendWorker")
+		CompressArtifact("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/${WEB_BUILD_OUTPUT_CATALOG}", "TrueMarkCodePoolCheckWorker")
 	} 
 	else
 	{
@@ -319,8 +342,8 @@ def CompressWebArtifacts(){
 def CompressWcfArtifacts(){
 	if(CAN_COMPRESS_WCF)
 	{
-		CompressArtifact("${APP_PATH_LINUX}/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug", "SmsInformerService")
-		CompressArtifact("${APP_PATH_LINUX}/Backend/WCF/VodovozSmsPaymentService/bin/Debug", "SmsPaymentService")
+		CompressArtifact("${APP_PATH}/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug", "SmsInformerService")
+		CompressArtifact("${APP_PATH}/Backend/WCF/VodovozSmsPaymentService/bin/Debug", "SmsPaymentService")
 	} 
 	else
 	{
@@ -331,36 +354,159 @@ def CompressWcfArtifacts(){
 
 //Delivery functions
 
-def DeliveryWinArtifacts(){
-	RunPowerShell("""
-		Copy-Item -Path D:\\TestCopy\\TestFile.zip -Destination ${deployPath}
-	""")
+def DeliveryDesktopArtifact(deliveryPath){
+	if(CAN_DELIVERY_DESKTOP)
+	{
+		DeliveryWinArtifact("VodovozDesktop${ARCHIVE_EXTENTION}", deliveryPath)
+	}
+	else
+	{
+		echo "Delivery Desktop artifact to ${deliveryPath} not needed"
+	}
+}
+
+def DeliveryWebArtifact(projectName){
+	if(CAN_DELIVERY_WEB)
+	{
+		DeliveryWinArtifact("${projectName}${ARCHIVE_EXTENTION}", WEB_DELIVERY_PATH)
+	}
+	else
+	{
+		echo "Delivery ${projectName} artifact  not needed"
+	}
+}
+
+def DeliveryWcfArtifact(projectName){
+	if(CAN_DELIVERY_WCF)
+	{
+		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}", LINUX_RUNTIME_DELIVERY_PATH)
+	}
+	else
+	{
+		echo "Delivery ${projectName} artifact  not needed"
+	}
 }
 
 def DeliveryWinArtifact(artifactPath, deliveryPath){
-	node(VOD9){
+	node(NODE_VOD9){
 		RunPowerShell("""
-			Copy-Item -Path ${artifactPath} -Destination ${deployPath}
+			Copy-Item -Path ${artifactPath} -Destination ${deliveryPath}
 		""")
 	}
 }
 
-def CopyDesktopArtifacts(serverName){
-	script{
-		echo "Can copy artifacts for desktop ${serverName}: ${CAN_COPY_DESKTOP_ARTIFACTS}"
-		if(CAN_COPY_DESKTOP_ARTIFACTS)
-		{
-			echo "Copy desktop ${serverName} artifacts"
-			copyArtifacts(projectName: '${JOB_NAME}', selector: specific( buildNumber: '${BUILD_NUMBER}'));
-		}
-		else
-		{
-			echo "Copy desktop artifacts not needed"
+def DeliveryLinuxArtifact(artifactPath, deliveryPath){
+	node(NODE_LINUX_BUILD){
+		withCredentials([sshUserPrivateKey(credentialsId: "linux_vadim_jenkins_key", keyFileVariable: 'keyfile', usernameVariable: 'userName')]) {
+			sh 'rsync -v -rz -e "ssh -o StrictHostKeyChecking=no -i $keyfile -p 2213 -v" $artifactPath  $userName@srv2.vod.qsolution.ru:$deliveryPath --delete-before'
 		}
 	}
 }
 
 
+//Deploy functions
+
+def DeployDesktop(){
+	node(NODE_VOD3){
+		if(CAN_DEPLOY_DESKTOP)
+		{
+			def OUTPUT_PATH = ""
+
+			if(IS_PULL_REQUEST)
+			{
+				OUTPUT_PATH = "${DEPLOY_PATH}/pull_requests/${env.CHANGE_ID}"
+			}
+			else
+			{
+				OUTPUT_PATH = "${DEPLOY_PATH}/${env.BRANCH_NAME}"
+			}
+
+			DecompressArtifact(OUTPUT_PATH, 'VodovozDesktop')
+		}
+		else
+		{
+			echo "Deploy desktop builds not needed"
+		}
+	}
+}
+
+
+//Publish functions
+
+def PublishDesktop(nodeName){
+	node(nodeName){
+		if(CAN_PUBLISH_DESKTOP)
+		{
+			if(IS_HOTFIX)
+			{
+				def now = new Date()
+        		def hofix_suffix = println now.format("MMdd_HHmm")
+				def newHotfixPath = "${DESKTOP_PUBLISH_PATH}/${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${hofix_suffix}"
+				LockHotfix(newHotfixPath)
+				DecompressArtifact(newHotfixPath, 'VodovozDesktop')
+				UnlockHotfix(newHotfixPath)
+				return
+			}
+
+			if(IS_RELEASE)
+			{
+				DecompressArtifact(DESKTOP_NEW_RELEASE_PUBLISH_PATH, 'VodovozDesktop')
+				return
+			}
+		}
+
+		echo "Publish not needed"
+	}
+}
+
+def PublishWeb(projectName){
+	node(NODE_VOD6){
+		if(CAN_PUBLISH_WEB)
+		{
+			if(IS_HOTFIX)
+			{
+				def newHotfixPath = "${WEB_PUBLISH_PATH}/${projectName}/${NEW_WEB_HOTFIX_FOLDER_NAME}"
+				DecompressArtifact(newHotfixPath, projectName)
+				return
+			}
+
+			if(IS_RELEASE)
+			{
+				def newReleasePath = "${WEB_PUBLISH_PATH}/${projectName}/${NEW_RELEASE_FOLDER_NAME}"
+				DecompressArtifact(newReleasePath, projectName)
+				return
+			}
+		}
+
+		echo "Publish not needed"
+	}
+}
+
+def PublishWCF(projectName){
+	node(NODE_LINUX_RUNTIME){
+		if(CAN_PUBLISH_WCF)
+		{
+			if(IS_HOTFIX)
+			{
+				def newHotfixPath = "${WCF_PUBLISH_PATH}/${projectName}/${NEW_WCF_HOTFIX_FOLDER_NAME}"
+				DecompressArtifact(newHotfixPath, projectName)
+				return
+			}
+
+			if(IS_RELEASE)
+			{
+				def newReleasePath = "${WCF_PUBLISH_PATH}/${projectName}/${NEW_RELEASE_FOLDER_NAME}"
+				DecompressArtifact(newReleasePath, projectName)
+				return
+			}
+
+		}
+
+		echo "Publish not needed"
+	}
+}
+
+/*
 def PublishMasterDesktop() {
 	script{
 		if(CAN_PUBLISH_DESKTOP)
@@ -369,7 +515,9 @@ def PublishMasterDesktop() {
 
 			echo "Publish master to prerelease folder ${PRERELEASE_PATH}"
 			DecompressArtifact(PRERELEASE_PATH, 'Vodovoz')
-		}else{
+		}
+		else
+		{
 			echo "Branch is not master, nothing to publish to prerelease folder"
 		}
 	}
@@ -463,6 +611,8 @@ def PublishWCFService(serviceName) {
 	def SERVICE_PATH = "/opt/jenkins/builds/${serviceName}"
 	DecompressArtifact(SERVICE_PATH, serviceName)
 }
+*/
+
 
 def CompressArtifact(sourcePath, artifactName) {
 	def archive_file = ${artifactName}${ARCHIVE_EXTENTION}
@@ -492,11 +642,23 @@ def Build(config){
 		sh "${LINUX_BUILD_TOOL} Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
 	}
 	else {
-		bat "\"${WIN_BUILD_TOOL}\" Vodovoz\\Source\\Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
+		bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
 	}
 }
 
 //Utility functions
+
+def LockHotfix(hotfixPath){
+	RunPowerShell("""
+		${RELEASE_LOCKER_PATH} ${UPDATE_LOCK_FILE} lock ${hotfixPath}/Vodovoz.exe
+	""")
+}
+
+def UnlockHotfix(hotfixName){
+	RunPowerShell("""
+		${RELEASE_LOCKER_PATH} ${UPDATE_LOCK_FILE} unlock ${hotfixPath}/Vodovoz.exe
+	""")
+}
 
 def ZipFiles(sourcePath, archiveFile){
 	if (isUnix()) {
@@ -528,3 +690,18 @@ def GetWorkspacePath (nodeName)  {
 		return ${env.WORKSPACE}
 	}  
 }
+
+def GetJobFolderName(){
+	node(NODE_WIN_BUILD){
+		splitted = env.WORKSPACE.split('\\')
+		folderName = splitted[splitted.length-1]
+		return folderName
+	}
+}
+
+def WinRemoveDirectory(destPath){
+	RunPowerShell("""
+		Remove-Item -LiteralPath "${destPath}" -Force -Recurse
+	""")
+}
+
