@@ -144,7 +144,13 @@ namespace Vodovoz.Additions.Logistic
 			}
 			if(_bitmapLogisticsRequirements != null)
 			{
-				g.DrawImage(_bitmapLogisticsRequirements, LocalPosition.X + Size.Width, LocalPosition.Y - Size.Height + 8, 10, 15);
+				g.DrawImage(
+					_bitmapLogisticsRequirements, 
+					LocalPosition.X + Size.Width, 
+					LocalPosition.Y - Size.Height + 8, 
+					_bitmapLogisticsRequirements.Width, 
+					_bitmapLogisticsRequirements.Height
+					);
 			}
 			g.DrawImage(Bitmap, LocalPosition.X, LocalPosition.Y, Size.Width, Size.Height);
 		}
