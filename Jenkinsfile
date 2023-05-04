@@ -16,6 +16,7 @@ NODE_LINUX_RUNTIME = "LINUX_RUNTIME"
 //Global
 ARCHIVE_EXTENTION = '.7z'
 APP_PATH = "Vodovoz/Source/Applications"
+WCF_BUILD_OUTPUT_CATALOG = "bin/debug"
 WEB_BUILD_OUTPUT_CATALOG = "bin/Release/net5.0_publish"
 WIN_BUILD_TOOL = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe"
 DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
@@ -205,18 +206,26 @@ stage('Build'){
 
 //4. Архивация
 stage('Compress'){
-	parallel (
-		"Win" : {
-			node(NODE_WIN_BUILD){
-				CompressDesktopArtifacts()
-				CompressWebArtifacts()
-			}
-		},
-		"Linux" : {
-			node(NODE_LINUX_BUILD){
-				CompressWcfArtifacts()
-			}
-		}
+	parallel(
+		"Desktop" : { CompressDesktopArtifact() },
+
+		"DriverAPI" : { CompressWebArtifact("Backend/WebAPI/DriverAPI") },
+		"FastPaymentsAPI" : { CompressWebArtifact("Backend/WebAPI/FastPaymentsAPI") },
+		"PayPageAPI" : { CompressWebArtifact("Frontend/PayPageAPI") },
+		"MailjetEventsDistributorAPI" : { CompressWebArtifact("Backend/WebAPI/Email/MailjetEventsDistributorAPI") },
+		"UnsubscribePage" : { CompressWebArtifact("Frontend/UnsubscribePage") },
+		"DeliveryRulesService" : { CompressWebArtifact("Backend/WebAPI/DeliveryRulesService") },
+		"RoboatsService" : { CompressWebArtifact("Backend/WebAPI/RoboatsService") },
+		"TrueMarkAPI" : { CompressWebArtifact("Backend/WebAPI/TrueMarkAPI") },
+		"TaxcomEdoApi" : { CompressWebArtifact("Backend/WebAPI/TaxcomEdoApi") },
+		"CashReceiptApi" : { CompressWebArtifact("Backend/WebAPI/CashReceiptApi") },
+		"CustomerAppsApi" : { CompressWebArtifact("Backend/WebAPI/CustomerAppsApi") },
+		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
+		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
+		"TrueMarkCodePoolCheckWorker" : { CompressWebArtifact("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker") },
+
+		"VodovozSmsInformerService" : { CompressWcfArtifact("Backend/Workers/Mono/VodovozSmsInformerService") },
+		"VodovozSmsPaymentService" : { CompressWcfArtifact("Backend/WCF/VodovozSmsPaymentService") },
 	)
 }
 
@@ -309,7 +318,7 @@ def PublishBuildWebServiceToFolder(serviceName, projectPath) {
 
 //Compress functions
 
-def CompressDesktopArtifacts(){
+def CompressDesktopArtifact(){
 	if(CAN_COMPRESS_DESKTOP)
 	{
 		CompressArtifact("${APP_PATH}/Desktop/Vodovoz/bin/DebugWin", "VodovozDesktop") 
@@ -320,23 +329,11 @@ def CompressDesktopArtifacts(){
 	}
 }
 
-def CompressWebArtifacts(){
+def CompressWebArtifact(relativeProjectPath){
 	if(CAN_COMPRESS_WEB)
 	{
-		CompressArtifact("${APP_PATH}/Backend/WebAPI/DriverAPI/${WEB_BUILD_OUTPUT_CATALOG}", "DriverAPI")
-		CompressArtifact("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/${WEB_BUILD_OUTPUT_CATALOG}", "FastPaymentsAPI")
-		CompressArtifact("${APP_PATH}/Frontend/PayPageAPI/${WEB_BUILD_OUTPUT_CATALOG}", "PayPageAPI")
-		CompressArtifact("${APP_PATH}/Backend/WebAPI/Email/MailjetEventsDistributorAPI/${WEB_BUILD_OUTPUT_CATALOG}", "MailjetEventsDistributorAPI")
-		CompressArtifact("${APP_PATH}/Frontend/UnsubscribePage/${WEB_BUILD_OUTPUT_CATALOG}", "UnsubscribePage")
-		CompressArtifact("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/${WEB_BUILD_OUTPUT_CATALOG}", "DeliveryRulesService")
-		CompressArtifact("${APP_PATH}/Backend/WebAPI/RoboatsService/${WEB_BUILD_OUTPUT_CATALOG}", "RoboatsService")
-		CompressArtifact("${APP_PATH}/Backend/WebAPI/TrueMarkAPI/${WEB_BUILD_OUTPUT_CATALOG}", "TrueMarkAPI")
-		CompressArtifact("${APP_PATH}/Backend/WebAPI/TaxcomEdoApi/${WEB_BUILD_OUTPUT_CATALOG}", "TaxcomEdoApi")
-		CompressArtifact("${APP_PATH}/Backend/WebAPI/CashReceiptApi/${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptApi")
-		CompressArtifact("${APP_PATH}/Backend/WebAPI/CustomerAppsApi/${WEB_BUILD_OUTPUT_CATALOG}", "CustomerAppsApi")
-		CompressArtifact("${APP_PATH}/Backend/Workers/IIS/CashReceiptPrepareWorker/${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptPrepareWorker")
-		CompressArtifact("${APP_PATH}/Backend/Workers/IIS/CashReceiptSendWorker/${WEB_BUILD_OUTPUT_CATALOG}", "CashReceiptSendWorker")
-		CompressArtifact("${APP_PATH}/Backend/Workers/IIS/TrueMarkCodePoolCheckWorker/${WEB_BUILD_OUTPUT_CATALOG}", "TrueMarkCodePoolCheckWorker")
+		def webProjectName = GetFolderName(relativeProjectPath)
+		CompressArtifact("${APP_PATH}/${webProjectName}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
 	} 
 	else
 	{
@@ -344,18 +341,17 @@ def CompressWebArtifacts(){
 	}
 }
 
-def CompressWcfArtifacts(){
+def CompressWcfArtifact(relativeProjectPath){
 	if(CAN_COMPRESS_WCF)
 	{
-		CompressArtifact("${APP_PATH}/Backend/Workers/Mono/VodovozSmsInformerService/bin/Debug", "SmsInformerService")
-		CompressArtifact("${APP_PATH}/Backend/WCF/VodovozSmsPaymentService/bin/Debug", "SmsPaymentService")
+		def wcfProjectName = GetFolderName(relativeProjectPath)
+		CompressArtifact("${APP_PATH}/${relativeProjectPath}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
 	} 
 	else
 	{
 		echo "Compress WCF artifacts not needed"
 	}
 }
-
 
 //Delivery functions
 
@@ -393,7 +389,7 @@ def DeliveryWcfArtifact(projectName){
 }
 
 def DeliveryWinArtifact(artifactPath, deliveryPath){
-	node(NODE_VOD9){
+	node(NODE_WIN_BUILD){
 		RunPowerShell("""
 			Copy-Item -Path ${artifactPath} -Destination ${deliveryPath}
 		""")
@@ -667,10 +663,10 @@ def UnlockHotfix(hotfixName){
 
 def ZipFiles(sourcePath, archiveFile){
 	if (isUnix()) {
-		sh "7z a -stl ${archiveFile} ./${sourcePath}/*"
+		sh "7z a -stl -mx1 ${archiveFile} ./${sourcePath}/*"
 	}
 	else {
-		bat "7z a -stl ${archiveFile} ./${sourcePath}/*"
+		bat "7z a -stl -mx1 ${archiveFile} ./${sourcePath}/*"
 	}
 }
 
@@ -698,10 +694,14 @@ def GetWorkspacePath (nodeName)  {
 
 def GetJobFolderName(){
 	node(NODE_WIN_BUILD){
-		splitted = env.WORKSPACE.split("\\\\")
-		folderName = splitted[splitted.length-1]
-		return folderName
+		return GetFolderName(env.WORKSPACE)
 	}
+}
+
+def GetFolderName(folderPath){
+	splitted = folderPath.split("\\\\")
+	folderName = splitted[splitted.length-1]
+	return folderName
 }
 
 def WinRemoveDirectory(destPath){
