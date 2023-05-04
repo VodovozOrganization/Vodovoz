@@ -692,7 +692,7 @@ def RunPowerShell(psScript){
 
 def GetWorkspacePath (nodeName)  {  
 	node(nodeName){
-		return ${env.WORKSPACE}
+		return env.WORKSPACE
 	}  
 }
 
