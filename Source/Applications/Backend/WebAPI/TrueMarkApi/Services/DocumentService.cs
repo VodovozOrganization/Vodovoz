@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -150,7 +150,9 @@ namespace TrueMarkApi.Services
 		{
 			_logger.LogInformation("Получаем список для отмены вывода из оборота для организации {OrganizationId}", organization.Id);
 
-			var documentsForCancellation = _orderRepository.GetOrdersForCancellationInTrueMark(uow, organization.Id);
+			var startDate = DateTime.Now.AddYears(-1);
+
+			var documentsForCancellation = _orderRepository.GetOrdersForCancellationInTrueMark(uow, startDate, organization.Id);
 
 			_logger.LogInformation("Всего документов для отмены вывода из оборота: {ErrorOrdersCount}", documentsForCancellation.Count);
 

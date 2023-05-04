@@ -995,7 +995,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault<decimal>();
 		}
 
-		public IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, int organizationId)
+		public IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId)
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
@@ -1042,12 +1042,14 @@ namespace Vodovoz.EntityRepositories.Orders
 				)
 				.Where(() => orderAlias.PaymentType != PaymentType.ContractDoc)
 				.Where(() => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id)
+				.Where(() => orderAlias.DeliveryDate > startDate)
 				.Select(o => o.Id);
 
 			var result = uow.Session.QueryOver(() => trueMarkApiDocumentAlias)
 				.JoinAlias(() => trueMarkApiDocumentAlias.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
+				.Where(() => orderAlias.DeliveryDate > startDate)
 				.WithSubquery.WhereNotExists(correctSubquery)
 				.WithSubquery.WhereNotExists(hasCancellationSubquery)
 				.TransformUsing(Transformers.RootEntity)
