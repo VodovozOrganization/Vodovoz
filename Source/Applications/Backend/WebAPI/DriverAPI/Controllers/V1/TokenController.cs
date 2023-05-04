@@ -3,7 +3,9 @@ using DriverAPI.DTOs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -20,6 +22,7 @@ namespace DriverAPI.Controllers.V1
 	public class TokenController : ControllerBase
 	{
 		private readonly IConfiguration _configuration;
+		private readonly ILogger<TokenController> _logger;
 		private readonly ApplicationDbContext _context;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly double _tokenLifetime;
@@ -28,12 +31,14 @@ namespace DriverAPI.Controllers.V1
 
 		public TokenController(
 			IConfiguration configuration,
+			ILogger<TokenController> logger,
 			ApplicationDbContext context,
 			UserManager<IdentityUser> userManager)
 		{
-			_configuration = configuration;
-			_context = context;
-			_userManager = userManager;
+			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_context = context ?? throw new ArgumentNullException(nameof(context));
+			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
 			_tokenLifetime = _configuration.GetValue<double>("Security:Token:Lifetime");
 			_securityKey = _configuration.GetValue<string>("Security:Token:Key");
@@ -45,6 +50,22 @@ namespace DriverAPI.Controllers.V1
 		[Route("/api/Authenticate")]
 		public async Task<TokenResponseDto> Post([FromBody] LoginRequestDto loginRequestModel)
 		{
+			var userAgent = string.Empty;
+
+			if(HttpContext.Request.Headers.TryGetValue(HeaderNames.UserAgent, out var userAgentHeader))
+			{
+				userAgent = userAgentHeader;
+			}
+
+			if(TryGetVersion(userAgent, out var driverApplicationVersion))
+			{
+				_logger.LogInformation("Запрошен токен для пользователя: {Username}, версия МП:{ApplicationVersion}", loginRequestModel.Username, driverApplicationVersion);
+			}
+			else
+			{
+				_logger.LogWarning("Запрошен токен для пользователя: {Username}, невозможно определить версию, User-Agent:{UserAgent}", loginRequestModel.Username, userAgent);
+			}
+
 			if(await IsValidCredentials(loginRequestModel.Username, loginRequestModel.Password))
 			{
 				return await GenerateToken(loginRequestModel.Username);
@@ -53,6 +74,30 @@ namespace DriverAPI.Controllers.V1
 			{
 				throw new UnauthorizedAccessException("Пара логин/пароль не найдена");
 			}
+		}
+
+		private bool TryGetVersion(string useragent, out Version version)
+		{
+			var result = useragent;
+			const string useragentPrefix = "Vodovoz_Driver/";
+			var indexAfterVersion = useragent.IndexOf('+');
+
+			var indexOfPrefix = useragent.IndexOf(useragentPrefix);
+
+			if(indexOfPrefix < 0)
+			{
+				version = null;
+				return false;
+			}
+
+			if(indexAfterVersion > 0)
+			{
+				result = useragent.Substring(0, indexAfterVersion);
+			}
+
+			result = result.Replace(useragentPrefix, string.Empty);
+
+			return Version.TryParse(result, out version);
 		}
 
 		private async Task<bool> IsValidCredentials(string username, string password)
