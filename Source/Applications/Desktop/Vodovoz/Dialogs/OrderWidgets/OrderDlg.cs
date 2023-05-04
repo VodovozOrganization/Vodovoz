@@ -107,6 +107,8 @@ using VodovozInfrastructure.Configuration;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
+using System.Reflection;
+using System.ComponentModel;
 
 namespace Vodovoz
 {
@@ -1688,6 +1690,7 @@ namespace Vodovoz
 				logger.Info("Ok.");
 				UpdateUIState();
 				btnCopyEntityId.Sensitive = true;
+				TabName = typeof(Order).GetCustomAttribute<DisplayNameAttribute>(true)?.DisplayName;
 				return true;
 			} finally {
 				SetSensitivity(true);
