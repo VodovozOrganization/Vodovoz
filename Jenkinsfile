@@ -128,7 +128,7 @@ stage('Restore'){
 	parallel (
 		"Win" : {
 			node(NODE_WIN_BUILD){
-				bat '"$WIN_BUILD_TOOL" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2'
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
 			}
 		},
 		"Linux" : {
