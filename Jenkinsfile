@@ -27,7 +27,7 @@ JOB_FOLDER_NAME = GetJobFolderName()
 IS_PULL_REQUEST = env.CHANGE_ID != null
 //IS_HOTFIX = env.BRANCH_NAME == 'master'
 IS_HOTFIX = true
-IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
+IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/ 
 IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
 //Build
@@ -282,7 +282,7 @@ stage('Publish'){
 }
 
 def PrepareSources(jenkinsHome) {
-	def REFERENCE_ABSOLUTE_PATH = "$jenkinsHome/workspace/Vodovoz_Vodovoz_master"
+	def REFERENCE_ABSOLUTE_PATH = "${jenkinsHome}/workspace/Vodovoz_Vodovoz_master"
 
 	echo "checkout Vodovoz"	
 	checkout changelog: false, poll: false, scm:([
@@ -698,7 +698,7 @@ def GetWorkspacePath (nodeName)  {
 
 def GetJobFolderName(){
 	node(NODE_WIN_BUILD){
-		splitted = env.WORKSPACE.split('\\')
+		splitted = env.WORKSPACE.split("\\\\")
 		folderName = splitted[splitted.length-1]
 		return folderName
 	}
