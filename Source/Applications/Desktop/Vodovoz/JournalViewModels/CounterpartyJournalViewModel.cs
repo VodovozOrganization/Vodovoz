@@ -117,6 +117,7 @@ namespace Vodovoz.JournalViewModels
 		private void CreateOpneCloseSupplyAction()
 		{
 			var openCloseAction = new JournalAction("Закрыть/открыть поставки",
+				//sensetive
 				(selected) => {
 					var selectedNodes = selected.OfType<CounterpartyJournalNode>();
 					if(selectedNodes == null || selectedNodes.Count() != 1)
@@ -131,7 +132,9 @@ namespace Vodovoz.JournalViewModels
 					var config = EntityConfigs[selectedNode.EntityType];
 					return config.PermissionResult.CanRead;
 				},
+				//visible
 				(selected) => selected.All(x => (x as CounterpartyJournalNode).Sensitive),
+				//execute
 				(selected) => {
 					if(!selected.All(x => (x as CounterpartyJournalNode).Sensitive))
 					{
@@ -150,17 +153,17 @@ namespace Vodovoz.JournalViewModels
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					var orderPage = MainClass.MainWin.NavigationManager.OpenViewModel<CloseSupplyToCounterpartyViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id));
+					var orderPage = MainClass.MainWin.NavigationManager.OpenViewModel<CloseSupplyToCounterpartyViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
 					{
 						HideJournal(TabParent);
 					}
 				}
 			);
-			if(SelectionMode == JournalSelectionMode.None)
-			{
-				RowActivatedAction = openCloseAction;
-			}
+			//if(SelectionMode == JournalSelectionMode.None)
+			//{
+			//	RowActivatedAction = openCloseAction;
+			//}
 			NodeActionsList.Add(openCloseAction);
 		}
 
