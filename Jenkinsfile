@@ -322,7 +322,7 @@ def CompressDesktopArtifact(){
 	if(CAN_COMPRESS_DESKTOP)
 	{
 		node(NODE_WIN_BUILD){
-			CompressArtifact("${APP_PATH}/Desktop/Vodovoz/bin/DebugWin", "VodovozDesktop") 
+			CompressArtifact("${env.WORKSPACE}/${APP_PATH}/Desktop/Vodovoz/bin/DebugWin", "VodovozDesktop") 
 		}
 	} 
 	else
@@ -336,7 +336,7 @@ def CompressWebArtifact(relativeProjectPath){
 	{
 		node(NODE_WIN_BUILD){
 			def webProjectName = GetFolderName(relativeProjectPath)
-			CompressArtifact("${APP_PATH}/${webProjectName}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
+			CompressArtifact("${env.WORKSPACE}/${APP_PATH}/${webProjectName}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
 		}
 	} 
 	else
@@ -350,7 +350,7 @@ def CompressWcfArtifact(relativeProjectPath){
 	{
 		node(NODE_LINUX_BUILD){
 			def wcfProjectName = GetFolderName(relativeProjectPath)
-			CompressArtifact("${APP_PATH}/${relativeProjectPath}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
+			CompressArtifact("${env.WORKSPACE}/${APP_PATH}/${relativeProjectPath}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
 		}
 	} 
 	else
