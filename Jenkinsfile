@@ -321,7 +321,9 @@ def PublishBuildWebServiceToFolder(serviceName, projectPath) {
 def CompressDesktopArtifact(){
 	if(CAN_COMPRESS_DESKTOP)
 	{
-		CompressArtifact("${APP_PATH}/Desktop/Vodovoz/bin/DebugWin", "VodovozDesktop") 
+		node(NODE_WIN_BUILD){
+			CompressArtifact("${APP_PATH}/Desktop/Vodovoz/bin/DebugWin", "VodovozDesktop") 
+		}
 	} 
 	else
 	{
@@ -332,8 +334,10 @@ def CompressDesktopArtifact(){
 def CompressWebArtifact(relativeProjectPath){
 	if(CAN_COMPRESS_WEB)
 	{
-		def webProjectName = GetFolderName(relativeProjectPath)
-		CompressArtifact("${APP_PATH}/${webProjectName}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
+		node(NODE_WIN_BUILD){
+			def webProjectName = GetFolderName(relativeProjectPath)
+			CompressArtifact("${APP_PATH}/${webProjectName}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
+		}
 	} 
 	else
 	{
@@ -344,8 +348,10 @@ def CompressWebArtifact(relativeProjectPath){
 def CompressWcfArtifact(relativeProjectPath){
 	if(CAN_COMPRESS_WCF)
 	{
-		def wcfProjectName = GetFolderName(relativeProjectPath)
-		CompressArtifact("${APP_PATH}/${relativeProjectPath}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
+		node(NODE_LINUX_BUILD){
+			def wcfProjectName = GetFolderName(relativeProjectPath)
+			CompressArtifact("${APP_PATH}/${relativeProjectPath}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
+		}
 	} 
 	else
 	{
