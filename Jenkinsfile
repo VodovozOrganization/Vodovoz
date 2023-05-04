@@ -639,7 +639,7 @@ def DecompressArtifact(destPath, artifactName) {
 }
 
 def PublishBuild(projectPath){
-	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Rebuild /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /maxcpucount:2"
+	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /maxcpucount:2"
 }
 
 def Build(config){
