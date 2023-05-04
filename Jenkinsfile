@@ -207,13 +207,13 @@ stage('Build'){
 stage('Compress'){
 	parallel (
 		"Win" : {
-			node('WIN_BUILD'){
+			node(NODE_WIN_BUILD){
 				CompressDesktopArtifacts()
 				CompressWebArtifacts()
 			}
 		},
 		"Linux" : {
-			node('LINUX_BUILD'){
+			node(NODE_LINUX_BUILD){
 				CompressWcfArtifacts()
 			}
 		}
@@ -620,9 +620,9 @@ def PublishWCFService(serviceName) {
 
 
 def CompressArtifact(sourcePath, artifactName) {
-	def archive_file = ${artifactName}${ARCHIVE_EXTENTION}
+	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
 
-	if (fileExists("${archive_file}")) {
+	if (fileExists(archive_file)) {
 		echo "Delete exiting artifact ${archive_file} from ./${sourcePath}/*"
 		fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
 	}
@@ -632,7 +632,7 @@ def CompressArtifact(sourcePath, artifactName) {
 }
 
 def DecompressArtifact(destPath, artifactName) {
-	def archive_file = ${artifactName}${ARCHIVE_EXTENTION}
+	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
 
 	echo "Decompressing artifact ${archive_file} to ${destPath}"
 	UnzipFiles(archive_file, destPath)
