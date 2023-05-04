@@ -18,6 +18,8 @@ using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using QS.ViewModels.Dialog;
 using QS.Project.Journal;
+using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
@@ -30,7 +32,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		private Warehouse _warehouse;
 		private Employee _employeeStorage;
 		private Car _carStorage;
-		private Storage? _storageType;
+		private StorageType? _storageType;
 		private INavigationManager _navigationManager;
 
 		public InventoryInstancesStockBalanceJournalFilterViewModel(
@@ -82,7 +84,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			set
 			{
 				Warehouse = value;
-				CanChangeNomenclature = value == null;
+				CanChangeWarehouseStorage = value == null;
 			}
 		}
 
@@ -122,7 +124,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			}
 		}
 
-		public Storage? StorageType
+		public StorageType? StorageType
 		{
 			get => _storageType;
 			set
@@ -131,17 +133,17 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 				{
 					switch(value)
 					{
-						case Storage.Warehouse:
+						case Domain.Documents.MovementDocuments.StorageType.Warehouse:
 							SetAndRefilterAtOnce(
 								x => x.EmployeeStorage = null,
 								x => x.CarStorage = null);
 							break;
-						case Storage.Employee:
+						case Domain.Documents.MovementDocuments.StorageType.Employee:
 							SetAndRefilterAtOnce(
 								x => x.Warehouse = null,
 								x => x.CarStorage = null);
 							break;
-						case Storage.Car:
+						case Domain.Documents.MovementDocuments.StorageType.Car:
 							SetAndRefilterAtOnce(
 								x => x.Warehouse = null,
 								x => x.EmployeeStorage = null);
@@ -165,7 +167,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public bool CanChangeStorageType { get; private set; } = true;
 
-		public Storage? RestrictedStorageType
+		public StorageType? RestrictedStorageType
 		{
 			get => _storageType;
 			set
@@ -178,9 +180,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		public string InventoryNumber { get; set; }
 
 		public bool CanShowStorage => StorageType != null;
-		public bool CanShowWarehouseStorage => StorageType == Storage.Warehouse;
-		public bool CanShowEmployeeStorage => StorageType == Storage.Employee;
-		public bool CanShowCarStorage => StorageType == Storage.Car;
+		public bool CanShowWarehouseStorage => StorageType == Domain.Documents.MovementDocuments.StorageType.Warehouse;
+		public bool CanShowEmployeeStorage => StorageType == Domain.Documents.MovementDocuments.StorageType.Employee;
+		public bool CanShowCarStorage => StorageType == Domain.Documents.MovementDocuments.StorageType.Car;
 
 		public string StorageLabel
 		{
@@ -188,11 +190,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			{
 				switch(StorageType)
 				{
-					case Storage.Warehouse:
+					case Domain.Documents.MovementDocuments.StorageType.Warehouse:
 						return "Склад";
-					case Storage.Employee:
+					case Domain.Documents.MovementDocuments.StorageType.Employee:
 						return "Сотрудник";
-					case Storage.Car:
+					case Domain.Documents.MovementDocuments.StorageType.Car:
 						return "Автомобиль";
 					default:
 						return string.Empty;
@@ -232,7 +234,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 			NomenclatureEntryViewModel = builder.ForProperty(x => x.Nomenclature)
 				.UseViewModelDialog<NomenclatureViewModel>()
-				.UseViewModelJournalAndAutocompleter<NomenclaturesJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<InventoryNomenclaturesJournalViewModel>()
 				.Finish();
 		}
 	}

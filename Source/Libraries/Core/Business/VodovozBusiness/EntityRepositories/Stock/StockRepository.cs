@@ -9,7 +9,9 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.EntityRepositories.Stock
@@ -144,7 +146,7 @@ namespace Vodovoz.EntityRepositories.Stock
 		public Dictionary<int, decimal> NomenclatureInStock(
 			IUnitOfWork uow,
 			int storageId,
-			OperationTypeByStorage operationTypeByStorage,
+			OperationType operationType,
 			IEnumerable<int> nomenclaturesToInclude,
 			IEnumerable<int> nomenclaturesToExclude,
 			IEnumerable<NomenclatureCategory> nomenclatureTypeToInclude,
@@ -194,7 +196,7 @@ namespace Vodovoz.EntityRepositories.Stock
 			}
 
 			var stocklist = query
-				.Where(NomenclatureInstanceRepository.GetGoodsAccountingOperationCriterionByStorage(operationTypeByStorage, storageId))
+				.Where(GoodsAccountingOperationRepository.GetGoodsAccountingOperationCriterionByStorage(operationType, storageId))
 				.SelectList(list => list
 				   .SelectGroup(() => nomenclatureAlias.Id)
 				   .Select(Projections.Sum<BulkGoodsAccountingOperation>(op => op.Amount)))

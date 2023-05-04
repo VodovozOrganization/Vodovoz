@@ -1,4 +1,6 @@
-﻿using QS.DomainModel.Entity;
+﻿using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Operations
@@ -15,8 +17,17 @@ namespace Vodovoz.Domain.Operations
 			get => _warehouse;
 			set => SetField(ref _warehouse, value);
 		}
-
-		public override OperationTypeByStorage OperationTypeByStorage => OperationTypeByStorage.Warehouse;
+		
+		private InventoryNomenclatureInstance _inventoryNomenclatureInstance;
+		
+		[Display(Name = "Экземпляр номенклатуры")]
+		public virtual InventoryNomenclatureInstance InventoryNomenclatureInstance
+		{
+			get => _inventoryNomenclatureInstance;
+			set => SetField(ref _inventoryNomenclatureInstance, value);
+		}
+		
+		public override OperationType OperationType => OperationType.WarehouseBulkGoodsAccountingOperation;
 	}
 }
 

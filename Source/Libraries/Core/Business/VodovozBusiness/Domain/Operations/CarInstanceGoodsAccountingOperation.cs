@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Operations
 			set => SetField(ref _car, value);
 		}
 
-		public override OperationTypeByStorage OperationTypeByStorage => OperationTypeByStorage.Car;
+		public override OperationType OperationType => OperationType.CarInstanceGoodsAccountingOperation;
 	}
 }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate.Criterion;
 using QS.Commands;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -11,8 +12,11 @@ using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.IncomingInvoices;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
@@ -30,6 +34,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.ViewModels.Goods;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
@@ -103,7 +108,7 @@ namespace Vodovoz.ViewModels.Warehouses
             UserHasOnlyAccessToWarehouseAndComplaints =
 	            CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 	            && !CurrentUser.IsAdmin;
-        }
+		}
         #endregion
 
 		#region Properties

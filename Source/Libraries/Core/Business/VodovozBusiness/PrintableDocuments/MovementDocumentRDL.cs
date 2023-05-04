@@ -2,6 +2,7 @@
 using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 
 namespace Vodovoz.PrintableDocuments
 {

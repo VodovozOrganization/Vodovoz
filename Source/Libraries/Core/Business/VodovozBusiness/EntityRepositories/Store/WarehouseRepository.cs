@@ -4,9 +4,11 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
@@ -28,22 +30,53 @@ namespace Vodovoz.EntityRepositories.Store
 					  .List<Warehouse>();
 		}
 
-		//TODO проверить работу запроса
-		public IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId, IEnumerable<int> nomenclatureIds)
+		public IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(
+			IUnitOfWork uow, OperationType operationType, int storageId, IEnumerable<int> nomenclatureIds)
 		{
 			NomanclatureStockNode resultAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			WarehouseBulkGoodsAccountingOperation warehouseOperation = null;
+			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
+			EmployeeBulkGoodsAccountingOperation employeeBulkOperationAlias = null;
+			CarBulkGoodsAccountingOperation carBulkOperationAlias = null;
+			
+			var query = uow.Session.QueryOver(() => nomenclatureAlias);
+			IProjection nomenclatureBalance = null;
+
+			if(operationType == OperationType.WarehouseBulkGoodsAccountingOperation)
+			{
+				query.JoinEntityAlias(() => warehouseBulkOperationAlias,
+						() => warehouseBulkOperationAlias.Nomenclature.Id == nomenclatureAlias.Id,
+						JoinType.LeftOuterJoin)
+					.Where(() => warehouseBulkOperationAlias.Warehouse.Id == storageId);
+
+				nomenclatureBalance = Projections.Sum(() => warehouseBulkOperationAlias.Amount);
+			}
+			else if(operationType == OperationType.EmployeeBulkGoodsAccountingOperation)
+			{
+				query.JoinEntityAlias(() => employeeBulkOperationAlias,
+					() => employeeBulkOperationAlias.Nomenclature.Id == nomenclatureAlias.Id,
+					JoinType.LeftOuterJoin)
+					.Where(() => employeeBulkOperationAlias.Employee.Id == storageId);
+				
+				nomenclatureBalance = Projections.Sum(() => employeeBulkOperationAlias.Amount);
+			}
+			else if(operationType == OperationType.CarBulkGoodsAccountingOperation)
+			{
+				query.JoinEntityAlias(() => carBulkOperationAlias,
+					() => carBulkOperationAlias.Nomenclature.Id == nomenclatureAlias.Id,
+					JoinType.LeftOuterJoin)
+					.Where(() => carBulkOperationAlias.Car.Id == storageId);
+				
+				nomenclatureBalance = Projections.Sum(() => carBulkOperationAlias.Amount);
+			}
 			
 			var stockProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
-					NHibernateUtil.Decimal,
-				Projections.Sum<WarehouseBulkGoodsAccountingOperation>(op => op.Amount));
-
-			return uow.Session.QueryOver(() => warehouseOperation)
-				.Left.JoinAlias(() => warehouseOperation.Nomenclature, () => nomenclatureAlias)
-				.WhereRestrictionOn(() => warehouseOperation.Nomenclature.Id).IsIn(nomenclatureIds.ToArray())
-				.And(() => warehouseOperation.Warehouse.Id == warehouseId)
+				NHibernateUtil.Decimal,
+				nomenclatureBalance);
+			
+			return query.AndRestrictionOn(() => nomenclatureAlias.Id).IsIn(nomenclatureIds.ToArray())
+				.And(() => !nomenclatureAlias.HasInventoryAccounting)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.Select(stockProjection).WithAlias(() => resultAlias.Stock))
@@ -52,7 +85,7 @@ namespace Vodovoz.EntityRepositories.Store
 		}
 
 		//TODO проверить работу запроса
-		public IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId)
+		public IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int storageId)
 		{
 			return null;
 			/*NomanclatureStockNode resultAlias = null;

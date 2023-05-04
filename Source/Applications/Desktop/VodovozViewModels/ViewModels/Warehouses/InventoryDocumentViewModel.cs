@@ -18,6 +18,7 @@ using QS.Project.Journal;
 using QS.Tdi;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -453,7 +454,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 						case InventoryDocumentType.WarehouseInventory:
 							instances = _nomenclatureInstanceRepository.GetInventoryInstancesByStorage(
 								UoW,
-								OperationTypeByStorage.Warehouse,
+								OperationType.WarehouseInstanceGoodsAccountingOperation,
 								Entity.Warehouse.Id,
 								nomenclaturesToInclude,
 								nomenclaturesToExclude,
@@ -465,7 +466,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 						case InventoryDocumentType.EmployeeInventory:
 							instances = _nomenclatureInstanceRepository.GetInventoryInstancesByStorage(
 								UoW,
-								OperationTypeByStorage.Employee,
+								OperationType.EmployeeInstanceGoodsAccountingOperation,
 								Entity.Employee.Id,
 								nomenclaturesToInclude,
 								nomenclaturesToExclude,
@@ -477,7 +478,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 						case InventoryDocumentType.CarInventory:
 							instances = _nomenclatureInstanceRepository.GetInventoryInstancesByStorage(
 								UoW,
-								OperationTypeByStorage.Car,
+								OperationType.CarInstanceGoodsAccountingOperation,
 								Entity.Car.Id,
 								nomenclaturesToInclude,
 								nomenclaturesToExclude,

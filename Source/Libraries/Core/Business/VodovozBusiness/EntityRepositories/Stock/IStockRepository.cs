@@ -21,7 +21,7 @@ namespace Vodovoz.EntityRepositories.Stock
 		Dictionary<int, decimal> NomenclatureInStock(
 			IUnitOfWork uow,
 			int storageId,
-			OperationTypeByStorage operationTypeByStorage,
+			OperationType operationType,
 			IEnumerable<int> nomenclaturesToInclude,
 			IEnumerable<int> nomenclaturesToExclude,
 			IEnumerable<NomenclatureCategory> nomenclatureTypeToInclude,

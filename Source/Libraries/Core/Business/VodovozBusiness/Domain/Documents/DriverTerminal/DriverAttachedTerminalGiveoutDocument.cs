@@ -21,16 +21,14 @@ namespace Vodovoz.Domain.Documents.DriverTerminal
 
 		public override string ToString() =>
 			$"Выдача терминала {CreationDate.ToShortDateString()} в {CreationDate.ToShortTimeString()}\r\n" +
-			$"со склада";// {GoodsAccountingOperation.WriteOffWarehouse.Name}";
+			$"со склада {GoodsAccountingOperation.Warehouse}";
 
-		public override void CreateMovementOperations(Warehouse writeoffWarehouse, Nomenclature terminal)
+		public override void CreateMovementOperations(Warehouse writeOffWarehouse, Nomenclature terminal)
 		{
-			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation()
+			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
 			{
-				//WriteOffWarehouse = writeoffWarehouse,
-				//IncomingWarehouse = null,
-				Amount = 1,
-				//Equipment = null,
+				Warehouse = writeOffWarehouse,
+				Amount = -1,
 				Nomenclature = terminal,
 				OperationTime = CreationDate
 			};

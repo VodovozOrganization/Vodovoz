@@ -330,7 +330,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			if(Entity.NomenclatureItems.Count == 0)
 			{
-				Entity.FillItemsFromStock(
+				Entity.FillNomenclatureItemsFromStock(
 					UoW,
 					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),

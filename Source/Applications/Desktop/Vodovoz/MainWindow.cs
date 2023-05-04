@@ -165,6 +165,7 @@ using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -1578,6 +1579,7 @@ public partial class MainWindow : Gtk.Window
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.Store.EquipmentBalance>(),
 			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Store.EquipmentBalance())
 		);
+		//NavigationManager.OpenViewModel<InventoryInstanceMovementReportViewModel>(null);
 	}
 
 	protected void OnActionCardPaymentsActivated(object sender, EventArgs e)

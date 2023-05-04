@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using ClosedXML.Excel;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Multi;
 using NHibernate.Transform;
 using NHibernate.Util;
@@ -36,6 +35,13 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private const string _parameterWarehouseStorages = nameof(Warehouse);
 		private const string _parameterEmployeeStorages = nameof(Employee);
 		private const string _parameterCarStorages = nameof(Car);
+		private const string _bulkBalanceWarehousesKey = "bulkBalanceWarehouses";
+		private const string _bulkBalanceEmployeesKey = "bulkBalanceEmployees";
+		private const string _bulkBalanceCarsKey = "bulkBalanceCars";
+		private const string _instanceBalanceWarehousesKey = "instanceBalanceWarehouses";
+		private const string _instanceBalanceEmployeesKey = "instanceBalanceEmployees";
+		private const string _instanceBalanceCarsKey = "instanceBalanceCars";
+		private const string _minStockKey = "minStock";
 		private readonly IFileDialogService _fileDialogService;
 		private SelectableParameterReportFilterViewModel _nomsViewModel;
 		private SelectableParameterReportFilterViewModel _storagesViewModel;
@@ -50,7 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_fileDialogService = fileDialogService;
-			TabName = "Остатки по складам";
+			TabName = "Остатки";
 		}
 
 		#region Свойства
@@ -181,7 +187,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			EmployeeInstanceGoodsAccountingOperation employeeInstanceOperationAlias = null;
 			CarBulkGoodsAccountingOperation carBulkOperationAlias = null;
 			CarInstanceGoodsAccountingOperation carInstanceOperationAlias = null;
-			GoodsAccountingOperation woAlias = null;
+			InventoryNomenclatureInstance inventoryNomenclatureInstance = null;
 			BalanceBean resultAlias = null;
 
 			IQueryOver<WarehouseBulkGoodsAccountingOperation, WarehouseBulkGoodsAccountingOperation> bulkBalanceByWarehousesQuery = null;
@@ -191,28 +197,29 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			{
 				bulkBalanceByWarehousesQuery = localUow.Session.QueryOver(() => warehouseBulkOperationAlias)
 					.Where(() => warehouseBulkOperationAlias.OperationTime <= endDate)
-					.AndNot(() => nomAlias.IsArchive)
-					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.And(() => !nomAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
 					.WhereRestrictionOn(() => warehouseBulkOperationAlias.Warehouse.Id).IsIn(warehousesIds)
 					.SelectList(list => list
-						.SelectGroup(() => warehouseBulkOperationAlias.Warehouse.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => warehouseBulkOperationAlias.Warehouse.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
-						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
+						.Select(Projections.Constant("-")).WithAlias(() => resultAlias.InventoryNumber)
 						.SelectSum(() => warehouseBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
 					.OrderBy(() => nomAlias.Id).Asc
 					.ThenBy(() => warehouseBulkOperationAlias.Warehouse.Id).Asc
 					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
-				
+			
 				instanceBalanceByWarehousesQuery = localUow.Session.QueryOver(() => warehouseInstanceOperationAlias)
+					.JoinAlias(() => warehouseInstanceOperationAlias.InventoryNomenclatureInstance, () => inventoryNomenclatureInstance)
 					.Where(() => warehouseInstanceOperationAlias.OperationTime <= endDate)
-					.AndNot(() => nomAlias.IsArchive)
-					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.And(() => !nomAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
 					.WhereRestrictionOn(() => warehouseInstanceOperationAlias.Warehouse.Id).IsIn(warehousesIds)
 					.SelectList(list => list
-						.SelectGroup(() => warehouseInstanceOperationAlias.Warehouse.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => warehouseInstanceOperationAlias.Warehouse.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
-						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
+						.Select(() => inventoryNomenclatureInstance.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
 						.SelectSum(() => warehouseInstanceOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
 					.OrderBy(() => nomAlias.Id).Asc
@@ -227,32 +234,33 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			{
 				bulkBalanceByEmployeesQuery = localUow.Session.QueryOver(() => employeeBulkOperationAlias)
 					.Where(() => employeeBulkOperationAlias.OperationTime <= endDate)
-					.AndNot(() => nomAlias.IsArchive)
-					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.And(() => !nomAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
 					.WhereRestrictionOn(() => employeeBulkOperationAlias.Employee.Id).IsIn(employeesIds)
 					.SelectList(list => list
-						.SelectGroup(() => employeeBulkOperationAlias.Employee.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => employeeBulkOperationAlias.Employee.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
-						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
+						.Select(Projections.Constant("-")).WithAlias(() => resultAlias.InventoryNumber)
 						.SelectSum(() => employeeBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
 					.OrderBy(() => nomAlias.Id).Asc
 					.ThenBy(() => employeeBulkOperationAlias.Employee.Id).Asc
 					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
-				
+			
 				instanceBalanceByEmployeesQuery = localUow.Session.QueryOver(() => employeeInstanceOperationAlias)
-					.Where(() => employeeBulkOperationAlias.OperationTime <= endDate)
-					.AndNot(() => nomAlias.IsArchive)
-					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
-					.WhereRestrictionOn(() => employeeBulkOperationAlias.Employee.Id).IsIn(employeesIds)
+					.JoinAlias(() => employeeInstanceOperationAlias.InventoryNomenclatureInstance, () => inventoryNomenclatureInstance)
+					.Where(() => employeeInstanceOperationAlias.OperationTime <= endDate)
+					.And(() => !nomAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => employeeInstanceOperationAlias.Employee.Id).IsIn(employeesIds)
 					.SelectList(list => list
-						.SelectGroup(() => employeeBulkOperationAlias.Employee.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => employeeInstanceOperationAlias.Employee.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
-						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
-						.SelectSum(() => employeeBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+						.Select(() => inventoryNomenclatureInstance.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+						.SelectSum(() => employeeInstanceOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
 					.OrderBy(() => nomAlias.Id).Asc
-					.ThenBy(() => employeeBulkOperationAlias.Employee.Id).Asc
+					.ThenBy(() => employeeInstanceOperationAlias.Employee.Id).Asc
 					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
 			}
 
@@ -263,139 +271,314 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			{
 				bulkBalanceByCarsQuery = localUow.Session.QueryOver(() => carBulkOperationAlias)
 					.Where(() => carBulkOperationAlias.OperationTime <= endDate)
-					.AndNot(() => nomAlias.IsArchive)
-					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.And(() => !nomAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
 					.WhereRestrictionOn(() => carBulkOperationAlias.Car.Id).IsIn(carsIds)
 					.SelectList(list => list
-						.SelectGroup(() => carBulkOperationAlias.Car.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => carBulkOperationAlias.Car.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
-						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
+						.Select(Projections.Constant("-")).WithAlias(() => resultAlias.InventoryNumber)
 						.SelectSum(() => carBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
 					.OrderBy(() => nomAlias.Id).Asc
 					.ThenBy(() => carBulkOperationAlias.Car.Id).Asc
 					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
-				
+			
 				instanceBalanceByCarsQuery = localUow.Session.QueryOver(() => carInstanceOperationAlias)
-					.Where(() => carBulkOperationAlias.OperationTime <= endDate)
-					.AndNot(() => nomAlias.IsArchive)
-					.Inner.JoinAlias(x => x.Nomenclature, () => nomAlias)
-					.WhereRestrictionOn(() => carBulkOperationAlias.Car.Id).IsIn(carsIds)
+					.JoinAlias(() => carInstanceOperationAlias.InventoryNomenclatureInstance, () => inventoryNomenclatureInstance)
+					.Where(() => carInstanceOperationAlias.OperationTime <= endDate)
+					.And(() => !nomAlias.IsArchive)
+					.JoinAlias(x => x.Nomenclature, () => nomAlias)
+					.WhereRestrictionOn(() => carInstanceOperationAlias.Car.Id).IsIn(carsIds)
 					.SelectList(list => list
-						.SelectGroup(() => carBulkOperationAlias.Car.Id).WithAlias(() => resultAlias.WarehouseId)
+						.SelectGroup(() => carInstanceOperationAlias.Car.Id).WithAlias(() => resultAlias.StorageId)
 						.SelectGroup(() => nomAlias.Id).WithAlias(() => resultAlias.NomId)
-						.Select(() => nomAlias.MinStockCount).WithAlias(() => resultAlias.MinStockCount)
-						.SelectSum(() => carBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+						.Select(() => inventoryNomenclatureInstance.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+						.SelectSum(() => carInstanceOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					)
 					.OrderBy(() => nomAlias.Id).Asc
-					.ThenBy(() => carBulkOperationAlias.Car.Id).Asc
+					.ThenBy(() => carInstanceOperationAlias.Car.Id).Asc
 					.TransformUsing(Transformers.AliasToBean<BalanceBean>());
 			}
 
-			/*var minStockQuery = localUow.Session.QueryOver(() => nomAlias)
-				.WhereNot(() => nomAlias.IsArchive)
-				.Select(n => n.MinStockCount)
-				.OrderBy(n => n.Id).Asc;*/
+			var minStockQuery = localUow.Session.QueryOver(() => nomAlias)
+			.Where(() => !nomAlias.IsArchive)
+			.Select(n => n.MinStockCount)
+			.OrderBy(n => n.Id).Asc;
 
 			if(typesSelected)
 			{
 				var typesIds = types.Select(x => (int)x.Value).ToArray();
 
 				bulkBalanceByWarehousesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				instanceBalanceByWarehousesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 				bulkBalanceByEmployeesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				instanceBalanceByEmployeesQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 				bulkBalanceByCarsQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
-				//woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
-				//minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				instanceBalanceByCarsQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
+				minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Category), typesIds));
 			}
 
 			if(nomsSelected && !allNomsSelected)
 			{
 				bulkBalanceByWarehousesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				instanceBalanceByWarehousesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				bulkBalanceByEmployeesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				instanceBalanceByEmployeesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 				bulkBalanceByCarsQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
-				//woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
-				//minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				instanceBalanceByCarsQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
+				minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.Id), nomsIds));
 			}
 
 			if(groupsSelected)
 			{
 				bulkBalanceByWarehousesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				instanceBalanceByWarehousesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 				bulkBalanceByEmployeesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				instanceBalanceByEmployeesQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 				bulkBalanceByCarsQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
-				//woQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
-				//minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				instanceBalanceByCarsQuery?.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
+				minStockQuery.Where(Restrictions.In(Projections.Property(() => nomAlias.ProductGroup.Id), groupsIds));
 			}
 
 			#endregion
 
+			ILookup<int, BalanceBean> bulkWarehousesResult = null;
+			ILookup<int, BalanceBean> instanceWarehousesResult = null;
+			ILookup<int, BalanceBean> bulkEmployeesResult = null;
+			ILookup<int, BalanceBean> instanceEmployeesResult = null;
+			ILookup<int, BalanceBean> bulkCarsResult = null;
+			ILookup<int, BalanceBean> instanceCarsResult = null;
+					
 			var batch = localUow.Session.CreateQueryBatch()
-				.Add<BalanceBean>("in", bulkBalanceByWarehousesQuery);
-				//.Add<BalanceBean>("wo", woQuery)
-				//.Add<decimal>("ms", minStockQuery);
+				.Add<decimal>(_minStockKey, minStockQuery);
 
-			var bulkWarehouseResult =
-				batch.GetResult<BalanceBean>("bulkWarehouse").ToDictionary(x => x.NomId);
-			var instanceWarehouseResult =
-				batch.GetResult<BalanceBean>("instanceWarehouse").ToDictionary(x => x.NomId);
-			//var woResult = batch.GetResult<BalanceBean>("wo").ToArray();
-			//var msResult = batch.GetResult<decimal>("ms").ToArray();
+			#region fillbatchQuery
 
-			for(int i = 0; i < bulkWarehouseResult.Count; i++)
+			if(bulkBalanceByWarehousesQuery != null)
+			{
+				batch.Add<BalanceBean>(_bulkBalanceWarehousesKey, bulkBalanceByWarehousesQuery);
+			}
+
+			if(instanceBalanceByWarehousesQuery != null)
+			{
+				batch.Add<BalanceBean>(_instanceBalanceWarehousesKey, instanceBalanceByWarehousesQuery);
+			}
+
+			if(bulkBalanceByEmployeesQuery != null)
+			{
+				batch.Add<BalanceBean>(_bulkBalanceEmployeesKey, bulkBalanceByEmployeesQuery);
+			}
+
+			if(instanceBalanceByEmployeesQuery != null)
+			{
+				batch.Add<BalanceBean>(_instanceBalanceEmployeesKey, instanceBalanceByEmployeesQuery);
+			}
+
+			if(bulkBalanceByCarsQuery != null)
+			{
+				batch.Add<BalanceBean>(_bulkBalanceCarsKey, bulkBalanceByCarsQuery);
+			}
+
+			if(instanceBalanceByCarsQuery != null)
+			{
+				batch.Add<BalanceBean>(_instanceBalanceCarsKey, instanceBalanceByCarsQuery);
+			}
+
+			#endregion
+
+			#region GetResults
+
+			if(bulkBalanceByWarehousesQuery != null)
+			{
+				bulkWarehousesResult =
+					batch.GetResult<BalanceBean>(_bulkBalanceWarehousesKey)
+						.ToLookup(x => x.NomId);
+				//.GroupBy(x => x.NomId)
+				//.ToDictionary(x => x.Key);
+			}
+
+			if(instanceBalanceByWarehousesQuery != null)
+			{
+				instanceWarehousesResult =
+					batch.GetResult<BalanceBean>(_instanceBalanceWarehousesKey)
+						.ToLookup(x => x.NomId);
+			}
+
+			if(bulkBalanceByEmployeesQuery != null)
+			{
+				bulkEmployeesResult =
+					batch.GetResult<BalanceBean>(_bulkBalanceEmployeesKey)
+						.ToLookup(x => x.NomId);
+			}
+
+			if(instanceBalanceByEmployeesQuery != null)
+			{
+				instanceEmployeesResult =
+					batch.GetResult<BalanceBean>(_instanceBalanceEmployeesKey)
+						.ToLookup(x => x.NomId);
+			}
+
+			if(bulkBalanceByCarsQuery != null)
+			{
+				bulkCarsResult =
+					batch.GetResult<BalanceBean>(_bulkBalanceCarsKey)
+						.ToLookup(x => x.NomId);
+			}
+
+			if(instanceBalanceByCarsQuery != null)
+			{
+				instanceCarsResult =
+					batch.GetResult<BalanceBean>(_instanceBalanceCarsKey)
+						.ToLookup(x => x.NomId);
+			}
+			
+			var minStockResult = batch.GetResult<decimal>(_minStockKey).ToArray();
+
+			#endregion
+
+			var id = 0;
+			BalanceSummaryRow row = null;
+			
+			/*foreach(var item in bulkWarehouseResult)
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				
+				if(id != item.NomId)
+				{
+					row = new BalanceSummaryRow
+					{
+						NomId = item.NomId,
+						NomTitle = item.NomTitle,
+						InventoryNumber = item.InventoryNumber,
+						WarehousesBalances = new List<decimal>(),
+						Min = item.MinStockCount
+					};
+
+					id = item.NomId;
+					AddRow(ref report, row);
+				}
+				row.WarehousesBalances.Add(item.Amount);
+			}*/
+			
+			/*for(int i = 0; i < bulkWarehouseResult.Count; i++)
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 				var row = new BalanceSummaryRow
 				{
 					NomId = (int)noms[i].Value,
 					NomTitle = noms[i].Title,
+					InventoryNumber = bulkWarehouseResult[i].InventoryNumber,
 					Separate = new List<decimal>(),
 					Min = 0m //bulkWarehouseResult[]
 				};
 				
 				AddRow(ref report, row);
-			}
-			
-			//Кол-во списаний != кол-во начислений, используется два счетчика
-			/*var addedCounter = 0;
-			var removedCounter = 0;
+			}*/
+
 			for(var nomsCounter = 0; nomsCounter < noms?.Count; nomsCounter++)
 			{
 				cancellationToken.ThrowIfCancellationRequested();
-				var row = new BalanceSummaryRow
+				var nomenclatureId = (int)noms[nomsCounter].Value;
+				row = new BalanceSummaryRow
 				{
-					NomId = (int)noms[nomsCounter].Value,
+					NomId = nomenclatureId,
 					NomTitle = noms[nomsCounter].Title,
-					Separate = new List<decimal>(),
-					Min = noms[nomsCounter].
+					WarehousesBalances = new List<decimal>(),
+					EmployeesBalances = new List<decimal>(),
+					CarsBalances = new List<decimal>(),
+					Min = minStockResult[nomsCounter]
 				};
 
 				for(var warsCounter = 0; warsCounter < warehouseStorages?.Count; warsCounter++)
 				{
-					row.Separate.Add(0);
+					row.WarehousesBalances.Add(0);
 					//Т.к. данные запросов упорядочены, тут реализован доступ по индексам
 					var warId = (int)warehouseStorages[warsCounter].Value;
-					if(addedCounter != inResult.Length)
+
+					if(bulkWarehousesResult.Contains(nomenclatureId))
 					{
-						var tempIn = inResult[addedCounter];
-						if(tempIn.WarehouseId == warId && tempIn.NomId == row.NomId)
+						var tempBulkBalanceBean = bulkWarehousesResult[nomenclatureId].ElementAtOrDefault(warsCounter);
+
+						if(tempBulkBalanceBean != null && tempBulkBalanceBean.StorageId == warId)
 						{
-							row.Separate[warsCounter] += tempIn.Amount;
-							addedCounter++;
+							row.WarehousesBalances[warsCounter] += tempBulkBalanceBean.Amount;
 						}
 					}
 
-					/*if(removedCounter != woResult.Length)
+					if(!instanceWarehousesResult.Contains(nomenclatureId))
 					{
-						var tempWo = woResult[removedCounter];
-						if(tempWo.WarehouseId == warId && tempWo.NomId == row.NomId)
+						continue;
+					}
+
+					var tempInstanceBalanceBean = bulkWarehousesResult[nomenclatureId].ElementAtOrDefault(warsCounter);
+
+					if(tempInstanceBalanceBean != null && tempInstanceBalanceBean.StorageId == warId)
+					{
+						row.WarehousesBalances[warsCounter] += tempInstanceBalanceBean.Amount;
+					}
+				}
+				
+				for(var employeesCounter = 0; employeesCounter < employeeStorages?.Count; employeesCounter++)
+				{
+					row.EmployeesBalances.Add(0);
+					//Т.к. данные запросов упорядочены, тут реализован доступ по индексам
+					var warId = (int)employeeStorages[employeesCounter].Value;
+
+					if(bulkWarehousesResult.Contains(nomenclatureId))
+					{
+						var tempBulkBalanceBean = bulkEmployeesResult[nomenclatureId].ElementAtOrDefault(employeesCounter);
+
+						if(tempBulkBalanceBean != null && tempBulkBalanceBean.StorageId == warId)
 						{
-							row.Separate[warsCounter] -= tempWo.Amount;
-							removedCounter++;
+							row.EmployeesBalances[employeesCounter] += tempBulkBalanceBean.Amount;
 						}
+					}
+
+					if(!instanceEmployeesResult.Contains(nomenclatureId))
+					{
+						continue;
+					}
+
+					var tempInstanceBalanceBean = instanceEmployeesResult[nomenclatureId].ElementAtOrDefault(employeesCounter);
+
+					if(tempInstanceBalanceBean != null && tempInstanceBalanceBean.StorageId == warId)
+					{
+						row.EmployeesBalances[employeesCounter] += tempInstanceBalanceBean.Amount;
+					}
+				}
+				
+				for(var carsCounter = 0; carsCounter < carStorages?.Count; carsCounter++)
+				{
+					row.CarsBalances.Add(0);
+					//Т.к. данные запросов упорядочены, тут реализован доступ по индексам
+					var warId = (int)carStorages[carsCounter].Value;
+
+					if(bulkCarsResult.Contains(nomenclatureId))
+					{
+						var tempBulkBalanceBean = bulkCarsResult[nomenclatureId].ElementAtOrDefault(carsCounter);
+
+						if(tempBulkBalanceBean != null && tempBulkBalanceBean.StorageId == warId)
+						{
+							row.CarsBalances[carsCounter] += tempBulkBalanceBean.Amount;
+						}
+					}
+
+					if(!instanceCarsResult.Contains(nomenclatureId))
+					{
+						continue;
+					}
+
+					var tempInstanceBalanceBean = instanceCarsResult[nomenclatureId].ElementAtOrDefault(carsCounter);
+
+					if(tempInstanceBalanceBean != null && tempInstanceBalanceBean.StorageId == warId)
+					{
+						row.CarsBalances[carsCounter] += tempInstanceBalanceBean.Amount;
 					}
 				}
 
 				AddRow(ref report, row);
-			}*/
+			}
 
 			RemoveWarehousesByFilterCondition(ref report, cancellationToken);
 
@@ -463,7 +646,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			for(var i = 0; i < Report.WarehouseStoragesTitles.Count; i++)
 			{
 				ws.Cell(1, startIndex + i).Value = $"{Report.WarehouseStoragesTitles[i]}";
-				ws.Cell(2, startIndex + i).InsertData(Report.SummaryRows.Select(sr => sr.Separate[i]));
+				ws.Cell(2, startIndex + i).InsertData(Report.SummaryRows.Select(sr => sr.WarehousesBalances[i]));
 			}
 		}
 
@@ -476,10 +659,10 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			for(var warCounter = 0; warCounter < report.WarehouseStoragesTitles.Count; warCounter++)
 			{
-				if(IsGreaterThanZeroByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] > 0) == null
-				|| IsLessOrEqualZeroByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Separate[warCounter] <= 0) == null
-				|| IsLessThanMinByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Min < row.Separate[warCounter]) == null
-				|| IsGreaterOrEqualThanMinByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Min >= row.Separate[warCounter]) == null)
+				if(IsGreaterThanZeroByWarehouse && report.SummaryRows.FirstOrDefault(row => row.WarehousesBalances[warCounter] > 0) == null
+				|| IsLessOrEqualZeroByWarehouse && report.SummaryRows.FirstOrDefault(row => row.WarehousesBalances[warCounter] <= 0) == null
+				|| IsLessThanMinByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Min < row.WarehousesBalances[warCounter]) == null
+				|| IsGreaterOrEqualThanMinByWarehouse && report.SummaryRows.FirstOrDefault(row => row.Min >= row.WarehousesBalances[warCounter]) == null)
 				{
 					RemoveWarehouseByIndex(ref report, ref warCounter, cancellationToken);
 				}
@@ -491,19 +674,34 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			cancellationToken.ThrowIfCancellationRequested();
 			report.WarehouseStoragesTitles.RemoveAt(warCounter);
 			var i = warCounter;
-			report.SummaryRows.ForEach(row => row.Separate.RemoveAt(i));
+			report.SummaryRows.ForEach(row => row.WarehousesBalances.RemoveAt(i));
 			warCounter--;
 		}
 
 		private void AddRow(ref BalanceSummaryReport report, BalanceSummaryRow row)
 		{
 			if(AllNomenclatures
-				|| IsGreaterThanZeroByNomenclature && row.Separate.FirstOrDefault(war => war > 0) > 0
-				|| IsLessOrEqualZeroByNomenclature && row.Separate.FirstOrDefault(war => war <= 0) <= 0
-				|| IsLessThanMinByNomenclature && row.Separate.FirstOrDefault(war => war < row.Min) < row.Min
-				|| IsGreaterOrEqualThanMinByNomenclature && row.Separate.FirstOrDefault(war => war >= row.Min) >= row.Min)
+				|| IsGreaterThanZeroByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war > 0) > 0
+				|| IsLessOrEqualZeroByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war <= 0) <= 0
+				|| IsLessThanMinByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war < row.Min) < row.Min
+				|| IsGreaterOrEqualThanMinByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war >= row.Min) >= row.Min)
 			{
 				report.SummaryRows.Add(row);
+			}
+		}
+
+		private void AddRows(ref BalanceSummaryReport report, IEnumerable<BalanceSummaryRow> rows)
+		{
+			foreach(var row in rows)
+			{
+				if(AllNomenclatures
+					|| IsGreaterThanZeroByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war > 0) > 0
+					|| IsLessOrEqualZeroByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war <= 0) <= 0
+					|| IsLessThanMinByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war < row.Min) < row.Min
+					|| IsGreaterOrEqualThanMinByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war >= row.Min) >= row.Min)
+				{
+					report.SummaryRows.Add(row);
+				}
 			}
 		}
 
@@ -692,15 +890,152 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		#endregion
 	}
 
+	public class SummaryBalanceHandlerFactory
+	{
+		public SummaryBalanceHandler CreateNewSummaryBalanceHandler(
+			ILookup<int, BalanceBean> bulkWarehousesResult,
+			ILookup<int, BalanceBean> instanceWarehousesResult
+			)
+		{
+			var bulkWarehousesBalanceHandler = new BalanceNodeHandler(bulkWarehousesResult);
+			var instanceWarehousesBalanceHandler = new BalanceNodeHandler(instanceWarehousesResult);
+			
+			bulkWarehousesBalanceHandler.SetNextHandler(instanceWarehousesBalanceHandler);
+			
+			//var bulkEmployeesBalanceHandler = new BalanceNodeHandler();
+			//var instanceEmployeesBalanceHandler = new BalanceNodeHandler();
+			
+			//bulkEmployeesBalanceHandler.SetNextHandler(instanceEmployeesBalanceHandler);
+			
+			//var bulkCarsBalanceHandler = new BalanceNodeHandler();
+			//var instanceCarsBalanceHandler = new BalanceNodeHandler();
+			
+			//bulkCarsBalanceHandler.SetNextHandler(instanceCarsBalanceHandler);
+
+			return new SummaryBalanceHandler(bulkWarehousesBalanceHandler);
+		}
+	}
+
+	public class SummaryBalanceHandler
+	{
+		private readonly BalanceNodeHandler.IBalanceNodeHandler _warehousesBalanceHandler;
+		private readonly BalanceNodeHandler.IBalanceNodeHandler _employeesBalanceHandler;
+		private readonly BalanceNodeHandler.IBalanceNodeHandler _carsBalanceHandler;
+
+		public SummaryBalanceHandler(
+			BalanceNodeHandler.IBalanceNodeHandler warehousesBalanceHandler)
+			//BalanceNodeHandler.IBalanceNodeHandler employeesBalanceHandler,
+			//BalanceNodeHandler.IBalanceNodeHandler carsBalanceHandler)
+		{
+			_warehousesBalanceHandler = warehousesBalanceHandler ?? throw new ArgumentNullException(nameof(warehousesBalanceHandler));
+			//_employeesBalanceHandler = employeesBalanceHandler ?? throw new ArgumentNullException(nameof(employeesBalanceHandler));
+			//_carsBalanceHandler = carsBalanceHandler ?? throw new ArgumentNullException(nameof(carsBalanceHandler));
+		}
+		
+		public IList<BalanceSummaryRow> HandleBalances(
+			IList<SelectableParameter> noms,
+			IList<SelectableParameter> warehouseStorages,
+			IList<SelectableParameter> employeeStorages,
+			IList<SelectableParameter> carStorages,
+			decimal[] minStockResult,
+			CancellationToken cancellationToken)
+		{
+			var rows = new List<BalanceSummaryRow>();
+			
+			for(var nomsCounter = 0; nomsCounter < noms?.Count; nomsCounter++)
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				var nomenclatureId = (int)noms[nomsCounter].Value;
+				
+				var row = new BalanceSummaryRow
+				{
+					NomId = nomenclatureId,
+					NomTitle = noms[nomsCounter].Title,
+					WarehousesBalances = new List<decimal>(),
+					EmployeesBalances = new List<decimal>(),
+					CarsBalances = new List<decimal>(),
+					Min = minStockResult[nomsCounter]
+				};
+
+				HandleBalance(_warehousesBalanceHandler, warehouseStorages, row.WarehousesBalances, nomenclatureId, cancellationToken);
+				HandleBalance(_employeesBalanceHandler, employeeStorages, row.EmployeesBalances, nomenclatureId, cancellationToken);
+				HandleBalance(_carsBalanceHandler, carStorages, row.CarsBalances, nomenclatureId, cancellationToken);
+				
+				rows.Add(row);
+			}
+
+			return rows;
+		}
+
+		private void HandleBalance(
+			BalanceNodeHandler.IBalanceNodeHandler balanceNodeHandler,
+			IList<SelectableParameter> storages,
+			IList<decimal> balances,
+			int nomenclatureId,
+			CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			
+			for(var index = 0; index < storages?.Count; index++)
+			{
+				balances.Add(0);
+				var storageId = (int)storages[index].Value;
+
+				balanceNodeHandler.HandleBalance(balances, storageId, nomenclatureId, index, cancellationToken);
+			}
+		}
+	}
+
+	public class BalanceNodeHandler : BalanceNodeHandler.IBalanceNodeHandler
+	{
+		private readonly ILookup<int, BalanceBean> _balanceResult;
+		private IBalanceNodeHandler _nextHandler;
+
+		public BalanceNodeHandler(ILookup<int, BalanceBean> balanceResult)
+		{
+			_balanceResult = balanceResult ?? throw new ArgumentNullException(nameof(balanceResult));
+		}
+		
+		public void SetNextHandler(IBalanceNodeHandler nextHandler)
+		{
+			_nextHandler = nextHandler;
+		}
+
+		public void HandleBalance(IList<decimal> balances, int storageId, int nomenclatureId, int index, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			
+			if(_balanceResult.Contains(nomenclatureId))
+			{
+				var tempBalanceBean = _balanceResult[nomenclatureId].ElementAtOrDefault(index);
+
+				if(tempBalanceBean != null && tempBalanceBean.StorageId == storageId)
+				{
+					balances[index] += tempBalanceBean.Amount;
+				}
+			}
+
+			_nextHandler?.HandleBalance(balances, storageId, nomenclatureId, index, cancellationToken);
+		}
+
+		public interface IBalanceNodeHandler
+		{
+			void SetNextHandler(IBalanceNodeHandler nextHandler);
+			void HandleBalance(IList<decimal> balances, int storageId, int nomenclatureId, int index, CancellationToken cancellationToken);
+		}
+	}
+
 	public class BalanceSummaryRow
 	{
 		public int NomId { get; set; }
 		public string NomTitle { get; set; }
 		public string InventoryNumber { get; set; }
 		public decimal Min { get; set; }
-		public decimal Common => Separate.Sum();
+		public decimal Common => WarehousesBalances.Sum() + EmployeesBalances.Sum() + CarsBalances.Sum();
 		public decimal Diff => Common - Min;
-		public List<decimal> Separate { get; set; }
+		public List<decimal> WarehousesBalances { get; set; }
+		public List<decimal> EmployeesBalances { get; set; }
+		public List<decimal> CarsBalances { get; set; }
 	}
 
 	public class BalanceSummaryReport
@@ -715,7 +1050,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 	public class BalanceBean
 	{
 		public int NomId { get; set; }
-		public int WarehouseId { get; set; }
+		public string NomTitle { get; set; }
+		public int? StorageId { get; set; }
+		public string InventoryNumber { get; set; }
 		public decimal Amount { get; set; }
 		public decimal MinStockCount { get; set; }
 	}

@@ -47,6 +47,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Infrastructure.Services;
@@ -873,7 +874,11 @@ namespace Vodovoz.JournalViewModels
 							.ToList();
 
 						var warehouseStocks = _warehouseRepository
-							.GetWarehouseNomenclatureStock(UoW, warehouseId, onlineOrders.Select(o => o.Nomenclature.Id).Distinct())
+							.GetWarehouseNomenclatureStock(
+								UoW,
+								OperationType.WarehouseBulkGoodsAccountingOperation,
+								warehouseId,
+								onlineOrders.Select(o => o.Nomenclature.Id).Distinct())
 							.ToList();
 
 						var lackWarehouseStocks = onlineOrders

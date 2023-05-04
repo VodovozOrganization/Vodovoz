@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 

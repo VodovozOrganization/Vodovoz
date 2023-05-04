@@ -246,7 +246,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void FillItemsFromStock(
+		public virtual void FillNomenclatureItemsFromStock(
 			IUnitOfWork uow,
 			IStockRepository stockRepository,
 			IEnumerable<int> nomenclaturesToInclude,
@@ -270,7 +270,7 @@ namespace Vodovoz.Domain.Documents
 					inStock = stockRepository.NomenclatureInStock(
 						uow,
 						Warehouse.Id,
-						OperationTypeByStorage.Warehouse,
+						OperationType.WarehouseBulkGoodsAccountingOperation,
 						nomenclaturesToInclude,
 						nomenclaturesToExclude,
 						nomenclatureTypeToInclude,
@@ -283,7 +283,7 @@ namespace Vodovoz.Domain.Documents
 					inStock = stockRepository.NomenclatureInStock(
 						uow,
 						Car.Id,
-						OperationTypeByStorage.Car,
+						OperationType.CarBulkGoodsAccountingOperation,
 						nomenclaturesToInclude,
 						nomenclaturesToExclude,
 						nomenclatureTypeToInclude,
@@ -342,7 +342,7 @@ namespace Vodovoz.Domain.Documents
 					inStock = stockRepository.NomenclatureInStock(
 						uow,
 						Warehouse.Id,
-						OperationTypeByStorage.Warehouse,
+						OperationType.WarehouseBulkGoodsAccountingOperation,
 						nomenclaturesToInclude,
 						nomenclaturesToExclude,
 						nomenclatureTypeToInclude,
@@ -355,7 +355,7 @@ namespace Vodovoz.Domain.Documents
 					inStock = stockRepository.NomenclatureInStock(
 						uow,
 						Car.Id,
-						OperationTypeByStorage.Car,
+						OperationType.CarBulkGoodsAccountingOperation,
 						nomenclaturesToInclude,
 						nomenclaturesToExclude,
 						nomenclatureTypeToInclude,

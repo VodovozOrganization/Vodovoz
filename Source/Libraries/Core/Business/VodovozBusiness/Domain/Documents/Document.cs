@@ -2,6 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.IncomingInvoices;
+using Vodovoz.Domain.Documents.InventoryDocuments;
+using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Documents

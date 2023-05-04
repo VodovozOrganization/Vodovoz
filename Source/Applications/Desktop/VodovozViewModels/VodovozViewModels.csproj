@@ -479,6 +479,7 @@
     <Compile Include="Infrastructure\IAdvancedWageWidgetFactory.cs" />
     <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\IncomingInvoiceViewModel.cs" />
+    <Compile Include="ViewModels\Warehouses\InventoryInstanceMovementHistoryNode.cs" />
     <Compile Include="ViewModels\Warehouses\MovementDocumentViewModel.cs" />
     <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
     <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />

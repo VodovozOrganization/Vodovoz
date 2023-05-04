@@ -236,7 +236,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 					if(Entity.NomenclatureItems.Count == 0)
 					{
-						Entity.FillItemsFromStock(
+						Entity.FillNomenclatureItemsFromStock(
 							UoW,
 							_stockRepository,
 							nomenclaturesToInclude: nomenclaturesToInclude,
@@ -355,7 +355,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 						case ShiftChangeResidueDocumentType.Warehouse:
 							instances = _nomenclatureInstanceRepository.GetInventoryInstancesByStorage(
 								UoW,
-								OperationTypeByStorage.Warehouse,
+								OperationType.WarehouseInstanceGoodsAccountingOperation,
 								Entity.Warehouse.Id,
 								nomenclaturesToInclude,
 								nomenclaturesToExclude,
@@ -367,7 +367,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 						case ShiftChangeResidueDocumentType.Car:
 							instances = _nomenclatureInstanceRepository.GetInventoryInstancesByStorage(
 								UoW,
-								OperationTypeByStorage.Car,
+								OperationType.CarInstanceGoodsAccountingOperation,
 								Entity.Car.Id,
 								nomenclaturesToInclude,
 								nomenclaturesToExclude,

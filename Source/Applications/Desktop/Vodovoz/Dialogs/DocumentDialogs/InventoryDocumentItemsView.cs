@@ -14,6 +14,7 @@ using Gtk;
 using Gdk;
 using QS.Project.Services;
 using Vodovoz.Controllers;
+using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.TempAdapters;
 

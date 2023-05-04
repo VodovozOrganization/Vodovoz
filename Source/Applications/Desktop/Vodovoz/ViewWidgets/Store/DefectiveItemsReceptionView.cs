@@ -124,17 +124,19 @@ namespace Vodovoz.ViewWidgets.Store
 			set => ytreeReturns.Sensitive = buttonAddNomenclature.Sensitive = value;
 		}
 
+		//TODO проверить работоспособность и корректность работы
 		void FillDefectiveListFromRoute()
 		{
 			if(Warehouse == null || RouteList == null)
+			{
 				return;
+			}
 
 			DefectiveItemNode resultAlias = null;
 			GoodsAccountingOperation goodsAccountingOperationAlias = null;
 			CarUnloadDocument carUnloadDocumentAlias = null;
 			CarUnloadDocumentItem carUnloadDocumentItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			Warehouse warehouseAlias = null;
 
 			var defectiveItems = UoW.Session.QueryOver<CarUnloadDocumentItem>(() => carUnloadDocumentItemAlias)
 									.Left.JoinAlias(() => carUnloadDocumentItemAlias.Document, () => carUnloadDocumentAlias)

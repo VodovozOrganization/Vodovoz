@@ -43,13 +43,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 
 			var balanceSubQuery = QueryOver.Of(() => operationAlias)
 				.Where(x => x.Warehouse.Id == warehouseAlias.Id);
-			//var writeoffSubQuery = QueryOver.Of(() => writeoffAlias)
-			//	.Where(x => x.WriteOffWarehouse.Id == warehouseAlias.Id);
 
 			if(FilterViewModel?.Nomenclature != null)
 			{
 				balanceSubQuery.Where(() => operationAlias.Nomenclature.Id == FilterViewModel.Nomenclature.Id);
-				//writeoffSubQuery.Where(() => writeoffAlias.Nomenclature.Id == FilterViewModel.Nomenclature.Id);
 			}
 
 			if(FilterViewModel?.Warehouse != null)
@@ -58,7 +55,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 			}
 
 			balanceSubQuery.Select(Projections.Sum(Projections.Property(() => operationAlias.Amount)));
-			//writeoffSubQuery.Select(Projections.Sum(Projections.Property(() => writeoffAlias.Amount)));
 
 			query.Where(GetSearchCriterion(
 				() => warehouseAlias.Id,
@@ -68,7 +64,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 			var result = query.SelectList(list => list
 					.Select(w => w.Id).WithAlias(() => warehouseNodeAlias.Id)
 					.Select(w => w.Name).WithAlias(() => warehouseNodeAlias.WarehouseName)
-					//.SelectSubQuery(writeoffSubQuery).WithAlias(() => warehouseNodeAlias.Removed)
 					.SelectSubQuery(balanceSubQuery).WithAlias(() => warehouseNodeAlias.NomenclatureAmount))
 				.OrderBy(w => w.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<NomenclatureBalanceByStockJournalNode>());

@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Goods
 
 		IList<NomenclatureInstanceRepository.NomenclatureInstanceBalanceNode> GetInventoryInstancesByStorage(
 			IUnitOfWork uow,
-			OperationTypeByStorage operationTypeByStorage,
+			OperationType operationType,
 			int storageId,
 			IEnumerable<int> nomenclaturesToInclude,
 			IEnumerable<int> nomenclaturesToExclude,

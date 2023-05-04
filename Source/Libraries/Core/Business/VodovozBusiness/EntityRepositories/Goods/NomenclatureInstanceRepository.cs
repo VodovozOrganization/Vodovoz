@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -9,6 +8,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Operations;
 
 namespace Vodovoz.EntityRepositories.Goods
 {
@@ -19,7 +19,7 @@ namespace Vodovoz.EntityRepositories.Goods
 
 		public IList<NomenclatureInstanceBalanceNode> GetInventoryInstancesByStorage(
 			IUnitOfWork uow,
-			OperationTypeByStorage operationTypeByStorage,
+			OperationType operationType,
 			int storageId,
 			IEnumerable<int> nomenclaturesToInclude,
 			IEnumerable<int> nomenclaturesToExclude,
@@ -39,7 +39,7 @@ namespace Vodovoz.EntityRepositories.Goods
 					() => instanceGoodsAccountingOperationAlias.InventoryNomenclatureInstance,
 					() => inventoryNomenclatureInstanceAlias)
 				.JoinAlias(() => inventoryNomenclatureInstanceAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(GetGoodsAccountingOperationCriterionByStorage(operationTypeByStorage, storageId));
+				.Where(GoodsAccountingOperationRepository.GetGoodsAccountingOperationCriterionByStorage(operationType, storageId));
 
 			if(nomenclaturesToInclude != null && nomenclaturesToInclude.Any())
 			{
@@ -182,21 +182,6 @@ namespace Vodovoz.EntityRepositories.Goods
 				.List<FindingInfoInventoryInstanceNode>();
 
 			return query;
-		}
-
-		public static ICriterion GetGoodsAccountingOperationCriterionByStorage(OperationTypeByStorage operationTypeByStorage, int storageId)
-		{
-			switch(operationTypeByStorage)
-			{
-				case OperationTypeByStorage.Warehouse:
-					return Restrictions.Where<WarehouseInstanceGoodsAccountingOperation>(o => o.Warehouse.Id == storageId);
-				case OperationTypeByStorage.Employee:
-					return Restrictions.Where<EmployeeInstanceGoodsAccountingOperation>(o => o.Employee.Id == storageId);
-				case OperationTypeByStorage.Car:
-					return Restrictions.Where<CarInstanceGoodsAccountingOperation>(o => o.Car.Id == storageId);
-				default:
-					throw new ArgumentOutOfRangeException(nameof(operationTypeByStorage), operationTypeByStorage, null);
-			}
 		}
 
 		public class NomenclatureInstanceBalanceNode

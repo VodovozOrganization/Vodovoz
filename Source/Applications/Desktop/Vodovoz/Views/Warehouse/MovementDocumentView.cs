@@ -5,6 +5,8 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Domain.Documents;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.Views.Warehouse
 {
@@ -51,7 +53,7 @@ namespace Vodovoz.Views.Warehouse
 
 			#region Отправитель
 
-			enumCmbStorage.ItemsEnum = typeof(Storage);
+			enumCmbStorage.ItemsEnum = typeof(StorageType);
 			enumCmbStorage.Binding
 				.AddBinding(ViewModel.Entity, e => e.StorageFrom, w => w.SelectedItem)
 				.AddBinding(ViewModel, vm => vm.CanChangeDocumentTypeByStorageAndStorageFrom, w => w.Sensitive)
@@ -74,10 +76,12 @@ namespace Vodovoz.Views.Warehouse
 			employeeEntryFrom.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowEmployeeFrom, w => w.Visible)
 				.InitializeFromSource();
+			employeeEntryFrom.Sensitive = ViewModel.HasAccessToEmployeeStorages;
 			carEntryFrom.ViewModel = ViewModel.FromCarStorageEntryViewModel;
 			carEntryFrom.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowCarFrom, w => w.Visible)
 				.InitializeFromSource();
+			carEntryFrom.Sensitive = ViewModel.HasAccessToCarStorages;
 
 			#endregion
 
@@ -100,10 +104,12 @@ namespace Vodovoz.Views.Warehouse
 			employeeEntryTo.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowEmployeeTo, w => w.Visible)
 				.InitializeFromSource();
+			employeeEntryTo.Sensitive = ViewModel.HasAccessToEmployeeStorages;
 			carEntryTo.ViewModel = ViewModel.ToCarStorageEntryViewModel;
 			carEntryTo.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowCarTo, w => w.Visible)
 				.InitializeFromSource();
+			carEntryTo.Sensitive = ViewModel.HasAccessToCarStorages;
 
 			#endregion
 

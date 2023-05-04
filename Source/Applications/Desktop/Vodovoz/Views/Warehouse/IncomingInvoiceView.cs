@@ -5,6 +5,7 @@ using QS.Views.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Warehouses;

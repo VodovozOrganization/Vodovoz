@@ -2,6 +2,7 @@
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.Views
@@ -19,7 +20,7 @@ namespace Vodovoz.Filters.Views
 
 		private void Configure()
 		{
-			enumCmbStorageType.ItemsEnum = typeof(Storage);
+			enumCmbStorageType.ItemsEnum = typeof(StorageType);
 			enumCmbStorageType.ShowSpecialStateAll = true;
 			enumCmbStorageType.Binding
 				.AddSource(ViewModel)

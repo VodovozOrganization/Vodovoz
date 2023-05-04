@@ -14,7 +14,9 @@ using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.IncomingInvoices;
+using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Permissions.Warehouses;
@@ -29,6 +31,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -168,13 +171,13 @@ namespace Vodovoz.ViewModels.Warehouses
 						return;
 					}
 					
-					var nomenclature = NomenclatureRepository.GetNomenclature(UoW, selectedNode.Id);
-					
-					if(Entity.Items.Any(x => x.AccountingType == AccountingType.Bulk && x.Nomenclature.Id == nomenclature.Id))
+					if(Entity.Items.Any(x => x.AccountingType == AccountingType.Bulk && x.Nomenclature.Id == selectedNode.Id))
 					{
 						return;
 					}
 					
+					var nomenclature = NomenclatureRepository.GetNomenclature(UoW, selectedNode.Id);
+
 					Entity.AddItem(nomenclature, 0, selectedNode.StockAmount);
 					FireItemsChanged();
 				};
@@ -184,7 +187,10 @@ namespace Vodovoz.ViewModels.Warehouses
 			_addInventoryInstanceCommand ?? (_addInventoryInstanceCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<InventoryInstancesJournalViewModel>(this, OpenPageOptions.AsSlave);
+					var filterParams = GetFilterByStorage();
+					var page = NavigationManager.OpenViewModel<
+						InventoryInstancesStockBalanceJournalViewModel, Action<InventoryInstancesStockBalanceJournalFilterViewModel>>(
+						this, filterParams, OpenPageOptions.AsSlave);
 					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
 					page.ViewModel.OnSelectResult += OnInventoryInstanceSelectResult;
 				}));
@@ -390,22 +396,55 @@ namespace Vodovoz.ViewModels.Warehouses
 		
 		private void OnInventoryInstanceSelectResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedItem = e.GetSelectedObjects<InventoryInstancesJournalNode>().FirstOrDefault();
+			var selectedItem = e.GetSelectedObjects<InventoryInstancesStockJournalNode>().FirstOrDefault();
 
 			if(selectedItem is null)
 			{
 				return;
 			}
 
-			if(Entity.Items.Any(x => x.AccountingType == AccountingType.Instance && x.Nomenclature.Id == selectedItem.NomenclatureId))
+			if(Entity.Items.OfType<InstanceWriteOffDocumentItem>().Any(
+					x => x.InventoryNomenclatureInstance.Id == selectedItem.Id))
 			{
 				return;
 			}
 
 			var inventoryInstance = NomenclatureInstanceRepository.GetInventoryNomenclatureInstance(UoW, selectedItem.Id);
 
-			Entity.AddItem(inventoryInstance, 1, 1);
+			Entity.AddItem(inventoryInstance, 1, selectedItem.Balance);
 			FireItemsChanged();
+		}
+		
+		private Action<InventoryInstancesStockBalanceJournalFilterViewModel> GetFilterByStorage()
+		{
+			Action<InventoryInstancesStockBalanceJournalFilterViewModel> filterParams = null;
+			
+			switch(Entity.WriteOffType)
+			{
+				case WriteOffType.Warehouse:
+					return filterParams = f =>
+					{
+						f.IsShow = true;
+						f.RestrictedStorageType = StorageType.Warehouse;
+						f.RestrictedWarehouse = Entity.WriteOffFromWarehouse;
+					};
+				case WriteOffType.Employee:
+					return filterParams = f =>
+					{
+						f.IsShow = true;
+						f.RestrictedStorageType = StorageType.Employee;
+						f.RestrictedEmployeeStorage = Entity.WriteOffFromEmployee;
+					};
+				case WriteOffType.Car:
+					return filterParams = f =>
+					{
+						f.IsShow = true;
+						f.RestrictedStorageType = StorageType.Car;
+						f.RestrictedCarStorage = Entity.WriteOffFromCar;
+					};
+				default:
+					return filterParams;
+			}
 		}
 	}
 }

@@ -9,8 +9,8 @@ namespace Vodovoz.HibernateMapping
 		public GoodsAccountingOperationMap()
 		{
 			Table("warehouse_movement_operations");
-			DiscriminateSubClassesOnColumn("accounting_operation_type");
-			//DiscriminateSubClassesOnColumn("operation_type_by_storage");
+			DiscriminateSubClassesOnColumn("operation_type");
+			
 			Not.LazyLoad();
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();

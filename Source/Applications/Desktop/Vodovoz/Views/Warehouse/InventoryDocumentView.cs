@@ -9,6 +9,7 @@ using Gtk;
 using Vodovoz.ReportsParameters;
 using QS.Navigation;
 using QS.Utilities;
+using Vodovoz.Domain.Documents.InventoryDocuments;
 
 namespace Vodovoz.Views.Warehouse
 {

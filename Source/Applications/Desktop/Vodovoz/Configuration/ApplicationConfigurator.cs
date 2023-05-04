@@ -34,6 +34,8 @@ using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.InventoryDocuments;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;

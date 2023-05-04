@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Operations
 	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "передвижения товаров",
 		Nominative = "передвижение товаров")]
-	public class InstanceGoodsAccountingOperation : GoodsAccountingOperation
+	public abstract class InstanceGoodsAccountingOperation : GoodsAccountingOperation
 	{
 		private InventoryNomenclatureInstance _inventoryNomenclatureInstance;
 		
@@ -17,9 +17,6 @@ namespace Vodovoz.Domain.Operations
 			get => _inventoryNomenclatureInstance;
 			set => SetField(ref _inventoryNomenclatureInstance, value);
 		}
-		
-		public override GoodsAccountingOperationType GoodsAccountingOperationType =>
-			GoodsAccountingOperationType.InstanceGoodsAccountingOperation;
 	}
 }
 

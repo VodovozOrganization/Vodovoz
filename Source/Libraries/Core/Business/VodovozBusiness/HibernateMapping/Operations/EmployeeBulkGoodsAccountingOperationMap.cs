@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Operations
 	{
 		public EmployeeBulkGoodsAccountingOperationMap()
 		{
-			DiscriminatorValue(nameof(OperationTypeByStorage.Employee));
+			DiscriminatorValue(nameof(OperationType.EmployeeBulkGoodsAccountingOperation));
 			References(x => x.Employee).Column("employee_id");
 		}
 	}

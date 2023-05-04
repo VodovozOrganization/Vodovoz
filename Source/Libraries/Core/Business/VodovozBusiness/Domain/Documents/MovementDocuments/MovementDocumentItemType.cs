@@ -1,0 +1,24 @@
+namespace Vodovoz.Domain.Documents.MovementDocuments
+{
+	public enum MovementDocumentItemType
+	{
+		BulkMovementDocumentFromWarehouseToWarehouseItem,
+		BulkMovementDocumentFromWarehouseToEmployeeItem,
+		BulkMovementDocumentFromWarehouseToCarItem,
+		BulkMovementDocumentFromEmployeeToEmployeeItem,
+		BulkMovementDocumentFromEmployeeToWarehouseItem,
+		BulkMovementDocumentFromEmployeeToCarItem,
+		BulkMovementDocumentFromCarToCarItem,
+		BulkMovementDocumentFromCarToWarehouseItem,
+		BulkMovementDocumentFromCarToEmployeeItem,
+		InstanceMovementDocumentFromWarehouseToWarehouseItem,
+		InstanceMovementDocumentFromWarehouseToEmployeeItem,
+		InstanceMovementDocumentFromWarehouseToCarItem,
+		InstanceMovementDocumentFromEmployeeToEmployeeItem,
+		InstanceMovementDocumentFromEmployeeToWarehouseItem,
+		InstanceMovementDocumentFromEmployeeToCarItem,
+		InstanceMovementDocumentFromCarToCarItem,
+		InstanceMovementDocumentFromCarToWarehouseItem,
+		InstanceMovementDocumentFromCarToEmployeeItem
+	}
+}

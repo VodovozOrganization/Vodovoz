@@ -37,8 +37,7 @@ namespace Vodovoz.Domain.Operations
 
 		#endregion
 		
-		public virtual GoodsAccountingOperationType GoodsAccountingOperationType { get; }
-		public virtual OperationTypeByStorage OperationTypeByStorage { get; }
+		public virtual OperationType OperationType { get; }
 
 		#region Вычисляемые
 
@@ -53,17 +52,21 @@ namespace Vodovoz.Domain.Operations
 		#endregion
 	}
 
-	public enum GoodsAccountingOperationType
-	{
-		InstanceGoodsAccountingOperation,
-		BulkGoodsAccountingOperation
-	}
-	
 	public enum OperationTypeByStorage
 	{
 		Warehouse,
 		Employee,
 		Car
+	}
+	
+	public enum OperationType
+	{
+		WarehouseInstanceGoodsAccountingOperation,
+		EmployeeInstanceGoodsAccountingOperation,
+		CarInstanceGoodsAccountingOperation,
+		WarehouseBulkGoodsAccountingOperation,
+		EmployeeBulkGoodsAccountingOperation,
+		CarBulkGoodsAccountingOperation
 	}
 }
 

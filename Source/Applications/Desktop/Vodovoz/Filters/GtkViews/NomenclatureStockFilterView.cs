@@ -1,6 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.FilterViewModels.Goods;
 using QS.Widgets.GtkUI;
+
 namespace Vodovoz.Filters.GtkViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
@@ -8,7 +9,7 @@ namespace Vodovoz.Filters.GtkViews
 	{
 		public NomenclatureStockFilterView(NomenclatureStockFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -24,8 +25,11 @@ namespace Vodovoz.Filters.GtkViews
 			warehouseEntry.Show();
 			yhboxWarehouse.Add(warehouseEntry);
 
-			checkShowArchive.Binding.AddBinding(ViewModel, vm => vm.ShowArchive, w => w.Active).InitializeFromSource();
-			checkShowArchive.Binding.AddBinding(ViewModel, vm => vm.CanChangeShowArchive, w => w.Sensitive).InitializeFromSource();
+			checkShowArchive.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowArchive, w => w.Active)
+				.AddBinding(vm => vm.CanChangeShowArchive, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 	}
 }

@@ -12,6 +12,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;

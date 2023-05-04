@@ -3,6 +3,7 @@ using FluentNHibernate.Data;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.PrintableDocuments

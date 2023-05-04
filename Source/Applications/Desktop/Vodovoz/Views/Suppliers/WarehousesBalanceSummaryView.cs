@@ -10,6 +10,7 @@ using Gtk;
 using QS.Views.GtkUI;
 using TISystems.TTC.CRM.BE.Staff;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
@@ -69,10 +70,10 @@ namespace Vodovoz.Views.Suppliers
 			vboxWarsFilter.Add(warsWidget);
 			warsWidget.Show();
 			
-			enumChkListStorages.EnumType = typeof(Storage);
+			enumChkListStorages.EnumType = typeof(StorageType);
 			enumChkListStorages.SelectAll();
 			enumChkListStorages.CheckStateChanged += EnumChkListStoragesOnCheckStateChanged;
-			enumChkListStorages.OnlySelectAt(0);
+			//enumChkListStorages.OnlySelectAt(0);
 
 			eventboxArrow.ButtonPressEvent += (o, args) =>
 			{
@@ -88,13 +89,13 @@ namespace Vodovoz.Views.Suppliers
 			SelectableParameterSet parameterSet = null;
 			switch(e.Item)
 			{
-				case Storage.Warehouse:
+				case StorageType.Warehouse:
 					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(x => x.ParameterName == nameof(Warehouse));
 					break;
-				case Storage.Employee:
+				case StorageType.Employee:
 					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(x => x.ParameterName == nameof(Employee));
 					break;
-				case Storage.Car:
+				case StorageType.Car:
 					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(x => x.ParameterName == nameof(Car));
 					break;
 			}
@@ -110,6 +111,10 @@ namespace Vodovoz.Views.Suppliers
 		private void ConfigureTreeView()
 		{
 			var columnsConfig = FluentColumnsConfig<BalanceSummaryRow>.Create()
+				.AddColumn("№")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(row => ViewModel.Report.SummaryRows.IndexOf(row) + 1)
+					.XAlign(0.5f)
 				.AddColumn("Код")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(row => row.NomId)
@@ -122,6 +127,7 @@ namespace Vodovoz.Views.Suppliers
 				.AddColumn("Инвентарный\nномер")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(row => row.InventoryNumber)
+					.XAlign(0.5f)
 				.AddColumn("Мин. остаток")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(row => row.Min)
@@ -135,28 +141,28 @@ namespace Vodovoz.Views.Suppliers
 					.AddNumericRenderer(row => row.Diff)
 					.XAlign(0.5f);
 
-			for(var i = 0; i < ViewModel.Report.WarehouseStoragesTitles.Count; i++)
+			for(var i = 0; i < ViewModel.Report.WarehouseStoragesTitles?.Count; i++)
 			{
 				var index = i;
 				columnsConfig.AddColumn($"{ViewModel.Report.WarehouseStoragesTitles[i]}")
-					.AddNumericRenderer(row => row.Separate[index])
-					.XAlign(0.5f);
+				.AddNumericRenderer(row => row.WarehousesBalances[index])
+				.XAlign(0.5f);
 			}
 			
-			for(var i = 0; i < ViewModel.Report.EmployeeStoragesTitles.Count; i++)
+			for(var i = 0; i < ViewModel.Report.EmployeeStoragesTitles?.Count; i++)
 			{
 				var index = i;
 				columnsConfig.AddColumn($"{ViewModel.Report.EmployeeStoragesTitles[i]}")
-					.AddNumericRenderer(row => row.Separate[index])
-					.XAlign(0.5f);
+				.AddNumericRenderer(row => row.EmployeesBalances[index])
+				.XAlign(0.5f);
 			}
 			
-			for(var i = 0; i < ViewModel.Report.CarStoragesTitles.Count; i++)
+			for(var i = 0; i < ViewModel.Report.CarStoragesTitles?.Count; i++)
 			{
 				var index = i;
 				columnsConfig.AddColumn($"{ViewModel.Report.CarStoragesTitles[i]}")
-					.AddNumericRenderer(row => row.Separate[index])
-					.XAlign(0.5f);
+				.AddNumericRenderer(row => row.CarsBalances[index])
+				.XAlign(0.5f);
 			}
 
 			treeData.ColumnsConfig = columnsConfig.AddColumn("").Finish();
@@ -224,7 +230,7 @@ namespace Vodovoz.Views.Suppliers
 			}
 			catch(OutOfMemoryException)
 			{
-				ViewModel.ShowWarning($"Слишком большой обьём данных.\n Пожалуйста, уменьшите выборку.");
+				ViewModel.ShowWarning("Слишком большой обьём данных.\n Пожалуйста, уменьшите выборку.");
 			}
 			catch(Exception ex)
 			{

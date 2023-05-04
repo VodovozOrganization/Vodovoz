@@ -4,6 +4,7 @@ using System.Linq;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;

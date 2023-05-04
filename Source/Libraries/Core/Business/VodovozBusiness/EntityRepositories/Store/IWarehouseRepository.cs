@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.EntityRepositories.Store
@@ -11,7 +11,8 @@ namespace Vodovoz.EntityRepositories.Store
 	{
 		IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow);
 		IList<Warehouse> WarehousesForPublishOnlineStore(IUnitOfWork uow);
-		IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId, IEnumerable<int> nomenclatureIds);
+		IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(
+			IUnitOfWork uow, OperationType operationType, int storageId, IEnumerable<int> nomenclatureIds);
 		IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId);
 		bool WarehouseByMovementDocumentsNotificationsSubdivisionExists(IUnitOfWork uow, int subdivisionId);
 		int GetTotalShippedKgByWarehousesAndProductGroups(

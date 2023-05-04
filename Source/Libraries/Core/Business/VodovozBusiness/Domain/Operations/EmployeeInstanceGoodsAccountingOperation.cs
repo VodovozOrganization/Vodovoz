@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Operations
 			set => SetField(ref _employee, value);
 		}
 
-		public override OperationTypeByStorage OperationTypeByStorage => OperationTypeByStorage.Employee;
+		public override OperationType OperationType => OperationType.EmployeeInstanceGoodsAccountingOperation;
 	}
 }
 
