@@ -118,6 +118,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 					.Select(() => nomenclatureAlias.Gtin).WithAlias(() => resultAlias.Gtin)
 					.Select(() => orderItemAlias.Price).WithAlias(() => resultAlias.Price)
 					.Select(() => orderItemAlias.Count).WithAlias(() => resultAlias.Count)
+					.Select(() => orderItemAlias.DiscountMoney).WithAlias(() => resultAlias.DiscountMoney)
 					.Select(() => edoContainerAlias.EdoDocFlowStatus).WithAlias(() => resultAlias.EdoDocFlowStatus)
 					.Select(() => edoContainerAlias.ErrorDescription).WithAlias(() => resultAlias.EdoDocError)
 					.Select(() => trueMarkApiDocumentAlias.IsSuccess).WithAlias(() => resultAlias.IsTrueMarkApiSuccess)
