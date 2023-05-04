@@ -1,6 +1,5 @@
-﻿using System;
-using Gamma.Utilities;
-using Vodovoz.Domain.Client;
+﻿using Gamma.Utilities;
+using System;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport

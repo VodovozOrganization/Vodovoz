@@ -25,7 +25,6 @@ using TrueMarkApi.Services.Authorization;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.NhibernateExtensions;
-using Vodovoz.Parameters;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Edo;
