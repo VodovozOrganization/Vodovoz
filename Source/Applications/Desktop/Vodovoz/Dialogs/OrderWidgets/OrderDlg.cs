@@ -1366,7 +1366,25 @@ namespace Vodovoz
 
 		private void OnLogisticsRequirementsChanged(EntityChangeEvent[] changeevents)
 		{
-			SetLogisticsRequirementsCheckboxes();
+			if (Entity.Client != null && (Entity.SelfDelivery || Entity.DeliveryPoint != null))
+			{
+				foreach(var changeevent in changeevents)
+				{
+					if(changeevent.Entity is LogisticsRequirements newRequirements)
+					{
+						if(Entity.LogisticsRequirements?.Id == newRequirements.Id)
+						{
+							logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(newRequirements);
+							UpdateEntityLogisticsRequirements();
+						}
+
+						if(newRequirements.Id == Entity.Client?.LogisticsRequirements?.Id || newRequirements.Id == Entity.DeliveryPoint?.LogisticsRequirements?.Id)
+						{
+							SetLogisticsRequirementsCheckboxes();
+						}
+					}
+				}
+			}
 		}
 
 		private void RefreshEntity<T>(T entity)
@@ -4148,7 +4166,7 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblCommentForDriver.Text} {commentForDriver}").AppendLine();
 
-			var logisticsRequirementsSummary = Entity.LogisticsRequirements?.GetSummaryString();
+			var logisticsRequirementsSummary = Entity.LogisticsRequirements?.GetSummaryString().ToUpper();
 			ylblResumeLogisticsRequirementsSummary.Text = logisticsRequirementsSummary;
 
 			_summaryInfoBuilder.Append($"{lblResumeLogisticsRequirements.Text} {logisticsRequirementsSummary}");
