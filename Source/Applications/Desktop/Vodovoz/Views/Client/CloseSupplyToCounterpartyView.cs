@@ -51,65 +51,36 @@ namespace Vodovoz.Views.Client
 
 		private void ConfigureCloseSupplyControls()
 		{
-			//labelCloseDelivery.Visible = ViewModel.Entity.IsDeliveriesClosed;
 			labelCloseDelivery.Binding
+				.AddBinding(ViewModel, vm => vm.CloseDeliveryLabelInfo, l => l.LabelProp)
 				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, l => l.Visible)
 				.InitializeFromSource();
 
-			//GtkScrolledWindowCloseDelivery
-			//	.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, s => s.Visible)
-			//	.InitializeFromSource();
-			//buttonSaveCloseComment.Visible = ViewModel.Entity.IsDeliveriesClosed;
-
-			buttonSaveCloseComment.Binding
-				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, b => b.Visible)
+			yhboxComment.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, s => s.Visible)
 				.InitializeFromSource();
 
-			//buttonEditCloseDeliveryComment.Visible = ViewModel.Entity.IsDeliveriesClosed;
+			buttonSaveCloseComment.Binding
+				.AddSource(ViewModel.Entity)
+				.AddFuncBinding(e => string.IsNullOrWhiteSpace(e.CloseDeliveryComment), b => b.Sensitive)
+				.AddBinding(e => e.IsDeliveriesClosed, b => b.Visible)
+				.InitializeFromSource();
+
 			buttonEditCloseDeliveryComment.Binding
-				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, b => b.Visible)
+				.AddSource(ViewModel.Entity)
+				.AddFuncBinding(e => !string.IsNullOrWhiteSpace(e.CloseDeliveryComment), b => b.Sensitive)
+				.AddBinding( e => e.IsDeliveriesClosed, b => b.Visible)
 				.InitializeFromSource();
 
 			buttonCloseDelivery.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки", l => l.Label)
 				.InitializeFromSource();
 
-			//buttonCloseDelivery.Label = ViewModel.Entity.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки";
-			//ytextviewCloseComment.Buffer.Text = ViewModel.Entity.IsDeliveriesClosed ? ViewModel.Entity.CloseDeliveryComment : String.Empty;
-
 			ytextviewCloseComment.Binding
-				.AddFuncBinding(ViewModel.Entity, e => e.IsDeliveriesClosed ? e.CloseDeliveryComment : string.Empty, w => w.Buffer.Text)
+				.AddSource(ViewModel.Entity)
+				.AddFuncBinding(e => string.IsNullOrWhiteSpace(e.CloseDeliveryComment), t => t.Sensitive)
+				.AddFuncBinding(e => e.IsDeliveriesClosed ? e.CloseDeliveryComment : string.Empty, w => w.Buffer.Text)
 				.InitializeFromSource();
-
-			if(!ViewModel.Entity.IsDeliveriesClosed)
-			{
-				return;
-			}
-
-			labelCloseDelivery.LabelProp = "Поставки закрыл : " + ViewModel.Entity.GetCloseDeliveryInfo() + Environment.NewLine +
-										   "<b>Комментарий по закрытию поставок:</b>";
-
-			if(/*permissionResult.CanUpdate*/true)
-			{
-				if(string.IsNullOrWhiteSpace(ViewModel.Entity.CloseDeliveryComment))
-				{
-					buttonSaveCloseComment.Sensitive = true;
-					buttonEditCloseDeliveryComment.Sensitive = false;
-					ytextviewCloseComment.Sensitive = true;
-				}
-				else
-				{
-					buttonEditCloseDeliveryComment.Sensitive = true;
-					buttonSaveCloseComment.Sensitive = false;
-					ytextviewCloseComment.Sensitive = false;
-				}
-			}
-			else
-			{
-				buttonSaveCloseComment.Sensitive = false;
-				buttonEditCloseDeliveryComment.Sensitive = false;
-				ytextviewCloseComment.Sensitive = false;
-			}
 		}
 
 		protected void OnButtonSaveCloseCommentClicked(object sender, EventArgs e)
@@ -126,7 +97,6 @@ namespace Vodovoz.Views.Client
 			}
 
 			ViewModel.Entity.AddCloseDeliveryComment(ytextviewCloseComment.Buffer.Text, ViewModel.CurrentEmployee);
-			ConfigureCloseSupplyControls();
 		}
 
 		protected void OnButtonEditCloseDeliveryCommentClicked(object sender, EventArgs e)
@@ -140,19 +110,7 @@ namespace Vodovoz.Views.Client
 			if(MessageDialogHelper.RunQuestionDialog("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?"))
 			{
 				ViewModel.Entity.CloseDeliveryComment = ytextviewCloseComment.Buffer.Text = String.Empty;
-				ConfigureCloseSupplyControls();
 			}
-		}
-
-		protected void OnButtonCloseDeliveryClicked(object sender, EventArgs e)
-		{
-			if(!ViewModel.Entity.ToggleDeliveryOption(ViewModel.CurrentEmployee))
-			{
-				MessageDialogHelper.RunWarningDialog("У вас нет прав для закрытия/открытия поставок");
-				return;
-			}
-
-			ConfigureCloseSupplyControls();
 		}
 
 		private void ConfigureNotSensitiveControls()

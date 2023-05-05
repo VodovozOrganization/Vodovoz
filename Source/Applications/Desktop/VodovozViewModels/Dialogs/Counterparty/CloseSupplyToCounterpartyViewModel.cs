@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using QS.Project.Services;
 using System;
 using QS.Commands;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
@@ -73,6 +74,15 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		public Employee CurrentEmployee =>
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
 
+		private string _closeDeliveryLabelInfo;
+
+		public string CloseDeliveryLabelInfo
+		{
+			get => _closeDeliveryLabelInfo;
+			set => SetField(ref _closeDeliveryLabelInfo, value);
+		}
+
+
 		#region Commands
 
 		#region CloseDelveryCommand
@@ -95,10 +105,48 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		private void CloseDelivery()
 		{
 			Entity.ToggleDeliveryOption(CurrentEmployee);
+
+			CloseDeliveryLabelInfo =
+				Entity.IsDeliveriesClosed
+				? $"Поставки закрыл : {Entity.GetCloseDeliveryInfo()} {Environment.NewLine}<b>Комментарий по закрытию поставок:</b>"
+				: "<b>Комментарий по закрытию поставок:</b>";
 		}
 		#endregion CloseDelveryCommand
-		
-		# endregion Commands
+
+		#region SaveCloseComment
+		private DelegateCommand _saveCloseCommentCommand;
+		public DelegateCommand SaveCloseCommentCommand
+		{
+			get
+			{
+				if(_saveCloseCommentCommand == null)
+				{
+					_saveCloseCommentCommand = new DelegateCommand(SaveCloseComment, () => CanSaveCloseComment);
+					_saveCloseCommentCommand.CanExecuteChangedWith(this, x => x.CanSaveCloseComment);
+				}
+				return _saveCloseCommentCommand;
+			}
+		}
+
+		public bool CanSaveCloseComment => _commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
+
+		private void SaveCloseComment()
+		{
+			if(!CanCloseDelivery)
+			{
+				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
+				return;
+			}
+
+			if(MessageDialogHelper.RunQuestionDialog("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?"))
+			{
+				ViewModel.Entity.CloseDeliveryComment = ytextviewCloseComment.Buffer.Text = String.Empty;
+			}
+		}
+
+		#endregion
+
+		#endregion Commands
 
 
 		//IsDeliveriesClosed = false;
