@@ -8,6 +8,8 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using System.Linq;
+using QS.Dialog.GtkUI;
+using QS.Project.Services;
 
 namespace Vodovoz.Views.Client
 {
@@ -27,6 +29,99 @@ namespace Vodovoz.Views.Client
 				return;
 			}
 
+			ConfigureCloseSupplyControls();
+			ConfigureNotSensitiveControls();
+
+			buttonSaveCloseComment.Clicked += OnButtonSaveCloseCommentClicked;
+			buttonEditCloseDeliveryComment.Clicked += OnButtonEditCloseDeliveryCommentClicked;
+			buttonCloseDelivery.Clicked += OnButtonCloseDeliveryClicked;
+		}
+
+		private void ConfigureCloseSupplyControls()
+		{
+			labelCloseDelivery.Visible = ViewModel.Entity.IsDeliveriesClosed;
+			//GtkScrolledWindowCloseDelivery.Visible = ViewModel.Entity.IsDeliveriesClosed;
+			buttonSaveCloseComment.Visible = ViewModel.Entity.IsDeliveriesClosed;
+			buttonEditCloseDeliveryComment.Visible = ViewModel.Entity.IsDeliveriesClosed;
+			buttonCloseDelivery.Label = ViewModel.Entity.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки";
+			ytextviewCloseComment.Buffer.Text = ViewModel.Entity.IsDeliveriesClosed ? ViewModel.Entity.CloseDeliveryComment : String.Empty;
+
+			if(!ViewModel.Entity.IsDeliveriesClosed)
+			{
+				return;
+			}
+
+			labelCloseDelivery.LabelProp = "Поставки закрыл : " + ViewModel.Entity.GetCloseDeliveryInfo() + Environment.NewLine +
+										   "<b>Комментарий по закрытию поставок:</b>";
+
+			if(/*permissionResult.CanUpdate*/true)
+			{
+				if(string.IsNullOrWhiteSpace(ViewModel.Entity.CloseDeliveryComment))
+				{
+					buttonSaveCloseComment.Sensitive = true;
+					buttonEditCloseDeliveryComment.Sensitive = false;
+					ytextviewCloseComment.Sensitive = true;
+				}
+				else
+				{
+					buttonEditCloseDeliveryComment.Sensitive = true;
+					buttonSaveCloseComment.Sensitive = false;
+					ytextviewCloseComment.Sensitive = false;
+				}
+			}
+			else
+			{
+				buttonSaveCloseComment.Sensitive = false;
+				buttonEditCloseDeliveryComment.Sensitive = false;
+				ytextviewCloseComment.Sensitive = false;
+			}
+		}
+
+		protected void OnButtonSaveCloseCommentClicked(object sender, EventArgs e)
+		{
+			if(string.IsNullOrWhiteSpace(ytextviewCloseComment.Buffer.Text))
+			{
+				return;
+			}
+
+			if(!ViewModel.CanCloseDeliveries)
+			{
+				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
+				return;
+			}
+
+			ViewModel.Entity.AddCloseDeliveryComment(ytextviewCloseComment.Buffer.Text, ViewModel.CurrentEmployee);
+			ConfigureCloseSupplyControls();
+		}
+
+		protected void OnButtonEditCloseDeliveryCommentClicked(object sender, EventArgs e)
+		{
+			if(!ViewModel.CanCloseDeliveries)
+			{
+				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
+				return;
+			}
+
+			if(MessageDialogHelper.RunQuestionDialog("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?"))
+			{
+				ViewModel.Entity.CloseDeliveryComment = ytextviewCloseComment.Buffer.Text = String.Empty;
+				ConfigureCloseSupplyControls();
+			}
+		}
+
+		protected void OnButtonCloseDeliveryClicked(object sender, EventArgs e)
+		{
+			if(!ViewModel.Entity.ToggleDeliveryOption(ViewModel.CurrentEmployee))
+			{
+				MessageDialogHelper.RunWarningDialog("У вас нет прав для закрытия/открытия поставок");
+				return;
+			}
+
+			ConfigureCloseSupplyControls();
+		}
+
+		private void ConfigureNotSensitiveControls()
+		{
 			enumPersonType.ItemsEnum = typeof(PersonType);
 			enumPersonType.Binding.AddBinding(ViewModel.Entity, s => s.PersonType, w => w.SelectedItemOrNull).InitializeFromSource();
 
