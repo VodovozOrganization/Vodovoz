@@ -1070,11 +1070,6 @@ namespace Vodovoz
 				}
 			}
 
-			if(Order.Id > 0 || (Entity.DeliveryPoint == null && !Entity.SelfDelivery))
-			{
-				return logisticsRequirementsFromCounterpartyAndDeliveryPoint;
-			}
-
 			logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements()
 			{
 				ForwarderRequired = counterpartyLogisticsRequirements.ForwarderRequired || deliveryPointLogisticsRequirements.ForwarderRequired,
