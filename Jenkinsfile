@@ -16,7 +16,7 @@ NODE_LINUX_RUNTIME = "LINUX_RUNTIME"
 //Global
 ARCHIVE_EXTENTION = '.7z'
 APP_PATH = "Vodovoz/Source/Applications"
-WCF_BUILD_OUTPUT_CATALOG = "bin/debug"
+WCF_BUILD_OUTPUT_CATALOG = "bin/Debug"
 WEB_BUILD_OUTPUT_CATALOG = "bin/Release/net5.0_publish"
 WIN_BUILD_TOOL = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe"
 DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
