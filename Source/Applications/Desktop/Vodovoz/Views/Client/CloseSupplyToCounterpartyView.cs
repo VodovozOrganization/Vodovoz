@@ -100,34 +100,17 @@ namespace Vodovoz.Views.Client
 				.InitializeFromSource();
 
 			labelFIO.Visible = entryFIO.Visible = ViewModel.Entity.PersonType == PersonType.natural;
-			labelShort.Visible = labelShort1.Visible = /*comboboxOpf.Visible =*/ yentryOrganizationName.Visible =
+			labelShort.Visible = labelShort1.Visible = ySpecCmbOpf.Visible = yentryOrganizationName.Visible =
 				labelFullName.Visible = entryFullName.Visible =
 				entryMainCounterparty.Visible = labelMainCounterparty.Visible =
 				lblPaymentType.Visible = enumPayment.Visible = (ViewModel.Entity.PersonType == PersonType.legal);
 
-			//FillComboboxOpf();
-			//comboboxOpf. = ViewModel.UoW.GetAll<OrganizationOwnershipType>();
-			//var currentOwnershipType = Entity.TypeOfOwnership;
+			//ySpecCmbOpf.SetRenderTextFunc<OrganizationOwnershipType>(f => f.Abbreviation);
+			ySpecCmbOpf.ItemsList = ViewModel.UoW.GetAll<OrganizationOwnershipType>().Select(o => o.Abbreviation).ToList();
+			ySpecCmbOpf.Binding
+				.AddBinding(ViewModel.Entity, f => f.TypeOfOwnership, w => w.SelectedItem)
+				.InitializeFromSource();
 
-			//while(GetAllComboboxOpfValues().Count() > 0)
-			//{
-			//	comboboxOpf.RemoveText(0);
-			//}
-
-			//comboboxOpf.AppendText("");
-
-			//foreach(var ownershipType in availableOrganizationOwnershipTypes)
-			//{
-			//	comboboxOpf.AppendText(ownershipType);
-			//}
-
-			//Entity.TypeOfOwnership = SetActiveComboboxOpfValue(currentOwnershipType) ? currentOwnershipType : String.Empty;
-			//GetAllOrganizationOwnershipTypes()
-			//		.Where(t => !t.IsArchive || (Entity.TypeOfOwnership != null && t.Abbreviation == Entity.TypeOfOwnership))
-			//		.Select(t => t.Abbreviation)
-			//		.ToList<string>();
-
-			//yentryOrganizationName.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			yentryOrganizationName.Binding.AddBinding(ViewModel.Entity, s => s.Name, t => t.Text).InitializeFromSource();
 			yentryOrganizationName.Binding.AddFuncBinding(ViewModel.Entity, s => s.TypeOfOwnership != "ИП", t => t.Sensitive).InitializeFromSource();
 
