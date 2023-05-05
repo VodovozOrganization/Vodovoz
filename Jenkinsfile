@@ -389,7 +389,7 @@ def DeliveryWebArtifact(projectName){
 def DeliveryWcfArtifact(projectName){
 	if(CAN_DELIVERY_WCF)
 	{
-		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}", LINUX_WORKSPACE_PATH)
+		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}", "${LINUX_WORKSPACE_PATH}/${projectName}${ARCHIVE_EXTENTION}")
 	}
 	else
 	{
@@ -397,18 +397,20 @@ def DeliveryWcfArtifact(projectName){
 	}
 }
 
-def DeliveryWinArtifact(artifactPath, deliveryPath){
+def DeliveryWinArtifact(artifactName, deliveryPath){
 	node(NODE_WIN_BUILD){
 		RunPowerShell("""
-			Copy-Item -Path ${WIN_WORKSPACE_PATH}/${artifactPath} -Destination ${deliveryPath}
+			Copy-Item -Path ${WIN_WORKSPACE_PATH}/${artifactName} -Destination ${deliveryPath}\\${artifactName} -Force
 		""")
 	}
 }
 
-def DeliveryLinuxArtifact(artifactPath, deliveryPath){
+def DeliveryLinuxArtifact(artifactName, deliveryPath){
 	node(NODE_LINUX_BUILD){
+		def copyingItem = "${LINUX_WORKSPACE_PATH}/${artifactName}"
+		echo "Copy ${copyingItem} to ${deliveryPath}"
 		withCredentials([sshUserPrivateKey(credentialsId: "linux_vadim_jenkins_key", keyFileVariable: 'keyfile', usernameVariable: 'userName')]) {
-			sh 'rsync -v -rz -e "ssh -o StrictHostKeyChecking=no -i $keyfile -p 2213 -v" $LINUX_WORKSPACE_PATH/$artifactPath  $userName@srv2.vod.qsolution.ru:$deliveryPath --delete-before'
+			sh 'rsync -v -rz -e "ssh -o StrictHostKeyChecking=no -i $keyfile -p 2213 -v" $copyingItem $userName@srv2.vod.qsolution.ru:$deliveryPath --delete-before'
 		}
 	}
 }
