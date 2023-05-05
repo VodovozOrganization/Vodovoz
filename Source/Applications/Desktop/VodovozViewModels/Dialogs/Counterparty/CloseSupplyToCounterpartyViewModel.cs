@@ -11,6 +11,7 @@ using Vodovoz.Services;
 using Vodovoz.Domain.Employees;
 using QS.Project.Services;
 using System;
+using QS.Commands;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
@@ -47,10 +48,62 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 		}
 
+		#region Свойства
+		private string _closeDeliveryComment = string.Empty;
+
+		public string CloseDeliveryComment
+		{
+			get
+			{
+				if (Entity.IsDeliveriesClosed)
+				{
+					return _closeDeliveryComment;
+				}
+				return string.Empty;
+			}
+			set
+			{
+				SetField(ref _closeDeliveryComment, value);
+				Entity.CloseDeliveryComment = _closeDeliveryComment;
+			}
+		}
+
+		#endregion
+
 		public Employee CurrentEmployee =>
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
 
-		public bool CanCloseDeliveries => 
-			_commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
+		#region Commands
+
+		#region CloseDelveryCommand
+		private DelegateCommand _closeDeliveryCommand;
+		public DelegateCommand CloseDeliveryCommand
+		{
+			get
+			{
+				if(_closeDeliveryCommand == null)
+				{
+					_closeDeliveryCommand = new DelegateCommand(CloseDelivery, () => CanCloseDelivery);
+					_closeDeliveryCommand.CanExecuteChangedWith(this, x => x.CanCloseDelivery);
+				}
+				return _closeDeliveryCommand;
+			}
+		}
+
+		public bool CanCloseDelivery => _commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
+
+		private void CloseDelivery()
+		{
+			Entity.ToggleDeliveryOption(CurrentEmployee);
+		}
+		#endregion CloseDelveryCommand
+		
+		# endregion Commands
+
+
+		//IsDeliveriesClosed = false;
+		//	CloseDeliveryDate = null;
+		//	CloseDeliveryPerson = null;
+		//	CloseDeliveryComment = null;
 	}
 }

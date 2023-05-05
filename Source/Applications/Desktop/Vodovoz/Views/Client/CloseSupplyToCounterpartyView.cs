@@ -10,6 +10,7 @@ using Vodovoz.ViewModels.Dialogs.Counterparty;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
+using QS.Navigation;
 
 namespace Vodovoz.Views.Client
 {
@@ -34,17 +35,51 @@ namespace Vodovoz.Views.Client
 
 			buttonSaveCloseComment.Clicked += OnButtonSaveCloseCommentClicked;
 			buttonEditCloseDeliveryComment.Clicked += OnButtonEditCloseDeliveryCommentClicked;
-			buttonCloseDelivery.Clicked += OnButtonCloseDeliveryClicked;
+			//buttonCloseDelivery.Clicked += OnButtonCloseDeliveryClicked;
+			buttonCloseDelivery.Clicked += (s,e) => ViewModel.CloseDeliveryCommand.Execute();
+
+			buttonSave.Clicked += (sender, args) => ViewModel.Save(true);
+			buttonSave.Binding
+				.AddFuncBinding(ViewModel, vm => true, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			buttonCancel.Binding
+				.AddFuncBinding(ViewModel, vm => true, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 
 		private void ConfigureCloseSupplyControls()
 		{
-			labelCloseDelivery.Visible = ViewModel.Entity.IsDeliveriesClosed;
-			//GtkScrolledWindowCloseDelivery.Visible = ViewModel.Entity.IsDeliveriesClosed;
-			buttonSaveCloseComment.Visible = ViewModel.Entity.IsDeliveriesClosed;
-			buttonEditCloseDeliveryComment.Visible = ViewModel.Entity.IsDeliveriesClosed;
-			buttonCloseDelivery.Label = ViewModel.Entity.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки";
-			ytextviewCloseComment.Buffer.Text = ViewModel.Entity.IsDeliveriesClosed ? ViewModel.Entity.CloseDeliveryComment : String.Empty;
+			//labelCloseDelivery.Visible = ViewModel.Entity.IsDeliveriesClosed;
+			labelCloseDelivery.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, l => l.Visible)
+				.InitializeFromSource();
+
+			//GtkScrolledWindowCloseDelivery
+			//	.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, s => s.Visible)
+			//	.InitializeFromSource();
+			//buttonSaveCloseComment.Visible = ViewModel.Entity.IsDeliveriesClosed;
+
+			buttonSaveCloseComment.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, b => b.Visible)
+				.InitializeFromSource();
+
+			//buttonEditCloseDeliveryComment.Visible = ViewModel.Entity.IsDeliveriesClosed;
+			buttonEditCloseDeliveryComment.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, b => b.Visible)
+				.InitializeFromSource();
+
+			buttonCloseDelivery.Binding
+				.AddFuncBinding(ViewModel.Entity, e => e.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки", l => l.Label)
+				.InitializeFromSource();
+
+			//buttonCloseDelivery.Label = ViewModel.Entity.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки";
+			//ytextviewCloseComment.Buffer.Text = ViewModel.Entity.IsDeliveriesClosed ? ViewModel.Entity.CloseDeliveryComment : String.Empty;
+
+			ytextviewCloseComment.Binding
+				.AddFuncBinding(ViewModel.Entity, e => e.IsDeliveriesClosed ? e.CloseDeliveryComment : string.Empty, w => w.Buffer.Text)
+				.InitializeFromSource();
 
 			if(!ViewModel.Entity.IsDeliveriesClosed)
 			{
@@ -84,7 +119,7 @@ namespace Vodovoz.Views.Client
 				return;
 			}
 
-			if(!ViewModel.CanCloseDeliveries)
+			if(!ViewModel.CanCloseDelivery)
 			{
 				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
 				return;
@@ -96,7 +131,7 @@ namespace Vodovoz.Views.Client
 
 		protected void OnButtonEditCloseDeliveryCommentClicked(object sender, EventArgs e)
 		{
-			if(!ViewModel.CanCloseDeliveries)
+			if(!ViewModel.CanCloseDelivery)
 			{
 				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
 				return;
