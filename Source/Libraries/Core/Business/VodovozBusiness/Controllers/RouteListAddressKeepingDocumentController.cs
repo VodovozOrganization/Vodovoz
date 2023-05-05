@@ -73,7 +73,7 @@ namespace Vodovoz.Controllers
 			{
 				RouteListAddressKeepingDocument = routeListKeepingDocument,
 				Nomenclature = defaultBottleNomenclature,
-				Amount = (routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn ?? 0) * amountSign
+				Amount = (routeListItem.DriverBottlesReturned ?? ((routeListItem.Order.BottlesReturn ?? 0) + routeListItem.Order.BottlesByStockCount)) * amountSign
 			};
 
 			bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();
