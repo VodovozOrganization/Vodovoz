@@ -24,6 +24,7 @@ namespace DriverAPI.Controllers.V2
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("Register")]
+		[ApiExplorerSettings(IgnoreApi = true)]
 		public async Task Post([FromBody] RegisterRequestDto loginRequestModel)
 		{
 			var user = new IdentityUser() { UserName = loginRequestModel.Username };
