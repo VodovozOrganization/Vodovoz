@@ -109,6 +109,7 @@ echo "CAN_PUBLISH_WCF_ARTIFACTS: ${CAN_PUBLISH_WCF_ARTIFACTS}"
 echo "CAN_COPY_WCF_ARTIFACTS: ${CAN_COPY_WCF_ARTIFACTS}"*/
 
 //1. Подготовка репозиториев
+/*
 stage('Checkout'){
 	parallel (
 		"Win" : {
@@ -228,7 +229,7 @@ stage('Compress'){
 		"VodovozSmsPaymentService" : { CompressWcfArtifact("Backend/WCF/VodovozSmsPaymentService") },
 	)
 }
-
+*/
 //5. Доставка сборок на ноды
 stage('Delivery'){
 	parallel(
@@ -670,10 +671,10 @@ def UnlockHotfix(hotfixName){
 
 def ZipFiles(sourcePath, archiveFile){
 	if (isUnix()) {
-		sh "7z a -stl -mx1 ${archiveFile} ./${sourcePath}/*"
+		sh "7z a -stl -mx1 ${archiveFile} ${sourcePath}/*"
 	}
 	else {
-		bat "7z a -stl -mx1 ${archiveFile} ./${sourcePath}/*"
+		bat "7z a -stl -mx1 ${archiveFile} ${sourcePath}/*"
 	}
 }
 
