@@ -100,7 +100,7 @@ namespace Vodovoz.Views.Client
 				.InitializeFromSource();
 
 			labelFIO.Visible = entryFIO.Visible = ViewModel.Entity.PersonType == PersonType.natural;
-			labelShort.Visible = labelShort1.Visible = comboboxOpf.Visible = yentryOrganizationName.Visible =
+			labelShort.Visible = labelShort1.Visible = /*comboboxOpf.Visible =*/ yentryOrganizationName.Visible =
 				labelFullName.Visible = entryFullName.Visible =
 				entryMainCounterparty.Visible = labelMainCounterparty.Visible =
 				lblPaymentType.Visible = enumPayment.Visible = (ViewModel.Entity.PersonType == PersonType.legal);
