@@ -25,6 +25,8 @@ RELEASE_LOCKER_PATH = "C:/Program Files (x86)/Vodovoz/VodovozLauncher/ReleaseLoc
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/update.lock"
 LINUX_BUILD_TOOL = "msbuild"
 JOB_FOLDER_NAME = GetJobFolderName()
+WIN_WORKSPACE_PATH = GetWorkspacePathForNode(NODE_WIN_BUILD)
+LINUX_WORKSPACE_PATH = GetWorkspacePathForNode(NODE_LINUX_RUNTIME)
 IS_PULL_REQUEST = env.CHANGE_ID != null
 //IS_HOTFIX = env.BRANCH_NAME == 'master'
 IS_HOTFIX = true
@@ -56,7 +58,6 @@ DESKTOP_VOD3_DELIVERY_PATH = "\\\\${NODE_VOD3}\\${WIN_DELIVERY_SHARED_FOLDER_NAM
 DESKTOP_VOD5_DELIVERY_PATH = "\\\\${NODE_VOD5}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD7_DELIVERY_PATH = "\\\\${NODE_VOD7}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
-LINUX_RUNTIME_DELIVERY_PATH = GetWorkspacePathForNode(NODE_LINUX_RUNTIME)
 
 //Deploy
 DEPLOY_PATH = "F:/WORK/_BUILDS"
@@ -387,7 +388,7 @@ def DeliveryWebArtifact(projectName){
 def DeliveryWcfArtifact(projectName){
 	if(CAN_DELIVERY_WCF)
 	{
-		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}", LINUX_RUNTIME_DELIVERY_PATH)
+		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}", LINUX_WORKSPACE_PATH)
 	}
 	else
 	{
@@ -624,10 +625,9 @@ def PublishWCFService(serviceName) {
 
 def CompressArtifact(sourcePath, artifactName) {
 	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
-	def workspacePath = GetWorkspacePath()
 
 	if (fileExists(archive_file)) {
-		echo "Delete exiting artifact ${workspacePath}/${archive_file} from ${workspacePath}/${sourcePath}/*"
+		echo "Delete exiting artifact ${archive_file} from ${sourcePath}/*"
 		fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
 	}
 
@@ -671,10 +671,10 @@ def UnlockHotfix(hotfixName){
 
 def ZipFiles(sourcePath, archiveFile){
 	if (isUnix()) {
-		sh "7z a -stl -mx1 ${archiveFile} ${sourcePath}/*"
+		sh "7z a -stl -mx1 ${LINUX_WORKSPACE_PATH}/${archiveFile} ${LINUX_WORKSPACE_PATH}/${sourcePath}/*"
 	}
 	else {
-		bat "7z a -stl -mx1 ${archiveFile} ${sourcePath}/*"
+		bat "7z a -stl -mx1 ${WIN_WORKSPACE_PATH}/${archiveFile} ${WIN_WORKSPACE_PATH}/${sourcePath}/*"
 	}
 }
 
