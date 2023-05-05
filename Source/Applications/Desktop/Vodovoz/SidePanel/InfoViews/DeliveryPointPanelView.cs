@@ -175,8 +175,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
-			_textviewcommentBufferChanged = false;
-			_textviewcommentLogistBufferChanged = false;
 
 			var currentOrders = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
 			ytreeLastOrders.SetItemsSource<Order>(currentOrders);
@@ -208,6 +206,11 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(changedObject is DeliveryPoint deliveryPoint)
 			{
 				DeliveryPoint = deliveryPoint;
+				Refresh();
+			}
+
+			if(InfoProvider is OrderDlg && changedObject is Counterparty)
+			{
 				Refresh();
 			}
 		}
