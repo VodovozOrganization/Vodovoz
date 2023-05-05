@@ -1046,7 +1046,7 @@ namespace Vodovoz
 			}
 		}
 
-		private LogisticsRequirements GetLogisticsRequirements(bool clearCheckedCheckboxes = false)
+		private LogisticsRequirements GetLogisticsRequirements()
 		{
 			if(Entity.LogisticsRequirements != null && Entity.IsCopiedFromUndelivery)
 			{
@@ -1056,11 +1056,6 @@ namespace Vodovoz
 			if(Entity.Client == null || (!Entity.SelfDelivery && Entity.DeliveryPoint == null))
 			{
 				return new LogisticsRequirements();
-			}
-
-			if(clearCheckedCheckboxes)
-			{
-				Entity.LogisticsRequirements = new LogisticsRequirements();
 			}
 
 			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements();
@@ -1113,7 +1108,11 @@ namespace Vodovoz
 		{
 			if(logisticsRequirementsView.ViewModel != null)
 			{
-				var requirements = GetLogisticsRequirements(clearCheckedCheckboxes);
+				var requirements =
+					clearCheckedCheckboxes 
+					? new LogisticsRequirements()
+					: GetLogisticsRequirements();
+
 				logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(requirements);
 				UpdateEntityLogisticsRequirements();
 			}
