@@ -391,7 +391,7 @@ def DeliveryWebArtifact(projectName){
 def DeliveryWcfArtifact(projectName){
 	if(CAN_DELIVERY_WCF)
 	{
-		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}", "${LINUX_WORKSPACE_PATH}/${projectName}${ARCHIVE_EXTENTION}")
+		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}", "${LINUX_WORKSPACE_PATH}")
 	}
 	else
 	{
