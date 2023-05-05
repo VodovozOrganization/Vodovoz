@@ -205,6 +205,7 @@ stage('Build'){
 		}
 	)
 }
+*/
 
 //4. Архивация
 stage('Compress'){
@@ -230,7 +231,7 @@ stage('Compress'){
 		"VodovozSmsPaymentService" : { CompressWcfArtifact("Backend/WCF/VodovozSmsPaymentService") },
 	)
 }
-*/
+
 //5. Доставка сборок на ноды
 stage('Delivery'){
 	parallel(
