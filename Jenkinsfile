@@ -402,6 +402,7 @@ def DeliveryWcfArtifact(projectName){
 def DeliveryWinArtifact(artifactName, deliveryPath){
 	node(NODE_WIN_BUILD){
 		RunPowerShell("""
+			New-Item -ItemType File -Path "${deliveryPath}\\${artifactName}" -Force
 			Copy-Item -Path "${WIN_WORKSPACE_PATH}/${artifactName}" -Destination "${deliveryPath}\\${artifactName}" -Force
 		""")
 	}
@@ -412,7 +413,7 @@ def DeliveryLinuxArtifact(artifactName, deliveryPath){
 		def copyingItem = "${LINUX_WORKSPACE_PATH}/${artifactName}"
 		echo "Copy ${copyingItem} to ${deliveryPath}"
 		withCredentials([sshUserPrivateKey(credentialsId: "linux_vadim_jenkins_key", keyFileVariable: 'keyfile', usernameVariable: 'userName')]) {
-			sh 'rsync -v -rz -e "ssh -o StrictHostKeyChecking=no -i $keyfile -p 2213 -v" ' + copyingItem + ' $userName@srv2.vod.qsolution.ru:'+ deliveryPath + ' --delete-before'
+			sh 'rsync -v -rz -e "ssh -o StrictHostKeyChecking=no -i $keyfile -p 2213 -v" ' + copyingItem + ' $userName@srv2.vod.qsolution.ru:'+ deliveryPath + '/ --delete-before'
 		}
 	}
 }
