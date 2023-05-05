@@ -112,8 +112,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void StockBalanceCommand()
 		{
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
-			NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, NomenclatureStockFilterViewModel>(null, filter);
+			NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel>(null);
 		}
 
 		public void CostAndDeliveryIntervalCommand()

@@ -26,6 +26,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
+	[Obsolete("Убрать последним коммитом по поэкземплярному учету")]
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class WriteoffDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
@@ -101,14 +102,11 @@ namespace Vodovoz
 				return;
 			}
 
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
-			filter.RestrictWarehouse = DocumentUoW.Root.WriteOffFromWarehouse;
+			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.WriteOffFromWarehouse;
 
-			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			);
+			var vm = MainClass.MainWin.NavigationManager
+				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
+				.ViewModel;
 
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.OnEntitySelectedResult += (s, ea) => {
@@ -122,8 +120,6 @@ namespace Vodovoz
 				}
 				DocumentUoW.Root.AddItem(nomenclature, 0, selectedNode.StockAmount);
 			};
-
-			mytab.TabParent.AddSlaveTab (mytab, vm);
 		}
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)

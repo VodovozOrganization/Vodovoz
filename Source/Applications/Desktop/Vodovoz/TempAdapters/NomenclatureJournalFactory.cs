@@ -20,23 +20,6 @@ namespace Vodovoz.TempAdapters
 {
 	public class NomenclatureJournalFactory : INomenclatureJournalFactory
 	{
-		public IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures)
-		{
-			NomenclatureStockFilterViewModel nomenclatureStockFilter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
-			nomenclatureStockFilter.ExcludedNomenclatureIds = excludedNomenclatures;
-			nomenclatureStockFilter.RestrictWarehouse = warehouse;
-
-			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-				nomenclatureStockFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			);
-
-			vm.SelectionMode = JournalSelectionMode.Multiple;
-
-			return vm;
-		}
-
 		public NomenclaturesJournalViewModel CreateNomenclaturesJournalViewModel(bool multiselect = false)
 		{
 			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();

@@ -2,29 +2,53 @@
 using QS.Project.Filter;
 using Vodovoz.Domain.Store;
 using System.Collections.Generic;
-using QS.Project.Journal.EntitySelector;
+using Autofac;
+using QS.Navigation;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.FilterViewModels.Goods
 {
 	public class NomenclatureStockFilterViewModel : FilterViewModelBase<NomenclatureStockFilterViewModel>
 	{
+		private readonly DialogViewModelBase _journal;
+		private readonly INavigationManager _navigationManager;
+		private readonly ILifetimeScope _scope;
 		private Warehouse _restrictWarehouse;
 		private Warehouse _warehouse;
+		private Employee _restrictEmployeeStorage;
 		private Employee _employeeStorage;
+		private Car _restrictCarStorage;
 		private Car _carStorage;
 		private bool? _restrictShowArchive;
 		private bool? _restrictShowNomenclatureInstance;
 		private bool _showArchive;
 		private bool _showNomenclatureInstance;
+		private bool _canChangeWarehouse = true;
+		private bool _canChangeEmployeeStorage = true;
+		private bool _canChangeCarStorage = true;
+		private bool _canChangeShowNomenclatureInstance = true;
 
-		public NomenclatureStockFilterViewModel(IEntityAutocompleteSelectorFactory warehouseSelectorFactory)
+		public NomenclatureStockFilterViewModel(
+			DialogViewModelBase journal,
+			INavigationManager navigationManager,
+			ILifetimeScope scope)
 		{
-			WarehouseSelectorFactory = warehouseSelectorFactory ?? throw new ArgumentNullException(nameof(warehouseSelectorFactory));
+			_journal = journal ?? throw new ArgumentNullException(nameof(journal));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			
+			CreateStorageViewModels();
 		}
 
-		public IEntityAutocompleteSelectorFactory WarehouseSelectorFactory { get; }
 		public IEnumerable<int> ExcludedNomenclatureIds { get; set; }
 
 		public Warehouse RestrictWarehouse
@@ -35,12 +59,16 @@ namespace Vodovoz.FilterViewModels.Goods
 				if(SetField(ref _restrictWarehouse, value))
 				{
 					Warehouse = _restrictWarehouse;
-					OnPropertyChanged(nameof(CanChangeWarehouse));
+					BlockChangeStorages();
 				}
 			}
 		}
 
-		public bool CanChangeWarehouse => RestrictWarehouse == null;
+		public bool CanChangeWarehouse
+		{
+			get => _canChangeWarehouse;
+			set => SetField(ref _canChangeWarehouse, value);
+		}
 
 		public Warehouse Warehouse
 		{
@@ -51,6 +79,7 @@ namespace Vodovoz.FilterViewModels.Goods
 				{
 					if(value == null)
 					{
+						Update();
 						return;
 					}
 
@@ -59,6 +88,25 @@ namespace Vodovoz.FilterViewModels.Goods
 					Update();
 				}
 			}
+		}
+		
+		public Employee RestrictEmployeeStorage
+		{
+			get => _restrictEmployeeStorage;
+			set
+			{
+				if(SetField(ref _restrictEmployeeStorage, value))
+				{
+					EmployeeStorage = _restrictEmployeeStorage;
+					BlockChangeStorages();
+				}
+			}
+		}
+		
+		public bool CanChangeEmployeeStorage
+		{
+			get => _canChangeEmployeeStorage;
+			set => SetField(ref _canChangeEmployeeStorage, value);
 		}
 
 		public Employee EmployeeStorage
@@ -70,6 +118,7 @@ namespace Vodovoz.FilterViewModels.Goods
 				{
 					if(value == null)
 					{
+						Update();
 						return;
 					}
 
@@ -78,6 +127,25 @@ namespace Vodovoz.FilterViewModels.Goods
 					Update();
 				}
 			}
+		}
+		
+		public Car RestrictCarStorage
+		{
+			get => _restrictCarStorage;
+			set
+			{
+				if(SetField(ref _restrictCarStorage, value))
+				{
+					CarStorage = _restrictCarStorage;
+					BlockChangeStorages();
+				}
+			}
+		}
+
+		public bool CanChangeCarStorage
+		{
+			get => _canChangeCarStorage;
+			set => SetField(ref _canChangeCarStorage, value);
 		}
 
 		public Car CarStorage
@@ -89,6 +157,7 @@ namespace Vodovoz.FilterViewModels.Goods
 				{
 					if(value == null)
 					{
+						Update();
 						return;
 					}
 
@@ -120,8 +189,11 @@ namespace Vodovoz.FilterViewModels.Goods
 			set => UpdateFilterField(ref _showArchive, value);
 		}
 
-		public bool CanShowInstanceStorages => ShowNomenclatureInstance;
-		public bool CanChangeShowNomenclatureInstance => RestrictShowNomenclatureInstance == null;
+		public bool CanChangeShowNomenclatureInstance
+		{
+			get => _canChangeShowNomenclatureInstance;
+			set => SetField(ref _canChangeShowNomenclatureInstance, value);
+		}
 
 		public bool? RestrictShowNomenclatureInstance
 		{
@@ -130,8 +202,8 @@ namespace Vodovoz.FilterViewModels.Goods
 			{
 				if(SetField(ref _restrictShowNomenclatureInstance, value) && _restrictShowNomenclatureInstance.HasValue)
 				{
-					ShowArchive = _restrictShowNomenclatureInstance.Value;
-					OnPropertyChanged(nameof(CanChangeShowNomenclatureInstance));
+					ShowNomenclatureInstance = _restrictShowNomenclatureInstance.Value;
+					CanChangeShowNomenclatureInstance = false;
 				}
 			}
 		}
@@ -139,13 +211,39 @@ namespace Vodovoz.FilterViewModels.Goods
 		public bool ShowNomenclatureInstance
 		{
 			get => _showNomenclatureInstance;
-			set
-			{
-				if(UpdateFilterField(ref _showNomenclatureInstance, value))
-				{
-					OnPropertyChanged(nameof(CanShowInstanceStorages));
-				}
-			}
+			set => UpdateFilterField(ref _showNomenclatureInstance, value);
+		}
+		
+		public IEntityEntryViewModel WarehouseEntryViewModel { get; private set; }
+		public IEntityEntryViewModel EmployeeStorageEntryViewModel { get; private set; }
+		public IEntityEntryViewModel CarStorageEntryViewModel { get; private set; }
+
+		private void CreateStorageViewModels()
+		{
+			var builder = new CommonEEVMBuilderFactory<NomenclatureStockFilterViewModel>(_journal, this, UoW, _navigationManager, _scope);
+			
+			WarehouseEntryViewModel = builder.ForProperty(x => x.Warehouse)
+				.UseViewModelDialog<WarehouseViewModel>()
+				.UseViewModelJournalAndAutocompleter<WarehouseJournalViewModel>()
+				.Finish();
+			
+			EmployeeStorageEntryViewModel = builder.ForProperty(x => x.EmployeeStorage)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.Finish();
+			
+			CarStorageEntryViewModel = builder.ForProperty(x => x.CarStorage)
+				.UseViewModelDialog<CarViewModel>()
+				.UseViewModelJournalAndAutocompleter<CarJournalViewModel>()
+				.Finish();
+		}
+
+		private void BlockChangeStorages()
+		{
+			CanChangeWarehouse = false;
+			CanChangeEmployeeStorage = false;
+			CanChangeCarStorage = false;
+			CanChangeShowNomenclatureInstance = false;
 		}
 	}
 }

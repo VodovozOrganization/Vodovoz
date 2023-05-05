@@ -9,7 +9,6 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.ViewModels;
-using Vodovoz.Domain.Documents;
 using QS.Project.Domain;
 using QS.DomainModel.UoW;
 using QS.Services;
@@ -53,6 +52,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private const string _fillByWarehouse = "Заполнить по складу";
 		private const string _fillByEmployee = "Заполнить по сотруднику";
 		private const string _fillByCar = "Заполнить по автомобилю";
+		private const string _userWithoutEmployee =
+			"Ваш пользователь не привязан к действующему сотруднику," +
+			" вы не можете работать со складскими документами, так как некого указывать в качестве кладовщика.";
 		private readonly IEmployeeService _employeeService;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IStockRepository _stockRepository;
@@ -568,8 +570,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			
 			if(Entity.LastEditor == null)
 			{
-				ShowErrorMessage("Ваш пользователь не привязан к действующему сотруднику," +
-				    " вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				ShowErrorMessage(_userWithoutEmployee);
 				return false;
 			}
 
@@ -589,9 +590,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			
 				if(Entity.Author == null)
 				{
-					ShowErrorMessage(
-						"Ваш пользователь не привязан к действующему сотруднику," +
-						" вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+					ShowErrorMessage(_userWithoutEmployee);
 					FailInitialize = true;
 					return;
 				}

@@ -14,6 +14,7 @@ namespace Vodovoz.Journals.JournalNodes
 		public decimal DiffCount => StockAmount - MinNomenclatureAmount;
 
 		public bool NomenclatureIsArchive { get; set; }
+		public bool HasInventoryAccounting { get; set; }
 
 		public string UnitName { get; set; }
 

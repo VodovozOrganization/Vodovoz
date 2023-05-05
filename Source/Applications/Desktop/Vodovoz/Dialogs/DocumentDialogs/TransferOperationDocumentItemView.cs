@@ -95,13 +95,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory());
-
-			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			);
+			var vm = MainClass.MainWin.NavigationManager
+				.OpenViewModel<NomenclatureStockBalanceJournalViewModel>(null)
+				.ViewModel;
 
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.OnEntitySelectedResult += (s, ea) => {
@@ -112,8 +108,6 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
 				throw new NotSupportedException("На данный момент не поддерживается добавление номенклатур");
 			};
-
-			mytab.TabParent.AddSlaveTab(mytab, vm);
 		}
 	}
 }

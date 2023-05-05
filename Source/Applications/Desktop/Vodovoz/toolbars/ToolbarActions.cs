@@ -1022,7 +1022,7 @@ public partial class MainWindow : Window
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
-		bool userHasOnlyAccessToWarehouseAndComplaints;
+		/*bool userHasOnlyAccessToWarehouseAndComplaints;
 
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
@@ -1031,7 +1031,6 @@ public partial class MainWindow : Window
 				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
 		}
 
-		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
 		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory())
 		{
 			ShowArchive = true
@@ -1049,7 +1048,25 @@ public partial class MainWindow : Window
 		)
 		{ SelectionMode = JournalSelectionMode.None };
 
-		tdiMain.OpenTab(() => vm);
+		tdiMain.OpenTab(() => vm);*/
+		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
+		Action<NomenclatureStockFilterViewModel> filterParams = null;
+		
+		if(_accessOnlyToWarehouseAndComplaints && defaultWarehouse != null)
+		{
+			filterParams = f =>
+			{
+				f.RestrictWarehouse = defaultWarehouse;
+				f.ShowArchive = true;
+			};
+		}
+		else
+		{
+			filterParams = f => f.ShowArchive = true;
+		}
+		
+		NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(
+			null, filterParams);
 	}
 
 	void ActionWarehouseDocumentsActivated(object sender, System.EventArgs e)

@@ -21,6 +21,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Journals;
 using Vodovoz.Journals.JournalNodes;
@@ -31,6 +32,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.ViewModels.Employees;
@@ -43,7 +45,6 @@ namespace Vodovoz.ViewModels.Warehouses
 	{
 		private readonly ILifetimeScope _scope;
 		private readonly IEmployeeService _employeeService;
-		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IUserRepository _userRepository;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
@@ -77,7 +78,6 @@ namespace Vodovoz.ViewModels.Warehouses
 			INavigationManager navigationManager,
 			IEmployeeService employeeService,
 			IRDLPreviewOpener rdlPreviewOpener,
-			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			IOrderSelectorFactory orderSelectorFactory,
 			IWarehousePermissionValidator warehousePermissionValidator,
 			INomenclatureInstanceRepository nomenclatureInstanceRepository,
@@ -93,8 +93,6 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-			_nomenclatureSelectorFactory =
-				nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_warehousePermissionValidator =
 				warehousePermissionValidator ?? throw new ArgumentNullException(nameof(warehousePermissionValidator));
@@ -512,8 +510,14 @@ namespace Vodovoz.ViewModels.Warehouses
 							var alreadyAddedNomenclatures =
 								Entity.Items.Where(x => x.Nomenclature != null && !x.Nomenclature.HasInventoryAccounting)
 									.Select(x => x.Nomenclature.Id);
-							var nomenclatureSelector = _nomenclatureSelectorFactory.CreateNomenclatureSelectorForWarehouse(Entity.FromWarehouse, alreadyAddedNomenclatures);
-							nomenclatureSelector.OnEntitySelectedResult += (sender, e) =>
+
+							var filterParams = GetNomenclatureStockFilterByStorage(alreadyAddedNomenclatures);
+							
+							var nomenclatureStockBalanceJournal = NavigationManager
+								.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(
+									this, filterParams, OpenPageOptions.AsSlave).ViewModel;
+							nomenclatureStockBalanceJournal.SelectionMode = JournalSelectionMode.Multiple;
+							nomenclatureStockBalanceJournal.OnEntitySelectedResult += (sender, e) =>
 							{
 								var selectedNodes = e.SelectedNodes.Cast<NomenclatureStockJournalNode>();
 								if(!selectedNodes.Any())
@@ -532,7 +536,6 @@ namespace Vodovoz.ViewModels.Warehouses
 
 								FireItemsChanged();
 							};
-							TabParent.AddSlaveTab(this, nomenclatureSelector);
 						},
 						() => CanAddItem
 					);
@@ -660,7 +663,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			_addInventoryInstanceCommand ?? (_addInventoryInstanceCommand = new DelegateCommand(
 				() =>
 				{
-					var filterParams = GetFilterByStorage();
+					var filterParams = GetInstancesStockBalanceFilterByStorage();
 					
 					var page =
 						NavigationManager
@@ -728,7 +731,36 @@ namespace Vodovoz.ViewModels.Warehouses
 			FireItemsChanged();
 		}
 		
-		private Action<InventoryInstancesStockBalanceJournalFilterViewModel> GetFilterByStorage()
+		private Action<NomenclatureStockFilterViewModel> GetNomenclatureStockFilterByStorage(IEnumerable<int> alreadyAddedNomenclatures)
+		{
+			Action<NomenclatureStockFilterViewModel> filterParams = null;
+			
+			switch(Entity.StorageFrom)
+			{
+				case StorageType.Warehouse:
+					return filterParams = f =>
+					{
+						f.RestrictWarehouse = Entity.FromWarehouse;
+						f.ExcludedNomenclatureIds = alreadyAddedNomenclatures;
+					};
+				case StorageType.Employee:
+					return filterParams = f =>
+					{
+						f.RestrictEmployeeStorage = Entity.FromEmployee;
+						f.ExcludedNomenclatureIds = alreadyAddedNomenclatures;
+					};
+				case StorageType.Car:
+					return filterParams = f =>
+					{
+						f.RestrictCarStorage = Entity.FromCar;
+						f.ExcludedNomenclatureIds = alreadyAddedNomenclatures;
+					};
+				default:
+					return filterParams;
+			}
+		}
+		
+		private Action<InventoryInstancesStockBalanceJournalFilterViewModel> GetInstancesStockBalanceFilterByStorage()
 		{
 			Action<InventoryInstancesStockBalanceJournalFilterViewModel> filterParams = null;
 			

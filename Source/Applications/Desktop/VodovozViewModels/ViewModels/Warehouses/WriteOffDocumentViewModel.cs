@@ -154,12 +154,11 @@ namespace Vodovoz.ViewModels.Warehouses
 		public DelegateCommand AddNomenclatureCommand => _addNomenclatureCommand ?? (_addNomenclatureCommand = new DelegateCommand(
 			() =>
 			{
-				var filter = _scope.Resolve<NomenclatureStockFilterViewModel>();
-				filter.SetAndRefilterAtOnce(
-					x => x.RestrictWarehouse = Entity.WriteOffFromWarehouse);
+				var filterParams = GetNomenclatureStockBalanceFilterByStorage();
 				
-				var page = NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, NomenclatureStockFilterViewModel>(
-					this, filter, OpenPageOptions.AsSlave);
+				var page = NavigationManager
+					.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(
+					this, filterParams, OpenPageOptions.AsSlave);
 
 				page.ViewModel.SelectionMode = JournalSelectionMode.Single;
 				page.ViewModel.OnEntitySelectedResult += (s, ea) =>
@@ -187,7 +186,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			_addInventoryInstanceCommand ?? (_addInventoryInstanceCommand = new DelegateCommand(
 				() =>
 				{
-					var filterParams = GetFilterByStorage();
+					var filterParams = GetInstancesStockBalanceFilterByStorage();
 					var page = NavigationManager.OpenViewModel<
 						InventoryInstancesStockBalanceJournalViewModel, Action<InventoryInstancesStockBalanceJournalFilterViewModel>>(
 						this, filterParams, OpenPageOptions.AsSlave);
@@ -415,7 +414,33 @@ namespace Vodovoz.ViewModels.Warehouses
 			FireItemsChanged();
 		}
 		
-		private Action<InventoryInstancesStockBalanceJournalFilterViewModel> GetFilterByStorage()
+		private Action<NomenclatureStockFilterViewModel> GetNomenclatureStockBalanceFilterByStorage()
+		{
+			Action<NomenclatureStockFilterViewModel> filterParams = null;
+			
+			switch(Entity.WriteOffType)
+			{
+				case WriteOffType.Warehouse:
+					return filterParams = f =>
+					{
+						f.RestrictWarehouse = Entity.WriteOffFromWarehouse;
+					};
+				case WriteOffType.Employee:
+					return filterParams = f =>
+					{
+						f.RestrictEmployeeStorage = Entity.WriteOffFromEmployee;
+					};
+				case WriteOffType.Car:
+					return filterParams = f =>
+					{
+						f.RestrictCarStorage = Entity.WriteOffFromCar;
+					};
+				default:
+					return filterParams;
+			}
+		}
+		
+		private Action<InventoryInstancesStockBalanceJournalFilterViewModel> GetInstancesStockBalanceFilterByStorage()
 		{
 			Action<InventoryInstancesStockBalanceJournalFilterViewModel> filterParams = null;
 			

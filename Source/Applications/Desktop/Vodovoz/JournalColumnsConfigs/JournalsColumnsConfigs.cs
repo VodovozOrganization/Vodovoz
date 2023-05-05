@@ -455,6 +455,11 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(node => node.MinCountText).XAlign(0.5f)
 					.AddColumn("Разница").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.DiffCountText).XAlign(0.5f)
+					.AddColumn("Поэкземплярный\nучет")
+						.HeaderAlignment(0.5f)
+						.AddToggleRenderer(node => node.HasInventoryAccounting)
+						.Editing(false)
+						.XAlign(0.5f)
 					.AddColumn("")
 					.RowCells().AddSetter<CellRendererText>((c, n) => {
 						Color color = new Color(0, 0, 0);

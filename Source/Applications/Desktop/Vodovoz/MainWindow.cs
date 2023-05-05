@@ -177,6 +177,8 @@ public partial class MainWindow : Gtk.Window
 	private readonly IApplicationConfigurator applicationConfigurator;
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 	private readonly bool _hasAccessToSalariesForLogistics;
+	
+	private bool _accessOnlyToWarehouseAndComplaints;
 
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
@@ -305,11 +307,9 @@ public partial class MainWindow : Gtk.Window
 
 		#region Пользователь с правом работы только со складом и рекламациями
 
-		bool accessToWarehouseAndComplaints;
-
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			accessToWarehouseAndComplaints =
+			_accessOnlyToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !commonServices.UserService.GetCurrentUser(uow).IsAdmin;
 		}
@@ -317,7 +317,7 @@ public partial class MainWindow : Gtk.Window
 		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
 			ActionAccounting.Visible = ActionReports.Visible = ActionArchive.Visible = ActionStaff.Visible = ActionCRM.Visible =
 				ActionSuppliers.Visible = ActionCashRequest.Visible = ActionRetail.Visible = ActionCarService.Visible =
-					MangoAction.Visible = !accessToWarehouseAndComplaints;
+					MangoAction.Visible = !_accessOnlyToWarehouseAndComplaints;
 
 		#endregion
 

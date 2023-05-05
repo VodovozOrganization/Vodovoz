@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
+using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -20,18 +21,25 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
-	//TODO проверить работу запроса и убрать из выборки экземпляры
+	//TODO проверить работу запроса
 	public class NomenclatureStockBalanceJournalViewModel :
-		FilterableSingleEntityJournalViewModelBase<
-			Nomenclature, NomenclatureViewModel, NomenclatureStockJournalNode, NomenclatureStockFilterViewModel>
+		SingleEntityJournalViewModelBase<Nomenclature, NomenclatureViewModel, NomenclatureStockJournalNode>
 	{
+		private readonly ILifetimeScope _scope;
+		private NomenclatureStockFilterViewModel _filterViewModel;
+
 		public NomenclatureStockBalanceJournalViewModel(
-			NomenclatureStockFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			ILifetimeScope scope,
+			Action<NomenclatureStockFilterViewModel> filterParams = null) : base(unitOfWorkFactory, commonServices)
 		{
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			
 			TabName = "Складские остатки";
 
+			CreateFilter(filterParams);
+			
 			UpdateOnChanges(
 				typeof(Nomenclature),
 				typeof(MeasurementUnits),
@@ -39,6 +47,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				typeof(VodovozOrder),
 				typeof(OrderItem)
 			);
+		}
+
+		private void CreateFilter(Action<NomenclatureStockFilterViewModel> filterParams)
+		{
+			_filterViewModel = _scope.Resolve<NomenclatureStockFilterViewModel>(new TypedParameter(typeof(DialogViewModelBase), this));
+
+			if(filterParams != null)
+			{
+				_filterViewModel.SetAndRefilterAtOnce(filterParams);
+			}
+
+			Filter = _filterViewModel;
 		}
 
 		protected override List<IJournalAction> NodeActionsList { get; set; }
@@ -49,132 +69,153 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			CreateDefaultSelectAction();
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => uow =>
+		{
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits measurementUnitsAlias = null;
 			NomenclatureStockJournalNode resultAlias = null;
 			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
 			WarehouseInstanceGoodsAccountingOperation warehouseInstanceOperationAlias = null;
+			EmployeeBulkGoodsAccountingOperation employeeBulkOperationAlias = null;
 			EmployeeInstanceGoodsAccountingOperation employeeInstanceOperationAlias = null;
+			CarBulkGoodsAccountingOperation carBulkOperationAlias = null;
 			CarInstanceGoodsAccountingOperation carInstanceOperationAlias = null;
 			GoodsAccountingOperation operationAlias = null;
 
-			//var balanceInStock = QueryOver.Of(() => operationAlias)
-			//	.Where(() => operationAlias.Nomenclature.Id == nomenclatureAlias.Id);
 			IProjection balanceProjection = null;
-			//balanceInStock.Select(Projections.Sum(() => operationAlias.Amount));
-
-			balanceProjection = Projections.Sum(() => warehouseBulkOperationAlias.Amount);
-			/*var projectionBalance = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
-				NHibernateUtil.Decimal,
-				Projections.SubQuery(balanceInStock)
-			);*/
 
 			var queryStock = uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.Unit, () => measurementUnitsAlias);
-			
-			
-			//Хардкодим выборку номенклатур не для инвентарного учета
-			//queryStock.Where(() => !nomenclatureAlias.HasInventoryAccounting);
 
-			if(FilterViewModel != null)
+			if(_filterViewModel.Warehouse != null)
 			{
-				if(FilterViewModel.Warehouse != null)
+				if(!_filterViewModel.ShowNomenclatureInstance)
 				{
-					if(!FilterViewModel.ShowNomenclatureInstance)
-					{
-						queryStock.JoinEntityAlias(() => warehouseBulkOperationAlias,
-							() => nomenclatureAlias.Id == warehouseBulkOperationAlias.Nomenclature.Id,
-							JoinType.LeftOuterJoin);
-					
-						balanceProjection = Projections.Sum(() => warehouseBulkOperationAlias.Amount);
-					}
-					else
-					{
-						queryStock
-							.JoinEntityAlias(() => warehouseBulkOperationAlias,
-								() => nomenclatureAlias.Id == warehouseBulkOperationAlias.Nomenclature.Id,
-								JoinType.LeftOuterJoin)
-							.JoinEntityAlias(() => warehouseInstanceOperationAlias,
-								() => nomenclatureAlias.Id == warehouseInstanceOperationAlias.Nomenclature.Id,
-								JoinType.LeftOuterJoin);
-					
-						balanceProjection = Projections.Conditional(
-							Restrictions.Where(() => warehouseBulkOperationAlias == null),
-							Projections.Sum(() => warehouseInstanceOperationAlias.Amount),
-							Projections.Sum(() => warehouseBulkOperationAlias.Amount));
-					}
+					queryStock.JoinEntityAlias(() => warehouseBulkOperationAlias,
+						() => nomenclatureAlias.Id == warehouseBulkOperationAlias.Nomenclature.Id
+							&& warehouseBulkOperationAlias.Warehouse.Id == _filterViewModel.Warehouse.Id,
+						JoinType.LeftOuterJoin);
+				
+					balanceProjection = Projections.Sum(() => warehouseBulkOperationAlias.Amount);
 				}
-				else if(FilterViewModel.EmployeeStorage != null)
+				else
+				{
+					queryStock
+						.JoinEntityAlias(() => warehouseBulkOperationAlias,
+							() => nomenclatureAlias.Id == warehouseBulkOperationAlias.Nomenclature.Id
+								&& warehouseBulkOperationAlias.Warehouse.Id == _filterViewModel.Warehouse.Id,
+							JoinType.LeftOuterJoin)
+						.JoinEntityAlias(() => warehouseInstanceOperationAlias,
+							() => nomenclatureAlias.Id == warehouseInstanceOperationAlias.Nomenclature.Id
+								&& warehouseInstanceOperationAlias.Warehouse.Id == _filterViewModel.Warehouse.Id,
+							JoinType.LeftOuterJoin);
+				
+					balanceProjection = Projections.Conditional(
+						Restrictions.Where(() => warehouseBulkOperationAlias == null),
+						Projections.Sum(() => warehouseInstanceOperationAlias.Amount),
+						Projections.Sum(() => warehouseBulkOperationAlias.Amount));
+				}
+			}
+			else if(_filterViewModel.EmployeeStorage != null)
+			{
+				if(!_filterViewModel.ShowNomenclatureInstance)
 				{
 					queryStock.JoinEntityAlias(() => employeeInstanceOperationAlias,
-						() => nomenclatureAlias.Id == employeeInstanceOperationAlias.Nomenclature.Id,
+						() => nomenclatureAlias.Id == employeeInstanceOperationAlias.Nomenclature.Id
+							&& employeeInstanceOperationAlias.Employee.Id == _filterViewModel.EmployeeStorage.Id,
 						JoinType.LeftOuterJoin);
-					
+
 					balanceProjection = Projections.Sum(() => employeeInstanceOperationAlias.Amount);
 				}
-				else if(FilterViewModel.CarStorage != null)
+				else
 				{
-					queryStock.JoinEntityAlias(() => carInstanceOperationAlias,
-						() => nomenclatureAlias.Id == carInstanceOperationAlias.Nomenclature.Id,
-						JoinType.LeftOuterJoin);
-					
-					balanceProjection = Projections.Sum(() => carInstanceOperationAlias.Amount);
+					queryStock
+						.JoinEntityAlias(() => employeeBulkOperationAlias,
+							() => nomenclatureAlias.Id == employeeBulkOperationAlias.Nomenclature.Id
+								&& employeeBulkOperationAlias.Employee.Id == _filterViewModel.EmployeeStorage.Id,
+							JoinType.LeftOuterJoin)
+						.JoinEntityAlias(() => employeeInstanceOperationAlias,
+							() => nomenclatureAlias.Id == employeeInstanceOperationAlias.Nomenclature.Id
+								&& employeeInstanceOperationAlias.Employee.Id == _filterViewModel.EmployeeStorage.Id,
+							JoinType.LeftOuterJoin);
+				
+					balanceProjection = Projections.Conditional(
+						Restrictions.Where(() => employeeBulkOperationAlias == null),
+						Projections.Sum(() => employeeInstanceOperationAlias.Amount),
+						Projections.Sum(() => employeeBulkOperationAlias.Amount));
+				}
+			}
+			else if(_filterViewModel.CarStorage != null)
+			{
+				if(!_filterViewModel.ShowNomenclatureInstance)
+				{
+					queryStock
+						.JoinEntityAlias(() => carBulkOperationAlias,
+							() => nomenclatureAlias.Id == carBulkOperationAlias.Nomenclature.Id
+								&& carBulkOperationAlias.Car.Id == _filterViewModel.CarStorage.Id,
+							JoinType.LeftOuterJoin);
+				
+					balanceProjection = Projections.Sum(() => carBulkOperationAlias.Amount);
 				}
 				else
 				{
-					queryStock.JoinEntityAlias(() => operationAlias,
-						() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
-						JoinType.LeftOuterJoin);
-					
-					balanceProjection = Projections.Sum(() => operationAlias.Amount);
+					queryStock
+						.JoinEntityAlias(() => carBulkOperationAlias,
+							() => nomenclatureAlias.Id == carBulkOperationAlias.Nomenclature.Id
+								&& carBulkOperationAlias.Car.Id == _filterViewModel.CarStorage.Id,
+							JoinType.LeftOuterJoin)
+						.JoinEntityAlias(() => carInstanceOperationAlias,
+							() => nomenclatureAlias.Id == carInstanceOperationAlias.Nomenclature.Id
+								&& carInstanceOperationAlias.Car.Id == _filterViewModel.CarStorage.Id,
+							JoinType.LeftOuterJoin);
+				
+					balanceProjection = Projections.Conditional(
+						Restrictions.Where(() => carBulkOperationAlias == null),
+						Projections.Sum(() => carInstanceOperationAlias.Amount),
+						Projections.Sum(() => carBulkOperationAlias.Amount));
 				}
-				//if(FilterViewModel.)
+			}
+			else
+			{
+				queryStock.JoinEntityAlias(() => operationAlias,
+					() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
+					JoinType.LeftOuterJoin);
+				
+				balanceProjection = Projections.Sum(() => operationAlias.Amount);
+			}
 
-				if(!FilterViewModel.ShowArchive)
-				{
-					queryStock.Where(() => nomenclatureAlias.IsArchive == false);
-				}
+			if(!_filterViewModel.ShowArchive)
+			{
+				queryStock.Where(() => nomenclatureAlias.IsArchive == false);
+			}
 
-				if(FilterViewModel.ExcludedNomenclatureIds != null && FilterViewModel.ExcludedNomenclatureIds.Any())
-				{
-					queryStock.Where(
-						Restrictions.Not(
-							Restrictions.In(
-								Projections.Property(() => nomenclatureAlias.Id), 
-								FilterViewModel.ExcludedNomenclatureIds.ToArray()
-							)
+			if(_filterViewModel.ExcludedNomenclatureIds != null && _filterViewModel.ExcludedNomenclatureIds.Any())
+			{
+				queryStock.Where(
+					Restrictions.Not(
+						Restrictions.In(
+							Projections.Property(() => nomenclatureAlias.Id), 
+							_filterViewModel.ExcludedNomenclatureIds.ToArray()
 						)
-					);
-				}
-				
-				if(FilterViewModel.Warehouse != null  && SelectionMode != JournalSelectionMode.None)
-				{
-					queryStock.Where(Restrictions.Gt(balanceProjection, 0));
-				}
-				else if(FilterViewModel.EmployeeStorage != null && SelectionMode != JournalSelectionMode.None)
-				{
-					queryStock.Where(Restrictions.Gt(balanceProjection, 0));
-				}
-				else if(FilterViewModel.CarStorage != null && SelectionMode != JournalSelectionMode.None)
-				{
-					queryStock.Where(Restrictions.Gt(balanceProjection, 0));
-				}
-				else
-				{
-					queryStock.Where(Restrictions.Not(Restrictions.Eq(balanceProjection,0)));
-				}
-				
-				
-				/*if(FilterViewModel.Warehouse != null && SelectionMode != JournalSelectionMode.None)
-				{
-					queryStock.Where(Restrictions.Gt(balanceProjection, 0));
-				}
-				else
-				{
-					queryStock.Where(Restrictions.Not(Restrictions.Eq(balanceProjection,0)));
-				}*/
+					)
+				);
+			}
+			
+			if(_filterViewModel.Warehouse != null  && SelectionMode != JournalSelectionMode.None)
+			{
+				queryStock.Where(Restrictions.Gt(balanceProjection, 0));
+			}
+			else if(_filterViewModel.EmployeeStorage != null && SelectionMode != JournalSelectionMode.None)
+			{
+				queryStock.Where(Restrictions.Gt(balanceProjection, 0));
+			}
+			else if(_filterViewModel.CarStorage != null && SelectionMode != JournalSelectionMode.None)
+			{
+				queryStock.Where(Restrictions.Gt(balanceProjection, 0));
+			}
+			else
+			{
+				queryStock.Where(Restrictions.Not(Restrictions.Eq(balanceProjection,0)));
 			}
 
 			queryStock.Where(
@@ -191,6 +232,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => nomenclatureAlias.MinStockCount).WithAlias(() => resultAlias.MinNomenclatureAmount)
+					.Select(() => nomenclatureAlias.HasInventoryAccounting).WithAlias(() => resultAlias.HasInventoryAccounting)
 					.Select(() => measurementUnitsAlias.Name).WithAlias(() => resultAlias.UnitName)
 					.Select(() => measurementUnitsAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 					.Select(balanceProjection).WithAlias(() => resultAlias.StockAmount))
