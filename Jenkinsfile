@@ -56,7 +56,7 @@ DESKTOP_VOD3_DELIVERY_PATH = "\\\\${NODE_VOD3}\\${WIN_DELIVERY_SHARED_FOLDER_NAM
 DESKTOP_VOD5_DELIVERY_PATH = "\\\\${NODE_VOD5}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 DESKTOP_VOD7_DELIVERY_PATH = "\\\\${NODE_VOD7}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
-LINUX_RUNTIME_DELIVERY_PATH = GetWorkspacePath(NODE_LINUX_RUNTIME)
+LINUX_RUNTIME_DELIVERY_PATH = GetWorkspacePathForNode(NODE_LINUX_RUNTIME)
 
 //Deploy
 DEPLOY_PATH = "F:/WORK/_BUILDS"
@@ -322,7 +322,7 @@ def CompressDesktopArtifact(){
 	if(CAN_COMPRESS_DESKTOP)
 	{
 		node(NODE_WIN_BUILD){
-			CompressArtifact("${env.WORKSPACE}/${APP_PATH}/Desktop/Vodovoz/bin/DebugWin", "VodovozDesktop") 
+			CompressArtifact("${APP_PATH}/Desktop/Vodovoz/bin/DebugWin", "VodovozDesktop") 
 		}
 	} 
 	else
@@ -336,7 +336,7 @@ def CompressWebArtifact(relativeProjectPath){
 	{
 		node(NODE_WIN_BUILD){
 			def webProjectName = GetFolderName(relativeProjectPath)
-			CompressArtifact("${env.WORKSPACE}/${APP_PATH}/${webProjectName}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
+			CompressArtifact("${APP_PATH}/${webProjectName}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
 		}
 	} 
 	else
@@ -350,7 +350,7 @@ def CompressWcfArtifact(relativeProjectPath){
 	{
 		node(NODE_LINUX_BUILD){
 			def wcfProjectName = GetFolderName(relativeProjectPath)
-			CompressArtifact("${env.WORKSPACE}/${APP_PATH}/${relativeProjectPath}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
+			CompressArtifact("${APP_PATH}/${relativeProjectPath}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
 		}
 	} 
 	else
@@ -623,9 +623,10 @@ def PublishWCFService(serviceName) {
 
 def CompressArtifact(sourcePath, artifactName) {
 	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
+	def workspacePath = GetWorkspacePath()
 
 	if (fileExists(archive_file)) {
-		echo "Delete exiting artifact ${archive_file} from ./${sourcePath}/*"
+		echo "Delete exiting artifact ${workspacePath}/${archive_file} from ${workspacePath}/${sourcePath}/*"
 		fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
 	}
 
@@ -692,10 +693,19 @@ def RunPowerShell(psScript){
         """
 }
 
-def GetWorkspacePath (nodeName)  {  
+def GetWorkspacePathForNode (nodeName)  {  
 	node(nodeName){
-		return env.WORKSPACE
+		return GetWorkspacePath()
 	}  
+}
+
+def GetWorkspacePath ()  {  
+	if (isUnix()) {
+		return env.WORKSPACE
+	}
+	else {
+		return env.WORKSPACE.replace("\\", "/")
+	}
 }
 
 def GetJobFolderName(){
