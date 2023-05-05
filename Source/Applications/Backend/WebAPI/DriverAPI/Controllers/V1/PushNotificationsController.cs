@@ -88,6 +88,7 @@ namespace DriverAPI.Controllers.V1
 		[AllowAnonymous]
 		[Route("NotifyOfSmsPaymentStatusChanged")]
 		[Route("/api/NotifyOfSmsPaymentStatusChanged")]
+		[ApiExplorerSettings(IgnoreApi = true)]
 		public async Task NotifyOfSmsPaymentStatusChanged([FromBody] int orderId)
 		{
 			await SendPaymentStatusChangedPushNotificationAsync(orderId);
@@ -97,6 +98,7 @@ namespace DriverAPI.Controllers.V1
 		[AllowAnonymous]
 		[Route("NotifyOfFastPaymentStatusChanged")]
 		[Route("/api/NotifyOfFastPaymentStatusChanged")]
+		[ApiExplorerSettings(IgnoreApi = true)]
 		public async Task NotifyOfFastPaymentStatusChanged([FromBody] int orderId)
 		{
 			await SendPaymentStatusChangedPushNotificationAsync(orderId);
@@ -124,6 +126,7 @@ namespace DriverAPI.Controllers.V1
 		[AllowAnonymous]
 		[Route("NotifyOfFastDeliveryOrderAdded")]
 		[Route("/api/NotifyOfFastDeliveryOrderAdded")]
+		[ApiExplorerSettings(IgnoreApi = true)]
 		public async Task NotifyOfFastDeliveryOrderAdded([FromBody] int orderId)
 		{
 			var token = _aPIRouteListData.GetActualDriverPushNotificationsTokenByOrderId(orderId);
