@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NLog;
 using QS.Commands;
@@ -84,6 +84,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool WithoutDependsOnNomenclature => Entity.DependsOnNomenclature == null;
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && IsNewEntity);
 		public bool CanCreateAndArcNomenclatures { get; private set; }
+		public bool CanEditAlternativeNomenclaturePrices { get; private set; }
 		public bool AskSaveOnClose => CanEdit;
 		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
@@ -182,6 +183,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
 			CanCreateNomenclaturesWithInventoryAccountingPermission =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_nomenclatures_with_inventory_accounting");
+			CanEditAlternativeNomenclaturePrices =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
 		}
 
 		protected override bool BeforeValidation()

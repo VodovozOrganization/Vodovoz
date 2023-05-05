@@ -7,22 +7,27 @@ using System.Linq;
 using Vodovoz.Domain.Orders;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Domain.Client;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Journals.FilterViewModels;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FirstClientsReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly IDistrictJournalFactory _districtJournalFactory;
+
 		public FirstClientsReport(
-			IEntityAutocompleteSelectorFactory districtAutocompleteSelectorFactory,
+			IDistrictJournalFactory districtJournalFactory,
 			IDiscountReasonRepository discountReasonRepository)
 		{
-			var districtSelector = districtAutocompleteSelectorFactory ??
-			                       throw new ArgumentNullException(nameof(districtAutocompleteSelectorFactory));
-			
+			_districtJournalFactory = districtJournalFactory ?? throw new ArgumentNullException(nameof(districtJournalFactory));
+			var districtFilter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
+			var districtSelector = _districtJournalFactory.CreateDistrictAutocompleteSelectorFactory(districtFilter);
+
 			if(discountReasonRepository == null)
 			{
 				throw new ArgumentNullException(nameof(discountReasonRepository));

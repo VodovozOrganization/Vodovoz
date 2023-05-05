@@ -21,7 +21,7 @@ namespace RoboatsService.Requests
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsOrderModel _roboatsOrderModel;
 		private readonly ValidOrdersProvider _validOrdersProvider;
-		private readonly RoboatsSettings _roboatsSettings;
+		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 
 		public OrderRequestType RequestType { get; }
@@ -51,7 +51,7 @@ namespace RoboatsService.Requests
 			RoboatsOrderModel roboatsOrderModel,
 			ValidOrdersProvider validOrdersProvider,
 			RequestDto requestDto,
-			RoboatsSettings roboatsSettings,
+			IRoboatsSettings roboatsSettings,
 			RoboatsCallRegistrator callRegistrator) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -278,25 +278,30 @@ namespace RoboatsService.Requests
 				return ErrorMessage;
 			}
 
-			RoboAtsOrderPayment payment;
-			switch(RequestDto.PaymentType)
-			{
-				case "terminal":
-					payment = RoboAtsOrderPayment.Terminal;
-					break;
-				case "cash":
-					payment = RoboAtsOrderPayment.Cash;
-					break;
-				case "qrcode":
-					payment = RoboAtsOrderPayment.QrCode;
-					break;
-				default:
-					_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.UnknownIsTerminalValue, RoboatsCallOperation.CreateOrder,
-						$"Невозможно создать заказ. Не известный тип оплаты. Тип оплаты: {RequestDto.PaymentType}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}. Обратитесь в отдел разработки.");
-					return ErrorMessage;
-			}
-
 			var isFullOrder = RequestDto.IsFullOrder == "1";
+
+			RoboAtsOrderPayment payment = RoboAtsOrderPayment.Cash;
+			if(isFullOrder)
+			{
+				switch(RequestDto.PaymentType)
+				{
+					case "terminal":
+						payment = RoboAtsOrderPayment.Terminal;
+						break;
+					case "cash":
+						payment = RoboAtsOrderPayment.Cash;
+						break;
+					case "qrcode":
+						payment = RoboAtsOrderPayment.QrCode;
+						break;
+					default:
+						_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.UnknownIsTerminalValue, RoboatsCallOperation.CreateOrder,
+							$"Невозможно создать заказ. Не известный тип оплаты. Тип оплаты: {RequestDto.PaymentType}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}. Обратитесь в отдел разработки.");
+						return ErrorMessage;
+				}
+			}
+			
+
 			if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn))
 			{
 				banknoteForReturn = 0;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -7,8 +6,9 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Permissions;
@@ -24,24 +24,26 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 {
 	public class SubdivisionsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Subdivision, SubdivisionViewModel, SubdivisionJournalNode, SubdivisionFilterViewModel>
 	{
-		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
+		private readonly ILifetimeScope _scope;
 
 		public SubdivisionsJournalViewModel(
 			SubdivisionFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
-			INomenclatureJournalFactory nomenclatureSelectorFactory
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			INomenclatureJournalFactory nomenclatureSelectorFactory,
+			ILifetimeScope scope) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			TabName = "Выбор подразделения";
 		}
 
@@ -96,13 +98,13 @@ namespace Vodovoz.Journals.JournalViewModels.Organizations
 		};
 
 		protected override Func<SubdivisionViewModel> CreateDialogFunction =>
-			() => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, employeeSelectorFactory,
+			() => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), _unitOfWorkFactory, commonServices, _employeeJournalFactory,
 				new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory,
-				new SubdivisionRepository(new ParametersProvider()));
+				new SubdivisionRepository(new ParametersProvider()), _scope.BeginLifetimeScope());
 
 		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction =>
-			node => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, employeeSelectorFactory,
+			node => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), _unitOfWorkFactory, commonServices, _employeeJournalFactory,
 				new PermissionRepository(), _salesPlanJournalFactory, _nomenclatureSelectorFactory,
-				new SubdivisionRepository(new ParametersProvider()));
+				new SubdivisionRepository(new ParametersProvider()), _scope.BeginLifetimeScope());
 	}
 }

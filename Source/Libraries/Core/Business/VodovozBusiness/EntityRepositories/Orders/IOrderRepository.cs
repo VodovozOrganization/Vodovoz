@@ -4,11 +4,9 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -94,8 +92,8 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
 		IList<Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uow, DateTime date, DeliveryPoint deliveryPoint);
-        Order GetOrder(IUnitOfWork unitOfWork, int orderId);
-        IList<Order> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate);
+		Order GetOrder(IUnitOfWork unitOfWork, int orderId);
+		IList<Order> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate);
 
 		IList<Order> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c);
 
@@ -119,14 +117,6 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		OrderStatus[] GetUndeliveryStatuses();
 
-		/// <summary>
-		/// Подбирает подходящие заказы, для которых необходимо отправкить чеки контрагентам
-		/// </summary>
-		IEnumerable<ReceiptForOrderNode> GetOrdersForCashReceiptServiceToSend(
-			IUnitOfWork uow,
-			IOrderParametersProvider orderParametersProvider,
-			DateTime? startDate = null);
-
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Order order);
 
 		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);
@@ -137,6 +127,15 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetOrders(IUnitOfWork uow, int[] ids);
 		bool HasFlyersOnStock(IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroup);
+
+		/// <summary>
+		/// Проверка на перенос данной позиция в другой заказ
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderItem">Позиция заказа</param>
+		/// <returns>true - если свойство CopiedFromUndelivery другого заказа содержит значения, равное Id данной позиции</returns>
+		bool IsMovedToTheNewOrder(IUnitOfWork uow, OrderItem orderItem);
+
 		int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate);
 		DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId);
 		IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
@@ -148,6 +147,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
 		IList<Order> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		IList<Order> GetOrdersWithSendErrorsForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
+		decimal GetIsAccountableInTrueMarkOrderItemsCount(IUnitOfWork uow, int orderId);
+		IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId);
 	}
 
 	public class ClientEquipmentNode

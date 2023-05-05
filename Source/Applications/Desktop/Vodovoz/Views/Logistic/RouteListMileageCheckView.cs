@@ -6,6 +6,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewWidgets.Logistics;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -86,6 +88,14 @@ namespace Vodovoz.Views.Logistic
 
 			ybuttonSave.Clicked += (sender, e) => ViewModel.SaveWithClose();
 			ybuttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+
+			var deliveryFreeBalanceViewModel = new DeliveryFreeBalanceViewModel();
+			var deliveryfreebalanceview = new DeliveryFreeBalanceView(deliveryFreeBalanceViewModel);
+			deliveryfreebalanceview.Binding
+				.AddBinding(ViewModel.Entity, e => e.ObservableDeliveryFreeBalanceOperations, w => w.ObservableDeliveryFreeBalanceOperations)
+				.InitializeFromSource();
+			deliveryfreebalanceview.ShowAll();
+			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
 		}
 
 		private Gdk.Color GetRowColorByStatus(RouteListItemStatus routeListItemStatus)

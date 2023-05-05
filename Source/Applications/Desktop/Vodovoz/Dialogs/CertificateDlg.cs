@@ -90,8 +90,7 @@ namespace Vodovoz.Dialogs
 			);
 
 			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(true);
-			journal.FilterViewModel = filter;
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(filter, true);
 			journal.OnEntitySelectedResult += JournalOnEntitySelectedResult;
 			journal.Title = "Номенклатура на продажу";
 			TabParent.AddSlaveTab(this, journal);

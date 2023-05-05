@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using QS.Project.Filter;
 using Vodovoz.Domain.Store;
 using System.Collections.Generic;

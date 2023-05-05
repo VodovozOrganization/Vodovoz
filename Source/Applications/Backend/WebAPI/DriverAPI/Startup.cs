@@ -2,27 +2,35 @@
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using DriverAPI.Middleware;
+using DriverAPI.Options;
+using DriverAPI.Services;
+using DriverAPI.Workers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using MySql.Data.MySqlClient;
 using NLog.Web;
+using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Linq;
+using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text;
-using QS.Attachments.Domain;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
@@ -30,17 +38,18 @@ using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Tools;
 using Vodovoz.Settings.Database;
-using System.Reflection;
+using Vodovoz.Tools;
 
 namespace DriverAPI
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = "NLog";
 		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
@@ -58,10 +67,11 @@ namespace DriverAPI
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
-			_logger = new Logger<Startup>(LoggerFactory.Create(logging => 
-				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
+				logging.AddConfiguration(Configuration.GetSection(_nLogSectionName))));
 
 			// Подключение к БД
 
@@ -128,16 +138,39 @@ namespace DriverAPI
 
 			services.AddControllersWithViews();
 			services.AddControllers();
-
-			services.AddSwaggerGen(c =>
+			
+			services.AddApiVersioning(config =>
 			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "DriverAPI", Version = "v1" });
+				config.DefaultApiVersion = new ApiVersion(1, 0);
+				config.AssumeDefaultVersionWhenUnspecified = true;
+				config.ReportApiVersions = true;
+				config.ApiVersionReader = new UrlSegmentApiVersionReader();
 			});
+
+			services.AddVersionedApiExplorer(config =>
+			{
+				config.GroupNameFormat = "'v'VVV";
+				config.SubstituteApiVersionInUrl = true;
+			});
+
+			services.AddSwaggerGen();
+
+			services.ConfigureOptions<ConfigureSwaggerOptions>();
 			
 			services.AddHttpClient<IFastPaymentsServiceAPIHelper, FastPaymentsesServiceApiHelper>(c =>
 			{
 				c.BaseAddress = new Uri(Configuration.GetSection("FastPaymentsServiceAPI").GetValue<string>("ApiBase"));
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
+			});
+
+			services.AddHttpClient<IFCMAPIHelper, FCMAPIHelper>(c =>
+			{
+				var apiConfiguration = Configuration.GetSection("FCMAPI");
+
+				c.BaseAddress = new Uri(apiConfiguration["ApiBase"]);
+				c.DefaultRequestHeaders.Accept.Clear();
+				c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+				c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("key", "=" + apiConfiguration["AccessToken"]);
 			});
 		}
 
@@ -146,12 +179,23 @@ namespace DriverAPI
 		{
 			app.UseRequestResponseLogging();
 
+			app.UseSwagger();
+			app.UseSwaggerUI(options =>
+			{
+				var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+
+				foreach(var description in provider.ApiVersionDescriptions)
+				{
+					options.SwaggerEndpoint(
+						 $"/swagger/{description.GroupName}/swagger.json",
+						 description.ApiVersion.ToString());
+				}
+			});
+
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseMigrationsEndPoint();
-				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DriverAPI v1"));
 			}
 			else
 			{
@@ -234,10 +278,19 @@ namespace DriverAPI
 			// Сервисы для контроллеров
 
 			// Unit Of Work
+			services.AddScoped<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
 			services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
 
 			// ErrorReporter
 			services.AddScoped<IErrorReporter>((sp) => ErrorReporter.Instance);
+			services.AddScoped<TrueMarkWaterCodeParser>();
+			services.AddScoped<TrueMarkCodesPool, TrueMarkTransactionalCodesPool>();
+
+			// Сервисы
+			services.AddSingleton<IWakeUpDriverClientService, WakeUpDriverClientService>();
+
+			// Workers
+			services.AddHostedService<WakeUpNotificationSenderService>();
 
 			// Репозитории водовоза
 			services.AddScoped<ITrackRepository, TrackRepository>();
@@ -254,6 +307,7 @@ namespace DriverAPI
 			services.AddScoped<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddScoped<IDriverApiParametersProvider, DriverApiParametersProvider>();
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
+			services.AddScoped<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 
 			// Конвертеры
 			foreach(var type in typeof(Library.AssemblyFinder)
@@ -265,6 +319,7 @@ namespace DriverAPI
 			{
 				services.AddScoped(type);
 			}
+
 
 			// Хелперы
 			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Gamma.Utilities;
 using NetTopologySuite.Geometries;
+using NHibernate.Impl;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -351,7 +352,7 @@ namespace Vodovoz.Domain.Client
 		public virtual GenericObservableList<DeliveryPointResponsiblePerson> ObservableResponsiblePersons {
 			get {
 				if(observableResponsiblePersons == null)
-                    observableResponsiblePersons = new GenericObservableList<DeliveryPointResponsiblePerson>(ResponsiblePersons);
+					observableResponsiblePersons = new GenericObservableList<DeliveryPointResponsiblePerson>(ResponsiblePersons);
 				return observableResponsiblePersons;
 			}
 		}
@@ -664,10 +665,10 @@ namespace Vodovoz.Domain.Client
 
 		public virtual long СoordinatesHash => CachedDistance.GetHash(this);
 
-        #endregion
+		#endregion
 
-        //FIXME вынести зависимость
-        IDeliveryRepository deliveryRepository = new DeliveryRepository();
+		//FIXME вынести зависимость
+		IDeliveryRepository deliveryRepository = new DeliveryRepository();
 
 		/// <summary>
 		/// Возврат районов доставки, в которые попадает точка доставки
@@ -856,6 +857,20 @@ namespace Vodovoz.Domain.Client
 						new[] { this.GetPropertyName(o => o.Organization) });
 			}
 
+			var everyAddedMinCountValueCount = NomenclatureFixedPrices
+				.GroupBy(p => new { p.Nomenclature, p.MinCount })
+				.Select(p => new { NomenclatureName = p.Key.Nomenclature?.Name, MinCountValue = p.Key.MinCount, Count = p.Count() });
+
+			foreach(var p in everyAddedMinCountValueCount)
+			{
+				if(p.Count > 1)
+				{
+					yield return new ValidationResult(
+							$"\"{p.NomenclatureName}\": фиксированная цена для количества \"{p.MinCountValue}\" указана {p.Count} раз(а)",
+							new[] { this.GetPropertyName(o => o.NomenclatureFixedPrices) });
+				}
+			}
+
 			foreach (var fixedPrice in NomenclatureFixedPrices) {
 				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
 				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {
@@ -895,6 +910,11 @@ namespace Vodovoz.Domain.Client
 			if(!string.IsNullOrEmpty(phonesValidationMessage))
 			{
 				yield return new ValidationResult(phonesValidationMessage);
+			}
+
+			if(ResponsiblePersons.Any(x => x.DeliveryPointResponsiblePersonType == null || x.Employee == null || string.IsNullOrWhiteSpace(x.Phone)))
+			{
+				yield return new ValidationResult("Для ответственных лиц должны быть заполнены Тип, Сотрудник и Телефон", new[] { nameof(ResponsiblePersons) });
 			}
 		}
 

@@ -82,7 +82,7 @@ namespace Vodovoz.ViewModel
 			if(Filter.RestrictWarehouse != null) {
 				queryRoutes.JoinAlias(rl => rl.Addresses, () => routeListAddressAlias)
 					.JoinAlias(() => routeListAddressAlias.Order, () => orderAlias)
-					.Where(() => !routeListAddressAlias.WasTransfered || routeListAddressAlias.NeedToReload)
+					.Where(() => !routeListAddressAlias.WasTransfered || routeListAddressAlias.AddressTransferType == AddressTransferType.NeedToReload)
 					.Where(new Disjunction()
 						.Add(Subqueries.WhereExists(orderitemsSubqury))
 						.Add(Subqueries.WhereExists(orderEquipmentSubquery))

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog;
@@ -27,7 +27,7 @@ using Vodovoz.Views.Mango;
 
 namespace Vodovoz.ViewModels.Mango.Talks
 {
-	public partial class CounterpartyTalkViewModel : TalkViewModelBase
+	public partial class CounterpartyTalkViewModel : TalkViewModelBase, IDisposable
 	{
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private readonly IRouteListRepository _routedListRepository;
@@ -41,6 +41,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly IUnitOfWork _uow;
 		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
+		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
 
@@ -120,9 +121,9 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void ExistingClientCommand()
 		{
-			var page = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
-			page.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
-			page.ViewModel.OnEntitySelectedResult += ExistingCounterparty_PageClosed;
+			_counterpartyJournalPage = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
+			_counterpartyJournalPage.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+			_counterpartyJournalPage.ViewModel.OnEntitySelectedResult += OnExistingCounterpartyPageClosed;
 		}
 
 		private void OnNewCounterpartyPageClosed(object sender, PageClosedEventArgs e)
@@ -153,7 +154,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			(sender as IPage).PageClosed -= OnNewCounterpartyPageClosed;
 		}
 
-		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		void OnExistingCounterpartyPageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
 			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
 			Counterparty client = _uow.GetById<Counterparty>(counterpartyNode.Id);
@@ -185,13 +186,27 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заказ поступает от контрагента дистрибуции");
 			}
+
 			var model = CounterpartyOrdersViewModels.Find(m => m.Client.Id == currentCounterparty.Id);
 
-			var currentClientPhone = currentCounterparty.Phones.FirstOrDefault(p => p.DigitsNumber == ActiveCall.Phone.DigitsNumber);
-			IPage page = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty, Phone>(null, currentCounterparty, currentClientPhone);
-			page.PageClosed += (sender, e) => { model.RefreshOrders(); };
-		}
+			if(model.IsDeliveryPointChoiceRequired && model.DeliveryPoint == null)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, 
+					$"У клиента несколько точек доставки с телефоном {ActiveCall.CallerNumberText}, выберите одну из точек доставки.");
 
+				return;
+			}
+
+			var contactPhone = currentCounterparty.Phones?.FirstOrDefault(p => p.DigitsNumber == ActiveCall.Phone.DigitsNumber);
+
+			if(contactPhone == null)
+			{
+				contactPhone = model.DeliveryPoint?.Phones?.FirstOrDefault(p => p.DigitsNumber == ActiveCall.Phone.DigitsNumber);
+			}
+
+			IPage page = _tdiNavigation.OpenTdiTab<OrderDlg, Counterparty, Phone>(null, currentCounterparty, contactPhone);
+			page.PageClosed += (s, e) => model.RefreshOrders?.Invoke();
+		}
 
 		public void AddComplainCommand()
 		{
@@ -237,5 +252,20 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		}
 
 		#endregion
+
+		public void Dispose()
+		{
+			if(_counterpartyJournalPage?.ViewModel != null)
+			{
+				_counterpartyJournalPage.ViewModel.OnEntitySelectedResult -= OnExistingCounterpartyPageClosed;
+			}
+
+			foreach(var model in CounterpartyOrdersViewModels)
+			{
+				model.Dispose();
+			}
+
+			_uow?.Dispose();
+		}
 	}
 }

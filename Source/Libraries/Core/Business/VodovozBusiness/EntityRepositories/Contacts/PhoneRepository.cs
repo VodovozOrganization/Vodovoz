@@ -14,7 +14,6 @@ namespace Vodovoz.EntityRepositories
 {
 	public class PhoneRepository : IPhoneRepository
 	{
-
 		#region PhoneType
 
 		public IList<PhoneType> GetPhoneTypes(IUnitOfWork uow)
@@ -62,6 +61,15 @@ namespace Vodovoz.EntityRepositories
 		}
 
 		#endregion
+
+		public IList<Phone> GetPhonesByNumber(IUnitOfWork uow, string digitsPhone)
+		{
+			return uow.Session.QueryOver<Phone>()
+				.Where(p => p.DigitsNumber == digitsPhone)
+				.And(p => p.Counterparty != null || p.DeliveryPoint != null)
+				.And(p => !p.IsArchive)
+				.List();
+		}
 
 		public IList<IncomingCallsAnalysisReportNode> GetLastOrderIdAndDeliveryDateByPhone(
 			IUnitOfWork uow, IEnumerable<string> incomingCallsNumbers)

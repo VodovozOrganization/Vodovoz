@@ -59,6 +59,9 @@ namespace Vodovoz.Domain.Client
 		private string _specialContractNumber;
 		private DateTime? _specialContractDate;
 		private bool _doNotMixMarkedAndUnmarkedGoodsInOrder;
+		private string _patronymic;
+		private string _firstName;
+		private string _surname;
 
 		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
 		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
@@ -189,7 +192,7 @@ namespace Vodovoz.Domain.Client
 		[StringLength(10)]
 		public virtual string TypeOfOwnership {
 			get => typeOfOwnership;
-			set => SetField(ref typeOfOwnership, value, () => TypeOfOwnership);
+			set => SetField(ref typeOfOwnership, value);
 		}
 
 		string fullName;
@@ -282,7 +285,9 @@ namespace Vodovoz.Domain.Client
 				SetField(ref personType, value, () => PersonType);
 
 				if(value == PersonType.natural)
+				{
 					PaymentMethod = PaymentType.cash;
+				}
 			}
 		}
 
@@ -733,7 +738,28 @@ namespace Vodovoz.Domain.Client
 			get => _edoOperator;
 			set => SetField(ref _edoOperator, value);
 		}
-		
+
+		[Display(Name = "Фамилия")]
+		public virtual string Surname
+		{
+			get => _surname;
+			set => SetField(ref _surname, value);
+		}
+
+		[Display(Name = "Имя")]
+		public virtual string FirstName
+		{
+			get => _firstName;
+			set => SetField(ref _firstName, value);
+		}
+
+		[Display(Name = "Отчество")]
+		public virtual string Patronymic
+		{
+			get => _patronymic;
+			set => SetField(ref _patronymic, value);
+		}
+
 		[Display(Name = "Не смешивать в одном заказе маркированные и немаркированные товары")]
 		public virtual bool DoNotMixMarkedAndUnmarkedGoodsInOrder
 		{
@@ -773,28 +799,28 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref isChainStore, value);
 		}
 
-        private bool isForRetail;
-        [Display(Name = "Для розницы")]
-        public virtual bool IsForRetail
-        {
-            get => isForRetail;
-            set => SetField(ref isForRetail, value);
-        }
-
-        [Display(Name = "Для отдела продаж")]
-        public virtual bool IsForSalesDepartment
+		private bool isForRetail;
+		[Display(Name = "Для розницы")]
+		public virtual bool IsForRetail
 		{
-	        get => _isForSalesDepartment;
-	        set => SetField(ref _isForSalesDepartment, value);
-        }
+			get => isForRetail;
+			set => SetField(ref isForRetail, value);
+		}
+
+		[Display(Name = "Для отдела продаж")]
+		public virtual bool IsForSalesDepartment
+		{
+			get => _isForSalesDepartment;
+			set => SetField(ref _isForSalesDepartment, value);
+		}
 
 		private bool noPhoneCall;
-        [Display(Name = "Без прозвона")]
-        public virtual bool NoPhoneCall
-        {
-            get => noPhoneCall;
-            set => SetField(ref noPhoneCall, value);
-        }
+		[Display(Name = "Без прозвона")]
+		public virtual bool NoPhoneCall
+		{
+			get => noPhoneCall;
+			set => SetField(ref noPhoneCall, value);
+		}
 
 		[Display(Name = "Исключение из Roboats звонков")]
 		public virtual bool RoboatsExclude
@@ -851,8 +877,8 @@ namespace Vodovoz.Domain.Client
 		}
 
 		private bool _alwaysSendReceipts;
-        [RestrictedHistoryProperty]
-        [IgnoreHistoryTrace]
+		[RestrictedHistoryProperty]
+		[IgnoreHistoryTrace]
 		[Display(Name = "Всегда отправлять чеки")]
 		public virtual bool AlwaysSendReceipts {
 			get => _alwaysSendReceipts;
@@ -909,6 +935,7 @@ namespace Vodovoz.Domain.Client
 				StringBuilder sb = new StringBuilder(value);
 				sb.Replace("\n", "");
 				JurAddress = sb.ToString();
+				OnPropertyChanged(nameof(RawJurAddress));
 			}
 		}
 
@@ -948,15 +975,15 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-        #endregion
+		#endregion
 
-        #region CloseDelivery
-        
-        public virtual void AddCloseDeliveryComment(string newComment, Employee currentEmployee)
+		#region CloseDelivery
+		
+		public virtual void AddCloseDeliveryComment(string newComment, Employee currentEmployee)
 		{
 			CloseDeliveryComment = currentEmployee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + newComment;
 		}
-        
+		
 		protected virtual bool CloseDelivery(Employee currentEmployee)
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
@@ -1050,25 +1077,25 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-        public virtual void AddFile(CounterpartyFile file)
-        {
-            if (ObservableFiles.Contains(file))
-            {
-                return;
-            }
-            file.Counterparty = this;
-            ObservableFiles.Add(file);
-        }
+		public virtual void AddFile(CounterpartyFile file)
+		{
+			if (ObservableFiles.Contains(file))
+			{
+				return;
+			}
+			file.Counterparty = this;
+			ObservableFiles.Add(file);
+		}
 
-        public virtual void RemoveFile(CounterpartyFile file)
-        {
-            if (ObservableFiles.Contains(file))
-            {
-                ObservableFiles.Remove(file);
-            }
-        }
+		public virtual void RemoveFile(CounterpartyFile file)
+		{
+			if (ObservableFiles.Contains(file))
+			{
+				ObservableFiles.Remove(file);
+			}
+		}
 
-        public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
+		public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
 		{
 			var removableItems = new List<SupplierPriceItem>(
 				ObservableSuplierPriceItems.Where(i => i.NomenclatureToBuy.Id == nomenclatureId).ToList()
@@ -1125,6 +1152,13 @@ namespace Vodovoz.Domain.Client
 			return false;
 		}
 
+		public virtual IList<Counterparty> CheckForPhoneNumberDuplicate(ICounterpartyRepository counterpartyRepository, IUnitOfWork uow, string phoneNumber)
+		{
+			IList<Counterparty> counterarties = counterpartyRepository.GetNotArchivedCounterpartiesByPhoneNumber(uow, phoneNumber);
+
+			return counterarties.Where(x => x?.Id != Id).ToList();
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(!(validationContext.ServiceContainer.GetService(typeof(IBottlesRepository)) is IBottlesRepository bottlesRepository))
@@ -1172,7 +1206,12 @@ namespace Vodovoz.Domain.Client
 						new[] { this.GetPropertyName(o => o.KPP) });
 			}
 			if(PersonType == PersonType.legal) {
-				if(KPP.Length != 9 && KPP.Length != 0 && TypeOfOwnership != "ИП")
+				if(TypeOfOwnership == null || TypeOfOwnership.Length == 0)
+				{
+					yield return new ValidationResult("Не заполнена Форма собственности.",
+						new[] { nameof(TypeOfOwnership) });
+				}
+				if(KPP?.Length != 9 && KPP?.Length != 0 && TypeOfOwnership != "ИП")
 					yield return new ValidationResult("Длина КПП должна равнятся 9-ти.",
 						new[] { this.GetPropertyName(o => o.KPP) });
 				if(INN.Length != 10 && INN.Length != 0 && TypeOfOwnership != "ИП")
@@ -1187,7 +1226,7 @@ namespace Vodovoz.Domain.Client
 				if(string.IsNullOrWhiteSpace(INN))
 					yield return new ValidationResult("Для организации необходимо заполнить ИНН.",
 						new[] { this.GetPropertyName(o => o.INN) });
-				if(!Regex.IsMatch(KPP, "^[0-9]*$") && TypeOfOwnership != "ИП")
+				if(KPP != null && !Regex.IsMatch(KPP, "^[0-9]*$") && TypeOfOwnership != "ИП")
 					yield return new ValidationResult("КПП может содержать только цифры.",
 						new[] { this.GetPropertyName(o => o.KPP) });
 				if(!Regex.IsMatch(INN, "^[0-9]*$"))
@@ -1256,6 +1295,20 @@ namespace Vodovoz.Domain.Client
 			if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Налогообложение\"");
 
+			var everyAddedMinCountValueCount = NomenclatureFixedPrices
+				.GroupBy(p => new { p.Nomenclature, p.MinCount })
+				.Select(p => new { NomenclatureName = p.Key.Nomenclature?.Name, MinCountValue = p.Key.MinCount, Count = p.Count() });
+
+			foreach(var p in everyAddedMinCountValueCount)
+			{
+				if(p.Count > 1)
+				{
+					yield return new ValidationResult(
+							$"\"{p.NomenclatureName}\": фиксированная цена для количества \"{p.MinCountValue}\" указана {p.Count} раз(а)",
+							new[] { this.GetPropertyName(o => o.NomenclatureFixedPrices) });
+				}
+			}
+
 			foreach (var fixedPrice in NomenclatureFixedPrices) {
 				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
 				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {
@@ -1287,21 +1340,44 @@ namespace Vodovoz.Domain.Client
 			if (TechnicalProcessingDelay > 0 && Files.Count == 0)
 				yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
 
-			StringBuilder phonesValidationStringBuilder = new StringBuilder();
-			
+			StringBuilder phonesValidationStringBuilder = new StringBuilder();			
+			List<string> phoneNumberDuplicatesIsChecked = new List<string>();
+
+			var phonesDuplicates = counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(UoW, Phones.ToList(), this.Id);
+			foreach(var phone in phonesDuplicates)
+			{
+				phonesValidationStringBuilder.AppendLine($"Телефон {phone.Key} уже указан у контрагентов:");
+				foreach(var message in phone.Value)
+				{
+					phonesValidationStringBuilder.AppendLine($"\t{message}");
+				}
+			}
+
 			foreach(var phone in Phones)
 			{
 				if(phone.RoboAtsCounterpartyName == null)
 				{
-					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано имя контрагента.");
+					phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано имя контрагента.");
 				}
 
 				if(phone.RoboAtsCounterpartyPatronymic == null)
 				{
-					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано отчество контрагента.");
+					phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано отчество контрагента.");
 				}
-			}
 
+				#region Проверка дубликатов номера телефона
+
+				if(!phoneNumberDuplicatesIsChecked.Contains(phone.Number))
+				{
+					if(Phones.Where(p => p.Number == phone.Number).Count() > 1)
+					{
+						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} в карточке контрагента указан несколько раз.");
+					}
+
+					phoneNumberDuplicatesIsChecked.Add(phone.Number);
+				}
+				#endregion
+			}
 			var phonesValidationMessage = phonesValidationStringBuilder.ToString();
 
 			if(!string.IsNullOrEmpty(phonesValidationMessage))

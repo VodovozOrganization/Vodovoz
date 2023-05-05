@@ -42,6 +42,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using VodovozInfrastructure.Endpoints;
+using QS.Project.Domain;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
@@ -92,6 +93,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
 		public EmployeeViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IEntityUoWBuilder entityUoWBuilder,
 			IAuthorizationService authorizationService,
 			IEmployeeWageParametersFactory employeeWageParametersFactory,
 			IEmployeeJournalFactory employeeJournalFactory,
@@ -101,7 +104,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IWageCalculationRepository wageCalculationRepository,
 			IEmployeeRepository employeeRepository,
-			IUnitOfWorkGeneric<Employee> uowGeneric,
 			ICommonServices commonServices,
 			IValidationContextFactory validationContextFactory,
 			IPhonesViewModelFactory phonesViewModelFactory,
@@ -114,6 +116,11 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			INavigationManager navigationManager,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
+			if(unitOfWorkFactory is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+
 			_authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
 			EmployeeWageParametersFactory =
 				employeeWageParametersFactory ?? throw new ArgumentNullException(nameof(employeeWageParametersFactory));
@@ -128,7 +135,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
-			UoWGeneric = uowGeneric ?? throw new ArgumentNullException(nameof(uowGeneric));
+			UoWGeneric = entityUoWBuilder.CreateUoW<Employee>(unitOfWorkFactory, TabName);
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
@@ -845,13 +852,19 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 			if(CanRegisterMobileUser 
 			&& !string.IsNullOrWhiteSpace(Entity.AndroidLogin)
-			&& !string.IsNullOrWhiteSpace(Entity.AndroidPassword)
-			&& _commonServices.InteractiveService.Question("Данные пользовтеля водительского приложения были внесены,\n" +
+			&& !string.IsNullOrWhiteSpace(Entity.AndroidPassword))
+			{
+				if(_commonServices.InteractiveService.Question("Данные пользовтеля водительского приложения были внесены,\n" +
 														   "но пользователь не был сохранен. Эти данные будут очищены,\n" +
 														   "а пользователь водительского приложения не будет сохранен", "Вы уверены?"))
-			{
-				Entity.AndroidLogin = null;
-				Entity.AndroidPassword = null;
+				{
+					Entity.AndroidLogin = null;
+					Entity.AndroidPassword = null;
+				}
+				else
+				{
+					return false;
+				}
 			}
 
 			if(!Validate())

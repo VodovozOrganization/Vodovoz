@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "документ производства")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class IncomingWater : Document, IValidatableObject
+	public class IncomingWater : Document, IValidatableObject, ITwoWarhousesBindedDocument
 	{
 		Nomenclature product;
 
@@ -54,12 +54,12 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		Warehouse incomingWarehouse;
+		private Warehouse _toWarehouse;
 
 		[Required(ErrorMessage = "Склад поступления должен быть указан.")]
 		[Display(Name = "Склад поступления")]
-		public virtual Warehouse IncomingWarehouse {
-			get { return incomingWarehouse; }
+		public virtual Warehouse ToWarehouse {
+			get { return _toWarehouse; }
 			set {
 				SetField(ref incomingWarehouse, value, () => IncomingWarehouse);
 				/*if(ProduceOperation.IncomingWarehouse != IncomingWarehouse)
@@ -67,14 +67,14 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		Warehouse writeOffWarehouse;
+		private Warehouse _fromWarehouse;
 
 		[Required(ErrorMessage = "Склад списания должен быть указан.")]
 		[Display(Name = "Склад списания")]
-		public virtual Warehouse WriteOffWarehouse {
-			get { return writeOffWarehouse; }
+		public virtual Warehouse FromWarehouse {
+			get { return _fromWarehouse; }
 			set {
-				SetField(ref writeOffWarehouse, value, () => WriteOffWarehouse);
+				SetField(ref _fromWarehouse, value);
 				foreach(var item in Materials) {
 					/*if(item.ConsumptionMaterialOperation != null && item.ConsumptionMaterialOperation.WriteOffWarehouse != WriteOffWarehouse)
 						item.ConsumptionMaterialOperation.WriteOffWarehouse = WriteOffWarehouse;*/
@@ -122,7 +122,7 @@ namespace Vodovoz.Domain.Documents
 				Amount = amount,
 				AmountOnSource = inStock,
 			};
-			item.CreateOperation(WriteOffWarehouse, TimeStamp);
+			item.CreateOperation(FromWarehouse, TimeStamp);
 			ObservableMaterials.Add(item);
 		}
 
@@ -133,7 +133,7 @@ namespace Vodovoz.Domain.Documents
 				Nomenclature = material.Material,
 				OneProductAmount = material.Amount,
 			};
-			item.CreateOperation(WriteOffWarehouse, TimeStamp);
+			item.CreateOperation(FromWarehouse, TimeStamp);
 			ObservableMaterials.Add(item);
 		}
 

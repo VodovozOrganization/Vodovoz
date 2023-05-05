@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -10,7 +10,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Documents
 {
-	public class Document : PropertyChangedBase, IDomainObject
+	public class Document : PropertyChangedBase, IDomainObject, IDocument
 	{
 		private DateTime _timeStamp = DateTime.Now;
 		private DateTime _version;
@@ -59,9 +59,9 @@ namespace Vodovoz.Domain.Documents
 			set => SetField (ref lastEditedTime, value);
 		}
 
-		public virtual string DateString => TimeStamp.ToShortDateString () + " " + TimeStamp.ToShortTimeString ();
+		public virtual string DateString => TimeStamp.ToShortDateString() + " " + TimeStamp.ToShortTimeString();
 
-		public virtual string Number => Id.ToString ();
+		public virtual string Number => Id.ToString();
 
 		#region static
 

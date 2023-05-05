@@ -1,32 +1,56 @@
-﻿using System;
-using QS.ViewModels;
-using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using System.Linq;
 using QS.Commands;
+using QS.ViewModels;
+using System;
+using System.Linq;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 
 namespace Vodovoz.ViewModels.Reports
 {
 	public class SelectableParameterReportFilterViewModel : WidgetViewModelBase
 	{
-		public SelectableParametersReportFilter ReportFilter;
+		private SelectableParameterSet _currentParameterSet;
 
-		private SelectableParameterSet currentParameterSet;
-		public virtual SelectableParameterSet CurrentParameterSet {
-			get => currentParameterSet;
-			set {
-				if(!ReportFilter.ParameterSets.Contains(value)) {
+		private DelegateCommand _switchToIncludeCommand;
+		private DelegateCommand _switchToExcludeCommand;
+		private DelegateCommand _selectAllParametersCommand;
+		private DelegateCommand _unselectAllParametersCommand;
+
+		public SelectableParameterReportFilterViewModel(SelectableParametersReportFilter reportFilter)
+		{
+			ReportFilter = reportFilter;
+		}
+
+		public event EventHandler<SelectableParameterReportFilterSelectionChangedArgs> SelectionChanged;
+		public event EventHandler<FilterTypeChangedArgs> FilterModeChanged;
+
+		public SelectableParametersReportFilter ReportFilter { get; set; }
+
+		public virtual SelectableParameterSet CurrentParameterSet
+		{
+			get => _currentParameterSet;
+			set
+			{
+				if(!ReportFilter.ParameterSets.Contains(value))
+				{
 					value = null;
 				}
-				var oldParameterSet = currentParameterSet;
-				if(SetField(ref currentParameterSet, value)) {
+
+				var oldParameterSet = _currentParameterSet;
+
+				if(SetField(ref _currentParameterSet, value))
+				{
 					OnPropertyChanged(nameof(HasSelectedSet));
-					if(oldParameterSet != null) {
-						oldParameterSet.PropertyChanged -= CurrentParameterSet_PropertyChanged;
-						oldParameterSet.SelectionChanged -= OnSelectionChanged;
+
+					if(oldParameterSet != null)
+					{
+						oldParameterSet.PropertyChanged -= OnCurrentParameterSet_PropertyChanged;
+						oldParameterSet.SelectionChanged -= OnCurrentParameterSet_SelectionChanged;
 					}
-					if(currentParameterSet != null) {
-						currentParameterSet.PropertyChanged += CurrentParameterSet_PropertyChanged;
-						currentParameterSet.SelectionChanged += OnSelectionChanged;
+
+					if(_currentParameterSet != null)
+					{
+						_currentParameterSet.PropertyChanged += OnCurrentParameterSet_PropertyChanged;
+						_currentParameterSet.SelectionChanged += OnCurrentParameterSet_SelectionChanged;
 					}
 				}
 			}
@@ -38,27 +62,26 @@ namespace Vodovoz.ViewModels.Reports
 
 		public bool CanDeselectAllParameters => CurrentParameterSet != null && CurrentParameterSet.Parameters.Any();
 
-
-		public SelectableParameterReportFilterViewModel(SelectableParametersReportFilter reportFilter)
+		void OnCurrentParameterSet_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			ReportFilter = reportFilter;
-		}
-
-		void CurrentParameterSet_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			switch(e.PropertyName) {
+			switch(e.PropertyName)
+			{
 				case nameof(CurrentParameterSet.Parameters):
 					UpdateCurrentSetsParameters();
+					break;
+				case nameof(CurrentParameterSet.FilterType):
+					FilterModeChanged?.Invoke(this, new FilterTypeChangedArgs(CurrentParameterSet.FilterType));
 					break;
 				default:
 					break;
 			}
 		}
 
-		private void OnSelectionChanged(object sender, EventArgs e)
+		private void OnCurrentParameterSet_SelectionChanged(object sender, SelectableParameterSetSelectionChanged e)
 		{
 			SelectAllParametersCommand.RaiseCanExecuteChanged();
 			UnselectAllParametersCommand.RaiseCanExecuteChanged();
+			SelectionChanged?.Invoke(this, new SelectableParameterReportFilterSelectionChangedArgs(e.Name, e.ParametersChanged.ToArray()));
 		}
 
 		private void UpdateCurrentSetsParameters()
@@ -67,67 +90,80 @@ namespace Vodovoz.ViewModels.Reports
 			OnPropertyChanged(nameof(CanDeselectAllParameters));
 		}
 
-		private DelegateCommand switchToIncludeCommand;
-		public DelegateCommand SwitchToIncludeCommand {
-			get {
-				if(switchToIncludeCommand == null) {
-					switchToIncludeCommand = new DelegateCommand(
-						() => {
+		public DelegateCommand SwitchToIncludeCommand
+		{
+			get
+			{
+				if(_switchToIncludeCommand == null)
+				{
+					_switchToIncludeCommand = new DelegateCommand(
+						() =>
+						{
 							CurrentParameterSet.FilterType = SelectableFilterType.Include;
 						},
 						() => CurrentParameterSet != null
 					);
-					switchToIncludeCommand.CanExecuteChangedWith(this, x => x.CurrentParameterSet, x => x.HasSelectedSet);
+					_switchToIncludeCommand.CanExecuteChangedWith(this, x => x.CurrentParameterSet, x => x.HasSelectedSet);
 				}
-				return switchToIncludeCommand;
+				return _switchToIncludeCommand;
 			}
 		}
 
-		private DelegateCommand switchToExcludeCommand;
-		public DelegateCommand SwitchToExcludeCommand {
-			get {
-				if(switchToExcludeCommand == null) {
-					switchToExcludeCommand = new DelegateCommand(
-						() => {
+		public DelegateCommand SwitchToExcludeCommand
+		{
+			get
+			{
+				if(_switchToExcludeCommand == null)
+				{
+					_switchToExcludeCommand = new DelegateCommand(
+						() =>
+						{
 							CurrentParameterSet.FilterType = SelectableFilterType.Exclude;
+
 						},
 						() => CurrentParameterSet != null
 					);
-					switchToExcludeCommand.CanExecuteChangedWith(this, x => x.CurrentParameterSet, x => x.HasSelectedSet);
+					_switchToExcludeCommand.CanExecuteChangedWith(this, x => x.CurrentParameterSet, x => x.HasSelectedSet);
 				}
-				return switchToExcludeCommand;
+				return _switchToExcludeCommand;
 			}
 		}
 
-		private DelegateCommand selectAllParametersCommand;
-		public DelegateCommand SelectAllParametersCommand {
-			get {
-				if(selectAllParametersCommand == null) {
-					selectAllParametersCommand = new DelegateCommand(
-						() => {
+		public DelegateCommand SelectAllParametersCommand
+		{
+			get
+			{
+				if(_selectAllParametersCommand == null)
+				{
+					_selectAllParametersCommand = new DelegateCommand(
+						() =>
+						{
 							CurrentParameterSet.SelectAll();
 						},
 						() => CurrentParameterSet != null && CurrentParameterSet.Parameters.Any(x => !x.Selected)
 					);
-					selectAllParametersCommand.CanExecuteChangedWith(this, x => x.CurrentParameterSet);
+					_selectAllParametersCommand.CanExecuteChangedWith(this, x => x.CurrentParameterSet);
 				}
-				return selectAllParametersCommand;
+				return _selectAllParametersCommand;
 			}
 		}
 
-		private DelegateCommand unselectAllParametersCommand;
-		public DelegateCommand UnselectAllParametersCommand {
-			get {
-				if(unselectAllParametersCommand == null) {
-					unselectAllParametersCommand = new DelegateCommand(
-						() => {
+		public DelegateCommand UnselectAllParametersCommand
+		{
+			get
+			{
+				if(_unselectAllParametersCommand == null)
+				{
+					_unselectAllParametersCommand = new DelegateCommand(
+						() =>
+						{
 							CurrentParameterSet.UnselectAll();
 						},
 						() => CurrentParameterSet != null && CurrentParameterSet.Parameters.Any(x => x.Selected)
 					);
-					unselectAllParametersCommand.CanExecuteChangedWith(this, x => x.CurrentParameterSet);
+					_unselectAllParametersCommand.CanExecuteChangedWith(this, x => x.CurrentParameterSet);
 				}
-				return unselectAllParametersCommand;
+				return _unselectAllParametersCommand;
 			}
 		}
 	}

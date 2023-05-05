@@ -14,6 +14,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		private static readonly IOrganizationParametersProvider _organizationParametersProvider =
 			new OrganizationParametersProvider(new ParametersProvider());
 
+		private int? _beveragesWorldOrganizationId;
+
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.SpecialUPD;
 		#endregion
@@ -49,10 +51,14 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			get
 			{
-				var beveragesWorldOrganizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
-				if(((Order.OurOrganization != null && Order.OurOrganization.Id == beveragesWorldOrganizationId)
+				if(!_beveragesWorldOrganizationId.HasValue)
+				{
+					_beveragesWorldOrganizationId = _organizationParametersProvider.BeveragesWorldOrganizationId;
+				}
+				
+				if(((Order.OurOrganization != null && Order.OurOrganization.Id == _beveragesWorldOrganizationId)
 					|| (Order.Client?.WorksThroughOrganization != null
-						&& Order.Client.WorksThroughOrganization.Id == beveragesWorldOrganizationId))
+						&& Order.Client.WorksThroughOrganization.Id == _beveragesWorldOrganizationId))
 					&& Order.Client.UPDCount.HasValue)
 				{
 					return Order.Client.UPDCount.Value;

@@ -1,158 +1,124 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using NHibernate;
+﻿using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using Vodovoz.Domain.Goods;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Cash
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "статьи расхода",
 		Nominative = "статья расхода")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class ExpenseCategory : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		public ExpenseCategory ()
+		private const int _maxNameLength = 45;
+
+		private string _name;
+		private ExpenseInvoiceDocumentType _expenseDocumentType;
+		private Subdivision _subdivision;
+		private bool _isArchive;
+		private string _numbering;
+		private ExpenseCategory _parent;
+		private IList<ExpenseCategory> _childs;
+		private bool _isChildsFetched = false;
+
+		public ExpenseCategory()
 		{
-			Name = String.Empty;
+			Name = string.Empty;
 		}
-		
-		
-		#region Свойства
-		
-        public virtual int Id { get; }
 
-        public virtual string Title => $"{Name}";
+		public virtual int Id { get; }
 
-		string name;
-		[Required (ErrorMessage = "Название статьи должно быть заполнено.")]
-		[Display (Name = "Название")]
-		public virtual string Name {
-			get { return name; }
-			set { SetField (ref name, value, () => Name); }
+		public virtual string Title => $"{Name}";
+
+		[Required(ErrorMessage = "Название статьи должно быть заполнено.")]
+		[Display(Name = "Название")]
+		public virtual string Name
+		{
+			get => _name;
+			set => SetField(ref _name, value);
 		}
-        
-        
-		ExpenseInvoiceDocumentType expenseDocumentType;
+
 		/// <summary>
 		/// Тип расходного ордера для которого возможно будет выбрать эту категорию
 		/// </summary>
 		[Required(ErrorMessage = "Должно быть заполнен тип расходного ордера.")]
 		[Display(Name = "Тип расходного ордера")]
-		public virtual ExpenseInvoiceDocumentType ExpenseDocumentType {
-			get { return expenseDocumentType; }
-			set { SetField(ref expenseDocumentType, value, () => ExpenseDocumentType); }
+		public virtual ExpenseInvoiceDocumentType ExpenseDocumentType
+		{
+			get => _expenseDocumentType;
+			set => SetField(ref _expenseDocumentType, value);
 		}
-		
-		Subdivision subdivision;
-        [Display (Name = "Подразделение")]
-		public virtual Subdivision Subdivision {
-			get { return subdivision; }
-			set { SetField (ref subdivision, value); }
+
+		[Display(Name = "Подразделение")]
+		public virtual Subdivision Subdivision
+		{
+			get => _subdivision;
+			set => SetField(ref _subdivision, value);
 		}
-		
-		private bool isArchive;
+
 		[Display(Name = "Категория архивирована")]
-		public virtual bool IsArchive {
-			get => isArchive;
-			set => SetField(ref isArchive, value);
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
-		
-		private string numbering;
+
 		[Display(Name = "Нумерация")]
-		public virtual string Numbering {
-			get => numbering;
-			set => SetField(ref numbering, value);
+		public virtual string Numbering
+		{
+			get => _numbering;
+			set => SetField(ref _numbering, value);
 		}
 
-
-        #region Levels
-
-        // private List<ExpenseCategory> expenseCategories = null;
-        
-        // private void fillExpenseCategoriesList()
-        // {
-	       //  expenseCategories = new List<ExpenseCategory>();
-	       //  
-	       //  ExpenseCategory iter = this;
-	       //  while (iter.Parent != null)
-	       //  {
-		      //   expenseCategories.Insert(0, iter);
-		      //   iter = iter.Parent;
-	       //  }
-        // }
-        
-        // public virtual string Level5 => GetLevel(5);
-        // public virtual string Level4 => GetLevel(4);
-        // public virtual string Level3 => GetLevel(3);
-        // public virtual string Level2 => GetLevel(2);
-        // public virtual string Level1 => GetLevel(1);
-
-        // private string GetLevel(int n)
-        // {
-	       //  if (expenseCategories == null) fillExpenseCategoriesList();
-	       //  
-	       //  if (expenseCategories.Count < n)
-		      //   return "";
-	       //  else
-		      //   return expenseCategories[n-1].Name;
-        // }
-
-        #endregion //Levels
-        
-		#region ParentChilds
-		private ExpenseCategory parent;
 		[Display(Name = "Родительская группа")]
-		public virtual ExpenseCategory Parent {
-			get => parent;
-			set => SetField(ref parent, value);
+		public virtual ExpenseCategory Parent
+		{
+			get => _parent;
+			set => SetField(ref _parent, value);
 		}
-		
-		private IList<ExpenseCategory> childs;
-		[Display(Name = "Дочерние группы")]
-		public virtual IList<ExpenseCategory> Childs {
-			get => childs;
-			set => SetField(ref childs, value);
-		}
-        #endregion
-		
-		#endregion // свойства
 
-		#region Функции
+		[Display(Name = "Дочерние группы")]
+		public virtual IList<ExpenseCategory> Childs
+		{
+			get => _childs;
+			set => SetField(ref _childs, value);
+		}
 
 		public virtual void SetIsArchiveRecursively(bool value)
 		{
 			IsArchive = value;
-			foreach (var child in Childs)
+			foreach(var child in Childs)
+			{
 				child.SetIsArchiveRecursively(value);
-		}
-		
-		private bool isChildsFetched = false;
-		public virtual void FetchChilds(IUnitOfWork uow)
-		{
-			if(isChildsFetched)
-				return;
-			
-			uow.Session.QueryOver<ExpenseCategory>().Fetch(SelectMode.Fetch, x => x.Childs).List();
-			isChildsFetched = true;
+			}
 		}
 
-		#endregion
+		public virtual void FetchChilds(IUnitOfWork uow)
+		{
+			if(_isChildsFetched)
+			{
+				return;
+			}
+
+			uow.Session.QueryOver<ExpenseCategory>().Fetch(SelectMode.Fetch, x => x.Childs).List();
+			_isChildsFetched = true;
+		}
 
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			yield break;
+			if(Name?.Length > _maxNameLength)
+			{
+				yield return new ValidationResult($"Длина названия статьи превышена на {Name.Length - _maxNameLength}");
+			}
 		}
 
 		#endregion IValidatableObject implementation
-
-    }
+	}
 }
-

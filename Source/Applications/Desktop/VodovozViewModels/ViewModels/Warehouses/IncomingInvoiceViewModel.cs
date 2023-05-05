@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
@@ -250,7 +250,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 								var nomsAmount = new Dictionary<int, decimal>();
 								if (nomIds != null && nomIds.Any()) 
-                                {
+								{
 									nomIds = nomIds.Distinct().ToList();
 									nomsAmount = _stockRepository.NomenclatureInStock(UoW, nomIds.ToArray(), Entity.Warehouse.Id);
 								}

@@ -67,6 +67,142 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.Where(c => c.INN == inn).List<Counterparty>();
 		}
 
+		public IList<Counterparty> GetNotArchivedCounterpartiesByPhoneNumber(IUnitOfWork uow, string phoneNumber)
+		{
+			var counterpartiesWithDesiredPhoneNumber = new List<Counterparty>();
+
+			if(string.IsNullOrWhiteSpace(phoneNumber))
+			{
+				return counterpartiesWithDesiredPhoneNumber;
+			}
+
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+
+			var phoneEntitiesWithDesiredPhoneNumber = uow.Session.QueryOver<Phone>()
+				.Where(p => p.Number == phoneNumber)
+				.List<Phone>();
+
+			counterpartiesWithDesiredPhoneNumber.AddRange(
+				phoneEntitiesWithDesiredPhoneNumber
+				.Where(p => !p.IsArchive && p.Counterparty != null && !p.Counterparty.IsArchive)
+				.Select(p => p.Counterparty));
+
+			var deliveryPointIdsWithDesiredPhoneNumber = phoneEntitiesWithDesiredPhoneNumber
+				.Where(p => !p.IsArchive && p.DeliveryPoint != null)
+				.Select(p => p.DeliveryPoint?.Id)
+				.ToList();
+
+			var counterapartiesWithDesiredPhoneNumberFoundByDeliveryPoint =
+				uow.Session.QueryOver(() => deliveryPointAlias)
+				.Where(() => deliveryPointAlias.IsActive)
+				.Where(Restrictions.In(Projections.Property(() => deliveryPointAlias.Id), deliveryPointIdsWithDesiredPhoneNumber))
+				.JoinAlias(d => d.Counterparty, () => counterpartyAlias)
+				.Where(() => !counterpartyAlias.IsArchive)
+				.Select(Projections.Distinct(Projections.Property<DeliveryPoint>(d => d.Counterparty)))
+				.List<Counterparty>();
+
+			counterpartiesWithDesiredPhoneNumber.AddRange(counterapartiesWithDesiredPhoneNumberFoundByDeliveryPoint);
+
+			return counterpartiesWithDesiredPhoneNumber.Distinct().ToList();
+		}
+
+		public IList<string> GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(IUnitOfWork uow, string phoneNumber, int currentCounterpartyId)
+		{
+			if(string.IsNullOrWhiteSpace(phoneNumber))
+			{
+				return new List<string>();
+			}
+
+			Phone phoneAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+
+			var counterpartyDescriptionProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT('Карточка контрагента \"', ?1, '\"')"),
+				NHibernateUtil.String,
+				Projections.Property(() => counterpartyAlias.FullName)
+			);
+
+			var deliveryPointDescriptionProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT('Точка доставки контрагента \"', ?1, '\" по адресу: ', ?2)"),
+				NHibernateUtil.String,
+				Projections.Property(() => counterpartyAlias.FullName),
+				Projections.Property(() => deliveryPointAlias.ShortAddress)
+			);
+
+			var counterpartiesDescription = uow.Session.QueryOver(() => phoneAlias)
+				.JoinAlias(() => phoneAlias.Counterparty, () => counterpartyAlias)
+				.Where(() => phoneAlias.Number == phoneNumber && !phoneAlias.IsArchive && counterpartyAlias.Id != currentCounterpartyId && !counterpartyAlias.IsArchive)
+				.Select(Projections.Distinct(counterpartyDescriptionProjection))
+				.List<string>().ToList();
+
+			var counterpartiesDeliveryPointsDescription = uow.Session.QueryOver(() => phoneAlias)
+				.JoinAlias(() => phoneAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.Counterparty, () => counterpartyAlias)
+				.Where(() => phoneAlias.Number == phoneNumber && !phoneAlias.IsArchive && counterpartyAlias.Id != currentCounterpartyId && !counterpartyAlias.IsArchive && deliveryPointAlias.IsActive)
+				.Select(Projections.Distinct(deliveryPointDescriptionProjection))
+				.List<string>().ToList();
+
+			counterpartiesDescription.AddRange(counterpartiesDeliveryPointsDescription);
+
+			return counterpartiesDescription;
+		}
+
+		public Dictionary<string, List<string>> GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(IUnitOfWork uow, List<Phone> phones, int currentCounterpartyId)
+		{
+			Dictionary<string, List<string>> phoneWithMessages = new Dictionary<string, List<string>>();
+
+			if(phones.Count == 0)
+			{
+				return phoneWithMessages;
+			}
+
+			var allRequiredPhoneNumbers = phones.Select(p => p.Number).Distinct();
+
+			var allPhonesItemsHavingRequiredNumbers = uow.GetAll<Phone>().Where(p => allRequiredPhoneNumbers.Contains(p.Number) && !p.IsArchive);
+			
+			var counterpartiesHavingRequiredNumbers = allPhonesItemsHavingRequiredNumbers
+				.Where(p => p.Counterparty != null && p.Counterparty.Id != currentCounterpartyId && !p.Counterparty.IsArchive)
+				.Select(p => new { Number = p.Number, Message = $"Карточка контрагента {p.Counterparty.FullName}" })
+				.ToList().Distinct();
+
+			var counterpartiesByDeliveryPointsHavingRequiredNumbers = allPhonesItemsHavingRequiredNumbers
+				.Where(p => p.DeliveryPoint != null && p.DeliveryPoint.IsActive && p.DeliveryPoint.Counterparty != null)
+				.Select(c => new { Number = c.Number, DeliveryPoint = c.DeliveryPoint } )
+				.Join(uow.GetAll<Counterparty>(), d => d.DeliveryPoint.Counterparty, c => c, (d,c) => new { Number = d.Number, DeliveryPoint = d.DeliveryPoint, Counterparty = c })
+				.Where(dc => dc.Counterparty != null && !dc.Counterparty.IsArchive && dc.Counterparty.Id != currentCounterpartyId)
+				.Select(dc => new { Number = dc.Number, Message = $"Точка доставки контрагента \"{dc.Counterparty.FullName}\" по адресу: {dc.DeliveryPoint.ShortAddress}" } )
+				.ToList().Distinct();	
+			
+
+			foreach(var phone in counterpartiesHavingRequiredNumbers)
+			{
+				if(!phoneWithMessages.ContainsKey(phone.Number))
+				{
+					phoneWithMessages.Add(phone.Number, new List<string> { phone.Message } );
+				}
+				else
+				{
+					phoneWithMessages[phone.Number].Add(phone.Message);
+				}
+			}
+
+			foreach(var phone in counterpartiesByDeliveryPointsHavingRequiredNumbers)
+			{
+				if(!phoneWithMessages.ContainsKey(phone.Number))
+				{
+					phoneWithMessages.Add(phone.Number, new List<string> { phone.Message });
+				}
+				else
+				{
+					phoneWithMessages[phone.Number].Add(phone.Message);
+				}
+			}
+
+			return phoneWithMessages;
+		}
+
 		public Counterparty GetCounterpartyByAccount(IUnitOfWork uow, string accountNumber)
 		{
 			if(string.IsNullOrWhiteSpace(accountNumber))

@@ -3,6 +3,7 @@ using System.Linq;
 using Gtk;
 using QS.DomainModel.UoW;
 using QS.Validation;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
@@ -24,6 +25,10 @@ namespace Vodovoz.Dialogs
 
 		UndeliveredOrder undelivery;
 		Order order;
+
+		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController =
+			new RouteListAddressKeepingDocumentController(new EmployeeRepository(),
+				new NomenclatureParametersProvider(new ParametersProvider()));
 
 		public UndeliveryOnOrderCloseDlg()
 		{

@@ -16,13 +16,15 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class ResidueJournalViewModel : FilterableSingleEntityJournalViewModelBase<Residue, ResidueViewModel, ResidueJournalNode, ResidueFilterViewModel>
 	{
-		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+		readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 
 		public ResidueJournalViewModel(
@@ -34,12 +36,14 @@ namespace Vodovoz.JournalViewModels
 			IBottlesRepository bottlesRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider
 		) 
 		: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			TabName = "Журнал остатков";
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.representationEntityPicker = representationEntityPicker ?? throw new ArgumentNullException(nameof(representationEntityPicker));
@@ -63,6 +67,8 @@ namespace Vodovoz.JournalViewModels
 		private readonly IBottlesRepository bottlesRepository;
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices commonServices;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 
 		protected override Func<IUnitOfWork, IQueryOver<Residue>> ItemsSourceQueryFunction => (uow) => {
 			Counterparty counterpartyAlias = null;
@@ -131,7 +137,8 @@ namespace Vodovoz.JournalViewModels
 			depositRepository, 
 			moneyRepository, 
 			commonServices,
-			employeeSelectorFactory,
+			_employeeJournalFactory,
+			_subdivisionJournalFactory,
 			_subdivisionParametersProvider
 		);
 
@@ -144,7 +151,8 @@ namespace Vodovoz.JournalViewModels
 			depositRepository, 
 			moneyRepository, 
 			commonServices,
-			employeeSelectorFactory,
+			_employeeJournalFactory,
+			_subdivisionJournalFactory,
 			_subdivisionParametersProvider
 		);
 	}

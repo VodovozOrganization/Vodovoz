@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
@@ -27,6 +27,8 @@ using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using QS.Attachments.ViewModels.Widgets;
+using ApiClientProvider;
+using QS.Project.Domain;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -192,34 +194,19 @@ namespace Vodovoz.Dialogs.Employees
 					return;
 				}
 			}
-			var employeeUow = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
-			Personnel.ChangeTraineeToEmployee(employeeUow, Entity);
 
-			var employeeViewModel = new EmployeeViewModel(
-				_authorizationService,
-				_employeeWageParametersFactory,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_employeePostsJournalFactory,
-				_cashDistributionCommonOrganisationProvider,
-				_subdivisionParametersProvider,
-				_wageCalculationRepository,
-				_employeeRepository,
-				employeeUow,
-				ServicesConfig.CommonServices,
-				_validationContextFactory,
-				_phonesViewModelFactory,
-				_warehouseRepository,
-				_routeListRepository,
-				CurrentUserSettings.Settings,
-				_userRepository,
-				_baseParametersProvider,
-				_attachmentsViewModelFactory,
-				MainClass.MainWin.NavigationManager,
-				true);
+			var cs = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider> { new MemoryConfigurationProvider(new MemoryConfigurationSource()) }), "");
 
-			TabParent.OpenTab(DialogHelper.GenerateDialogHashName<Employee>(Entity.Id),
-							  () => employeeViewModel);
+			cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
+
+			var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
+
+			var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
+
+			var employeeViewModel = MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
+
+			Personnel.ChangeTraineeToEmployee(employeeViewModel.Entity, Entity);
+
 			OnCloseTab(false);
 		}
 

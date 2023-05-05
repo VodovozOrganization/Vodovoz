@@ -1,12 +1,13 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
-using NLog;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using NHibernate.Dialect.Function;
+using NPOI.SS.Formula.Functions;
+using QS.Project.DB;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Goods;
@@ -14,18 +15,14 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Roboats
 {
 	public class RoboatsRepository : IRoboatsRepository
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
-
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly RoboatsSettings _roboatsSettings;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
+		private readonly IRoboatsSettings _roboatsSettings;
 
 		private HashSet<Guid> _roboatsStreetsCache = new HashSet<Guid>();
 		private int _roboatsStreetsCacheTimeoutMinutes = 10;
@@ -36,11 +33,10 @@ namespace Vodovoz.EntityRepositories.Roboats
 		private DateTime _roboatsWatersCacheLastUpdate;
 
 
-		public RoboatsRepository(IUnitOfWorkFactory unitOfWorkFactory, RoboatsSettings roboatsSettings, INomenclatureParametersProvider nomenclatureParametersProvider)
+		public RoboatsRepository(IUnitOfWorkFactory unitOfWorkFactory, IRoboatsSettings roboatsSettings)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 		}
 
 		public IEnumerable<IRoboatsEntity> GetExportedEntities(RoboatsEntityType roboatsEntityType)
@@ -311,6 +307,10 @@ namespace Vodovoz.EntityRepositories.Roboats
 					.Fetch(SelectMode.Fetch, () => nomenclatureAlias.Unit)
 					.Future<Order>();
 
+				var counterpartyQuery = CreateLastOrdersBaseQuery()
+					.Fetch(SelectMode.Fetch, () => orderAlias.Client)
+					.Future<Order>();
+
 				var promosetsQuery = CreateLastOrdersBaseQuery()
 					.Fetch(SelectMode.Fetch, () => orderAlias.PromotionalSets)
 					.Future<Order>();
@@ -462,7 +462,6 @@ namespace Vodovoz.EntityRepositories.Roboats
 				var query = uow.Session.QueryOver(() => deliveryPointAlias)
 					.Where(() => deliveryPointAlias.Id == deliveryPointId)
 					.Where(() => deliveryPointAlias.Counterparty.Id == counterpartyId)
-					.Where(() => deliveryPointAlias.RoomType == RoomType.Apartment)
 					.Select(Projections.Property(() => deliveryPointAlias.Room));
 
 				var result = query.SingleOrDefault<string>();
@@ -500,6 +499,36 @@ namespace Vodovoz.EntityRepositories.Roboats
 				.Where(() => roboatsCallAlias.CallGuid == callGuid)
 				.SingleOrDefault();
 			return call;
+		}
+
+		public RoboAtsCounterpartyName GetCounterpartyName(IUnitOfWork uow, string name)
+		{
+			if(string.IsNullOrWhiteSpace(name))
+			{
+				return null;
+			}
+			
+			return uow.Session.QueryOver<RoboAtsCounterpartyName>()
+				.Where(Restrictions.Eq(
+					CustomProjections.Lower<RoboAtsCounterpartyName>(rn => rn.Name),
+					name.ToLower()))
+				.Take(1)
+				.SingleOrDefault();
+		}
+		
+		public RoboAtsCounterpartyPatronymic GetCounterpartyPatronymic(IUnitOfWork uow, string patronymic)
+		{
+			if(string.IsNullOrWhiteSpace(patronymic))
+			{
+				return null;
+			}
+			
+			return uow.Session.QueryOver<RoboAtsCounterpartyPatronymic>()
+				.Where(Restrictions.Eq(
+					CustomProjections.Lower<RoboAtsCounterpartyPatronymic>(rp => rp.Patronymic),
+					patronymic.ToLower()))
+				.Take(1)
+				.SingleOrDefault();
 		}
 	}
 }

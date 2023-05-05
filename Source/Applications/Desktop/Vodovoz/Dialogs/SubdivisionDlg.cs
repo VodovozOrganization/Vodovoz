@@ -10,6 +10,8 @@ using QSProjectsLib;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Representations;
 using System;
+using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.WageCalculation;
@@ -197,7 +199,11 @@ namespace Vodovoz
 
 		private void CreatePresetSubdivisionPermissionsView()
 		{
-			_presetPermissionVm = new PresetSubdivisionPermissionsViewModel(UoW, new PermissionRepository(), Entity);
+			var permissionRepository = new PermissionRepository();
+			_presetPermissionVm =
+				new PresetSubdivisionPermissionsViewModel(
+					UoW, permissionRepository, Entity, new UsersPresetPermissionValuesGetter(permissionRepository, _subdivisionRepository),
+					new UserPermissionsExporter(new FileDialogService(), new GtkMessageDialogsInteractive()));
 			vboxPresetPermissions.Add(new PresetPermissionsView(_presetPermissionVm));
 			vboxPresetPermissions.ShowAll();
 			

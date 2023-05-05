@@ -53,6 +53,12 @@ namespace Vodovoz.Domain.Complaints
 		private GenericObservableList<ComplaintGuiltyItem> _observableGuilties;
 		private IList<ComplaintFile> _files = new List<ComplaintFile>();
 		private GenericObservableList<ComplaintFile> _observableFiles;
+		private ComplaintDetalization _complaintDetalization;
+		private IList<ComplaintArrangementComment> _arrangementComments = new List<ComplaintArrangementComment>();
+		private GenericObservableList<ComplaintArrangementComment> _observableArrangementComments;
+		private IList<ComplaintResultComment> _resultComments = new List<ComplaintResultComment>();
+		private GenericObservableList<ComplaintResultComment> _observableResultComments;
+		private Employee _driver;
 
 		public virtual int Id { get; set; }
 
@@ -147,6 +153,13 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref _complaintSource, value);
 		}
 
+		[Display(Name = "Водитель")]
+		public virtual Employee Driver
+		{
+			get => _driver;
+			set => SetField(ref _driver, value);
+		}
+
 		[Display(Name = "Статус")]
 		public virtual ComplaintStatuses Status
 		{
@@ -161,11 +174,25 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref _plannedCompletionDate, value);
 		}
 
-		[Display(Name = "Описание результата")]
-		public virtual string ResultText
+		[Display(Name = "Комментарии - результаты")]
+		public virtual IList<ComplaintResultComment> ResultComments
 		{
-			get => _resultText;
-			set => SetField(ref _resultText, value);
+			get => _resultComments;
+			set => SetField(ref _resultComments, value);
+		}
+
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ComplaintResultComment> ObservableResultComments
+		{
+			get
+			{
+				if(_observableResultComments == null)
+				{
+					_observableResultComments = new GenericObservableList<ComplaintResultComment>(ResultComments);
+				}
+
+				return _observableResultComments;
+			}
 		}
 
 		[Display(Name = "Результат по клиенту")]
@@ -193,14 +220,41 @@ namespace Vodovoz.Domain.Complaints
 		public virtual ComplaintKind ComplaintKind
 		{
 			get => _complaintKind;
-			set => SetField(ref _complaintKind, value);
+			set
+			{
+				if(SetField(ref _complaintKind, value))
+				{
+					ComplaintDetalization = null;
+				}
+			}
 		}
 
-		[Display(Name = "Мероприятия")]
-		public virtual string Arrangement
+		[Display(Name = "Детализация")]
+		public virtual ComplaintDetalization ComplaintDetalization
 		{
-			get => _arrangement;
-			set => SetField(ref _arrangement, value);
+			get => _complaintDetalization;
+			set => SetField(ref _complaintDetalization, value);
+		}
+
+		[Display(Name = "Комментарии - мероприятия")]
+		public virtual IList<ComplaintArrangementComment> ArrangementComments
+		{
+			get => _arrangementComments;
+			set => SetField(ref _arrangementComments, value);
+		}
+
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ComplaintArrangementComment> ObservableArrangementComments
+		{
+			get
+			{
+				if(_observableArrangementComments == null)
+				{
+					_observableArrangementComments = new GenericObservableList<ComplaintArrangementComment>(ArrangementComments);
+				}
+
+				return _observableArrangementComments;
+			}
 		}
 
 		[Display(Name = "Оценка водителя")]
@@ -385,9 +439,9 @@ namespace Vodovoz.Domain.Complaints
 					result.Add("Заполните поле \"Итог работы по сотрудникам\".");
 				}
 
-				if(string.IsNullOrWhiteSpace(ResultText))
+				if(ObservableResultComments.Count == 0)
 				{
-					result.Add("Заполните поле \"Результат\".");
+					result.Add("Необходимо добавить комментарий \"Результат\".");
 				}
 			}
 
@@ -461,9 +515,9 @@ namespace Vodovoz.Domain.Complaints
 						"Заполните поле \"Итог работы по сотрудникам\".", new[] { nameof(ComplaintResultOfEmployees) });
 				}
 
-				if(string.IsNullOrWhiteSpace(ResultText))
+				if(ObservableResultComments.Count == 0)
 				{
-					yield return new ValidationResult("Заполните поле \"Результат\".", new[] { nameof(ResultText) });
+					yield return new ValidationResult("Необходимо добавить комментарий \"Результат\".", new[] { nameof(ResultComments) });
 				}
 			}
 		}

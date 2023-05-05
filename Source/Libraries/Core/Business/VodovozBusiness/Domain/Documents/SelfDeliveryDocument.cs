@@ -27,7 +27,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "отпуск самовывоза")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class SelfDeliveryDocument : Document, IValidatableObject
+	public class SelfDeliveryDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		public override DateTime TimeStamp {
 			get => base.TimeStamp;

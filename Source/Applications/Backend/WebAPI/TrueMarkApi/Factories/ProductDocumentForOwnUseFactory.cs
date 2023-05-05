@@ -7,7 +7,7 @@ using Vodovoz.Domain.Orders;
 
 namespace TrueMarkApi.Factories
 {
-	public class ProductDocumentForOwnUseFactory : IProductDocumentFactory
+	public class ProductDocumentForOwnUseFactory : IDocumentFactory
 	{
 		private readonly string _organizationInn;
 		private readonly Order _order;
@@ -18,10 +18,10 @@ namespace TrueMarkApi.Factories
 			_order = order;
 		}
 
-		public string CreateProductDocument()
+		public string CreateDocument()
 		{
 			var accountableItems = _order.OrderItems.Where(oi =>
-					oi.Nomenclature.IsAccountableInChestniyZnak
+					oi.Nomenclature.IsAccountableInTrueMark
 					&& oi.ActualCount > 0)
 				.GroupBy(oi => oi.Nomenclature.Gtin)
 				.Select(gp => new ProductDto { Gtin = gp.Key, GtinQuantity = gp.Sum(s => (int)s.ActualCount).ToString() })

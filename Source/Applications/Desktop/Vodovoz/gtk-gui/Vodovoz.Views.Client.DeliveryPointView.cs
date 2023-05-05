@@ -377,8 +377,6 @@ namespace Vodovoz.Views.Client
 			this.hbox15.Add(this.deliverypointresponsiblepersonsview1);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox15[this.deliverypointresponsiblepersonsview1]));
 			w16.Position = 0;
-			w16.Expand = false;
-			w16.Fill = false;
 			this.tableMainInfo.Add(this.hbox15);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableMainInfo[this.hbox15]));
 			w17.TopAttach = ((uint)(17));

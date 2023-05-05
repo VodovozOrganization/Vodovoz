@@ -10,19 +10,17 @@ namespace DriverAPI.Library.Converters
 {
 	public class RouteListConverter
 	{
-		private readonly ILogger<RouteListConverter> _logger;
 		private readonly DeliveryPointConverter _deliveryPointConverter;
 		private readonly RouteListStatusConverter _routeListStatusConverter;
 		private readonly RouteListAddressStatusConverter _routeListAddressStatusConverter;
 		private readonly RouteListCompletionStatusConverter _routeListCompletionStatusConverter;
 
-		public RouteListConverter(ILogger<RouteListConverter> logger,
+		public RouteListConverter(
 			DeliveryPointConverter deliveryPointConverter,
 			RouteListStatusConverter routeListStatusConverter,
 			RouteListAddressStatusConverter routeListAddressStatusConverter,
 			RouteListCompletionStatusConverter routeListCompletionStatusConverter)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
 			_routeListStatusConverter = routeListStatusConverter ?? throw new ArgumentNullException(nameof(routeListStatusConverter));
 			_routeListAddressStatusConverter = routeListAddressStatusConverter ?? throw new ArgumentNullException(nameof(routeListAddressStatusConverter));
@@ -39,24 +37,9 @@ namespace DriverAPI.Library.Converters
 
 			if(result.CompletionStatus == RouteListDtoCompletionStatus.Completed)
 			{
-				var ownOrders = routeList.Addresses
-					.Where(rla => !rla.Order.IsFastDelivery && !rla.WasTransfered)
-					.Sum(rla => rla.Order.Total19LBottlesToDeliver);
-
-				var additionalBalance = routeList.AdditionalLoadingDocument?.Items
-					.Where(ai => ai.Nomenclature.IsWater19L)
-					.Sum(ai => ai.Amount) ?? 0;
-
-				var deliveredOrders = routeList.Addresses
-					.Where(rla => 
-						rla.Status != RouteListItemStatus.Canceled && rla.Status != RouteListItemStatus.Overdue
-						// и не перенесённые к водителю; либо перенесённые с погрузкой; либо перенесённые и это экспресс-доставка (всегда без погрузки)
-						&& (!rla.WasTransfered || rla.NeedToReload || rla.Order.IsFastDelivery)
-						// и не перенесённые от водителя; либо перенесённые и не нужна погрузка и не экспресс-доставка (остатки по экспресс-доставке не переносятся)
-						&& (rla.Status != RouteListItemStatus.Transfered || (!rla.TransferedTo.NeedToReload && !rla.Order.IsFastDelivery)))
-					.Sum(rla => rla.Order.Total19LBottlesToDeliver);
-
-				var fullBottlesToReturn = ownOrders + additionalBalance - deliveredOrders;
+				var fullBottlesToReturn = routeList.ObservableDeliveryFreeBalanceOperations
+					.Where(x => x.Nomenclature.IsWater19L)
+					.Sum(x => x.Amount);
 
 				result.CompletedRouteList = new CompletedRouteListDto()
 				{

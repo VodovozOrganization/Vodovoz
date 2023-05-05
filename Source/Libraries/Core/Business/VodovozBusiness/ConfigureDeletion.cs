@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Web.UI.WebControls;
 using QS.Banks;
@@ -61,6 +61,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Nomenclature>()
 						.AddDeleteDependenceFromCollection(item => item.NomenclaturePrice)
+						.AddDeleteDependenceFromCollection(item => item.AlternativeNomenclaturePrices)
 						.AddDeleteDependence<Equipment>(item => item.Nomenclature)
 						.AddDeleteDependence<OrderItem>(x => x.Nomenclature)
 						.AddDeleteDependence<OrderEquipment>(x => x.Nomenclature)
@@ -214,6 +215,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>();
 			DeleteConfig.AddHibernateDeleteInfo<RoboatsStreet>();
 			DeleteConfig.AddHibernateDeleteInfo<RoboatsWaterType>();
+			DeleteConfig.AddHibernateDeleteInfo<OrganizationOwnershipType>();
 
 			#endregion
 
@@ -583,6 +585,7 @@ namespace Vodovoz
 				.AddDeleteDependence<AddressTransferDocument>(x => x.RouteListTo)
 				.AddDeleteDependence<Track>(x => x.RouteList)
 				.AddDeleteDependence<FuelDocument>(x => x.RouteList)
+				.AddDeleteDependence<RouteListFastDeliveryMaxDistance>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
 				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation)
 				.AddDeleteCascadeDependence(x => x.DriverWageOperation)
@@ -615,6 +618,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<CarEventType>();
 
 			DeleteConfig.AddHibernateDeleteInfo<CarEvent>();
+
+			DeleteConfig.AddHibernateDeleteInfo<RouteListFastDeliveryMaxDistance>();
 
 			#region Формирование МЛ
 
@@ -818,8 +823,8 @@ namespace Vodovoz
 				.AddDeleteDependence<IncomingInvoice>(item => item.Warehouse)
 				.AddDeleteDependence<CarLoadDocument>(x => x.Warehouse)
 				.AddDeleteDependence<CarUnloadDocument>(x => x.Warehouse)
-				.AddDeleteDependence<IncomingWater>(x => x.IncomingWarehouse)
-				.AddDeleteDependence<IncomingWater>(x => x.WriteOffWarehouse)
+				.AddDeleteDependence<IncomingWater>(x => x.ToWarehouse)
+				.AddDeleteDependence<IncomingWater>(x => x.FromWarehouse)
 				.AddDeleteDependence<MovementDocument>(x => x.FromWarehouse)
 				.AddDeleteDependence<MovementDocument>(x => x.ToWarehouse)
 				//.AddDeleteDependence<GoodsAccountingOperation>(x => x.IncomingWarehouse)
@@ -870,6 +875,7 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<CarLoadDocumentItem>()
 				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
+				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarUnloadDocument>()
 				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.Document);
@@ -1169,11 +1175,18 @@ namespace Vodovoz
 				.AddDeleteDependenceFromCollection(x => x.AddressTransferDocumentItems);
 
 			DeleteConfig.AddHibernateDeleteInfo<AddressTransferDocumentItem>()
-				.AddDeleteDependenceFromCollection(x => x.DriverNomenclatureTransferDocumentItems);
+				.AddDeleteDependenceFromCollection(x => x.DriverNomenclatureTransferDocumentItems)
+				.AddDeleteDependenceFromCollection(x => x.DeliveryFreeBalanceTransferItems);
 
 			DeleteConfig.AddHibernateDeleteInfo<DriverNomenclatureTransferItem>()
 				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperationFrom)
 				.AddDeleteCascadeDependence(x => x.EmployeeNomenclatureMovementOperationTo);
+
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryFreeBalanceTransferItem>()
+				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperationFrom)
+				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperationTo);
+
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryFreeBalanceOperation>();
 
 			#endregion
 
@@ -1216,6 +1229,8 @@ namespace Vodovoz
 						.AddDeleteDependence<ComplaintDiscussion>(item => item.Complaint)
 						.AddDeleteDependence<ComplaintFile>(item => item.Complaint)
 						.AddDeleteDependence<ComplaintGuiltyItem>(item => item.Complaint)
+						.AddDeleteDependence<ComplaintArrangementComment>(item => item.Complaint)
+						.AddDeleteDependence<ComplaintResultComment>(item => item.Complaint)
 						;
 
 			DeleteConfig.AddHibernateDeleteInfo<ComplaintDiscussion>()
@@ -1230,6 +1245,12 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<ComplaintDiscussionComment>()
 						.AddDeleteDependence<ComplaintFile>(item => item.ComplaintDiscussionComment)
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintArrangementComment>()
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintResultComment>()
 						;
 
 			DeleteConfig.AddHibernateDeleteInfo<ComplaintObject>();

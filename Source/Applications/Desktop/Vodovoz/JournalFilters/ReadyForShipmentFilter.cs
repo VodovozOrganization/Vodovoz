@@ -33,7 +33,10 @@ namespace Vodovoz
 				{
 					IncludeWarehouseIds = warehousesList.Select(x => x.Id)
 				};
-                entryWarehouses.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory(warehouseFilter));
+
+				var warehouseJournalFactory = new WarehouseJournalFactory();					 
+
+                entryWarehouses.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(warehouseFilter));
 
                 entryWarehouses.Visible = true;
                 yspeccomboWarehouse.Visible = false;

@@ -1,6 +1,9 @@
 ﻿using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using System;
+using QS.Commands;
+using QS.Dialog;
+using QS.Project.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -8,7 +11,6 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
@@ -23,6 +25,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private bool? _isVerificationFromSite;
 		private bool? _isNomenclatureNotInStock;
 		private int _logisticianReactionTimeMinutes;
+		private DelegateCommand _infoCommand;
 
 		public FastDeliveryAvailabilityFilterViewModel(
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -107,5 +110,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			get => _logisticianReactionTimeMinutes;
 			set => UpdateFilterField(ref _logisticianReactionTimeMinutes, value);
 		}
+
+		public DelegateCommand InfoCommand => _infoCommand ?? (_infoCommand = new DelegateCommand(
+			() => ServicesConfig.InteractiveService.ShowMessage(
+				ImportanceLevel.Info,
+				"В отчёте по не попавшим в доставку за час заказам отображаются заказы, которые в итоге не стали заказами с доставкой за час.\n" +
+				"В столбце \"Не доставлено заказов\" считаются уникальные заказы.\nВ остальных столбцах кол-во проблем (по одному заказу может быть несколько проверок).\n" +
+				"Если в проверке не нашлось подходящих по расстоянию автомобилей, то в колонку \"Большое расстояние\" попадает 1, а в остальные колонки 0.\n" +
+				"В противном случае суммируются показатели проверки для автомобилей, подходящих по расстоянию, а в колонку с расстоянием попадает 0.")
+		));
 	}
 }

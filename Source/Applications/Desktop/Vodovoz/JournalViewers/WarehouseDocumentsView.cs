@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Gamma.Utilities;
 using Gtk;
@@ -27,6 +27,11 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.Models;
+using Vodovoz.Controllers;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Views.Warehouse.Documents;
+using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
+using Vodovoz.ViewWidgets;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.Views.Warehouse;
@@ -186,9 +191,22 @@ namespace Vodovoz
 							this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.InventoryDocument:
+						var employeeRepository = new EmployeeRepository();
+
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<InventoryDocument>(id),
-							() => new InventoryDocumentDlg (id),
+							() => new InventoryDocumentViewModel(
+								EntityUoWBuilder.ForOpen(id),
+								UnitOfWorkFactory.GetDefaultFactory,
+								ServicesConfig.CommonServices,
+								employeeRepository,
+								new WarehouseRepository(),
+								new StoreDocumentHelper(),
+								new StockRepository(),
+								new NomenclatureJournalFactory(),
+								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), employeeRepository),
+								new GtkReportViewOpener(),
+								MainClass.MainWin.NavigationManager),
 							this);
 						break;
 					case DocumentType.ShiftChangeDocument:

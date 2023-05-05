@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories;
 using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
@@ -28,10 +26,11 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ITdiTab _dialogTab;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
-		private readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
+		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ISalesPlanJournalFactory _salesPlanJournalFactory;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
 		private readonly IUserRepository _userRepository;
+		private readonly ILifetimeScope _scope;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity,
@@ -40,19 +39,20 @@ namespace Vodovoz.ViewModels.Complaints
 			IFileDialogService fileDialogService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			ISalesPlanJournalFactory salesPlanJournalFactory,
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
-			IUserRepository userRepository
-		) : base(entity, commonServices)
+			IUserRepository userRepository,
+			ILifetimeScope scope) : base(entity, commonServices)
 		{
-			_employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
+			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
 			_salesPlanJournalFactory = salesPlanJournalFactory ?? throw new ArgumentNullException(nameof(salesPlanJournalFactory));
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			UoW = uow;
 			CreateCommands();
@@ -139,9 +139,10 @@ namespace Vodovoz.ViewModels.Complaints
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,
-						_employeeSelectorFactory,
+						_employeeJournalFactory,
 						_salesPlanJournalFactory,
-						_nomenclatureSelectorFactory
+						_nomenclatureSelectorFactory,
+						_scope.BeginLifetimeScope()
 					) {
 						SelectionMode = JournalSelectionMode.Single
 					};

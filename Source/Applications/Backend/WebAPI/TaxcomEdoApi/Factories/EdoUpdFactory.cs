@@ -4,6 +4,7 @@ using System.Linq;
 using Taxcom.Client.Api.Document.DocumentByFormat1115131;
 using TaxcomEdoApi.Converters;
 using TISystems.TTC.Common;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
@@ -102,6 +103,21 @@ namespace TaxcomEdoApi.Factories
 					DataDokOtgr = order.DeliveryDate.Value.ToShortDateString()
 				}
 			};
+			
+			if(order.Client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+			{
+				upd.Dokument.SvSchFakt.InfPolFHZh1 = new FajlDokumentSvSchFaktInfPolFHZh1
+				{
+					TekstInf = new[]
+					{
+						new TekstInfTip
+						{
+							Identif = "СвВыбытияМАРК",
+							Znachen = "1"
+						}
+					}
+				};
+			}
 
 			var orderItems = order.OrderItems.Where(x => x.CurrentCount > 0).ToList();
 
@@ -153,8 +169,8 @@ namespace TaxcomEdoApi.Factories
 							Otchestvo = firstNameAndPatronymic[1]
 						},
 						INNJuL = org.INN,
-						NaimOrg = certDetails.OrganizationName,
-						Dolzhn = certDetails.Title
+						NaimOrg = org.Name,
+						Dolzhn = "Главный бухгалтер"
 					}
 				}
 			};

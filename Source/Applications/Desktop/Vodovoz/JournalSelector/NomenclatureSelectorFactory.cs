@@ -39,9 +39,18 @@ namespace Vodovoz.JournalSelector
 		{
 			var nomecnlatureJournalFactory = new NomenclatureJournalFactory();
 			NomenclaturesJournalViewModel selectorViewModel = (NomenclaturesJournalViewModel)Activator
-				.CreateInstance(typeof(NomenclaturesJournalViewModel), new object[] { filter, 
-					UnitOfWorkFactory.GetDefaultFactory, commonServices, VodovozGtkServicesConfig.EmployeeService,
-					nomecnlatureJournalFactory, counterpartySelectorFactory, nomenclatureRepository, userRepository});
+				.CreateInstance(typeof(NomenclaturesJournalViewModel), new object[]
+				{
+					filter, 
+					UnitOfWorkFactory.GetDefaultFactory,
+					commonServices,
+					VodovozGtkServicesConfig.EmployeeService,
+					nomecnlatureJournalFactory,
+					counterpartySelectorFactory,
+					nomenclatureRepository,
+					userRepository,
+					null
+				});
 			
 			selectorViewModel.SelectionMode = JournalSelectionMode.Single;
 			return selectorViewModel;

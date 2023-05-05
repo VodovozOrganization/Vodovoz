@@ -46,11 +46,17 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 		}
 
-		public virtual void AddOrder(Order order)
+		public virtual void AddOrder(Order orderToAdd)
 		{
+			if(ObservableOrderWithoutDeliveryForPaymentItems
+				.SingleOrDefault(x => x.Order.Id == orderToAdd.Id) != null)
+			{
+				return;
+			}
+			
 			var item = new OrderWithoutShipmentForPaymentItem
 			{
-				Order = order,
+				Order = orderToAdd,
 				OrderWithoutDeliveryForPayment = this
 			};
 			
@@ -62,13 +68,15 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			ObservableOrderWithoutDeliveryForPaymentItems.Add(item);
 		}
 		
-		public virtual void RemoveItem(Order order)
+		public virtual void RemoveItem(Order orderToRemove)
 		{
-			var item = 
-				ObservableOrderWithoutDeliveryForPaymentItems.SingleOrDefault(x => x.Order.Id == order.Id);
+			var item = ObservableOrderWithoutDeliveryForPaymentItems
+				.SingleOrDefault(x => x.Order.Id == orderToRemove.Id);
 			
 			if(item != null)
+			{
 				ObservableOrderWithoutDeliveryForPaymentItems.Remove(item);
+			}
 		}
 		
 		public virtual OrderDocumentType Type => OrderDocumentType.BillWSForPayment;

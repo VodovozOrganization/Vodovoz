@@ -26,6 +26,7 @@ using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels
 {
@@ -46,7 +47,8 @@ namespace Vodovoz.ViewModels
 			IDepositRepository depositRepository,
 			IMoneyRepository moneyRepository,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ISubdivisionParametersProvider subdivisionParametersProvider
 		)
 		: base(uowBuilder, uowFactory, commonServices)
@@ -69,7 +71,12 @@ namespace Vodovoz.ViewModels
 			ConfigureEntityPropertyChanges();
 			UpdateResidue();
 			GuiltyItemsVM = new GuiltyItemsViewModel(
-				new Complaint(), UoW, commonServices, new SubdivisionRepository(new ParametersProvider()), employeeSelectorFactory,
+				new Complaint(),
+				UoW,
+				commonServices,
+				new SubdivisionRepository(new ParametersProvider()),
+				employeeJournalFactory,
+				subdivisionJournalFactory,
 				subdivisionParametersProvider);
 
 			Entity.ObservableEquipmentDepositItems.PropertyOfElementChanged += OnObservableEquipmentItemsPropertyOfElementChanged;

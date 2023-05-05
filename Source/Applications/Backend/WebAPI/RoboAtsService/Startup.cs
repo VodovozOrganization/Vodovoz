@@ -1,6 +1,4 @@
 ﻿using Autofac;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -17,11 +15,11 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
 using QS.Services;
-using Sms.External.SmsRu;
-using Sms.Internal.Client;
 using RoboatsService.Authentication;
 using RoboatsService.Monitoring;
 using RoboatsService.OrderValidation;
+using Sms.External.SmsRu;
+using Sms.Internal.Client.Framework;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -72,17 +70,19 @@ namespace RoboatsService
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
 
+
 			builder.RegisterType<DefaultSessionProvider>().AsImplementedInterfaces();
 			builder.RegisterType<DefaultUnitOfWorkFactory>().AsImplementedInterfaces();
 			builder.RegisterType<BaseParametersProvider>().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsCallFactory>().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsRepository>().AsSelf().AsImplementedInterfaces();
-			builder.RegisterType<RoboatsSettings>().AsSelf().AsImplementedInterfaces();
+			builder.RegisterType<RoboatsSettings>().As<IRoboatsSettings>();
 			builder.RegisterType<RoboatsCallBatchRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<RoboatsCallRegistrator>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ValidOrdersProvider>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ApiKeyAuthenticationOptions>().AsSelf().AsImplementedInterfaces();
 			builder.RegisterType<ApiKeyAuthenticationHandler>().AsSelf().AsImplementedInterfaces();
+			
 			builder.RegisterType<FastPaymentSender>().AsSelf().AsImplementedInterfaces();
 
 			builder.RegisterInstance(_dataBaseInfo)
@@ -95,10 +95,6 @@ namespace RoboatsService
 			builder.RegisterModule<SmsInternalClientModule>();
 			
 			builder.RegisterType<CallTaskWorker>()
-				.AsSelf()
-				.AsImplementedInterfaces();
-
-			builder.RegisterType<UserService>()
 				.AsSelf()
 				.AsImplementedInterfaces();
 
@@ -152,8 +148,6 @@ namespace RoboatsService
 
 			app.UseAuthentication();
             app.UseAuthorization();
-
-
 
 			app.UseEndpoints(endpoints =>
             {

@@ -1,26 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SetBillsReport : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
+
 		public SetBillsReport(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IEntityAutocompleteSelectorFactory subdivisionSelectorFactory)
+			ISubdivisionJournalFactory subdivisionJournalFactory)
 		{
-			if(subdivisionSelectorFactory == null)
-			{
-				throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
-			}
+			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			
 			Build();
 
@@ -31,7 +30,7 @@ namespace Vodovoz.ReportsParameters
 			ybuttonCreateReport.Clicked += (sender, e) => { OnUpdate(true); };
 			ybuttonCreateReport.TooltipText = $"Формирует отчет по заказам в статусе '{OrderStatus.WaitForPayment.GetEnumTitle()}'";
 
-			entrySubdivision.SetEntityAutocompleteSelectorFactory(subdivisionSelectorFactory);
+			entrySubdivision.SetEntityAutocompleteSelectorFactory(_subdivisionJournalFactory.CreateSubdivisionAutocompleteSelectorFactory());
 		}
 
 		#region IParametersWidget implementation

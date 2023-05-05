@@ -1,6 +1,10 @@
-﻿using QS.Project.Filter;
+﻿using Autofac;
+using QS.Navigation;
+using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,70 +17,80 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.ViewModels.Complaints;
 
 namespace Vodovoz.FilterViewModels
 {
 	public class ComplaintFilterViewModel : FilterViewModelBase<ComplaintFilterViewModel>
 	{
-		private readonly ICommonServices commonServices;
+		private readonly ICommonServices _commonServices;
+		private readonly INavigationManager _navigationManager;
+		private readonly ILifetimeScope _lifetimeScope;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private IList<ComplaintObject> _complaintObjectSource;
 		private ComplaintObject _complaintObject;
 		private readonly IList<ComplaintKind> _complaintKinds;
 		private bool _isForSalesDepartment;
-
-		public IEmployeeService EmployeeService { get; set; }
-		
-		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
-
-		public ComplaintFilterViewModel()
-		{
-			UpdateWith(
-				x => x.ComplaintType,
-				x => x.ComplaintStatus,
-				x => x.Employee,
-				x => x.StartDate,
-				x => x.EndDate,
-				x => x.Subdivision,
-				x => x.FilterDateType,
-				x => x.ComplaintKind,
-				x => x.ComplaintDiscussionStatus,
-				x => x.ComplaintObject,
-				x => x.CurrentUserSubdivision
-			);
-		}
+		private GuiltyItemViewModel _guiltyItemVM;
+		private ComplaintKind _complaintKind;
+		private IList<Subdivision> _allDepartments;
+		private DateFilterType _filterDateType = DateFilterType.CreationDate;
+		private ComplaintType? _complaintType = Domain.Complaints.ComplaintType.Client;
+		private ComplaintStatuses? _complaintStatus;
+		private ComplaintDiscussionStatuses? _complaintDiscussionStatus;
+		private Subdivision _currentUserSubdivision;
+		private Employee _employee;
+		private Counterparty _counterparty;
+		private Subdivision _subdivision;
+		private DateTime? _startDate;
+		private DateTime _endDate = DateTime.Now;
+		private bool? _isForRetail;
+		private IList<ComplaintKind> _complaintKindSource;
+		private ComplaintDetalization _complainDetalization;
+		private DialogViewModelBase _journalViewModel;
 
 		public ComplaintFilterViewModel(
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
 			ISubdivisionRepository subdivisionRepository,
-			IEmployeeJournalFactory employeeSelectorFactory,
+			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider
-		) {
-
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider)); ;
+			ISubdivisionJournalFactory subdivisionJournalFactory,
+			IComplaintKindJournalFactory complaintKindJournalFactory,
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			Action<ComplaintFilterViewModel> filterParams = null)
+		{
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			CounterpartySelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
 			EmployeeSelectorFactory =
-				(employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory)))
+				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
+			ComplaintKindSelectorFactory =
+				(complaintKindJournalFactory ?? throw new ArgumentNullException(nameof(complaintKindJournalFactory)))
+				.CreateComplaintKindAutocompleteSelectorFactory();
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),
 				commonServices,
 				subdivisionRepository,
-				employeeSelectorFactory.CreateEmployeeAutocompleteSelectorFactory(),
+				employeeJournalFactory,
+				subdivisionJournalFactory,
 				_subdivisionParametersProvider,
 				UoW,
-				true
-			);
+				true);
 
 			AllDepartments = subdivisionRepository.GetAllDepartmentsOrderedByName(UoW);
 			CanChangeSubdivision = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_subdivision_on_complaint");
 
-			GuiltyItemVM.Entity.OnGuiltyTypeChange = () => 
+			GuiltyItemVM.Entity.OnGuiltyTypeChange = () =>
 			{
 				if(GuiltyItemVM.Entity.Responsible == null || !GuiltyItemVM.Entity.Responsible.IsEmployeeResponsible)
 				{
@@ -89,7 +103,18 @@ namespace Vodovoz.FilterViewModels
 			};
 			GuiltyItemVM.OnGuiltyItemReady += (sender, e) => Update();
 
-			_complaintKinds = complaintKindSource = UoW.GetAll<ComplaintKind>().ToList();
+			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().ToList();
+
+			if(filterParams != null)
+			{
+				SetAndRefilterAtOnce(filterParams);
+			}
+
+			CurrentSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
+				.CreateSubdivisionAutocompleteSelectorFactory();
+
+			InWorkSubdivisionSelectorFactory = (subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
+				.CreateSubdivisionAutocompleteSelectorFactory();
 
 			UpdateWith(
 				x => x.ComplaintType,
@@ -101,31 +126,53 @@ namespace Vodovoz.FilterViewModels
 				x => x.Subdivision,
 				x => x.FilterDateType,
 				x => x.ComplaintKind,
+				x => x.ComplainDetalization,
 				x => x.ComplaintDiscussionStatus,
 				x => x.ComplaintObject,
-				x => x.CurrentUserSubdivision
-			);
+				x => x.CurrentUserSubdivision);
 		}
+
+		public IEmployeeService EmployeeService { get; set; }
+
+		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+
+		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+
+		public IEntityAutocompleteSelectorFactory CurrentSubdivisionSelectorFactory { get; }
+
+		public IEntityAutocompleteSelectorFactory InWorkSubdivisionSelectorFactory { get; }
+
+		public IEntityAutocompleteSelectorFactory ComplaintKindSelectorFactory { get; }
+
+		public IEntityEntryViewModel ComplaintDetalizationEntiryEntryViewModel { get; private set; }
 
 		public virtual bool CanChangeSubdivision { get; }
 
-		GuiltyItemViewModel guiltyItemVM;
-		public virtual GuiltyItemViewModel GuiltyItemVM {
-			get => guiltyItemVM;
-			set => SetField(ref guiltyItemVM, value);
+		public bool CanReadDetalization => _commonServices.CurrentPermissionService
+					.ValidateEntityPermission(typeof(ComplaintDetalization)).CanRead;
+
+		public virtual GuiltyItemViewModel GuiltyItemVM
+		{
+			get => _guiltyItemVM;
+			set => SetField(ref _guiltyItemVM, value);
 		}
 
-		ComplaintKind complaintKind;
-		public virtual ComplaintKind ComplaintKind {
-			get => complaintKind;
-			set => SetField(ref complaintKind, value);
+		public virtual ComplaintKind ComplaintKind
+		{
+			get => _complaintKind;
+			set => SetField(ref _complaintKind, value);
 		}
 
-		private IList<Subdivision> allDepartments;
+		public ComplaintDetalization ComplainDetalization
+		{
+			get => _complainDetalization;
+			set => SetField(ref _complainDetalization, value);
+		}
+
 		public IList<Subdivision> AllDepartments
 		{
-			get => allDepartments;
-			private set => SetField(ref allDepartments, value);
+			get => _allDepartments;
+			private set => SetField(ref _allDepartments, value);
 		}
 
 		public virtual ComplaintObject ComplaintObject
@@ -140,73 +187,70 @@ namespace Vodovoz.FilterViewModels
 			}
 		}
 
-		private DateFilterType filterDateType = DateFilterType.CreationDate;
-		public virtual DateFilterType FilterDateType {
-			get => filterDateType;
-			set => SetField(ref filterDateType, value);
+		public virtual DateFilterType FilterDateType
+		{
+			get => _filterDateType;
+			set => SetField(ref _filterDateType, value);
 		}
 
-		private ComplaintType? complaintType = Domain.Complaints.ComplaintType.Client;
-		public virtual ComplaintType? ComplaintType {
-			get => complaintType;
-			set => SetField(ref complaintType, value);
+		public virtual ComplaintType? ComplaintType
+		{
+			get => _complaintType;
+			set => SetField(ref _complaintType, value);
 		}
 
-		private ComplaintStatuses? complaintStatus;
-		public virtual ComplaintStatuses? ComplaintStatus {
-			get => complaintStatus;
-			set => SetField(ref complaintStatus, value);
+		public virtual ComplaintStatuses? ComplaintStatus
+		{
+			get => _complaintStatus;
+			set => SetField(ref _complaintStatus, value);
 		}
 
-		private ComplaintDiscussionStatuses? complaintDiscussionStatus;
 		public virtual ComplaintDiscussionStatuses? ComplaintDiscussionStatus
 		{
-			get => complaintDiscussionStatus;
-			set => SetField(ref complaintDiscussionStatus, value);
+			get => _complaintDiscussionStatus;
+			set => SetField(ref _complaintDiscussionStatus, value);
 		}
 
-		private Subdivision currentUserSubdivision;
-		public virtual Subdivision CurrentUserSubdivision {
-			get => currentUserSubdivision;
-			set => SetField(ref currentUserSubdivision, value);
+		public virtual Subdivision CurrentUserSubdivision
+		{
+			get => _currentUserSubdivision;
+			set => SetField(ref _currentUserSubdivision, value);
 		}
 
-		private Employee employee;
-		public virtual Employee Employee {
-			get { return employee; }
-			set { SetField(ref employee, value); }
+		public virtual Employee Employee
+		{
+			get => _employee;
+			set => SetField(ref _employee, value);
 		}
 
-		private Counterparty counterparty;
 		public virtual Counterparty Counterparty
 		{
-			get { return counterparty; }
-			set { SetField(ref counterparty, value); }
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 
-		private Subdivision subdivision;
-		public virtual Subdivision Subdivision {
-			get => subdivision;
-			set => SetField(ref subdivision, value);
+		public virtual Subdivision Subdivision
+		{
+			get => _subdivision;
+			set => SetField(ref _subdivision, value);
 		}
 
-		private DateTime? startDate;
-		public virtual DateTime? StartDate {
-			get => startDate;
-			set => SetField(ref startDate, value);
+		public virtual DateTime? StartDate
+		{
+			get => _startDate;
+			set => SetField(ref _startDate, value);
 		}
 
-		private DateTime endDate = DateTime.Now;
-		public virtual DateTime EndDate {
-			get => endDate;
-			set => SetField(ref endDate, value);
+		public virtual DateTime EndDate
+		{
+			get => _endDate;
+			set => SetField(ref _endDate, value);
 		}
 
-		private bool? isForRetail;
 		public bool? IsForRetail
 		{
-			get => isForRetail;
-			set => SetField(ref isForRetail, value);
+			get => _isForRetail;
+			set => SetField(ref _isForRetail, value);
 		}
 
 		public bool IsForSalesDepartment
@@ -224,24 +268,52 @@ namespace Vodovoz.FilterViewModels
 		public void SelectMyComplaint()
 		{
 			if(EmployeeService == null)
+			{
 				throw new NullReferenceException("Отсутствует ссылка на EmployeeService");
+			}
 
 			Subdivision = null;
 			ComplaintStatus = null;
 			ComplaintType = null;
 			StartDate = DateTime.Now.AddMonths(-3);
 			EndDate = DateTime.Now.AddMonths(3);
-			Employee = EmployeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
+			Employee = EmployeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId);
 		}
 
-		IList<ComplaintKind> complaintKindSource;
-		public IList<ComplaintKind> ComplaintKindSource {
-			get => complaintKindSource;
-			set => SetField(ref complaintKindSource, value);
+		public IList<ComplaintKind> ComplaintKindSource
+		{
+			get => _complaintKindSource;
+			set => SetField(ref _complaintKindSource, value);
 		}
 
-		public IEnumerable<ComplaintObject> ComplaintObjectSource => 
+		public IEnumerable<ComplaintObject> ComplaintObjectSource =>
 			_complaintObjectSource ?? (_complaintObjectSource = UoW.GetAll<ComplaintObject>().ToList());
+
+		public DialogViewModelBase JournalViewModel
+		{
+			get => _journalViewModel;
+			set
+			{
+				_journalViewModel = value;
+				
+				var entityEntryViewModel = 
+					new CommonEEVMBuilderFactory<ComplaintFilterViewModel>(value, this, UoW, _navigationManager, _lifetimeScope)
+					.ForProperty(x => x.ComplainDetalization)
+					.UseViewModelDialog<ComplaintDetalizationViewModel>()
+					.UseViewModelJournalAndAutocompleter<ComplaintDetalizationJournalViewModel, ComplaintDetalizationJournalFilterViewModel>(
+						filter =>
+						{
+							filter.RestrictComplaintObject = ComplaintObject;
+							filter.RestrictComplaintKind = ComplaintKind;
+						}
+					)
+					.Finish();
+
+				entityEntryViewModel.CanViewEntity = false;
+
+				ComplaintDetalizationEntiryEntryViewModel = entityEntryViewModel;
+			}
+		}
 	}
 
 	public enum DateFilterType

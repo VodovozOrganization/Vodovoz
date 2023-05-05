@@ -30,7 +30,7 @@ namespace Vodovoz.Representations.ProductGroups
 		{
 			UoW = uow;
 			CreateRepresentationFilter = () => {
-				filter = new ProductGroupFilterViewModel();
+				var filter = new ProductGroupFilterViewModel();
 				return filter;
 			};
 			
@@ -53,16 +53,9 @@ namespace Vodovoz.Representations.ProductGroups
 
 		private IList _filteredItemsList;
 		
-		private ProductGroupFilterViewModel filter;
 		public ProductGroupFilterViewModel Filter {
-			get => filter;
-			set 
-			{
-				if(filter != value) {
-					filter = value;
-					filter.OnFiltered += (sender, e) => UpdateNodes();
-				}
-			}
+			get => RepresentationFilter as ProductGroupFilterViewModel;
+			set => RepresentationFilter = value;
 		}
 
 		private IyTreeModel iyTreeModel;
@@ -94,8 +87,8 @@ namespace Vodovoz.Representations.ProductGroups
 			var searchStarted = DateTime.Now;
 			var childs =
 				itemsList.AsParallel()
-					.Where(x => x.ChildGroupNomenclatures != null)
-					.SelectMany(x => x.ChildGroupNomenclatures.ChildNomenclatures).ToList();
+					.Where(x => x.ChildNomenclatures != null)
+					.SelectMany(x => x.ChildNomenclatures).ToList();
 			var childMatches =
 				childs.AsParallel().Where(SearchFilterFunc).OfType<INameNode>().ToList();
 			var groupsMatches = itemsList.AsParallel().Where(SearchFilterFunc).OfType<INameNode>().ToList();
@@ -177,7 +170,7 @@ namespace Vodovoz.Representations.ProductGroups
 			var nomenclatures = nomenclaturesQuery.SelectList(list => list
 				.Select(n => n.Id).WithAlias(() => nomenclatureNodeAlias.Id)
 				.Select(n => n.Name).WithAlias(() => nomenclatureNodeAlias.Name)
-				.Select(p => p.ProductGroup.Id).WithAlias(() => resultAlias.ParentId)
+				.Select(n => n.ProductGroup.Id).WithAlias(() => resultAlias.ParentId)
 				.Select(n => n.IsArchive).WithAlias(() => nomenclatureNodeAlias.IsArchive))
 			.TransformUsing(Transformers.AliasToBean<NomenclatureNode>())
 			.List<NomenclatureNode>();
@@ -192,24 +185,16 @@ namespace Vodovoz.Representations.ProductGroups
 
 				if(nomenclatureNodes.Any())
 				{
-					node.ChildGroupNomenclatures = new NomenclatureGroupNode
-					{
-						Id = node.Id,
-						Parent = node,
-						Name = $"Номенклатуры группы \"{node.Name}\""
-					};
-
 					foreach(var item in nomenclatureNodes)
 					{
-						item.Parent = node.ChildGroupNomenclatures;
-						node.ChildGroupNomenclatures.ChildNomenclatures.Add(item);
+						item.Parent = node;
+						node.ChildNomenclatures.Add(item);
 					}
 				}
 
 				foreach(var n in children)
 				{
 					n.Parent = node;
-					SetChildren(n);
 				}
 			}
 
@@ -219,15 +204,12 @@ namespace Vodovoz.Representations.ProductGroups
 			
 			var config = new List<IModelConfig>
 			{
-				new ModelConfig<ProductGroupVMNode, ProductGroupVMNode, NomenclatureGroupNode>(
+				new ModelConfig<ProductGroupVMNode, ProductGroupVMNode, NomenclatureNode>(
 					x => x.Parent,
 					x => x.ChildGroups,
-					x => x.ChildGroupNomenclatures),
-				new ModelConfig<NomenclatureGroupNode, ProductGroupVMNode, NomenclatureNode>(
-					x => x.Parent,
-					null,
 					x => x.ChildNomenclatures),
-				new ModelConfig<NomenclatureNode, NomenclatureGroupNode>(x => x.Parent)
+				new ModelConfig<NomenclatureNode, ProductGroupVMNode>(
+					x => x.Parent)
 			};
 			
 			YTreeModel = new RecursiveTreeModelWithCustomModel<ProductGroupVMNode>(parentsList, config);

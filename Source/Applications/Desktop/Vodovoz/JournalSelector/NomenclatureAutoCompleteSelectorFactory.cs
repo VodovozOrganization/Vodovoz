@@ -1,11 +1,10 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
+using System;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -29,9 +28,18 @@ namespace Vodovoz.JournalSelector
 		{
 			var nomecnlatureJournalFactory = new NomenclatureJournalFactory();
 			NomenclaturesJournalViewModel selectorViewModel = (NomenclaturesJournalViewModel)Activator
-			.CreateInstance(typeof(NomenclaturesJournalViewModel), new object[] { filter, 
-				UnitOfWorkFactory.GetDefaultFactory, commonServices, VodovozGtkServicesConfig.EmployeeService,
-				nomecnlatureJournalFactory, counterpartySelectorFactory, nomenclatureRepository, userRepository});
+			.CreateInstance(typeof(NomenclaturesJournalViewModel), new object[]
+			{
+				filter, 
+				UnitOfWorkFactory.GetDefaultFactory,
+				commonServices,
+				VodovozGtkServicesConfig.EmployeeService,
+				nomecnlatureJournalFactory,
+				counterpartySelectorFactory,
+				nomenclatureRepository,
+				userRepository,
+				null
+			});
 			
 			selectorViewModel.SelectionMode = JournalSelectionMode.Single;
 			return selectorViewModel;

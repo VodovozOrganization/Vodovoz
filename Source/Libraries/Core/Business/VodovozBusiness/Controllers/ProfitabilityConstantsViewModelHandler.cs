@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.EntityRepositories.Profitability;
 
 namespace Vodovoz.Controllers
 {
-	public class ProfitabilityConstantsViewModelHandler
+	public class ProfitabilityConstantsViewModelHandler : IProfitabilityConstantsViewModelHandler
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IProfitabilityConstantsRepository _profitabilityConstantsRepository;
@@ -27,7 +27,7 @@ namespace Vodovoz.Controllers
 
 				return lastProfitabilityContants != null
 					? CreateNewUoW(lastProfitabilityContants.Id)
-					: CreateNewUoW(new DateTime(DateTime.Today.Year, DateTime.Today.Month - 1, 1));
+					: CreateNewUoW(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(-1));
 			}
 		}
 

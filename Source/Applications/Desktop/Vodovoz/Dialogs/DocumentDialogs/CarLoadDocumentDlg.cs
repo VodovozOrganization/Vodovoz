@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
 using QS.Project.Services;
 using QS.Report;
+using Vodovoz.Controllers;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
@@ -21,6 +22,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Parameters;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Models;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Store;
 
@@ -33,6 +35,8 @@ namespace Vodovoz
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IRouteListRepository _routeListRepository =
 			new RouteListRepository(new StockRepository(), new BaseParametersProvider(new ParametersProvider()));
+		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
+		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider = new RouteListDailyNumberProvider(UnitOfWorkFactory.GetDefaultFactory);
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -193,7 +197,7 @@ namespace Vodovoz
 				}
 			}
 
-			Entity.UpdateOperations(UoW);
+			Entity.UpdateOperations(UoW, _baseParametersProvider.GetNomenclatureIdForTerminal);
 
 			logger.Info("Сохраняем погрузочный талон...");
 			UoWGeneric.Save();
@@ -202,6 +206,7 @@ namespace Vodovoz
 			if(Entity.RouteList.ShipIfCan(UoW, CallTaskWorker, out _))
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			UoW.Save(Entity.RouteList);
+
 			UoW.Commit();
 
 			logger.Info("Ok.");
@@ -256,6 +261,8 @@ namespace Vodovoz
 					return;
 				}
 			}
+
+			_routeListDailyNumberProvider.GetOrCreateDailyNumber(Entity.RouteList.Id, Entity.RouteList.Date);
 
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = Entity.Title,

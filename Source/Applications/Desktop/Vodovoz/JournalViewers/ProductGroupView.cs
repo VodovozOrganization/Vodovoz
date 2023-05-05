@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -36,7 +37,11 @@ namespace Vodovoz.JournalViewers
 		private void ConfigureWidget()
 		{
 			vm = new ProductGroupVM {
-				Filter = new ProductGroupFilterViewModel()
+				Filter = new ProductGroupFilterViewModel
+				{
+					HidenByDefault = false,
+					HideArchive = true
+				}
 			};
 
 			productGroupFilterView = new ProductGroupFilterView(vm.Filter);
@@ -55,7 +60,11 @@ namespace Vodovoz.JournalViewers
 			#region SignalsConnect
 			
 			btnAdd.Clicked += OnButtonAddClicked;
-			buttonRefresh.Clicked += (sender, args) => UpdateData();
+			buttonRefresh.Clicked += (sender, args) =>
+			{
+				vm.UpdateNodes();
+				tableProductGroup.YTreeModel = vm.YTreeModel;
+			};
 			buttonFilter.Clicked += OnButtonFilterClicked;
 			tableProductGroup.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Clicked += OnButtonEditClicked;
@@ -69,6 +78,7 @@ namespace Vodovoz.JournalViewers
 
 			#endregion
 			OnSelectionChanged(null, EventArgs.Empty);
+			buttonFilter.Click();
 		}
 
 		private void CreateBtnGroupEditing()
@@ -93,10 +103,15 @@ namespace Vodovoz.JournalViewers
 
 			if(firstSelectedItem.GetType() != typeof(NomenclatureGroupNode))
 			{
-				var selectDialog = new PermissionControlledRepresentationJournal(
-					new ProductGroupVM(vm.UoW, new ProductGroupFilterViewModel()), Buttons.None);
+				var viewModel = new ProductGroupVM(vm.UoW, new ProductGroupFilterViewModel
+				{
+					HideArchive = true,
+					HidenByDefault = false
+				});
+				var selectDialog = new PermissionControlledRepresentationJournal(viewModel, Buttons.None);
 				selectDialog.Name = "Выбор группы товаров, куда будут переноситься позиции";
 				selectDialog.Mode = JournalSelectMode.Single;
+				selectDialog.ShowFilter = true;
 				selectDialog.ObjectSelected += OnSelectDialogObjectSelected;
 				TabParent.AddSlaveTab(this, selectDialog);
 			}
@@ -117,8 +132,9 @@ namespace Vodovoz.JournalViewers
 			}
 
 			var productGroup = vm.UoW.GetById<ProductGroup>(productGroupNode.Id);
-
-			if(_selectedItems.FirstOrDefault() is ProductGroupVMNode)
+			var firstSelectedItem = _selectedItems.FirstOrDefault();
+			
+			if(firstSelectedItem is ProductGroupVMNode)
 			{
 				var productGroups = vm.UoW.Session.QueryOver<ProductGroup>()
 					.WhereRestrictionOn(pg => pg.Id)
@@ -128,18 +144,25 @@ namespace Vodovoz.JournalViewers
 				foreach(var item in productGroups)
 				{
 					item.Parent = productGroup;
+					
+					if(ProductGroup.CheckCircle(item, productGroup))
+					{
+						MessageDialogHelper.RunWarningDialog("Обнаружена циклическая ссылка. Операция не возможна");
+						return;
+					}
+					
 					vm.UoW.Save(item);
 				}
 				vm.UoW.Commit();
 			}
-			else if(_selectedItems.FirstOrDefault() is NomenclatureNode)
+			else if(firstSelectedItem is NomenclatureNode)
 			{
-				var productGroups = vm.UoW.Session.QueryOver<Nomenclature>()
+				var nomenclatures = vm.UoW.Session.QueryOver<Nomenclature>()
 					.WhereRestrictionOn(n => n.Id)
 					.IsInG(_selectedItems.Select(x => x.GetId()))
 					.List();
 
-				foreach(var item in productGroups)
+				foreach(var item in nomenclatures)
 				{
 					item.ProductGroup = productGroup;
 					vm.UoW.Save(item);
@@ -152,8 +175,42 @@ namespace Vodovoz.JournalViewers
 
 		private void UpdateData()
 		{
+			var selected = _selectedItems;
 			vm.UpdateNodes();
 			tableProductGroup.YTreeModel = vm.YTreeModel;
+
+			if(!(vm.ItemsList is IList<ProductGroupVMNode> productGroups))
+			{
+				return;
+			}
+
+			foreach(var item in selected)
+			{
+				if(item is ProductGroupVMNode productGroupNode)
+				{
+					var node = productGroups.SingleOrDefault(x => x.Id == productGroupNode.Id);
+					ExpandAndSelectTreeNode(node);
+				}
+				else if(item is NomenclatureNode nomenclatureNode)
+				{
+					var node = productGroups.SelectMany(x => x.ChildNomenclatures)
+						.SingleOrDefault(x => x.Id == nomenclatureNode.Id);
+					
+					ExpandAndSelectTreeNode(node);
+				}
+			}
+		}
+
+		private void ExpandAndSelectTreeNode(object node)
+		{
+			if(node == null)
+			{
+				return;
+			}
+
+			var path = tableProductGroup.YTreeModel.PathFromNode(node);
+			tableProductGroup.ExpandToPath(path);
+			tableProductGroup.Selection.SelectPath(path);
 		}
 
 		private void OnButtonAddClicked(object sender, EventArgs e)

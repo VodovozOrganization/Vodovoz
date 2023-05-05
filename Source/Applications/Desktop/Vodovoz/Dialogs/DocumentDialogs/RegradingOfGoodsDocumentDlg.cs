@@ -81,7 +81,10 @@ namespace Vodovoz
 			{
 				IncludeWarehouseIds = availableWarehousesIds
 			};
-			warehouseEntry.SetEntityAutocompleteSelectorFactory(new WarehouseSelectorFactory(warehouseFilter));
+
+			var warehouseJournalFactory = new WarehouseJournalFactory();
+
+			warehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(warehouseFilter));
 			warehouseEntry.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 

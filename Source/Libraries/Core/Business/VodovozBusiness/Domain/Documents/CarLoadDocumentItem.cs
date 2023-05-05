@@ -16,6 +16,8 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class CarLoadDocumentItem: PropertyChangedBase, IDomainObject
 	{
+		DeliveryFreeBalanceOperation _deliveryFreeBalanceOperation;
+
 		#region Свойства
 		public virtual int Id { get; set; }
 
@@ -38,7 +40,13 @@ namespace Vodovoz.Domain.Documents
 			get => employeeNomenclatureMovementOperation;
 			set => SetField (ref employeeNomenclatureMovementOperation, value);
 		}
-		
+
+		public virtual DeliveryFreeBalanceOperation DeliveryFreeBalanceOperation
+		{
+			get => _deliveryFreeBalanceOperation;
+			set => SetField(ref _deliveryFreeBalanceOperation, value);
+		}
+
 		Nomenclature nomenclature;
 
 		[Display (Name = "Номенклатура")]
@@ -168,6 +176,18 @@ namespace Vodovoz.Domain.Documents
 			EmployeeNomenclatureMovementOperation.Amount = Amount;
 			EmployeeNomenclatureMovementOperation.Nomenclature = Nomenclature;
 			EmployeeNomenclatureMovementOperation.Employee = Document.RouteList.Driver ?? throw new ArgumentNullException(nameof(Document.RouteList.Driver));
+		}
+
+		public virtual void CreateOrUpdateDeliveryFreeBalanceOperation()
+		{
+			if(DeliveryFreeBalanceOperation == null)
+			{
+				DeliveryFreeBalanceOperation = new DeliveryFreeBalanceOperation();
+			}
+
+			DeliveryFreeBalanceOperation.Amount = Amount;
+			DeliveryFreeBalanceOperation.Nomenclature = Nomenclature;
+			DeliveryFreeBalanceOperation.RouteList = Document.RouteList;
 		}
 
 		#endregion

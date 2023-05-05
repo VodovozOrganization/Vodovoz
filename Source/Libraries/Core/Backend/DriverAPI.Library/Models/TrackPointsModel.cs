@@ -1,4 +1,5 @@
 ﻿using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Helpers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -16,18 +17,21 @@ namespace DriverAPI.Library.Models
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListModel _routeListModel;
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IActionTimeHelper _actionTimeHelper;
 
 		public TrackPointsModel(ILogger<TrackPointsModel> logger,
 			ITrackRepository trackRepository,
 			IRouteListRepository routeListRepository,
 			IRouteListModel routeListModel,
-			IUnitOfWork unitOfWork)
+			IUnitOfWork unitOfWork,
+			IActionTimeHelper actionTimeHelper)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListModel = routeListModel ?? throw new ArgumentNullException(nameof(routeListModel));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 		}
 
 		public void RegisterForRouteList(int routeListId, IList<TrackCoordinateDto> trackList, int driverId)
@@ -40,14 +44,18 @@ namespace DriverAPI.Library.Models
 			if(routeList.Status != RouteListStatus.EnRoute
 			&& routeList.Status != RouteListStatus.Delivered)
 			{
-				_logger.LogWarning($"Попытка записать трек для МЛ {routeListId}, МЛ в статусе '{routeList.Status}'");
+				_logger.LogWarning("Попытка записать трек для МЛ {RouteListId}, МЛ в статусе '{RouteListStatus}'",
+					routeListId,
+					routeList.Status);
 				throw new InvalidOperationException($"Нельзя записать трек для МЛ {routeListId}, МЛ в статусе недоступном для записи трека");
 			}
 
 			if(!_routeListModel.IsRouteListBelongToDriver(routeListId, driverId))
 			{
-				_logger.LogWarning($"Водитель ({driverId})" +
-					$" попытался зарегистрировать трек для МЛ {routeListId}");
+				_logger.LogWarning("Сотрудник ({EmployeeId}) попытался зарегистрировать трек для МЛ {RouteListId} водителя {DriverId}",
+					driverId,
+					routeListId,
+					routeList.Driver.Id);
 				throw new InvalidOperationException("Нельзя регистрировать координаты трека к чужому МЛ");
 			}
 
@@ -62,24 +70,27 @@ namespace DriverAPI.Library.Models
 
 			foreach(var trackPoint in trackList)
 			{
+				var actionTime = _actionTimeHelper.GetActionTime(trackPoint);
+
 				trackPoint.Latitude = Math.Round(trackPoint.Latitude, 8);
 				trackPoint.Longitude = Math.Round(trackPoint.Longitude, 8);
-				trackPoint.ActionTime = new DateTime(
-					trackPoint.ActionTime.Year,
-					trackPoint.ActionTime.Month,
-					trackPoint.ActionTime.Day,
-					trackPoint.ActionTime.Hour,
-					trackPoint.ActionTime.Minute,
-					trackPoint.ActionTime.Second,
-					trackPoint.ActionTime.Kind
-				);
+				trackPoint.ActionTime = 
+					new DateTime(
+						actionTime.Year,
+						actionTime.Month,
+						actionTime.Day,
+						actionTime.Hour,
+						actionTime.Minute,
+						actionTime.Second,
+						actionTime.Kind
+					);
 			}
 
 			var trackPoints = trackList
 				.GroupBy(x =>
 					new
 					{
-						x.ActionTime,
+						ActionTime = x.ActionTime.Value,
 						x.Latitude,
 						x.Longitude
 					})
@@ -96,7 +107,7 @@ namespace DriverAPI.Library.Models
 			{
 				if(track.TrackPoints.Any(t => t.TimeStamp == trackPoint.TimeStamp))
 				{
-					_logger.LogInformation($"Уже зарегистрирована точка для времени {trackPoint.TimeStamp}");
+					_logger.LogInformation("Уже зарегистрирована точка для времени {TrackPointTimeStamp}", trackPoint.TimeStamp);
 					continue;
 				}
 

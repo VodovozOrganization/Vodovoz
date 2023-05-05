@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
@@ -8,10 +8,11 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -21,6 +22,7 @@ namespace Vodovoz
 
 		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
 		private readonly IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository;
+		private readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 
 		IColumnsConfig colConfigFrom = ColumnsConfigFactory.Create<CarUnloadDocumentNode>()
 			.AddColumn("Номенклатура").AddTextRenderer(d => d.Nomenclature)
@@ -225,7 +227,8 @@ namespace Vodovoz
 			var fromDoc = ylistcomboReceptionTicketFrom.SelectedItem as CarUnloadDocument;
 			var toDoc = ylistcomboReceptionTicketTo.SelectedItem as CarUnloadDocument;
 
-			foreach(var from in itemsFrom.Where(i => i.TransferCount > 0)) {
+			foreach(var from in itemsFrom.Where(i => i.TransferCount > 0))
+			{
 				int transfer = from.TransferCount;
 				//Заполняем для краткости
 				var nomenclature = from.DocumentItem.GoodsAccountingOperation.Nomenclature;
@@ -234,28 +237,42 @@ namespace Vodovoz
 				var to = itemsTo
 					.FirstOrDefault(i => i.DocumentItem.GoodsAccountingOperation.Nomenclature.Id == nomenclature.Id);
 
-				if(to == null) {
-					toDoc.AddItem(receiveType, nomenclature, null, transfer, null);
+				if(to == null)
+				{
+					var tetminalId = _baseParametersProvider.GetNomenclatureIdForTerminal;
+					toDoc.AddItem(receiveType, nomenclature, null, transfer, null, tetminalId);
 
-					foreach(var item in toDoc.Items) {
+					foreach(var item in toDoc.Items)
+					{
 						var exist = itemsTo.FirstOrDefault(i => i.DocumentItem.Id == item.Id);
 						if(exist == null)
 							itemsTo.Add(new CarUnloadDocumentNode { DocumentItem = item });
 					}
-				} else {
-					to.DocumentItem.GoodsAccountingOperation.Amount += transfer;
+				}
+				else
+				{
+					to.DocumentItem.WarehouseMovementOperation.Amount += transfer;
+					to.DocumentItem.DeliveryFreeBalanceOperation.Amount -= transfer;
 
-					UoW.Save(to.DocumentItem.GoodsAccountingOperation);
+					UoW.Save(to.DocumentItem.WarehouseMovementOperation);
+					UoW.Save(to.DocumentItem.DeliveryFreeBalanceOperation);
 				}
 
-				from.DocumentItem.GoodsAccountingOperation.Amount -= transfer;
-				if(from.DocumentItem.GoodsAccountingOperation.Amount == 0) {
+				from.DocumentItem.WarehouseMovementOperation.Amount -= transfer;
+				from.DocumentItem.DeliveryFreeBalanceOperation.Amount += transfer;
+
+				if(from.DocumentItem.WarehouseMovementOperation.Amount == 0)
+				{
 					var item = fromDoc.Items.First(i => i.Id == from.DocumentItem.Id);
 					fromDoc.Items.Remove(item);
 
-					UoW.Delete(from.DocumentItem.GoodsAccountingOperation);
-				} else {
-					UoW.Save(from.DocumentItem.GoodsAccountingOperation);
+					UoW.Delete(from.DocumentItem.WarehouseMovementOperation);
+					UoW.Delete(from.DocumentItem.DeliveryFreeBalanceOperation);
+				}
+				else
+				{
+					UoW.Save(from.DocumentItem.WarehouseMovementOperation);
+					UoW.Save(from.DocumentItem.DeliveryFreeBalanceOperation);
 				}
 
 				from.TransferCount = 0;

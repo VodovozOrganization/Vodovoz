@@ -22,7 +22,7 @@ namespace Vodovoz.Domain.Documents
 		Prepositional = "акте передачи остатков")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class ShiftChangeWarehouseDocument : Document, IValidatableObject
+	public class ShiftChangeWarehouseDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private string _comment;
 		private Employee _sender;

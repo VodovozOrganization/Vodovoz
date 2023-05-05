@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using fyiReporting.RDL;
+﻿using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -17,6 +10,13 @@ using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Services;
 using QS.Validation;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -28,7 +28,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -72,9 +71,14 @@ namespace Vodovoz.Domain.Orders
 		private readonly INomenclatureRepository _nomenclatureRepository =
 			new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 
+		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
+			new GeneralSettingsParametersProvider(new ParametersProvider());
+
 		private readonly OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery =
 			new OrderItemComparerForCopyingFromUndelivery();
 		private readonly double _futureDeliveryDaysLimit = 30;
+
+		private bool _isBottleStockDiscrepancy;
 
 		#region Платная доставка
 
@@ -97,6 +101,7 @@ namespace Vodovoz.Domain.Orders
 		private Phone _contactPhone;
 		private DateTime? _commentOPManagerUpdatedAt;
 		private Employee _commentOPManagerChangedBy;
+		private bool? _canCreateOrderInAdvance;
 		
 		#region Cвойства
 
@@ -439,17 +444,16 @@ namespace Vodovoz.Domain.Orders
 		public virtual PaymentType PaymentType {
 			get => _paymentType;
 			set {
-				if(value != _paymentType && SetField(ref _paymentType, value, () => PaymentType)) {
+				if(value != _paymentType && SetField(ref _paymentType, value)) {
 					switch(PaymentType) {
 						case PaymentType.cash:
 						case PaymentType.barter:
 						case PaymentType.cashless:
 						case PaymentType.ContractDoc:
-							OnlineOrder = null;
+						case PaymentType.Terminal:
 							PaymentByCardFrom = null;
 							break;
 						case PaymentType.ByCard:
-						case PaymentType.Terminal:
 							break;
 					}
 
@@ -681,14 +685,21 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isBottleStock, value, () => IsBottleStock);
 		}
 
-        private bool isSelfDeliveryPaid;
+		[Display(Name = "Расхождение между кол-вом фактически сданных и ожидаемых бутылей по акции \"Бутыль\"")]
+		public virtual bool IsBottleStockDiscrepancy
+		{
+			get => _isBottleStockDiscrepancy;
+			set => SetField(ref _isBottleStockDiscrepancy, value);
+		}
 
-        [Display(Name = "Самовывоз оплачен")]
-        public virtual bool IsSelfDeliveryPaid
-        {
-            get => isSelfDeliveryPaid;
-            set => SetField(ref isSelfDeliveryPaid, value);
-        }
+		private bool isSelfDeliveryPaid;
+
+		[Display(Name = "Самовывоз оплачен")]
+		public virtual bool IsSelfDeliveryPaid
+		{
+			get => isSelfDeliveryPaid;
+			set => SetField(ref isSelfDeliveryPaid, value);
+		}
 
 		private int bottlesByStockCount;
 		[Display(Name = "Количество бутылей по акции")]
@@ -872,15 +883,10 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderDocuments, value, () => OrderDocuments);
 		}
 
-		GenericObservableList<OrderDocument> observableOrderDocuments;
+		GenericObservableList<OrderDocument> _observableOrderDocuments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments {
-			get {
-				if(observableOrderDocuments == null)
-					observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments);
-				return observableOrderDocuments;
-			}
-		}
+		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments => 
+			_observableOrderDocuments?.ReconnectToObject(OrderDocuments) ?? (_observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments));
 
 		IList<OrderItem> orderItems = new List<OrderItem>();
 
@@ -1102,10 +1108,10 @@ namespace Vodovoz.Domain.Orders
 
 					//создание нескольких заказов на одну дату и точку доставки
 					if(!SelfDelivery && DeliveryPoint != null
-					                 && DeliveryDate.HasValue
-					                 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
-					                 && validationContext.Items.ContainsKey("uowFactory")
-					                 && !IsCopiedFromUndelivery)
+									 && DeliveryDate.HasValue
+									 && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
+									 && validationContext.Items.ContainsKey("uowFactory")
+									 && !IsCopiedFromUndelivery)
 					{
 						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
@@ -1113,8 +1119,8 @@ namespace Vodovoz.Domain.Orders
 							.GetSameOrderForDateAndDeliveryPoint((IUnitOfWorkFactory)validationContext.Items["uowFactory"],
 								DeliveryDate.Value, DeliveryPoint)
 							.Where(o => o.Id != Id
-							            && !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
-							            && o.OrderAddressType != OrderAddressType.Service).ToList();
+										&& !_orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
+										&& o.OrderAddressType != OrderAddressType.Service).ToList();
 
 						if(!hasMaster
 						   && orderCheckedOutsideSession.Any())
@@ -1183,11 +1189,11 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
-            if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
-                if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
-                    yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
+			if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
+				if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
+					yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
 
-            if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null && x.PromoSet == null))
+			if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null && x.PromoSet == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
 			if(!SelfDelivery && DeliveryPoint == null)
@@ -1199,12 +1205,12 @@ namespace Vodovoz.Domain.Orders
 				new[] { nameof(DeliveryPoint) });
 			}
 
-            if(DriverCallId != null && string.IsNullOrWhiteSpace(CommentManager)){
-                yield return new ValidationResult("Необходимо заполнить комментарий водителя.",
-                    new[] { this.GetPropertyName(o => o.CommentManager) });
-            }
+			if(DriverCallId != null && string.IsNullOrWhiteSpace(CommentManager)){
+				yield return new ValidationResult("Необходимо заполнить комментарий менеджера водительского телефона.",
+					new[] { this.GetPropertyName(o => o.CommentManager) });
+			}
 
-            if (Client == null)
+			if (Client == null)
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
@@ -1237,7 +1243,12 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В возврате залогов в заказе необходимо вводить положительную сумму.");
 			}
 
-			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance")
+			if(!_canCreateOrderInAdvance.HasValue)
+			{
+				_canCreateOrderInAdvance =
+					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance");
+			}
+			if(!_canCreateOrderInAdvance.Value
 			   && DeliveryDate.HasValue && DeliveryDate.Value < DateTime.Today
 			   && OrderStatus <= OrderStatus.Accepted) {
 				yield return new ValidationResult(
@@ -1259,6 +1270,11 @@ namespace Vodovoz.Domain.Orders
 					"Тип оплаты - контрактная документация невозможен для самовывоза",
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
+			}
+
+			if(IsFastDelivery)
+			{
+				AddFastDeliveryNomenclatureIfNeeded();
 			}
 
 			if(!PaymentTypesFastDeliveryAvailableFor.Contains(PaymentType) && IsFastDelivery)
@@ -1319,7 +1335,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			if (DeliveryPoint != null)
-            {
+			{
 				if (DeliveryPoint.MinimalOrderSumLimit != 0 && OrderSum < DeliveryPoint.MinimalOrderSumLimit)
 				{
 					yield return new ValidationResult(
@@ -1341,6 +1357,18 @@ namespace Vodovoz.Domain.Orders
 			{
 				yield return new ValidationResult($"Номер для связи с Id {ContactPhone.Id} : {ContactPhone.Number} не найден в списке телефонных номеров ни контрагента, ни точки доставки.",
 					new[] { nameof(ContactPhone) });
+			}
+
+			if(OPComment?.Length > 255)
+			{
+				yield return new ValidationResult($"Значение поля \"Комментарий ОП/ОСК\" не должно превышать 255 символов",
+					new[] { nameof(OPComment) });
+			}
+
+			if(ODZComment?.Length > 255)
+			{
+				yield return new ValidationResult($"Значение поля \"Комментарий ОДЗ\" не должно превышать 255 символов",
+					new[] { nameof(OPComment) });
 			}
 		}
 
@@ -1365,7 +1393,19 @@ namespace Vodovoz.Domain.Orders
 			foreach(var item in validatedOrderItems)
 			{
 				decimal fixedPrice = GetFixedPrice(item);
-				decimal nomenclaturePrice = GetNomenclaturePrice(item);
+				decimal nomenclaturePrice = GetNomenclaturePrice(item, false);
+				var alternativeNomenclaturePrice = GetNomenclaturePrice(item, true);
+
+				var conditionForNomenclaturePrice = nomenclaturePrice > default(decimal)
+				          && item.Price < nomenclaturePrice
+				          && (alternativeNomenclaturePrice == default(decimal)
+							  || item.Price < alternativeNomenclaturePrice);
+
+				var conditionForAlternativeNomenclaturePrice = alternativeNomenclaturePrice > default(decimal)
+				          && item.Price < alternativeNomenclaturePrice
+						  && (nomenclaturePrice == default(decimal)
+						      || item.Price < nomenclaturePrice);
+
 				if(fixedPrice > 0m)
 				{
 					if(item.Price < fixedPrice)
@@ -1376,12 +1416,10 @@ namespace Vodovoz.Domain.Orders
 							fixedPrice));
 					}
 				}
-				else if(nomenclaturePrice > default(decimal) && item.Price < nomenclaturePrice)
+				else if(conditionForNomenclaturePrice || conditionForAlternativeNomenclaturePrice)
 				{
-					incorrectPriceItems.Add(string.Format("{0} - цена: {1}, должна быть: {2}\n",
-						item.NomenclatureString,
-						item.Price,
-						nomenclaturePrice));
+					incorrectPriceItems.Add(
+							$"{item.NomenclatureString} - цена: {item.Price}, должна быть: {nomenclaturePrice}, либо {alternativeNomenclaturePrice}");
 				}
 			}
 		}
@@ -1398,15 +1436,15 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual int Total19LBottlesToDeliver =>
 			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
-			                           x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
+									   x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
 		public virtual int Total6LBottlesToDeliver =>
 			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
-			                           x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
+									   x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
 
 		public virtual int Total600mlBottlesToDeliver =>
 			(int)OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water &&
-			                           x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
+									   x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
 
 		public virtual int TotalWeight =>
 			(int)OrderItems.Sum(x => x.Count * (decimal) x.Nomenclature.Weight);
@@ -1443,6 +1481,22 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
+		/// Вся положительная изначальная сумма заказа
+		/// </summary>
+		public virtual decimal OrderPositiveOriginalSum
+		{
+			get
+			{
+				decimal sum = 0;
+				foreach(OrderItem item in ObservableOrderItems)
+				{
+					sum += item.Sum;
+				}
+				return sum;
+			}
+		}
+
+		/// <summary>
 		/// Вся отрицательная сумма заказа
 		/// </summary>
 		public virtual decimal OrderNegativeSum {
@@ -1468,7 +1522,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanBeMovedFromClosedToAcepted =>
 			new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
-		        && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
+				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
 
 		public virtual bool HasItemsNeededToLoad => ObservableOrderItems.Any(orderItem =>
 				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderItem.Nomenclature.Category) && !orderItem.Nomenclature.NoDelivery)
@@ -1485,6 +1539,8 @@ namespace Vodovoz.Domain.Orders
 				ContactPhone = null;
 			}
 		}
+
+		public virtual bool HasPermissionsForAlternativePrice => _generalSettingsParameters.SubdivisionsForAlternativePrices.Contains(Author.Subdivision.Id);
 
 		#endregion
 
@@ -1570,11 +1626,21 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Добавление/удаление товаров
-		public virtual void AddOrderItem(OrderItem orderItem)
+		public virtual void AddOrderItem(OrderItem orderItem, bool forceUseAlternativePrice = false)
 		{
 			if(ObservableOrderItems.Contains(orderItem)) {
 				return;
 			}
+
+			var curCount = orderItem.Nomenclature.IsWater19L ? GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : orderItem.Count;
+			var isAlternativePriceCopiedFromUndelivery = orderItem.CopiedFromUndelivery != null && orderItem.IsAlternativePrice;
+			var canApplyAlternativePrice = isAlternativePriceCopiedFromUndelivery
+			                               || (HasPermissionsForAlternativePrice
+			                                   && orderItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
+			                                   && orderItem.GetWaterFixedPrice() == null);
+
+			orderItem.IsAlternativePrice = canApplyAlternativePrice;
+
 			ObservableOrderItems.Add(orderItem);
 			UpdateContract();
 		}
@@ -1593,7 +1659,7 @@ namespace Vodovoz.Domain.Orders
 					ObservableOrderItems.Remove(item);
 				}
 			} else
-            {
+			{
 				ObservableOrderItems.Remove(orderItem);
 			}
 
@@ -1856,17 +1922,27 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddEquipmentNomenclatureFromClient(Nomenclature nomenclature, IUnitOfWork UoW)
+		public virtual void AddEquipmentNomenclatureFromClient(
+			Nomenclature nomenclature,
+			IUnitOfWork UoW,
+			int count = 0,
+			Direction direction = Direction.PickUp,
+			DirectionReason directionReason = DirectionReason.None,
+			OwnTypes ownType = OwnTypes.None,
+			Reason reason = Reason.Service)
 		{
 			ObservableOrderEquipments.Add(
 				new OrderEquipment {
 					Order = this,
-					Direction = Direction.PickUp,
+					Direction = direction,
 					Equipment = null,
 					OrderItem = null,
-					Reason = Reason.Service,
+					OwnType = ownType,
+					DirectionReason = directionReason,
+					Reason = reason,
 					Confirmed = true,
-					Nomenclature = nomenclature
+					Nomenclature = nomenclature,
+					Count = count
 				}
 			);
 			UpdateDocuments();
@@ -1885,12 +1961,15 @@ namespace Vodovoz.Domain.Orders
 			if(cnt.HasValue)
 				count = cnt.Value;
 
+			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
+			                               && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
+
 			var newItem = new OrderItem {
 				Order = this,
 				Count = count,
 				Equipment = null,
 				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1)
+				Price = nomenclature.GetPrice(1, canApplyAlternativePrice)
 			};
 			AddOrderItem(newItem);
 		}
@@ -1918,18 +1997,26 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
+			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
+			                               && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
+
 			var newItem = new OrderItem {
 				Order = this,
 				Count = count,
 				Equipment = null,
 				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1)
+				Price = nomenclature.GetPrice(1, canApplyAlternativePrice)
 			};
 			AddOrderItem(newItem);
 
-			Nomenclature followingNomenclature = _nomenclatureRepository.GetNomenclatureToAddWithMaster(UoW);
-			if(quantityOfFollowingNomenclatures > 0 && !ObservableOrderItems.Any(i => i.Nomenclature.Id == followingNomenclature.Id))
-				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
+			if(quantityOfFollowingNomenclatures > 0)
+			{
+				Nomenclature followingNomenclature = _nomenclatureRepository.GetNomenclatureToAddWithMaster(UoW);
+				if(!ObservableOrderItems.Any(i => i.Nomenclature.Id == followingNomenclature.Id))
+				{
+					AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
+				}
+			}
 		}
 
 		public virtual void AddWaterForSale(Nomenclature nomenclature, decimal count, decimal discount = 0, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
@@ -1988,15 +2075,20 @@ namespace Vodovoz.Domain.Orders
 
 		private decimal GetWaterPrice(Nomenclature nomenclature, PromotionalSet promoSet, decimal bottlesCount)
 		{
-			var fixedPrice = GetFixedPriceOrNull(nomenclature);
-			if (fixedPrice != null) {
+			var fixedPrice = GetFixedPriceOrNull(nomenclature, GetTotalWater19LCount() + bottlesCount);
+			if (fixedPrice != null && promoSet == null) {
 				return fixedPrice.Price;
 			}
 
-			return nomenclature.GetPrice(promoSet == null ? GetTotalWater19LCount(true) : bottlesCount);
+			var count = promoSet == null ? GetTotalWater19LCount(true) : bottlesCount;
+
+			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
+											&& nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
+
+			return nomenclature.GetPrice(count, canApplyAlternativePrice);
 		}
 
-		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature)
+		public virtual NomenclatureFixedPrice GetFixedPriceOrNull(Nomenclature nomenclature, decimal bottlesCount)
 		{
 			IList<NomenclatureFixedPrice> fixedPrices;
 
@@ -2014,12 +2106,14 @@ namespace Vodovoz.Domain.Orders
 
 			Nomenclature influentialNomenclature = nomenclature.DependsOnNomenclature;
 
-			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && influentialNomenclature == null)) {
-				return fixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id);
+			if(fixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id && bottlesCount >= x.MinCount && influentialNomenclature == null)) 
+			{
+				return fixedPrices.OrderBy(x=>x.MinCount).Last(x => x.Nomenclature.Id == nomenclature.Id && bottlesCount >= x.MinCount);
 			}
 
-			if(influentialNomenclature != null && fixedPrices.Any(x => x.Nomenclature.Id == influentialNomenclature.Id)) {
-				return fixedPrices.First(x => x.Nomenclature.Id == influentialNomenclature?.Id);
+			if(influentialNomenclature != null && fixedPrices.Any(x => x.Nomenclature.Id == influentialNomenclature.Id && bottlesCount >= x.MinCount)) 
+			{
+				return fixedPrices.OrderBy(x => x.MinCount).Last(x => x.Nomenclature.Id == influentialNomenclature?.Id && bottlesCount >= x.MinCount);
 			}
 
 			return null;
@@ -2092,10 +2186,10 @@ namespace Vodovoz.Domain.Orders
 
 			#region перенести всё это в OrderStateKey
 			bool IsDeliveryForFree = SelfDelivery
-											      || OrderAddressType == OrderAddressType.Service
-											      || DeliveryPoint.AlwaysFreeDelivery
-			                                      || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
-			                                      || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
+												  || OrderAddressType == OrderAddressType.Service
+												  || DeliveryPoint.AlwaysFreeDelivery
+												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
+												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != PaidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any());
 
 			if(IsDeliveryForFree) {
 				if(deliveryPriceItem != null)
@@ -2196,10 +2290,12 @@ namespace Vodovoz.Domain.Orders
 					contract = CreateServiceContractAddMasterNomenclature(nomenclature);
 					break;
 				default:
+					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
 					oi = new OrderItem {
+						Order = this,
 						Count = count,
 						Nomenclature = nomenclature,
-						Price = nomenclature.GetPrice(1),
+						Price = nomenclature.GetPrice(1, canApplyAlternativePrice),
 						IsDiscountInMoney = discountInMoney,
 						DiscountSetter = discount,
 						DiscountReason = discountReason,
@@ -2327,7 +2423,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				ForceUpdateContract();
 			}
-			AddMasterNomenclature(nomenclature, 1, 1);
+			AddMasterNomenclature(nomenclature, 1);
 			return Contract;
 		}
 
@@ -2734,7 +2830,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
 					ChangeStatusAndCreateTasks(OrderStatus.Canceled, callTaskWorker);
-					routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Overdue);
+					routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue);
 					break;
 				case OrderStatus.OnTheWay:
 				case OrderStatus.DeliveryCanceled:
@@ -2745,12 +2841,12 @@ namespace Vodovoz.Domain.Orders
 					if(guilty == GuiltyTypes.Client)
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Canceled);
+						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Canceled);
 					}
 					else
 					{
 						ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
-						routeList?.SetAddressStatusWithoutOrderChange(routeListItem.Id, RouteListItemStatus.Overdue);
+						routeList?.SetAddressStatusWithoutOrderChange(uow, routeListItem.Id, RouteListItemStatus.Overdue);
 					}
 					break;
 			}
@@ -3294,6 +3390,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:
+				case PaymentType.Terminal:
 					ChangeStatusAndCreateTasks(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
 					break;
 				case PaymentType.barter:
@@ -3442,7 +3539,13 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
 
-		public virtual void ChangePaymentTypeToByCard (CallTaskWorker callTaskWorker)
+		public virtual void ChangePaymentTypeToByCardTerminal (CallTaskWorker callTaskWorker)
+		{
+			PaymentType = PaymentType.Terminal;
+			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
+		}
+
+		public virtual void ChangePaymentTypeToOnline(CallTaskWorker callTaskWorker)
 		{
 			PaymentType = PaymentType.ByCard;
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
@@ -3710,8 +3813,27 @@ namespace Vodovoz.Domain.Orders
 			}
 			if(!contacts.Any())
 				return null;
-			int minWeight = contacts.Min(c => c.Key);
-			return contacts[minWeight];
+
+			var onlyWithValidPhones = contacts.Where(x =>
+				(x.Value.StartsWith("+7") &&
+				x.Value.Length == 12)
+				|| !x.Value.StartsWith("+7")
+			);
+
+			if(!onlyWithValidPhones.Any())
+			{
+				throw new InvalidOperationException($"Не удалось подобрать контакт для заказа {Id}");
+			}
+
+			int minWeight = onlyWithValidPhones.Min(c => c.Key);
+			var contact = contacts[minWeight];
+
+			if(string.IsNullOrWhiteSpace(contact))
+			{
+				throw new InvalidOperationException($"Не удалось подобрать контакт для заказа {Id}");
+			}
+
+			return contact;
 		}
 
 		public virtual void SaveOrderComment()
@@ -3746,6 +3868,17 @@ namespace Vodovoz.Domain.Orders
 			orderDailyNumberController.UpdateDailyNumber(this);
 			paymentFromBankClientController.UpdateAllocatedSum(UoW, this);
 			paymentFromBankClientController.ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(UoW, this);
+
+			var hasPromotionalSetForNewClient = PromotionalSets.Any(x => !x.CanBeReorderedWithoutRestriction);
+
+			if(hasPromotionalSetForNewClient
+			   && ContactlessDelivery
+			   && !SelfDelivery
+			   && !Comment.Contains(_generalSettingsParameters.OrderAutoComment))
+			{
+				Comment = $"{_generalSettingsParameters.OrderAutoComment}{Environment.NewLine}{Comment}";
+			}
+
 			uow.Save();
 		}
 
@@ -3786,7 +3919,7 @@ namespace Vodovoz.Domain.Orders
 		/// Возвращает список со всеми товарами, которые нужно доставить клиенту
 		/// </summary>
 		/// <returns></returns>
-		public virtual IList<NomenclatureAmountNode> GetAllGoodsToDeliver()
+		public virtual IList<NomenclatureAmountNode> GetAllGoodsToDeliver(bool isActualCount = false)
 		{
 			var result = new List<NomenclatureAmountNode>();
 
@@ -3795,7 +3928,7 @@ namespace Vodovoz.Domain.Orders
 				var found = result.FirstOrDefault(x => x.NomenclatureId == orderItem.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += orderItem.Count;
+					found.Amount += isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count;
 				}
 				else
 				{
@@ -3803,18 +3936,18 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = orderItem.Nomenclature.Id,
 						Nomenclature = orderItem.Nomenclature,
-						Amount = orderItem.Count
+						Amount = isActualCount && orderItem.ActualCount.HasValue ? orderItem.ActualCount.Value : orderItem.Count
 					});
 				}
 			}
 
 			foreach(var equipment in OrderEquipments.Where(x => x.Direction == Direction.Deliver
-				        && Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
+						&& Nomenclature.GetCategoriesForShipment().Contains(x.Nomenclature.Category)))
 			{
 				var found = result.FirstOrDefault(x => x.NomenclatureId == equipment.Nomenclature.Id);
 				if(found != null)
 				{
-					found.Amount += equipment.Count;
+					found.Amount += isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count;
 				}
 				else
 				{
@@ -3822,7 +3955,7 @@ namespace Vodovoz.Domain.Orders
 					{
 						NomenclatureId = equipment.Nomenclature.Id,
 						Nomenclature = equipment.Nomenclature,
-						Amount = equipment.Count
+						Amount = isActualCount && equipment.ActualCount.HasValue ? equipment.ActualCount.Value : equipment.Count
 					});
 				}
 			}
@@ -4145,13 +4278,13 @@ namespace Vodovoz.Domain.Orders
 		
 		decimal GetFixedPrice(OrderItem item) => item.GetWaterFixedPrice() ?? default(decimal);
 
-		decimal GetNomenclaturePrice(OrderItem item)
+		decimal GetNomenclaturePrice(OrderItem item, bool useAlternativePrice)
 		{
 			decimal nomenclaturePrice = 0M;
 			if(item.Nomenclature.IsWater19L) {
-				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWater19LCount());
+				nomenclaturePrice = item.Nomenclature.GetPrice(GetTotalWater19LCount(), useAlternativePrice);
 			} else {
-				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count);
+				nomenclaturePrice = item.Nomenclature.GetPrice(item.Count, useAlternativePrice);
 			}
 			return nomenclaturePrice;
 		}
@@ -4228,6 +4361,32 @@ namespace Vodovoz.Domain.Orders
 			return volume;
 		}
 
+		/// <summary>
+		/// Расчёт объёма ВОЗВРАЩАЕМОГО оборудования (из тары включается только 19-литровая), имеющие наравление от клиента для этого заказа
+		/// </summary>
+		/// <param name="includeBottlesReturn">Если <c>true</c>, то в расчёт объема будут включены возвращаемые бутыли, количество которых указано в свойстве BottlesReturn.</param>
+		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт объема будет включено оборудование, имеющее направление "От клиента"</param>
+		/// <param name="one19LitersBottleVolume">Расчетное значение объема одного 19-литрового бутыля</param>
+		/// <returns>Объём</returns>
+		public virtual decimal FullReverseVolume(bool includeBottlesReturn = true, bool includeEquipment = true, decimal one19LitersBottleVolume = 0.03645m)
+		{
+			decimal volume = 0;
+			if (includeBottlesReturn)
+			{
+				volume += (BottlesReturn ?? 0) * one19LitersBottleVolume;
+			}
+			if (includeEquipment)
+			{
+				volume += OrderEquipments
+					.Where(
+						x => x.Direction == Direction.PickUp
+						&& (x.Nomenclature.Category == NomenclatureCategory.equipment
+							|| (x.Nomenclature.Category == NomenclatureCategory.bottle && x.Nomenclature.TareVolume == TareVolume.Vol19L)))
+					.Sum(x => x.Nomenclature.Volume * x.Count);
+			}
+			return volume;
+		}
+
 		#endregion
 
 		#region Статические
@@ -4246,7 +4405,8 @@ namespace Vodovoz.Domain.Orders
 		{
 			PaymentType.cash,
 			PaymentType.ByCard,
-			PaymentType.Terminal
+			PaymentType.Terminal,
+			PaymentType.cashless
 		};
 
 		#endregion
@@ -4341,7 +4501,7 @@ namespace Vodovoz.Domain.Orders
 				if(_fastDeliveryNomenclature == null)
 				{
 					var nomenclatureParametersProvider = new NomenclatureParametersProvider(new ParametersProvider());
-					_fastDeliveryNomenclature = UoW.GetById<Nomenclature>(nomenclatureParametersProvider.FastDeliveryNomenclatureId);
+					_fastDeliveryNomenclature = nomenclatureParametersProvider.GetFastDeliveryNomenclature(UoW);
 				}
 
 				return _fastDeliveryNomenclature;
@@ -4352,13 +4512,14 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(IsFastDelivery && orderItems.All(x => x.Nomenclature.Id != FastDeliveryNomenclature.Id))
 			{
-				var fastDeliveryNomenclature = UoW.GetById<Nomenclature>(FastDeliveryNomenclature.Id);
+				var canApplyAlternativePrice = HasPermissionsForAlternativePrice
+				                               && FastDeliveryNomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= 1);
 				var fastDeliveryItemToAdd = new OrderItem
 				{
 					Order = this,
 					Nomenclature = FastDeliveryNomenclature,
 					Count = 1,
-					Price = FastDeliveryNomenclature.GetPrice(1)
+					Price = FastDeliveryNomenclature.GetPrice(1, canApplyAlternativePrice)
 				};
 
 				AddOrderItem(fastDeliveryItemToAdd);

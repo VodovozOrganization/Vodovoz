@@ -5,6 +5,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -28,9 +29,12 @@ namespace Vodovoz.Domain.Goods
 		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
 		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
 		private IList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new List<NomenclatureInnerDeliveryPrice>();
+		private IList<AlternativeNomenclaturePrice> _alternativeNomenclaturePrices = new List<AlternativeNomenclaturePrice>();
 		private GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
+		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
+		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
 		
@@ -40,7 +44,7 @@ namespace Vodovoz.Domain.Goods
 		private decimal _width;
 		private decimal _height;
 
-		private bool _isAccountableInChestniyZnak;
+		private bool _isAccountableInTrueMark;
 		private string _gtin;
 
 		public Nomenclature()
@@ -386,6 +390,13 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref nomenclaturePrice, value, () => NomenclaturePrice);
 		}
 
+		[Display(Name = "Альтернативные цены")]
+		public virtual IList<AlternativeNomenclaturePrice> AlternativeNomenclaturePrices
+		{
+			get => _alternativeNomenclaturePrices;
+			set => SetField(ref _alternativeNomenclaturePrices, value);
+		}
+
 		private string shortName;
 
 		[Display(Name = "Сокращенное название")]
@@ -572,6 +583,21 @@ namespace Vodovoz.Domain.Goods
 		public virtual GenericObservableList<NomenclatureCostPrice> ObservableCostPrices =>
 			_observableCostPrices ?? (_observableCostPrices = new GenericObservableList<NomenclatureCostPrice>(CostPrices));
 
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<NomenclaturePrice> ObservableNomenclaturePrices
+		{
+			get => _observableNomenclaturePrices ?? (_observableNomenclaturePrices = new GenericObservableList<NomenclaturePrice>(NomenclaturePrice));
+			set => _observableNomenclaturePrices = value;
+		}
+
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<AlternativeNomenclaturePrice> ObservableAlternativeNomenclaturePrices
+		{
+			get => _observableAlternativeNomenclaturePrices ?? (_observableAlternativeNomenclaturePrices = new GenericObservableList<AlternativeNomenclaturePrice>(AlternativeNomenclaturePrices));
+			set => _observableAlternativeNomenclaturePrices = value;
+		}
+
+
 		[Display(Name = "Стоимости доставки ТМЦ на склад")]
 		public virtual IList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
 		{
@@ -583,10 +609,10 @@ namespace Vodovoz.Domain.Goods
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
 
 		[Display(Name = "Подлежит учету в Честном Знаке")]
-		public virtual bool IsAccountableInChestniyZnak
+		public virtual bool IsAccountableInTrueMark
 		{
-			get => _isAccountableInChestniyZnak;
-			set => SetField(ref _isAccountableInChestniyZnak, value);
+			get => _isAccountableInTrueMark;
+			set => SetField(ref _isAccountableInTrueMark, value);
 		}
 
 		[Display(Name = "Номер товарной продукции GTIN")]
@@ -839,20 +865,22 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		public virtual decimal GetPrice(decimal? itemsCount)
+		public virtual decimal GetPrice(decimal? itemsCount, bool useAlternativePrice = false)
 		{
 			if(itemsCount < 1)
 				itemsCount = 1;
 			decimal price = 0m;
 			if(DependsOnNomenclature != null)
 			{
-				price = DependsOnNomenclature.GetPrice(itemsCount);
+				price = DependsOnNomenclature.GetPrice(itemsCount, useAlternativePrice);
 			}
 			else
 			{
-				var nomPrice = NomenclaturePrice
+				var nomPrice = (useAlternativePrice
+						? AlternativeNomenclaturePrices.Cast<NomenclaturePriceBase>()
+						: NomenclaturePrice.Cast<NomenclaturePriceBase>())
 					.OrderByDescending(p => p.MinCount)
-					.FirstOrDefault(p => (p.MinCount <= itemsCount));
+					.FirstOrDefault(p => p.MinCount <= itemsCount);
 				price = nomPrice?.Price ?? 0;
 			}
 			return price;
@@ -1013,7 +1041,7 @@ namespace Vodovoz.Domain.Goods
 				}
 			}
 
-			if(IsAccountableInChestniyZnak && string.IsNullOrWhiteSpace(Gtin))
+			if(IsAccountableInTrueMark && string.IsNullOrWhiteSpace(Gtin))
 			{
 				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
 					new[] { nameof(Gtin) });
@@ -1023,6 +1051,12 @@ namespace Vodovoz.Domain.Goods
 			{
 				yield return new ValidationResult("Длина GTIN должна быть от 8 до 14 символов",
 					new[] { nameof(Gtin) });
+			}
+
+			if(ProductGroup == null)
+			{
+				yield return new ValidationResult("Должна быть выбрана принадлежность номенклатуры к группе товаров",
+					new[] { nameof(ProductGroup) });
 			}
 		}
 

@@ -45,6 +45,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.HasFixedShippingPrice).Column("has_fixed_shipping_price");
 			Map(x => x.FixedShippingPrice).Column("fixed_shipping_price");
 			Map(x => x.DriverTerminalCondition).Column ("driver_terminal_condition").CustomType<DriverTerminalConditionStringType>();
+			Map(x => x.DeliveredAt).Column("delivered_at");
 
 			References(x => x.Car).Column("car_id").Access.CamelCaseField(Prefix.Underscore);
 			References(x => x.Shift).Column("delivery_shift_id");
@@ -63,8 +64,10 @@ namespace Vodovoz.HibernateMapping
 
 			HasMany(x => x.Addresses).Cascade.AllDeleteOrphan().Inverse()
 				.KeyColumn ("route_list_id").OrderBy("order_in_route");
+			HasMany(x => x.FastDeliveryMaxDistanceItems).Cascade.AllDeleteOrphan().Inverse().KeyColumn("route_list_id").OrderBy("start_date");
 			HasMany(x => x.FuelDocuments).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
 			HasMany(x => x.PrintsHistory).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
+			HasMany(x => x.DeliveryFreeBalanceOperations).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
 			HasManyToMany(x => x.GeographicGroups).Table("geo_groups_to_entities")
 			                                      .ParentKeyColumn("route_list_id")
 												  .ChildKeyColumn("geo_group_id")

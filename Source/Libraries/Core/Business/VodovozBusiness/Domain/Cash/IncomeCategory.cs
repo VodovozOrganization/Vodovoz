@@ -1,122 +1,124 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using NHibernate;
+﻿using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using Vodovoz.Domain.Goods;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Cash
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "статьи дохода",
 		Nominative = "статья дохода")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class IncomeCategory : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		public IncomeCategory ()
+		private const int _maxNameLength = 45;
+
+		private string _name;
+		private string _numbering;
+		private Subdivision _subdivision;
+		private bool _isArchive;
+		private IncomeInvoiceDocumentType _incomeDocumentType;
+		private IncomeCategory _parent;
+		private IList<IncomeCategory> _childs;
+		private bool _isChildsFetched = false;
+
+		public IncomeCategory()
 		{
-			Name = String.Empty;
+			Name = string.Empty;
 		}
-		
-		#region Свойства
 
 		public virtual int Id { get; }
-		
+
 		public virtual string Title => $"{Name}";
 
-		string name;
-        [Required (ErrorMessage = "Название статьи должно быть заполнено.")]
-		[Display (Name = "Название")]
-		public virtual string Name {
-			get { return name; }
-			set { SetField (ref name, value, () => Name); }
+		[Required(ErrorMessage = "Название статьи должно быть заполнено.")]
+		[Display(Name = "Название")]
+		public virtual string Name
+		{
+			get => _name;
+			set => SetField(ref _name, value);
 		}
-		
-		private string numbering;
+
 		[Display(Name = "Нумерация")]
-		public virtual string Numbering {
-			get => numbering;
-			set => SetField(ref numbering, value);
+		public virtual string Numbering
+		{
+			get => _numbering;
+			set => SetField(ref _numbering, value);
 		}
-		
-        
-		Subdivision subdivision;
-        [Display (Name = "Подразделение")]
-		public virtual Subdivision Subdivision {
-			get { return subdivision; }
-			set { SetField (ref subdivision, value); }
+
+		[Display(Name = "Подразделение")]
+		public virtual Subdivision Subdivision
+		{
+			get => _subdivision;
+			set => SetField(ref _subdivision, value);
 		}
-		
-		private bool isArchive;
+
 		[Display(Name = "Категория архивирована")]
-		public virtual bool IsArchive {
-			get => isArchive;
-			set => SetField(ref isArchive, value);
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
-        
-        IncomeInvoiceDocumentType incomeDocumentType;
-        /// <summary>
-        /// Тип приходного ордера для котором возможно будет выбрать эту категорию
-        /// </summary>
-        [Required(ErrorMessage = "Должно быть заполнен тип приходного ордера.")]
-        [Display(Name = "Тип приходного ордера")]
-        public virtual IncomeInvoiceDocumentType IncomeDocumentType {
-            get { return incomeDocumentType; }
-            set { SetField(ref incomeDocumentType, value, () => IncomeDocumentType); }
-        }
-        #endregion
 
-		#region ParentChilds
-		
-		private IncomeCategory parent;
+		/// <summary>
+		/// Тип приходного ордера для котором возможно будет выбрать эту категорию
+		/// </summary>
+		[Required(ErrorMessage = "Должно быть заполнен тип приходного ордера.")]
+		[Display(Name = "Тип приходного ордера")]
+		public virtual IncomeInvoiceDocumentType IncomeDocumentType
+		{
+			get => _incomeDocumentType;
+			set => SetField(ref _incomeDocumentType, value);
+		}
+
 		[Display(Name = "Родительская группа")]
-		public virtual IncomeCategory Parent {
-			get => parent;
-			set => SetField(ref parent, value);
+		public virtual IncomeCategory Parent
+		{
+			get => _parent;
+			set => SetField(ref _parent, value);
 		}
-		
-		private IList<IncomeCategory> childs;
-		[Display(Name = "Дочерние группы")]
-		public virtual IList<IncomeCategory> Childs {
-			get => childs;
-			set => SetField(ref childs, value);
-		}
-		
-		#endregion
-        
 
-		#region Функции
+		[Display(Name = "Дочерние группы")]
+		public virtual IList<IncomeCategory> Childs
+		{
+			get => _childs;
+			set => SetField(ref _childs, value);
+		}
 
 		public virtual void SetIsArchiveRecursively(bool value)
 		{
 			IsArchive = value;
-			foreach (var child in Childs)
+			foreach(var child in Childs)
+			{
 				child.SetIsArchiveRecursively(value);
+			}
 		}
-		
-		private bool isChildsFetched = false;
+
 		public virtual void FetchChilds(IUnitOfWork uow)
 		{
-			if(isChildsFetched)
+			if(_isChildsFetched)
+			{
 				return;
-			
+			}
+
 			uow.Session.QueryOver<ExpenseCategory>().Fetch(SelectMode.Fetch, x => x.Childs).List();
-			isChildsFetched = true;
+			_isChildsFetched = true;
 		}
 
-		#endregion
-		
 		#region IValidatableObject implementation
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			yield break;
+			if(Name?.Length > _maxNameLength)
+			{
+				yield return new ValidationResult($"Длина названия статьи превышена на {Name.Length - _maxNameLength}");
+			}
 		}
-		#endregion IValidatableObject implementation
 
+		#endregion IValidatableObject implementation
 	}
 }
-

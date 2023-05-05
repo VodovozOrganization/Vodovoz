@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using Autofac;
+using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.FilterViewModels.Organization;
@@ -38,9 +39,10 @@ namespace Vodovoz.TempAdapters
 					_filterViewModel ?? new SubdivisionFilterViewModel(),
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
-					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+					_employeeJournalFactory,
 					_salesPlanJournalFactory,
-					_nomenclatureSelectorFactory));
+					_nomenclatureSelectorFactory,
+					MainClass.AppDIContainer.BeginLifetimeScope()));
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateDefaultSubdivisionAutocompleteSelectorFactory(
@@ -50,16 +52,12 @@ namespace Vodovoz.TempAdapters
 
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
-				() => new SubdivisionsJournalViewModel(
+				() => CreateSubdivisionsJournal(
 					new SubdivisionFilterViewModel
 					{
 						SubdivisionType = SubdivisionType.Default
 					},
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-					_salesPlanJournalFactory,
-					_nomenclatureSelectorFactory));
+					employeeSelectorFactory));
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateLogisticSubdivisionAutocompleteSelectorFactory(
@@ -69,23 +67,21 @@ namespace Vodovoz.TempAdapters
 
 			return new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
 				typeof(Subdivision),
-				() => new SubdivisionsJournalViewModel(
+				() => CreateSubdivisionsJournal(
 					new SubdivisionFilterViewModel
 					{
 						SubdivisionType = SubdivisionType.Logistic
 					},
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					employeeSelectorFactory ?? _employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
-					_salesPlanJournalFactory,
-					_nomenclatureSelectorFactory));
+					employeeSelectorFactory));
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateCashSubdivisionAutocompleteSelectorFactory()
 		{
 			CreateNewDependencies();
 
-			var selectorFactory = new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), CreateCashSubdivisionsJournal);
+			var selectorFactory = new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(
+				typeof(Subdivision),
+				CreateCashSubdivisionsJournal);
 			return selectorFactory;
 		}
 
@@ -94,16 +90,21 @@ namespace Vodovoz.TempAdapters
 			var filter = new SubdivisionFilterViewModel();
 			filter.OnlyCashSubdivisions = true;
 
-			var journal = new SubdivisionsJournalViewModel(
-				filter,
+			return CreateSubdivisionsJournal(filter);
+		}
+		
+		private SubdivisionsJournalViewModel CreateSubdivisionsJournal(
+			SubdivisionFilterViewModel filter = null, IEntityAutocompleteSelectorFactory employeeSelectorFactory = null)
+		{
+			return new SubdivisionsJournalViewModel(
+				filter ?? new SubdivisionFilterViewModel(),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				_employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory(),
+				_employeeJournalFactory,
 				_salesPlanJournalFactory,
-				_nomenclatureSelectorFactory
+				_nomenclatureSelectorFactory,
+				MainClass.AppDIContainer.BeginLifetimeScope()
 			);
-
-			return journal;
 		}
 	}
 }

@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "талон разгрузки автомобиля")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class CarUnloadDocument : Document, IValidatableObject
+	public class CarUnloadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private const int _commentLimit = 255;
 		
@@ -130,6 +130,7 @@ namespace Vodovoz.Domain.Documents
 			Equipment equipment, 
 			decimal amount, 
 			ServiceClaim serviceClaim,
+			int terminalId,
 			string redhead = null, 
 			DefectSource source = DefectSource.None, 
 			CullingCategory typeOfDefect = null)
@@ -160,6 +161,8 @@ namespace Vodovoz.Domain.Documents
 			};
 
 			AddItem(item);
+
+			item.CreateOrUpdateDeliveryFreeBalanceOperation(terminalId);
 		}
 
 		public virtual void UpdateWarehouse()

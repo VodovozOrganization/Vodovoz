@@ -1,5 +1,4 @@
 ﻿using QS.Views.GtkUI;
-using System;
 using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Filters.GtkViews

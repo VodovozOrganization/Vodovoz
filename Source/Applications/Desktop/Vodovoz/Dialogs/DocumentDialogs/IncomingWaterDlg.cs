@@ -42,8 +42,8 @@ namespace Vodovoz
 				return;
 			}
 			
-			Entity.IncomingWarehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.IncomingWaterEdit);
-			Entity.WriteOffWarehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.IncomingWaterEdit);
+			Entity.ToWarehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.IncomingWaterEdit);
+			Entity.FromWarehouse = _storeDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissionsType.IncomingWaterEdit);
 
 			ConfigureDlg();
 		}
@@ -63,14 +63,14 @@ namespace Vodovoz
 		void ConfigureDlg()
 		{
 			if(_storeDocumentHelper.CheckAllPermissions(
-					UoW.IsNew, WarehousePermissionsType.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse))
+					UoW.IsNew, WarehousePermissionsType.IncomingWaterEdit, Entity.ToWarehouse, Entity.FromWarehouse))
 			{
 				FailInitialize = true;
 				return;
 			}
 
 			var editing = _storeDocumentHelper.CanEditDocument(
-				WarehousePermissionsType.IncomingWaterEdit, Entity.IncomingWarehouse, Entity.WriteOffWarehouse);
+				WarehousePermissionsType.IncomingWaterEdit, Entity.ToWarehouse, Entity.FromWarehouse);
 			buttonFill.Sensitive = yentryProduct.IsEditable = spinAmount.Sensitive = editing;
 			incomingwatermaterialview1.Sensitive = editing;
 
@@ -95,12 +95,13 @@ namespace Vodovoz
 			{
 				IncludeWarehouseIds = availableWarehousesIds
 			};
-			var warehouseAutocompleteSelectorFactory = new WarehouseSelectorFactory(warehouseFilter);
-			
+			var warehouseJournalFactory = new WarehouseJournalFactory();
+			var warehouseAutocompleteSelectorFactory = warehouseJournalFactory.CreateSelectorFactory(warehouseFilter);
+
 			sourceWarehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseAutocompleteSelectorFactory);
-			sourceWarehouseEntry.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
+			sourceWarehouseEntry.Binding.AddBinding(Entity, e => e.FromWarehouse, w => w.Subject).InitializeFromSource();
 			destinationWarehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseAutocompleteSelectorFactory);
-			destinationWarehouseEntry.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();
+			destinationWarehouseEntry.Binding.AddBinding(Entity, e => e.ToWarehouse, w => w.Subject).InitializeFromSource();
 
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
 

@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			set => SetField(ref readOnly, value, () => ReadOnly);
 		}
 
-		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactsParameters contactsParameters, ICommonServices commonServices)
+		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactParametersProvider contactsParameters, ICommonServices commonServices)
 		{
 			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			this.contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			CreateCommands();
 		}
 
-		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactsParameters contactsParameters, RoboatsJournalsFactory roboatsJournalsFactory,
+		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactParametersProvider contactsParameters, RoboatsJournalsFactory roboatsJournalsFactory,
 			ICommonServices commonServices) : this(phoneRepository, uow, contactsParameters, commonServices)
 		{
 			if(roboatsJournalsFactory == null)
@@ -74,7 +74,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			RoboAtsCounterpartyPatronymicSelectorFactory = roboatsJournalsFactory.CreateCounterpartyPatronymicSelectorFactory();
 		}
 
-		IContactsParameters contactsParameters;
+		IContactParametersProvider contactsParameters;
 
 		public IEntityAutocompleteSelectorFactory RoboAtsCounterpartyNameSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory RoboAtsCounterpartyPatronymicSelectorFactory { get; }

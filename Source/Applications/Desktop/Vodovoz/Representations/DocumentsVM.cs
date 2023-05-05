@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using Gamma.ColumnConfig;
@@ -131,8 +131,8 @@ namespace Vodovoz.ViewModel
 				var waterQuery = UoW.Session.QueryOver<IncomingWater>(() => waterAlias);
 				if(Filter.RestrictWarehouse != null)
 				{
-					waterQuery.Where(x => x.IncomingWarehouse.Id == Filter.RestrictWarehouse.Id ||
-					                      x.WriteOffWarehouse.Id == Filter.RestrictWarehouse.Id);
+					waterQuery.Where(x => x.ToWarehouse.Id == Filter.RestrictWarehouse.Id ||
+					                      x.FromWarehouse.Id == Filter.RestrictWarehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -144,7 +144,7 @@ namespace Vodovoz.ViewModel
 				}
 
 				var waterList = waterQuery
-					.JoinQueryOver(() => waterAlias.IncomingWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => waterAlias.ToWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias(() => waterAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias(() => waterAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.Left.JoinAlias(() => waterAlias.Product, () => productAlias)
@@ -254,7 +254,8 @@ namespace Vodovoz.ViewModel
 						.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 						.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 						.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-						.Select(() => movementAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+						.Select(() => movementAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+						.Select(() => movementAlias.Comment).WithAlias(() => resultAlias.Comment))
 					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
 					.List<DocumentVMNode>();
 
@@ -299,7 +300,9 @@ namespace Vodovoz.ViewModel
 						.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 						.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 						.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-						.Select(() => writeOffAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+						.Select(() => writeoffAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+						.Select(() => writeoffAlias.Comment).WithAlias(() => resultAlias.Comment)
+					)
 					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
 					.List<DocumentVMNode>();
 
@@ -338,7 +341,8 @@ namespace Vodovoz.ViewModel
 						.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 						.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 						.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-						.Select(() => inventoryAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+						.Select(() => inventoryAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+						.Select(() => inventoryAlias.Comment).WithAlias(() => resultAlias.Comment))
 					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
 					.List<DocumentVMNode>();
 
@@ -377,7 +381,8 @@ namespace Vodovoz.ViewModel
 						.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 						.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 						.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-						.Select(() => shiftchangeAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+						.Select(() => shiftchangeAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+						.Select(() => shiftchangeAlias.Comment).WithAlias(() => resultAlias.Comment))
 					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
 					.List<DocumentVMNode>();
 
@@ -417,7 +422,8 @@ namespace Vodovoz.ViewModel
 						.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 						.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 						.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-						.Select(() => regradingOfGoodsAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+						.Select(() => regradingOfGoodsAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+						.Select(() => regradingOfGoodsAlias.Comment).WithAlias(() => resultAlias.Comment))
 					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
 					.List<DocumentVMNode>();
 
@@ -461,7 +467,8 @@ namespace Vodovoz.ViewModel
 						.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 						.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 						.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-						.Select(() => selfDeliveryAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+						.Select(() => selfDeliveryAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+						.Select(() => selfDeliveryAlias.Comment).WithAlias(() => resultAlias.Comment))
 					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
 					.List<DocumentVMNode>();
 
@@ -514,7 +521,8 @@ namespace Vodovoz.ViewModel
 						.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 						.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 						.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-						.Select(() => loadCarAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+						.Select(() => loadCarAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+						.Select(() => loadCarAlias.Comment).WithAlias(() => resultAlias.Comment))
 					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
 					.List<DocumentVMNode>();
 
@@ -570,7 +578,8 @@ namespace Vodovoz.ViewModel
 						.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 						.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 						.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-						.Select(() => unloadCarAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime))
+						.Select(() => unloadCarAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+						.Select(() => unloadCarAlias.Comment).WithAlias(() => resultAlias.Comment))
 					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
 					.List<DocumentVMNode>();
 

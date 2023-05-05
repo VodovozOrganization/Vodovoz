@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Tools;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Services;
+using Vodovoz.Parameters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
@@ -28,6 +31,7 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteListItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private AddressTransferType? _addressTransferType;
 
 		#region Свойства
 
@@ -80,13 +84,6 @@ namespace Vodovoz.Domain.Logistic
 		public virtual RouteListItem TransferedTo {
 			get => transferedTo;
 			protected set => SetField(ref transferedTo, value);
-		}
-
-		private bool needToReload;
-		[Display(Name = "Необходима повторная загрузка")]
-		public virtual bool NeedToReload {
-			get => needToReload;
-			set => SetField(ref needToReload, value);
 		}
 
 		private bool wasTransfered;
@@ -157,6 +154,13 @@ namespace Vodovoz.Domain.Logistic
 		public virtual int? DriverBottlesReturned {
 			get => driverBottlesReturned;
 			set => SetField(ref driverBottlesReturned, value);
+		}
+
+		[Display(Name = "Тип переноа адреса")]
+		public virtual AddressTransferType? AddressTransferType
+		{
+			get => _addressTransferType;
+			set => SetField(ref _addressTransferType, value);
 		}
 
 		private decimal oldBottleDepositsCollected;
@@ -505,10 +509,15 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		protected internal virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, ICallTaskWorker callTaskWorker)
+		protected internal virtual void UpdateStatusAndCreateTask(IUnitOfWork uow, RouteListItemStatus status, ICallTaskWorker callTaskWorker, bool isEditAtCashier = false)
 		{
 			if(Status == status)
 				return;
+
+			if(!isEditAtCashier)
+			{
+				CreateDeliveryFreeBalanceOperation(uow, Status, status);
+			}
 
 			Status = status;
 			StatusLastUpdate = DateTime.Now;
@@ -535,6 +544,7 @@ namespace Vodovoz.Domain.Logistic
 					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
+
 			uow.Save(Order);
 		}
 
@@ -545,6 +555,7 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
+			var oldStatus = Status;
 			Status = status;
 			StatusLastUpdate = DateTime.Now;
 
@@ -571,6 +582,8 @@ namespace Vodovoz.Domain.Logistic
 					break;
 			}
 			uow.Save(Order);
+
+			CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
 		}
 
 		public virtual void SetTransferTo(RouteListItem targetAddress)
@@ -578,15 +591,15 @@ namespace Vodovoz.Domain.Logistic
 			TransferedTo = targetAddress;
 		}
 
-		protected internal virtual void TransferTo(RouteListItem targetAddress)
+		protected internal virtual void TransferTo(IUnitOfWork uow, RouteListItem targetAddress)
 		{
 			SetTransferTo(targetAddress);
-			SetStatusWithoutOrderChange(RouteListItemStatus.Transfered);
+			SetStatusWithoutOrderChange(uow, RouteListItemStatus.Transfered);
 		}
 		
-		protected internal virtual void RevertTransferAddress(WageParameterService wageParameterService, RouteListItem revertedAddress)
+		protected internal virtual void RevertTransferAddress(IUnitOfWork uow, WageParameterService wageParameterService, RouteListItem revertedAddress)
 		{
-			SetStatusWithoutOrderChange(revertedAddress.Status);
+			SetStatusWithoutOrderChange(uow, revertedAddress.Status);
 			SetTransferTo(null);
 			DriverBottlesReturned = revertedAddress.DriverBottlesReturned;
 			
@@ -644,7 +657,10 @@ namespace Vodovoz.Domain.Logistic
 			foreach(var deposit in Order.OrderDepositItems)
 				deposit.ActualCount = IsDelivered() ? deposit.Count : 0;
 
-			Order.BottlesByStockActualCount = Order.BottlesByStockCount;
+			if(!Order.IsBottleStockDiscrepancy)
+			{
+				Order.BottlesByStockActualCount = Order.BottlesByStockCount;
+			}
 
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
@@ -702,7 +718,20 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void ChangeOrderStatus(OrderStatus orderStatus) => Order.OrderStatus = orderStatus;
 
-		protected internal virtual void SetStatusWithoutOrderChange(RouteListItemStatus status) => Status = status;
+		protected internal virtual void SetStatusWithoutOrderChange(IUnitOfWork uow, RouteListItemStatus status)
+		{
+			var oldStatus = Status;
+			Status = status;
+			CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
+		}
+
+		public virtual void CreateDeliveryFreeBalanceOperation(IUnitOfWork uow, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
+		{
+			RouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController =
+				new RouteListAddressKeepingDocumentController(new EmployeeRepository(), new NomenclatureParametersProvider(new ParametersProvider()));
+
+			routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(uow, this, oldStatus, newStatus);
+		}
 
 		// Скопировано из RouteListClosingItemsView, отображает передавшего и принявшего адрес.
 		public virtual string GetTransferText(RouteListItem item)
@@ -712,7 +741,7 @@ namespace Vodovoz.Domain.Logistic
 					return string.Format("Заказ был перенесен в МЛ №{0} водителя {1} {2}.",
 						item.TransferedTo.RouteList.Id,
 						item.TransferedTo.RouteList.Driver.ShortName,
-						item.TransferedTo.NeedToReload ? "с погрузкой":"без поргрузки");
+						item.AddressTransferType?.GetEnumTitle());
 				else
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 			}
@@ -722,7 +751,7 @@ namespace Vodovoz.Domain.Logistic
 					return string.Format("Заказ из МЛ №{0} водителя {1} {2}.",
 						transferedFrom.RouteList.Id,
 						transferedFrom.RouteList.Driver.ShortName,
-						transferedFrom.TransferedTo.NeedToReload ? "с погрузкой" : "без поргрузки");
+						transferedFrom.AddressTransferType?.GetEnumTitle());
 				else
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}
@@ -868,5 +897,10 @@ namespace Vodovoz.Domain.Logistic
 	public class RouteListItemStatusStringType : NHibernate.Type.EnumStringType
 	{
 		public RouteListItemStatusStringType() : base(typeof(RouteListItemStatus)) { }
+	}
+
+	public class AddressTransferTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public AddressTransferTypeStringType() : base(typeof(AddressTransferType)) { }
 	}
 }

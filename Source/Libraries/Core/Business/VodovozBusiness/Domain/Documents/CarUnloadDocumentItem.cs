@@ -1,7 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using FluentNHibernate.Data;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Service;
 
@@ -13,6 +16,8 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class CarUnloadDocumentItem: PropertyChangedBase, IDomainObject
 	{
+		private DeliveryFreeBalanceOperation _deliveryFreeBalanceOperation;
+
 		public virtual int Id { get; set; }
 
 		private CarUnloadDocument document;
@@ -37,6 +42,12 @@ namespace Vodovoz.Domain.Documents
 		public virtual EmployeeNomenclatureMovementOperation EmployeeNomenclatureMovementOperation { 
 			get => employeeNomenclatureMovementOperation;
 			set => SetField (ref employeeNomenclatureMovementOperation, value);
+		}
+
+		public virtual DeliveryFreeBalanceOperation DeliveryFreeBalanceOperation
+		{
+			get => _deliveryFreeBalanceOperation;
+			set => SetField(ref _deliveryFreeBalanceOperation, value);
 		}
 
 		ServiceClaim serviceClaim;
@@ -72,6 +83,24 @@ namespace Vodovoz.Domain.Documents
 				GoodsAccountingOperation.Nomenclature.Name,
 				GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount),
 				document.Title);
+
+		public virtual void CreateOrUpdateDeliveryFreeBalanceOperation(int terminalId)
+		{
+			if(reciveType == ReciveTypes.Defective || WarehouseMovementOperation.Nomenclature.Id == terminalId)
+			{
+				return;
+			}
+
+			var deliveryFreeBalanceOperation = DeliveryFreeBalanceOperation
+				?? new DeliveryFreeBalanceOperation
+				{
+					Nomenclature = new Nomenclature { Id = WarehouseMovementOperation.Nomenclature.Id },
+					RouteList = Document.RouteList
+				};
+
+			deliveryFreeBalanceOperation.Amount = -WarehouseMovementOperation.Amount;
+			DeliveryFreeBalanceOperation = deliveryFreeBalanceOperation;
+		}
 	}
 
 	public enum ReciveTypes

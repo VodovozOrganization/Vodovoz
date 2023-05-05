@@ -10,6 +10,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Filters.ViewModels;
@@ -22,7 +23,7 @@ namespace Vodovoz.TempAdapters
 {
 	public class OrderSelectorFactory : IOrderSelectorFactory
 	{
-		private readonly OrderJournalFilterViewModel _orderJournalFilter;
+		private OrderJournalFilterViewModel _orderJournalFilter;
 
 		public OrderSelectorFactory(OrderJournalFilterViewModel orderFilter = null)
 		{
@@ -31,12 +32,12 @@ namespace Vodovoz.TempAdapters
 
 		public IEntitySelector CreateOrderSelectorForDocument(bool IsOnlineStoreOrders, IEnumerable<OrderStatus> orderStatuses)
 		{
-			OrderForMovDocJournalFilterViewModel orderFilterVM = new OrderForMovDocJournalFilterViewModel();
-			orderFilterVM.IsOnlineStoreOrders = IsOnlineStoreOrders;
-			orderFilterVM.OrderStatuses = orderStatuses;
+			var orderFilter = new OrderForMovDocJournalFilterViewModel();
+			orderFilter.IsOnlineStoreOrders = IsOnlineStoreOrders;
+			orderFilter.OrderStatuses = orderStatuses;
 
-			OrderForMovDocJournalViewModel vm = new OrderForMovDocJournalViewModel(
-				orderFilterVM,
+			var vm = new OrderForMovDocJournalViewModel(
+				orderFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			) {
@@ -96,13 +97,13 @@ namespace Vodovoz.TempAdapters
 						new FileDialogService(),
 						new SubdivisionParametersProvider(new ParametersProvider()),
 						new DeliveryScheduleParametersProvider(new ParametersProvider()),
-						new RdlPreviewOpener());
+						new RdlPreviewOpener(),
+						new RouteListItemRepository());
 				});
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
 		{
-
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
 			var counterpartyJournalFactory = new CounterpartyJournalFactory();
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
@@ -140,7 +141,8 @@ namespace Vodovoz.TempAdapters
 						new FileDialogService(),
 						new SubdivisionParametersProvider(new ParametersProvider()),
 						new DeliveryScheduleParametersProvider(new ParametersProvider()),
-						new RdlPreviewOpener());
+						new RdlPreviewOpener(),
+						new RouteListItemRepository());
 				});
 		}
 
@@ -153,9 +155,13 @@ namespace Vodovoz.TempAdapters
 			var userRepository = new UserRepository();
 			var employeeJournalFactory = new EmployeeJournalFactory();
 
+			if(filterViewModel != null)
+			{
+				_orderJournalFilter = filterViewModel;
+			}
+
 			return new OrderJournalViewModel(
 				_orderJournalFilter
-					?? filterViewModel
 					?? new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory),
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
@@ -175,7 +181,8 @@ namespace Vodovoz.TempAdapters
 				new FileDialogService(),
 				new SubdivisionParametersProvider(new ParametersProvider()),
 				new DeliveryScheduleParametersProvider(new ParametersProvider()),
-				new RdlPreviewOpener());
+				new RdlPreviewOpener(),
+				new RouteListItemRepository());
 		}
 	}
 }

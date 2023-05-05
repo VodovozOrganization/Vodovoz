@@ -8,8 +8,6 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
 using QSProjectsLib;
 using Vodovoz.Core.DataService;
@@ -40,9 +38,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Factories;
@@ -51,9 +47,9 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
-    public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
-    {
-	    private class OrderNode : PropertyChangedBase
+	public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
+	{
+		private class OrderNode : PropertyChangedBase
 		{
 			public enum ChangedType
 			{
@@ -223,7 +219,7 @@ namespace Vodovoz
 				SelectionMode = JournalSelectionMode.Single
 			};
 			journalViewModel.TabName = "Номенклатура на продажу";
-			journalViewModel.CalculateQtyOnStock = true;
+			journalViewModel.CalculateQuantityOnStock = true;
 			journalViewModel.OnEntitySelectedResult += OnNomenclatureSelected;
 			TabParent.AddSlaveTab(this, journalViewModel);
 		}
@@ -282,8 +278,7 @@ namespace Vodovoz
 		{
 			_nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			_nomenclatureFixedPriceProvider =
-				new NomenclatureFixedPriceController(
-					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository));
+				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
 			_canEditPrices =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
 			_orderNode = new OrderNode(_routeListItem.Order);
@@ -318,6 +313,8 @@ namespace Vodovoz
 						.Adjustment(new Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice && _canEditPrices)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("Альтерн.\nцена")
+					.AddToggleRenderer(x => x.OrderItem.IsAlternativePrice).Editing(false)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
@@ -366,8 +363,20 @@ namespace Vodovoz
 
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
+
+			if (_routeListItem.Order.PaymentType == PaymentType.ByCard)
+			{
+				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>()
+					.Where(
+						p => !p.IsArchive
+						|| _routeListItem.Order.PaymentByCardFrom.Id == p.Id
+				).List();
+			}
+			else
+			{
+				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().Where(p => !p.IsArchive).List();
+			}				
 			
-			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().List();
 			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.ByCard, w => w.Visible)
 				.InitializeFromSource();
@@ -460,8 +469,7 @@ namespace Vodovoz
 
 		int GetMaxCount(OrderItemReturnsNode node)
 		{
-			var count = (node.Nomenclature.Category == NomenclatureCategory.master
-			             || node.Nomenclature.Category == NomenclatureCategory.deposit)
+			var count = node.Nomenclature.Category == NomenclatureCategory.deposit
 				? 1
 				: 9999;
 			return count;
@@ -484,7 +492,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker);
+				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
@@ -497,7 +505,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker);
+				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
@@ -506,7 +514,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
+			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Completed, CallTaskWorker, true);
 			_routeListItem.RestoreOrder();
 			_routeListItem.FirstFillClosing(_wageParameterService);
 			UpdateListsSentivity();
@@ -519,7 +527,7 @@ namespace Vodovoz
 			buttonDeliveryCanceled.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Canceled;
 			buttonNotDelivered.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Overdue;
 			buttonDelivered.Sensitive = !isTransfered && _routeListItem.Status != RouteListItemStatus.Completed &&
-			                            _routeListItem.Status != RouteListItemStatus.EnRoute;
+										_routeListItem.Status != RouteListItemStatus.EnRoute;
 		}
 
 		protected void OnYenumcomboOrderPaymentChangedByUser(object sender, EventArgs e)

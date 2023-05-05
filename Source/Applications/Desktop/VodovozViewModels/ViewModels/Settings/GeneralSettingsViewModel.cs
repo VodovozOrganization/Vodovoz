@@ -1,9 +1,11 @@
-﻿using System;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Linq;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
@@ -12,21 +14,27 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 	{
 		private readonly IGeneralSettingsParametersProvider _generalSettingsParametersProvider;
 		private readonly ICommonServices _commonServices;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 
 		private string _routeListPrintedFormPhones;
 		private bool _canAddForwardersToLargus;
 		private DelegateCommand _saveRouteListPrintedFormPhonesCommand;
 		private DelegateCommand _saveCanAddForwardersToLargusCommand;
+		private DelegateCommand _saveOrderAutoCommentCommand;
+		private DelegateCommand _showAutoCommentInfoCommand;
+		private string _orderAutoComment;
 
 		public GeneralSettingsViewModel(
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
 			ICommonServices commonServices,
 			RoboatsSettingsViewModel roboatsSettingsViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigation = null) : base(commonServices?.InteractiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			RoboatsSettingsViewModel = roboatsSettingsViewModel ?? throw new ArgumentNullException(nameof(roboatsSettingsViewModel));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_generalSettingsParametersProvider =
 				generalSettingsParametersProvider ?? throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
 
@@ -38,11 +46,66 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_route_List_printed_form_phones");
 			CanEditCanAddForwardersToLargus =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_can_add_forwarders_to_largus");
+			CanEditOrderAutoComment =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_order_auto_comment_setting");
+			OrderAutoComment = _generalSettingsParametersProvider.OrderAutoComment;
+
+			ComplaintsSubdivisionSettingsViewModel = new SubdivisionSettingsViewModel(_commonServices, unitOfWorkFactory, NavigationManager,
+				_generalSettingsParametersProvider, _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriverParameterName)
+			{
+				CanEdit = CanEditRouteListPrintedFormPhones,
+				MainTitle = "<b>Настройки рекламаций</b>",
+				DetailTitle = "Информировать о незаполненном водителе в рекламациях на следующие отделы:",
+				Info = "Сотрудники данных отделов будут проинформированы о незаполненном водителе при закрытии рекламации. " +
+				       "Если отдел есть в списке ответственных и итог работы по сотрудникам: Вина доказана."
+			};
+
+			var canEditAlternativePrices = _commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
+
+			AlternativePricesSubdivisionSettingsViewModel = new SubdivisionSettingsViewModel(_commonServices, unitOfWorkFactory, NavigationManager,
+				_generalSettingsParametersProvider, generalSettingsParametersProvider.SubdivisionsAlternativePricesName)
+			{
+				CanEdit = canEditAlternativePrices,
+				MainTitle = "<b>Настройки альтернативных цен</b>",
+				DetailTitle = "Использовать альтернативную цену для авторов заказов из следующих отделов:",
+				Info = "Сотрудники данных отделов могут редактировать альтернативные цены"
+			};
+
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				unitOfWork.Session.DefaultReadOnly = true;
+
+				var subdivisionIdToRetrieve = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver;
+
+				var retrievedSubdivisions = unitOfWork.Session.Query<Subdivision>()
+					.Where(subdivision => subdivisionIdToRetrieve.Contains(subdivision.Id))
+					.ToList();
+
+				foreach(var subdivision in retrievedSubdivisions)
+				{
+					ComplaintsSubdivisionSettingsViewModel.ObservableSubdivisions.Add(subdivision);
+				}
+
+				var subdivisionIdsForAlternativePrices = _generalSettingsParametersProvider.SubdivisionsForAlternativePrices;
+
+				var subdivisionForAlternativePrices = unitOfWork.Session.Query<Subdivision>()
+					.Where(s => subdivisionIdsForAlternativePrices.Contains(s.Id))
+					.ToList();
+
+				foreach(var subdivision in subdivisionForAlternativePrices)
+				{
+					AlternativePricesSubdivisionSettingsViewModel.ObservableSubdivisions.Add(subdivision);
+				}
+			}
 		}
 
 		#region RouteListPrintedFormPhones
 
 		public bool CanEditRouteListPrintedFormPhones { get; }
+
+		public SubdivisionSettingsViewModel AlternativePricesSubdivisionSettingsViewModel { get; }
+		
+		public SubdivisionSettingsViewModel ComplaintsSubdivisionSettingsViewModel { get; }
 
 		public string RouteListPrintedFormPhones
 		{
@@ -104,6 +167,35 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			);
 
 		public RoboatsSettingsViewModel RoboatsSettingsViewModel { get; }
+
+		#endregion
+
+		#region OrderAutoComment
+
+		public string OrderAutoComment
+		{
+			get => _orderAutoComment;
+			set => SetField(ref _orderAutoComment, value);
+		}
+
+		public bool CanEditOrderAutoComment { get; }
+
+		public DelegateCommand SaveOrderAutoCommentCommand =>
+			_saveOrderAutoCommentCommand ?? (_saveOrderAutoCommentCommand = new DelegateCommand(() =>
+			{
+				_generalSettingsParametersProvider.UpdateOrderAutoComment(OrderAutoComment);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+			}));
+
+		public DelegateCommand ShowAutoCommentInfoCommand =>
+			_showAutoCommentInfoCommand ?? (_showAutoCommentInfoCommand = new DelegateCommand(() =>
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Info,
+					"Если в заказе стоит бесконтактная доставка и доставляется промонабор для новых клиентов (в наборе не стоит галочка \"для многократного использования\"),\n" +
+					"то в начало комментария к заказу добавляется текст из настройки."
+					);
+			}));
 
 		#endregion
 	}

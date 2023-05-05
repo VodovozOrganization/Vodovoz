@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping
 		public OrderMap()
 		{
 			Table("orders");
-
+			
 			OptimisticLock.Version();
 			Version(x => x.Version)                       .Column("version");
 
@@ -53,6 +53,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.TimeDelivered)                     .Column("time_delivered");
 			Map(x => x.AddCertificates)                   .Column("add_certificates");
 			Map(x => x.IsBottleStock)                     .Column("is_bottle_stock");
+			Map(x => x.IsBottleStockDiscrepancy)          .Column("is_bottle_stock_discrepancy");
 			Map(x => x.BottlesByStockCount)               .Column("bottles_by_stock_count");
 			Map(x => x.BottlesByStockActualCount)         .Column("bottles_by_stock_actual_count");
 			Map(x => x.EShopOrder)                        .Column("e_shop_order");

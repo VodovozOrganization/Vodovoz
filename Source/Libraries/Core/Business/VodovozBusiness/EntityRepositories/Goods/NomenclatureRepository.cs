@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
@@ -539,6 +539,16 @@ namespace Vodovoz.EntityRepositories.Goods
 		}
 
 		public Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId) => uow.GetById<Nomenclature>(nomenclatureId);
+
+		public bool Has19LWater(IUnitOfWork uow, int[] siteNomenclaturesIds)
+		{
+			return uow.Session.QueryOver<Nomenclature>()
+				.WhereRestrictionOn(n => n.Id).IsIn(siteNomenclaturesIds)
+				.And(n => n.Category == NomenclatureCategory.water)
+				.And(n => n.TareVolume == TareVolume.Vol19L)
+				.List()
+				.Any();
+		}
 	}
 
 	public class NomenclatureAmountNode

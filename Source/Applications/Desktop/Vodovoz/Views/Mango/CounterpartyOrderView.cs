@@ -38,6 +38,12 @@ namespace Vodovoz.Views.Mango
 			CommTextView.Editable = false;
 
 			OrderYTreeView.Binding.AddBinding(ViewModel, v => v.LatestOrder, w => w.ItemsDataSource).InitializeFromSource();
+
+			specialListCmbDeliveryPoint.Binding.AddSource(ViewModel)
+				.AddBinding( vm => vm.DeliveryPoints, w => w.ItemsList)
+				.AddBinding( vm => vm.DeliveryPoint, w => w.SelectedItem)
+				.AddBinding( vm => vm.IsDeliveryPointChoiceRequired, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 		#region Events
 		private void ButtonReleaseEvent_OrderYTreeView(object sedner , ButtonReleaseEventArgs e)
@@ -47,7 +53,7 @@ namespace Vodovoz.Views.Mango
 			if(e.Event.Button == 3 && selectedOrder != null) {
 				Gtk.Menu popupMenu = new Menu();
 				MenuItem item1 = new MenuItem("Повторить заказ");
-				item1.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.RepeatOrder(selectedOrder); };
+				item1.ButtonReleaseEvent += delegate (object s, ButtonReleaseEventArgs _e) { ViewModel.RepeatOrder(selectedOrder.Id); };
 				popupMenu.Add(item1);
 
 				MenuItem item2 = new MenuItem("Перейти в заказ");

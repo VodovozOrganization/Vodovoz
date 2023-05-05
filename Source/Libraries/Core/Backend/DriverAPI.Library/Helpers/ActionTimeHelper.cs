@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using DriverAPI.Library.DTOs;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 
@@ -22,17 +23,38 @@ namespace DriverAPI.Library.Helpers
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
+		public DateTime GetActionTime(IActionTimeTrackable actionTimeTrackable)
+		{
+			_logger.LogTrace("Proceeding IActionTimeTrackable: {ActionTime} : {ActionTimeUtc}", actionTimeTrackable.ActionTime, actionTimeTrackable.ActionTimeUtc);
+			
+			if(actionTimeTrackable.ActionTimeUtc is null)
+			{
+				if(actionTimeTrackable.ActionTime is null)
+				{
+					_logger.LogError("ActionTime и ActionTimeUtc пусты");
+					throw new InvalidOperationException("ActionTime и ActionTimeUtc пусты");
+				}
+				return actionTimeTrackable.ActionTime.Value;
+			}
+
+			return actionTimeTrackable.ActionTimeUtc.Value.ToLocalTime();
+		}
+
 		public void ThrowIfNotValid(DateTime recievedTime, DateTime actionTime)
 		{
 			if(actionTime > recievedTime.AddMinutes(_futureTimeout))
 			{
-				_logger.LogError($"Пришел запрос из будущего {actionTime} в {recievedTime}");
+				_logger.LogError("Пришел запрос из будущего {ActionTime} в {RecievedTime}",
+					actionTime,
+					recievedTime);
 				throw new InvalidTimeZoneException("Нельзя отправлять запросы из будущего! Проверьте настройки системного времени вашего телефона");
 			}
 
 			if(recievedTime > actionTime.AddMinutes(_timeout))
 			{
-				_logger.LogError($"Пришел запрос из дальнего прошлого {actionTime} в {recievedTime}");
+				_logger.LogError("Пришел запрос из дальнего прошлого {ActionTime} в {RecievedTime}",
+					actionTime,
+					recievedTime);
 				throw new InvalidOperationException("Таймаут запроса операции");
 			}
 		}

@@ -4,7 +4,7 @@ using QS.DomainModel.UoW;
 using QS.Services;
 using QS.Utilities.Numeric;
 using Sms.Internal;
-using Sms.Internal.Client;
+using Sms.Internal.Client.Framework;
 using SmsPaymentService;
 using System;
 using System.Linq;
@@ -35,6 +35,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IInteractiveService _interactiveService;
 		private readonly ISmsSettings _smsSettings;
 		private readonly SmsClientChannelFactory _smsClientChannelFactory;
+		
 		private readonly PhoneFormatter _phoneFormatter;
 		private static readonly SmsPaymentStatus[] _excludeSmsPaymentStatuses =
 			{ SmsPaymentStatus.ReadyToSend, SmsPaymentStatus.Cancelled };

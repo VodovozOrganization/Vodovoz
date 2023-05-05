@@ -41,6 +41,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using QS.Project.Services.FileDialog;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -65,14 +66,15 @@ namespace Vodovoz.JournalViewModels
 		private readonly bool _userHasOnlyAccessToWarehouseAndComplaints;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public OrderJournalViewModel(
-			OrderJournalFilterViewModel filterViewModel, 
-			IUnitOfWorkFactory unitOfWorkFactory, 
+			OrderJournalFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			INomenclatureRepository nomenclatureRepository,
@@ -90,7 +92,8 @@ namespace Vodovoz.JournalViewModels
 			IFileDialogService fileDialogService,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
-			IRDLPreviewOpener rdlPreviewOpener) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IRDLPreviewOpener rdlPreviewOpener,
+			IRouteListItemRepository routeListItemRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -102,6 +105,7 @@ namespace Vodovoz.JournalViewModels
 			_deliveryPointJournalFactory = deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 
 			_counterpartySelectorFactory = _counterpartyJournalFactory;
 
@@ -147,7 +151,7 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
-        protected override void CreateNodeActions()
+		protected override void CreateNodeActions()
         {
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
@@ -408,7 +412,7 @@ namespace Vodovoz.JournalViewModels
 			
 			if(FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
-				query.Where(o => o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
+				query.Where(o => o.DeliverySchedule.Id == null || o.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId);
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
@@ -567,7 +571,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => orderWSDAlias.Id == FilterViewModel.OrderId.Value);
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
 			{
 				Phone counterpartyPhoneAlias = null;
 
@@ -580,7 +584,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
 			{
 				query.Where(x => x.Id == null);
 			}
@@ -742,7 +746,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => orderWSPAlias.Id == FilterViewModel.OrderId.Value);
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
 			{
 				Phone counterpartyPhoneAlias = null;
 
@@ -755,7 +759,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
 			{
 				query.Where(x => x.Id == null);
 			}
@@ -907,7 +911,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => orderWSAPAlias.Id == FilterViewModel.OrderId.Value);
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.CounterpartyPhone))
 			{
 				Phone counterpartyPhoneAlias = null;
 
@@ -920,7 +924,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointPhone))
 			{
 				query.Where(x => x.Id == null);
 			}
@@ -987,7 +991,7 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						new ParametersProvider(),
 						new OrderDiscountsController(new NomenclatureFixedPriceController(
-							new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository))),
+							new NomenclatureFixedPriceFactory())),
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener),
 					//функция диалога открытия документа
@@ -1003,7 +1007,7 @@ namespace Vodovoz.JournalViewModels
 						new DiscountReasonRepository(),
 						new ParametersProvider(),
 						new OrderDiscountsController(new NomenclatureFixedPriceController(
-							new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository))),
+							new NomenclatureFixedPriceFactory())),
 						new CommonMessages(_commonServices.InteractiveService),
 						_rdlPreviewOpener),
 					//функция идентификации документа 
@@ -1095,7 +1099,7 @@ namespace Vodovoz.JournalViewModels
 							_subdivisionParametersProvider
 						);
 
-						TabParent.AddTab(this, dlg, false);
+						TabParent.AddTab(dlg, this, false);
 					}
 				)
 			);
@@ -1220,11 +1224,13 @@ namespace Vodovoz.JournalViewModels
 							_subdivisionRepository,
 							_commonServices,
 							_userRepository,
+							_routeListItemRepository,
 							_fileDialogService,
 							_orderSelectorFactory,
 							_employeeJournalFactory,
 							_counterpartyJournalFactory,
 							_deliveryPointJournalFactory,
+							_subdivisionJournalFactory,
 							_subdivisionParametersProvider
 						);
 						var order = complaintViewModel.UoW.GetById<VodovozOrder>(selectedOrder.Id);

@@ -14,6 +14,7 @@ using QS.Services;
 using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -127,9 +128,8 @@ namespace Vodovoz.ViewModels.Goods
 			?? (_addNomenclatureDistributionCommand = new DelegateCommand(
 				() =>
 				{
-					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel, IEntityAutocompleteSelectorFactory>(
+					var page = NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(
 						this,
-						_nomenclatureSelectorFactory.GetDefaultNomenclatureSelectorFactory(),
 						OpenPageOptions.AsSlave
 					);
 					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
@@ -255,8 +255,9 @@ namespace Vodovoz.ViewModels.Goods
 				UoW.Save(priority);
 			}
 
-			_deliveryRulesParametersProvider.UpdateFastDeliveryMaxDistanceParameter(FastDeliveryMaxDistance.ToString());
-			
+			_deliveryRulesParametersProvider.UpdateFastDeliveryMaxDistanceParameter(FastDeliveryMaxDistance);
+			UpdateFastDeliveryMaxDistanceValueInAllNotClosedRouteLists(FastDeliveryMaxDistance);
+
 			_deliveryRulesParametersProvider.UpdateAdditionalLoadingFlyerAdditionEnabledParameter(FlyerAdditionEnabled.ToString());
 			_deliveryRulesParametersProvider.UpdateBottlesCountForFlyerParameter(BottlesCount.ToString());
 
@@ -265,6 +266,16 @@ namespace Vodovoz.ViewModels.Goods
 
 			UoW.Commit();
 			return true;
+		}
+
+		private void UpdateFastDeliveryMaxDistanceValueInAllNotClosedRouteLists(double fastDeliveryMaxDistance)
+		{
+			var distanceToSet = (decimal)fastDeliveryMaxDistance;
+			var notClosedRouteLists = UoW.GetAll<RouteList>().Where(r => r.Status != RouteListStatus.Closed).ToList();
+			foreach(var routeList in notClosedRouteLists)
+			{
+				routeList.UpdateFastDeliveryMaxDistanceValue(distanceToSet);
+			}
 		}
 
 		public override void Dispose()

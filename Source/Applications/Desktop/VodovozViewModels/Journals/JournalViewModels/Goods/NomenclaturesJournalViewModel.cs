@@ -40,7 +40,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository
+			IUserRepository userRepository,
+			Action<NomenclatureFilterViewModel> filterParams = null
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -53,6 +54,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 			TabName = "Журнал ТМЦ";
 			SetOrder(x => x.Name);
+
+			if(filterParams != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterParams);
+			}
+
 			UpdateOnChanges(
 				typeof(Nomenclature),
 				typeof(MeasurementUnits),
@@ -65,7 +72,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 		[Obsolete("Лучше передавать через фильтр")]
 		public int[] ExcludingNomenclatureIds { get; set; }
 
-		public bool CalculateQtyOnStock { get; set; } = false;
+		public bool CalculateQuantityOnStock { get; set; } = false;
 
 		public IAdditionalJournalRestriction<Nomenclature> AdditionalJournalRestriction { get; set; } = null;
 
@@ -188,7 +195,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				itemsQuery.Where(x => x.IsDefectiveBottle);
 			}
 
-			if(CalculateQtyOnStock) {
+			if(CalculateQuantityOnStock) {
 				itemsQuery.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
 					.Where(() => !nomenclatureAlias.IsSerial)
 					.SelectList(list => list

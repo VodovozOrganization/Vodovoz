@@ -18,7 +18,7 @@ namespace Vodovoz.Views.Cash
 
 		private global::QS.Widgets.ValidatedEntry entryOnlineOrder;
 
-		private global::Gamma.Widgets.ySpecComboBox comboPaymentFrom;
+		private global::Gamma.Widgets.yEnumComboBox enumPaymentType;
 
 		protected virtual void Build()
 		{
@@ -86,14 +86,14 @@ namespace Vodovoz.Views.Cash
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.comboPaymentFrom = new global::Gamma.Widgets.ySpecComboBox();
-			this.comboPaymentFrom.Name = "comboPaymentFrom";
-			this.comboPaymentFrom.AddIfNotExist = false;
-			this.comboPaymentFrom.DefaultFirst = false;
-			this.comboPaymentFrom.ShowSpecialStateAll = false;
-			this.comboPaymentFrom.ShowSpecialStateNot = false;
-			this.hbox1.Add(this.comboPaymentFrom);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.comboPaymentFrom]));
+			this.enumPaymentType = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumPaymentType.Name = "enumPaymentType";
+			this.enumPaymentType.ShowSpecialStateAll = false;
+			this.enumPaymentType.ShowSpecialStateNot = false;
+			this.enumPaymentType.UseShortTitle = false;
+			this.enumPaymentType.DefaultFirst = false;
+			this.hbox1.Add(this.enumPaymentType);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.enumPaymentType]));
 			w6.Position = 2;
 			w6.Expand = false;
 			w6.Fill = false;

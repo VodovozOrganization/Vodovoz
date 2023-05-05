@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Autofac;
 using Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories;
@@ -67,6 +68,8 @@ namespace Vodovoz.SidePanel
 					ITdiTab tdiTab = TDIMain.MainNotebook.CurrentTab;
 					var edoLightsMatrixPanelViewModel = new EdoLightsMatrixPanelViewModel(edoLightsMatrixViewModel, gtkTabsOpener, tdiTab);
 					return new EdoLightsMatrixPanelView(edoLightsMatrixPanelViewModel);
+				case PanelViewType.CarsMonitoringInfoPanelView:
+					return new CarsMonitoringInfoPanelView(UnitOfWorkFactory.GetDefaultFactory, new DeliveryRulesParametersProvider(new ParametersProvider()));
 				default:
 					throw new NotSupportedException();
 			}

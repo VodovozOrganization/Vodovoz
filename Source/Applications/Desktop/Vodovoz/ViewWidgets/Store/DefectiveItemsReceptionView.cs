@@ -166,8 +166,7 @@ namespace Vodovoz.ViewWidgets.Store
 			filter.IsDefectiveBottle = true;
 
 			var nomenclatureJournalFactory = new NomenclatureJournalFactory();
-			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(true);
-			journal.FilterViewModel = filter;
+			var journal = nomenclatureJournalFactory.CreateNomenclaturesJournalViewModel(filter, true);
 			journal.OnEntitySelectedResult += Journal_OnEntitySelectedResult;
 			
 			if(_userHasOnlyAccessToWarehouseAndComplaints == null)

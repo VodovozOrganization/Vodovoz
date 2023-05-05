@@ -33,11 +33,14 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets;
+using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz
@@ -65,6 +68,8 @@ namespace Vodovoz
 		private Employee previousForwarder = null;
 		WageParameterService wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
+
+		private DeliveryFreeBalanceViewModel _deliveryFreeBalanceViewModel;
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
@@ -141,10 +146,13 @@ namespace Vodovoz
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Sensitive = _logisticanEditing;
 
-			additionalloadingtextview.Binding
-				.AddBinding(Entity, e => e.AdditionalLoadingDocument, w => w.AdditionalLoadingDocument)
+			_deliveryFreeBalanceViewModel = new DeliveryFreeBalanceViewModel();
+			var deliveryfreebalanceview = new DeliveryFreeBalanceView(_deliveryFreeBalanceViewModel);
+			deliveryfreebalanceview.Binding
+				.AddBinding(Entity, e => e.ObservableDeliveryFreeBalanceOperations, w => w.ObservableDeliveryFreeBalanceOperations)
 				.InitializeFromSource();
-			additionalloadingtextview.Visible = Entity.AdditionalLoadingDocument != null;
+			deliveryfreebalanceview.ShowAll();
+			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
 
 			var driverFilter = new EmployeeFilterViewModel();
 			driverFilter.SetAndRefilterAtOnce(
@@ -381,7 +389,10 @@ namespace Vodovoz
 				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) {
 					UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW);
 					TabParent.AddSlaveTab(this, dlg);
-					dlg.DlgSaved += (s, ea) => rli.UpdateStatus(newStatus, CallTaskWorker);
+					dlg.DlgSaved += (s, ea) =>
+					{
+						rli.UpdateStatus(newStatus, CallTaskWorker);
+					};
 					return;
 				}
 				rli.UpdateStatus(newStatus, CallTaskWorker);
@@ -411,6 +422,7 @@ namespace Vodovoz
 		#region implemented abstract members of OrmGtkDialogBase
 
 		private bool canClose = true;
+
 		public bool CanClose()
 		{
 			if(!canClose)
@@ -475,12 +487,17 @@ namespace Vodovoz
 					.Cast<RouteListKeepingItemNode>()
 					.FirstOrDefault();
 
-				RoboatsSettings roboatsSettings = new RoboatsSettings(new ParametersProvider());
-				RoboatsFileStorageFactory roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
+				var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+				var roboatsFileStorageFactory =
+					new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 				IDeliveryScheduleRepository deliveryScheduleRepository = new DeliveryScheduleRepository();
 				IFileDialogService fileDialogService = new FileDialogService();
-				RoboatsViewModelFactory roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
-				var journal = new DeliveryScheduleJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, roboatsViewModelFactory);
+				var roboatsViewModelFactory =
+					new RoboatsViewModelFactory(
+						roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
+				var journal =
+					new DeliveryScheduleJournalViewModel(
+						UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, deliveryScheduleRepository, roboatsViewModelFactory);
 				journal.SelectionMode = JournalSelectionMode.Single;
 				journal.OnEntitySelectedResult += (s, args) => {
 					var selectedResult = args.SelectedNodes.First() as DeliveryScheduleJournalNode;
@@ -503,9 +520,13 @@ namespace Vodovoz
 		protected void OnButtonSetStatusCompleteClicked(object sender, EventArgs e)
 		{
 			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
-			foreach(RouteListKeepingItemNode item in selectedObjects) {
+			foreach(RouteListKeepingItemNode item in selectedObjects) 
+			{
 				if(item.Status == RouteListItemStatus.Transfered)
+				{
 					continue;
+				}
+
 				Entity.ChangeAddressStatusAndCreateTask(UoW, item.RouteListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
 			}
 		}

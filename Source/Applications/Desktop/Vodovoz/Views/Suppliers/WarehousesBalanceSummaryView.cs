@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
@@ -49,6 +49,15 @@ namespace Vodovoz.Views.Suppliers
 			buttonExport.Clicked += (sender, args) => Export();
 
 			datePicker.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.DateOrNull).InitializeFromSource();
+			ycheckbuttonShowReserv.Binding.AddBinding(ViewModel, vm => vm.ShowReserve, w => w.Active).InitializeFromSource();
+
+			ycheckbuttonShowReserv.Clicked += (object sender, EventArgs e) =>
+			{
+				datePicker.Sensitive = !ycheckbuttonShowReserv.Active;
+				datePicker.Date = DateTime.Now;
+			};
+
+			ycheckbuttonShowPrices.Binding.AddBinding(ViewModel, vm => vm.ShowPrices, w => w.Active).InitializeFromSource();
 
 			radioAllNoms.Binding.AddBinding(ViewModel, vm => vm.AllNomenclatures, w => w.Active).InitializeFromSource();
 			radioGtZNoms.Binding.AddBinding(ViewModel, vm => vm.IsGreaterThanZeroByNomenclature, w => w.Active).InitializeFromSource();
@@ -111,27 +120,36 @@ namespace Vodovoz.Views.Suppliers
 		private void ConfigureTreeView()
 		{
 			var columnsConfig = FluentColumnsConfig<BalanceSummaryRow>.Create()
-				.AddColumn("№")
-					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(row => ViewModel.Report.SummaryRows.IndexOf(row) + 1)
 					.XAlign(0.5f)
-				.AddColumn("Код")
-					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(row => row.NomId)
-					.XAlign(0.5f)
-				.AddColumn("Наименование")
-					.HeaderAlignment(0.5f)
-					.AddTextRenderer(row => row.NomTitle)
-					.WrapWidth(500).WrapMode(WrapMode.Word)
-					.XAlign(0.5f)
-				.AddColumn("Инвентарный\nномер")
-					.HeaderAlignment(0.5f)
-					.AddTextRenderer(row => row.InventoryNumber)
-					.XAlign(0.5f)
-				.AddColumn("Мин. остаток")
-					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(row => row.Min)
+					.HeaderAlignment(0.5f)
+				.AddColumn("Мин. остаток")
 					.XAlign(0.5f)
+					.AddTextRenderer(row => row.InventoryNumber)
+					.HeaderAlignment(0.5f)
+				.AddColumn("Инвентарный\nномер")
+					.XAlign(0.5f)
+					.WrapWidth(500).WrapMode(WrapMode.Word)
+					.AddTextRenderer(row => row.NomTitle)
+					.HeaderAlignment(0.5f)
+				.AddColumn("Наименование")
+					.XAlign(0.5f)
+					.AddNumericRenderer(row => row.NomId)
+					.HeaderAlignment(0.5f)
+				.AddColumn("Код")
+					.XAlign(0.5f)
+					.AddNumericRenderer(row => ViewModel.Report.SummaryRows.IndexOf(row) + 1)
+					.HeaderAlignment(0.5f)
+				.AddColumn("№")
+
+			if(ViewModel.ShowReserve)
+			{
+				columnsConfig
+				.AddColumn("В резерве").AddNumericRenderer(row => row.ReservedItemsAmount).XAlign(0.5f)
+				.AddColumn("Доступно для заказа").AddNumericRenderer(row => row.AvailableItemsAmount).XAlign(0.5f);
+			}
+
+			columnsConfig
 				.AddColumn("Общий остаток")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(row => row.Common)
@@ -140,6 +158,14 @@ namespace Vodovoz.Views.Suppliers
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(row => row.Diff)
 					.XAlign(0.5f);
+
+			if(ViewModel.ShowPrices)
+			{
+				columnsConfig
+					.AddColumn("Цена закупки").AddNumericRenderer(row => row.PurchasePrice).XAlign(0.5f).Digits(2)
+					.AddColumn("Цена").AddNumericRenderer(row => row.Price).XAlign(0.5f).Digits(2)
+					.AddColumn("Цена KulerSale").AddNumericRenderer(row => row.AlternativePrice).XAlign(0.5f).Digits(2);
+			}
 
 			for(var i = 0; i < ViewModel.Report.WarehouseStoragesTitles?.Count; i++)
 			{
