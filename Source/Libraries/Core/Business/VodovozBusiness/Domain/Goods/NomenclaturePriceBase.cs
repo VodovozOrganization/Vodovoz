@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Goods
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "цены",
 		Nominative = "цена")]
+	[HistoryTrace]
 	public class NomenclaturePriceBase : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

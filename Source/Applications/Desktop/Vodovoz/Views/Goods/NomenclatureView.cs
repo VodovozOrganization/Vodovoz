@@ -51,7 +51,24 @@ namespace Vodovoz.Views.Goods
 			
 			#endregion
 
-			buttonSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
+			buttonSave.Clicked += (sender, args) =>
+			{
+				ViewModel.Entity.NomenclaturePrice.Clear();
+				foreach(var item in pricesView.Prices.Cast<NomenclaturePrice>())
+				{
+					item.Nomenclature = ViewModel.Entity;
+					ViewModel.Entity.NomenclaturePrice.Add(item);
+				}
+
+				ViewModel.Entity.AlternativeNomenclaturePrices.Clear();
+				foreach(var item in alternativePricesView.Prices.Cast<AlternativeNomenclaturePrice>())
+				{
+					item.Nomenclature = ViewModel.Entity;
+					ViewModel.Entity.AlternativeNomenclaturePrices.Add(item);
+				}
+
+				ViewModel.SaveCommand.Execute();
+			};
 			buttonSave.Sensitive = ViewModel.CanEdit;
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(ViewModel.AskSaveOnClose, CloseSource.Cancel);	
 			ylabelCreationDate.Binding
@@ -383,13 +400,11 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			entityViewModelEntryNomenclature.CanEditReference = true;
 
-			pricesView.UoWGeneric = ViewModel.UoWGeneric;
-			pricesView.Prices = ViewModel.UoWGeneric.Root.NomenclaturePrice.Cast<NomenclaturePriceBase>().ToList();
+			pricesView.Prices = ViewModel.Entity.NomenclaturePrice.Cast<NomenclaturePriceBase>().ToList();
 			pricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEdit;
 			pricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.General;
 
-			alternativePricesView.UoWGeneric = ViewModel.UoWGeneric;
-			alternativePricesView.Prices = ViewModel.UoWGeneric.Root.AlternativeNomenclaturePrices.Cast<NomenclaturePriceBase>().ToList();
+			alternativePricesView.Prices = ViewModel.Entity.AlternativeNomenclaturePrices.Cast<NomenclaturePriceBase>().ToList();
 			alternativePricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEditAlternativeNomenclaturePrices &&  ViewModel.CanEdit;
 			alternativePricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.Alternative;
 
