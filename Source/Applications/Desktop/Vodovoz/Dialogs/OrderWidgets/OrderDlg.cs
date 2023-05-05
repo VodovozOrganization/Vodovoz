@@ -924,7 +924,7 @@ namespace Vodovoz
 					case nameof(Order.Client):
 						UpdateAvailableEnumSignatureTypes();
 						UpdateOrderAddressTypeWithUI();
-						SetLogisticsRequirementsCheckboxes();
+						SetLogisticsRequirementsCheckboxes(true);
 						break;
 					case nameof(Entity.OrderAddressType):
 						UpdateOrderAddressTypeUI();
@@ -1046,11 +1046,21 @@ namespace Vodovoz
 			}
 		}
 
-		private LogisticsRequirements GetLogisticsRequirements()
+		private LogisticsRequirements GetLogisticsRequirements(bool clearCheckedCheckboxes = false)
 		{
 			if(Entity.LogisticsRequirements != null && Entity.IsCopiedFromUndelivery)
 			{
 				return Entity.LogisticsRequirements;
+			}
+
+			if(Entity.Client == null || (!Entity.SelfDelivery && Entity.DeliveryPoint == null))
+			{
+				return new LogisticsRequirements();
+			}
+
+			if(clearCheckedCheckboxes)
+			{
+				Entity.LogisticsRequirements = new LogisticsRequirements();
 			}
 
 			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements();
@@ -1099,11 +1109,11 @@ namespace Vodovoz
 			Entity.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
 		}
 
-		private void SetLogisticsRequirementsCheckboxes()
+		private void SetLogisticsRequirementsCheckboxes(bool clearCheckedCheckboxes = false)
 		{
 			if(logisticsRequirementsView.ViewModel != null)
 			{
-				var requirements = GetLogisticsRequirements();
+				var requirements = GetLogisticsRequirements(clearCheckedCheckboxes);
 				logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(requirements);
 				UpdateEntityLogisticsRequirements();
 			}
