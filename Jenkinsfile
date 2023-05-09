@@ -686,10 +686,10 @@ def ZipFiles(sourcePath, archiveFile){
 
 def UnzipFiles(archiveFile, destPath){
 	if (isUnix()) {
-		sh "7z x -y -o\"${destPath}\" ${archiveFile}"
+		sh "7z x -y -o\"${destPath}\" ${LINUX_WORKSPACE_PATH}/${archiveFile}"
 	}
 	else {
-		bat "7z x -y -o\"${destPath}\" ${archiveFile}"
+		bat "7z x -y -o\"${destPath}\" ${WIN_WORKSPACE_PATH}/${archiveFile}"
 	}
 }
 
