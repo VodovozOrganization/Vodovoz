@@ -25,8 +25,8 @@ RELEASE_LOCKER_PATH = "C:/Program Files (x86)/Vodovoz/VodovozLauncher/ReleaseLoc
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/update.lock"
 LINUX_BUILD_TOOL = "msbuild"
 JOB_FOLDER_NAME = GetJobFolderName()
-WIN_WORKSPACE_PATH = GetWorkspacePathForNode(NODE_WIN_BUILD)
-LINUX_WORKSPACE_PATH = GetWorkspacePathForNode(NODE_LINUX_RUNTIME)
+//WIN_WORKSPACE_PATH = GetWorkspacePathForNode(NODE_WIN_BUILD)
+//LINUX_WORKSPACE_PATH = GetWorkspacePathForNode(NODE_LINUX_RUNTIME)
 IS_PULL_REQUEST = env.CHANGE_ID != null
 //IS_HOTFIX = env.BRANCH_NAME == 'master'
 IS_HOTFIX = true
@@ -391,7 +391,7 @@ def DeliveryWebArtifact(projectName){
 def DeliveryWcfArtifact(projectName){
 	if(CAN_DELIVERY_WCF)
 	{
-		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}", "${LINUX_WORKSPACE_PATH}")
+		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}")
 	}
 	else
 	{
@@ -401,19 +401,21 @@ def DeliveryWcfArtifact(projectName){
 
 def DeliveryWinArtifact(artifactName, deliveryPath){
 	node(NODE_WIN_BUILD){
+		def workspacePath = GetWorkspacePath()
 		RunPowerShell("""
 			New-Item -ItemType File -Path "${deliveryPath}\\${artifactName}" -Force
-			Copy-Item -Path "${WIN_WORKSPACE_PATH}/${artifactName}" -Destination "${deliveryPath}\\${artifactName}" -Force
+			Copy-Item -Path "${workspacePath}/${artifactName}" -Destination "${deliveryPath}\\${artifactName}" -Force
 		""")
 	}
 }
 
-def DeliveryLinuxArtifact(artifactName, deliveryPath){
+def DeliveryLinuxArtifact(artifactName){
 	node(NODE_LINUX_BUILD){
-		def copyingItem = "${LINUX_WORKSPACE_PATH}/${artifactName}"
-		echo "Copy ${copyingItem} to ${deliveryPath}"
+		def workspacePath = GetWorkspacePath()
+		def copyingItem = "${workspacePath}/${artifactName}"
+		echo "Copy ${copyingItem} to ${workspacePath}"
 		withCredentials([sshUserPrivateKey(credentialsId: "linux_vadim_jenkins_key", keyFileVariable: 'keyfile', usernameVariable: 'userName')]) {
-			sh 'rsync -v -rz -e "ssh -o StrictHostKeyChecking=no -i $keyfile -p 2213 -v" ' + copyingItem + ' $userName@srv2.vod.qsolution.ru:'+ deliveryPath + '/ --delete-before'
+			sh 'rsync -v -rz -e "ssh -o StrictHostKeyChecking=no -i $keyfile -p 2213 -v" ' + copyingItem + ' $userName@srv2.vod.qsolution.ru:'+ workspacePath + '/ --delete-before'
 		}
 	}
 }
@@ -676,20 +678,22 @@ def UnlockHotfix(hotfixName){
 }
 
 def ZipFiles(sourcePath, archiveFile){
+	def workspacePath = GetWorkspacePath()
 	if (isUnix()) {
-		sh "7z a -stl -mx1 ${LINUX_WORKSPACE_PATH}/${archiveFile} ${LINUX_WORKSPACE_PATH}/${sourcePath}/*"
+		sh "7z a -stl -mx1 ${workspacePath}/${archiveFile} ${workspacePath}/${sourcePath}/*"
 	}
 	else {
-		bat "7z a -stl -mx1 ${WIN_WORKSPACE_PATH}/${archiveFile} ${WIN_WORKSPACE_PATH}/${sourcePath}/*"
+		bat "7z a -stl -mx1 ${workspacePath}/${archiveFile} ${workspacePath}/${sourcePath}/*"
 	}
 }
 
 def UnzipFiles(archiveFile, destPath){
+	def workspacePath = GetWorkspacePath()
 	if (isUnix()) {
-		sh "7z x -y -o\"${destPath}\" ${LINUX_WORKSPACE_PATH}/${archiveFile}"
+		sh "7z x -y -o\"${destPath}\" ${workspacePath}/${archiveFile}"
 	}
 	else {
-		bat "7z x -y -o\"${destPath}\" ${WIN_WORKSPACE_PATH}/${archiveFile}"
+		bat "7z x -y -o\"${destPath}\" ${workspacePath}/${archiveFile}"
 	}
 }
 
@@ -700,18 +704,18 @@ def RunPowerShell(psScript){
         """
 }
 
-def GetWorkspacePathForNode (nodeName)  {  
+/*def GetWorkspacePathForNode (nodeName)  {  
 	node(nodeName){
 		return GetWorkspacePath()
 	}  
-}
+}*/
 
-def GetWorkspacePath ()  {  
+def GetWorkspacePath()  {
 	if (isUnix()) {
-		return env.WORKSPACE
+		return "${JENKINS_HOME_WIN}/workspace/${JOB_FOLDER_NAME}"
 	}
 	else {
-		return env.WORKSPACE.replace("\\", "/")
+		return "${JENKINS_HOME}/workspace/${JOB_FOLDER_NAME}"
 	}
 }
 
