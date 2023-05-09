@@ -457,7 +457,7 @@ def PublishDesktop(nodeName){
 			if(IS_HOTFIX)
 			{
 				def now = new Date()
-        		def hofix_suffix = println now.format("MMdd_HHmm")
+        		def hofix_suffix = now.format("MMdd_HHmm")
 				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${hofix_suffix}"
 				LockHotfix(newHotfixPath)
 				DecompressArtifact(newHotfixPath, 'VodovozDesktop')
