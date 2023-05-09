@@ -117,12 +117,12 @@ stage('Checkout'){
 	parallel (
 		"Win" : {
 			node(NODE_WIN_BUILD){
-				PrepareSources("${JENKINS_HOME_WIN}")
+				PrepareSources()
 			}
 		},
 		"Linux" : {
 			node(NODE_LINUX_BUILD){
-				PrepareSources("${JENKINS_HOME}")
+				PrepareSources()
 			}
 		}
 	)
@@ -295,8 +295,8 @@ stage('Publish'){
 	)
 }
 
-def PrepareSources(jenkinsHome) {
-	def REFERENCE_ABSOLUTE_PATH = "${jenkinsHome}/workspace/Vodovoz_Vodovoz_master"
+def PrepareSources() {
+	def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_NODE}/workspace/Vodovoz_Vodovoz_master"
 
 	echo "checkout Vodovoz"	
 	checkout changelog: false, poll: false, scm:([
@@ -712,10 +712,10 @@ def RunPowerShell(psScript){
 
 def GetWorkspacePath()  {
 	if (isUnix()) {
-		return "${JENKINS_HOME}/workspace/${JOB_FOLDER_NAME}"
+		return "${JENKINS_HOME_NODE}/workspace/${JOB_FOLDER_NAME}"
 	}
 	else {
-		return "${JENKINS_HOME_WIN}/workspace/${JOB_FOLDER_NAME}"
+		return "${JENKINS_HOME_NODE}/workspace/${JOB_FOLDER_NAME}"
 	}
 }
 
