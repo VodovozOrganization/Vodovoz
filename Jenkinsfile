@@ -1,9 +1,49 @@
-//Copy artifacts - копирование архивированных сборок на ноды
-//Deploy - разархивация сборок на ноде в каталог для соответствующей ветки
-//Publish - разархивация сборок на ноде в каталог для нового релиза
+//-----------------------------------------------------------------------
 
-//0. Настройки
-//Nodes
+//Описание
+//Развертывание - это распаковка сборки из архива в каталоги для проведения тестов, развертывание не подразумевает взаимодействие с рабочими каталогами
+//Публикация - это распаковка сборки из архива в рабочие каталоги
+//	Публикация хотфикса - распаковка сразу в рабочий каталог с новой датой, запуск пользователями будет происходить сразу же после завершения публикации
+//	Публикация релиза - распаковка в каталог для подготовки к новому релизу, после проведения полноценного обновления этот релиз будет перенесен в рабочий каталог скриптом обновления.
+
+//-----------------------------------------------------------------------
+
+// Оглавление
+//
+// 100	Настройки
+// 101		Идентификаторы нод
+// 102		Глобальные
+// 103		Подготовка репозитория
+// 104		Восстановление пакетов
+// 105		Сборка
+// 106		Архивация
+// 107		Доставка
+// 108		Развертывание
+// 109		Публикация	
+//
+// 200	Этапы
+// 201		Подготовка репозитория
+// 202		Восстановление пакетов
+// 203		Сборка
+// 204		Запаковка
+// 205		Доставка
+// 206		Развертывание
+// 207		Публикация
+//
+// 300	Фукнции
+// 301		Подготовка репозитория
+// 302		Восстановление пакетов
+// 303		Сборка
+// 304		Запаковка
+// 305		Доставка
+// 306		Развертывание
+// 307		Публикация
+// 308		Утилитарные
+
+//-----------------------------------------------------------------------
+
+// 100	Настройки
+// 101	Настройки. Идентификаторы нод
 NODE_VOD1 = "Vod1"
 NODE_VOD3 = "Vod3"
 NODE_VOD5 = "Vod5"
@@ -13,7 +53,7 @@ NODE_WIN_BUILD = "WIN_BUILD"
 NODE_LINUX_BUILD = "LINUX_BUILD"
 NODE_LINUX_RUNTIME = "LINUX_RUNTIME"
 
-//Global
+// 102	Настройки. Глобальные
 ARCHIVE_EXTENTION = '.7z'
 APP_PATH = "Vodovoz/Source/Applications"
 WCF_BUILD_OUTPUT_CATALOG = "bin/Debug"
@@ -25,30 +65,48 @@ RELEASE_LOCKER_PATH = "C:/Program Files (x86)/Vodovoz/VodovozLauncher/ReleaseLoc
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/update.lock"
 LINUX_BUILD_TOOL = "msbuild"
 JOB_FOLDER_NAME = GetJobFolderName()
-//WIN_WORKSPACE_PATH = GetWorkspacePathForNode(NODE_WIN_BUILD)
-//LINUX_WORKSPACE_PATH = GetWorkspacePathForNode(NODE_LINUX_RUNTIME)
 IS_PULL_REQUEST = env.CHANGE_ID != null
+//Рабочая настройка, раскоментировать
 //IS_HOTFIX = env.BRANCH_NAME == 'master'
+//Рабочая настройка, раскоментировать
+//IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
+//Рабочая настройка, раскоментировать
+//IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
+
+//Тестовая настройка
 IS_HOTFIX = false
+//Тестовая настройка
 IS_RELEASE = true
+//Тестовая настройка
 IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
-//Build
+// 103	Настройки. Подготовка репозитория
+REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_NODE}/workspace/Vodovoz_Vodovoz_master"
+
+// 104	Настройки. Восстановление пакетов
+
+// 105	Настройки. Сборка
 CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
 CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
 CAN_BUILD_WCF = true
 
-//Compress
-/*CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
-CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
-CAN_COMPRESS_WCF = CAN_BUILD_WCF && (IS_HOTFIX || IS_RELEASE)*/
-//Test compress config
+// 106	Настройки. Архивация
+//Рабочая настройка, раскоментировать
+//CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
+//Рабочая настройка, раскоментировать
+//CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
+//Рабочая настройка, раскоментировать
+//CAN_COMPRESS_WCF = CAN_BUILD_WCF && (IS_HOTFIX || IS_RELEASE)
+
+//Тестовая настройка
 CAN_COMPRESS_DESKTOP = true
+//Тестовая настройка
 CAN_COMPRESS_WEB = true
+//Тестовая настройка
 CAN_COMPRESS_WCF = true
 
-//Delivery
+// 107	Настройки. Доставка
 CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP
 CAN_DELIVERY_WEB = CAN_COMPRESS_WEB
 CAN_DELIVERY_WCF = CAN_COMPRESS_WCF
@@ -59,13 +117,13 @@ DESKTOP_VOD5_DELIVERY_PATH = "\\\\${NODE_VOD5}\\${WIN_DELIVERY_SHARED_FOLDER_NAM
 DESKTOP_VOD7_DELIVERY_PATH = "\\\\${NODE_VOD7}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB_FOLDER_NAME}"
 
-//Deploy
+// 108	Настройки. Развертывание
 DEPLOY_PATH = "F:/WORK/_BUILDS"
 CAN_DEPLOY_DESKTOP = CAN_DELIVERY_DESKTOP && (env.BRANCH_NAME == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD)
 CAN_DEPLOY_WEB = false
 CAN_DEPLOY_WCF = false
 
-//Publish
+// 109	Настройки. Публикация	
 CAN_PUBLISH_DESKTOP = CAN_DELIVERY_DESKTOP && (IS_HOTFIX || IS_RELEASE)
 CAN_PUBLISH_WEB = CAN_DELIVERY_WEB
 CAN_PUBLISH_WCF = CAN_DELIVERY_WCF
@@ -79,41 +137,12 @@ DESKTOP_NEW_RELEASE_PUBLISH_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/${NEW_RELEASE
 WEB_PUBLISH_PATH = "E:/CD"
 WCF_PUBLISH_PATH = "/opt/jenkins/builds"
 
-echo "JOB_FOLDER_NAME: ${JOB_FOLDER_NAME}"
 
-//Разархивируем 
-//release/ в NewRelease
-//master в NewHotfix
-//Beta в F:\\WORK\\_BUILDS\\Beta
-//PR в F:\\WORK\\_BUILDS\\pull_requests\ID
-/*
-//Desktop
-CAN_DEPLOY_DESKTOP_BRANCH = env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'Beta' || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
-CAN_DEPLOY_DESKTOP_PR = env.CHANGE_ID != null
-CAN_COPY_DESKTOP_ARTIFACTS = CAN_DEPLOY_DESKTOP_BRANCH || CAN_DEPLOY_DESKTOP_PR 
-CAN_PUBLISH_DESKTOP = env.BRANCH_NAME == 'master'
+//-----------------------------------------------------------------------
 
-//Web
-CAN_PUBLISH_WEB_ARTIFACTS = env.BRANCH_NAME ==~ /(develop|master)/ || env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
-CAN_COPY_WEB_ARTIFACTS = CAN_PUBLISH_WEB_ARTIFACTS
+// 200	Этапы
 
-//WCF
-CAN_PUBLISH_WCF_ARTIFACTS = env.BRANCH_NAME == 'master'
-CAN_COPY_WCF_ARTIFACTS = CAN_PUBLISH_WCF_ARTIFACTS
-
-//ARCHIVATION
-
-echo "CAN_DEPLOY_DESKTOP_BRANCH: ${CAN_DEPLOY_DESKTOP_BRANCH}"
-echo "CAN_DEPLOY_DESKTOP_PR: ${CAN_DEPLOY_DESKTOP_PR}"
-echo "CAN_COPY_DESKTOP_ARTIFACTS: ${CAN_COPY_DESKTOP_ARTIFACTS}"
-echo "CAN_PUBLISH_DESKTOP: ${CAN_PUBLISH_DESKTOP}"
-echo "CAN_PUBLISH_WEB_ARTIFACTS: ${CAN_PUBLISH_WEB_ARTIFACTS}"
-echo "CAN_COPY_WEB_ARTIFACTS: ${CAN_COPY_WEB_ARTIFACTS}"
-echo "CAN_PUBLISH_WCF_ARTIFACTS: ${CAN_PUBLISH_WCF_ARTIFACTS}"
-echo "CAN_COPY_WCF_ARTIFACTS: ${CAN_COPY_WCF_ARTIFACTS}"*/
-
-//1. Подготовка репозиториев
-/*
+// 201	Этапы. Подготовка репозитория
 stage('Checkout'){
 	parallel (
 		"Win" : {
@@ -129,7 +158,7 @@ stage('Checkout'){
 	)
 }
 
-//2. Восстановление пакетов для проектов
+// 202	Этапы. Восстановление пакетов
 stage('Restore'){
 	parallel (
 		"Win" : {
@@ -147,7 +176,7 @@ stage('Restore'){
 	)
 }
 
-//3. Сборка проектов
+// 203	Этапы. Сборка
 stage('Build'){
 	parallel (
 		"Win" : {
@@ -208,9 +237,9 @@ stage('Build'){
 		}
 	)
 }
-*/
 
-//4. Архивация
+
+// 204	Этапы. Запаковка
 stage('Compress'){
 	parallel(
 		"Desktop" : { CompressDesktopArtifact() },
@@ -235,7 +264,7 @@ stage('Compress'){
 	)
 }
 
-//5. Доставка сборок на ноды
+// 205	Этапы. Доставка
 stage('Delivery'){
 	parallel(
 		"Desktop ${NODE_VOD1}" : { DeliveryDesktopArtifact(DESKTOP_VOD1_DELIVERY_PATH) },
@@ -263,12 +292,12 @@ stage('Delivery'){
 	)
 }
 
-//6. Развертывание
+// 206	Этапы. Развертывание
 stage('Deploy'){
 	DeployDesktop()
 }
 
-//7.Публикация
+// 207	Этапы. Публикация
 stage('Publish'){
 	parallel(
 		"Desktop ${NODE_VOD1}" : { PublishDesktop(NODE_VOD1) },
@@ -296,10 +325,13 @@ stage('Publish'){
 	)
 }
 
-def PrepareSources() {
-	def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_NODE}/workspace/Vodovoz_Vodovoz_master"
+//-----------------------------------------------------------------------
 
-	echo "checkout Vodovoz"	
+// 300	Фукнции
+
+// 301	Фукнции. Подготовка репозитория
+
+def PrepareSources() {
 	checkout changelog: false, poll: false, scm:([
 		$class: 'GitSCM',
 		branches: scm.branches,
@@ -311,18 +343,26 @@ def PrepareSources() {
 	])
 }
 
-/*
-def PublishBuildWebServiceToFolder(serviceName, projectPath) {
-	def branch_name = env.BRANCH_NAME.replaceAll('/','') + '\\'
-	def csproj_path = "${projectPath}\\${serviceName}.csproj"
-	echo "Publish ${serviceName} to folder (${env.BRANCH_NAME})"
-	PublishBuild(csproj_path)
+// 302	Фукнции. Восстановление пакетов
 
-	//CompressArtifact(outputPath, serviceName)
+
+
+// 303	Фукнции. Сборка
+
+def PublishBuild(projectPath){
+	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /maxcpucount:2"
 }
-*/
 
-//Compress functions
+def Build(config){
+	if (isUnix()) {
+		sh "${LINUX_BUILD_TOOL} Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
+	}
+	else {
+		bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
+	}
+}
+
+// 304	Фукнции. Запаковка
 
 def CompressDesktopArtifact(){
 	if(CAN_COMPRESS_DESKTOP)
@@ -365,7 +405,26 @@ def CompressWcfArtifact(relativeProjectPath){
 	}
 }
 
-//Delivery functions
+def CompressArtifact(sourcePath, artifactName) {
+	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
+
+	if (fileExists(archive_file)) {
+		echo "Delete exiting artifact ${archive_file} from ${sourcePath}/*"
+		fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
+	}
+
+	echo "Compressing artifact ${archive_file} from ./${sourcePath}/*"
+	ZipFiles(sourcePath, archive_file)
+}
+
+def DecompressArtifact(destPath, artifactName) {
+	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
+
+	echo "Decompressing artifact ${archive_file} to ${destPath}"
+	UnzipFiles(archive_file, destPath)
+}
+
+// 305	Фукнции. Доставка
 
 def DeliveryDesktopArtifact(deliveryPath){
 	if(CAN_DELIVERY_DESKTOP)
@@ -421,8 +480,7 @@ def DeliveryLinuxArtifact(artifactName){
 	}
 }
 
-
-//Deploy functions
+// 306	Фукнции. Развертывание
 
 def DeployDesktop(){
 	node(NODE_VOD3){
@@ -448,8 +506,7 @@ def DeployDesktop(){
 	}
 }
 
-
-//Publish functions
+// 307	Фукнции. Публикация
 
 def PublishDesktop(nodeName){
 	node(nodeName){
@@ -524,147 +581,7 @@ def PublishWCF(projectName){
 	}
 }
 
-/*
-def PublishMasterDesktop() {
-	script{
-		if(CAN_PUBLISH_DESKTOP)
-		{
-			def PRERELEASE_PATH = "${MasterRuntimePath}\\prerelease"
-
-			echo "Publish master to prerelease folder ${PRERELEASE_PATH}"
-			DecompressArtifact(PRERELEASE_PATH, 'Vodovoz')
-		}
-		else
-		{
-			echo "Branch is not master, nothing to publish to prerelease folder"
-		}
-	}
-}
-
-def PublishWebServices(){
-	script{
-		if(CAN_PUBLISH_BUILD_WEB)
-		{
-			parallel (
-				"Publish DriversAPI" : {
-					PublishWebService('DriversAPI')
-				},
-				"Publish FastPaymentsAPI" : {
-					PublishWebService('FastPaymentsAPI')
-				},
-				"Publish MailjetEventsDistributorAPI" : {
-					PublishWebService('MailjetEventsDistributorAPI')
-				},
-				"Publish UnsubscribePage" : {
-					PublishWebService('UnsubscribePage')
-				},
-				"Publish DeliveryRulesService" : {
-					PublishWebService('DeliveryRulesService')
-				},
-				"Publish RoboatsService" : {
-					PublishWebService('RoboatsService')
-				},
-				"Publish TaxcomEdoApi" : {
-					PublishWebService('TaxcomEdoApi')
-				},
-				"Publish TrueMarkAPI" : {
-					PublishWebService('TrueMarkAPI')
-				},
-				"Publish PayPageAPI" : {
-					PublishWebService('PayPageAPI')
-				},
-				"Publish CashReceiptApi" : {
-					PublishWebService('CashReceiptApi')
-				},
-				"Publish CustomerAppsApi" : {
-					PublishWebService('CustomerAppsApi')
-				},
-				"Publish CashReceiptPrepareWorker" : {
-					PublishWebService('CashReceiptPrepareWorker')
-				},
-				"Publish CashReceiptSendWorker" : {
-					PublishWebService('CashReceiptSendWorker')
-				},
-				"Publish TrueMarkCodePoolCheckWorker" : {
-					PublishWebService('TrueMarkCodePoolCheckWorker')
-				},
-			)
-		}
-		else
-		{
-			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-		}
-	}
-}
-
-def PublishWebService(serviceName) {
-	def BRANCH_NAME = env.BRANCH_NAME.replaceAll('/','') + '\\'
-	def SERVICE_PATH = "E:\\CD\\${serviceName}\\${BRANCH_NAME}"
-	
-	echo "Deploy ${serviceName} to CD folder"
-	DecompressArtifact(SERVICE_PATH, serviceName)
-}
-
-def PublishWCFServices(){
-	script{
-		if(CAN_PUBLISH_WCF_ARTIFACTS)
-		{
-			parallel (
-				"Publish SmsInformerService" : {
-					PublishWCFService('SmsInformerService')
-				},
-				"Publish SmsPaymentService" : {
-					PublishWCFService('SmsPaymentService')
-				},
-			)
-		}
-		else
-		{
-			echo 'Skipped, branch (' + env.BRANCH_NAME + ')'
-		}
-	}
-}
-
-def PublishWCFService(serviceName) {
-	def SERVICE_PATH = "/opt/jenkins/builds/${serviceName}"
-	DecompressArtifact(SERVICE_PATH, serviceName)
-}
-*/
-
-
-def CompressArtifact(sourcePath, artifactName) {
-	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
-
-	if (fileExists(archive_file)) {
-		echo "Delete exiting artifact ${archive_file} from ${sourcePath}/*"
-		fileOperations([fileDeleteOperation(excludes: '', includes: "${archive_file}")])
-	}
-
-	echo "Compressing artifact ${archive_file} from ./${sourcePath}/*"
-	ZipFiles(sourcePath, archive_file)
-}
-
-def DecompressArtifact(destPath, artifactName) {
-	def archive_file = "${artifactName}${ARCHIVE_EXTENTION}"
-
-	echo "Decompressing artifact ${archive_file} to ${destPath}"
-	UnzipFiles(archive_file, destPath)
-}
-
-def PublishBuild(projectPath){
-	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=FolderProfile /maxcpucount:2"
-}
-
-def Build(config){
-	if (isUnix()) {
-		sh "${LINUX_BUILD_TOOL} Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
-	}
-	else {
-		bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2"
-	}
-}
-
-//Utility functions
+// 308	Фукнции. Утилитарные
 
 def LockHotfix(hotfixPath){
 	RunPowerShell("""
@@ -705,12 +622,6 @@ def RunPowerShell(psScript){
         """
 }
 
-/*def GetWorkspacePathForNode (nodeName)  {  
-	node(nodeName){
-		return GetWorkspacePath()
-	}  
-}*/
-
 def GetWorkspacePath()  {
 	if (isUnix()) {
 		return "${JENKINS_HOME_NODE}/workspace/${JOB_FOLDER_NAME}"
@@ -737,4 +648,3 @@ def WinRemoveDirectory(destPath){
 		Remove-Item -LiteralPath "${destPath}" -Force -Recurse
 	""")
 }
-
