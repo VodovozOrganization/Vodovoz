@@ -712,10 +712,10 @@ def RunPowerShell(psScript){
 
 def GetWorkspacePath()  {
 	if (isUnix()) {
-		return "${JENKINS_HOME_WIN}/workspace/${JOB_FOLDER_NAME}"
+		return "${JENKINS_HOME}/workspace/${JOB_FOLDER_NAME}"
 	}
 	else {
-		return "${JENKINS_HOME}/workspace/${JOB_FOLDER_NAME}"
+		return "${JENKINS_HOME_WIN}/workspace/${JOB_FOLDER_NAME}"
 	}
 }
 
