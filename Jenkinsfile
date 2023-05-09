@@ -671,7 +671,7 @@ def LockHotfix(hotfixPath){
 	""")
 }
 
-def UnlockHotfix(hotfixName){
+def UnlockHotfix(hotfixPath){
 	RunPowerShell("""
 		Start-Process -FilePath "${RELEASE_LOCKER_PATH}" -ArgumentList '"${UPDATE_LOCK_FILE}" "unlock" "${hotfixPath}/Vodovoz.exe"'
 	""")
