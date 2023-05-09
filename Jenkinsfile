@@ -667,13 +667,13 @@ def Build(config){
 
 def LockHotfix(hotfixPath){
 	RunPowerShell("""
-		"${RELEASE_LOCKER_PATH}" "${UPDATE_LOCK_FILE}" lock "${hotfixPath}/Vodovoz.exe"
+		Start-Process -FilePath "${RELEASE_LOCKER_PATH}" -ArgumentList '"${UPDATE_LOCK_FILE}" "lock" "${hotfixPath}/Vodovoz.exe"'
 	""")
 }
 
 def UnlockHotfix(hotfixName){
 	RunPowerShell("""
-		"${RELEASE_LOCKER_PATH}" "${UPDATE_LOCK_FILE}" unlock "${hotfixPath}/Vodovoz.exe"
+		Start-Process -FilePath "${RELEASE_LOCKER_PATH}" -ArgumentList '"${UPDATE_LOCK_FILE}" "unlock" "${hotfixPath}/Vodovoz.exe"'
 	""")
 }
 
