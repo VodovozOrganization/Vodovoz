@@ -29,8 +29,8 @@ JOB_FOLDER_NAME = GetJobFolderName()
 //LINUX_WORKSPACE_PATH = GetWorkspacePathForNode(NODE_LINUX_RUNTIME)
 IS_PULL_REQUEST = env.CHANGE_ID != null
 //IS_HOTFIX = env.BRANCH_NAME == 'master'
-IS_HOTFIX = true
-IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/ 
+IS_HOTFIX = false
+IS_RELEASE = true
 IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
 //Build
