@@ -47,7 +47,7 @@ namespace Vodovoz.JournalViewModels
 			CreateDefaultAddActions();
 			CreateCustomEditAction();
 			CreateDefaultDeleteAction();
-			CreateOpneCloseSupplyAction();
+			CreateOpenCloseSupplyAction();
 		}
 
 		private void CreateCustomEditAction()
@@ -114,9 +114,9 @@ namespace Vodovoz.JournalViewModels
 			NodeActionsList.Add(selectAction);
 		}
 
-		private void CreateOpneCloseSupplyAction()
+		private void CreateOpenCloseSupplyAction()
 		{
-			var openCloseAction = new JournalAction("Закрыть/открыть поставки",
+			var openCloseSupplyAction = new JournalAction("Закрыть/открыть поставки",
 				//sensetive
 				(selected) => {
 					var selectedNodes = selected.OfType<CounterpartyJournalNode>();
@@ -130,7 +130,7 @@ namespace Vodovoz.JournalViewModels
 						return false;
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
-					return config.PermissionResult.CanRead;
+					return config.PermissionResult.CanUpdate && commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
 				},
 				//visible
 				(selected) => selected.All(x => (x as CounterpartyJournalNode).Sensitive),
@@ -160,11 +160,7 @@ namespace Vodovoz.JournalViewModels
 					}
 				}
 			);
-			//if(SelectionMode == JournalSelectionMode.None)
-			//{
-			//	RowActivatedAction = openCloseAction;
-			//}
-			NodeActionsList.Add(openCloseAction);
+			NodeActionsList.Add(openCloseSupplyAction);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {

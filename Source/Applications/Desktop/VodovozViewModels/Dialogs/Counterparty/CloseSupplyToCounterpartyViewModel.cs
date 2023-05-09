@@ -12,7 +12,16 @@ using Vodovoz.Domain.Employees;
 using QS.Project.Services;
 using System;
 using QS.Commands;
-using QS.Dialog.GtkUI;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using Vodovoz.Domain.Client;
+using System.Linq;
+using System.Collections.Generic;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.ViewModelBased;
+using NHibernate.Transform;
+using Vodovoz.Domain.Retail;
+using Vodovoz;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
@@ -20,73 +29,99 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly IEmployeeService _employeeService;
-		private Employee _currentEmployee;
+		private readonly IUserRepository _userRepository;
 		private readonly int _currentUserId = ServicesConfig.UserService.CurrentUserId;
+
+		private Employee _currentEmployee;
+		private string _closeDeliveryComment = string.Empty;
+		private List<ClientCameFrom> _clientCameFromPlaces;
+		private List<string> _allOrganizationOwnershipTypesAbbreviations;
+		private List<Domain.Organizations.Organization> _allOrganizations;
+		private List<SalesChannelNode> _salesChannels;
+
+		private DelegateCommand _closeDeliveryCommand;
+		private DelegateCommand _saveCloseCommentCommand;
+		private DelegateCommand _editCloseCommentCommand;
 
 		public CloseSupplyToCounterpartyViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			IEmployeeService employeeService) : base(uowBuilder, uowFactory, commonServices, navigationManager)
+			IEmployeeService employeeService,
+			IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
-			if(uowBuilder is null)
-			{
-				throw new ArgumentNullException(nameof(uowBuilder));
-			}
-
-			if(uowFactory is null)
-			{
-				throw new ArgumentNullException(nameof(uowFactory));
-			}
-
-			if(navigationManager is null)
-			{
-				throw new ArgumentNullException(nameof(navigationManager));
-			}
-
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			CloseDeliveryComment = Entity.CloseDeliveryComment ?? string.Empty;
+
+			Title = $"Открытие/закрытие поставок {Entity.Name}";
 		}
 
 		#region Свойства
-		private string _closeDeliveryComment = string.Empty;
 
 		public string CloseDeliveryComment
 		{
-			get
-			{
-				if (Entity.IsDeliveriesClosed)
-				{
-					return _closeDeliveryComment;
-				}
-				return string.Empty;
-			}
-			set
-			{
-				SetField(ref _closeDeliveryComment, value);
-				Entity.CloseDeliveryComment = _closeDeliveryComment;
-			}
+			get => _closeDeliveryComment;
+			set => SetField(ref _closeDeliveryComment, value);
 		}
-
-		#endregion
 
 		public Employee CurrentEmployee =>
 			_currentEmployee ?? (_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _currentUserId));
 
-		private string _closeDeliveryLabelInfo;
+		public string CloseDeliveryLabelInfo => Entity.IsDeliveriesClosed
+					? $"Поставки закрыл : {Entity.GetCloseDeliveryInfo()} {Environment.NewLine}<b>Комментарий по закрытию поставок:</b>"
+					: "<b>Комментарий по закрытию поставок:</b>";
 
-		public string CloseDeliveryLabelInfo
+		public List<ClientCameFrom> ClientCameFromPlaces => 
+			_clientCameFromPlaces ?? (_clientCameFromPlaces = UoW.GetAll<ClientCameFrom>().ToList());
+
+		public List<string> AllOrganizationOwnershipTypesAbbreviations =>
+				_allOrganizationOwnershipTypesAbbreviations 
+				?? (_allOrganizationOwnershipTypesAbbreviations = UoW.GetAll<OrganizationOwnershipType>().Select(o => o.Abbreviation).ToList());
+
+		public List<Domain.Organizations.Organization> AllOrganizations =>
+				_allOrganizations ?? (_allOrganizations = UoW.GetAll<Domain.Organizations.Organization>().ToList());
+
+		public List<SalesChannelNode> SalesChannels =>
+			_salesChannels ?? (_salesChannels = GetSalesChannels());
+
+		public bool CanManageCachReceipts => _commonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_cash_receipts");
+
+		public bool CanSaveEntity => CanCloseDelivery
+			&& ((!string.IsNullOrEmpty(Entity.CloseDeliveryComment) && Entity.IsDeliveriesClosed)
+				|| (string.IsNullOrEmpty(Entity.CloseDeliveryComment) && !Entity.IsDeliveriesClosed));
+
+		public IUserRepository UserRepository => _userRepository;
+
+		#endregion
+
+		private List<SalesChannelNode> GetSalesChannels()
 		{
-			get => _closeDeliveryLabelInfo;
-			set => SetField(ref _closeDeliveryLabelInfo, value);
-		}
+			var salesChannels = new List<SalesChannelNode>();
+			if(Entity.IsForRetail)
+			{
+				SalesChannel salesChannelAlias = null;
+				SalesChannelNode salesChannelSelectableNodeAlias = null;
 
+				salesChannels = UoW.Session.QueryOver(() => salesChannelAlias)
+					.SelectList(scList => scList
+						.SelectGroup(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
+						.Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
+					).TransformUsing(Transformers.AliasToBean<SalesChannelNode>()).List<SalesChannelNode>().ToList();
+
+				foreach(var selectableChannel in salesChannels.Where(x => Entity.SalesChannels.Any(sc => sc.Id == x.Id)))
+				{
+					selectableChannel.Selected = true;
+				}
+			}
+			return salesChannels;
+		}
 
 		#region Commands
 
 		#region CloseDelveryCommand
-		private DelegateCommand _closeDeliveryCommand;
 		public DelegateCommand CloseDeliveryCommand
 		{
 			get
@@ -100,21 +135,20 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 		}
 
-		public bool CanCloseDelivery => _commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
+		public bool CanCloseDelivery =>
+			PermissionResult.CanUpdate
+			&& _commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
 
 		private void CloseDelivery()
 		{
-			Entity.ToggleDeliveryOption(CurrentEmployee);
-
-			CloseDeliveryLabelInfo =
-				Entity.IsDeliveriesClosed
-				? $"Поставки закрыл : {Entity.GetCloseDeliveryInfo()} {Environment.NewLine}<b>Комментарий по закрытию поставок:</b>"
-				: "<b>Комментарий по закрытию поставок:</b>";
+			if(CanCloseDelivery)
+			{
+				Entity.ToggleDeliveryOption(CurrentEmployee);
+			}
 		}
 		#endregion CloseDelveryCommand
 
 		#region SaveCloseComment
-		private DelegateCommand _saveCloseCommentCommand;
 		public DelegateCommand SaveCloseCommentCommand
 		{
 			get
@@ -128,30 +162,105 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 		}
 
-		public bool CanSaveCloseComment => _commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
+		public bool CanSaveCloseComment => CanCloseDelivery && string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment);
 
 		private void SaveCloseComment()
 		{
-			if(!CanCloseDelivery)
+			if(CanSaveCloseComment)
 			{
-				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
-				return;
+				Entity.AddCloseDeliveryComment(CloseDeliveryComment, CurrentEmployee);
+				CloseDeliveryComment = Entity.CloseDeliveryComment;
 			}
+		}
+		#endregion SaveCloseComment
 
-			if(MessageDialogHelper.RunQuestionDialog("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?"))
+		#region EditCloseComment
+		public DelegateCommand EditCloseCommentCommand
+		{
+			get
 			{
-				ViewModel.Entity.CloseDeliveryComment = ytextviewCloseComment.Buffer.Text = String.Empty;
+				if(_editCloseCommentCommand == null)
+				{
+					_editCloseCommentCommand = new DelegateCommand(EditCloseComment, () => CanEditCloseComment);
+					_editCloseCommentCommand.CanExecuteChangedWith(this, x => x.CanEditCloseComment);
+				}
+				return _editCloseCommentCommand;
 			}
 		}
 
-		#endregion
+		public bool CanEditCloseComment => CanCloseDelivery && !string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment);
+
+		private void EditCloseComment()
+		{
+			if(CanEditCloseComment)
+			{
+				Entity.CloseDeliveryComment = string.Empty;
+				CloseDeliveryComment = string.Empty;
+			}
+
+		}
+		#endregion EditCloseComment
 
 		#endregion Commands
 
+		public override bool Save(bool needClose)
+		{
+			if(!CanSaveEntity)
+			{
+				return false;
+			}
 
-		//IsDeliveriesClosed = false;
-		//	CloseDeliveryDate = null;
-		//	CloseDeliveryPerson = null;
-		//	CloseDeliveryComment = null;
+			if(!needClose)
+			{
+				SaveUoW();
+				return true;
+			}
+
+			if(!HasChanges)
+			{
+				Close(false, CloseSource.Save);
+				return true;
+			}
+
+			SaveUoW();
+			Close(false, CloseSource.Save);
+			return true;
+		}
+
+		private void SaveUoW()
+		{
+			UoW.Save();
+		}
+
+		public override void Dispose()
+		{
+			UoW?.Dispose();
+			base.Dispose();
+		}
+	}
+	
+	public class SalesChannelNode : PropertyChangedBase
+	{
+
+		private int _id;
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
+
+		private bool _selected;
+		public virtual bool Selected
+		{
+			get => _selected;
+			set => SetField(ref _selected, value);
+		}
+
+		private string _name;
+		public virtual string Name
+		{
+			get => _name;
+			set => SetField(ref _name, value);
+		}
 	}
 }

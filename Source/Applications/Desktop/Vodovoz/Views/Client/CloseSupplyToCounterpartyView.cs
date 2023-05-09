@@ -11,6 +11,7 @@ using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
 using QS.Navigation;
+using QS.Dialog.GtkUI.FileDialog;
 
 namespace Vodovoz.Views.Client
 {
@@ -30,17 +31,28 @@ namespace Vodovoz.Views.Client
 				return;
 			}
 
+			yvboxMain.Sensitive = ViewModel.CanCloseDelivery;
+
 			ConfigureCloseSupplyControls();
 			ConfigureNotSensitiveControls();
 
-			buttonSaveCloseComment.Clicked += OnButtonSaveCloseCommentClicked;
-			buttonEditCloseDeliveryComment.Clicked += OnButtonEditCloseDeliveryCommentClicked;
-			//buttonCloseDelivery.Clicked += OnButtonCloseDeliveryClicked;
-			buttonCloseDelivery.Clicked += (s,e) => ViewModel.CloseDeliveryCommand.Execute();
+			buttonSave.Clicked += (sender, args) =>
+			{
+				if(ViewModel.Entity.IsDeliveriesClosed && string.IsNullOrWhiteSpace(ViewModel.Entity.CloseDeliveryComment))
+				{
+					MessageDialogHelper.RunWarningDialog("Необходимо заполнить комментарий по закрытию поставок");
+					return;
+				}
 
-			buttonSave.Clicked += (sender, args) => ViewModel.Save(true);
+				if(!ViewModel.CanCloseDelivery)
+				{
+					MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
+					return;
+				}
+				ViewModel.Save(true); 
+			};
 			buttonSave.Binding
-				.AddFuncBinding(ViewModel, vm => true, w => w.Sensitive)
+				.AddFuncBinding(ViewModel, vm => vm.CanCloseDelivery, w => w.Sensitive)
 				.InitializeFromSource();
 
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
@@ -60,57 +72,56 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, s => s.Visible)
 				.InitializeFromSource();
 
+			ytextviewCloseComment.Binding
+				.AddSource(ViewModel)
+				.AddFuncBinding(vm => string.IsNullOrWhiteSpace(vm.Entity.CloseDeliveryComment), t => t.Sensitive)
+				.AddBinding(vm => vm.CloseDeliveryComment, w => w.Buffer.Text)
+				.InitializeFromSource();
+
 			buttonSaveCloseComment.Binding
 				.AddSource(ViewModel.Entity)
 				.AddFuncBinding(e => string.IsNullOrWhiteSpace(e.CloseDeliveryComment), b => b.Sensitive)
-				.AddBinding(e => e.IsDeliveriesClosed, b => b.Visible)
+				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, b => b.Visible)
 				.InitializeFromSource();
+			buttonSaveCloseComment.Clicked += (s, e) =>
+			{
+				if(string.IsNullOrWhiteSpace(ytextviewCloseComment.Buffer.Text))
+				{
+					return;
+				}
+
+				if(!ViewModel.CanCloseDelivery)
+				{
+					MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
+					return;
+				}
+
+				ViewModel.SaveCloseCommentCommand.Execute();
+			};
 
 			buttonEditCloseDeliveryComment.Binding
 				.AddSource(ViewModel.Entity)
 				.AddFuncBinding(e => !string.IsNullOrWhiteSpace(e.CloseDeliveryComment), b => b.Sensitive)
-				.AddBinding( e => e.IsDeliveriesClosed, b => b.Visible)
+				.AddBinding(e => e.IsDeliveriesClosed, b => b.Visible)
 				.InitializeFromSource();
+			buttonEditCloseDeliveryComment.Clicked += (s, e) =>
+			{
+				if(!ViewModel.CanCloseDelivery)
+				{
+					MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
+					return;
+				}
+
+				if(MessageDialogHelper.RunQuestionDialog("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?"))
+				{
+					ViewModel.EditCloseCommentCommand.Execute();
+				}
+			};
 
 			buttonCloseDelivery.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки", l => l.Label)
 				.InitializeFromSource();
-
-			ytextviewCloseComment.Binding
-				.AddSource(ViewModel.Entity)
-				.AddFuncBinding(e => string.IsNullOrWhiteSpace(e.CloseDeliveryComment), t => t.Sensitive)
-				.AddFuncBinding(e => e.IsDeliveriesClosed ? e.CloseDeliveryComment : string.Empty, w => w.Buffer.Text)
-				.InitializeFromSource();
-		}
-
-		protected void OnButtonSaveCloseCommentClicked(object sender, EventArgs e)
-		{
-			if(string.IsNullOrWhiteSpace(ytextviewCloseComment.Buffer.Text))
-			{
-				return;
-			}
-
-			if(!ViewModel.CanCloseDelivery)
-			{
-				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
-				return;
-			}
-
-			ViewModel.Entity.AddCloseDeliveryComment(ytextviewCloseComment.Buffer.Text, ViewModel.CurrentEmployee);
-		}
-
-		protected void OnButtonEditCloseDeliveryCommentClicked(object sender, EventArgs e)
-		{
-			if(!ViewModel.CanCloseDelivery)
-			{
-				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
-				return;
-			}
-
-			if(MessageDialogHelper.RunQuestionDialog("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?"))
-			{
-				ViewModel.Entity.CloseDeliveryComment = ytextviewCloseComment.Buffer.Text = String.Empty;
-			}
+			buttonCloseDelivery.Clicked += (s, e) => ViewModel.CloseDeliveryCommand.Execute();
 		}
 
 		private void ConfigureNotSensitiveControls()
@@ -132,12 +143,7 @@ namespace Vodovoz.Views.Client
 			hboxCameFrom.Visible = (ViewModel.Entity.Id != 0 && ViewModel.Entity.CameFrom != null) || ViewModel.Entity.Id == 0;
 
 			ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
-
-			ySpecCmbCameFrom.ItemsList = (new CounterpartyRepository()).GetPlacesClientCameFrom(
-				ViewModel.UoW,
-				ViewModel.Entity.CameFrom == null || !ViewModel.Entity.CameFrom.IsArchive
-			);
-
+			ySpecCmbCameFrom.ItemsList = ViewModel.ClientCameFromPlaces;
 			ySpecCmbCameFrom.Binding
 				.AddBinding(ViewModel.Entity, f => f.CameFrom, w => w.SelectedItem)
 				.InitializeFromSource();
@@ -160,8 +166,12 @@ namespace Vodovoz.Views.Client
 				.InitializeFromSource();
 
 			yspinDelayDaysForTechProcessing.Binding
-				.AddBinding(ViewModel.Entity, e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
+				.AddSource(ViewModel.Entity)
+				.AddBinding(e => e.TechnicalProcessingDelay, w => w.ValueAsInt)
+				.AddBinding(e => e.IsForRetail, w => w.Sensitive)
 				.InitializeFromSource();
+
+			lblDelayDaysForTechProcessing.Visible = ViewModel.Entity.IsForRetail;
 
 			entryFIO.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
@@ -193,8 +203,7 @@ namespace Vodovoz.Views.Client
 				entryMainCounterparty.Visible = labelMainCounterparty.Visible =
 				lblPaymentType.Visible = enumPayment.Visible = (ViewModel.Entity.PersonType == PersonType.legal);
 
-			//ySpecCmbOpf.SetRenderTextFunc<OrganizationOwnershipType>(f => f.Abbreviation);
-			ySpecCmbOpf.ItemsList = ViewModel.UoW.GetAll<OrganizationOwnershipType>().Select(o => o.Abbreviation).ToList();
+			ySpecCmbOpf.ItemsList = ViewModel.AllOrganizationOwnershipTypesAbbreviations;
 			ySpecCmbOpf.Binding
 				.AddBinding(ViewModel.Entity, f => f.TypeOfOwnership, w => w.SelectedItem)
 				.InitializeFromSource();
@@ -207,14 +216,10 @@ namespace Vodovoz.Views.Client
 				.AddFuncBinding(s => s.TypeOfOwnership != "ИП", w => w.Sensitive)
 				.InitializeFromSource();
 
-			//entryMainCounterparty
-			//	.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			entryMainCounterparty.Binding
 				.AddBinding(ViewModel.Entity, e => e.MainCounterparty, w => w.Subject)
 				.InitializeFromSource();
 
-			//entryPreviousCounterparty
-			//	.SetEntityAutocompleteSelectorFactory(CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			entryPreviousCounterparty.Binding
 				.AddBinding(ViewModel.Entity, e => e.PreviousCounterparty, w => w.Subject)
 				.InitializeFromSource();
@@ -235,7 +240,7 @@ namespace Vodovoz.Views.Client
 				.AddFuncBinding(ViewModel.Entity, e => e.PersonType == PersonType.legal, w => w.Visible)
 				.InitializeFromSource();
 
-			specialListCmbWorksThroughOrganization.ItemsList = ViewModel.UoW.GetAll<Domain.Organizations.Organization>();
+			specialListCmbWorksThroughOrganization.ItemsList = ViewModel.AllOrganizations;
 			specialListCmbWorksThroughOrganization.Binding
 				.AddBinding(ViewModel.Entity, e => e.WorksThroughOrganization, w => w.SelectedItem)
 				.InitializeFromSource();
@@ -262,13 +267,12 @@ namespace Vodovoz.Views.Client
 				.InitializeFromSource();
 
 			// Прикрепляемые документы
-
-			//var filesViewModel =
-			//	new CounterpartyFilesViewModel(ViewModel.Entity, UoW, new FileDialogService(), ServicesConfig.CommonServices, _userRepository)
-			//	{
-			//		ReadOnly = !CanEdit
-			//	};
-			//counterpartyfilesview1.ViewModel = filesViewModel;
+			var filesViewModel =
+				new CounterpartyFilesViewModel(ViewModel.Entity, ViewModel.UoW, new FileDialogService(), ServicesConfig.CommonServices, ViewModel.UserRepository)
+				{
+					ReadOnly = true
+				};
+			counterpartyfilesview1.ViewModel = filesViewModel;
 
 			chkNeedNewBottles.Binding
 				.AddBinding(ViewModel.Entity, e => e.NewBottlesNeeded, w => w.Active)
@@ -285,9 +289,7 @@ namespace Vodovoz.Views.Client
 			ycheckAlwaysSendReceitps.Binding
 				.AddBinding(ViewModel.Entity, e => e.AlwaysSendReceipts, w => w.Active)
 				.InitializeFromSource();
-			//ycheckAlwaysSendReceitps.Visible =
-			//	ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_cash_receipts");
-			//ycheckAlwaysSendReceitps.Sensitive = CanEdit;
+			ycheckAlwaysSendReceitps.Visible = ViewModel.CanManageCachReceipts;
 
 			ycheckExpirationDateControl.Binding
 				.AddBinding(ViewModel.Entity, e => e.SpecialExpireDatePercentCheck, w => w.Active)
@@ -302,38 +304,20 @@ namespace Vodovoz.Views.Client
 			//Настройка каналов сбыта
 			if(ViewModel.Entity.IsForRetail)
 			{
-				ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
+				ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelNode>()
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.AddColumn("").AddToggleRenderer(x => x.Selected)
 					.Finish();
 
-				SalesChannel salesChannelAlias = null;
-				SalesChannelSelectableNode salesChannelSelectableNodeAlias = null;
-
-				var salesChannels = ViewModel.UoW.Session.QueryOver(() => salesChannelAlias)
-					.SelectList(scList => scList
-						.SelectGroup(() => salesChannelAlias.Id).WithAlias(() => salesChannelSelectableNodeAlias.Id)
-						.Select(() => salesChannelAlias.Name).WithAlias(() => salesChannelSelectableNodeAlias.Name)
-					).TransformUsing(Transformers.AliasToBean<SalesChannelSelectableNode>()).List<SalesChannelSelectableNode>().ToList();
-
-				foreach(var selectableChannel in salesChannels.Where(x => ViewModel.Entity.SalesChannels.Any(sc => sc.Id == x.Id)))
-				{
-					selectableChannel.Selected = true;
-				}
-
-				ytreeviewSalesChannels.ItemsDataSource = salesChannels;
+				ytreeviewSalesChannels.ItemsDataSource = ViewModel.SalesChannels;
 			}
-			else
-			{
-				yspinDelayDaysForTechProcessing.Visible = false;
-				lblDelayDaysForTechProcessing.Visible = false;
-				frame2.Visible = false;
-				frame3.Visible = false;
-				//label46.Visible = false;
-				//label47.Visible = false;
-				//label48.Visible = false;
-				//label49.Visible = false;
-			}
+		}
+
+		public override void Dispose()
+		{
+			ytreeviewSalesChannels?.Destroy();
+			counterpartyfilesview1?.Destroy();
+			base.Dispose();
 		}
 	}
 }
