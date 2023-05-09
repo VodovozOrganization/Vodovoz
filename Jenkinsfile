@@ -81,7 +81,6 @@ IS_RELEASE = true
 IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
 // 103	Настройки. Подготовка репозитория
-REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_NODE}/workspace/Vodovoz_Vodovoz_master"
 
 // 104	Настройки. Восстановление пакетов
 
@@ -332,6 +331,8 @@ stage('Publish'){
 // 301	Фукнции. Подготовка репозитория
 
 def PrepareSources() {
+	def REFERENCE_ABSOLUTE_PATH = "${JENKINS_HOME_NODE}/workspace/Vodovoz_Vodovoz_master"
+
 	checkout changelog: false, poll: false, scm:([
 		$class: 'GitSCM',
 		branches: scm.branches,
