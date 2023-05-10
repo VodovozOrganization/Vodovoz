@@ -273,6 +273,7 @@ namespace Vodovoz.Views.Client
 					ReadOnly = true
 				};
 			counterpartyfilesview1.ViewModel = filesViewModel;
+			frame3.Visible = ViewModel.Entity.IsForRetail;
 
 			chkNeedNewBottles.Binding
 				.AddBinding(ViewModel.Entity, e => e.NewBottlesNeeded, w => w.Active)
@@ -311,6 +312,7 @@ namespace Vodovoz.Views.Client
 
 				ytreeviewSalesChannels.ItemsDataSource = ViewModel.SalesChannels;
 			}
+			frame2.Visible = ViewModel.Entity.IsForRetail;
 		}
 
 		public override void Dispose()
