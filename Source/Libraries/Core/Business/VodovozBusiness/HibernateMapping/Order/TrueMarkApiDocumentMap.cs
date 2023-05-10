@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.HibernateMapping.Logistic
+namespace Vodovoz.HibernateMapping.Order
 {
 	public class TrueMarkApiDocumentMap : ClassMap<TrueMarkApiDocument>
 	{
@@ -14,6 +14,7 @@ namespace Vodovoz.HibernateMapping.Logistic
 			Map(x => x.Guid).Column("guid");
 			Map(x => x.IsSuccess).Column("is_success");
 			Map(x => x.ErrorMessage).Column("error_message");
+			Map(x => x.Type).Column("type");
 
 			References(x => x.Order).Column("order_id");
 		}

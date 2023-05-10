@@ -61,16 +61,8 @@ namespace Vodovoz.EntityRepositories.Cash
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromAvangardId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)
-						//Можно удалить с 29.04.2023 16:10
-						.Add(Restrictions.Conjunction()
-							.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromMobileAppId)
-							.Add(() => _orderAlias.CreateDate > new DateTime(2023, 04, 26, 16, 20, 00))
-							)
-						//Можно удалить с 29.04.2023 16:10
-						.Add(Restrictions.Conjunction()
-							.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSiteId)
-							.Add(() => _orderAlias.CreateDate > new DateTime(2023, 04, 26, 16, 20, 00))
-							)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromMobileAppId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSiteId)
 						)
 					);
 			return restriction;

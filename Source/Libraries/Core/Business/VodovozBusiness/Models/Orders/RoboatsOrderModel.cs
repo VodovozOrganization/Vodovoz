@@ -60,10 +60,17 @@ namespace Vodovoz.Models.Orders
 
 			using(var uow = _unitOfWorkFactory.CreateWithNewRoot<Order>())
 			{
+				var roboatsEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+				if(roboatsEmployee == null)
+				{
+					throw new InvalidOperationException("Специальный сотрудник для работы с Roboats должен быть создан и заполнен в параметрах");
+				}
+
 				var counterparty = uow.GetById<Counterparty>(roboatsOrderArgs.CounterpartyId);
 				var deliveryPoint = uow.GetById<DeliveryPoint>(roboatsOrderArgs.DeliveryPointId);
 
 				Order order = uow.Root;
+				order.Author = roboatsEmployee;
 				order.Client = counterparty;
 				order.DeliveryPoint = deliveryPoint;
 				order.PaymentType = PaymentType.cash;

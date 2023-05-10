@@ -17,7 +17,7 @@ namespace TrueMarkApi.Services.Authorization
 	{
 		private static HttpClient _httpClient;
 		private readonly ILogger<AuthorizationService> _logger;
-		private readonly List<AuthorizationTokenCache> _tokenCacheList = new();
+		private readonly HashSet<AuthorizationTokenCache> _tokenCacheList = new();
 
 		public AuthorizationService(IConfiguration configuration, IHttpClientFactory httpClientFactory, ILogger<AuthorizationService> logger)
 		{
