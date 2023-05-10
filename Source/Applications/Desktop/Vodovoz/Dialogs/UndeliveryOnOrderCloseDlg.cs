@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using Gtk;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.Employees;
@@ -61,6 +63,9 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
+
+			UoW.Session.Refresh(undelivery.OldOrder);
+
 			var saved = Save();
 
 			if(!saved && _addedCommentToOldUndelivery)

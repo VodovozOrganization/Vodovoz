@@ -425,12 +425,17 @@ namespace Vodovoz.Views.Logistic
 
 		void UpdateSelectedInfo(List<GMapMarker> selected)
 		{
-			var orders = selected.Select(x => x.Tag).OfType<Order>();
+			var orderIds = selected.Select(x => x.Tag).OfType<OrderNode>()
+				.Select(o => o.OrderId)
+				.ToList();
+			var orders = ViewModel.UoW.GetAll<Order>().Where(o => orderIds.Contains(o.Id)).ToList();
+
 			if(!orders.Any()) {
 				labelSelected.Markup = "Адресов\nне выбрано";
 				menuAddToRL.Sensitive = false;
 				return;
 			}
+
 			var selectedBottle = orders.Sum(o => o.Total19LBottlesToDeliver);
 			var selectedKilos = orders.Sum(o => o.TotalWeight);
 			var selectedCbm = orders.Sum(o => o.TotalVolume);
@@ -496,24 +501,24 @@ namespace Vodovoz.Views.Logistic
 			}
 
 			var ordersOnDay = ViewModel.OrdersOnDay;
-			var ordersRouteLists = ViewModel.OrderRepository.GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
+			var ordersRouteLists = ViewModel.OrderRepository.GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay.Select(o => o.OrderId));
 			//добавляем маркеры адресов заказов
 			foreach(var order in ordersOnDay) {
 				totalBottlesCountAtDay += order.Total19LBottlesToDeliver;
 
 				IEnumerable<int> orderRls;
-				if(!ordersRouteLists.TryGetValue(order.Id, out orderRls)) {
+				if(!ordersRouteLists.TryGetValue(order.OrderId, out orderRls)) {
 					orderRls = new List<int>();
 				}
 
-				var route = ViewModel.RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
+				var route = ViewModel.RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.OrderId));
 
 				if(!orderRls.Any()) {
 					addressesWithoutRoutes++;
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
-				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
+				if(order.DeliveryPointLatitude.HasValue && order.DeliveryPointLongitude.HasValue)
 				{
 					bool overdueOrder = false;
 
@@ -526,18 +531,17 @@ namespace Vodovoz.Views.Logistic
 							.ToList();
 					}
 
-					if(undeliveryOrderNodes.Any(x => x.NewOrderId == order.Id))
+					if(undeliveryOrderNodes.Any(x => x.NewOrderId == order.OrderId))
 					{
 						overdueOrder = true;
 					}
 
 					FillTypeAndShapeMarker(order, route, orderRls, out PointMarkerShape shape, out PointMarkerType type, overdueOrder);
 
-					if(selectedMarkers.FirstOrDefault(m => (m.Tag as Order)?.Id == order.Id) != null)
+					if(selectedMarkers.FirstOrDefault(m => (m.Tag as OrderNode)?.OrderId == order.OrderId) != null)
 						type = PointMarkerType.white;
 
 					var addressMarker = FillAddressMarker(order, type, shape, addressesOverlay, route);
-
 					addressesOverlay.Markers.Add(addressMarker);
 				}
 				else
@@ -562,7 +566,7 @@ namespace Vodovoz.Views.Logistic
 			var pushApartPrecision = 0.0001d;
 
 			var addressMarkers = addressOverlay.Markers
-				.Where(x => x.Tag is Order)
+				.Where(x => x.Tag is OrderNode)
 				.OrderBy(x => x.Position.Lat)
 				.ThenBy(x => x.Position.Lng)
 				.ToArray();
@@ -616,7 +620,7 @@ namespace Vodovoz.Views.Logistic
 			}
 		}
 
-		private void FillTypeAndShapeMarker(Order order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type, bool overdueOrder = false)
+		private void FillTypeAndShapeMarker(OrderNode order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type, bool overdueOrder = false)
 		{
 			shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver, overdueOrder);
 			type = PointMarkerType.black;
@@ -644,6 +648,53 @@ namespace Vodovoz.Views.Logistic
 				type = ViewModel.GetAddressMarker(ViewModel.RoutesOnDay.IndexOf(route));
 		}
 
+		private void FillTypeAndShapeLogisticsRequrementsMarker(OrderNode order, out PointMarkerShape shape, out PointMarkerType type)
+		{
+			shape = PointMarkerShape.none;
+			type = PointMarkerType.none;
+
+			if(order.LogisticsRequirements == null || order.LogisticsRequirements.SelectedRequirementsCount == 0)
+			{
+				return;
+			}
+
+			shape = PointMarkerShape.custom;
+
+			var selectedRequrementsCount = order.LogisticsRequirements.SelectedRequirementsCount;
+
+			if(selectedRequrementsCount > 1)
+			{
+				type = PointMarkerType.logistics_requirements_many;
+				return;
+			}
+
+			if(order.LogisticsRequirements.ForwarderRequired)
+			{
+				type = PointMarkerType.logistics_requirements_forwarder;
+				return;
+			}
+			if(order.LogisticsRequirements.DocumentsRequired)
+			{
+				type = PointMarkerType.logistics_requirements_documents;
+				return;
+			}
+			if(order.LogisticsRequirements.RussianDriverRequired)
+			{
+				type = PointMarkerType.logistics_requirements_nationality;
+				return;
+			}
+			if(order.LogisticsRequirements.PassRequired)
+			{
+				type = PointMarkerType.logistics_requirements_pass;
+				return;
+			}
+			if(order.LogisticsRequirements.LargusRequired)
+			{
+				type = PointMarkerType.logistics_requirements_largus;
+				return;
+			}
+		}
+
 		private PointMarker FillBaseMarker(GeoGroup geoGroup)
 		{
 			var geoGroupVersion = geoGroup.GetActualVersionOrNull();
@@ -665,9 +716,9 @@ namespace Vodovoz.Views.Logistic
 			return addressMarker;
 		}
 
-		private PointMarker FillAddressMarker(Order order, PointMarkerType type, PointMarkerShape shape, GMapOverlay overlay, RouteList route)
+		private PointMarker FillAddressMarker(OrderNode order, PointMarkerType type, PointMarkerShape shape, GMapOverlay overlay, RouteList route)
 		{
-			string ttText = order.DeliveryPoint.ShortAddress;
+			string ttText = order.DeliveryPointShortAddress;
 			if(order.Total19LBottlesToDeliver > 0)
 				ttText += string.Format("\nБутылей 19л: {0}", order.Total19LBottlesToDeliver);
 			if(order.Total6LBottlesToDeliver > 0)
@@ -679,12 +730,17 @@ namespace Vodovoz.Views.Logistic
 
 			ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 				order.DeliverySchedule?.Name ?? "Не назначено",
-				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.DistrictBorder.Contains(order.DeliveryPoint.NetTopologyPoint))?.DistrictName);
+				ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.DistrictBorder.Contains(order.DeliveryPointNetTopologyPoint))?.DistrictName);
 
-			var orderLat = (double)order.DeliveryPoint.Latitude;
-			var orderLong = (double)order.DeliveryPoint.Longitude;
+			var comment = GetMarkerCommentValue(order);
+			ttText += string.Format($"\nКомментарий: {comment}");
 
-			var addressMarker = new PointMarker(new PointLatLng(orderLat, orderLong), type, shape)
+			var orderLat = (double)order.DeliveryPointLatitude;
+			var orderLong = (double)order.DeliveryPointLongitude;
+
+			FillTypeAndShapeLogisticsRequrementsMarker(order, out PointMarkerShape logisticsRequirementsShape, out PointMarkerType logisticsRequirementsType);
+
+			var addressMarker = new PointMarker(new PointLatLng(orderLat, orderLong), type, shape, logisticsRequirementsType, logisticsRequirementsShape)
 			{
 				Tag = order,
 				ToolTipText = ttText
@@ -694,6 +750,35 @@ namespace Vodovoz.Views.Logistic
 				addressMarker.ToolTipText += string.Format(" Везёт: {0}", route.Driver.ShortName);
 
 			return addressMarker;
+		}
+
+		private string GetMarkerCommentValue(OrderNode order)
+		{
+			if(order.OrderComment?.Length > 0)
+			{
+				return order.OrderComment;
+			}
+			if(order.DeliveryPointComment?.Length > 0)
+			{
+				return order.DeliveryPointComment;
+			}
+			if(order.CommentManager?.Length > 0)
+			{
+				return order.CommentManager;
+			}
+			if(order.ODZComment?.Length > 0)
+			{
+				return order.ODZComment;
+			}
+			if(order.OPComment?.Length > 0)
+			{
+				return order.OPComment;
+			}
+			if(order.DriverMobileAppComment?.Length > 0)
+			{
+				return order.DriverMobileAppComment;
+			}
+			return "-";
 		}
 
 		private void Refresh()
@@ -790,23 +875,30 @@ namespace Vodovoz.Views.Logistic
 			routeOverlay.Clear();
 		}
 
-		private IList<Order> GetSelectedOrders()
+		private IList<OrderNode> GetSelectedOrders()
 		{
-			List<Order> orders = new List<Order>();
+			var orders = new List<OrderNode>();
 			//Добавление заказов из кликов по маркеру
-			orders.AddRange(selectedMarkers.Select(m => m.Tag).OfType<Order>().ToList());
+			var selectedOrderMarkers = selectedMarkers
+				.Select(m => m.Tag).OfType<OrderNode>()
+				.ToList();
+			orders.AddRange(selectedOrderMarkers);
 			//Добавление заказов из квадратного выделения
-			orders.AddRange(addressesOverlay.Markers
+			var squareSelectionOrdersIds = addressesOverlay.Markers
 				.Where(m => gmapWidget.SelectedArea.Contains(m.Position))
-				.Select(x => x.Tag).OfType<Order>().ToList());
+				.Select(x => x.Tag).OfType<OrderNode>()
+				.ToList();
+			orders.AddRange(squareSelectionOrdersIds);
 			//Добавление закзаов через непрямоугольную область
 			GMapOverlay overlay = gmapWidget.Overlays.FirstOrDefault(o => o.Id.Contains(selectionOverlay.Id));
 			GMapPolygon polygons = overlay?.Polygons.FirstOrDefault(p => p.Name.ToLower().Contains("выделение"));
-			if(polygons != null) {
-				var temp = addressesOverlay.Markers
+			if(polygons != null) 
+			{
+				var rectangleSelectionOrdersIds = addressesOverlay.Markers
 					.Where(m => polygons.IsInside(m.Position))
-					.Select(x => x.Tag).OfType<Order>().ToList();
-				orders.AddRange(temp);
+					.Select(x => x.Tag).OfType<OrderNode>()
+					.ToList();
+				orders.AddRange(rectangleSelectionOrdersIds);
 			}
 
 			return orders;
@@ -898,11 +990,40 @@ namespace Vodovoz.Views.Logistic
 			var driverAddresses = ViewModel.RoutesOnDay
 				.Where(r => r.Driver.Id == driver.Id)
 				.SelectMany(x => x.Addresses)
+				.Select(a => new { 
+							Order = new OrderNode
+							{
+								OrderId = a.Order.Id,
+								OrderStatus = a.Order.OrderStatus,
+								DeliveryPointLatitude = a.Order.DeliveryPoint.Latitude,
+								DeliveryPointLongitude = a.Order.DeliveryPoint.Longitude,
+								DeliveryPointShortAddress = a.Order.DeliveryPoint.ShortAddress,
+								DeliveryPointCompiledAddress = a.Order.DeliveryPoint.CompiledAddress,
+								DeliveryPointNetTopologyPoint = a.Order.DeliveryPoint.NetTopologyPoint,
+								DeliveryPointDistrictId = a.Order.DeliveryPoint.District.Id,
+								LogisticsRequirements = a.Order.LogisticsRequirements,
+								OrderAddressType = a.Order.OrderAddressType,
+								DeliverySchedule = a.Order.DeliverySchedule,
+								Total19LBottlesToDeliver = a.Order.Total19LBottlesToDeliver,
+								Total6LBottlesToDeliver = a.Order.Total6LBottlesToDeliver,
+								Total600mlBottlesToDeliver = a.Order.Total600mlBottlesToDeliver,
+								BottlesReturn = a.Order.BottlesReturn,
+								OrderComment = a.Order.Comment,
+								DeliveryPointComment = a.Order.DeliveryPoint.Comment,
+								CommentManager = a.Order.CommentManager,
+								ODZComment = a.Order.ODZComment,
+								OPComment = a.Order.OPComment,
+								DriverMobileAppComment = a.Order.DriverMobileAppComment
+							},
+							RouteList = a.RouteList,
+							Total19LBottlesToDeliver = a.Order.Total19LBottlesToDeliver
+					})
 				.ToList();
 			
 			// добавляем маркеры заказов из маршрутников водителя
 			if(driverAddresses.Any()) {
-				foreach(var address in driverAddresses) {
+				foreach(var address in driverAddresses) 
+				{
 					var addressMarker = FillAddressMarker(address.Order,
 						ViewModel.GetAddressMarker(ViewModel.RoutesOnDay.IndexOf(address.RouteList)),
 						ViewModel.GetMarkerShapeFromBottleQuantity(address.Order.Total19LBottlesToDeliver),
@@ -915,7 +1036,7 @@ namespace Vodovoz.Views.Logistic
 			
 			var driverDistricts = driver.DriverDistrictPrioritySets
 				.SingleOrDefault(x => x.IsActive)
-				?.DriverDistrictPriorities.Select(x => x.District)
+				?.DriverDistrictPriorities.Select(x => x.District.Id)
 				.ToList();
 
 			if(driverDistricts == null || !driverDistricts.Any()) {
@@ -924,18 +1045,18 @@ namespace Vodovoz.Views.Logistic
 
 			var ordersOnDay = ViewModel.OrdersOnDay.Select(x => x)
 				.Where(x => x.OrderAddressType != OrderAddressType.Service).ToList();
-			var ordersRouteLists = ViewModel.OrderRepository.GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
+			var ordersRouteLists = ViewModel.OrderRepository.GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay.Select(o => o.OrderId));
 
 			//добавляем маркеры нераспределенных заказов из районов водителя
 			foreach(var order in ordersOnDay) {
-				var route = ViewModel.RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
+				var route = ViewModel.RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.OrderId));
 			
-				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
-					if(!ordersRouteLists.TryGetValue(order.Id, out var orderRls)) {
+				if(order.DeliveryPointLatitude.HasValue && order.DeliveryPointLongitude.HasValue) {
+					if(!ordersRouteLists.TryGetValue(order.OrderId, out var orderRls)) {
 						orderRls = new List<int>();
 					}
 			
-					if(driverDistricts.Contains(order.DeliveryPoint.District) && route == null) {
+					if(driverDistricts.Contains(order.DeliveryPointDistrictId) && route == null) {
 						FillTypeAndShapeMarker(order, null, orderRls, out PointMarkerShape shape, out PointMarkerType type);
 						var addressMarker = FillAddressMarker(order, type, shape, driverAddressesOverlay, null);
 						driverAddressesOverlay.Markers.Add(addressMarker);
@@ -1041,6 +1162,17 @@ namespace Vodovoz.Views.Logistic
 		public override void Destroy()
 		{
 			ViewModel.Dispose();
+			gmapWidget.Destroy();
+			ytreeRoutes.Destroy();
+			ytreeviewOnDayDrivers.Destroy();
+			ytreeviewOnDayForwarders.Destroy();
+			ytreeviewShift.Destroy();
+			ytreeviewGeographicGroup.Destroy();
+			ytreeviewAddressesTypes.Destroy();
+			viewDeliverySummary.Destroy();
+			yenumcomboMapType.Destroy();
+			enumCmbDeliveryType.Destroy();
+
 			base.Destroy();
 		}
 	}

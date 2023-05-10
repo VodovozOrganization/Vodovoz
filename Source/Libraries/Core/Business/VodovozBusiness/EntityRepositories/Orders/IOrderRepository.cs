@@ -33,6 +33,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<RouteList> GetAllRLForOrder(IUnitOfWork UoW, Order order);
 
 		Dictionary<int, IEnumerable<int>> GetAllRouteListsForOrders(IUnitOfWork UoW, IEnumerable<Order> orders);
+		Dictionary<int, IEnumerable<int>> GetAllRouteListsForOrders(IUnitOfWork UoW, IEnumerable<int> orders);
 
 		IList<Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty);
 
@@ -148,6 +149,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Order> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		IList<Order> GetOrdersWithSendErrorsForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		decimal GetIsAccountableInTrueMarkOrderItemsCount(IUnitOfWork uow, int orderId);
+		IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId);
 	}
 
 	public class ClientEquipmentNode

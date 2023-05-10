@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TrueMarkApi.Library.Dto;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -375,6 +376,26 @@ namespace Vodovoz.EntityRepositories.Orders
 							.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 							.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 							.Where(Restrictions.In(Projections.Property(() => routeListItemAlias.Order.Id), orders.Select(x => x.Id).ToArray()))
+							.SelectList(list => list
+								.Select(() => orderAlias.Id)
+								.Select(() => routeListAlias.Id)
+							)
+							.TransformUsing(Transformers.PassThrough)
+							.List<object[]>()
+							.GroupBy(x => (int)x[0]).ToDictionary(x => x.Key, x => x.Select(y => (int)y[1]));
+			return rls;
+		}
+
+		public Dictionary<int, IEnumerable<int>> GetAllRouteListsForOrders(IUnitOfWork UoW, IEnumerable<int> orders)
+		{
+			VodovozOrder orderAlias = null;
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+
+			var rls = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
+							.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+							.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+							.Where(Restrictions.In(Projections.Property(() => routeListItemAlias.Order.Id), orders.ToArray()))
 							.SelectList(list => list
 								.Select(() => orderAlias.Id)
 								.Select(() => routeListAlias.Id)
@@ -956,6 +977,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var result = query.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(() => trueMarkApiDocument.IsSuccess == false)
+				.And(() => trueMarkApiDocument.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.Withdrawal)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
 				.And(Restrictions.Disjunction()
@@ -991,6 +1013,69 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
 				.Select(Projections.Sum(() => orderItemAlias.Count))
 				.SingleOrDefault<decimal>();
+		}
+
+		public IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId)
+		{
+			Counterparty counterpartyAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			TrueMarkApiDocument trueMarkApiDocumentAlias = null;
+
+			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+
+			var hasGtinNomenclaturesSubQuery = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
+				.And(() => nomenclatureAlias.Gtin != null)
+				.Select(Projections.Id());
+
+			var hasCancellationSubquery = QueryOver.Of(() => trueMarkApiDocumentAlias)
+				.Where(() => trueMarkApiDocumentAlias.Order.Id == orderAlias.Id)
+				.Where(() => trueMarkApiDocumentAlias.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
+				.Select(Projections.Id());
+
+			var correctSubquery = QueryOver.Of(() => orderAlias)
+				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
+				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
+				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
+				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
+				.Where(Restrictions.Disjunction()
+					.Add(Restrictions.Conjunction()
+						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
+						.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+						.Add(Restrictions.Disjunction()
+							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
+									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)
+							)
+						)
+					.Add(Restrictions.Conjunction()
+						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
+					)
+				)
+				.Where(() => orderAlias.PaymentType != PaymentType.ContractDoc)
+				.Where(() => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id)
+				.Where(() => orderAlias.DeliveryDate > startDate)
+				.Select(o => o.Id);
+
+			var result = uow.Session.QueryOver(() => trueMarkApiDocumentAlias)
+				.JoinAlias(() => trueMarkApiDocumentAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
+				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
+				.Where(() => orderAlias.DeliveryDate > startDate)
+				.WithSubquery.WhereNotExists(correctSubquery)
+				.WithSubquery.WhereNotExists(hasCancellationSubquery)
+				.TransformUsing(Transformers.RootEntity)
+				.List();
+
+			return result;
 		}
 	}
 
