@@ -386,6 +386,26 @@ namespace Vodovoz.EntityRepositories.Orders
 			return rls;
 		}
 
+		public Dictionary<int, IEnumerable<int>> GetAllRouteListsForOrders(IUnitOfWork UoW, IEnumerable<int> orders)
+		{
+			VodovozOrder orderAlias = null;
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+
+			var rls = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
+							.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+							.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+							.Where(Restrictions.In(Projections.Property(() => routeListItemAlias.Order.Id), orders.ToArray()))
+							.SelectList(list => list
+								.Select(() => orderAlias.Id)
+								.Select(() => routeListAlias.Id)
+							)
+							.TransformUsing(Transformers.PassThrough)
+							.List<object[]>()
+							.GroupBy(x => (int)x[0]).ToDictionary(x => x.Key, x => x.Select(y => (int)y[1]));
+			return rls;
+		}
+
 		public VodovozOrder GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
 		{
 			var notSupportedStatuses = new OrderStatus[] {
