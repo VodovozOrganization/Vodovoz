@@ -903,6 +903,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			CreateDefaultDeleteAction();
 			CreateExportAction();
 			OpenWithDepartmentsReacrionViewAction();
+			CreateComplaintClassificationSummaryAction();
 		}
 
 		public Action<Type> ChangeView { get; set; }
@@ -927,6 +928,17 @@ namespace Vodovoz.Journals.JournalViewModels
 					var nodes = GetComplaintQuery(UoW).List<ComplaintJournalNode>();
 
 					var report = new ComplaintJournalReport(nodes, _fileDialogService);
+					report.Export();
+				}));
+		}
+
+		private void CreateComplaintClassificationSummaryAction()
+		{
+			NodeActionsList.Add(new JournalAction("Сводка по классификации рекламаций", x => true, x => true,
+				selectedItems =>
+				{
+					var nodes = GetComplaintQuery(UoW).List<ComplaintJournalNode>();
+					var report = new ComplaintClassificationSummaryReport(nodes, FilterViewModel, _fileDialogService);
 					report.Export();
 				}));
 		}

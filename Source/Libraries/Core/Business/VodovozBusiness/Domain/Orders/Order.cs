@@ -845,7 +845,15 @@ namespace Vodovoz.Domain.Orders
 			get => _isCopiedFromUndelivery;
 			set => SetField(ref _isCopiedFromUndelivery, value);
 		}
-		
+
+		private LogisticsRequirements _logisticsRequirements;
+		[Display(Name = "Требования к логистике")]
+		public virtual LogisticsRequirements LogisticsRequirements
+		{
+			get => _logisticsRequirements;
+			set => SetField(ref _logisticsRequirements, value);
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()
