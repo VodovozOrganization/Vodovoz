@@ -1,10 +1,9 @@
-﻿using System.ComponentModel.Design;
-
-namespace VodovozInfrastructure.Extensions
+﻿namespace VodovozInfrastructure.Extensions
 {
 	public static class BooleanExtensions
 	{
 		public static string ConvertToYesOrNo(this bool value) => value ? "Да" : "Нет";
+		public static string ConvertToYesOrEmpty(this bool value) => value ? "Да" : string.Empty;
 		
 		public static string ConvertToNotSetOrYesOrNo(this bool? value)
 		{

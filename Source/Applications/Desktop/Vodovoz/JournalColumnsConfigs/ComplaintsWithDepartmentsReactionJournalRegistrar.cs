@@ -1,7 +1,7 @@
 ﻿using Gamma.ColumnConfig;
-using Gdk;
 using Gtk;
 using System;
+using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using WrapMode = Pango.WrapMode;
@@ -10,9 +10,6 @@ namespace Vodovoz.JournalColumnsConfigs
 {
 	internal sealed class ComplaintsWithDepartmentsReactionJournalRegistrar : ColumnsConfigRegistrarBase<ComplaintsWithDepartmentsReactionJournalViewModel, ComplaintWithDepartmentsReactionJournalNode>
 	{
-		private static readonly Color _colorWhite = new Color(0xff, 0xff, 0xff);
-		private static readonly Color _colorPink = new Color(0xff, 0xc0, 0xc0);
-
 		public override IColumnsConfig Configure(FluentColumnsConfig<ComplaintWithDepartmentsReactionJournalNode> config) =>
 			config.AddColumn("№ п/п").HeaderAlignment(0.5f)
 				.AddTextRenderer(node => node.SequenceNumber.ToString())
@@ -100,10 +97,10 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddSetter<CellRenderer>(
 					(cell, node) =>
 					{
-						var color = _colorWhite;
+						var color = GdkColors.WhiteColor;
 						if(node.Status != Domain.Complaints.ComplaintStatuses.Closed && node.LastPlannedCompletionDate.Date < DateTime.Today)
 						{
-							color = _colorPink;
+							color = GdkColors.PinkColor;
 						}
 						cell.CellBackgroundGdk = color;
 					})

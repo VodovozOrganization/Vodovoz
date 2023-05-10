@@ -27,59 +27,70 @@ namespace Vodovoz.Domain.Documents
 	public class CarUnloadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private const int _commentLimit = 255;
-		
+		private string _comment;
+		private RouteList _routeList;
+		private Warehouse _warehouse;
+		private IList<CarUnloadDocumentItem> _items = new List<CarUnloadDocumentItem>();
+		private GenericObservableList<CarUnloadDocumentItem> _observableItems;
+
+
 		#region Сохраняемые свойства
 
-		public override DateTime TimeStamp {
+		public override DateTime TimeStamp
+		{
 			get => base.TimeStamp;
-			set {
+			set
+			{
 				base.TimeStamp = value;
 				if(!NHibernateUtil.IsInitialized(Items))
+				{
 					return;
+				}
+
 				UpdateOperationsTime();
 			}
 		}
 
-		private RouteList routeList;
-		public virtual RouteList RouteList {
-			get => routeList;
-			set => SetField(ref routeList, value, () => RouteList);
+		public virtual RouteList RouteList
+		{
+			get => _routeList;
+			set => SetField(ref _routeList, value);
 		}
 
-		private Warehouse warehouse;
-		public virtual Warehouse Warehouse {
-			get => warehouse;
-			set {
-				if(SetField(ref warehouse, value, () => Warehouse))
+		public virtual Warehouse Warehouse
+		{
+			get => _warehouse;
+			set
+			{
+				if(SetField(ref _warehouse, value, () => Warehouse))
+				{
 					UpdateWarehouse();
+				}
 			}
 		}
 
-		private IList<CarUnloadDocumentItem> items = new List<CarUnloadDocumentItem>();
 		[Display(Name = "Строки")]
-		public virtual IList<CarUnloadDocumentItem> Items {
-			get => items;
-			set {
-				if(SetField(ref items, value, () => Items))
-					observableItems = null;
+		public virtual IList<CarUnloadDocumentItem> Items
+		{
+			get => _items;
+			set
+			{
+				if(SetField(ref _items, value))
+				{
+					_observableItems = null;
+				}
 			}
 		}
 
-		private GenericObservableList<CarUnloadDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<CarUnloadDocumentItem> ObservableItems {
-			get {
-				if(observableItems == null)
-					observableItems = new GenericObservableList<CarUnloadDocumentItem>(Items);
-				return observableItems;
-			}
-		}
+		public virtual GenericObservableList<CarUnloadDocumentItem> ObservableItems =>
+			_observableItems ?? (_observableItems = new GenericObservableList<CarUnloadDocumentItem>(Items));
 
-		private string comment;
 		[Display(Name = "Комментарий")]
-		public virtual string Comment {
-			get => comment;
-			set => SetField(ref comment, value, () => Comment);
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
 
 		#endregion
@@ -113,7 +124,9 @@ namespace Vodovoz.Domain.Documents
 		public virtual void InitializeDefaultValues(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository)
 		{
 			if(nomenclatureRepository == null)
+			{
 				throw new ArgumentNullException(nameof(nomenclatureRepository));
+			}
 
 			DefBottleId = nomenclatureRepository.GetDefaultBottleNomenclature(uow).Id;
 		}
@@ -135,10 +148,11 @@ namespace Vodovoz.Domain.Documents
 			DefectSource source = DefectSource.None, 
 			CullingCategory typeOfDefect = null)
 		{
-			var warehouseMovementOperation = new GoodsAccountingOperation {
+			var warehouseMovementOperation = new WarehouseBulkGoodsAccountingOperation
+			{
 				Amount = amount,
 				Nomenclature = nomenclature,
-				//IncomingWarehouse = Warehouse,
+				Warehouse = Warehouse,
 				//Equipment = equipment,
 				OperationTime = TimeStamp
 			};
@@ -168,12 +182,16 @@ namespace Vodovoz.Domain.Documents
 		public virtual void UpdateWarehouse()
 		{
 			if(Warehouse == null)
+			{
 				return;
-			
-			foreach(var item in Items) {
-				/*if(item.GoodsAccountingOperation != null) {
-					item.GoodsAccountingOperation.IncomingWarehouse = Warehouse;
-				}*/
+			}
+
+			foreach(var item in Items)
+			{
+				if(item.GoodsAccountingOperation != null)
+				{
+					item.GoodsAccountingOperation.Warehouse = Warehouse;
+				}
 			}
 		}
 

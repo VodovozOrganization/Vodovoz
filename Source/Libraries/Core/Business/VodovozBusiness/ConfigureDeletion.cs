@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Web.UI.WebControls;
 using QS.Banks;
@@ -823,12 +823,12 @@ namespace Vodovoz
 				.AddDeleteDependence<IncomingInvoice>(item => item.Warehouse)
 				.AddDeleteDependence<CarLoadDocument>(x => x.Warehouse)
 				.AddDeleteDependence<CarUnloadDocument>(x => x.Warehouse)
-				.AddDeleteDependence<IncomingWater>(x => x.ToWarehouse)
-				.AddDeleteDependence<IncomingWater>(x => x.FromWarehouse)
+				.AddDeleteDependence<IncomingWater>(x => x.IncomingWarehouse)
+				.AddDeleteDependence<IncomingWater>(x => x.WriteOffWarehouse)
 				.AddDeleteDependence<MovementDocument>(x => x.FromWarehouse)
 				.AddDeleteDependence<MovementDocument>(x => x.ToWarehouse)
-				//.AddDeleteDependence<GoodsAccountingOperation>(x => x.IncomingWarehouse)
-				//.AddDeleteDependence<GoodsAccountingOperation>(x => x.WriteoffWarehouse)
+				.AddDeleteDependence<WarehouseBulkGoodsAccountingOperation>(x => x.Warehouse)
+				.AddDeleteDependence<WarehouseInstanceGoodsAccountingOperation>(x => x.Warehouse)
 				.AddDeleteDependence<WriteOffDocument>(x => x.WriteOffFromWarehouse)
 				.AddDeleteDependence<InventoryDocument>(x => x.Warehouse)
 				.AddDeleteDependence<ShiftChangeWarehouseDocument>(x => x.Warehouse)
@@ -874,7 +874,7 @@ namespace Vodovoz
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarLoadDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
+				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation)
 				.AddDeleteCascadeDependence(x => x.DeliveryFreeBalanceOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CarUnloadDocument>()

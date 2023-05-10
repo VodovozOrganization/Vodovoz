@@ -134,6 +134,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
@@ -2273,16 +2274,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCarsExploitationReportActivated(object sender, EventArgs e)
 	{
-		var carJournalFactory = new CarJournalFactory(NavigationManager);
-
-		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = new CastomInteractiveService();
-
-		var viewModel = new CarsExploitationReportViewModel(
-			uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(new ParametersProvider()),
-			carJournalFactory);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<CarsExploitationReportViewModel>(null);
 	}
 
 	protected void OnActionRecalculateDriverWagesActivated(object sender, EventArgs e)

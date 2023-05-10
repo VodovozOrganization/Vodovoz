@@ -4,6 +4,7 @@ using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 {

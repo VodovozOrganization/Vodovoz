@@ -2,6 +2,8 @@
 using Gdk;
 using Gtk;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
@@ -28,7 +30,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
-					Color color = new Color(255, 255, 255);
+					var color = GdkColors.WhiteColor;
 					if(node.DocumentTypeEnum == DocumentType.MovementDocument)
 					{
 						switch(node.MovementDocumentStatus)

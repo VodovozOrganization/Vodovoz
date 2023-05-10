@@ -145,9 +145,6 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		public ITdiTab OpenIncomingWaterDlg(int incomingWaterId, ITdiTab master = null) =>
 			OpenDialogTabFor<IncomingWaterDlg, IncomingWater>(incomingWaterId, master);
 
-		public ITdiTab OpenWriteoffDocumentDlg(int writeoffDocumentId, ITdiTab master = null) =>
-			OpenDialogTabFor<WriteoffDocumentDlg, WriteoffDocument>(writeoffDocumentId, master);
-
 		public ITdiTab OpenSelfDeliveryDocumentDlg(int selfDeliveryDocumentId, ITdiTab master = null) =>
 			OpenDialogTabFor<SelfDeliveryDocumentDlg, SelfDeliveryDocument>(selfDeliveryDocumentId, master);
 

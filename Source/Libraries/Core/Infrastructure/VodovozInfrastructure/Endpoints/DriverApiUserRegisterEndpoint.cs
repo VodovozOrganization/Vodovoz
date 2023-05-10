@@ -2,18 +2,19 @@
 using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using ApiClientProvider;
 
 namespace VodovozInfrastructure.Endpoints
 {
 	public class DriverApiUserRegisterEndpoint
 	{
-		private HttpClient _httpClient;
+		private IApiClientProvider _apiHelper;
 		private readonly string _sendEndpointPath = "Register";
 		private const int _minPasswordLength = 3;
 
-		public DriverApiUserRegisterEndpoint(HttpClient httpClient)
+		public DriverApiUserRegisterEndpoint(IApiClientProvider apiHelper)
 		{
-			_httpClient = httpClient;
+			_apiHelper = apiHelper;
 		}
 
 		public async Task Register(string username, string password)
@@ -30,7 +31,7 @@ namespace VodovozInfrastructure.Endpoints
 
 			var payload = new RegisterPayload { Username = username, Password = password };
 			
-			using(HttpResponseMessage response = await _httpClient.PostAsJsonAsync(_sendEndpointPath, payload))
+			using(HttpResponseMessage response = await _apiHelper.Client.PostAsJsonAsync(_sendEndpointPath, payload))
 			{
 				if(!response.IsSuccessStatusCode)
 				{

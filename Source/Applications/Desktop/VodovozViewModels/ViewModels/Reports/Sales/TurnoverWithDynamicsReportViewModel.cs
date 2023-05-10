@@ -20,6 +20,7 @@ using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NHibernate.SqlCommand;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -623,7 +624,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					DynamicsIn,
 					ShowLastSale,
 					ShowResidueForNomenclaturesWithoutSales,
-					GetWarhouseBalance,
+					GetWarehouseBalance,
 					GetData);
 			}, cancellationToken);
 		}
@@ -695,43 +696,34 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			throw new InvalidOperationException("Что-то пошло не так. Не достижимая ветка ветвления");
 		}
 
-		private decimal GetWarhouseBalance(int nomenclatureId)
+		//TODO проверить рабостоспособность
+		private decimal GetWarehouseBalance(int nomenclatureId)
 		{
 			if(!ShowLastSale)
 			{
 				return 0;
 			}
-
-			WarehouseMovementOperation incomeWarehouseOperationAlias = null;
-			WarehouseMovementOperation writeoffWarehouseOperationAlias = null;
+			
+			BulkGoodsAccountingOperation bulkGoodsAccountingOperationAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			var incomeSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => incomeWarehouseOperationAlias)
-				.Where(() => incomeWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(
-					Restrictions.IsNotNull(
-						Projections.Property(() => incomeWarehouseOperationAlias.IncomingWarehouse)))
-				.Select(Projections.Sum(Projections.Property(() => incomeWarehouseOperationAlias.Amount)));
-
-			var writeoffSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => writeoffWarehouseOperationAlias)
-				.Where(() => writeoffWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(
-					Restrictions.IsNotNull(
-						Projections.Property(() => writeoffWarehouseOperationAlias.WriteoffWarehouse)))
-				.Select(Projections.Sum(Projections.Property(() => writeoffWarehouseOperationAlias.Amount)));
-
-			IProjection projection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
+			var balanceProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
 				NHibernateUtil.Decimal,
-				Projections.SubQuery(incomeSubQuery),
-				Projections.SubQuery(writeoffSubQuery));
+				Projections.Sum(() => bulkGoodsAccountingOperationAlias.Amount));
 
-			var result = _unitOfWork.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+			var result = _unitOfWork.Session.QueryOver(() => nomenclatureAlias)
+				.JoinEntityAlias(() => bulkGoodsAccountingOperationAlias,
+					() => nomenclatureAlias.Id == bulkGoodsAccountingOperationAlias.Nomenclature.Id,
+					JoinType.LeftOuterJoin)
 				.Where(() => nomenclatureAlias.Id == nomenclatureId)
-				.Select(projection)
-				.SingleOrDefault<decimal>();
+				.SelectList(list => list
+					.SelectGroup(() => nomenclatureAlias.Id)
+					.Select(balanceProjection))
+				.TransformUsing(Transformers.AliasToBean<(int nomenclatureId, decimal balance)>())
+				.SingleOrDefault<(int nomenclatureId, decimal balance)>();
 
-			return result;
+			return result.balance;
 		}
 
 		private IList<OrderItemNode> GetData(TurnoverWithDynamicsReport report)

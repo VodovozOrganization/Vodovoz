@@ -251,27 +251,27 @@ namespace Vodovoz
 				}
 				else
 				{
-					to.DocumentItem.WarehouseMovementOperation.Amount += transfer;
+					to.DocumentItem.GoodsAccountingOperation.Amount += transfer;
 					to.DocumentItem.DeliveryFreeBalanceOperation.Amount -= transfer;
 
-					UoW.Save(to.DocumentItem.WarehouseMovementOperation);
+					UoW.Save(to.DocumentItem.GoodsAccountingOperation);
 					UoW.Save(to.DocumentItem.DeliveryFreeBalanceOperation);
 				}
 
-				from.DocumentItem.WarehouseMovementOperation.Amount -= transfer;
+				from.DocumentItem.GoodsAccountingOperation.Amount -= transfer;
 				from.DocumentItem.DeliveryFreeBalanceOperation.Amount += transfer;
 
-				if(from.DocumentItem.WarehouseMovementOperation.Amount == 0)
+				if(from.DocumentItem.GoodsAccountingOperation.Amount == 0)
 				{
 					var item = fromDoc.Items.First(i => i.Id == from.DocumentItem.Id);
 					fromDoc.Items.Remove(item);
 
-					UoW.Delete(from.DocumentItem.WarehouseMovementOperation);
+					UoW.Delete(from.DocumentItem.GoodsAccountingOperation);
 					UoW.Delete(from.DocumentItem.DeliveryFreeBalanceOperation);
 				}
 				else
 				{
-					UoW.Save(from.DocumentItem.WarehouseMovementOperation);
+					UoW.Save(from.DocumentItem.GoodsAccountingOperation);
 					UoW.Save(from.DocumentItem.DeliveryFreeBalanceOperation);
 				}
 

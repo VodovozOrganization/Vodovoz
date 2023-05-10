@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using Gamma.ColumnConfig;
@@ -131,8 +131,8 @@ namespace Vodovoz.ViewModel
 				var waterQuery = UoW.Session.QueryOver<IncomingWater>(() => waterAlias);
 				if(Filter.RestrictWarehouse != null)
 				{
-					waterQuery.Where(x => x.ToWarehouse.Id == Filter.RestrictWarehouse.Id ||
-					                      x.FromWarehouse.Id == Filter.RestrictWarehouse.Id);
+					waterQuery.Where(x => x.IncomingWarehouse.Id == Filter.RestrictWarehouse.Id ||
+					                      x.WriteOffWarehouse.Id == Filter.RestrictWarehouse.Id);
 				}
 				if(Filter.RestrictStartDate.HasValue)
 				{
@@ -144,7 +144,7 @@ namespace Vodovoz.ViewModel
 				}
 
 				var waterList = waterQuery
-					.JoinQueryOver(() => waterAlias.ToWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => waterAlias.IncomingWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias(() => waterAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias(() => waterAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.Left.JoinAlias(() => waterAlias.Product, () => productAlias)
@@ -300,8 +300,8 @@ namespace Vodovoz.ViewModel
 						.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 						.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 						.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-						.Select(() => writeoffAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
-						.Select(() => writeoffAlias.Comment).WithAlias(() => resultAlias.Comment)
+						.Select(() => writeOffAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+						.Select(() => writeOffAlias.Comment).WithAlias(() => resultAlias.Comment)
 					)
 					.TransformUsing(Transformers.AliasToBean<DocumentVMNode>())
 					.List<DocumentVMNode>();

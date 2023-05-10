@@ -191,7 +191,7 @@ namespace Vodovoz
 							this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.InventoryDocument:
-						var employeeRepository = new EmployeeRepository();
+						/*var employeeRepository = new EmployeeRepository();
 
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<InventoryDocument>(id),
@@ -207,7 +207,9 @@ namespace Vodovoz
 								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), employeeRepository),
 								new GtkReportViewOpener(),
 								MainClass.MainWin.NavigationManager),
-							this);
+							this);*/
+						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<InventoryDocumentViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.ShiftChangeDocument:
 						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(

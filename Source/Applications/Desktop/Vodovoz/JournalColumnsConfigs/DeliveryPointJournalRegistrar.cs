@@ -2,6 +2,7 @@
 using Gtk;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using VodovozInfrastructure.Extensions;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -9,8 +10,8 @@ namespace Vodovoz.JournalColumnsConfigs
 	internal sealed class DeliveryPointJournalRegistrar : ColumnsConfigRegistrarBase<DeliveryPointJournalViewModel, DeliveryPointJournalNode>
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<DeliveryPointJournalNode> config) =>
-			config.AddColumn("ФИАС").AddTextRenderer(x => x.FoundInFias ? "Да" : "")
-				.AddColumn("Испр.").AddTextRenderer(x => x.FixedInFias ? "Да" : "")
+			config.AddColumn("ФИАС").AddTextRenderer(x => x.FoundInFias.ConvertToYesOrEmpty())
+				.AddColumn("Испр.").AddTextRenderer(x => x.FixedInFias.ConvertToYesOrEmpty())
 				.AddColumn("Адрес")
 					.AddTextRenderer(node => node.CompiledAddress)
 					.WrapMode(WrapMode.WordChar)

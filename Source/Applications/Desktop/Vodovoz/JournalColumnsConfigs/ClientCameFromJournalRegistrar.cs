@@ -2,6 +2,7 @@
 using Gtk;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
+using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -10,7 +11,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		public override IColumnsConfig Configure(FluentColumnsConfig<ClientCameFromJournalNode> config) =>
 			config.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
 				.AddColumn("Название").AddTextRenderer(n => n.Name)
-				.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive ? "Да" : "Нет")
+				.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive.ConvertToYesOrNo())
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 				.Finish();
 	}

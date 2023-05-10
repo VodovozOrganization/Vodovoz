@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -54,27 +54,27 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		private Warehouse _toWarehouse;
+		private Warehouse _incomingWarehouse;
 
 		[Required(ErrorMessage = "Склад поступления должен быть указан.")]
 		[Display(Name = "Склад поступления")]
-		public virtual Warehouse ToWarehouse {
-			get { return _toWarehouse; }
+		public virtual Warehouse IncomingWarehouse {
+			get => _incomingWarehouse;
 			set {
-				SetField(ref incomingWarehouse, value, () => IncomingWarehouse);
+				SetField(ref _incomingWarehouse, value);
 				/*if(ProduceOperation.IncomingWarehouse != IncomingWarehouse)
 					ProduceOperation.IncomingWarehouse = IncomingWarehouse;*/
 			}
 		}
 
-		private Warehouse _fromWarehouse;
+		private Warehouse _writeOffWarehouse;
 
 		[Required(ErrorMessage = "Склад списания должен быть указан.")]
 		[Display(Name = "Склад списания")]
-		public virtual Warehouse FromWarehouse {
-			get { return _fromWarehouse; }
+		public virtual Warehouse WriteOffWarehouse {
+			get => _writeOffWarehouse;
 			set {
-				SetField(ref _fromWarehouse, value);
+				SetField(ref _writeOffWarehouse, value);
 				foreach(var item in Materials) {
 					/*if(item.ConsumptionMaterialOperation != null && item.ConsumptionMaterialOperation.WriteOffWarehouse != WriteOffWarehouse)
 						item.ConsumptionMaterialOperation.WriteOffWarehouse = WriteOffWarehouse;*/
@@ -84,20 +84,20 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title => String.Format("Документ производства №{0} от {1:d}", Id, TimeStamp);
 
-		GoodsAccountingOperation produceOperation = new GoodsAccountingOperation() {
+		GoodsAccountingOperation produceOperation = new GoodsAccountingOperation {
 			OperationTime = DateTime.Now
 		};
 
 		public virtual GoodsAccountingOperation ProduceOperation {
-			get { return produceOperation; }
-			set { SetField(ref produceOperation, value, () => ProduceOperation); }
+			get => produceOperation;
+			set => SetField(ref produceOperation, value);
 		}
 
 		IList<IncomingWaterMaterial> materials = new List<IncomingWaterMaterial>();
 
 		[Display(Name = "Строки")]
 		public virtual IList<IncomingWaterMaterial> Materials {
-			get { return materials; }
+			get => materials;
 			set {
 				SetField(ref materials, value, () => Materials);
 				observableMaterials = null;
@@ -122,7 +122,7 @@ namespace Vodovoz.Domain.Documents
 				Amount = amount,
 				AmountOnSource = inStock,
 			};
-			item.CreateOperation(FromWarehouse, TimeStamp);
+			item.CreateOperation(WriteOffWarehouse, TimeStamp);
 			ObservableMaterials.Add(item);
 		}
 
@@ -133,7 +133,7 @@ namespace Vodovoz.Domain.Documents
 				Nomenclature = material.Material,
 				OneProductAmount = material.Amount,
 			};
-			item.CreateOperation(FromWarehouse, TimeStamp);
+			item.CreateOperation(WriteOffWarehouse, TimeStamp);
 			ObservableMaterials.Add(item);
 		}
 

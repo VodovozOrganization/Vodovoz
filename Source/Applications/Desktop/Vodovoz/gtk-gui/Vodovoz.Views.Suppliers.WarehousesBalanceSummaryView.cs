@@ -332,8 +332,8 @@ namespace Vodovoz.Views.Suppliers
 			this.hseparator4 = new global::Gtk.HSeparator();
 			this.hseparator4.Name = "hseparator4";
 			this.hboxWarehousesTitle.Add(this.hseparator4);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hboxWarehousesTitle[this.hseparator4]));
-			w21.Position = 2;
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hboxWarehousesTitle[this.hseparator4]));
+			w46.Position = 2;
 			this.vboxWarehousesSection.Add(this.hboxWarehousesTitle);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxWarehousesSection[this.hboxWarehousesTitle]));
 			w22.Position = 0;

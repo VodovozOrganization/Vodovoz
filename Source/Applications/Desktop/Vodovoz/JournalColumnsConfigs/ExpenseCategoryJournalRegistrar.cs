@@ -1,6 +1,6 @@
 ﻿using Gamma.ColumnConfig;
-using Gdk;
 using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 
@@ -8,9 +8,6 @@ namespace Vodovoz.JournalColumnsConfigs
 {
 	internal sealed class ExpenseCategoryJournalRegistrar : ColumnsConfigRegistrarBase<ExpenseCategoryJournalViewModel, ExpenseCategoryJournalNode>
 	{
-		private static readonly Color _colorBlack = new Color(0, 0, 0);
-		private static readonly Color _colorDarkGray = new Color(0x80, 0x80, 0x80);
-
 		public override IColumnsConfig Configure(FluentColumnsConfig<ExpenseCategoryJournalNode> config) =>
 			config.AddColumn("Код")
 					.HeaderAlignment(0.5f)
@@ -47,7 +44,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.XAlign(0.5f)
 				.AddColumn("")
 				.RowCells()
-				.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGray : _colorBlack)
+					.AddSetter<CellRendererText>((c, n) =>
+						c.ForegroundGdk = n.IsArchive ? GdkColors.DarkGrayColor : GdkColors.BlackColor)
 				.Finish();
 	}
 }

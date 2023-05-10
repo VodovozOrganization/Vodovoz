@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog;
@@ -27,7 +27,6 @@ namespace Vodovoz.ViewModels.Mango.Talks
 		private readonly IInteractiveQuestion _interactive;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUnitOfWork _uow;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
@@ -38,14 +37,12 @@ namespace Vodovoz.ViewModels.Mango.Talks
 			MangoManager manager,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IWarehouseJournalFactory warehouseJournalFactory,
 			INomenclatureRepository nomenclatureRepository) : base(navigation, manager)
 		{
 			_tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_warehouseJournalFactory = warehouseJournalFactory ?? throw new ArgumentNullException(nameof(warehouseJournalFactory));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_uow = unitOfWorkFactory.CreateWithoutRoot();
 		}

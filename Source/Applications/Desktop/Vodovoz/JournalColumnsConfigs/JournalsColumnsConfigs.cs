@@ -5,18 +5,19 @@ using Gtk;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
+using Gamma.Utilities;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
+using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
 	public static class JournalsColumnsConfigs
 	{
-		private static readonly Color _colorWhite = new Color(0xff, 0xff, 0xff);
-		private static readonly Color _colorLightGray = new Color(0xcc, 0xcc, 0xcc);
-
 		public static void RegisterColumns()
 		{
 			var registratorGeneric = typeof(IColumnsConfigRegistrar<,>);
@@ -45,10 +46,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
-							var color = _colorWhite;
+							var color = GdkColors.WhiteColor;
 							if(node.NodeType == RoboatsCallNodeType.RoboatsCallDetail)
 							{
-								color = _colorLightGray;
+								color = GdkColors.LightGrayColor;
 							}
 							cell.CellBackgroundGdk = color;
 						}
@@ -84,10 +85,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
-							var color = _colorWhite;
+							var color = GdkColors.WhiteColor;
 							if(node.NodeType == CashReceiptNodeType.Code)
 							{
-								color = _colorLightGray;
+								color = GdkColors.LightGrayColor;
 							}
 							cell.CellBackgroundGdk = color;
 						}
@@ -111,6 +112,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.Finish()
 			);
+			
 			//InventoryInstancesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<InventoryInstancesJournalViewModel>(
 				() => FluentColumnsConfig<InventoryInstancesJournalNode>.Create()
@@ -122,38 +124,38 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddNumericRenderer(node => node.NomenclatureId)
 					.AddColumn("Номенклатура")
 						.AddTextRenderer(node => node.NomenclatureName)
+					.AddColumn("")
 					.Finish()
 			);
-					.AddColumn("")
 			
 			//InventoryInstancesStockJournalViewModel
 			TreeViewColumnsConfigFactory.Register<InventoryInstancesStockBalanceJournalViewModel>(
 				() => FluentColumnsConfig<InventoryInstancesStockJournalNode>.Create()
 					.AddColumn("Код")
-					.AddColumn("Инвентарный номер")
 						.AddNumericRenderer(node => node.Id)
+					.AddColumn("Инвентарный номер")
 						.AddTextRenderer(node => node.InventoryNumber)
-						.AddNumericRenderer(node => node.NomenclatureId)
 					.AddColumn("Код номенклатуры")
+						.AddNumericRenderer(node => node.NomenclatureId)
 					.AddColumn("Номенклатура")
 						.AddTextRenderer(node => node.NomenclatureName)
 					.AddColumn("Баланс")
 						.AddNumericRenderer(node => node.Balance)
 					.AddColumn("")
 					.Finish()
-			
 			);
+			
 			//InventoryNomenclaturesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<InventoryNomenclaturesJournalViewModel>(
-					.AddColumn("Код")
 				() => FluentColumnsConfig<NomenclatureJournalNode>.Create()
-						.AddTextRenderer(node => node.Id.ToString())
-						.AddTextRenderer(node => node.Name)
+					.AddColumn("Код")
+						.AddNumericRenderer(node => node.Id)
 					.AddColumn("Номенклатура")
+						.AddTextRenderer(node => node.Name)
 					.AddColumn("Категория")
-					.AddTextRenderer(node => node.AvailableText)
+						.AddTextRenderer(node => node.AvailableText)
 						.AddTextRenderer(node => node.Category.GetEnumTitle())
-						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? _colorBlack : _colorRed)
+						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? GdkColors.BlackColor : GdkColors.RedColor)
 					.AddColumn("Код в ИМ")
 						.AddTextRenderer(node => node.OnlineStoreExternalId)
 					.Finish()

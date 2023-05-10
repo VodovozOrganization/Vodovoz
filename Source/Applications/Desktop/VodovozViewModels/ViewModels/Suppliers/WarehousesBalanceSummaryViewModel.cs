@@ -532,33 +532,12 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 			var id = 0;
 			BalanceSummaryRow row = null;
-			
-			/*foreach(var item in bulkWarehouseResult)
-			{
-				cancellationToken.ThrowIfCancellationRequested();
-
-				var row = new BalanceSummaryRow
-				{
-					Num = nomsCounter + 1,
-					NomId = (int)noms[nomsCounter].Value,
-					NomTitle = noms[nomsCounter].Title,
-					Separate = new List<decimal>(),
-					Min = msResult[nomsCounter],
-					ReservedItemsAmount = reservedItems
-						.Where(i => i.ItemId == (int)noms[nomsCounter].Value)
-						.Select(i => i.ReservedItemsAmount).FirstOrDefault() ?? 0,
-					Price = prices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0,
-					AlternativePrice = alternativePrices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0,
-					PurchasePrice = purchasePrices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0
-				};
-				
-				AddRow(ref report, row);
-			}*/
 
 			for(var nomsCounter = 0; nomsCounter < noms?.Count; nomsCounter++)
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 				var nomenclatureId = (int)noms[nomsCounter].Value;
+				
 				row = new BalanceSummaryRow
 				{
 					NomId = nomenclatureId,
@@ -566,6 +545,12 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					WarehousesBalances = new List<decimal>(),
 					EmployeesBalances = new List<decimal>(),
 					CarsBalances = new List<decimal>(),
+					ReservedItemsAmount = reservedItems
+						.Where(i => i.ItemId == (int)noms[nomsCounter].Value)
+						.Select(i => i.ReservedItemsAmount).FirstOrDefault() ?? 0,
+					Price = prices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0,
+					AlternativePrice = alternativePrices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0,
+					PurchasePrice = purchasePrices.SingleOrDefault(x => x.NomenclatureId == (int)noms[nomsCounter].Value)?.Amount ?? 0,
 					Min = minStockResult[nomsCounter]
 				};
 
@@ -757,10 +742,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				index++;
 			}
 			ws.Cell(2, 1).InsertData(rows);
-			AddWarehouseCloumns(ws, index);
+			AddWarehouseColumns(ws, index);
 		}
 
-		private void AddWarehouseCloumns(IXLWorksheet ws, int startIndex)
+		//TODO добавить сотрудников и автомобили
+		private void AddWarehouseColumns(IXLWorksheet ws, int startIndex)
 		{
 			for(var i = 0; i < Report.WarehouseStoragesTitles.Count; i++)
 			{

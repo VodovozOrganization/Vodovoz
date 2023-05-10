@@ -1,6 +1,6 @@
 ﻿using Gamma.ColumnConfig;
-using Gdk;
 using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 
@@ -8,11 +8,6 @@ namespace Vodovoz.JournalColumnsConfigs
 {
 	internal sealed class UsersJournalRegistrar : ColumnsConfigRegistrarBase<UsersJournalViewModel, UserJournalNode>
 	{
-		private static readonly Color _colorBlack = new Color(0, 0, 0);
-		private static readonly Color _colorDarkGray = new Color(0x80, 0x80, 0x80);
-		private static readonly Color _colorBlue = new Color(0x00, 0x18, 0xf9);
-		private static readonly Color _colorBabyBlue = new Color(0x89, 0xcf, 0xef);
-
 		public override IColumnsConfig Configure(FluentColumnsConfig<UserJournalNode> config) =>
 			config.AddColumn("Код")
 					.AddTextRenderer(node => node.Id.ToString())
@@ -30,11 +25,11 @@ namespace Vodovoz.JournalColumnsConfigs
 					{
 						if(n.Deactivated)
 						{
-							c.ForegroundGdk = n.IsAdmin ? _colorBabyBlue : _colorDarkGray;
+							c.ForegroundGdk = n.IsAdmin ? GdkColors.BabyBlueColor : GdkColors.DarkGrayColor;
 						}
 						else
 						{
-							c.ForegroundGdk = n.IsAdmin ? _colorBlue : _colorBlack;
+							c.ForegroundGdk = n.IsAdmin ? GdkColors.BlueColor : GdkColors.BlackColor;
 						}
 					})
 				.Finish();

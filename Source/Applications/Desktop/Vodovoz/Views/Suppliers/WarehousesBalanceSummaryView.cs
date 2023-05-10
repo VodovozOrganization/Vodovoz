@@ -3,13 +3,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ClosedXML.Excel;
 using Gamma.ColumnConfig;
 using Gamma.Widgets;
 using Gtk;
 using QS.Views.GtkUI;
 using TISystems.TTC.CRM.BE.Staff;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -27,8 +25,7 @@ namespace Vodovoz.Views.Suppliers
 
 		public WarehousesBalanceSummaryView(WarehousesBalanceSummaryViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-
+			Build();
 			Configure();
 		}
 
@@ -120,27 +117,27 @@ namespace Vodovoz.Views.Suppliers
 		private void ConfigureTreeView()
 		{
 			var columnsConfig = FluentColumnsConfig<BalanceSummaryRow>.Create()
-					.XAlign(0.5f)
-					.AddNumericRenderer(row => row.Min)
+				.AddColumn("№")
 					.HeaderAlignment(0.5f)
-				.AddColumn("Мин. остаток")
+					.AddNumericRenderer(row => ViewModel.Report.SummaryRows.IndexOf(row) + 1)
 					.XAlign(0.5f)
-					.AddTextRenderer(row => row.InventoryNumber)
+				.AddColumn("Код")
 					.HeaderAlignment(0.5f)
-				.AddColumn("Инвентарный\nномер")
+					.AddNumericRenderer(row => row.NomId)
+					.XAlign(0.5f)
+				.AddColumn("Наименование")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(row => row.NomTitle)
 					.XAlign(0.5f)
 					.WrapWidth(500).WrapMode(WrapMode.Word)
-					.AddTextRenderer(row => row.NomTitle)
+				.AddColumn("Инвентарный\nномер")
 					.HeaderAlignment(0.5f)
-				.AddColumn("Наименование")
+					.AddTextRenderer(row => row.InventoryNumber)
 					.XAlign(0.5f)
-					.AddNumericRenderer(row => row.NomId)
+				.AddColumn("Мин. остаток")
 					.HeaderAlignment(0.5f)
-				.AddColumn("Код")
-					.XAlign(0.5f)
-					.AddNumericRenderer(row => ViewModel.Report.SummaryRows.IndexOf(row) + 1)
-					.HeaderAlignment(0.5f)
-				.AddColumn("№")
+					.AddNumericRenderer(row => row.Min)
+					.XAlign(0.5f);
 
 			if(ViewModel.ShowReserve)
 			{

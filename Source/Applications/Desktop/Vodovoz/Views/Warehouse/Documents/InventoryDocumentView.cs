@@ -7,6 +7,7 @@ using QSProjectsLib;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
