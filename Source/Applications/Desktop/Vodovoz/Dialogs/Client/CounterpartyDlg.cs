@@ -653,7 +653,7 @@ namespace Vodovoz
 				label49.Visible = false;
 			}
 
-			//buttonCloseDelivery.Sensitive = CanEdit;
+			buttonCloseDelivery.Sensitive = CanEdit;
 			SetVisibilityForCloseDeliveryComments();
 		}
 
@@ -1690,9 +1690,9 @@ namespace Vodovoz
 		{
 			labelCloseDelivery.Visible = Entity.IsDeliveriesClosed;
 			GtkScrolledWindowCloseDelivery.Visible = Entity.IsDeliveriesClosed;
-			//buttonSaveCloseComment.Visible = Entity.IsDeliveriesClosed;
-			//buttonEditCloseDeliveryComment.Visible = Entity.IsDeliveriesClosed;
-			//buttonCloseDelivery.Label = Entity.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки";
+			buttonSaveCloseComment.Visible = Entity.IsDeliveriesClosed;
+			buttonEditCloseDeliveryComment.Visible = Entity.IsDeliveriesClosed;
+			buttonCloseDelivery.Label = Entity.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки";
 			ytextviewCloseComment.Buffer.Text = Entity.IsDeliveriesClosed ? Entity.CloseDeliveryComment : String.Empty;
 
 			if(!Entity.IsDeliveriesClosed)
@@ -1707,26 +1707,26 @@ namespace Vodovoz
 			{
 				if(string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment))
 				{
-					//buttonSaveCloseComment.Sensitive = true;
-					//buttonEditCloseDeliveryComment.Sensitive = false;
+					buttonSaveCloseComment.Sensitive = true;
+					buttonEditCloseDeliveryComment.Sensitive = false;
 					ytextviewCloseComment.Sensitive = true;
 				}
 				else
 				{
-					//buttonEditCloseDeliveryComment.Sensitive = true;
-					//buttonSaveCloseComment.Sensitive = false;
+					buttonEditCloseDeliveryComment.Sensitive = true;
+					buttonSaveCloseComment.Sensitive = false;
 					ytextviewCloseComment.Sensitive = false;
 				}
 			}
 			else
 			{
-				//buttonSaveCloseComment.Sensitive = false;
-				//buttonEditCloseDeliveryComment.Sensitive = false;
+				buttonSaveCloseComment.Sensitive = false;
+				buttonEditCloseDeliveryComment.Sensitive = false;
 				ytextviewCloseComment.Sensitive = false;
 			}
 		}
 
-		/*protected void OnButtonSaveCloseCommentClicked(object sender, EventArgs e)
+		protected void OnButtonSaveCloseCommentClicked(object sender, EventArgs e)
 		{
 			if(string.IsNullOrWhiteSpace(ytextviewCloseComment.Buffer.Text))
 			{
@@ -1741,9 +1741,9 @@ namespace Vodovoz
 
 			Entity.AddCloseDeliveryComment(ytextviewCloseComment.Buffer.Text, CurrentEmployee);
 			SetVisibilityForCloseDeliveryComments();
-		}*/
+		}
 
-		/*protected void OnButtonEditCloseDeliveryCommentClicked(object sender, EventArgs e)
+		protected void OnButtonEditCloseDeliveryCommentClicked(object sender, EventArgs e)
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
 			{
@@ -1756,9 +1756,9 @@ namespace Vodovoz
 				Entity.CloseDeliveryComment = ytextviewCloseComment.Buffer.Text = String.Empty;
 				SetVisibilityForCloseDeliveryComments();
 			}
-		}*/
+		}
 
-		/*protected void OnButtonCloseDeliveryClicked(object sender, EventArgs e)
+		protected void OnButtonCloseDeliveryClicked(object sender, EventArgs e)
 		{
 			if(!Entity.ToggleDeliveryOption(CurrentEmployee))
 			{
@@ -1767,7 +1767,7 @@ namespace Vodovoz
 			}
 
 			SetVisibilityForCloseDeliveryComments();
-		}*/
+		}
 
 		#endregion CloseDelivery
 
