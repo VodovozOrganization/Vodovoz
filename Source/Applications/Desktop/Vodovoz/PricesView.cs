@@ -16,24 +16,8 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class PricesView : Gtk.Bin
 	{
-		
-
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private GenericObservableList<NomenclaturePriceBase> PricesList;
-
-		private IUnitOfWorkGeneric<Nomenclature> uowGeneric;
-
-		public IUnitOfWorkGeneric<Nomenclature> UoWGeneric {
-			get
-			{
-				return uowGeneric;
-			}
-			set
-			{
-				uowGeneric = value;
-			}
-		}
-
 		private IList<NomenclaturePriceBase> prices;
 		public IList<NomenclaturePriceBase> Prices
 		{
@@ -111,11 +95,7 @@ namespace Vodovoz
 					throw new NotSupportedException($"{NomenclaturePriceType} не поддерживается");
 			}
 
-			price.Nomenclature = UoWGeneric.Root;
-
 			PricesList.Add(price);
-
-			UoWGeneric.Save(price);
 		}
 
 		private void AddPriceRow(NomenclaturePriceBase newPrice) 
@@ -181,18 +161,6 @@ namespace Vodovoz
 
 			var found = (NomenclaturePriceBase)(foundWidget as yValidatedEntry).Tag;
 			PricesList.Remove(found);
-			
-			switch(NomenclaturePriceType)
-			{
-				case NomenclaturePriceBase.NomenclaturePriceType.General:
-					UoWGeneric.Root.ObservableNomenclaturePrices.Remove(found as NomenclaturePrice);
-					break;
-				case NomenclaturePriceBase.NomenclaturePriceType.Alternative:
-					UoWGeneric.Root.ObservableAlternativeNomenclaturePrices.Remove(found as AlternativeNomenclaturePrice);
-					break;
-				default:
-					throw new NotSupportedException($"{NomenclaturePriceType} не поддерживается");
-			}
 		}
 
 		private void RemoveRow(uint Row)
@@ -229,7 +197,6 @@ namespace Vodovoz
 		{
 			while (PricesList.Count > 0)
 			{
-				UoWGeneric.Session.Delete(PricesList[0]);
 				PricesList.RemoveAt(0);
 			}
 		}
