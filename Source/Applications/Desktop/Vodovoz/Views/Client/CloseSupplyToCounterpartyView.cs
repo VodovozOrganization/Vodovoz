@@ -1,8 +1,14 @@
 ﻿using Gamma.GtkWidgets;
+using NHibernate.Transform;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Retail;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
+using System.Linq;
+using QS.Dialog.GtkUI;
 using QS.Project.Services;
 using QS.Navigation;
 using QS.Dialog.GtkUI.FileDialog;
