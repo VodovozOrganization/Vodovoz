@@ -198,6 +198,8 @@ namespace Vodovoz.EntityRepositories.Orders
 					throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
 			}
 
+			query.TransformUsing(Transformers.DistinctRootEntity);
+
 			return query.List();
 		}
 
