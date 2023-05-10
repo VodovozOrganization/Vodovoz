@@ -902,8 +902,8 @@ namespace Vodovoz.Journals.JournalViewModels
 			CreateEditAction();
 			CreateDefaultDeleteAction();
 			CreateExportAction();
-			CreateComplaintClassificationSummaryAction();
 			OpenWithDepartmentsReacrionViewAction();
+			CreateComplaintClassificationSummaryAction();
 		}
 
 		public Action<Type> ChangeView { get; set; }

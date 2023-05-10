@@ -36,10 +36,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.ComplaintsJournalReport
 
 			if(filter.StartDate.HasValue)
 			{
-				title.Append($", начальная дата: {filter.StartDate}");
+				title.Append($", начальная дата: {filter.StartDate:d}");
 			}
 
-			title.Append($", конечная дата: {filter.EndDate}");
+			title.Append($", конечная дата: {filter.EndDate:d}");
 
 
 			if(filter.Subdivision != null)
