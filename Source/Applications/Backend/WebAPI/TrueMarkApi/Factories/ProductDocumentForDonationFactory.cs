@@ -10,7 +10,7 @@ namespace TrueMarkApi.Factories
 	/// <summary>
 	/// Бартер
 	/// </summary>
-	public class ProductDocumentForDonationFactory : IProductDocumentFactory
+	public class ProductDocumentForDonationFactory : IDocumentFactory
 	{
 		private readonly string _organizationInn;
 		private readonly Order _order;
@@ -20,7 +20,7 @@ namespace TrueMarkApi.Factories
 			_organizationInn = organizationInn;
 			_order = order;
 		}
-		public string CreateProductDocument()
+		public string CreateDocument()
 		{
 			var accountableItems = _order.OrderItems.Where(oi =>
 					oi.Nomenclature.IsAccountableInTrueMark

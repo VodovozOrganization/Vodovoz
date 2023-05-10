@@ -1,6 +1,5 @@
-﻿using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
+﻿using NHibernate.Type;
+using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -9,8 +8,6 @@ namespace Vodovoz.Domain.Orders
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		Nominative = "документ Честного знака",
 		NominativePlural = "документы Честного Знака")]
-	[EntityPermission]
-	[HistoryTrace]
 
 	public  class TrueMarkApiDocument : PropertyChangedBase, IDomainObject
 	{
@@ -19,6 +16,8 @@ namespace Vodovoz.Domain.Orders
 		private Guid? _guid;
 		private string _errorMessage;
 		private bool _isSuccess;
+		private TrueMarkApiDocumentType _type;
+
 		public virtual int Id { get; set; }
 
 		[Display(Name = "Дата создания")]
@@ -55,6 +54,21 @@ namespace Vodovoz.Domain.Orders
 			get => _errorMessage;
 			set => SetField(ref _errorMessage, value);
 		}
-	}
 
+		[Display(Name = "Тип документа")]
+		public virtual TrueMarkApiDocumentType Type
+		{
+			get => _type;
+			set => SetField(ref _type, value);
+		}
+
+		public enum TrueMarkApiDocumentType
+		{
+			[Display(Name = "Вывод из оборота")]
+			Withdrawal,
+			[Display(Name = "Отмена вывода из оборота")]
+			WithdrawalCancellation
+		}
+
+	}
 }

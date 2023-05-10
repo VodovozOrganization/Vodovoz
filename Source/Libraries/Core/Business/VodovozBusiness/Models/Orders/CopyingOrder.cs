@@ -83,6 +83,7 @@ namespace Vodovoz.Models.Orders
 				_resultOrder.ReturnTareReasonCategory = _copiedOrder.ReturnTareReasonCategory;
 				_resultOrder.ReturnTareReason = _copiedOrder.ReturnTareReason;
 				_resultOrder.ContactPhone = _copiedOrder.ContactPhone;
+				_resultOrder.LogisticsRequirements = _copiedOrder.LogisticsRequirements;
 			}
 
 			return this;
