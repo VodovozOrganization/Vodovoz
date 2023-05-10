@@ -144,7 +144,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			if(CanCloseDelivery)
 			{
 				Entity.ToggleDeliveryOption(CurrentEmployee);
-				OnPropertyChanged(nameof(CloseDeliveryLabelInfo));
 			}
 		}
 		#endregion CloseDelveryCommand
@@ -167,17 +166,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		private void SaveCloseComment()
 		{
-			if(string.IsNullOrWhiteSpace(CloseDeliveryComment))
-			{
-				return;
-			}
-
-			if(!CanCloseDelivery)
-			{
-				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "У вас нет прав для изменения комментария по закрытию поставок");
-				return;
-			}
-
 			if(CanSaveCloseComment)
 			{
 				Entity.AddCloseDeliveryComment(CloseDeliveryComment, CurrentEmployee);
@@ -204,20 +192,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		private void EditCloseComment()
 		{
-			if(!CanCloseDelivery)
+			if(CanEditCloseComment)
 			{
-				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "У вас нет прав для изменения комментария по закрытию поставок");
-				return;
+				Entity.CloseDeliveryComment = string.Empty;
+				CloseDeliveryComment = string.Empty;
 			}
 
-			if(_commonServices.InteractiveService.Question("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?"))
-			{
-				if(CanEditCloseComment)
-				{
-					Entity.CloseDeliveryComment = string.Empty;
-					CloseDeliveryComment = string.Empty;
-				}
-			}
 		}
 		#endregion EditCloseComment
 
@@ -225,15 +205,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		public override bool Save(bool needClose)
 		{
-			if(Entity.IsDeliveriesClosed && string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment))
+			if(!CanSaveEntity)
 			{
-				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "Необходимо заполнить комментарий по закрытию поставок");
-				return false;
-			}
-
-			if(!CanCloseDelivery)
-			{
-				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "У вас нет прав для открытия/закрытия поставок");
 				return false;
 			}
 
