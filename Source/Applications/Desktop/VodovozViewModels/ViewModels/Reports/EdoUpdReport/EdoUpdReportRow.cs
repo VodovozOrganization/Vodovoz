@@ -1,6 +1,5 @@
-﻿using System;
-using Gamma.Utilities;
-using Vodovoz.Domain.Client;
+﻿using Gamma.Utilities;
+using System;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
@@ -15,7 +14,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 		public string Gtin { get; set; }
 		public decimal Count { get; set; }
 		public decimal Price { get; set; }
-		public decimal Sum => Price * Count;
+		public decimal DiscountMoney { get; set; }
+		public decimal Sum => Price * Count - DiscountMoney;
 		public EdoDocFlowStatus? EdoDocFlowStatus { get; set; }
 		public string EdoDocError { get; set; }
 

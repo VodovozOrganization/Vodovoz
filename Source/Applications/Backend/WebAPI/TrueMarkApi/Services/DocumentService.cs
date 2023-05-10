@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMarkApi.Dto;
 using TrueMarkApi.Dto.Documents;
+using TrueMarkApi.Enums;
 using TrueMarkApi.Factories;
 using TrueMarkApi.Library;
 using TrueMarkApi.Models;
@@ -22,7 +23,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Services;
 using Vodovoz.Settings.Edo;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -120,19 +120,74 @@ namespace TrueMarkApi.Services
 
 				_logger.LogInformation("Получили токен авторизации: {AuthorizationToken} ", token);
 
-				var httpClient = _httpClientClientFactory.CreateClient();
-				httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-				httpClient.BaseAddress = new Uri(_apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
+				var httpClient = GetHttpClient(token);
 
 				await ProcessNewOrders(uow, httpClient, startDate, organization, organizationCertificate.CertificateThumbPrint, cancellationToken);
 
-				await ProcessOldOrdersWithErrors(uow, httpClient, startDate, organization, organizationCertificate.CertificateThumbPrint);
+				await ProcessOldOrdersWithErrors(uow, httpClient, startDate, organization, organizationCertificate.CertificateThumbPrint, cancellationToken);
+
+				await ProcessCancellationDocuments(uow, httpClient, organization, organizationCertificate.CertificateThumbPrint, cancellationToken);
 
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования документа вывода из оборота");
+			}
+		}
+
+		private HttpClient GetHttpClient(string token)
+		{
+			var httpClient = _httpClientClientFactory.CreateClient();
+			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			httpClient.BaseAddress = new Uri(_apiSection.GetValue<string>("ExternalTrueApiBaseUrl"));
+			
+			return httpClient;
+		}
+
+		private async Task ProcessCancellationDocuments(IUnitOfWork uow, HttpClient httpClient, Organization organization,
+			string certificateThumbPrint, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("Получаем список для отмены вывода из оборота для организации {OrganizationId}", organization.Id);
+
+			var startDate = DateTime.Now.AddYears(-1);
+
+			var documentsForCancellation = _orderRepository.GetOrdersForCancellationInTrueMark(uow, startDate, organization.Id);
+
+			_logger.LogInformation("Всего документов для отмены вывода из оборота: {ErrorOrdersCount}", documentsForCancellation.Count);
+
+			if(!documentsForCancellation.Any())
+			{
+				return;
+			}
+
+			foreach(var doc in documentsForCancellation)
+			{
+				_logger.LogInformation("Отмена вывода из оборота по заказу №{OrderId}", doc.Order.Id);
+
+				try
+				{
+					var documentFactory = new CancellationDocumentFactory(organization.INN, doc.Guid.ToString());
+
+					var trueMarkApiDocument =
+						await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT_CANCEL, documentFactory, certificateThumbPrint, cancellationToken);
+
+					trueMarkApiDocument.Order = doc.Order;
+					trueMarkApiDocument.Type = TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation;
+
+					if(!trueMarkApiDocument.IsSuccess)
+					{
+						_logger.LogError("{ErrorMessage}", trueMarkApiDocument.ErrorMessage);
+					}
+
+					uow.Save(trueMarkApiDocument);
+					uow.Commit();
+
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Ошибка в процессе формирования документа отмены вывода из оборота для заказа №{OrderId} и его отправки", doc.Order.Id);
+				}
 			}
 		}
 
@@ -166,8 +221,9 @@ namespace TrueMarkApi.Services
 				{
 					var productDocumentFactory = CreateProductDocumentFactory(organization.INN, order);
 
-					var trueMarkApiDocument = await CreateAndSendDocument(httpClient, productDocumentFactory, organizationCertificateThumbPrint);
+					var trueMarkApiDocument = await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT, productDocumentFactory, organizationCertificateThumbPrint, cancellationToken);
 					trueMarkApiDocument.Order = order;
+					trueMarkApiDocument.Type = TrueMarkApiDocument.TrueMarkApiDocumentType.Withdrawal;
 
 					uow.Save(trueMarkApiDocument);
 					uow.Commit();
@@ -185,7 +241,7 @@ namespace TrueMarkApi.Services
 		}
 
 		private async Task ProcessOldOrdersWithErrors(IUnitOfWork uow, HttpClient httpClient, DateTime startDate, Organization organization,
-			string certificateThumbPrint)
+			string certificateThumbPrint, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получаем заказы с ошибками вывода из оборота для организации {OrganizationId}", organization.Id);
 
@@ -204,15 +260,16 @@ namespace TrueMarkApi.Services
 
 				try
 				{
-					var savedDocument = uow.GetAll<TrueMarkApiDocument>().SingleOrDefault(d => d.Order.Id == order.Id);
+					var savedDocument = uow.GetAll<TrueMarkApiDocument>().SingleOrDefault(
+						d => d.Order.Id == order.Id
+							&& d.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.Withdrawal);
 
 					TrueMarkApiDocument recievedDocument;
 
 					if(savedDocument.Guid != null)
 					{
-						recievedDocument = await RecieveDocument(httpClient, savedDocument.Guid.ToString());
+						recievedDocument = await RecieveDocument(httpClient, savedDocument.Guid.ToString(), cancellationToken);
 
-						savedDocument.IsSuccess = recievedDocument.IsSuccess;
 						savedDocument.ErrorMessage = recievedDocument.ErrorMessage;
 
 						uow.Save(savedDocument);
@@ -221,12 +278,11 @@ namespace TrueMarkApi.Services
 						continue;
 					}
 
-					IProductDocumentFactory productDocumentFactory = order.PaymentType == PaymentType.barter
+					IDocumentFactory productDocumentFactory = order.PaymentType == PaymentType.barter
 						? new ProductDocumentForDonationFactory(organization.INN, order)
 						: new ProductDocumentForOwnUseFactory(organization.INN, order);
 
-					recievedDocument = await CreateAndSendDocument(httpClient, productDocumentFactory, certificateThumbPrint);
-					savedDocument.IsSuccess = recievedDocument.IsSuccess;
+					recievedDocument = await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT, productDocumentFactory, certificateThumbPrint, cancellationToken);
 					savedDocument.ErrorMessage = recievedDocument.ErrorMessage;
 					savedDocument.Guid = recievedDocument.Guid;
 
@@ -245,23 +301,24 @@ namespace TrueMarkApi.Services
 			}
 		}
 
-		private IProductDocumentFactory CreateProductDocumentFactory(string inn, Order order) => order.PaymentType == PaymentType.barter 
+		private IDocumentFactory CreateProductDocumentFactory(string inn, Order order) => order.PaymentType == PaymentType.barter 
 			? new ProductDocumentForDonationFactory(inn, order) 
 			: new ProductDocumentForOwnUseFactory(inn, order);
 
-		private async Task<TrueMarkApiDocument> CreateAndSendDocument(HttpClient httpClient, IProductDocumentFactory productDocumentFactory, string certificateThumbPrint)
+		private async Task<TrueMarkApiDocument> CreateAndSendDocument(HttpClient httpClient, TrueMarkDocumentType trueMarkDocumentType, IDocumentFactory productDocumentFactory,
+			string certificateThumbPrint, CancellationToken cancellationToken)
 		{
 			var documentCreateUrl = "lk/documents/create?pg=water";
 
-			var productDocument = productDocumentFactory.CreateProductDocument();
+			var document = productDocumentFactory.CreateDocument();
 
-			var signModel = new SignModel(certificateThumbPrint, productDocument, false);
+			var signModel = new SignModel(certificateThumbPrint, document, false);
 
 			var gtinReceiptDocument = new GtinReceiptDocumentDto
 			{
 				DocumentFormat = "MANUAL",
-				Type = "LK_GTIN_RECEIPT",
-				ProductDocument = productDocument,
+				Type = trueMarkDocumentType.ToString(),
+				ProductDocument = document,
 				Signature = signModel.Sign()
 			};
 
@@ -271,7 +328,7 @@ namespace TrueMarkApi.Services
 			_logger.LogInformation("Отправка: сертификат {OrganizationCertificateThumbPrint}, токен авторизации {AuthorizationToken}", 
 				certificateThumbPrint, httpClient.DefaultRequestHeaders.Authorization);
 
-			var documentResponse = await httpClient.PostAsync(documentCreateUrl, documentContent);
+			var documentResponse = await httpClient.PostAsync(documentCreateUrl, documentContent, cancellationToken);
 
 			if(!documentResponse.IsSuccessStatusCode)
 			{
@@ -285,19 +342,19 @@ namespace TrueMarkApi.Services
 				};
 			}
 
-			var documentId = await documentResponse.Content.ReadAsStringAsync();
+			var documentId = await documentResponse.Content.ReadAsStringAsync(cancellationToken);
 
-			return await RecieveDocument(httpClient, documentId);
+			return await RecieveDocument(httpClient, documentId, cancellationToken);
 		}
 
-		private async Task<TrueMarkApiDocument> RecieveDocument(HttpClient httpClient, string documentId)
+		private async Task<TrueMarkApiDocument> RecieveDocument(HttpClient httpClient, string documentId, CancellationToken cancellationToken)
 		{
 			var resultInfoUrl = $"doc/{documentId}/info";
 
 			// Делаем паузу перед получением информации по созданному документу
-			await Task.Delay(_createDocumentDelaySec * 1000);
+			await Task.Delay(_createDocumentDelaySec * 1000, cancellationToken);
 
-			var resultInfoResponse = await httpClient.GetAsync(resultInfoUrl);
+			var resultInfoResponse = await httpClient.GetAsync(resultInfoUrl, cancellationToken);
 
 			if(!resultInfoResponse.IsSuccessStatusCode)
 			{
@@ -305,8 +362,8 @@ namespace TrueMarkApi.Services
 				for(int i = 0; i < 5; i++)
 				{
 					_logger.LogWarning("Повторный запрос результатов создания документа {DocumentId}", documentId);
-					await Task.Delay(_createDocumentDelaySec * 1000);
-					resultInfoResponse = await httpClient.GetAsync(resultInfoUrl);
+					await Task.Delay(_createDocumentDelaySec * 1000, cancellationToken);
+					resultInfoResponse = await httpClient.GetAsync(resultInfoUrl, cancellationToken);
 
 					if(resultInfoResponse.IsSuccessStatusCode)
 					{
@@ -327,8 +384,8 @@ namespace TrueMarkApi.Services
 				};
 			}
 
-			var resultInfoResponseBody = await resultInfoResponse.Content.ReadAsStreamAsync();
-			createdDocumentInfo = await JsonSerializer.DeserializeAsync<CreatedDocumentInfoDto>(resultInfoResponseBody);
+			var resultInfoResponseBody = await resultInfoResponse.Content.ReadAsStreamAsync(cancellationToken);
+			createdDocumentInfo = await JsonSerializer.DeserializeAsync<CreatedDocumentInfoDto>(resultInfoResponseBody, cancellationToken: cancellationToken);
 
 			if(createdDocumentInfo == null)
 			{
