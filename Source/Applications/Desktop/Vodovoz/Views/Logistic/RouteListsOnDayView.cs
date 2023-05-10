@@ -352,11 +352,11 @@ namespace Vodovoz.Views.Logistic
 				}
 			}
 
-			if(args.Event.Button == 3 && addressesOverlay.Markers.FirstOrDefault(m => m.IsMouseOver)?.Tag is Order order) {
+			if(args.Event.Button == 3 && addressesOverlay.Markers.FirstOrDefault(m => m.IsMouseOver)?.Tag is OrderNode orderNode) {
 				Menu popupMenu = new Menu();
-				var item = new MenuItem(string.Format("Открыть {0}", order));
+				var item = new MenuItem($"Открыть закзаз №{orderNode.OrderId}");
 				item.Activated += (sender, e) => {
-					var dlg = new OrderDlg(order) {
+					var dlg = new OrderDlg(orderNode.OrderId) {
 						HasChanges = false
 					};
 					dlg.SetDlgToReadOnly();
