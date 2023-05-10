@@ -104,6 +104,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.OurOrganization)            .Column("our_organization_id");
 			References(x => x.ContactPhone)               .Column("contact_phone_id");
 			References(x => x.CommentOPManagerChangedBy)  .Column("comment_opmanager_changed_by");
+			References(x => x.LogisticsRequirements)	  .Column("logistics_requirements_id").Cascade.All();
 
 			HasMany(x => x.OrderDocuments)                .KeyColumn("attached_to_order_id")
 				.Cascade.AllDeleteOrphan().Inverse().LazyLoad();
