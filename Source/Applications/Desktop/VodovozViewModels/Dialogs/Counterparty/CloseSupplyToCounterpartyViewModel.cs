@@ -1,8 +1,5 @@
-﻿using QS.Tdi;
-using QS.ViewModels.Extension;
-using QS.ViewModels;
+﻿using QS.ViewModels;
 using QS.DomainModel.UoW;
-using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.EntityRepositories;
 using QS.Navigation;
@@ -12,15 +9,12 @@ using Vodovoz.Domain.Employees;
 using QS.Project.Services;
 using System;
 using QS.Commands;
-using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using Vodovoz.Domain.Client;
 using System.Linq;
 using System.Collections.Generic;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.ViewModelBased;
 using NHibernate.Transform;
 using Vodovoz.Domain.Retail;
-using Vodovoz;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
