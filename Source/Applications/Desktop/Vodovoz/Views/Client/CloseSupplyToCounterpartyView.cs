@@ -1,14 +1,8 @@
 ﻿using Gamma.GtkWidgets;
-using NHibernate.Transform;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Retail;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
-using System.Linq;
-using QS.Dialog.GtkUI;
 using QS.Project.Services;
 using QS.Navigation;
 using QS.Dialog.GtkUI.FileDialog;
@@ -36,21 +30,7 @@ namespace Vodovoz.Views.Client
 			ConfigureCloseSupplyControls();
 			ConfigureNotSensitiveControls();
 
-			buttonSave.Clicked += (sender, args) =>
-			{
-				if(ViewModel.Entity.IsDeliveriesClosed && string.IsNullOrWhiteSpace(ViewModel.Entity.CloseDeliveryComment))
-				{
-					MessageDialogHelper.RunWarningDialog("Необходимо заполнить комментарий по закрытию поставок");
-					return;
-				}
-
-				if(!ViewModel.CanCloseDelivery)
-				{
-					MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
-					return;
-				}
-				ViewModel.Save(true); 
-			};
+			buttonSave.Clicked += (sender, args) => ViewModel.Save(true);
 			buttonSave.Binding
 				.AddFuncBinding(ViewModel, vm => vm.CanCloseDelivery, w => w.Sensitive)
 				.InitializeFromSource();
@@ -73,50 +53,23 @@ namespace Vodovoz.Views.Client
 				.InitializeFromSource();
 
 			ytextviewCloseComment.Binding
-				.AddSource(ViewModel)
-				.AddFuncBinding(vm => string.IsNullOrWhiteSpace(vm.Entity.CloseDeliveryComment), t => t.Sensitive)
-				.AddBinding(vm => vm.CloseDeliveryComment, w => w.Buffer.Text)
+				.AddFuncBinding(ViewModel.Entity, e => string.IsNullOrWhiteSpace(e.CloseDeliveryComment), t => t.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CloseDeliveryComment, w => w.Buffer.Text)
 				.InitializeFromSource();
 
 			buttonSaveCloseComment.Binding
 				.AddSource(ViewModel.Entity)
 				.AddFuncBinding(e => string.IsNullOrWhiteSpace(e.CloseDeliveryComment), b => b.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, b => b.Visible)
+				.AddBinding(e => e.IsDeliveriesClosed, b => b.Visible)
 				.InitializeFromSource();
-			buttonSaveCloseComment.Clicked += (s, e) =>
-			{
-				if(string.IsNullOrWhiteSpace(ytextviewCloseComment.Buffer.Text))
-				{
-					return;
-				}
-
-				if(!ViewModel.CanCloseDelivery)
-				{
-					MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
-					return;
-				}
-
-				ViewModel.SaveCloseCommentCommand.Execute();
-			};
+			buttonSaveCloseComment.Clicked += (s, e) => ViewModel.SaveCloseCommentCommand.Execute();
 
 			buttonEditCloseDeliveryComment.Binding
 				.AddSource(ViewModel.Entity)
 				.AddFuncBinding(e => !string.IsNullOrWhiteSpace(e.CloseDeliveryComment), b => b.Sensitive)
 				.AddBinding(e => e.IsDeliveriesClosed, b => b.Visible)
 				.InitializeFromSource();
-			buttonEditCloseDeliveryComment.Clicked += (s, e) =>
-			{
-				if(!ViewModel.CanCloseDelivery)
-				{
-					MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
-					return;
-				}
-
-				if(MessageDialogHelper.RunQuestionDialog("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?"))
-				{
-					ViewModel.EditCloseCommentCommand.Execute();
-				}
-			};
+			buttonEditCloseDeliveryComment.Clicked += (s, e) => ViewModel.EditCloseCommentCommand.Execute();
 
 			buttonCloseDelivery.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки", l => l.Label)

@@ -1,8 +1,5 @@
-﻿using QS.Tdi;
-using QS.ViewModels.Extension;
-using QS.ViewModels;
+﻿using QS.ViewModels;
 using QS.DomainModel.UoW;
-using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.EntityRepositories;
 using QS.Navigation;
@@ -12,15 +9,12 @@ using Vodovoz.Domain.Employees;
 using QS.Project.Services;
 using System;
 using QS.Commands;
-using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using Vodovoz.Domain.Client;
 using System.Linq;
 using System.Collections.Generic;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.ViewModelBased;
 using NHibernate.Transform;
 using Vodovoz.Domain.Retail;
-using Vodovoz;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
@@ -74,11 +68,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 					? $"Поставки закрыл : {Entity.GetCloseDeliveryInfo()} {Environment.NewLine}<b>Комментарий по закрытию поставок:</b>"
 					: "<b>Комментарий по закрытию поставок:</b>";
 
-		public List<ClientCameFrom> ClientCameFromPlaces => 
+		public List<ClientCameFrom> ClientCameFromPlaces =>
 			_clientCameFromPlaces ?? (_clientCameFromPlaces = UoW.GetAll<ClientCameFrom>().ToList());
 
 		public List<string> AllOrganizationOwnershipTypesAbbreviations =>
-				_allOrganizationOwnershipTypesAbbreviations 
+				_allOrganizationOwnershipTypesAbbreviations
 				?? (_allOrganizationOwnershipTypesAbbreviations = UoW.GetAll<OrganizationOwnershipType>().Select(o => o.Abbreviation).ToList());
 
 		public List<Domain.Organizations.Organization> AllOrganizations =>
@@ -144,6 +138,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			if(CanCloseDelivery)
 			{
 				Entity.ToggleDeliveryOption(CurrentEmployee);
+				OnPropertyChanged(nameof(CloseDeliveryLabelInfo));
 			}
 		}
 		#endregion CloseDelveryCommand
@@ -166,6 +161,17 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		private void SaveCloseComment()
 		{
+			if(string.IsNullOrWhiteSpace(CloseDeliveryComment))
+			{
+				return;
+			}
+
+			if(!CanCloseDelivery)
+			{
+				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "У вас нет прав для изменения комментария по закрытию поставок");
+				return;
+			}
+
 			if(CanSaveCloseComment)
 			{
 				Entity.AddCloseDeliveryComment(CloseDeliveryComment, CurrentEmployee);
@@ -192,12 +198,20 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		private void EditCloseComment()
 		{
-			if(CanEditCloseComment)
+			if(!CanCloseDelivery)
 			{
-				Entity.CloseDeliveryComment = string.Empty;
-				CloseDeliveryComment = string.Empty;
+				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "У вас нет прав для изменения комментария по закрытию поставок");
+				return;
 			}
 
+			if(_commonServices.InteractiveService.Question("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?"))
+			{
+				if(CanEditCloseComment)
+				{
+					Entity.CloseDeliveryComment = string.Empty;
+					CloseDeliveryComment = string.Empty;
+				}
+			}
 		}
 		#endregion EditCloseComment
 
@@ -205,8 +219,15 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		public override bool Save(bool needClose)
 		{
-			if(!CanSaveEntity)
+			if(Entity.IsDeliveriesClosed && string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment))
 			{
+				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "Необходимо заполнить комментарий по закрытию поставок");
+				return false;
+			}
+
+			if(!CanCloseDelivery)
+			{
+				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "У вас нет прав для открытия/закрытия поставок");
 				return false;
 			}
 
@@ -238,7 +259,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			base.Dispose();
 		}
 	}
-	
+
 	public class SalesChannelNode : PropertyChangedBase
 	{
 
