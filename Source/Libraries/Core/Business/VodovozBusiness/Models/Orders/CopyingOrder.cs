@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Services;
@@ -82,6 +83,7 @@ namespace Vodovoz.Models.Orders
 				_resultOrder.ReturnTareReasonCategory = _copiedOrder.ReturnTareReasonCategory;
 				_resultOrder.ReturnTareReason = _copiedOrder.ReturnTareReason;
 				_resultOrder.ContactPhone = _copiedOrder.ContactPhone;
+				_resultOrder.LogisticsRequirements = _copiedOrder.LogisticsRequirements;
 			}
 
 			return this;
@@ -146,6 +148,7 @@ namespace Vodovoz.Models.Orders
 		/// <param name="withDiscounts">true - копируем со скидками false - не переносим скидки</param>
 		/// <param name="withPrices">true - ставим ценам флаг ручного изменения, чтобы они были неизменны
 		/// false - выставляем флаг ручной цены из копируемого заказа</param>
+		/// <param name="forceUseAlternativePrice">Использование альтернативной цены номенклатуры</param>
 		public CopyingOrder CopyOrderItems(bool withDiscounts = false, bool withPrices = false)
 		{
 			var orderItems = _copiedOrder.OrderItems
@@ -296,6 +299,7 @@ namespace Vodovoz.Models.Orders
 				PromoSet = orderItem.PromoSet,
 				Price = orderItem.Price,
 				IsUserPrice = withPrices,
+				IsAlternativePrice = orderItem.IsAlternativePrice,
 				Count = orderItem.Count,
 				IncludeNDS = orderItem.IncludeNDS
 			};

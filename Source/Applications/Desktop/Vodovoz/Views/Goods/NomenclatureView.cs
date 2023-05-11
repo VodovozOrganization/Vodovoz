@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.BusinessCommon.Domain;
@@ -10,12 +8,13 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Views.GtkUI;
 using QSOrmProject;
 using QSWidgetLib;
+using System;
+using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Representations;
 using Vodovoz.Representations.ProductGroups;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
@@ -52,7 +51,24 @@ namespace Vodovoz.Views.Goods
 			
 			#endregion
 
-			buttonSave.Clicked += (sender, args) => ViewModel.SaveCommand.Execute();
+			buttonSave.Clicked += (sender, args) =>
+			{
+				ViewModel.Entity.NomenclaturePrice.Clear();
+				foreach(var item in pricesView.Prices.Cast<NomenclaturePrice>())
+				{
+					item.Nomenclature = ViewModel.Entity;
+					ViewModel.Entity.NomenclaturePrice.Add(item);
+				}
+
+				ViewModel.Entity.AlternativeNomenclaturePrices.Clear();
+				foreach(var item in alternativePricesView.Prices.Cast<AlternativeNomenclaturePrice>())
+				{
+					item.Nomenclature = ViewModel.Entity;
+					ViewModel.Entity.AlternativeNomenclaturePrices.Add(item);
+				}
+
+				ViewModel.SaveCommand.Execute();
+			};
 			buttonSave.Sensitive = ViewModel.CanEdit;
 			buttonCancel.Clicked += (sender, args) => ViewModel.Close(ViewModel.AskSaveOnClose, CloseSource.Cancel);	
 			ylabelCreationDate.Binding
@@ -384,9 +400,13 @@ namespace Vodovoz.Views.Goods
 				.InitializeFromSource();
 			entityViewModelEntryNomenclature.CanEditReference = true;
 
-			pricesView.UoWGeneric = ViewModel.UoWGeneric;
+			pricesView.Prices = ViewModel.Entity.NomenclaturePrice.Cast<NomenclaturePriceBase>().ToList();
 			pricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEdit;
-			ViewModel.PricesViewSaveChanges += () => pricesView.SaveChanges();
+			pricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.General;
+
+			alternativePricesView.Prices = ViewModel.Entity.AlternativeNomenclaturePrices.Cast<NomenclaturePriceBase>().ToList();
+			alternativePricesView.Sensitive = ViewModel.CanCreateAndArcNomenclatures && ViewModel.CanEditAlternativeNomenclaturePrices &&  ViewModel.CanEdit;
+			alternativePricesView.NomenclaturePriceType = NomenclaturePriceBase.NomenclaturePriceType.Alternative;
 
 			#region Вкладка изображения
 
@@ -411,7 +431,7 @@ namespace Vodovoz.Views.Goods
 			menu.ShowAll();
 			menuActions.Sensitive = !ViewModel.UoWGeneric.IsNew && ViewModel.CanEdit;
 		}
-		
+
 		private void YСolorBtnBottleCapColorOnColorSet(object sender, EventArgs e) {
 			var color = (sender as yColorButton).Color;
 
@@ -550,5 +570,6 @@ namespace Vodovoz.Views.Goods
 		}
 
 		#endregion
+
 	}
 }

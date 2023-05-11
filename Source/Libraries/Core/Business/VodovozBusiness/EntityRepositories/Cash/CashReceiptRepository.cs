@@ -2,6 +2,7 @@
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
+using NPOI.SS.Formula.Functions;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using System;
@@ -60,7 +61,11 @@ namespace Vodovoz.EntityRepositories.Cash
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromAvangardId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromSiteByQrCodeId)
-						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)));
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromMobileAppId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSiteId)
+						)
+					);
 			return restriction;
 		}
 
@@ -122,6 +127,31 @@ namespace Vodovoz.EntityRepositories.Cash
 					.Where(GetPositiveSumRestriction())
 					.Where(GetDeliveryDateRestriction())
 					;
+
+				var result = query.Select(Projections.Id()).List<int>();
+				return result;
+			}
+		}
+		
+		/// <summary>
+		/// Получение Id доставляемых заказов, которые удовлетворяют условиям, но на них не были созданы чеки
+		/// (как вариант: заказ закрыт из программы ДВ, а не из водительского приложения)
+		/// </summary>
+		/// <returns>Id's заказов</returns>
+		public IEnumerable<int> GetDeliveryOrderIdsForCashReceipt()
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var query = uow.Session.QueryOver(() => _orderAlias)
+					.Inner.JoinAlias(() => _orderAlias.Client, () => _counterpartyAlias)
+					.Left.JoinAlias(() => _orderAlias.OrderItems, () => _orderItemAlias)
+					.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
+					.Where(GetMissingCashReceiptRestriction())
+					.And(GetPaymentTypeRestriction())
+					.And(GetPositiveSumRestriction())
+					.And(GetDeliveryDateRestriction())
+					.And(GetOrderStatusRestriction())
+					.And(() => !_orderAlias.SelfDelivery);
 
 				var result = query.Select(Projections.Id()).List<int>();
 				return result;
@@ -295,6 +325,19 @@ namespace Vodovoz.EntityRepositories.Cash
 			}
 		}
 
+		public bool HasReceipt(int orderId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var query = uow.Session.QueryOver(() => _cashReceiptAlias)
+					.Where(() => _cashReceiptAlias.Order.Id == orderId)
+					.Where(() => _cashReceiptAlias.Status == CashReceiptStatus.Sended)
+					.Select(Projections.Id());
+				var result = query.List<int>();
+				return result.Any();
+			}
+		}
+
 		public int GetCodeErrorsReceiptCount(IUnitOfWork uow)
 		{
 			var result = uow.Session.QueryOver<CashReceipt>()
@@ -345,6 +388,16 @@ namespace Vodovoz.EntityRepositories.Cash
 					.List<int>();
 				return result;
 			}
+		}
+		
+		public int GetCashReceiptsCountForOrder(IUnitOfWork uow, int orderId)
+		{
+			var result = uow.Session.QueryOver<CashReceipt>()
+				.Where(x => x.Order.Id == orderId)
+				.Select(Projections.Count(Projections.Id()))
+				.SingleOrDefault<int>();
+			
+			return result;
 		}
 	}
 }

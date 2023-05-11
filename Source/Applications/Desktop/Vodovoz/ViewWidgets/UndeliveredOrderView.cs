@@ -24,6 +24,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
@@ -125,8 +126,7 @@ namespace Vodovoz.ViewWidgets
 			if(undelivery.Id <= 0)
 				yDateDispatcherCallTime.DateOrNull = DateTime.Now;
 
-
-			var roboatsSettings = new RoboatsSettings(new ParametersProvider());
+			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var deliveryScheduleRepository = new DeliveryScheduleRepository();
 			var fileDialogService = new FileDialogService();
@@ -213,12 +213,12 @@ namespace Vodovoz.ViewWidgets
 			SetSensitivities();
 		}
 
-        private void OnUndeliveredOrderChanged(object sender, EventArgs e)
-        {
+		private void OnUndeliveredOrderChanged(object sender, EventArgs e)
+		{
 			this.Sensitive = true;
 		}
 
-        void GetFines()
+		void GetFines()
 		{
 			List<FineItem> fineItems = new List<FineItem>();
 			foreach(Fine f in _undelivery.Fines)
@@ -281,10 +281,6 @@ namespace Vodovoz.ViewWidgets
 				)
 				&& _undelivery.OldOrder != null
 			);
-
-			guiltyInUndeliveryView.Sensitive = _undelivery.UndeliveryStatus != UndeliveryStatus.Closed
-				&& (ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_guilty_in_undeliveries") || _undelivery.Id == 0)
-				;
 
 			//кнопки для выбора/создания нового заказа и группа "В работе у отдела"
 			//доступны всегда, если статус недовоза не "Закрыт"

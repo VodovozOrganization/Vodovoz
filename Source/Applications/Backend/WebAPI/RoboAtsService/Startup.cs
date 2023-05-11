@@ -102,10 +102,6 @@ namespace RoboatsService
 				.AsSelf()
 				.AsImplementedInterfaces();
 
-			builder.RegisterType<UserService>()
-				.AsSelf()
-				.AsImplementedInterfaces();
-
 			builder.RegisterInstance(ErrorReporter.Instance).AsImplementedInterfaces();
 
 			builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
@@ -152,8 +148,6 @@ namespace RoboatsService
 
 			app.UseAuthentication();
             app.UseAuthorization();
-
-
 
 			app.UseEndpoints(endpoints =>
             {

@@ -453,6 +453,7 @@
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfCounterpartyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfEmployeesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\ComplaintsWithDepartmentsReactionJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\CounterpartyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DebtorsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryPointByClientJournalRegistrar.cs" />
@@ -578,6 +579,7 @@
     <Compile Include="Representations\ProductGroups\ProductGroupVMNode.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
+    <Compile Include="TempAdapters\ComplaintsJournalFactory.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
@@ -1893,8 +1895,24 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.TrueMarkReceiptJournalFilterView.cs" />
     <Compile Include="Views\Cash\PaymentOnlineView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentOnlineView.cs" />
+    <Compile Include="Views\Reports\SalesBySubdivisionsAnalitycsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.SalesBySubdivisionsAnalitycsReportView.cs" />
+    <Compile Include="Views\Complaints\ComplaintsJournalsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintsJournalsView.cs" />
     <Compile Include="Filters\GtkViews\WarehouseDocumentsItemsJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseDocumentsItemsJournalFilterView.cs" />
+    <Compile Include="Views\Settings\SubdivisionsSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Settings.SubdivisionsSettingsView.cs" />
+    <Compile Include="Views\Logistic\RouteListFastDeliveryMaxDistanceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListFastDeliveryMaxDistanceView.cs" />
+    <Compile Include="Views\Logistic\LogisticsRequirementsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.LogisticsRequirementsView.cs" />
+    <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CarsMonitoringInfoPanelView.cs" />
+    <Compile Include="Filters\Views\ExternalCounterpartiesMatchingJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.Views.ExternalCounterpartiesMatchingJournalFilterView.cs" />
+    <Compile Include="Views\Client\ExternalCounterpartyMatchingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.ExternalCounterpartyMatchingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1960,6 +1978,9 @@
     <PackageReference Include="NLog" Version="5.0.1" />
     <PackageReference Include="NLog.Extensions.Logging">
       <Version>5.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="OneOf">
+      <Version>3.0.243</Version>
     </PackageReference>
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="RabbitMQ.Client">
@@ -2398,6 +2419,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Reports\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
     </ContentWithTargetPath>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_documents.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_forwarder.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_largus.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_many.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_nationality.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_pass.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

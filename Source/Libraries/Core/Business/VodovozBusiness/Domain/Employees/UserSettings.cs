@@ -1,11 +1,11 @@
-﻿using System;
+﻿using MoreLinq;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using MoreLinq;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Goods;
@@ -13,11 +13,11 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Employees
 {
-	[Appellative (Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "настройки пользователей",
 		Nominative = "настройки пользователя")]
 	[EntityPermission]
-	public class UserSettings: PropertyChangedBase, IDomainObject
+	public class UserSettings : PropertyChangedBase, IDomainObject
 	{
 		private IList<CashSubdivisionSortingSettings> _cashSubdivisionSortingSettings;
 		private GenericObservableList<CashSubdivisionSortingSettings> _observableCashSubdivisionSortingSettings;
@@ -26,178 +26,231 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual int Id { get; set; }
 
-		User user;
+		private User _user;
 
-		[Display (Name = "Пользователь")]
-		public virtual User User {
-			get { return user; }
-			set { SetField (ref user, value, () => User); }
+		[Display(Name = "Пользователь")]
+		public virtual User User
+		{
+			get { return _user; }
+			set { SetField(ref _user, value); }
 		}
 
-		ToolbarStyle toolbarStyle = ToolbarStyle.Both;
+		private ToolbarStyle _toolbarStyle = ToolbarStyle.Both;
 
-		[Display (Name = "Стиль панели")]
-		public virtual ToolbarStyle ToolbarStyle {
-			get { return toolbarStyle; }
-			set { SetField (ref toolbarStyle, value, () => ToolbarStyle); }
+		[Display(Name = "Стиль панели")]
+		public virtual ToolbarStyle ToolbarStyle
+		{
+			get { return _toolbarStyle; }
+			set { SetField(ref _toolbarStyle, value); }
 		}
 
-		IconsSize toolBarIconsSize = IconsSize.Large;
+		private IconsSize _toolBarIconsSize = IconsSize.Large;
 
-		[Display (Name = "Размер иконок панели")]
-		public virtual IconsSize ToolBarIconsSize {
-			get { return toolBarIconsSize; }
-			set { SetField (ref toolBarIconsSize, value, () => ToolBarIconsSize); }
+		[Display(Name = "Размер иконок панели")]
+		public virtual IconsSize ToolBarIconsSize
+		{
+			get { return _toolBarIconsSize; }
+			set { SetField(ref _toolBarIconsSize, value); }
 		}
 
-		private bool reorderTabs;
-		
+		private bool _reorderTabs;
+
 		[Display(Name = "Перемещение вкладок")]
-		public virtual bool ReorderTabs {
-			get => reorderTabs;
-			set => SetField(ref reorderTabs, value);
+		public virtual bool ReorderTabs
+		{
+			get => _reorderTabs;
+			set => SetField(ref _reorderTabs, value);
 		}
 
-		private bool highlightTabsWithColor;
+		private bool _highlightTabsWithColor;
 
 		[Display(Name = "Выделение вкладок цветом")]
-		public virtual bool HighlightTabsWithColor {
-			get => highlightTabsWithColor;
-			set => SetField(ref highlightTabsWithColor, value);
+		public virtual bool HighlightTabsWithColor
+		{
+			get => _highlightTabsWithColor;
+			set => SetField(ref _highlightTabsWithColor, value);
 		}
-		
-		private bool keepTabColor;
+
+		private bool _keepTabColor;
 
 		[Display(Name = "Сохранять цвет вкладки")]
-		public virtual bool KeepTabColor {
-			get => keepTabColor;
-			set => SetField(ref keepTabColor, value);
+		public virtual bool KeepTabColor
+		{
+			get => _keepTabColor;
+			set => SetField(ref _keepTabColor, value);
 		}
 
-		Warehouse defaultWarehouse;
+		private bool _hideComplaintNotification;
 
-		[Display (Name = "Склад")]
-		public virtual Warehouse DefaultWarehouse {
-			get { return defaultWarehouse; }
-			set {
-				SetField (ref defaultWarehouse, value, () => DefaultWarehouse);
+		[Display(Name = "Скрыть уведомления об открытых рекламациях")]
+		public virtual bool HideComplaintNotification
+		{
+			get => _hideComplaintNotification;
+			set => SetField(ref _hideComplaintNotification, value);
+		}
+
+		private Warehouse _defaultWarehouse;
+
+		[Display(Name = "Склад")]
+		public virtual Warehouse DefaultWarehouse
+		{
+			get { return _defaultWarehouse; }
+			set
+			{
+				SetField(ref _defaultWarehouse, value);
 			}
 		}
 
-		NomenclatureCategory? defaultSaleCategory;
+		private NomenclatureCategory? _defaultSaleCategory;
 
 		[Display(Name = "Номенклатура на продажу")]
-		public virtual NomenclatureCategory? DefaultSaleCategory {
-			get { return defaultSaleCategory; }
-			set { SetField(ref defaultSaleCategory, value, () => DefaultSaleCategory); }
+		public virtual NomenclatureCategory? DefaultSaleCategory
+		{
+			get { return _defaultSaleCategory; }
+			set { SetField(ref _defaultSaleCategory, value); }
 		}
 
-		private bool logisticDeliveryOrders;
+		private bool _logisticDeliveryOrders;
 
 		/// <summary>
 		/// Для установки фильра заказов для обычной доставки
 		/// </summary>
 		[Display(Name = "Доставка")]
-		public virtual bool LogisticDeliveryOrders {
-			get => logisticDeliveryOrders;
-			set => SetField(ref logisticDeliveryOrders, value, () => LogisticDeliveryOrders);
+		public virtual bool LogisticDeliveryOrders
+		{
+			get => _logisticDeliveryOrders;
+			set => SetField(ref _logisticDeliveryOrders, value);
 		}
 
-		private bool logisticServiceOrders;
+		private bool _logisticServiceOrders;
 
 		/// <summary>
 		/// Для установки фильтра заказов с сервисным обслуживанием (выезд мастеров)
 		/// </summary>
 		[Display(Name = "Сервисное обслуживание")]
-		public virtual bool LogisticServiceOrders {
-			get => logisticServiceOrders;
-			set => SetField(ref logisticServiceOrders, value, () => LogisticServiceOrders);
+		public virtual bool LogisticServiceOrders
+		{
+			get => _logisticServiceOrders;
+			set => SetField(ref _logisticServiceOrders, value);
 		}
 
-		private bool logisticChainStoreOrders;
+		private bool _logisticChainStoreOrders;
 
 		/// <summary>
 		/// Для установки фильтра заказов для сетевых магазинов
 		/// </summary>
 		[Display(Name = "Сетевые магазины")]
-		public virtual bool LogisticChainStoreOrders {
-			get => logisticChainStoreOrders;
-			set => SetField(ref logisticChainStoreOrders, value, () => LogisticChainStoreOrders);
+		public virtual bool LogisticChainStoreOrders
+		{
+			get => _logisticChainStoreOrders;
+			set => SetField(ref _logisticChainStoreOrders, value);
 		}
 
 		/// <summary>
-        /// Использовать отдел сотрудника
-        /// </summary>
+		/// Использовать отдел сотрудника
+		/// </summary>
 
-        private bool useEmployeeSubdivision;
-        [Display(Name = "Использовать отдел сотрудника")]
-        public virtual bool UseEmployeeSubdivision
-        {
-            get => useEmployeeSubdivision;
-            set => SetField(ref useEmployeeSubdivision, value, () => UseEmployeeSubdivision);
-        }
+		private bool _useEmployeeSubdivision;
+		[Display(Name = "Использовать отдел сотрудника")]
+		public virtual bool UseEmployeeSubdivision
+		{
+			get => _useEmployeeSubdivision;
+			set => SetField(ref _useEmployeeSubdivision, value);
+		}
 
 
-        /// <summary>
-        /// Для установки фильтра подразделений
-        /// </summary>
-        private Subdivision defaultSubdivision;
+		/// <summary>
+		/// Для установки фильтра подразделений
+		/// </summary>
+		private Subdivision _defaultSubdivision;
 
-        [Display(Name = "Подразделение")]
-        public virtual Subdivision DefaultSubdivision
-        {
-            get { return defaultSubdivision; }
-            set
-            {
-                SetField(ref defaultSubdivision, value, () => DefaultSubdivision);
-            }
-        }
+		[Display(Name = "Подразделение")]
+		public virtual Subdivision DefaultSubdivision
+		{
+			get { return _defaultSubdivision; }
+			set
+			{
+				SetField(ref _defaultSubdivision, value);
+			}
+		}
 
-        /// <summary>
-        /// Для установки дефолтного контрагента в отчете по оплатам
-        /// </summary>
-        private Counterparty defaultCounterparty;
-        [Display(Name = "Контрагент")]
-        public virtual Counterparty DefaultCounterparty
-        {
-            get => defaultCounterparty;
-            set => SetField(ref defaultCounterparty, value);
-        }
+		/// <summary>
+		/// Для установки дефолтного контрагента в отчете по оплатам
+		/// </summary>
+		private Counterparty _defaultCounterparty;
+		[Display(Name = "Контрагент")]
+		public virtual Counterparty DefaultCounterparty
+		{
+			get => _defaultCounterparty;
+			set => SetField(ref _defaultCounterparty, value);
+		}
 
-        /// <summary>
-        /// Статус рекламации
-        /// </summary>
-        private ComplaintStatuses? defaultComplaintStatus;
+		/// <summary>
+		/// Статус рекламации
+		/// </summary>
+		private ComplaintStatuses? _defaultComplaintStatus;
+		private string _salesBySubdivisionsAnalitycsReportWarehousesString;
+		private string _salesBySubdivisionsAnalitycsReportSubdivisionsString;
 
-        [Display(Name = "Статус рекламации")]
-        public virtual ComplaintStatuses? DefaultComplaintStatus
-        {
-            get { return defaultComplaintStatus; }
-            set
-            {
-                SetField(ref defaultComplaintStatus, value, () => DefaultComplaintStatus);
-            }
-        }
+		[Display(Name = "Статус рекламации")]
+		public virtual ComplaintStatuses? DefaultComplaintStatus
+		{
+			get { return _defaultComplaintStatus; }
+			set
+			{
+				SetField(ref _defaultComplaintStatus, value);
+			}
+		}
 
-        [Display(Name = "Настройки сортировки касс")]
-        public virtual IList<CashSubdivisionSortingSettings> CashSubdivisionSortingSettings
-        {
-	        get => _cashSubdivisionSortingSettings;
-	        set => SetField(ref _cashSubdivisionSortingSettings, value);
-        }
+		[Display(Name = "Настройки сортировки касс")]
+		public virtual IList<CashSubdivisionSortingSettings> CashSubdivisionSortingSettings
+		{
+			get => _cashSubdivisionSortingSettings;
+			set => SetField(ref _cashSubdivisionSortingSettings, value);
+		}
 
-        public virtual GenericObservableList<CashSubdivisionSortingSettings> ObservableCashSubdivisionSortingSettings =>
-	        _observableCashSubdivisionSortingSettings
-	        ?? (_observableCashSubdivisionSortingSettings =
-		        new GenericObservableList<CashSubdivisionSortingSettings>(CashSubdivisionSortingSettings));
+		public virtual GenericObservableList<CashSubdivisionSortingSettings> ObservableCashSubdivisionSortingSettings =>
+			_observableCashSubdivisionSortingSettings
+			?? (_observableCashSubdivisionSortingSettings =
+				new GenericObservableList<CashSubdivisionSortingSettings>(CashSubdivisionSortingSettings));
 
-        #endregion
+		public virtual string SalesBySubdivisionsAnalitycsReportWarehousesString
+		{
+			get => _salesBySubdivisionsAnalitycsReportWarehousesString;
+			set => SetField(ref _salesBySubdivisionsAnalitycsReportWarehousesString, value);
+		}
 
-        public UserSettings ()
+		public virtual string SalesBySubdivisionsAnalitycsReportSubdivisionsString
+		{
+			get => _salesBySubdivisionsAnalitycsReportSubdivisionsString;
+			set => SetField(ref _salesBySubdivisionsAnalitycsReportSubdivisionsString, value);
+		}
+
+		[PropertyChangedAlso(nameof(SalesBySubdivisionsAnalitycsReportWarehousesString))]
+		public virtual IEnumerable<int> SalesBySubdivisionsAnalitycsReportWarehouses
+		{
+			get => string.IsNullOrWhiteSpace(SalesBySubdivisionsAnalitycsReportWarehousesString) ? Enumerable.Empty<int>() : SalesBySubdivisionsAnalitycsReportWarehousesString
+				.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(x => int.Parse(x));
+			set => SalesBySubdivisionsAnalitycsReportWarehousesString = string.Join(", ", value);
+		}
+
+		[PropertyChangedAlso(nameof(SalesBySubdivisionsAnalitycsReportSubdivisionsString))]
+		public virtual IEnumerable<int> SalesBySubdivisionsAnalitycsReportSubdivisions
+		{
+			get => string.IsNullOrWhiteSpace(SalesBySubdivisionsAnalitycsReportSubdivisionsString) ? Enumerable.Empty<int>() : SalesBySubdivisionsAnalitycsReportSubdivisionsString
+				.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(x => int.Parse(x));
+			set => SalesBySubdivisionsAnalitycsReportSubdivisionsString = string.Join(", ", value);
+		}
+
+		#endregion
+
+		public UserSettings()
 		{
 		}
 
-		public UserSettings (User user)
+		public UserSettings(User user)
 		{
 			User = user;
 		}
@@ -250,35 +303,4 @@ namespace Vodovoz.Domain.Employees
 			return notListedAsAvailable.Any() || notAvailableAnymore.Any();
 		}
 	}
-
-	public enum IconsSize
-	{
-		ExtraSmall,
-		Small,
-		Middle,
-		Large
-	}
-
-	public class ToolBarIconsSizeStringType : NHibernate.Type.EnumStringType
-	{
-		public ToolBarIconsSizeStringType () : base (typeof(IconsSize))
-		{
-		}
-	}
-
-	public enum ToolbarStyle
-	{
-		Icons,
-		Text,
-		Both,
-		BothHoriz
-	}
-
-	public class ToolbarStyleStringType : NHibernate.Type.EnumStringType
-	{
-		public ToolbarStyleStringType () : base (typeof(ToolbarStyle))
-		{
-		}
-	}
-
 }

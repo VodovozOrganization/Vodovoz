@@ -78,9 +78,9 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelReplacement;
 
-		private global::Gamma.Widgets.yEntryReference referenceEquipment;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry nomenclatureVMEntry;
 
-		private global::Gamma.Widgets.yEntryReference referenceNomenclature;
+		private global::Gamma.Widgets.yEntryReference referenceEquipment;
 
 		private global::Gamma.Widgets.yEntryReference yentryEquipmentReplacement;
 
@@ -361,6 +361,7 @@ namespace Vodovoz
 			this.evmeClient.Events = ((global::Gdk.EventMask)(256));
 			this.evmeClient.Name = "evmeClient";
 			this.evmeClient.CanEditReference = true;
+			this.evmeClient.CanOpenWithoutTabParent = false;
 			this.datatable1.Add(this.evmeClient);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable1[this.evmeClient]));
 			w19.TopAttach = ((uint)(2));
@@ -374,6 +375,7 @@ namespace Vodovoz
 			this.evmeDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDeliveryPoint.Name = "evmeDeliveryPoint";
 			this.evmeDeliveryPoint.CanEditReference = true;
+			this.evmeDeliveryPoint.CanOpenWithoutTabParent = false;
 			this.datatable1.Add(this.evmeDeliveryPoint);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatable1[this.evmeDeliveryPoint]));
 			w20.TopAttach = ((uint)(2));
@@ -567,27 +569,28 @@ namespace Vodovoz
 			w37.XOptions = ((global::Gtk.AttachOptions)(4));
 			w37.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceEquipment = new global::Gamma.Widgets.yEntryReference();
-			this.referenceEquipment.Sensitive = false;
-			this.referenceEquipment.Events = ((global::Gdk.EventMask)(256));
-			this.referenceEquipment.Name = "referenceEquipment";
-			this.datatable1.Add(this.referenceEquipment);
-			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceEquipment]));
-			w38.TopAttach = ((uint)(6));
-			w38.BottomAttach = ((uint)(7));
+			this.nomenclatureVMEntry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.nomenclatureVMEntry.Events = ((global::Gdk.EventMask)(256));
+			this.nomenclatureVMEntry.Name = "nomenclatureVMEntry";
+			this.nomenclatureVMEntry.CanEditReference = false;
+			this.nomenclatureVMEntry.CanOpenWithoutTabParent = false;
+			this.datatable1.Add(this.nomenclatureVMEntry);
+			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.datatable1[this.nomenclatureVMEntry]));
+			w38.TopAttach = ((uint)(5));
+			w38.BottomAttach = ((uint)(6));
 			w38.LeftAttach = ((uint)(1));
 			w38.RightAttach = ((uint)(2));
 			w38.XOptions = ((global::Gtk.AttachOptions)(4));
 			w38.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceNomenclature = new global::Gamma.Widgets.yEntryReference();
-			this.referenceNomenclature.Sensitive = false;
-			this.referenceNomenclature.Events = ((global::Gdk.EventMask)(256));
-			this.referenceNomenclature.Name = "referenceNomenclature";
-			this.datatable1.Add(this.referenceNomenclature);
-			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceNomenclature]));
-			w39.TopAttach = ((uint)(5));
-			w39.BottomAttach = ((uint)(6));
+			this.referenceEquipment = new global::Gamma.Widgets.yEntryReference();
+			this.referenceEquipment.Sensitive = false;
+			this.referenceEquipment.Events = ((global::Gdk.EventMask)(256));
+			this.referenceEquipment.Name = "referenceEquipment";
+			this.datatable1.Add(this.referenceEquipment);
+			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceEquipment]));
+			w39.TopAttach = ((uint)(6));
+			w39.BottomAttach = ((uint)(7));
 			w39.LeftAttach = ((uint)(1));
 			w39.RightAttach = ((uint)(2));
 			w39.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -639,6 +642,7 @@ namespace Vodovoz
 			this.evmeEngineer.Events = ((global::Gdk.EventMask)(256));
 			this.evmeEngineer.Name = "evmeEngineer";
 			this.evmeEngineer.CanEditReference = true;
+			this.evmeEngineer.CanOpenWithoutTabParent = false;
 			this.datatable2.Add(this.evmeEngineer);
 			global::Gtk.Table.TableChild w43 = ((global::Gtk.Table.TableChild)(this.datatable2[this.evmeEngineer]));
 			w43.LeftAttach = ((uint)(1));
@@ -890,7 +894,6 @@ namespace Vodovoz
 			this.toggleInfo.Toggled += new global::System.EventHandler(this.OnToggleInfoToggled);
 			this.toggleServicesAndWorks.Toggled += new global::System.EventHandler(this.OnToggleServicesAndWorksToggled);
 			this.toggleHistory.Toggled += new global::System.EventHandler(this.OnToggleHistoryToggled);
-			this.referenceNomenclature.Changed += new global::System.EventHandler(this.OnReferenceNomenclatureChanged);
 			this.referenceEquipment.Changed += new global::System.EventHandler(this.OnReferenceEquipmentChanged);
 			this.enumcomboWithSerial.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumcomboWithSerialEnumItemSelected);
 			this.buttonAddService.Clicked += new global::System.EventHandler(this.OnButtonAddServiceClicked);

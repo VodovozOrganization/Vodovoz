@@ -1,30 +1,29 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using NLog;
+﻿using Mailjet.Api.Abstractions;
+using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using RabbitMQ.MailSending;
 using RabbitMQ.Infrastructure;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Parameters;
-using Vodovoz.Tools;
-using Vodovoz.ViewModels.Infrastructure.Services;
-using Microsoft.Extensions.Logging;
-using VodovozInfrastructure.Configuration;
+using RabbitMQ.MailSending;
+using System;
 using System.Collections.Generic;
-using Mailjet.Api.Abstractions;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Tools;
+using Vodovoz.ViewModels.Infrastructure.Services;
+using VodovozInfrastructure.Configuration;
 
 namespace Vodovoz.Additions
 {
 	public class AuthorizationService : IAuthorizationService
 	{
-		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+		private readonly ILogger<AuthorizationService> _logger;
 		private readonly IPasswordGenerator _passwordGenerator;
 		private readonly IUserRoleSettings _userRoleSettings;
 		private readonly IUserRoleRepository _userRoleRepository;
@@ -40,7 +39,8 @@ namespace Vodovoz.Additions
 			IUserRoleRepository userRoleRepository,
 			IUserRepository userRepository,
 			IEmailParametersProvider emailParametersProvider,
-			ISubdivisionParametersProvider subdivisionParametersProvider)
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ILogger<AuthorizationService> logger)
 		{
 			_passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));
 			_userRoleSettings = userRoleSettings ?? throw new ArgumentNullException(nameof(userRoleSettings));
@@ -54,6 +54,7 @@ namespace Vodovoz.Additions
 			}
 			_humanResourcesSubdivisionId = subdivisionParametersProvider.GetHumanResourcesSubdivisionId;
 			_developersSubdivisionId = subdivisionParametersProvider.GetDevelopersSubdivisionId;
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		public bool ResetPassword(string userLogin, string password, string email, string fullName)
@@ -108,20 +109,20 @@ namespace Vodovoz.Additions
 			}
 			catch
 			{
-				_logger.Error("Не удалось создать пользователя");
+				_logger.LogError("Не удалось создать пользователя");
 				throw;
 			}
 
 			try
 			{
-				_logger.Info("Выдаем права пользователю");
+				_logger.LogInformation("Выдаем права пользователю");
 				
 				var database = _userRoleSettings.GetDatabaseForNewUser;
 				_userRepository.GrantPrivilegesToNewUser(uow, database, user.Login);
 				_userRepository.GiveSelectPrivilegesToArchiveDataBase(uow, user.Login);
 				var userRole = _userRoleSettings.GetDefaultUserRoleName;
 				
-				_logger.Info("Выдаем роль пользователю");
+				_logger.LogInformation("Выдаем роль пользователю");
 				if(employee.Subdivision != null
 					&& (employee.Subdivision.Id == _humanResourcesSubdivisionId || employee.Subdivision.Id == _developersSubdivisionId))
 				{
@@ -131,19 +132,19 @@ namespace Vodovoz.Additions
 				{
 					_userRoleRepository.GrantRoleToUser(uow, userRole, user.Login);
 				}
-				_logger.Info("Назначаем ее по умолчанию для него");
+				_logger.LogInformation("Назначаем ее по умолчанию для него");
 				_userRoleRepository.SetDefaultRoleToUser(uow, userRole, user.Login);
-				_logger.Info("Сохраняем пользователя");
+				_logger.LogInformation("Сохраняем пользователя");
 				uow.Save(user);
 			}
 			catch
 			{
 				RemoveUserData(uow, user);
-				_logger.Info("Ошибка при выдаче прав пользователю или его сохранении");
+				_logger.LogInformation("Ошибка при выдаче прав пользователю или его сохранении");
 				throw;
 			}
 			
-			_logger.Info("Идёт отправка почты");
+			_logger.LogInformation("Идёт отправка почты");
 			bool sendResult = false;
 			try
 			{
@@ -152,24 +153,24 @@ namespace Vodovoz.Additions
 			catch(TimeoutException)
 			{
 				RemoveUserData(uow, user);
-				_logger.Info(emailSendErrorMessage);
+				_logger.LogInformation(emailSendErrorMessage);
 				MessageDialogHelper.RunErrorDialog("Сервис отправки E-Mail временно недоступен\n");
 				return false;
 			}
 			catch
 			{
 				RemoveUserData(uow, user);
-				_logger.Info(emailSendErrorMessage);
+				_logger.LogInformation(emailSendErrorMessage);
 				throw;
 			}
 			if(!sendResult)
 			{
 				//Если не получилось отправить e-mail с паролем - удаляем пользователя
 				RemoveUserData(uow, user);
-				_logger.Info(emailSendErrorMessage);
+				_logger.LogInformation(emailSendErrorMessage);
 				return false;
 			}
-			_logger.Info("Письмо успешно отправлено");
+			_logger.LogInformation("Письмо успешно отправлено");
 			employee.User = user;
 			
 			return true;
@@ -237,7 +238,7 @@ namespace Vodovoz.Additions
 			}
 			catch(Exception e)
 			{
-				_logger.Error(e, e.Message);
+				_logger.LogError(e, e.Message);
 				return false;
 			}
 		}

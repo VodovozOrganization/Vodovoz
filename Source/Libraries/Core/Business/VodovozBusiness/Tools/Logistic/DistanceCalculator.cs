@@ -8,6 +8,8 @@ using NetTopologySuite.Operation.Union;
 using NHibernate.Util;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -98,6 +100,29 @@ namespace Vodovoz.Tools.Logistic
 				Geometry allRadiuces =
 					CascadedPolygonUnion.Union(
 						driversCoordinates.Select(x => CreateCircle(x, fastDeliveryRadius))
+					.ToList());
+
+				var difference = allDistricts.Difference(allRadiuces).Area;
+
+				return totalDistrictsArea != 0 ? (totalDistrictsArea - difference) / totalDistrictsArea : 0;
+
+			}
+			return 0;
+		}
+
+		public static double CalculateCoveragePercent(ICollection<Geometry> districtsBorders, ICollection<DriverPositionWithFastDeliveryRadius> drivers)
+		{
+			var geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
+
+			if(districtsBorders.Any())
+			{
+				Geometry allDistricts = CascadedPolygonUnion.Union(districtsBorders);
+
+				var totalDistrictsArea = allDistricts.Area;
+
+				Geometry allRadiuces =
+					CascadedPolygonUnion.Union(
+						drivers.Select(x => CreateCircle(x.ToCoordinate(), x.FastDeliveryRadius))
 					.ToList());
 
 				var difference = allDistricts.Difference(allRadiuces).Area;

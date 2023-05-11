@@ -56,6 +56,47 @@ namespace Vodovoz.Models.TrueMark
 			}
 		}
 
+		public virtual int TakeCode(string gtin)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			using(var transaction = uow.Session.BeginTransaction(IsolationLevel.RepeatableRead))
+			{
+				var deletingCodeIdQuery = @"
+						SELECT 
+							pool.id
+						FROM 
+							true_mark_codes_pool pool
+							INNER JOIN true_mark_identification_code code ON code.id = pool.code_id 
+						WHERE 
+							pool.promoted 
+							AND code.gtin = :gtin
+						ORDER BY pool.adding_time DESC 
+						LIMIT 1
+					;";
+				
+				var query = @"DELETE FROM true_mark_codes_pool
+					WHERE id = :deletingCodeId
+					RETURNING code_id
+					;";
+
+				var deletingCodeId = uow.Session.CreateSQLQuery(deletingCodeIdQuery)
+					.SetParameter("gtin", gtin)
+					.UniqueResult<uint>();
+
+				if(deletingCodeId == 0)
+				{
+					return 0;
+				}
+				
+				var result = (int)uow.Session.CreateSQLQuery(query)
+					.SetParameter("deletingCodeId", deletingCodeId)
+					.UniqueResult<uint>();
+				
+				transaction.Commit();
+				return result;
+			}
+		}
+
 		public virtual void PutDefectiveCode(int codeId)
 		{
 			if(ContainsDefectiveCode(codeId))

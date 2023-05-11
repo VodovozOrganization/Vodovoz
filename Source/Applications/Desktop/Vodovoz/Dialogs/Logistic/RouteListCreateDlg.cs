@@ -67,6 +67,8 @@ namespace Vodovoz
 			new RouteListRepository(new StockRepository(), _baseParametersProvider);
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider =
 			new NomenclatureParametersProvider(_parametersProvider);
+		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider = 
+			new DeliveryRulesParametersProvider(_parametersProvider);
 
 		private readonly IEntityDocumentsPrinterFactory _entityDocumentsPrinterFactory =
 			new EntityDocumentsPrinterFactory();
@@ -556,6 +558,9 @@ namespace Vodovoz
 
 				_oldDriver = Entity.Driver;
 			}
+
+			var commonFastDeliveryMaxDistance = (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(DateTime.Now);
+			Entity.UpdateFastDeliveryMaxDistanceValue(commonFastDeliveryMaxDistance);
 
 			_logger.Info("Сохраняем маршрутный лист...");
 			UoWGeneric.Save();

@@ -29,6 +29,10 @@ namespace Vodovoz.Domain.Orders
 
 		private OrderItem _copiedFromUndelivery;
 
+		private bool _isAlternativePrice;
+
+		private bool _isFixedPrice;
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -72,9 +76,9 @@ namespace Vodovoz.Domain.Orders
 			set {
 				//Если цена не отличается от той которая должна быть по прайсам в 
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
-				IsUserPrice = value != GetPriceByTotalCount() && value != 0;
+				IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
 				if(IsUserPrice)
-					IsUserPrice = value != GetPriceByTotalCount() && value != 0;
+					IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
 
 				if(SetField(ref price, value, () => Price)) {
 					RecalculateDiscount();
@@ -98,7 +102,8 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(Nomenclature?.Unit?.Digits == 0 && value % 1 != 0)
 					value = Math.Truncate(value);
-				if(SetField(ref count, value)) {
+				if(SetField(ref count, value)) 
+				{
 					Order?.RecalculateItemsPrice();
 					RecalculateDiscount();
 					RecalculateVAT();
@@ -223,6 +228,20 @@ namespace Vodovoz.Domain.Orders
 		public virtual PromotionalSet PromoSet {
 			get => promoSet;
 			set => SetField(ref promoSet, value, () => PromoSet);
+		}
+
+		[Display(Name = "Альтернативная цена?")]
+		public virtual bool IsAlternativePrice
+		{
+			get => _isAlternativePrice;
+			set => SetField(ref _isAlternativePrice, value);
+		}
+
+		[Display(Name = "Установлена фиксированная цена?")]
+		public virtual bool IsFixedPrice
+		{
+			get => _isFixedPrice;
+			set => SetField(ref _isFixedPrice, value);
 		}
 
 		#region Аренда
@@ -478,18 +497,39 @@ namespace Vodovoz.Domain.Orders
 				return result;
 
 			//влияющая номенклатура
-			if(Nomenclature.Category == NomenclatureCategory.water) {
-				var fixedPrice = order.GetFixedPriceOrNull(Nomenclature);
-				if (fixedPrice != null) {
+			if(Nomenclature.Category == NomenclatureCategory.water) 
+			{
+				var fixedPrice = order.GetFixedPriceOrNull(Nomenclature, TotalCountInOrder);
+				if (fixedPrice != null) 
+				{
 					return fixedPrice.Price;
 				}
 			}
 			return result;
 		}
 
+		public decimal TotalCountInOrder => 
+			Nomenclature.IsWater19L 
+			? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) 
+			: Count;
+
 		public virtual void RecalculatePrice()
 		{
-			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || order.GetFixedPriceOrNull(Nomenclature) != null)
+			var fixedPrice = Order.GetFixedPriceOrNull(Nomenclature, TotalCountInOrder);
+
+			if (fixedPrice != null && CopiedFromUndelivery == null)
+			{
+				if(Price != fixedPrice.Price)
+				{
+					Price = fixedPrice.Price;
+				}
+				IsFixedPrice = true;
+				return;
+			}
+
+			IsFixedPrice = false;
+
+			if(IsUserPrice || PromoSet != null || Order.OrderStatus == OrderStatus.Closed || CopiedFromUndelivery != null)
 				return;
 
 			Price = GetPriceByTotalCount();
@@ -497,11 +537,15 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal GetPriceByTotalCount()
 		{
-			if(Nomenclature != null) {
+			if(Nomenclature != null)
+			{
+				var curCount = Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count;
+				var canApplyAlternativePrice = Order.HasPermissionsForAlternativePrice && Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount);
+
 				if(Nomenclature.DependsOnNomenclature == null)
-					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
+					return Nomenclature.GetPrice(curCount, canApplyAlternativePrice);
 				if(Nomenclature.IsWater19L)
-					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
+					return Nomenclature.DependsOnNomenclature.GetPrice(curCount, canApplyAlternativePrice);
 			}
 			return 0m;
 		}

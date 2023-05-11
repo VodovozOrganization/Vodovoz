@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
@@ -12,22 +13,27 @@ namespace Vodovoz.ViewWidgets
 	public partial class GuiltyInUndeliveryView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
+		private readonly bool _canEditGuiltyPermission =
+			ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_guilty_in_undeliveries");
 
 		private IUnitOfWork _uow;
 		private UndeliveredOrder _undeliveredOrder;
 
 		public GuiltyInUndeliveryView()
 		{
-			this.Build();
+			Build();
 		}
 
 		public void ConfigureWidget(IUnitOfWork uow, UndeliveredOrder undeliveredOrder, bool driverCanBeGuilty)
 		{
 			_uow = uow;
 			_undeliveredOrder = undeliveredOrder;
+			var canEditGuilty = _undeliveredOrder.UndeliveryStatus != UndeliveryStatus.Closed
+				&& (_canEditGuiltyPermission || _undeliveredOrder.Id == 0);
 			enumBtnGuiltySide.ItemsEnum = typeof(GuiltyTypes);
 			enumBtnGuiltySide.SetSensitive(GuiltyTypes.Driver, driverCanBeGuilty);
 			enumBtnGuiltySide.SetSensitive(GuiltyTypes.None, !undeliveredOrder.ObservableGuilty.Any());
+			enumBtnGuiltySide.Sensitive = canEditGuilty;
 			undeliveredOrder.ObservableGuilty.ElementAdded += ObservableGuilty_ElementAdded;
 			undeliveredOrder.ObservableGuilty.ElementRemoved += ObservableGuilty_ElementRemoved;
 			enumBtnGuiltySide.EnumItemClicked += (sender, e) => {
@@ -39,12 +45,14 @@ namespace Vodovoz.ViewWidgets
 				);
 				SetWidgetApperance();
 			};
+			btnRemove.Sensitive = canEditGuilty;
 
 			var colorBlack = new Gdk.Color(0, 0, 0);
 			var colorGrey = new Gdk.Color(96, 96, 96);
 			var colorWhite = new Gdk.Color(255, 255, 255);
 			var hideEnums = !driverCanBeGuilty ? new Enum[] { GuiltyTypes.Driver } : new Enum[] { };
 			var allDepartments = _subdivisionRepository.GetAllDepartmentsOrderedByName(_uow);
+			
 			treeViewGuilty.ColumnsConfig = ColumnsConfigFactory.Create<GuiltyInUndelivery>()
 				.AddColumn("Сторона")
 					.HeaderAlignment(0.5f)
@@ -55,16 +63,24 @@ namespace Vodovoz.ViewWidgets
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(allDepartments)
 					.AddSetter(
-						(c, n) => {
-							c.Editable = n.GuiltySide == GuiltyTypes.Department;
+						(c, n) =>
+						{
+							c.Editable = n.GuiltySide == GuiltyTypes.Department && canEditGuilty;
+							
 							if(n.GuiltySide != GuiltyTypes.Department)
+							{
 								n.GuiltyDepartment = null;
-							if(n.GuiltySide == GuiltyTypes.Department && n.GuiltyDepartment == null) {
+							}
+
+							if(n.GuiltySide == GuiltyTypes.Department && n.GuiltyDepartment == null)
+							{
 								c.ForegroundGdk = colorGrey;
 								c.Style = Pango.Style.Italic;
 								c.Text = "(Нажмите для выбора отдела)";
 								c.BackgroundGdk = colorWhite;
-							} else {
+							}
+							else
+							{
 								c.ForegroundGdk = colorBlack;
 								c.Style = Pango.Style.Normal;
 								c.Background = null;

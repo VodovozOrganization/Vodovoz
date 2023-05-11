@@ -43,6 +43,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IEnumerable<CarLoadDocument> GetCarLoadDocuments(IUnitOfWork uow, int routelistId);
 		int BottlesUnloadedByCarUnloadedDocuments(IUnitOfWork uow, int emptyBottleId, int routeListId, params int[] exceptDocumentIds);
 		RouteList GetActualRouteListByOrder(IUnitOfWork uow, Domain.Orders.Order order);
+		RouteList GetActualRouteListByOrder(IUnitOfWork uow, int orderId);
 		bool RouteListWasChanged(RouteList routeList);
 		IList<GoodsInRouteListResultWithSpecialRequirements> GetGoodsAndEquipsInRLWithSpecialRequirements(IUnitOfWork uow, RouteList routeList, ISubdivisionRepository subdivisionRepository = null, Warehouse warehouse = null);
 		/// <summary>

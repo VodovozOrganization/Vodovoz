@@ -277,8 +277,7 @@ namespace Vodovoz
 		{
 			_nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			_nomenclatureFixedPriceProvider =
-				new NomenclatureFixedPriceController(
-					new NomenclatureFixedPriceFactory(), new WaterFixedPricesGenerator(_nomenclatureRepository));
+				new NomenclatureFixedPriceController(new NomenclatureFixedPriceFactory());
 			_canEditPrices =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
 			_orderNode = new OrderNode(_routeListItem.Order);
@@ -313,6 +312,8 @@ namespace Vodovoz
 						.Adjustment(new Adjustment(0, 0, 99999, 1, 100, 0))
 						.AddSetter((cell, node) => cell.Editable = node.HasPrice && _canEditPrices)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("Альтерн.\nцена")
+					.AddToggleRenderer(x => x.OrderItem.IsAlternativePrice).Editing(false)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
@@ -490,7 +491,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker);
+				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
@@ -503,7 +504,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) =>
 			{
-				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker);
+				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UpdateButtonsState();
 				OnCloseTab(false);
@@ -512,7 +513,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Completed, CallTaskWorker);
+			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Completed, CallTaskWorker, true);
 			_routeListItem.RestoreOrder();
 			_routeListItem.FirstFillClosing(_wageParameterService);
 			UpdateListsSentivity();

@@ -2,12 +2,10 @@
 
 echo "Какие службы необходимо обновить?"
 echo "1) SmsInformer"
-echo "2) ModulKassa (SalesReceipts)"
-echo "3) InstantSms"
-echo "4) SmsPayment"
-echo "5) Mango"
+echo "2) SmsPayment"
+echo "3) Mango"
 
-echo "Можно вызывать вместе, перечислив номера через запятую, например SmsInformer+ModulKassa=1,2"
+echo "Можно вызывать вместе, перечислив номера через запятую, например SmsInformer+SmsPayment=1,2"
 read service;
 
 echo "Какую сборку использовать?"
@@ -17,12 +15,6 @@ read build;
 
 smsServiceFolder="VodovozSmsInformerService"
 smsServiceName="vodovoz-smsinformer.service"
-
-kassaServiceFolder="VodovozSalesReceiptsService"
-kassaServiceName="vodovoz-sales-receipts.service"
-
-instantSmsServiceFolder="VodovozInstantSmsService"
-instantSmsServiceName="vodovoz-instant-sms.service"
 
 smsPaymentServiceFolder="VodovozSmsPaymentService"
 smsPaymentServiceName="vodovoz-sms-payment.service"
@@ -80,34 +72,6 @@ function UpdateSMSInformerService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $smsServiceName
 }
 
-function UpdateSalesReceiptsService {
-	printf "\nОбновление службы управления кассовым апаратом\n"
-
-	echo "-- Stoping $kassaServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $kassaServiceName
-
-	echo "-- Copying $kassaServiceName files"
-	DeleteHttpDll "Workers/Mono" $kassaServiceFolder
-	CopyFiles "Workers/Mono" $kassaServiceFolder
-
-	echo "-- Starting $kassaServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl start $kassaServiceName
-}
-
-function UpdateInstantSmsService {
-	printf "\nОбновление службы моментальных SMS сообщений\n"
-
-	echo "-- Stoping $instantSmsServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $instantSmsServiceName
-
-	echo "-- Copying $instantSmsServiceName files"
-	DeleteHttpDll "WCF" $instantSmsServiceFolder
-	CopyFiles "WCF" $instantSmsServiceFolder
-
-	echo "-- Starting $instantSmsServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl start $instantSmsServiceName
-}
-
 function UpdateSmsPaymentService {
 	printf "\nОбновление службы отправки платежей по sms\n"
 
@@ -144,15 +108,9 @@ case $service2 in
 		UpdateSMSInformerService
 	;;&
 	*,2,*)
-		UpdateSalesReceiptsService
-	;;&
-	*,3,*)
-		UpdateInstantSmsService
-	;;&
-	*,4,*)
 		UpdateSmsPaymentService
 	;;&
-	*,5,*)
+	*,3,*)
 		UpdateMangoService
 	;;
 esac

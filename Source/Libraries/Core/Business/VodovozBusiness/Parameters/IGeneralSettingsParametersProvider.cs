@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Parameters
+﻿using System.Collections.Generic;
+
+namespace Vodovoz.Parameters
 {
 	public interface IGeneralSettingsParametersProvider
 	{
@@ -11,6 +13,10 @@
 		void UpdateOrderAutoComment(string value);
 
 		int[] SubdivisionsToInformComplaintHasNoDriver { get; }
-		void UpdateSubdivisionsToInformComplaintHasNoDriver(int[] subdivisionIds);
+		int[] SubdivisionsForAlternativePrices { get; }
+
+		string SubdivisionsToInformComplaintHasNoDriverParameterName { get; }
+		string SubdivisionsAlternativePricesName { get; }
+		void UpdateSubdivisionsForParameter(List<int> subdivisionsToAdd, List<int> subdivisionsToRemoves, string parameterName);
 	}
 }

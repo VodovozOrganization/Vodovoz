@@ -341,53 +341,79 @@ namespace DriverAPI.Library.Models
 				return;
 			}
 
-			var trueMarkCashReceiptOrder = _uow.Session.QueryOver<CashReceipt>()
-				.Where(x => x.Order.Id == completeOrderInfo.OrderId)
-				.SingleOrDefault();
+			var cashReceiptExists = _uow.Session.QueryOver<CashReceipt>()
+				.Where(x => x.Order.Id == completeOrderInfo.OrderId).List().Any();
 
-			if(trueMarkCashReceiptOrder != null)
+			if(cashReceiptExists)
 			{
 				_logger.LogInformation("Получен повторный запрос на сохранение кодов для заказа {0}", completeOrderInfo.OrderId);
 				return;
 			}
 
-			trueMarkCashReceiptOrder = new CashReceipt();
-			trueMarkCashReceiptOrder.UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason;
-			trueMarkCashReceiptOrder.Order = new Order { Id = completeOrderInfo.OrderId };
-			trueMarkCashReceiptOrder.CreateDate = actionTime;
-			trueMarkCashReceiptOrder.Status = CashReceiptStatus.New;
-			_uow.Save(trueMarkCashReceiptOrder);
-
-			foreach(var scannedItem in completeOrderInfo.ScannedItems)
+			var orderId = completeOrderInfo.OrderId;
+			var unprocessedCodes = _orderRepository.GetIsAccountableInTrueMarkOrderItemsCount(_uow, orderId);
+			if(unprocessedCodes > CashReceipt.MaxMarkCodesInReceipt)
 			{
-				var orderItem = new OrderItem { Id = scannedItem.OrderSaleItemId };
-
-				foreach(var defectiveCode in scannedItem.DefectiveBottleCodes)
-				{
-					var orderCode = CreateTrueMarkCodeEntity(defectiveCode, trueMarkCashReceiptOrder, orderItem);
-					orderCode.IsDefectiveSourceCode = true;
-
-					trueMarkCashReceiptOrder.ScannedCodes.Add(orderCode);
-					_uow.Save(orderCode);
-				}
-
-				foreach(var code in scannedItem.BottleCodes)
-				{
-					var orderCode = CreateTrueMarkCodeEntity(code, trueMarkCashReceiptOrder, orderItem);
-					
-					trueMarkCashReceiptOrder.ScannedCodes.Add(orderCode);
-					_uow.Save(orderCode);
-				}
+				CreateCashReceipts(completeOrderInfo, orderId, actionTime, unprocessedCodes);
 			}
+			else
+			{
+				CreateCashReceipt(completeOrderInfo, orderId, actionTime);
+			}
+		}
+
+		private void CreateCashReceipts(
+			ITrueMarkOrderScannedInfo completeOrderInfo, int orderId, DateTime actionTime, decimal unprocessedCodes)
+		{
+			var cashReceipts = new Queue<CashReceipt>();
+			var countReceiptsNeeded = Math.Ceiling(unprocessedCodes / CashReceipt.MaxMarkCodesInReceipt);
+
+			for(var i = 0; i < countReceiptsNeeded; i++)
+			{
+				var receipt = GetNewCashReceipt(completeOrderInfo, orderId, actionTime);
+				receipt.InnerNumber = i + 1;
+				cashReceipts.Enqueue(receipt);
+			}
+
+			var trueMarkCashReceiptOrder = cashReceipts.Peek();
+
+			// Кидаю все отсканированные коды в один чек, скорее всего водитель не будет сканировать 128+ позиций,
+			// если же он их отсканировал, обработчик отправит лишку в пул и они нормально распределятся
+			FillCashReceiptByScannedCodes(completeOrderInfo.ScannedItems, trueMarkCashReceiptOrder);
+
+			foreach(var cashReceipt in cashReceipts)
+			{
+				_uow.Save(cashReceipt);
+			}
+		}
+
+		private void CreateCashReceipt(ITrueMarkOrderScannedInfo completeOrderInfo, int orderId, DateTime actionTime)
+		{
+			var trueMarkCashReceiptOrder = GetNewCashReceipt(completeOrderInfo, orderId, actionTime);
+			
+			FillCashReceiptByScannedCodes(completeOrderInfo.ScannedItems, trueMarkCashReceiptOrder);
 
 			_uow.Save(trueMarkCashReceiptOrder);
 		}
 
-		private CashReceiptProductCode CreateTrueMarkCodeEntity(string code, CashReceipt trueMarkCashReceiptOrder, OrderItem orderItem)
+		private CashReceipt GetNewCashReceipt(ITrueMarkOrderScannedInfo completeOrderInfo, int orderId, DateTime actionTime)
 		{
-			var orderProductCode = new CashReceiptProductCode();
-			orderProductCode.CashReceipt = trueMarkCashReceiptOrder;
-			orderProductCode.OrderItem = orderItem;
+			return new CashReceipt
+			{
+				UnscannedCodesReason = completeOrderInfo.UnscannedCodesReason,
+				Order = new Order { Id = orderId },
+				CreateDate = actionTime,
+				Status = CashReceiptStatus.New
+			};
+		}
+
+		private CashReceiptProductCode CreateCashReceiptProductCode(string code, CashReceipt trueMarkCashReceiptOrder, OrderItem orderItem)
+		{
+			var orderProductCode = new CashReceiptProductCode
+			{
+				CashReceipt = trueMarkCashReceiptOrder,
+				OrderItem = orderItem
+			};
 
 			TrueMarkWaterIdentificationCode codeEntity;
 
@@ -397,12 +423,14 @@ namespace DriverAPI.Library.Models
 				codeEntity = LoadCode(parsedCode.SourceCode);
 				if(codeEntity == null)
 				{
-					codeEntity = new TrueMarkWaterIdentificationCode();
-					codeEntity.IsInvalid = false;
-					codeEntity.RawCode = parsedCode.SourceCode;
-					codeEntity.GTIN = parsedCode.GTIN;
-					codeEntity.SerialNumber = parsedCode.SerialNumber;
-					codeEntity.CheckCode = parsedCode.CheckCode;
+					codeEntity = new TrueMarkWaterIdentificationCode
+					{
+						IsInvalid = false,
+						RawCode = parsedCode.SourceCode,
+						GTIN = parsedCode.GTIN,
+						SerialNumber = parsedCode.SerialNumber,
+						CheckCode = parsedCode.CheckCode
+					};
 
 					orderProductCode.SourceCode = codeEntity;
 					_uow.Save(codeEntity);
@@ -419,9 +447,11 @@ namespace DriverAPI.Library.Models
 				codeEntity = LoadCode(code);
 				if(codeEntity == null)
 				{
-					codeEntity = new TrueMarkWaterIdentificationCode();
-					codeEntity.IsInvalid = true;
-					codeEntity.RawCode = code;
+					codeEntity = new TrueMarkWaterIdentificationCode
+					{
+						IsInvalid = true,
+						RawCode = code
+					};
 
 					orderProductCode.SourceCode = codeEntity;
 					_uow.Save(codeEntity);
@@ -435,6 +465,29 @@ namespace DriverAPI.Library.Models
 			}
 
 			return orderProductCode;
+		}
+
+		private void FillCashReceiptByScannedCodes(IEnumerable<ITrueMarkOrderItemScannedInfo> scannedItems, CashReceipt cashReceipt)
+		{
+			foreach(var scannedItem in scannedItems)
+			{
+				var orderItem = new OrderItem { Id = scannedItem.OrderSaleItemId };
+
+				foreach(var defectiveCode in scannedItem.DefectiveBottleCodes)
+				{
+					var orderCode = CreateCashReceiptProductCode(defectiveCode, cashReceipt, orderItem);
+					orderCode.IsDefectiveSourceCode = true;
+
+					cashReceipt.ScannedCodes.Add(orderCode);
+				}
+
+				foreach(var code in scannedItem.BottleCodes)
+				{
+					var orderCode = CreateCashReceiptProductCode(code, cashReceipt, orderItem);
+					
+					cashReceipt.ScannedCodes.Add(orderCode);
+				}
+			}
 		}
 
 		private TrueMarkWaterIdentificationCode LoadCode(string code)

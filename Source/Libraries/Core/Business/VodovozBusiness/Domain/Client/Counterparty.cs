@@ -18,6 +18,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
@@ -485,6 +486,14 @@ namespace Vodovoz.Domain.Client
 		public virtual DateTime? CreateDate {
 			get => createDate;
 			set => SetField(ref createDate, value);
+		}
+
+		private LogisticsRequirements _logisticsRequirements;
+		[Display(Name = "Требования к логистике")]
+		public virtual LogisticsRequirements LogisticsRequirements
+		{
+			get => _logisticsRequirements;
+			set => SetField(ref _logisticsRequirements, value);
 		}
 
 		#region ОсобаяПечать
@@ -1295,6 +1304,20 @@ namespace Vodovoz.Domain.Client
 			if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Налогообложение\"");
 
+			var everyAddedMinCountValueCount = NomenclatureFixedPrices
+				.GroupBy(p => new { p.Nomenclature, p.MinCount })
+				.Select(p => new { NomenclatureName = p.Key.Nomenclature?.Name, MinCountValue = p.Key.MinCount, Count = p.Count() });
+
+			foreach(var p in everyAddedMinCountValueCount)
+			{
+				if(p.Count > 1)
+				{
+					yield return new ValidationResult(
+							$"\"{p.NomenclatureName}\": фиксированная цена для количества \"{p.MinCountValue}\" указана {p.Count} раз(а)",
+							new[] { this.GetPropertyName(o => o.NomenclatureFixedPrices) });
+				}
+			}
+
 			foreach (var fixedPrice in NomenclatureFixedPrices) {
 				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
 				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {
@@ -1329,6 +1352,16 @@ namespace Vodovoz.Domain.Client
 			StringBuilder phonesValidationStringBuilder = new StringBuilder();			
 			List<string> phoneNumberDuplicatesIsChecked = new List<string>();
 
+			var phonesDuplicates = counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(UoW, Phones.ToList(), this.Id);
+			foreach(var phone in phonesDuplicates)
+			{
+				phonesValidationStringBuilder.AppendLine($"Телефон {phone.Key} уже указан у контрагентов:");
+				foreach(var message in phone.Value)
+				{
+					phonesValidationStringBuilder.AppendLine($"\t{message}");
+				}
+			}
+
 			foreach(var phone in Phones)
 			{
 				if(phone.RoboAtsCounterpartyName == null)
@@ -1350,15 +1383,6 @@ namespace Vodovoz.Domain.Client
 						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} в карточке контрагента указан несколько раз.");
 					}
 
-					var counterpartiesWithTheSamePhoneNumber = counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(UoW, phone.Number, this.Id);
-					if(counterpartiesWithTheSamePhoneNumber.Count() > 0)
-					{
-						phonesValidationStringBuilder.AppendLine($"Телефон {phone.Number} уже указан у контрагентов:");
-						foreach(var c in counterpartiesWithTheSamePhoneNumber)
-						{
-							phonesValidationStringBuilder.AppendLine($"\t{c}");
-						}
-					}
 					phoneNumberDuplicatesIsChecked.Add(phone.Number);
 				}
 				#endregion

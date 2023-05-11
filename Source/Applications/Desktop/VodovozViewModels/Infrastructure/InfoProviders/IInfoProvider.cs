@@ -9,14 +9,5 @@ namespace Vodovoz.SidePanel.InfoProviders
 		PanelViewType[] InfoWidgets { get; }
 		IUnitOfWork UoW { get; }
 	}
-
-	public class CurrentObjectChangedArgs : EventArgs
-	{
-		public object ChangedObject { get; set; }
-		public CurrentObjectChangedArgs(object obj)
-		{
-			this.ChangedObject = obj;
-		}
-	}
 }
 

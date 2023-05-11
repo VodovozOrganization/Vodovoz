@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -94,6 +94,8 @@ using RevenueService.Client;
 using RevenueService.Client.Dto;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
@@ -139,7 +141,8 @@ namespace Vodovoz
 		private TrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 		private IEdoSettings _edoSettings = new EdoSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
-		private ICounterpartySettings _counterpartySettings = new CounterpartySettings(new ParametersProvider());
+		private ICounterpartySettings _counterpartySettings =
+			new CounterpartySettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 		private IRevenueServiceClient _revenueServiceClient;
 
@@ -312,7 +315,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			var roboatsSettings = new RoboatsSettings(new ParametersProvider());
+			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);
@@ -654,6 +657,9 @@ namespace Vodovoz
 
 			buttonCloseDelivery.Sensitive = CanEdit;
 			SetVisibilityForCloseDeliveryComments();
+
+			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
+			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 		}
 
 		private void ConfigureTabContacts()
@@ -971,9 +977,8 @@ namespace Vodovoz
 
 		private void ConfigureTabFixedPrices()
 		{
-			var waterFixedPricesGenerator = new WaterFixedPricesGenerator(NomenclatureRepository);
 			var nomenclatureFixedPriceFactory = new NomenclatureFixedPriceFactory();
-			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory, waterFixedPricesGenerator);
+			var fixedPriceController = new NomenclatureFixedPriceController(nomenclatureFixedPriceFactory);
 			var fixedPricesModel = new CounterpartyFixedPricesModel(UoW, Entity, fixedPriceController);
 			var nomSelectorFactory = new NomenclatureJournalFactory();
 			FixedPricesViewModel fixedPricesViewModel = new FixedPricesViewModel(UoW, fixedPricesModel, nomSelectorFactory, this);
@@ -1265,7 +1270,6 @@ namespace Vodovoz
 			}
 		}
 
-
 		public void ActivateContactsTab()
 		{
 			if(radioContacts.Sensitive)
@@ -1335,6 +1339,11 @@ namespace Vodovoz
 			   null,
 			   filter,
 			   OpenPageOptions.IgnoreHash);
+		}
+
+		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
+		{
+			Entity.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
 		}
 
 		private bool _canClose = true;

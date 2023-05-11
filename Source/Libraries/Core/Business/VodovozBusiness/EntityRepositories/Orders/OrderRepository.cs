@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using GeoAPI.CoordinateSystems;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -7,6 +8,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TrueMarkApi.Library.Dto;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -101,6 +103,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			DateTime endDate,
 			int? organizationId = null)
 		{
+			var oldReceiptFromYouKassa = new[] {
+				orderParametersProvider.PaymentByCardFromSiteId,
+				orderParametersProvider.PaymentByCardFromMobileAppId
+			};
+
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 
@@ -124,8 +131,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				;
 
 			var query = uow.Session.QueryOver(() => orderAlias)
-				.Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
-				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate);
+				.Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c));
 
 			if(organizationId.HasValue) {
 				CounterpartyContract counterpartyContractAlias = null;
@@ -136,36 +142,64 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			switch(mode) {
 				case Export1cMode.BuhgalteriaOOO:
-					query.Where(o => o.PaymentType == PaymentType.cashless)
-						.And(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
+					query
+						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
+						.Where(o => o.PaymentType == PaymentType.cashless)
+						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
 				case Export1cMode.BuhgalteriaOOONew:
 					CashReceipt cashReceiptAlias = null;
 
 					query.JoinEntityAlias(() => cashReceiptAlias, () => cashReceiptAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
+					.Where(
+							Restrictions.Ge(
+								Projections.SqlFunction("DATE", NHibernateUtil.DateTime,
+									Projections.SqlFunction(
+										new SQLFunctionTemplate(NHibernateUtil.DateTime, "IFNULL(?1, ?2)"),
+										NHibernateUtil.DateTime,
+										Projections.Property(() => cashReceiptAlias.FiscalDocumentDate),
+										Projections.Property(() => orderAlias.DeliveryDate)
+									)
+								),
+								startDate
+							)
+						)
+						.Where(
+							Restrictions.Le(
+								Projections.SqlFunction("DATE", NHibernateUtil.DateTime,
+									Projections.SqlFunction(
+										new SQLFunctionTemplate(NHibernateUtil.DateTime, "IFNULL(?1, ?2)"),
+										NHibernateUtil.DateTime,
+										Projections.Property(() => cashReceiptAlias.FiscalDocumentDate),
+										Projections.Property(() => orderAlias.DeliveryDate)
+									)
+								),
+								endDate
+							)
+						)
 						.Where(Restrictions.Disjunction()
 							.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+							.Add(Restrictions.Where(() => cashReceiptAlias.Status == CashReceiptStatus.Sended))
+							//Включение в выгрузку старых заказов, на которых нет чеков
+							//(с 26.04.2023 16:10 заказы с этими источниками оплаты имеют чеки сформированные через ДВ)
 							.Add(Restrictions.Conjunction()
-								.Add(Restrictions.On(() => orderAlias.PaymentType)
-									.IsIn(new[] { PaymentType.Terminal, PaymentType.cash }))
-								.Add(Restrictions.Where(() => cashReceiptAlias.Status == CashReceiptStatus.Sended)))
-							.Add(Restrictions.Conjunction()
-								.Add(() => orderAlias.PaymentType == PaymentType.ByCard)
-								.Add(Restrictions.Disjunction()
-									.Add(Restrictions.On(() => orderAlias.PaymentByCardFrom.Id)
-										.IsIn(orderParametersProvider.PaymentsByCardFromNotToSendSalesReceipts))
-									.Add(Restrictions.Where(() => cashReceiptAlias.Status == CashReceiptStatus.Sended)))
+								.Add(Restrictions.On(() => orderAlias.PaymentByCardFrom.Id).IsIn(oldReceiptFromYouKassa))
+								.Add(Restrictions.Where(() => orderAlias.CreateDate <= new DateTime(2023, 04, 26, 16, 20, 00)))
 							)
 						);
 					break;
 				case Export1cMode.IPForTinkoff:
-					query.Where(o => o.PaymentType == PaymentType.ByCard)
-						.And(o => o.OnlineOrder != null)
-						.And(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
+					query
+						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
+						.Where(o => o.PaymentType == PaymentType.ByCard)
+						.Where(o => o.OnlineOrder != null)
+						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
 			}
+
+			query.TransformUsing(Transformers.DistinctRootEntity);
 
 			return query.List();
 		}
@@ -375,6 +409,26 @@ namespace Vodovoz.EntityRepositories.Orders
 							.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 							.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 							.Where(Restrictions.In(Projections.Property(() => routeListItemAlias.Order.Id), orders.Select(x => x.Id).ToArray()))
+							.SelectList(list => list
+								.Select(() => orderAlias.Id)
+								.Select(() => routeListAlias.Id)
+							)
+							.TransformUsing(Transformers.PassThrough)
+							.List<object[]>()
+							.GroupBy(x => (int)x[0]).ToDictionary(x => x.Key, x => x.Select(y => (int)y[1]));
+			return rls;
+		}
+
+		public Dictionary<int, IEnumerable<int>> GetAllRouteListsForOrders(IUnitOfWork UoW, IEnumerable<int> orders)
+		{
+			VodovozOrder orderAlias = null;
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+
+			var rls = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
+							.Left.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+							.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
+							.Where(Restrictions.In(Projections.Property(() => routeListItemAlias.Order.Id), orders.ToArray()))
 							.SelectList(list => list
 								.Select(() => orderAlias.Id)
 								.Select(() => routeListAlias.Id)
@@ -644,12 +698,12 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public bool OrderHasSentReceipt(IUnitOfWork uow, int orderId)
 		{
-			var receipt = uow.Session.QueryOver<CashReceipt>()
+			var receipts = uow.Session.QueryOver<CashReceipt>()
 				.Where(x => x.Order.Id == orderId)
 				.Where(x => x.Status == CashReceiptStatus.Sended)
-				.SingleOrDefault();
+				.List();
 
-			return receipt != null;
+			return receipts.Any();
 		}
 
 		public bool HasFlyersOnStock(
@@ -956,6 +1010,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			var result = query.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(() => trueMarkApiDocument.IsSuccess == false)
+				.And(() => trueMarkApiDocument.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.Withdrawal)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
 				.And(Restrictions.Disjunction()
@@ -973,6 +1028,83 @@ namespace Vodovoz.EntityRepositories.Orders
 					)
 				)
 				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc)
+				.TransformUsing(Transformers.RootEntity)
+				.List();
+
+			return result;
+		}
+
+		public decimal GetIsAccountableInTrueMarkOrderItemsCount(IUnitOfWork uow, int orderId)
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			
+			return uow.Session.QueryOver<VodovozOrder>()
+				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(o => o.Id == orderId)
+				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
+				.Select(Projections.Sum(() => orderItemAlias.Count))
+				.SingleOrDefault<decimal>();
+		}
+
+		public IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId)
+		{
+			Counterparty counterpartyAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			TrueMarkApiDocument trueMarkApiDocumentAlias = null;
+
+			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+
+			var hasGtinNomenclaturesSubQuery = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.And(() => nomenclatureAlias.IsAccountableInTrueMark)
+				.And(() => nomenclatureAlias.Gtin != null)
+				.Select(Projections.Id());
+
+			var hasCancellationSubquery = QueryOver.Of(() => trueMarkApiDocumentAlias)
+				.Where(() => trueMarkApiDocumentAlias.Order.Id == orderAlias.Id)
+				.Where(() => trueMarkApiDocumentAlias.Type == TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
+				.Select(Projections.Id());
+
+			var correctSubquery = QueryOver.Of(() => orderAlias)
+				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
+				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
+				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
+				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
+				.Where(Restrictions.Disjunction()
+					.Add(Restrictions.Conjunction()
+						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
+						.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
+						.Add(Restrictions.Disjunction()
+							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
+									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)
+							)
+						)
+					.Add(Restrictions.Conjunction()
+						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
+					)
+				)
+				.Where(() => orderAlias.PaymentType != PaymentType.ContractDoc)
+				.Where(() => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id)
+				.Where(() => orderAlias.DeliveryDate > startDate)
+				.Select(o => o.Id);
+
+			var result = uow.Session.QueryOver(() => trueMarkApiDocumentAlias)
+				.JoinAlias(() => trueMarkApiDocumentAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
+				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
+				.Where(() => orderAlias.DeliveryDate > startDate)
+				.WithSubquery.WhereNotExists(correctSubquery)
+				.WithSubquery.WhereNotExists(hasCancellationSubquery)
 				.TransformUsing(Transformers.RootEntity)
 				.List();
 
