@@ -674,6 +674,7 @@
     <Compile Include="ViewModels\Goods\InventoryInstanceViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\InventoryInstancesStockBalanceJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Warehouses\InventoryInstanceMovementReportViewModel.cs" />
+    <Compile Include="ViewModels\Warehouses\InventoryDocumentViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj">
@@ -771,6 +772,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Utilities\QS.Utilities.csproj">
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Infrastructure\ApiClientProvider\ApiClientProvider.csproj">
+      <Project>{AF067268-272B-46C3-AE9B-0C1B6D7AE55C}</Project>
+      <Name>ApiClientProvider</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

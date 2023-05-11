@@ -69,9 +69,9 @@ namespace Vodovoz.Views.Warehouse.Documents
 
 			yentryrefWarehouse.BeforeChangeByUser += OnYentryrefWarehouseBeforeChangeByUser;
 
-			ychkSortNomenclaturesByTitle.Binding
+			/*ychkSortNomenclaturesByTitle.Binding
 				.AddBinding(ViewModel.Entity, e => e.SortedByNomenclatureName, w => w.Active)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
 
 			ytextviewCommnet.Binding.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.Comment, w => w.Buffer.Text)
@@ -144,7 +144,7 @@ namespace Vodovoz.Views.Warehouse.Documents
 					vm => vm.SelectedInventoryDocumentItem,
 					w => w.SelectedRow)
 				.AddBinding(ViewModel.Entity, e => e.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Items, w => w.ItemsDataSource)
+				.AddBinding(ViewModel.Entity, e => e.ObservableNomenclatureItems, w => w.ItemsDataSource)
 				.InitializeFromSource();
 		}
 
@@ -155,7 +155,7 @@ namespace Vodovoz.Views.Warehouse.Documents
 
 		protected void OnYentryrefWarehouseBeforeChangeByUser(object sender, EntryReferenceBeforeChangeEventArgs e)
 		{
-			if(ViewModel.Entity.Warehouse != null && ViewModel.Entity.Items.Count > 0)
+			if(ViewModel.Entity.Warehouse != null && ViewModel.Entity.ObservableNomenclatureItems.Count > 0)
 			{
 				if(ViewModel.AskQuestion("При изменении склада табличная часть документа будет очищена. Продолжить?"))
 				{

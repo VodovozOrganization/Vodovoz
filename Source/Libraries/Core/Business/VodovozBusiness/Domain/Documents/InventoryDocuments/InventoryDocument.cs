@@ -25,6 +25,7 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 	public class InventoryDocument : Document, IValidatableObject
 	{
 		private string _comment;
+		private bool _sortedByNomenclatureName;
 		private Warehouse _warehouse;
 		private Employee _employee;
 		private Car _car;
@@ -151,6 +152,12 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 			get => _inventoryDocumentStatus;
 			set => SetField(ref _inventoryDocumentStatus, value);
 		}
+
+		public virtual bool SortedByNomenclatureName
+		{
+			get => _sortedByNomenclatureName;
+			set => SetField(ref _sortedByNomenclatureName, value);
+		} 
 
 		public virtual void FillNomenclatureItemsFromStock(
 			IUnitOfWork uow,
@@ -364,6 +371,36 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 			{
 				uow.Delete(item);
 				NomenclatureItems.Remove(item);
+			}
+		}
+
+		public virtual void SortItems(bool byName = false)
+		{
+			var sortedNomenclatureItems = NomenclatureItems.ToList();
+			var sortedInstanceItems = InstanceItems.ToList();
+			
+			if(!byName)
+			{
+				sortedNomenclatureItems.Sort((x,y) => x.Nomenclature.Id.CompareTo(y.Nomenclature.Id));
+				sortedInstanceItems.Sort((x, y) => x.InventoryNomenclatureInstance.Id.CompareTo(y.InventoryNomenclatureInstance.Id));
+			}
+			else
+			{
+				sortedNomenclatureItems.Sort((x, y) => x.Nomenclature.Name.CompareTo(y.Nomenclature.Name));
+				sortedInstanceItems.Sort((x, y) => x.Name.CompareTo(y.Name));
+			}
+			
+			ObservableNomenclatureItems.Clear();
+			ObservableInstanceItems.Clear();
+
+			foreach(var nomenclatureItem in sortedNomenclatureItems)
+			{
+				ObservableNomenclatureItems.Add(nomenclatureItem);
+			}
+			
+			foreach(var instanceItem in sortedInstanceItems)
+			{
+				ObservableInstanceItems.Add(instanceItem);
 			}
 		}
 		

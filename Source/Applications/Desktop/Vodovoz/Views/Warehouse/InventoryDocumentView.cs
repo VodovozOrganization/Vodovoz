@@ -18,15 +18,16 @@ namespace Vodovoz.Views.Warehouse
 		public InventoryDocumentView(InventoryDocumentViewModel viewModel) : base(viewModel)
 		{
 			Build();
-			ConfigureDlg();
+			ConfigureView();
 		}
 
-		private void ConfigureDlg()
+		private void ConfigureView()
 		{
-			btnSave.Clicked += OnSaveClicked;
-			btnCancel.Clicked += OnCancelClicked;
-			btnConfirm.Clicked += OnConfirmClicked;
-			btnPrint.Clicked += OnPrintClicked;
+			vbox4.Sensitive = ViewModel.CanEdit;
+			vboxNomenclatureItems.Sensitive = ViewModel.CanEdit;
+			vboxNomenclatureInstanceItems.Sensitive = ViewModel.CanEdit;
+			
+			ConfigureCommonButtons();
 			
 			radioBtnBulkAccounting.Binding
 				.AddBinding(ViewModel, vm => vm.IsBulkAccountingActive, w => w.Active)
@@ -34,9 +35,6 @@ namespace Vodovoz.Views.Warehouse
 			radioBtnInstanceAccounting.Binding
 				.AddBinding(ViewModel, vm => vm.IsInstanceAccountingActive, w => w.Active)
 				.InitializeFromSource();
-			
-			ydatepickerDocDate.Sensitive = hboxStorages.Sensitive = ytextviewCommnet.Editable = ViewModel.CanEditDocument;
-			vboxNomenclatureItems.Sensitive = vboxNomenclatureInstanceItems.Sensitive = ViewModel.CanEditDocument;
 
 			ydatepickerDocDate.Binding
 				.AddBinding(ViewModel.Entity, e => e.TimeStamp, w => w.Date)
@@ -60,6 +58,10 @@ namespace Vodovoz.Views.Warehouse
 			warehouseStorageEntry.ViewModel = ViewModel.InventoryWarehouseViewModel;
 			employeeStorageEntry.ViewModel = ViewModel.InventoryEmployeeViewModel;
 			carStorageEntry.ViewModel = ViewModel.InventoryCarViewModel;
+			
+			ychkSortNomenclaturesByTitle.Binding
+				.AddBinding(ViewModel.Entity, e => e.SortedByNomenclatureName, w => w.Active)
+				.InitializeFromSource();
 
 			ConfigureSelectableFilter();
 			
@@ -74,19 +76,17 @@ namespace Vodovoz.Views.Warehouse
 
 			ConfigureBulkAccounting();
 			ConfigureInstanceAccounting();
+		}
+		
+		private void ConfigureCommonButtons()
+		{
+			btnSave.Sensitive = ViewModel.CanEdit;
+			btnConfirm.Sensitive = ViewModel.CanEdit;
 			
-			if(!ViewModel.Entity.CanEdit && ViewModel.Entity.TimeStamp.Date != DateTime.Now.Date)
-			{
-				//ydatepickerDocDate.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				//yentryrefWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				//ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
-				btnSave.Sensitive = false;
-				vboxNomenclatureItems.Sensitive = vboxNomenclatureInstanceItems.Sensitive = false;
-			}
-			else
-			{
-				ViewModel.Entity.CanEdit = true;
-			}
+			btnSave.Clicked += OnSaveClicked;
+			btnCancel.Clicked += OnCancelClicked;
+			btnConfirm.Clicked += OnConfirmClicked;
+			btnPrint.Clicked += OnPrintClicked;
 		}
 
 		private void OnPrintClicked(object sender, EventArgs e)
@@ -119,6 +119,7 @@ namespace Vodovoz.Views.Warehouse
 			btnAddMissingNomenclatures.Clicked += OnAddMissingNomenclaturesClicked;
 			btnAddFineToNomenclatureItem.Clicked += OnAddFineToNomenclatureItemClicked;
 			btnDeleteFineFromNomenclatureItem.Clicked += OnDeleteFineFromNomenclatureItemClicked;
+			btnFillByAccounting.Clicked += OnFillByAccountingClicked;
 			
 			hboxHandleNomenclatureItemsBtns.Binding
 				.AddBinding(ViewModel, vm => vm.CanHandleInventoryItems, w => w.Sensitive)
@@ -156,6 +157,11 @@ namespace Vodovoz.Views.Warehouse
 		private void OnDeleteFineFromNomenclatureItemClicked(object sender, EventArgs e)
 		{
 			ViewModel.DeleteFineFromNomenclatureItemCommand.Execute();
+		}
+		
+		private void OnFillByAccountingClicked(object sender, EventArgs e)
+		{
+			ViewModel.FillFactByAccountingCommand.Execute();
 		}
 
 		private void ConfigureNomenclatureItemsTree()

@@ -115,7 +115,7 @@ namespace Vodovoz
 						this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.InventoryDocument:
-					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<InventoryDocumentViewModel, IEntityUoWBuilder>(
+					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, IEntityUoWBuilder>(
 						this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.ShiftChangeDocument:
@@ -208,7 +208,7 @@ namespace Vodovoz
 								new GtkReportViewOpener(),
 								MainClass.MainWin.NavigationManager),
 							this);*/
-						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<InventoryDocumentViewModel, IEntityUoWBuilder>(
+						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, IEntityUoWBuilder>(
 							this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.ShiftChangeDocument:

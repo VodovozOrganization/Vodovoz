@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Autofac;
 using NHibernate;
@@ -65,7 +66,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private bool _isBulkAccountingActive;
 		private bool _isInstanceAccountingActive;
 		private int _activeAccounting;
-		private InventoryDocumentController _inventoryDocumentController;
 		private SelectableParametersReportFilter _selectableFilter;
 		private InventoryDocumentItem _selectedNomenclatureItem;
 		private InstanceInventoryDocumentItem _selectedInstanceItem;
@@ -75,6 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		private DelegateCommand _addMissingNomenclatureCommand;
 		private DelegateCommand _addOrEditNomenclatureItemFineCommand;
 		private DelegateCommand _deleteFineFromNomenclatureItemCommand;
+		private DelegateCommand _fillFactByAccountingCommand;
 		private DelegateCommand _fillNomenclatureInstanceItemsCommand;
 		private DelegateCommand _addMissingNomenclatureInstanceCommand;
 		private DelegateCommand _addOrEditNomenclatureInstanceItemFineCommand;
@@ -110,7 +111,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			Init();
 		}
 		
-		public bool CanEditDocument { get; private set; }
 		public bool IsBulkAccountingActive
 		{
 			get => _isBulkAccountingActive;
@@ -146,7 +146,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			get => _activeAccounting;
 			set => SetField(ref _activeAccounting, value);
 		}
-		
+
+		public bool CanEdit => Entity.CanEdit;
 		public bool CanShowWarehouseStorage => Entity.InventoryDocumentType == InventoryDocumentType.WarehouseInventory;
 		public bool CanShowEmployeeStorage => Entity.InventoryDocumentType == InventoryDocumentType.EmployeeInventory;
 		public bool CanShowCarStorage => Entity.InventoryDocumentType == InventoryDocumentType.CarInventory;
@@ -161,7 +162,18 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		public DelegateCommand ConfirmCommand => _confirmCommand ?? (_confirmCommand = new DelegateCommand(
 			() =>
 			{
-				_inventoryDocumentController.ConfirmInventoryDocument();
+				//TODO проверка на расхождения в экземплярном учете
+
+				if(Entity.InstanceItems.Any(x => !string.IsNullOrWhiteSpace(x.DiscrepancyDescription)))
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						"Невозможно подтвердить документ\n" +
+						"Имеются расхождения в экземплярном учете");
+					return;
+				}
+
+				Entity.InventoryDocumentStatus = InventoryDocumentStatus.Confirmed;
 			}
 		));
 		
@@ -351,6 +363,21 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				{
 					UoW.Delete(SelectedNomenclatureItem.Fine);
 					SelectedNomenclatureItem.Fine = null;
+				}
+			));
+
+		public DelegateCommand FillFactByAccountingCommand => _fillFactByAccountingCommand ?? (
+			_fillFactByAccountingCommand = new DelegateCommand(
+				() =>
+				{
+					for(var i = 0; i < Entity.ObservableNomenclatureItems.Count; i++)
+					{
+						if(Entity.ObservableNomenclatureItems[i].AmountInFact != Entity.ObservableNomenclatureItems[i].AmountInDB)
+						{
+							Entity.ObservableNomenclatureItems[i].AmountInFact = Entity.ObservableNomenclatureItems[i].AmountInDB;
+							Entity.ObservableNomenclatureItems.OnPropertyChanged(nameof(Entity.ObservableNomenclatureItems));
+						}
+					}
 				}
 			));
 
@@ -561,7 +588,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			return _nomenclaturesWithDiscrepancies.Any(x => x.Id == nomenclature.Id) ? $"<b>{nomenclature.Name}</b>" : nomenclature.Name;
 		}
 		
-		protected override bool BeforeValidation() => Entity.CanEdit;
+		protected override bool BeforeValidation() => CanEdit;
 
 		protected override bool BeforeSave()
 		{
@@ -580,8 +607,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		private void Init()
 		{
-			ResolveInnerDependencies();
-			
 			var documentHelper = _scope.Resolve<StoreDocumentHelper>();
 
 			if(Entity.Id == 0)
@@ -608,15 +633,21 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			SetStoragesViewModels();
 			ConfigureSelectableFilter();
 			SetPropertyChangeRelations();
+
+			if(Entity.SortedByNomenclatureName)
+			{
+				SortDocumentItems();
+			}
 		}
 		
 		private void SetPermissions(StoreDocumentHelper documentHelper)
 		{
 			var extendedPermissionValidator = _scope.Resolve<IEntityExtendedPermissionValidator>();
-			CanEditDocument = documentHelper.CanEditDocument(WarehousePermissionsType.InventoryEdit, Entity.Warehouse);
-			Entity.CanEdit =
+			var canEditDocument = documentHelper.CanEditDocument(WarehousePermissionsType.InventoryEdit, Entity.Warehouse);
+			var canEditRetroactively = 
 				extendedPermissionValidator.Validate(
 					typeof(InventoryDocument), UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+			Entity.CanEdit = Entity.TimeStamp.Date == DateTime.Today.Date ? canEditDocument : canEditDocument && canEditRetroactively;
 		}
 		
 		private void SetStoragesViewModels()
@@ -637,12 +668,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				.UseViewModelDialog<CarViewModel>()
 				.UseViewModelJournalAndAutocompleter<CarJournalViewModel>()
 				.Finish();
-		}
-		
-		private void ResolveInnerDependencies()
-		{
-			_inventoryDocumentController = _scope.Resolve<InventoryDocumentController>(
-				new TypedParameter(typeof(InventoryDocument), Entity));
 		}
 		
 		private void ConfigureSelectableFilter()
@@ -694,8 +719,14 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				}
 			);
 
+			ProductGroup productGroupChildAlias = null;
 			//Предзагрузка. Для избежания ленивой загрузки
-			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
+			UoW.Session.QueryOver<ProductGroup>()
+				.Left.JoinAlias(p => p.Childs,
+					() => productGroupChildAlias,
+					() => !productGroupChildAlias.IsArchive)
+				.Fetch(SelectMode.Fetch, () => productGroupChildAlias)
+				.List();
 
 			_selectableFilter.CreateParameterSet(
 				"Группы товаров",
@@ -704,7 +735,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				(filters) =>
 				{
 					var query = UoW.Session.QueryOver<ProductGroup>()
-						.Where(p => p.Parent == null);
+						.Where(p => p.Parent == null)
+						.And(p => !p.IsArchive);
 
 					if(filters != null && filters.Any())
 					{
@@ -737,6 +769,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				() => FillNomenclatureInstancesByStorageTitle);
 			
 			SetStoragePropertiesChangeRelation();
+			Entity.PropertyChanged += EntityPropertyChanged;
 		}
 
 		private void SetStoragePropertiesChangeRelation()
@@ -744,6 +777,19 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			SetPropertyChangeRelation(x => x.Warehouse, () => CanHandleInventoryItems);
 			SetPropertyChangeRelation(x => x.Employee, () => CanHandleInventoryItems);
 			SetPropertyChangeRelation(x => x.Car, () => CanHandleInventoryItems);
+		}
+		
+		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.SortedByNomenclatureName))
+			{
+				SortDocumentItems();
+			}
+		}
+
+		private void SortDocumentItems()
+		{
+			Entity.SortItems(Entity.SortedByNomenclatureName);
 		}
 
 		private void FillDiscrepancies()

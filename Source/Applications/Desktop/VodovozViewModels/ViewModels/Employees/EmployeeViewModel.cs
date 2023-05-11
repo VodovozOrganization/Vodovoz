@@ -644,20 +644,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						{
 							if(_commonServices.InteractiveService.Question("Сотрудник будет сохранен при регистрации пользователя", "Вы уверены?"))
 							{
-								CanRegisterMobileUser = false;
+								/*CanRegisterMobileUser = false;
 								Save();
 								UoW.Commit();
 
-								using(var httpClient = new HttpClient())
-								{
-									httpClient.BaseAddress = new Uri("https://driverapi.vod.qsolution.ru:7090/api/");
-									httpClient.DefaultRequestHeaders.Accept.Clear();
-									httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-									new DriverApiUserRegisterEndpoint(httpClient)
-										.Register(Entity.AndroidLogin, Entity.AndroidPassword)
-										.GetAwaiter()
-										.GetResult();
-								}
+								new DriverApiUserRegisterEndpoint(httpClient)
+									.Register(Entity.AndroidLogin, Entity.AndroidPassword)
+									.GetAwaiter()
+									.GetResult();*/
 							}
 						}
 						catch(Exception e)

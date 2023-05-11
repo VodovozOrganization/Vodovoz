@@ -279,7 +279,6 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ComplaintDetalizationViewModel, ComplaintDetalizationView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
 				.RegisterWidgetForTabViewModel<IncomingInvoiceViewModel, IncomingInvoiceView>()
-				.RegisterWidgetForTabViewModel<InventoryDocumentViewModel, InventoryDocumentView>()
 				.RegisterWidgetForTabViewModel<PhoneTypeViewModel, PhoneTypeView>()
 				.RegisterWidgetForTabViewModel<EmailTypeViewModel, EmailTypeView>()
 				.RegisterWidgetForTabViewModel<UserSettingsViewModel, UserSettingsView>()
@@ -356,7 +355,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ExternalCounterpartyMatchingViewModel, ExternalCounterpartyMatchingView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceViewModel, InventoryInstanceView>()
 				.RegisterWidgetForTabViewModel<WriteOffDocumentViewModel, WriteoffDocumentView>()
-				.RegisterWidgetForTabViewModel<InventoryDocumentViewModel, InventoryDocumentView>()
+				.RegisterWidgetForTabViewModel<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, Vodovoz.Views.Warehouse.InventoryDocumentView>()
 				.RegisterWidgetForTabViewModel<ShiftChangeResidueDocumentViewModel, ShiftChangeResidueDocumentView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceMovementReportViewModel, InventoryInstanceMovementReportView>()
 				;
@@ -843,8 +842,6 @@ namespace Vodovoz
 				).As<DriverApiUserRegisterEndpoint>();
 
 			builder.Register(c => CurrentUserSettings.Settings).As<UserSettings>();
-
-			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 			builder.RegisterType<PasswordGenerator>().As<IPasswordGenerator>();
 

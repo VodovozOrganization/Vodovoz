@@ -8,6 +8,7 @@ namespace Vodovoz.HibernateMapping.Documents.InventoryDocuments
 		public InventoryDocumentItemMap()
 		{
 			Table("store_inventory_item");
+			DiscriminateSubClassesOnColumn("type");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			
@@ -20,6 +21,30 @@ namespace Vodovoz.HibernateMapping.Documents.InventoryDocuments
 			References(x => x.Document).Column("store_inventory_id").Not.Nullable();
 			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
 			References(x => x.WarehouseChangeOperation).Column("warehouse_movement_operation_id").Cascade.All();
+		}
+	}
+
+	public class WarehouseBulkInventoryDocumentItemMap : SubclassMap<WarehouseBulkInventoryDocumentItem>
+	{
+		public WarehouseBulkInventoryDocumentItemMap()
+		{
+			DiscriminatorValue(nameof(InventoryDocumentType.WarehouseInventory));
+		}
+	}
+	
+	public class EmployeeBulkInventoryDocumentItemMap : SubclassMap<EmployeeBulkInventoryDocumentItem>
+	{
+		public EmployeeBulkInventoryDocumentItemMap()
+		{
+			DiscriminatorValue(nameof(InventoryDocumentType.EmployeeInventory));
+		}
+	}
+	
+	public class CareBulkInventoryDocumentItemMap : SubclassMap<CarBulkInventoryDocumentItem>
+	{
+		public CareBulkInventoryDocumentItemMap()
+		{
+			DiscriminatorValue(nameof(InventoryDocumentType.CarInventory));
 		}
 	}
 }

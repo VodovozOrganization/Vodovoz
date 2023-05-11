@@ -66,5 +66,9 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 		[Display(Name = "Сумма ущерба")]
 		public virtual decimal SumOfDamage =>
 			InventoryNomenclatureInstance != null ? InventoryNomenclatureInstance.Nomenclature.SumOfDamage : 0;
+
+		public virtual string Name => InventoryNomenclatureInstance?.Nomenclature != null
+			? InventoryNomenclatureInstance.Nomenclature.Name
+			: string.Empty;
 	}
 }
