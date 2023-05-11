@@ -170,7 +170,7 @@ namespace Vodovoz
 
 			_routeListJournalFilterViewModelFrom = new RouteListJournalFilterViewModel()
 			{
-				DisplayableStatuses = new[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing },
+				DisplayableStatuses = new[] { RouteListStatus.EnRoute },
 				StartDate = DateTime.Today.AddDays(-3),
 				EndDate = DateTime.Today.AddDays(1)
 			};
