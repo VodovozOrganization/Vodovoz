@@ -138,6 +138,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			if(CanCloseDelivery)
 			{
 				Entity.ToggleDeliveryOption(CurrentEmployee);
+				CloseDeliveryComment = string.Empty;
 				OnPropertyChanged(nameof(CloseDeliveryLabelInfo));
 			}
 		}

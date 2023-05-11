@@ -1706,7 +1706,7 @@ namespace Vodovoz
 				return;
 			}
 
-			labelCloseDelivery.LabelProp = "Поставки закрыты : " + Environment.NewLine +
+			labelCloseDelivery.LabelProp = "<b>Поставки закрыты</b>" + Environment.NewLine +
 			                               "<b>Комментарий по закрытию поставок:</b>";			
 		}
 
