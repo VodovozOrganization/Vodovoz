@@ -1699,30 +1699,15 @@ namespace Vodovoz
 			labelCloseDelivery.Visible = Entity.IsDeliveriesClosed;
 			GtkScrolledWindowCloseDelivery.Visible = Entity.IsDeliveriesClosed;
 			ytextviewCloseComment.Buffer.Text = Entity.IsDeliveriesClosed ? Entity.CloseDeliveryComment : String.Empty;
+			ytextviewCloseComment.Sensitive = false;
 
 			if(!Entity.IsDeliveriesClosed)
 			{
 				return;
 			}
 
-			labelCloseDelivery.LabelProp = "Поставки закрыл : " + Entity.GetCloseDeliveryInfo() + Environment.NewLine +
-			                               "<b>Комментарий по закрытию поставок:</b>";
-
-			if(permissionResult.CanUpdate)
-			{
-				if(string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment))
-				{
-					ytextviewCloseComment.Sensitive = true;
-				}
-				else
-				{
-					ytextviewCloseComment.Sensitive = false;
-				}
-			}
-			else
-			{
-				ytextviewCloseComment.Sensitive = false;
-			}
+			labelCloseDelivery.LabelProp = "Поставки закрыты : " + Environment.NewLine +
+			                               "<b>Комментарий по закрытию поставок:</b>";			
 		}
 
 		#endregion CloseDelivery
