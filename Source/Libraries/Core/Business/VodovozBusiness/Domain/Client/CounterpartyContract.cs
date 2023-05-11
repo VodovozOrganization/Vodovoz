@@ -7,8 +7,10 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Models;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Client
 {
@@ -142,7 +144,10 @@ namespace Vodovoz.Domain.Client
 		{
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider); 
+			var parametersProvider = new ParametersProvider();
+			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
+			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository); 
 			
 			if(!IsArchive && !OnCancellation)
 			{

@@ -2,6 +2,7 @@
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
+using NPOI.SS.Formula.Functions;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
 using System;
@@ -318,6 +319,19 @@ namespace Vodovoz.EntityRepositories.Cash
 					)
 					.Where(() => _cashReceiptAlias.Sum == sum)
 					.WhereRestrictionOn(() => _cashReceiptAlias.FiscalDocumentStatus).IsIn(completedStatuses)
+					.Select(Projections.Id());
+				var result = query.List<int>();
+				return result.Any();
+			}
+		}
+
+		public bool HasReceipt(int orderId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var query = uow.Session.QueryOver(() => _cashReceiptAlias)
+					.Where(() => _cashReceiptAlias.Order.Id == orderId)
+					.Where(() => _cashReceiptAlias.Status == CashReceiptStatus.Sended)
 					.Select(Projections.Id());
 				var result = query.List<int>();
 				return result.Any();
