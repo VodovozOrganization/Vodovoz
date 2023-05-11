@@ -1413,12 +1413,29 @@ namespace Vodovoz
 		{
 			Counterparty.ReloadChildCollection(x => x.Phones, x => x.Counterparty, UoW.Session);
 			RefreshEntity(Counterparty);
+			RefreshContactPhone();
 		}
 
 		private void RefreshDeliveryPointWithPhones()
 		{
 			DeliveryPoint.ReloadChildCollection(x => x.Phones, x => x.DeliveryPoint, UoW.Session);
 			RefreshEntity(DeliveryPoint);
+			RefreshContactPhone();
+		}
+
+		private void RefreshContactPhone()
+		{
+			if(Entity.ContactPhone == null)
+			{
+				return;
+			}
+
+			if(Counterparty.Phones.All(p => p.Number != Entity.ContactPhone.Number)
+			   && DeliveryPoint.Phones.All(p => p.Number != Entity.ContactPhone.Number))
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Контактный номер телефона, указанный в открытом заказе для связи, больше не существует.\nВыберите новый номер телефона для связи в заказе.");
+				Entity.ContactPhone = null;
+			}
 		}
 
 		private void OnNomenclatureFixedPriceChanged(EntityChangeEvent[] changeevents)
