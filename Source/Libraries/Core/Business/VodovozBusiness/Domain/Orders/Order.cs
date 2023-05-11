@@ -845,7 +845,15 @@ namespace Vodovoz.Domain.Orders
 			get => _isCopiedFromUndelivery;
 			set => SetField(ref _isCopiedFromUndelivery, value);
 		}
-		
+
+		private LogisticsRequirements _logisticsRequirements;
+		[Display(Name = "Требования к логистике")]
+		public virtual LogisticsRequirements LogisticsRequirements
+		{
+			get => _logisticsRequirements;
+			set => SetField(ref _logisticsRequirements, value);
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()
@@ -1601,7 +1609,10 @@ namespace Vodovoz.Domain.Orders
 			if(orderOrganizationProviderFactory == null) {
 				orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
+				var parametersProvider = new ParametersProvider();
+				var orderParametersProvider = new OrderParametersProvider(parametersProvider);
+				var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 			}
 			
