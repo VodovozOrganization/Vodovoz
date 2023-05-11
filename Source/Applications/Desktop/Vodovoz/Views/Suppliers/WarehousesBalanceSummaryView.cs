@@ -7,13 +7,13 @@ using Gamma.ColumnConfig;
 using Gamma.Widgets;
 using Gtk;
 using QS.Views.GtkUI;
-using TISystems.TTC.CRM.BE.Staff;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using WrapMode = Pango.WrapMode;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Views.Suppliers
 {
