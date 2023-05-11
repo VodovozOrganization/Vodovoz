@@ -428,6 +428,7 @@ namespace Vodovoz.Controllers
 			foreach(var item in routeListKeepingDocument.Items)
 			{
 				routeListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Remove(item.DeliveryFreeBalanceOperation);
+				uow.Delete(item);
 			}
 
 			routeListKeepingDocument.Items.Clear();

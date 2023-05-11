@@ -243,9 +243,8 @@ namespace Vodovoz
 
 			buttonRevert.Sensitive = selectedNodes
 				.Any(x =>
-					x.Status != RouteListItemStatus.Completed
-					&& (x.WasTransfered
-						|| (x.IsFromFreeBalance && x.Status != RouteListItemStatus.Transfered)));
+					x.Status == RouteListItemStatus.EnRoute
+					&& x.WasTransfered);
 		}
 
 		private IColumnsConfig GetColumnsConfig(bool isRightPanel)
