@@ -7,6 +7,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Services;
 
@@ -18,12 +19,14 @@ namespace Vodovoz.Models
 		private readonly IOrderParametersProvider _orderParametersProvider;
 		private readonly IGeographicGroupParametersProvider _geographicGroupParametersProvider;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
+		private readonly ICashReceiptRepository _cashReceiptRepository;
 
 		public Stage2OrganizationProvider(
 			IOrganizationParametersProvider organizationParametersProvider,
 			IOrderParametersProvider orderParametersProvider,
 			IGeographicGroupParametersProvider geographicGroupParametersProvider,
-			IFastPaymentRepository fastPaymentRepository)
+			IFastPaymentRepository fastPaymentRepository,
+			ICashReceiptRepository cashReceiptRepository)
 		{
 			_organizationParametersProvider = organizationParametersProvider
 				?? throw new ArgumentNullException(nameof(organizationParametersProvider));
@@ -32,6 +35,7 @@ namespace Vodovoz.Models
 			_geographicGroupParametersProvider = geographicGroupParametersProvider
 				?? throw new ArgumentNullException(nameof(geographicGroupParametersProvider));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
+			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 		}
 
 		public Organization GetOrganizationForOrderWithoutShipment(IUnitOfWork uow, OrderWithoutShipmentForAdvancePayment order)
@@ -78,6 +82,11 @@ namespace Vodovoz.Models
 			if(order.Client.WorksThroughOrganization != null)
 			{
 				return order.Client.WorksThroughOrganization;
+			}
+
+			if(order.Contract != null && _cashReceiptRepository.HasReceipt(order.Id))
+			{
+				return order.Contract.Organization;
 			}
 
 			var isSelfDelivery = order.SelfDelivery || order.DeliveryPoint == null;

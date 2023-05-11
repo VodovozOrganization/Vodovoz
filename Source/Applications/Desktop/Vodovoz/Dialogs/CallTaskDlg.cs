@@ -25,6 +25,7 @@ using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz.Dialogs
 {
@@ -94,7 +95,9 @@ namespace Vodovoz.Dialogs
 			_parametersProvider = new ParametersProvider();
 			_contactsParameters = new ContactParametersProvider(_parametersProvider);
 			_organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			_counterpartyContractRepository = new CounterpartyContractRepository(_organizationProvider);
+			var orderParametersProvider = new OrderParametersProvider(_parametersProvider);
+			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+			_counterpartyContractRepository = new CounterpartyContractRepository(_organizationProvider, cashReceiptRepository);
 			_counterpartyContractFactory = new CounterpartyContractFactory(_organizationProvider, _counterpartyContractRepository);
 
 			buttonReportByClient.Sensitive = Entity.Counterparty != null;

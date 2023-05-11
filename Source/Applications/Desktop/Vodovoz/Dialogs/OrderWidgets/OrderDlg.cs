@@ -440,7 +440,10 @@ namespace Vodovoz
 				Entity.PaymentType = Entity.Client.PaymentMethod;
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
+				var parametersProvider = new ParametersProvider();
+				var orderParametersProvider = new OrderParametersProvider(parametersProvider);
+				var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
@@ -541,9 +544,12 @@ namespace Vodovoz
 
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
+			var parametersProvider = new ParametersProvider();
+			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
+			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider, cashReceiptRepository);
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
-			_orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			_orderParametersProvider = new OrderParametersProvider(parametersProvider);
 			_dailyNumberController = new OrderDailyNumberController(_orderRepository, UnitOfWorkFactory.GetDefaultFactory);
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
