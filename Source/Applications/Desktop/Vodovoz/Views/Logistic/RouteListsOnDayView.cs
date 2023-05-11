@@ -295,15 +295,15 @@ namespace Vodovoz.Views.Logistic
 					foreach(var marker in addressesOverlay.Markers) {
 						if(marker.IsMouseOver) {
 							var markerUnderMouse = selectedMarkers
-													.Where(m => m.Tag is Order)
-													.FirstOrDefault(x => (x.Tag as Order).Id == (marker.Tag as Order)?.Id);
+													.Where(m => m.Tag is OrderNode)
+													.FirstOrDefault(x => (x.Tag as OrderNode).OrderId == (marker.Tag as OrderNode)?.OrderId);
 
 							if(markerUnderMouse == null) {
 								selectedMarkers.Add(marker);
-								logger.Debug("Маркер с заказом №{0} добавлен в список выделенных", (marker.Tag as Order)?.Id);
+								logger.Debug("Маркер с заказом №{0} добавлен в список выделенных", (marker.Tag as OrderNode)?.OrderId);
 							} else {
 								selectedMarkers.Remove(markerUnderMouse);
-								logger.Debug("Маркер с заказом №{0} исключен из списка выделенных", (marker.Tag as Order)?.Id);
+								logger.Debug("Маркер с заказом №{0} исключен из списка выделенных", (marker.Tag as OrderNode)?.OrderId);
 							}
 							markerIsSelect = true;
 						}
