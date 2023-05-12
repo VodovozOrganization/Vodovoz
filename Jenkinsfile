@@ -62,7 +62,7 @@ WIN_BUILD_TOOL = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/
 DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
 DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/WorkTest"
 RELEASE_LOCKER_PATH = "C:/Program Files (x86)/Vodovoz/VodovozLauncher/ReleaseLocker.exe"
-UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/update.lock"
+UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
 LINUX_BUILD_TOOL = "msbuild"
 JOB_FOLDER_NAME = GetJobFolderName()
 IS_PULL_REQUEST = env.CHANGE_ID != null
