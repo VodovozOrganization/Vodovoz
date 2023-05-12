@@ -1,0 +1,28 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "EarchiveApi";
+
+package earchive;
+
+service EarchiveUpd {
+  rpc GetCounterparites (None) returns (stream CounterpartyInfo);
+  rpc GetAddresses (CounterpartyInfo) returns (stream DeliveryPointInfo);
+  rpc GetUpdCode (DeliveryPointInfo) returns (stream UpdInfo);
+}
+
+message None {
+}
+
+message CounterpartyInfo{
+	int64 id = 1;
+	string name = 2;
+}
+
+message DeliveryPointInfo{
+	int64 id = 1;
+	string address = 2;
+}
+
+message UpdInfo{
+	int64 id = 1;
+}
