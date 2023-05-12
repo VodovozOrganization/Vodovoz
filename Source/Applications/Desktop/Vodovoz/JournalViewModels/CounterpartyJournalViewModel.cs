@@ -153,11 +153,7 @@ namespace Vodovoz.JournalViewModels
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					var orderPage = MainClass.MainWin.NavigationManager.OpenViewModel<CloseSupplyToCounterpartyViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-					{
-						HideJournal(TabParent);
-					}
+					var openClosePage = MainClass.MainWin.NavigationManager.OpenViewModel<CloseSupplyToCounterpartyViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id));
 				}
 			);
 			NodeActionsList.Add(openCloseSupplyAction);
