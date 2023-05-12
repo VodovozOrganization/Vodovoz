@@ -74,9 +74,9 @@ IS_PULL_REQUEST = env.CHANGE_ID != null
 //IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
 //Тестовая настройка
-IS_HOTFIX = false
+IS_HOTFIX = true
 //Тестовая настройка
-IS_RELEASE = true
+IS_RELEASE = false
 //Тестовая настройка
 IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
@@ -517,10 +517,10 @@ def PublishDesktop(nodeName){
 			{
 				def now = new Date()
         		def hofix_suffix = now.format("MMdd_HHmm")
-				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${hofix_suffix}"
-				LockHotfix(newHotfixPath)
+				def hotfixName = "${NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX}_${hofix_suffix}"
+				def newHotfixPath = "${DESKTOP_HOTFIX_PUBLISH_PATH}/${hotfixName}"
 				DecompressArtifact(newHotfixPath, 'VodovozDesktop')
-				UnlockHotfix(newHotfixPath)
+				LockHotfix(hotfixName)
 				return
 			}
 
@@ -584,16 +584,10 @@ def PublishWCF(projectName){
 
 // 308	Фукнции. Утилитарные
 
-def LockHotfix(hotfixPath){
-	RunPowerShell("""
-		Start-Process -FilePath "${RELEASE_LOCKER_PATH}" -ArgumentList '"${UPDATE_LOCK_FILE}" "lock" "${hotfixPath}/Vodovoz.exe"'
-	""")
-}
 
-def UnlockHotfix(hotfixPath){
-	RunPowerShell("""
-		Start-Process -FilePath "${RELEASE_LOCKER_PATH}" -ArgumentList '"${UPDATE_LOCK_FILE}" "unlock" "${hotfixPath}/Vodovoz.exe"'
-	""")
+
+def LockHotfix(hotfixName){
+	writeFile(file: UPDATE_LOCK_FILE, text: hotfixName)
 }
 
 def ZipFiles(sourcePath, archiveFile){
