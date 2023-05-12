@@ -9,7 +9,7 @@ namespace EarchiveApi.Services
 		private readonly ILogger<EarchiveUpdService> _logger;
 		public EarchiveUpdService(ILogger<EarchiveUpdService> logger)
 		{
-			_logger = logger;
+			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 		}
 
 		public override async Task GetCounterparites(None request, IServerStreamWriter<CounterpartyInfo> responseStream, ServerCallContext context)
