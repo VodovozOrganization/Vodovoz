@@ -152,17 +152,19 @@ namespace Vodovoz.Models.TrueMark
 
 		private async Task PrepareForFirstReceipt(CashReceipt receipt, CancellationToken cancellationToken)
 		{
-			var orderSum = receipt.Order.OrderPositiveOriginalSum;
-			//не проверяем дубли по сумме у чеков под заказы  с 128+ позиций
-			var hasReceiptBySum = !receipt.InnerNumber.HasValue && _cashReceiptRepository.HasReceiptBySum(DateTime.Today, orderSum);
-			
-			if(hasReceiptBySum)
+			if(receipt.Order.PaymentType == PaymentType.cash)
 			{
-				TryPutCodesToPool(receipt);
+				var orderSum = receipt.Order.OrderPositiveOriginalSum;
+				//не проверяем дубли по сумме у чеков под заказы  с 128+ позиций
+				var hasReceiptBySum = !receipt.InnerNumber.HasValue && _cashReceiptRepository.HasReceiptBySum(DateTime.Today, orderSum);
+				if(hasReceiptBySum)
+				{
+					TryPutCodesToPool(receipt);
 
-				receipt.Status = CashReceiptStatus.DuplicateSum;
-				receipt.ErrorDescription = null;
-				return;
+					receipt.Status = CashReceiptStatus.DuplicateSum;
+					receipt.ErrorDescription = null;
+					return;
+				}
 			}
 
 			await ProcessingReceiptBeforeSending(receipt, cancellationToken);
