@@ -3768,16 +3768,33 @@ namespace Vodovoz.Domain.Orders
 			try {
 				if(!SelfDelivery && DeliveryPoint != null && DeliveryPoint.Phones.Any()) {
 
-					var deliveryPointReceiptPhone = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)
-						&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
+					var deliveryPointReceiptPhone = DeliveryPoint.Phones.FirstOrDefault(
+						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
+							&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts
+							&& !p.IsArchive);
+					
 					if(deliveryPointReceiptPhone != null)
-						contacts[0] = "+7" + deliveryPointReceiptPhone;
+					{
+						contacts[0] = "+7" + deliveryPointReceiptPhone.DigitsNumber;
+					}
 
-					var phone = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
+					var phone = DeliveryPoint.Phones.FirstOrDefault(
+						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
+							&& p.DigitsNumber.Substring(0, 1) == "9"
+							&& !p.IsArchive);
+					
 					if(phone != null)
+					{
 						contacts[3] = "+7" + phone.DigitsNumber;
-					else if(DeliveryPoint.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
-						contacts[7] = "+7" + DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+					}
+					else if(DeliveryPoint.Phones.Any(
+						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
+							&& !p.IsArchive))
+					{
+						contacts[7] = "+7" + DeliveryPoint.Phones.FirstOrDefault(
+							p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
+								&& !p.IsArchive).DigitsNumber;
+					}
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
@@ -3785,16 +3802,33 @@ namespace Vodovoz.Domain.Orders
 			try {
 				if(Client.Phones.Any()) {
 
-					var clientReceiptPhone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)
-						&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
+					var clientReceiptPhone = Client.Phones.FirstOrDefault(
+						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
+							&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts
+							&& !p.IsArchive);
+					
 					if(clientReceiptPhone != null)
-						contacts[1] = "+7" + clientReceiptPhone;
+					{
+						contacts[1] = "+7" + clientReceiptPhone.DigitsNumber;
+					}
 
-					var phone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
+					var phone = Client.Phones.FirstOrDefault(
+						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
+							&& p.DigitsNumber.Substring(0, 1) == "9"
+							&& !p.IsArchive);
+					
 					if(phone != null)
+					{
 						contacts[4] = "+7" + phone.DigitsNumber;
-					else if(Client.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
-						contacts[8] = "+7" + Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+					}
+					else if(Client.Phones.Any(
+						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
+							&& !p.IsArchive))
+					{
+						contacts[8] = "+7" + Client.Phones.FirstOrDefault(
+							p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
+								&& !p.IsArchive).DigitsNumber;
+					}
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
@@ -3804,20 +3838,29 @@ namespace Vodovoz.Domain.Orders
 					var receiptEmail = Client.Emails.FirstOrDefault(e => !String.IsNullOrWhiteSpace(e.Address)
 						 && e.EmailType?.EmailPurpose == EmailPurpose.ForReceipts)?.Address;
 					if(receiptEmail != null)
+					{
 						contacts[2] = receiptEmail;
+					}
 
-					var billsEmail = Client.Emails.FirstOrDefault(e => !String.IsNullOrWhiteSpace(e.Address)
-						&& e.EmailType?.EmailPurpose == EmailPurpose.ForBills)?.Address;
+					var billsEmail = Client.Emails.FirstOrDefault(
+						e => !String.IsNullOrWhiteSpace(e.Address)
+							&& e.EmailType?.EmailPurpose == EmailPurpose.ForBills)?.Address;
+					
 					if(billsEmail != null)
+					{
 						contacts[5] = billsEmail;
+					}
 
 					var email = Client.Emails.FirstOrDefault(e =>
 						!String.IsNullOrWhiteSpace(e.Address)
 						&& e.EmailType?.EmailPurpose != EmailPurpose.ForBills
 						&& e.EmailType?.EmailPurpose != EmailPurpose.ForReceipts)
 						?.Address;
+					
 					if(email != null)
+					{
 						contacts[6] = email;
+					}
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
