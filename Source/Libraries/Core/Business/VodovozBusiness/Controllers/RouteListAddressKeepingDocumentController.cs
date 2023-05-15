@@ -398,8 +398,7 @@ namespace Vodovoz.Controllers
 			}
 
 			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
-			var oldBottlesReturned =
-				oldRouteList.ClosingFilled ? oldRouteListItem.BottlesReturned : oldRouteListItem.Order.BottlesReturn ?? 0;
+			var oldBottlesReturned = oldRouteList.ClosingFilled ? oldRouteListItem.BottlesReturned : oldRouteListItem.Order.BottlesReturn ?? 0;
 
 			if(bottlesAmountSign != 0 && changedRouteListItem.BottlesReturned == oldBottlesReturned)
 			{
