@@ -3823,7 +3823,6 @@ namespace Vodovoz.Domain.Orders
 					}
 					else if(Client.Phones.Any(
 						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
-							&& p.PhoneType != null
 							&& !p.IsArchive))
 					{
 						contacts[8] = "+7" + Client.Phones.FirstOrDefault(
