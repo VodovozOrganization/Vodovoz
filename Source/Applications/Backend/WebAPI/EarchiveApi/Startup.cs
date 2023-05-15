@@ -4,12 +4,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using NLog.Web;
 
 namespace EarchiveApi
 {
@@ -26,21 +23,14 @@ namespace EarchiveApi
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-
-			var connectionStrBuilder = new MySqlConnectionStringBuilder();
-
-			var domainDbConfig = Configuration.GetSection("DomainDB");
-
-			connectionStrBuilder.Server = domainDbConfig.GetValue<string>("Server");
-			connectionStrBuilder.Port = domainDbConfig.GetValue<uint>("Port");
-			connectionStrBuilder.Database = domainDbConfig.GetValue<string>("Database");
-			connectionStrBuilder.UserID = domainDbConfig.GetValue<string>("UserID");
-			connectionStrBuilder.Password = domainDbConfig.GetValue<string>("Password");
-			connectionStrBuilder.SslMode = MySqlSslMode.None;
-
-			var connectionString = connectionStrBuilder.GetConnectionString(true);
-
 			services.AddGrpc();
+
+			services.AddLogging(
+				logging =>
+				{
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+				});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,39 +1,213 @@
 ﻿using Grpc.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
+using System;
 using System.Threading.Tasks;
+using Polly;
+using EarchiveApi.Extensions;
+using System.Linq;
 
 namespace EarchiveApi.Services
 {
 	public class EarchiveUpdService : EarchiveUpd.EarchiveUpdBase
 	{
 		private readonly ILogger<EarchiveUpdService> _logger;
-		public EarchiveUpdService(ILogger<EarchiveUpdService> logger)
+		private readonly string _connectionString;
+		public EarchiveUpdService(ILogger<EarchiveUpdService> logger, IConfiguration configuration)
 		{
+			if(configuration is null)
+			{
+				throw new ArgumentNullException(nameof(configuration));
+			}
+
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+
+			var connectionStringBuilder = new MySqlConnectionStringBuilder();
+			var domainDbConfig = configuration.GetSection("DomainDB");
+			connectionStringBuilder.Server = domainDbConfig.GetValue<string>("Server");
+			connectionStringBuilder.Port = domainDbConfig.GetValue<uint>("Port");
+			connectionStringBuilder.Database = domainDbConfig.GetValue<string>("Database");
+			connectionStringBuilder.UserID = domainDbConfig.GetValue<string>("UserID");
+			connectionStringBuilder.Password = domainDbConfig.GetValue<string>("Password");
+			connectionStringBuilder.SslMode = MySqlSslMode.Disabled;
+			connectionStringBuilder.DefaultCommandTimeout = 5;
+
+			_connectionString = connectionStringBuilder.GetConnectionString(true);
 		}
 
-		public override async Task GetCounterparites(None request, IServerStreamWriter<CounterpartyInfo> responseStream, ServerCallContext context)
+		public override async Task GetCounterparites(NameSubstring request, IServerStreamWriter<CounterpartyInfo> responseStream, ServerCallContext context)
 		{
-			for (var i = 0; i< 10; i++)
+			var minNameSubstringLength = 2;
+			if(request is null || request.NamePart?.Length < minNameSubstringLength)
 			{
-				await responseStream.WriteAsync(new CounterpartyInfo { Id = i + 1, Name = $"N {i+1}"});
+				_logger.LogInformation($"Запрос поиска контрагента не выполнен. Получен либо пустой запрос, либо кол-во симоволов меньше {minNameSubstringLength}");
+				return;
 			}
+
+			try
+			{
+				var name_substring = request.NamePart;
+
+				var retryPolicy = Policy
+					.Handle<MySqlException>()
+					.Or<TimeoutException>()
+					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(1));
+
+				using var connection = new MySqlConnection(_connectionString);
+
+				var counterparties = (await connection.QueryAsyncWithRetry<CounterpartyInfo>(SelectCounterpartiesSqlQuery, retryPolicy, new { name_substring })).ToList();
+
+				foreach(var counterpartyInfo in counterparties)
+				{
+					await responseStream.WriteAsync(counterpartyInfo);
+				}
+
+				_logger.LogInformation($"Запрос поиска контрагента выполнен успешно. По запросу \"{name_substring}\" найдено {counterparties.Count} результатов");
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, $"Ошибка при выполнении запроса поиска контрагента. Запрос: {request.NamePart}.", ex.Message);
+			}			
 		}
 
 		public override async Task GetAddresses(CounterpartyInfo request, IServerStreamWriter<DeliveryPointInfo> responseStream, ServerCallContext context)
 		{
-			for(var i = 0; i < 10; i++)
+			if(request is null || request.Id < 1)
 			{
-				await responseStream.WriteAsync(new DeliveryPointInfo { Id = i + 1, Address = $"A {i + 1}" });
+				_logger.LogInformation($"Запрос поиска точки доставки не выполнен. Получен либо пустой запрос, значение переданного Id точки доставки меньше 1");
+				return;
+			}
+
+			try
+			{
+				var counterparty_id = request.Id;
+
+				var retryPolicy = Policy
+					.Handle<MySqlException>()
+					.Or<TimeoutException>()
+					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(1));
+
+				using var connection = new MySqlConnection(_connectionString);
+
+				var deliveryPoints = (await connection.QueryAsyncWithRetry<DeliveryPointInfo>(SelectAddressesSqlQuery, retryPolicy, new { counterparty_id })).ToList();
+
+				foreach(var deliveryPointInfo in deliveryPoints)
+				{
+					await responseStream.WriteAsync(deliveryPointInfo);
+				}
+				_logger.LogInformation($"Запрос поиска точки доставки выполнен успешно. У контрагента id={counterparty_id} найдено {deliveryPoints.Count} адресов точек доставки");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, $"Ошибка при выполнении запроса поиска точек доставки контрагента. Поиск выполнялся для контрагента id={request.Id}.", ex.Message);
+				return;
 			}
 		}
 
-		public override async Task GetUpdCode(DeliveryPointInfo request, IServerStreamWriter<UpdInfo> responseStream, ServerCallContext context)
+		public override async Task GetUpdCode(UpdRequestInfo request, IServerStreamWriter<UpdResponseInfo> responseStream, ServerCallContext context)
 		{
-			for(var i = 0; i < 10; i++)
+			if(request is null || request.CounterpartyId < 1)
 			{
-				await responseStream.WriteAsync(new UpdInfo { Id = i + 1 });
+				_logger.LogInformation($"Запрос поиска кода УПД не выполнен. Получен либо пустой запрос, либо значение переданного Id контрагента меньше 1");
+				return;
+			}
+
+			try
+			{
+				var client_id = request.CounterpartyId;
+				var delivery_point_id = request.DeliveryPointId > 0 ? request.DeliveryPointId : -1;
+				var start_date = $"{request.StartDate.ToDateTime(): yyyy-MM-dd}";
+				var end_date =	request.EndDate.ToDateTime().Year < 1971
+								? $"{DateTime.Now:yyyy-MM-dd}"
+								: $"{request.EndDate.ToDateTime():yyyy-MM-dd}";
+
+				var retryPolicy = Policy
+					.Handle<MySqlException>()
+					.Or<TimeoutException>()
+					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(1));
+
+				using var connection = new MySqlConnection(_connectionString);
+
+				var updIds = (await connection.QueryAsyncWithRetry<UpdResponseInfo>(SelectUpdCodesSqlQuery, retryPolicy, new { client_id, delivery_point_id, start_date, end_date })).ToList();
+
+				foreach(var updId in updIds)
+				{
+					await responseStream.WriteAsync(updId);
+				}
+				_logger.LogInformation($"Запрос поиска кода УПД выполнен успешно. По запросу: Id контрагента = {client_id}, Id точки доставки = {delivery_point_id}, дата начала = {start_date}, дата окончания = {end_date}, найдено {updIds.Count} кодов");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, $"Ошибка при выполнении поиска кода УПД. Параметры запроса: Id контрагента = {request.CounterpartyId}, Id точки доставки = {request.DeliveryPointId}, дата начала = {request.StartDate}, дата окончания = {request.EndDate}.", ex.Message);
+				return;
 			}
 		}
+
+		#region SQL queries
+		private static string SelectCounterpartiesSqlQuery =>
+			"SELECT c.id as id, c.full_name as name " +
+			"FROM counterparty c " +
+			"WHERE c.full_name LIKE CONCAT('%', @name_substring ,'%')";
+
+		private static string SelectAddressesSqlQuery =>
+			"SELECT dp.id as id, dp.compiled_address_short  as address " +
+			"FROM delivery_points dp " +
+			"WHERE dp.counterparty_id = @counterparty_id";
+
+		private static string SelectUpdCodesSqlQuery =>
+			"SELECT DISTINCT docs.doc_id as id " +
+			"FROM " +
+			"(SELECT " +
+				"orders.id AS doc_id, " +
+				"orders.delivery_date AS doc_date " +
+			"FROM " +
+				"orders " +
+			"WHERE " +
+				"NOT (orders.order_status = 'Canceled' " +
+				"OR orders.order_status = 'DeliveryCanceled' " +
+				"OR orders.order_status = 'NotDelivered') " +
+				"AND !orders.is_contract_closer " +
+				"AND orders.client_id = @client_id " +
+				"AND (@delivery_point_id = -1 OR orders.delivery_point_id = @delivery_point_id) " +
+				"AND (@start_date = '' OR orders.delivery_date >= @start_date) " +
+				"AND (@end_date = '' OR orders.delivery_date <= @end_date) " +
+
+				"UNION SELECT " +
+					"doc_residue.id AS doc_id, " +
+					"doc_residue.date AS doc_date " +
+				"FROM " +
+					"doc_residue " +
+				"WHERE " +
+					"doc_residue.client_id = @client_id " +
+					"AND (@delivery_point_id = -1 OR doc_residue.delivery_point_id = @delivery_point_id) " +
+					"AND (@start_date = '' OR doc_residue.date >= @start_date) " +
+					"AND (@end_date = '' OR doc_residue.date <= @end_date) " +
+				"GROUP BY(doc_residue.id) " +
+
+				"UNION SELECT " +
+					"transfer_operations.id AS doc_id, " +
+					"transfer_operations.operation_time AS doc_date " +
+				"FROM " +
+					"transfer_operations " +
+				"WHERE " +
+					"transfer_operations.from_client_id = @client_id " +
+					"AND (@delivery_point_id = -1 OR transfer_operations.from_delivery_point_id = @delivery_point_id) " +
+					"AND (@start_date = '' OR transfer_operations.operation_time >= @start_date) " +
+					"AND (@end_date = '' OR transfer_operations.operation_time <= @end_date) " +
+
+				"UNION SELECT " +
+					"transfer_operations.id AS transfer_operation_id, " +
+					"transfer_operations.operation_time AS doc_date " +
+				"FROM " +
+					"transfer_operations " +
+				"WHERE " +
+					"transfer_operations.to_client_id = @client_id " +
+					"AND (@delivery_point_id = -1 OR transfer_operations.to_delivery_point_id = @delivery_point_id) " +
+					"AND (@start_date = '' OR transfer_operations.operation_time >= @start_date) " +
+					"AND (@end_date = '' OR transfer_operations.operation_time <= @end_date) " +
+				") AS docs " +
+				"ORDER BY docs.doc_date;";
+		#endregion
 	}
 }

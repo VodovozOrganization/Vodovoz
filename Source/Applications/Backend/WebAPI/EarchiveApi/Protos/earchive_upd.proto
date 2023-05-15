@@ -1,16 +1,18 @@
 ﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "EarchiveApi";
 
 package earchive;
 
 service EarchiveUpd {
-  rpc GetCounterparites (None) returns (stream CounterpartyInfo);
+  rpc GetCounterparites (NameSubstring) returns (stream CounterpartyInfo);
   rpc GetAddresses (CounterpartyInfo) returns (stream DeliveryPointInfo);
-  rpc GetUpdCode (DeliveryPointInfo) returns (stream UpdInfo);
+  rpc GetUpdCode (UpdRequestInfo) returns (stream UpdResponseInfo);
 }
 
-message None {
+message NameSubstring{
+	string name_part = 1;
 }
 
 message CounterpartyInfo{
@@ -23,6 +25,13 @@ message DeliveryPointInfo{
 	string address = 2;
 }
 
-message UpdInfo{
+message UpdRequestInfo{
+	int64 counterparty_id = 1;
+	int64 delivery_point_id = 2;
+	google.protobuf.Timestamp start_date = 3;
+	google.protobuf.Timestamp end_date = 4;
+}
+
+message UpdResponseInfo{
 	int64 id = 1;
 }
