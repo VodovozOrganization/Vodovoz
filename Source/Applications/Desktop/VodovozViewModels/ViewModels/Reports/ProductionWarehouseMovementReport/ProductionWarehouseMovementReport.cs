@@ -278,7 +278,7 @@ namespace Vodovoz.ViewModels.Reports
 					&& (selectedWarehouses.Contains(x.Document.FromWarehouse.Id))
 					&& (x.Document.TimeStamp >= _startDate && x.Document.TimeStamp <= (_endDate ?? DateTime.MaxValue))
 					&& x.Nomenclature.Category == NomenclatureCategory.water
-					&& x.SendedAmount > 0)
+					&& x.ReceivedAmount > 0)
 				.Fetch(x => x.WarehouseIncomeOperation)
 				.Fetch(x => x.WarehouseWriteoffOperation)
 				.Fetch(x => x.Nomenclature)
@@ -289,7 +289,7 @@ namespace Vodovoz.ViewModels.Reports
 					MovementDocumentId = x.Document.Id,
 					NomenclatureId = x.Nomenclature.Id,
 					NomenclatureName = x.Nomenclature.Name,
-					Amount = x.SendedAmount,
+					Amount = x.ReceivedAmount,
 					PurchasePrices = x.Nomenclature.PurchasePrices
 				})
 				.ToList();
