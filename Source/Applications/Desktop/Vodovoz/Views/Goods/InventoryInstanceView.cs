@@ -27,12 +27,6 @@ namespace Vodovoz.Views.Goods
 			spinBtnPurchasePrice.Binding
 				.AddBinding(ViewModel.Entity, vm => vm.PurchasePrice, w => w.ValueAsDecimal)
 				.InitializeFromSource();
-			spinBtnCostPrice.Binding
-				.AddBinding(ViewModel.Entity, vm => vm.CostPrice, w => w.ValueAsDecimal)
-				.InitializeFromSource();
-			spinBtnInnerDeliveryPrice.Binding
-				.AddBinding(ViewModel.Entity, vm => vm.InnerDeliveryPrice, w => w.ValueAsDecimal)
-				.InitializeFromSource();
 		}
 
 		private void OnSaveClicked(object sender, EventArgs e)

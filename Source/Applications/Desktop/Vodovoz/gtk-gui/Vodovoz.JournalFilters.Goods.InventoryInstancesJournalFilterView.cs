@@ -8,6 +8,8 @@ namespace Vodovoz.JournalFilters.Goods
 
 		private global::Gamma.GtkWidgets.yTable ytable1;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkShowArchive;
+
 		private global::Gamma.GtkWidgets.yEntry inventoryNumberEntry;
 
 		private global::Gamma.GtkWidgets.yLabel lblInventoryNumber;
@@ -29,10 +31,25 @@ namespace Vodovoz.JournalFilters.Goods
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.ytable1 = new global::Gamma.GtkWidgets.yTable();
 			this.ytable1.Name = "ytable1";
-			this.ytable1.NRows = ((uint)(2));
+			this.ytable1.NRows = ((uint)(3));
 			this.ytable1.NColumns = ((uint)(2));
 			this.ytable1.RowSpacing = ((uint)(6));
 			this.ytable1.ColumnSpacing = ((uint)(6));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.chkShowArchive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkShowArchive.CanFocus = true;
+			this.chkShowArchive.Name = "chkShowArchive";
+			this.chkShowArchive.Label = global::Mono.Unix.Catalog.GetString("Показывать архивные");
+			this.chkShowArchive.DrawIndicator = true;
+			this.chkShowArchive.UseUnderline = true;
+			this.ytable1.Add(this.chkShowArchive);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.ytable1[this.chkShowArchive]));
+			w1.TopAttach = ((uint)(2));
+			w1.BottomAttach = ((uint)(3));
+			w1.LeftAttach = ((uint)(1));
+			w1.RightAttach = ((uint)(2));
+			w1.XOptions = ((global::Gtk.AttachOptions)(4));
+			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.inventoryNumberEntry = new global::Gamma.GtkWidgets.yEntry();
 			this.inventoryNumberEntry.CanFocus = true;
@@ -40,48 +57,48 @@ namespace Vodovoz.JournalFilters.Goods
 			this.inventoryNumberEntry.IsEditable = true;
 			this.inventoryNumberEntry.InvisibleChar = '•';
 			this.ytable1.Add(this.inventoryNumberEntry);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.ytable1[this.inventoryNumberEntry]));
-			w1.TopAttach = ((uint)(1));
-			w1.BottomAttach = ((uint)(2));
-			w1.LeftAttach = ((uint)(1));
-			w1.RightAttach = ((uint)(2));
-			w1.XOptions = ((global::Gtk.AttachOptions)(4));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytable1[this.inventoryNumberEntry]));
+			w2.TopAttach = ((uint)(1));
+			w2.BottomAttach = ((uint)(2));
+			w2.LeftAttach = ((uint)(1));
+			w2.RightAttach = ((uint)(2));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.lblInventoryNumber = new global::Gamma.GtkWidgets.yLabel();
 			this.lblInventoryNumber.Name = "lblInventoryNumber";
 			this.lblInventoryNumber.Xalign = 1F;
 			this.lblInventoryNumber.LabelProp = global::Mono.Unix.Catalog.GetString("Инвентарный номер:");
 			this.ytable1.Add(this.lblInventoryNumber);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytable1[this.lblInventoryNumber]));
-			w2.TopAttach = ((uint)(1));
-			w2.BottomAttach = ((uint)(2));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytable1[this.lblInventoryNumber]));
+			w3.TopAttach = ((uint)(1));
+			w3.BottomAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.lblNomenclature = new global::Gamma.GtkWidgets.yLabel();
 			this.lblNomenclature.Name = "lblNomenclature";
 			this.lblNomenclature.Xalign = 1F;
 			this.lblNomenclature.LabelProp = global::Mono.Unix.Catalog.GetString("Номенклатура:");
 			this.ytable1.Add(this.lblNomenclature);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytable1[this.lblNomenclature]));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytable1[this.lblNomenclature]));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytable1.Gtk.Table+TableChild
 			this.nomenclatureEntry = new global::QS.Views.Control.EntityEntry();
 			this.nomenclatureEntry.Events = ((global::Gdk.EventMask)(256));
 			this.nomenclatureEntry.Name = "nomenclatureEntry";
 			this.ytable1.Add(this.nomenclatureEntry);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytable1[this.nomenclatureEntry]));
-			w4.LeftAttach = ((uint)(1));
-			w4.RightAttach = ((uint)(2));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.ytable1[this.nomenclatureEntry]));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.ytable1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.ytable1]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.ytable1]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

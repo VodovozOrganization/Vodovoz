@@ -16,23 +16,19 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gamma.GtkWidgets.yTable tableData;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkIsArchive;
+
 		private global::QS.Views.Control.EntityEntry entryNomenclature;
 
 		private global::Gamma.GtkWidgets.yEntry inventoryNumberEntry;
 
-		private global::Gamma.GtkWidgets.yLabel lblCostPrice;
-
-		private global::Gamma.GtkWidgets.yLabel lblInnerDeliveryPrice;
-
 		private global::Gamma.GtkWidgets.yLabel lblInventoryNumber;
+
+		private global::Gamma.GtkWidgets.yLabel lblIsArchive;
 
 		private global::Gamma.GtkWidgets.yLabel lblNomenclature;
 
 		private global::Gamma.GtkWidgets.yLabel lblPurchasePrice;
-
-		private global::Gamma.GtkWidgets.ySpinButton spinBtnCostPrice;
-
-		private global::Gamma.GtkWidgets.ySpinButton spinBtnInnerDeliveryPrice;
 
 		private global::Gamma.GtkWidgets.ySpinButton spinBtnPurchasePrice;
 
@@ -88,20 +84,35 @@ namespace Vodovoz.Views.Goods
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.tableData = new global::Gamma.GtkWidgets.yTable();
 			this.tableData.Name = "tableData";
-			this.tableData.NRows = ((uint)(5));
+			this.tableData.NRows = ((uint)(4));
 			this.tableData.NColumns = ((uint)(3));
 			this.tableData.RowSpacing = ((uint)(6));
 			this.tableData.ColumnSpacing = ((uint)(6));
+			// Container child tableData.Gtk.Table+TableChild
+			this.chkIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkIsArchive.CanFocus = true;
+			this.chkIsArchive.Name = "chkIsArchive";
+			this.chkIsArchive.Label = "";
+			this.chkIsArchive.DrawIndicator = true;
+			this.chkIsArchive.UseUnderline = true;
+			this.tableData.Add(this.chkIsArchive);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.tableData[this.chkIsArchive]));
+			w5.TopAttach = ((uint)(3));
+			w5.BottomAttach = ((uint)(4));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableData.Gtk.Table+TableChild
 			this.entryNomenclature = new global::QS.Views.Control.EntityEntry();
 			this.entryNomenclature.Events = ((global::Gdk.EventMask)(256));
 			this.entryNomenclature.Name = "entryNomenclature";
 			this.tableData.Add(this.entryNomenclature);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.tableData[this.entryNomenclature]));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(3));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableData[this.entryNomenclature]));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(3));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableData.Gtk.Table+TableChild
 			this.inventoryNumberEntry = new global::Gamma.GtkWidgets.yEntry();
 			this.inventoryNumberEntry.CanFocus = true;
@@ -109,44 +120,33 @@ namespace Vodovoz.Views.Goods
 			this.inventoryNumberEntry.IsEditable = true;
 			this.inventoryNumberEntry.InvisibleChar = '•';
 			this.tableData.Add(this.inventoryNumberEntry);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableData[this.inventoryNumberEntry]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(3));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableData.Gtk.Table+TableChild
-			this.lblCostPrice = new global::Gamma.GtkWidgets.yLabel();
-			this.lblCostPrice.Name = "lblCostPrice";
-			this.lblCostPrice.Xalign = 1F;
-			this.lblCostPrice.LabelProp = global::Mono.Unix.Catalog.GetString("Себестоимость:");
-			this.tableData.Add(this.lblCostPrice);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableData[this.lblCostPrice]));
-			w7.TopAttach = ((uint)(3));
-			w7.BottomAttach = ((uint)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableData[this.inventoryNumberEntry]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(3));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableData.Gtk.Table+TableChild
-			this.lblInnerDeliveryPrice = new global::Gamma.GtkWidgets.yLabel();
-			this.lblInnerDeliveryPrice.Name = "lblInnerDeliveryPrice";
-			this.lblInnerDeliveryPrice.Xalign = 1F;
-			this.lblInnerDeliveryPrice.LabelProp = global::Mono.Unix.Catalog.GetString("Цена доставки на склад:");
-			this.tableData.Add(this.lblInnerDeliveryPrice);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableData[this.lblInnerDeliveryPrice]));
-			w8.TopAttach = ((uint)(4));
-			w8.BottomAttach = ((uint)(5));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableData.Gtk.Table+TableChild
 			this.lblInventoryNumber = new global::Gamma.GtkWidgets.yLabel();
 			this.lblInventoryNumber.Name = "lblInventoryNumber";
 			this.lblInventoryNumber.Xalign = 1F;
 			this.lblInventoryNumber.LabelProp = global::Mono.Unix.Catalog.GetString("Инвентарный номер:");
 			this.tableData.Add(this.lblInventoryNumber);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableData[this.lblInventoryNumber]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableData[this.lblInventoryNumber]));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableData.Gtk.Table+TableChild
+			this.lblIsArchive = new global::Gamma.GtkWidgets.yLabel();
+			this.lblIsArchive.Name = "lblIsArchive";
+			this.lblIsArchive.Xalign = 1F;
+			this.lblIsArchive.LabelProp = global::Mono.Unix.Catalog.GetString("Архивный:");
+			this.tableData.Add(this.lblIsArchive);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableData[this.lblIsArchive]));
+			w9.TopAttach = ((uint)(3));
+			w9.BottomAttach = ((uint)(4));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableData.Gtk.Table+TableChild
@@ -170,42 +170,6 @@ namespace Vodovoz.Views.Goods
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableData.Gtk.Table+TableChild
-			this.spinBtnCostPrice = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 100D);
-			this.spinBtnCostPrice.CanFocus = true;
-			this.spinBtnCostPrice.Name = "spinBtnCostPrice";
-			this.spinBtnCostPrice.Adjustment.PageIncrement = 1000D;
-			this.spinBtnCostPrice.ClimbRate = 1D;
-			this.spinBtnCostPrice.Digits = ((uint)(2));
-			this.spinBtnCostPrice.Numeric = true;
-			this.spinBtnCostPrice.ValueAsDecimal = 0m;
-			this.spinBtnCostPrice.ValueAsInt = 0;
-			this.tableData.Add(this.spinBtnCostPrice);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableData[this.spinBtnCostPrice]));
-			w12.TopAttach = ((uint)(3));
-			w12.BottomAttach = ((uint)(4));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableData.Gtk.Table+TableChild
-			this.spinBtnInnerDeliveryPrice = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 100D);
-			this.spinBtnInnerDeliveryPrice.CanFocus = true;
-			this.spinBtnInnerDeliveryPrice.Name = "spinBtnInnerDeliveryPrice";
-			this.spinBtnInnerDeliveryPrice.Adjustment.PageIncrement = 1000D;
-			this.spinBtnInnerDeliveryPrice.ClimbRate = 1D;
-			this.spinBtnInnerDeliveryPrice.Digits = ((uint)(2));
-			this.spinBtnInnerDeliveryPrice.Numeric = true;
-			this.spinBtnInnerDeliveryPrice.ValueAsDecimal = 0m;
-			this.spinBtnInnerDeliveryPrice.ValueAsInt = 0;
-			this.tableData.Add(this.spinBtnInnerDeliveryPrice);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableData[this.spinBtnInnerDeliveryPrice]));
-			w13.TopAttach = ((uint)(4));
-			w13.BottomAttach = ((uint)(5));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableData.Gtk.Table+TableChild
 			this.spinBtnPurchasePrice = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000000D, 100D);
 			this.spinBtnPurchasePrice.CanFocus = true;
 			this.spinBtnPurchasePrice.Name = "spinBtnPurchasePrice";
@@ -216,18 +180,18 @@ namespace Vodovoz.Views.Goods
 			this.spinBtnPurchasePrice.ValueAsDecimal = 0m;
 			this.spinBtnPurchasePrice.ValueAsInt = 0;
 			this.tableData.Add(this.spinBtnPurchasePrice);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableData[this.spinBtnPurchasePrice]));
-			w14.TopAttach = ((uint)(2));
-			w14.BottomAttach = ((uint)(3));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableData[this.spinBtnPurchasePrice]));
+			w12.TopAttach = ((uint)(2));
+			w12.BottomAttach = ((uint)(3));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.tableData);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableData]));
-			w15.Position = 2;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableData]));
+			w13.Position = 2;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
