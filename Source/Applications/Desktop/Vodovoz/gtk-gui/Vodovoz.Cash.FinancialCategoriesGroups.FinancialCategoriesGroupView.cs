@@ -121,8 +121,8 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			// Container child tableMain.Gtk.Table+TableChild
 			this.labelId = new global::Gtk.Label();
 			this.labelId.Name = "labelId";
-			this.labelId.Xalign = 1F;
-			this.labelId.LabelProp = global::Mono.Unix.Catalog.GetString("Код");
+			this.labelId.Xalign = 0F;
+			this.labelId.LabelProp = global::Mono.Unix.Catalog.GetString("Код:");
 			this.tableMain.Add(this.labelId);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelId]));
 			w10.TopAttach = ((uint)(1));
@@ -133,7 +133,6 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.labelIdValue = new global::Gamma.GtkWidgets.yLabel();
 			this.labelIdValue.Name = "labelIdValue";
 			this.labelIdValue.Xalign = 0F;
-			this.labelIdValue.Yalign = 0F;
 			this.tableMain.Add(this.labelIdValue);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelIdValue]));
 			w11.TopAttach = ((uint)(1));
@@ -144,8 +143,8 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			// Container child tableMain.Gtk.Table+TableChild
 			this.labelName = new global::Gtk.Label();
 			this.labelName.Name = "labelName";
-			this.labelName.Xalign = 1F;
-			this.labelName.LabelProp = global::Mono.Unix.Catalog.GetString("Название");
+			this.labelName.Xalign = 0F;
+			this.labelName.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
 			this.tableMain.Add(this.labelName);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelName]));
 			w12.TopAttach = ((uint)(2));
@@ -155,8 +154,8 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			// Container child tableMain.Gtk.Table+TableChild
 			this.labelParent = new global::Gtk.Label();
 			this.labelParent.Name = "labelParent";
-			this.labelParent.Xalign = 1F;
-			this.labelParent.LabelProp = global::Mono.Unix.Catalog.GetString("Родительская группа");
+			this.labelParent.Xalign = 0F;
+			this.labelParent.LabelProp = global::Mono.Unix.Catalog.GetString("Родительская группа:");
 			this.tableMain.Add(this.labelParent);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelParent]));
 			w13.TopAttach = ((uint)(3));

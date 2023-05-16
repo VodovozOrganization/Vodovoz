@@ -31,12 +31,6 @@ namespace Vodovoz.Cash
 				.AddBinding(ViewModel.Entity, e => e.Numbering, (widget) => widget.Text)
 				.InitializeFromSource();
 
-			#region ParentEntityviewmodelentry
-			ParentEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseCategoryAutocompleteSelectorFactory);
-			ParentEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Parent, w => w.Subject).InitializeFromSource();
-			ParentEntityviewmodelentry.CanEditReference = true;
-			#endregion
-
 			#region SubdivisionEntityviewmodelentry
 
 			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionAutocompleteSelectorFactory);

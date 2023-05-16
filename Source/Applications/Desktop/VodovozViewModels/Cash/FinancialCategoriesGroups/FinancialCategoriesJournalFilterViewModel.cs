@@ -28,4 +28,5 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		public ObservableCollection<Type> RestrictNodeTypes { get; } = new ObservableCollection<Type>();
 		public ObservableCollection<int> ExcludeFinancialGroupsIds { get; } = new ObservableCollection<int>();
 		public bool IsShow { get; set; }
+	}
 }
