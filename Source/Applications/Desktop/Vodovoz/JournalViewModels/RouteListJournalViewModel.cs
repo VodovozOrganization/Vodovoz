@@ -188,6 +188,7 @@ namespace Vodovoz.JournalViewModels
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(rl => rl.Shift, () => shiftAlias)
 				.Left.JoinAlias(rl => rl.Car, () => carAlias)
+				.Left.JoinAlias(rl => rl.GeographicGroups, () => geoGroupAlias)
 				.Left.JoinAlias(rl => rl.Driver, () => driverAlias)
 				.Left.JoinAlias(rl => rl.RouteListProfitability, () => routeListProfitabilityAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
