@@ -10,7 +10,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
-namespace Vodovoz.Dialogs.Cash
+namespace Vodovoz.Cash
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class IncomeCategoryView : TabViewBase<IncomeCategoryViewModel>
