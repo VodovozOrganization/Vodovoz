@@ -493,6 +493,7 @@ namespace Vodovoz
 			{
 				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
+				_routeListItem.BottlesReturned = 0;
 				UpdateButtonsState();
 				OnCloseTab(false);
 			};
@@ -506,6 +507,7 @@ namespace Vodovoz
 			{
 				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
+				_routeListItem.BottlesReturned = 0;
 				UpdateButtonsState();
 				OnCloseTab(false);
 			};
