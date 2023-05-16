@@ -8,6 +8,8 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 	{
 		private readonly Func<TEntity, string> titleFunc;
 
+		private readonly bool _useFullEntity;
+
 		public override string Title => EntityTitle;
 
 		public TEntity Entity { get; }
@@ -16,7 +18,15 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		public string EntityTitle { get; set; }
 
-		public override Func<object> ValueFunc => () => EntityId;
+		public override Func<object> ValueFunc => () =>
+		{
+			if(_useFullEntity)
+			{
+				return Entity;
+			}
+
+			return EntityId;
+		};
 
 		public SelectableEntityParameter()
 		{
@@ -26,6 +36,13 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		{
 			EntityId = entityId;
 			EntityTitle = title;
+		}
+
+		public SelectableEntityParameter(TEntity entity, string title)
+		{
+			_useFullEntity = true;
+			EntityTitle = title;
+			Entity = entity;
 		}
 	}
 }

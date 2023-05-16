@@ -1,9 +1,9 @@
 ﻿using ClosedXML.Report;
 using DateTimeHelpers;
+using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -16,7 +16,6 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Dynamic.Core;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -490,11 +489,26 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					return query.List<SelectableParameter>();
 				}));
 
+
 			_filter.CreateParameterSet(
 				"Тип оплаты",
-				nameof(PaymentType),
-				new ParametersEnumFactory<PaymentType>()
-			);
+				nameof(CombinedPaymentNode),
+				new RecursiveParametersFactory<CombinedPaymentNode>(
+					_unitOfWork,
+					(filters) =>
+					{
+						var paymentFromList = _unitOfWork.Session.QueryOver<PaymentFrom>().List();
+						var paymentFromCombinedNodes = paymentFromList.Select(x => new CombinedPaymentNode { Id = x.Id, Title = x.Name }).ToList();
+
+						var paymentTypeList = Enum.GetValues(typeof(PaymentType)).Cast<PaymentType>();
+						var combinedNodesTypesWithChildFroms = paymentTypeList.Select(x => new CombinedPaymentNode { Title = x.GetEnumTitle(), PaymentType = x, IsTopLevel = true }).ToList();
+						combinedNodesTypesWithChildFroms.Single(x => x.PaymentType == PaymentType.ByCard).Childs = paymentFromCombinedNodes;
+
+						return combinedNodesTypesWithChildFroms;
+					},
+					x => x.Title,
+					x => x.Childs,
+					true));
 
 			_filter.CreateParameterSet(
 				"Промонаборы",
@@ -926,6 +940,40 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					.Add(Restrictions.IsNull(Projections.Property(() => productGroupAlias.Id))));
 			}
 
+			if(parameters.ContainsKey(nameof(CombinedPaymentNode) + _includeSuffix) 
+			   && parameters[nameof(CombinedPaymentNode) + _includeSuffix] is object[] paymentNodesInclude
+			   && paymentNodesInclude[0] != "0")
+			{
+				var paymentNodes = paymentNodesInclude.Cast<CombinedPaymentNode>().ToList();
+				var paymentTypes = paymentNodes.Where(x => x.IsTopLevel).Select(x => x.PaymentType).ToArray();
+				var paymentCardForms = paymentNodes.Where(x => !x.IsTopLevel).Select(x => x.Id).ToArray();
+
+				query.Where(
+					Restrictions.Disjunction()
+						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), paymentTypes))
+						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentByCardFrom), paymentCardForms))
+					);
+			}
+
+			if(parameters.ContainsKey(nameof(CombinedPaymentNode) + _excludeSuffix) 
+			   && parameters[nameof(CombinedPaymentNode) + _excludeSuffix] is object[] paymentNodesExclude
+			   && paymentNodesExclude[0] != "0")
+			{
+				var paymentNodes = paymentNodesExclude.Cast<CombinedPaymentNode>().ToList();
+				var paymentTypes = paymentNodes.Where(x => x.IsTopLevel).Select(x => x.PaymentType).ToArray();
+				var paymentCardForms = paymentNodes.Where(x => !x.IsTopLevel).Select(x => x.Id).ToArray();
+
+				query.Where(
+					Restrictions.Not(
+						Restrictions.Disjunction()
+							.Add(Restrictions.Conjunction()
+								.Add(Restrictions.IsNotNull(Projections.Property(() => orderAlias.PaymentByCardFrom)))
+								.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentByCardFrom), paymentCardForms)))
+							.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), paymentTypes))
+						)
+					);
+			}
+
 			if(parameters.ContainsKey(nameof(VodovozCounterparty) + _includeSuffix)
 				&& parameters[nameof(VodovozCounterparty) + _includeSuffix] is object[] counterpartiesInclude
 				&& counterpartiesInclude[0] != "0")
@@ -1150,6 +1198,15 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				yield return "Для разреза месяц нельзя выбрать интервал более 60х месяцев";
 			}
+		}
+
+		public class CombinedPaymentNode : IDomainObject
+		{
+			public bool IsTopLevel { get; set; }
+			public PaymentType? PaymentType { get; set; }
+			public int Id { get; set; }
+			public string Title { get; set; }
+			public IList<CombinedPaymentNode> Childs { get; set; }
 		}
 
 		public override void Dispose()
