@@ -873,12 +873,8 @@ namespace Vodovoz.Domain.Logistic
 				address.ChangeOrderStatus(OrderStatus.Accepted);
 			}
 
-			var addressKeepingDocument = UoW.GetAll<RouteListAddressKeepingDocument>().SingleOrDefault(x => x.RouteListItem.Id == address.Id);
-
-			if(addressKeepingDocument != null)
-			{
-				UoW.Delete(addressKeepingDocument);
-			}
+			var routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
+			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address);
 
 			ObservableAddresses.Remove(address);
 			return true;
