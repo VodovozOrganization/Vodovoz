@@ -986,7 +986,11 @@ public partial class MainWindow : Window
 
 	void ActionRouteListClosingTable_Activated(object sender, EventArgs e)
 	{
-		var page = NavigationManager.OpenViewModel<RouteListWorkingJournalViewModel>(null);
+		var filter = new RouteListJournalFilterViewModel();
+		filter.StartDate = DateTime.Today.AddMonths(-2);
+		filter.EndDate = DateTime.Today.AddDays(1);
+		
+		var page = NavigationManager.OpenViewModel<RouteListWorkingJournalViewModel, RouteListJournalFilterViewModel>(null, filter);
 		page.ViewModel.NavigationManager = NavigationManager;
 	}
 

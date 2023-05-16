@@ -92,6 +92,7 @@ namespace Vodovoz.JournalViewModels
 		{
 			RouteListJournalNode routeListJournalNodeAlias = null;
 			RouteList routeListAlias = null;
+			RouteList routeList2Alias = null;
 			DeliveryShift shiftAlias = null;
 			Car carAlias = null;
 			CarVersion carVersionAlias = null;
@@ -106,16 +107,6 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
 				.Left.JoinAlias(o => o.Car, () => carAlias)
 				.Left.JoinAlias(o => o.GeographicGroups, () => geoGroupAlias)
-				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias,
-						Restrictions.Conjunction()
-							.Add(Restrictions.Where(() => geoGroupVersionAlias.ActivationDate <= routeListAlias.Date))
-							.Add(
-								Restrictions.Disjunction()
-									.Add(Restrictions.IsNull(Projections.Property(() => geoGroupVersionAlias.ClosingDate)))
-									.Add(Restrictions.Where(() => geoGroupVersionAlias.ClosingDate >= routeListAlias.Date))
-							)
-				)
-				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
 				.Left.JoinAlias(o => o.Driver, () => driverAlias)
 				.Left.JoinAlias(rl => rl.RouteListProfitability, () => routeListProfitabilityAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
@@ -232,6 +223,21 @@ namespace Vodovoz.JournalViewModels
 				() => carModelAlias.Name,
 				() => carAlias.RegistrationNumber
 			));
+			
+			var firstRouteListGeoGroup = QueryOver.Of(() => routeList2Alias)
+				.JoinAlias(() => routeList2Alias.GeographicGroups, () => geoGroupAlias)
+				.Where(() => routeList2Alias.Id == routeListAlias.Id)
+				.Select(Projections.Property(() => geoGroupAlias.Id))
+				.Take(1);
+
+			var closingSubdivision = QueryOver.Of(() => subdivisionAlias)
+				.JoinEntityAlias(() => geoGroupVersionAlias, () => geoGroupVersionAlias.CashSubdivision.Id == subdivisionAlias.Id)
+				.Where(Restrictions.EqProperty(
+					Projections.Property(() => geoGroupVersionAlias.GeoGroup.Id),
+					Projections.SubQuery(firstRouteListGeoGroup)))
+				.And(() => geoGroupVersionAlias.ActivationDate <= routeListAlias.Date)
+				.And(() => geoGroupVersionAlias.ClosingDate == null || geoGroupVersionAlias.ClosingDate >= routeListAlias.Date)
+				.Select(s => s.Name);
 
 			var result = query
 				.SelectList(list => list
@@ -247,7 +253,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => driverAlias.Comment).WithAlias(() => routeListJournalNodeAlias.DriverComment)
 					.Select(() => routeListAlias.LogisticiansComment).WithAlias(() => routeListJournalNodeAlias.LogisticiansComment)
 					.Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
-					.Select(() => subdivisionAlias.Name).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
+					.SelectSubQuery(closingSubdivision).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
 					.Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => routeListJournalNodeAlias.NotFullyLoaded)
 					.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => routeListJournalNodeAlias.CarTypeOfUse)
 					.Select(() => carVersionAlias.CarOwnType).WithAlias(() => routeListJournalNodeAlias.CarOwnType)
