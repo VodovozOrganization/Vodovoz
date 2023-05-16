@@ -5,6 +5,7 @@ using Gtk;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
@@ -33,6 +34,14 @@ namespace Vodovoz.JournalColumnsConfigs
 				Activator.CreateInstance(type);
 			}
 
+			TreeViewColumnsConfigFactory.Register<FinancialCategoriesGroupsJournalViewModel>(
+				(vm) => FluentColumnsConfig<FinancialCategoriesJournalNode>.Create()
+					.SetTreeModel(() => new RecursiveTreeModel<FinancialCategoriesJournalNode>(vm.Items.Cast<FinancialCategoriesJournalNode>(), vm.RecuresiveConfig))
+					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.Finish()
+				);
+
 			TreeViewColumnsConfigFactory.Register<RoboatsCallsRegistryJournalViewModel>(
 				(vm) => FluentColumnsConfig<RoboatsCallJournalNode>.Create()
 					.SetTreeModel(() => new RecursiveTreeModel<RoboatsCallJournalNode>(vm.Items.Cast<RoboatsCallJournalNode>(), vm.RecuresiveConfig))
@@ -44,7 +53,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Детали звонка").AddTextRenderer(node => node.Description)
 					.RowCells()
 					.AddSetter<CellRenderer>(
-						(cell, node) => {
+						(cell, node) =>
+						{
 							var color = _colorWhite;
 							if(node.NodeType == RoboatsCallNodeType.RoboatsCallDetail)
 							{
@@ -65,25 +75,22 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn(" ━ Изменен \n").AddTextRenderer(node => node.ChangedTime)
 					.AddColumn(" ━ Статус \n").AddTextRenderer(node => node.Status)
 					.AddColumn(" ━ Сумма \n").AddNumericRenderer(node => node.ReceiptSum).Digits(2).Editing(false)
-					.AddColumn(" ━ Код МЛ \n").AddTextRenderer(node => node.RouteList)	
+					.AddColumn(" ━ Код МЛ \n").AddTextRenderer(node => node.RouteList)
 					.AddColumn(" ━ Водитель \n").AddTextRenderer(node => node.DriverFIO)
 					.AddColumn(" ┯ Код заказа\n └ Код стр. заказа ").AddNumericRenderer(node => node.OrderAndItemId).Digits(0).Editing(false)
-
 					.AddColumn(" ┯ Статус фиск. док.\n └ Исх. GTIN ").AddTextRenderer(node => node.FiscalDocStatusOrSourceGtin)
 					.AddColumn(" ┯ Номер фиск. док.\n └ Исх. Сер. номер ").AddTextRenderer(node => node.FiscalDocNumberOrSourceCodeInfo)
 					.AddColumn(" ┯ Дата фиск. док.\n └ Итог. GTIN ").AddTextRenderer(node => node.FiscalDocDateOrResultGtin)
 					.AddColumn(" ┯ Дата статуса фиск. док.\n └ Итог. Сер. номер ").AddTextRenderer(node => node.FiscalDocStatusDateOrResultSerialnumber)
-
-
 					.AddColumn(" ┯ Ручная отправка\n └ Брак ").AddToggleRenderer(node => node.IsManualSentOrIsDefectiveCode).Editing(false)
-
 					.AddColumn(" ━ Отправлен на \n").AddTextRenderer(node => node.Contact)
 					.AddColumn(" ━ Причина не отскан. бутылей \n").AddTextRenderer(node => node.UnscannedReason).WrapMode(Pango.WrapMode.Word).WrapWidth(300)
 					.AddColumn(" ━ Описание ошибки \n ").AddTextRenderer(node => node.ErrorDescription).WrapMode(Pango.WrapMode.Word).WrapWidth(300)
 					.AddColumn("")
 					.RowCells()
 					.AddSetter<CellRenderer>(
-						(cell, node) => {
+						(cell, node) =>
+						{
 							var color = _colorWhite;
 							if(node.NodeType == CashReceiptNodeType.Code)
 							{
@@ -94,7 +101,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					)
 					.Finish()
 			);
-			
+
 			//ExternalCounterpartiesMatchingJournalViewModel
 			TreeViewColumnsConfigFactory.Register<ExternalCounterpartiesMatchingJournalViewModel>(
 				() => FluentColumnsConfig<ExternalCounterpartyMatchingJournalNode>.Create()

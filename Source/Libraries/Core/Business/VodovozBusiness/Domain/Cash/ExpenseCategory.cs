@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Cash
 		Nominative = "статья расхода")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class ExpenseCategory : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class ExpenseCategory : PropertyChangedBase, IDomainObject, IValidatableObject, IFinancialCategory
 	{
 		private const int _maxNameLength = 45;
 
@@ -25,6 +25,7 @@ namespace Vodovoz.Domain.Cash
 		private ExpenseCategory _parent;
 		private IList<ExpenseCategory> _childs;
 		private bool _isChildsFetched = false;
+		private int? _financialCategoryGroupId;
 
 		public ExpenseCategory()
 		{
@@ -87,6 +88,14 @@ namespace Vodovoz.Domain.Cash
 		{
 			get => _childs;
 			set => SetField(ref _childs, value);
+		}
+
+		public virtual FinancialCategoryTypeEnum FinancialCategoryType => FinancialCategoryTypeEnum.ExpenseCategory;
+
+		public virtual int? FinancialCategoryGroupId
+		{
+			get => _financialCategoryGroupId;
+			set => SetField(ref _financialCategoryGroupId, value);
 		}
 
 		public virtual void SetIsArchiveRecursively(bool value)

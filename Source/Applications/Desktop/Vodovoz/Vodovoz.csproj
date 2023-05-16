@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1913,8 +1913,12 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.ExternalCounterpartiesMatchingJournalFilterView.cs" />
     <Compile Include="Views\Client\ExternalCounterpartyMatchingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.ExternalCounterpartyMatchingView.cs" />
+    <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialCategoriesJournalFilterView.cs" />
     <Compile Include="Views\Client\CloseSupplyToCounterpartyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CloseSupplyToCounterpartyView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialCategoriesGroupView.cs" />
+    <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesGroupView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
