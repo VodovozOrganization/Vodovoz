@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -255,6 +255,9 @@ namespace Vodovoz
 
 			PerformanceHelper.AddTimePoint("Создан диалог");
 
+			_routeListAddressKeepingDocumentController =
+				new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
+
 			PerformanceHelper.AddTimePoint("Предварительная загрузка");
 
 			routeListAddressesView.UoW = UoW;
@@ -353,9 +356,6 @@ namespace Vodovoz
 				.InitializeFromSource();
 			deliveryfreebalanceview.ShowAll();
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
-
-			_routeListAddressKeepingDocumentController =
-				new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
 		}
 
 		private void UpdateSensitivity()
@@ -607,7 +607,6 @@ namespace Vodovoz
 		private void OnOrderReturnsViewTabClosed(object sender, EventArgs e)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
-			_addressKeepingDocumentItemsCacheList = _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentItemsCacheList);
 
 			ReloadDiscrepancies();
 
@@ -617,6 +616,9 @@ namespace Vodovoz
 		void OnRouteListItemChanged(object aList, int[] aIdx)
 		{
 			var item = routeListAddressesView.Items[aIdx[0]];
+
+			_addressKeepingDocumentItemsCacheList = _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, item,
+				_addressKeepingDocumentItemsCacheList);
 
 			Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
 			item.RecalculateTotalCash();
