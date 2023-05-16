@@ -1,27 +1,23 @@
-﻿using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
+﻿using Gdk;
 using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
-using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.Cash
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class IncomeCategoryView : TabViewBase<IncomeCategoryViewModel>
 	{
 		public IncomeCategoryView(IncomeCategoryViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-			ConfigureDlg();
+			Build();
+
+			Initialize();
 		}
 
-		private void ConfigureDlg()
+		private void Initialize()
 		{
 			yentryName.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, (widget) => widget.Text)
@@ -30,6 +26,8 @@ namespace Vodovoz.Cash
 			yentryNumbering.Binding
 				.AddBinding(ViewModel.Entity, e => e.Numbering, (widget) => widget.Text)
 				.InitializeFromSource();
+
+			entryParentGroup.ViewModel = ViewModel.ParentFinancialCategoriesGroupViewModel;
 
 			#region SubdivisionEntityviewmodelentry
 
@@ -45,6 +43,17 @@ namespace Vodovoz.Cash
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
+
+			btnCopyEntityId.Sensitive = ViewModel.Entity.Id > 0;
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.Entity.Id > 0)
+			{
+				GetClipboard(Selection.Clipboard).Text = ViewModel.Entity.Id.ToString();
+			}
 		}
 	}
 }
