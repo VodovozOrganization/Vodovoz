@@ -20,7 +20,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 	{
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private readonly WarehouseJournalFactory _warehouseJournalFactory;
+		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
 		private bool _canEdit;
 		private IPermissionResult _versionsPermissionResult;
 		private IEntityAutocompleteSelectorFactory _cashSelectorFactory;
@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Dialogs.Sales
 			IUnitOfWorkFactory unitOfWorkFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
-			WarehouseJournalFactory warehouseJournalFactory,
+			IWarehouseJournalFactory warehouseJournalFactory,
 			ICommonServices commonServices
 		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
