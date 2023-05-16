@@ -164,6 +164,7 @@ using Connection = QS.Project.DB.Connection;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -324,7 +325,7 @@ public partial class MainWindow : Gtk.Window
 		#endregion
 
 		#region Уведомление об отправленных перемещениях для подразделения
-		
+
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
@@ -347,8 +348,8 @@ public partial class MainWindow : Gtk.Window
 		#region Уведомление о наличии незакрытых рекламаций без комментариев в добавленной дискуссии для отдела
 
 		_complaintNotificationController = autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
-		
-		if (!_hideComplaintsNotifications)
+
+		if(!_hideComplaintsNotifications)
 		{
 			_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
 
@@ -2725,4 +2726,9 @@ public partial class MainWindow : Gtk.Window
 		new DateTime(2000, 1, 1)
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
+
+	protected void OnInventoryInstanceMovementReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InventoryInstanceMovementReportViewModel>(null);
+	}
 }
