@@ -46,6 +46,7 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Additions.Store;
+using Vodovoz.Cash;
 using Vodovoz.Cash.FinancialCategoriesGroups;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
