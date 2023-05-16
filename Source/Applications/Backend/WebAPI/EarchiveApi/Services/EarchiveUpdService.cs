@@ -148,7 +148,8 @@ namespace EarchiveApi.Services
 		private static string SelectCounterpartiesSqlQuery =>
 			"SELECT c.id as id, c.full_name as name " +
 			"FROM counterparty c " +
-			"WHERE c.full_name LIKE CONCAT('%', @name_substring ,'%')";
+			"WHERE c.full_name LIKE CONCAT('%', @name_substring ,'%') " +
+			"LIMIT 10";
 
 		private static string SelectAddressesSqlQuery =>
 			"SELECT dp.id as id, dp.compiled_address_short  as address " +
