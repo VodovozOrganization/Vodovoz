@@ -12,7 +12,7 @@ service EarchiveUpd {
 }
 
 message NameSubstring{
-	string name_part = 1;
+	string namePart = 1;
 }
 
 message CounterpartyInfo{
@@ -26,10 +26,10 @@ message DeliveryPointInfo{
 }
 
 message UpdRequestInfo{
-	int64 counterparty_id = 1;
-	int64 delivery_point_id = 2;
-	google.protobuf.Timestamp start_date = 3;
-	google.protobuf.Timestamp end_date = 4;
+	int64 counterpartyId = 1;
+	int64 deliveryPointId = 2;
+	google.protobuf.Timestamp startDate = 3;
+	google.protobuf.Timestamp endDate = 4;
 }
 
 message UpdResponseInfo{

@@ -47,7 +47,7 @@ namespace EarchiveApi.Services
 
 			try
 			{
-				var name_substring = request.NamePart;
+				var nameSubstring = request.NamePart;
 
 				var retryPolicy = Policy
 					.Handle<MySqlException>()
@@ -56,14 +56,14 @@ namespace EarchiveApi.Services
 
 				using var connection = new MySqlConnection(_connectionString);
 
-				var counterparties = (await connection.QueryAsyncWithRetry<CounterpartyInfo>(SelectCounterpartiesSqlQuery, retryPolicy, new { name_substring })).ToList();
+				var counterparties = (await connection.QueryAsyncWithRetry<CounterpartyInfo>(SelectCounterpartiesSqlQuery, retryPolicy, new { nameSubstring })).ToList();
 
 				foreach(var counterpartyInfo in counterparties)
 				{
 					await responseStream.WriteAsync(counterpartyInfo);
 				}
 
-				_logger.LogInformation($"Запрос поиска контрагента выполнен успешно. По запросу \"{name_substring}\" найдено {counterparties.Count} результатов");
+				_logger.LogInformation($"Запрос поиска контрагента выполнен успешно. По запросу \"{nameSubstring}\" найдено {counterparties.Count} результатов");
 			}
 			catch (Exception ex)
 			{
@@ -81,7 +81,7 @@ namespace EarchiveApi.Services
 
 			try
 			{
-				var counterparty_id = request.Id;
+				var counterpartyId = request.Id;
 
 				var retryPolicy = Policy
 					.Handle<MySqlException>()
@@ -90,13 +90,13 @@ namespace EarchiveApi.Services
 
 				using var connection = new MySqlConnection(_connectionString);
 
-				var deliveryPoints = (await connection.QueryAsyncWithRetry<DeliveryPointInfo>(SelectAddressesSqlQuery, retryPolicy, new { counterparty_id })).ToList();
+				var deliveryPoints = (await connection.QueryAsyncWithRetry<DeliveryPointInfo>(SelectAddressesSqlQuery, retryPolicy, new { counterpartyId })).ToList();
 
 				foreach(var deliveryPointInfo in deliveryPoints)
 				{
 					await responseStream.WriteAsync(deliveryPointInfo);
 				}
-				_logger.LogInformation($"Запрос поиска точки доставки выполнен успешно. У контрагента id={counterparty_id} найдено {deliveryPoints.Count} адресов точек доставки");
+				_logger.LogInformation($"Запрос поиска точки доставки выполнен успешно. У контрагента id={counterpartyId} найдено {deliveryPoints.Count} адресов точек доставки");
 			}
 			catch(Exception ex)
 			{
@@ -115,10 +115,10 @@ namespace EarchiveApi.Services
 
 			try
 			{
-				var client_id = request.CounterpartyId;
-				var delivery_point_id = request.DeliveryPointId > 0 ? request.DeliveryPointId : -1;
-				var start_date = $"{request.StartDate.ToDateTime(): yyyy-MM-dd}";
-				var end_date =	request.EndDate.ToDateTime().Year < 1971
+				var clientId = request.CounterpartyId;
+				var deliveryPointId = request.DeliveryPointId > 0 ? request.DeliveryPointId : -1;
+				var startDate = $"{request.StartDate.ToDateTime(): yyyy-MM-dd}";
+				var endDate =	request.EndDate.ToDateTime().Year < 1971
 								? $"{DateTime.Now:yyyy-MM-dd}"
 								: $"{request.EndDate.ToDateTime():yyyy-MM-dd}";
 
@@ -129,13 +129,13 @@ namespace EarchiveApi.Services
 
 				using var connection = new MySqlConnection(_connectionString);
 
-				var updIds = (await connection.QueryAsyncWithRetry<UpdResponseInfo>(SelectUpdCodesSqlQuery, retryPolicy, new { client_id, delivery_point_id, start_date, end_date })).ToList();
+				var updIds = (await connection.QueryAsyncWithRetry<UpdResponseInfo>(SelectUpdCodesSqlQuery, retryPolicy, new { clientId, deliveryPointId, startDate, endDate })).ToList();
 
 				foreach(var updId in updIds)
 				{
 					await responseStream.WriteAsync(updId);
 				}
-				_logger.LogInformation($"Запрос поиска кода УПД выполнен успешно. По запросу: Id контрагента = {client_id}, Id точки доставки = {delivery_point_id}, дата начала = {start_date}, дата окончания = {end_date}, найдено {updIds.Count} кодов");
+				_logger.LogInformation($"Запрос поиска кода УПД выполнен успешно. По запросу: Id контрагента = {clientId}, Id точки доставки = {deliveryPointId}, дата начала = {startDate}, дата окончания = {endDate}, найдено {updIds.Count} кодов");
 			}
 			catch(Exception ex)
 			{
@@ -146,69 +146,69 @@ namespace EarchiveApi.Services
 
 		#region SQL queries
 		private static string SelectCounterpartiesSqlQuery =>
-			"SELECT c.id as id, c.full_name as name " +
-			"FROM counterparty c " +
-			"WHERE c.full_name LIKE CONCAT('%', @name_substring ,'%') " +
-			"LIMIT 10";
+			@"SELECT c.id as id, c.full_name as name
+			FROM counterparty c
+			WHERE c.full_name LIKE CONCAT('%', @nameSubstring ,'%')
+			LIMIT 10";
 
 		private static string SelectAddressesSqlQuery =>
-			"SELECT dp.id as id, dp.compiled_address_short  as address " +
-			"FROM delivery_points dp " +
-			"WHERE dp.counterparty_id = @counterparty_id";
+			@"SELECT dp.id as id, dp.compiled_address_short  as address
+			FROM delivery_points dp
+			WHERE dp.counterparty_id = @counterpartyId";
 
 		private static string SelectUpdCodesSqlQuery =>
-			"SELECT DISTINCT docs.doc_id as id " +
-			"FROM " +
-			"(SELECT " +
-				"orders.id AS doc_id, " +
-				"orders.delivery_date AS doc_date " +
-			"FROM " +
-				"orders " +
-			"WHERE " +
-				"NOT (orders.order_status = 'Canceled' " +
-				"OR orders.order_status = 'DeliveryCanceled' " +
-				"OR orders.order_status = 'NotDelivered') " +
-				"AND !orders.is_contract_closer " +
-				"AND orders.client_id = @client_id " +
-				"AND (@delivery_point_id = -1 OR orders.delivery_point_id = @delivery_point_id) " +
-				"AND (@start_date = '' OR orders.delivery_date >= @start_date) " +
-				"AND (@end_date = '' OR orders.delivery_date <= @end_date) " +
+			@"SELECT DISTINCT docs.doc_id as id
+			FROM
+				(SELECT
+					orders.id AS doc_id,
+					orders.delivery_date AS doc_date
+				FROM
+					orders
+				WHERE
+					NOT (orders.order_status = 'Canceled'
+					OR orders.order_status = 'DeliveryCanceled'
+					OR orders.order_status = 'NotDelivered')
+					AND !orders.is_contract_closer
+					AND orders.client_id = @clientId
+					AND (@deliveryPointId = -1 OR orders.delivery_point_id = @deliveryPointId)
+					AND (@startDate = '' OR orders.delivery_date >= @startDate)
+					AND (@endDate = '' OR orders.delivery_date <= @endDate)
 
-				"UNION SELECT " +
-					"doc_residue.id AS doc_id, " +
-					"doc_residue.date AS doc_date " +
-				"FROM " +
-					"doc_residue " +
-				"WHERE " +
-					"doc_residue.client_id = @client_id " +
-					"AND (@delivery_point_id = -1 OR doc_residue.delivery_point_id = @delivery_point_id) " +
-					"AND (@start_date = '' OR doc_residue.date >= @start_date) " +
-					"AND (@end_date = '' OR doc_residue.date <= @end_date) " +
-				"GROUP BY(doc_residue.id) " +
+				UNION SELECT
+					doc_residue.id AS doc_id,
+					doc_residue.date AS doc_date
+				FROM
+					doc_residue
+				WHERE
+					doc_residue.client_id = @clientId
+					AND (@deliveryPointId = -1 OR doc_residue.delivery_point_id = @deliveryPointId)
+					AND (@startDate = '' OR doc_residue.date >= @startDate)
+					AND (@endDate = '' OR doc_residue.date <= @endDate)
+				GROUP BY(doc_residue.id)
 
-				"UNION SELECT " +
-					"transfer_operations.id AS doc_id, " +
-					"transfer_operations.operation_time AS doc_date " +
-				"FROM " +
-					"transfer_operations " +
-				"WHERE " +
-					"transfer_operations.from_client_id = @client_id " +
-					"AND (@delivery_point_id = -1 OR transfer_operations.from_delivery_point_id = @delivery_point_id) " +
-					"AND (@start_date = '' OR transfer_operations.operation_time >= @start_date) " +
-					"AND (@end_date = '' OR transfer_operations.operation_time <= @end_date) " +
+				UNION SELECT
+					transfer_operations.id AS doc_id,
+					transfer_operations.operation_time AS doc_date
+				FROM
+					transfer_operations
+				WHERE
+					transfer_operations.from_client_id = @clientId
+					AND (@deliveryPointId = -1 OR transfer_operations.from_delivery_point_id = @deliveryPointId)
+					AND (@startDate = '' OR transfer_operations.operation_time >= @startDate)
+					AND (@endDate = '' OR transfer_operations.operation_time <= @endDate)
 
-				"UNION SELECT " +
-					"transfer_operations.id AS transfer_operation_id, " +
-					"transfer_operations.operation_time AS doc_date " +
-				"FROM " +
-					"transfer_operations " +
-				"WHERE " +
-					"transfer_operations.to_client_id = @client_id " +
-					"AND (@delivery_point_id = -1 OR transfer_operations.to_delivery_point_id = @delivery_point_id) " +
-					"AND (@start_date = '' OR transfer_operations.operation_time >= @start_date) " +
-					"AND (@end_date = '' OR transfer_operations.operation_time <= @end_date) " +
-				") AS docs " +
-				"ORDER BY docs.doc_date;";
+				UNION SELECT
+					transfer_operations.id AS transfer_operation_id,
+					transfer_operations.operation_time AS doc_date
+				FROM
+					transfer_operations
+				WHERE
+					transfer_operations.to_client_id = @clientId
+					AND (@deliveryPointId = -1 OR transfer_operations.to_delivery_point_id = @deliveryPointId)
+					AND (@startDate = '' OR transfer_operations.operation_time >= @startDate)
+					AND (@endDate = '' OR transfer_operations.operation_time <= @endDate)
+				) AS docs
+			ORDER BY docs.doc_date";
 		#endregion
 	}
 }
