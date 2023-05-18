@@ -1,5 +1,4 @@
 ﻿using Grpc.Core;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using System;
@@ -13,27 +12,12 @@ namespace EarchiveApi.Services
 	public class EarchiveUpdService : EarchiveUpd.EarchiveUpdBase
 	{
 		private readonly ILogger<EarchiveUpdService> _logger;
-		private readonly string _connectionString;
-		public EarchiveUpdService(ILogger<EarchiveUpdService> logger, IConfiguration configuration)
+		private readonly MySqlConnection _mySqlConnection;
+
+		public EarchiveUpdService(ILogger<EarchiveUpdService> logger, MySqlConnection mySqlConnection)
 		{
-			if(configuration is null)
-			{
-				throw new ArgumentNullException(nameof(configuration));
-			}
-
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-
-			var connectionStringBuilder = new MySqlConnectionStringBuilder();
-			var domainDbConfig = configuration.GetSection("DomainDB");
-			connectionStringBuilder.Server = domainDbConfig.GetValue<string>("Server");
-			connectionStringBuilder.Port = domainDbConfig.GetValue<uint>("Port");
-			connectionStringBuilder.Database = domainDbConfig.GetValue<string>("Database");
-			connectionStringBuilder.UserID = domainDbConfig.GetValue<string>("UserID");
-			connectionStringBuilder.Password = domainDbConfig.GetValue<string>("Password");
-			connectionStringBuilder.SslMode = MySqlSslMode.Disabled;
-			connectionStringBuilder.DefaultCommandTimeout = 5;
-
-			_connectionString = connectionStringBuilder.GetConnectionString(true);
+			_mySqlConnection = mySqlConnection ?? throw new ArgumentNullException(nameof(mySqlConnection));
 		}
 
 		public override async Task GetCounterparites(NameSubstring request, IServerStreamWriter<CounterpartyInfo> responseStream, ServerCallContext context)
@@ -54,9 +38,7 @@ namespace EarchiveApi.Services
 					.Or<TimeoutException>()
 					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(1));
 
-				using var connection = new MySqlConnection(_connectionString);
-
-				var counterparties = (await connection.QueryAsyncWithRetry<CounterpartyInfo>(SelectCounterpartiesSqlQuery, retryPolicy, new { nameSubstring })).ToList();
+				var counterparties = (await _mySqlConnection.QueryAsyncWithRetry<CounterpartyInfo>(SelectCounterpartiesSqlQuery, retryPolicy, new { nameSubstring })).ToList();
 
 				foreach(var counterpartyInfo in counterparties)
 				{
@@ -88,9 +70,7 @@ namespace EarchiveApi.Services
 					.Or<TimeoutException>()
 					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(1));
 
-				using var connection = new MySqlConnection(_connectionString);
-
-				var deliveryPoints = (await connection.QueryAsyncWithRetry<DeliveryPointInfo>(SelectAddressesSqlQuery, retryPolicy, new { counterpartyId })).ToList();
+				var deliveryPoints = (await _mySqlConnection.QueryAsyncWithRetry<DeliveryPointInfo>(SelectAddressesSqlQuery, retryPolicy, new { counterpartyId })).ToList();
 
 				foreach(var deliveryPointInfo in deliveryPoints)
 				{
@@ -127,9 +107,7 @@ namespace EarchiveApi.Services
 					.Or<TimeoutException>()
 					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(1));
 
-				using var connection = new MySqlConnection(_connectionString);
-
-				var updIds = (await connection.QueryAsyncWithRetry<UpdResponseInfo>(SelectUpdCodesSqlQuery, retryPolicy, new { clientId, deliveryPointId, startDate, endDate })).ToList();
+				var updIds = (await _mySqlConnection.QueryAsyncWithRetry<UpdResponseInfo>(SelectUpdCodesSqlQuery, retryPolicy, new { clientId, deliveryPointId, startDate, endDate })).ToList();
 
 				foreach(var updId in updIds)
 				{

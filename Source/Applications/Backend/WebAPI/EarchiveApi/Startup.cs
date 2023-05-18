@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using MySql.Data.MySqlClient;
 
 namespace EarchiveApi
 {
@@ -23,6 +24,9 @@ namespace EarchiveApi
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddSingleton(x =>
+				new MySqlConnection(GetCOnnectionString()));
+
 			services.AddGrpc();
 
 			services.AddLogging(
@@ -52,6 +56,21 @@ namespace EarchiveApi
 					await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 				});
 			});
+		}
+
+		private string GetCOnnectionString()
+		{
+			var connectionStringBuilder = new MySqlConnectionStringBuilder();
+			var domainDbConfig = Configuration.GetSection("DomainDB");
+			connectionStringBuilder.Server = domainDbConfig.GetValue<string>("Server");
+			connectionStringBuilder.Port = domainDbConfig.GetValue<uint>("Port");
+			connectionStringBuilder.Database = domainDbConfig.GetValue<string>("Database");
+			connectionStringBuilder.UserID = domainDbConfig.GetValue<string>("UserID");
+			connectionStringBuilder.Password = domainDbConfig.GetValue<string>("Password");
+			connectionStringBuilder.SslMode = MySqlSslMode.Disabled;
+			connectionStringBuilder.DefaultCommandTimeout = 5;
+
+			return connectionStringBuilder.GetConnectionString(true);
 		}
 	}
 }
