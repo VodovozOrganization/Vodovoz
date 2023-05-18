@@ -127,6 +127,13 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					{
 						return;
 					}
+
+					if(counterpartyNode.PersonType == PersonType.legal)
+					{
+						ShowWarningMessage("Невозможно присвоить юридическое лицо.\n" +
+							"Выберете физическое лицо или создайте нового контрагента");
+						return;
+					}
 					
 					var externalCounterparty = _externalCounterpartyFactory.CreateNewExternalCounterparty(Entity.CounterpartyFrom);
 					var phone = GetPhone(counterpartyNode);
