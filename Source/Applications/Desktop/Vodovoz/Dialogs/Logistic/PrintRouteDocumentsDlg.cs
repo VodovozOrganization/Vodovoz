@@ -246,6 +246,11 @@ namespace Vodovoz.Dialogs.Logistic
 								.ToArray();
 						}
 
+						if(chkForwarderReceipt.Active)
+						{
+							rlDocTypesToPrint.Add(RouteListPrintableDocuments.ForwarderReceipt);
+						}
+
 						bool cancelPrinting = false;
 						var printer = _entityDocumentsPrinterFactory.CreateRouteListWithOrderDocumentsPrinter(
 							_uow,
