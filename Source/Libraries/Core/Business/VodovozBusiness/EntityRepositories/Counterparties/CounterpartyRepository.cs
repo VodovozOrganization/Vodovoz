@@ -158,9 +158,9 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				return phoneWithMessages;
 			}
 
-			var allRequiredPhoneNumbers = phones.Select(p => p.Number).Distinct();
+			var allRequiredPhoneNumbers = phones.Select(p => p.DigitsNumber).Distinct();
 
-			var allPhonesItemsHavingRequiredNumbers = uow.GetAll<Phone>().Where(p => allRequiredPhoneNumbers.Contains(p.Number) && !p.IsArchive);
+			var allPhonesItemsHavingRequiredNumbers = uow.GetAll<Phone>().Where(p => allRequiredPhoneNumbers.Contains(p.DigitsNumber) && !p.IsArchive);
 			
 			var counterpartiesHavingRequiredNumbers = allPhonesItemsHavingRequiredNumbers
 				.Where(p => p.Counterparty != null && p.Counterparty.Id != currentCounterpartyId && !p.Counterparty.IsArchive)
