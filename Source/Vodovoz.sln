@@ -3890,6 +3890,7 @@ Global
 		Libraries\Core\Backend\Sms\Sms.Internal.Grpc\Sms.Internal.Grpc.projitems*{bd7720d3-8b1a-4568-950e-9b45fffad776}*SharedItemsImports = 13
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb83f1ee-34b2-488d-bba5-6e2af4d3b3fc}*SharedItemsImports = 13
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb928475-6d2b-4fef-a314-d75bccef3ad0}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0

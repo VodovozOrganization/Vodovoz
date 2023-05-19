@@ -203,8 +203,6 @@ namespace Vodovoz
 		private INomenclatureFixedPriceProvider _nomenclatureFixedPriceProvider;
 		private IOrderDiscountsController _discountsController;
 		private IOrderDailyNumberController _dailyNumberController;
-		private bool _isNeedSendBill;
-		private Email _emailAddressForBill;
 		private DateTime? _previousDeliveryDate;
 		private PhonesJournalFilterViewModel _contactPhoneFilter;
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
@@ -1895,11 +1893,6 @@ namespace Vodovoz
 
 				Entity.SaveEntity(UoWGeneric, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
 
-				if(_isNeedSendBill)
-				{
-					SendBillByEmail(_emailAddressForBill);
-				}
-
 				logger.Info("Ok.");
 				UpdateUIState();
 				btnCopyEntityId.Sensitive = true;
@@ -1973,15 +1966,6 @@ namespace Vodovoz
 				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.\n" +
 								 "Пожалуйста удалите промо набор или поменяйте адрес доставки.";
 				MessageDialogHelper.RunWarningDialog(message);
-				return false;
-			}
-
-			PrepareSendBillInformation();
-
-			if(_emailAddressForBill == null
-			   && Entity.NeedSendBill(_emailRepository)
-			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
-			{
 				return false;
 			}
 
@@ -2106,20 +2090,6 @@ namespace Vodovoz
 			catch(Exception e)
 			{
 				logger.Error(e, "Не удалось уведомить водителя о добавлении заказа с быстрой доставкой в МЛ");
-			}
-		}
-
-		private void PrepareSendBillInformation()
-		{
-			_emailAddressForBill = Entity.GetEmailAddressForBill();
-
-			if(_emailAddressForBill != null && Entity.NeedSendBill(_emailRepository))
-			{
-				_isNeedSendBill = true;
-			}
-			else
-			{
-				_isNeedSendBill = false;
 			}
 		}
 
@@ -3303,15 +3273,6 @@ namespace Vodovoz
 				return;
 			}
 
-			PrepareSendBillInformation();
-
-			if(_emailAddressForBill == null
-			   && Entity.NeedSendBill(_emailRepository)
-			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить смену статуса заказа без дальнейшей отправки почты?"))
-			{
-				return;
-			}
-
 			Entity.ChangeStatusAndCreateTasks(OrderStatus.WaitForPayment, CallTaskWorker);
 			UpdateUIState();
 		}
@@ -3915,67 +3876,6 @@ namespace Vodovoz
 		{
 			Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 			return clientEmail != null || MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?");
-		}
-
-		private void SendBillByEmail(Email emailAddressForBill)
-		{
-			if(emailAddressForBill == null)
-			{
-				throw new ArgumentNullException(nameof(emailAddressForBill));
-			}
-
-			if(_emailRepository.HaveSendedEmailForBill(Entity.Id))
-			{
-				return;
-			}
-
-			var document = Entity.OrderDocuments.FirstOrDefault(x => x.Type == OrderDocumentType.Bill || x.Type == OrderDocumentType.SpecialBill);
-
-			if(document == null)
-			{
-				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
-				return;
-			}
-
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Добавление записи о письме со счетом"))
-			{
-				var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
-
-				Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
-
-				var storedEmail = new StoredEmail
-				{
-					SendDate = DateTime.Now,
-					StateChangeDate = DateTime.Now,
-					State = StoredEmailStates.PreparingToSend,
-					RecipientAddress = clientEmail.Address,
-					ManualSending = false,
-					Subject = document.Name,
-					Author = _employeeRepository.GetEmployeeForCurrentUser(uow)
-				};
-
-				try
-				{
-					uow.Save(storedEmail);
-
-					OrderDocumentEmail orderDocumentEmail = new OrderDocumentEmail
-					{
-						StoredEmail = storedEmail,
-						Counterparty = Counterparty,
-						OrderDocument = document
-					};
-
-					uow.Save(orderDocumentEmail);
-
-					uow.Commit();
-				}
-
-				catch(Exception ex)
-				{
-					logger.Debug($"Ошибка при сохранении. Ошибка: { ex.Message }");
-					throw ex;
-				}
-			}
 		}
 
 		void Selection_Changed(object sender, EventArgs e)

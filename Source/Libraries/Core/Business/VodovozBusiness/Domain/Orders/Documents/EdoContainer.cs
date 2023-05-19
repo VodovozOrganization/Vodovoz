@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
@@ -113,7 +114,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		}
 
 		[Display(Name = "Отправленные документы")]
-		public virtual string SentDocuments => "УПД";
+		public virtual string SentDocuments => Type.GetEnumTitle();
 	}
 
 	public enum EdoDocFlowStatus
@@ -137,7 +138,9 @@ namespace Vodovoz.Domain.Orders.Documents
 	}
 	public enum Type
 	{
-		[Display(Name = "УПД")] Upd,
-		[Display(Name = "Счёт")] Bill
+		[Display(Name = "УПД")]
+		Upd,
+		[Display(Name = "Счёт")]
+		Bill
 	}
 }

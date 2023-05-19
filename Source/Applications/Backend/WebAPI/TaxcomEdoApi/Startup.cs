@@ -1,4 +1,4 @@
-using EdoService.Converters;
+﻿using EdoService.Converters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +15,7 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -129,10 +130,11 @@ namespace TaxcomEdoApi
 
 			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 					.Dialect<MySQL57SpatialExtendedDialect>()
+					.Driver<LoggedMySqlClientDriver>()
 					.ConnectionString(connectionString);
 
 			QSMain.ConnectionString = connectionString;
-			OrmMain.ClassMappingList = new(); // Нужно, чтобы запустился конструктор OrmMain
+			OrmMain.ClassMappingList = new List<IOrmObjectMapping>(); // Нужно, чтобы запустился конструктор OrmMain
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(

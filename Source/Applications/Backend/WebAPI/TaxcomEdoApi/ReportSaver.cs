@@ -4,7 +4,7 @@ using QS.Report;
 using QSProjectsLib;
 using RdlEngine;
 
-namespace EdoService
+namespace TaxcomEdoApi
 {
 	public class PrintableDocumentSaver
 	{

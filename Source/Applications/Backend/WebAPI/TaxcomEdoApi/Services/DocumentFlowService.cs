@@ -1,5 +1,4 @@
-using EdoService;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -104,80 +103,6 @@ namespace TaxcomEdoApi.Services
 			}
 		}
 
-		private Task CreateAndSendBills(IUnitOfWork uow)
-		{
-			try
-			{
-				var startDate = DateTime.Today.AddDays(-3);
-				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
-				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
-
-				if(organization is null)
-				{
-					_logger.LogError("Не найдена организация по edxClientId {EdoAccountId}", edoAccountId);
-					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
-				}
-
-				_logger.LogInformation("Получаем заказы по которым нужно отправить счёт");
-				var orders = _orderRepository.GetOrdersForSendBillToEdo(uow, startDate, organization.Id, _nomenclatureParametersProvider);
-
-				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", orders.Count);
-
-				foreach(var order in orders)
-				{
-					_logger.LogInformation("Создаем счёт по заказу №{OrderId}", order.Id);
-					try
-					{
-						var container = new TaxcomContainer
-						{
-							SignMode = DocumentSignMode.UseSpecifiedCertificate
-						};
-
-						var orderDocumentTypes = new [] {OrderDocumentType.Bill, OrderDocumentType.SpecialBill };
-						var printableRdlDocument = order.OrderDocuments
-							.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
-						var printableDocumentSaver = new PrintableDocumentSaver();
-						var billAttachment = printableDocumentSaver.SaveToPdf(printableRdlDocument);
-						var fileName = $"Счёт №{order.Id} от {order.CreateDate:d}.pdf";
-						var document = _edoBillFactory.CreateBillDocument(order, billAttachment, fileName, organization);
-
-						container.Documents.Add(document);
-						document.AddCertificateForSign(_certificate.Thumbprint);
-
-						var containerRawData = container.ExportToZip();
-
-						var edoContainer = new EdoContainer
-						{
-							Type = Type.Bill,
-							Created = DateTime.Now,
-							Container = containerRawData,
-							Order = order,
-							Counterparty = order.Client,
-							MainDocumentId = document.ExternalIdentifier,
-							EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
-						};
-
-						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
-						uow.Save(edoContainer);
-						uow.Commit();
-
-						_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", order.Id);
-						_taxcomApi.Send(container);
-					}
-					catch(Exception e)
-					{
-						_logger.LogError(e, "Ошибка в процессе формирования счёта №{OrderId} и его отправки", order.Id);
-					}
-				}
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования счетов");
-			}
-
-			return Task.CompletedTask;
-		}
-
 		private Task CreateAndSendUpd(IUnitOfWork uow, DateTime startDate)
 		{
 			try
@@ -230,6 +155,7 @@ namespace TaxcomEdoApi.Services
 
 						var edoContainer = new EdoContainer
 						{
+							Type = Type.Upd,
 							Created = DateTime.Now,
 							Container = containerRawData,
 							Order = order,
@@ -254,6 +180,80 @@ namespace TaxcomEdoApi.Services
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования УПД");
+			}
+
+			return Task.CompletedTask;
+		}
+
+		private Task CreateAndSendBills(IUnitOfWork uow)
+		{
+			try
+			{
+				var startDate = DateTime.Today.AddDays(-3);
+				var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
+				var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(uow, edoAccountId);
+
+				if(organization is null)
+				{
+					_logger.LogError("Не найдена организация по edxClientId {EdoAccountId}", edoAccountId);
+					throw new InvalidOperationException("В организации не настроено соответствие кабинета ЭДО");
+				}
+
+				_logger.LogInformation("Получаем заказы по которым нужно отправить счёт");
+				var orders = _orderRepository.GetOrdersForSendBillToEdo(uow, startDate, organization.Id, _nomenclatureParametersProvider);
+
+				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", orders.Count);
+
+				foreach(var order in orders)
+				{
+					_logger.LogInformation("Создаем счёт по заказу №{OrderId}", order.Id);
+					try
+					{
+						var container = new TaxcomContainer
+						{
+							SignMode = DocumentSignMode.UseSpecifiedCertificate
+						};
+
+						var orderDocumentTypes = new[] { OrderDocumentType.Bill, OrderDocumentType.SpecialBill };
+						var printableRdlDocument = order.OrderDocuments
+							.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
+						var printableDocumentSaver = new PrintableDocumentSaver();
+						var billAttachment = printableDocumentSaver.SaveToPdf(printableRdlDocument);
+						var fileName = $"Счёт №{order.Id} от {order.CreateDate:d}.pdf";
+						var document = _edoBillFactory.CreateBillDocument(order, billAttachment, fileName, organization);
+
+						container.Documents.Add(document);
+						document.AddCertificateForSign(_certificate.Thumbprint);
+
+						var containerRawData = container.ExportToZip();
+
+						var edoContainer = new EdoContainer
+						{
+							Type = Type.Bill,
+							Created = DateTime.Now,
+							Container = containerRawData,
+							Order = order,
+							Counterparty = order.Client,
+							MainDocumentId = document.ExternalIdentifier,
+							EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
+						};
+
+						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
+						uow.Save(edoContainer);
+						uow.Commit();
+
+						_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", order.Id);
+						_taxcomApi.Send(container);
+					}
+					catch(Exception e)
+					{
+						_logger.LogError(e, "Ошибка в процессе формирования счёта №{OrderId} и его отправки", order.Id);
+					}
+				}
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования счетов");
 			}
 
 			return Task.CompletedTask;

@@ -10,10 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\..\External\My-FyiReporting\RdlEngine\RdlEngine.csproj" />
-	  <ProjectReference Include="..\..\External\QSProjects\QS.Project\QS.Project.csproj" />
-	  <ProjectReference Include="..\..\External\QSProjects\QS.Report\QS.Report.csproj" />
-	  <ProjectReference Include="..\..\External\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
 	  <ProjectReference Include="..\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
 	  <ProjectReference Include="..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
 	  <ProjectReference Include="..\Business\VodovozBusiness\VodovozBusiness.csproj" />
@@ -24,7 +20,5 @@
       <HintPath>..\..\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
     </Reference>
   </ItemGroup>
-
-	<Import Project="..\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
 
 </Project>

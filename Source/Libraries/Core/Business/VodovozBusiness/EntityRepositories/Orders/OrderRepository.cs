@@ -876,7 +876,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
-				.JoinEntityAlias(() => edoContainerAlias, () => orderAlias.Id == edoContainerAlias.Order.Id, JoinType.LeftOuterJoin);
+				.JoinEntityAlias(() => edoContainerAlias,
+				() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin);
 
 			if(startDate.HasValue)
 			{
