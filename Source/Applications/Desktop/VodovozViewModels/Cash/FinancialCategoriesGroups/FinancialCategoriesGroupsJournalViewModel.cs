@@ -1,7 +1,9 @@
 ﻿using FluentNHibernate.Conventions;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using MoreLinq;
+using NHibernate.Linq;
 using NHibernate.Util;
+using QS.Deletion;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -15,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
@@ -60,6 +63,9 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				filter.SetAndRefilterAtOnce(filterAction);
 			}
 
+			filter.JournalViewModel = this;
+			JournalFilter = filter;
+
 			_interactiveService = interactiveService;
 			_currentPermissionService = currentPermissionService
 				?? throw new ArgumentNullException(nameof(currentPermissionService));
@@ -75,6 +81,8 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				_financialExpenseCategoryType
 			};
 
+			SearchEnabled = false;
+
 			_hierarchicalChunkLinqLoader = new HierarchicalChunkLinqLoader<FinancialCategoriesGroup, FinancialCategoriesJournalNode>(UnitOfWorkFactory);
 
 			RecuresiveConfig = _hierarchicalChunkLinqLoader.TreeConfig;
@@ -82,21 +90,20 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			_hierarchicalChunkLinqLoader.SetRecursiveModel(GetChunk);
 
 			var threadDataLoader = new ThreadDataLoader<FinancialCategoriesJournalNode>(unitOfWorkFactory);
-			threadDataLoader.DynamicLoadingEnabled = true;
 			threadDataLoader.QueryLoaders.Add(_hierarchicalChunkLinqLoader);
 
 			DataLoader = threadDataLoader;
+			DataLoader.DynamicLoadingEnabled = false;
 
 			_domainObjectsPermissions = new Dictionary<Type, (bool CanRead, bool CanCreate, bool CanEdit, bool CanDelete)>();
 
 			InitializePermissionsMatrix();
 			CreateNodeActions();
+			CreatePopupActions();
 			UpdateOnChanges(_domainObjectsTypes);
 		}
 
 		public IRecursiveConfig RecuresiveConfig { get; }
-
-		public override JournalSelectionMode SelectionMode => JournalSelectionMode.Single;
 
 		public override string FooterInfo
 		{
@@ -106,14 +113,26 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		}
 
 		private IQueryable<FinancialCategoriesJournalNode> GetChunk(IUnitOfWork unitOfWork, int? parentId) =>
-			GetSubGroup(unitOfWork, parentId);
+			GetSubGroup(unitOfWork, (_filter.ParentFinancialGroup?.Id == null) ? parentId : _filter.ParentFinancialGroup?.Id);
 
 		private IQueryable<FinancialCategoriesJournalNode> GetSubGroup(IUnitOfWork unitOfWork, int? parentId)
 		{
+			var showFinancialGroups = _filter.SelectableObjectTypes.First(x => x.Type == _financialCategoriesGroupType).Selected;
+			var showIncomeCategories = _filter.SelectableObjectTypes.First(x => x.Type == _financialIncomeCategoryType).Selected;
+			var showExpenseCategories =  _filter.SelectableObjectTypes.First(x => x.Type == _financialExpenseCategoryType).Selected;
+
+			var titlePart = string.IsNullOrWhiteSpace(_filter.TitlePart) ? string.Empty : $"%{_filter.TitlePart.ToLower()}%";
+			var idPart = string.IsNullOrWhiteSpace(_filter.IdPart) ? string.Empty : $"%{_filter.IdPart}%";
+
+			var subdivisionId = _filter.Subdivision?.Id ?? -1;
+			var parentFinancialGroupId = _filter.ParentFinancialGroup?.Id ?? -1;
+
 			return (from financialCategoriesGroup in unitOfWork.GetAll<FinancialCategoriesGroup>()
 					where financialCategoriesGroup.ParentId == parentId
 						&& !_filter.ExcludeFinancialGroupsIds.Contains(financialCategoriesGroup.Id)
 						&& (_filter.RestrictNodeTypes.IsEmpty() || _filter.RestrictNodeTypes.Contains(_financialCategoriesGroupType))
+						&& (_filter.ShowArchive || !financialCategoriesGroup.IsArchive)
+						&& showFinancialGroups
 					let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
 					select new FinancialCategoriesJournalNode
 					{
@@ -124,19 +143,28 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 						Children = children.ToList()
 					}).ToList()
 				   .Concat(
-						_filter.RestrictNodeTypes.IsEmpty()
-							|| _filter.RestrictNodeTypes.Contains(_financialIncomeCategoryType)
-						? GetIncomeCategories(unitOfWork, parentId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
+						(_filter.RestrictNodeTypes.IsEmpty()
+							|| _filter.RestrictNodeTypes.Contains(_financialIncomeCategoryType))
+						&& showIncomeCategories
+						? GetIncomeCategories(unitOfWork, parentId, titlePart, idPart, subdivisionId, parentFinancialGroupId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
 				   .Concat(
-						_filter.RestrictNodeTypes.IsEmpty()
-							|| _filter.RestrictNodeTypes.Contains(_financialExpenseCategoryType)
-						? GetExpenseCategories(unitOfWork, parentId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
+						(_filter.RestrictNodeTypes.IsEmpty()
+							|| _filter.RestrictNodeTypes.Contains(_financialExpenseCategoryType))
+						&& showExpenseCategories
+						? GetExpenseCategories(unitOfWork, parentId, titlePart, idPart, subdivisionId, parentFinancialGroupId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
 				   .AsQueryable();
 		}
 
-		private IQueryable<FinancialCategoriesJournalNode> GetIncomeCategories(IUnitOfWork unitOfWork, int? parentId) =>
+		private IQueryable<FinancialCategoriesJournalNode> GetIncomeCategories(IUnitOfWork unitOfWork, int? parentId, string titlePart, string idPart, int subdivisionId, int parentFinancialGroupId) =>
 			from incomeCategory in unitOfWork.GetAll<IncomeCategory>()
 			where incomeCategory.FinancialCategoryGroupId == parentId
+				&& (_filter.ShowArchive || !incomeCategory.IsArchive)
+				&& (string.IsNullOrWhiteSpace(_filter.TitlePart) || incomeCategory.Name.ToLower().Like(titlePart))
+				&& (string.IsNullOrWhiteSpace(_filter.IdPart) || incomeCategory.Id.ToString().Like(idPart))
+				&& _filter.ExpenseDocumentType == null
+				&& (_filter.IncomeDocumentType == null || _filter.IncomeDocumentType == incomeCategory.IncomeDocumentType)
+				&& (_filter.Subdivision == null || incomeCategory.Subdivision.Id == subdivisionId)
+				&& (_filter.ParentFinancialGroup == null || incomeCategory.FinancialCategoryGroupId == parentFinancialGroupId)
 			select new FinancialCategoriesJournalNode
 			{
 				Id = incomeCategory.Id,
@@ -145,9 +173,16 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				ParentId = parentId,
 			};
 
-		private IQueryable<FinancialCategoriesJournalNode> GetExpenseCategories(IUnitOfWork unitOfWork, int? parentId) =>
+		private IQueryable<FinancialCategoriesJournalNode> GetExpenseCategories(IUnitOfWork unitOfWork, int? parentId, string titlePart, string idPart, int subdivisionId, int parentFinancialGroupId) =>
 			from expenseCategory in unitOfWork.GetAll<ExpenseCategory>()
 			where expenseCategory.FinancialCategoryGroupId == parentId
+				&& (_filter.ShowArchive || !expenseCategory.IsArchive)
+				&& (string.IsNullOrWhiteSpace(_filter.TitlePart) || expenseCategory.Name.ToLower().Like(titlePart))
+				&& (string.IsNullOrWhiteSpace(_filter.IdPart) || expenseCategory.Id.ToString().Like(idPart))
+				&& _filter.IncomeDocumentType == null
+				&& (_filter.ExpenseDocumentType == null || _filter.ExpenseDocumentType == expenseCategory.ExpenseDocumentType)
+				&& (_filter.Subdivision == null || expenseCategory.Subdivision.Id == subdivisionId)
+				&& (_filter.ParentFinancialGroup == null || expenseCategory.FinancialCategoryGroupId == parentFinancialGroupId)
 			select new FinancialCategoriesJournalNode
 			{
 				Id = expenseCategory.Id,
@@ -177,40 +212,71 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		{
 			NodeActionsList.Clear();
 
-			var addAction = new JournalAction("Добавить",
-					(selected) => selected.Length == 1 && selected.First() is FinancialCategoriesJournalNode node && _domainObjectsPermissions[node.JournalNodeType].CanCreate,
-					(selected) => true,
-					(selected) =>
+			CreateSelectAction();
+			CreateAddActions();
+			CreateEditAction();
+			CreateDeleteAction();
+		}
+
+		private void CreateSelectAction()
+		{
+			var selectAction = new JournalAction("Выбрать",
+				(selected) => selected.Any()
+					&& (_filter.RestrictNodeSelectTypes.IsEmpty()
+						|| selected.Cast<FinancialCategoriesJournalNode>()
+							.All(x => _filter.RestrictNodeSelectTypes.Contains(x.JournalNodeType))),
+				(selected) => SelectionMode != JournalSelectionMode.None,
+				(selected) => OnItemsSelected(selected)
+			);
+
+			if(SelectionMode == JournalSelectionMode.Single
+				|| SelectionMode == JournalSelectionMode.Multiple)
+			{
+				RowActivatedAction = selectAction;
+			}
+
+			NodeActionsList.Add(selectAction);
+		}
+
+		private void CreateDeleteAction()
+		{
+			var deleteAction = new JournalAction("Удалить",
+				(selected) => selected.Length == 1
+					&& selected.First() is FinancialCategoriesJournalNode node
+					&& _domainObjectsPermissions[node.JournalNodeType].CanDelete
+					&& selected.Any(),
+				(selected) => true,
+				(selected) =>
+				{
+					if(selected.First() is FinancialCategoriesJournalNode node
+						&& ((node.JournalNodeType == typeof(FinancialCategoriesGroup)
+							&& _interactiveService.Question(
+								$"Вы уверены, что хотите удалить {node.JournalNodeType.GetClassUserFriendlyName().Accusative} - {node.Name}?\n" +
+								"Удаление приведет к перемещению всех вложенных элементов на верхний уровень",
+								"Вы уверены?"))
+							|| _interactiveService.Question(
+								$"Вы уверены, что хотите удалить {node.JournalNodeType.GetClassUserFriendlyName().Accusative} - {node.Name}?",
+								"Вы уверены?")))
 					{
-
-						if(selected.First() is FinancialCategoriesJournalNode node)
+						if(_domainObjectsPermissions[node.JournalNodeType].CanDelete)
 						{
-							if(node.JournalNodeType == _financialCategoriesGroupType)
-							{
-								NavigationManager.OpenViewModel<FinancialCategoriesGroupViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
-								return;
-							}
-
-							if(node.JournalNodeType == _financialIncomeCategoryType)
-							{
-								NavigationManager.OpenViewModel<IncomeCategoryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
-								return;
-							}
-
-							if(node.JournalNodeType == _financialExpenseCategoryType)
-							{
-								NavigationManager.OpenViewModel<ExpenseCategoryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
-								return;
-							}
+							DeleteHelper.DeleteEntity(node.JournalNodeType, node.Id);
 						}
-					});
+					}
+				},
+				Key.Delete.ToString());
+			NodeActionsList.Add(deleteAction);
+		}
 
-			NodeActionsList.Add(addAction);
-
+		private void CreateEditAction()
+		{
 			var editAction = new JournalAction("Изменить",
-					(selected) => selected.Length == 1 && selected.First() is FinancialCategoriesJournalNode node && _domainObjectsPermissions[node.JournalNodeType].CanEdit && selected.Any(),
-					(selected) => true,
-					EditNodeAction);
+				(selected) => selected.Length == 1
+					&& selected.First() is FinancialCategoriesJournalNode node
+					&& _domainObjectsPermissions[node.JournalNodeType].CanEdit
+					&& selected.Any(),
+				(selected) => true,
+				EditNodeAction);
 
 			NodeActionsList.Add(editAction);
 
@@ -218,26 +284,40 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			{
 				RowActivatedAction = editAction;
 			}
+		}
 
-			var deleteAction = new JournalAction("Удалить",
-					(selected) => selected.Length == 1 && selected.First() is FinancialCategoriesJournalNode node && _domainObjectsPermissions[node.JournalNodeType].CanDelete && selected.Any(),
-					(selected) => true,
-					(selected) =>
-					{
-						if(selected.First() is FinancialCategoriesJournalNode node && _interactiveService.Question(
-							$"Вы уверены, что хотите удалить {node.JournalNodeType} - {node.Name}?\n" +
-							"Удаление приведет к перемещению всех вложенных элементов на верхний уровень"
-							, "Вы уверены?"))
+		protected void CreateAddActions()
+		{
+			var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
+			foreach(var objectType in _domainObjectsTypes)
+			{
+				var childNodeAction = new JournalAction(objectType.GetClassUserFriendlyName().Accusative.CapitalizeSentence(),
+					(selected) => _domainObjectsPermissions[objectType].CanCreate,
+					(selected) => _domainObjectsPermissions[objectType].CanCreate,
+					(selected) => {
+						if(objectType == _financialCategoriesGroupType)
 						{
-							using(var localUnitOfWork = UnitOfWorkFactory.CreateWithoutRoot(TabName + " -> Действие удаления"))
-							{
-								localUnitOfWork.TryDelete(UoW.GetById(node.JournalNodeType, node.Id));
-								localUnitOfWork.Commit();
-							}
+							NavigationManager.OpenViewModel<FinancialCategoriesGroupViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+							return;
 						}
-					},
-					Key.Delete.ToString());
-			NodeActionsList.Add(deleteAction);
+
+						if(objectType == _financialIncomeCategoryType)
+						{
+							NavigationManager.OpenViewModel<IncomeCategoryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+							return;
+						}
+
+						if(objectType == _financialExpenseCategoryType)
+						{
+							NavigationManager.OpenViewModel<ExpenseCategoryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+							return;
+						}
+					}
+				);
+				addParentNodeAction.ChildActionsList.Add(childNodeAction);
+			}
+
+			NodeActionsList.Add(addParentNodeAction);
 		}
 
 		private void EditNodeAction(object[] selected)

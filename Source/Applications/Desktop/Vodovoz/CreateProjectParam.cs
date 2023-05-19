@@ -210,6 +210,7 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using VodovozInfrastructure.Endpoints;
+using VodovozInfrastructure.Interfaces;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
 
@@ -628,6 +629,8 @@ namespace Vodovoz
 
 			builder.RegisterModule<DatabaseSettingsModule>();
 			builder.RegisterModule<CashReceiptClientChannelModule>();
+
+			builder.RegisterType<FileChooser>().As<IFileChooserProvider>();
 
 			#region Adapters & Factories
 

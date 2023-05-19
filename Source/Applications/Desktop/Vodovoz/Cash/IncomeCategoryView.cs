@@ -19,6 +19,11 @@ namespace Vodovoz.Cash
 
 		private void Initialize()
 		{
+			labelIdValue.Binding
+				.AddSource(ViewModel.Entity)
+				.AddFuncBinding(ic => ic.Id != 0 ? ic.Id.ToString() : string.Empty, label => label.Text)
+				.InitializeFromSource();
+
 			yentryName.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, (widget) => widget.Text)
 				.InitializeFromSource();
@@ -28,6 +33,12 @@ namespace Vodovoz.Cash
 				.InitializeFromSource();
 
 			entryParentGroup.ViewModel = ViewModel.ParentFinancialCategoriesGroupViewModel;
+
+			#region ParentEntityviewmodelentry
+			ParentEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.IncomeCategoryAutocompleteSelectorFactory);
+			ParentEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Parent, w => w.Subject).InitializeFromSource();
+			ParentEntityviewmodelentry.CanEditReference = true;
+			#endregion
 
 			#region SubdivisionEntityviewmodelentry
 

@@ -19,6 +19,11 @@ namespace Vodovoz.Cash
 
 		private void Initialize()
 		{
+			labelIdValue.Binding
+				.AddSource(ViewModel.Entity)
+				.AddFuncBinding(ec => ec.Id != 0 ? ec.Id.ToString() : string.Empty, label => label.Text)
+				.InitializeFromSource();
+
 			yentryName.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, (widget) => widget.Text)
 				.InitializeFromSource();
@@ -29,6 +34,12 @@ namespace Vodovoz.Cash
 
 			entryParentGroup.ViewModel = ViewModel.ParentFinancialCategoriesGroupViewModel;
 			
+			#region ParentEntityviewmodelentry
+			ParentEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseCategoryAutocompleteSelectorFactory);
+			ParentEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Parent, w => w.Subject).InitializeFromSource();
+			ParentEntityviewmodelentry.CanEditReference = true;
+			#endregion
+
 			#region SubdivisionEntityviewmodelentry
 
 			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionAutocompleteSelectorFactory);
@@ -44,8 +55,8 @@ namespace Vodovoz.Cash
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
-			btnCopyEntityId.Sensitive = ViewModel.Entity.Id > 0;
-			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+			btnCopyEntityId1.Sensitive = ViewModel.Entity.Id > 0;
+			btnCopyEntityId1.Clicked += OnBtnCopyEntityIdClicked;
 		}
 
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)

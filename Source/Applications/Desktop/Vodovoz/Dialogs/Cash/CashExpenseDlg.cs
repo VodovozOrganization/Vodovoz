@@ -143,9 +143,9 @@ namespace Vodovoz
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 			ydateDocument.Sensitive = _canEditDate;
 
-			var expenseFactory = new ExpenseCategorySelectorFactory();
+			var expenseFactory = new ExpenseCategorySelectorFactory(UnitOfWorkFactory.GetDefaultFactory, MainClass.AppDIContainer.BeginLifetimeScope());
 			entityVMEntryExpenseCategory
-				.SetEntityAutocompleteSelectorFactory(expenseFactory.CreateSimpleExpenseCategoryAutocompleteSelectorFactory());
+				.SetEntityAutocompleteSelectorFactory(expenseFactory.CreateDefaultExpenseCategoryAutocompleteSelectorFactory());
 			entityVMEntryExpenseCategory.Binding.AddBinding(Entity, e => e.ExpenseCategory, w => w.Subject).InitializeFromSource();
 
 			specialListCmbOrganisation.ShowSpecialStateNot = true;

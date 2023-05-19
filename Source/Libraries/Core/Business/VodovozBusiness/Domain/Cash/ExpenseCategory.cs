@@ -10,7 +10,8 @@ namespace Vodovoz.Domain.Cash
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "статьи расхода",
-		Nominative = "статья расхода")]
+		Nominative = "статья расхода",
+		Accusative = "статью расхода")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class ExpenseCategory : PropertyChangedBase, IDomainObject, IValidatableObject, IFinancialCategory

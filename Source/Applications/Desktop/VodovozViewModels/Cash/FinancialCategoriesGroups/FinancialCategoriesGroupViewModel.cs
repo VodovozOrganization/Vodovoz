@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			{
 				if(SetField(ref _parentFinancialCategoriesGroup, value))
 				{
-					Entity.ParentId = value.Id;
+					Entity.ParentId = value?.Id;
 				}
 			}
 		}

@@ -1142,6 +1142,8 @@
     <Compile Include="HibernateMapping\Cash\Transfer\CashTransferOperationMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\IncomeCashTransferedItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\ExpenseCashTransferedItemMap.cs" />
+    <Compile Include="Tools\StringUtils.cs" />
+    <Compile Include="Tools\TypeUtils.cs" />
     <Compile Include="Tools\Validation\PasswordValidationSettingsFactory.cs" />
     <Compile Include="ViewModelBased\ViewModelBase.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />

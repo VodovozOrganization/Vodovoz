@@ -6,7 +6,8 @@ namespace Vodovoz.Domain.Cash
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "группы финансовых статей",
-		Nominative = "группа финансовых статей")]
+		Nominative = "группа финансовых статей",
+		Accusative = "группу финансовых статей")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class FinancialCategoriesGroup : PropertyChangedBase, IDomainObject

@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesGroupsJournalViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesJournalFilterViewModel.cs" />
+    <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesJournalFilterViewModel.DomainObjectTypeNode.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesJournalNode.cs" />
     <Compile Include="Dialogs\Complaints\ComplaintsJournalsViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />

@@ -2,9 +2,16 @@
 using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
+using QS.DomainModel.UoW;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
+using System.Reflection;
+using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.StoredResources;
+using Vodovoz.Parameters;
+using Vodovoz.Representations.ProductGroups;
+using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
@@ -17,6 +24,8 @@ namespace Vodovoz.JournalColumnsConfigs
 	{
 		private static readonly Color _colorWhite = new Color(0xff, 0xff, 0xff);
 		private static readonly Color _colorLightGray = new Color(0xcc, 0xcc, 0xcc);
+		private static Pixbuf _folderImg = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.folder16.png");
+		private static Pixbuf _emptyImg = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.empty16.png");
 
 		public static void RegisterColumns()
 		{
@@ -37,7 +46,9 @@ namespace Vodovoz.JournalColumnsConfigs
 			TreeViewColumnsConfigFactory.Register<FinancialCategoriesGroupsJournalViewModel>(
 				(vm) => FluentColumnsConfig<FinancialCategoriesJournalNode>.Create()
 					.SetTreeModel(() => new RecursiveTreeModel<FinancialCategoriesJournalNode>(vm.Items.Cast<FinancialCategoriesJournalNode>(), vm.RecuresiveConfig))
-					.AddColumn("Код").AddNumericRenderer(node => node.Id)
+					.AddColumn("Код")
+						.AddNumericRenderer(node => node.Id)
+						.AddPixbufRenderer(node => node.JournalNodeType == typeof(FinancialCategoriesGroup) ? _folderImg : _emptyImg)
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.Finish()
 				);

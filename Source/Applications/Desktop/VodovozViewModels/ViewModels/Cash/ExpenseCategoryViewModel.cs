@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
@@ -26,8 +27,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
+			INavigationManager navigationManager,
 			ILifetimeScope scope)
-			: base(uowBuilder, unitOfWorkFactory, commonServices)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
@@ -76,7 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			{
 				if(SetField(ref _parentFinancialCategoriesGroup, value))
 				{
-					Entity.FinancialCategoryGroupId = value.Id;
+					Entity.FinancialCategoryGroupId = value?.Id;
 				}
 			}
 		}

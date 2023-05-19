@@ -10,7 +10,8 @@ namespace Vodovoz.Domain.Cash
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "статьи дохода",
-		Nominative = "статья дохода")]
+		Nominative = "статья дохода",
+		Accusative = "статью дохода")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class IncomeCategory : PropertyChangedBase, IDomainObject, IValidatableObject, IFinancialCategory

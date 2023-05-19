@@ -21,7 +21,7 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 		{
 			labelIdValue.Binding
 				.AddSource(ViewModel.Entity)
-				.AddFuncBinding(fcg => fcg.Id.ToString(), label => label.Text)
+				.AddFuncBinding(fcg => fcg.Id != 0 ? fcg.Id.ToString() : string.Empty, label => label.Text)
 				.InitializeFromSource();
 
 			entryParentGroup.ViewModel = ViewModel.ParentFinancialCategoriesGroupViewModel;
