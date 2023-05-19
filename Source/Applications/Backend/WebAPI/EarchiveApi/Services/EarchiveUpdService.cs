@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Polly;
 using EarchiveApi.Extensions;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace EarchiveApi.Services
 {
@@ -13,11 +14,18 @@ namespace EarchiveApi.Services
 	{
 		private readonly ILogger<EarchiveUpdService> _logger;
 		private readonly MySqlConnection _mySqlConnection;
+		private uint _defaultTimeout;
 
-		public EarchiveUpdService(ILogger<EarchiveUpdService> logger, MySqlConnection mySqlConnection)
+		public EarchiveUpdService(ILogger<EarchiveUpdService> logger, IConfiguration configuration, MySqlConnection mySqlConnection)
 		{
+			if(configuration is null)
+			{
+				throw new ArgumentNullException(nameof(configuration));
+			}
+
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_mySqlConnection = mySqlConnection ?? throw new ArgumentNullException(nameof(mySqlConnection));
+			_defaultTimeout = configuration.GetSection("DomainDB").GetValue<uint>("DefaultTimeout");
 		}
 
 		public override async Task GetCounterparites(NameSubstring request, IServerStreamWriter<CounterpartyInfo> responseStream, ServerCallContext context)
@@ -36,7 +44,7 @@ namespace EarchiveApi.Services
 				var retryPolicy = Policy
 					.Handle<MySqlException>()
 					.Or<TimeoutException>()
-					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(1));
+					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(_defaultTimeout));
 
 				var counterparties = (await _mySqlConnection.QueryAsyncWithRetry<CounterpartyInfo>(SelectCounterpartiesSqlQuery, retryPolicy, new { nameSubstring })).ToList();
 
@@ -68,7 +76,7 @@ namespace EarchiveApi.Services
 				var retryPolicy = Policy
 					.Handle<MySqlException>()
 					.Or<TimeoutException>()
-					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(1));
+					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(_defaultTimeout));
 
 				var deliveryPoints = (await _mySqlConnection.QueryAsyncWithRetry<DeliveryPointInfo>(SelectAddressesSqlQuery, retryPolicy, new { counterpartyId })).ToList();
 
@@ -105,7 +113,7 @@ namespace EarchiveApi.Services
 				var retryPolicy = Policy
 					.Handle<MySqlException>()
 					.Or<TimeoutException>()
-					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(1));
+					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(_defaultTimeout));
 
 				var updIds = (await _mySqlConnection.QueryAsyncWithRetry<UpdResponseInfo>(SelectUpdCodesSqlQuery, retryPolicy, new { clientId, deliveryPointId, startDate, endDate })).ToList();
 

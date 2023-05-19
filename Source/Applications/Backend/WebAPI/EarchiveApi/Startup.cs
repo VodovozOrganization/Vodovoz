@@ -71,7 +71,7 @@ namespace EarchiveApi
 			connectionStringBuilder.UserID = domainDbConfig.GetValue<string>("UserID");
 			connectionStringBuilder.Password = domainDbConfig.GetValue<string>("Password");
 			connectionStringBuilder.SslMode = MySqlSslMode.Disabled;
-			connectionStringBuilder.DefaultCommandTimeout = 5;
+			connectionStringBuilder.DefaultCommandTimeout = domainDbConfig.GetValue<uint>("DefaultTimeout");
 
 			return connectionStringBuilder.GetConnectionString(true);
 		}
