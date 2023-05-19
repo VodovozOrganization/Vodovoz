@@ -1,9 +1,7 @@
-﻿using Gamma.ColumnConfig;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using System.ComponentModel;
 using Vodovoz.Domain.Cash;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
-using static Vodovoz.ViewModels.Cash.FinancialCategoriesGroups.FinancialCategoriesJournalFilterViewModel;
 
 namespace Vodovoz.Cash.FinancialCategoriesGroups
 {
@@ -20,21 +18,9 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 
 		private void Initialize()
 		{
-
-			ytvObjectTypes.ColumnsConfig = FluentColumnsConfig<DomainObjectTypeNode>.Create()
-				.AddColumn("Тип").AddTextRenderer(x => x.Title)
-				.AddColumn("").AddToggleRenderer(x => x.Selected)
-				.Finish();
-
-			ytvObjectTypes.ItemsDataSource = ViewModel.SelectableObjectTypes;
-
-			yentryId.Binding
-				.AddBinding(ViewModel, vm => vm.IdPart, w => w.Text)
-				.InitializeFromSource();
-
-			yentryTitlePart.Binding
-				.AddBinding(ViewModel, vm => vm.TitlePart, w => w.Text)
-				.InitializeFromSource();
+			//yentryId.Binding
+			//	.AddBinding(ViewModel, vm => vm.IdPart, w => w.Text)
+			//	.InitializeFromSource();
 
 			yenumExpenseDocumentType.ItemsEnum = typeof(ExpenseInvoiceDocumentType);
 			yenumExpenseDocumentType.ShowSpecialStateAll = true;

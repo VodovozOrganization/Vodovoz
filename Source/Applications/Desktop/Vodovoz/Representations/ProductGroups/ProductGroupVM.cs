@@ -23,8 +23,8 @@ namespace Vodovoz.Representations.ProductGroups
 {
 	public class ProductGroupVM: RepresentationModelEntityBase<ProductGroup, ProductGroupVMNode>
 	{
-		private static Pixbuf _img;
-		private static Pixbuf _emptyImg;
+		private static Pixbuf _img = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.folder16.png");
+		private static Pixbuf _emptyImg = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.empty16.png");
 
 		public ProductGroupVM(IUnitOfWork uow)
 		{
@@ -34,12 +34,12 @@ namespace Vodovoz.Representations.ProductGroups
 				return filter;
 			};
 			
-			_img = new Pixbuf(
-				UoW.GetById<StoredResource>(
-					new StoredResourcesSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory)).GetIconFolderStoredResourceId)
-					.BinaryFile);
-			_emptyImg = _img.Copy();
-			_emptyImg.Fill(0xffffffff);
+			//_img = new Pixbuf(
+			//	UoW.GetById<StoredResource>(
+			//		new StoredResourcesSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory)).GetIconFolderStoredResourceId)
+			//		.BinaryFile);
+			//_emptyImg = _img.Copy();
+			//_emptyImg.Fill(0xffffffff);
 		}
 
 		public ProductGroupVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
