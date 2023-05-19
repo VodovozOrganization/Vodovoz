@@ -2731,4 +2731,9 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<InventoryInstanceMovementReportViewModel>(null);
 	}
+
+	protected void OnInventoryNomenclaturesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InventoryNomenclaturesJournalViewModel>(null);
+	}
 }
