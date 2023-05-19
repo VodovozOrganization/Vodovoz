@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using EdoService.Converters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,6 +14,12 @@ using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using QSOrmProject;
+using QSProjectsLib;
 using Taxcom.Client.Api;
 using TaxcomEdoApi.Converters;
 using TaxcomEdoApi.Factories;
@@ -27,6 +29,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Tools.Orders;
 
 namespace TaxcomEdoApi
@@ -81,10 +84,12 @@ namespace TaxcomEdoApi
 
 			services.AddSingleton(_ => certificate);
 			services.AddSingleton<EdoUpdFactory>();
+			services.AddSingleton<EdoBillFactory>();
 			services.AddSingleton<ParticipantDocFlowConverter>();
 			services.AddSingleton<EdoContainerMainDocumentIdParser>();
 			services.AddSingleton<UpdProductConverter>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
+			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 			services.AddSingleton<IContactStateConverter, ContactStateConverter>();
 		}
 
@@ -125,6 +130,9 @@ namespace TaxcomEdoApi
 			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 					.Dialect<MySQL57SpatialExtendedDialect>()
 					.ConnectionString(connectionString);
+
+			QSMain.ConnectionString = connectionString;
+			OrmMain.ClassMappingList = new(); // Нужно, чтобы запустился конструктор OrmMain
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(

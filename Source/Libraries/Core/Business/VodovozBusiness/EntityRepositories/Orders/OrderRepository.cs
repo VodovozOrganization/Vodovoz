@@ -1,5 +1,4 @@
-﻿using GeoAPI.CoordinateSystems;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -8,7 +7,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TrueMarkApi.Library.Dto;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -23,6 +21,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -896,6 +895,79 @@ namespace Vodovoz.EntityRepositories.Orders
 						&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.TransformUsing(Transformers.RootEntity)
+				.List();
+
+			return result;
+		}
+
+		public IList<VodovozOrder> GetOrdersForSendBillToEdo(IUnitOfWork uow, DateTime startDate, int organizationId, INomenclatureParametersProvider nomenclatureParametersProvider)
+		{
+			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+			var paidNomenclatureId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
+
+			VodovozOrder orderAlias = null;
+			BillDocument billDocumentAlias = null;
+			SpecialBillDocument specialBillDocumentAlias = null;
+			OrderItem orderItemAlias = null;
+			OrderDepositItem orderDepositItemAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
+			EdoContainer edoContainerAlias = null;
+			Counterparty counterpartyAlias = null;
+
+			var orderItemsSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.Select(
+					Projections.Sum(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * IFNULL(?2, ?3) - ?4"),
+							NHibernateUtil.Decimal,
+							Projections.Property<OrderItem>(x => x.Price),
+							Projections.Property<OrderItem>(x => x.ActualCount),
+							Projections.Property<OrderItem>(x => x.Count),
+							Projections.Property<OrderItem>(x => x.DiscountMoney)))
+					);
+
+			var orderItemCountSubquery = QueryOver.Of(() => orderItemAlias)
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Count(Projections.Id()));
+
+			var paidNomenclatureOrderItemsCount = QueryOver.Of(() => orderItemAlias)
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.Where(() => orderItemAlias.Nomenclature.Id == paidNomenclatureId)
+				.Select(Projections.Count(Projections.Id()));
+
+			var orderDepositItemsCountSubquery = QueryOver.Of(() => orderDepositItemAlias)
+				.Where(() => orderDepositItemAlias.Order.Id == orderAlias.Id)
+				.Select(Projections.Count(Projections.Id()));
+
+			var hasBillDocumentSubquery = QueryOver.Of(() => billDocumentAlias)
+				.Where(() => billDocumentAlias.Order.Id == orderAlias.Id)
+				.ToRowCountQuery();
+
+			var hasSpecialBillDocumentSubquery = QueryOver.Of(() => specialBillDocumentAlias)
+				.Where(() => specialBillDocumentAlias.Order.Id == orderAlias.Id)
+				.ToRowCountQuery();
+
+			var result = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
+				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.JoinEntityAlias(() => edoContainerAlias,
+					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Bill, JoinType.LeftOuterJoin)
+				.Where(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
+				.Where(() => orderAlias.DeliveryDate >= startDate)
+				.Where(() => counterpartyAlias.NeedSendBillByEdo)
+				.Where(() => counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
+				.Where(Restrictions.Disjunction()
+					.Add(Restrictions.LtProperty(Projections.Constant(0), Projections.SubQuery(hasBillDocumentSubquery)))
+					.Add(Restrictions.LtProperty(Projections.Constant(0), Projections.SubQuery(hasSpecialBillDocumentSubquery))))
+				.Where(() => orderAlias.PaymentType == PaymentType.cashless)
+				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
+				.Where(Restrictions.Gt(Projections.SubQuery(orderItemsSumSubquery), 0))
+				.WhereNot(Restrictions.Conjunction()
+					.Add(Restrictions.Eq(Projections.SubQuery(orderItemCountSubquery), 1))
+					.Add(Restrictions.Gt(Projections.SubQuery(paidNomenclatureOrderItemsCount), 0)))
+				.Where(Restrictions.Eq(Projections.SubQuery(orderDepositItemsCountSubquery), 0))
 				.List();
 
 			return result;

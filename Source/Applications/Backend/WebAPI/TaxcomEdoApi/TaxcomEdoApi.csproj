@@ -41,6 +41,7 @@
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
+      <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QSOrmProject\QSOrmProject.csproj" />
     </ItemGroup>
 
 </Project>

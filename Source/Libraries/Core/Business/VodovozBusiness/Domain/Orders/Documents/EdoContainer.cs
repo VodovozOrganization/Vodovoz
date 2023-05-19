@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -25,6 +25,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		private byte[] _container;
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
+		private Type _type;
 		
 		public virtual int Id { get; set; }
 
@@ -105,6 +106,12 @@ namespace Vodovoz.Domain.Orders.Documents
 			set => SetField(ref _created, value);
 		}
 
+		public virtual Type Type
+		{
+			get => _type;
+			set => SetField(ref _type, value);
+		}
+
 		[Display(Name = "Отправленные документы")]
 		public virtual string SentDocuments => "УПД";
 	}
@@ -127,5 +134,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		CompletedWithDivergences,
 		[Display(Name = "Не принят")]
 		NotAccepted
+	}
+	public enum Type
+	{
+		[Display(Name = "УПД")] Upd,
+		[Display(Name = "Счёт")] Bill
 	}
 }
