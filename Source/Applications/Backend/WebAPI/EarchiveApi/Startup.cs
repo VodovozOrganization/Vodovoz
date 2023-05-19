@@ -13,6 +13,8 @@ namespace EarchiveApi
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = "NLog";
+
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -34,6 +36,7 @@ namespace EarchiveApi
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 		}
 
