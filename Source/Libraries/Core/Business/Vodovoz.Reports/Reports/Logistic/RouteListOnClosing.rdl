@@ -26,75 +26,79 @@
               IF(employees.patronymic = '',
                  NULL,
                  employees.patronymic)) AS driver_name,
+    IFNULL(
+        (
+            SELECT SUM(money)
+            FROM cash_income
+            WHERE cash_income.route_list_id = route_lists.id),
+        0) as income_money,
     IFNULL((SELECT
-        SUM(total_cash) - IFNULL(money, 0) - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected))
-    FROM
-        route_list_addresses
-    WHERE
-          route_list_addresses.status = 'Completed'
-      AND route_list_addresses.route_list_id = routeListId),
+                    SUM(total_cash) - income_money - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected))
+            FROM
+                route_list_addresses
+            WHERE
+                    route_list_addresses.status = 'Completed'
+              AND route_list_addresses.route_list_id = routeListId),
            0) AS nal,
     (SELECT
-        cast(SUM(order_items.count) as SIGNED)
-    FROM
-        route_list_addresses
-        LEFT JOIN
-            orders ON orders.id = route_list_addresses.order_id
-        LEFT JOIN
-            order_items ON order_items.order_id = orders.id
-        LEFT JOIN
-            nomenclature ON nomenclature.id = order_items.nomenclature_id
-    WHERE
-        nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
-                                        AND route_list_addresses.route_list_id = routeListId) AS bottles,
+         cast(SUM(order_items.count) as SIGNED)
+     FROM
+         route_list_addresses
+             LEFT JOIN
+         orders ON orders.id = route_list_addresses.order_id
+             LEFT JOIN
+         order_items ON order_items.order_id = orders.id
+             LEFT JOIN
+         nomenclature ON nomenclature.id = order_items.nomenclature_id
+     WHERE
+             nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
+       AND route_list_addresses.route_list_id = routeListId) AS bottles,
     SUM(IFNULL(orders.bottles_return, 0)) AS planned_returned_bottles,
     (SELECT
-        ROUND(IFNULL(SUM(warehouse_movement_operations.amount),
-                     0))
-    FROM
-        warehouse_movement_operations
-        LEFT JOIN
-            store_car_unload_document_items ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
-        LEFT JOIN
-            store_car_unload_documents ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
-        LEFT JOIN
-            nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
-    WHERE
-          nomenclature.category = 'bottle'
-      AND store_car_unload_documents.route_list_id = routeListId) AS returned_bottles,
+         ROUND(IFNULL(SUM(warehouse_movement_operations.amount),
+                      0))
+     FROM
+         warehouse_movement_operations
+             LEFT JOIN
+         store_car_unload_document_items ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+             LEFT JOIN
+         store_car_unload_documents ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
+             LEFT JOIN
+         nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+     WHERE
+             nomenclature.category = 'bottle'
+       AND store_car_unload_documents.route_list_id = routeListId) AS returned_bottles,
     closing_comment
 FROM
     route_lists
-    LEFT JOIN
-        employees ON employees.id = route_lists.driver_id
-    LEFT JOIN
-        route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-    LEFT JOIN
-        orders ON route_list_addresses.order_id = orders.id
-    LEFT JOIN
-        cash_income ON cash_income.route_list_id = route_list_addresses.route_list_id
-    LEFT JOIN
-        cars ON cars.id = route_lists.car_id
-    INNER JOIN
-        (
-            SELECT ggte.route_list_id FROM geo_groups_to_entities ggte
-            WHERE (@geographic_group_id = 0 OR ggte.geo_group_id = @geographic_group_id)
-            GROUP BY ggte.route_list_id
-        ) AS gg ON gg.route_list_id = route_lists.id
-    INNER JOIN car_models cm ON cars.model_id = cm.id
-    INNER JOIN
-        car_versions cv ON cars.id = cv.car_id
-            AND cv.start_date &lt;= route_lists.date
-            AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
+        LEFT JOIN
+    employees ON employees.id = route_lists.driver_id
+        LEFT JOIN
+    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+        LEFT JOIN
+    orders ON route_list_addresses.order_id = orders.id
+        LEFT JOIN
+    cars ON cars.id = route_lists.car_id
+        INNER JOIN
+    (
+        SELECT ggte.route_list_id FROM geo_groups_to_entities ggte
+        WHERE (@geographic_group_id = 0 OR ggte.geo_group_id = @geographic_group_id)
+        GROUP BY ggte.route_list_id
+    ) AS gg ON gg.route_list_id = route_lists.id
+        INNER JOIN car_models cm ON cars.model_id = cm.id
+        INNER JOIN
+    car_versions cv ON cars.id = cv.car_id
+        AND cv.start_date &lt;= route_lists.date
+        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
 WHERE
-      route_lists.status IN ('Delivered', 'OnClosing', 'MileageCheck')
+    route_lists.status IN ('Delivered', 'OnClosing', 'MileageCheck')
   AND (@show_today_route_lists OR route_lists.date &lt; CURDATE())
   AND (
-      CASE @include_visiting_masters
-          WHEN 'True' THEN employees.visiting_master = 1
-          WHEN 'False' THEN employees.visiting_master = 0
-          ELSE TRUE
-      END)
+    CASE @include_visiting_masters
+        WHEN 'True' THEN employees.visiting_master = 1
+        WHEN 'False' THEN employees.visiting_master = 0
+        ELSE TRUE
+        END)
   AND cm.car_type_of_use IN (@car_types_of_use)
   AND cv.car_own_type IN (@car_own_types)
   AND route_lists.date &lt;= @end_date

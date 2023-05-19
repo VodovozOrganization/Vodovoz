@@ -1913,6 +1913,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.ExternalCounterpartiesMatchingJournalFilterView.cs" />
     <Compile Include="Views\Client\ExternalCounterpartyMatchingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.ExternalCounterpartyMatchingView.cs" />
+    <Compile Include="Views\Client\CloseSupplyToCounterpartyView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CloseSupplyToCounterpartyView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

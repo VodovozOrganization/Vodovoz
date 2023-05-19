@@ -51,9 +51,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		{
 			var restriction = Restrictions.Disjunction()
 				.Add(() => _orderAlias.PaymentType == PaymentType.Terminal)
-				.Add(Restrictions.Conjunction()
-					.Add(() => _orderAlias.PaymentType == PaymentType.cash)
-					.Add(() => _counterpartyAlias.AlwaysSendReceipts))
+				.Add(() => _orderAlias.PaymentType == PaymentType.cash)
 				.Add(Restrictions.Conjunction()
 					.Add(() => _orderAlias.PaymentType == PaymentType.ByCard)
 					.Add(Restrictions.Disjunction()
