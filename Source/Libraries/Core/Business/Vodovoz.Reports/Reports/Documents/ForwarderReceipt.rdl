@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -582,7 +582,7 @@
       <Textbox Name="Textbox28">
         <Height>50pt</Height>
         <Width>75pt</Width>
-        <Value></Value>
+        <Value>---</Value>
         <ZIndex>1</ZIndex>
         <Left>660pt</Left>
         <Top>140pt</Top>
@@ -2158,18 +2158,18 @@
           <FontFamily>Times New Roman</FontFamily>
         </Style>
       </Textbox>
-      <CustomReportItem Name="CustomReportItem1" >
+      <CustomReportItem Name="CustomReportItem1">
         <Type>QR Code</Type>
-        <Height>35.91mm</Height>
-        <Width>35.91mm</Width>
+        <Height>63.17pt</Height>
+        <Width>64.00pt</Width>
         <CustomProperties>
           <CustomProperty>
             <Name>QrCode</Name>
             <Value>="ForwarderReceipt;" + {?routeListId} +";" + Format({?routeListDate}, "ddMMyyy")</Value>
           </CustomProperty>
         </CustomProperties>
-        <Left>670.8pt</Left>
-        <Top>0.0pt</Top>
+        <Left>670.6pt</Left>
+        <Top>9.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2236,7 +2236,7 @@ WHERE
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="routeListId">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
