@@ -113,7 +113,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		}
 
 		private IQueryable<FinancialCategoriesJournalNode> GetChunk(IUnitOfWork unitOfWork, int? parentId) =>
-			GetSubGroup(unitOfWork, (_filter.ParentFinancialGroup?.Id == null) ? parentId : _filter.ParentFinancialGroup?.Id);
+			GetSubGroup(unitOfWork, (_filter.ParentFinancialGroup?.Id != null) ? _filter.ParentFinancialGroup?.Id : parentId);
 
 		private IQueryable<FinancialCategoriesJournalNode> GetSubGroup(IUnitOfWork unitOfWork, int? parentId)
 		{
@@ -125,7 +125,6 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			var idPart = string.IsNullOrWhiteSpace(_filter.IdPart) ? string.Empty : $"%{_filter.IdPart}%";
 
 			var subdivisionId = _filter.Subdivision?.Id ?? -1;
-			var parentFinancialGroupId = _filter.ParentFinancialGroup?.Id ?? -1;
 
 			return (from financialCategoriesGroup in unitOfWork.GetAll<FinancialCategoriesGroup>()
 					where financialCategoriesGroup.ParentId == parentId
@@ -146,16 +145,16 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 						(_filter.RestrictNodeTypes.IsEmpty()
 							|| _filter.RestrictNodeTypes.Contains(_financialIncomeCategoryType))
 						&& showIncomeCategories
-						? GetIncomeCategories(unitOfWork, parentId, titlePart, idPart, subdivisionId, parentFinancialGroupId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
+						? GetIncomeCategories(unitOfWork, parentId, titlePart, idPart, subdivisionId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
 				   .Concat(
 						(_filter.RestrictNodeTypes.IsEmpty()
 							|| _filter.RestrictNodeTypes.Contains(_financialExpenseCategoryType))
 						&& showExpenseCategories
-						? GetExpenseCategories(unitOfWork, parentId, titlePart, idPart, subdivisionId, parentFinancialGroupId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
+						? GetExpenseCategories(unitOfWork, parentId, titlePart, idPart, subdivisionId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
 				   .AsQueryable();
 		}
 
-		private IQueryable<FinancialCategoriesJournalNode> GetIncomeCategories(IUnitOfWork unitOfWork, int? parentId, string titlePart, string idPart, int subdivisionId, int parentFinancialGroupId) =>
+		private IQueryable<FinancialCategoriesJournalNode> GetIncomeCategories(IUnitOfWork unitOfWork, int? parentId, string titlePart, string idPart, int subdivisionId) =>
 			from incomeCategory in unitOfWork.GetAll<IncomeCategory>()
 			where incomeCategory.FinancialCategoryGroupId == parentId
 				&& (_filter.ShowArchive || !incomeCategory.IsArchive)
@@ -164,7 +163,6 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				&& _filter.ExpenseDocumentType == null
 				&& (_filter.IncomeDocumentType == null || _filter.IncomeDocumentType == incomeCategory.IncomeDocumentType)
 				&& (_filter.Subdivision == null || incomeCategory.Subdivision.Id == subdivisionId)
-				&& (_filter.ParentFinancialGroup == null || incomeCategory.FinancialCategoryGroupId == parentFinancialGroupId)
 			select new FinancialCategoriesJournalNode
 			{
 				Id = incomeCategory.Id,
@@ -173,7 +171,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				ParentId = parentId,
 			};
 
-		private IQueryable<FinancialCategoriesJournalNode> GetExpenseCategories(IUnitOfWork unitOfWork, int? parentId, string titlePart, string idPart, int subdivisionId, int parentFinancialGroupId) =>
+		private IQueryable<FinancialCategoriesJournalNode> GetExpenseCategories(IUnitOfWork unitOfWork, int? parentId, string titlePart, string idPart, int subdivisionId) =>
 			from expenseCategory in unitOfWork.GetAll<ExpenseCategory>()
 			where expenseCategory.FinancialCategoryGroupId == parentId
 				&& (_filter.ShowArchive || !expenseCategory.IsArchive)
@@ -182,7 +180,6 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				&& _filter.IncomeDocumentType == null
 				&& (_filter.ExpenseDocumentType == null || _filter.ExpenseDocumentType == expenseCategory.ExpenseDocumentType)
 				&& (_filter.Subdivision == null || expenseCategory.Subdivision.Id == subdivisionId)
-				&& (_filter.ParentFinancialGroup == null || expenseCategory.FinancialCategoryGroupId == parentFinancialGroupId)
 			select new FinancialCategoriesJournalNode
 			{
 				Id = expenseCategory.Id,
