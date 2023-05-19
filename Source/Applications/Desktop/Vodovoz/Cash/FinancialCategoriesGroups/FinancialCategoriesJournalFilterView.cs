@@ -18,9 +18,9 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 
 		private void Initialize()
 		{
-			//yentryId.Binding
-			//	.AddBinding(ViewModel, vm => vm.IdPart, w => w.Text)
-			//	.InitializeFromSource();
+			yentrySearch.Binding
+				.AddBinding(ViewModel, vm => vm.SearchString, w => w.Text)
+				.InitializeFromSource();
 
 			yenumExpenseDocumentType.ItemsEnum = typeof(ExpenseInvoiceDocumentType);
 			yenumExpenseDocumentType.ShowSpecialStateAll = true;
