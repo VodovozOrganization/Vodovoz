@@ -33,7 +33,9 @@ namespace EarchiveApi.Services
 			var minNameSubstringLength = 2;
 			if(request is null || request.NamePart?.Length < minNameSubstringLength)
 			{
-				_logger.LogInformation($"Запрос поиска контрагента не выполнен. Получен либо пустой запрос, либо кол-во симоволов меньше {minNameSubstringLength}");
+				_logger.LogInformation(
+					"Запрос поиска контрагента не выполнен. Получен либо пустой запрос, либо кол-во симоволов меньше {MinNameSubstringLength}", 
+					minNameSubstringLength);
 				return;
 			}
 
@@ -53,11 +55,17 @@ namespace EarchiveApi.Services
 					await responseStream.WriteAsync(counterpartyInfo);
 				}
 
-				_logger.LogInformation($"Запрос поиска контрагента выполнен успешно. По запросу \"{nameSubstring}\" найдено {counterparties.Count} результатов");
+				_logger.LogInformation(
+					"Запрос поиска контрагента выполнен успешно. По запросу \"{NameSubstring}\" найдено {FoundCount} результатов", 
+					nameSubstring, 
+					counterparties.Count);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, $"Ошибка при выполнении запроса поиска контрагента. Запрос: {request.NamePart}.", ex.Message);
+				_logger.LogError(
+					ex,
+					"Ошибка при выполнении запроса поиска контрагента. Запрос: \"{Request}\".", 
+					request.NamePart);
 			}			
 		}
 
@@ -65,7 +73,8 @@ namespace EarchiveApi.Services
 		{
 			if(request is null || request.Id < 1)
 			{
-				_logger.LogInformation($"Запрос поиска точки доставки не выполнен. Получен либо пустой запрос, значение переданного Id точки доставки меньше 1");
+				_logger.LogInformation(
+					"Запрос поиска точки доставки не выполнен. Получен либо пустой запрос, значение переданного Id точки доставки меньше 1");
 				return;
 			}
 
@@ -84,11 +93,18 @@ namespace EarchiveApi.Services
 				{
 					await responseStream.WriteAsync(deliveryPointInfo);
 				}
-				_logger.LogInformation($"Запрос поиска точки доставки выполнен успешно. У контрагента id={counterpartyId} найдено {deliveryPoints.Count} адресов точек доставки");
+
+				_logger.LogInformation(
+					"Запрос поиска точки доставки выполнен успешно. У контрагента id={CounterpartyId} найдено {DeliveryPointsCount} адресов точек доставки", 
+					counterpartyId, 
+					deliveryPoints.Count);
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, $"Ошибка при выполнении запроса поиска точек доставки контрагента. Поиск выполнялся для контрагента id={request.Id}.", ex.Message);
+				_logger.LogError(
+					ex, 
+					"Ошибка при выполнении запроса поиска точек доставки контрагента. Поиск выполнялся для контрагента id={CounterpartyId}.", 
+					request.Id);
 				return;
 			}
 		}
@@ -97,7 +113,8 @@ namespace EarchiveApi.Services
 		{
 			if(request is null || request.CounterpartyId < 1)
 			{
-				_logger.LogInformation($"Запрос поиска кода УПД не выполнен. Получен либо пустой запрос, либо значение переданного Id контрагента меньше 1");
+				_logger.LogInformation(
+					"Запрос поиска кода УПД не выполнен. Получен либо пустой запрос, либо значение переданного Id контрагента меньше 1");
 				return;
 			}
 
@@ -121,11 +138,23 @@ namespace EarchiveApi.Services
 				{
 					await responseStream.WriteAsync(updId);
 				}
-				_logger.LogInformation($"Запрос поиска кода УПД выполнен успешно. По запросу: Id контрагента = {clientId}, Id точки доставки = {deliveryPointId}, дата начала = {startDate}, дата окончания = {endDate}, найдено {updIds.Count} кодов");
+				_logger.LogInformation(
+					"Запрос поиска кода УПД выполнен успешно. По запросу: Id контрагента = {ClientId}, Id точки доставки = {DeliveryPointId}, дата начала = {StartDate}, дата окончания = {EndDate}, найдено {FoundCount} кодов",
+					clientId,
+					deliveryPointId,
+					startDate,
+					endDate,
+					updIds.Count);
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, $"Ошибка при выполнении поиска кода УПД. Параметры запроса: Id контрагента = {request.CounterpartyId}, Id точки доставки = {request.DeliveryPointId}, дата начала = {request.StartDate}, дата окончания = {request.EndDate}.", ex.Message);
+				_logger.LogError(
+					ex, 
+					"Ошибка при выполнении поиска кода УПД. Параметры запроса: Id контрагента = {CounterpartyId}, Id точки доставки = {DeliveryPointId}, дата начала = {StartDate}, дата окончания = {EndDate}.",
+					request.CounterpartyId,
+					request.DeliveryPointId,
+					request.StartDate,
+					request.EndDate);
 				return;
 			}
 		}
