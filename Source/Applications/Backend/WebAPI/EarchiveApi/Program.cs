@@ -1,13 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using NLog.Web;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EarchiveApi
 {
@@ -15,7 +7,15 @@ namespace EarchiveApi
 	{
 		public static void Main(string[] args)
 		{
-			CreateHostBuilder(args).Build().Run();
+			try
+			{
+				CreateHostBuilder(args).Build().Run();
+			}
+			finally
+			{
+				// Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
+				NLog.LogManager.Shutdown();
+			}
 		}
 
 		// Additional configuration is required to successfully run gRPC on macOS.
