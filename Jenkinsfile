@@ -60,24 +60,13 @@ WCF_BUILD_OUTPUT_CATALOG = "bin/Debug"
 WEB_BUILD_OUTPUT_CATALOG = "bin/Release/net5.0_publish"
 WIN_BUILD_TOOL = "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe"
 DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
-DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/WorkTest"
-RELEASE_LOCKER_PATH = "C:/Program Files (x86)/Vodovoz/VodovozLauncher/ReleaseLocker.exe"
+DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
 LINUX_BUILD_TOOL = "msbuild"
 JOB_FOLDER_NAME = GetJobFolderName()
 IS_PULL_REQUEST = env.CHANGE_ID != null
-//Рабочая настройка, раскоментировать
-//IS_HOTFIX = env.BRANCH_NAME == 'master'
-//Рабочая настройка, раскоментировать
-//IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
-//Рабочая настройка, раскоментировать
-//IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
-
-//Тестовая настройка
-IS_HOTFIX = true
-//Тестовая настройка
-IS_RELEASE = false
-//Тестовая настройка
+IS_HOTFIX = env.BRANCH_NAME == 'master'
+IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
 IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
 // 103	Настройки. Подготовка репозитория
@@ -91,19 +80,9 @@ CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
 CAN_BUILD_WCF = true
 
 // 106	Настройки. Архивация
-//Рабочая настройка, раскоментировать
-//CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta')
-//Рабочая настройка, раскоментировать
-//CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
-//Рабочая настройка, раскоментировать
-//CAN_COMPRESS_WCF = CAN_BUILD_WCF && (IS_HOTFIX || IS_RELEASE)
-
-//Тестовая настройка
-CAN_COMPRESS_DESKTOP = true
-//Тестовая настройка
-CAN_COMPRESS_WEB = true
-//Тестовая настройка
-CAN_COMPRESS_WCF = true
+CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'Beta' || env.BRANCH_NAME == 'develop')
+CAN_COMPRESS_WEB = CAN_PUBLISH_BUILD_WEB
+CAN_COMPRESS_WCF = CAN_BUILD_WCF && (IS_HOTFIX || IS_RELEASE)
 
 // 107	Настройки. Доставка
 CAN_DELIVERY_DESKTOP = CAN_COMPRESS_DESKTOP
@@ -118,7 +97,7 @@ WEB_DELIVERY_PATH = "\\\\${NODE_VOD6}\\${WIN_DELIVERY_SHARED_FOLDER_NAME}\\${JOB
 
 // 108	Настройки. Развертывание
 DEPLOY_PATH = "F:/WORK/_BUILDS"
-CAN_DEPLOY_DESKTOP = CAN_DELIVERY_DESKTOP && (env.BRANCH_NAME == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD)
+CAN_DEPLOY_DESKTOP = CAN_DELIVERY_DESKTOP && (env.BRANCH_NAME == 'Beta' || IS_PULL_REQUEST || IS_MANUAL_BUILD || env.BRANCH_NAME == 'develop')
 CAN_DEPLOY_WEB = false
 CAN_DEPLOY_WCF = false
 
@@ -130,7 +109,7 @@ CAN_PUBLISH_WCF = CAN_DELIVERY_WCF
 NEW_DESKTOP_HOTFIX_FOLDER_NAME_PREFIX = "Release"
 NEW_WEB_HOTFIX_FOLDER_NAME = "Hotfix"
 NEW_WCF_HOTFIX_FOLDER_NAME = NEW_WEB_HOTFIX_FOLDER_NAME
-NEW_RELEASE_FOLDER_NAME = "NewReleaseTest"
+NEW_RELEASE_FOLDER_NAME = "NewRelease"
 DESKTOP_HOTFIX_PUBLISH_PATH = DESKTOP_WORK_PATH
 DESKTOP_NEW_RELEASE_PUBLISH_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/${NEW_RELEASE_FOLDER_NAME}"
 WEB_PUBLISH_PATH = "E:/CD"
