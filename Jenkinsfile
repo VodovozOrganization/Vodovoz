@@ -74,9 +74,9 @@ IS_PULL_REQUEST = env.CHANGE_ID != null
 //IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
 //Тестовая настройка
-IS_HOTFIX = true
+IS_HOTFIX = false
 //Тестовая настройка
-IS_RELEASE = false
+IS_RELEASE = true
 //Тестовая настройка
 IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
