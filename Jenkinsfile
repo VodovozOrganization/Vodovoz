@@ -65,7 +65,7 @@ UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
 LINUX_BUILD_TOOL = "msbuild"
 JOB_FOLDER_NAME = GetJobFolderName()
 IS_PULL_REQUEST = env.CHANGE_ID != null
-IS_HOTFIX = true//env.BRANCH_NAME == 'master'
+IS_HOTFIX = env.BRANCH_NAME == 'master'
 IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
 IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
