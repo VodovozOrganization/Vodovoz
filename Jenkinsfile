@@ -265,8 +265,8 @@ stage('Delivery'){
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
 
-		"SmsInformerService" : { DeliveryWcfArtifact("SmsInformerService") },
-		"SmsPaymentService" : { DeliveryWcfArtifact("SmsPaymentService") },
+		"SmsInformerService" : { DeliveryWcfArtifact("VodovozSmsInformerService") },
+		"SmsPaymentService" : { DeliveryWcfArtifact("VodovozSmsPaymentService") },
 	)
 }
 
@@ -298,8 +298,8 @@ stage('Publish'){
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { PublishWeb("TrueMarkCodePoolCheckWorker") },
 
-		"SmsInformerService" : { PublishWCF("SmsInformerService") },
-		"SmsPaymentService" : { PublishWCF("SmsPaymentService") },
+		"SmsInformerService" : { PublishWCF("VodovozSmsInformerService") },
+		"SmsPaymentService" : { PublishWCF("VodovozSmsInformerService") },
 	)
 }
 
@@ -362,7 +362,7 @@ def CompressWebArtifact(relativeProjectPath){
 	{
 		node(NODE_WIN_BUILD){
 			def webProjectName = GetFolderName(relativeProjectPath)
-			CompressArtifact("${APP_PATH}/${webProjectName}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
+			CompressArtifact("${APP_PATH}/${relativeProjectPath}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
 		}
 	} 
 	else
@@ -606,12 +606,18 @@ def GetWorkspacePath()  {
 
 def GetJobFolderName(){
 	node(NODE_WIN_BUILD){
-		return GetFolderName(env.WORKSPACE)
+		return GetFolderNameFromWinPath(env.WORKSPACE)
 	}
 }
 
-def GetFolderName(folderPath){
+def GetFolderNameFromWinPath(folderPath){
 	splitted = folderPath.split("\\\\")
+	folderName = splitted[splitted.length-1]
+	return folderName
+}
+
+def GetFolderName(folderPath){
+	splitted = folderPath.split("/")
 	folderName = splitted[splitted.length-1]
 	return folderName
 }
