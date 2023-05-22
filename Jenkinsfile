@@ -571,9 +571,9 @@ def LockHotfix(hotfixName){
 def ZipFiles(sourcePath, archiveFile){
 	def workspacePath = GetWorkspacePath()
 
-	def sourceFile = "${workspacePath}/${sourcePath}/*"
-	def archFile = "${workspacePath}/${archiveFile}"
-	echo "archiving  ${sourceFile} to ${archFile}"
+	def sourceFile2 = "${workspacePath}/${sourcePath}/*"
+	def archFile2 = "${workspacePath}/${archiveFile}"
+	echo "archiving  ${sourceFile2} to ${archFile2}"
 
 	if (isUnix()) {
 		sh "7z a -stl -mx1 ${workspacePath}/${archiveFile} ${workspacePath}/${sourcePath}/*"
@@ -586,9 +586,9 @@ def ZipFiles(sourcePath, archiveFile){
 def UnzipFiles(archiveFile, destPath){
 	def workspacePath = GetWorkspacePath()
 
-	def destPath = "${workspacePath}/${sourcePath}/*"
-	def archFile = "${workspacePath}/${archiveFile}"
-	echo "unarchiving  ${archFile} to ${destPath}"
+	def destPath2 = "${workspacePath}/${sourcePath}/*"
+	def archFile2 = "${workspacePath}/${archiveFile}"
+	echo "unarchiving  ${archFile2} to ${destPath2}"
 
 	if (isUnix()) {
 		sh "7z x -y -o\"${destPath}\" ${workspacePath}/${archiveFile}"
