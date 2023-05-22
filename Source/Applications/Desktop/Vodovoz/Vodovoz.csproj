@@ -1019,8 +1019,6 @@
     <Compile Include="Dialogs\DocumentsPrinterDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\ShiftChangeWarehouseDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentDlg.cs" />
-    <Compile Include="Dialogs\DocumentDialogs\ShiftChangeWarehouseDocumentItemsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.ShiftChangeWarehouseDocumentItemsView.cs" />
     <Compile Include="ReportsParameters\NotDeliveredOrdersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.NotDeliveredOrdersReport.cs" />
     <Compile Include="Dialogs\Logistic\RouteListControlDlg.cs" />
