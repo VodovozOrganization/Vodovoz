@@ -65,7 +65,7 @@ UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
 LINUX_BUILD_TOOL = "msbuild"
 JOB_FOLDER_NAME = GetJobFolderName()
 IS_PULL_REQUEST = env.CHANGE_ID != null
-IS_HOTFIX = env.BRANCH_NAME == 'master'
+IS_HOTFIX = true//env.BRANCH_NAME == 'master'
 IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
 IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
@@ -376,7 +376,7 @@ def CompressWcfArtifact(relativeProjectPath){
 	{
 		node(NODE_LINUX_BUILD){
 			def wcfProjectName = GetFolderName(relativeProjectPath)
-			CompressArtifact("${APP_PATH}/${relativeProjectPath}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
+			CompressArtifact("${APP_PATH}/${wcfProjectName}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
 		}
 	} 
 	else
