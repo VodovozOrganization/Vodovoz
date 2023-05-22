@@ -362,7 +362,7 @@ def CompressWebArtifact(relativeProjectPath){
 	{
 		node(NODE_WIN_BUILD){
 			def webProjectName = GetFolderName(relativeProjectPath)
-			CompressArtifact("${APP_PATH}/${webProjectName}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
+			CompressArtifact("${APP_PATH}/${relativeProjectPath}/${WEB_BUILD_OUTPUT_CATALOG}", webProjectName)
 		}
 	} 
 	else
@@ -376,7 +376,7 @@ def CompressWcfArtifact(relativeProjectPath){
 	{
 		node(NODE_LINUX_BUILD){
 			def wcfProjectName = GetFolderName(relativeProjectPath)
-			CompressArtifact("${APP_PATH}/${wcfProjectName}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
+			CompressArtifact("${APP_PATH}/${relativeProjectPath}/${WCF_BUILD_OUTPUT_CATALOG}", wcfProjectName)
 		}
 	} 
 	else
