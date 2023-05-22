@@ -265,8 +265,8 @@ stage('Delivery'){
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
 
-		"SmsInformerService" : { DeliveryWcfArtifact("SmsInformerService") },
-		"SmsPaymentService" : { DeliveryWcfArtifact("SmsPaymentService") },
+		"SmsInformerService" : { DeliveryWcfArtifact("VodovozSmsInformerService") },
+		"SmsPaymentService" : { DeliveryWcfArtifact("VodovozSmsPaymentService") },
 	)
 }
 
