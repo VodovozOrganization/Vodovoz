@@ -298,8 +298,8 @@ stage('Publish'){
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { PublishWeb("TrueMarkCodePoolCheckWorker") },
 
-		"SmsInformerService" : { PublishWCF("SmsInformerService") },
-		"SmsPaymentService" : { PublishWCF("SmsPaymentService") },
+		"SmsInformerService" : { PublishWCF("VodovozSmsInformerService") },
+		"SmsPaymentService" : { PublishWCF("VodovozSmsInformerService") },
 	)
 }
 
