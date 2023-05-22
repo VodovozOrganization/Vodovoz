@@ -15,12 +15,9 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using QSOrmProject;
-using QSProjectsLib;
 using Taxcom.Client.Api;
 using TaxcomEdoApi.Converters;
 using TaxcomEdoApi.Factories;
@@ -86,6 +83,7 @@ namespace TaxcomEdoApi
 			services.AddSingleton(_ => certificate);
 			services.AddSingleton<EdoUpdFactory>();
 			services.AddSingleton<EdoBillFactory>();
+			services.AddSingleton<PrintableDocumentSaver>();
 			services.AddSingleton<ParticipantDocFlowConverter>();
 			services.AddSingleton<EdoContainerMainDocumentIdParser>();
 			services.AddSingleton<UpdProductConverter>();
@@ -133,11 +131,8 @@ namespace TaxcomEdoApi
 					.Driver<LoggedMySqlClientDriver>()
 					.ConnectionString(connectionString);
 
-			QSMain.ConnectionString = connectionString;
-			OrmMain.ClassMappingList = new List<IOrmObjectMapping>(); // Нужно, чтобы запустился конструктор OrmMain
-
 			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+            OrmConfig.ConfigureOrm(
 				dbConfig,
 				new[]
 				{

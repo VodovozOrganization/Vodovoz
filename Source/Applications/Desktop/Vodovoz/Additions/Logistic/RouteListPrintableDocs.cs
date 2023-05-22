@@ -24,7 +24,7 @@ namespace Vodovoz.Additions.Logistic
 		}
 
 		#region IPrintableRDLDocument implementation 
-		public ReportInfo GetReportInfo() => PrintRouteListHelper.GetRDL(routeList, _type, _uow, IsBatchPrint);
+		public ReportInfo GetReportInfo(string connectionString = null) => PrintRouteListHelper.GetRDL(routeList, _type, _uow, IsBatchPrint);
 		public Dictionary<object, object> Parameters { get; set; } = new Dictionary<object, object>();
 		#endregion
 

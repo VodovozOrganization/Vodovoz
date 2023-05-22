@@ -38,8 +38,9 @@ namespace TaxcomEdoApi.Services
 		private readonly EdoBillFactory _edoBillFactory;
 		private readonly EdoContainerMainDocumentIdParser _edoContainerMainDocumentIdParser;
 		private readonly X509Certificate2 _certificate;
+		private readonly PrintableDocumentSaver _printableDocumentSaver;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
-		private const int _delaySec = 90;
+		private const int _delaySec = 3;
 
 		private long? _lastEventIngoingDocumentsTimeStamp;
 		private long? _lastEventOutgoingDocumentsTimeStamp;
@@ -56,7 +57,8 @@ namespace TaxcomEdoApi.Services
 			EdoBillFactory edoBillFactory,
 			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,
 			X509Certificate2 certificate,
-			INomenclatureParametersProvider nomenclatureParametersProvider)
+            PrintableDocumentSaver printableDocumentSaver,
+            INomenclatureParametersProvider nomenclatureParametersProvider)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
@@ -69,6 +71,7 @@ namespace TaxcomEdoApi.Services
 			_edoContainerMainDocumentIdParser =
 				edoContainerMainDocumentIdParser ?? throw new ArgumentNullException(nameof(edoContainerMainDocumentIdParser));
 			_certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
+			_printableDocumentSaver = printableDocumentSaver;
 			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
 		}
@@ -95,10 +98,10 @@ namespace TaxcomEdoApi.Services
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
-					await CreateAndSendUpd(uow, startDate);
+					//await CreateAndSendUpd(uow, startDate);
 					await CreateAndSendBills(uow);
-					await ProcessOutgoingDocuments(uow);
-					await ProcessIngoingDocuments(uow);
+					//await ProcessOutgoingDocuments(uow);
+					//await ProcessIngoingDocuments(uow);
 				}
 			}
 		}
@@ -217,8 +220,7 @@ namespace TaxcomEdoApi.Services
 						var orderDocumentTypes = new[] { OrderDocumentType.Bill, OrderDocumentType.SpecialBill };
 						var printableRdlDocument = order.OrderDocuments
 							.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
-						var printableDocumentSaver = new PrintableDocumentSaver();
-						var billAttachment = printableDocumentSaver.SaveToPdf(printableRdlDocument);
+						var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
 						var fileName = $"Счёт №{order.Id} от {order.CreateDate:d}.pdf";
 						var document = _edoBillFactory.CreateBillDocument(order, billAttachment, fileName, organization);
 
