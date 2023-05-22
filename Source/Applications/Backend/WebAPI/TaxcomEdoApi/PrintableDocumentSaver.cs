@@ -8,20 +8,20 @@ namespace TaxcomEdoApi
 {
 	public class PrintableDocumentSaver
 	{
-		private readonly string _connectioinString;
+		private readonly string _connectionString;
 
 		public PrintableDocumentSaver(IConfiguration configuration)
 		{
-			_connectioinString = (configuration ?? throw new System.ArgumentNullException(nameof(configuration)))
+			_connectionString = (configuration ?? throw new System.ArgumentNullException(nameof(configuration)))
 				.GetConnectionString("DefaultConnection");
 		}
 
 		public byte[] SaveToPdf(IPrintableRDLDocument document)
 		{
-			var ri = document.GetReportInfo(_connectioinString);
+			var ri = document.GetReportInfo(_connectionString);
 
 			using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(),
-				      _connectioinString, OutputPresentationType.PDF, true))
+				      _connectionString, OutputPresentationType.PDF, true))
 			{
 				return stream.GetBuffer();
 			}

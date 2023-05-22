@@ -134,7 +134,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		[Display(Name = "Завершен с различиями")]
 		CompletedWithDivergences,
 		[Display(Name = "Не принят")]
-		NotAccepted
+		NotAccepted,
+		[Display(Name = "Подготовка к отправке")]
+		PreparingToSend
 	}
 	public enum Type
 	{

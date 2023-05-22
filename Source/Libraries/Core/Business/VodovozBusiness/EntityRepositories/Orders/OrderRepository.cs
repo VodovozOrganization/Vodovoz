@@ -900,75 +900,19 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return result;
 		}
-
-		public IList<VodovozOrder> GetOrdersForSendBillToEdo(IUnitOfWork uow, DateTime startDate, int organizationId, INomenclatureParametersProvider nomenclatureParametersProvider)
+		
+		public IList<EdoContainer> GetPreparingToSendEdoContainers(IUnitOfWork uow, DateTime startDate, int organizationId)
 		{
-			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
-			var paidNomenclatureId = nomenclatureParametersProvider.PaidDeliveryNomenclatureId;
-
-			VodovozOrder orderAlias = null;
-			BillDocument billDocumentAlias = null;
-			SpecialBillDocument specialBillDocumentAlias = null;
-			OrderItem orderItemAlias = null;
-			OrderDepositItem orderDepositItemAlias = null;
-			CounterpartyContract counterpartyContractAlias = null;
 			EdoContainer edoContainerAlias = null;
-			Counterparty counterpartyAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
+			VodovozOrder orderAlais = null;
 
-			var orderItemsSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
-				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-				.Select(
-					Projections.Sum(
-						Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * IFNULL(?2, ?3) - ?4"),
-							NHibernateUtil.Decimal,
-							Projections.Property<OrderItem>(x => x.Price),
-							Projections.Property<OrderItem>(x => x.ActualCount),
-							Projections.Property<OrderItem>(x => x.Count),
-							Projections.Property<OrderItem>(x => x.DiscountMoney)))
-					);
-
-			var orderItemCountSubquery = QueryOver.Of(() => orderItemAlias)
-				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-				.Select(Projections.Count(Projections.Id()));
-
-			var paidNomenclatureOrderItemsCount = QueryOver.Of(() => orderItemAlias)
-				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
-				.Where(() => orderItemAlias.Nomenclature.Id == paidNomenclatureId)
-				.Select(Projections.Count(Projections.Id()));
-
-			var orderDepositItemsCountSubquery = QueryOver.Of(() => orderDepositItemAlias)
-				.Where(() => orderDepositItemAlias.Order.Id == orderAlias.Id)
-				.Select(Projections.Count(Projections.Id()));
-
-			var hasBillDocumentSubquery = QueryOver.Of(() => billDocumentAlias)
-				.Where(() => billDocumentAlias.Order.Id == orderAlias.Id)
-				.ToRowCountQuery();
-
-			var hasSpecialBillDocumentSubquery = QueryOver.Of(() => specialBillDocumentAlias)
-				.Where(() => specialBillDocumentAlias.Order.Id == orderAlias.Id)
-				.ToRowCountQuery();
-
-			var result = uow.Session.QueryOver(() => orderAlias)
-				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
-				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
-				.JoinEntityAlias(() => edoContainerAlias,
-					() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Bill, JoinType.LeftOuterJoin)
-				.Where(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
-				.Where(() => orderAlias.DeliveryDate >= startDate)
-				.Where(() => counterpartyAlias.NeedSendBillByEdo)
-				.Where(() => counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
-				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
-				.Where(Restrictions.Disjunction()
-					.Add(Restrictions.LtProperty(Projections.Constant(0), Projections.SubQuery(hasBillDocumentSubquery)))
-					.Add(Restrictions.LtProperty(Projections.Constant(0), Projections.SubQuery(hasSpecialBillDocumentSubquery))))
-				.Where(() => orderAlias.PaymentType == PaymentType.cashless)
-				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
-				.Where(Restrictions.Gt(Projections.SubQuery(orderItemsSumSubquery), 0))
-				.WhereNot(Restrictions.Conjunction()
-					.Add(Restrictions.Eq(Projections.SubQuery(orderItemCountSubquery), 1))
-					.Add(Restrictions.Gt(Projections.SubQuery(paidNomenclatureOrderItemsCount), 0)))
-				.Where(Restrictions.Eq(Projections.SubQuery(orderDepositItemsCountSubquery), 0))
+			var result = uow.Session.QueryOver(() => edoContainerAlias)
+				.JoinAlias(() => edoContainerAlias.Order, () => orderAlais)
+				.JoinAlias(() => orderAlais.Contract, () => counterpartyContractAlias)
+				.Where(() => edoContainerAlias.EdoDocFlowStatus == EdoDocFlowStatus.PreparingToSend)
+				.And(() => edoContainerAlias.Created >= startDate)
+				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.List();
 
 			return result;

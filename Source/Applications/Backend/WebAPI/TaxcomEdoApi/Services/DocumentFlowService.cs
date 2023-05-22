@@ -19,7 +19,6 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.Tools.Orders;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
@@ -39,8 +38,7 @@ namespace TaxcomEdoApi.Services
 		private readonly EdoContainerMainDocumentIdParser _edoContainerMainDocumentIdParser;
 		private readonly X509Certificate2 _certificate;
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
-		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
-		private const int _delaySec = 3;
+		private const int _delaySec = 90;
 
 		private long? _lastEventIngoingDocumentsTimeStamp;
 		private long? _lastEventOutgoingDocumentsTimeStamp;
@@ -57,8 +55,7 @@ namespace TaxcomEdoApi.Services
 			EdoBillFactory edoBillFactory,
 			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,
 			X509Certificate2 certificate,
-            PrintableDocumentSaver printableDocumentSaver,
-            INomenclatureParametersProvider nomenclatureParametersProvider)
+            PrintableDocumentSaver printableDocumentSaver)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
@@ -72,7 +69,6 @@ namespace TaxcomEdoApi.Services
 				edoContainerMainDocumentIdParser ?? throw new ArgumentNullException(nameof(edoContainerMainDocumentIdParser));
 			_certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
 			_printableDocumentSaver = printableDocumentSaver;
-			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_apiSection = (configuration ?? throw new ArgumentNullException(nameof(configuration))).GetSection("Api");
 		}
 
@@ -98,10 +94,10 @@ namespace TaxcomEdoApi.Services
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
-					//await CreateAndSendUpd(uow, startDate);
+					await CreateAndSendUpd(uow, startDate);
 					await CreateAndSendBills(uow);
-					//await ProcessOutgoingDocuments(uow);
-					//await ProcessIngoingDocuments(uow);
+					await ProcessOutgoingDocuments(uow);
+					await ProcessIngoingDocuments(uow);
 				}
 			}
 		}
@@ -203,13 +199,13 @@ namespace TaxcomEdoApi.Services
 				}
 
 				_logger.LogInformation("Получаем заказы по которым нужно отправить счёт");
-				var orders = _orderRepository.GetOrdersForSendBillToEdo(uow, startDate, organization.Id, _nomenclatureParametersProvider);
+				var edoContainers = _orderRepository.GetPreparingToSendEdoContainers(uow, startDate, organization.Id);
 
-				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", orders.Count);
+				_logger.LogInformation("Всего заказов для формирования и отправки счёта: {OrdersCount}", edoContainers.Count);
 
-				foreach(var order in orders)
+				foreach(var edoContainer in edoContainers)
 				{
-					_logger.LogInformation("Создаем счёт по заказу №{OrderId}", order.Id);
+					_logger.LogInformation("Создаем счёт по заказу №{OrderId}", edoContainer.Order.Id);
 					try
 					{
 						var container = new TaxcomContainer
@@ -218,38 +214,31 @@ namespace TaxcomEdoApi.Services
 						};
 
 						var orderDocumentTypes = new[] { OrderDocumentType.Bill, OrderDocumentType.SpecialBill };
-						var printableRdlDocument = order.OrderDocuments
+						var printableRdlDocument = edoContainer.Order.OrderDocuments
 							.FirstOrDefault(x => orderDocumentTypes.Contains(x.Type)) as IPrintableRDLDocument;
 						var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
-						var fileName = $"Счёт №{order.Id} от {order.CreateDate:d}.pdf";
-						var document = _edoBillFactory.CreateBillDocument(order, billAttachment, fileName, organization);
+						var fileName = $"Счёт №{edoContainer.Id} от {edoContainer.Order.CreateDate:d}.pdf";
+						var document = _edoBillFactory.CreateBillDocument(edoContainer.Order, billAttachment, fileName, organization);
 
 						container.Documents.Add(document);
 						document.AddCertificateForSign(_certificate.Thumbprint);
 
 						var containerRawData = container.ExportToZip();
 
-						var edoContainer = new EdoContainer
-						{
-							Type = Type.Bill,
-							Created = DateTime.Now,
-							Container = containerRawData,
-							Order = order,
-							Counterparty = order.Client,
-							MainDocumentId = document.ExternalIdentifier,
-							EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
-						};
+						edoContainer.Container = containerRawData;
+						edoContainer.MainDocumentId = document.ExternalIdentifier;
+						edoContainer.EdoDocFlowStatus = EdoDocFlowStatus.NotStarted;
 
-						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
+						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", edoContainer.Id);
 						uow.Save(edoContainer);
 						uow.Commit();
 
-						_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", order.Id);
+						_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", edoContainer.Id);
 						_taxcomApi.Send(container);
 					}
 					catch(Exception e)
 					{
-						_logger.LogError(e, "Ошибка в процессе формирования счёта №{OrderId} и его отправки", order.Id);
+						_logger.LogError(e, "Ошибка в процессе формирования счёта №{OrderId} и его отправки", edoContainer.Id);
 					}
 				}
 			}

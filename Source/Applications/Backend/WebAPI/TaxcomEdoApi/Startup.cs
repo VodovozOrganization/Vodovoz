@@ -27,7 +27,6 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
-using Vodovoz.Services;
 using Vodovoz.Tools.Orders;
 
 namespace TaxcomEdoApi
@@ -88,7 +87,6 @@ namespace TaxcomEdoApi
 			services.AddSingleton<EdoContainerMainDocumentIdParser>();
 			services.AddSingleton<UpdProductConverter>();
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 			services.AddSingleton<IContactStateConverter, ContactStateConverter>();
 		}
 
@@ -128,7 +126,6 @@ namespace TaxcomEdoApi
 
 			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 					.Dialect<MySQL57SpatialExtendedDialect>()
-					.Driver<LoggedMySqlClientDriver>()
 					.ConnectionString(connectionString);
 
 			// Настройка ORM
