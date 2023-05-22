@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private readonly FinancialCategoriesJournalFilterViewModel _filter;
 		private readonly HierarchicalChunkLinqLoader<FinancialCategoriesGroup, FinancialCategoriesJournalNode> _hierarchicalChunkLinqLoader;
 		private readonly Type[] _domainObjectsTypes;
-		private readonly Dictionary<Type, (bool CanRead, bool CanCreate, bool CanEdit, bool CanDelete)> _domainObjectsPermissions;
+		private readonly Dictionary<Type, IPermissionResult> _domainObjectsPermissions;
 
 		public FinancialCategoriesGroupsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			DataLoader = threadDataLoader;
 			DataLoader.DynamicLoadingEnabled = false;
 
-			_domainObjectsPermissions = new Dictionary<Type, (bool CanRead, bool CanCreate, bool CanEdit, bool CanDelete)>();
+			_domainObjectsPermissions = new Dictionary<Type, IPermissionResult>();
 
 			InitializePermissionsMatrix();
 			CreateNodeActions();
@@ -184,11 +184,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		{
 			foreach(var domainObject in _domainObjectsTypes)
 			{
-				bool canRead = _currentPermissionService == null || _currentPermissionService.ValidateEntityPermission(domainObject).CanRead;
-				bool canCreate = _currentPermissionService == null || _currentPermissionService.ValidateEntityPermission(domainObject).CanCreate;
-				bool canEdit = _currentPermissionService == null || _currentPermissionService.ValidateEntityPermission(domainObject).CanUpdate;
-				bool canDelete = _currentPermissionService == null || _currentPermissionService.ValidateEntityPermission(domainObject).CanDelete;
-				_domainObjectsPermissions.Add(domainObject, (canRead, canCreate, canEdit, canDelete));
+				_domainObjectsPermissions.Add(domainObject, _currentPermissionService.ValidateEntityPermission(domainObject));
 			}
 		}
 
@@ -262,7 +258,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			var editAction = new JournalAction("Изменить",
 				(selected) => selected.Length == 1
 					&& selected.First() is FinancialCategoriesJournalNode node
-					&& _domainObjectsPermissions[node.JournalNodeType].CanEdit
+					&& _domainObjectsPermissions[node.JournalNodeType].CanUpdate
 					&& selected.Any(),
 				(selected) => true,
 				EditNodeAction);
