@@ -49,5 +49,5 @@
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QSOrmProject\QSOrmProject.csproj" />
       <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
     </ItemGroup>
-<Import Project="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" 
+	<Import Project="..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
 </Project>
