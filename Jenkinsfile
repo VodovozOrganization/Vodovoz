@@ -616,12 +616,18 @@ def GetWorkspacePath()  {
 
 def GetJobFolderName(){
 	node(NODE_WIN_BUILD){
-		return GetFolderName(env.WORKSPACE)
+		return GetFolderNameFromWinPath(env.WORKSPACE)
 	}
 }
 
-def GetFolderName(folderPath){
+def GetFolderNameFromWinPath(folderPath){
 	splitted = folderPath.split("\\\\")
+	folderName = splitted[splitted.length-1]
+	return folderName
+}
+
+def GetFolderName(folderPath){
+	splitted = folderPath.split("/")
 	folderName = splitted[splitted.length-1]
 	return folderName
 }
