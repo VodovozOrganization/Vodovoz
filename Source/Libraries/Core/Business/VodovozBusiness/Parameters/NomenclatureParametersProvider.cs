@@ -1,36 +1,37 @@
 ﻿using System;
+using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Services;
 
 namespace Vodovoz.Parameters
 {
-    public class NomenclatureParametersProvider : INomenclatureParametersProvider
-    {
-        private readonly IParametersProvider _parametersProvider;
+	public class NomenclatureParametersProvider : INomenclatureParametersProvider
+	{
+		private readonly IParametersProvider _parametersProvider;
 
 		public NomenclatureParametersProvider(IParametersProvider parametersProvider)
-        {
-            _parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
-        }
-        
-        #region INomenclatureParametersProvider implementation
+		{
+			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
+		}
+		
+		#region INomenclatureParametersProvider implementation
 
-        public int Folder1cForOnlineStoreNomenclatures => _parametersProvider.GetIntValue("folder_1c_for_online_store_nomenclatures");
+		public int Folder1cForOnlineStoreNomenclatures => _parametersProvider.GetIntValue("folder_1c_for_online_store_nomenclatures");
 
 		public int PaidDeliveryNomenclatureId => _parametersProvider.GetIntValue("paid_delivery_nomenclature_id");
 
 		public int MeasurementUnitForOnlineStoreNomenclatures => _parametersProvider.GetIntValue("measurement_unit_for_online_store_nomenclatures");
 
-        public int RootProductGroupForOnlineStoreNomenclatures => _parametersProvider.GetIntValue("root_product_group_for_online_store_nomenclatures");
+		public int RootProductGroupForOnlineStoreNomenclatures => _parametersProvider.GetIntValue("root_product_group_for_online_store_nomenclatures");
 
-        public int CurrentOnlineStoreId => _parametersProvider.GetIntValue("current_online_store_id");
+		public int CurrentOnlineStoreId => _parametersProvider.GetIntValue("current_online_store_id");
 
-        public decimal GetWaterPriceIncrement => _parametersProvider.GetDecimalValue("water_price_increment");
+		public decimal GetWaterPriceIncrement => _parametersProvider.GetDecimalValue("water_price_increment");
 
-        public string OnlineStoreExportFileUrl => _parametersProvider.GetStringValue("online_store_export_file_url");
+		public string OnlineStoreExportFileUrl => _parametersProvider.GetStringValue("online_store_export_file_url");
 
-        public int FastDeliveryNomenclatureId => _parametersProvider.GetIntValue("fast_delivery_nomenclature_id");
+		public int FastDeliveryNomenclatureId => _parametersProvider.GetIntValue("fast_delivery_nomenclature_id");
 
 		public int PromotionalNomenclatureGroupId => _parametersProvider.GetIntValue("promotional_nomenclature_group_id");
 
@@ -94,10 +95,16 @@ namespace Vodovoz.Parameters
 			return uow.GetById<Nomenclature>(id);
 		}
 		
-		public Nomenclature GetSanitisationNomenclature(IUnitOfWork uow)
+		public int[] GetSanitisationNomenclature(IUnitOfWork uow)
 		{
-			var id = _parametersProvider.GetIntValue("выезд_мастера_для_сан_обр");
-			return uow.GetById<Nomenclature>(id);
+			var ids = _parametersProvider.GetStringValue("выезд_мастера_для_сан_обр");
+			
+			var splitedIds = ids
+				.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(x => int.Parse(x))
+				.ToArray();
+			
+			return splitedIds;
 		}
 		
 		public Nomenclature GetForfeitNomenclature(IUnitOfWork uow)

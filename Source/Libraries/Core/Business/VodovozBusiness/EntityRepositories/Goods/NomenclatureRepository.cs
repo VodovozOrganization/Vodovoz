@@ -160,7 +160,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		
 		public Nomenclature GetForfeitNomenclature(IUnitOfWork uow) => nomenclatureParametersProvider.GetForfeitNomenclature(uow);
 		
-		public Nomenclature GetSanitisationNomenclature(IUnitOfWork uow) => nomenclatureParametersProvider.GetSanitisationNomenclature(uow);
+		public int[] GetSanitisationNomenclature(IUnitOfWork uow) => nomenclatureParametersProvider.GetSanitisationNomenclature(uow);
 		
 		public IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs)
 		{

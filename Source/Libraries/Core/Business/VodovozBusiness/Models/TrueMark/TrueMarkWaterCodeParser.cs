@@ -1,4 +1,5 @@
-﻿using System;
+﻿using iTextSharp.text.pdf;
+using System;
 using System.Text.RegularExpressions;
 
 namespace Vodovoz.Models.TrueMark
@@ -41,8 +42,6 @@ namespace Vodovoz.Models.TrueMark
 				throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({rawCode}).");
 			}
 
-			bool hasSpecialCodes = rawCode.StartsWith(@"\u001d") && rawCode.Contains(@"");
-
 			Group specialCodeGroup = match.Groups[_specialCodeName];
 			Group gtinGroup = match.Groups[_gtinGroupName];
 			Group serialGroup = match.Groups[_serialGroupName];
@@ -64,9 +63,9 @@ namespace Vodovoz.Models.TrueMark
 				}
 			}
 
-			string gtin = match.Groups["GTIN"].Value;
-			string serialNumber = match.Groups["SerialNumber"].Value;
-			string checkCode = match.Groups["CheckCode"].Value;
+			string gtin = gtinGroup.Value;
+			string serialNumber = serialGroup.Value;
+			string checkCode = checkGroup.Value;
 
 			//Формируем корректный полный код идентификации, заменяя спецсимволы на подстроку с кодом спецсимвола.
 			//Для дальнейшей работы с кодом идентификации необходимо строкое представление спецсимволов.
@@ -109,6 +108,42 @@ namespace Vodovoz.Models.TrueMark
 		public string GetProductCodeForCashReceipt(ITrueMarkWaterCode trueMarkWaterCode)
 		{
 			return $"\u001d01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
+		}
+
+		public TrueMarkWaterCode ParseCodeFrom1c(string code)
+		{
+			var pattern = $@"(?<IdentificationCode>01(?<{_gtinGroupName}>.{{14}})21(?<{_serialGroupName}>.{{13}}))((\|ГС\|)|(\\u001d)|([\\u001d]{{1}}))93(?<{_checkGroupName}>.{{4}})";
+			_regex = new Regex(pattern);
+
+			var match = _regex.Match(code);
+			if(!match.Success)
+			{
+				throw new TrueMarkException($"Невозможно распарсить код честного знака для воды. Код ({code}).");
+			}
+
+			Group gtinGroup = match.Groups[_gtinGroupName];
+			Group serialGroup = match.Groups[_serialGroupName];
+			Group checkGroup = match.Groups[_checkGroupName];
+
+			if(gtinGroup == null || serialGroup == null || checkGroup == null)
+			{
+				throw new InvalidOperationException($"Ошибка определения составных частей кода (GTIN, серийного номера и кода проверки). Возможно код имеет не известный формат. Код ({code}).");
+			}
+
+			string gtin = gtinGroup.Value;
+			string serialNumber = serialGroup.Value;
+			string checkCode = checkGroup.Value;
+			string sourceCode = $"\\u001d01{gtin}21{serialNumber}\\u001d93{checkCode}";
+
+			var result = new TrueMarkWaterCode
+			{
+				SourceCode = sourceCode,
+				GTIN = gtin,
+				SerialNumber = serialNumber,
+				CheckCode = checkCode
+			};
+
+			return result;
 		}
 	}
 }

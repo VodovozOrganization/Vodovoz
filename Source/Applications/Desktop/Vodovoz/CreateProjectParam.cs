@@ -613,6 +613,14 @@ namespace Vodovoz
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
+			builder.RegisterType<TrueMarkCodePoolLoader>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<TrueMarkWaterCodeParser>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
 			builder.RegisterType<ReceiptManualController>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
