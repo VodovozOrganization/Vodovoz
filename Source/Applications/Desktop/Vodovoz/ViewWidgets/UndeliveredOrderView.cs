@@ -582,5 +582,13 @@ namespace Vodovoz.ViewWidgets
 				GetFines();
 			};
 		}
+
+		public override void Dispose()
+		{
+			ytreeviewResult?.Destroy();
+			yTreeFines?.Destroy();
+
+			base.Dispose();
+		}
 	}
 }
