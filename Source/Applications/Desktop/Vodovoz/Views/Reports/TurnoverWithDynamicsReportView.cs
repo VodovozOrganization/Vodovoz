@@ -207,6 +207,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			if(ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty)
 			{
 				columnsConfig.AddColumn("Телефоны").AddTextRenderer(row => row.Phones);
+				columnsConfig.AddColumn("E-mail").AddTextRenderer(row => row.Emails);
 			}
 
 			if(ViewModel.Report.ShowDynamics)
