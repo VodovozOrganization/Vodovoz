@@ -29,8 +29,9 @@ FROM
         drivers_info_and_wages.emplCategory as category,
         drivers_info_and_wages.emplDriverOf as driver_of,
         drivers_info_and_wages.works_withName as works_with_name,
-        -- Рабочие дни и адреса
+        -- Рабочие дни, МЛ и адреса
         drivers_bottles_and_work_days.countWD as days_worked,
+        drivers_bottles_and_work_days.rlCount as route_lists_count,
         drivers_bottles_and_work_days.addrCount as addresses_total,
         ROUND(drivers_bottles_and_work_days.addrCount / drivers_bottles_and_work_days.countWD, 0) as addresses_avg,
         -- Полные бутыли
@@ -145,6 +146,7 @@ FROM
     (
         SELECT
             T.*,
+            COUNT(DISTINCT  T.rl_id) as rlCount,
             COUNT(T.rl_id) as addrCount,
             SUM(IF(rl_status = 'Closed', bmo_delivered, orderBottles)) as delCount,
             SUM(IF(rl_status = 'Closed', bmo_returned, o_bottles_return)) as retCount,
@@ -207,8 +209,9 @@ FROM
         forwarders_info_and_wages.emplCategory as category,
         forwarders_info_and_wages.emplDriverOf as driver_of,
         forwarders_info_and_wages.works_withName as works_with_name,
-        -- Рабочие дни и адреса
+        -- Рабочие дни, МЛ и адреса
         forwarders_bottles_and_work_days.countWD as days_worked,
+        forwarders_bottles_and_work_days.rlCount as route_lists_count,
         forwarders_bottles_and_work_days.addrCount as addresses_total,
         ROUND(forwarders_bottles_and_work_days.addrCount / forwarders_bottles_and_work_days.countWD, 0) as addresses_avg,
         -- Полные бутыли
@@ -275,6 +278,7 @@ FROM
     (
         SELECT
             T.*,
+            COUNT(DISTINCT  T.rl_id) as rlCount,
             COUNT(T.rl_id) as addrCount,
             SUM(IF(rl_status = 'Closed', bmo_delivered, orderBottles)) as delCount,
             SUM(IF(rl_status = 'Closed', bmo_returned, o_bottles_return)) as retCount,
@@ -415,6 +419,10 @@ ORDER BY T.empl_name;</CommandText>
           <DataField>first_rl</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
+        <Field Name="route_lists_count">
+          <DataField>route_lists_count</DataField>
+          <TypeName>System.Int16</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -498,32 +506,35 @@ ORDER BY T.empl_name;</CommandText>
           <TableColumn>
             <Width>47.7pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>47.7pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>41.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>51.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>49.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>50.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>46.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.1pt</Width>
+            <Width>43.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.1pt</Width>
+            <Width>46.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.9pt</Width>
+            <Width>43.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.9pt</Width>
+            <Width>47.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>41.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>47.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>45.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -575,6 +586,24 @@ ORDER BY T.empl_name;</CommandText>
                     <Textbox Name="Textbox42">
                       <Value>Рабочий день</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>МЛ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -861,6 +890,24 @@ ORDER BY T.empl_name;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>Кол-во МЛ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
@@ -892,7 +939,7 @@ ORDER BY T.empl_name;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -910,7 +957,7 @@ ORDER BY T.empl_name;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1018,7 +1065,7 @@ ORDER BY T.empl_name;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>9pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1164,6 +1211,23 @@ ORDER BY T.empl_name;</CommandText>
                       <Value>=Fields!days_worked.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>9pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>=Fields!route_lists_count.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -1454,16 +1518,14 @@ ORDER BY T.empl_name;</CommandText>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="exclude_visiting_masters">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
