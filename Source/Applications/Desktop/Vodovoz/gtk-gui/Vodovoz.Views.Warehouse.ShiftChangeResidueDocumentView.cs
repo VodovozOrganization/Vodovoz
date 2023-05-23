@@ -80,6 +80,14 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gamma.GtkWidgets.yVBox vboxInstanceItems;
 
+		private global::Gtk.Expander expanderInstancesDiscrepancies;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow5;
+
+		private global::Gamma.GtkWidgets.yTextView txtViewInstancesDiscrepancies;
+
+		private global::Gtk.Label GtkLabelInstancesDiscrepancies;
+
 		private global::Gtk.Label lblInstanceItems;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow4;
@@ -392,9 +400,9 @@ namespace Vodovoz.Views.Warehouse
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.notebookItems = new global::Gamma.GtkWidgets.yNotebook();
 			this.notebookItems.CanFocus = true;
-			this.notebookItems.Name = "ynotebook1";
+			this.notebookItems.Name = "notebookItems";
 			this.notebookItems.CurrentPage = 0;
-			// Container child ynotebook1.Gtk.Notebook+NotebookChild
+			// Container child notebookItems.Gtk.Notebook+NotebookChild
 			this.vboxNomenclatureItems = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxNomenclatureItems.Name = "vboxNomenclatureItems";
 			this.vboxNomenclatureItems.Spacing = 6;
@@ -458,20 +466,44 @@ namespace Vodovoz.Views.Warehouse
 			this.lblBulkAccounting.LabelProp = global::Mono.Unix.Catalog.GetString("Объемный учет");
 			this.notebookItems.SetTabLabel(this.vboxNomenclatureItems, this.lblBulkAccounting);
 			this.lblBulkAccounting.ShowAll();
-			// Container child ynotebook1.Gtk.Notebook+NotebookChild
+			// Container child notebookItems.Gtk.Notebook+NotebookChild
 			this.vboxInstanceItems = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxInstanceItems.Name = "vboxInstanceItems";
 			this.vboxInstanceItems.Spacing = 6;
+			// Container child vboxInstanceItems.Gtk.Box+BoxChild
+			this.expanderInstancesDiscrepancies = new global::Gtk.Expander(null);
+			this.expanderInstancesDiscrepancies.CanFocus = true;
+			this.expanderInstancesDiscrepancies.Name = "expanderInstancesDiscrepancies";
+			// Container child expanderInstancesDiscrepancies.Gtk.Container+ContainerChild
+			this.GtkScrolledWindow5 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow5.Name = "GtkScrolledWindow5";
+			this.GtkScrolledWindow5.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow5.Gtk.Container+ContainerChild
+			this.txtViewInstancesDiscrepancies = new global::Gamma.GtkWidgets.yTextView();
+			this.txtViewInstancesDiscrepancies.CanFocus = true;
+			this.txtViewInstancesDiscrepancies.Name = "txtViewInstancesDiscrepancies";
+			this.GtkScrolledWindow5.Add(this.txtViewInstancesDiscrepancies);
+			this.expanderInstancesDiscrepancies.Add(this.GtkScrolledWindow5);
+			this.GtkLabelInstancesDiscrepancies = new global::Gtk.Label();
+			this.GtkLabelInstancesDiscrepancies.Name = "GtkLabelInstancesDiscrepancies";
+			this.GtkLabelInstancesDiscrepancies.LabelProp = global::Mono.Unix.Catalog.GetString("Расхождения экземплрного учета");
+			this.GtkLabelInstancesDiscrepancies.UseUnderline = true;
+			this.expanderInstancesDiscrepancies.LabelWidget = this.GtkLabelInstancesDiscrepancies;
+			this.vboxInstanceItems.Add(this.expanderInstancesDiscrepancies);
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vboxInstanceItems[this.expanderInstancesDiscrepancies]));
+			w37.Position = 0;
+			w37.Expand = false;
+			w37.Fill = false;
 			// Container child vboxInstanceItems.Gtk.Box+BoxChild
 			this.lblInstanceItems = new global::Gtk.Label();
 			this.lblInstanceItems.Name = "lblInstanceItems";
 			this.lblInstanceItems.Xalign = 0F;
 			this.lblInstanceItems.LabelProp = global::Mono.Unix.Catalog.GetString("Список экземпляров:");
 			this.vboxInstanceItems.Add(this.lblInstanceItems);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vboxInstanceItems[this.lblInstanceItems]));
-			w35.Position = 0;
-			w35.Expand = false;
-			w35.Fill = false;
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vboxInstanceItems[this.lblInstanceItems]));
+			w38.Position = 1;
+			w38.Expand = false;
+			w38.Fill = false;
 			// Container child vboxInstanceItems.Gtk.Box+BoxChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -482,8 +514,8 @@ namespace Vodovoz.Views.Warehouse
 			this.treeInstanceItems.Name = "treeInstanceItems";
 			this.GtkScrolledWindow4.Add(this.treeInstanceItems);
 			this.vboxInstanceItems.Add(this.GtkScrolledWindow4);
-			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vboxInstanceItems[this.GtkScrolledWindow4]));
-			w37.Position = 1;
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vboxInstanceItems[this.GtkScrolledWindow4]));
+			w40.Position = 2;
 			// Container child vboxInstanceItems.Gtk.Box+BoxChild
 			this.hboxHandleNomenclatureItemsBtns1 = new global::Gtk.HBox();
 			this.hboxHandleNomenclatureItemsBtns1.Name = "hboxHandleNomenclatureItemsBtns1";
@@ -495,10 +527,10 @@ namespace Vodovoz.Views.Warehouse
 			this.btnFillInstanceItemsByStorage.UseUnderline = true;
 			this.btnFillInstanceItemsByStorage.Label = global::Mono.Unix.Catalog.GetString("Заполнить по складу");
 			this.hboxHandleNomenclatureItemsBtns1.Add(this.btnFillInstanceItemsByStorage);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hboxHandleNomenclatureItemsBtns1[this.btnFillInstanceItemsByStorage]));
-			w38.Position = 0;
-			w38.Expand = false;
-			w38.Fill = false;
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.hboxHandleNomenclatureItemsBtns1[this.btnFillInstanceItemsByStorage]));
+			w41.Position = 0;
+			w41.Expand = false;
+			w41.Fill = false;
 			// Container child hboxHandleNomenclatureItemsBtns1.Gtk.Box+BoxChild
 			this.btnAddMissingInstances = new global::Gamma.GtkWidgets.yButton();
 			this.btnAddMissingInstances.CanFocus = true;
@@ -506,18 +538,18 @@ namespace Vodovoz.Views.Warehouse
 			this.btnAddMissingInstances.UseUnderline = true;
 			this.btnAddMissingInstances.Label = global::Mono.Unix.Catalog.GetString("Добавить отсутствующие");
 			this.hboxHandleNomenclatureItemsBtns1.Add(this.btnAddMissingInstances);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hboxHandleNomenclatureItemsBtns1[this.btnAddMissingInstances]));
-			w39.Position = 1;
-			w39.Expand = false;
-			w39.Fill = false;
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hboxHandleNomenclatureItemsBtns1[this.btnAddMissingInstances]));
+			w42.Position = 1;
+			w42.Expand = false;
+			w42.Fill = false;
 			this.vboxInstanceItems.Add(this.hboxHandleNomenclatureItemsBtns1);
-			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vboxInstanceItems[this.hboxHandleNomenclatureItemsBtns1]));
-			w40.Position = 2;
-			w40.Expand = false;
-			w40.Fill = false;
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vboxInstanceItems[this.hboxHandleNomenclatureItemsBtns1]));
+			w43.Position = 3;
+			w43.Expand = false;
+			w43.Fill = false;
 			this.notebookItems.Add(this.vboxInstanceItems);
-			global::Gtk.Notebook.NotebookChild w41 = ((global::Gtk.Notebook.NotebookChild)(this.notebookItems[this.vboxInstanceItems]));
-			w41.Position = 1;
+			global::Gtk.Notebook.NotebookChild w44 = ((global::Gtk.Notebook.NotebookChild)(this.notebookItems[this.vboxInstanceItems]));
+			w44.Position = 1;
 			// Notebook tab
 			this.lblInstanceAccounting = new global::Gtk.Label();
 			this.lblInstanceAccounting.Name = "lblInstanceAccounting";
@@ -525,11 +557,11 @@ namespace Vodovoz.Views.Warehouse
 			this.notebookItems.SetTabLabel(this.vboxInstanceItems, this.lblInstanceAccounting);
 			this.lblInstanceAccounting.ShowAll();
 			this.hbox1.Add(this.notebookItems);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.notebookItems]));
-			w42.Position = 1;
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.notebookItems]));
+			w45.Position = 1;
 			this.vboxMain.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox1]));
-			w43.Position = 2;
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hbox1]));
+			w46.Position = 2;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
