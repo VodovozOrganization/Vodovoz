@@ -46,6 +46,7 @@ namespace Vodovoz.Additions.Logistic
 				{
 					case RouteListPrintableDocuments.RouteList:
 					case RouteListPrintableDocuments.OrderOfAddresses:
+					case RouteListPrintableDocuments.ForwarderReceipt:
 						return DocumentOrientation.Landscape;
 					default:
 						return DocumentOrientation.Portrait;
@@ -64,6 +65,7 @@ namespace Vodovoz.Additions.Logistic
 					case RouteListPrintableDocuments.DailyList:
 					case RouteListPrintableDocuments.TimeList:
 					case RouteListPrintableDocuments.OrderOfAddresses:
+					case RouteListPrintableDocuments.ForwarderReceipt:
 						return 1;
 					default:
 						throw new NotImplementedException("Документ не поддерживается");
