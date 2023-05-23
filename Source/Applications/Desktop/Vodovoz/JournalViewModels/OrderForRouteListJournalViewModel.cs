@@ -31,7 +31,7 @@ using Vodovoz.Services;
 
 namespace Vodovoz.JournalViewModels
 {
-    public class OrderForRouteListJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderForRouteListJournalNode, OrderJournalFilterViewModel>
+	public class OrderForRouteListJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderForRouteListJournalNode, OrderJournalFilterViewModel>
 	{
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
@@ -108,7 +108,7 @@ namespace Vodovoz.JournalViewModels
 			Employee lastEditorAlias = null;
 			District districtAlias = null;
 
-			Nomenclature sanitizationNomenclature =
+			var sanitizationNomenclatureIds = 
 				new NomenclatureParametersProvider(new ParametersProvider()).GetSanitisationNomenclature(uow);
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
@@ -205,7 +205,7 @@ namespace Vodovoz.JournalViewModels
 
 			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 													 .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-													 .Where(() => orderItemAlias.Nomenclature.Id == sanitizationNomenclature.Id)
+													 .Where(Restrictions.In(Projections.Property(() => orderItemAlias.Nomenclature.Id), sanitizationNomenclatureIds))
 													 .Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
