@@ -39,7 +39,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		QueryOver<Nomenclature> NomenclatureInGroupsQuery(int[] groupsIds);
 		Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow);
 		Nomenclature GetForfeitNomenclature(IUnitOfWork uow);
-		Nomenclature GetSanitisationNomenclature(IUnitOfWork uow);
+		int[] GetSanitisationNomenclature(IUnitOfWork uow);
 
 		#region Rent
 

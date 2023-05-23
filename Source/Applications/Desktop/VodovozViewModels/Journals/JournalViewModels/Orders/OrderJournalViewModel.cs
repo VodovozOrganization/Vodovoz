@@ -152,7 +152,7 @@ namespace Vodovoz.JournalViewModels
 		}
 
 		protected override void CreateNodeActions()
-        {
+		{
 			NodeActionsList.Clear();
 			CreateDefaultSelectAction();
 			CreateDefaultAddActions();
@@ -161,7 +161,7 @@ namespace Vodovoz.JournalViewModels
 		}
 
 		private void CreateCustomEditAction()
-        {
+		{
 			var editAction = new JournalAction("Изменить",
 				(selected) => {
 					var selectedNodes = selected.OfType<OrderJournalNode>();
@@ -180,9 +180,9 @@ namespace Vodovoz.JournalViewModels
 				(selected) => selected.All(x => (x as OrderJournalNode).Sensitive),
 				(selected) => {
 					if(!selected.All(x => (x as OrderJournalNode).Sensitive))
-                    {
+					{
 						return;
-                    }
+					}
 					var selectedNodes = selected.OfType<OrderJournalNode>();
 					if (selectedNodes == null || selectedNodes.Count() != 1)
 					{
@@ -226,7 +226,7 @@ namespace Vodovoz.JournalViewModels
 			PaymentFrom paymentFromAlias = null;
 			GeoGroup geographicalGroupAlias = null;
 
-			Nomenclature sanitizationNomenclature = _nomenclatureRepository.GetSanitisationNomenclature(uow);
+			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
@@ -423,7 +423,7 @@ namespace Vodovoz.JournalViewModels
 
 			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 													 .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-													 .Where(() => orderItemAlias.Nomenclature.Id == sanitizationNomenclature.Id)
+													 .Where(Restrictions.In(Projections.Property(() => orderItemAlias.Nomenclature.Id), sanitizationNomenclatureIds))
 													 .Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
@@ -682,17 +682,17 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.Author, () => authorAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFP && FilterViewModel.ViewTypes != ViewTypes.All
-			    || FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
-			    || FilterViewModel.RestrictPaymentType != null
-			    || FilterViewModel.DeliveryPoint != null
+				|| FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
+				|| FilterViewModel.RestrictPaymentType != null
+				|| FilterViewModel.DeliveryPoint != null
 				|| FilterViewModel.OnlineOrderId != null
 				|| FilterViewModel.RestrictOnlyService != null
 				|| FilterViewModel.RestrictOnlySelfDelivery != null
-			    || FilterViewModel.RestrictLessThreeHours == true
-			    || FilterViewModel.OrderPaymentStatus != null
-			    || FilterViewModel.Organisation != null
-			    || FilterViewModel.PaymentByCardFrom != null
-			    || FilterViewModel.SortDeliveryDate == true
+				|| FilterViewModel.RestrictLessThreeHours == true
+				|| FilterViewModel.OrderPaymentStatus != null
+				|| FilterViewModel.Organisation != null
+				|| FilterViewModel.PaymentByCardFrom != null
+				|| FilterViewModel.SortDeliveryDate == true
 				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)
 				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
@@ -855,17 +855,17 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.Author, () => authorAlias);
 
 			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFAP && FilterViewModel.ViewTypes != ViewTypes.All
-			    || FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
-			    || FilterViewModel.RestrictPaymentType != null
-			    || FilterViewModel.DeliveryPoint != null
+				|| FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
+				|| FilterViewModel.RestrictPaymentType != null
+				|| FilterViewModel.DeliveryPoint != null
 				|| FilterViewModel.OnlineOrderId != null
 				|| FilterViewModel.RestrictOnlyService != null
-			    || FilterViewModel.RestrictOnlySelfDelivery != null
-			    || FilterViewModel.RestrictLessThreeHours == true
-			    || FilterViewModel.OrderPaymentStatus != null
-			    || FilterViewModel.Organisation != null
-			    || FilterViewModel.PaymentByCardFrom != null
-			    || FilterViewModel.SortDeliveryDate == true
+				|| FilterViewModel.RestrictOnlySelfDelivery != null
+				|| FilterViewModel.RestrictLessThreeHours == true
+				|| FilterViewModel.OrderPaymentStatus != null
+				|| FilterViewModel.Organisation != null
+				|| FilterViewModel.PaymentByCardFrom != null
+				|| FilterViewModel.SortDeliveryDate == true
 				|| !string.IsNullOrWhiteSpace(FilterViewModel.DeliveryPointAddressLike)
 				|| FilterViewModel.ExcludeClosingDocumentDeliverySchedule)
 			{
@@ -1064,7 +1064,7 @@ namespace Vodovoz.JournalViewModels
 					"Перейти в недовоз",
 					(selectedItems) => selectedItems.Any(
 						o => _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, (o as OrderJournalNode).Id).Any()) 
-					        && IsOrder(GetSelectedNode(selectedItems))
+							&& IsOrder(GetSelectedNode(selectedItems))
 							&& !_userHasOnlyAccessToWarehouseAndComplaints,
 					selectedItems => selectedItems.All(x => (x as OrderJournalNode).Sensitive),
 					(selectedItems) => {
