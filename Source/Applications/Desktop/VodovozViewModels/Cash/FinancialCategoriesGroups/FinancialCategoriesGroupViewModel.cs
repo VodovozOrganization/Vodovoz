@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -6,6 +7,7 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 {
@@ -58,5 +60,33 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		}
 
 		public IEntityEntryViewModel ParentFinancialCategoriesGroupViewModel { get; }
+
+		protected override bool BeforeSave()
+		{
+			var result = base.BeforeSave();
+
+			if(string.IsNullOrWhiteSpace(Entity.Title))
+			{
+				CommonServices.InteractiveService
+					.ShowMessage(
+						ImportanceLevel.Error,
+						"Нельзя создать группу с пустым именем",
+						"Ошибка");
+				return false;
+			}
+
+			if(!(Entity.Id == 1 || Entity.Id == 2) && Entity.ParentId == null)
+			{
+				CommonServices.InteractiveService
+					.ShowMessage(
+						ImportanceLevel.Error,
+						$"Необходимо указать родительскую группу",
+						"Ошибка");
+
+				return false;
+			}
+
+			return result;
+		}
 	}
 }
