@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -116,7 +116,8 @@ namespace Vodovoz
 		int bottlesReturnedTotal;
 		int defectiveBottlesReturnedToWarehouse;
 
-		private IList<RouteListAddressKeepingDocumentItem> _addressKeepingDocumentItemsCacheList;
+		private Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>> _addressKeepingDocumentItemsCacheList =
+			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -617,8 +618,13 @@ namespace Vodovoz
 		{
 			var item = routeListAddressesView.Items[aIdx[0]];
 
-			_addressKeepingDocumentItemsCacheList = _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, item,
-				_addressKeepingDocumentItemsCacheList);
+			if(!_addressKeepingDocumentItemsCacheList.ContainsKey(item.Id))
+			{
+				_addressKeepingDocumentItemsCacheList.Add(item.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
+			}
+
+			_addressKeepingDocumentItemsCacheList[item.Id] = _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, item,
+				_addressKeepingDocumentItemsCacheList[item.Id]);
 
 			Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
 			item.RecalculateTotalCash();
