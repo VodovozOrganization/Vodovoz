@@ -13,6 +13,7 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Timers;
 using Vodovoz.Domain.Employees;
@@ -535,6 +536,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 		private void LoadCodesToPool()
 		{
+			var interactiveService = _commonServices.InteractiveService;
 			var dialogSettings = new DialogSettings();
 			dialogSettings.SelectMultiple = false;
 			dialogSettings.Title = "Выберите файл выгрузки кодов из 1с";
@@ -545,10 +547,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				return;
 			}
 
-			var lodingResult = _codePoolLoader.LoadFromFile(result.Path);
+			try
+			{
+				var lodingResult = _codePoolLoader.LoadFromFile(result.Path);
 
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, 
-				$"Всего найдено кодов в выгрузке: {lodingResult.TotalFound}\nВсего загружено кодов: {lodingResult.SuccessfulLoaded}");
+				interactiveService.ShowMessage(ImportanceLevel.Info,
+					$"Предположительное кол-во кодов в выгрузке: {lodingResult.TotalFound}\nВсего загружено кодов: {lodingResult.SuccessfulLoaded}");
+			}
+			catch(IOException ex)
+			{
+				interactiveService.ShowMessage(ImportanceLevel.Error, ex.Message);
+			}
 		}
 
 		#endregion Load codes to pool
