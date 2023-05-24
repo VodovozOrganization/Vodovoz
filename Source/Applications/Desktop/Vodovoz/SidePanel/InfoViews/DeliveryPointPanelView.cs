@@ -229,6 +229,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				var order = ytreeLastOrders.GetSelectedObject() as Order;
 				orderDlg.FillOrderItems(order);
+				orderDlg.Entity.ObservablePromotionalSets.Clear();
 			}
 		}
 
