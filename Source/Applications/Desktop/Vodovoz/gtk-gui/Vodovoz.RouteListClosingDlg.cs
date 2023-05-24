@@ -366,6 +366,7 @@ namespace Vodovoz
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.tblRLInfo.Add(this.evmeDriver);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.evmeDriver]));
 			w16.TopAttach = ((uint)(1));
@@ -379,6 +380,7 @@ namespace Vodovoz
 			this.evmeForwarder.Events = ((global::Gdk.EventMask)(256));
 			this.evmeForwarder.Name = "evmeForwarder";
 			this.evmeForwarder.CanEditReference = true;
+			this.evmeForwarder.CanOpenWithoutTabParent = false;
 			this.tblRLInfo.Add(this.evmeForwarder);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.evmeForwarder]));
 			w17.TopAttach = ((uint)(2));
@@ -392,6 +394,7 @@ namespace Vodovoz
 			this.evmeLogistician.Events = ((global::Gdk.EventMask)(256));
 			this.evmeLogistician.Name = "evmeLogistician";
 			this.evmeLogistician.CanEditReference = true;
+			this.evmeLogistician.CanOpenWithoutTabParent = false;
 			this.tblRLInfo.Add(this.evmeLogistician);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tblRLInfo[this.evmeLogistician]));
 			w18.TopAttach = ((uint)(2));

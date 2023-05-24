@@ -609,6 +609,14 @@ namespace Vodovoz
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
 
+			if(!_addressKeepingDocumentItemsCacheList.ContainsKey(node.Id))
+			{
+				_addressKeepingDocumentItemsCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
+			}
+
+			_addressKeepingDocumentItemsCacheList[node.Id] = _routeListAddressKeepingDocumentController
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentItemsCacheList[node.Id]);
+
 			ReloadDiscrepancies();
 
 			((OrderReturnsView)sender).TabClosed -= OnOrderReturnsViewTabClosed;
@@ -617,14 +625,6 @@ namespace Vodovoz
 		void OnRouteListItemChanged(object aList, int[] aIdx)
 		{
 			var item = routeListAddressesView.Items[aIdx[0]];
-
-			if(!_addressKeepingDocumentItemsCacheList.ContainsKey(item.Id))
-			{
-				_addressKeepingDocumentItemsCacheList.Add(item.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
-			}
-
-			_addressKeepingDocumentItemsCacheList[item.Id] = _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, item,
-				_addressKeepingDocumentItemsCacheList[item.Id]);
 
 			Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
 			item.RecalculateTotalCash();
