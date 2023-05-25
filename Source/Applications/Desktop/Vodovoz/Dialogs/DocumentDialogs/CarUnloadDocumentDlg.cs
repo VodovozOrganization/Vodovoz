@@ -285,7 +285,6 @@ namespace Vodovoz
 
 		void LoadReception()
 		{
-			//TODO проверить работу диалога
 			foreach(var item in Entity.Items) {
 				if(defectiveitemsreceptionview1.Items.Any(x => x.NomenclatureId == item.GoodsAccountingOperation.Nomenclature.Id))
 					continue;
