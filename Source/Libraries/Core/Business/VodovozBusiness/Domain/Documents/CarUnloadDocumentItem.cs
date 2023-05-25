@@ -8,7 +8,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Service;
 
-//TODO проверить работу с операциями
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,

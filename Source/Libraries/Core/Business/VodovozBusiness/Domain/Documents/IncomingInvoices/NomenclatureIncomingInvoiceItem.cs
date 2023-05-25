@@ -26,9 +26,12 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		}
 
 		public override string ToString() => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
-		
 		public override int EntityId => Nomenclature?.Id ?? default(int);
-
 		public override AccountingType AccountingType => AccountingType.Bulk;
+		
+		public override void UpdateWarehouseOperation()
+		{
+			WarehouseBulkGoodsAccountingOperation.Warehouse = Document.Warehouse;
+		}
 	}
 }

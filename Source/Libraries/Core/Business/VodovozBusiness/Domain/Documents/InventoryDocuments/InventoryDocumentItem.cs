@@ -9,10 +9,9 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents.InventoryDocuments
 {
-	//TODO поправить класс
 	[Appellative (Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки инвентаризации",
-		Nominative = "строка инвентаризации")]
+		NominativePlural = "строки инвентаризации(объемный учет)",
+		Nominative = "строка инвентаризации(объемный учет)")]
 	[HistoryTrace]
 	public abstract class InventoryDocumentItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
@@ -21,7 +20,7 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 		private decimal _amountInFact;
 		private string _comment;
 		private Fine _fine;
-		private GoodsAccountingOperation _warehouseChangeOperation;
+		private GoodsAccountingOperation _goodsAccountingOperation;
 
 		public virtual int Id { get; set; }
 
@@ -36,9 +35,9 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 			{
 				SetField(ref _nomenclature, value);
 
-				if(WarehouseChangeOperation != null && WarehouseChangeOperation.Nomenclature != _nomenclature)
+				if(GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != _nomenclature)
 				{
-					WarehouseChangeOperation.Nomenclature = _nomenclature;
+					GoodsAccountingOperation.Nomenclature = _nomenclature;
 				}
 			}
 		}
@@ -72,10 +71,10 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 			set => SetField(ref _fine, value);
 		}
 
-		public virtual GoodsAccountingOperation WarehouseChangeOperation
+		public virtual GoodsAccountingOperation GoodsAccountingOperation
 		{
-			get => _warehouseChangeOperation;
-			set => SetField(ref _warehouseChangeOperation, value);
+			get => _goodsAccountingOperation;
+			set => SetField(ref _goodsAccountingOperation, value);
 		}
 
 		public abstract InventoryDocumentType Type { get; }
@@ -96,42 +95,19 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 
 		protected virtual void FillOperation(DateTime time)
 		{
-			if(WarehouseChangeOperation is null)
+			if(GoodsAccountingOperation is null)
 			{
 				throw new InvalidOperationException("Не создана операция движения товаров");
 			}
 
-			WarehouseChangeOperation.Amount = Difference;
-			WarehouseChangeOperation.OperationTime = time;
-			WarehouseChangeOperation.Nomenclature = Nomenclature;
-			
-			/*
-			if(Difference < 0)
-			{
-				WarehouseChangeOperation = new GoodsAccountingOperation
-					{
-						//WriteOffWarehouse = warehouse,
-						Amount = Math.Abs(Difference),
-						OperationTime = time,
-						Nomenclature = Nomenclature
-					};
-			}
-			if(Difference > 0)
-			{
-				WarehouseChangeOperation = new GoodsAccountingOperation
-					{
-						//IncomingWarehouse = warehouse,
-						Amount = Math.Abs(Difference),
-						OperationTime = time,
-						Nomenclature = Nomenclature
-					};
-			}
-			*/
+			GoodsAccountingOperation.Amount = Difference;
+			GoodsAccountingOperation.OperationTime = time;
+			GoodsAccountingOperation.Nomenclature = Nomenclature;
 		}
 
 		public virtual void UpdateOperation(DateTime timeStamp)
 		{
-			if(WarehouseChangeOperation is null)
+			if(GoodsAccountingOperation is null)
 			{
 				CreateOperation(timeStamp);
 			}
@@ -145,12 +121,12 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 
 		protected virtual void UpdateOperation()
 		{
-			if(WarehouseChangeOperation is null)
+			if(GoodsAccountingOperation is null)
 			{
 				throw new InvalidOperationException("Не создана операция движения товаров");
 			}
 			
-			WarehouseChangeOperation.Amount = Difference;
+			GoodsAccountingOperation.Amount = Difference;
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

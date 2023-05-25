@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.HistoryLog;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Goods;
 
@@ -9,7 +8,6 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки списания (экземплярный учет)",
 		Nominative = "строка списания (экземплярный учет)")]
-	[HistoryTrace]
 	public abstract class InstanceWriteOffDocumentItem : WriteOffDocumentItem
 	{
 		private InventoryNomenclatureInstance _inventoryNomenclatureInstance;

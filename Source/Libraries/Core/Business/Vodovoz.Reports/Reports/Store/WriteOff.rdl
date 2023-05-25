@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -21,10 +21,11 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     `nomenclature`.`name` AS nomenclature,
+    IFNULL(ni.inventory_number, '-') AS inventory_number,
     `culling_category`.`name` AS culling_category,
     (store_writeoff_document_items.amount) as amount,
     measurement_units.digits,
@@ -44,6 +45,8 @@ FROM
     store_writeoff_document_items
         LEFT JOIN
     nomenclature ON nomenclature.id = store_writeoff_document_items.nomenclature_id
+    	LEFT JOIN
+    nomenclature_instances ni ON ni.id = store_writeoff_document_items.nomenclature_instance_id
         LEFT JOIN
     culling_category ON culling_category.id = store_writeoff_document_items.culling_category_id
         LEFT JOIN
@@ -53,7 +56,7 @@ FROM
     	LEFT JOIN
     measurement_units ON nomenclature.unit_id = measurement_units.id
 WHERE
-    store_writeoff_document_items.writeoff_document_id = @writeoff_id
+    store_writeoff_document_items.write_off_document_id = @writeoff_id
 GROUP BY store_writeoff_document_items.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="writeoff_id">
@@ -61,7 +64,7 @@ GROUP BY store_writeoff_document_items.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -93,30 +96,41 @@ GROUP BY store_writeoff_document_items.id;</CommandText>
         <Field Name="digits">
           <DataField>digits</DataField>
         </Field>
+        <Field Name="inventory_number">
+          <DataField>inventory_number</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     store_writeoff_document.id AS id,
     store_writeoff_document.time_stamp AS time_stamp,
-    warehouses.name AS warehouse_name
+    (
+    	CASE
+    		WHEN w.id is not null THEN w.name
+    		WHEN e.id is not null THEN CONCAT(e.last_name, ' ', LEFT(e.name, 1), '. ', LEFT(e.patronymic, 1), '.')
+    		WHEN c.id is not null THEN CONCAT(c.id, ' ', cm.name, ' ', c.reg_number)
+    	END
+    	
+    ) AS storage_name
 FROM
     store_writeoff_document
-    LEFT JOIN warehouses 
-    ON warehouse_id = warehouses.id
+    LEFT JOIN warehouses w ON write_off_from_warehouse_id = w.id
+    LEFT JOIN employees e ON write_off_from_employee_id = e.id
+    LEFT JOIN cars c ON write_off_from_car_id = c.id
+    LEFT JOIN car_models cm ON c.model_id = cm.id
 WHERE
-    store_writeoff_document.id = @writeoff_id;
-    
-    </CommandText>
+    store_writeoff_document.id = @writeoff_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="writeoff_id">
             <Value>={?writeoff_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -125,13 +139,13 @@ WHERE
           <DataField>time_stamp</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="warehouse_name">
-          <DataField>warehouse_name</DataField>
+        <Field Name="storage_name">
+          <DataField>storage_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Image" >
+    <DataSet Name="Image">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>/*
@@ -186,8 +200,11 @@ WHERE stored_resource.id = @id1
           <TableColumn>
             <Width>1.5in</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>1.5in</Width>
+          </TableColumn>
           <TableColumn>
-            <Width>141.5pt</Width>
+            <Width>123.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>46.6pt</Width>
@@ -196,13 +213,13 @@ WHERE stored_resource.id = @id1
             <Width>49.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>126.8pt</Width>
+            <Width>94.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>97.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.9pt</Width>
+            <Width>74.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>71.1pt</Width>
@@ -234,6 +251,22 @@ WHERE stored_resource.id = @id1
                     <Textbox Name="Textbox2">
                       <Value>Номенклатура</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>Инв номер</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -400,6 +433,22 @@ WHERE stored_resource.id = @id1
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>={inventory_number}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="culling_category">
@@ -555,6 +604,19 @@ WHERE stored_resource.id = @id1
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
@@ -665,8 +727,8 @@ WHERE stored_resource.id = @id1
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>15.8pt</Left>
-        <Top>169.8pt</Top>
+        <Left>0.0pt</Left>
+        <Top>174.6pt</Top>
       </Table>
       <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Top>151.46pt</Top>
@@ -747,10 +809,10 @@ WHERE stored_resource.id = @id1
       <Textbox Name="Textbox25">
         <Height>13.50pt</Height>
         <Width>305.61pt</Width>
-        <Value>=First({warehouse_name}, 'Doc')</Value>
+        <Value>=First({storage_name}, 'Doc')</Value>
         <ZIndex>1</ZIndex>
-        <Left>420.8pt</Left>
-        <Top>133.6pt</Top>
+        <Left>420.80pt</Left>
+        <Top>133.60pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -758,7 +820,7 @@ WHERE stored_resource.id = @id1
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
-      <Image Name="Image2" >
+      <Image Name="Image2">
         <Height>155pt</Height>
         <Width>145pt</Width>
         <Left>15.9pt</Left>

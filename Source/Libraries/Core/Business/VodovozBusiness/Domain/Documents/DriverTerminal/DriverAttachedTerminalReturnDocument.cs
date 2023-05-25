@@ -8,7 +8,6 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents.DriverTerminal
 {
-	//TODO поправить класс
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		Nominative = "документ возврата терминала водителя",
 		NominativePlural = "документы возврата терминалов водителей")]

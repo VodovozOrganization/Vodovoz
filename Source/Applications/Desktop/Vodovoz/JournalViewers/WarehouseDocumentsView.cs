@@ -48,7 +48,7 @@ namespace Vodovoz
 		public WarehouseDocumentsView ()
 		{
 			this.Build ();
-			this.TabName = "Журнал документов";
+			this.TabName = "Журнал складских документов";
 			tableDocuments.RepresentationModel = new DocumentsVM ();
 			hboxFilter.Add (tableDocuments.RepresentationModel.RepresentationFilter as Widget);
 			(tableDocuments.RepresentationModel.RepresentationFilter as Widget).Show ();
@@ -187,33 +187,16 @@ namespace Vodovoz
 						);
 						break;
 					case DocumentType.WriteoffDocument:
-						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(
-							this, EntityUoWBuilder.ForOpen(id));
+						MainClass.MainWin.NavigationManager
+							.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.InventoryDocument:
-						/*var employeeRepository = new EmployeeRepository();
-
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<InventoryDocument>(id),
-							() => new InventoryDocumentViewModel(
-								EntityUoWBuilder.ForOpen(id),
-								UnitOfWorkFactory.GetDefaultFactory,
-								ServicesConfig.CommonServices,
-								employeeRepository,
-								new WarehouseRepository(),
-								new StoreDocumentHelper(),
-								new StockRepository(),
-								new NomenclatureJournalFactory(),
-								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), employeeRepository),
-								new GtkReportViewOpener(),
-								MainClass.MainWin.NavigationManager),
-							this);*/
 						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, IEntityUoWBuilder>(
 							this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.ShiftChangeDocument:
-						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(
-							this, EntityUoWBuilder.ForOpen(id));
+						MainClass.MainWin.NavigationManager
+							.OpenViewModelOnTdi<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.RegradingOfGoodsDocument:
 						TabParent.OpenTab(

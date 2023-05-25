@@ -165,15 +165,8 @@ namespace Vodovoz.Dialogs.Employees
 				}
 			}
 
-			var cs = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider> { new MemoryConfigurationProvider(new MemoryConfigurationSource()) }), "");
-
-			cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
-
-			var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
-
-			var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
-
-			var employeeViewModel = MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
+			var employeeViewModel = MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
+				this, EntityUoWBuilder.ForCreate()).ViewModel;
 
 			Personnel.ChangeTraineeToEmployee(employeeViewModel.Entity, Entity);
 

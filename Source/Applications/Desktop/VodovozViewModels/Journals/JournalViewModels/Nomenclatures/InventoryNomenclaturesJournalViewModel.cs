@@ -31,6 +31,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 			dataLoader.AddQuery(ItemsQuery);
 			DataLoader = dataLoader;
 
+			Title = "Журнал номенклатур с инвентарным учетом";
 			CreateFilter(filterParams);
 			CreateNodeActions();
 		}
@@ -38,7 +39,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 		private void CreateFilter(Action<NomenclatureFilterViewModel> filterParams)
 		{
 			Autofac.Core.Parameter[] parameters = {
-				new TypedParameter(typeof(Action<InventoryInstancesJournalFilterViewModel>), filterParams)
+				new TypedParameter(typeof(Action<NomenclatureFilterViewModel>), filterParams)
 			};
 
 			_filterViewModel = _scope.Resolve<NomenclatureFilterViewModel>(parameters);

@@ -4,22 +4,19 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gtk;
-using NHibernate.Criterion;
 using NHibernate.Transform;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
 using QS.Project.Services;
-using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.Infrastructure;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets.Store
@@ -36,14 +33,12 @@ namespace Vodovoz.ViewWidgets.Store
 
 		public DefectiveItemsReceptionView()
 		{
-			this.Build();
+			Build();
 
 			List<CullingCategory> types;
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				types = uow.GetAll<CullingCategory>().OrderBy(c => c.Name).ToList();
 			}
-			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
 			ytreeReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<DefectiveItemNode>()
 				.AddColumn ("Номенклатура").AddTextRenderer (node => node.Name)
@@ -58,8 +53,8 @@ namespace Vodovoz.ViewWidgets.Store
 						(c, n) => {
 							c.Editable = true;
 							c.BackgroundGdk = n.TypeOfDefect == null
-								? colorLightRed
-								: colorWhite;
+								? GdkColors.LightRedColor
+								: GdkColors.WhiteColor;
 						}
 					)
 				.AddColumn("Источник\nбрака")
@@ -68,8 +63,8 @@ namespace Vodovoz.ViewWidgets.Store
 						(c, n) => {
 							c.Editable = true;
 							c.BackgroundGdk = n.Source == DefectSource.None
-								? colorLightRed
-								: colorWhite;
+								? GdkColors.LightRedColor
+								: GdkColors.WhiteColor;
 						}
 					)
 				.AddColumn("")
@@ -124,7 +119,6 @@ namespace Vodovoz.ViewWidgets.Store
 			set => ytreeReturns.Sensitive = buttonAddNomenclature.Sensitive = value;
 		}
 
-		//TODO проверить работоспособность и корректность работы
 		void FillDefectiveListFromRoute()
 		{
 			if(Warehouse == null || RouteList == null)
@@ -133,29 +127,29 @@ namespace Vodovoz.ViewWidgets.Store
 			}
 
 			DefectiveItemNode resultAlias = null;
-			GoodsAccountingOperation goodsAccountingOperationAlias = null;
+			GoodsAccountingOperation operationAlias = null;
 			CarUnloadDocument carUnloadDocumentAlias = null;
 			CarUnloadDocumentItem carUnloadDocumentItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			var defectiveItems = UoW.Session.QueryOver<CarUnloadDocumentItem>(() => carUnloadDocumentItemAlias)
-									.Left.JoinAlias(() => carUnloadDocumentItemAlias.Document, () => carUnloadDocumentAlias)
-									.Where(() => carUnloadDocumentAlias.RouteList.Id == RouteList.Id)
-									.Left.JoinAlias(() => carUnloadDocumentItemAlias.GoodsAccountingOperation, () => goodsAccountingOperationAlias)
-									.Left.JoinAlias(() => goodsAccountingOperationAlias.Nomenclature, () => nomenclatureAlias)
-									.Where(() => nomenclatureAlias.IsDefectiveBottle)
-									.SelectList(
-										list => list
-										.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-										.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-										.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-				                        .Select(() => goodsAccountingOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
-				                        .Select(() => carUnloadDocumentItemAlias.GoodsAccountingOperation).WithAlias(() => resultAlias.MovementOperation)
-				                        .Select(() => carUnloadDocumentItemAlias.DefectSource).WithAlias(() => resultAlias.Source)
-				                        .Select(() => carUnloadDocumentItemAlias.TypeOfDefect).WithAlias(() => resultAlias.TypeOfDefect)
-									   )
-									.TransformUsing(Transformers.AliasToBean<DefectiveItemNode>())
-									.List<DefectiveItemNode>();
+			var defectiveItems = UoW.Session.QueryOver(() => carUnloadDocumentItemAlias)
+				.Left.JoinAlias(() => carUnloadDocumentItemAlias.Document, () => carUnloadDocumentAlias)
+				.Where(() => carUnloadDocumentAlias.RouteList.Id == RouteList.Id)
+				.Left.JoinAlias(() => carUnloadDocumentItemAlias.GoodsAccountingOperation, () => operationAlias)
+				.Left.JoinAlias(() => operationAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.IsDefectiveBottle)
+				.SelectList(
+					list => list
+					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+                    .Select(() => operationAlias.Amount).WithAlias(() => resultAlias.Amount)
+                    .Select(() => carUnloadDocumentItemAlias.GoodsAccountingOperation).WithAlias(() => resultAlias.MovementOperation)
+                    .Select(() => carUnloadDocumentItemAlias.DefectSource).WithAlias(() => resultAlias.Source)
+                    .Select(() => carUnloadDocumentItemAlias.TypeOfDefect).WithAlias(() => resultAlias.TypeOfDefect)
+				   )
+				.TransformUsing(Transformers.AliasToBean<DefectiveItemNode>())
+				.List<DefectiveItemNode>();
 
 			defectiveItems.ForEach(i => defectiveList.Add(i));
 		}
@@ -224,8 +218,8 @@ namespace Vodovoz.ViewWidgets.Store
 
 		CarUnloadDocumentItem carUnloadDocumentItem = new CarUnloadDocumentItem();
 		public virtual CarUnloadDocumentItem CarUnloadDocumentItem {
-			get { return carUnloadDocumentItem; }
-			set { SetField(ref carUnloadDocumentItem, value, () => CarUnloadDocumentItem); }
+			get => carUnloadDocumentItem;
+			set => SetField(ref carUnloadDocumentItem, value);
 		}
 
 		public NomenclatureCategory NomenclatureCategory { get; set; }
@@ -234,28 +228,28 @@ namespace Vodovoz.ViewWidgets.Store
 
 		decimal amount;
 		public virtual decimal Amount {
-			get { return amount; }
-			set { SetField(ref amount, value, () => Amount); }
+			get => amount;
+			set => SetField(ref amount, value);
 		}
 
 		GoodsAccountingOperation movementOperation;
 		public virtual GoodsAccountingOperation MovementOperation {
-			get { return movementOperation; }
-			set { SetField(ref movementOperation, value, () => MovementOperation); }
+			get => movementOperation;
+			set => SetField(ref movementOperation, value);
 		}
 
 		CullingCategory typeOfDefect;
 		[Display(Name = "Тип брака")]
 		public virtual CullingCategory TypeOfDefect {
-			get { return typeOfDefect; }
-			set { SetField(ref typeOfDefect, value, () => TypeOfDefect); }
+			get => typeOfDefect;
+			set => SetField(ref typeOfDefect, value);
 		}
 
 		DefectSource source = DefectSource.Driver;
 		[Display(Name = "Источник брака")]
 		public virtual DefectSource Source {
-			get { return source; }
-			set { SetField(ref source, value, () => Source); }
+			get => source;
+			set => SetField(ref source, value);
 		}
 	}
 }

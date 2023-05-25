@@ -8,6 +8,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
@@ -229,7 +230,8 @@ namespace Vodovoz.FilterViewModels.Goods
 			
 			EmployeeStorageEntryViewModel = builder.ForProperty(x => x.EmployeeStorage)
 				.UseViewModelDialog<EmployeeViewModel>()
-				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					f => f.Status = EmployeeStatus.IsWorking)
 				.Finish();
 			
 			CarStorageEntryViewModel = builder.ForProperty(x => x.CarStorage)

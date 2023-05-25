@@ -14,7 +14,6 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	//TODO поправить класс
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы производства",
 		Nominative = "документ производства")]
@@ -62,8 +61,8 @@ namespace Vodovoz.Domain.Documents
 			get => _incomingWarehouse;
 			set {
 				SetField(ref _incomingWarehouse, value);
-				/*if(ProduceOperation.IncomingWarehouse != IncomingWarehouse)
-					ProduceOperation.IncomingWarehouse = IncomingWarehouse;*/
+				if(ProduceOperation.Warehouse != IncomingWarehouse)
+					ProduceOperation.Warehouse = IncomingWarehouse;
 			}
 		}
 
@@ -76,19 +75,19 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField(ref _writeOffWarehouse, value);
 				foreach(var item in Materials) {
-					/*if(item.ConsumptionMaterialOperation != null && item.ConsumptionMaterialOperation.WriteOffWarehouse != WriteOffWarehouse)
-						item.ConsumptionMaterialOperation.WriteOffWarehouse = WriteOffWarehouse;*/
+					if(item.ConsumptionMaterialOperation != null && item.ConsumptionMaterialOperation.Warehouse != WriteOffWarehouse)
+						item.ConsumptionMaterialOperation.Warehouse = WriteOffWarehouse;
 				}
 			}
 		}
 
 		public virtual string Title => String.Format("Документ производства №{0} от {1:d}", Id, TimeStamp);
 
-		GoodsAccountingOperation produceOperation = new GoodsAccountingOperation {
+		WarehouseBulkGoodsAccountingOperation produceOperation = new WarehouseBulkGoodsAccountingOperation {
 			OperationTime = DateTime.Now
 		};
 
-		public virtual GoodsAccountingOperation ProduceOperation {
+		public virtual WarehouseBulkGoodsAccountingOperation ProduceOperation {
 			get => produceOperation;
 			set => SetField(ref produceOperation, value);
 		}

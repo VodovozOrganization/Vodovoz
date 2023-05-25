@@ -191,11 +191,5 @@ namespace Vodovoz.Views.Warehouse
 		{
 			return ytreeviewItems.GetSelectedObject() as MovementDocumentItem;
 		}
-
-		public override void Dispose()
-		{
-			btnAddNomenclatureInstance.Clicked -= OnAddNomenclatureInstanceClicked;
-			base.Dispose();
-		}
 	}
 }

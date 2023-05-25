@@ -23,7 +23,6 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 		private Fine _fine;
 		private decimal _amountOnStock = 10000000;
 		private GoodsAccountingOperation _goodsAccountingOperation;
-		//private CounterpartyMovementOperation _counterpartyWriteoffOperation;
 
 		public virtual int Id { get; set; }
 
@@ -91,12 +90,6 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			get => _goodsAccountingOperation;
 			set => SetField(ref _goodsAccountingOperation, value);
 		}
-
-		/*public virtual CounterpartyMovementOperation CounterpartyWriteoffOperation
-		{
-			get => _counterpartyWriteoffOperation;
-			set => SetField (ref _counterpartyWriteoffOperation, value);
-		}*/
 
 		protected virtual void FillOperation()
 		{

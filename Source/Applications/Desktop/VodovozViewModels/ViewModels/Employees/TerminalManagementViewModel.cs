@@ -22,7 +22,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
-	//TODO проверить работу вью модели
 	public class TerminalManagementViewModel : UoWWidgetViewModelBase
 	{
 		private readonly Employee _driver;

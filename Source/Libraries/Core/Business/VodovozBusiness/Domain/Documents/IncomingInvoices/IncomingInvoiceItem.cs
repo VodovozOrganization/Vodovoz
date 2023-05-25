@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
-using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
@@ -12,7 +11,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		NominativePlural = "строки входящей накладной",
 		Nominative = "строка входящей накладной")]
 	[HistoryTrace]
-	public class IncomingInvoiceItem : PropertyChangedBase, IDomainObject
+	public abstract class IncomingInvoiceItem : PropertyChangedBase, IDomainObject
 	{
 		private decimal _amount;
 		private decimal _primeCost;
@@ -34,7 +33,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 				{
 					return;
 				}
-				UpdateOperation(nameof(GoodsAccountingOperation.Nomenclature), value);
+				GoodsAccountingOperation.Nomenclature = value;
 			}
 		}
 
@@ -49,7 +48,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 				{
 					return;
 				}
-				UpdateOperation(nameof(GoodsAccountingOperation.Amount), value);
+				GoodsAccountingOperation.Amount = value;
 			}
 		}
 
@@ -69,34 +68,21 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 
 		public virtual decimal Sum => PrimeCost * Amount;
 
-		public virtual string Name { get; }
+		public abstract string Name { get; }
 
-		public virtual string InventoryNumberString { get; }
+		public abstract string InventoryNumberString { get; }
 
-		public virtual bool CanEditAmount { get; }
+		public abstract bool CanEditAmount { get; }
 
 		public virtual GoodsAccountingOperation GoodsAccountingOperation { get; set; }
 
-		public virtual void UpdateOperation(string propertyName, object value)
-		{
-			if(GoodsAccountingOperation is null)
-			{
-				return;
-			}
+		public abstract void UpdateWarehouseOperation();
 
-			var property = GoodsAccountingOperation.GetPropertyValue(propertyName);
+		public abstract AccountingType AccountingType { get; }
+		public abstract int EntityId { get; }
 
-			if(property != value)
-			{
-				GoodsAccountingOperation.SetPropertyValue(propertyName, value);
-			}
-		}
-		
-		public virtual AccountingType AccountingType { get; }
 		
 		public override string ToString() => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
-		
-		public virtual int EntityId { get; }
 		
 		public virtual string Title => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
 	}

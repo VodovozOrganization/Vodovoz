@@ -15,7 +15,6 @@ using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels
 {
-	//TODO проверить работу журнала
 	public class NomenclatureBalanceByStockJournalViewModel : FilterableSingleEntityJournalViewModelBase
 		<Warehouse, WarehouseViewModel, NomenclatureBalanceByStockJournalNode, NomenclatureBalanceByStockFilterViewModel>
 	{
@@ -54,7 +53,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 				query.Where(() => warehouseAlias.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			balanceSubQuery.Select(Projections.Sum(Projections.Property(() => operationAlias.Amount)));
+			balanceSubQuery.Select(Projections.Sum(() => operationAlias.Amount));
 
 			query.Where(GetSearchCriterion(
 				() => warehouseAlias.Id,

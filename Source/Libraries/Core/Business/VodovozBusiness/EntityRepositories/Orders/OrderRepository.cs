@@ -653,7 +653,6 @@ namespace Vodovoz.EntityRepositories.Orders
 			return receipts.Any();
 		}
 
-		//TODO проверить работу запроса
 		public bool HasFlyersOnStock(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroupId)
 		{

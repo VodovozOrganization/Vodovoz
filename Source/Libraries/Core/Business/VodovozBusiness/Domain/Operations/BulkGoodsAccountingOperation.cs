@@ -3,8 +3,8 @@
 namespace Vodovoz.Domain.Operations
 {
 	[Appellative (Gender = GrammaticalGender.Neuter,
-		NominativePlural = "передвижения товаров",
-		Nominative = "передвижение товаров")]
+		NominativePlural = "операции передвижения товаров(объемный учет)",
+		Nominative = "операция передвижение товаров(объемный учет)")]
 	public abstract class BulkGoodsAccountingOperation : GoodsAccountingOperation
 	{
 		

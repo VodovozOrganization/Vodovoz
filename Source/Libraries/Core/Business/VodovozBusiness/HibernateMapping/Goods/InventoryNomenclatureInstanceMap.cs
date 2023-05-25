@@ -10,6 +10,7 @@ namespace Vodovoz.HibernateMapping.Goods
 			DiscriminatorValue("InventoryNomenclatureInstance");
 
 			Map(x => x.InventoryNumber).Column("inventory_number");
+			Map(x => x.IsArchive).Column("is_archive");
 		}
 	}
 }

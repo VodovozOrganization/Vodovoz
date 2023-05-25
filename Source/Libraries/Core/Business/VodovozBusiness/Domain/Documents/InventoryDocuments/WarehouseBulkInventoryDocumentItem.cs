@@ -9,7 +9,7 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 
 		protected override void CreateOperation(DateTime time)
 		{
-			WarehouseChangeOperation = new WarehouseBulkGoodsAccountingOperation
+			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
 			{
 				Warehouse = Document.Warehouse
 			};
@@ -24,8 +24,8 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 
 		public virtual WarehouseBulkGoodsAccountingOperation WarehouseBulkChangeOperation
 		{
-			get => WarehouseChangeOperation as WarehouseBulkGoodsAccountingOperation;
-			set => WarehouseChangeOperation = value;
+			get => GoodsAccountingOperation as WarehouseBulkGoodsAccountingOperation;
+			set => GoodsAccountingOperation = value;
 		}
 	}
 }

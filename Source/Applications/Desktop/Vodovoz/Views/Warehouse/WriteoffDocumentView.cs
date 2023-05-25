@@ -29,7 +29,9 @@ namespace Vodovoz.Views.Warehouse
 				.InitializeFromSource();
 			
 			responsibleEmployeeEntry.ViewModel = ViewModel.ResponsibleEmployeeViewModel;
-			responsibleEmployeeEntry.ViewModel.IsEditable = textComment.Editable = ViewModel.CanEditDocument;
+			responsibleEmployeeEntry.ViewModel.IsEditable = ViewModel.CanEdit;
+			textComment.Editable = ViewModel.CanEdit;
+			buttonSave.Sensitive = ViewModel.CanEdit;
 			
 			comboType.ItemsEnum = typeof(WriteOffType);
 			comboType.AddEnumToHideList(WriteOffType.Counterparty);
@@ -58,12 +60,12 @@ namespace Vodovoz.Views.Warehouse
 
 			employeeStorageEntry.ViewModel = ViewModel.WriteOffFromEmployeeViewModel;
 			employeeStorageEntry.Binding
-				.AddBinding(ViewModel, vm => vm.CanChangeStorage, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.HasAccessToEmployeeStorages, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			carStorageEntry.ViewModel = ViewModel.WriteOffFromCarViewModel;
 			carStorageEntry.Binding
-				.AddBinding(ViewModel, vm => vm.CanChangeStorage, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.HasAccessToCarStorages, w => w.Sensitive)
 				.InitializeFromSource();
 
 			textComment.Binding
@@ -78,19 +80,6 @@ namespace Vodovoz.Views.Warehouse
 			vboxItems.Binding
 				.AddBinding(ViewModel, vm => vm.CanChangeItems, w => w.Sensitive)
 				.InitializeFromSource();
-
-			if(!ViewModel.Entity.CanEdit && ViewModel.Entity.TimeStamp.Date != DateTime.Now.Date)
-			{
-				comboType.Sensitive = false;
-				textComment.Sensitive = false;
-				hboxStorages.Sensitive = false;
-				vboxItems.Sensitive = false;
-				buttonSave.Sensitive = false;
-			}
-			else
-			{
-				ViewModel.Entity.CanEdit = true;
-			}
 
 			ConfigureTreeItems();
 

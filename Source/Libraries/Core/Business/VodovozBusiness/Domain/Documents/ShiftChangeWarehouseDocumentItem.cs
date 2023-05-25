@@ -7,8 +7,8 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки акта передачи склада",
-		Nominative = "строка акта передачи склада")]
+		NominativePlural = "строки акта передачи склада(объемный учет)",
+		Nominative = "строка акта передачи склада(объемный учет)")]
 	[HistoryTrace]
 	public class ShiftChangeWarehouseDocumentItem : PropertyChangedBase, IDomainObject
 	{

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion;
 using QS.Commands;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -11,12 +10,10 @@ using QS.Project.Journal;
 using QS.Report;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
@@ -45,9 +42,10 @@ namespace Vodovoz.ViewModels.Warehouses
         private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
         private readonly IOrderSelectorFactory _orderSelectorFactory;
         private readonly IRDLPreviewOpener _rdlPreviewOpener;
-		private readonly NomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
+		private readonly INomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
         private readonly IStockRepository _stockRepository;
+		private bool _canDuplicateInstance;
 		private Employee _currentEmployee;
 		private IEnumerable<Warehouse> _allowedWarehousesFrom;
 		private IncomingInvoiceItem _selectedItem;
@@ -72,7 +70,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			IWarehouseRepository warehouseRepository,
 			IRDLPreviewOpener rdlPreviewOpener,
 			ICommonServices commonServices,
-			NomenclaturePurchasePriceModel nomenclaturePurchasePriceModel,
+			INomenclaturePurchasePriceModel nomenclaturePurchasePriceModel,
 			IStockRepository stockRepository,
 			INavigationManager navigationManager)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
@@ -108,6 +106,10 @@ namespace Vodovoz.ViewModels.Warehouses
             UserHasOnlyAccessToWarehouseAndComplaints =
 	            CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 	            && !CurrentUser.IsAdmin;
+			
+			var instancePermissionResult =
+				CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(InventoryNomenclatureInstance));
+			_canDuplicateInstance = instancePermissionResult.CanUpdate || instancePermissionResult.CanCreate;
 		}
         #endregion
 
@@ -345,7 +347,11 @@ namespace Vodovoz.ViewModels.Warehouses
 						page = NavigationManager
 							.OpenViewModel<InventoryInstancesJournalViewModel, Action<InventoryInstancesJournalFilterViewModel>>(
 								this,
-								f => f.ExcludedInventoryInstancesIds = excludedInventoryInstancesIds,
+								f =>
+								{
+									f.ExcludedInventoryInstancesIds = excludedInventoryInstancesIds;
+									f.RestrictShowArchive = false;
+								},
 								OpenPageOptions.AsSlave);
 					}
 					else
@@ -353,7 +359,7 @@ namespace Vodovoz.ViewModels.Warehouses
 						page = NavigationManager.OpenViewModel<InventoryInstancesJournalViewModel>(this, OpenPageOptions.AsSlave);
 					}
 					
-					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 					page.ViewModel.OnSelectResult += OnInventoryInstanceSelectResult;
 				}));
 
@@ -365,11 +371,17 @@ namespace Vodovoz.ViewModels.Warehouses
 					{
 						return;
 					}
+
+					if(!_canDuplicateInstance)
+					{
+						ShowWarningMessage("У Вас нет прав на создание/редактирование экземпляров");
+						return;
+					}
 					
-					var page = NavigationManager.OpenViewModel<InventoryInstanceViewModel, IEntityUoWBuilder, InventoryNomenclatureInstance>(
+					var page = NavigationManager.OpenViewModel<InventoryInstanceViewModel, IEntityUoWBuilder, Nomenclature>(
 						this,
 						EntityUoWBuilder.ForCreate(),
-						inventoryInstanceItem.InventoryNomenclatureInstance,
+						inventoryInstanceItem.Nomenclature,
 						OpenPageOptions.AsSlave);
 
 					page.ViewModel.EntitySaved += (sender, args) =>
@@ -453,6 +465,12 @@ namespace Vodovoz.ViewModels.Warehouses
 					continue;
 				}
 
+				if(item is InventoryInstanceIncomingInvoiceItem instanceItem)
+				{
+					instanceItem.InventoryNomenclatureInstance.PurchasePrice = instanceItem.PrimeCost;
+					continue;
+				}
+
 				var canCreateNewPrice = _nomenclaturePurchasePriceModel.CanCreatePrice(item.Nomenclature, Entity.TimeStamp.Date, item.PrimeCost);
 				if(!canCreateNewPrice)
 				{
@@ -465,20 +483,24 @@ namespace Vodovoz.ViewModels.Warehouses
 		
 		private void OnInventoryInstanceSelectResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedItem = e.GetSelectedObjects<InventoryInstancesJournalNode>().FirstOrDefault();
+			var selectedItems = e.GetSelectedObjects<InventoryInstancesJournalNode>();
 
-			if(selectedItem is null)
+			if(!selectedItems.Any())
 			{
 				return;
 			}
-			
-			var newItem = new InventoryInstanceIncomingInvoiceItem
+
+			foreach(var instanceNode in selectedItems)
 			{
-				Amount = 1,
-				Nomenclature = UoW.GetById<Nomenclature>(selectedItem.NomenclatureId),
-				InventoryNomenclatureInstance = UoW.GetById<InventoryNomenclatureInstance>(selectedItem.Id)
-			};
-			Entity.AddItem(newItem);
+				var newItem = new InventoryInstanceIncomingInvoiceItem
+				{
+					Amount = 1,
+					Nomenclature = UoW.GetById<Nomenclature>(instanceNode.NomenclatureId),
+					InventoryNomenclatureInstance = UoW.GetById<InventoryNomenclatureInstance>(instanceNode.Id)
+				};
+				Entity.AddItem(newItem);
+			}
+			
 			OnPropertyChanged(nameof(TotalSum));
 		}
 

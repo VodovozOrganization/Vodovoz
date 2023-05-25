@@ -46,7 +46,6 @@ namespace Vodovoz
 		private readonly ICarUnloadRepository _carUnloadRepository = new CarUnloadRepository();
 		private readonly IRouteListRepository
 			_routeListRepository = new RouteListRepository(new StockRepository(), _baseParametersProvider);
-		IList<Equipment> alreadyUnloadedEquipment;
 		private WageParameterService wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private CallTaskWorker callTaskWorker;
@@ -247,12 +246,6 @@ namespace Vodovoz
 				);
 		}
 
-		void UpdateAlreadyUnloaded()
-		{
-			alreadyUnloadedEquipment = _equipmentRepository.GetEquipmentUnloadedTo(UoW, Entity.RouteList);
-			returnsreceptionview.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
-		}
-
 		void FillOtherReturnsTable()
 		{
 			if(Entity.RouteList == null || Entity.Warehouse == null)
@@ -277,9 +270,7 @@ namespace Vodovoz
 		void SetupForNewRouteList()
 		{
 			UpdateRouteListInfo();
-			if(Entity.RouteList != null) {
-				UpdateAlreadyUnloaded();
-			}
+			
 			nonserialequipmentreceptionview1.RouteList =
 				defectiveitemsreceptionview1.RouteList =
 					returnsreceptionview.RouteList = Entity.RouteList;
@@ -302,7 +293,8 @@ namespace Vodovoz
 				var returned = //item.GoodsAccountingOperation.Equipment != null
 					//? returnsreceptionview.Items.FirstOrDefault(x => x.EquipmentId == item.GoodsAccountingOperation.Equipment.Id)
 					returnsreceptionview.Items.FirstOrDefault(x => x.NomenclatureId == item.GoodsAccountingOperation.Nomenclature.Id);
-				if(returned != null) {
+				if(returned != null)
+				{
 					returned.Amount = (int)item.GoodsAccountingOperation.Amount;
 					returned.Redhead = item.Redhead;
 					continue;

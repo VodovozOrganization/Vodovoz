@@ -30,13 +30,11 @@ namespace Vodovoz
             if (warehousesList.Count > 5)
             {
                 entryWarehouses.Subject = CurrentUserSettings.Settings.DefaultWarehouse ?? null;
-				var warehouseFilter = new WarehouseJournalFilterViewModel
-				{
-					IncludeWarehouseIds = warehousesList.Select(x => x.Id)
-				};
+				Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = warehousesList.Select(x => x.Id);
+				
 				var warehouseJournalFactory = new WarehouseJournalFactory();
 
-				entryWarehouses.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(warehouseFilter));
+				entryWarehouses.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(filterParams));
 
                 entryWarehouses.Visible = true;
                 comboWarehouses.Visible = false;

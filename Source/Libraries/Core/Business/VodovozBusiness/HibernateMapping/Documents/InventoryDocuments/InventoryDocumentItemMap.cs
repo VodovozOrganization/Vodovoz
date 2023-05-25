@@ -20,7 +20,7 @@ namespace Vodovoz.HibernateMapping.Documents.InventoryDocuments
 			References(x => x.Fine).Column("fine_id");
 			References(x => x.Document).Column("store_inventory_id").Not.Nullable();
 			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
-			References(x => x.WarehouseChangeOperation).Column("warehouse_movement_operation_id").Cascade.All();
+			References(x => x.GoodsAccountingOperation).Column("warehouse_movement_operation_id").Cascade.All();
 		}
 	}
 
@@ -40,9 +40,9 @@ namespace Vodovoz.HibernateMapping.Documents.InventoryDocuments
 		}
 	}
 	
-	public class CareBulkInventoryDocumentItemMap : SubclassMap<CarBulkInventoryDocumentItem>
+	public class CarBulkInventoryDocumentItemMap : SubclassMap<CarBulkInventoryDocumentItem>
 	{
-		public CareBulkInventoryDocumentItemMap()
+		public CarBulkInventoryDocumentItemMap()
 		{
 			DiscriminatorValue(nameof(InventoryDocumentType.CarInventory));
 		}

@@ -1,7 +1,6 @@
 ﻿using System;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
-using Vodovoz.Domain.Documents;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gdk;
@@ -10,6 +9,7 @@ using Vodovoz.ReportsParameters;
 using QS.Navigation;
 using QS.Utilities;
 using Vodovoz.Domain.Documents.InventoryDocuments;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.Views.Warehouse
 {
@@ -56,9 +56,12 @@ namespace Vodovoz.Views.Warehouse
 				.InitializeFromSource();
 
 			warehouseStorageEntry.ViewModel = ViewModel.InventoryWarehouseViewModel;
+			warehouseStorageEntry.ViewModel.ChangedByUser += WarehouseViewModelOnChangedByUser;
 			employeeStorageEntry.ViewModel = ViewModel.InventoryEmployeeViewModel;
+			employeeStorageEntry.Sensitive = ViewModel.HasAccessToEmployeeStorages;
 			carStorageEntry.ViewModel = ViewModel.InventoryCarViewModel;
-			
+			carStorageEntry.Sensitive = ViewModel.HasAccessToCarStorages;
+
 			ychkSortNomenclaturesByTitle.Binding
 				.AddBinding(ViewModel.Entity, e => e.SortedByNomenclatureName, w => w.Active)
 				.InitializeFromSource();
@@ -77,7 +80,13 @@ namespace Vodovoz.Views.Warehouse
 			ConfigureBulkAccounting();
 			ConfigureInstanceAccounting();
 		}
-		
+
+		private void WarehouseViewModelOnChangedByUser(object sender, EventArgs e)
+		{
+			var war = ViewModel.Entity.Warehouse;
+			var f = sender;
+		}
+
 		private void ConfigureCommonButtons()
 		{
 			btnSave.Sensitive = ViewModel.CanEdit;
@@ -168,28 +177,28 @@ namespace Vodovoz.Views.Warehouse
 		{
 			treeViewNomenclatureItems.ColumnsConfig = ColumnsConfigFactory.Create<InventoryDocumentItem>()
 				.AddColumn("Номенклатура")
-				.AddTextRenderer(x => ViewModel.GetNomenclatureName(x.Nomenclature), useMarkup: true)
+					.AddTextRenderer(x => ViewModel.GetNomenclatureName(x.Nomenclature), useMarkup: true)
 				.AddColumn("Кол-во в учёте")
-				.AddTextRenderer(x => x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInDB) : x.AmountInDB.ToString())
+					.AddTextRenderer(x => x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInDB) : x.AmountInDB.ToString())
 				.AddColumn("Кол-во по факту")
-				.AddNumericRenderer(x => x.AmountInFact).Editing()
-				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
-				.AddSetter((w, x) => w.Digits = (x.Nomenclature.Unit != null ? (uint)x.Nomenclature.Unit.Digits : 1))
+					.AddNumericRenderer(x => x.AmountInFact).Editing()
+					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
+					.AddSetter((w, x) => w.Digits = (x.Nomenclature.Unit != null ? (uint)x.Nomenclature.Unit.Digits : 1))
 				.AddColumn("Разница")
-				.AddTextRenderer(x => x.Difference != 0 && x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.Difference) : String.Empty)
-				.AddSetter((w, x) => w.Foreground = x.Difference < 0 ? "red" : "blue")
+					.AddTextRenderer(x => x.Difference != 0 && x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.Difference) : String.Empty)
+					.AddSetter((w, x) => w.Foreground = x.Difference < 0 ? "red" : "blue")
 				.AddColumn("Сумма ущерба")
-				.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
+					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Штраф")
-				.AddTextRenderer(x => x.Fine != null ? x.Fine.Description : string.Empty)
+					.AddTextRenderer(x => x.Fine != null ? x.Fine.Description : string.Empty)
 				.AddColumn("Что произошло")
-				.AddTextRenderer(x => x.Comment)
-				.Editable()
+					.AddTextRenderer(x => x.Comment)
+					.Editable()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
-					var color = new Color(255, 255, 255);
-					if(ViewModel._nomenclaturesWithDiscrepancies.Any(x => x.Id == node.Nomenclature.Id))
+					var color = GdkColors.WhiteColor;
+					if(ViewModel.NomenclaturesWithDiscrepancies.Any(x => x.Id == node.Nomenclature.Id))
 					{
 						color = new Color(255, 125, 125);
 					}
@@ -231,6 +240,12 @@ namespace Vodovoz.Views.Warehouse
 			btnDeleteFineFromNomenclatureInstanceItem.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedNomenclatureItemHasFine, w => w.Sensitive)
 				.InitializeFromSource();
+
+			expanderInstancesDiscrepancies.Expanded = true;
+			txtViewInstancesDiscrepancies.Editable = false;
+			txtViewInstancesDiscrepancies.Binding
+				.AddBinding(ViewModel, vm => vm.InstancesDiscrepanciesString, w => w.Buffer.Text)
+				.InitializeFromSource();
 		}
 
 		private void OnAddMissingNomenclatureInstancesClicked(object sender, EventArgs e)
@@ -240,7 +255,7 @@ namespace Vodovoz.Views.Warehouse
 
 		private void OnFillNomenclatureInstanceItemsByStorageClicked(object sender, EventArgs e)
 		{
-			ViewModel.FillNomenclatureItemsByStorageCommand.Execute();
+			ViewModel.FillNomenclatureInstanceItemsCommand.Execute();
 		}
 		
 		private void OnAddFineToNomenclatureInstanceItemClicked(object sender, EventArgs e)
@@ -259,20 +274,30 @@ namespace Vodovoz.Views.Warehouse
 				.AddColumn("Отсутствует")
 					.AddToggleRenderer(x => x.IsMissing)
 					.AddSetter((n, c) => n.Activatable = c.CanChangeIsMissing)
+				.AddColumn("Кол-во в учёте")
+					.AddTextRenderer(
+						x => x.InventoryNomenclatureInstance.Nomenclature.Unit != null
+							? x.InventoryNomenclatureInstance.Nomenclature.Unit.MakeAmountShortStr(x.AmountInDB) : x.AmountInDB.ToString())
 				.AddColumn("Экземпляр")
 					.AddTextRenderer(x => x.InventoryNomenclatureInstance.ToString(), useMarkup: true)
+				.AddColumn("Разница")
+					.AddTextRenderer(x =>
+						x.Difference != 0 && x.InventoryNomenclatureInstance.Nomenclature.Unit != null
+							? x.InventoryNomenclatureInstance.Nomenclature.Unit.MakeAmountShortStr(x.Difference)
+							: string.Empty)
+					.AddSetter((w, x) => w.Foreground = x.Difference < 0 ? "red" : "blue")
+				.AddColumn("Сумма ущерба")
+					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Штраф")
 					.AddTextRenderer(x => x.Fine != null ? x.Fine.Description : string.Empty)
 				.AddColumn("Что произошло")
 					.AddTextRenderer(x => x.Comment)
 					.Editable()
-				.AddColumn("Описание расхождения")
-					.AddTextRenderer(x => x.DiscrepancyDescription)
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
-					var color = new Color(255, 255, 255);
-					if(!string.IsNullOrWhiteSpace(node.DiscrepancyDescription))
+					var color = GdkColors.WhiteColor;
+					if(node.IsMissing && node.AmountInDB > 0)
 					{
 						color = new Color(255, 125, 125);
 					}
@@ -283,10 +308,6 @@ namespace Vodovoz.Views.Warehouse
 			treeViewInstanceItems.ItemsDataSource = ViewModel.Entity.ObservableInstanceItems;
 			treeViewInstanceItems.Binding
 				.AddBinding(ViewModel, vm => vm.SelectedInstanceItem, w => w.SelectedRow)
-				.InitializeFromSource();
-			
-			btnAddFineToNomenclatureInstanceItem.Binding
-				.AddBinding(ViewModel, vm => vm.AddOrEditInstanceItemFineTitle, w => w.Label)
 				.InitializeFromSource();
 		}
 

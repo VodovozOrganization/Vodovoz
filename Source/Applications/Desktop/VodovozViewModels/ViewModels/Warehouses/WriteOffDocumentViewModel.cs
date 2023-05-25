@@ -31,6 +31,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -108,9 +109,11 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 		}
 
-		public bool CanEditDocument { get; private set; }
+		public bool CanEdit => Entity.CanEdit;
 		public bool UserHasOnlyAccessToWarehouseAndComplaints { get; private set; }
-		public bool CanChangeStorage => CanEditDocument && !Entity.ObservableItems.Any();
+		public bool HasAccessToEmployeeStorages { get; private set; }
+		public bool HasAccessToCarStorages { get; private set; }
+		public bool CanChangeStorage => CanEdit && !Entity.ObservableItems.Any();
 		public bool CanShowWarehouseStorage => Entity.WriteOffType == WriteOffType.Warehouse;
 		public bool CanShowEmployeeStorage => Entity.WriteOffType == WriteOffType.Employee;
 		public bool CanShowCarStorage => Entity.WriteOffType == WriteOffType.Car;
@@ -118,7 +121,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		public bool HasSelectedFine => SelectedItem?.Fine != null;
 		public string AddOrEditFineTitle => HasSelectedFine ? "Изменить штраф" : "Добавить штраф";
 		public bool CanChangeItems =>
-			CanEditDocument
+			CanEdit
 			&& (Entity.WriteOffFromWarehouse != null
 			    || Entity.WriteOffFromEmployee != null
 			    || Entity.WriteOffFromCar != null);
@@ -279,6 +282,15 @@ namespace Vodovoz.ViewModels.Warehouses
 					" вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
+
+			foreach(var item in Entity.Items)
+			{
+				if(item is InstanceWriteOffDocumentItem instanceItem)
+				{
+					instanceItem.InventoryNomenclatureInstance.IsArchive = true;
+				}
+			}
+			
 			return true;
 		}
 
@@ -303,7 +315,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				CanChangeDocumentType = false;
 			}
 			
-			if(_storeDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.WriteoffEdit, Entity.WriteOffFromWarehouse))
+			if(CheckAllStoragesPermissions())
 			{
 				FailInitialize = true;
 				return;
@@ -314,31 +326,54 @@ namespace Vodovoz.ViewModels.Warehouses
 			SetOtherProperties();
 			SetPropertyChangeRelations();
 		}
+
+		private bool CheckAllStoragesPermissions()
+		{
+			if(Entity.WriteOffType == WriteOffType.Warehouse)
+			{
+				return _storeDocumentHelper.CheckAllPermissions(
+					UoW.IsNew, WarehousePermissionsType.WriteoffEdit, Entity.WriteOffFromWarehouse);
+			}
+
+			return false;
+		}
 		
 		private void SetPermissions()
 		{
-			CanEditDocument = _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.WriteoffEdit, Entity.WriteOffFromWarehouse);
 			UserHasOnlyAccessToWarehouseAndComplaints =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
-
-			Entity.CanEdit =
-				_extendedPermissionValidator.Validate(
-					typeof(WriteOffDocument), UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+			HasAccessToEmployeeStorages =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_employee_storage_in_warehouse_documents");
+			HasAccessToCarStorages =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_car_storage_in_warehouse_documents");
+			
+			var canEditDocument = CheckPermissionsStorages();
+			var canEditRetroactively = _extendedPermissionValidator.Validate(
+				typeof(WriteOffDocument), UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
+			
+			Entity.CanEdit = Entity.TimeStamp.Date == DateTime.Today.Date ? canEditDocument : canEditDocument && canEditRetroactively;
 		}
-		
+
+		private bool CheckPermissionsStorages()
+		{
+			return _storeDocumentHelper.CanEditDocument(WarehousePermissionsType.WriteoffEdit, Entity.WriteOffFromWarehouse);
+		}
+
 		private void SetViewModels()
 		{
 			var builder = new CommonEEVMBuilderFactory<WriteOffDocument>(this, Entity, UoW, NavigationManager, _scope);
 			
 			ResponsibleEmployeeViewModel = builder.ForProperty(x => x.ResponsibleEmployee)
 				.UseViewModelDialog<EmployeeViewModel>()
-				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					f => f.Status = EmployeeStatus.IsWorking)
 				.Finish();
 			
 			WriteOffFromEmployeeViewModel = builder.ForProperty(x => x.WriteOffFromEmployee)
 				.UseViewModelDialog<EmployeeViewModel>()
-				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					f => f.Status = EmployeeStatus.IsWorking)
 				.Finish();
 			
 			WriteOffFromCarViewModel = builder.ForProperty(x => x.WriteOffFromCar)

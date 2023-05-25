@@ -812,7 +812,7 @@ namespace Vodovoz
 
 			#region Классы
 
-			builder.RegisterType<Domain.Employees.User>().AsSelf();
+			builder.RegisterType<User>().AsSelf();
 			builder.RegisterType<EntitySubdivisionForUserPermission>().AsSelf();
 			builder.RegisterType<EntityUserPermissionExtended>().AsSelf();
 			builder.RegisterType<EntityUserPermission>().AsSelf();

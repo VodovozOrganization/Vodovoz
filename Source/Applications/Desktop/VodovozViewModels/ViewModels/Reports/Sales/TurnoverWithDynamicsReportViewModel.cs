@@ -30,6 +30,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
@@ -696,7 +697,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			throw new InvalidOperationException("Что-то пошло не так. Не достижимая ветка ветвления");
 		}
 
-		//TODO проверить рабостоспособность
 		private decimal GetWarehouseBalance(int nomenclatureId)
 		{
 			if(!ShowLastSale)
@@ -704,29 +704,30 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				return 0;
 			}
 			
-			BulkGoodsAccountingOperation bulkGoodsAccountingOperationAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			NomenclatureStockNode resultAlias = null;
 
 			var balanceProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
 				NHibernateUtil.Decimal,
-				Projections.Sum(() => bulkGoodsAccountingOperationAlias.Amount));
+				Projections.Sum(() => operationAlias.Amount));
 
 			var result = _unitOfWork.Session.QueryOver(() => nomenclatureAlias)
-				.JoinEntityAlias(() => bulkGoodsAccountingOperationAlias,
-					() => nomenclatureAlias.Id == bulkGoodsAccountingOperationAlias.Nomenclature.Id,
+				.JoinEntityAlias(() => operationAlias,
+					() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
 					JoinType.LeftOuterJoin)
 				.Where(() => nomenclatureAlias.Id == nomenclatureId)
 				.SelectList(list => list
-					.SelectGroup(() => nomenclatureAlias.Id)
-					.Select(balanceProjection))
-				.TransformUsing(Transformers.AliasToBean<(int nomenclatureId, decimal balance)>())
-				.SingleOrDefault<(int nomenclatureId, decimal balance)>();
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(balanceProjection).WithAlias(() => resultAlias.Stock))
+				.TransformUsing(Transformers.AliasToBean<NomenclatureStockNode>())
+				.SingleOrDefault<NomenclatureStockNode>();
 
-			return result.balance;
+			return result.Stock;
 		}
 
-		private IList<OrderItemNode> GetData(TurnoverWithDynamicsReport report)
+		private IList<TurnoverWithDynamicsReport.OrderItemNode> GetData(TurnoverWithDynamicsReport report)
 		{
 			var filterOrderStatusInclude = new OrderStatus[]
 			{

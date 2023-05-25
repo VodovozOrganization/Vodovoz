@@ -6,8 +6,8 @@ using Vodovoz.Domain.Store;
 namespace Vodovoz.Domain.Operations
 {
 	[Appellative (Gender = GrammaticalGender.Neuter,
-		NominativePlural = "передвижения товаров",
-		Nominative = "передвижение товаров")]
+		NominativePlural = "операции передвижения товаров по складу(объемный учет)",
+		Nominative = "операция передвижения товаров по складу(объемный учет)")]
 	public class WarehouseBulkGoodsAccountingOperation : BulkGoodsAccountingOperation
 	{
 		private Warehouse _warehouse;

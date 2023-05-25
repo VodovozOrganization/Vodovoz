@@ -280,7 +280,6 @@ namespace Vodovoz.ViewModel
 				}
 
 				var writeoffList = writeoffQuery
-					//.JoinQueryOver(() => writeOffAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => writeOffAlias.WriteOffFromWarehouse, () => warehouseAlias,
 						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias(() => writeOffAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)

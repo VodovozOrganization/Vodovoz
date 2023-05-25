@@ -122,16 +122,12 @@ namespace Vodovoz
 					}
 				}.FillFromMetaInfo()
 			);
-
-			//TODO обновить данные
+			
 			DeleteConfig.AddHibernateDeleteInfo<Equipment>()
-				//.AddDeleteDependence<IncomingInvoiceItem>(item => item.Equipment)
 				.AddDeleteDependence<OrderEquipment>(item => item.Equipment)
 				.AddDeleteDependence<OrderItem>(item => item.Equipment)
 				.AddDeleteDependence<ServiceClaim>(x => x.Equipment)
-				//.AddDeleteDependence<GoodsAccountingOperation>(item => item.Equipment)
 				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.Equipment)
-				//.AddDeleteDependence<WriteoffDocumentItem>(x => x.Equipment)
 				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.Equipment)
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.Equipment)
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.Equipment)
@@ -816,8 +812,7 @@ namespace Vodovoz
 
 			//Документы
 			#region Склад
-
-			//TODO обновить данные
+			
 			//основной класс. не удаляем. в тестах настроен игнор.
 			DeleteConfig.AddHibernateDeleteInfo<Warehouse>()
 				.AddDeleteDependence<IncomingInvoice>(item => item.Warehouse)
@@ -839,9 +834,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<IncomingInvoice>()
 				.AddDeleteDependence<IncomingInvoiceItem>(x => x.Document);
 
-			//TODO обновить данные
-			DeleteConfig.AddHibernateDeleteInfo<IncomingInvoiceItem>();
-				//.AddDeleteCascadeDependence(x => x.IncomeGoodsOperation);
+			DeleteConfig.AddHibernateDeleteInfo<IncomingInvoiceItem>()
+				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<IncomingWater>()
 				.AddDeleteDependence<IncomingWaterMaterial>(x => x.Document)
@@ -859,11 +853,9 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<WriteOffDocument>()
 				.AddDeleteDependence<WriteOffDocumentItem>(x => x.Document);
-
-			//TODO обновить данные
-			DeleteConfig.AddHibernateDeleteInfo<WriteOffDocumentItem>();
-				//.AddDeleteCascadeDependence(x => x.CounterpartyWriteoffOperation)
-				//.AddDeleteCascadeDependence(x => x.WarehouseWriteoffOperation);
+			
+			DeleteConfig.AddHibernateDeleteInfo<WriteOffDocumentItem>()
+				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<ProductSpecification>()
 				.AddDeleteDependenceFromCollection(x => x.Materials);
@@ -887,7 +879,7 @@ namespace Vodovoz
 				.AddDeleteDependence<InventoryDocumentItem>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<InventoryDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.WarehouseChangeOperation);
+				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocument>()
 				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.Document)
@@ -940,27 +932,24 @@ namespace Vodovoz
 				.AddClearDependence<Order>(x => x.BottlesMovementOperation)
 				.AddDeleteDependence<Residue>(x => x.BottlesMovementOperation);
 
-			//TODO обновить данные
 			DeleteConfig.AddHibernateDeleteInfo<GoodsAccountingOperation>()
 				.RequiredCascadeDeletion()
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.GoodsAccountingOperation)
 				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.GoodsAccountingOperation)
-				//.AddDeleteDependence<IncomingInvoiceItem>(x => x.IncomeGoodsOperation)
+				.AddDeleteDependence<IncomingInvoiceItem>(x => x.GoodsAccountingOperation)
 				.AddDeleteDependence<IncomingWater>(x => x.ProduceOperation)
 				.AddDeleteDependence<IncomingWaterMaterial>(x => x.ConsumptionMaterialOperation)
 				.AddDeleteDependence<MovementDocumentItem>(x => x.WriteOffOperation)
 				.AddDeleteDependence<MovementDocumentItem>(x => x.IncomeOperation)
-				//.AddDeleteDependence<WriteoffDocumentItem>(x => x.WarehouseWriteoffOperation)
-				.AddDeleteDependence<InventoryDocumentItem>(x => x.WarehouseChangeOperation)
+				.AddDeleteDependence<WriteOffDocumentItem>(x => x.GoodsAccountingOperation)
+				.AddDeleteDependence<InventoryDocumentItem>(x => x.GoodsAccountingOperation)
 				.AddDeleteDependence<RegradingOfGoodsDocumentItem>(x => x.WarehouseIncomeOperation)
 				.AddDeleteDependence<RegradingOfGoodsDocumentItem>(x => x.WarehouseWriteOffOperation)
 				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.GoodsAccountingOperation)
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.GoodsAccountingOperation);
 
-			//TODO обновить данные
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyMovementOperation>()
 				.RequiredCascadeDeletion()
-				//.AddDeleteDependence<WriteoffDocumentItem>(x => x.CounterpartyWriteoffOperation)
 				.AddDeleteDependence<OrderItem>(x => x.CounterpartyMovementOperation)
 				.AddDeleteDependence<OrderEquipment>(x => x.CounterpartyMovementOperation);
 

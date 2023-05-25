@@ -20,6 +20,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddTextRenderer(node => node.MinCountText).XAlign(0.5f)
 				.AddColumn("Разница").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.DiffCountText).XAlign(0.5f)
+				.AddColumn("Экземплярный учет")
+					.AddTextRenderer(node => node.HasInventoryAccounting ? "Да" : string.Empty)
 				.AddColumn("")
 				.RowCells().AddSetter<CellRendererText>((c, n) =>
 				{

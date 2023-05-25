@@ -9,7 +9,6 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	//TODO поправить класс
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки пересортицы",
 		Nominative = "строка пересортицы")]
@@ -74,7 +73,7 @@ namespace Vodovoz.Domain.Documents
 				if (WarehouseIncomeOperation != null && WarehouseIncomeOperation.Amount != Amount)
 					WarehouseIncomeOperation.Amount = Amount;
 				if (WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Amount != Amount)
-					WarehouseWriteOffOperation.Amount = Amount;
+					WarehouseWriteOffOperation.Amount = -Amount;
 			}
 		}
 
@@ -108,18 +107,18 @@ namespace Vodovoz.Domain.Documents
 			set { SetField(ref source, value, () => Source); }
 		}
 
-		GoodsAccountingOperation warehouseWriteOffOperation = new GoodsAccountingOperation();
+		WarehouseBulkGoodsAccountingOperation warehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation();
 
-		public virtual GoodsAccountingOperation WarehouseWriteOffOperation {
-			get { return warehouseWriteOffOperation; }
-			set { SetField (ref warehouseWriteOffOperation, value, () => WarehouseWriteOffOperation); }
+		public virtual WarehouseBulkGoodsAccountingOperation WarehouseWriteOffOperation {
+			get => warehouseWriteOffOperation;
+			set => SetField (ref warehouseWriteOffOperation, value);
 		}
 
-		GoodsAccountingOperation warehouseIncomeOperation = new GoodsAccountingOperation();
+		WarehouseBulkGoodsAccountingOperation warehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation();
 
-		public virtual GoodsAccountingOperation WarehouseIncomeOperation {
-			get { return warehouseIncomeOperation; }
-			set { SetField (ref warehouseIncomeOperation, value, () => WarehouseIncomeOperation); }
+		public virtual WarehouseBulkGoodsAccountingOperation WarehouseIncomeOperation {
+			get => warehouseIncomeOperation;
+			set => SetField (ref warehouseIncomeOperation, value);
 		}
 
 		#region Не сохраняемые
@@ -156,16 +155,16 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
-			WarehouseWriteOffOperation = new GoodsAccountingOperation
+			WarehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation
 				{
-					//WriteOffWarehouse = warehouse,
-					Amount = Amount,
+					Warehouse = warehouse,
+					Amount = -Amount,
 					OperationTime = time,
 					Nomenclature = NomenclatureOld
 				};
-			WarehouseIncomeOperation = new GoodsAccountingOperation
+			WarehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation
 				{
-					//IncomingWarehouse = warehouse,
+					Warehouse = warehouse,
 					Amount = Amount,
 					OperationTime = time,
 					Nomenclature = NomenclatureNew

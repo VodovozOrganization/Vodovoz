@@ -20,6 +20,10 @@ namespace Vodovoz.Views.Warehouse
 		{
 			inventoryInstanceEntry.ViewModel = ViewModel.InventoryInstanceEntryViewModel;
 			
+			lblInventoryNumber.Binding
+				.AddBinding(ViewModel, vm => vm.InventoryNumber, w => w.LabelProp)
+				.InitializeFromSource();
+
 			buttonLoad.Binding.AddSource(ViewModel)
 				.AddFuncBinding(vm => !vm.IsGenerating, w => w.Visible)
 				.AddFuncBinding(vm => !vm.IsGenerating, w => w.Sensitive)

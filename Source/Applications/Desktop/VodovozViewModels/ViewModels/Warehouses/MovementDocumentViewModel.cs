@@ -29,6 +29,7 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.PrintableDocuments;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
@@ -56,8 +57,6 @@ namespace Vodovoz.ViewModels.Warehouses
 		private bool _canEditRectroactively;
 		private bool _canChangeAcceptedMovementDoc;
 		private bool _canAcceptMovementDocumentDiscrepancy;
-		private bool _hasAccessToWarehouseFrom;
-		private bool _hasAccessToWarehouseTo;
 		
 		private IEnumerable<Warehouse> _allowedWarehousesFrom;
 		private IEnumerable<Warehouse> _allowedWarehousesTo;
@@ -329,10 +328,6 @@ namespace Vodovoz.ViewModels.Warehouses
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_employee_storage_in_warehouse_documents");
 			HasAccessToCarStorages =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_car_storage_in_warehouse_documents");
-			_hasAccessToWarehouseFrom =
-				_warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee);
-			_hasAccessToWarehouseTo =
-				_warehousePermissionValidator.Validate(WarehousePermissionsType.MovementEdit, Entity.ToWarehouse, CurrentEmployee);
 		}
 		
 		private void SetStoragesViewModels()
@@ -346,12 +341,15 @@ namespace Vodovoz.ViewModels.Warehouses
 			
 			FromEmployeeStorageEntryViewModel = builder.ForProperty(x => x.FromEmployee)
 				.UseViewModelDialog<EmployeeViewModel>()
-				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					f => f.Status = EmployeeStatus.IsWorking)
 				.Finish();
 			
 			ToEmployeeStorageEntryViewModel = builder.ForProperty(x => x.ToEmployee)
 				.UseViewModelDialog<EmployeeViewModel>()
-				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					f => f.Status = EmployeeStatus.IsWorking
+				)
 				.Finish();
 			
 			FromCarStorageEntryViewModel = builder.ForProperty(x => x.FromCar)
@@ -645,7 +643,7 @@ namespace Vodovoz.ViewModels.Warehouses
 									var doc = new MovementDocumentRdl(Entity);
 									_rdlPreviewOpener.OpenRldDocument(typeof(MovementDocument), doc);
 								}
-							} 
+							}
 							else if(Entity.Status != MovementDocumentStatus.New && !UoW.IsNew) {
 								var doc = new MovementDocumentRdl(Entity);
 								_rdlPreviewOpener.OpenRldDocument(typeof(MovementDocument), doc);
@@ -669,7 +667,7 @@ namespace Vodovoz.ViewModels.Warehouses
 						NavigationManager
 							.OpenViewModel<InventoryInstancesStockBalanceJournalViewModel, Action<InventoryInstancesStockBalanceJournalFilterViewModel>>(
 								this, filterParams, OpenPageOptions.AsSlave);
-					page.ViewModel.SelectionMode = JournalSelectionMode.Single;
+					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 					page.ViewModel.OnSelectResult += OnInventoryInstanceSelectResult;
 				}));
 
@@ -682,7 +680,8 @@ namespace Vodovoz.ViewModels.Warehouses
 				switch(Entity.MovementDocumentTypeByStorage)
 				{
 					case MovementDocumentTypeByStorage.ToWarehouse:
-						return _hasAccessToWarehouseTo;
+						return _warehousePermissionValidator.Validate(
+							WarehousePermissionsType.MovementEdit, Entity.ToWarehouse, CurrentEmployee);
 					case MovementDocumentTypeByStorage.ToEmployee:
 						return HasAccessToEmployeeStorages;
 					case MovementDocumentTypeByStorage.ToCar:
@@ -700,7 +699,8 @@ namespace Vodovoz.ViewModels.Warehouses
 				switch(Entity.StorageFrom)
 				{
 					case StorageType.Warehouse:
-						return _hasAccessToWarehouseFrom;
+						return _warehousePermissionValidator.Validate(
+							WarehousePermissionsType.MovementEdit, Entity.FromWarehouse, CurrentEmployee);
 					case StorageType.Employee:
 						return HasAccessToEmployeeStorages;
 					case StorageType.Car:
@@ -713,21 +713,26 @@ namespace Vodovoz.ViewModels.Warehouses
 		
 		private void OnInventoryInstanceSelectResult(object sender, JournalSelectedEventArgs e)
 		{
-			var selectedItem = e.GetSelectedObjects<InventoryInstancesStockJournalNode>().FirstOrDefault();
+			var selectedItems = e.GetSelectedObjects<InventoryInstancesStockJournalNode>();
 
-			if(selectedItem is null)
+			if(!selectedItems.Any())
 			{
 				return;
 			}
 
-			if(Entity.ObservableItems.OfType<InstanceMovementDocumentItem>().Any(x => x.Id == selectedItem.Id))
+			foreach(var item in selectedItems)
 			{
-				return;
+				if(Entity.ObservableItems.OfType<InstanceMovementDocumentItem>()
+					.Any(x => x.InventoryNomenclatureInstance.Id == item.Id))
+				{
+					continue;
+				}
+
+				var inventoryInstance = _nomenclatureInstanceRepository.GetInventoryNomenclatureInstance(UoW, item.Id);
+
+				Entity.AddItem(inventoryInstance, 1, item.Balance);
 			}
-
-			var inventoryInstance = _nomenclatureInstanceRepository.GetInventoryNomenclatureInstance(UoW, selectedItem.Id);
-
-			Entity.AddItem(inventoryInstance, 1, selectedItem.Balance);
+			
 			FireItemsChanged();
 		}
 		

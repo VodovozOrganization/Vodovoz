@@ -3,7 +3,6 @@ using Vodovoz.Domain.Documents.WriteOffDocuments;
 
 namespace Vodovoz.HibernateMapping.Documents.WriteOffDocuments
 {
-	//TODO поправить класс
 	public class WriteOffDocumentItemMap : ClassMap<WriteOffDocumentItem>
 	{
 		public WriteOffDocumentItemMap ()
@@ -19,13 +18,11 @@ namespace Vodovoz.HibernateMapping.Documents.WriteOffDocuments
 			
 			References(x => x.Fine).Column("fine_id");
 			References(x => x.Document).Column("write_off_document_id").Not.Nullable();
-			//References(x => x.Equipment).Column("equipment_id");
 			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
 			References(x => x.CullingCategory).Column("culling_category_id");
 			References(x => x.GoodsAccountingOperation)
 				.Column("write_off_goods_accounting_operation_id")
 				.Cascade.All();
-			//References(x => x.CounterpartyWriteoffOperation).Column("writeoff_counterparty_movement_operation_id").Cascade.All();
 		}
 	}
 }

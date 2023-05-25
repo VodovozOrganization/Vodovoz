@@ -11,7 +11,7 @@ namespace Vodovoz.EntityRepositories.Store
 	{
 		IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow);
 		IList<Warehouse> WarehousesForPublishOnlineStore(IUnitOfWork uow);
-		IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(
+		IEnumerable<NomenclatureStockNode> GetWarehouseNomenclatureStock(
 			IUnitOfWork uow, OperationType operationType, int storageId, IEnumerable<int> nomenclatureIds);
 		IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId);
 		bool WarehouseByMovementDocumentsNotificationsSubdivisionExists(IUnitOfWork uow, int subdivisionId);
@@ -19,17 +19,17 @@ namespace Vodovoz.EntityRepositories.Store
 			IUnitOfWork uow, DateTime dateFrom, DateTime dateTo, IEnumerable<int> productGroupsIds, IEnumerable<int> warehousesIds);
 	}
 
-	public class NomanclatureStockNode
+	public class NomenclatureStockNode
 	{
 		public int NomenclatureId { get; set; }
 		public decimal Stock { get; set; }
 
-		public NomanclatureStockNode()
+		public NomenclatureStockNode()
 		{
 
 		}
 
-		public NomanclatureStockNode(int nomenclatureId, decimal stock)
+		public NomenclatureStockNode(int nomenclatureId, decimal stock)
 		{
 			NomenclatureId = nomenclatureId;
 			Stock = stock;

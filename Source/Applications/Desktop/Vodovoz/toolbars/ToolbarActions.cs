@@ -88,6 +88,7 @@ using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Autofac;
+using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 public partial class MainWindow : Window
@@ -1057,33 +1058,6 @@ public partial class MainWindow : Window
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
-		/*bool userHasOnlyAccessToWarehouseAndComplaints;
-
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			userHasOnlyAccessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
-		}
-
-		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseSelectorFactory())
-		{
-			ShowArchive = true
-		};
-
-		if(userHasOnlyAccessToWarehouseAndComplaints && defaultWarehouse != null)
-		{
-			filter.RestrictWarehouse = defaultWarehouse;
-		}
-
-		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices
-		)
-		{ SelectionMode = JournalSelectionMode.None };
-
-		tdiMain.OpenTab(() => vm);*/
 		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
 		Action<NomenclatureStockFilterViewModel> filterParams = null;
 		

@@ -12,7 +12,6 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	//TODO поправить класс
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "пересортицы товаров",
 		Nominative = "пересортица товаров")]
@@ -51,10 +50,10 @@ namespace Vodovoz.Domain.Documents
 				SetField (ref warehouse, value, () => Warehouse);
 
 				foreach (var item in Items) {
-					/*if (item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.WriteOffWarehouse != Warehouse)
-						item.WarehouseWriteOffOperation.WriteOffWarehouse = Warehouse;
-					if (item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.IncomingWarehouse != Warehouse)
-						item.WarehouseIncomeOperation.IncomingWarehouse = Warehouse;*/
+					if (item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.Warehouse != Warehouse)
+						item.WarehouseWriteOffOperation.Warehouse = Warehouse;
+					if (item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.Warehouse != Warehouse)
+						item.WarehouseIncomeOperation.Warehouse = Warehouse;
 				}
 			}
 		}

@@ -104,7 +104,6 @@ namespace Vodovoz.EntityRepositories.Equipments
 			return AvailableEquipmentQuery().Where(equipment => equipment.OnDuty);
 		}
 
-		//TODO Проверить работу запроса
 		public QueryOver<Equipment, Equipment> AvailableEquipmentQuery()
 		{
 			Vodovoz.Domain.Orders.Order orderAlias = null;
@@ -116,8 +115,7 @@ namespace Vodovoz.EntityRepositories.Equipments
 				.OrderBy(() => operationAddAlias.OperationTime).Desc
 				.Where(() => equipmentAlias.Nomenclature.Id == operationAddAlias.Nomenclature.Id)
 				.Select(op => op.Warehouse)
-				.Take(1).DetachedCriteria
-											);
+				.Take(1).DetachedCriteria);
 
 			var subqueryAllReservedEquipment = QueryOver.Of(() => orderAlias)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
@@ -182,75 +180,21 @@ namespace Vodovoz.EntityRepositories.Equipments
 				.List();
 		}
 
-		//TODO удалить после теста
-		public QueryOver<Equipment> GetUnusedEquipment(Nomenclature nomenclature)
-		{
-			return null;
-			/*Equipment equipmantAlias = null;
-
-			var counterpartyOperationsSubquery = QueryOver.Of<CounterpartyMovementOperation>()
-				.Where(op => op.Equipment.Id == equipmantAlias.Id)
-				.Select(op => op.Id);
-
-			var warehouseOperationsSubquery = QueryOver.Of<GoodsAccountingOperation>()
-				.Where(op => op.Equipment.Id == equipmantAlias.Id)
-				.Select(op => op.Id);
-
-			return QueryOver.Of<Equipment>(() => equipmantAlias)
-				.Where(() => equipmantAlias.Nomenclature.Id == nomenclature.Id)
-				.WithSubquery.WhereNotExists(counterpartyOperationsSubquery)
-				.WithSubquery.WhereNotExists(warehouseOperationsSubquery);*/
-		}
-
-		//TODO проверить работу запроса
-		public IList<Equipment> GetEquipmentUnloadedTo(IUnitOfWork uow, RouteList routeList)
-		{
-			CarUnloadDocumentItem unloadItemAlias = null;
-			GoodsAccountingOperation operationAlias = null;
-			Equipment equipmentAlias = null;
-			
-			var unloadedEquipmentIdsQuery = QueryOver.Of<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeList.Id)
-				.JoinAlias(doc => doc.Items, () => unloadItemAlias)
-				.JoinAlias(() => unloadItemAlias.GoodsAccountingOperation, () => operationAlias)
-				//.JoinAlias(() => operationAlias.Equipment, () => equipmentAlias)
-				.Select(op => equipmentAlias.Id);
-			
-			return uow.Session.QueryOver<Equipment>(() => equipmentAlias)
-				.WithSubquery.WhereProperty(() => equipmentAlias.Id)
-				.In(unloadedEquipmentIdsQuery)
-				.List();
-		}
-
-		//TODO проверить работу запроса
 		public EquipmentLocation GetLocation(IUnitOfWork uow, Equipment equ)
 		{
 			var result = new EquipmentLocation();
-			
-			var lastWarehouseOp = uow.Session.QueryOver<WarehouseBulkGoodsAccountingOperation>()
-				//.Where(o => o.Equipment == equ)
-				.OrderBy(o => o.OperationTime).Desc
-				.Take(1)
-				.SingleOrDefault();
-			
+
 			var lastCouterpartyOp = uow.Session.QueryOver<CounterpartyMovementOperation>()
 				.Where(o => o.Equipment == equ)
 				.OrderBy(o => o.OperationTime).Desc
 				.Take(1)
 				.SingleOrDefault();
 
-			if(lastWarehouseOp == null && lastCouterpartyOp == null)
+			if(lastCouterpartyOp == null)
 			{
 				result.Type = LocationType.NoMovements;
 			}
-			else if(lastWarehouseOp?.Warehouse != null && lastWarehouseOp.Amount > 0
-			        && (lastCouterpartyOp == null || lastCouterpartyOp.OperationTime < lastWarehouseOp.OperationTime))
-			{
-				result.Type = LocationType.Warehouse;
-				result.Warehouse = lastWarehouseOp.Warehouse;
-				result.Operation = lastWarehouseOp;
-			}
-			else if(lastCouterpartyOp?.IncomingCounterparty != null
-			        && (lastWarehouseOp == null || lastWarehouseOp.OperationTime < lastCouterpartyOp.OperationTime))
+			else if(lastCouterpartyOp.IncomingCounterparty != null)
 			{
 				result.Type = LocationType.Couterparty;
 				result.Operation = lastCouterpartyOp;

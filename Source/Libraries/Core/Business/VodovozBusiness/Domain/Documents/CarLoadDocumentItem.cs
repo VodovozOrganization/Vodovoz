@@ -9,7 +9,6 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	//TODO поправить класс
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки талона погрузки",
 		Nominative = "строка талона погрузки")]
@@ -28,9 +27,9 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref document, value); }
 		}
 
-		GoodsAccountingOperation _goodsAccountingOperation;
+		WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
 
-		public virtual GoodsAccountingOperation GoodsAccountingOperation { 
+		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation { 
 			get { return _goodsAccountingOperation; }
 			set { SetField (ref _goodsAccountingOperation, value); }
 		}
@@ -144,21 +143,19 @@ namespace Vodovoz.Domain.Documents
 
         public virtual void CreateWarehouseMovementOperation(Warehouse warehouse, DateTime time)
 		{
-			GoodsAccountingOperation = new GoodsAccountingOperation {
-				//WriteOffWarehouse = warehouse,
-				Amount = Amount,
+			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
+			{
+				Warehouse = warehouse,
+				Amount = -Amount,
 				OperationTime = time,
-				Nomenclature = Nomenclature,
-				//Equipment = Equipment
+				Nomenclature = Nomenclature
 			};
 		}
 
 		public virtual void UpdateWarehouseMovementOperation(Warehouse warehouse)
 		{
-			//GoodsAccountingOperation.WriteOffWarehouse = warehouse;
-			//GoodsAccountingOperation.IncomingWarehouse = null;
-			GoodsAccountingOperation.Amount = Amount;
-			//GoodsAccountingOperation.Equipment = Equipment;
+			GoodsAccountingOperation.Warehouse = warehouse;
+			GoodsAccountingOperation.Amount = -Amount;
 		}
 		
 		public virtual void CreateEmployeeNomenclatureMovementOperation(DateTime time)

@@ -16,6 +16,7 @@ namespace Vodovoz.JournalFilters.Goods
 
 		private void Configure()
 		{
+			nomenclatureEntry.WidthRequest = 400;
 			nomenclatureEntry.ViewModel = ViewModel.NomenclatureEntryViewModel;
 			nomenclatureEntry.Binding
 				.AddBinding(ViewModel, vm => vm.CanChangeNomenclature, w => w.Sensitive)
@@ -25,6 +26,11 @@ namespace Vodovoz.JournalFilters.Goods
 				.AddBinding(ViewModel, vm => vm.InventoryNumber, w => w.Text)
 				.InitializeFromSource();
 			inventoryNumberEntry.KeyReleaseEvent += OnInventoryNumberEntryKeyReleaseEvent;
+			
+			chkShowArchive.Binding
+				.AddBinding(ViewModel, vm => vm.ShowArchive, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanChangeShowArchive, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 
 		private void OnInventoryNumberEntryKeyReleaseEvent(object o, KeyReleaseEventArgs args)

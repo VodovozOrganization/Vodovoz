@@ -27,6 +27,7 @@ namespace Vodovoz.HibernateMapping.Documents.InventoryDocuments
 			References(x => x.Car).Column("car_id");
 			
 			HasMany(x => x.NomenclatureItems).Cascade.AllDeleteOrphan().Inverse().KeyColumn("store_inventory_id");
+			HasMany(x => x.InstanceItems).Cascade.AllDeleteOrphan().Inverse().KeyColumn("store_inventory_id");
 		}
 	}
 }

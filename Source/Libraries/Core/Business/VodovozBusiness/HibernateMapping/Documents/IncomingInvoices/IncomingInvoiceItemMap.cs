@@ -4,7 +4,6 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.HibernateMapping.Documents.IncomingInvoices
 {
-	//TODO поправить класс
 	public class IncomingInvoiceItemMap : ClassMap<IncomingInvoiceItem>
 	{
 		public IncomingInvoiceItemMap()
@@ -19,7 +18,6 @@ namespace Vodovoz.HibernateMapping.Documents.IncomingInvoices
 			Map(x => x.VAT).Column("vat").CustomType<VATStringType>();
 			
 			References(x => x.Document).Column("incoming_invoice_id").Not.Nullable();
-			//References(x => x.Equipment).Column("equipment_id");
 			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
 			References(x => x.GoodsAccountingOperation).Column("good_move_operation_id").Not.Nullable().Cascade.All();
 		}

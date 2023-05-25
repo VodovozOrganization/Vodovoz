@@ -6,6 +6,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
@@ -58,19 +59,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 			var canEdit = CurrentPermissionService.ValidateEntityPermission(typeof(InventoryNomenclatureInstance)).CanRead;
 
 			var addAction = new JournalAction("Добавить",
-				(selected) => canCreate,
-				(selected) => VisibleCreateAction,
-				(selected) => CreateEntityDialog(),
+				selected => canCreate,
+				selected => VisibleCreateAction,
+				selected => CreateEntityDialog(),
 				"Insert"
 			);
 			NodeActionsList.Add(addAction);
 
 			var editAction = new JournalAction("Изменить",
-				(selected) => canEdit && selected.Any(),
-				(selected) => VisibleEditAction,
-				(selected) => selected.Cast<InventoryInstancesJournalNode>().ToList().ForEach(EditEntityDialog)
+				selected => canEdit && selected.Any(),
+				selected => VisibleEditAction,
+				selected => selected.Cast<InventoryInstancesJournalNode>().ToList().ForEach(EditEntityDialog)
 			);
 			NodeActionsList.Add(editAction);
+			
+			var duplicateEntityAction = new JournalAction("Дублировать экземпляр",
+				selected => canEdit && selected.Any(),
+				selected => true,
+				selected => selected.Cast<InventoryInstancesJournalNode>()
+					.ToList()
+					.ForEach(OpenEntityDialogForDuplicate)
+			);
+			NodeActionsList.Add(duplicateEntityAction);
 
 			if(SelectionMode == JournalSelectionMode.None)
 			{
@@ -90,6 +100,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 			query.Where(GetSearchCriterion(
 				() => instanceAlias.Id,
 				() => nomenclatureAlias.Name));
+			
+			if(!_filterViewModel.ShowArchive)
+			{
+				query.Where(ini => !ini.IsArchive);
+			}
+
+			if(_filterViewModel.Nomenclature != null)
+			{
+				query.Where(ini => ini.Nomenclature.Id == _filterViewModel.Nomenclature.Id);
+			}
 
 			if(!string.IsNullOrWhiteSpace(_filterViewModel.InventoryNumber))
 			{
@@ -101,15 +121,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 
 			if(_filterViewModel.ExcludedInventoryInstancesIds != null && _filterViewModel.ExcludedInventoryInstancesIds.Any())
 			{
-				query.WhereRestrictionOn(() => instanceAlias.Id).Not.IsIn(_filterViewModel.ExcludedInventoryInstancesIds);
+				query.WhereRestrictionOn(ini => ini.Id).Not.IsIn(_filterViewModel.ExcludedInventoryInstancesIds);
 			}
 
 			return query.SelectList(list => list
-				.Select(() => instanceAlias.Id).WithAlias(() => resultAlias.Id)
-				.Select(() => instanceAlias.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
+				.Select(ini => ini.Id).WithAlias(() => resultAlias.Id)
+				.Select(ini => ini.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
 				.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName))
-				.TransformUsing(Transformers.AliasToBean<InventoryInstancesJournalNode>());
+				.TransformUsing(Transformers.AliasToBean<InventoryInstancesJournalNode>())
+				.OrderBy(() => nomenclatureAlias.Name).Asc
+				.ThenBy(ini => ini.InventoryNumber).Asc;
 		}
 
 		private void CreateFilter(Action<InventoryInstancesJournalFilterViewModel> filterParams)
@@ -127,6 +149,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)
 		{
 			Refresh();
+		}
+
+		private void OpenEntityDialogForDuplicate(InventoryInstancesJournalNode node)
+		{
+			NavigationManager.OpenViewModel<InventoryInstanceViewModel, IEntityUoWBuilder, Nomenclature>(
+				this,
+				EntityUoWBuilder.ForCreate(),
+				UoW.GetById<Nomenclature>(node.NomenclatureId));
 		}
 
 		public override void Dispose()

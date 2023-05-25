@@ -32,7 +32,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("")
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) =>
-						c.ForegroundGdk = n.Status == ApplicationDevelopmentProposalStatus.Rejected ? GdkColors.RedColor : GdkColors.BlackColor)
+						c.ForegroundGdk = n.Status == ApplicationDevelopmentProposalStatus.Rejected ? GdkColors.RedColor2 : GdkColors.BlackColor)
 				.Finish();
 	}
 }

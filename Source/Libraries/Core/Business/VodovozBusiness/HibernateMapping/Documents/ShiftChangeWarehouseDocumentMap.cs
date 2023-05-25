@@ -28,6 +28,8 @@ namespace Vodovoz.HibernateMapping.Documents
 			
 			HasMany(x => x.NomenclatureItems)
 				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("store_shiftchange_id");
+			HasMany(x => x.InstanceItems)
+				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("store_shiftchange_id");
 		}
 	}
 }

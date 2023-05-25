@@ -112,31 +112,15 @@ FROM
         (
             SELECT
                 nomenclature_id AS nom_id,
-                writeoff_warehouse_id AS wh,
-                -SUM(amount) AS quantity
-            FROM warehouse_movement_operations
-                     LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.writeoff_warehouse_id
-                     LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
-            WHERE
-                    writeoff_warehouse_id IS NOT NULL
-                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
-                    AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
-            GROUP BY nomenclature_id
-
-            UNION ALL
-
-            SELECT
-                nomenclature_id AS nom_id,
-                incoming_warehouse_id AS wh,
+                warehouse_id AS wh,
                 SUM(amount) AS quantity
-            FROM warehouse_movement_operations
-                     LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.incoming_warehouse_id
+            FROM goods_accounting_operations
+                     LEFT JOIN warehouses ON warehouses.id = goods_accounting_operations.warehouse_id
                      LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
             WHERE
-                    incoming_warehouse_id IS NOT NULL
                     #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
                     AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
-            GROUP BY nomenclature_id
+            GROUP BY nomenclature_id   
         ) AS StockBalance ON StockBalance.nom_id = nomenclature.id
 
         LEFT JOIN #Отправлено на другой склад
@@ -309,31 +293,16 @@ FROM
         (
             SELECT
                 nomenclature_id AS nom_id,
-                writeoff_warehouse_id AS wh,
-                -SUM(amount) AS quantity
-            FROM warehouse_movement_operations
-                     LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.writeoff_warehouse_id
-                     LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
-            WHERE
-                    writeoff_warehouse_id IS NOT NULL
-                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
-                    AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
-            GROUP BY nomenclature_id
-
-            UNION ALL
-
-            SELECT
-                nomenclature_id AS nom_id,
-                incoming_warehouse_id AS wh,
+                warehouse_id AS wh,
                 SUM(amount) AS quantity
-            FROM warehouse_movement_operations
-                     LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.incoming_warehouse_id
-                     LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
+            FROM goods_accounting_operations
+                LEFT JOIN warehouses ON warehouses.id = goods_accounting_operations.warehouse_id
+                LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
             WHERE
-                    incoming_warehouse_id IS NOT NULL
-                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
-                    AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
-            GROUP BY nomenclature_id
+                writeoff_warehouse_id IS NOT NULL
+                #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
+                AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
+            GROUP BY nomenclature_id          
         ) AS StockBalance ON StockBalance.nom_id = nomenclature.id
 
         LEFT JOIN #Отправлено на другой склад

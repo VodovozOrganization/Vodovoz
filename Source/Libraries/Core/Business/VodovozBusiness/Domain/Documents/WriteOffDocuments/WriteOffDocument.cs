@@ -23,8 +23,6 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 	{
 		private string _comment;
 		private Employee _responsibleEmployee;
-		//private Counterparty _client;
-		//private DeliveryPoint _deliveryPoint;
 		private Warehouse _writeOffFromWarehouse;
 		private Employee _writeOffFromEmployee;
 		private Car _writeOffFromCar;
@@ -68,32 +66,6 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			get => _responsibleEmployee;
 			set => SetField(ref _responsibleEmployee, value);
 		}
-
-		/*[Display (Name = "Клиент списания")]
-		public virtual Counterparty Client
-		{
-			get => _client;
-			set
-			{
-				_client = value;
-				if(Client != null)
-				{
-					WriteOffFromWarehouse = null;
-				}
-
-				if(Client == null || !Client.DeliveryPoints.Contains(DeliveryPoint))
-				{
-					DeliveryPoint = null;
-				}
-			}
-		}*/
-
-		/*[Display (Name = "Точка доставки списания")]
-		public virtual DeliveryPoint DeliveryPoint
-		{
-			get => _deliveryPoint;
-			set => _deliveryPoint = value;
-		}*/
 
 		[Display (Name = "Склад списания")]
 		public virtual Warehouse WriteOffFromWarehouse
@@ -227,8 +199,6 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 					}
 					break;
 			}
-			
-			
 		}
 
 		public virtual void DeleteItem(WriteOffDocumentItem item)
@@ -241,16 +211,6 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			/*if(WriteOffFromWarehouse == null && Client == null)
-			{
-				yield return new ValidationResult ("Склад списания или контрагент должны быть заполнены.");
-			}
-
-			if(Client != null && DeliveryPoint == null)
-			{
-				yield return new ValidationResult ("Точка доставки должна быть указана.");
-			}*/
-
 			#region ValidateStorage
 
 			if(WriteOffType == WriteOffType.Warehouse && WriteOffFromWarehouse is null)

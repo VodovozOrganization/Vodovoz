@@ -7,11 +7,12 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 
 namespace Vodovoz.Domain.Documents.InventoryDocuments
@@ -50,9 +51,9 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 				base.TimeStamp = value;
 				foreach(var item in NomenclatureItems)
 				{
-					if(item.WarehouseChangeOperation != null && item.WarehouseChangeOperation.OperationTime != TimeStamp)
+					if(item.GoodsAccountingOperation != null && item.GoodsAccountingOperation.OperationTime != TimeStamp)
 					{
-						item.WarehouseChangeOperation.OperationTime = TimeStamp;
+						item.GoodsAccountingOperation.OperationTime = TimeStamp;
 					}
 				}
 			}
@@ -169,7 +170,9 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 			IEnumerable<int> productGroupToInclude,
 			IEnumerable<int> productGroupToExclude)
 		{
-			if(Warehouse == null)
+			var storageId = GetStorageId();
+			
+			if(!storageId.HasValue)
 			{
 				return;
 			}
@@ -182,7 +185,7 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 					nomenclaturesInStock = stockRepository.NomenclatureInStock(
 						uow,
 						Warehouse.Id,
-						OperationType.WarehouseBulkGoodsAccountingOperation,
+						StorageType.Warehouse,
 						nomenclaturesToInclude,
 						nomenclaturesToExclude,
 						nomenclatureTypeToInclude,
@@ -195,7 +198,7 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 					nomenclaturesInStock = stockRepository.NomenclatureInStock(
 						uow,
 						Employee.Id,
-						OperationType.EmployeeBulkGoodsAccountingOperation,
+						StorageType.Employee,
 						nomenclaturesToInclude,
 						nomenclaturesToExclude,
 						nomenclatureTypeToInclude,
@@ -208,7 +211,7 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 					nomenclaturesInStock = stockRepository.NomenclatureInStock(
 						uow,
 						Car.Id,
-						OperationType.CarBulkGoodsAccountingOperation,
+						StorageType.Car,
 						nomenclaturesToInclude,
 						nomenclaturesToExclude,
 						nomenclatureTypeToInclude,
@@ -253,7 +256,9 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 			IEnumerable<int> productGroupToInclude,
 			IEnumerable<int> productGroupToExclude)
 		{
-			if(Warehouse == null)
+			var storageId = GetStorageId();
+			
+			if(!storageId.HasValue)
 			{
 				return;
 			}
@@ -265,8 +270,8 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 				case InventoryDocumentType.WarehouseInventory:
 					nomenclaturesInStock = stockRepository.NomenclatureInStock(
 						uow,
-						Warehouse.Id,
-						OperationType.WarehouseBulkGoodsAccountingOperation,
+						storageId.Value,
+						StorageType.Warehouse,
 						nomenclaturesToInclude,
 						nomenclaturesToExclude,
 						nomenclatureTypeToInclude,
@@ -278,8 +283,8 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 				case InventoryDocumentType.EmployeeInventory:
 					nomenclaturesInStock = stockRepository.NomenclatureInStock(
 						uow,
-						Employee.Id,
-						OperationType.EmployeeBulkGoodsAccountingOperation,
+						storageId.Value,
+						StorageType.Employee,
 						nomenclaturesToInclude,
 						nomenclaturesToExclude,
 						nomenclatureTypeToInclude,
@@ -291,8 +296,8 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 				case InventoryDocumentType.CarInventory:
 					nomenclaturesInStock = stockRepository.NomenclatureInStock(
 						uow,
-						Car.Id,
-						OperationType.CarBulkGoodsAccountingOperation,
+						storageId.Value,
+						StorageType.Car,
 						nomenclaturesToInclude,
 						nomenclaturesToExclude,
 						nomenclatureTypeToInclude,
@@ -335,6 +340,85 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 			}
 		}
 		
+		public virtual void FillInstanceItemsFromStock(
+			IUnitOfWork uow,
+			INomenclatureInstanceRepository nomenclatureInstanceRepository,
+			List<int> instancesToInclude,
+			List<int> instancesToExclude,
+			List<NomenclatureCategory> nomenclatureCategoryToInclude,
+			List<NomenclatureCategory> nomenclatureCategoryToExclude,
+			List<int> productGroupToInclude,
+			List<int> productGroupToExclude)
+		{
+			var storageId = GetStorageId();
+			
+			if(!storageId.HasValue)
+			{
+				return;
+			}
+			
+			IList<NomenclatureInstanceRepository.NomenclatureInstanceBalanceNode> instances;
+			
+			switch(InventoryDocumentType)
+			{
+				case InventoryDocumentType.WarehouseInventory:
+					instances = nomenclatureInstanceRepository.GetInventoryInstancesByStorage(
+						uow,
+						StorageType.Warehouse,
+						storageId.Value,
+						instancesToInclude,
+						instancesToExclude,
+						nomenclatureCategoryToInclude,
+						nomenclatureCategoryToExclude,
+						productGroupToInclude,
+						productGroupToExclude,
+						TimeStamp);
+					break;
+				case InventoryDocumentType.EmployeeInventory:
+					instances = nomenclatureInstanceRepository.GetInventoryInstancesByStorage(
+						uow,
+						StorageType.Employee,
+						storageId.Value,
+						instancesToInclude,
+						instancesToExclude,
+						nomenclatureCategoryToInclude,
+						nomenclatureCategoryToExclude,
+						productGroupToInclude,
+						productGroupToExclude,
+						TimeStamp);
+					break;
+				case InventoryDocumentType.CarInventory:
+					instances = nomenclatureInstanceRepository.GetInventoryInstancesByStorage(
+						uow,
+						StorageType.Car,
+						storageId.Value,
+						instancesToInclude,
+						instancesToExclude,
+						nomenclatureCategoryToInclude,
+						nomenclatureCategoryToExclude,
+						productGroupToInclude,
+						productGroupToExclude,
+						TimeStamp);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+			
+			ObservableInstanceItems.Clear();
+
+			foreach(var item in instances)
+			{
+				var instanceItem = new InstanceInventoryDocumentItem
+				{
+					Document = this,
+					InventoryNomenclatureInstance = item.InventoryNomenclatureInstance,
+					AmountInDB = item.Balance,
+				};
+				
+				AddInstanceItem(instanceItem);
+			}
+		}
+
 		public virtual void AddNomenclatureItem(Nomenclature nomenclature, decimal amountInDb, decimal amountInFact)
 		{
 			var item = CreateNewNomenclatureItem();
@@ -347,16 +431,15 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 			ObservableInstanceItems.Add(instanceInventoryDocumentItem);
 		}
 		
-		//TODO проверить маппинг, возможно стоит настроить там удаление строк и операций
 		public virtual void UpdateOperations(IUnitOfWork uow)
 		{
 			IList<InventoryDocumentItem> itemsToDelete = new List<InventoryDocumentItem>();
 			foreach(var item in NomenclatureItems)
 			{
-				if(item.Difference == 0 && item.WarehouseChangeOperation != null)
+				if(item.Difference == 0 && item.GoodsAccountingOperation != null)
 				{
-					uow.Delete(item.WarehouseChangeOperation);
-					item.WarehouseChangeOperation = null;
+					uow.Delete(item.GoodsAccountingOperation);
+					item.GoodsAccountingOperation = null;
 				}
 				
 				UpdateOperation(item);
@@ -406,15 +489,14 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(NomenclatureItems.Count == 0 /*&&*/)
+			if(NomenclatureItems.Count == 0 && InstanceItems.Count == 0)
 			{
-				yield return new ValidationResult("Табличная часть документа пустая.",
-					new[] {nameof(NomenclatureItems)});
+				yield return new ValidationResult("Табличная часть документа пустая");
 			}
 
 			if(TimeStamp == default(DateTime))
 			{
-				yield return new ValidationResult("Дата документа должна быть указана.",
+				yield return new ValidationResult("Дата документа должна быть указана",
 					new[] {nameof(TimeStamp)});
 			}
 
@@ -443,6 +525,41 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 					$"{string.Join("\n", needWeightOrVolume.Select(x => $"({x.Id}) {x.Name}"))}",
 					new[] {nameof(NomenclatureItems)});
 			}
+		}
+
+		public virtual StorageType GetStorageType()
+		{
+			switch(InventoryDocumentType)
+			{
+				case InventoryDocumentType.WarehouseInventory:
+					return StorageType.Warehouse;
+				case InventoryDocumentType.EmployeeInventory:
+					return StorageType.Employee;
+				case InventoryDocumentType.CarInventory:
+					return StorageType.Car;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+		
+		public virtual int? GetStorageId()
+		{
+			switch(InventoryDocumentType)
+			{
+				case InventoryDocumentType.WarehouseInventory:
+					return Warehouse?.Id;
+				case InventoryDocumentType.EmployeeInventory:
+					return Employee?.Id;
+				case InventoryDocumentType.CarInventory:
+					return Car?.Id;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+		
+		public virtual bool ItemsNotEmpty()
+		{
+			return ObservableNomenclatureItems.Count > 0 || ObservableInstanceItems.Count > 0;
 		}
 		
 		private void FillBulkItem(InventoryDocumentItem item, Nomenclature nomenclature, decimal amountInDb, decimal amountInFact)

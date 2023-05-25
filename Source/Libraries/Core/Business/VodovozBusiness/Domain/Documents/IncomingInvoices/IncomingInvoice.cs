@@ -20,6 +20,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 	[HistoryTrace]
 	public class IncomingInvoice : Document, IValidatableObject
 	{
+		private const int _maxCommentLength = 500;
 		private string _invoiceNumber;
 		private string _waybillNumber;
 		private string _comment;
@@ -54,7 +55,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 				base.TimeStamp = value;
 				foreach(var item in Items)
 				{
-					item.UpdateOperation(nameof(GoodsAccountingOperation.OperationTime), value);
+					item.GoodsAccountingOperation.OperationTime = value;
 				}
 			}
 		}
@@ -103,7 +104,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 				SetField(ref _warehouse, value);
 				foreach(var item in Items)
 				{
-					item.UpdateOperation(nameof(WarehouseBulkGoodsAccountingOperation.Warehouse), value);
+					item.UpdateWarehouseOperation();
 				}
 			}
 		}
@@ -130,10 +131,10 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 				return;
 			}
 
-			item.UpdateOperation(nameof(WarehouseBulkGoodsAccountingOperation.Warehouse), _warehouse);
+			item.Document = this;
+			item.UpdateWarehouseOperation();
 			item.GoodsAccountingOperation.OperationTime = TimeStamp;
 			
-			item.Document = this;
 			ObservableItems.Add(item);
 		}
 		
@@ -155,11 +156,10 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var maxCommentLength = 500;
-			if(Comment?.Length > maxCommentLength)
+			if(Comment?.Length > _maxCommentLength)
 			{
 				yield return new ValidationResult(
-					$"Строка комментария слишком длинная. Максимальное количество символов: {maxCommentLength}",
+					$"Строка комментария слишком длинная. Максимальное количество символов: {_maxCommentLength}",
 					new[] { nameof(Items) }
 				);
 			}

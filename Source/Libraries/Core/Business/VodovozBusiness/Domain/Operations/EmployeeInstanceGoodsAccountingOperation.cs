@@ -4,8 +4,8 @@ using Vodovoz.Domain.Employees;
 namespace Vodovoz.Domain.Operations
 {
 	[Appellative (Gender = GrammaticalGender.Neuter,
-		NominativePlural = "передвижения товаров",
-		Nominative = "передвижение товаров")]
+		NominativePlural = "операции передвижения товаров по сотруднику(экземплярный учет)",
+		Nominative = "операция передвижения товаров по сотруднику(экземплярный учет)")]
 	public class EmployeeInstanceGoodsAccountingOperation : InstanceGoodsAccountingOperation
 	{
 		private Employee _employee;

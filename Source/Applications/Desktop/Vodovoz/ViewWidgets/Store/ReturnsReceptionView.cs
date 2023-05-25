@@ -120,7 +120,7 @@ namespace Vodovoz
 			set => ytreeReturns.Sensitive = buttonAddNomenclature.Sensitive = value;
 		}
 
-		public IList<Equipment> AlreadyUnloadedEquipment;
+		public IList<Equipment> AlreadyUnloadedEquipment = new List<Equipment>();
 
 		void FillListReturnsFromRoute(int terminalId)
 		{
@@ -423,17 +423,6 @@ namespace Vodovoz
 		}
 
 		public ReceptionItemNode() { }
-
-		[Display(Name = "Цена")]
-		public virtual decimal PrimeCost {
-			get => MovementOperation.PrimeCost;
-			set {
-				if(value != MovementOperation.PrimeCost)
-					MovementOperation.PrimeCost = value;
-			}
-		}
-
-		public virtual decimal Sum => PrimeCost * Amount;
 	}
 }
 

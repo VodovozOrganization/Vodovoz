@@ -22,8 +22,6 @@ namespace Vodovoz.HibernateMapping.Documents.WriteOffDocuments
 			References(x => x.Author).Column("author_id");
 			References(x => x.LastEditor).Column("last_editor_id");
 			References(x => x.ResponsibleEmployee).Column("responsible_employee_id");
-			//References (x => x.DeliveryPoint).Column("delivery_point_id");
-			//References (x => x.Client).Column("counterparty_id");
 			References(x => x.WriteOffFromWarehouse).Column("write_off_from_warehouse_id");
 			References(x => x.WriteOffFromEmployee).Column("write_off_from_employee_id");
 			References(x => x.WriteOffFromCar).Column("write_off_from_car_id");

@@ -30,7 +30,6 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.ViewModels.Goods;
-using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses
@@ -39,13 +38,13 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 	{
 		private static readonly string _xlsxExtension = ".xlsx";
 		private static readonly string _xlsxFileFilter = $"XLSX File (*.{_xlsxExtension})";
+		private static readonly string _defaultTabName = "Движение по инвентарному номеру";
 		private readonly ILifetimeScope _scope;
 		private readonly IFileDialogService _fileDialogService;
 		private InventoryNomenclatureInstance _selectedInstance;
 		private InventoryInstanceMovementHistoryNode _selectedNode;
+		private string _inventoryNumber;
 		private bool _isGenerating;
-		private BalanceSummaryReport _report;
-		private IList<InventoryInstanceMovementHistoryNode> _operationNodes;
 		private DelegateCommand _openWarehouseDocumentCommand;
 
 		public InventoryInstanceMovementReportViewModel(
@@ -58,7 +57,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
-			TabName = "Движение по инвентарному номеру";
+			TabName = _defaultTabName;
 			SetEntryViewModel();
 		}
 
@@ -71,7 +70,17 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		public InventoryNomenclatureInstance SelectedInstance
 		{
 			get => _selectedInstance;
-			set => SetField(ref _selectedInstance, value);
+			set
+			{
+				SetField(ref _selectedInstance, value);
+				InventoryNumber = _selectedInstance?.InventoryNumber;
+			}
+		}
+
+		public string InventoryNumber
+		{
+			get => _inventoryNumber;
+			set => SetField(ref _inventoryNumber, value);
 		}
 
 		public InventoryInstanceMovementHistoryNode SelectedNode
@@ -360,7 +369,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			var dialogSettings = new DialogSettings
 			{
 				Title = "Сохранить",
-				FileName = $"{TabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{_xlsxExtension}"
+				FileName = $"{_defaultTabName} {DateTime.Now:yyyy-MM-dd-HH-mm}{_xlsxExtension}"
 			};
 
 			dialogSettings.FileFilters.Add(new DialogFileFilter(_xlsxFileFilter, $"*{_xlsxExtension}"));
@@ -385,13 +394,20 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					row.Editor,
 					row.Comment
 				};
+			
 			int index = 1;
+			var title = ws.Range(1, index, 1, colNames.Length);
+			title.Cell(1, 1).Value =
+				$"Отчет по движению инвентарного номера({_selectedInstance.Name} инв. номер: {_selectedInstance.InventoryNumber})";
+			title.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+			title.Merge();
+			
 			foreach(var name in colNames)
 			{
-				ws.Cell(1, index).Value = name;
+				ws.Cell(3, index).Value = name;
 				index++;
 			}
-			ws.Cell(2, 1).InsertData(rows);
+			ws.Cell(4, 1).InsertData(rows);
 		}
 	}
 }

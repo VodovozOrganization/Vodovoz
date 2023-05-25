@@ -30,10 +30,10 @@ namespace Vodovoz.EntityRepositories.Store
 					  .List<Warehouse>();
 		}
 
-		public IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(
+		public IEnumerable<NomenclatureStockNode> GetWarehouseNomenclatureStock(
 			IUnitOfWork uow, OperationType operationType, int storageId, IEnumerable<int> nomenclatureIds)
 		{
-			NomanclatureStockNode resultAlias = null;
+			NomenclatureStockNode resultAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
 			EmployeeBulkGoodsAccountingOperation employeeBulkOperationAlias = null;
@@ -80,48 +80,8 @@ namespace Vodovoz.EntityRepositories.Store
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.Select(stockProjection).WithAlias(() => resultAlias.Stock))
-				.TransformUsing(Transformers.AliasToBean<NomanclatureStockNode>())
-				.List<NomanclatureStockNode>();
-		}
-
-		//TODO проверить работу запроса
-		public IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int storageId)
-		{
-			return null;
-			/*NomanclatureStockNode resultAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			GoodsAccountingOperation warehouseOperation = null;
-
-			IProjection incomeAmount = Projections.Sum(
-				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => warehouseOperation.IncomingWarehouse.Id), warehouseId),
-					Projections.Property(() => warehouseOperation.Amount),
-					Projections.Constant(0M)
-				)
-			);
-
-			IProjection writeoffAmount = Projections.Sum(
-				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => warehouseOperation.WriteOffWarehouse.Id), warehouseId),
-					Projections.Property(() => warehouseOperation.Amount),
-					Projections.Constant(0M)
-				)
-			);
-
-			IProjection stockProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
-					NHibernateUtil.Int32,
-					incomeAmount,
-					writeoffAmount
-			);
-
-			return uow.Session.QueryOver(() => warehouseOperation)
-				.Left.JoinAlias(() => warehouseOperation.Nomenclature, () => nomenclatureAlias)
-				.SelectList(list => list
-					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(stockProjection).WithAlias(() => resultAlias.Stock)
-				)
-				.TransformUsing(Transformers.AliasToBean<NomanclatureStockNode>())
-				.List<NomanclatureStockNode>();*/
+				.TransformUsing(Transformers.AliasToBean<NomenclatureStockNode>())
+				.List<NomenclatureStockNode>();
 		}
 
 		public IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId)
@@ -152,7 +112,6 @@ namespace Vodovoz.EntityRepositories.Store
 					.Any();
 		}
 		
-		//TODO Проверить работу запроса
 		public int GetTotalShippedKgByWarehousesAndProductGroups(
 			IUnitOfWork uow, DateTime dateFrom, DateTime dateTo, IEnumerable<int> productGroupsIds, IEnumerable<int> warehousesIds)
 		{

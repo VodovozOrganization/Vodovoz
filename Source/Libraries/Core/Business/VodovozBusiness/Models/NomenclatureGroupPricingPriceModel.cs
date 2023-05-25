@@ -10,8 +10,8 @@ namespace Vodovoz.Models
 	public class NomenclatureGroupPricingPriceModel : PropertyChangedBase, IValidatableObject
 	{
 		private readonly DateTime _date;
-		private readonly NomenclatureCostPriceModel _nomenclatureCostPriceModel;
-		private readonly NomenclatureInnerDeliveryPriceModel _nomenclatureInnerDeliveryPriceModel;
+		private readonly INomenclatureCostPriceModel _nomenclatureCostPriceModel;
+		private readonly INomenclatureInnerDeliveryPriceModel _nomenclatureInnerDeliveryPriceModel;
 		private readonly bool _canCreateCostPrice;
 		private readonly bool _canCreateInnerDeliveryPrice;
 		private decimal? _costPrice;
@@ -20,8 +20,8 @@ namespace Vodovoz.Models
 		public NomenclatureGroupPricingPriceModel(
 			DateTime date,
 			Nomenclature nomenclature,
-			NomenclatureCostPriceModel nomenclatureCostPriceModel,
-			NomenclatureInnerDeliveryPriceModel nomenclatureInnerDeliveryPriceModel)
+			INomenclatureCostPriceModel nomenclatureCostPriceModel,
+			INomenclatureInnerDeliveryPriceModel nomenclatureInnerDeliveryPriceModel)
 		{
 			_date = date;
 			Nomenclature = nomenclature ?? throw new ArgumentNullException(nameof(nomenclature));

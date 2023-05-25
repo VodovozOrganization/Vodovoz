@@ -10,7 +10,6 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	//TODO поправить класс
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]
@@ -46,11 +45,11 @@ namespace Vodovoz.Domain.Documents
 			get => equipment;
 			set {
 				SetField(ref equipment, value, () => Equipment);
-				/*if(GoodsAccountingOperation != null && GoodsAccountingOperation.Equipment != equipment)
-					GoodsAccountingOperation.Equipment = equipment;*/
-
+				
 				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
+				{
 					CounterpartyMovementOperation.Equipment = equipment;
+				}
 			}
 		}
 
@@ -72,11 +71,11 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref actualCount, value);
 		}
 
-		GoodsAccountingOperation _goodsAccountingOperation;
+		WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
 
-		public virtual GoodsAccountingOperation GoodsAccountingOperation {
+		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation {
 			get => _goodsAccountingOperation;
-			set => SetField(ref _goodsAccountingOperation, value, () => GoodsAccountingOperation);
+			set => SetField(ref _goodsAccountingOperation, value);
 		}
 
 		CounterpartyMovementOperation counterpartyMovementOperation;
@@ -139,9 +138,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Warehouse warehouse, Counterparty counterparty, DateTime time)
 		{
-			GoodsAccountingOperation = new GoodsAccountingOperation
+			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
 				{
-					//IncomingWarehouse = warehouse,
+					Warehouse = warehouse,
 					Amount = Amount,
 					OperationTime = time,
 					Nomenclature = Nomenclature,
@@ -158,8 +157,7 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void UpdateOperation(Warehouse warehouse, Counterparty counterparty)
 		{
-			//GoodsAccountingOperation.IncomingWarehouse = warehouse;
-			//GoodsAccountingOperation.WriteOffWarehouse = null;
+			GoodsAccountingOperation.Warehouse = warehouse;
 			GoodsAccountingOperation.Amount = Amount;
 
 			CounterpartyMovementOperation.WriteoffCounterparty = counterparty;

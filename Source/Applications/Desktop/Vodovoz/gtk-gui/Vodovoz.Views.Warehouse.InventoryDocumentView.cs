@@ -98,7 +98,7 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
 
-		private global::Gamma.GtkWidgets.yTextView txtViewInstancesDiscrepances;
+		private global::Gamma.GtkWidgets.yTextView txtViewInstancesDiscrepancies;
 
 		private global::Gtk.Label GtkLabelInstancesDiscrepancies;
 
@@ -538,14 +538,14 @@ namespace Vodovoz.Views.Warehouse
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
 			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
-			this.txtViewInstancesDiscrepances = new global::Gamma.GtkWidgets.yTextView();
-			this.txtViewInstancesDiscrepances.CanFocus = true;
-			this.txtViewInstancesDiscrepances.Name = "txtViewInstancesDiscrepances";
-			this.GtkScrolledWindow3.Add(this.txtViewInstancesDiscrepances);
+			this.txtViewInstancesDiscrepancies = new global::Gamma.GtkWidgets.yTextView();
+			this.txtViewInstancesDiscrepancies.CanFocus = true;
+			this.txtViewInstancesDiscrepancies.Name = "txtViewInstancesDiscrepancies";
+			this.GtkScrolledWindow3.Add(this.txtViewInstancesDiscrepancies);
 			this.expanderInstancesDiscrepancies.Add(this.GtkScrolledWindow3);
 			this.GtkLabelInstancesDiscrepancies = new global::Gtk.Label();
 			this.GtkLabelInstancesDiscrepancies.Name = "GtkLabelInstancesDiscrepancies";
-			this.GtkLabelInstancesDiscrepancies.LabelProp = global::Mono.Unix.Catalog.GetString("Расхождения экземплрного учета");
+			this.GtkLabelInstancesDiscrepancies.LabelProp = global::Mono.Unix.Catalog.GetString("Расхождения экземплярного учета");
 			this.GtkLabelInstancesDiscrepancies.UseUnderline = true;
 			this.expanderInstancesDiscrepancies.LabelWidget = this.GtkLabelInstancesDiscrepancies;
 			this.vboxNomenclatureInstanceItems.Add(this.expanderInstancesDiscrepancies);

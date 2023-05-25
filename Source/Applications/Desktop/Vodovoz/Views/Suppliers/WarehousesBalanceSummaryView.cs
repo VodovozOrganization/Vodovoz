@@ -8,12 +8,10 @@ using Gamma.Widgets;
 using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Documents.MovementDocuments;
-using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using WrapMode = Pango.WrapMode;
-using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Views.Suppliers
 {
@@ -79,7 +77,7 @@ namespace Vodovoz.Views.Suppliers
 			enumChkListStorages.EnumType = typeof(StorageType);
 			enumChkListStorages.SelectAll();
 			enumChkListStorages.CheckStateChanged += EnumChkListStoragesOnCheckStateChanged;
-			//enumChkListStorages.OnlySelectAt(0);
+			enumChkListStorages.OnlySelectAt(0);
 
 			eventboxArrow.ButtonPressEvent += (o, args) =>
 			{
@@ -96,13 +94,16 @@ namespace Vodovoz.Views.Suppliers
 			switch(e.Item)
 			{
 				case StorageType.Warehouse:
-					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(x => x.ParameterName == nameof(Warehouse));
+					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(
+						x => x.ParameterName == WarehousesBalanceSummaryViewModel.ParameterWarehouseStorages);
 					break;
 				case StorageType.Employee:
-					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(x => x.ParameterName == nameof(Employee));
+					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(
+						x => x.ParameterName == WarehousesBalanceSummaryViewModel.ParameterEmployeeStorages);
 					break;
 				case StorageType.Car:
-					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(x => x.ParameterName == nameof(Car));
+					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(
+						x => x.ParameterName == WarehousesBalanceSummaryViewModel.ParameterCarStorages);
 					break;
 			}
 
@@ -119,11 +120,11 @@ namespace Vodovoz.Views.Suppliers
 			var columnsConfig = FluentColumnsConfig<BalanceSummaryRow>.Create()
 				.AddColumn("№")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(row => ViewModel.Report.SummaryRows.IndexOf(row) + 1)
+					.AddNumericRenderer(row => row.Num)
 					.XAlign(0.5f)
 				.AddColumn("Код")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(row => row.NomId)
+					.AddNumericRenderer(row => row.EntityId)
 					.XAlign(0.5f)
 				.AddColumn("Наименование")
 					.HeaderAlignment(0.5f)

@@ -569,7 +569,8 @@ namespace Vodovoz.Dialogs.Logistic
 			
 			foreach(var one in selected) 
 			{
-				MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(one.Employee.Id));
+				MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
+					this, EntityUoWBuilder.ForOpen(one.Employee.Id));
 			}
 		}
 		

@@ -9,7 +9,6 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	//TODO попроавить класс
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]
@@ -45,11 +44,11 @@ namespace Vodovoz.Domain.Documents
 			get { return equipment; }
 			set {
 				SetField (ref equipment, value, () => Equipment);
-				/*if (GoodsAccountingOperation != null && GoodsAccountingOperation.Equipment != equipment)
-					GoodsAccountingOperation.Equipment = equipment;*/
 
-				if (CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
+				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
+				{
 					CounterpartyMovementOperation.Equipment = equipment;
+				}
 			}
 		}
 
@@ -79,11 +78,11 @@ namespace Vodovoz.Domain.Documents
 			set { SetField(ref orderEquipment, value, () => OrderEquipment); }
 		}
 
-		GoodsAccountingOperation _goodsAccountingOperation;
+		WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
 
-		public virtual GoodsAccountingOperation GoodsAccountingOperation { 
-			get { return _goodsAccountingOperation; }
-			set { SetField (ref _goodsAccountingOperation, value, () => GoodsAccountingOperation); }
+		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation { 
+			get => _goodsAccountingOperation;
+			set => SetField (ref _goodsAccountingOperation, value);
 		}
 
 		CounterpartyMovementOperation counterpartyMovementOperation;
@@ -142,22 +141,19 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
-			GoodsAccountingOperation = new GoodsAccountingOperation
+			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
 				{
-					//WriteOffWarehouse = warehouse,
-					Amount = Amount,
+					Warehouse = warehouse,
+					Amount = -Amount,
 					OperationTime = time,
 					Nomenclature = Nomenclature,
-					//Equipment = Equipment
 				};
 		}
 
 		public virtual void UpdateOperation(Warehouse warehouse)
 		{
-			//GoodsAccountingOperation.WriteOffWarehouse = warehouse;
-			//GoodsAccountingOperation.IncomingWarehouse = null;
-			GoodsAccountingOperation.Amount = Amount;
-			//GoodsAccountingOperation.Equipment = Equipment;
+			GoodsAccountingOperation.Warehouse = warehouse;
+			GoodsAccountingOperation.Amount = -Amount;
 		}
 
 		#endregion

@@ -8,6 +8,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz.ViewModel
 {
@@ -18,7 +19,6 @@ namespace Vodovoz.ViewModel
 	{
 		#region implemented abstract members of RepresentationModelBase
 
-		//TODO проверить работу запроса
 		public override void UpdateNodes()
 		{
 			Nomenclature nomenclatureAlias = null;
@@ -58,15 +58,12 @@ namespace Vodovoz.ViewModel
 			SetItemsSource(equipment);
 		}
 
-		static Gdk.Color colorBlack = new Gdk.Color (0, 0, 0);
-		static Gdk.Color colorRed = new Gdk.Color (0xff, 0, 0);
-
 		IColumnsConfig columnsConfig = FluentColumnsConfig <EquipmentKindsForRentVMNode>.Create ()
 			.AddColumn ("Вид оборудования").SetDataProperty (node => node.Name)
 			.AddColumn ("На складе").AddTextRenderer (node => node.InStockText)
 			.AddColumn ("Зарезервировано").AddTextRenderer (node => node.ReservedText)
 			.AddColumn ("Доступно").AddTextRenderer (node => node.AvailableText)
-			.AddSetter ((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
+			.AddSetter ((cell, node) => cell.ForegroundGdk = node.Available > 0 ? GdkColors.BlackColor : GdkColors.RedColor)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {

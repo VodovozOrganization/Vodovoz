@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
@@ -6,13 +7,16 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents.InventoryDocuments
 {
+	[Appellative (Gender = GrammaticalGender.Feminine,
+		NominativePlural = "строки инвентаризации(экземплярный учет)",
+		Nominative = "строка инвентаризации(экземплярный учет)")]
+	[HistoryTrace]
 	public class InstanceInventoryDocumentItem : PropertyChangedBase, IDomainObject
 	{
 		private InventoryNomenclatureInstance _inventoryNomenclatureInstance;
 		private string _comment;
 		private bool _isMissing;
-		private bool _canChangeIsMissing;
-		private string _discrepancyDescription;
+		private decimal _amountInDb;
 		private Fine _fine;
 
 		public virtual int Id { get; set; }
@@ -47,28 +51,26 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 			set => SetField(ref _fine, value);
 		}
 		
-		[IgnoreHistoryTrace]
-		[Display(Name = "Можно менять параметр отсутствует?")]
-		public virtual bool CanChangeIsMissing
+		[Display (Name = "Количество по базе")]
+		public virtual decimal AmountInDB
 		{
-			get => _canChangeIsMissing;
-			set => SetField(ref _canChangeIsMissing, value);
+			get => _amountInDb;
+			set => SetField(ref _amountInDb, value);
 		}
-		
-		[IgnoreHistoryTrace]
-		[Display(Name = "Описание расхождения")]
-		public virtual string DiscrepancyDescription
-		{
-			get => _discrepancyDescription;
-			set => SetField(ref _discrepancyDescription, value);
-		}
-		
+
 		[Display(Name = "Сумма ущерба")]
-		public virtual decimal SumOfDamage =>
-			InventoryNomenclatureInstance != null ? InventoryNomenclatureInstance.Nomenclature.SumOfDamage : 0;
+		public virtual decimal SumOfDamage => Difference <= 0
+			? InventoryNomenclatureInstance.Nomenclature.SumOfDamage * Math.Abs(Difference)
+			: 0;
+
+		public virtual decimal Difference => AmountInFact - AmountInDB;
+
+		public virtual bool CanChangeIsMissing => AmountInDB != 0;
 
 		public virtual string Name => InventoryNomenclatureInstance?.Nomenclature != null
 			? InventoryNomenclatureInstance.Nomenclature.Name
 			: string.Empty;
+
+		private decimal AmountInFact => IsMissing ? 0 : 1;
 	}
 }

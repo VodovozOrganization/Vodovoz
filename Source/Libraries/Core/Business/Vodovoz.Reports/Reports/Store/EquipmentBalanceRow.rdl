@@ -634,18 +634,9 @@ FROM
 			(
 				SELECT
 					nomenclature_id AS nom_id,
-					writeoff_warehouse_id AS wh,
-					-SUM(amount) AS quantity
-				FROM warehouse_movement_operations
-				WHERE writeoff_warehouse_id IS NOT NULL
-				GROUP BY nomenclature_id, wh
-				UNION ALL
-				SELECT
-					nomenclature_id AS nom_id,
-					incoming_warehouse_id AS wh,
+					warehouse_id AS wh,
 					SUM(amount) AS quantity
-				FROM warehouse_movement_operations
-				WHERE incoming_warehouse_id IS NOT NULL
+				FROM goods_accounting_operations
 				GROUP BY nomenclature_id, wh
 			) AS TableAmount
 		LEFT JOIN nomenclature nom ON nom.id = TableAmount.nom_id

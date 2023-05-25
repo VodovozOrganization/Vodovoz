@@ -49,16 +49,16 @@
                                         AND route_list_addresses.route_list_id = routeListId) AS bottles,
     SUM(IFNULL(orders.bottles_return, 0)) AS planned_returned_bottles,
     (SELECT
-        ROUND(IFNULL(SUM(warehouse_movement_operations.amount),
+        ROUND(IFNULL(SUM(goods_accounting_operations.amount),
                      0))
     FROM
-        warehouse_movement_operations
+        goods_accounting_operations
         LEFT JOIN
-            store_car_unload_document_items ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+            store_car_unload_document_items ON goods_accounting_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
         LEFT JOIN
             store_car_unload_documents ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
         LEFT JOIN
-            nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+            nomenclature ON nomenclature.id = goods_accounting_operations.nomenclature_id
     WHERE
           nomenclature.category = 'bottle'
       AND store_car_unload_documents.route_list_id = routeListId) AS returned_bottles,

@@ -20,7 +20,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddTextRenderer(node => node.ReservedText)
 				.AddColumn("Доступно")
 					.AddTextRenderer(node => node.AvailableText)
-					.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? GdkColors.BlackColor : GdkColors.RedColor)
+					.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? GdkColors.BlackColor : GdkColors.RedColor2)
 				.AddColumn("")
 				.Finish();
 	}

@@ -13,8 +13,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using QS.Attachments.ViewModels.Widgets;
 using QS.Project.Journal;
@@ -56,6 +54,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly ICommonServices _commonServices;
 		private readonly IWarehouseRepository _warehouseRepository;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
@@ -109,6 +108,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			IPhonesViewModelFactory phonesViewModelFactory,
 			IWarehouseRepository warehouseRepository,
 			IRouteListRepository routeListRepository,
+			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint,
 			UserSettings userSettings,
 			IUserRepository userRepository,
 			BaseParametersProvider baseParametersProvider,
@@ -134,6 +134,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			UoWGeneric = entityUoWBuilder.CreateUoW<Employee>(unitOfWorkFactory, TabName);
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -644,14 +645,10 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						{
 							if(_commonServices.InteractiveService.Question("Сотрудник будет сохранен при регистрации пользователя", "Вы уверены?"))
 							{
-								/*CanRegisterMobileUser = false;
+								CanRegisterMobileUser = false;
 								Save();
 								UoW.Commit();
-
-								new DriverApiUserRegisterEndpoint(httpClient)
-									.Register(Entity.AndroidLogin, Entity.AndroidPassword)
-									.GetAwaiter()
-									.GetResult();*/
+								_driverApiUserRegisterEndpoint.Register(Entity.AndroidLogin, Entity.AndroidPassword).GetAwaiter().GetResult();
 							}
 						}
 						catch(Exception e)

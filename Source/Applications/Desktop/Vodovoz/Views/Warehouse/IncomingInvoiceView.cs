@@ -1,10 +1,10 @@
-﻿using Gamma.ColumnConfig;
+﻿using System;
+using Gamma.ColumnConfig;
 using Gtk;
 using QS.Project.Journal.EntitySelector;
 using QS.Views.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
@@ -22,6 +22,12 @@ namespace Vodovoz.Views.Warehouse
 
 		private void ConfigureView()
 		{
+			buttonSave.Clicked += OnSaveClicked;
+			buttonCancel.Clicked += OnCancelClicked;
+			btnPrint.Clicked += OnPrintClicked;
+			btnAddInventoryInstance.Clicked += OnAddInventoryInstanceClicked;
+			btnCopyInventoryInstance.Clicked += OnCopyInventoryInstanceClicked;
+
 			#region Bindings
 			
 			ylabelSum.Binding.AddBinding(ViewModel, vm => vm.TotalSum, w => w.LabelProp).InitializeFromSource();
@@ -53,17 +59,11 @@ namespace Vodovoz.Views.Warehouse
 			
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			
-			btnPrint.Clicked += (sender, e) => ViewModel.PrintCommand.Execute();
-			
-			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive);
 			
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
-			btnAddInventoryInstance.Clicked += (sender, args) => ViewModel.AddInventoryInstanceCommand.Execute();
 			btnAddInventoryInstance.Binding
 				.AddBinding(ViewModel, vm => vm.CanAddItem, w => w.Sensitive)
 				.InitializeFromSource();
-			btnCopyInventoryInstance.Clicked += (sender, args) => ViewModel.CopyInventoryInstanceCommand.Execute();
 			btnCopyInventoryInstance.Binding
 				.AddBinding(ViewModel, vm => vm.CanDuplicateInstance, w => w.Sensitive)
 				.InitializeFromSource();
@@ -116,5 +116,34 @@ namespace Vodovoz.Views.Warehouse
 
 			#endregion
 		}
+
+		#region ButtonHandlers
+
+		private void OnSaveClicked(object sender, EventArgs e)
+		{
+			ViewModel.SaveAndClose();
+		}
+
+		private void OnCancelClicked(object sender, EventArgs e)
+		{
+			ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+		}
+
+		private void OnPrintClicked(object sender, EventArgs e)
+		{
+			ViewModel.PrintCommand.Execute();
+		}
+		
+		private void OnAddInventoryInstanceClicked(object sender, EventArgs e)
+		{
+			ViewModel.AddInventoryInstanceCommand.Execute();
+		}
+		
+		private void OnCopyInventoryInstanceClicked(object sender, EventArgs e)
+		{
+			ViewModel.CopyInventoryInstanceCommand.Execute();
+		}
+
+		#endregion
 	}
 }

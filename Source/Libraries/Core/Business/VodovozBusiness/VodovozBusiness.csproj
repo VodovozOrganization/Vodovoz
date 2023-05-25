@@ -87,7 +87,6 @@
     <Compile Include="Controllers\IEmployeeRegistrationVersionController.cs" />
     <Compile Include="Controllers\IFuelPriceVersionsController.cs" />
     <Compile Include="Controllers\IProfitabilityConstantsViewModelHandler.cs" />
-    <Compile Include="Controllers\InventoryInstanceFinder.cs" />
     <Compile Include="Controllers\IRouteListProfitabilityController.cs" />
     <Compile Include="Controllers\IUserPermissionsController.cs" />
     <Compile Include="Controllers\OdometerReadingsController.cs" />
@@ -446,6 +445,8 @@
     <Compile Include="EntityRepositories\Fuel\FuelQueryResult.cs" />
     <Compile Include="EntityRepositories\Goods\INomenclatureInstanceRepository.cs" />
     <Compile Include="EntityRepositories\Goods\INomenclaturePricesRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\InstanceOnStorageData.cs" />
+    <Compile Include="EntityRepositories\Goods\NomenclatureInstanceBalanceNode.cs" />
     <Compile Include="EntityRepositories\Goods\NomenclatureInstanceRepository.cs" />
     <Compile Include="EntityRepositories\Goods\NomenclaturePricesRepository.cs" />
     <Compile Include="EntityRepositories\HistoryChanges\IArchivedHistoryChangesRepository.cs" />
@@ -542,6 +543,7 @@
     <Compile Include="Factories\IEmployeeRegistrationVersionFactory.cs" />
     <Compile Include="Factories\IExternalCounterpartyFactory.cs" />
     <Compile Include="Factories\IExternalCounterpartyMatchingFactory.cs" />
+    <Compile Include="Factories\INomenclatureGroupPricingPriceModelFactory.cs" />
     <Compile Include="Factories\IRoboatsFileStorageFactory.cs" />
     <Compile Include="Factories\IRouteListProfitabilityFactory.cs" />
     <Compile Include="Factories\NomenclatureGroupPricingPriceModelFactory.cs" />
@@ -586,6 +588,8 @@
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointEstimatedCoordinateMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\InstanceShiftChangeWarehouseDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\InventoryDocuments\InstanceInventoryDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\RouteListAddressKeepingDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\RouteListAddressKeepingDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DocumentPrintHistoryMap.cs" />
@@ -765,6 +769,9 @@
     <Compile Include="Models\FastPaymentSender.cs" />
     <Compile Include="Models\GeoGroupVersionsModel.cs" />
     <Compile Include="Models\IAdditionalLoadingModel.cs" />
+    <Compile Include="Models\INomenclatureCostPriceModel.cs" />
+    <Compile Include="Models\INomenclatureGroupPricingModel.cs" />
+    <Compile Include="Models\INomenclatureInnerDeliveryPriceModel.cs" />
     <Compile Include="Models\INomenclaturePurchasePriceModel.cs" />
     <Compile Include="Models\IRouteListDailyNumberProvider.cs" />
     <Compile Include="Models\NewDriverAdvanceModel.cs" />

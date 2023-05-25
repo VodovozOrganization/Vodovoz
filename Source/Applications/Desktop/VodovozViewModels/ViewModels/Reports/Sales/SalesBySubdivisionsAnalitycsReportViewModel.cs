@@ -420,8 +420,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				.ReadOnly()
 				.List<SalesDataNode>();
 		}
-
-		//TODO проверить работу запроса
+		
 		private IEnumerable<ResidueDataNode> GetWarehousesBalances(
 			DateTime dateTime,
 			int[] warehousesIds)

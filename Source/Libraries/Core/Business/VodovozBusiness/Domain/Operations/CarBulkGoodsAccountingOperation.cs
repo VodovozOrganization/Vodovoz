@@ -4,8 +4,8 @@ using Vodovoz.Domain.Logistic.Cars;
 namespace Vodovoz.Domain.Operations
 {
 	[Appellative (Gender = GrammaticalGender.Neuter,
-		NominativePlural = "передвижения товаров",
-		Nominative = "передвижение товаров")]
+		NominativePlural = "операции передвижения товаров по автомобилю(объемный учет)",
+		Nominative = "операция передвижения товаров по автомобилю(объемный учет)")]
 	public class CarBulkGoodsAccountingOperation : BulkGoodsAccountingOperation
 	{
 		private Car _car;

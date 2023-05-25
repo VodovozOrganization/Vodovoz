@@ -4,13 +4,9 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Operations
 {
-	[Appellative (Gender = GrammaticalGender.Neuter,
-		NominativePlural = "передвижения товаров",
-		Nominative = "передвижение товаров")]
 	public class GoodsAccountingOperation : OperationBase
 	{
 		private Nomenclature _nomenclature;
-		private decimal _primeCost;
 		private decimal _amount;
 
 		#region Свойства
@@ -21,12 +17,6 @@ namespace Vodovoz.Domain.Operations
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);
-		}
-
-		public virtual decimal PrimeCost
-		{
-			get => _primeCost;
-			set => SetField(ref _primeCost, value);
 		}
 
 		public virtual decimal Amount
@@ -52,13 +42,6 @@ namespace Vodovoz.Domain.Operations
 		#endregion
 	}
 
-	public enum OperationTypeByStorage
-	{
-		Warehouse,
-		Employee,
-		Car
-	}
-	
 	public enum OperationType
 	{
 		WarehouseInstanceGoodsAccountingOperation,

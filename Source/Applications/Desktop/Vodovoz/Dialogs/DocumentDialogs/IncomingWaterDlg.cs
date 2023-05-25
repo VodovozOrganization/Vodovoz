@@ -91,12 +91,9 @@ namespace Vodovoz
 			}
 
 			var availableWarehousesIds = _storeDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.IncomingWaterEdit);
-			var warehouseFilter = new WarehouseJournalFilterViewModel
-			{
-				IncludeWarehouseIds = availableWarehousesIds
-			};
+			Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = availableWarehousesIds;
 			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var warehouseAutocompleteSelectorFactory = warehouseJournalFactory.CreateSelectorFactory(warehouseFilter);
+			var warehouseAutocompleteSelectorFactory = warehouseJournalFactory.CreateSelectorFactory(filterParams);
 
 			sourceWarehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseAutocompleteSelectorFactory);
 			sourceWarehouseEntry.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();

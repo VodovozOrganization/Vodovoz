@@ -19,7 +19,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -36,7 +35,6 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Reports;
 
-//TODO изменить вью модель под новую структуру
 namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 {
 	public class InventoryDocumentViewModel : EntityTabViewModelBase<InventoryDocument>

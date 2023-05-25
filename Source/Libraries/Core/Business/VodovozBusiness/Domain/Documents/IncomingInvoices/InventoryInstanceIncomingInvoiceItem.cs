@@ -31,9 +31,14 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 				}
 
 				Nomenclature = InventoryNomenclatureInstance?.Nomenclature;
-				UpdateOperation(nameof(InstanceGoodsAccountingOperation.InventoryNomenclatureInstance), value);
-				UpdateOperation(nameof(GoodsAccountingOperation.Nomenclature), Nomenclature);
+				WarehouseInstanceGoodsAccountingOperation.InventoryNomenclatureInstance = value;
 			}
+		}
+		
+		public virtual WarehouseInstanceGoodsAccountingOperation WarehouseInstanceGoodsAccountingOperation
+		{
+			get => GoodsAccountingOperation as WarehouseInstanceGoodsAccountingOperation;
+			set => GoodsAccountingOperation = value;
 		}
 
 		public override string Name => InventoryNomenclatureInstance != null
@@ -44,16 +49,14 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 			InventoryNomenclatureInstance?.Nomenclature != null && InventoryNomenclatureInstance.Nomenclature.HasInventoryAccounting
 				? InventoryNomenclatureInstance.InventoryNumber
 				: string.Empty;
+
 		public override bool CanEditAmount => false;
-
 		public override int EntityId => InventoryNomenclatureInstance?.Id ?? default(int);
-
-		public virtual WarehouseInstanceGoodsAccountingOperation WarehouseInstanceGoodsAccountingOperation
-		{
-			get => GoodsAccountingOperation as WarehouseInstanceGoodsAccountingOperation;
-			set => GoodsAccountingOperation = value;
-		}
-
 		public override AccountingType AccountingType => AccountingType.Instance;
+
+		public override void UpdateWarehouseOperation()
+		{
+			WarehouseInstanceGoodsAccountingOperation.Warehouse = Document.Warehouse;
+		}
 	}
 }

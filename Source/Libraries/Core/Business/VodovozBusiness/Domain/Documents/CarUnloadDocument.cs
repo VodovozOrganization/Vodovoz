@@ -18,7 +18,6 @@ using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Documents
 {
-	//TODO поправить класс
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "талоны разгрузки автомобилей",
 		Nominative = "талон разгрузки автомобиля")]
@@ -153,7 +152,6 @@ namespace Vodovoz.Domain.Documents
 				Amount = amount,
 				Nomenclature = nomenclature,
 				Warehouse = Warehouse,
-				//Equipment = equipment,
 				OperationTime = TimeStamp
 			};
 			
