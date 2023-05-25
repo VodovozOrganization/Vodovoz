@@ -26,7 +26,6 @@ namespace Vodovoz.Domain.Documents
 	public class CarUnloadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private const int _commentLimit = 150;
-		private const int _commentLimit = 255;
 		private string _comment;
 		private RouteList _routeList;
 		private Warehouse _warehouse;

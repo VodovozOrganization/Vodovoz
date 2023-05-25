@@ -280,8 +280,8 @@ namespace Vodovoz.ViewModels.Reports
 					&& (x.Document.TimeStamp >= _startDate && x.Document.TimeStamp <= (_endDate ?? DateTime.MaxValue))
 					&& x.Nomenclature.Category == NomenclatureCategory.water
 					&& x.ReceivedAmount > 0)
-				.Fetch(x => x.WarehouseIncomeOperation)
-				.Fetch(x => x.WarehouseWriteoffOperation)
+				.Fetch(x => x.IncomeOperation)
+				.Fetch(x => x.WriteOffOperation)
 				.Fetch(x => x.Nomenclature)
 				.ThenFetch(x => x.Unit)
 				.Select(x => new ProductionWarehouseMovementReportDataBaseNode
