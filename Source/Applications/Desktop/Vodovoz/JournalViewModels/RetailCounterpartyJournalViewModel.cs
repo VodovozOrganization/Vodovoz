@@ -12,6 +12,8 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using QS.Project.Journal;
 using Vodovoz.Domain.Retail;
+using Vodovoz.ViewModels.Dialogs.Counterparty;
+using QS.Project.Domain;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -314,6 +316,7 @@ namespace Vodovoz.JournalViewModels
 			CreateDefaultAddActions();
 			CreateEditAction();
 			CreateDefaultDeleteAction();
+			CreateOpenCloseSupplyAction();
 		}
 
 		protected override Func<CounterpartyDlg> CreateDialogFunction => () => new CounterpartyDlg();
@@ -358,6 +361,47 @@ namespace Vodovoz.JournalViewModels
 				RowActivatedAction = editAction;
 			}
 			NodeActionsList.Add(editAction);
+		}
+
+		private void CreateOpenCloseSupplyAction()
+		{
+			var openCloseSupplyAction = new JournalAction("Закрыть/открыть поставки",
+				//sensetive
+				(selected) => {
+					var selectedNodes = selected.OfType<RetailCounterpartyJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					RetailCounterpartyJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanUpdate && commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty");
+				},
+				//visible
+				(selected) => true,
+				//execute
+				(selected) => {
+					var selectedNodes = selected.OfType<RetailCounterpartyJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					RetailCounterpartyJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					var openClosePage = MainClass.MainWin.NavigationManager.OpenViewModel<CloseSupplyToCounterpartyViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id));
+				}
+			);
+			NodeActionsList.Add(openCloseSupplyAction);
 		}
 	}
 }

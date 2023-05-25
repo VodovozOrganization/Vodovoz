@@ -41,12 +41,14 @@ namespace Vodovoz
 
 		private void ConfigureEntityViewModelEntry()
 		{
-			IIncomeCategorySelectorFactory incomeFactory = new IncomeCategorySelectorFactory();
-			IExpenseCategorySelectorFactory expenseFactory = new ExpenseCategorySelectorFactory();
+			IIncomeCategorySelectorFactory incomeFactory = new IncomeCategorySelectorFactory(
+				MainClass.AppDIContainer.BeginLifetimeScope());
+			IExpenseCategorySelectorFactory expenseFactory = new ExpenseCategorySelectorFactory(
+					UnitOfWorkFactory.GetDefaultFactory, MainClass.AppDIContainer.BeginLifetimeScope());
 			entityVMEntryCashIncomeCategory
 				.SetEntityAutocompleteSelectorFactory(incomeFactory.CreateSimpleIncomeCategoryAutocompleteSelectorFactory());
 			entityVMEntryCashExpenseCategory
-				.SetEntityAutocompleteSelectorFactory(expenseFactory.CreateSimpleExpenseCategoryAutocompleteSelectorFactory());
+				.SetEntityAutocompleteSelectorFactory(expenseFactory.CreateDefaultExpenseCategoryAutocompleteSelectorFactory());
 		}
 
 		public CashDocumentsFilter(IUnitOfWork uow) : this()

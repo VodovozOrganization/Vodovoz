@@ -378,6 +378,21 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
+		public static ReportInfo GetRDLForwarderReceipt(RouteList routeList)
+		{
+			return new ReportInfo
+			{
+				Title = $"Экспедиторская расписка для МЛ №{routeList.Id}",
+				Identifier = "Documents.ForwarderReceipt",
+				Parameters = new Dictionary<string, object>
+				{
+					{ "routeListId", routeList.Id },
+					{ "routeListDate", routeList.Date },
+					{ "driverId", routeList.Driver.Id }
+				}
+			};
+		}
+
 		public static ReportInfo GetRDL(RouteList routeList, RouteListPrintableDocuments type, IUnitOfWork uow = null, bool batchPrint = false)
 		{
 			switch(type)
@@ -392,6 +407,8 @@ namespace Vodovoz.Additions.Logistic
 					return GetRDLDailyList(routeList.Id);
 				case RouteListPrintableDocuments.OrderOfAddresses:
 					return routeList.OrderOfAddressesRep(routeList.Id);
+				case RouteListPrintableDocuments.ForwarderReceipt:
+					return GetRDLForwarderReceipt(routeList);
 				default:
 					throw new NotImplementedException("Неизвестный тип документа");
 			}
