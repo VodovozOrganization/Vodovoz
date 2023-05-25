@@ -30,6 +30,8 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewModels.ViewModels.Goods;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
@@ -134,6 +136,13 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 						break;
 				}
 			};
+
+			if(Entity.LogisticsRequirements == null)
+			{
+				Entity.LogisticsRequirements = new LogisticsRequirements();
+			}
+
+			_logisticsRequirementsVM = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements, commonServices);
 		}
 
 		#region Свойства
@@ -183,6 +192,18 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			}
 			set => base.HasChanges = value;
 		}
+
+		private LogisticsRequirementsViewModel _logisticsRequirementsVM;
+		public LogisticsRequirementsViewModel LogisticsRequirementsViewModel
+		{
+			get => _logisticsRequirementsVM;
+			set
+			{
+				SetField(ref _logisticsRequirementsVM, value);
+				Entity.LogisticsRequirements = _logisticsRequirementsVM.Entity;
+			}
+		}
+
 
 		#endregion
 
@@ -405,7 +426,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			{
 				_isBuildingsInLoadingProcess = true;
 
-				var address = $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict} {Entity.Street} {Entity.StreetType}, {Entity.Building}";
+				var address = $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}";
 				var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
 				if(findedByGeoCoder != null)
 				{

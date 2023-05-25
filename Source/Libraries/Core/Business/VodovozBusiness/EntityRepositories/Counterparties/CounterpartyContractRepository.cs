@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models;
 using Vodovoz.Tools;
 
@@ -13,10 +14,12 @@ namespace Vodovoz.EntityRepositories.Counterparties
 	public class CounterpartyContractRepository : ICounterpartyContractRepository
 	{
 		private readonly IOrganizationProvider organizationProvider;
+		private readonly ICashReceiptRepository _cashReceiptRepository;
 
-		public CounterpartyContractRepository(IOrganizationProvider organizationProvider)
+		public CounterpartyContractRepository(IOrganizationProvider organizationProvider, ICashReceiptRepository cashReceiptRepository)
 		{
 			this.organizationProvider = organizationProvider ?? throw new ArgumentNullException(nameof(organizationProvider));
+			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 		}
 		
 		public CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, IErrorReporter errorReporter = null)
@@ -25,6 +28,11 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			if(order == null) throw new ArgumentNullException(nameof(order));
 			if(order.Client == null) {
 				return null;
+			}
+
+			if(order.Contract != null && order.Id != 0 && _cashReceiptRepository.HasReceipt(order.Id))
+			{
+				return order.Contract;
 			}
 
 			var personType = order.Client.PersonType;
@@ -46,6 +54,11 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 		public CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, Organization organization)
 		{
+			if(order.Contract != null && order.Id != 0 && _cashReceiptRepository.HasReceipt(order.Id))
+			{
+				return order.Contract;
+			}
+
 			var personType = order.Client.PersonType;
 			var paymentType = order.PaymentType;
 			var contractType = GetContractTypeForPaymentType(personType, paymentType);

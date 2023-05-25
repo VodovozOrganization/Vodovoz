@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
@@ -12,7 +13,7 @@ namespace Vodovoz.Domain.Logistic.Organizations
 		Nominative = "версия организации",
 		NominativePlural = "версии организации")]
 	[HistoryTrace]
-	public class OrganizationVersion : PropertyChangedBase, IDomainObject
+	public class OrganizationVersion : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private string _address;
 		private string _jurAddress;
@@ -93,6 +94,39 @@ namespace Vodovoz.Domain.Logistic.Organizations
 		public override string ToString() => $"Версия организации №{Id}";
 		public virtual string LeaderShortName => Leader?.ShortName;
 		public virtual string AccountantShortName => Accountant?.ShortName;
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Leader == null)
+			{
+				yield return new ValidationResult("Руководитель не выбран.", new[] { nameof(Leader) });
+			}
+
+			if(Accountant == null)
+			{
+				yield return new ValidationResult("Бухгалтер не выбран.", new[] { nameof(Accountant) });
+			}
+
+			if(SignatureAccountant == null)
+			{
+				yield return new ValidationResult("Подпись бухгалтера не выбрана.", new[] { nameof(SignatureAccountant) });
+			}
+
+			if(SignatureLeader == null)
+			{
+				yield return new ValidationResult("Подпись руководителя не выбрана.", new[] { nameof(SignatureLeader) });
+			}
+
+			if(string.IsNullOrWhiteSpace(Address))
+			{
+				yield return new ValidationResult("Заполните адрес.", new[] { nameof(Address) });
+			}
+
+			if(string.IsNullOrWhiteSpace(JurAddress))
+			{
+				yield return new ValidationResult("Заполните юридичсекий адрес.", new[] { nameof(JurAddress) });
+			}
+		}
 	}
 
 }

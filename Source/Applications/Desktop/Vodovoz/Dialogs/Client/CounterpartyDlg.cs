@@ -94,6 +94,8 @@ using RevenueService.Client;
 using RevenueService.Client.Dto;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
@@ -654,8 +656,10 @@ namespace Vodovoz
 				label49.Visible = false;
 			}
 
-			buttonCloseDelivery.Sensitive = CanEdit;
 			SetVisibilityForCloseDeliveryComments();
+
+			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
+			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 		}
 
 		private void ConfigureTabContacts()
@@ -1266,7 +1270,6 @@ namespace Vodovoz
 			}
 		}
 
-
 		public void ActivateContactsTab()
 		{
 			if(radioContacts.Sensitive)
@@ -1336,6 +1339,11 @@ namespace Vodovoz
 			   null,
 			   filter,
 			   OpenPageOptions.IgnoreHash);
+		}
+
+		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
+		{
+			Entity.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
 		}
 
 		private bool _canClose = true;
@@ -1691,83 +1699,16 @@ namespace Vodovoz
 		{
 			labelCloseDelivery.Visible = Entity.IsDeliveriesClosed;
 			GtkScrolledWindowCloseDelivery.Visible = Entity.IsDeliveriesClosed;
-			buttonSaveCloseComment.Visible = Entity.IsDeliveriesClosed;
-			buttonEditCloseDeliveryComment.Visible = Entity.IsDeliveriesClosed;
-			buttonCloseDelivery.Label = Entity.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки";
 			ytextviewCloseComment.Buffer.Text = Entity.IsDeliveriesClosed ? Entity.CloseDeliveryComment : String.Empty;
+			ytextviewCloseComment.Sensitive = false;
 
 			if(!Entity.IsDeliveriesClosed)
 			{
 				return;
 			}
 
-			labelCloseDelivery.LabelProp = "Поставки закрыл : " + Entity.GetCloseDeliveryInfo() + Environment.NewLine +
-			                               "<b>Комментарий по закрытию поставок:</b>";
-
-			if(permissionResult.CanUpdate)
-			{
-				if(string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment))
-				{
-					buttonSaveCloseComment.Sensitive = true;
-					buttonEditCloseDeliveryComment.Sensitive = false;
-					ytextviewCloseComment.Sensitive = true;
-				}
-				else
-				{
-					buttonEditCloseDeliveryComment.Sensitive = true;
-					buttonSaveCloseComment.Sensitive = false;
-					ytextviewCloseComment.Sensitive = false;
-				}
-			}
-			else
-			{
-				buttonSaveCloseComment.Sensitive = false;
-				buttonEditCloseDeliveryComment.Sensitive = false;
-				ytextviewCloseComment.Sensitive = false;
-			}
-		}
-
-		protected void OnButtonSaveCloseCommentClicked(object sender, EventArgs e)
-		{
-			if(string.IsNullOrWhiteSpace(ytextviewCloseComment.Buffer.Text))
-			{
-				return;
-			}
-
-			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
-			{
-				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
-				return;
-			}
-
-			Entity.AddCloseDeliveryComment(ytextviewCloseComment.Buffer.Text, CurrentEmployee);
-			SetVisibilityForCloseDeliveryComments();
-		}
-
-		protected void OnButtonEditCloseDeliveryCommentClicked(object sender, EventArgs e)
-		{
-			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
-			{
-				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
-				return;
-			}
-
-			if(MessageDialogHelper.RunQuestionDialog("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?"))
-			{
-				Entity.CloseDeliveryComment = ytextviewCloseComment.Buffer.Text = String.Empty;
-				SetVisibilityForCloseDeliveryComments();
-			}
-		}
-
-		protected void OnButtonCloseDeliveryClicked(object sender, EventArgs e)
-		{
-			if(!Entity.ToggleDeliveryOption(CurrentEmployee))
-			{
-				MessageDialogHelper.RunWarningDialog("У вас нет прав для закрытия/открытия поставок");
-				return;
-			}
-
-			SetVisibilityForCloseDeliveryComments();
+			labelCloseDelivery.LabelProp = "<b>Поставки закрыты</b>" + Environment.NewLine +
+			                               "<b>Комментарий по закрытию поставок:</b>";			
 		}
 
 		#endregion CloseDelivery

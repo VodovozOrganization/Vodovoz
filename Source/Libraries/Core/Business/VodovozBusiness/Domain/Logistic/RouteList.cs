@@ -813,6 +813,24 @@ namespace Vodovoz.Domain.Logistic
 			return item;
 		}
 
+		public virtual RouteListItem AddAddressFromOrder(int orderId)
+		{
+			var order = UoW.GetById<Order>(orderId);
+			if(order == null)
+			{
+				throw new NullReferenceException($"Ошибка добавления заказа в маршрутный лист. Заказ с номером {orderId} не найден.");
+			}
+
+			if(order.DeliveryPoint == null)
+				throw new NullReferenceException("В маршрутный нельзя добавить заказ без точки доставки.");
+			var item = new RouteListItem(this, order, RouteListItemStatus.EnRoute)
+			{
+				WithForwarder = Forwarder != null
+			};
+			ObservableAddresses.Add(item);
+			return item;
+		}
+
 		public virtual bool TryRemoveAddress(RouteListItem address, out string msg, IRouteListItemRepository routeListItemRepository)
 		{
 			if(routeListItemRepository == null)
@@ -855,12 +873,8 @@ namespace Vodovoz.Domain.Logistic
 				address.ChangeOrderStatus(OrderStatus.Accepted);
 			}
 
-			var addressKeepingDocument = UoW.GetAll<RouteListAddressKeepingDocument>().SingleOrDefault(x => x.RouteListItem.Id == address.Id);
-
-			if(addressKeepingDocument != null)
-			{
-				UoW.Delete(addressKeepingDocument);
-			}
+			var routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
+			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address);
 
 			ObservableAddresses.Remove(address);
 			return true;

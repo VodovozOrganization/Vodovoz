@@ -1,16 +1,16 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.StoredResourceRepository;
 using Vodovoz.TempAdapters;
 
@@ -151,17 +151,33 @@ namespace Vodovoz.ViewModels.Widgets.Organizations
 
 		public DelegateCommand SaveEditingVersionCommand =>
 			_saveEditingVersionCommand ?? (_saveEditingVersionCommand = new DelegateCommand(() =>
-			{
-				SelectedOrganizationVersion.Accountant = Accountant;
-				SelectedOrganizationVersion.Leader = Leader;
-				SelectedOrganizationVersion.SignatureLeader = SignatureLeader;
-				SelectedOrganizationVersion.SignatureAccountant = SignatureAccountant;
-				SelectedOrganizationVersion.Address = Address;
-				SelectedOrganizationVersion.JurAddress = JurAddress;
+				{
+					var version = new OrganizationVersion
+					{
+						Accountant = Accountant,
+						Leader = Leader,
+						SignatureLeader = SignatureLeader,
+						SignatureAccountant = SignatureAccountant,
+						Address = Address,
+						JurAddress = JurAddress
+					};
 
-				ClearProperties();
-				IsEditVisible = false;
-			},
+					var validationContext = new ValidationContext(version);
+					if(!CommonServices.ValidationService.Validate(version, validationContext))
+					{
+						return;
+					}
+
+					SelectedOrganizationVersion.Accountant = Accountant;
+					SelectedOrganizationVersion.Leader = Leader;
+					SelectedOrganizationVersion.SignatureLeader = SignatureLeader;
+					SelectedOrganizationVersion.SignatureAccountant = SignatureAccountant;
+					SelectedOrganizationVersion.Address = Address;
+					SelectedOrganizationVersion.JurAddress = JurAddress;
+
+					ClearProperties();
+					IsEditVisible = false;
+				},
 				() => IsEditAvailable
 			));
 

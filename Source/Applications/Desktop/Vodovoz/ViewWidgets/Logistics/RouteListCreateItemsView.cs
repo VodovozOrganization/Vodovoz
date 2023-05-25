@@ -1,19 +1,19 @@
-﻿using System;
+﻿using Gamma.GtkWidgets;
+using Gtk;
+using NHibernate.Criterion;
+using NLog;
+using QS.Dialog;
+using QS.Dialog.Gtk;
+using QS.DomainModel.UoW;
+using QS.Project.Journal;
+using QS.Project.Services;
+using QS.Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.GtkWidgets;
-using Gtk;
-using NHibernate.Criterion;
-using NLog;
-using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.UoW;
-using QS.Project.Journal;
-using QS.Project.Services;
-using QS.Services;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -52,7 +52,7 @@ namespace Vodovoz
 		private bool _isLogistician;
 
 		private IPermissionResult _permissionResult;
-		private RouteListItem _selectedRouteListItem;
+		private RouteListItem[] _selectedRouteListItems;
 		private IList<RouteColumn> _columnsInfo;
 
 		private IList<RouteColumn> ColumnsInfo => _columnsInfo ?? _routeColumnRepository.ActiveColumns(RouteListUoW);
@@ -252,6 +252,7 @@ namespace Vodovoz
 			Build();
 			enumbuttonAddOrder.ItemsEnum = typeof(AddOrderEnum);
 			ytreeviewItems.Selection.Changed += OnSelectionChanged;
+			ytreeviewItems.Selection.Mode = SelectionMode.Multiple;
 		}
 		
 		public void SetPermissionParameters(IPermissionResult permissionResult, bool isLogistician)
@@ -262,26 +263,28 @@ namespace Vodovoz
 
 		void OnSelectionChanged(object sender, EventArgs e)
 		{
-			_selectedRouteListItem = ytreeviewItems.GetSelectedObject<RouteListItem>();
+			_selectedRouteListItems = ytreeviewItems.GetSelectedObjects<RouteListItem>();
 			UpdateSensitivity();
 		}
 
 		private void UpdateSensitivity()
 		{
-			buttonOpenOrder.Sensitive = _selectedRouteListItem != null && _canOpenOrder;
-			buttonDelete.Sensitive = _selectedRouteListItem != null && _isEditable;
+			buttonOpenOrder.Sensitive = _selectedRouteListItems?.Length == 1 && _canOpenOrder;
+			buttonDelete.Sensitive = _selectedRouteListItems != null && _isEditable;
 		}
 
 		GenericObservableList<RouteListItem> items;
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			if(!RouteListUoW.Root.TryRemoveAddress(_selectedRouteListItem, out string message, new RouteListItemRepository()))
-				MessageDialogHelper.RunWarningDialog(
-					"Невозможно удалить",
-					message,
-					ButtonsType.Ok
-				);
+			foreach(var selectedRouteListItem in _selectedRouteListItems)
+			{
+				if(!RouteListUoW.Root.TryRemoveAddress(selectedRouteListItem, out string message, new RouteListItemRepository()))
+				{
+					ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, message, "Невозможно удалить");
+				}
+			}
+
 			UpdateInfo();
 		}
 
@@ -449,11 +452,11 @@ namespace Vodovoz
 
 		protected void OnButtonOpenOrderClicked(object sender, EventArgs e)
 		{
-			if(_selectedRouteListItem != null)
+			if(_selectedRouteListItems?.Length == 1)
 			{
 				MyTab.TabParent.OpenTab(
-					DialogHelper.GenerateDialogHashName<Order>(_selectedRouteListItem.Order.Id),
-					() => new OrderDlg(_selectedRouteListItem.Order)
+					DialogHelper.GenerateDialogHashName<Order>(_selectedRouteListItems[0].Order.Id),
+					() => new OrderDlg(_selectedRouteListItems[0].Order)
 				);
 			}
 		}

@@ -116,7 +116,8 @@ namespace Vodovoz
 		int bottlesReturnedTotal;
 		int defectiveBottlesReturnedToWarehouse;
 
-		private IList<RouteListAddressKeepingDocumentItem> _addressKeepingDocumentItemsCacheList;
+		private Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>> _addressKeepingDocumentItemsCacheList =
+			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -255,6 +256,9 @@ namespace Vodovoz
 
 			PerformanceHelper.AddTimePoint("Создан диалог");
 
+			_routeListAddressKeepingDocumentController =
+				new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
+
 			PerformanceHelper.AddTimePoint("Предварительная загрузка");
 
 			routeListAddressesView.UoW = UoW;
@@ -353,9 +357,6 @@ namespace Vodovoz
 				.InitializeFromSource();
 			deliveryfreebalanceview.ShowAll();
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
-
-			_routeListAddressKeepingDocumentController =
-				new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
 		}
 
 		private void UpdateSensitivity()
@@ -607,7 +608,14 @@ namespace Vodovoz
 		private void OnOrderReturnsViewTabClosed(object sender, EventArgs e)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
-			_addressKeepingDocumentItemsCacheList = _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentItemsCacheList);
+
+			if(!_addressKeepingDocumentItemsCacheList.ContainsKey(node.Id))
+			{
+				_addressKeepingDocumentItemsCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
+			}
+
+			_addressKeepingDocumentItemsCacheList[node.Id] = _routeListAddressKeepingDocumentController
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentItemsCacheList[node.Id]);
 
 			ReloadDiscrepancies();
 

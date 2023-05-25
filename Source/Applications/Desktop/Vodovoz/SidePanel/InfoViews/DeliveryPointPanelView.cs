@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using Fias.Client;
 using Fias.Client.Cache;
@@ -11,6 +12,7 @@ using QS.Services;
 using QS.Tdi;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
@@ -19,6 +21,7 @@ using Vodovoz.Factories;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Mango;
 using IDeliveryPointInfoProvider = Vodovoz.ViewModels.Infrastructure.InfoProviders.IDeliveryPointInfoProvider;
 
@@ -33,19 +36,18 @@ namespace Vodovoz.SidePanel.InfoViews
 		private readonly IDeliveryPointViewModelFactory _deliveryPointViewModelFactory;
 		private readonly IPermissionResult _deliveryPointPermissionResult;
 		private readonly IPermissionResult _orderPermissionResult;
+		private readonly ICommonServices _commonServices;
+
 		DeliveryPoint DeliveryPoint { get; set; }
 		private bool _textviewcommentBufferChanged = false;
 		private bool _textviewcommentLogistBufferChanged = false;
 
 		public DeliveryPointPanelView(ICommonServices commonServices)
 		{
-			if(commonServices == null)
-			{
-				throw new ArgumentNullException(nameof(commonServices));
-			}
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			Build();
-			_deliveryPointPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
-			_orderPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
+			_deliveryPointPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
+			_orderPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Order));
 			IParametersProvider parametersProvider = new ParametersProvider();
 			IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
 			var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
@@ -75,8 +77,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			textviewComment.Buffer.Changed += OnTextviewCommentBufferChanged;
 			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
 
-			textviewCommentLogist.Buffer.Changed += OnTextviewCommentLogistBufferChanged;
-			textviewCommentLogist.FocusOutEvent += OnTextviewCommentLogistFocusOut;
+			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(GetLogisticsRequirements(), _commonServices);
 		}
 
 		private void Refresh(object changedObj)
@@ -89,6 +90,30 @@ namespace Vodovoz.SidePanel.InfoViews
 			DeliveryPoint = changedObj as DeliveryPoint;
 			RefreshData();
 		}
+
+		#region LogisticsRequirements
+		private LogisticsRequirements GetLogisticsRequirements()
+		{
+			return DeliveryPoint?.LogisticsRequirements ?? new LogisticsRequirements();
+		}
+
+		private void SetLogisticsRequirementsCheckboxes()
+		{
+			var requirements = GetLogisticsRequirements();
+
+			logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(requirements);
+		}
+
+		private void SaveLogisticsRequirements()
+		{
+			using(var uow =
+					UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить требования к логистике на панели точки доставки"))
+			{
+				uow.Root.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
+				uow.Save();
+			}
+		}
+		#endregion
 
 		#region IPanelView implementation
 
@@ -150,9 +175,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
-			textviewCommentLogist.Buffer.Text = DeliveryPoint.CommentLogist;
-			_textviewcommentBufferChanged = false;
-			_textviewcommentLogistBufferChanged = false;
 
 			var currentOrders = _orderRepository.GetLatestOrdersForDeliveryPoint(InfoProvider.UoW, DeliveryPoint, 5);
 			ytreeLastOrders.SetItemsSource<Order>(currentOrders);
@@ -163,6 +185,12 @@ namespace Vodovoz.SidePanel.InfoViews
 			buttonSaveComment.Sensitive = 
 				btn.Sensitive = 
 				textviewComment.Editable = _deliveryPointPermissionResult.CanUpdate;
+
+			if(InfoProvider is OrderDlg)
+			{
+				yvboxLogisticsRequirements.Visible = true;
+				SetLogisticsRequirementsCheckboxes();
+			}
 		}
 
 		public bool VisibleOnPanel
@@ -178,6 +206,11 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(changedObject is DeliveryPoint deliveryPoint)
 			{
 				DeliveryPoint = deliveryPoint;
+				Refresh();
+			}
+
+			if(InfoProvider is OrderDlg && changedObject is Counterparty)
+			{
 				Refresh();
 			}
 		}
@@ -196,6 +229,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				var order = ytreeLastOrders.GetSelectedObject() as Order;
 				orderDlg.FillOrderItems(order);
+				orderDlg.Entity.ObservablePromotionalSets.Clear();
 			}
 		}
 
@@ -236,34 +270,19 @@ namespace Vodovoz.SidePanel.InfoViews
 			_textviewcommentBufferChanged = false;
 		}
 
-		private void SaveCommentLogist()
-		{
-			using(var uow = UnitOfWorkFactory.CreateForRoot<DeliveryPoint>(DeliveryPoint.Id, "Кнопка «Cохранить комментарий для логиста» на панели точки доставки"))
-			{
-				uow.Root.CommentLogist = textviewCommentLogist.Buffer.Text;
-				uow.Save();
-			}
-			_textviewcommentLogistBufferChanged = false;
-		}
-
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
 			SaveComment();
 		}
 
-		protected void OnButtonSaveCommentLogistClicked(object sender, EventArgs e)
+		protected void OnButtonSaveLogisticsRequirementsClicked(object sender, EventArgs e)
 		{
-			SaveCommentLogist();
+			SaveLogisticsRequirements();
 		}
 
 		private void OnTextviewCommentBufferChanged(object sender, EventArgs e)
 		{
 			_textviewcommentBufferChanged = true;
-		}
-
-		private void OnTextviewCommentLogistBufferChanged(object sender, EventArgs e)
-		{
-			_textviewcommentLogistBufferChanged = true;
 		}
 
 		private void OnTextviewCommentFocusOut(object o, FocusOutEventArgs args)
@@ -281,26 +300,6 @@ namespace Vodovoz.SidePanel.InfoViews
 					{
 						textviewComment.Buffer.Text = DeliveryPoint.Comment ?? String.Empty;
 						_textviewcommentBufferChanged = false;
-					}
-				});
-			}
-		}
-
-		private void OnTextviewCommentLogistFocusOut(object o, FocusOutEventArgs args)
-		{
-			if(_textviewcommentLogistBufferChanged && buttonSaveCommentLogist.State != StateType.Prelight)
-			{
-				Application.Invoke((s, ea) =>
-				{
-					bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии для логиста?");
-					if(isRequiredToSaveComment)
-					{
-						SaveCommentLogist();
-					}
-					else
-					{
-						textviewCommentLogist.Buffer.Text = DeliveryPoint.CommentLogist ?? String.Empty;
-						_textviewcommentLogistBufferChanged = false;
 					}
 				});
 			}
@@ -334,9 +333,6 @@ namespace Vodovoz.SidePanel.InfoViews
 
 				textviewComment.Buffer.Changed -= OnTextviewCommentBufferChanged;
 				textviewComment.FocusOutEvent -= OnTextviewCommentFocusOut;
-
-				textviewCommentLogist.Buffer.Changed -= OnTextviewCommentLogistBufferChanged;
-				textviewCommentLogist.FocusOutEvent -= OnTextviewCommentLogistFocusOut;
 
 				base.Dispose();
 			}

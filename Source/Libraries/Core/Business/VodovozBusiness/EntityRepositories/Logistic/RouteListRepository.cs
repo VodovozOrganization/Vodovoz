@@ -958,6 +958,19 @@ namespace Vodovoz.EntityRepositories.Logistic
 							  .FirstOrDefault();
 		}
 
+		public RouteList GetActualRouteListByOrder(IUnitOfWork uow, int orderId)
+		{
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			return uow.Session.QueryOver(() => routeListAlias)
+							  .Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
+							  .Where(() => routeListItemAlias.Order.Id == orderId)
+							  .And(() => routeListItemAlias.Status != RouteListItemStatus.Transfered)
+							  .Fetch(SelectMode.ChildFetch, routeList => routeList.Addresses)
+							  .List()
+							  .FirstOrDefault();
+		}
+
 		public bool RouteListWasChanged(RouteList routeList)
 		{
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {

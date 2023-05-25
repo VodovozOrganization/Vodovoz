@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -25,13 +25,13 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class CarUnloadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
+		private const int _commentLimit = 150;
 		private const int _commentLimit = 255;
 		private string _comment;
 		private RouteList _routeList;
 		private Warehouse _warehouse;
 		private IList<CarUnloadDocumentItem> _items = new List<CarUnloadDocumentItem>();
 		private GenericObservableList<CarUnloadDocumentItem> _observableItems;
-
 
 		#region Сохраняемые свойства
 

@@ -30,6 +30,7 @@ using QSWidgetLib;
 using SmsPaymentService;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -97,6 +98,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using QS.Dialog.GtkUI.FileDialog;
 using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel.InfoViews;
@@ -439,7 +441,10 @@ namespace Vodovoz
 				Entity.PaymentType = Entity.Client.PaymentMethod;
 				var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 				var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
+				var parametersProvider = new ParametersProvider();
+				var orderParametersProvider = new OrderParametersProvider(parametersProvider);
+				var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+				counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 				counterpartyContractFactory = new CounterpartyContractFactory(orderOrganizationProvider, counterpartyContractRepository);
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				FillOrderItems(copiedOrder);
@@ -482,6 +487,7 @@ namespace Vodovoz
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
@@ -511,6 +517,7 @@ namespace Vodovoz
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
 			AddCommentsFromDeliveryPoint();
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		public void ConfigureDlg()
@@ -538,14 +545,18 @@ namespace Vodovoz
 
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 			organizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider);
+			var parametersProvider = new ParametersProvider();
+			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
+			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+			counterpartyContractRepository = new CounterpartyContractRepository(organizationProvider, cashReceiptRepository);
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
-			_orderParametersProvider = new OrderParametersProvider(new ParametersProvider());
+			_orderParametersProvider = new OrderParametersProvider(parametersProvider);
 			_dailyNumberController = new OrderDailyNumberController(_orderRepository, UnitOfWorkFactory.GetDefaultFactory);
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint, Phone>(OnDeliveryPointChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Counterparty, Phone>(OnCounterpartyChanged);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<LogisticsRequirements>(OnLogisticsRequirementsChanged);
 
 			ConfigureTrees();
 			ConfigureAcceptButtons();
@@ -632,7 +643,6 @@ namespace Vodovoz
 			pickerBillDate.Binding.AddBinding(Entity, s => s.BillDate, w => w.DateOrNull).InitializeFromSource();
 
 			textComments.Binding.AddBinding(Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
-			textCommentsLogistic.Binding.AddBinding(Entity, s => s.CommentLogist, w => w.Buffer.Text).InitializeFromSource();
 
 			checkSelfDelivery.Binding.AddBinding(Entity, s => s.SelfDelivery, w => w.Active).InitializeFromSource();
 			checkPayAfterLoad.Binding.AddBinding(Entity, s => s.PayAfterShipment, w => w.Active).InitializeFromSource();
@@ -801,6 +811,7 @@ namespace Vodovoz
 				UpdateOrderAddressTypeUI();
 				Entity.UpdateOrCreateContract(UoW, counterpartyContractRepository, counterpartyContractFactory);
 				UpdateOrderItemsPrices();
+				SetLogisticsRequirementsCheckboxes();
 			};
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
@@ -922,6 +933,7 @@ namespace Vodovoz
 					case nameof(Order.Client):
 						UpdateAvailableEnumSignatureTypes();
 						UpdateOrderAddressTypeWithUI();
+						SetLogisticsRequirementsCheckboxes(true);
 						break;
 					case nameof(Entity.OrderAddressType):
 						UpdateOrderAddressTypeUI();
@@ -952,6 +964,167 @@ namespace Vodovoz
 
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
+
+			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
+			UpdateEntityLogisticsRequirements();
+			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+		}
+
+		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if (sender is LogisticsRequirements requirements)
+			{
+				if(e.PropertyName == nameof(LogisticsRequirements.ForwarderRequired))
+				{
+					var requirementComment = "Требуется экспедитор на адресе\n";
+					if(requirements.ForwarderRequired)
+					{
+						AddLogisticsRequirementsCommentToOrderComment(requirementComment);
+					}
+					else
+					{
+						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
+					}
+				}
+				if(e.PropertyName == nameof(LogisticsRequirements.DocumentsRequired))
+				{
+					var requirementComment = "Наличие паспорта/документов у водителя\n";
+					if(requirements.DocumentsRequired)
+					{
+						AddLogisticsRequirementsCommentToOrderComment(requirementComment);
+					}
+					else
+					{
+						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
+					}
+				}
+				if(e.PropertyName == nameof(LogisticsRequirements.RussianDriverRequired))
+				{
+					var requirementComment = "Требуется русский водитель\n";
+					if(requirements.RussianDriverRequired)
+					{
+						AddLogisticsRequirementsCommentToOrderComment(requirementComment);
+					}
+					else
+					{
+						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
+					}
+				}
+				if(e.PropertyName == nameof(LogisticsRequirements.PassRequired))
+				{
+					var requirementComment = "Требуется пропуск\n";
+					if(requirements.PassRequired)
+					{
+						AddLogisticsRequirementsCommentToOrderComment(requirementComment);
+					}
+					else
+					{
+						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
+					}
+				}
+				if(e.PropertyName == nameof(LogisticsRequirements.LargusRequired))
+				{
+					var requirementComment = "Только ларгус (газель не проедет)\n";
+					if(requirements.LargusRequired)
+					{
+						AddLogisticsRequirementsCommentToOrderComment(requirementComment);
+					}
+					else
+					{
+						RemoveLogisticsRequirementsCommentFromOrderComment(requirementComment);
+					}
+				}
+			}
+
+			UpdateEntityLogisticsRequirements();
+		}
+
+		private void AddLogisticsRequirementsCommentToOrderComment(string comment)
+		{
+			if (!Entity.Comment.Contains(comment))
+			{
+				Entity.Comment = comment + Entity.Comment;
+			}
+		}
+
+		private void RemoveLogisticsRequirementsCommentFromOrderComment(string comment)
+		{
+			if(Entity.Comment.Contains(comment))
+			{
+				Entity.Comment = Entity.Comment.Replace(comment, "");
+			}
+		}
+
+		private LogisticsRequirements GetLogisticsRequirements()
+		{
+			if(Entity.LogisticsRequirements != null && Entity.IsCopiedFromUndelivery)
+			{
+				return Entity.LogisticsRequirements;
+			}
+
+			if(Entity.Client == null || (!Entity.SelfDelivery && Entity.DeliveryPoint == null))
+			{
+				return new LogisticsRequirements();
+			}
+
+			var logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements();
+
+			var counterpartyLogisticsRequirements = new LogisticsRequirements();
+			var deliveryPointLogisticsRequirements = new LogisticsRequirements();
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				if(Entity.Client?.LogisticsRequirements?.Id > 0)
+				{
+					counterpartyLogisticsRequirements = uow.GetById<LogisticsRequirements>(Entity.Client.LogisticsRequirements.Id) ?? new LogisticsRequirements();
+				}
+				if(Entity.DeliveryPoint?.LogisticsRequirements?.Id > 0)
+				{
+					deliveryPointLogisticsRequirements = uow.GetById<LogisticsRequirements>(Entity.DeliveryPoint.LogisticsRequirements.Id) ?? new LogisticsRequirements();
+				}
+			}
+
+			logisticsRequirementsFromCounterpartyAndDeliveryPoint = new LogisticsRequirements()
+			{
+				ForwarderRequired = counterpartyLogisticsRequirements.ForwarderRequired || deliveryPointLogisticsRequirements.ForwarderRequired,
+				DocumentsRequired = counterpartyLogisticsRequirements.DocumentsRequired || deliveryPointLogisticsRequirements.DocumentsRequired,
+				RussianDriverRequired = counterpartyLogisticsRequirements.RussianDriverRequired || deliveryPointLogisticsRequirements.RussianDriverRequired,
+				PassRequired = counterpartyLogisticsRequirements.PassRequired || deliveryPointLogisticsRequirements.PassRequired,
+				LargusRequired = counterpartyLogisticsRequirements.LargusRequired || deliveryPointLogisticsRequirements.LargusRequired
+			};
+
+			if (Entity.LogisticsRequirements != null)
+			{
+				return new LogisticsRequirements()
+				{
+					ForwarderRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.ForwarderRequired || Entity.LogisticsRequirements.ForwarderRequired,
+					DocumentsRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.DocumentsRequired || Entity.LogisticsRequirements.DocumentsRequired,
+					RussianDriverRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.RussianDriverRequired || Entity.LogisticsRequirements.RussianDriverRequired,
+					PassRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.PassRequired || Entity.LogisticsRequirements.PassRequired,
+					LargusRequired = logisticsRequirementsFromCounterpartyAndDeliveryPoint.LargusRequired || Entity.LogisticsRequirements.LargusRequired
+				};
+			}
+
+			return logisticsRequirementsFromCounterpartyAndDeliveryPoint;
+		}
+
+		private void UpdateEntityLogisticsRequirements()
+		{
+			Entity.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
+		}
+
+		private void SetLogisticsRequirementsCheckboxes(bool clearCheckedCheckboxes = false)
+		{
+			if(logisticsRequirementsView.ViewModel != null)
+			{
+				var requirements =
+					clearCheckedCheckboxes 
+					? new LogisticsRequirements()
+					: GetLogisticsRequirements();
+
+				logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(requirements);
+				UpdateEntityLogisticsRequirements();
+			}
 		}
 
 		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
@@ -1209,6 +1382,29 @@ namespace Vodovoz
 			}
 		}
 
+		private void OnLogisticsRequirementsChanged(EntityChangeEvent[] changeevents)
+		{
+			if (Entity.Client != null && (Entity.SelfDelivery || Entity.DeliveryPoint != null))
+			{
+				foreach(var changeevent in changeevents)
+				{
+					if(changeevent.Entity is LogisticsRequirements newRequirements)
+					{
+						if(Entity.LogisticsRequirements?.Id == newRequirements.Id)
+						{
+							logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(newRequirements);
+							UpdateEntityLogisticsRequirements();
+						}
+
+						if(newRequirements.Id == Entity.Client?.LogisticsRequirements?.Id || newRequirements.Id == Entity.DeliveryPoint?.LogisticsRequirements?.Id)
+						{
+							SetLogisticsRequirementsCheckboxes();
+						}
+					}
+				}
+			}
+		}
+
 		private void RefreshEntity<T>(T entity)
 		{
 			UoW.Session.Refresh(entity);
@@ -1218,12 +1414,29 @@ namespace Vodovoz
 		{
 			Counterparty.ReloadChildCollection(x => x.Phones, x => x.Counterparty, UoW.Session);
 			RefreshEntity(Counterparty);
+			RefreshContactPhone();
 		}
 
 		private void RefreshDeliveryPointWithPhones()
 		{
 			DeliveryPoint.ReloadChildCollection(x => x.Phones, x => x.DeliveryPoint, UoW.Session);
 			RefreshEntity(DeliveryPoint);
+			RefreshContactPhone();
+		}
+
+		private void RefreshContactPhone()
+		{
+			if(Entity.ContactPhone == null)
+			{
+				return;
+			}
+
+			if(Counterparty.Phones.All(p => p.Number != Entity.ContactPhone.Number)
+			   && DeliveryPoint.Phones.All(p => p.Number != Entity.ContactPhone.Number))
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Контактный номер телефона, указанный в открытом заказе для связи, больше не существует.\nВыберите новый номер телефона для связи в заказе.");
+				Entity.ContactPhone = null;
+			}
 		}
 
 		private void OnNomenclatureFixedPriceChanged(EntityChangeEvent[] changeevents)
@@ -2823,6 +3036,8 @@ namespace Vodovoz
 				OnFormOrderActions();
 
 			AddCommentsFromDeliveryPoint();
+
+			SetLogisticsRequirementsCheckboxes();
 		}
 
 		private void AddCommentsFromDeliveryPoint()
@@ -2835,7 +3050,6 @@ namespace Vodovoz
 			UoW.Session.Refresh(DeliveryPoint);
 
 			AddCommentFromDeliveryPoint();
-			AddCommentLogistFromDeliveryPoint();
 
 			_previousDeliveryPointId = DeliveryPoint.Id;
 		}
@@ -2851,21 +3065,6 @@ namespace Vodovoz
 				if(!string.IsNullOrWhiteSpace(DeliveryPoint.Comment) && DeliveryPoint.Id != _previousDeliveryPointId)
 				{
 					Entity.Comment = string.Join("\n", DeliveryPoint.Comment, $"Предыдущий комментарий: {Entity.Comment}");
-				}
-			}
-		}
-
-		private void AddCommentLogistFromDeliveryPoint()
-		{
-			if(string.IsNullOrWhiteSpace(Entity.CommentLogist))
-			{
-				Entity.CommentLogist = DeliveryPoint.CommentLogist;
-			}
-			else
-			{
-				if(!string.IsNullOrWhiteSpace(DeliveryPoint.CommentLogist) && DeliveryPoint.Id != _previousDeliveryPointId)
-				{
-					Entity.CommentLogist = string.Join("\n", DeliveryPoint.CommentLogist, $"Предыдущий комментарий: {Entity.CommentLogist}");
 				}
 			}
 		}
@@ -2995,6 +3194,8 @@ namespace Vodovoz
 			{
 				AddCommentsFromDeliveryPoint();
 			}
+
+			SetLogisticsRequirementsCheckboxes();
 
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();
@@ -4001,10 +4202,10 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblCommentForDriver.Text} {commentForDriver}").AppendLine();
 
-			var commentForLogist = Entity.CommentLogist?.ToUpper();
-			ylblCommentForLogist.Text = commentForLogist;
+			var logisticsRequirementsSummary = Entity.LogisticsRequirements?.GetSummaryString().ToUpper();
+			ylblResumeLogisticsRequirementsSummary.Text = logisticsRequirementsSummary;
 
-			_summaryInfoBuilder.Append($"{lblCommentForLogist.Text} {commentForLogist}");
+			_summaryInfoBuilder.Append($"{lblResumeLogisticsRequirements.Text} {logisticsRequirementsSummary}");
 
 			ntbOrder.GetNthPage(1).Hide();
 			ntbOrder.GetNthPage(1).Show();

@@ -299,14 +299,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref comment, value, () => Comment);
 		}
 
-		string commentLogist;
-		[Display(Name = "Комментарий логиста")]
-		public virtual string CommentLogist
-		{
-			get => commentLogist;
-			set => SetField(ref commentLogist, value, () => CommentLogist);
-		}
-
 		decimal? latitude;
 
 		/// <summary>
@@ -554,6 +546,14 @@ namespace Vodovoz.Domain.Client
 		{
 			get => observableDeliveryPointEstimatedCoordinates
 					?? (observableDeliveryPointEstimatedCoordinates = new GenericObservableList<DeliveryPointEstimatedCoordinate>(DeliveryPointEstimatedCoordinates));
+		}
+
+		private LogisticsRequirements _logisticsRequirements;
+		[Display(Name = "Требования к логистике")]
+		public virtual LogisticsRequirements LogisticsRequirements
+		{
+			get => _logisticsRequirements;
+			set => SetField(ref _logisticsRequirements, value);
 		}
 
 		#region Временные поля для хранения фиксированных цен из 1с

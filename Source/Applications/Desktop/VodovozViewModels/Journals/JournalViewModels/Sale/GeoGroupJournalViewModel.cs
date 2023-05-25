@@ -16,14 +16,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Sale
 	public class GeoGroupJournalViewModel : SingleEntityJournalViewModelBase<GeoGroup, GeoGroupViewModel, GeoGroupJournalNode>
 	{
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private readonly WarehouseJournalFactory _warehouseJournalFactory;
+		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
 
 		public GeoGroupJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
-			WarehouseJournalFactory warehouseJournalFactory,
+			IWarehouseJournalFactory warehouseJournalFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false

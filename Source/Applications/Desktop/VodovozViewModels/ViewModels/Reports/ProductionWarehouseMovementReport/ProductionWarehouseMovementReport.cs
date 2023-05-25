@@ -1,4 +1,4 @@
-﻿using CsvHelper;
+using CsvHelper;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
@@ -279,9 +279,9 @@ namespace Vodovoz.ViewModels.Reports
 					&& (selectedWarehouses.Contains(x.Document.FromWarehouse.Id))
 					&& (x.Document.TimeStamp >= _startDate && x.Document.TimeStamp <= (_endDate ?? DateTime.MaxValue))
 					&& x.Nomenclature.Category == NomenclatureCategory.water
-					&& x.SentAmount > 0)
-				.Fetch(x => x.IncomeOperation)
-				.Fetch(x => x.WriteOffOperation)
+					&& x.ReceivedAmount > 0)
+				.Fetch(x => x.WarehouseIncomeOperation)
+				.Fetch(x => x.WarehouseWriteoffOperation)
 				.Fetch(x => x.Nomenclature)
 				.ThenFetch(x => x.Unit)
 				.Select(x => new ProductionWarehouseMovementReportDataBaseNode
@@ -290,7 +290,7 @@ namespace Vodovoz.ViewModels.Reports
 					MovementDocumentId = x.Document.Id,
 					NomenclatureId = x.Nomenclature.Id,
 					NomenclatureName = x.Nomenclature.Name,
-					Amount = x.SentAmount,
+					Amount = x.ReceivedAmount,
 					PurchasePrices = x.Nomenclature.PurchasePrices
 				})
 				.ToList();

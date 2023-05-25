@@ -1894,12 +1894,16 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Settings.SubdivisionsSettingsView.cs" />
     <Compile Include="Views\Logistic\RouteListFastDeliveryMaxDistanceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListFastDeliveryMaxDistanceView.cs" />
+    <Compile Include="Views\Logistic\LogisticsRequirementsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.LogisticsRequirementsView.cs" />
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CarsMonitoringInfoPanelView.cs" />
     <Compile Include="Filters\Views\ExternalCounterpartiesMatchingJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.ExternalCounterpartiesMatchingJournalFilterView.cs" />
     <Compile Include="Views\Client\ExternalCounterpartyMatchingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.ExternalCounterpartyMatchingView.cs" />
+    <Compile Include="Views\Client\CloseSupplyToCounterpartyView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.CloseSupplyToCounterpartyView.cs" />
     <Compile Include="Views\Goods\InventoryInstanceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Goods.InventoryInstanceView.cs" />
     <Compile Include="JournalFilters\Goods\InventoryInstancesJournalFilterView.cs" />
@@ -2420,6 +2424,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Reports\%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
     </ContentWithTargetPath>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_documents.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_forwarder.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_largus.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_many.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_nationality.png" />
+    <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_pass.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

@@ -39,6 +39,12 @@
 		yellow_stripes,
 		green_stripes,
 		grey_stripes,
-		vodonos
+		vodonos,
+		logistics_requirements_forwarder,
+		logistics_requirements_documents,
+		logistics_requirements_nationality,
+		logistics_requirements_pass,
+		logistics_requirements_largus,
+		logistics_requirements_many
 	}
 }

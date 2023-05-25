@@ -2,11 +2,10 @@
 
 echo "Какие службы необходимо обновить?"
 echo "1) SmsInformer"
-echo "2) InstantSms"
-echo "3) SmsPayment"
-echo "4) Mango"
+echo "2) SmsPayment"
+echo "3) Mango"
 
-echo "Можно вызывать вместе, перечислив номера через запятую, например SmsInformer+InstantSms=1,2"
+echo "Можно вызывать вместе, перечислив номера через запятую, например SmsInformer+SmsPayment=1,2"
 read service;
 
 echo "Какую сборку использовать?"
@@ -16,9 +15,6 @@ read build;
 
 smsServiceFolder="VodovozSmsInformerService"
 smsServiceName="vodovoz-smsinformer.service"
-
-instantSmsServiceFolder="VodovozInstantSmsService"
-instantSmsServiceName="vodovoz-instant-sms.service"
 
 smsPaymentServiceFolder="VodovozSmsPaymentService"
 smsPaymentServiceName="vodovoz-sms-payment.service"
@@ -76,20 +72,6 @@ function UpdateSMSInformerService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $smsServiceName
 }
 
-function UpdateInstantSmsService {
-	printf "\nОбновление службы моментальных SMS сообщений\n"
-
-	echo "-- Stoping $instantSmsServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl stop $instantSmsServiceName
-
-	echo "-- Copying $instantSmsServiceName files"
-	DeleteHttpDll "WCF" $instantSmsServiceFolder
-	CopyFiles "WCF" $instantSmsServiceFolder
-
-	echo "-- Starting $instantSmsServiceName"
-	ssh $serverAddress -p$serverPort sudo systemctl start $instantSmsServiceName
-}
-
 function UpdateSmsPaymentService {
 	printf "\nОбновление службы отправки платежей по sms\n"
 
@@ -126,12 +108,9 @@ case $service2 in
 		UpdateSMSInformerService
 	;;&
 	*,2,*)
-		UpdateInstantSmsService
-	;;&
-	*,3,*)
 		UpdateSmsPaymentService
 	;;&
-	*,4,*)
+	*,3,*)
 		UpdateMangoService
 	;;
 esac

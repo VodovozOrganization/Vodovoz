@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.Serialization;
 using GMap.NET;
 using GMap.NET.GtkSharp;
+using NHibernate.Util;
 
 namespace Vodovoz.Additions.Logistic
 {
@@ -12,6 +14,7 @@ namespace Vodovoz.Additions.Logistic
 	{
 		Bitmap Bitmap;
 		Bitmap BitmapShadow;
+		Bitmap _bitmapLogisticsRequirements;
 
 		private PointMarkerType type;
 		public PointMarkerType Type
@@ -56,6 +59,22 @@ namespace Vodovoz.Additions.Logistic
 			}
 		}
 
+		private PointMarkerShape? _logisticsRequirementsMarkerShape;
+		public PointMarkerShape? LogisticsRequirementsMarkerShape
+		{
+			get { return _logisticsRequirementsMarkerShape; }
+			set { _logisticsRequirementsMarkerShape = value; }
+		}
+
+		private PointMarkerType? _logisticsRequirementsMarkerType;
+
+		public PointMarkerType? LogisticsRequirementsMarkerType
+		{
+			get { return _logisticsRequirementsMarkerType; }
+			set { _logisticsRequirementsMarkerType = value; }
+		}
+
+
 		public PointMarker(PointLatLng p, PointMarkerType type)
 			: base(p)
 		{
@@ -68,6 +87,14 @@ namespace Vodovoz.Additions.Logistic
 			this.Shape = shape;
 		}
 
+		public PointMarker(PointLatLng p, PointMarkerType type, PointMarkerShape shape, PointMarkerType logisticsRequirementsType, PointMarkerShape logisticsRequirementsShape)
+			: this(p, type)
+		{
+			LogisticsRequirementsMarkerShape = logisticsRequirementsShape;
+			LogisticsRequirementsMarkerType = logisticsRequirementsType;
+			Shape = shape;
+		}
+
 		void LoadBitmap()
 		{
 			string iconPath = string.Join(".", Shape.ToString(), Type.ToString());
@@ -78,6 +105,15 @@ namespace Vodovoz.Additions.Logistic
 
 			string shadowPath = string.Join(".", Shape.ToString(), "marker_shadow");
 			BitmapShadow = GetIcon(shadowPath);
+
+			if (LogisticsRequirementsMarkerShape != null 
+				&& LogisticsRequirementsMarkerType != null 
+				&& LogisticsRequirementsMarkerShape != PointMarkerShape.none 
+				&& LogisticsRequirementsMarkerType != PointMarkerType.none)
+			{
+				string logisticsRequirementsIconPath = string.Join(".", LogisticsRequirementsMarkerShape.ToString(), LogisticsRequirementsMarkerType.ToString());
+				_bitmapLogisticsRequirements = GetIcon(logisticsRequirementsIconPath);
+			}
 		}
 
 		static readonly Dictionary<string, Bitmap> iconCache = new Dictionary<string, Bitmap>();
@@ -105,7 +141,17 @@ namespace Vodovoz.Additions.Logistic
 			if(BitmapShadow != null)
 			{
 				g.DrawImage(BitmapShadow, LocalPosition.X, LocalPosition.Y, BitmapShadow.Width, BitmapShadow.Height);
-			}                
+			}
+			if(_bitmapLogisticsRequirements != null)
+			{
+				g.DrawImage(
+					_bitmapLogisticsRequirements, 
+					LocalPosition.X + Size.Width, 
+					LocalPosition.Y - Size.Height + 8, 
+					_bitmapLogisticsRequirements.Width, 
+					_bitmapLogisticsRequirements.Height
+					);
+			}
 			g.DrawImage(Bitmap, LocalPosition.X, LocalPosition.Y, Size.Width, Size.Height);
 		}
 

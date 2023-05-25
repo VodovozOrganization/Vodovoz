@@ -271,6 +271,7 @@ namespace TrueMarkApi.Services
 						recievedDocument = await RecieveDocument(httpClient, savedDocument.Guid.ToString(), cancellationToken);
 
 						savedDocument.ErrorMessage = recievedDocument.ErrorMessage;
+						savedDocument.IsSuccess = recievedDocument.IsSuccess;
 
 						uow.Save(savedDocument);
 						uow.Commit();
@@ -284,6 +285,7 @@ namespace TrueMarkApi.Services
 
 					recievedDocument = await CreateAndSendDocument(httpClient, TrueMarkDocumentType.LK_GTIN_RECEIPT, productDocumentFactory, certificateThumbPrint, cancellationToken);
 					savedDocument.ErrorMessage = recievedDocument.ErrorMessage;
+					savedDocument.IsSuccess = recievedDocument.IsSuccess;
 					savedDocument.Guid = recievedDocument.Guid;
 
 					uow.Save(savedDocument);

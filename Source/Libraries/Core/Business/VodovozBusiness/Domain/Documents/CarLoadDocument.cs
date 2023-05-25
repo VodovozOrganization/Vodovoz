@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class CarLoadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
-		private const int _commentLimit = 255;
+		private const int _commentLimit = 150;
 
 		#region Сохраняемые свойства
 		

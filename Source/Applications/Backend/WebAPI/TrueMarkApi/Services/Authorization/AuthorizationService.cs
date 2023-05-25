@@ -34,10 +34,11 @@ namespace TrueMarkApi.Services.Authorization
 			var authUrn = "auth/key";
 			var signInUrn = "auth/simpleSignIn";
 
-			var cachedToken = _tokenCacheList.SingleOrDefault(tc => tc.CertificateThumbPrint == сertificateThumbPrint);
+			var cachedToken = _tokenCacheList.FirstOrDefault(tc => tc.CertificateThumbPrint == сertificateThumbPrint);
 
 			if(cachedToken is { IsTokenFresh: true } && !string.IsNullOrWhiteSpace(cachedToken.Token))
 			{
+				_logger.LogInformation($"Возвращаем кешированный токен, всего кешировано: {_tokenCacheList.Count}");
 				return cachedToken.Token;
 			}
 

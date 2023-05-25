@@ -17,6 +17,9 @@ namespace Vodovoz.ViewModels.Infrastructure.Print
 		[Display(Name = "Лист времени")]
 		TimeList,
 		[Display(Name = "Отчёт по порядку адресов")]
-		OrderOfAddresses
+		OrderOfAddresses,
+		[Display(Name = "Экспедиторская расписка")]
+		ForwarderReceipt
+
 	}
 }

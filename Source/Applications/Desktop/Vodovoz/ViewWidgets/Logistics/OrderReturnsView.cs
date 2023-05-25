@@ -397,6 +397,13 @@ namespace Vodovoz
 				.AddBinding(_routeListItem.Order, e => e.BottlesByStockActualCount, w => w.ValueAsInt).InitializeFromSource();
 			yspinbuttonBottlesByStockActualCount.ValueChanged += OnYspinbuttonBottlesByStockActualCountChanged;
 			hboxBottlesByStock.Visible = _routeListItem.Order.IsBottleStock;
+
+			yspinbuttonEmptyBottlesCount.Binding.AddBinding(_routeListItem.Order, e => e.BottlesReturn, w => w.ValueAsInt)
+				.InitializeFromSource();
+			yspinbuttonEmptyBottlesActualCount.Binding
+				.AddBinding(_routeListItem, e => e.BottlesReturned, w => w.ValueAsInt).InitializeFromSource();
+			hboxEmptyBottles.Visible = _routeListItem.IsDelivered();
+
 			OnlineOrderVisible();
 		}
 
@@ -494,6 +501,7 @@ namespace Vodovoz
 			{
 				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Overdue, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
+				_routeListItem.BottlesReturned = 0;
 				UpdateButtonsState();
 				OnCloseTab(false);
 			};
@@ -507,6 +515,7 @@ namespace Vodovoz
 			{
 				_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Canceled, CallTaskWorker, true);
 				_routeListItem.SetOrderActualCountsToZeroOnCanceled();
+				_routeListItem.BottlesReturned = 0;
 				UpdateButtonsState();
 				OnCloseTab(false);
 			};

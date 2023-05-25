@@ -10,7 +10,13 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" />
+    <None Include="$(MSBuildThisFileDirectory)Reports\Complaints\ComplaintClassificationSummaryReport.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Complaints\ComplaintsWithDepartmentsReactionJournalReport.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Documents\ForwarderReceipt.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\FastDeliveryPercentCoverageReport.xlsx">
@@ -24,6 +30,12 @@
     </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Orders\EdoUpdReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Sales\ProfitabilitySalesReport.rd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Sales\ProfitabilitySalesReportDetail.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Sales\SalesBySubdivisionsAnalitycsReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -14,9 +15,11 @@ using QS.Tdi;
 using QS.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Mango;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -25,18 +28,17 @@ namespace Vodovoz.SidePanel.InfoViews
 	public partial class CounterpartyPanelView : Bin, IPanelView
 	{
 		private readonly IOrderRepository _orderRepository = new OrderRepository();
+		private readonly ICommonServices _commonServices;
 		private Counterparty _counterparty;
 		private IPermissionResult _counterpartyPermissionResult;
 		private bool _textviewcommentBufferChanged = false;
 
 		public CounterpartyPanelView(ICommonServices commonServices)
 		{
-			if(commonServices == null)
-			{
-				throw new ArgumentNullException(nameof(commonServices));
-			}
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
 			Build();
-			_counterpartyPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Counterparty));
+			_counterpartyPermissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Counterparty));
 			Configure();
 		}
 
@@ -56,8 +58,10 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			textviewComment.Buffer.Changed += OnTextviewCommentBufferChanged;
 			textviewComment.FocusOutEvent += OnTextviewCommentFocusOut;
+
+			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(GetLogisticsRequirements(), _commonServices);
 		}
-		
+
 		private void Refresh(object changedObj)
 		{
 			if(InfoProvider == null)
@@ -68,6 +72,28 @@ namespace Vodovoz.SidePanel.InfoViews
 			_counterparty = changedObj as Counterparty;
 			RefreshData();
 		}
+
+		#region LogisticsRequirements
+		private LogisticsRequirements GetLogisticsRequirements()
+		{
+			return _counterparty?.LogisticsRequirements ?? new LogisticsRequirements();
+		}
+		private void SetLogisticsRequirementsCheckboxes()
+		{
+			var requirements = GetLogisticsRequirements();
+
+			logisticsRequirementsView.ViewModel.Entity.CopyRequirementPropertiesValues(requirements);
+		}
+		private void SaveLogisticsRequirements()
+		{
+			using(var uow =
+					UnitOfWorkFactory.CreateForRoot<Counterparty>(_counterparty.Id, "Кнопка «Cохранить требования к логистике на панели контрагента"))
+			{
+				uow.Root.LogisticsRequirements = logisticsRequirementsView.ViewModel.Entity;
+				uow.Save();
+			}
+		}
+		#endregion
 
 		#region IPanelView implementation
 
@@ -143,6 +169,12 @@ namespace Vodovoz.SidePanel.InfoViews
 			PhonesTable.Attach(btn, 1, 2, rowsCount - 1, rowsCount);
 			PhonesTable.ShowAll();
 			btn.Sensitive = buttonSaveComment.Sensitive = _counterpartyPermissionResult.CanUpdate && _counterparty.Id != 0;
+
+			if(InfoProvider is OrderDlg)
+			{
+				yvboxLogisticsRequirements.Visible = true;
+				SetLogisticsRequirementsCheckboxes();
+			}
 		}
 
 		private void SetupPersonalManagers()
@@ -212,6 +244,11 @@ namespace Vodovoz.SidePanel.InfoViews
 		protected void OnButtonSaveCommentClicked(object sender, EventArgs e)
 		{
 			SaveComment();
+		}
+
+		protected void OnButtonSaveLogisticsRequirementsClicked(object sender, EventArgs e)
+		{
+			SaveLogisticsRequirements();
 		}
 
 		private void OnTextviewCommentBufferChanged(object sender, EventArgs e)

@@ -429,9 +429,29 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				new ParametersEnumFactory<OrderStatus>()
 			);
 
+			var statusesToSelect = new[] { 
+				OrderStatus.Accepted, 
+				OrderStatus.InTravelList, 
+				OrderStatus.OnLoading, 
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.WaitForPayment,
+				OrderStatus.Closed };
 			var orderStatusFilter = _filter.ParameterSets.Single(x => x.ParameterName == "order_status");
 			orderStatusFilter.UpdateOutputParameters();
-			orderStatusFilter.OutputParameters.Single(x => x.Value.Equals(OrderStatus.Closed)).Selected = true;
+			foreach(var filter in orderStatusFilter.OutputParameters)
+			{
+				if(!(filter.Value is OrderStatus))
+				{
+					throw new InvalidOperationException("Не правильно настроен фильтр статусов заказа. В фильтре присутствует объект отличающийся по типу от статуса заказа.");
+				}
+				var statusFilter = (OrderStatus)filter.Value;
+				if(statusesToSelect.Contains(statusFilter))
+				{
+					filter.Selected = true;
+				}
+			}
 
 			FilterViewModel = new SelectableParameterReportFilterViewModel(_filter);
 		}
@@ -573,31 +593,41 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private void ShowInfo()
 		{
 			var info =
-				"<b>1.</b> Подсчет продаж ведется на основе заказов. В отчете учитываются заказы со статусами:" +
-				$"\n\t'{OrderStatus.Accepted.GetEnumTitle()}'" +
-				$"\n\t'{OrderStatus.InTravelList.GetEnumTitle()}'" +
-				$"\n\t'{OrderStatus.OnLoading.GetEnumTitle()}'" +
-				$"\n\t'{OrderStatus.OnTheWay.GetEnumTitle()}'" +
-				$"\n\t'{OrderStatus.Shipped.GetEnumTitle()}'" +
-				$"\n\t'{OrderStatus.UnloadingOnStock.GetEnumTitle()}'" +
-				$"\n\t'{OrderStatus.Closed.GetEnumTitle()}'" +
-				$"\n\t'{OrderStatus.WaitForPayment.GetEnumTitle()}' и заказ - самовывоз с оплатой после отгрузки." +
-				"\nВ отчет <b>не попадают</b> заказы, являющиеся закрывашками по контракту." +
-				"\nФильтр по дате отсекает заказы, если дата доставки не входит в выбранный период." +
+$@"
+Подсчет продаж ведется на основе заказов. 
+В отчете учитываются заказы со статусами:
+{OrderStatus.Accepted.GetEnumTitle()}
+{OrderStatus.InTravelList.GetEnumTitle()}
+{OrderStatus.OnLoading.GetEnumTitle()}
+{OrderStatus.OnTheWay.GetEnumTitle()}
+{OrderStatus.Shipped.GetEnumTitle()}
+{OrderStatus.UnloadingOnStock.GetEnumTitle()}
+{OrderStatus.Closed.GetEnumTitle()}
+{OrderStatus.WaitForPayment.GetEnumTitle()}
+Если выбран статус {OrderStatus.WaitForPayment.GetEnumTitle()}, то выбираются только заказы самовывозы с оплатой после отгрузки.
 
-				"\n\n<b>2.</b> Подсчет тары ведется следующим образом:" +
-				"\n\tПлановое значение - сумма бутылей на возврат попавших в отчет заказов;" +
-				"\n\tФактическое значение - сумма фактически возвращенных бутылей по адресам маршрутного листа." +
-				"\n\t\tФактическое значение возвращенных бутылей по адресу зависит от того, доставлен<b>(*)</b> заказ или нет:" +
-				"\n\t\t\t <b>-</b> Если да - берется кол-во бутылей, которое по факту забрал водитель. " +
-				"Это кол-во может быть вручную указано при закрытии МЛ;" +
+В отчет <b>не попадают</b> заказы, являющиеся закрывашками по контракту.
+Фильтр по дате отсекает заказы, если дата доставки не входит в выбранный период.
 
-				"\n\t\t\t <b>-</b> Если не доставлен - берется кол-во бутылей на возврат из заказа;" +
-				"\n\t\t\t <b>-</b> Если заказ является самовывозом - берется значение возвращенной тары, указанное в отпуске самовывоза;" +
-				$"\n\t\t <b>*</b> Заказ считается доставленным, если его статус в МЛ: '{RouteListItemStatus.Completed.GetEnumTitle()}' или " +
-				$"'{RouteListItemStatus.EnRoute.GetEnumTitle()}' и статус МЛ '{RouteListStatus.Closed.GetEnumTitle()}' " +
-				$"или '{RouteListStatus.OnClosing.GetEnumTitle()}'." +
-				"\n\nДетальный отчет аналогичен обычному, лишь предоставляет расширенную информацию.";
+Детальный отчет отличается от обычного тем, что у него подробно разбиты затраты и всегда есть группировка по товарам.
+
+Цена продажи - Сумма продажи фактического количества товара с учетом скидки в пересчете на 1 единицу товара
+Сумма продажи - Сумма продажи фактического количества товара с учетом скидки
+
+Затраты:
+	Производство или закупка - Если товар учавствует в групповой установке себестоимости, то это затраты на себестоимость, 
+		а если нет, то это затраты на закупку.
+	Фура - Стоимость доставки единицы товара с производства на склад
+	Доставка - Стоимость доставки товара на адрес в пересчете на вес единицы товара
+	Склад - Складские расходы в пересчете на вес единицы товара
+	ОХР - административные расходы в пересчете на вес единицы товара
+	Затраты на единицу - Сумма всех затрат на единицу товара
+	Сумма затрат - затраты на все количество товара
+
+Группировки:
+	В отчете можно выбрать различные группировки, по которым будут собираться данные. 
+	Можно выбрать максимум 3 группировки в любом порядке.
+";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
 		}

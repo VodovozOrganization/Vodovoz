@@ -68,6 +68,7 @@ namespace Vodovoz.ViewModel
 		{
 			RouteListsVMNode resultAlias = null;
 			RouteList routeListAlias = null;
+			RouteList routeList2Alias = null;
 			DeliveryShift shiftAlias = null;
 			Car carAlias = null;
 			CarVersion carVersionAlias = null;
@@ -79,19 +80,25 @@ namespace Vodovoz.ViewModel
 
 			var query = UoW.Session.QueryOver(() => routeListAlias);
 
+			var firstRouteListGeoGroup = QueryOver.Of(() => routeList2Alias)
+            	.JoinAlias(() => routeList2Alias.GeographicGroups, () => geoGroupAlias)
+            	.Where(() => routeList2Alias.Id == routeListAlias.Id)
+            	.Select(Projections.Property(() => geoGroupAlias.Id))
+            	.Take(1);
+            
+            var closingSubdivision = QueryOver.Of(() => subdivisionAlias)
+            	.JoinEntityAlias(() => geoGroupVersionAlias, () => geoGroupVersionAlias.CashSubdivision.Id == subdivisionAlias.Id)
+            	.Where(Restrictions.EqProperty(
+					Projections.Property(() => geoGroupVersionAlias.GeoGroup.Id),
+					Projections.SubQuery(firstRouteListGeoGroup)))
+            	.And(() => geoGroupVersionAlias.ActivationDate <= routeListAlias.Date)
+            	.And(() => geoGroupVersionAlias.ClosingDate == null || geoGroupVersionAlias.ClosingDate >= routeListAlias.Date)
+            	.Select(s => s.Name);
+
+
 			query.Left.JoinAlias(rl => rl.Driver, () => driverAlias)
 				.Inner.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.Left.JoinAlias(o => o.GeographicGroups, () => geoGroupAlias)
-				.Left.JoinAlias(() => geoGroupAlias.Versions, () => geoGroupVersionAlias,
-						Restrictions.Conjunction()
-							.Add(Restrictions.Where(() => geoGroupVersionAlias.ActivationDate <= routeListAlias.Date))
-							.Add(
-								Restrictions.Disjunction()
-									.Add(Restrictions.IsNull(Projections.Property(() => geoGroupVersionAlias.ClosingDate)))
-									.Add(Restrictions.Where(() => geoGroupVersionAlias.ClosingDate >= routeListAlias.Date))
-							)
-				)
-				.Left.JoinAlias(() => geoGroupVersionAlias.CashSubdivision, () => subdivisionAlias)
 				.JoinEntityAlias(() => carVersionAlias,
 					() => carVersionAlias.Car.Id == carAlias.Id
 						&& carVersionAlias.StartDate <= routeListAlias.Date
@@ -195,7 +202,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => driverAlias.Comment).WithAlias(() => resultAlias.DriverComment)
 				   .Select(() => routeListAlias.LogisticiansComment).WithAlias(() => resultAlias.LogisticiansComment)
 				   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
-				   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
+				   .SelectSubQuery(closingSubdivision).WithAlias(() => resultAlias.ClosingSubdivision)
 				   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)
 				   .Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
 				   .Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)

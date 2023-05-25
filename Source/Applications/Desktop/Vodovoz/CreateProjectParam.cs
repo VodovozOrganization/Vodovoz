@@ -351,6 +351,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
 				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
 				.RegisterWidgetForTabViewModel<CounterpartyDetailsFromRevenueServiceViewModel, CounterpartyDetailsFromRevenueServiceView>()
+				.RegisterWidgetForTabViewModel<CloseSupplyToCounterpartyViewModel, CloseSupplyToCounterpartyView>()
 				.RegisterWidgetForTabViewModel<DeliveryPriceRuleViewModel, DeliveryPriceRuleView>()
 				.RegisterWidgetForTabViewModel<ExternalCounterpartyMatchingViewModel, ExternalCounterpartyMatchingView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceViewModel, InventoryInstanceView>()
@@ -614,6 +615,14 @@ namespace Vodovoz
 				.As<IGtkViewResolver>();
 
 			builder.RegisterType<TrueMarkCodesPool>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<TrueMarkCodePoolLoader>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<TrueMarkWaterCodeParser>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
 

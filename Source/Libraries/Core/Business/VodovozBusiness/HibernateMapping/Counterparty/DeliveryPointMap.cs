@@ -36,7 +36,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Letter)					.Column("letter");
 			Map(x => x.Placement)		 		.Column("placement");
 			Map(x => x.Comment)		  			.Column("comment");
-			Map(x => x.CommentLogist)		  	.Column("comment_logist");
 			Map(x => x.FoundOnOsm)		  		.Column("found_on_osm");
 			Map(x => x.ManualCoordinates)		.Column("manual_coordinates");
 			Map(x => x.IsFixedInOsm)	 	 	.Column("is_fixed_in_osm");
@@ -71,6 +70,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.DefaultWaterNomenclature)	.Column("default_nomenclature_id");
 			References(x => x.District)					.Column("district_id");
 			References(x => x.Category)					.Column("delivery_point_category_id");
+			References(x => x.LogisticsRequirements)	.Column("logistics_requirements_id").Cascade.All();
 
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("delivery_point_id");
 			HasMany(x => x.NomenclatureFixedPrices)

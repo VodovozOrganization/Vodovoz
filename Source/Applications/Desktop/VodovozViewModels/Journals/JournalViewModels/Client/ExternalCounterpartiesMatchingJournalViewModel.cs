@@ -38,8 +38,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 			dataLoader.AddQuery(ItemsQuery);
 			DataLoader = dataLoader;
 
-			var names = typeof(ExternalCounterpartyMatching).GetSubjectNames();
-			
 			TabName = "Сопоставление клиентов из внешних источников";
 
 			ConfigureFilter(filterParams);
@@ -153,6 +151,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Client
 					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 				)
+				.OrderBy(ecm => ecm.Status).Asc
+				.ThenBy(ecm => ecm.Created).Desc
 				.TransformUsing(Transformers.AliasToBean<ExternalCounterpartyMatchingJournalNode>());
 
 			return result;

@@ -213,12 +213,12 @@ namespace Vodovoz.ViewWidgets
 			SetSensitivities();
 		}
 
-        private void OnUndeliveredOrderChanged(object sender, EventArgs e)
-        {
+		private void OnUndeliveredOrderChanged(object sender, EventArgs e)
+		{
 			this.Sensitive = true;
 		}
 
-        void GetFines()
+		void GetFines()
 		{
 			List<FineItem> fineItems = new List<FineItem>();
 			foreach(Fine f in _undelivery.Fines)

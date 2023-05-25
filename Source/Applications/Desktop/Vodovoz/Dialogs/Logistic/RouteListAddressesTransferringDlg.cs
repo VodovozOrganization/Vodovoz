@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -170,7 +170,7 @@ namespace Vodovoz
 
 			_routeListJournalFilterViewModelFrom = new RouteListJournalFilterViewModel()
 			{
-				DisplayableStatuses = new[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing },
+				DisplayableStatuses = new[] { RouteListStatus.EnRoute },
 				StartDate = DateTime.Today.AddDays(-3),
 				EndDate = DateTime.Today.AddDays(1)
 			};
@@ -243,9 +243,9 @@ namespace Vodovoz
 
 			buttonRevert.Sensitive = selectedNodes
 				.Any(x =>
-					x.Status != RouteListItemStatus.Completed
+					x.Status == RouteListItemStatus.EnRoute
 					&& (x.WasTransfered
-						|| (x.IsFromFreeBalance && x.Status != RouteListItemStatus.Transfered)));
+					    || (x.IsFromFreeBalance && x.Status != RouteListItemStatus.Transfered)));
 		}
 
 		private IColumnsConfig GetColumnsConfig(bool isRightPanel)

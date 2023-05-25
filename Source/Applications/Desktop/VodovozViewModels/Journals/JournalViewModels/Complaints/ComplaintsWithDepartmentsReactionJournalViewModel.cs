@@ -918,6 +918,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 			CreateDefaultDeleteAction();
 			CreateExportAction();
 			OpenStandartViewAction();
+			CreateComplaintClassificationSummaryAction();
 		}
 		
 		public Action<Type> ChangeView { get; set; }
@@ -945,6 +946,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 					report.Export();
 				}));
 		}
+
+		private void CreateComplaintClassificationSummaryAction() =>
+			NodeActionsList.Add(new JournalAction("Сводка по классификации рекламаций", x => false, x => true, null));
 
 		private void CreateAddActions()
 		{

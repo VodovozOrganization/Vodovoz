@@ -9,6 +9,8 @@ using QS.Project.Services;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Models;
+using Vodovoz.Parameters;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz
 {
@@ -42,7 +44,10 @@ namespace Vodovoz
 		public CounterpartyContractDlg(Counterparty counterparty, PaymentType paymentType, Organization organizetion, DateTime? date):this(counterparty,organizetion){
 			var orderOrganizationProviderFactory = new OrderOrganizationProviderFactory();
 			var orderOrganizationProvider = orderOrganizationProviderFactory.CreateOrderOrganizationProvider();
-			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider);
+			var parametersProvider = new ParametersProvider();
+			var orderParametersProvider = new OrderParametersProvider(parametersProvider);
+			var cashReceiptRepository = new CashReceiptRepository(UnitOfWorkFactory.GetDefaultFactory, orderParametersProvider);
+			var counterpartyContractRepository = new CounterpartyContractRepository(orderOrganizationProvider, cashReceiptRepository);
 			var contractType =  counterpartyContractRepository.GetContractTypeForPaymentType(counterparty.PersonType, paymentType);
 			Entity.ContractType = contractType;
 			if(date.HasValue)
