@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
 using Gtk;
@@ -935,48 +935,12 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnAction14Activated(object sender, EventArgs e)
 	{
-		//var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
-		//IFileChooserProvider chooserProvider = new Vodovoz.FileChooser();
-		//var employeeJournalFactory = new EmployeeJournalFactory();
-		//var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		//var incomeFactory = new IncomeCategorySelectorFactory();
-
 		NavigationManager.OpenViewModel<IncomeCategoryJournalViewModel>(null);
-		//tdiMain.AddTab(
-		//	new IncomeCategoryJournalViewModel(
-		//		incomeCategoryFilter,
-		//		UnitOfWorkFactory.GetDefaultFactory,
-		//		ServicesConfig.CommonServices,
-		//		chooserProvider,
-		//		employeeJournalFactory,
-		//		subdivisionJournalFactory,
-		//		incomeFactory
-		//	)
-		//);
 	}
 
 	protected void OnAction15Activated(object sender, EventArgs e)
 	{
-		//var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel();
-		//IFileChooserProvider chooserProvider = new Vodovoz.FileChooser();
-		//var employeeJournalFactory = new EmployeeJournalFactory();
-		//var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		//var expenseFactory = new ExpenseCategorySelectorFactory();
-
 		NavigationManager.OpenViewModel<ExpenseCategoryJournalViewModel>(null);
-
-		//tdiMain.AddTab(
-		//	new ExpenseCategoryJournalViewModel(
-		//		expenseCategoryFilter,
-		//		UnitOfWorkFactory.GetDefaultFactory,
-		//		ServicesConfig.CommonServices,
-		//		chooserProvider,
-		//		employeeJournalFactory,
-		//		subdivisionJournalFactory,
-		//		expenseFactory,
-		//		autofacScope.BeginLifetimeScope()
-		//	)
-		//);
 	}
 
 	protected void OnActionCashToggled(object sender, EventArgs e)
