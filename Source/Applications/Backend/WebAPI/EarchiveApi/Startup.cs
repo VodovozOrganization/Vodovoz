@@ -54,6 +54,9 @@ namespace EarchiveApi
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapGrpcService<EarchiveUpdService>().EnableGrpcWeb();
+
+				endpoints.MapGet("/", async context =>
+					await context.Response.WriteAsync("Use GRPC clietn for connection"));
 			});
 		}
 
