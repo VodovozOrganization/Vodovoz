@@ -53,6 +53,9 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Domain\Cash\FinancialCategoriesGroup.cs" />
+    <Compile Include="Domain\Cash\FinancialCategoryTypeEnum.cs" />
+    <Compile Include="Domain\Cash\IFinancialCategory.cs" />
     <Compile Include="Domain\Client\ExternalCounterpartyMatchingStatus.cs" />
     <Compile Include="Domain\Employees\IconsSize.cs" />
     <Compile Include="Domain\Employees\ToolBarIconsSizeStringType.cs" />
@@ -497,6 +500,7 @@
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
+    <Compile Include="HibernateMapping\Cash\FinancialCategoriesGroupMap.cs" />
     <Compile Include="HibernateMapping\Cash\PayoutRequestBaseMap.cs" />
     <Compile Include="HibernateMapping\Complaints\CamplaintDetalizationMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintResultCommentMap.cs" />
@@ -1139,6 +1143,8 @@
     <Compile Include="HibernateMapping\Cash\Transfer\CashTransferOperationMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\IncomeCashTransferedItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\ExpenseCashTransferedItemMap.cs" />
+    <Compile Include="Tools\StringUtils.cs" />
+    <Compile Include="Tools\TypeUtils.cs" />
     <Compile Include="Tools\Validation\PasswordValidationSettingsFactory.cs" />
     <Compile Include="ViewModelBased\ViewModelBase.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />

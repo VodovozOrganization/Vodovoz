@@ -1,21 +1,21 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.Tdi;
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
 using Vodovoz.Domain.Cash;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using VodovozInfrastructure.Interfaces;
 
@@ -29,30 +29,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		ExpenseCategoryJournalFilterViewModel
 	>
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IFileChooserProvider _fileChooserProvider;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
+		private readonly INavigationManager _navigationManager;
 
 		public ExpenseCategoryJournalViewModel(
 			ExpenseCategoryJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IFileChooserProvider fileChooserProvider,
-			IEmployeeJournalFactory employeeJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IExpenseCategorySelectorFactory expenseCategorySelectorFactory
+			INavigationManager navigationManager,
+			Action<ExpenseCategoryJournalFilterViewModel> filterConfigurationAction = null
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_fileChooserProvider = fileChooserProvider ?? throw new ArgumentNullException(nameof(fileChooserProvider));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			_expenseCategorySelectorFactory =
-				expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
-
+			_navigationManager = navigationManager;
 			TabName = "Категории расхода";
+
+			if(filterConfigurationAction != null)
+			{
+				filterViewModel.SetAndRefilterAtOnce(filterConfigurationAction);
+			}
 
 			UpdateOnChanges(
 				typeof(ExpenseCategory),
@@ -130,24 +126,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		};
 
 		protected override Func<ExpenseCategoryViewModel> CreateDialogFunction => () =>
-			new ExpenseCategoryViewModel(
-				EntityUoWBuilder.ForCreate(),
-				_unitOfWorkFactory,
-				commonServices,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_expenseCategorySelectorFactory
-			);
+			_navigationManager.OpenViewModel<ExpenseCategoryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel;
 
 		protected override Func<ExpenseCategoryJournalNode, ExpenseCategoryViewModel> OpenDialogFunction => node =>
-			new ExpenseCategoryViewModel(
-				EntityUoWBuilder.ForOpen(node.Id),
-				_unitOfWorkFactory,
-				commonServices,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_expenseCategorySelectorFactory
-			);
+			_navigationManager.OpenViewModel<ExpenseCategoryViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
 
 		protected override void CreatePopupActions()
 		{
@@ -194,6 +176,124 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					}
 				}
 			}));
+		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateAddActions();
+			CreateEditAction();
+			CreateDefaultDeleteAction();
+		}
+
+		protected void CreateAddActions()
+		{
+			if(!EntityConfigs.Any())
+			{
+				return;
+			}
+
+			var totalCreateDialogConfigs = EntityConfigs
+				.Where(x => x.Value.PermissionResult.CanCreate)
+				.Sum(x => x.Value.EntityDocumentConfigurations
+							.Select(y => y.GetCreateEntityDlgConfigs().Count())
+							.Sum());
+
+			if(EntityConfigs.Values.Count(x => x.PermissionResult.CanRead) > 1 || totalCreateDialogConfigs > 1)
+			{
+				var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
+				foreach(var entityConfig in EntityConfigs.Values)
+				{
+					foreach(var documentConfig in entityConfig.EntityDocumentConfigurations)
+					{
+						foreach(var createDlgConfig in documentConfig.GetCreateEntityDlgConfigs())
+						{
+							var childNodeAction = new JournalAction(createDlgConfig.Title,
+								(selected) => entityConfig.PermissionResult.CanCreate,
+								(selected) => entityConfig.PermissionResult.CanCreate,
+								(selected) => {
+									createDlgConfig.OpenEntityDialogFunction();
+									if(documentConfig.JournalParameters.HideJournalForCreateDialog)
+									{
+										HideJournal(TabParent);
+									}
+								}
+							);
+							addParentNodeAction.ChildActionsList.Add(childNodeAction);
+						}
+					}
+				}
+				NodeActionsList.Add(addParentNodeAction);
+			}
+			else
+			{
+				var entityConfig = EntityConfigs.First().Value;
+				var addAction = new JournalAction("Добавить",
+					(selected) => entityConfig.PermissionResult.CanCreate,
+					(selected) => entityConfig.PermissionResult.CanCreate,
+					(selected) => {
+						var docConfig = entityConfig.EntityDocumentConfigurations.First();
+						ITdiTab tab = docConfig.GetCreateEntityDlgConfigs().First().OpenEntityDialogFunction();
+
+						if(tab is ITdiDialog)
+							((ITdiDialog)tab).EntitySaved += Tab_EntitySaved;
+
+						if(docConfig.JournalParameters.HideJournalForCreateDialog)
+						{
+							HideJournal(TabParent);
+						}
+					},
+					"Insert"
+					);
+				NodeActionsList.Add(addAction);
+			};
+		}
+
+		protected void CreateEditAction()
+		{
+			var editAction = new JournalAction("Изменить",
+				(selected) => {
+					var selectedNodes = selected.OfType<ExpenseCategoryJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					ExpenseCategoryJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return false;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					return config.PermissionResult.CanUpdate;
+				},
+				(selected) => true,
+				(selected) => {
+					var selectedNodes = selected.OfType<ExpenseCategoryJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+					ExpenseCategoryJournalNode selectedNode = selectedNodes.First();
+					if(!EntityConfigs.ContainsKey(selectedNode.EntityType))
+					{
+						return;
+					}
+					var config = EntityConfigs[selectedNode.EntityType];
+					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
+
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
+					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
+					{
+						HideJournal(TabParent);
+					}
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None)
+			{
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
 		}
 	}
 }

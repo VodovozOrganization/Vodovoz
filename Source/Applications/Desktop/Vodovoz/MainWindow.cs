@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
 using Gtk;
@@ -109,6 +109,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Accounting;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Fuel;
@@ -323,7 +324,7 @@ public partial class MainWindow : Gtk.Window
 		#endregion
 
 		#region Уведомление об отправленных перемещениях для подразделения
-		
+
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
@@ -346,8 +347,8 @@ public partial class MainWindow : Gtk.Window
 		#region Уведомление о наличии незакрытых рекламаций без комментариев в добавленной дискуссии для отдела
 
 		_complaintNotificationController = autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
-		
-		if (!_hideComplaintsNotifications)
+
+		if(!_hideComplaintsNotifications)
 		{
 			_complaintNotificationController.UpdateNotificationAction += UpdateSendedComplaintsNotification;
 
@@ -934,44 +935,12 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnAction14Activated(object sender, EventArgs e)
 	{
-		var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
-		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		var incomeFactory = new IncomeCategorySelectorFactory();
-
-		tdiMain.AddTab(
-			new IncomeCategoryJournalViewModel(
-				incomeCategoryFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				chooserProvider,
-				employeeJournalFactory,
-				subdivisionJournalFactory,
-				incomeFactory
-			)
-		);
+		NavigationManager.OpenViewModel<IncomeCategoryJournalViewModel>(null);
 	}
 
 	protected void OnAction15Activated(object sender, EventArgs e)
 	{
-		var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel();
-		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		var expenseFactory = new ExpenseCategorySelectorFactory();
-
-		tdiMain.AddTab(
-			new ExpenseCategoryJournalViewModel(
-				expenseCategoryFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				chooserProvider,
-				employeeJournalFactory,
-				subdivisionJournalFactory,
-				expenseFactory
-			)
-		);
+		NavigationManager.OpenViewModel<ExpenseCategoryJournalViewModel>(null);
 	}
 
 	protected void OnActionCashToggled(object sender, EventArgs e)
@@ -2727,4 +2696,9 @@ public partial class MainWindow : Gtk.Window
 		new DateTime(2000, 1, 1)
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
+
+	protected void OnActionFinancialCategoriesGroupsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
+	}
 }

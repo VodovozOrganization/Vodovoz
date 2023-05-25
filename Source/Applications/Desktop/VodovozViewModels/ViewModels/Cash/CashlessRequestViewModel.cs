@@ -79,7 +79,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory =>
 			_expenseCategoryAutocompleteSelectorFactory
 		    ?? (_expenseCategoryAutocompleteSelectorFactory =
-				_expenseCategoryJournalFactory.CreateSimpleExpenseCategoryAutocompleteSelectorFactory());
+				_expenseCategoryJournalFactory.CreateDefaultExpenseCategoryAutocompleteSelectorFactory());
 
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
 
