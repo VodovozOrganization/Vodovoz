@@ -42,7 +42,7 @@ namespace VodovozBusinessTests.Domain.Documents
 					new SelfDeliveryDocumentReturned {
 						Amount = 1,
 						Nomenclature = nomenclatureMock,
-						GoodsAccountingOperation = Substitute.For<GoodsAccountingOperation>(),
+						GoodsAccountingOperation = Substitute.For<WarehouseBulkGoodsAccountingOperation>(),
 						CounterpartyMovementOperation = Substitute.For<CounterpartyMovementOperation>()
 					},
 					Substitute.For<SelfDeliveryDocumentReturned>()
@@ -57,12 +57,12 @@ namespace VodovozBusinessTests.Domain.Documents
 					new SelfDeliveryDocumentReturned {
 						Amount = 0,
 						Nomenclature = nomenclatureMock,
-						GoodsAccountingOperation = Substitute.For<GoodsAccountingOperation>()
+						GoodsAccountingOperation = Substitute.For<WarehouseBulkGoodsAccountingOperation>()
 					},
 					new SelfDeliveryDocumentReturned {
 						Amount = 0,
 						Nomenclature = Substitute.For<Nomenclature>(),
-						GoodsAccountingOperation = Substitute.For<GoodsAccountingOperation>()
+						GoodsAccountingOperation = Substitute.For<WarehouseBulkGoodsAccountingOperation>()
 					}
 				}
 			};
@@ -121,7 +121,7 @@ namespace VodovozBusinessTests.Domain.Documents
 					new SelfDeliveryDocumentReturned {
 						Amount = 1,
 						Nomenclature = nomenclatureMock,
-						GoodsAccountingOperation = new GoodsAccountingOperation {
+						GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation {
 							Amount = 1
 						},
 						CounterpartyMovementOperation = Substitute.For<CounterpartyMovementOperation>()
@@ -182,7 +182,7 @@ namespace VodovozBusinessTests.Domain.Documents
 					new SelfDeliveryDocumentReturned {
 						Amount = 2,
 						Nomenclature = nomenclatureMock,
-						GoodsAccountingOperation = Substitute.For<GoodsAccountingOperation>()
+						GoodsAccountingOperation = Substitute.For<WarehouseBulkGoodsAccountingOperation>()
 					}
 				}
 			};

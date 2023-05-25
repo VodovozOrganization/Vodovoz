@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Autofac;
+using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -116,7 +117,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			Init();
 		}
-		
+
+		public string DocumentStatus => Entity.InventoryDocumentStatus.GetEnumTitle();
+
 		public bool IsBulkAccountingActive
 		{
 			get => _isBulkAccountingActive;
@@ -915,6 +918,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		
 		private void SetPropertyChangeRelations()
 		{
+			SetPropertyChangeRelation(
+				x => x.InventoryDocumentStatus,
+				() => DocumentStatus);
 			SetPropertyChangeRelation(
 				x => x.InventoryDocumentType,
 				() => CanShowWarehouseStorage,

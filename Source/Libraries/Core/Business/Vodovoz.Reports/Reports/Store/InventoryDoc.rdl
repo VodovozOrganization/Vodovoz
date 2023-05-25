@@ -104,7 +104,7 @@ ORDER BY
             WHEN c.id is not null THEN CONCAT(cm.name, ' ', c.reg_number)
             END
         )as storage,
-    comment
+    store_inventory.comment
 FROM
     store_inventory
         LEFT JOIN
@@ -116,7 +116,7 @@ FROM
         LEFT JOIN
     car_models cm ON cm.id = c.model_id
 WHERE
-        store_inventory.id = @document_id;</CommandText>
+        store_inventory.id = @inventory_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="inventory_id">
             <Value>={?inventory_id}</Value>

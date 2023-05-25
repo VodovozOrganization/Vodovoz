@@ -29,6 +29,10 @@ namespace Vodovoz.Views.Warehouse
 			
 			ConfigureCommonButtons();
 			
+			lblDocumentStatus.Binding
+				.AddBinding(ViewModel, e => e.DocumentStatus, w => w.LabelProp)
+				.InitializeFromSource();
+			
 			radioBtnBulkAccounting.Binding
 				.AddBinding(ViewModel, vm => vm.IsBulkAccountingActive, w => w.Active)
 				.InitializeFromSource();
