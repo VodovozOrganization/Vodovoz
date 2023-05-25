@@ -486,7 +486,7 @@ namespace Vodovoz.Views.Warehouse
 			this.expanderInstancesDiscrepancies.Add(this.GtkScrolledWindow5);
 			this.GtkLabelInstancesDiscrepancies = new global::Gtk.Label();
 			this.GtkLabelInstancesDiscrepancies.Name = "GtkLabelInstancesDiscrepancies";
-			this.GtkLabelInstancesDiscrepancies.LabelProp = global::Mono.Unix.Catalog.GetString("Расхождения экземплрного учета");
+			this.GtkLabelInstancesDiscrepancies.LabelProp = global::Mono.Unix.Catalog.GetString("Расхождения экземплярного учета");
 			this.GtkLabelInstancesDiscrepancies.UseUnderline = true;
 			this.expanderInstancesDiscrepancies.LabelWidget = this.GtkLabelInstancesDiscrepancies;
 			this.vboxInstanceItems.Add(this.expanderInstancesDiscrepancies);
