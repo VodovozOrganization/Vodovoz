@@ -6,13 +6,13 @@
         "ASPNETCORE_ENVIRONMENT": "Production"
       },
       "dotnetRunMessages": "true",
-      "applicationUrl": "http://localhost:5000;https://localhost:5001"
+      "applicationUrl": "https://localhost:7101"
     },
-    "Docker": {
-      "commandName": "Docker",
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
-      "publishAllPorts": true,
-      "useSSL": true
-    }
+		"Docker": {
+			"commandName": "Docker",
+			"launchUrl": "http://localhost:7101",
+			"publishAllPorts": true,
+			"useSSL": false
+		}
   }
 }
