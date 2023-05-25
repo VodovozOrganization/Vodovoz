@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -116,7 +116,8 @@ namespace Vodovoz
 		int bottlesReturnedTotal;
 		int defectiveBottlesReturnedToWarehouse;
 
-		private IList<RouteListAddressKeepingDocumentItem> _addressKeepingDocumentItemsCacheList;
+		private Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>> _addressKeepingDocumentItemsCacheList =
+			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -608,6 +609,14 @@ namespace Vodovoz
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
 
+			if(!_addressKeepingDocumentItemsCacheList.ContainsKey(node.Id))
+			{
+				_addressKeepingDocumentItemsCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
+			}
+
+			_addressKeepingDocumentItemsCacheList[node.Id] = _routeListAddressKeepingDocumentController
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentItemsCacheList[node.Id]);
+
 			ReloadDiscrepancies();
 
 			((OrderReturnsView)sender).TabClosed -= OnOrderReturnsViewTabClosed;
@@ -616,9 +625,6 @@ namespace Vodovoz
 		void OnRouteListItemChanged(object aList, int[] aIdx)
 		{
 			var item = routeListAddressesView.Items[aIdx[0]];
-
-			_addressKeepingDocumentItemsCacheList = _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, item,
-				_addressKeepingDocumentItemsCacheList);
 
 			Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
 			item.RecalculateTotalCash();

@@ -15,8 +15,8 @@ namespace Vodovoz.Controllers
 			RouteListItemStatus? oldStatus = null, RouteListItemStatus? newStatus = null);
 		void CreateOrUpdateRouteListKeepingDocument(
 			IUnitOfWork uoW, RouteList routeList, DeliveryFreeBalanceType deliveryFreeBalanceType, bool isFullRecreation, bool isActualCount);
-		IList<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
-			IUnitOfWork uow, RouteListItem changedRouteListItem, IList<RouteListAddressKeepingDocumentItem> itemsCacheList = null);
+		HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
+			IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null);
 		void RemoveRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem);
 	}
 }
