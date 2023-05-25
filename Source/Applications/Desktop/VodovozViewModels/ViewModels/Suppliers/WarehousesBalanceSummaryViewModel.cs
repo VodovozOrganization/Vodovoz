@@ -24,6 +24,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ViewModels.Suppliers
@@ -1172,12 +1173,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 						var query = UoW.Session.QueryOver<Employee>()
 							.Where(e => e.Status == EmployeeStatus.IsWorking);
 
-						var employeeName = CustomProjections.Concat_WS(
-							" ",
-							Projections.Property<Employee>(x => x.LastName),
-							Projections.Property<Employee>(x => x.Name),
-							Projections.Property<Employee>(x => x.Patronymic)
-						);
+						var employeeName = EmployeeProjections.GetEmployeeFullNameProjection();
 
 						if(filters != null && EnumerableExtensions.Any(filters))
 						{
@@ -1242,89 +1238,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		}
 
 		#endregion
-	}
-
-	public class BalanceSummaryRow
-	{
-		public int Num { get; set; }
-		public int EntityId { get; set; }
-		public string NomTitle { get; set; }
-		public string InventoryNumber { get; set; }
-		public decimal Min { get; set; }
-		public decimal Common => WarehousesBalances.Sum() + EmployeesBalances.Sum() + CarsBalances.Sum();
-		public decimal Diff => Common - Min;
-		public decimal? ReservedItemsAmount { get; set; } = 0;
-		public decimal? AvailableItemsAmount => Common - ReservedItemsAmount;
-		public decimal PurchasePrice { get; set; }
-		public decimal Price { get; set; }
-		public decimal AlternativePrice { get; set; }
-		public List<decimal> WarehousesBalances { get; set; }
-		public List<decimal> EmployeesBalances { get; set; }
-		public List<decimal> CarsBalances { get; set; }
-	}
-
-	public class BalanceSummaryReport
-	{
-		public DateTime EndDate { get; set; }
-		public List<string> WarehouseStoragesTitles { get; set; }
-		public List<string> EmployeeStoragesTitles { get; set; }
-		public List<string> CarStoragesTitles { get; set; }
-		public List<BalanceSummaryRow> SummaryRows { get; set; }
-		
-		public void RemoveWarehouseByIndex(int counter)
-		{
-			WarehouseStoragesTitles.RemoveAt(counter);
-			SummaryRows.ForEach(row => row.WarehousesBalances.RemoveAt(counter));
-		}
-		
-		public void RemoveEmployeeByIndex(int counter)
-		{
-			EmployeeStoragesTitles.RemoveAt(counter);
-			SummaryRows.ForEach(row => row.EmployeesBalances.RemoveAt(counter));
-		}
-		
-		public void RemoveCarByIndex(int counter)
-		{
-			CarStoragesTitles.RemoveAt(counter);
-			SummaryRows.ForEach(row => row.CarsBalances.RemoveAt(counter));
-		}
-	}
-
-	public class BalanceBean
-	{
-		public int EntityId { get; set; }
-		public int StorageId { get; set; }
-		public decimal Amount { get; set; }
-	}
-
-	public class ReservedBalance
-	{
-		public int ItemId { get; set; }
-		public decimal? ReservedItemsAmount { get; set; }
-	}
-	
-	public class PriceNode
-	{
-		public int NomenclatureId { get; set; }
-		public decimal Amount { get; set; }
-	}
-
-	public class InstanceData
-	{
-		public string Name { get; set; }
-		public decimal PurchasePrice { get; set; }
-		public string InventoryNumber { get; set; }
-	}
-
-	public struct NomenclatureStorageIds
-	{
-		private readonly int _nomenclatureId;
-		private readonly int _storageId;
-		public NomenclatureStorageIds(int nomenclatureId, int storageId)
-		{
-			_nomenclatureId = nomenclatureId;
-			_storageId = storageId;
-		}
 	}
 }
 

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Operations
@@ -40,16 +39,6 @@ namespace Vodovoz.Domain.Operations
 		}
 
 		#endregion
-	}
-
-	public enum OperationType
-	{
-		WarehouseInstanceGoodsAccountingOperation,
-		EmployeeInstanceGoodsAccountingOperation,
-		CarInstanceGoodsAccountingOperation,
-		WarehouseBulkGoodsAccountingOperation,
-		EmployeeBulkGoodsAccountingOperation,
-		CarBulkGoodsAccountingOperation
 	}
 }
 

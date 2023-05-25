@@ -36,7 +36,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store

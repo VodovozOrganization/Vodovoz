@@ -5,13 +5,12 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
-using QS.Project.Filter;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Warehouses;
 
@@ -108,13 +107,5 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			commonServices,
 			_subdivisionRepository
 		);
-	}
-
-
-	public class WarehouseJournalFilterViewModel : FilterViewModelBase<WarehouseJournalFilterViewModel>, IJournalFilterViewModel 
-	{
-		public IEnumerable<int> IncludeWarehouseIds { get; set; }
-		public int[] ExcludeWarehousesIds { get; set; }
-		public bool IsShow { get; set; }
 	}
 }

@@ -86,10 +86,4 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		
 		public virtual string Title => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
 	}
-
-	public enum AccountingType
-	{
-		Bulk,
-		Instance
-	}
 }

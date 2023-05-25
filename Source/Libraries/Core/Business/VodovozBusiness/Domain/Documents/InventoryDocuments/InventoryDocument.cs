@@ -593,23 +593,5 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 			}
 		}
 	}
-
-	public enum InventoryDocumentStatus
-	{
-		[Display(Name = "В работе")]
-		InProcess,
-		[Display(Name = "Подтвержден")]
-		Confirmed
-	}
-
-	public enum InventoryDocumentType
-	{
-		[Display(Name = "Для склада")]
-		WarehouseInventory,
-		[Display(Name = "Для сотрудника")]
-		EmployeeInventory,
-		[Display(Name = "Для автомобиля")]
-		CarInventory
-	}
 }
 

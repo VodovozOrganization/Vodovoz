@@ -35,6 +35,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -213,7 +214,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					Identifier = "Store.InventoryDoc",
 					Parameters = new Dictionary<string, object>
 					{
-						{ "inventory_id",  Entity.Id }
+						{ "inventory_id",  Entity.Id },
+						{ "sorted_by_nomenclature_name", Entity.SortedByNomenclatureName }
 					}
 				};
 

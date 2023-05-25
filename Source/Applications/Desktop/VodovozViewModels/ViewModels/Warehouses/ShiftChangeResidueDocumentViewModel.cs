@@ -29,6 +29,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;

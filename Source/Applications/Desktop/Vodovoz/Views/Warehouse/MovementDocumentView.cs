@@ -37,7 +37,6 @@ namespace Vodovoz.Views.Warehouse
 
 			wagonEntry.WidthRequest = 350;
 			wagonEntry.ViewModel = ViewModel.WagonEntryViewModel;
-			//wagonEntry.ViewModel.IsEditable = false;
 			wagonEntry.Binding
 				.AddBinding(ViewModel, vm => vm.CanChangeWagon, w => w.Sensitive)
 				.InitializeFromSource();

@@ -447,12 +447,4 @@ namespace Vodovoz.Domain.Documents
 			return ObservableNomenclatureItems.Count > 0 || ObservableInstanceItems.Count > 0;
 		}
 	}
-
-	public enum ShiftChangeResidueDocumentType
-	{
-		[Display(Name = "По складу")]
-		Warehouse,
-		[Display(Name = "По автомобилю")]
-		Car
-	}
 }

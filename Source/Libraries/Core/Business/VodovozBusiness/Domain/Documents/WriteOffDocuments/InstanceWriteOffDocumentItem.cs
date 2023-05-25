@@ -16,30 +16,7 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 		public virtual InventoryNomenclatureInstance InventoryNomenclatureInstance
 		{
 			get => _inventoryNomenclatureInstance;
-			set
-			{
-				if(!SetField(ref _inventoryNomenclatureInstance, value))
-				{
-					return;
-				}
-
-				/*if(WarehouseWriteoffOperation != null)
-				{
-					if(WarehouseWriteoffOperation.InventoryNomenclatureInstance != value)
-					{
-						WarehouseWriteoffOperation.InventoryNomenclatureInstance = value;
-					}
-					if(WarehouseWriteoffOperation.Nomenclature != _nomenclature)
-					{
-						WarehouseWriteoffOperation.Nomenclature = _nomenclature;
-					}
-				}*/
-
-				/*if(CounterpartyWriteoffOperation != null && CounterpartyWriteoffOperation.Nomenclature != _nomenclature)
-				{
-					CounterpartyWriteoffOperation.Nomenclature = _nomenclature;
-				}*/
-			}
+			set => SetField(ref _inventoryNomenclatureInstance, value);
 		}
 
 		public override AccountingType AccountingType => AccountingType.Instance;

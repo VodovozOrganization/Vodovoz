@@ -473,6 +473,7 @@
     <Compile Include="JournalColumnsConfigs\EmployeesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EquipmentKindJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ExpenseCategoryJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\ExternalCounterpartiesMatchingJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FastDeliveryAvailabilityHistoryJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FinancialDistrictsSetsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\FinesJournalRegistrars.cs" />
@@ -484,6 +485,9 @@
     <Compile Include="JournalColumnsConfigs\HistoryTracePropertyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\IColumnsConfigRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\IncomeCategoryJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\InventoryInstancesJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\InventoryInstancesStockJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\InventoryNomenclaturesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\LateArrivalReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\MovementWagonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\NomenclatureBalanceByStockJournalRegistrar.cs" />

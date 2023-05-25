@@ -14,7 +14,6 @@ namespace Vodovoz.HibernateMapping.Documents.WriteOffDocuments
 			
 			Map(x => x.Amount).Column("amount");
 			Map(x => x.Comment).Column("comment");
-			//Map(x => x.SumOfDamage).Column("sum_of_damage");
 			
 			References(x => x.Fine).Column("fine_id");
 			References(x => x.Document).Column("write_off_document_id").Not.Nullable();

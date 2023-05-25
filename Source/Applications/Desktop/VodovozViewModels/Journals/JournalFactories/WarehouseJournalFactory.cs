@@ -5,6 +5,7 @@ using QS.Project.Services;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories

@@ -9,7 +9,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools.Store;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz

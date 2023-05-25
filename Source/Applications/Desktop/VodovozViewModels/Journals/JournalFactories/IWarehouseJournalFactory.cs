@@ -1,6 +1,6 @@
 ﻿using System;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
 {

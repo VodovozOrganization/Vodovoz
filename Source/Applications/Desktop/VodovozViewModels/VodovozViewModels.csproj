@@ -76,6 +76,7 @@
     <Compile Include="Journals\FilterViewModels\Goods\InventoryInstancesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\OrderJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Store\WarehouseJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\TrueMark\CashReceiptJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\TargetSource.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsItemsJournalReport.cs" />
@@ -544,6 +545,13 @@
     <Compile Include="ViewModels\SidePanels\EdoLightsMatrixPanelViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
     <Compile Include="ViewModels\Store\MovementWagonViewModel.cs" />
+    <Compile Include="ViewModels\Suppliers\BalanceBean.cs" />
+    <Compile Include="ViewModels\Suppliers\BalanceSummaryReport.cs" />
+    <Compile Include="ViewModels\Suppliers\BalanceSummaryRow.cs" />
+    <Compile Include="ViewModels\Suppliers\InstanceData.cs" />
+    <Compile Include="ViewModels\Suppliers\NomenclatureStorageIds.cs" />
+    <Compile Include="ViewModels\Suppliers\PriceNode.cs" />
+    <Compile Include="ViewModels\Suppliers\ReservedBalance.cs" />
     <Compile Include="ViewModels\Suppliers\WarehousesBalanceSummaryViewModel.cs" />
     <Compile Include="ViewModels\Users\UserRoleViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRateViewModel.cs" />

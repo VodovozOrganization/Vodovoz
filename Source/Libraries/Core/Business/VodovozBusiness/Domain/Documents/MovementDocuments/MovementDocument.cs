@@ -894,44 +894,5 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		public static IEnumerable<MovementDocumentStatus> DeliveredStatuses =>
 			new[] { MovementDocumentStatus.Discrepancy, MovementDocumentStatus.Accepted }; 
 	}
-
-	public enum MovementDocumentStatus
-	{
-		[Display(Name = "Новый")]
-		New,
-		[Display(Name = "Отправлен")]
-		Sended,
-		[Display(Name = "Расхождение")]
-		Discrepancy,
-		[Display(Name = "Принят")]
-		Accepted
-	}
-	public enum MovementDocumentType
-	{
-		[Display(Name = "Внутреннее перемещение")]
-		InnerTransfer,
-		[Display(Name = "Транспортировка")]
-		Transportation
-	}
-
-	public enum MovementDocumentTypeByStorage
-	{
-		[Display(Name = "На склад")]
-		ToWarehouse,
-		[Display(Name = "На сотрудника")]
-		ToEmployee,
-		[Display(Name = "На автомобиль")]
-		ToCar
-	}
-	
-	public enum StorageType
-	{
-		[Display(Name = "Cклад")]
-		Warehouse,
-		[Display(Name = "Cотрудник")]
-		Employee,
-		[Display(Name = "Aвтомобиль")]
-		Car
-	}
 }
 

@@ -47,21 +47,6 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		//FIXME убрать если не понадобится.
-		/*Equipment equipment;
-				[Display (Name = "Оборудование")]
-		public virtual Equipment Equipment {
-			get { return equipment; }
-			set {
-				SetField (ref equipment, value, () => Equipment);
-				if (WarehouseChangeOperation != null && WarehouseChangeOperation.Equipment != equipment)
-					WarehouseChangeOperation.Equipment = equipment;
-
-				if (CounterpartyWriteoffOperation != null && CounterpartyWriteoffOperation.Equipment != equipment)
-					CounterpartyWriteoffOperation.Equipment = equipment;
-			}
-		}*/
-
 		decimal amount;
 
 		[Display (Name = "Количество")]

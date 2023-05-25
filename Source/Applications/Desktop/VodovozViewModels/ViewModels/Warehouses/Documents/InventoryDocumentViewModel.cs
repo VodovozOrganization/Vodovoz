@@ -37,6 +37,7 @@ using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 {
+	[Obsolete("Снести после обновления 29.05.23")]
 	public class InventoryDocumentViewModel : EntityTabViewModelBase<InventoryDocument>
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
@@ -291,10 +292,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			/*if(e.PropertyName == nameof(Entity.SortedByNomenclatureName))
+			if(e.PropertyName == nameof(Entity.SortedByNomenclatureName))
 			{
 				SortDocumentItems();
-			}*/
+			}
 		}
 
 		private SelectableParameterReportFilterViewModel ConfigureFilter()
@@ -421,14 +422,14 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 		private void SortDocumentItems()
 		{
-			/*if(Entity.SortedByNomenclatureName)
+			if(Entity.SortedByNomenclatureName)
 			{
-				Entity.SortItems(x => x.Nomenclature.OfficialName);
+				Entity.SortItems(true);
 			}
 			else
 			{
-				Entity.SortItems(x => x.Nomenclature.Id);
-			}*/
+				Entity.SortItems();
+			}
 		}
 
 		public bool AskQuestion(string question)
@@ -495,8 +496,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 		private void Print()
 		{
-			if(UoWGeneric.HasChanges
-				&& CommonServices.InteractiveService.Question(
+			if(UoWGeneric.HasChanges && CommonServices.InteractiveService.Question(
 					"Для печати необходимо сохранить документ." +
 					" Сохранить акт инвентаризации?"))
 			{
@@ -510,7 +510,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 				Parameters = new Dictionary<string, object>
 				{
 					{ "inventory_id",  Entity.Id },
-					//{ "sorted_by_nomenclature_name", Entity.SortedByNomenclatureName }
+					{ "sorted_by_nomenclature_name", Entity.SortedByNomenclatureName }
 				}
 			};
 

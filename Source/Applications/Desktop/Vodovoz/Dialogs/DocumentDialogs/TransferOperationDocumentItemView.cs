@@ -48,9 +48,6 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				if(documentUoW == value)
 					return;
 				documentUoW = value;
-		//		if(DocumentUoW.Root.Items == null)
-		//			DocumentUoW.Root.Items = new List<TransferOperationDocument>();
-		//		items = DocumentUoW.Root.ObservableItems;
 
 				treeItemsList.ColumnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<MovementDocumentItem>.Create()
 					.AddColumn("Наименование").AddTextRenderer(i => i.Name)

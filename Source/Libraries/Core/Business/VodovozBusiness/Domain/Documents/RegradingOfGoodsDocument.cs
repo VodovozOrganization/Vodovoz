@@ -83,13 +83,14 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title => String.Format("Пересортица товаров №{0} от {1:d}", Id, TimeStamp);
 
-		public virtual void AddItem (RegradingOfGoodsDocumentItem item)
+		public virtual void AddItem(RegradingOfGoodsDocumentItem item)
 		{
 			item.Document = this;
-			item.WarehouseIncomeOperation.OperationTime = item.WarehouseWriteOffOperation.OperationTime
-				= TimeStamp;
-			//item.WarehouseIncomeOperation.IncomingWarehouse = item.WarehouseWriteOffOperation.WriteOffWarehouse
-			//	= Warehouse;
+			item.WarehouseIncomeOperation.OperationTime = TimeStamp;
+			item.WarehouseWriteOffOperation.OperationTime = TimeStamp;
+			item.WarehouseIncomeOperation.Warehouse = Warehouse;
+			item.WarehouseWriteOffOperation.Warehouse = Warehouse;
+				
 			ObservableItems.Add (item);
 		}
 

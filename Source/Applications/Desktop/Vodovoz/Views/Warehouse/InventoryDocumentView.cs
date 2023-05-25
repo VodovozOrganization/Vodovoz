@@ -60,7 +60,6 @@ namespace Vodovoz.Views.Warehouse
 				.InitializeFromSource();
 
 			warehouseStorageEntry.ViewModel = ViewModel.InventoryWarehouseViewModel;
-			warehouseStorageEntry.ViewModel.ChangedByUser += WarehouseViewModelOnChangedByUser;
 			employeeStorageEntry.ViewModel = ViewModel.InventoryEmployeeViewModel;
 			employeeStorageEntry.Sensitive = ViewModel.HasAccessToEmployeeStorages;
 			carStorageEntry.ViewModel = ViewModel.InventoryCarViewModel;
@@ -83,12 +82,6 @@ namespace Vodovoz.Views.Warehouse
 
 			ConfigureBulkAccounting();
 			ConfigureInstanceAccounting();
-		}
-
-		private void WarehouseViewModelOnChangedByUser(object sender, EventArgs e)
-		{
-			var war = ViewModel.Entity.Warehouse;
-			var f = sender;
 		}
 
 		private void ConfigureCommonButtons()

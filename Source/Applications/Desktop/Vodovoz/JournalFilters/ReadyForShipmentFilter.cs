@@ -7,8 +7,8 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 namespace Vodovoz
 {

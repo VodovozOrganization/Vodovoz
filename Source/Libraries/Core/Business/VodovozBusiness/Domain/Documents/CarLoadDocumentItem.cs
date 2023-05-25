@@ -63,12 +63,8 @@ namespace Vodovoz.Domain.Documents
 
 		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
-			get { return equipment; }
-			set {
-				SetField (ref equipment, value);
-				/*if (GoodsAccountingOperation != null && GoodsAccountingOperation.Equipment != equipment)
-					GoodsAccountingOperation.Equipment = equipment;*/
-			}
+			get => equipment;
+			set => SetField(ref equipment, value);
 		}
 
 		OwnTypes ownType;

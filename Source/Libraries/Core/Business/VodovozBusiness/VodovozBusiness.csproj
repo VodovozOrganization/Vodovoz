@@ -54,6 +54,14 @@
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="Domain\Client\ExternalCounterpartyMatchingStatus.cs" />
+    <Compile Include="Domain\Documents\IncomingInvoices\AccountingType.cs" />
+    <Compile Include="Domain\Documents\InventoryDocuments\InventoryDocumentStatus.cs" />
+    <Compile Include="Domain\Documents\InventoryDocuments\InventoryDocumentType.cs" />
+    <Compile Include="Domain\Documents\MovementDocuments\MovementDocumentStatus.cs" />
+    <Compile Include="Domain\Documents\MovementDocuments\MovementDocumentType.cs" />
+    <Compile Include="Domain\Documents\MovementDocuments\MovementDocumentTypeByStorage.cs" />
+    <Compile Include="Domain\Documents\MovementDocuments\StorageType.cs" />
+    <Compile Include="Domain\Documents\ShiftChangeResidueDocumentType.cs" />
     <Compile Include="Domain\Employees\IconsSize.cs" />
     <Compile Include="Domain\Employees\ToolBarIconsSizeStringType.cs" />
     <Compile Include="Domain\Employees\ToolbarStyle.cs" />
@@ -61,6 +69,7 @@
     <Compile Include="Domain\Client\ContractType.cs" />
     <Compile Include="Domain\Client\ContractTypeStringType.cs" />
     <Compile Include="Domain\Goods\AlternativeNomenclaturePrice.cs" />
+    <Compile Include="Domain\Goods\NomenclatureInstanceType.cs" />
     <Compile Include="Domain\Goods\NomenclaturePriceBase.cs" />
     <Compile Include="Domain\Client\MobileAppCounterparty.cs" />
     <Compile Include="Domain\Client\WebSiteCounterparty.cs" />
@@ -284,6 +293,7 @@
     <Compile Include="Domain\Operations\EmployeeBulkGoodsAccountingOperation.cs" />
     <Compile Include="Domain\Operations\EmployeeInstanceGoodsAccountingOperation.cs" />
     <Compile Include="Domain\Operations\InstanceGoodsAccountingOperation.cs" />
+    <Compile Include="Domain\Operations\OperationType.cs" />
     <Compile Include="Domain\Operations\WarehouseBulkGoodsAccountingOperation.cs" />
     <Compile Include="Domain\Operations\WarehouseInstanceGoodsAccountingOperation.cs" />
     <Compile Include="Domain\Orders\Documents\EdoContainer.cs" />
@@ -590,7 +600,10 @@
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\AddressTransferDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\InstanceShiftChangeWarehouseDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\InventoryDocuments\CarBulkInventoryDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\InventoryDocuments\EmployeeBulkInventoryDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\InventoryDocuments\InstanceInventoryDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\InventoryDocuments\WarehouseBulkInventoryDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\RouteListAddressKeepingDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\RouteListAddressKeepingDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\DocumentPrintHistoryMap.cs" />

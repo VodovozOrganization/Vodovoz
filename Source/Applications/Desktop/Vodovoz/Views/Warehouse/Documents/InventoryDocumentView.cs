@@ -14,6 +14,7 @@ using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 
 namespace Vodovoz.Views.Warehouse.Documents
 {
+	[Obsolete("Снести после обновления 29.05.23")]
 	public partial class InventoryDocumentView : TabViewBase<InventoryDocumentViewModel>
 	{
 		public InventoryDocumentView(InventoryDocumentViewModel viewModel)
@@ -69,9 +70,9 @@ namespace Vodovoz.Views.Warehouse.Documents
 
 			yentryrefWarehouse.BeforeChangeByUser += OnYentryrefWarehouseBeforeChangeByUser;
 
-			/*ychkSortNomenclaturesByTitle.Binding
+			ychkSortNomenclaturesByTitle.Binding
 				.AddBinding(ViewModel.Entity, e => e.SortedByNomenclatureName, w => w.Active)
-				.InitializeFromSource();*/
+				.InitializeFromSource();
 
 			ytextviewCommnet.Binding.AddSource(ViewModel.Entity)
 				.AddBinding(e => e.Comment, w => w.Buffer.Text)

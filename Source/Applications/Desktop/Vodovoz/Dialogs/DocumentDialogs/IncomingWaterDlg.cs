@@ -12,14 +12,13 @@ using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Project.Services;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.EntityRepositories.Store;
 using Vodovoz.JournalSelector;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz

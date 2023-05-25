@@ -42,13 +42,13 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			set
 			{
 				base.TimeStamp = value;
-				/*foreach(var item in Items)
+				foreach(var item in Items)
 				{
-					if(item.WarehouseWriteoffOperation != null && item.WarehouseWriteoffOperation.OperationTime != TimeStamp)
+					if(item.GoodsAccountingOperation != null && item.GoodsAccountingOperation.OperationTime != TimeStamp)
 					{
-						item.WarehouseWriteoffOperation.OperationTime = TimeStamp;
+						item.GoodsAccountingOperation.OperationTime = TimeStamp;
 					}
-				}*/
+				}
 			}
 		}
 

@@ -290,9 +290,9 @@ namespace Vodovoz
 				if(defectiveitemsreceptionview1.Items.Any(x => x.NomenclatureId == item.GoodsAccountingOperation.Nomenclature.Id))
 					continue;
 
-				var returned = //item.GoodsAccountingOperation.Equipment != null
-					//? returnsreceptionview.Items.FirstOrDefault(x => x.EquipmentId == item.GoodsAccountingOperation.Equipment.Id)
+				var returned = 
 					returnsreceptionview.Items.FirstOrDefault(x => x.NomenclatureId == item.GoodsAccountingOperation.Nomenclature.Id);
+				
 				if(returned != null)
 				{
 					returned.Amount = (int)item.GoodsAccountingOperation.Amount;
@@ -341,9 +341,6 @@ namespace Vodovoz
 
 				logger.Warn("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.GoodsAccountingOperation.Nomenclature);
 				var newItem = new ReceptionItemNode(item);
-				/*if(item.GoodsAccountingOperation.Equipment != null) {
-					newItem.EquipmentId = item.GoodsAccountingOperation.Equipment.Id;
-				}*/
 				returnsreceptionview.AddItem(newItem);
 			}
 		}
