@@ -11,6 +11,10 @@
 		<Content Remove="appsettings.Development.json" />
 		<Content Remove="appsettings.Production.json" />
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\DockerRegistry.pubxml" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="appsettings.Development.json">
