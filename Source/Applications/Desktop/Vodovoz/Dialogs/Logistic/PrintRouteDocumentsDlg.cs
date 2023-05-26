@@ -220,6 +220,16 @@ namespace Vodovoz.Dialogs.Logistic
 				progressPrint.Adjustment.Upper = routeCount;
 				progressPrint.Adjustment.Value = 0;
 
+				var selectedRoutesIds = _routes
+					.Where(x => x.Selected)
+					.Select(x => (x.Document as RouteListPrintableDocs).routeList.Id)
+					.ToList();
+
+				var selectedRoutesWithFastDelivery = _uow.GetAll<RouteList>()
+					.Where(r => selectedRoutesIds.Contains(r.Id) && r.AdditionalLoadingDocument != null)
+					.Select(r => r.Id)
+					.ToList();
+
 				foreach(var item in _routes.Where(x => x.Selected))
 				{
 					if(item.Document is RouteListPrintableDocs rlPrintableDoc)
@@ -244,6 +254,11 @@ namespace Vodovoz.Dialogs.Logistic
 							oDocTypesToPrint = _orderDocTypesToPrint.Where(n => n.Selected)
 								.Select(n => n.Type)
 								.ToArray();
+						}
+
+						if(chkForwarderReceipt.Active && selectedRoutesWithFastDelivery.Contains(rlPrintableDoc.routeList.Id))
+						{
+							rlDocTypesToPrint.Add(RouteListPrintableDocuments.ForwarderReceipt);
 						}
 
 						bool cancelPrinting = false;

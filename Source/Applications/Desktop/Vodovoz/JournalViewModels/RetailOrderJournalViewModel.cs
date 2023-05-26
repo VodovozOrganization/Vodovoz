@@ -196,7 +196,7 @@ namespace Vodovoz.JournalViewModels
 			District districtAlias = null;
 			CounterpartyContract contractAlias = null;
 
-			Nomenclature sanitizationNomenclature = _nomenclatureRepository.GetSanitisationNomenclature(uow);
+			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
@@ -333,7 +333,7 @@ namespace Vodovoz.JournalViewModels
 
 			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
 													 .Where(() => orderAlias.Id == orderItemAlias.Order.Id)
-													 .Where(() => orderItemAlias.Nomenclature.Id == sanitizationNomenclature.Id)
+													 .Where(Restrictions.In(Projections.Property(() => orderItemAlias.Nomenclature.Id), sanitizationNomenclatureIds))
 													 .Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
