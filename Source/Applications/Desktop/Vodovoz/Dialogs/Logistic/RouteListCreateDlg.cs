@@ -755,20 +755,25 @@ namespace Vodovoz
 						}
 					}
 
-					Save();
-
-					var routeListKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
-
-					foreach(var address in Entity.Addresses)
+					try
 					{
-						if(address.TransferedTo == null &&
-						   (!address.WasTransfered || address.AddressTransferType != AddressTransferType.FromHandToHand))
+						Save();
+					}
+					finally
+					{
+						var routeListKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
+
+						foreach(var address in Entity.Addresses)
 						{
-							routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, address, DeliveryFreeBalanceType.Decrease, true);
-						}
-						else
-						{
-							routeListKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address);
+							if(address.TransferedTo == null &&
+							   (!address.WasTransfered || address.AddressTransferType != AddressTransferType.FromHandToHand))
+							{
+								routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, address, DeliveryFreeBalanceType.Decrease, true);
+							}
+							else
+							{
+								routeListKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address);
+							}
 						}
 					}
 
