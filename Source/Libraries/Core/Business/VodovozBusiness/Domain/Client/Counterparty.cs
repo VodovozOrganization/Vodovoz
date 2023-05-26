@@ -738,7 +738,7 @@ namespace Vodovoz.Domain.Client
 					? null 
 					: Regex.Replace(value, @"\s+", string.Empty);
 
-				SetField(ref _personalAccountIdInEdo, cleanedId);
+				SetField(ref _personalAccountIdInEdo, cleanedId?.ToUpper());
 			}
 		}
 

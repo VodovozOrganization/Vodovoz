@@ -774,6 +774,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			CounterpartyContract counterpartyContractAlias = null;
 			Phone phoneAlias = null;
 			Phone orderContactPhoneAlias = null;
+			Email emailAlias = null;
 
 			OrderItemNode resultNodeAlias = null;
 
@@ -881,6 +882,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Select(
 					CustomProjections.GroupConcat(
 						PhoneProjections.GetDigitNumberLeadsWith8(),
+						separator: ",\n"));
+
+			var counterpartyEmailsSubquery = QueryOver.Of(() => emailAlias)
+				.Where(() => emailAlias.Counterparty.Id == orderAlias.Client.Id)
+				.Select(
+					CustomProjections.GroupConcat(
+						Projections.Property(()=>emailAlias.Address),
 						separator: ",\n"));
 
 			#region filter parameters
@@ -1136,6 +1144,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => counterpartyAlias.Id).WithAlias(() => resultNodeAlias.CounterpartyId)
 						.Select(() => counterpartyAlias.FullName).WithAlias(() => resultNodeAlias.CounterpartyFullName)
 						.SelectSubQuery(counterpartyPhonesSubquery).WithAlias(() => resultNodeAlias.CounterpartyPhones)
+						.SelectSubQuery(counterpartyEmailsSubquery).WithAlias(() => resultNodeAlias.CounterpartyEmails)
 						.Select(Projections.Conditional(
 							Restrictions.IsNull(Projections.Property(() => orderAlias.ContactPhone)),
 							Projections.Constant(string.Empty),

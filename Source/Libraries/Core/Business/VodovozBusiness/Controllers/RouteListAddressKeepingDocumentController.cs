@@ -199,8 +199,8 @@ namespace Vodovoz.Controllers
 			}
 		}
 
-		public IList<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
-			IUnitOfWork uow, RouteListItem changedRouteListItem, IList<RouteListAddressKeepingDocumentItem> itemsCacheList = null)
+		public HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
+			IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null)
 		{
 			if(!changedRouteListItem.RouteList.ClosingFilled)
 			{
@@ -226,7 +226,7 @@ namespace Vodovoz.Controllers
 			IList<NomenclatureAmountNode> oldEquipmentToPickupAmountNodes;
 			RouteListItem oldRouteListItem;
 			RouteList oldRouteList;
-			var newItems = new List<RouteListAddressKeepingDocumentItem>();
+			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
 
 			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
 			{

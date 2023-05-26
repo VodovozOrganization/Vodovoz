@@ -3883,6 +3883,7 @@ Global
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{18104221-2774-43d3-b6c1-986af5ea15d5}*SharedItemsImports = 5
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{2c663185-31b7-4254-a74c-2a468681f1ee}*SharedItemsImports = 5
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{50993438-f358-4dcd-8e0a-ce1446c76487}*SharedItemsImports = 4
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{8ff7c332-e6d1-456f-8067-11ce62aaef5a}*SharedItemsImports = 5
@@ -3890,7 +3891,6 @@ Global
 		Libraries\Core\Backend\Sms\Sms.Internal.Grpc\Sms.Internal.Grpc.projitems*{bd7720d3-8b1a-4568-950e-9b45fffad776}*SharedItemsImports = 13
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{bfb977b8-6c0b-4736-b7db-dd6b272f980a}*SharedItemsImports = 13
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb83f1ee-34b2-488d-bba5-6e2af4d3b3fc}*SharedItemsImports = 13
-		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{eb928475-6d2b-4fef-a314-d75bccef3ad0}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0

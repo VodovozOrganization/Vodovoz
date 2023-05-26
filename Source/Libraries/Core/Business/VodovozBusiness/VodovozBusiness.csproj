@@ -53,6 +53,9 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Domain\Cash\FinancialCategoriesGroup.cs" />
+    <Compile Include="Domain\Cash\FinancialCategoryTypeEnum.cs" />
+    <Compile Include="Domain\Cash\IFinancialCategory.cs" />
     <Compile Include="Domain\Client\ExternalCounterpartyMatchingStatus.cs" />
     <Compile Include="Domain\Employees\IconsSize.cs" />
     <Compile Include="Domain\Employees\ToolBarIconsSizeStringType.cs" />
@@ -497,6 +500,7 @@
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
+    <Compile Include="HibernateMapping\Cash\FinancialCategoriesGroupMap.cs" />
     <Compile Include="HibernateMapping\Cash\PayoutRequestBaseMap.cs" />
     <Compile Include="HibernateMapping\Complaints\CamplaintDetalizationMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintResultCommentMap.cs" />
@@ -688,6 +692,7 @@
     <Compile Include="Models\TrueMark\TrueMarkApiRegistrationStatusConverter.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCheckResult.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodePoolChecker.cs" />
+    <Compile Include="Models\TrueMark\TrueMarkCodePoolLoader.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesChecker.cs" />
     <Compile Include="Models\TrueMark\ReceiptsHandler.cs" />
     <Compile Include="Models\TrueMark\TrueMarkCodesPool.cs" />
@@ -1138,6 +1143,8 @@
     <Compile Include="HibernateMapping\Cash\Transfer\CashTransferOperationMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\IncomeCashTransferedItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\ExpenseCashTransferedItemMap.cs" />
+    <Compile Include="Tools\StringUtils.cs" />
+    <Compile Include="Tools\TypeUtils.cs" />
     <Compile Include="Tools\Validation\PasswordValidationSettingsFactory.cs" />
     <Compile Include="ViewModelBased\ViewModelBase.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
@@ -1458,6 +1465,9 @@
   <ItemGroup>
     <PackageReference Include="Antlr3.Runtime" Version="3.5.1" />
     <PackageReference Include="BouncyCastle" Version="1.8.9" />
+    <PackageReference Include="ClosedXML">
+      <Version>0.97.0</Version>
+    </PackageReference>
     <PackageReference Include="CommonServiceLocator" Version="2.0.6" />
     <PackageReference Include="DataAnnotationsExtensions" Version="5.0.1.27" />
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />

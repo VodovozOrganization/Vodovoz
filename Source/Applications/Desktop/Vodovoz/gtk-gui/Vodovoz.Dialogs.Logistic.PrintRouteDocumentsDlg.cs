@@ -42,6 +42,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.CheckButton chkDocumentsOfOrders;
 
+		private global::Gtk.CheckButton chkForwarderReceipt;
+
 		private global::Gtk.ScrolledWindow gtkScrlWnd;
 
 		private global::Gamma.GtkWidgets.yTreeView yTreeOrderDocumentTypes;
@@ -214,6 +216,19 @@ namespace Vodovoz.Dialogs.Logistic
 			w17.Position = 3;
 			w17.Expand = false;
 			// Container child vbox3.Gtk.Box+BoxChild
+			this.chkForwarderReceipt = new global::Gtk.CheckButton();
+			this.chkForwarderReceipt.CanFocus = true;
+			this.chkForwarderReceipt.Name = "chkForwarderReceipt";
+			this.chkForwarderReceipt.Label = global::Mono.Unix.Catalog.GetString("Экспедиторская расписка (только МЛ с быстр. дост.)");
+			this.chkForwarderReceipt.Active = true;
+			this.chkForwarderReceipt.DrawIndicator = true;
+			this.chkForwarderReceipt.UseUnderline = true;
+			this.vbox3.Add(this.chkForwarderReceipt);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.chkForwarderReceipt]));
+			w18.Position = 4;
+			w18.Expand = false;
+			w18.Fill = false;
+			// Container child vbox3.Gtk.Box+BoxChild
 			this.gtkScrlWnd = new global::Gtk.ScrolledWindow();
 			this.gtkScrlWnd.Name = "gtkScrlWnd";
 			this.gtkScrlWnd.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
@@ -224,15 +239,16 @@ namespace Vodovoz.Dialogs.Logistic
 			this.yTreeOrderDocumentTypes.Name = "yTreeOrderDocumentTypes";
 			this.gtkScrlWnd.Add(this.yTreeOrderDocumentTypes);
 			this.vbox3.Add(this.gtkScrlWnd);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.gtkScrlWnd]));
-			w19.Position = 4;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.gtkScrlWnd]));
+			w20.PackType = ((global::Gtk.PackType)(1));
+			w20.Position = 5;
 			this.hbox4.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox3]));
-			w20.Position = 1;
-			w20.Expand = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox3]));
+			w21.Position = 1;
+			w21.Expand = false;
 			this.vbox1.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
-			w21.Position = 2;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w22.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
