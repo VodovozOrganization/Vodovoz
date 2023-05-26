@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Transform;
@@ -13,7 +13,19 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
         private bool isCalculated;
         private string[] Levels;
         private string level5;
-        public string Level5
+
+		public override string Title =>
+			string.IsNullOrWhiteSpace(level5)
+				? string.IsNullOrWhiteSpace(level4)
+					? string.IsNullOrWhiteSpace(level3)
+						? string.IsNullOrWhiteSpace(level2)
+							? level1
+							: level2
+						: level3	
+					: level4
+				: level5;
+
+		public string Level5
         {
             get{
                 if (!isCalculated){
