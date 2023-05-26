@@ -77,7 +77,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		public List<PaymentFrom> ItemsList { get; private set; }
 
-		protected override void BeforeValidation()
+		protected override bool BeforeValidation()
 		{
 			Entity.ChangePaymentTypeToOnline(_callTaskWorker);
 
@@ -90,6 +90,8 @@ namespace Vodovoz.ViewModels.Cash
 			{
 				Entity.IsSelfDeliveryPaid = true;
 			}
+
+			return true;
 		}
 	}
 }

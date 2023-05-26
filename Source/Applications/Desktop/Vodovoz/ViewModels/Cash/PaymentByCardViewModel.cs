@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.Cash
 			set => Entity.PaymentType = value;
 		}
 
-		protected override void BeforeValidation()
+		protected override bool BeforeValidation()
 		{
 			Entity.ChangePaymentTypeToByCardTerminal(_callTaskWorker);
 
@@ -80,6 +80,8 @@ namespace Vodovoz.ViewModels.Cash
 			{
 				Entity.IsSelfDeliveryPaid = true;
 			}
+
+			return true;
 		}
 	}
 }
