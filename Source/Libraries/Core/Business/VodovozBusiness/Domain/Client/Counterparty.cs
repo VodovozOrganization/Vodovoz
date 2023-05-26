@@ -63,6 +63,7 @@ namespace Vodovoz.Domain.Client
 		private string _patronymic;
 		private string _firstName;
 		private string _surname;
+		private bool _needSendBillByEdo;
 
 		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
 		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
@@ -775,7 +776,14 @@ namespace Vodovoz.Domain.Client
 			get => _doNotMixMarkedAndUnmarkedGoodsInOrder;
 			set => SetField(ref _doNotMixMarkedAndUnmarkedGoodsInOrder, value);
 		}
-		
+
+		[Display(Name = "Отправлять счета по ЭДО")]
+		public virtual bool NeedSendBillByEdo
+		{
+			get => _needSendBillByEdo;
+			set => SetField(ref _needSendBillByEdo, value);
+		}
+
 		#endregion
 
 		#endregion

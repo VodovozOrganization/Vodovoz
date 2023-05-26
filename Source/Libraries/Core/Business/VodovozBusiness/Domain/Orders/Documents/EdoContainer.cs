@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
@@ -25,6 +26,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		private byte[] _container;
 		private EdoDocFlowStatus _edoDocFlowStatus;
 		private DateTime _created;
+		private Type _type;
 		
 		public virtual int Id { get; set; }
 
@@ -105,8 +107,14 @@ namespace Vodovoz.Domain.Orders.Documents
 			set => SetField(ref _created, value);
 		}
 
+		public virtual Type Type
+		{
+			get => _type;
+			set => SetField(ref _type, value);
+		}
+
 		[Display(Name = "Отправленные документы")]
-		public virtual string SentDocuments => "УПД";
+		public virtual string SentDocuments => Type.GetEnumTitle();
 	}
 
 	public enum EdoDocFlowStatus
@@ -126,6 +134,15 @@ namespace Vodovoz.Domain.Orders.Documents
 		[Display(Name = "Завершен с различиями")]
 		CompletedWithDivergences,
 		[Display(Name = "Не принят")]
-		NotAccepted
+		NotAccepted,
+		[Display(Name = "Подготовка к отправке")]
+		PreparingToSend
+	}
+	public enum Type
+	{
+		[Display(Name = "УПД")]
+		Upd,
+		[Display(Name = "Счёт")]
+		Bill
 	}
 }

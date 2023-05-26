@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HibernateMapping
@@ -81,6 +81,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Surname).Column("surname");
 			Map(x => x.FirstName).Column("first_name");
 			Map(x => x.Patronymic).Column("patronymic");
+			Map(x => x.NeedSendBillByEdo).Column("need_send_bill_by_edo");
 
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
