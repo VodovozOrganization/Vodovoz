@@ -35,7 +35,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual Dictionary<object, object> Parameters { get; set; }
 
-		public virtual ReportInfo GetReportInfo()
+		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var reportInfo = new ReportInfo {
 				Title = String.Format("{0} от {1:d}", Name, Certificate.ExpirationDate),

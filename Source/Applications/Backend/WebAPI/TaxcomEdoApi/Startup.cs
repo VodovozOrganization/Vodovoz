@@ -1,8 +1,4 @@
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using EdoService.Converters;
+﻿using EdoService.Converters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +14,10 @@ using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using Taxcom.Client.Api;
 using TaxcomEdoApi.Converters;
 using TaxcomEdoApi.Factories;
@@ -81,6 +81,8 @@ namespace TaxcomEdoApi
 
 			services.AddSingleton(_ => certificate);
 			services.AddSingleton<EdoUpdFactory>();
+			services.AddSingleton<EdoBillFactory>();
+			services.AddSingleton<PrintableDocumentSaver>();
 			services.AddSingleton<ParticipantDocFlowConverter>();
 			services.AddSingleton<EdoContainerMainDocumentIdParser>();
 			services.AddSingleton<UpdProductConverter>();
@@ -127,7 +129,7 @@ namespace TaxcomEdoApi
 					.ConnectionString(connectionString);
 
 			// Настройка ORM
-			OrmConfig.ConfigureOrm(
+            OrmConfig.ConfigureOrm(
 				dbConfig,
 				new[]
 				{
