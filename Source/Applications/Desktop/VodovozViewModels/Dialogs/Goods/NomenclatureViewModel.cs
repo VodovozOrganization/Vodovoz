@@ -176,10 +176,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
 		}
 
-		protected override void BeforeValidation() {
+		protected override bool BeforeValidation() {
 			if(string.IsNullOrWhiteSpace(Entity.Code1c)) {
 				Entity.Code1c = _nomenclatureRepository.GetNextCode1c(UoW);
 			}
+
+			return true;
 		}
 
 		protected override bool BeforeSave() {

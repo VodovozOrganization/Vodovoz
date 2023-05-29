@@ -24,7 +24,7 @@ namespace Vodovoz.Dialogs.Fuel
 			ylabelCashierValue.Binding.AddBinding(ViewModel.Entity, e => e.Cashier, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
 
 			entryExpenseCategory
-				.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseSelectorFactory.CreateSimpleExpenseCategoryAutocompleteSelectorFactory());
+				.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseSelectorFactory.CreateDefaultExpenseCategoryAutocompleteSelectorFactory());
 			entryExpenseCategory.Binding.AddBinding(ViewModel.Entity, e => e.ExpenseCategory, w => w.Subject).InitializeFromSource();
 			entryExpenseCategory.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			

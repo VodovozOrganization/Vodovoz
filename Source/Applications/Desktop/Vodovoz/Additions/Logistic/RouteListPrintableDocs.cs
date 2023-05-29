@@ -24,7 +24,7 @@ namespace Vodovoz.Additions.Logistic
 		}
 
 		#region IPrintableRDLDocument implementation 
-		public ReportInfo GetReportInfo() => PrintRouteListHelper.GetRDL(routeList, _type, _uow, IsBatchPrint);
+		public ReportInfo GetReportInfo(string connectionString = null) => PrintRouteListHelper.GetRDL(routeList, _type, _uow, IsBatchPrint);
 		public Dictionary<object, object> Parameters { get; set; } = new Dictionary<object, object>();
 		#endregion
 
@@ -46,6 +46,7 @@ namespace Vodovoz.Additions.Logistic
 				{
 					case RouteListPrintableDocuments.RouteList:
 					case RouteListPrintableDocuments.OrderOfAddresses:
+					case RouteListPrintableDocuments.ForwarderReceipt:
 						return DocumentOrientation.Landscape;
 					default:
 						return DocumentOrientation.Portrait;
@@ -64,6 +65,7 @@ namespace Vodovoz.Additions.Logistic
 					case RouteListPrintableDocuments.DailyList:
 					case RouteListPrintableDocuments.TimeList:
 					case RouteListPrintableDocuments.OrderOfAddresses:
+					case RouteListPrintableDocuments.ForwarderReceipt:
 						return 1;
 					default:
 						throw new NotImplementedException("Документ не поддерживается");

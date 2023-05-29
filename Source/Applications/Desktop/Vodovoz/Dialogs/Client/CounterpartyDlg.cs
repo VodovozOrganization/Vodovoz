@@ -1082,6 +1082,10 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
 				.InitializeFromSource();
 
+			yChkBtnNeedSendBillByEdo.Binding
+				.AddBinding(Entity, e => e.NeedSendBillByEdo, w => w.Active)
+				.InitializeFromSource();
+
 			edoValidatedINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			edoValidatedINN.Binding
 				.AddFuncBinding(Entity, 

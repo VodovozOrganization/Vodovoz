@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
-		public virtual ReportInfo GetReportInfo()
+		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			return new ReportInfo {
 				Title = String.Format($"Торг-2 от {Order.DeliveryDate:d}"),
