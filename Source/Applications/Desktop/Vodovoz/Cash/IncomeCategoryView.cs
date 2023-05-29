@@ -34,6 +34,10 @@ namespace Vodovoz.Cash
 
 			entryParentGroup.ViewModel = ViewModel.ParentFinancialCategoriesGroupViewModel;
 
+			entryParentGroup.Visible = false;
+
+			labelParent.Visible = false;
+
 			#region ParentEntityviewmodelentry
 			ParentEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.IncomeCategoryAutocompleteSelectorFactory);
 			ParentEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Parent, w => w.Subject).InitializeFromSource();
