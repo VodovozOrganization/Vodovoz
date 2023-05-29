@@ -8,6 +8,7 @@ using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels.Dialog;
@@ -181,7 +182,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				bulkBalanceProjection = Projections.Sum(() => operationAlias.Amount);
 				instanceBalanceProjection = Projections.Sum(() => operationAlias.Amount);
 			}
-			
+
 			if((_filterViewModel.Warehouse != null || _filterViewModel.EmployeeStorage != null || _filterViewModel.CarStorage != null)
 				&& SelectionMode != JournalSelectionMode.None)
 			{
@@ -191,10 +192,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 				}
 				else
 				{
-					queryStock.Where(
-						Restrictions.Or(
-							Restrictions.Gt(bulkBalanceProjection, 0),
-							Restrictions.Gt(instanceBalanceProjection, 0)));
+					queryStock.Where(CustomRestrictions.OrHaving(
+						Restrictions.Gt(bulkBalanceProjection, 0),
+						Restrictions.Gt(instanceBalanceProjection, 0)));
 				}
 			}
 			else
