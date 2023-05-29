@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using Vodovoz.Domain.Client;
 
@@ -6,6 +7,8 @@ namespace Vodovoz.JournalNodes
 {
 	public class DebtorJournalNode : JournalEntityNodeBase<CallTask>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
+
 		public int AddressId { get; set; }
 
 		public string AddressName { get; set; }

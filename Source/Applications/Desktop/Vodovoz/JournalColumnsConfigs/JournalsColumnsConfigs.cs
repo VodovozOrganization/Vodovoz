@@ -2,16 +2,10 @@
 using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
-using QS.DomainModel.UoW;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
-using System.Reflection;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.StoredResources;
-using Vodovoz.Parameters;
-using Vodovoz.Representations.ProductGroups;
-using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;

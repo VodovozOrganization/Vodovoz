@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 				ViewType = "Автопремия для раскатных газелей";
 		}
 
-		public int Id { get; set; }
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public DateTime Date { get; set; }
 		public string EmployeesName { get; set; }
 		public string PremiumReason { get; set; }

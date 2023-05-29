@@ -1,5 +1,6 @@
 ﻿using System;
 using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -8,6 +9,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 {
 	public class CarEventJournalNode : JournalEntityNodeBase<CarEvent>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public DateTime CreateDate { get; set; }
 		public string AuthorFullName { get; set; }
 		public string CarEventTypeName { get; set; }
