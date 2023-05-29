@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Taxcom.Client.Api;
 using TaxcomEdoApi.Converters;
 using TaxcomEdoApi.Factories;
@@ -33,6 +34,8 @@ namespace TaxcomEdoApi
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = "NLog";
+
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -49,9 +52,16 @@ namespace TaxcomEdoApi
 
 			services.AddControllers()
 				.AddXmlSerializerFormatters();
-			
-			NLogBuilder.ConfigureNLog("NLog.config");
-			
+
+			services.AddLogging(
+				logging =>
+				{
+					logging.ClearProviders();
+					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
+				});
+
+
 			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "TaxcomEdoApi", Version = "v1" }); });
 			
 			var apiSection = Configuration.GetSection("Api");
