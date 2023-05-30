@@ -53,7 +53,7 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
-    <Compile Include="Domain\Cash\FinancialCategoriesGroup.cs" />
+    <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialCategoriesGroup.cs" />
     <Compile Include="Domain\Cash\FinancialCategoryTypeEnum.cs" />
     <Compile Include="Domain\Cash\IFinancialCategory.cs" />
     <Compile Include="Domain\Client\ExternalCounterpartyMatchingStatus.cs" />
