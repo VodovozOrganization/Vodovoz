@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Navigation;
 using QS.Project.Filter;
 using QS.Project.Journal;
@@ -33,8 +33,8 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			ExcludeFinancialGroupsIds.CollectionChanged += OnExcludeIdCollectionChanged;
 			RestrictNodeTypes.CollectionChanged += OnRestrictNodeTypesCollectionChanged;
 			RestrictNodeSelectTypes.CollectionChanged += OnRestrictNodeSelectTypesCollectionChanged;
-			_navigationManager = navigationManager;
-			_scope = lifetimeScope;
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_scope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
 		public bool IsShow { get; set; }
