@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -95,24 +95,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		{
 			get => Entity.IsArchive;
 			set => Entity.SetIsArchiveRecursively(value);
-		}
-
-		protected override bool BeforeSave()
-		{
-			var result = base.BeforeSave();
-
-			if(Entity.FinancialCategoryGroupId == null)
-			{
-				CommonServices.InteractiveService
-					.ShowMessage(
-						ImportanceLevel.Error,
-						$"Необходимо указать родительскую группу",
-						"Ошибка");
-
-				return false;
-			}
-
-			return result;
 		}
 	}
 }
