@@ -22,9 +22,9 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 				.AddBinding(ViewModel, vm => vm.SearchString, w => w.Text)
 				.InitializeFromSource();
 
-			yenumExpenseDocumentType.ItemsEnum = typeof(TargetDocument);
-			yenumExpenseDocumentType.ShowSpecialStateAll = true;
-			yenumExpenseDocumentType.Binding
+			yenumTargetDocument.ItemsEnum = typeof(TargetDocument);
+			yenumTargetDocument.ShowSpecialStateAll = true;
+			yenumTargetDocument.Binding
 				.AddBinding(ViewModel, e => e.TargetDocument, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
