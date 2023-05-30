@@ -321,9 +321,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerAppsApi.Library", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalCounterpartyAssignNotifier", "Applications\Backend\Workers\Docker\ExternalCounterpartyAssignNotifier\ExternalCounterpartyAssignNotifier.csproj", "{105DC24B-9955-4D68-8B1C-C2CD9F687DE8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Presentation.ViewModels", "Applications\Desktop\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj", "{396CC0BB-294B-44E0-8428-31677419B8BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz.Presentation.ViewModels", "Applications\Desktop\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj", "{396CC0BB-294B-44E0-8428-31677419B8BE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Presentation.Gtk", "Vodovoz.Presentation.Gtk\Vodovoz.Presentation.Gtk.csproj", "{491CE880-2151-406B-9095-1CEAA0CB7AA7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz.Presentation.Gtk", "Vodovoz.Presentation.Gtk\Vodovoz.Presentation.Gtk.csproj", "{491CE880-2151-406B-9095-1CEAA0CB7AA7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EarchiveApi", "Applications\Backend\WebAPI\EarchiveApi\EarchiveApi.csproj", "{B3C9F199-7CAE-4D5A-91AE-5FFD3F318592}"
 EndProject
