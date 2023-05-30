@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Navigation;
 using QS.Project.Filter;
 using QS.Project.Journal;
@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		public string SearchString
 		{
 			get => _serachString;
-			set => UpdateFilterField(ref _serachString, value);
+			set => SetField(ref _serachString, value);
 		}
 
 		public bool ShowArchive

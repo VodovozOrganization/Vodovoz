@@ -11,9 +11,11 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.DataLoader.Hierarchy;
+using QS.Project.Search;
 using QS.Services;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -100,6 +102,16 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			CreateNodeActions();
 			CreatePopupActions();
 			UpdateOnChanges(_domainObjectsTypes);
+
+			(Search as SearchViewModel).PropertyChanged += OnSearchPropertyChanged;
+		}
+
+		private void OnSearchPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Search.SearchValues))
+			{
+				_filter.SearchString = string.Join(" ", Search.SearchValues);
+			}
 		}
 
 		public IRecursiveConfig RecuresiveConfig { get; }
@@ -120,43 +132,42 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 
 			var subdivisionId = _filter.Subdivision?.Id ?? -1;
 
-			return (string.IsNullOrEmpty(searchString) || parentId == null)
-						? (from financialCategoriesGroup in unitOfWork.GetAll<FinancialCategoriesGroup>()
-						   where ((string.IsNullOrEmpty(searchString) && financialCategoriesGroup.ParentId == parentId)
-									|| financialCategoriesGroup.Title.ToLower().Like(searchString)
-									|| financialCategoriesGroup.Id.ToString().Like(searchString))
-							   && !_filter.ExcludeFinancialGroupsIds.Contains(financialCategoriesGroup.Id)
-							   && (_filter.RestrictNodeTypes.IsEmpty() || _filter.RestrictNodeTypes.Contains(_financialCategoriesGroupType))
-							   && (_filter.ShowArchive || !financialCategoriesGroup.IsArchive)
-						   let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
-						   select new FinancialCategoriesJournalNode
-						   {
-							   Id = financialCategoriesGroup.Id,
-							   ParentId = parentId,
-							   Name = financialCategoriesGroup.Title,
-							   JournalNodeType = _financialCategoriesGroupType,
-							   FinancialSubType = financialCategoriesGroup.FinancialSubtype,
-							   Children = children.ToList()
-						   })
-							.ToList()
-							.Concat(
-								(_filter.RestrictNodeTypes.IsEmpty()
-									|| _filter.RestrictNodeTypes.Contains(_financialIncomeCategoryType))
-								&& (string.IsNullOrEmpty(searchString) || parentId == null)
-								? GetIncomeCategories(unitOfWork, parentId, searchString, subdivisionId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
-							.Concat(
-								(_filter.RestrictNodeTypes.IsEmpty()
-									|| _filter.RestrictNodeTypes.Contains(_financialExpenseCategoryType))
-								&& (string.IsNullOrEmpty(searchString) || parentId == null)
-								? GetExpenseCategories(unitOfWork, parentId, searchString, subdivisionId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
-							.AsQueryable()
-						: Enumerable.Empty<FinancialCategoriesJournalNode>().AsQueryable();
+			return (string.IsNullOrWhiteSpace(searchString) || parentId == null)
+				? (from financialCategoriesGroup in unitOfWork.GetAll<FinancialCategoriesGroup>()
+					where ((string.IsNullOrWhiteSpace(searchString) && financialCategoriesGroup.ParentId == parentId)
+							|| financialCategoriesGroup.Title.ToLower().Like(searchString)
+							|| financialCategoriesGroup.Id.ToString().Like(searchString))
+						&& !_filter.ExcludeFinancialGroupsIds.Contains(financialCategoriesGroup.Id)
+						&& (_filter.RestrictNodeTypes.IsEmpty() || _filter.RestrictNodeTypes.Contains(_financialCategoriesGroupType))
+						&& (_filter.ShowArchive || !financialCategoriesGroup.IsArchive)
+					let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
+					select new FinancialCategoriesJournalNode
+					{
+						Id = financialCategoriesGroup.Id,
+						ParentId = parentId,
+						Name = financialCategoriesGroup.Title,
+						JournalNodeType = _financialCategoriesGroupType,
+						FinancialSubType = financialCategoriesGroup.FinancialSubtype,
+						Children = children.ToList()
+					})
+					.ToList()
+					.Concat(
+						(_filter.RestrictNodeTypes.IsEmpty()
+							|| _filter.RestrictNodeTypes.Contains(_financialIncomeCategoryType))
+						&& (string.IsNullOrWhiteSpace(searchString) || parentId == null)
+						? GetIncomeCategories(unitOfWork, parentId, searchString, subdivisionId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
+					.Concat(
+						(_filter.RestrictNodeTypes.IsEmpty()
+							|| _filter.RestrictNodeTypes.Contains(_financialExpenseCategoryType))
+						&& (string.IsNullOrWhiteSpace(searchString) || parentId == null)
+						? GetExpenseCategories(unitOfWork, parentId, searchString, subdivisionId).ToList() : Enumerable.Empty<FinancialCategoriesJournalNode>())
+					.AsQueryable()
+				: Enumerable.Empty<FinancialCategoriesJournalNode>().AsQueryable();
 		}
 
 		private IQueryable<FinancialCategoriesJournalNode> GetIncomeCategories(IUnitOfWork unitOfWork, int? parentId, string searchString, int subdivisionId) =>
 			from incomeCategory in unitOfWork.GetAll<FinancialIncomeCategory>()
-			where ((string.IsNullOrEmpty(searchString) && incomeCategory.ParentId == parentId)
-					|| parentId == null)
+			where ((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || incomeCategory.ParentId == parentId)
 				&& (_filter.ShowArchive || !incomeCategory.IsArchive)
 				&& (string.IsNullOrWhiteSpace(searchString) || incomeCategory.Title.ToLower().Like(searchString)
 					|| incomeCategory.Id.ToString().Like(searchString))
@@ -173,8 +184,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 
 		private IQueryable<FinancialCategoriesJournalNode> GetExpenseCategories(IUnitOfWork unitOfWork, int? parentId, string searchString, int subdivisionId) =>
 			from expenseCategory in unitOfWork.GetAll<FinancialExpenseCategory>()
-			where ((string.IsNullOrEmpty(searchString) && expenseCategory.ParentId == parentId)
-					|| parentId == null)
+			where ((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || expenseCategory.ParentId == parentId)
 				&& (_filter.ShowArchive || !expenseCategory.IsArchive)
 				&& (string.IsNullOrWhiteSpace(searchString) || expenseCategory.Title.ToLower().Like(searchString)
 					|| expenseCategory.Id.ToString().Like(searchString))
