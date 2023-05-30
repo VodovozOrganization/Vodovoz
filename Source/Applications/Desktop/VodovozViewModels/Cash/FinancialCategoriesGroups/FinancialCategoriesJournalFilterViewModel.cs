@@ -7,7 +7,6 @@ using QS.ViewModels.Dialog;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
@@ -25,8 +24,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private FinancialCategoriesGroup _parentFinancialGroup;
 		private DialogViewModelBase _journalViewModel;
 		private Subdivision _subdivision;
-		private ExpenseInvoiceDocumentType? _expenseDocumentType;
-		private IncomeInvoiceDocumentType? _incomeDocumentType;
+		private TargetDocument? _targetDocument;
 
 		public FinancialCategoriesJournalFilterViewModel(
 			INavigationManager navigationManager,
@@ -71,16 +69,10 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			set => UpdateFilterField(ref _subdivision, value);
 		}
 
-		public ExpenseInvoiceDocumentType? ExpenseDocumentType
+		public TargetDocument? TargetDocument
 		{
-			get => _expenseDocumentType;
-			set => UpdateFilterField(ref _expenseDocumentType, value);
-		}
-
-		public IncomeInvoiceDocumentType? IncomeDocumentType
-		{
-			get => _incomeDocumentType;
-			set => UpdateFilterField(ref _incomeDocumentType, value);
+			get => _targetDocument;
+			set => UpdateFilterField(ref _targetDocument, value);
 		}
 
 		public IEntityEntryViewModel ParentGroupViewModel { get; private set; }
@@ -103,8 +95,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 						filter =>
 						{
 							filter.RestrictNodeTypes.Add(typeof(FinancialCategoriesGroup));
-						}
-					)
+						})
 					.Finish();
 
 				var subdivisionViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<FinancialCategoriesJournalFilterViewModel>(value, this, UoW, _navigationManager, _scope);
@@ -115,8 +106,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
 						filter =>
 						{
-						}
-					)
+						})
 					.Finish();
 			}
 		}

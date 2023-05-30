@@ -7,6 +7,7 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
+using System.ComponentModel;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
@@ -40,6 +41,11 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.ParentId.Value);
 			}
 
+			if(Entity.SubdivisionId.HasValue)
+			{
+				Subdivision = UoW.GetById<Subdivision>(Entity.SubdivisionId.Value);
+			}
+
 			var parentFinancialCategoriesGroupViewModelBuilder = new CommonEEVMBuilderFactory<FinancialIncomeCategoryViewModel>(this, this, UoW, NavigationManager, _scope);
 
 			ParentFinancialCategoriesGroupViewModel = parentFinancialCategoriesGroupViewModelBuilder
@@ -63,6 +69,35 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 					{
 					})
 				.Finish();
+		
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(FinancialIncomeCategory.SubdivisionId))
+			{
+				if(Entity.SubdivisionId.HasValue)
+				{
+					Subdivision = UoW.GetById<Subdivision>(Entity.SubdivisionId.Value);
+				}
+				else
+				{
+					Subdivision = null;
+				}
+			}
+
+			if(e.PropertyName == nameof(FinancialIncomeCategory.ParentId))
+			{
+				if(Entity.ParentId.HasValue)
+				{
+					ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.ParentId.Value);
+				}
+				else
+				{
+					ParentFinancialCategoriesGroup = null;
+				}
+			}
 		}
 
 		public FinancialCategoriesGroup ParentFinancialCategoriesGroup
@@ -107,7 +142,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				return false;
 			}
 
-			if(!(Entity.Id == 1 || Entity.Id == 2) && Entity.ParentId == null)
+			if(Entity.ParentId is null)
 			{
 				CommonServices.InteractiveService
 					.ShowMessage(

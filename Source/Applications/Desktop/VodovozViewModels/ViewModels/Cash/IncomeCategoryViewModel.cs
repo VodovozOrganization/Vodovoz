@@ -1,5 +1,4 @@
 using Autofac;
-using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -11,7 +10,6 @@ using System;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.TempAdapters;
-using Vodovoz.Tools;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
@@ -68,7 +66,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
 					{
-						filter.RestrictNodeTypes.Add(typeof(FinancialCategoriesGroup));
+						filter.ExcludeFinancialGroupsIds.Add(2);
+						filter.RestrictNodeSelectTypes.Add(typeof(FinancialIncomeCategory));
 					}
 				)
 				.Finish();

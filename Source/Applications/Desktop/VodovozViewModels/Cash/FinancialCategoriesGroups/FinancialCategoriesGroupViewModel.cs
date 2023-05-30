@@ -6,6 +6,7 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using System.ComponentModel;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 
 namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
@@ -41,9 +42,25 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 					{
 						filter.ExcludeFinancialGroupsIds.Add(Entity.Id);
 						filter.RestrictNodeTypes.Add(typeof(FinancialCategoriesGroup));
-					}
-				)
+					})
 				.Finish();
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+		}
+
+		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(FinancialCategoriesGroup.ParentId))
+			{
+				if(Entity.ParentId.HasValue)
+				{
+					ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.ParentId.Value);
+				}
+				else
+				{
+					ParentFinancialCategoriesGroup = null;
+				}
+			}
 		}
 
 		public FinancialCategoriesGroup ParentFinancialCategoriesGroup
