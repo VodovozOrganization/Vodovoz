@@ -202,7 +202,9 @@ namespace Vodovoz.ReportsParameters.Sales
 			var firstColumnTitle = ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty ? "Контрагент" : "Периоды продаж";
 
 			columnsConfig.AddColumn(firstColumnTitle).AddTextRenderer(row =>
-				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true);
+				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true)
+				.WrapWidth(350)
+				.WrapMode(Pango.WrapMode.Word);
 
 			if(ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty)
 			{
