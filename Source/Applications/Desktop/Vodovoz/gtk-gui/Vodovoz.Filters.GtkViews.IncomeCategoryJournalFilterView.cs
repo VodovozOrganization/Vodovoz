@@ -12,6 +12,12 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckArchived;
 
+		private global::Gtk.HBox hbox3;
+
+		private global::Gtk.Label labelNotLinked;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckNotLinked;
+
 		private global::Gtk.HBox hbox2;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
@@ -53,11 +59,39 @@ namespace Vodovoz.Filters.GtkViews
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.hbox3 = new global::Gtk.HBox();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.labelNotLinked = new global::Gtk.Label();
+			this.labelNotLinked.Name = "labelNotLinked";
+			this.labelNotLinked.LabelProp = global::Mono.Unix.Catalog.GetString("Без связи с новой статьей");
+			this.hbox3.Add(this.labelNotLinked);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.labelNotLinked]));
 			w3.Position = 0;
 			w3.Expand = false;
 			w3.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.ycheckNotLinked = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckNotLinked.CanFocus = true;
+			this.ycheckNotLinked.Name = "ycheckNotLinked";
+			this.ycheckNotLinked.Label = "";
+			this.ycheckNotLinked.DrawIndicator = true;
+			this.ycheckNotLinked.UseUnderline = true;
+			this.hbox3.Add(this.ycheckNotLinked);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ycheckNotLinked]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			this.hbox1.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hbox3]));
+			w5.Position = 2;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox();
 			this.hbox2.Name = "hbox2";
@@ -67,10 +101,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.ylabel2.Name = "ylabel2";
 			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Уровень:");
 			this.hbox2.Add(this.ylabel2);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.ylabel2]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.ylabel2]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.yLevelenumcombobox1 = new global::Gamma.Widgets.yEnumComboBox();
 			this.yLevelenumcombobox1.Name = "yLevelenumcombobox1";
@@ -79,15 +113,15 @@ namespace Vodovoz.Filters.GtkViews
 			this.yLevelenumcombobox1.UseShortTitle = false;
 			this.yLevelenumcombobox1.DefaultFirst = false;
 			this.hbox2.Add(this.yLevelenumcombobox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.yLevelenumcombobox1]));
-			w5.Position = 1;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.yLevelenumcombobox1]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
