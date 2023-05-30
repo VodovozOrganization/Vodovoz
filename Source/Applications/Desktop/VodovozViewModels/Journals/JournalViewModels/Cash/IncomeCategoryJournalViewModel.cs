@@ -85,6 +85,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			if(!FilterViewModel.ShowArchive)
 				query.Where(x => !x.IsArchive);
+
+			if(FilterViewModel.OnlyWithoutNewCategoryLink)
+			{
+				query.Where(x => x.FinancialCategoryGroupId == null);
+			}
+
 			switch(FilterViewModel.Level)
 			{
 				case LevelsFilter.Level1:

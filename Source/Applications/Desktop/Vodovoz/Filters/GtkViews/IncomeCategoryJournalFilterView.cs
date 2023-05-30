@@ -1,5 +1,4 @@
-﻿using Gtk;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 
@@ -21,6 +20,11 @@ namespace Vodovoz.Filters.GtkViews
 				e => e.ShowArchive,
 				w => w.Active
 			).InitializeFromSource();
+
+			ycheckNotLinked.Binding.AddBinding(
+					ViewModel,
+					vm => vm.OnlyWithoutNewCategoryLink, w => w.Active)
+				.InitializeFromSource();
 			
 			yLevelenumcombobox1.ItemsEnum = typeof(LevelsFilter);
 			

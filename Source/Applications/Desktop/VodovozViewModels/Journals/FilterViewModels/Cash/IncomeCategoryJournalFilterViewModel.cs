@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.Project.Filter;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 
@@ -12,7 +12,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
             set => UpdateFilterField(ref showArchive, value);
         }
 
-        private LevelsFilter? level = LevelsFilter.All;
+		private bool _onlyWithoutNewCategoryLink;
+		public bool OnlyWithoutNewCategoryLink
+		{
+			get => _onlyWithoutNewCategoryLink;
+			set => UpdateFilterField(ref _onlyWithoutNewCategoryLink, value);
+		}
+
+		private LevelsFilter? level = LevelsFilter.All;
         public LevelsFilter? Level
         {
             get => level;

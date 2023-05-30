@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QS.Project.Filter;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 
@@ -11,6 +11,13 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
             get => showArchive;
             set => UpdateFilterField(ref showArchive, value);
         }
+
+		private bool _onlyWithoutNewCategoryLink;
+		public bool OnlyWithoutNewCategoryLink
+		{
+			get => _onlyWithoutNewCategoryLink;
+			set => UpdateFilterField(ref _onlyWithoutNewCategoryLink, value);
+		}
         
         private LevelsFilter? level = LevelsFilter.All;
         public LevelsFilter? Level
@@ -24,5 +31,5 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
             get => excludedIds;
             set => UpdateFilterField(ref excludedIds, value);
         }
-    }
+	}
 }
