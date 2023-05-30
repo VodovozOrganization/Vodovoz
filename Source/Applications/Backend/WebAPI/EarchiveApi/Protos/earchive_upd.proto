@@ -6,7 +6,7 @@ option csharp_namespace = "EarchiveApi";
 package earchive;
 
 service EarchiveUpd {
-  rpc GetCounterparites (NameSubstring) returns (stream CounterpartyInfo);
+  rpc GetCounterparties (NameSubstring) returns (stream CounterpartyInfo);
   rpc GetAddresses (CounterpartyInfo) returns (stream DeliveryPointInfo);
   rpc GetUpdCode (UpdRequestInfo) returns (stream UpdResponseInfo);
 }

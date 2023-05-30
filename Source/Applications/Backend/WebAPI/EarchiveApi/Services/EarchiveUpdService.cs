@@ -28,7 +28,7 @@ namespace EarchiveApi.Services
 			_defaultTimeout = configuration.GetSection("DomainDB").GetValue<uint>("DefaultTimeout");
 		}
 
-		public override async Task GetCounterparites(NameSubstring request, IServerStreamWriter<CounterpartyInfo> responseStream, ServerCallContext context)
+		public override async Task GetCounterparties(NameSubstring request, IServerStreamWriter<CounterpartyInfo> responseStream, ServerCallContext context)
 		{
 			var minNameSubstringLength = 2;
 			if(request is null || request.NamePart?.Length < minNameSubstringLength)
