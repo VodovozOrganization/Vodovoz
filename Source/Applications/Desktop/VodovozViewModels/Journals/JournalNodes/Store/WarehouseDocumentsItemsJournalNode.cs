@@ -4,7 +4,9 @@ using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 {
@@ -33,23 +35,58 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 				switch(DocumentTypeEnum)
 				{
 					case DocumentType.IncomingInvoice:
-						return $"Поставщик: {Counterparty}; Склад поступления: {FromWarehouse};";
+						return $"Поставщик: {Counterparty}; Склад поступления: {ToWarehouse};";
 					case DocumentType.IncomingWater:
 						return $"Количество: {Amount}; Склад поступления: {FromWarehouse}; Продукт производства: {NomenclatureName}";
 					case DocumentType.MovementDocument:
 						var carInfo = string.IsNullOrEmpty(CarNumber) ? null : $", Фура: {CarNumber}";
-						return $"{FromWarehouse} -> {ToWarehouse}{carInfo}";
+						switch(MovementDocumentTypeByStorage)
+						{
+							case MovementDocumentTypeByStorage.ToWarehouse:
+								switch(MovementDocumentStorageFrom)
+								{
+									case StorageType.Warehouse:
+										return $"{FromWarehouse} -> {ToWarehouse}{carInfo}";
+									case StorageType.Employee:
+										return $"{FromEmployee} -> {ToWarehouse}";
+									case StorageType.Car:
+										return $"{FromCar} -> {ToWarehouse}";
+								}
+								break;
+							case MovementDocumentTypeByStorage.ToEmployee:
+								switch(MovementDocumentStorageFrom)
+								{
+									case StorageType.Warehouse:
+										return $"{FromWarehouse} -> {ToEmployee}";
+									case StorageType.Employee:
+										return $"{FromEmployee} -> {ToEmployee}";
+									case StorageType.Car:
+										return $"{FromCar} -> {ToEmployee}";
+								}
+								break;
+							case MovementDocumentTypeByStorage.ToCar:
+								switch(MovementDocumentStorageFrom)
+								{
+									case StorageType.Warehouse:
+										return $"{FromWarehouse} -> {ToCar}";
+									case StorageType.Employee:
+										return $"{FromEmployee} -> {ToCar}";
+									case StorageType.Car:
+										return $"{FromCar} -> {ToCar}";
+								}
+								break;
+						}
+						return string.Empty;
 					case DocumentType.WriteoffDocument:
-						if(FromWarehouse != string.Empty)
+						switch(WriteOffType)
 						{
-							return $"Со склада \"{FromWarehouse}\"";
+							case WriteOffType.Warehouse:
+								return !string.IsNullOrWhiteSpace(FromWarehouse) ? $"Со склада \"{FromWarehouse}\"" : FromWarehouse;
+							case WriteOffType.Employee:
+								return !string.IsNullOrWhiteSpace(FromEmployee) ? $"С сотрудника \"{FromEmployee}\"" : FromEmployee;
+							case WriteOffType.Car:
+								return !string.IsNullOrWhiteSpace(FromCar) ? $"С автомобиля \"{FromCar}\"" : FromCar;
 						}
-
-						if(Counterparty != string.Empty)
-						{
-							return $"От клиента \"{Counterparty}\"";
-						}
-
 						return string.Empty;
 					case DocumentType.CarLoadDocument:
 						return string.Format(
@@ -76,13 +113,29 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 							RouteListId
 						);
 					case DocumentType.InventoryDocument:
-						return string.Format("По складу: {0}", FromWarehouse);
+						switch(InventoryDocumentType)
+						{
+							case InventoryDocumentType.WarehouseInventory:
+								return $"По складу: {FromWarehouse}";
+							case InventoryDocumentType.EmployeeInventory:
+								return $"По сотруднику: {FromEmployee}";
+							case InventoryDocumentType.CarInventory:
+								return $"По автомобилю: {FromCar}";
+						}
+						return string.Empty;
 					case DocumentType.ShiftChangeDocument:
-						return string.Format("По складу: {0}", FromWarehouse);
+						switch(ShiftChangeResidueDocumentType)
+						{
+							case ShiftChangeResidueDocumentType.Warehouse:
+								return $"По складу: {FromWarehouse}";
+							case ShiftChangeResidueDocumentType.Car:
+								return $"По автомобилю: {FromCar}";
+						}
+						return string.Empty;
 					case DocumentType.RegradingOfGoodsDocument:
-						return string.Format("По складу: {0}", FromWarehouse);
+						return $"По складу: {FromWarehouse}";
 					case DocumentType.SelfDeliveryDocument:
-						return string.Format("Склад: {0}, Заказ №: {1}, Клиент: {2}", FromWarehouse, OrderId, Counterparty);
+						return $"Склад: {FromWarehouse}, Заказ №: {OrderId}, Клиент: {Counterparty}";
 					case DocumentType.DriverTerminalGiveout:
 						return "Выдача терминала водителю " +
 							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} со склада {FromWarehouse}";
@@ -106,6 +159,22 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 		public string ToWarehouse { get; set; }
 
 		public int ToWarehouseId { get; set; }
+		
+		public string FromEmployee { get; set; }
+
+		public int FromEmployeeId { get; set; }
+
+		public string ToEmployee { get; set; }
+
+		public int ToEmployeeId { get; set; }
+		
+		public string FromCar { get; set; }
+
+		public int FromCarId { get; set; }
+
+		public string ToCar { get; set; }
+
+		public int ToCarId { get; set; }
 
 		public decimal Amount { get; set; }
 
@@ -148,6 +217,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 		public string DriverPatronymic { get; set; }
 
 		public MovementDocumentStatus MovementDocumentStatus { get; set; }
+		public StorageType MovementDocumentStorageFrom { get; set; }
+		public MovementDocumentTypeByStorage MovementDocumentTypeByStorage { get; set; }
+		public WriteOffType WriteOffType { get; set; }
+		public InventoryDocumentType InventoryDocumentType { get; set; }
+		public ShiftChangeResidueDocumentType ShiftChangeResidueDocumentType { get; set; }
 
 		public bool MovementDocumentDiscrepancy { get; set; }
 

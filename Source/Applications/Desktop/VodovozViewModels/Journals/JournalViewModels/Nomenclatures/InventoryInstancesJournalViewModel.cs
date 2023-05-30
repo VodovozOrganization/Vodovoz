@@ -3,6 +3,7 @@ using System.Linq;
 using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -12,8 +13,10 @@ using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
@@ -92,7 +95,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 		{
 			Nomenclature nomenclatureAlias = null;
 			InventoryNomenclatureInstance instanceAlias = null;
+			InstanceGoodsAccountingOperation instanceOperationAlias = null;
 			InventoryInstancesJournalNode resultAlias = null;
+
+			IProjection balanceProjection = null;
 			
 			var query = uow.Session.QueryOver(() => instanceAlias)
 				.JoinAlias(ini => ini.Nomenclature, () => nomenclatureAlias);
@@ -124,11 +130,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 				query.WhereRestrictionOn(ini => ini.Id).Not.IsIn(_filterViewModel.ExcludedInventoryInstancesIds);
 			}
 
+			if(_filterViewModel.OnlyWithZeroBalance)
+			{
+				query.JoinEntityAlias(() => instanceOperationAlias,
+					() => instanceOperationAlias.InventoryNomenclatureInstance.Id == instanceAlias.Id,
+					JoinType.LeftOuterJoin);
+				
+				balanceProjection = Projections.Sum(() => instanceOperationAlias.Amount);
+				
+				query.Where(CustomRestrictions.OrHaving(
+					Restrictions.Eq(balanceProjection, 0),
+					Restrictions.IsNull(balanceProjection)));
+			}
+
 			return query.SelectList(list => list
-				.Select(ini => ini.Id).WithAlias(() => resultAlias.Id)
+				.SelectGroup(ini => ini.Id).WithAlias(() => resultAlias.Id)
 				.Select(ini => ini.InventoryNumber).WithAlias(() => resultAlias.InventoryNumber)
 				.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-				.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName))
+				.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
+				.Select(balanceProjection))
 				.TransformUsing(Transformers.AliasToBean<InventoryInstancesJournalNode>())
 				.OrderBy(() => nomenclatureAlias.Name).Asc
 				.ThenBy(ini => ini.InventoryNumber).Asc;

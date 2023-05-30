@@ -350,13 +350,22 @@ namespace Vodovoz.ViewModels.Warehouses
 								f =>
 								{
 									f.ExcludedInventoryInstancesIds = excludedInventoryInstancesIds;
+									f.OnlyWithZeroBalance = true;
 									f.RestrictShowArchive = false;
 								},
 								OpenPageOptions.AsSlave);
 					}
 					else
 					{
-						page = NavigationManager.OpenViewModel<InventoryInstancesJournalViewModel>(this, OpenPageOptions.AsSlave);
+						page = NavigationManager
+							.OpenViewModel<InventoryInstancesJournalViewModel, Action<InventoryInstancesJournalFilterViewModel>>(
+								this,
+								f =>
+								{
+									f.OnlyWithZeroBalance = true;
+									f.RestrictShowArchive = false;
+								},
+								OpenPageOptions.AsSlave);
 					}
 					
 					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;

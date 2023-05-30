@@ -7,28 +7,28 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
-	public class WarhouseAccountingCard
+	public class WarehouseAccountingCard
 	{
-		private readonly List<WarhouseAccountingCardRow> _rows = new List<WarhouseAccountingCardRow>();
-		private readonly Func<int, int, DateTime, decimal> _getWarhouseBalance;
+		private readonly List<WarehouseAccountingCardRow> _rows = new List<WarehouseAccountingCardRow>();
+		private readonly Func<int, int, DateTime, decimal> _getWarehouseBalance;
 
-		private WarhouseAccountingCard(
+		private WarehouseAccountingCard(
 			DateTime startDate,
 			DateTime endDate,
-			int warhouseId,
+			int warehouseId,
 			string warehouseName,
 			int nomenclatureId,
 			string nomenclatureName,
 			IEnumerable<WarehouseDocumentsItemsJournalNode> rows,
-			Func<int, int, DateTime, decimal> getWarhouseBalance)
+			Func<int, int, DateTime, decimal> getWarehouseBalance)
 		{
 			StartDate = startDate;
 			EndDate = endDate;
-			WarehouseId = warhouseId;
+			WarehouseId = warehouseId;
 			WarehouseName = warehouseName;
 			NomenclatureId = nomenclatureId;
 			NomenclatureName = nomenclatureName;
-			_getWarhouseBalance = getWarhouseBalance;
+			_getWarehouseBalance = getWarehouseBalance;
 			ProcessData(rows);
 		}
 
@@ -56,9 +56,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 						&& x.NomenclatureName == NomenclatureName)
 					.Sum(x => x.Amount);
 
-				var residue = _getWarhouseBalance(NomenclatureId, WarehouseId, slice.EndDate);
+				var residue = _getWarehouseBalance(NomenclatureId, WarehouseId, slice.EndDate);
 
-				_rows.Add(WarhouseAccountingCardRow.Create(startDate, income, outcome, residue));
+				_rows.Add(WarehouseAccountingCardRow.Create(startDate, income, outcome, residue));
 			}
 		}
 
@@ -68,9 +68,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		public string WarehouseName { get; }
 		public int NomenclatureId { get; }
 		public string NomenclatureName { get; }
-		public ReadOnlyCollection<WarhouseAccountingCardRow> Rows => _rows.AsReadOnly();
+		public ReadOnlyCollection<WarehouseAccountingCardRow> Rows => _rows.AsReadOnly();
 
-		public static WarhouseAccountingCard Create(
+		public static WarehouseAccountingCard Create(
 			DateTime startDate,
 			DateTime endDate,
 			int warehouseId,
@@ -80,7 +80,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			IEnumerable<WarehouseDocumentsItemsJournalNode> rows,
 			Func<int, int, DateTime, decimal> getWarhouseBalance)
 		{
-			return new WarhouseAccountingCard(
+			return new WarehouseAccountingCard(
 				startDate,
 				endDate,
 				warehouseId,
@@ -92,9 +92,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		}
 	}
 
-	public class WarhouseAccountingCardRow
+	public class WarehouseAccountingCardRow
 	{
-		private WarhouseAccountingCardRow(DateTime date, decimal income, decimal outcome, decimal residue)
+		private WarehouseAccountingCardRow(DateTime date, decimal income, decimal outcome, decimal residue)
 		{
 			Date = date;
 			Income = income;
@@ -110,9 +110,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 
 		public decimal Residue { get; }
 
-		public static WarhouseAccountingCardRow Create(DateTime date, decimal income, decimal outcome, decimal residue)
+		public static WarehouseAccountingCardRow Create(DateTime date, decimal income, decimal outcome, decimal residue)
 		{
-			return new WarhouseAccountingCardRow(date, income, outcome, residue);
+			return new WarehouseAccountingCardRow(date, income, outcome, residue);
 		}
 	}
 }

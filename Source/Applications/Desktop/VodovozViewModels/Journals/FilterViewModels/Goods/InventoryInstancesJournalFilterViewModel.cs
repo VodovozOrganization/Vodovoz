@@ -70,6 +70,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 		
 		public int[] ExcludedInventoryInstancesIds { get; set; }
 
+		public bool OnlyWithZeroBalance { get; set; }
+
 		public string InventoryNumber { get; set; }
 		public bool CanChangeNomenclature { get; set; } = true;
 		public bool IsShow { get; set; }

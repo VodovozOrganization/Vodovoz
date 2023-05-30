@@ -235,7 +235,7 @@ namespace Vodovoz.Views.Warehouse
 				.AddBinding(vm => vm.HasSelectedInstanceItem, w => w.Sensitive)
 				.InitializeFromSource();
 			btnDeleteFineFromNomenclatureInstanceItem.Binding
-				.AddBinding(ViewModel, vm => vm.SelectedNomenclatureItemHasFine, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.SelectedInstanceItemHasFine, w => w.Sensitive)
 				.InitializeFromSource();
 
 			expanderInstancesDiscrepancies.Expanded = true;
