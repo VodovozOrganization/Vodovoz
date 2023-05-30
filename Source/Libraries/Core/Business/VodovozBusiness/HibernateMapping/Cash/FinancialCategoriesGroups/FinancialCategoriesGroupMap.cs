@@ -1,8 +1,7 @@
-﻿using FluentNHibernate.Conventions;
-using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Cash;
+﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 
-namespace Vodovoz.HibernateMapping.Cash
+namespace Vodovoz.HibernateMapping.Cash.FinancialCategoriesGroups
 {
 	public class FinancialCategoriesGroupMap : ClassMap<FinancialCategoriesGroup>
 	{

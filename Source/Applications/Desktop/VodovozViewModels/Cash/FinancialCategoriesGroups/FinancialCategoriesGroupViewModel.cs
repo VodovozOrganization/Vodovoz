@@ -6,8 +6,7 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using Vodovoz.Domain.Cash;
-using Vodovoz.Tools;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 
 namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 {

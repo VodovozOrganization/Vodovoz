@@ -9,6 +9,7 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;

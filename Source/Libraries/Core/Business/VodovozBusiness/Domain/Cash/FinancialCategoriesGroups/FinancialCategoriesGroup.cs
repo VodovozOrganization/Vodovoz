@@ -2,7 +2,7 @@
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 
-namespace Vodovoz.Domain.Cash
+namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "группы финансовых статей",

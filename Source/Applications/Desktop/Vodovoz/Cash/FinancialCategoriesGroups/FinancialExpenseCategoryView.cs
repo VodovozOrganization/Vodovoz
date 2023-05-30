@@ -1,10 +1,13 @@
-﻿using QS.Views.GtkUI;
+﻿using Gdk;
+using QS.Views.GtkUI;
 using System;
+using System.ComponentModel;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 
 namespace Vodovoz.Cash.FinancialCategoriesGroups
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class FinancialExpenseCategoryView : TabViewBase<FinancialExpenseCategoryViewModel>
 	{
 		public FinancialExpenseCategoryView(FinancialExpenseCategoryViewModel viewModel) : base(viewModel)
@@ -22,36 +25,21 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 				.InitializeFromSource();
 
 			yentryName.Binding
-				.AddBinding(ViewModel.Entity, e => e.Name, (widget) => widget.Text)
+				.AddBinding(ViewModel.Entity, e => e.Title, w => w.Text)
 				.InitializeFromSource();
 
 			yentryNumbering.Binding
-				.AddBinding(ViewModel.Entity, e => e.Numbering, (widget) => widget.Text)
+				.AddBinding(ViewModel.Entity, e => e.Numbering, w => w.Text)
 				.InitializeFromSource();
 
 			entryParentGroup.ViewModel = ViewModel.ParentFinancialCategoriesGroupViewModel;
 
-			entryParentGroup.Visible = false;
+			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
 
-			labelParent.Visible = false;
+			ycheckArchived.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
-			#region ParentEntityviewmodelentry
-			ParentEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseCategoryAutocompleteSelectorFactory);
-			ParentEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Parent, w => w.Subject).InitializeFromSource();
-			ParentEntityviewmodelentry.CanEditReference = true;
-			#endregion
-
-			#region SubdivisionEntityviewmodelentry
-
-			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.SubdivisionAutocompleteSelectorFactory);
-			SubdivisionEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject).InitializeFromSource();
-
-			#endregion
-
-			ycheckArchived.Binding.AddBinding(ViewModel, e => e.IsArchive, w => w.Active).InitializeFromSource();
-
-			yenumTypeDocument.ItemsEnum = typeof(ExpenseInvoiceDocumentType);
-			yenumTypeDocument.Binding.AddBinding(ViewModel.Entity, e => e.ExpenseDocumentType, w => w.SelectedItem).InitializeFromSource();
+			yenumTypeDocument.ItemsEnum = typeof(TargetDocument);
+			yenumTypeDocument.Binding.AddBinding(ViewModel.Entity, e => e.TargetDocument, w => w.SelectedItem).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
