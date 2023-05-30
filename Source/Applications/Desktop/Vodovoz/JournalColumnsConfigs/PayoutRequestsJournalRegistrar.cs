@@ -43,7 +43,8 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Основание")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.Basis)
-					.XAlign(0.5f)
+					.WrapWidth(1000)
+					.WrapMode(WrapMode.WordChar)
 				.AddColumn("")
 				.Finish();
 	}
