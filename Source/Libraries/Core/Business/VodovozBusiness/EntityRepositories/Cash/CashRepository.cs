@@ -166,6 +166,26 @@ namespace Vodovoz.EntityRepositories.Cash
 			return income - expense;
 		}
 
+		public decimal CurrentRouteListCashReturn(IUnitOfWork uow, int routeListId)
+		{
+			decimal income = uow.Session.QueryOver<Income>()
+								.Where(exp => exp.RouteListClosing.Id == routeListId)
+								.Where(exp => exp.TypeOperation == IncomeType.Return)
+								.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
+
+			return income;
+		}
+
+		public decimal CurrentRouteListTotalExpense(IUnitOfWork uow, int routeListId)
+		{
+			decimal expense = uow.Session.QueryOver<Expense>()
+								 .Where(exp => exp.RouteListClosing.Id == routeListId)
+								 .Where(exp => exp.TypeOperation == ExpenseType.Expense)
+								 .Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
+
+			return expense;
+		}
+
 		/// <summary>
 		/// Возвращает сумму находящуюся в перемещении между кассами
 		/// </summary>
