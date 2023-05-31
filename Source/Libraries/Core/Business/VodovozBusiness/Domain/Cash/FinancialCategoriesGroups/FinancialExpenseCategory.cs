@@ -59,8 +59,8 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 			set => SetField(ref _numbering, value);
 		}
 
-		public virtual GroupType GroupType { get; set; } = GroupType.Category;
+		public virtual GroupType GroupType => GroupType.Category;
 
-		public virtual FinancialSubType FinancialSubtype { get; set; } = FinancialSubType.Expense;
+		public virtual FinancialSubType FinancialSubtype => FinancialSubType.Expense;
 	}
 }

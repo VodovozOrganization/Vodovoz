@@ -15,6 +15,7 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		private int? _parentId;
 		private string _title;
 		private bool _isArchive;
+		private FinancialSubType _financialSubtype;
 
 		public virtual int Id { get; }
 
@@ -36,8 +37,12 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 			set => SetField(ref _isArchive, value);
 		}
 
-		public virtual GroupType GroupType { get; set; } = GroupType.Group;
+		public virtual FinancialSubType FinancialSubtype
+		{
+			get => _financialSubtype;
+			set => SetField(ref _financialSubtype, value);
+		}
 
-		public virtual FinancialSubType FinancialSubtype { get; set; }
+		public virtual GroupType GroupType => GroupType.Group;
 	}
 }

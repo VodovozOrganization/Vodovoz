@@ -3,22 +3,25 @@ using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 
 namespace Vodovoz.HibernateMapping.Cash.FinancialCategoriesGroups
 {
-	public class FinancialCategoriesGroupMap : ClassMap<FinancialCategoriesGroup>
+	public class FinancialIncomeCategoryMap : ClassMap<FinancialIncomeCategory>
 	{
-		public FinancialCategoriesGroupMap()
+		public FinancialIncomeCategoryMap()
 		{
 			Table("financial_categories_groups");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.GroupType).Column("group_type").Access.ReadOnly();
-			Map(x => x.FinancialSubtype).Column("financial_subtype");
+			Map(x => x.FinancialSubtype).Column("financial_subtype").Access.ReadOnly();
 
 			Map(x => x.ParentId).Column("parent_id");
 			Map(x => x.Title).Column("title");
 			Map(x => x.IsArchive).Column("is_archive");
+			Map(x => x.TargetDocument).Column("target_document");
+			Map(x => x.SubdivisionId).Column("subdivision_id");
+			Map(x => x.Numbering).Column("numbering");
 
-			Where("group_type = 'Group'");
+			Where("group_type = 'Category' AND financial_subtype = 'Income'");
 		}
 	}
 }

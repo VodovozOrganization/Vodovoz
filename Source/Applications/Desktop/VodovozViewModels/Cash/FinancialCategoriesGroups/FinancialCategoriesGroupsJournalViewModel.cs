@@ -312,6 +312,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 							{
 								var page = NavigationManager.OpenViewModel<FinancialCategoriesGroupViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 								page.ViewModel.Entity.ParentId = node.Id;
+								page.ViewModel.Entity.FinancialSubtype = node.FinancialSubType;
 								return;
 							}
 
