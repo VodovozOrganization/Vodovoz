@@ -199,7 +199,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			}
 			else
 			{
-				queryStock.Where(Restrictions.Not(Restrictions.Eq(bulkBalanceProjection, 0)));
+				if(!_filterViewModel.ShowNomenclatureInstance)
+				{
+					queryStock.Where(Restrictions.Not(Restrictions.Eq(bulkBalanceProjection, 0)));
+				}
+				else
+				{
+					queryStock.Where(
+						CustomRestrictions.OrHaving(
+							Restrictions.Not(Restrictions.Eq(bulkBalanceProjection, 0)),
+							Restrictions.Not(Restrictions.Eq(instanceBalanceProjection, 0))));
+				}
 			}
 
 			if(!_filterViewModel.ShowArchive)
