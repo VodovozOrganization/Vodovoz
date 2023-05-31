@@ -109,6 +109,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Accounting;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Fuel;
@@ -936,44 +937,12 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnAction14Activated(object sender, EventArgs e)
 	{
-		var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
-		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		var incomeFactory = new IncomeCategorySelectorFactory();
-
-		tdiMain.AddTab(
-			new IncomeCategoryJournalViewModel(
-				incomeCategoryFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				chooserProvider,
-				employeeJournalFactory,
-				subdivisionJournalFactory,
-				incomeFactory
-			)
-		);
+		NavigationManager.OpenViewModel<IncomeCategoryJournalViewModel>(null);
 	}
 
 	protected void OnAction15Activated(object sender, EventArgs e)
 	{
-		var expenseCategoryFilter = new ExpenseCategoryJournalFilterViewModel();
-		IFileChooserProvider chooserProvider = new Vodovoz.FileChooser();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-		var subdivisionJournalFactory = new SubdivisionJournalFactory();
-		var expenseFactory = new ExpenseCategorySelectorFactory();
-
-		tdiMain.AddTab(
-			new ExpenseCategoryJournalViewModel(
-				expenseCategoryFilter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				chooserProvider,
-				employeeJournalFactory,
-				subdivisionJournalFactory,
-				expenseFactory
-			)
-		);
+		NavigationManager.OpenViewModel<ExpenseCategoryJournalViewModel>(null);
 	}
 
 	protected void OnActionCashToggled(object sender, EventArgs e)
@@ -2734,5 +2703,10 @@ public partial class MainWindow : Gtk.Window
 	protected void OnInventoryNomenclaturesActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<InventoryNomenclaturesJournalViewModel>(null);
+	}
+
+	protected void OnActionFinancialCategoriesGroupsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
 	}
 }

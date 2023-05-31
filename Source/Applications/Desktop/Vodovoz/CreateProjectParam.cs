@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -45,6 +45,8 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Additions.Store;
+using Vodovoz.Cash;
+using Vodovoz.Cash.FinancialCategoriesGroups;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
@@ -101,6 +103,7 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
@@ -206,6 +209,7 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using VodovozInfrastructure.Endpoints;
+using VodovozInfrastructure.Interfaces;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
 
@@ -450,6 +454,8 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ExternalCounterpartiesMatchingJournalFilterViewModel, ExternalCounterpartiesMatchingJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<InventoryInstancesJournalFilterViewModel, InventoryInstancesJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<InventoryInstancesStockBalanceJournalFilterViewModel, InventoryInstancesStockBalanceJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<FinancialCategoriesGroupViewModel, FinancialCategoriesGroupView>()
+				.RegisterWidgetForWidgetViewModel<FinancialCategoriesJournalFilterViewModel, FinancialCategoriesJournalFilterView>()
 				;
 			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -636,6 +642,8 @@ namespace Vodovoz
 
 			builder.RegisterModule<DatabaseSettingsModule>();
 			builder.RegisterModule<CashReceiptClientChannelModule>();
+
+			builder.RegisterType<FileChooser>().As<IFileChooserProvider>();
 
 			#region Adapters & Factories
 

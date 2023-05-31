@@ -1,4 +1,4 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;

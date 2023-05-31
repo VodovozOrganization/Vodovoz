@@ -17,9 +17,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
-		public virtual ReportInfo GetReportInfo()
+		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
-			return new ReportInfo {
+			return new ReportInfo(connectionString) {
 				Title = this.Title,
 				//печатная форма идентична основному счету
 				Identifier = "Documents.Bill",

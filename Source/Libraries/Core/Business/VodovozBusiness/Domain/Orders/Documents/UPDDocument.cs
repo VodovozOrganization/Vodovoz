@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
-		public virtual ReportInfo GetReportInfo()
+		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			var identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
 			return new ReportInfo {

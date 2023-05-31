@@ -22,7 +22,7 @@ namespace Vodovoz.PrintableDocuments
 
 		public string Name { get; set; } = "Документ перемещения";
 
-		public ReportInfo GetReportInfo()
+		public ReportInfo GetReportInfo(string connectionString = null)
 		{
 			return new ReportInfo {
 				Title = Document.Title,

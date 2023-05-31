@@ -1244,8 +1244,7 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTypeView.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelWriteoffDocumentView.cs" />
-    <Compile Include="Dialogs\Cash\ExpenseCategoryView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.ExpenseCategoryView.cs" />
     <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
     <Compile Include="Dialogs\Phones\PhonesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Phones.PhonesView.cs" />
@@ -1573,8 +1572,7 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DriverRoutesListRegisterReport.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Production.ProducedProductionReport.cs" />
-    <Compile Include="Dialogs\Cash\IncomeCategoryView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.IncomeCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.IncomeCategoryView.cs" />
     <Compile Include="Filters\GtkViews\ExpenseCategoryJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ExpenseCategoryJournalFilterView.cs" />
     <Compile Include="Filters\GtkViews\IncomeCategoryJournalFilterView.cs" />
@@ -1906,6 +1904,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.Views.ExternalCounterpartiesMatchingJournalFilterView.cs" />
     <Compile Include="Views\Client\ExternalCounterpartyMatchingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.ExternalCounterpartyMatchingView.cs" />
+    <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialCategoriesJournalFilterView.cs" />
     <Compile Include="Views\Client\CloseSupplyToCounterpartyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.CloseSupplyToCounterpartyView.cs" />
     <Compile Include="Views\Goods\InventoryInstanceView.cs" />
@@ -1921,6 +1921,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.ShiftChangeResidueDocumentView.cs" />
     <Compile Include="Views\Warehouse\InventoryInstanceMovementReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.InventoryInstanceMovementReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialCategoriesGroupView.cs" />
+    <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesGroupView.cs" />
+    <Compile Include="Cash\ExpenseCategoryView.cs" />
+    <Compile Include="Cash\IncomeCategoryView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2436,6 +2440,10 @@
     <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_many.png" />
     <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_nationality.png" />
     <EmbeddedResource Include="icons\map\points\custom\logistics_requirements_pass.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="icons\common\empty16.png" />
+    <EmbeddedResource Include="icons\common\folder16.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

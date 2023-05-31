@@ -20,6 +20,7 @@ namespace Vodovoz.HibernateMapping.Order
 			Map(x => x.MainDocumentId).Column("main_document_id");
 			Map(x => x.Container).Column("container");
 			Map(x => x.Created).Column("created");
+			Map(x => x.Type).Column("type");
 
 			References(x => x.Order).Column("order_id");
 			References(x => x.Counterparty).Column("counterparty_id");

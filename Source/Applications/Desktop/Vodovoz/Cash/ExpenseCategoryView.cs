@@ -1,28 +1,29 @@
-﻿using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
+﻿using Gdk;
 using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
-using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.Journals.JournalViewModels.Organizations;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
-namespace Vodovoz.Dialogs.Cash
+namespace Vodovoz.Cash
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class ExpenseCategoryView : TabViewBase<ExpenseCategoryViewModel>
 	{
 		public ExpenseCategoryView(ExpenseCategoryViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-			ConfigureDlg();
+			Build();
+
+			Initialize();
 		}
 
-		private void ConfigureDlg()
+		private void Initialize()
 		{
+			labelIdValue.Binding
+				.AddSource(ViewModel.Entity)
+				.AddFuncBinding(ec => ec.Id != 0 ? ec.Id.ToString() : string.Empty, label => label.Text)
+				.InitializeFromSource();
+
 			yentryName.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, (widget) => widget.Text)
 				.InitializeFromSource();
@@ -30,6 +31,12 @@ namespace Vodovoz.Dialogs.Cash
 			yentryNumbering.Binding
 				.AddBinding(ViewModel.Entity, e => e.Numbering, (widget) => widget.Text)
 				.InitializeFromSource();
+
+			entryParentGroup.ViewModel = ViewModel.ParentFinancialCategoriesGroupViewModel;
+
+			entryParentGroup.Visible = false;
+
+			labelParent.Visible = false;
 
 			#region ParentEntityviewmodelentry
 			ParentEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseCategoryAutocompleteSelectorFactory);
@@ -51,6 +58,17 @@ namespace Vodovoz.Dialogs.Cash
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
+
+			btnCopyEntityId1.Sensitive = ViewModel.Entity.Id > 0;
+			btnCopyEntityId1.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.Entity.Id > 0)
+			{
+				GetClipboard(Selection.Clipboard).Text = ViewModel.Entity.Id.ToString();
+			}
 		}
 	}
 }

@@ -720,7 +720,7 @@ Month(CDate({?date})) = 12, 'декабря'
       <Textbox Name="Textbox42">
         <Height>12.75pt</Height>
         <Width>109.83pt</Width>
-        <Value>С-Пб,</Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>100.8pt</Left>
         <Top>221.6pt</Top>
@@ -774,12 +774,12 @@ Month(CDate({?date})) = 12, 'декабря'
         </Style>
       </Textbox>
       <Textbox Name="Textbox54">
-        <Height>14.00pt</Height>
-        <Width>204.69pt</Width>
-        <Value>Софийская 8, корп 3</Value>
+        <Height>26.76pt</Height>
+        <Width>193.42pt</Width>
+        <Value>С-Пб, ул. Софийская, д 62 к.6 стр. 1, офис 9</Value>
         <ZIndex>1</ZIndex>
-        <Left>5.0pt</Left>
-        <Top>235.4pt</Top>
+        <Left>2.40pt</Left>
+        <Top>237.00pt</Top>
         <Style>
           <BorderStyle>
             <Top>None</Top>
@@ -794,12 +794,12 @@ Month(CDate({?date})) = 12, 'декабря'
         </Style>
       </Textbox>
       <Textbox Name="Textbox58">
-        <Height>14pt</Height>
-        <Width>203.98pt</Width>
+        <Height>5.75pt</Height>
+        <Width>204.73pt</Width>
         <Value></Value>
         <ZIndex>1</ZIndex>
-        <Left>5.0pt</Left>
-        <Top>249.4pt</Top>
+        <Left>4.20pt</Left>
+        <Top>244.85pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>

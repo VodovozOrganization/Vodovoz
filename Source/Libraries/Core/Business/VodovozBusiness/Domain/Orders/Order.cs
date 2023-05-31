@@ -1,4 +1,5 @@
-﻿using fyiReporting.RDL;
+﻿using FluentNHibernate.Data;
+using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -46,6 +47,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -1768,9 +1770,13 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool NeedSendBill(IEmailRepository emailRepository)
 		{
+			var notSendedByEdo = _orderRepository.GetEdoContainersByOrderId(UoW, Id).Count(x=>x.Type == Type.Bill) == 0;
+			var notSendedByEmail = !emailRepository.HaveSendedEmailForBill(Id);
+			var notSended = notSendedByEdo && notSendedByEmail;
 			if((OrderStatus == OrderStatus.NewOrder || OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
-				&& PaymentType == PaymentType.cashless
-				&& !emailRepository.HaveSendedEmailForBill(Id)) {
+			   && PaymentType == PaymentType.cashless
+			   && notSended)
+			{
 				//Проверка должен ли формироваться счет для текущего заказа
 				var requirementDocTypes = GetRequirementDocTypes();
 				return requirementDocTypes.Contains(OrderDocumentType.Bill) || requirementDocTypes.Contains(OrderDocumentType.SpecialBill);
