@@ -10,19 +10,19 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 
 namespace Vodovoz.ViewModels.Journals.JournalFactories
 {
-	public class GeoGroupJournalFactory
+	public class GeoGroupJournalFactory : IGeoGroupJournalFactory
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private readonly WarehouseJournalFactory _warehouseJournalFactory;
+		private readonly IWarehouseJournalFactory _warehouseJournalFactory;
 		private readonly GeoGroupVersionsModel _geoGroupVersionsModel;
 
 		public GeoGroupJournalFactory(
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
-			WarehouseJournalFactory warehouseJournalFactory,
+			IWarehouseJournalFactory warehouseJournalFactory,
 			GeoGroupVersionsModel geoGroupVersionsModel)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
