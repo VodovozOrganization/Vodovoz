@@ -99,7 +99,7 @@ namespace Vodovoz.Domain.Documents
 					RouteList = Document.RouteList
 				};
 
-			deliveryFreeBalanceOperation.Amount = GoodsAccountingOperation.Amount;
+			deliveryFreeBalanceOperation.Amount = -GoodsAccountingOperation.Amount;
 			DeliveryFreeBalanceOperation = deliveryFreeBalanceOperation;
 		}
 	}
