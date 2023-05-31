@@ -2024,8 +2024,8 @@ namespace Vodovoz
 			}
 
 			var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
-			var edoLightsMatrixViewModel = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel;
-			edoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
+			var edoLightsMatrixViewModel = edoLightsMatrixPanelView?.ViewModel?.EdoLightsMatrixViewModel;
+			edoLightsMatrixViewModel?.RefreshLightsMatrix(Entity.Client);
 
 			var edoLightsMatrixPaymentType = Entity.PaymentType == PaymentType.cashless
 				? EdoLightsMatrixPaymentType.Cashless
@@ -2035,7 +2035,7 @@ namespace Vodovoz
 
 			if(isAccountableInChestniyZnak
 			   && Entity.DeliveryDate >= new DateTime(2022, 11, 01)
-			   && !edoLightsMatrixViewModel.IsPaymentAllowed(Entity.Client, edoLightsMatrixPaymentType))
+			   && (edoLightsMatrixViewModel == null || !edoLightsMatrixViewModel.IsPaymentAllowed(Entity.Client, edoLightsMatrixPaymentType)))
 			{
 				if(ServicesConfig.InteractiveService.Question($"Данному контрагенту запрещено отгружать товары по выбранному типу оплаты\n" +
 															  $"Оставить черновик заказа в статусе \"Новый\"?"))
@@ -2048,7 +2048,7 @@ namespace Vodovoz
 
 			if(Entity.PaymentType == PaymentType.cashless)
 			{
-				var hasUnknownEdoLightsType = edoLightsMatrixViewModel.HasUnknown();
+				var hasUnknownEdoLightsType = edoLightsMatrixViewModel == null || edoLightsMatrixViewModel.HasUnknown();
 
 				if(hasUnknownEdoLightsType
 				   && !ServicesConfig.InteractiveService.Question(
