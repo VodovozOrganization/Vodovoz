@@ -623,6 +623,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		private void UpdateInstanceDiscrepancies()
 		{
+			_instancesDiscrepancies.Clear();
 			var storageId = Entity.GetStorageId();
 			var storageType = Entity.GetStorageType();
 			var currentInstancesIds =
