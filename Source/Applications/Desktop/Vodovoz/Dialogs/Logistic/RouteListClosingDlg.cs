@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -117,6 +117,9 @@ namespace Vodovoz
 		int defectiveBottlesReturnedToWarehouse;
 
 		private Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>> _addressKeepingDocumentItemsCacheList =
+			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
+
+		private Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>> _addressKeepingDocumentBottlesCacheList =
 			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
 
 		private CallTaskWorker callTaskWorker;
@@ -357,6 +360,24 @@ namespace Vodovoz
 				.InitializeFromSource();
 			deliveryfreebalanceview.ShowAll();
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
+
+			routeListAddressesView.Items.PropertyOfElementChanged += OnRouteListItemPropertyOfElementChanged;
+		}
+
+		private void OnRouteListItemPropertyOfElementChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(RouteListItem.BottlesReturned))
+			{
+				var node = routeListAddressesView.GetSelectedRouteListItem();
+
+				if(!_addressKeepingDocumentBottlesCacheList.ContainsKey(node.Id))
+				{
+					_addressKeepingDocumentBottlesCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
+				}
+
+				_addressKeepingDocumentBottlesCacheList[node.Id] = _routeListAddressKeepingDocumentController
+					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
+			}
 		}
 
 		private void UpdateSensitivity()
