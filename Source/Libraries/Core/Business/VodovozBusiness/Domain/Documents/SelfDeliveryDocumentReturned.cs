@@ -33,8 +33,8 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField(ref nomenclature, value, () => Nomenclature);
 
-				if(WarehouseMovementOperation != null && WarehouseMovementOperation.Nomenclature != nomenclature)
-					WarehouseMovementOperation.Nomenclature = nomenclature;
+				if(GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != nomenclature)
+					GoodsAccountingOperation.Nomenclature = nomenclature;
 			}
 		}
 
@@ -45,11 +45,11 @@ namespace Vodovoz.Domain.Documents
 			get => equipment;
 			set {
 				SetField(ref equipment, value, () => Equipment);
-				if(WarehouseMovementOperation != null && WarehouseMovementOperation.Equipment != equipment)
-					WarehouseMovementOperation.Equipment = equipment;
-
+				
 				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
+				{
 					CounterpartyMovementOperation.Equipment = equipment;
+				}
 			}
 		}
 
@@ -71,11 +71,11 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref actualCount, value);
 		}
 
-		WarehouseMovementOperation warehouseMovementOperation;
+		WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
 
-		public virtual WarehouseMovementOperation WarehouseMovementOperation {
-			get => warehouseMovementOperation;
-			set => SetField(ref warehouseMovementOperation, value, () => WarehouseMovementOperation);
+		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation {
+			get => _goodsAccountingOperation;
+			set => SetField(ref _goodsAccountingOperation, value);
 		}
 
 		CounterpartyMovementOperation counterpartyMovementOperation;
@@ -126,8 +126,8 @@ namespace Vodovoz.Domain.Documents
 			get{
 				return string.Format(
 					"{0} - {1}", 
-					WarehouseMovementOperation.Nomenclature.Name, 
-					WarehouseMovementOperation.Nomenclature.Unit.MakeAmountShortStr(WarehouseMovementOperation.Amount)
+					GoodsAccountingOperation.Nomenclature.Name, 
+					GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount)
 				);
 			}
 		}
@@ -138,9 +138,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Warehouse warehouse, Counterparty counterparty, DateTime time)
 		{
-			WarehouseMovementOperation = new WarehouseMovementOperation
+			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
 				{
-					IncomingWarehouse = warehouse,
+					Warehouse = warehouse,
 					Amount = Amount,
 					OperationTime = time,
 					Nomenclature = Nomenclature,
@@ -157,9 +157,8 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void UpdateOperation(Warehouse warehouse, Counterparty counterparty)
 		{
-			WarehouseMovementOperation.IncomingWarehouse = warehouse;
-			WarehouseMovementOperation.WriteoffWarehouse = null;
-			WarehouseMovementOperation.Amount = Amount;
+			GoodsAccountingOperation.Warehouse = warehouse;
+			GoodsAccountingOperation.Amount = Amount;
 
 			CounterpartyMovementOperation.WriteoffCounterparty = counterparty;
 			CounterpartyMovementOperation.Amount = Amount;

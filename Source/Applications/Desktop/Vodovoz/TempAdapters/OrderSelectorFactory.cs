@@ -17,6 +17,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.TempAdapters
 {

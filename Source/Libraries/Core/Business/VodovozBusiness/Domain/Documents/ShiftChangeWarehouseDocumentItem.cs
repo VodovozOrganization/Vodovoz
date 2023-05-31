@@ -7,47 +7,48 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки акта передачи склада",
-		Nominative = "строка акта передачи склада")]
+		NominativePlural = "строки акта передачи склада(объемный учет)",
+		Nominative = "строка акта передачи склада(объемный учет)")]
 	[HistoryTrace]
 	public class ShiftChangeWarehouseDocumentItem : PropertyChangedBase, IDomainObject
 	{
+		private Nomenclature _nomenclature;
+		private decimal _amountInDb;
+		private decimal _amountInFact;
+		private string _comment;
+
 		public virtual int Id { get; set; }
 
 		public virtual ShiftChangeWarehouseDocument Document { get; set; }
 
-		Nomenclature nomenclature;
-
 		[Required(ErrorMessage = "Номенклатура должна быть заполнена.")]
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
-			set { SetField(ref nomenclature, value, () => Nomenclature); }
+		public virtual Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set => SetField(ref _nomenclature, value);
 		}
-
-		decimal amountInDB;
 
 		[Display(Name = "Количество по базе")]
-		public virtual decimal AmountInDB {
-			get { return amountInDB; }
-			set { SetField(ref amountInDB, value, () => AmountInDB); }
+		public virtual decimal AmountInDB
+		{
+			get => _amountInDb;
+			set => SetField(ref _amountInDb, value);
 		}
-
-		decimal amountInFact;
 
 		[Display(Name = "Количество по базе")]
 		[PropertyChangedAlso("SumOfDamage")]
-		public virtual decimal AmountInFact {
-			get { return amountInFact; }
-			set { SetField(ref amountInFact, value, () => AmountInFact); }
+		public virtual decimal AmountInFact
+		{
+			get => _amountInFact;
+			set => SetField(ref _amountInFact, value);
 		}
 
-		string comment;
-
 		[Display(Name = "Комментарий")]
-		public virtual string Comment {
-			get { return comment; }
-			set { SetField(ref comment, value, () => Comment); }
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
 
 		[Display(Name = "Сумма ущерба")]
@@ -55,16 +56,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region Расчетные
 
-		public virtual string Title {
-			get {
-				return String.Format(
-					"[{2}] {0} - {1}",
-					Nomenclature.Name,
-					Nomenclature.Unit.MakeAmountShortStr(AmountInFact),
-					Document.Title
-				);
-			}
-		}
+		public virtual string Title => $"[{Document.Title}] {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(AmountInFact)}";
 
 		public virtual decimal Difference => AmountInFact - AmountInDB;
 

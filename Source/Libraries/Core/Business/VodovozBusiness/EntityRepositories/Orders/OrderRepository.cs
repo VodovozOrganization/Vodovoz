@@ -708,8 +708,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		public bool HasFlyersOnStock(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroupId)
 		{
-			WarehouseMovementOperation operationAddAlias = null;
-			WarehouseMovementOperation operationRemoveAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			VodovozOrder orderAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
@@ -719,21 +718,13 @@ namespace Vodovoz.EntityRepositories.Orders
 				? routeListParametersProvider.WarehouseSofiiskayaId 
 				: routeListParametersProvider.WarehouseBugriId;
 
-			var subqueryAdded = uow.Session.QueryOver(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == flyerId)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
-				.Where(o => o.IncomingWarehouse.Id == warehouseId)
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
+			var subQueryBalance = uow.Session.QueryOver(() => operationAlias)
+				.Where(() => operationAlias.Nomenclature.Id == flyerId)
+				.Where(o => o.Warehouse.Id == warehouseId)
+				.Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(o => o.Amount))
 				.SingleOrDefault<decimal>();
 
-			var subqueryRemoved = uow.Session.QueryOver(() => operationRemoveAlias)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == flyerId)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
-				.Where(o => o.WriteoffWarehouse.Id == warehouseId)
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
-				.SingleOrDefault<decimal>();
-
-			var subqueryReserved = uow.Session.QueryOver(() => orderAlias)
+			var subQueryReserved = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
@@ -746,7 +737,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Select(Projections.Sum(() => orderEquipmentAlias.Count))
 				.SingleOrDefault<int>();
 
-			return subqueryAdded - subqueryRemoved - subqueryReserved > 0;
+			return subQueryBalance - subQueryReserved > 0;
 		}
 
 		public bool IsMovedToTheNewOrder(IUnitOfWork uow, OrderItem orderItem)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Reflection;
@@ -26,7 +26,6 @@ using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Dialogs.Logistic;
-using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
@@ -34,27 +33,27 @@ using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.InventoryDocuments;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
-using Vodovoz.Tools;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
-using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
-using Vodovoz.Views.Logistic;
 using Vodovoz.Views.Users;
+using Vodovoz.Views.Warehouse;
 using VodovozInfrastructure.Configuration;
+using InventoryDocumentViewModel = Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel;
 
 namespace Vodovoz.Configuration
 {
@@ -219,8 +218,8 @@ namespace Vodovoz.Configuration
 			#region Складские документы
 
 			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
-            OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
 			OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentViewModel>();
+            OrmMain.AddObjectDescription<WriteOffDocument>().Dialog<WriteoffDocumentView>();
             OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();
             OrmMain.AddObjectDescription<RegradingOfGoodsDocument>().Dialog<RegradingOfGoodsDocumentDlg>();
             OrmMain.AddObjectDescription<SelfDeliveryDocument>().Dialog<SelfDeliveryDocumentDlg>();

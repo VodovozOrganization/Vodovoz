@@ -15,24 +15,24 @@ namespace VodovozBusinessTests.Domain.Documents
 		public void UpdateWarehouse_OnChangeWarehouseInCarUnloadDocumentItem_IncomingWarehouseInWarehouseMovementOperationForAllItemsAlsoChanges()
 		{
 			// arrange
-			Warehouse warehouseMock01 = Substitute.For<Warehouse>();
-			Warehouse warehouseMock02 = Substitute.For<Warehouse>();
-			CarUnloadDocument unloadDocumentUnderTest = new CarUnloadDocument {
+			var warehouseMock01 = Substitute.For<Warehouse>();
+			var warehouseMock02 = Substitute.For<Warehouse>();
+			var unloadDocumentUnderTest = new CarUnloadDocument {
 				Warehouse = warehouseMock01,
 				Items = new List<CarUnloadDocumentItem> {
 					new CarUnloadDocumentItem {
-						WarehouseMovementOperation = new WarehouseMovementOperation {
-							IncomingWarehouse = warehouseMock01
+						GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation {
+							Warehouse = warehouseMock01
 						}
 					},
 					new CarUnloadDocumentItem {
-						WarehouseMovementOperation = new WarehouseMovementOperation {
-							IncomingWarehouse = warehouseMock01
+						GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation {
+							Warehouse = warehouseMock01
 						}
 					},
 					new CarUnloadDocumentItem {
-						WarehouseMovementOperation = new WarehouseMovementOperation {
-							IncomingWarehouse = null
+						GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation {
+							Warehouse = null
 						}
 					}
 				}
@@ -42,7 +42,9 @@ namespace VodovozBusinessTests.Domain.Documents
 			unloadDocumentUnderTest.Warehouse = warehouseMock02;
 
 			// assert
-			Assert.That(unloadDocumentUnderTest.Items.All(i => i.WarehouseMovementOperation.IncomingWarehouse == warehouseMock02), Is.True);
+			Assert.That(
+				unloadDocumentUnderTest.Items.All(i => i.GoodsAccountingOperation.Warehouse == warehouseMock02),
+				Is.True);
 		}
 	}
 }

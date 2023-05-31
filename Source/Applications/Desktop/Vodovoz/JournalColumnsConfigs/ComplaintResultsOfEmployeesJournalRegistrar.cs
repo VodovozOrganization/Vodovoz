@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Complaints.ComplaintResults;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
 
@@ -17,7 +18,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Editing(false)
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRendererText>((cell, node) => cell.Foreground = node.IsArchive ? "grey" : "black")
+					.AddSetter<CellRendererText>((cell, node) => cell.ForegroundGdk = node.IsArchive ? GdkColors.DarkGrayColor : GdkColors.BlackColor)
 				.Finish();
 	}
 }

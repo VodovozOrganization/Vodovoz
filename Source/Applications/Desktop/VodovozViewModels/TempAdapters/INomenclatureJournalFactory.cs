@@ -8,7 +8,6 @@ namespace Vodovoz.TempAdapters
 {
 	public interface INomenclatureJournalFactory
 	{
-		IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures);
 		IEntitySelector CreateNomenclatureSelector(IEnumerable<int> excludedNomenclatures = null, bool multipleSelect = true);
 		IEntitySelector CreateNomenclatureOfGoodsWithoutEmptyBottlesSelector(IEnumerable<int> excludedNomenclatures = null);
 		IEntitySelector CreateNomenclatureSelectorForFuelSelect();

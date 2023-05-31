@@ -24,6 +24,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz
@@ -119,7 +120,7 @@ namespace Vodovoz
 			set => ytreeReturns.Sensitive = buttonAddNomenclature.Sensitive = value;
 		}
 
-		public IList<Equipment> AlreadyUnloadedEquipment;
+		public IList<Equipment> AlreadyUnloadedEquipment = new List<Equipment>();
 
 		void FillListReturnsFromRoute(int terminalId)
 		{
@@ -389,9 +390,9 @@ namespace Vodovoz
 			set => Amount = value ? 1 : 0;
 		}
 
-		WarehouseMovementOperation movementOperation = new WarehouseMovementOperation();
+		GoodsAccountingOperation movementOperation = new GoodsAccountingOperation();
 
-		public virtual WarehouseMovementOperation MovementOperation {
+		public virtual GoodsAccountingOperation MovementOperation {
 			get => movementOperation;
 			set => SetField(ref movementOperation, value, () => MovementOperation);
 		}
@@ -404,7 +405,7 @@ namespace Vodovoz
 			_amount = amount;
 		}
 
-		public ReceptionItemNode(WarehouseMovementOperation movementOperation) : this(movementOperation.Nomenclature, (int)movementOperation.Amount)
+		public ReceptionItemNode(GoodsAccountingOperation movementOperation) : this(movementOperation.Nomenclature, (int)movementOperation.Amount)
 		{
 			this.movementOperation = movementOperation;
 		}
@@ -416,23 +417,12 @@ namespace Vodovoz
 			set => SetField(ref carUnloadDocumentItem, value, () => CarUnloadDocumentItem);
 		}
 
-		public ReceptionItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.WarehouseMovementOperation)
+		public ReceptionItemNode(CarUnloadDocumentItem carUnloadDocumentItem) : this(carUnloadDocumentItem.GoodsAccountingOperation)
 		{
 			this.carUnloadDocumentItem = carUnloadDocumentItem;
 		}
 
 		public ReceptionItemNode() { }
-
-		[Display(Name = "Цена")]
-		public virtual decimal PrimeCost {
-			get => MovementOperation.PrimeCost;
-			set {
-				if(value != MovementOperation.PrimeCost)
-					MovementOperation.PrimeCost = value;
-			}
-		}
-
-		public virtual decimal Sum => PrimeCost * Amount;
 	}
 }
 

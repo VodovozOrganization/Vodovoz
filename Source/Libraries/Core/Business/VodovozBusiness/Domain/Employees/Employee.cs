@@ -338,7 +338,6 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _comment, value);
 		}
 		
-		//TODO добавить в маппинг
 		[Display(Name = "Версии видов оформлений")]
 		public virtual IList<EmployeeRegistrationVersion> EmployeeRegistrationVersions
 		{

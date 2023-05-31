@@ -335,7 +335,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 					selectedSubdivisionsIds.ToArray(),
 					selectedWarehousesIds.ToArray(),
 					GetData,
-					GetWarhousesBalances,
+					GetWarehousesBalances,
 					GetNomenclaturesAsync,
 					GetProductGroupsAsync,
 					GetSubdivisionsAsync,
@@ -420,53 +420,34 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Sales
 				.ReadOnly()
 				.List<SalesDataNode>();
 		}
-
-		private IEnumerable<ResidueDataNode> GetWarhousesBalances(
+		
+		private IEnumerable<ResidueDataNode> GetWarehousesBalances(
 			DateTime dateTime,
 			int[] warehousesIds)
 		{
-			var incomesQuery = from wmo in UoW.Session.Query<WarehouseMovementOperation>()
-							   join n in UoW.Session.Query<Nomenclature>()
-							   on wmo.Nomenclature.Id equals n.Id
-							   join productGroup in UoW.Session.Query<ProductGroup>()
-							   on n.ProductGroup.Id equals productGroup.Id
-							   join w in UoW.Session.Query<Warehouse>()
-							   on wmo.IncomingWarehouse.Id equals w.Id
-							   where !n.IsArchive
-									&& wmo.OperationTime <= dateTime
-									&& warehousesIds.Contains(w.Id)
-							   select new
-							   {
-								   NomenclatureId = n.Id,
-								   ProductGroupId = productGroup.Id,
-								   WarehouseId = w.Id,
-								   wmo.Amount
-							   };
+			var balancesQuery =
+				from wmo in UoW.Session.Query<WarehouseBulkGoodsAccountingOperation>()
+				join n in UoW.Session.Query<Nomenclature>()
+					on wmo.Nomenclature.Id equals n.Id
+				join productGroup in UoW.Session.Query<ProductGroup>()
+					on n.ProductGroup.Id equals productGroup.Id
+				join w in UoW.Session.Query<Warehouse>()
+					on wmo.Warehouse.Id equals w.Id
+				where !n.IsArchive
+					&& wmo.OperationTime <= dateTime
+					&& warehousesIds.Contains(w.Id)
+				select new
+				{
+				   NomenclatureId = n.Id,
+				   ProductGroupId = productGroup.Id,
+				   WarehouseId = w.Id,
+				   wmo.Amount
+				};
 
-			var incomes = incomesQuery.ToList();
+			var balances = balancesQuery.ToList();
 
-			var writeOffQuery = from wmo in UoW.Session.Query<WarehouseMovementOperation>()
-								join n in UoW.Session.Query<Nomenclature>()
-								on wmo.Nomenclature.Id equals n.Id
-								join productGroup in UoW.Session.Query<ProductGroup>()
-								on n.ProductGroup.Id equals productGroup.Id
-								join w in UoW.Session.Query<Warehouse>()
-								on wmo.WriteoffWarehouse.Id equals w.Id
-								where !n.IsArchive
-									&& wmo.OperationTime <= dateTime
-									&& warehousesIds.Contains(w.Id)
-								select new
-								{
-									NomenclatureId = n.Id,
-									ProductGroupId = productGroup.Id,
-									WarehouseId = w.Id,
-									Amount = -wmo.Amount
-								};
-
-			var writeOff = writeOffQuery.ToList();
-
-			var result = incomes.Concat(writeOff)
-				.GroupBy(x => (x.WarehouseId, x.NomenclatureId))
+			var result = 
+				balances.GroupBy(x => (x.WarehouseId, x.NomenclatureId))
 				.Select(group => new ResidueDataNode
 				{
 					NomenclatureId = group.Key.NomenclatureId,

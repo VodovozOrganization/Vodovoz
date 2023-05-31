@@ -3,6 +3,7 @@ using QS.Views.GtkUI;
 using QS.Widgets;
 using System;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;

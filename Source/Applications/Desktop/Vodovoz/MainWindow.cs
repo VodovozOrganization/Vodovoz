@@ -135,6 +135,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
@@ -164,6 +165,7 @@ using Connection = QS.Project.DB.Connection;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -178,6 +180,8 @@ public partial class MainWindow : Gtk.Window
 	private readonly bool _hasAccessToSalariesForLogistics;
 	private readonly int _currentUserSubdivisionId;
 	private readonly bool _hideComplaintsNotifications;
+
+	private bool _accessOnlyToWarehouseAndComplaints;
 
 	public TdiNotebook TdiMain => tdiMain;
 	public InfoPanel InfoPanel => infopanel;
@@ -307,11 +311,9 @@ public partial class MainWindow : Gtk.Window
 
 		#region Пользователь с правом работы только со складом и рекламациями
 
-		bool accessToWarehouseAndComplaints;
-
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			accessToWarehouseAndComplaints =
+			_accessOnlyToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
 				&& !commonServices.UserService.GetCurrentUser(uow).IsAdmin;
 		}
@@ -319,7 +321,7 @@ public partial class MainWindow : Gtk.Window
 		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
 			ActionAccounting.Visible = ActionReports.Visible = ActionArchive.Visible = ActionStaff.Visible = ActionCRM.Visible =
 				ActionSuppliers.Visible = ActionCashRequest.Visible = ActionRetail.Visible = ActionCarService.Visible =
-					MangoAction.Visible = !accessToWarehouseAndComplaints;
+					MangoAction.Visible = !_accessOnlyToWarehouseAndComplaints;
 
 		#endregion
 
@@ -2241,16 +2243,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCarsExploitationReportActivated(object sender, EventArgs e)
 	{
-		var carJournalFactory = new CarJournalFactory(NavigationManager);
-
-		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = new CastomInteractiveService();
-
-		var viewModel = new CarsExploitationReportViewModel(
-			uowFactory, interactiveService, NavigationManager, new BaseParametersProvider(new ParametersProvider()),
-			carJournalFactory);
-
-		tdiMain.AddTab(viewModel);
+		NavigationManager.OpenViewModel<CarsExploitationReportViewModel>(null);
 	}
 
 	protected void OnActionRecalculateDriverWagesActivated(object sender, EventArgs e)
@@ -2692,10 +2685,25 @@ public partial class MainWindow : Gtk.Window
 		NavigationManager.OpenViewModel<ExternalCounterpartiesMatchingJournalViewModel>(null);
 	}
 
+	protected void OnInventoryInstancesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InventoryInstancesJournalViewModel>(null);
+	}
+
 	private DateTime GetDateTimeFGromVersion(Version version) =>
 		new DateTime(2000, 1, 1)
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
+
+	protected void OnInventoryInstanceMovementReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InventoryInstanceMovementReportViewModel>(null);
+	}
+
+	protected void OnInventoryNomenclaturesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InventoryNomenclaturesJournalViewModel>(null);
+	}
 
 	protected void OnActionFinancialCategoriesGroupsActivated(object sender, EventArgs e)
 	{

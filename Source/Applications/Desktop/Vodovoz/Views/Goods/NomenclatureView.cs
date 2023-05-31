@@ -332,6 +332,11 @@ namespace Vodovoz.Views.Goods
 			validatedGtin.ValidationMode = ValidationType.numeric;
 			validatedGtin.MaxLength = 14;
 			validatedGtin.Binding.AddBinding(ViewModel.Entity, e => e.Gtin, w => w.Text).InitializeFromSource();
+			
+			chkInventoryAccounting.Binding
+				.AddBinding(ViewModel.Entity, e => e.HasInventoryAccounting, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.UserCanCreateNomenclaturesWithInventoryAccounting, w => w.Sensitive)
+				.InitializeFromSource();
 
 			#region Вкладка Оборудование
 

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 using Gamma.Utilities;
+using Vodovoz.Domain.Documents.MovementDocuments;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {

@@ -50,10 +50,10 @@ namespace Vodovoz.Domain.Documents
 				SetField (ref warehouse, value, () => Warehouse);
 
 				foreach (var item in Items) {
-					if (item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.WriteoffWarehouse != Warehouse)
-						item.WarehouseWriteOffOperation.WriteoffWarehouse = Warehouse;
-					if (item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.IncomingWarehouse != Warehouse)
-						item.WarehouseIncomeOperation.IncomingWarehouse = Warehouse;
+					if (item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.Warehouse != Warehouse)
+						item.WarehouseWriteOffOperation.Warehouse = Warehouse;
+					if (item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.Warehouse != Warehouse)
+						item.WarehouseIncomeOperation.Warehouse = Warehouse;
 				}
 			}
 		}
@@ -83,13 +83,14 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title => String.Format("Пересортица товаров №{0} от {1:d}", Id, TimeStamp);
 
-		public virtual void AddItem (RegradingOfGoodsDocumentItem item)
+		public virtual void AddItem(RegradingOfGoodsDocumentItem item)
 		{
 			item.Document = this;
-			item.WarehouseIncomeOperation.OperationTime = item.WarehouseWriteOffOperation.OperationTime
-				= TimeStamp;
-			item.WarehouseIncomeOperation.IncomingWarehouse = item.WarehouseWriteOffOperation.WriteoffWarehouse
-				= Warehouse;
+			item.WarehouseIncomeOperation.OperationTime = TimeStamp;
+			item.WarehouseWriteOffOperation.OperationTime = TimeStamp;
+			item.WarehouseIncomeOperation.Warehouse = Warehouse;
+			item.WarehouseWriteOffOperation.Warehouse = Warehouse;
+				
 			ObservableItems.Add (item);
 		}
 
