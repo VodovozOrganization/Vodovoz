@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,6 +97,59 @@ namespace Vodovoz.Controllers
 
 				routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
 			}
+		}
+
+		private HashSet<RouteListAddressKeepingDocumentItem> UpdateBottlesOperationFromDiscrepancy(IUnitOfWork uow, 
+			RouteListAddressKeepingDocument routeListKeepingDocument, RouteListItem changedRouteListItem, RouteListItem oldRouteListItem, 
+			RouteList oldRouteList) 
+		{
+			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
+
+			sbyte bottlesAmountSign = 0;
+			if(changedRouteListItem.Status != RouteListItemStatus.Completed && oldRouteListItem.Status == RouteListItemStatus.Completed)
+			{
+				bottlesAmountSign = -1;
+			}
+			else if(changedRouteListItem.Status == RouteListItemStatus.Completed && oldRouteListItem.Status != RouteListItemStatus.Completed)
+			{
+				bottlesAmountSign = 1;
+			}
+
+			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
+			var oldBottlesReturned = oldRouteList.ClosingFilled ? oldRouteListItem.BottlesReturned : oldRouteListItem.Order.BottlesReturn ?? 0;
+
+			if(bottlesAmountSign != 0 && changedRouteListItem.BottlesReturned == oldBottlesReturned)
+			{
+				var bottleRouteListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
+				{
+					RouteListAddressKeepingDocument = routeListKeepingDocument,
+					Nomenclature = defaultBottleNomenclature,
+					Amount = (changedRouteListItem.DriverBottlesReturned ?? ((changedRouteListItem.Order.BottlesReturn ?? 0) + changedRouteListItem.Order.BottlesByStockCount)) * bottlesAmountSign
+				};
+
+				bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();
+				routeListKeepingDocument.Items.Add(bottleRouteListKeepingDocumentItem);
+				newItems.Add(bottleRouteListKeepingDocumentItem);
+
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+			}
+			else if(changedRouteListItem.BottlesReturned != oldBottlesReturned)
+			{
+				var bottleRouteListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
+				{
+					RouteListAddressKeepingDocument = routeListKeepingDocument,
+					Nomenclature = defaultBottleNomenclature,
+					Amount = changedRouteListItem.BottlesReturned - oldBottlesReturned
+				};
+
+				bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();
+				routeListKeepingDocument.Items.Add(bottleRouteListKeepingDocumentItem);
+				newItems.Add(bottleRouteListKeepingDocumentItem);
+
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+			}
+
+			return newItems;
 		}
 
 		private bool IsPositive(RouteListItemStatus status) => new[] { RouteListItemStatus.Canceled, RouteListItemStatus.Overdue }.Contains(status);
@@ -200,7 +253,7 @@ namespace Vodovoz.Controllers
 		}
 
 		public HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
-			IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null)
+			IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null, bool isBottlesDiscrepancy = false)
 		{
 			if(!changedRouteListItem.RouteList.ClosingFilled)
 			{
@@ -222,11 +275,14 @@ namespace Vodovoz.Controllers
 				}
 			}
 
+			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+			routeListKeepingDocument.Author = currentEmployee;
+			routeListKeepingDocument.RouteListItem = changedRouteListItem;
+
+			RouteList oldRouteList;
+			RouteListItem oldRouteListItem;
 			IList<NomenclatureAmountNode> oldGoodsToDeliverAmountNodes;
 			IList<NomenclatureAmountNode> oldEquipmentToPickupAmountNodes;
-			RouteListItem oldRouteListItem;
-			RouteList oldRouteList;
-			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
 
 			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
 			{
@@ -245,9 +301,12 @@ namespace Vodovoz.Controllers
 					.ToList();
 			}
 
-			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
-			routeListKeepingDocument.RouteListItem = changedRouteListItem;
-			routeListKeepingDocument.Author = currentEmployee;
+			if(isBottlesDiscrepancy)
+			{
+				return UpdateBottlesOperationFromDiscrepancy(uow, routeListKeepingDocument, changedRouteListItem, oldRouteListItem, oldRouteList);
+			}
+
+			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
 
 			#region ToDeliver
 
@@ -385,53 +444,6 @@ namespace Vodovoz.Controllers
 
 			#endregion
 
-			#region bottles
-
-			sbyte bottlesAmountSign = 0;
-			if(changedRouteListItem.Status != RouteListItemStatus.Completed && oldRouteListItem.Status == RouteListItemStatus.Completed)
-			{
-				bottlesAmountSign = -1;
-			}
-			else if(changedRouteListItem.Status == RouteListItemStatus.Completed && oldRouteListItem.Status != RouteListItemStatus.Completed)
-			{
-				bottlesAmountSign = 1;
-			}
-
-			var defaultBottleNomenclature = _nomenclatureParametersProvider.GetDefaultBottleNomenclature(uow);
-			var oldBottlesReturned = oldRouteList.ClosingFilled ? oldRouteListItem.BottlesReturned : oldRouteListItem.Order.BottlesReturn ?? 0;
-
-			if(bottlesAmountSign != 0 && changedRouteListItem.BottlesReturned == oldBottlesReturned)
-			{
-				var bottleRouteListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
-				{
-					RouteListAddressKeepingDocument = routeListKeepingDocument,
-					Nomenclature = defaultBottleNomenclature,
-					Amount = (changedRouteListItem.DriverBottlesReturned ?? ((changedRouteListItem.Order.BottlesReturn ?? 0) + changedRouteListItem.Order.BottlesByStockCount)) * bottlesAmountSign
-				};
-
-				bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();
-				routeListKeepingDocument.Items.Add(bottleRouteListKeepingDocumentItem);
-				newItems.Add(bottleRouteListKeepingDocumentItem);
-
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
-			}
-			else if (changedRouteListItem.BottlesReturned != oldBottlesReturned)
-			{
-				var bottleRouteListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
-				{
-					RouteListAddressKeepingDocument = routeListKeepingDocument,
-					Nomenclature = defaultBottleNomenclature,
-					Amount = changedRouteListItem.BottlesReturned - oldBottlesReturned
-				};
-
-				bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();
-				routeListKeepingDocument.Items.Add(bottleRouteListKeepingDocumentItem);
-				newItems.Add(bottleRouteListKeepingDocumentItem);
-
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
-			}
-
-			#endregion
 
 			uow.Save(routeListKeepingDocument);
 
