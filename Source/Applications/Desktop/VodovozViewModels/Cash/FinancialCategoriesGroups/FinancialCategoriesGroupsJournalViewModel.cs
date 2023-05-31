@@ -253,19 +253,9 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				(selected) =>
 				{
 					if(selected.FirstOrDefault() is FinancialCategoriesJournalNode node
-						&& ((node.JournalNodeType == _financialCategoriesGroupType
-							&& _interactiveService.Question(
-								$"Вы уверены, что хотите удалить {node.JournalNodeType.GetClassUserFriendlyName().Accusative} - {node.Name}?\n" +
-								"Удаление приведет к перемещению всех вложенных элементов на верхний уровень",
-								"Вы уверены?"))
-							|| _interactiveService.Question(
-								$"Вы уверены, что хотите удалить {node.JournalNodeType.GetClassUserFriendlyName().Accusative} - {node.Name}?",
-								"Вы уверены?")))
+						&& _domainObjectsPermissions[node.JournalNodeType].CanDelete)
 					{
-						if(_domainObjectsPermissions[node.JournalNodeType].CanDelete)
-						{
-							DeleteHelper.DeleteEntity(node.JournalNodeType, node.Id);
-						}
+						DeleteHelper.DeleteEntity(node.JournalNodeType, node.Id);
 					}
 				},
 				Key.Delete.ToString());
