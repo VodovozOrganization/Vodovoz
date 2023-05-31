@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -701,7 +701,7 @@ namespace Vodovoz
 			builder.RegisterType<UsersEntityPermissionValuesGetter>().AsSelf();
 			builder.RegisterType<UserPermissionsExporter>().AsSelf();
 			builder.RegisterType<AuthorizationService>().As<IAuthorizationService>();
-			builder.RegisterType<UserSettingsGetter>().AsImplementedInterfaces();
+			builder.RegisterType<UserSettingsGetter>().As<IUserSettings>();
 			builder.RegisterType<StoreDocumentHelper>().AsSelf();
 			builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 
