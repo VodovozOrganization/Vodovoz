@@ -8,10 +8,10 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System.ComponentModel;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 {
-
 	public class FinancialCategoriesGroupViewModel : EntityTabViewModelBase<FinancialCategoriesGroup>
 	{
 		private readonly ILifetimeScope _scope;
@@ -31,6 +31,8 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			{
 				ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.ParentId.Value);
 			}
+
+			TabName = UoWGeneric.IsNew ? $"Диалог создания {Entity.GetType().GetClassUserFriendlyName().Genitive}" : $"{Entity.GetType().GetClassUserFriendlyName().Nominative.CapitalizeSentence()} \"{Entity.Title}\"";
 
 			var complaintDetalizationEntryViewModelBuilder = new CommonEEVMBuilderFactory<FinancialCategoriesGroupViewModel>(this, this, UoW, NavigationManager, _scope);
 

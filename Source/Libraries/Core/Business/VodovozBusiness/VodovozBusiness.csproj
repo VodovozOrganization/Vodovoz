@@ -584,6 +584,8 @@
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\FinancialCategoriesGroups\FinancialCategoriesGroupMap.cs" />
+    <Compile Include="HibernateMapping\Cash\FinancialCategoriesGroups\FinancialExpenseCategoryMap.cs" />
+    <Compile Include="HibernateMapping\Cash\FinancialCategoriesGroups\FinancialIncomeCategoryMap.cs" />
     <Compile Include="HibernateMapping\Cash\PayoutRequestBaseMap.cs" />
     <Compile Include="HibernateMapping\Complaints\CamplaintDetalizationMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintResultCommentMap.cs" />

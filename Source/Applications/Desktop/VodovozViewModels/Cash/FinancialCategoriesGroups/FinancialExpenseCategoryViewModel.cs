@@ -12,6 +12,7 @@ using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Organizations;
+using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 {
@@ -45,6 +46,8 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			{
 				Subdivision = UoW.GetById<Subdivision>(Entity.SubdivisionId.Value);
 			}
+
+			TabName = UoWGeneric.IsNew ? $"Диалог создания {Entity.GetType().GetClassUserFriendlyName().Genitive}" : $"{Entity.GetType().GetClassUserFriendlyName().Nominative.CapitalizeSentence()} \"{Entity.Title}\"";
 
 			var parentFinancialCategoriesGroupViewModelBuilder = new CommonEEVMBuilderFactory<FinancialExpenseCategoryViewModel>(this, this, UoW, NavigationManager, _scope);
 
