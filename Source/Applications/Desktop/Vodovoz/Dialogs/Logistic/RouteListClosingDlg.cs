@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -505,6 +505,8 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number")).Value;
 
 		private decimal GetCashOrder() => _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
+		private decimal GetGivenToDriverChange() => _cashRepository.CurrentRouteListTotalExpense(UoW, Entity.Id);
+		private decimal GetRecievedFromDriverChange() => _cashRepository.CurrentRouteListCashReturn(UoW, Entity.Id);
 
 		private decimal GetTerminalOrdersSum()
 		{
@@ -693,7 +695,7 @@ namespace Vodovoz
 		{
 			buttonAccept.Sensitive = 
 				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck
-				                                            || Entity.Status == RouteListStatus.Delivered) 
+															|| Entity.Status == RouteListStatus.Delivered) 
 				&& canCloseRoutelist;
 		}
 
@@ -736,12 +738,12 @@ namespace Vodovoz
 			labelFullBottles.Text = string.Format("Полных бут.: {0}", fullBottlesTotal);
 			labelEmptyBottles.Text = string.Format("Пустых бут.: {0}", bottlesReturnedTotal);
 			labelDeposits.Text = string.Format(
-				"Залогов: {0} {1}",
+				"Из них возврат залогов (информационно): {0} {1}",
 				depositsCollectedTotal + equipmentDepositsCollectedTotal,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelCash.Text = string.Format(
-				"Сдано по накладным: {0} {1}",
+				"Нал по заказам: {0} {1}",
 				totalCollected,
 				CurrencyWorks.CurrencyShortName
 			);
@@ -752,7 +754,7 @@ namespace Vodovoz
 			);
 			labelTerminalSum.Text = $"По терминалу: {GetTerminalOrdersSum()} {CurrencyWorks.CurrencyShortName}";
 			labelTotal.Markup = string.Format(
-				"Итого сдано: <b>{0:F2}</b> {1}",
+				"Сдано выручка по МЛ: <b>{0:F2}</b> {1}",
 				GetCashOrder() - (decimal)advanceSpinbutton.Value,
 				CurrencyWorks.CurrencyShortName
 			);
@@ -765,6 +767,21 @@ namespace Vodovoz
 			labelEmptyBottlesFommula.Markup = string.Format("Тара: <b>{0}</b><sub>(выгружено на склад)</sub> - <b>{1}</b><sub>(по документам)</sub> =",
 				bottlesReturnedToWarehouse,
 				bottlesReturnedTotal
+			);
+			labelGivenChange.Markup = string.Format(
+				"Выдано по МЛ (сдача): <b>{0:F2}</b> {1}",
+				GetGivenToDriverChange(),
+				CurrencyWorks.CurrencyShortName
+			);
+			labelReceivedChange.Markup = string.Format(
+				"Сдано сдача по МЛ: <b>{0:F2}</b> {1}",
+				GetRecievedFromDriverChange(),
+				CurrencyWorks.CurrencyShortName
+			);
+			labelRouteListDebt.Markup = string.Format(
+				"Долг по МЛ: <b>{0:F2}</b> {1}",
+				0,
+				CurrencyWorks.CurrencyShortName
 			);
 
 			if(defectiveBottlesReturnedToWarehouse > 0) {
@@ -1402,7 +1419,7 @@ namespace Vodovoz
 					  _categoryRepository,
 					  new EmployeeJournalFactory(),
 					  new CarJournalFactory(MainClass.MainWin.NavigationManager)
-  			);
+			);
 			TabParent.AddSlaveTab(this, tab);
 		}
 
@@ -1420,7 +1437,7 @@ namespace Vodovoz
 				  _categoryRepository,
 				  new EmployeeJournalFactory(),
 				  new CarJournalFactory(MainClass.MainWin.NavigationManager)
-		  	);
+			);
 			TabParent.AddSlaveTab(this, tab);
 		}
 
