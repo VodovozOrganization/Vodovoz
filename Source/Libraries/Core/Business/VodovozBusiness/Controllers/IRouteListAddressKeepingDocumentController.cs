@@ -16,7 +16,7 @@ namespace Vodovoz.Controllers
 		void CreateOrUpdateRouteListKeepingDocument(
 			IUnitOfWork uoW, RouteList routeList, DeliveryFreeBalanceType deliveryFreeBalanceType, bool isFullRecreation, bool isActualCount);
 		HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
-			IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null);
+			IUnitOfWork uow, RouteListItem changedRouteListItem, HashSet<RouteListAddressKeepingDocumentItem> itemsCacheList = null, bool isBottlesDiscrepancy = false);
 		void RemoveRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem);
 	}
 }

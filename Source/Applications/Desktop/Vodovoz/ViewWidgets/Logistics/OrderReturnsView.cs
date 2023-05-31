@@ -397,12 +397,6 @@ namespace Vodovoz
 			yspinbuttonBottlesByStockActualCount.ValueChanged += OnYspinbuttonBottlesByStockActualCountChanged;
 			hboxBottlesByStock.Visible = _routeListItem.Order.IsBottleStock;
 
-			yspinbuttonEmptyBottlesCount.Binding.AddBinding(_routeListItem.Order, e => e.BottlesReturn, w => w.ValueAsInt)
-				.InitializeFromSource();
-			yspinbuttonEmptyBottlesActualCount.Binding
-				.AddBinding(_routeListItem, e => e.BottlesReturned, w => w.ValueAsInt).InitializeFromSource();
-			hboxEmptyBottles.Visible = _routeListItem.IsDelivered();
-
 			OnlineOrderVisible();
 		}
 
