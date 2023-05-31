@@ -446,5 +446,10 @@ namespace Vodovoz.Domain.Documents
 		{
 			return ObservableNomenclatureItems.Count > 0 || ObservableInstanceItems.Count > 0;
 		}
+
+		public virtual bool StorageIsNotEmpty()
+		{
+			return Warehouse != null || Car != null;
+		}
 	}
 }

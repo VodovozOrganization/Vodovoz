@@ -47,6 +47,7 @@ namespace Vodovoz.Views.Warehouse
 			enumCmbInventoryDocumentType.ItemsEnum = typeof(InventoryDocumentType);
 			enumCmbInventoryDocumentType.Binding
 				.AddBinding(ViewModel.Entity, e => e.InventoryDocumentType, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanChangeInventoryDocumentType, w => w.Sensitive)
 				.InitializeFromSource();
 
 			hboxWarehouseStorage.Binding

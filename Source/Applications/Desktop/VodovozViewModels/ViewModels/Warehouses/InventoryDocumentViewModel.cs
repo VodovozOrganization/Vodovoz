@@ -167,6 +167,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		public bool CanShowWarehouseStorage => Entity.InventoryDocumentType == InventoryDocumentType.WarehouseInventory;
 		public bool CanShowEmployeeStorage => Entity.InventoryDocumentType == InventoryDocumentType.EmployeeInventory;
 		public bool CanShowCarStorage => Entity.InventoryDocumentType == InventoryDocumentType.CarInventory;
+		public bool CanChangeInventoryDocumentType => !Entity.StorageIsNotEmpty();
 		public bool HasAccessToEmployeeStorages { get; private set; }
 		public bool HasAccessToCarStorages { get; private set; }
 		
@@ -708,6 +709,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				.Finish();
 			InventoryWarehouseViewModel.CanViewEntity = false;
 			InventoryWarehouseViewModel.BeforeChangeByUser += OnWarehouseBeforeChangeByUser;
+			InventoryWarehouseViewModel.ChangedByUser += OnWarehouseChangedByUser;
 			
 			InventoryEmployeeViewModel = builder.ForProperty(x => x.Employee)
 				.UseViewModelDialog<EmployeeViewModel>()
@@ -716,6 +718,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				.Finish();
 			InventoryEmployeeViewModel.CanViewEntity = false;
 			InventoryEmployeeViewModel.BeforeChangeByUser += OnEmployeeBeforeChangeByUser;
+			InventoryEmployeeViewModel.ChangedByUser += OnEmployeeChangedByUser;
 			
 			InventoryCarViewModel = builder.ForProperty(x => x.Car)
 				.UseViewModelDialog<CarViewModel>()
@@ -723,6 +726,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 				.Finish();
 			InventoryCarViewModel.CanViewEntity = false;
 			InventoryCarViewModel.BeforeChangeByUser += OnCarBeforeChangeByUser;
+			InventoryCarViewModel.ChangedByUser += OnCarChangedByUser;
 		}
 		
 		private void GetWarehouseFilterParams(WarehouseJournalFilterViewModel filter)
@@ -732,7 +736,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		private void OnWarehouseBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
 		{
-			if(Entity.Warehouse != null && Entity.ItemsNotEmpty())
+			if(Entity.StorageIsNotEmpty() && Entity.ItemsNotEmpty())
 			{
 				if(AskQuestion("При изменении склада табличная часть документа будет очищена. Продолжить?"))
 				{
@@ -747,7 +751,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		private void OnEmployeeBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
 		{
-			if(Entity.Employee != null && Entity.ItemsNotEmpty())
+			if(Entity.StorageIsNotEmpty() && Entity.ItemsNotEmpty())
 			{
 				if(AskQuestion("При изменении сотрудника табличная часть документа будет очищена. Продолжить?"))
 				{
@@ -762,7 +766,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		
 		private void OnCarBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
 		{
-			if(Entity.Car != null && Entity.ItemsNotEmpty())
+			if(Entity.StorageIsNotEmpty() && Entity.ItemsNotEmpty())
 			{
 				if(AskQuestion("При изменении автомобиля табличная часть документа будет очищена. Продолжить?"))
 				{
@@ -775,10 +779,36 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 			}
 		}
 		
+		private void OnWarehouseChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.Warehouse is null)
+			{
+				ClearItems();
+			}
+		}
+		
+		private void OnEmployeeChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.Employee is null)
+			{
+				ClearItems();
+			}
+		}
+
+		private void OnCarChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.Car is null)
+			{
+				ClearItems();
+			}
+		}
+		
 		private void ClearItems()
 		{
 			Entity.ObservableNomenclatureItems.Clear();
 			Entity.ObservableInstanceItems.Clear();
+			_instancesDiscrepancies.Clear();
+			InstancesDiscrepanciesString = string.Empty;
 			OnPropertyChanged(nameof(FillNomenclaturesByStorageTitle));
 			OnPropertyChanged(nameof(FillNomenclatureInstancesByStorageTitle));
 		}
@@ -940,9 +970,15 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 
 		private void SetStoragePropertiesChangeRelation()
 		{
-			SetPropertyChangeRelation(x => x.Warehouse, () => CanHandleInventoryItems);
-			SetPropertyChangeRelation(x => x.Employee, () => CanHandleInventoryItems);
-			SetPropertyChangeRelation(x => x.Car, () => CanHandleInventoryItems);
+			SetPropertyChangeRelation(x => x.Warehouse,
+				() => CanHandleInventoryItems,
+				() => CanChangeInventoryDocumentType);
+			SetPropertyChangeRelation(x => x.Employee,
+				() => CanHandleInventoryItems,
+				() => CanChangeInventoryDocumentType);
+			SetPropertyChangeRelation(x => x.Car,
+				() => CanHandleInventoryItems,
+				() => CanChangeInventoryDocumentType);
 		}
 		
 		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -1096,8 +1132,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 		{
 			Entity.PropertyChanged -= EntityPropertyChanged;
 			InventoryWarehouseViewModel.BeforeChangeByUser -= OnWarehouseBeforeChangeByUser;
+			InventoryWarehouseViewModel.ChangedByUser -= OnWarehouseChangedByUser;
 			InventoryEmployeeViewModel.BeforeChangeByUser -= OnEmployeeBeforeChangeByUser;
+			InventoryEmployeeViewModel.ChangedByUser -= OnEmployeeChangedByUser;
 			InventoryCarViewModel.BeforeChangeByUser -= OnCarBeforeChangeByUser;
+			InventoryCarViewModel.ChangedByUser -= OnCarChangedByUser;
 			base.Dispose();
 		}
 	}

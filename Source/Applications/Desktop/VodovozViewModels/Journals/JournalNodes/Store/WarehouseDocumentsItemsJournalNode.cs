@@ -35,59 +35,14 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 				switch(DocumentTypeEnum)
 				{
 					case DocumentType.IncomingInvoice:
-						return $"Поставщик: {Counterparty}; Склад поступления: {ToWarehouse};";
+						return $"Поставщик: {Counterparty}; Склад поступления: {ToStorage};";
 					case DocumentType.IncomingWater:
-						return $"Количество: {Amount}; Склад поступления: {FromWarehouse}; Продукт производства: {NomenclatureName}";
+						return $"Количество: {Amount}; Склад поступления: {ToStorage}; Продукт производства: {NomenclatureName}";
 					case DocumentType.MovementDocument:
 						var carInfo = string.IsNullOrEmpty(CarNumber) ? null : $", Фура: {CarNumber}";
-						switch(MovementDocumentTypeByStorage)
-						{
-							case MovementDocumentTypeByStorage.ToWarehouse:
-								switch(MovementDocumentStorageFrom)
-								{
-									case StorageType.Warehouse:
-										return $"{FromWarehouse} -> {ToWarehouse}{carInfo}";
-									case StorageType.Employee:
-										return $"{FromEmployee} -> {ToWarehouse}";
-									case StorageType.Car:
-										return $"{FromCar} -> {ToWarehouse}";
-								}
-								break;
-							case MovementDocumentTypeByStorage.ToEmployee:
-								switch(MovementDocumentStorageFrom)
-								{
-									case StorageType.Warehouse:
-										return $"{FromWarehouse} -> {ToEmployee}";
-									case StorageType.Employee:
-										return $"{FromEmployee} -> {ToEmployee}";
-									case StorageType.Car:
-										return $"{FromCar} -> {ToEmployee}";
-								}
-								break;
-							case MovementDocumentTypeByStorage.ToCar:
-								switch(MovementDocumentStorageFrom)
-								{
-									case StorageType.Warehouse:
-										return $"{FromWarehouse} -> {ToCar}";
-									case StorageType.Employee:
-										return $"{FromEmployee} -> {ToCar}";
-									case StorageType.Car:
-										return $"{FromCar} -> {ToCar}";
-								}
-								break;
-						}
-						return string.Empty;
+						return $"{FromStorage} -> {ToStorage}{carInfo}";
 					case DocumentType.WriteoffDocument:
-						switch(WriteOffType)
-						{
-							case WriteOffType.Warehouse:
-								return !string.IsNullOrWhiteSpace(FromWarehouse) ? $"Со склада \"{FromWarehouse}\"" : FromWarehouse;
-							case WriteOffType.Employee:
-								return !string.IsNullOrWhiteSpace(FromEmployee) ? $"С сотрудника \"{FromEmployee}\"" : FromEmployee;
-							case WriteOffType.Car:
-								return !string.IsNullOrWhiteSpace(FromCar) ? $"С автомобиля \"{FromCar}\"" : FromCar;
-						}
-						return string.Empty;
+						return !string.IsNullOrWhiteSpace(FromStorage) ? $"С \"{FromStorage}\"" : FromStorage;
 					case DocumentType.CarLoadDocument:
 						return string.Format(
 							"Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}",
@@ -113,35 +68,19 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 							RouteListId
 						);
 					case DocumentType.InventoryDocument:
-						switch(InventoryDocumentType)
-						{
-							case InventoryDocumentType.WarehouseInventory:
-								return $"По складу: {FromWarehouse}";
-							case InventoryDocumentType.EmployeeInventory:
-								return $"По сотруднику: {FromEmployee}";
-							case InventoryDocumentType.CarInventory:
-								return $"По автомобилю: {FromCar}";
-						}
-						return string.Empty;
+						return $"По: {FromStorage}";
 					case DocumentType.ShiftChangeDocument:
-						switch(ShiftChangeResidueDocumentType)
-						{
-							case ShiftChangeResidueDocumentType.Warehouse:
-								return $"По складу: {FromWarehouse}";
-							case ShiftChangeResidueDocumentType.Car:
-								return $"По автомобилю: {FromCar}";
-						}
-						return string.Empty;
+						return $"По: {FromStorage}";
 					case DocumentType.RegradingOfGoodsDocument:
-						return $"По складу: {FromWarehouse}";
+						return $"По складу: {FromStorage}";
 					case DocumentType.SelfDeliveryDocument:
-						return $"Склад: {FromWarehouse}, Заказ №: {OrderId}, Клиент: {Counterparty}";
+						return $"Склад: {FromStorage}, Заказ №: {OrderId}, Клиент: {Counterparty}";
 					case DocumentType.DriverTerminalGiveout:
 						return "Выдача терминала водителю " +
-							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} со склада {FromWarehouse}";
+							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} со склада {FromStorage}";
 					case DocumentType.DriverTerminalReturn:
 						return "Возврат терминала водителем " +
-							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} на склад {FromWarehouse}";
+							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} на склад {ToStorage}";
 					default:
 						return string.Empty;
 				}
@@ -153,28 +92,17 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 		public int OrderId { get; set; }
 
 		public string FromWarehouse { get; set; }
+		public string FromStorage { get; set; }
 
 		public int FromWarehouseId { get; set; }
+		public int FromStorageId { get; set; }
+		public StorageType StorageFromType { get; set; }
 
 		public string ToWarehouse { get; set; }
+		public string ToStorage { get; set; }
 
 		public int ToWarehouseId { get; set; }
-		
-		public string FromEmployee { get; set; }
-
-		public int FromEmployeeId { get; set; }
-
-		public string ToEmployee { get; set; }
-
-		public int ToEmployeeId { get; set; }
-		
-		public string FromCar { get; set; }
-
-		public int FromCarId { get; set; }
-
-		public string ToCar { get; set; }
-
-		public int ToCarId { get; set; }
+		public int ToStorageId { get; set; }
 
 		public decimal Amount { get; set; }
 
@@ -217,8 +145,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 		public string DriverPatronymic { get; set; }
 
 		public MovementDocumentStatus MovementDocumentStatus { get; set; }
-		public StorageType MovementDocumentStorageFrom { get; set; }
-		public MovementDocumentTypeByStorage MovementDocumentTypeByStorage { get; set; }
 		public WriteOffType WriteOffType { get; set; }
 		public InventoryDocumentType InventoryDocumentType { get; set; }
 		public ShiftChangeResidueDocumentType ShiftChangeResidueDocumentType { get; set; }

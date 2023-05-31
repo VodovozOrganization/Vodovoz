@@ -561,6 +561,11 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 		{
 			return ObservableNomenclatureItems.Count > 0 || ObservableInstanceItems.Count > 0;
 		}
+
+		public virtual bool StorageIsNotEmpty()
+		{
+			return Warehouse != null || Employee != null || Car != null;
+		}
 		
 		private void FillBulkItem(InventoryDocumentItem item, Nomenclature nomenclature, decimal amountInDb, decimal amountInFact)
 		{

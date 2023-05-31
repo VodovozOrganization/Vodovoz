@@ -832,6 +832,8 @@
     <Compile Include="Models\TrueMark\TrueMarkWaterCode.cs" />
     <Compile Include="Models\TrueMark\TrueMarkWaterCodeParser.cs" />
     <Compile Include="NHibernateProjections\Contacts\PhoneProjections.cs" />
+    <Compile Include="NHibernateProjections\Documents\ShiftChangeDocumentProjections.cs" />
+    <Compile Include="NHibernateProjections\Documents\WarehouseDocumentsProjections.cs" />
     <Compile Include="NHibernateProjections\Employees\EmployeeProjections.cs" />
     <Compile Include="NHibernateProjections\Goods\ProductGroupProjections.cs" />
     <Compile Include="NHibernateProjections\Logistics\CarProjections.cs" />

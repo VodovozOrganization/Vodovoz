@@ -29,6 +29,7 @@ namespace Vodovoz.Views.Warehouse
 			enumCmbShiftChangeResidueTypeByStorage.ItemsEnum = typeof(ShiftChangeResidueDocumentType);
 			enumCmbShiftChangeResidueTypeByStorage.Binding
 				.AddBinding(ViewModel.Entity, e => e.ShiftChangeResidueDocumentType, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanChangeShiftChangeResidueDocumentType, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ydatepickerDocDate.Binding

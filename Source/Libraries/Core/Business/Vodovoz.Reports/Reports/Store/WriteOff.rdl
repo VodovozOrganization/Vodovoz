@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     `nomenclature`.`name` AS nomenclature,
@@ -64,7 +64,7 @@ GROUP BY store_writeoff_document_items.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -103,7 +103,7 @@ GROUP BY store_writeoff_document_items.id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     store_writeoff_document.id AS id,
@@ -130,7 +130,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -200,7 +200,7 @@ WHERE stored_resource.id = @id1
           <TableColumn>
             <Width>1.5in</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>1.5in</Width>
           </TableColumn>
           <TableColumn>
@@ -228,7 +228,7 @@ WHERE stored_resource.id = @id1
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12pt</Height>
+              <Height>24.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -262,7 +262,7 @@ WHERE stored_resource.id = @id1
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
                       <Value>Инв номер</Value>
@@ -433,7 +433,7 @@ WHERE stored_resource.id = @id1
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
                       <Value>={inventory_number}</Value>
@@ -604,7 +604,7 @@ WHERE stored_resource.id = @id1
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>

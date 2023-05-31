@@ -92,7 +92,7 @@ ORDER BY
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     store_inventory.id,
@@ -123,7 +123,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -310,7 +310,7 @@ WHERE stored_resource.id = @id1</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="InstancesData" >
+    <DataSet Name="InstancesData">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
@@ -906,9 +906,9 @@ ORDER BY
           <BorderWidth />
         </Style>
       </Textbox>
-      <Table Name="Table2" >
+      <Table Name="Table2">
         <DataSetName>InstancesData</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет добавленных экземпляров!</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1099,6 +1099,7 @@ ORDER BY
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1114,6 +1115,7 @@ ORDER BY
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1196,12 +1198,13 @@ ORDER BY
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
-                      <Value>
-                      </Value>
+                      <Value>={comment}</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>

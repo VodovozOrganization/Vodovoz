@@ -153,8 +153,7 @@ namespace Vodovoz.EntityRepositories.Goods
 					query.JoinEntityAlias(
 						() => employeeOperationAlias,
 						() => instanceAlias.Id == employeeOperationAlias.InventoryNomenclatureInstance.Id
-							&& employeeOperationAlias.Employee.Id == storageId)
-						.Where(() => employeeOperationAlias.OperationTime <= date);
+							&& employeeOperationAlias.Employee.Id == storageId);
 
 					if(date.HasValue)
 					{
@@ -167,8 +166,7 @@ namespace Vodovoz.EntityRepositories.Goods
 					query.JoinEntityAlias(
 						() => carOperationAlias,
 						() => instanceAlias.Id == carOperationAlias.InventoryNomenclatureInstance.Id
-							&& carOperationAlias.Car.Id == storageId)
-						.Where(() => carOperationAlias.OperationTime <= date);
+							&& carOperationAlias.Car.Id == storageId);
 					
 					if(date.HasValue)
 					{
@@ -181,8 +179,7 @@ namespace Vodovoz.EntityRepositories.Goods
 					query.JoinEntityAlias(
 						() => warehouseOperationAlias,
 						() => instanceAlias.Id == warehouseOperationAlias.InventoryNomenclatureInstance.Id
-							&& warehouseOperationAlias.Warehouse.Id == storageId)
-						.Where(() => warehouseOperationAlias.OperationTime <= date);
+							&& warehouseOperationAlias.Warehouse.Id == storageId);
 					
 					if(date.HasValue)
 					{

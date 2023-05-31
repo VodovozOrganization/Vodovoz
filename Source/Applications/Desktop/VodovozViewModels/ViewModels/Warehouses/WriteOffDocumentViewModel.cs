@@ -103,8 +103,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				if(SetField(ref _selectedItem, value))
 				{
 					OnPropertyChanged(nameof(CanDeleteItem));
-					OnPropertyChanged(nameof(HasSelectedFine));
-					OnPropertyChanged(nameof(AddOrEditFineTitle));
+					FireFineChanged();
 				};
 			}
 		}
@@ -229,8 +228,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			{
 				UoW.Delete(SelectedItem.Fine);
 				SelectedItem.Fine = null;
-				OnPropertyChanged(nameof(AddOrEditFineTitle));
-				OnPropertyChanged(nameof(HasSelectedFine));
+				FireFineChanged();
 			}));
 		
 		public DelegateCommand EditSelectedItemCommand => _editSelectedItemCommand ?? (_editSelectedItemCommand = new DelegateCommand(
@@ -258,8 +256,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private void OnItemSaved(object sender, EntitySavedEventArgs e)
 		{
 			UoW.Session.Refresh(e.Entity);
-			OnPropertyChanged(nameof(AddOrEditFineTitle));
-			OnPropertyChanged(nameof(HasSelectedFine));
+			FireFineChanged();
 		}
 
 		private INomenclatureRepository NomenclatureRepository =>
@@ -410,20 +407,24 @@ namespace Vodovoz.ViewModels.Warehouses
 		private void OnNewFineSaved(object sender, EntitySavedEventArgs e)
 		{
 			SelectedItem.Fine = e.GetEntity<Fine>();
-			OnPropertyChanged(nameof(AddOrEditFineTitle));
-			OnPropertyChanged(nameof(HasSelectedFine));
+			FireFineChanged();
 		}
 
 		private void OnFineSaved(object sender, EntitySavedEventArgs e)
 		{
 			UoW.Session.Refresh(SelectedItem?.Fine);
-			OnPropertyChanged(nameof(HasSelectedFine));
+			FireFineChanged();
 		}
 		
 		private void FireItemsChanged()
 		{
 			OnPropertyChanged(nameof(CanChangeStorage));
 			OnPropertyChanged(nameof(CanDeleteItem));
+			FireFineChanged();
+		}
+		
+		private void FireFineChanged()
+		{
 			OnPropertyChanged(nameof(AddOrEditFineTitle));
 			OnPropertyChanged(nameof(HasSelectedFine));
 		}

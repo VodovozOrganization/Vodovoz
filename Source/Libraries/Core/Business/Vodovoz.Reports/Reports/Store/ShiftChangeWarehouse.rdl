@@ -81,7 +81,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     store_shiftchange.id,
@@ -109,7 +109,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -297,7 +297,7 @@ WHERE stored_resource.id = @id1</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="InstanceData">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     ni.id as instance_id,
@@ -335,7 +335,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="instance_id">
           <DataField>instance_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1067,7 +1067,7 @@ WHERE
       </Textbox>
       <Table Name="Table2">
         <DataSetName>InstanceData</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет добавленных экземпляров!</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1258,6 +1258,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1273,6 +1274,7 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Left</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1488,7 +1490,7 @@ WHERE
             </TableRow>
           </TableRows>
         </Footer>
-        <TableGroups >
+        <TableGroups>
           <TableGroup>
             <Grouping Name="InstanceCategoryGroup">
               <PageBreakAtStart>false</PageBreakAtStart>

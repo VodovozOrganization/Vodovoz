@@ -95,7 +95,6 @@ namespace Vodovoz.Views.Warehouse
 			btnAddFine.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.AddOrEditFineTitle, w => w.Label)
-				.AddBinding(vm => vm.HasSelectedFine, w => w.Sensitive)
 				.InitializeFromSource();
 			btnDeleteFine.Binding
 				.AddBinding(ViewModel, vm => vm.HasSelectedFine, w => w.Sensitive)

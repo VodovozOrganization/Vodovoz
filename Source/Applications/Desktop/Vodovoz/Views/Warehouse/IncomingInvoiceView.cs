@@ -96,7 +96,7 @@ namespace Vodovoz.Views.Warehouse
 					.AddSetter((c, i) => c.Editable = i.CanEditAmount)
 					.Adjustment(new Adjustment (0, 0, 1000000, 1, 100, 0))
 					.AddTextRenderer(i => i.Nomenclature.Unit == null ? string.Empty: i.Nomenclature.Unit.Name, false)
-				.AddColumn("Цена\nзакупки")
+				.AddColumn("Цена закупки")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(i => i.PrimeCost)
 					.Digits(2)
