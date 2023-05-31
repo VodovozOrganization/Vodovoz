@@ -86,6 +86,7 @@
     <Compile Include="Journals\FilterViewModels\Store\WarehouseAccountingCard.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsItemsJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\IGeoGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IRouteListJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IComplaintKindJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\ISalesChannelJournalFactory.cs" />
