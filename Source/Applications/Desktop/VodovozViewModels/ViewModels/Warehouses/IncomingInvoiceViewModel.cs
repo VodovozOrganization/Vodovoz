@@ -395,7 +395,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 					page.ViewModel.EntitySaved += (sender, args) =>
 					{
-						var savedEntity = args.GetEntity<InventoryNomenclatureInstance>();
+						var savedEntity = UoW.GetById<InventoryNomenclatureInstance>(args.GetEntity<InventoryNomenclatureInstance>().Id);
 						var newItem = new InventoryInstanceIncomingInvoiceItem
 						{
 							Amount = 1,
