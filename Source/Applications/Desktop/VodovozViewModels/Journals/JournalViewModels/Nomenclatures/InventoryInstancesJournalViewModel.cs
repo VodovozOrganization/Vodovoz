@@ -7,6 +7,7 @@ using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
@@ -16,7 +17,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Goods;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures

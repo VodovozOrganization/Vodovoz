@@ -2,24 +2,13 @@ using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
-using QS.DomainModel.UoW;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
-using Gamma.Utilities;
 using Vodovoz.Infrastructure;
-using System.Reflection;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.StoredResources;
-using Vodovoz.Parameters;
-using Vodovoz.Representations.ProductGroups;
-using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
-using Vodovoz.ViewModels.Journals.JournalNodes.Client;
-using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 
 namespace Vodovoz.JournalColumnsConfigs
