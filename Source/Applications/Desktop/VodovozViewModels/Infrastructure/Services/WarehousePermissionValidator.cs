@@ -45,7 +45,10 @@ namespace Vodovoz.ViewModels.Infrastructure.Services
 
 		public bool Validate(WarehousePermissionsType warehousePermissionsType, Warehouse warehouse, Employee employee)
 		{
-			return !(warehouse is null) && (employee.User.IsAdmin || Validate(employee, warehousePermissionsType, warehouse.Id));
+			var hasWar = !(warehouse is null);
+			var hasPermission = employee.User.IsAdmin || Validate(employee, warehousePermissionsType, warehouse.Id);
+			
+			return hasWar && hasPermission;
 		}
 
 		public bool Validate(Employee employee, WarehousePermissionsType warehousePermissionsType, int warehouseId)

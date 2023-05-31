@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
@@ -233,19 +233,12 @@ namespace Vodovoz.EntityRepositories.Goods
 		public QueryOver<Nomenclature, Nomenclature> QueryAvailableNonSerialEquipmentForRent(EquipmentKind kind)
 		{
 			Nomenclature nomenclatureAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 
-			//Подзапрос выбирающий по номенклатуре количество добавленное на склад
-			var subqueryAdded = QueryOver.Of(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-			
-			//Подзапрос выбирающий по номенклатуре количество отгруженное со склада
-			var subqueryRemoved = QueryOver.Of(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+			var subqueryBalance = QueryOver.Of(() => operationAlias)
+				.Where(() => operationAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseBulkGoodsAccountingOperation>(o => o.Warehouse)))
+				.Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(o => o.Amount));
 
 			//Подзапрос выбирающий по номенклатуре количество зарезервированное в заказах до отгрузки со склада
 			Vodovoz.Domain.Orders.Order localOrderAlias = null;
@@ -285,8 +278,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		            .Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName)
 					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
-					.SelectSubQuery(subqueryAdded).WithAlias(() => resultAlias.Added)
-					.SelectSubQuery(subqueryRemoved).WithAlias(() => resultAlias.Removed)
+					.SelectSubQuery(subqueryBalance).WithAlias(() => resultAlias.InStock)
 					.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved))
 				.OrderBy(x => x.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<NomenclatureForRentNode>());
@@ -537,6 +529,8 @@ namespace Vodovoz.EntityRepositories.Goods
 
 			return query.Sum(x => x.WarehouseExpensesSum);
 		}
+
+		public Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId) => uow.GetById<Nomenclature>(nomenclatureId);
 
 		public bool Has19LWater(IUnitOfWork uow, int[] siteNomenclaturesIds)
 		{

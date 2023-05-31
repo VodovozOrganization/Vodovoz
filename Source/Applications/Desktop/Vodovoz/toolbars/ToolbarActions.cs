@@ -1,7 +1,5 @@
-﻿using Dialogs.Employees;
+using Dialogs.Employees;
 using Gtk;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -12,7 +10,6 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using System;
-using System.Collections.Generic;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.Project.Services.FileDialog;
 using Vodovoz;
@@ -68,6 +65,7 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -86,11 +84,11 @@ using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
-using VodovozInfrastructure.Endpoints;
 using Action = Gtk.Action;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Autofac;
+using Vodovoz.Domain.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 public partial class MainWindow : Window
@@ -264,7 +262,7 @@ public partial class MainWindow : Window
 		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
 		ActionExportImportNomenclatureCatalog = new Action("ActionExportImportNomenclatureCatalog", "Выгрузка/Загрузка каталога номенклатур", null, "table");
-		ActionWarehousesBalanceSummary = new Action(nameof(ActionWarehousesBalanceSummary), "Остатки по складам", null, "table");
+		ActionWarehousesBalanceSummary = new Action(nameof(ActionWarehousesBalanceSummary), "Остатки", null, "table");
 
 		//ТрО
 		ActionCarEventsJournal = new Action("ActionCarEventsJournal", "Журнал событий ТС", null, "table");
@@ -667,21 +665,11 @@ public partial class MainWindow : Window
 	void ActionAtWorks_Activated(object sender, EventArgs e)
 	{
 		var employeeJournalFactory = new EmployeeJournalFactory();
-
-		var cs = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider> { new MemoryConfigurationProvider(new MemoryConfigurationSource()) }), "");
-
-		cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
-
-		var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
-		var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
 		var parametersProvider = new ParametersProvider();
 
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<AtWorksDlg>(),
-			() => new AtWorksDlg(
-				new BaseParametersProvider(parametersProvider),
-				employeeJournalFactory,
-				driverApiRegisterEndpoint)
+			() => new AtWorksDlg(new BaseParametersProvider(parametersProvider), employeeJournalFactory)
 		);
 	}
 
@@ -1074,36 +1062,24 @@ public partial class MainWindow : Window
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
-		bool userHasOnlyAccessToWarehouseAndComplaints;
-
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			userHasOnlyAccessToWarehouseAndComplaints =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).IsAdmin;
-		}
-
-		var warhouseJournalFactory = new WarehouseJournalFactory();
-
 		var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
-		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(warhouseJournalFactory)
+		Action<NomenclatureStockFilterViewModel> filterParams = null;
+		
+		if(_accessOnlyToWarehouseAndComplaints && defaultWarehouse != null)
 		{
-			ShowArchive = true
-		};
-
-		if(userHasOnlyAccessToWarehouseAndComplaints && defaultWarehouse != null)
-		{
-			filter.RestrictWarehouse = defaultWarehouse;
+			filterParams = f =>
+			{
+				f.RestrictWarehouse = defaultWarehouse;
+				f.ShowArchive = true;
+			};
 		}
-
-		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-			filter,
-			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices
-		)
-		{ SelectionMode = JournalSelectionMode.None };
-
-		tdiMain.OpenTab(() => vm);
+		else
+		{
+			filterParams = f => f.ShowArchive = true;
+		}
+		
+		NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(
+			null, filterParams);
 	}
 
 	void ActionWarehouseDocumentsActivated(object sender, System.EventArgs e)

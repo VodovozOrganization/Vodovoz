@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 			UpdateOnChanges(
 				typeof(Warehouse),
 				typeof(Nomenclature),
-				typeof(WarehouseMovementOperation)
+				typeof(GoodsAccountingOperation)
 			);
 		}
 
@@ -35,21 +35,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 		{
 			Warehouse warehouseAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			WarehouseMovementOperation incomeAlias = null;
-			WarehouseMovementOperation writeoffAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			NomenclatureBalanceByStockJournalNode warehouseNodeAlias = null;
 
 			var query = uow.Session.QueryOver(() => warehouseAlias).WhereNot(w => w.IsArchive);
 
-			var incomeSubQuery = QueryOver.Of(() => incomeAlias)
-				.Where(x => x.IncomingWarehouse.Id == warehouseAlias.Id);
-			var writeoffSubQuery = QueryOver.Of(() => writeoffAlias)
-				.Where(x => x.WriteoffWarehouse.Id == warehouseAlias.Id);
+			var balanceSubQuery = QueryOver.Of(() => operationAlias)
+				.Where(x => x.Warehouse.Id == warehouseAlias.Id);
 
 			if(FilterViewModel?.Nomenclature != null)
 			{
-				incomeSubQuery.Where(() => incomeAlias.Nomenclature.Id == FilterViewModel.Nomenclature.Id);
-				writeoffSubQuery.Where(() => writeoffAlias.Nomenclature.Id == FilterViewModel.Nomenclature.Id);
+				balanceSubQuery.Where(() => operationAlias.Nomenclature.Id == FilterViewModel.Nomenclature.Id);
 			}
 
 			if(FilterViewModel?.Warehouse != null)
@@ -57,8 +53,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 				query.Where(() => warehouseAlias.Id == FilterViewModel.Warehouse.Id);
 			}
 
-			incomeSubQuery.Select(Projections.Sum(Projections.Property(() => incomeAlias.Amount)));
-			writeoffSubQuery.Select(Projections.Sum(Projections.Property(() => writeoffAlias.Amount)));
+			balanceSubQuery.Select(Projections.Sum(() => operationAlias.Amount));
 
 			query.Where(GetSearchCriterion(
 				() => warehouseAlias.Id,
@@ -68,8 +63,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels
 			var result = query.SelectList(list => list
 					.Select(w => w.Id).WithAlias(() => warehouseNodeAlias.Id)
 					.Select(w => w.Name).WithAlias(() => warehouseNodeAlias.WarehouseName)
-					.SelectSubQuery(writeoffSubQuery).WithAlias(() => warehouseNodeAlias.Removed)
-					.SelectSubQuery(incomeSubQuery).WithAlias(() => warehouseNodeAlias.Added))
+					.SelectSubQuery(balanceSubQuery).WithAlias(() => warehouseNodeAlias.NomenclatureAmount))
 				.OrderBy(w => w.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<NomenclatureBalanceByStockJournalNode>());
 			return result;

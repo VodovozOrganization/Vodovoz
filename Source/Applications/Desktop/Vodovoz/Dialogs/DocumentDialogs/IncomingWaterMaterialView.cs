@@ -1,4 +1,4 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
@@ -16,6 +16,7 @@ using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
@@ -93,17 +94,12 @@ namespace Vodovoz
 				return;
 			}
 
-			var warehouseJournalFactory = new WarehouseJournalFactory();
+			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse;
 
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(warehouseJournalFactory);
-			filter.RestrictWarehouse = DocumentUoW.Root.FromWarehouse;
-
-			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			);
-
+			var vm = MainClass.MainWin.NavigationManager
+				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
+				.ViewModel;
+			
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.OnEntitySelectedResult += (s, ea) => {
 				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
@@ -116,8 +112,6 @@ namespace Vodovoz
 				}
 				DocumentUoW.Root.AddMaterial(nomenclature, 1, selectedNode.StockAmount);
 			};
-
-			mytab.TabParent.AddSlaveTab (mytab, vm);
 		}
 
 		void CalculateTotal ()

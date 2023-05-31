@@ -23,87 +23,87 @@
 		WHERE route_lists.date = byOrders.date AND route_lists.status != 'Closed'
 	) AS all_closed,
 	(
-		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		SELECT IFNULL(-SUM(goods_accounting_operations.amount), 0)
 		FROM route_lists
 		INNER JOIN store_car_load_documents ON store_car_load_documents.route_list_id = route_lists.id
 		INNER JOIN store_car_load_document_items ON store_car_load_document_items.car_load_document_id = store_car_load_documents.id
-		INNER JOIN warehouse_movement_operations ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		INNER JOIN goods_accounting_operations ON store_car_load_document_items.warehouse_movement_operation_id = goods_accounting_operations.id
+		INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 		WHERE route_lists.date = byOrders.date
 			AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
 			AND nomenclature.is_new_bottle = 0
 			AND nomenclature.is_defective_bottle = 0
 	) AS car_load_count,
 	(
-		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 		FROM route_lists
 		INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
 		INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-		INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		INNER JOIN goods_accounting_operations ON store_car_unload_document_items.warehouse_movement_operation_id = goods_accounting_operations.id
+		INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 		WHERE route_lists.date = byOrders.date
 			AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
 			AND nomenclature.is_new_bottle = 0
 			AND nomenclature.is_defective_bottle = 0
 	) AS car_unload_count,
 	(
-		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 		FROM route_lists
 		INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
 		INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-		INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		INNER JOIN goods_accounting_operations ON store_car_unload_document_items.warehouse_movement_operation_id = goods_accounting_operations.id
+		INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 		WHERE DATE(store_car_unload_documents.time_stamp) = byOrders.date
 			#AND nomenclature.category = 'bottle'
 			AND nomenclature.is_defective_bottle = 1
 	) +
 	(
-		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 		FROM store_incoming_invoice
 		INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
-		INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
-		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		INNER JOIN goods_accounting_operations ON store_incoming_invoice_items.good_move_operation_id = goods_accounting_operations.id
+		INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 		WHERE DATE(store_incoming_invoice.time_stamp) = byOrders.date
 			#AND nomenclature.category = 'bottle'
 			AND nomenclature.is_defective_bottle = 1
 	) +
 	(
-		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 		FROM store_inventory
 		INNER JOIN store_inventory_item ON store_inventory_item.store_inventory_id = store_inventory.id
-		INNER JOIN warehouse_movement_operations ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
-		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		INNER JOIN goods_accounting_operations ON store_inventory_item.warehouse_movement_operation_id = goods_accounting_operations.id
+		INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 		WHERE DATE(store_inventory.time_stamp) = byOrders.date
 			#AND nomenclature.category = 'bottle'
 			AND nomenclature.is_defective_bottle = 1
 	) +
 	(
-		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 		FROM store_regrading_of_goods
 		INNER JOIN store_regrading_of_goods_items ON store_regrading_of_goods_items.store_regrading_of_goods_id = store_regrading_of_goods.id
-		INNER JOIN warehouse_movement_operations ON store_regrading_of_goods_items.warehouse_income_operation_id = warehouse_movement_operations.id
-		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		INNER JOIN goods_accounting_operations ON store_regrading_of_goods_items.warehouse_income_operation_id = goods_accounting_operations.id
+		INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 		WHERE DATE(store_regrading_of_goods.time_stamp) = byOrders.date
 			#AND nomenclature.category = 'bottle'
 			AND nomenclature.is_defective_bottle = 1
 	) AS defective_count,
 	(
-		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 		FROM route_lists
 		INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
 		INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-		INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		INNER JOIN goods_accounting_operations ON store_car_unload_document_items.warehouse_movement_operation_id = goods_accounting_operations.id
+		INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 		WHERE route_lists.date = byOrders.date
 			AND nomenclature.category = 'bottle'
 			AND nomenclature.is_new_bottle = 1
 	) +
 	(
-		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+		SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 		FROM store_incoming_invoice
 		INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
-		INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
-		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+		INNER JOIN goods_accounting_operations ON store_incoming_invoice_items.good_move_operation_id = goods_accounting_operations.id
+		INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 		WHERE DATE(store_incoming_invoice.time_stamp) = byOrders.date
 			AND nomenclature.category = 'bottle'
 			AND nomenclature.is_new_bottle = 1
@@ -198,87 +198,87 @@ FROM(
 			WHERE route_lists.date = byOrders.date AND route_lists.status != 'Closed'
 		) AS all_closed,
 		(
-			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			SELECT IFNULL(-SUM(goods_accounting_operations.amount), 0)
 			FROM route_lists
 			INNER JOIN store_car_load_documents ON store_car_load_documents.route_list_id = route_lists.id
 			INNER JOIN store_car_load_document_items ON store_car_load_document_items.car_load_document_id = store_car_load_documents.id
-			INNER JOIN warehouse_movement_operations ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			INNER JOIN goods_accounting_operations ON store_car_load_document_items.warehouse_movement_operation_id = goods_accounting_operations.id
+			INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 			WHERE route_lists.date = byOrders.date
 				AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
 				AND nomenclature.is_new_bottle = 0
 				AND nomenclature.is_defective_bottle = 0
 		) AS car_load_count,
 		(
-			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 			FROM route_lists
 			INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
 			INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-			INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			INNER JOIN goods_accounting_operations ON store_car_unload_document_items.warehouse_movement_operation_id = goods_accounting_operations.id
+			INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 			WHERE route_lists.date = byOrders.date
 				AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
 				AND nomenclature.is_new_bottle = 0
 				AND nomenclature.is_defective_bottle = 0
 		) AS car_unload_count,
 		(
-			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 			FROM route_lists
 			INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
 			INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-			INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			INNER JOIN goods_accounting_operations ON store_car_unload_document_items.warehouse_movement_operation_id = goods_accounting_operations.id
+			INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 			WHERE DATE(store_car_unload_documents.time_stamp) = byOrders.date
 				#AND nomenclature.category = 'bottle'
 				AND nomenclature.is_defective_bottle = 1
 		) +
 		(
-			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 			FROM store_incoming_invoice
 			INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
-			INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
-			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			INNER JOIN goods_accounting_operations ON store_incoming_invoice_items.good_move_operation_id = goods_accounting_operations.id
+			INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 			WHERE DATE(store_incoming_invoice.time_stamp) = byOrders.date
 				#AND nomenclature.category = 'bottle'
 				AND nomenclature.is_defective_bottle = 1
 		) +
 		(
-			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 			FROM store_inventory
 			INNER JOIN store_inventory_item ON store_inventory_item.store_inventory_id = store_inventory.id
-			INNER JOIN warehouse_movement_operations ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
-			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			INNER JOIN goods_accounting_operations ON store_inventory_item.warehouse_movement_operation_id = goods_accounting_operations.id
+			INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 			WHERE DATE(store_inventory.time_stamp) = byOrders.date
 				#AND nomenclature.category = 'bottle'
 				AND nomenclature.is_defective_bottle = 1
 		) +
 		(
-			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 			FROM store_regrading_of_goods
 			INNER JOIN store_regrading_of_goods_items ON store_regrading_of_goods_items.store_regrading_of_goods_id = store_regrading_of_goods.id
-			INNER JOIN warehouse_movement_operations ON store_regrading_of_goods_items.warehouse_income_operation_id = warehouse_movement_operations.id
-			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			INNER JOIN goods_accounting_operations ON store_regrading_of_goods_items.warehouse_income_operation_id = goods_accounting_operations.id
+			INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 			WHERE DATE(store_regrading_of_goods.time_stamp) = byOrders.date
 				#AND nomenclature.category = 'bottle'
 				AND nomenclature.is_defective_bottle = 1
 		) AS defective_count,
 		(
-			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 			FROM route_lists
 			INNER JOIN store_car_unload_documents ON store_car_unload_documents.route_list_id = route_lists.id
 			INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-			INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
-			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			INNER JOIN goods_accounting_operations ON store_car_unload_document_items.warehouse_movement_operation_id = goods_accounting_operations.id
+			INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 			WHERE route_lists.date = byOrders.date
 				AND nomenclature.category = 'bottle'
 				AND nomenclature.is_new_bottle = 1
 		) +
 		(
-			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
+			SELECT IFNULL(SUM(goods_accounting_operations.amount), 0)
 			FROM store_incoming_invoice
 			INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
-			INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
-			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+			INNER JOIN goods_accounting_operations ON store_incoming_invoice_items.good_move_operation_id = goods_accounting_operations.id
+			INNER JOIN nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
 			WHERE DATE(store_incoming_invoice.time_stamp) = byOrders.date
 				AND nomenclature.category = 'bottle'
 				AND nomenclature.is_new_bottle = 1

@@ -53,6 +53,7 @@ using Vodovoz.Domain.Profitability;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {

@@ -9,6 +9,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;

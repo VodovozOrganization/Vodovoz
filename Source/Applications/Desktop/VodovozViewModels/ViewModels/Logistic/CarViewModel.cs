@@ -28,7 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 	public class CarViewModel : EntityTabViewModelBase<Car>
 	{
 		private readonly IRouteListsWageController _routeListsWageController;
-		private readonly GeoGroupJournalFactory _geoGroupJournalFactory;
+		private readonly IGeoGroupJournalFactory _geoGroupJournalFactory;
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private const string _canChangeBottlesFromAddressPermissionName = "can_change_cars_bottles_from_address";
 		private bool _canChangeBottlesFromAddress;
@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICarVersionsViewModelFactory carVersionsViewModelFactory,
 			IOdometerReadingsViewModelFactory odometerReadingsViewModelFactory,
 			IRouteListsWageController routeListsWageController,
-			GeoGroupJournalFactory geoGroupJournalFactory,
+			IGeoGroupJournalFactory geoGroupJournalFactory,
 			INavigationManager navigationManager)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{

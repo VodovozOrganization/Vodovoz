@@ -11,6 +11,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets

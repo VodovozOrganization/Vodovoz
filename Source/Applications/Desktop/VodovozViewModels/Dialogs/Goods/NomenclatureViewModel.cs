@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NLog;
 using QS.Commands;
@@ -11,12 +11,10 @@ using QS.ViewModels.Extension;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Services;
 using Vodovoz.Models;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Goods;
-using QS.Project.Services;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -38,8 +36,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices
-			) {
+			IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices)
+		{
 			if(nomenclatureSelectorFactory is null)
 			{
 				throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
@@ -53,9 +51,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
 
-			NomenclatureCostPricesViewModel = new NomenclatureCostPricesViewModel(Entity, new NomenclatureCostPriceModel(commonServices.CurrentPermissionService));
-			NomenclaturePurchasePricesViewModel = new NomenclaturePurchasePricesViewModel(Entity, new NomenclaturePurchasePriceModel(commonServices.CurrentPermissionService));
-			NomenclatureInnerDeliveryPricesViewModel = new NomenclatureInnerDeliveryPricesViewModel(Entity, new NomenclatureInnerDeliveryPriceModel(commonServices.CurrentPermissionService));
+			NomenclatureCostPricesViewModel =
+				new NomenclatureCostPricesViewModel(Entity, new NomenclatureCostPriceModel(commonServices.CurrentPermissionService));
+			NomenclaturePurchasePricesViewModel =
+				new NomenclaturePurchasePricesViewModel(Entity, new NomenclaturePurchasePriceModel(commonServices.CurrentPermissionService));
+			NomenclatureInnerDeliveryPricesViewModel =
+				new NomenclatureInnerDeliveryPricesViewModel(Entity, new NomenclatureInnerDeliveryPriceModel(commonServices.CurrentPermissionService));
 			
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();
@@ -81,13 +82,17 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool IsEshopNomenclature => Entity?.ProductGroup?.ExportToOnlineStore ?? false;
 		public bool IsOnlineStoreNomenclature => Entity?.OnlineStore != null;
 		public bool WithoutDependsOnNomenclature => Entity.DependsOnNomenclature == null;
-		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
+		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && IsNewEntity);
 		public bool CanCreateAndArcNomenclatures { get; private set; }
 		public bool CanEditAlternativeNomenclaturePrices { get; private set; }
 		public bool AskSaveOnClose => CanEdit;
+		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
+			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
 		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; }
 		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; }
 		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; }
+		private bool IsNewEntity => Entity.Id == 0;
+		private bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; set; }
 
 		private void ConfigureValidationContext()
 		{
@@ -127,6 +132,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			SetPropertyChangeRelation(
 				e => e.TareVolume,
 				() => Is19lTareVolume
+			);
+			
+			SetPropertyChangeRelation(
+				e => e.Id,
+				() => UserCanCreateNomenclaturesWithInventoryAccounting
 			);
 		}
 
@@ -171,16 +181,18 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			CanCreateAndArcNomenclatures =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
-
+			CanCreateNomenclaturesWithInventoryAccountingPermission =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_nomenclatures_with_inventory_accounting");
 			CanEditAlternativeNomenclaturePrices =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_alternative_nomenclature_prices");
 		}
 
-		protected override bool BeforeValidation() {
-			if(string.IsNullOrWhiteSpace(Entity.Code1c)) {
+		protected override bool BeforeValidation()
+		{
+			if(string.IsNullOrWhiteSpace(Entity.Code1c))
+			{
 				Entity.Code1c = _nomenclatureRepository.GetNextCode1c(UoW);
 			}
-
 			return true;
 		}
 

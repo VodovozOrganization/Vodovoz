@@ -43,6 +43,7 @@ using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.JournalViewers;
@@ -446,14 +447,18 @@ namespace Vodovoz.ViewModel
 									warehouseId = geoGroupVersion.Warehouse.Id;
 								}
 
-								if (warehouseId > 0)
+								if(warehouseId > 0)
 								{
 									var onlineOrders = routeList.Addresses
 										.SelectMany(adressItem => adressItem.Order.OrderItems)
 										.Where(orderItem => orderItem.Nomenclature.OnlineStore != null);
 
 									var warehouseStocks = warehouseRepository
-										.GetWarehouseNomenclatureStock(UoW, warehouseId, onlineOrders.Select(o=>o.Nomenclature.Id).Distinct());
+										.GetWarehouseNomenclatureStock(
+											UoW,
+											OperationType.WarehouseBulkGoodsAccountingOperation,
+											warehouseId,
+											onlineOrders.Select(o => o.Nomenclature.Id).Distinct());
 									
 									var lackWarehouseStocks = onlineOrders
 										.Join(warehouseStocks,

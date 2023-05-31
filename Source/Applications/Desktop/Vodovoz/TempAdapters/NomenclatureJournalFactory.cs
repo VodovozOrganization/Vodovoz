@@ -1,8 +1,8 @@
-﻿using QS.DomainModel.UoW;
+using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using System.Collections.Generic;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
@@ -20,25 +20,6 @@ namespace Vodovoz.TempAdapters
 {
 	public class NomenclatureJournalFactory : INomenclatureJournalFactory
 	{
-		public IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures)
-		{
-			var warehouseJournalFactory = new WarehouseJournalFactory();
-			var filter = new NomenclatureStockFilterViewModel(warehouseJournalFactory);
-			filter.SetAndRefilterAtOnce(
-				x => x.ExcludedNomenclatureIds = excludedNomenclatures,
-				x => x.RestrictWarehouse = warehouse);
-
-			var vm = new NomenclatureStockBalanceJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			);
-
-			vm.SelectionMode = JournalSelectionMode.Multiple;
-
-			return vm;
-		}
-
 		public NomenclaturesJournalViewModel CreateNomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filter = null, bool multiselect = false)
 		{

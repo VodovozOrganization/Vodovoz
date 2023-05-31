@@ -22,5 +22,15 @@ namespace Vodovoz.NHibernateProjections.Employees
 				Projections.Property(() => driverAlias.Name),
 				Projections.Property(() => driverAlias.Patronymic));
 		}
+
+		public static IProjection GetEmployeeFullNameProjection()
+		{
+			return CustomProjections.Concat_WS(
+				" ",
+				Projections.Property<Employee>(x => x.LastName),
+				Projections.Property<Employee>(x => x.Name),
+				Projections.Property<Employee>(x => x.Patronymic)
+			);
+		}
 	}
 }

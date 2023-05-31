@@ -1,6 +1,7 @@
 ﻿using QSOrmProject.Users;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Services;
 
 namespace Vodovoz
 {
@@ -15,18 +16,17 @@ namespace Vodovoz
 			manager.LoadUserSettings = userRepository.GetCurrentUserSettings;
 		}
 
-		public static UserSettings Settings
-		{
-			get
-			{
-				return manager.Settings;
-			}
-		}
+		public static UserSettings Settings => manager.Settings;
 
 		public static void SaveSettings()
 		{
 			manager.SaveSettings();
 		}
+	}
+	
+	public class UserSettingsGetter : IUserSettings
+	{
+		public UserSettings Settings => CurrentUserSettings.Settings;
 	}
 }
 
