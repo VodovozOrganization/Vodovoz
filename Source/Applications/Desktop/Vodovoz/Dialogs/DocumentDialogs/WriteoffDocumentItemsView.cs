@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,7 @@ using QS.Project.Services;
 using QS.Tdi;
 using QSProjectsLib;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.BasicHandbooks;
@@ -21,15 +22,17 @@ using Vodovoz.Journals.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz
 {
+	[Obsolete("Убрать последним коммитом по поэкземплярному учету")]
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class WriteoffDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		private readonly ICullingCategoryRepository _cullingCategoryRepository = new CullingCategoryRepository();
-		GenericObservableList<WriteoffDocumentItem> items;
-		WriteoffDocumentItem FineEditItem;
+		GenericObservableList<WriteOffDocumentItem> items;
+		WriteOffDocumentItem FineEditItem;
 
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -39,20 +42,20 @@ namespace Vodovoz
 			treeItemsList.Selection.Changed += OnSelectionChanged;
 		}
 
-		private IUnitOfWorkGeneric<WriteoffDocument> documentUoW;
+		private IUnitOfWorkGeneric<WriteOffDocument> documentUoW;
 
-		public IUnitOfWorkGeneric<WriteoffDocument> DocumentUoW {
+		public IUnitOfWorkGeneric<WriteOffDocument> DocumentUoW {
 			get { return documentUoW; }
 			set {
 				if (documentUoW == value)
 					return;
 				documentUoW = value;
 				if (DocumentUoW.Root.Items == null)
-					DocumentUoW.Root.Items = new List<WriteoffDocumentItem> ();
+					DocumentUoW.Root.Items = new List<WriteOffDocumentItem> ();
 				items = DocumentUoW.Root.ObservableItems;
-				treeItemsList.ColumnsConfig = ColumnsConfigFactory.Create<WriteoffDocumentItem>()
+				treeItemsList.ColumnsConfig = ColumnsConfigFactory.Create<WriteOffDocumentItem>()
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
-					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
+					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.InventoryNumber)
 					.AddColumn ("Количество")
 					.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
 					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
@@ -61,7 +64,7 @@ namespace Vodovoz
 					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
 					.AddColumn ("Причина выбраковки").AddComboRenderer (i => i.CullingCategory)
 					.SetDisplayFunc (DomainHelper.GetTitle).Editing ()
-					.FillItems (_cullingCategoryRepository.All(DocumentUoW))
+					.FillItems (_cullingCategoryRepository.GetAllCullingCategories(DocumentUoW))
 					.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 					.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
 					.AddColumn("Выявлено в процессе").AddTextRenderer(i => i.Comment).Editable()
@@ -71,14 +74,14 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnButtonDeleteClicked (object sender, EventArgs e)
+		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			items.Remove (treeItemsList.GetSelectedObjects () [0] as WriteoffDocumentItem);
+			items.Remove (treeItemsList.GetSelectedObjects () [0] as WriteOffDocumentItem);
 		}
 
-		void OnSelectionChanged (object sender, EventArgs e)
+		void OnSelectionChanged(object sender, EventArgs e)
 		{
-			var selected = treeItemsList.GetSelectedObject<WriteoffDocumentItem>();
+			var selected = treeItemsList.GetSelectedObject<WriteOffDocumentItem>();
 			buttonDelete.Sensitive = treeItemsList.Selection.CountSelectedRows () > 0;
 			buttonFine.Sensitive = selected != null;
 			if(selected != null)
@@ -91,7 +94,7 @@ namespace Vodovoz
 			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
 		}
 
-		protected void OnButtonAddClicked (object sender, EventArgs e)
+		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
 			ITdiTab mytab = DialogHelper.FindParentTab (this);
 			if (mytab == null) {
@@ -99,14 +102,11 @@ namespace Vodovoz
 				return;
 			}
 
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseJournalFactory());
-			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
+			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.WriteOffFromWarehouse;
 
-			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			);
+			var vm = MainClass.MainWin.NavigationManager
+				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
+				.ViewModel;
 
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.OnEntitySelectedResult += (s, ea) => {
@@ -120,13 +120,11 @@ namespace Vodovoz
 				}
 				DocumentUoW.Root.AddItem(nomenclature, 0, selectedNode.StockAmount);
 			};
-
-			mytab.TabParent.AddSlaveTab (mytab, vm);
 		}
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)
 		{
-			var selected = treeItemsList.GetSelectedObject<WriteoffDocumentItem>();
+			var selected = treeItemsList.GetSelectedObject<WriteOffDocumentItem>();
 			FineDlg fineDlg;
 			if (selected.Fine != null)
 			{
@@ -143,20 +141,20 @@ namespace Vodovoz
 			MyTab.TabParent.AddSlaveTab(MyTab, fineDlg);
 		}
 
-		void FineDlgNew_EntitySaved (object sender, EntitySavedEventArgs e)
+		void FineDlgNew_EntitySaved(object sender, EntitySavedEventArgs e)
 		{
 			FineEditItem.Fine = e.Entity as Fine;
 			FineEditItem = null;
 		}
 
-		void FineDlgExist_EntitySaved (object sender, EntitySavedEventArgs e)
+		void FineDlgExist_EntitySaved(object sender, EntitySavedEventArgs e)
 		{
 			DocumentUoW.Session.Refresh(FineEditItem.Fine);
 		}
 
 		protected void OnButtonDeleteFineClicked(object sender, EventArgs e)
 		{
-			var item = treeItemsList.GetSelectedObject<WriteoffDocumentItem>();
+			var item = treeItemsList.GetSelectedObject<WriteOffDocumentItem>();
 			DocumentUoW.Delete(item.Fine);
 			item.Fine = null;
 			OnSelectionChanged(null, EventArgs.Empty);

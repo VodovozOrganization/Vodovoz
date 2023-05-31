@@ -22,101 +22,57 @@
     (IFNULL((SELECT 
                     SUM(amount)
                 FROM
-                    warehouse_movement_operations
+                    goods_accounting_operations
                 WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse1_id
-                       AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                       AND warehouse_movement_operations.operation_time &gt; @startDate
-                       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0)
-            -
-            IFNULL((SELECT 
-                    SUM(amount)
-                FROM
-                    warehouse_movement_operations
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse1_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt; @startDate
-                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+                    goods_accounting_operations.warehouse_id = @warehouse1_id
+                       AND goods_accounting_operations.nomenclature_id = nomenclature.id
+                       AND goods_accounting_operations.operation_time &gt; @startDate
+                       AND goods_accounting_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
             0)
             ) AS warehouse_1,
             (IFNULL((SELECT 
                     SUM(amount)
                 FROM
-                    warehouse_movement_operations
+                    goods_accounting_operations
                 WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse2_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt; @startDate
-                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0)
-            -
-            IFNULL((SELECT 
-                    SUM(amount)
-                FROM
-                    warehouse_movement_operations
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse2_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt; @startDate
-                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0)
+                    goods_accounting_operations.warehouse_id = @warehouse2_id
+                        AND goods_accounting_operations.nomenclature_id = nomenclature.id
+                        AND goods_accounting_operations.operation_time &gt; @startDate
+                    	AND goods_accounting_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0)         
             ) AS warehouse_2,
             (IFNULL((SELECT 
                     SUM(amount)
                 FROM
-                    warehouse_movement_operations
+                    goods_accounting_operations
                 WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse3_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt; @startDate
-                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0)
-            -
-            IFNULL((SELECT 
-                    SUM(amount)
-                FROM
-                    warehouse_movement_operations
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse3_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt; @startDate
-                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0)
+                    goods_accounting_operations.warehouse_id = @warehouse3_id
+                        AND goods_accounting_operations.nomenclature_id = nomenclature.id
+                        AND goods_accounting_operations.operation_time &gt; @startDate
+                    	AND goods_accounting_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0)            
             ) AS warehouse_3,
             (IFNULL((SELECT 
                     SUM(amount)
                 FROM
-                    warehouse_movement_operations
+                    goods_accounting_operations
                 WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse4_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt; @startDate
-                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0)
-            -
-            IFNULL((SELECT 
-                    SUM(amount)
-                FROM
-                    warehouse_movement_operations
-                WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse4_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt; @startDate
-                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-            0)
+                    goods_accounting_operations.warehouse_id = @warehouse4_id
+                        AND goods_accounting_operations.nomenclature_id = nomenclature.id
+                        AND goods_accounting_operations.operation_time &gt; @startDate
+                    	AND goods_accounting_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0)            
             ) AS warehouse_4,
-                        IFNULL((SELECT 
-                    SUM(warehouse_movement_operations.amount)
-                FROM
-                    warehouse_movement_operations
-                                 INNER JOIN store_movement_document_items ON store_movement_document_items.writeoff_movement_operation_id = warehouse_movement_operations.id AND store_movement_document_items.income_movement_operation_id IS NULL
-                WHERE
-                        warehouse_movement_operations.nomenclature_id = nomenclature.id
-                        AND warehouse_movement_operations.operation_time &gt; @startDate
-                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
-                       0) AS wagons
+            IFNULL((SELECT 
+                -SUM(goods_accounting_operations.amount)
+            FROM
+                goods_accounting_operations
+            INNER JOIN store_movement_document_items ON store_movement_document_items.writeoff_movement_operation_id = goods_accounting_operations.id AND store_movement_document_items.income_movement_operation_id IS NULL
+            WHERE
+                    goods_accounting_operations.nomenclature_id = nomenclature.id
+                    AND goods_accounting_operations.operation_time &gt; @startDate
+                    AND goods_accounting_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+                   0) AS wagons
 FROM
     nomenclature 
         LEFT JOIN

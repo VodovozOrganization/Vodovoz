@@ -41,6 +41,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 

@@ -3,6 +3,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
 using NHibernate;
 using NHibernate.Criterion;
+using Vodovoz.Domain.Documents.MovementDocuments;
 
 namespace Vodovoz.EntityRepositories.Store
 {

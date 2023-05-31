@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -645,16 +645,8 @@ LEFT JOIN (
 	FROM(
 		SELECT
 			nomenclature_id AS nom_id,
-			-SUM(amount) AS quantity
-		FROM warehouse_movement_operations
-		WHERE writeoff_warehouse_id IS NOT NULL
-		GROUP BY nom_id
-		UNION ALL
-		SELECT
-			nomenclature_id AS nom_id,
 			SUM(amount) AS quantity
-		FROM warehouse_movement_operations
-		WHERE incoming_warehouse_id IS NOT NULL
+		FROM goods_accounting_operations
 		GROUP BY nom_id
 	) AS qty_tbl
 	GROUP BY qty_tbl.nom_id

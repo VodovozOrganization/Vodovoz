@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;

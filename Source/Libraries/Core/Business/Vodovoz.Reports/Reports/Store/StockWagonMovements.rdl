@@ -21,18 +21,19 @@
 	store_movement_wagon.name as wagon, 
 	store_movement_document.time_stamp as send_time, 
 	store_movement_document.delivered_time,
-	GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(warehouse_movement_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
-FROM warehouse_movement_operations 
-INNER JOIN store_movement_document_items ON store_movement_document_items.writeoff_movement_operation_id = warehouse_movement_operations.id
-LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+	GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(-goods_accounting_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
+FROM goods_accounting_operations 
+INNER JOIN store_movement_document_items ON store_movement_document_items.writeoff_movement_operation_id = goods_accounting_operations.id
+LEFT JOIN nomenclature ON nomenclature.id = goods_accounting_operations.nomenclature_id
 LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
 LEFT JOIN store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id 
 LEFT JOIN warehouses ON store_movement_document.warehouse_to_id = warehouses.id
 LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
 WHERE
-	warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-	AND warehouse_movement_operations.operation_time &gt;= @startDate
-	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+	goods_accounting_operations.warehouse_id = @warehouse_id
+	AND goods_accounting_operations.amount &lt; 0
+	AND goods_accounting_operations.operation_time &gt;= @startDate
+	AND goods_accounting_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
 	AND store_movement_document.category = 'Transportation'
 	AND
 	(
@@ -56,18 +57,19 @@ SELECT
 	store_movement_wagon.name as wagon, 
 	store_movement_document.time_stamp as send_time, 
 	store_movement_document.delivered_time,
-	GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(warehouse_movement_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
-FROM warehouse_movement_operations 
-INNER JOIN store_movement_document_items ON store_movement_document_items.income_movement_operation_id = warehouse_movement_operations.id
-LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+	GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(goods_accounting_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
+FROM goods_accounting_operations 
+INNER JOIN store_movement_document_items ON store_movement_document_items.income_movement_operation_id = goods_accounting_operations.id
+LEFT JOIN nomenclature ON nomenclature.id = goods_accounting_operations.nomenclature_id
 LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
 LEFT JOIN store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id 
 LEFT JOIN warehouses ON store_movement_document.warehouse_from_id = warehouses.id
 LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
 WHERE
-	warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-	AND warehouse_movement_operations.operation_time &gt;= @startDate
-	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+	goods_accounting_operations.warehouse_id = @warehouse_id
+	AND goods_accounting_operations.amount &gt; 0
+	AND goods_accounting_operations.operation_time &gt;= @startDate
+	AND goods_accounting_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
 	AND store_movement_document.category = 'Transportation'
 	AND
 	(

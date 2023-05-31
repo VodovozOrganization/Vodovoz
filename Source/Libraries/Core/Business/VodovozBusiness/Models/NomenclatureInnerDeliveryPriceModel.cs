@@ -5,7 +5,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Models
 {
-	public class NomenclatureInnerDeliveryPriceModel
+	public class NomenclatureInnerDeliveryPriceModel : INomenclatureInnerDeliveryPriceModel
 	{
 		private readonly ICurrentPermissionService _permissionService;
 

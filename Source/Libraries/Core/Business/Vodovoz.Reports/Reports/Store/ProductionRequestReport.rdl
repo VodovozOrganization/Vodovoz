@@ -45,20 +45,9 @@ FROM
                                     SELECT
                                         SUM(wmo.amount)
                                     FROM
-                                        warehouse_movement_operations wmo
+                                        goods_accounting_operations wmo
                                     WHERE
-                                            wmo.incoming_warehouse_id = @warehouse_id
-                                      AND wmo.nomenclature_id = n.id
-                                      AND wmo.operation_time &lt;= @currently
-                                )
-                                -
-                                (
-                                    SELECT
-                                        SUM(wmo.amount)
-                                    FROM
-                                        warehouse_movement_operations wmo
-                                    WHERE
-                                            wmo.writeoff_warehouse_id = @warehouse_id
+                                            wmo.warehouse_id = @warehouse_id
                                       AND wmo.nomenclature_id = n.id
                                       AND wmo.operation_time &lt;= @currently
                                 ),
@@ -69,13 +58,13 @@ FROM
                     IFNULL
                         (
                             (
-                                SELECT SUM(wmo.amount)
+                                SELECT -SUM(wmo.amount)
                                 FROM
-                                    warehouse_movement_operations wmo
+                                    goods_accounting_operations wmo
                                         LEFT JOIN store_car_load_document_items ON store_car_load_document_items.warehouse_movement_operation_id = wmo.id
                                         LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = wmo.id
                                 WHERE
-                                        wmo.writeoff_warehouse_id = @warehouse_id
+                                        wmo.warehouse_id = @warehouse_id
                                   AND (store_self_delivery_document_item.id is not null OR store_car_load_document_items.id is not null)
                                   AND wmo.nomenclature_id = n.id
                                   AND wmo.operation_time BETWEEN @today AND @currently),
@@ -137,14 +126,14 @@ FROM
                                     n.name,
                                     n.tare_volume,
                                     wmo.operation_time,
-                                    SUM(wmo.amount) as amount
+                                    -SUM(wmo.amount) as amount
                                 FROM
-                                    warehouse_movement_operations wmo
+                                    goods_accounting_operations wmo
                                         LEFT JOIN store_car_load_document_items ON store_car_load_document_items.warehouse_movement_operation_id = wmo.id
                                         LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = wmo.id
                                         LEFT JOIN nomenclature n ON wmo.nomenclature_id = n.id
                                 WHERE
-                                        wmo.writeoff_warehouse_id = @warehouse_id
+                                        wmo.warehouse_id = @warehouse_id
                                   AND wmo.operation_time BETWEEN @start_date AND @end_date
                                 GROUP BY nomenclature_id, date(wmo.operation_time)
                             )AS T
