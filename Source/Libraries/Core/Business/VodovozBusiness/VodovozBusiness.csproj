@@ -879,6 +879,9 @@
     <Compile Include="Parameters\RouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
+    <Compile Include="Permissions\Cash.cs" />
+    <Compile Include="Permissions\Cash.Income.cs" />
+    <Compile Include="Permissions\Cash.Expense.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
