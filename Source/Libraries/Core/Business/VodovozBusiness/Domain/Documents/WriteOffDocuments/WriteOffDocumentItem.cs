@@ -55,6 +55,11 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 				{
 					return;
 				}
+
+				if(GoodsAccountingOperation is null)
+				{
+					return;
+				}
 				GoodsAccountingOperation.Amount = -value;
 			}
 		}
