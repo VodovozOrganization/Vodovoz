@@ -409,7 +409,7 @@ ORDER BY
     LEFT JOIN warehouses ON store_movement_document.warehouse_from_id = warehouses.id
     LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
     WHERE
-    	goods_accounting_operations.incoming_warehouse_id = @warehouse_id
+    	goods_accounting_operations.warehouse_id = @warehouse_id
     	AND goods_accounting_operations.operation_time &gt;= @startDate
     	AND goods_accounting_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
     	AND store_movement_document.category = 'Transportation'

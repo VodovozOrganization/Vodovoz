@@ -434,7 +434,7 @@ FROM(
 				('CarLoadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
 				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
 			)
-		GROUP BY ld.route_list_id, op.nomenclature_id, op.writeoff_warehouse_id
+		GROUP BY ld.route_list_id, op.nomenclature_id, op.warehouse_id
 	) AS loadings
 	LEFT JOIN (
 		SELECT
@@ -455,7 +455,7 @@ FROM(
 				('CarUnloadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
 				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
 			)
-		GROUP BY unld.route_list_id, op.nomenclature_id, op.incoming_warehouse_id
+		GROUP BY unld.route_list_id, op.nomenclature_id, op.warehouse_id
 	) AS unloadings ON loadings.nom_id = unloadings.nom_id
 		AND loadings.wh_id = unloadings.wh_id
 		AND loadings.route_list_id = unloadings.route_list_id
@@ -485,7 +485,7 @@ FROM(
 				('CarLoadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
 				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
 			)
-		GROUP BY ld.route_list_id, op.nomenclature_id, op.writeoff_warehouse_id
+		GROUP BY ld.route_list_id, op.nomenclature_id, op.warehouse_id
 	) AS loadings
 	RIGHT JOIN (
 		SELECT
@@ -506,7 +506,7 @@ FROM(
 				('CarUnloadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
 				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
 			)
-		GROUP BY unld.route_list_id, op.nomenclature_id, op.incoming_warehouse_id
+		GROUP BY unld.route_list_id, op.nomenclature_id, op.warehouse_id
 	) AS unloadings ON loadings.nom_id = unloadings.nom_id
 		AND loadings.wh_id = unloadings.wh_id
 		AND loadings.route_list_id = unloadings.route_list_id
