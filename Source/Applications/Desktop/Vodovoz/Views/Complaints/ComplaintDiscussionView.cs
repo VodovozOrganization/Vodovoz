@@ -76,7 +76,7 @@ namespace Vodovoz.Views.Complaints
 		{
 			yenumcomboStatus.ClearEnumHideList();
 			if(!ViewModel.CanCompleteDiscussion) {
-				yenumcomboStatus.AddEnumToHideList(ViewModel.HiddenStatuses.Cast<object>().ToArray());
+				yenumcomboStatus.AddEnumToHideList(ViewModel.HiddenDiscussionStatuses.Cast<object>().ToArray());
 			}
 			yenumcomboStatus.SelectedItem = ViewModel.Entity.Status;
 		}
