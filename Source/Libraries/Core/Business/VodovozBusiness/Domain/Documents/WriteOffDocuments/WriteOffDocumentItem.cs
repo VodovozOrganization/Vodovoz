@@ -49,7 +49,14 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 		public virtual decimal Amount
 		{
 			get => _amount;
-			set => SetField(ref _amount, value);
+			set
+			{
+				if(!SetField(ref _amount, value))
+				{
+					return;
+				}
+				GoodsAccountingOperation.Amount = -value;
+			}
 		}
 
 		[Display(Name = "Комментарий")]
