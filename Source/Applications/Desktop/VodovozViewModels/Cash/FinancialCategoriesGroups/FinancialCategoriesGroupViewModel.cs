@@ -27,16 +27,13 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		{
 			_scope = scope ?? throw new System.ArgumentNullException(nameof(scope));
 
-			if(Entity.ParentId.HasValue)
-			{
-				ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.ParentId.Value);
-			}
+			UpdateParentFinancialCategoriesGroup();
 
 			TabName = UoWGeneric.IsNew ? $"Диалог создания {Entity.GetType().GetClassUserFriendlyName().Genitive}" : $"{Entity.GetType().GetClassUserFriendlyName().Nominative.CapitalizeSentence()} \"{Entity.Title}\"";
 
-			var complaintDetalizationEntryViewModelBuilder = new CommonEEVMBuilderFactory<FinancialCategoriesGroupViewModel>(this, this, UoW, NavigationManager, _scope);
+			var financialCategoriesGroupEntryViewModelBuilder = new CommonEEVMBuilderFactory<FinancialCategoriesGroupViewModel>(this, this, UoW, NavigationManager, _scope);
 
-			ParentFinancialCategoriesGroupViewModel = complaintDetalizationEntryViewModelBuilder
+			ParentFinancialCategoriesGroupViewModel = financialCategoriesGroupEntryViewModelBuilder
 				.ForProperty(x => x.ParentFinancialCategoriesGroup)
 				.UseViewModelDialog<FinancialCategoriesGroupViewModel>()
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
@@ -44,6 +41,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 					{
 						filter.ExcludeFinancialGroupsIds.Add(Entity.Id);
 						filter.RestrictNodeTypes.Add(typeof(FinancialCategoriesGroup));
+						filter.RestrictFinancialSubtype = ParentFinancialCategoriesGroup?.FinancialSubtype;
 					})
 				.Finish();
 
@@ -54,14 +52,20 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		{
 			if(e.PropertyName == nameof(FinancialCategoriesGroup.ParentId))
 			{
-				if(Entity.ParentId.HasValue)
-				{
-					ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.ParentId.Value);
-				}
-				else
-				{
-					ParentFinancialCategoriesGroup = null;
-				}
+				UpdateParentFinancialCategoriesGroup();
+				return;
+			}
+		}
+
+		private void UpdateParentFinancialCategoriesGroup()
+		{
+			if(Entity.ParentId.HasValue)
+			{
+				ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.ParentId.Value);
+			}
+			else
+			{
+				ParentFinancialCategoriesGroup = null;
 			}
 		}
 
@@ -73,6 +77,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				if(SetField(ref _parentFinancialCategoriesGroup, value))
 				{
 					Entity.ParentId = value?.Id;
+					Entity.FinancialSubtype = value.FinancialSubtype;
 				}
 			}
 		}

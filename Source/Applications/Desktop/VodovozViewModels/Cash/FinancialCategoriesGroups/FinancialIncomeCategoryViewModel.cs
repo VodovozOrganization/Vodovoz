@@ -37,15 +37,9 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
-			if(Entity.ParentId.HasValue)
-			{
-				ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.ParentId.Value);
-			}
+			UpdateParentFinancialCategoriesGroup();
 
-			if(Entity.SubdivisionId.HasValue)
-			{
-				Subdivision = UoW.GetById<Subdivision>(Entity.SubdivisionId.Value);
-			}
+			UpdateSubdivision();
 
 			TabName = UoWGeneric.IsNew ? $"Диалог создания {Entity.GetType().GetClassUserFriendlyName().Genitive}" : $"{Entity.GetType().GetClassUserFriendlyName().Nominative.CapitalizeSentence()} \"{Entity.Title}\"";
 
@@ -58,6 +52,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 					filter =>
 					{
 						filter.ExcludeFinancialGroupsIds.Add(2);
+						filter.RestrictFinancialSubtype = FinancialSubType.Income;
 						filter.RestrictNodeTypes.Add(typeof(FinancialCategoriesGroup));
 					})
 				.Finish();
@@ -76,30 +71,42 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
+		private void UpdateParentFinancialCategoriesGroup()
+		{
+			if(Entity.ParentId.HasValue)
+			{
+				ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.ParentId.Value);
+			}
+			else
+			{
+				ParentFinancialCategoriesGroup = null;
+			}
+		}
+
+		private void UpdateSubdivision()
+		{
+			if(Entity.SubdivisionId.HasValue)
+			{
+				Subdivision = UoW.GetById<Subdivision>(Entity.SubdivisionId.Value);
+			}
+			else
+			{
+				Subdivision = null;
+			}
+		}
+
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(FinancialIncomeCategory.SubdivisionId))
 			{
-				if(Entity.SubdivisionId.HasValue)
-				{
-					Subdivision = UoW.GetById<Subdivision>(Entity.SubdivisionId.Value);
-				}
-				else
-				{
-					Subdivision = null;
-				}
+				UpdateSubdivision();
+				return;
 			}
 
 			if(e.PropertyName == nameof(FinancialIncomeCategory.ParentId))
 			{
-				if(Entity.ParentId.HasValue)
-				{
-					ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.ParentId.Value);
-				}
-				else
-				{
-					ParentFinancialCategoriesGroup = null;
-				}
+				UpdateParentFinancialCategoriesGroup();
+				return;
 			}
 		}
 

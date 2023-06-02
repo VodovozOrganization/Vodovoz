@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -19,7 +19,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	public class ExpenseCategoryViewModel : EntityTabViewModelBase<ExpenseCategory>
 	{
 		private readonly ILifetimeScope _scope;
-		private FinancialCategoriesGroup _parentFinancialCategoriesGroup;
+		private FinancialExpenseCategory _financialExpenseCategory;
 
 		public ExpenseCategoryViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -46,20 +46,18 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				(subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory)))
 			.CreateDefaultSubdivisionAutocompleteSelectorFactory(employeeSelectorFactory);
 
-			if(Entity.FinancialCategoryGroupId.HasValue)
-			{
-				ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.FinancialCategoryGroupId.Value);
-			}
+			UpdateFinancialExpenseCategory();
 
 			var complaintDetalizationEntryViewModelBuilder = new CommonEEVMBuilderFactory<ExpenseCategoryViewModel>(this, this, UoW, NavigationManager, _scope);
 
 			ParentFinancialCategoriesGroupViewModel = complaintDetalizationEntryViewModelBuilder
-				.ForProperty(x => x.ParentFinancialCategoriesGroup)
-				.UseViewModelDialog<FinancialCategoriesGroupViewModel>()
+				.ForProperty(x => x.FinancialExpenseCategory)
+				.UseViewModelDialog<FinancialExpenseCategoryViewModel>()
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
 					{
 						filter.ExcludeFinancialGroupsIds.Add(1);
+						filter.RestrictFinancialSubtype = FinancialSubType.Expense;
 						filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
 					}
 				)
@@ -67,20 +65,42 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			TabName = uowBuilder.IsNewEntity ? "Создание новой категории расхода" : $"{Entity.Title}";
 			_scope = scope;
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+		}
+
+		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.FinancialExpenseCategoryId))
+			{
+				UpdateFinancialExpenseCategory();
+			}
+		}
+
+		private void UpdateFinancialExpenseCategory()
+		{
+			if(Entity.FinancialExpenseCategoryId != null)
+			{
+				FinancialExpenseCategory = UoW.GetById<FinancialExpenseCategory>(Entity.FinancialExpenseCategoryId.Value);
+			}
+			else
+			{
+				FinancialExpenseCategory = null;
+			}
 		}
 
 		public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory { get; }
 		public IEntityEntryViewModel ParentFinancialCategoriesGroupViewModel { get; }
 
-		public FinancialCategoriesGroup ParentFinancialCategoriesGroup
+		public FinancialExpenseCategory FinancialExpenseCategory
 		{
-			get => _parentFinancialCategoriesGroup;
+			get => _financialExpenseCategory;
 			set
 			{
-				if(SetField(ref _parentFinancialCategoriesGroup, value))
+				if(SetField(ref _financialExpenseCategory, value))
 				{
-					Entity.FinancialCategoryGroupId = value?.Id;
+					Entity.FinancialExpenseCategoryId = value?.Id;
 				}
 			}
 		}

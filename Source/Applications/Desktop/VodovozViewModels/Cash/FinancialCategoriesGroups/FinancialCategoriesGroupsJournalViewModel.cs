@@ -140,6 +140,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 						&& !_filter.ExcludeFinancialGroupsIds.Contains(financialCategoriesGroup.Id)
 						&& (_filter.RestrictNodeTypes.IsEmpty() || _filter.RestrictNodeTypes.Contains(_financialCategoriesGroupType))
 						&& (_filter.ShowArchive || !financialCategoriesGroup.IsArchive)
+						&& (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == financialCategoriesGroup.FinancialSubtype)
 					let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
 					select new FinancialCategoriesJournalNode
 					{
@@ -173,12 +174,13 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 					|| incomeCategory.Id.ToString().Like(searchString))
 				&& (_filter.TargetDocument == null || _filter.TargetDocument == incomeCategory.TargetDocument)
 				&& (_filter.Subdivision == null || incomeCategory.SubdivisionId == subdivisionId)
+				&& (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == incomeCategory.FinancialSubtype)
 			select new FinancialCategoriesJournalNode
 			{
 				Id = incomeCategory.Id,
 				Name = incomeCategory.Title,
 				JournalNodeType = _financialIncomeCategoryType,
-				FinancialSubType = FinancialSubType.Income,
+				FinancialSubType = incomeCategory.FinancialSubtype,
 				ParentId = parentId,
 			};
 
@@ -190,12 +192,13 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 					|| expenseCategory.Id.ToString().Like(searchString))
 				&& (_filter.TargetDocument == null || _filter.TargetDocument == expenseCategory.TargetDocument)
 				&& (_filter.Subdivision == null || expenseCategory.SubdivisionId == subdivisionId)
+				&& (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == expenseCategory.FinancialSubtype)
 			select new FinancialCategoriesJournalNode
 			{
 				Id = expenseCategory.Id,
 				Name = expenseCategory.Title,
 				JournalNodeType = _financialExpenseCategoryType,
-				FinancialSubType = FinancialSubType.Expense,
+				FinancialSubType = expenseCategory.FinancialSubtype,
 				ParentId = parentId,
 			};
 

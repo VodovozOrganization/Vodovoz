@@ -25,6 +25,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private DialogViewModelBase _journalViewModel;
 		private Subdivision _subdivision;
 		private TargetDocument? _targetDocument;
+		private FinancialSubType? _restrictFinancialSubtype;
 
 		public FinancialCategoriesJournalFilterViewModel(
 			INavigationManager navigationManager,
@@ -44,6 +45,12 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		public ObservableCollection<int> ExcludeFinancialGroupsIds { get; } = new ObservableCollection<int>();
 
 		public ObservableCollection<Type> RestrictNodeSelectTypes { get; } = new ObservableCollection<Type>();
+
+		public FinancialSubType? RestrictFinancialSubtype
+		{
+			get => _restrictFinancialSubtype;
+			set => UpdateFilterField(ref _restrictFinancialSubtype, value);
+		}
 
 		public string SearchString
 		{

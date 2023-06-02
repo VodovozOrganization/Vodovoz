@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			if(FilterViewModel.OnlyWithoutNewCategoryLink)
 			{
-				query.Where(x => x.FinancialCategoryGroupId == null);
+				query.Where(x => x.FinancialExpenseCategoryId == null);
 			}
 
 			switch(FilterViewModel.Level)
