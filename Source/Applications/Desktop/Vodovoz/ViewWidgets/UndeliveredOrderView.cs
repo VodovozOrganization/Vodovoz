@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
+using Gtk;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
+using QS.Journal.GtkUI;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Employees;
@@ -27,8 +27,6 @@ using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
-using Vodovoz.ViewModel;
-using Vodovoz.ViewModels.ViewModels.Organizations;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -48,6 +46,7 @@ namespace Vodovoz.ViewWidgets
 		private IList<GuiltyInUndelivery> _initialGuiltyList = new List<GuiltyInUndelivery>();
 		private UndeliveredOrder _undelivery;
 		private bool _canChangeProblemSource = false;
+		private Menu _popupCopyCommentsMenu;
 
 		public Func<bool> isSaved;
 		public IUnitOfWork UoW { get; set; }
@@ -209,8 +208,101 @@ namespace Vodovoz.ViewWidgets
 			};
 
 			GetFines();
+			SetResultCommentsControlsSettings();
 			SetVisibilities();
 			SetSensitivities();
+		}
+
+		private void SetResultCommentsControlsSettings()
+		{
+			_popupCopyCommentsMenu = new Menu();
+			MenuItem copyCommentsMenuEntry = new MenuItem("Копировать");
+			copyCommentsMenuEntry.ButtonPressEvent += (s, e) =>
+			{
+				StringBuilder stringBuilder = new StringBuilder();
+
+				foreach(UndeliveredOrderResultComment selected in ytreeviewResult.SelectedRows)
+				{
+					stringBuilder.AppendLine(selected.Comment);
+				}
+
+				GetClipboard(null).Text = stringBuilder.ToString();
+			};
+			copyCommentsMenuEntry.Visible = true;
+			_popupCopyCommentsMenu.Add(copyCommentsMenuEntry);
+
+			ytreeviewResult.Selection.Mode = SelectionMode.Multiple;
+			ytreeviewResult.ColumnsConfig = FluentColumnsConfig<UndeliveredOrderResultComment>.Create()
+				.AddColumn("Время")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.CreationTime.ToString("dd.MM.yyyy\nHH:mm"))
+				.AddColumn("Автор")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Author.FullName)
+				.AddColumn("Комментарий")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Comment)
+						.WrapWidth(250)
+						.WrapMode(Pango.WrapMode.WordChar)
+				.RowCells().AddSetter<CellRenderer>((c, o) => c.CellBackgroundGdk = new Gdk.Color(230, 230, 245))
+				.Finish();
+
+			ytreeviewResult.ItemsDataSource = _undelivery.ObservableResultComments;
+			ytreeviewResult.ButtonReleaseEvent += (s, e) =>
+			{
+				if(e.Event.Button != (uint)GtkMouseButton.Right)
+				{
+					return;
+				}
+
+				_popupCopyCommentsMenu.Show();
+
+				if(_popupCopyCommentsMenu.Children.Length == 0)
+				{
+					return;
+				}
+
+				_popupCopyCommentsMenu.Popup();
+			};
+
+			ytextviewNewResult.Buffer.Changed += (s, e) =>
+			{
+				SetResultCommentsControlsSensitive();
+			};
+
+			ybuttonAddResult.Clicked += (sender, e) =>
+			{
+				if(!string.IsNullOrWhiteSpace(ytextviewNewResult.Buffer.Text))
+				{
+					var newComment = new UndeliveredOrderResultComment();
+					var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+					newComment.UndeliveredOrder = _undelivery;
+					newComment.Author = currentEmployee;
+					newComment.Comment = ytextviewNewResult.Buffer.Text;
+					newComment.CreationTime = DateTime.Now;
+					_undelivery.ObservableResultComments.Add(newComment);
+					ytextviewNewResult.Buffer.Text = string.Empty;
+				}
+			};
+
+			ybuttonAddResult.Binding
+				.AddFuncBinding(this, e => !string.IsNullOrWhiteSpace(ytextviewNewResult.Buffer.Text), b => b.Sensitive)
+				.InitializeFromSource();
+		}
+
+		private void SetResultCommentsControlsSensitive()
+		{
+			var controlsSensetive =
+				(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_undeliveries")
+					|| _undelivery.Id == 0)
+				&& _undelivery.OldOrder != null
+				&& _undelivery.UndeliveryStatus != UndeliveryStatus.Closed;
+
+			ytreeviewResult.Sensitive = controlsSensetive;
+
+			ytextviewNewResult.Sensitive = controlsSensetive;
+
+			ybuttonAddResult.Sensitive = controlsSensetive && !string.IsNullOrWhiteSpace(ytextviewNewResult.Buffer.Text);
 		}
 
 		private void OnUndeliveredOrderChanged(object sender, EventArgs e)
@@ -286,6 +378,8 @@ namespace Vodovoz.ViewWidgets
 			//доступны всегда, если статус недовоза не "Закрыт"
 			hbxInProcessAtDepartment.Sensitive =
 				hbxForNewOrder.Sensitive = _undelivery.UndeliveryStatus != UndeliveryStatus.Closed;
+
+			SetResultCommentsControlsSensitive();
 		}
 
 		void AddAutocomment()
@@ -487,6 +581,14 @@ namespace Vodovoz.ViewWidgets
 
 				GetFines();
 			};
+		}
+
+		public override void Dispose()
+		{
+			ytreeviewResult?.Destroy();
+			yTreeFines?.Destroy();
+
+			base.Dispose();
 		}
 	}
 }

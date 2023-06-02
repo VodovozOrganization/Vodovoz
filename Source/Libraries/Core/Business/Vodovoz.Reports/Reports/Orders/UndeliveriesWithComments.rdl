@@ -74,7 +74,7 @@
             <Width>43.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>239.8pt</Width>
+            <Width>211.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>52.3pt</Width>
@@ -83,9 +83,12 @@
             <Width>55.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.4pt</Width>
+            <Width>45.0pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>39.1pt</Width>
+          </TableColumn>
+          <TableColumn >
             <Width>43.8pt</Width>
           </TableColumn>
         </TableColumns>
@@ -314,6 +317,24 @@
                   <ReportItems>
                     <Textbox Name="Textbox7">
                       <Value>В работе у</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>Отработано ОКС</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -599,6 +620,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>={last_result_author}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -740,7 +778,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="UndeliveriesAndComments">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
             SELECT
@@ -757,7 +795,8 @@
             un_ord_subqry.at_work_sub,
             un_ord_subqry.transfer_type,
             un_ord_subqry.problem_source,
-            un_ord_subqry.reason
+            un_ord_subqry.reason,
+            un_ord_subqry.last_result_author
             FROM
             #поля недовоза
             (
@@ -819,7 +858,14 @@
             GROUP_CONCAT(CONCAT_WS(': ',fine_employee.last_name, fines_items.money) SEPARATOR '\n') AS fines,
             IF(in_work_sub.short_name IS NULL OR in_work_sub.short_name = '', in_work_sub.name, in_work_sub.short_name) as at_work_sub,
             ups.name as problem_source,
-            un.reason as reason
+            un.reason as reason,
+            (SELECT CONCAT( e.`last_name`, ' ', SUBSTRING(e.`name`, 1, 1), '. ', SUBSTRING(e.`patronymic`, 1, 1), '.')
+            FROM undelivered_orders_result_comments uorc
+            JOIN employees e ON uorc.author_id = e.id 
+            WHERE uorc.undelivered_order_id = un.id
+            ORDER BY uorc.creation_time  DESC 
+            LIMIT 1
+            ) as last_result_author
 
             FROM undelivered_orders un
             LEFT JOIN undelivery_problem_sources ups ON ups.id = un.undelivery_problem_source_id
@@ -919,7 +965,7 @@ ORDER BY order_by_column ASC
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="N">
           <DataField>N</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -965,6 +1011,10 @@ ORDER BY order_by_column ASC
         </Field>
         <Field Name="undelivery_creation_time">
           <DataField>undelivery_creation_time</DataField>
+        </Field>
+        <Field Name="last_result_author">
+          <DataField>last_result_author</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
