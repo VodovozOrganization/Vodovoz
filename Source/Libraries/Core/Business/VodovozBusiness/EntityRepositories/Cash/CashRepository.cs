@@ -176,11 +176,11 @@ namespace Vodovoz.EntityRepositories.Cash
 			return income;
 		}
 
-		public decimal CurrentRouteListTotalExpense(IUnitOfWork uow, int routeListId)
+		public decimal CurrentRouteListCashAdvance(IUnitOfWork uow, int routeListId)
 		{
 			decimal expense = uow.Session.QueryOver<Expense>()
 								 .Where(exp => exp.RouteListClosing.Id == routeListId)
-								 .Where(exp => exp.TypeOperation == ExpenseType.Expense)
+								 .Where(exp => exp.TypeOperation == ExpenseType.Advance)
 								 .Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
 
 			return expense;

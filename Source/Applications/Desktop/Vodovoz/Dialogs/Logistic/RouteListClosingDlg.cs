@@ -252,7 +252,7 @@ namespace Vodovoz
 				string.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Долг: {0}</b></span>" : "", unclosedAdvanceMoney);
 
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
-			labelOrderEarly.Text = "Сдано ранее:" + GetCashOrder().ToString();
+			labelOrderEarly.Text = "Сдано ранее: " + GetCashOrder().ToString();
 			spinCashOrder.Value = 0;
 			advanceSpinbutton.Value = 0;
 			advanceSpinbutton.Visible = false;
@@ -505,8 +505,8 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number")).Value;
 
 		private decimal GetCashOrder() => _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
-		private decimal GetGivenToDriverChange() => _cashRepository.CurrentRouteListTotalExpense(UoW, Entity.Id);
-		private decimal GetRecievedFromDriverChange() => _cashRepository.CurrentRouteListCashReturn(UoW, Entity.Id);
+		private decimal GetRouteListCashAdvance() => _cashRepository.CurrentRouteListCashAdvance(UoW, Entity.Id);
+		private decimal GetRouteListCashReturn() => _cashRepository.CurrentRouteListCashReturn(UoW, Entity.Id);
 
 		private decimal GetTerminalOrdersSum()
 		{
@@ -729,6 +729,12 @@ namespace Vodovoz
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
 
+			var totalCachAmount = totalCollected - Entity.PhoneSum;
+			var routeListRevenue = GetCashOrder() - (decimal)advanceSpinbutton.Value;
+			var routeListCashAdvance = GetRouteListCashAdvance();
+			var routeListCashReturn = GetRouteListCashReturn();
+			var routeListDebt = totalCachAmount + routeListCashAdvance - routeListCashReturn - routeListRevenue;
+
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(
 				"Сот. связь: {0} {1}",
@@ -749,13 +755,13 @@ namespace Vodovoz
 			);
 			labelTotalCollected.Text = string.Format(
 				"Итоговая сумма(нал.): {0} {1}",
-				totalCollected - Entity.PhoneSum,
+				totalCachAmount,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTerminalSum.Text = $"По терминалу: {GetTerminalOrdersSum()} {CurrencyWorks.CurrencyShortName}";
 			labelTotal.Markup = string.Format(
-				"Сдано выручка по МЛ: <b>{0:F2}</b> {1}",
-				GetCashOrder() - (decimal)advanceSpinbutton.Value,
+				"Сдано выручка по МЛ: {0:F2} {1}",
+				routeListRevenue,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = string.Format(
@@ -768,21 +774,9 @@ namespace Vodovoz
 				bottlesReturnedToWarehouse,
 				bottlesReturnedTotal
 			);
-			labelGivenChange.Markup = string.Format(
-				"Выдано по МЛ (сдача): <b>{0:F2}</b> {1}",
-				GetGivenToDriverChange(),
-				CurrencyWorks.CurrencyShortName
-			);
-			labelReceivedChange.Markup = string.Format(
-				"Сдано сдача по МЛ: <b>{0:F2}</b> {1}",
-				GetRecievedFromDriverChange(),
-				CurrencyWorks.CurrencyShortName
-			);
-			labelRouteListDebt.Markup = string.Format(
-				"Долг по МЛ: <b>{0:F2}</b> {1}",
-				0,
-				CurrencyWorks.CurrencyShortName
-			);
+			labelGivenChange.Markup = $"Выдано по МЛ (сдача): {routeListCashAdvance:F2} {CurrencyWorks.CurrencyShortName}";
+			labelReceivedChange.Markup = $"Сдано сдача по МЛ: {routeListCashReturn:F2} {CurrencyWorks.CurrencyShortName}";
+			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{routeListDebt:F2}</b> {CurrencyWorks.CurrencyShortName}"; 
 
 			if(defectiveBottlesReturnedToWarehouse > 0) {
 				lblQtyOfDefectiveGoods.Visible = true;
