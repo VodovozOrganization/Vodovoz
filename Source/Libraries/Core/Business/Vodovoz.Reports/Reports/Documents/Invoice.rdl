@@ -21,8 +21,8 @@
 	orders.order_status AS order_status,
     (SELECT count(*) > 0
      FROM fast_payments fp
-     WHERE (fp.order_id = order_id
-         OR fp.external_id = order_id)
+     WHERE (fp.order_id = orders.id
+         OR fp.external_id = orders.id)
      AND fp.payment_status = 'Performed') AS fast_payment_paid,
 	IF(is_bottle_stock, 
 		orders.bottles_by_stock_count,

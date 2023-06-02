@@ -1,4 +1,4 @@
-using FluentNHibernate.Data;
+﻿using FluentNHibernate.Data;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
@@ -1767,7 +1767,7 @@ namespace Vodovoz.Domain.Orders
 			var notSendedByEmail = !emailRepository.HaveSendedEmailForBill(Id);
 			var notSended = notSendedByEdo && notSendedByEmail;
 			if((OrderStatus == OrderStatus.NewOrder || OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
-			   && PaymentType == PaymentType.cashless
+			   && PaymentType == PaymentType.Cashless
 			   && notSended)
 			{
 				//Проверка должен ли формироваться счет для текущего заказа

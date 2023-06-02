@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.Print;
@@ -23,6 +23,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
+		
+		public virtual Dictionary<object, object> Parameters { get; set; }
+
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			return new ReportInfo {
