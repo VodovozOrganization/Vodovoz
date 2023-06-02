@@ -235,7 +235,7 @@ namespace Vodovoz.ViewWidgets
 			ytreeviewResult.ColumnsConfig = FluentColumnsConfig<UndeliveredOrderResultComment>.Create()
 				.AddColumn("Время")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(x => x.CreationTime.ToShortTimeString())
+					.AddTextRenderer(x => x.CreationTime.ToString("dd.MM.yyy\nHH:mm"))
 				.AddColumn("Автор")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Author.FullName)
