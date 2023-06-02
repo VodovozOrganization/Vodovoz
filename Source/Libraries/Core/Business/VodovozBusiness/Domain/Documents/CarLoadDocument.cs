@@ -141,7 +141,12 @@ namespace Vodovoz.Domain.Documents
 			);
 
 			foreach(var item in Items)
-				item.AmountInStock = inStock[item.Nomenclature.Id];
+			{
+				if(inStock.ContainsKey(item.Nomenclature.Id))
+				{
+					item.AmountInStock = inStock[item.Nomenclature.Id];
+				}
+			}
 		}
 
 		public virtual void UpdateAlreadyLoaded(IUnitOfWork uow, IRouteListRepository routeListRepository)
