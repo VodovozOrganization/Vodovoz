@@ -14,6 +14,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -764,9 +765,11 @@ namespace Vodovoz
 						.AddDeleteDependence<GuiltyInUndelivery>(x => x.UndeliveredOrder)
 						.AddDeleteDependence<UndeliveredOrderComment>(x => x.UndeliveredOrder)
 						.AddDeleteDependence<Fine>(x => x.UndeliveredOrder)
+						.AddDeleteDependence<UndeliveredOrderResultComment>(x => x.UndeliveredOrder)
 						;
 			DeleteConfig.AddHibernateDeleteInfo<UndeliveredOrderComment>();
 			DeleteConfig.AddHibernateDeleteInfo<GuiltyInUndelivery>();
+			DeleteConfig.AddHibernateDeleteInfo<UndeliveredOrderResultComment>();
 
 			#endregion
 
@@ -1101,6 +1104,10 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(x => x.OrganisationCashMovementOperationTo);
 
 			DeleteConfig.AddHibernateDeleteInfo<PremiumTemplate>();
+
+			DeleteConfig.AddHibernateDeleteInfo<FinancialCategoriesGroup>();
+			DeleteConfig.AddHibernateDeleteInfo<FinancialIncomeCategory>();
+			DeleteConfig.AddHibernateDeleteInfo<FinancialExpenseCategory>();
 
 			#endregion
 

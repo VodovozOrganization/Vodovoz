@@ -53,7 +53,12 @@
   <ItemGroup>
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
-    <Compile Include="Domain\Cash\FinancialCategoriesGroup.cs" />
+    <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialCategoriesGroup.cs" />
+    <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialExpenseCategory.cs" />
+    <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialIncomeCategory.cs" />
+    <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialSubType.cs" />
+    <Compile Include="Domain\Cash\FinancialCategoriesGroups\GroupType.cs" />
+    <Compile Include="Domain\Cash\FinancialCategoriesGroups\TargetDocument.cs" />
     <Compile Include="Domain\Cash\FinancialCategoryTypeEnum.cs" />
     <Compile Include="Domain\Cash\IFinancialCategory.cs" />
     <Compile Include="Domain\Client\ExternalCounterpartyMatchingStatus.cs" />
@@ -301,6 +306,7 @@
     <Compile Include="Domain\Operations\WarehouseInstanceGoodsAccountingOperation.cs" />
     <Compile Include="Domain\Orders\Documents\EdoContainer.cs" />
     <Compile Include="Domain\Orders\TrueMarkApiDocument.cs" />
+    <Compile Include="Domain\Orders\UndeliveredOrderResultComment.cs" />
     <Compile Include="Domain\Organizations\OrganizationOwnershipType.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
     <Compile Include="Domain\Client\PaymentTypeStringType.cs" />
@@ -578,7 +584,9 @@
     <Compile Include="EntityRepositories\Operations\EmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IEmployeeNomenclatureMovementRepository.cs" />
     <Compile Include="HibernateMapping\Cash\CashRequestSumItemMap.cs" />
-    <Compile Include="HibernateMapping\Cash\FinancialCategoriesGroupMap.cs" />
+    <Compile Include="HibernateMapping\Cash\FinancialCategoriesGroups\FinancialCategoriesGroupMap.cs" />
+    <Compile Include="HibernateMapping\Cash\FinancialCategoriesGroups\FinancialExpenseCategoryMap.cs" />
+    <Compile Include="HibernateMapping\Cash\FinancialCategoriesGroups\FinancialIncomeCategoryMap.cs" />
     <Compile Include="HibernateMapping\Cash\PayoutRequestBaseMap.cs" />
     <Compile Include="HibernateMapping\Complaints\CamplaintDetalizationMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintResultCommentMap.cs" />
@@ -718,6 +726,7 @@
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\ReturnTareReasonMap.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveredOrderResultCommentMap.cs" />
     <Compile Include="HibernateMapping\Organizations\OrganizationOwnershipTypeMap.cs" />
     <Compile Include="HibernateMapping\Permissions\WarehousePermissionMap.cs" />
     <Compile Include="HibernateMapping\Order\SelectedNomenclaturePlanMap.cs" />

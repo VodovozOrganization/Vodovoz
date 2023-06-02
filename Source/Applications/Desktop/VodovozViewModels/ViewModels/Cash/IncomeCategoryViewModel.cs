@@ -1,5 +1,4 @@
-using Autofac;
-using QS.Dialog;
+﻿using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -9,8 +8,8 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.TempAdapters;
-using Vodovoz.Tools;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
@@ -20,7 +19,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	public class IncomeCategoryViewModel : EntityTabViewModelBase<IncomeCategory>
 	{
 		private readonly ILifetimeScope _scope;
-		private FinancialCategoriesGroup _parentFinancialCategoriesGroup;
+		private FinancialIncomeCategory _financialIncomeCategory;
 
 		public IncomeCategoryViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -54,20 +53,19 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
-			if(Entity.FinancialCategoryGroupId.HasValue)
-			{
-				ParentFinancialCategoriesGroup = UoW.GetById<FinancialCategoriesGroup>(Entity.FinancialCategoryGroupId.Value);
-			}
+			UpdateFinancialIncomeCategory();
 
 			var complaintDetalizationEntryViewModelBuilder = new CommonEEVMBuilderFactory<IncomeCategoryViewModel>(this, this, UoW, NavigationManager, _scope);
 
 			ParentFinancialCategoriesGroupViewModel = complaintDetalizationEntryViewModelBuilder
-				.ForProperty(x => x.ParentFinancialCategoriesGroup)
-				.UseViewModelDialog<FinancialCategoriesGroupViewModel>()
+				.ForProperty(x => x.FinancialIncomeCategory)
+				.UseViewModelDialog<FinancialIncomeCategoryViewModel>()
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
 					{
-						filter.RestrictNodeTypes.Add(typeof(FinancialCategoriesGroup));
+						filter.ExcludeFinancialGroupsIds.Add(2);
+						filter.RestrictFinancialSubtype = FinancialSubType.Income;
+						filter.RestrictNodeSelectTypes.Add(typeof(FinancialIncomeCategory));
 					}
 				)
 				.Finish();
@@ -75,18 +73,38 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			TabName = uowBuilder.IsNewEntity ? "Создание новой категории дохода" : $"{Entity.Title}";
 		}
 
+		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.FinancialIncomeCategoryId))
+			{
+				UpdateFinancialIncomeCategory();
+			}
+		}
+
+		private void UpdateFinancialIncomeCategory()
+		{
+			if(Entity.FinancialIncomeCategoryId != null)
+			{
+				FinancialIncomeCategory = UoW.GetById<FinancialIncomeCategory>(Entity.FinancialIncomeCategoryId.Value);
+			}
+			else
+			{
+				FinancialIncomeCategory = null;
+			}
+		}
+
 		public IEntityAutocompleteSelectorFactory SubdivisionAutocompleteSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory IncomeCategoryAutocompleteSelectorFactory { get; }
 		public IEntityEntryViewModel ParentFinancialCategoriesGroupViewModel { get; }
 
-		public FinancialCategoriesGroup ParentFinancialCategoriesGroup
+		public FinancialIncomeCategory FinancialIncomeCategory
 		{
-			get => _parentFinancialCategoriesGroup;
+			get => _financialIncomeCategory;
 			set
 			{
-				if(SetField(ref _parentFinancialCategoriesGroup, value))
+				if(SetField(ref _financialIncomeCategory, value))
 				{
-					Entity.FinancialCategoryGroupId = value?.Id;
+					Entity.FinancialIncomeCategoryId = value?.Id;
 				}
 			}
 		}
