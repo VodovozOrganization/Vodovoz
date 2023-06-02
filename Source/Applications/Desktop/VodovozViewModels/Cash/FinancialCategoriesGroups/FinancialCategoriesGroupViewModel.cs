@@ -77,7 +77,10 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				if(SetField(ref _parentFinancialCategoriesGroup, value))
 				{
 					Entity.ParentId = value?.Id;
-					Entity.FinancialSubtype = value.FinancialSubtype;
+					if(value != null)
+					{
+						Entity.FinancialSubtype = value.FinancialSubtype;
+					}
 				}
 			}
 		}
