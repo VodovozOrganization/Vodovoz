@@ -1925,6 +1925,10 @@
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesGroupView.cs" />
     <Compile Include="Cash\ExpenseCategoryView.cs" />
     <Compile Include="Cash\IncomeCategoryView.cs" />
+    <Compile Include="Cash\FinancialCategoriesGroups\FinancialExpenseCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialExpenseCategoryView.cs" />
+    <Compile Include="Cash\FinancialCategoriesGroups\FinancialIncomeCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialIncomeCategoryView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

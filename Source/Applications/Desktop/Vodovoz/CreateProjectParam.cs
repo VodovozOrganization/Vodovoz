@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -452,6 +452,8 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CashReceiptJournalFilterViewModel, TrueMarkReceiptJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehouseDocumentsItemsJournalFilterViewModel, WarehouseDocumentsItemsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ExternalCounterpartiesMatchingJournalFilterViewModel, ExternalCounterpartiesMatchingJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<FinancialIncomeCategoryViewModel, FinancialIncomeCategoryView>()
+				.RegisterWidgetForWidgetViewModel<FinancialExpenseCategoryViewModel, FinancialExpenseCategoryView>()
 				.RegisterWidgetForWidgetViewModel<InventoryInstancesJournalFilterViewModel, InventoryInstancesJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<InventoryInstancesStockBalanceJournalFilterViewModel, InventoryInstancesStockBalanceJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<FinancialCategoriesGroupViewModel, FinancialCategoriesGroupView>()
