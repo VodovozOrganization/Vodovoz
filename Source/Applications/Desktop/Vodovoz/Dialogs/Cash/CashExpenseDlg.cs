@@ -180,9 +180,10 @@ namespace Vodovoz
 			UpdateEmployeeBalanceVisibility();
 		}
 
-		public void ConfigureForRouteListChangeGiveout(int employeeId, decimal balance, string description)
+		public void ConfigureForRouteListChangeGiveout(int employeeId, int routeListId, decimal balance, string description)
 		{
 			evmeEmployee.Subject = UoW.GetById<Employee>(employeeId);
+			Entity.RouteListClosing = UoW.GetById<Domain.Logistic.RouteList>(routeListId);
 			evmeEmployee.Sensitive = false;
 			ydateDocument.Sensitive = false;
 			Entity.TypeOperation = ExpenseType.Advance;

@@ -107,7 +107,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			master.TabParent.AddTab(dlg, master);
 		}
 
-		public void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description)
+		public void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, int routeListId, decimal balance, string description)
 		{
 			var dlg = new CashExpenseDlg();
 			if(dlg.FailInitialize)
@@ -115,7 +115,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				return;
 			}
 
-			dlg.ConfigureForRouteListChangeGiveout(employeeId, balance, description);
+			dlg.ConfigureForRouteListChangeGiveout(employeeId, routeListId, balance, description);
 			master.TabParent.AddTab(dlg, master);
 		}
 

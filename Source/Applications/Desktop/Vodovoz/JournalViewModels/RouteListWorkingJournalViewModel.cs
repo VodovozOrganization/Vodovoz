@@ -497,6 +497,7 @@ namespace Vodovoz.JournalViewModels
 
 						_gtkTabsOpener.OpenRouteListChangeGiveoutExpenceDlg(this,
 							driverId,
+							routeList.Id,
 							changesToOrders.Sum(item => item.Value),
 							$"Сдача по МЛ №{routeList.Id}" +
 							$"\n-----" +
