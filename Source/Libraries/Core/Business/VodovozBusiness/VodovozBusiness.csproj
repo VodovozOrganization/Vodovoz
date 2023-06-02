@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -394,6 +394,7 @@
     <Compile Include="Domain\Goods\VAT.cs" />
     <Compile Include="Domain\Goods\VATStringType.cs" />
     <Compile Include="Domain\Versions\VersionEntityBase.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\IWageParameterService.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
@@ -1275,6 +1276,7 @@
     <Compile Include="HibernateMapping\Cash\Transfer\CashTransferOperationMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\IncomeCashTransferedItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\ExpenseCashTransferedItemMap.cs" />
+    <Compile Include="Tools\Store\IStoreDocumentHelper.cs" />
     <Compile Include="Tools\StringUtils.cs" />
     <Compile Include="Tools\TypeUtils.cs" />
     <Compile Include="Tools\Store\StoreDocumentHelper.cs" />
