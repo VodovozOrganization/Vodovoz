@@ -6,6 +6,6 @@ namespace Vodovoz.EntityRepositories.BasicHandbooks
 {
 	public interface ICullingCategoryRepository
 	{
-		IList<CullingCategory> All(IUnitOfWork uow);
+		IList<CullingCategory> GetAllCullingCategories(IUnitOfWork uow);
 	}
 }

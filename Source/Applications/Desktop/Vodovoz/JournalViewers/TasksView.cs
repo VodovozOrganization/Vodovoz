@@ -167,28 +167,28 @@ namespace Vodovoz.JournalViewers
 		{
 			Action<CallTask> action = ((task) => task.AssignedEmployee = evmeEmployee.Subject as Employee);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();
-			_callTasksVm.ChangeEnitity(action, tasks);
+			_callTasksVm.ChangeEnitity(action, tasks, false);
 		}
 
 		protected void OnCompleteTaskButtonClicked(object sender, EventArgs e)
 		{
 			Action<CallTask> action = ((task) => task.IsTaskComplete = true);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();
-			_callTasksVm.ChangeEnitity(action, tasks);
+			_callTasksVm.ChangeEnitity(action, tasks, false);
 		}
 
 		protected void OnTaskstateButtonEnumItemClicked(object sender, EventArgs e)
 		{
 			Action<CallTask> action = ((task) => task.TaskState = (CallTaskStatus)taskStatusComboBox.SelectedItem);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();
-			_callTasksVm.ChangeEnitity(action, tasks);
+			_callTasksVm.ChangeEnitity(action, tasks, false);
 		}
 
 		protected void OnDatepickerDeadlineChangeDateChangedByUser(object sender, EventArgs e)
 		{
 			Action<CallTask> action = ((task) => task.EndActivePeriod = datepickerDeadlineChange.Date);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();
-			_callTasksVm.ChangeEnitity(action, tasks);
+			_callTasksVm.ChangeEnitity(action, tasks, false);
 			datepickerDeadlineChange.Clear();
 		}
 

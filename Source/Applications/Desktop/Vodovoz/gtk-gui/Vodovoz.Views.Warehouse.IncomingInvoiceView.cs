@@ -58,6 +58,10 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gamma.GtkWidgets.yButton ybtnAddFromOrders;
 
+		private global::Gamma.GtkWidgets.yButton btnAddInventoryInstance;
+
+		private global::Gamma.GtkWidgets.yButton btnCopyInventoryInstance;
+
 		private global::Gtk.Button buttonDelete;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelSum;
@@ -142,6 +146,7 @@ namespace Vodovoz.Views.Warehouse
 			this.entityVMEntryClient.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryClient.Name = "entityVMEntryClient";
 			this.entityVMEntryClient.CanEditReference = false;
+			this.entityVMEntryClient.CanOpenWithoutTabParent = false;
 			this.tableInvoice.Add(this.entityVMEntryClient);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableInvoice[this.entityVMEntryClient]));
 			w9.TopAttach = ((uint)(3));
@@ -350,37 +355,59 @@ namespace Vodovoz.Views.Warehouse
 			w29.Expand = false;
 			w29.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
+			this.btnAddInventoryInstance = new global::Gamma.GtkWidgets.yButton();
+			this.btnAddInventoryInstance.CanFocus = true;
+			this.btnAddInventoryInstance.Name = "btnAddInventoryInstance";
+			this.btnAddInventoryInstance.UseUnderline = true;
+			this.btnAddInventoryInstance.Label = global::Mono.Unix.Catalog.GetString("Добавить экземпляр");
+			this.hbox3.Add(this.btnAddInventoryInstance);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.btnAddInventoryInstance]));
+			w30.Position = 2;
+			w30.Expand = false;
+			w30.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.btnCopyInventoryInstance = new global::Gamma.GtkWidgets.yButton();
+			this.btnCopyInventoryInstance.CanFocus = true;
+			this.btnCopyInventoryInstance.Name = "btnCopyInventoryInstance";
+			this.btnCopyInventoryInstance.UseUnderline = true;
+			this.btnCopyInventoryInstance.Label = global::Mono.Unix.Catalog.GetString("Дублировать экземпляр");
+			this.hbox3.Add(this.btnCopyInventoryInstance);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.btnCopyInventoryInstance]));
+			w31.Position = 3;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.buttonDelete = new global::Gtk.Button();
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.UseUnderline = true;
 			this.buttonDelete.Label = global::Mono.Unix.Catalog.GetString("Удалить");
-			global::Gtk.Image w30 = new global::Gtk.Image();
-			w30.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
-			this.buttonDelete.Image = w30;
+			global::Gtk.Image w32 = new global::Gtk.Image();
+			w32.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.buttonDelete.Image = w32;
 			this.hbox3.Add(this.buttonDelete);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonDelete]));
-			w31.Position = 2;
-			w31.Expand = false;
-			w31.Fill = false;
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonDelete]));
+			w33.Position = 4;
+			w33.Expand = false;
+			w33.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.ylabelSum = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSum.Name = "ylabelSum";
 			this.ylabelSum.LabelProp = global::Mono.Unix.Catalog.GetString("Sum");
 			this.hbox3.Add(this.ylabelSum);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ylabelSum]));
-			w32.PackType = ((global::Gtk.PackType)(1));
-			w32.Position = 3;
-			w32.Expand = false;
-			w32.Fill = false;
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ylabelSum]));
+			w34.PackType = ((global::Gtk.PackType)(1));
+			w34.Position = 5;
+			w34.Expand = false;
+			w34.Fill = false;
 			this.vboxItemsView.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vboxItemsView[this.hbox3]));
-			w33.Position = 2;
-			w33.Expand = false;
-			w33.Fill = false;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vboxItemsView[this.hbox3]));
+			w35.Position = 2;
+			w35.Expand = false;
+			w35.Fill = false;
 			this.vbox1.Add(this.vboxItemsView);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxItemsView]));
-			w34.Position = 2;
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxItemsView]));
+			w36.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

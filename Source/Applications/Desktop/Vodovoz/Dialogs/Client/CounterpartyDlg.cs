@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -96,6 +96,7 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {

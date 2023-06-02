@@ -840,12 +840,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 			Nomenclature nomenclatureAlias = null;
 			ReturnsNode resultAlias = null;
 			CarUnloadDocumentItem carUnloadItemsAlias = null;
-			WarehouseMovementOperation movementOperationAlias = null;
+			WarehouseBulkGoodsAccountingOperation movementOperationAlias = null;
 
 			var returnableQuery = uow.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
 				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
-				.JoinAlias(() => carUnloadItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
-				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
+				.JoinAlias(() => carUnloadItemsAlias.GoodsAccountingOperation, () => movementOperationAlias)
+				.Where(() => movementOperationAlias.Amount > 0)
 				.JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => !nomenclatureAlias.IsSerial);
 
@@ -878,20 +878,18 @@ namespace Vodovoz.EntityRepositories.Logistic
 			List<ReturnsNode> result = new List<ReturnsNode>();
 			Nomenclature nomenclatureAlias = null;
 			ReturnsNode resultAlias = null;
-			Equipment equipmentAlias = null;
 			CarUnloadDocument carUnloadAlias = null;
 			CarUnloadDocumentItem carUnloadItemsAlias = null;
-			WarehouseMovementOperation movementOperationAlias = null;
+			WarehouseBulkGoodsAccountingOperation movementOperationAlias = null;
 
 			var returnableQuery = QueryOver.Of<CarUnloadDocument>(() => carUnloadAlias)
-				   .JoinAlias(() => carUnloadAlias.Items, () => carUnloadItemsAlias)
-				   .JoinAlias(() => carUnloadItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
-				   .JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
-				   .Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
-				   .Where(() => !nomenclatureAlias.IsSerial)
-				   .Where(() => carUnloadAlias.RouteList.Id == routeListId)
-				   .Where(() => nomenclatureAlias.Id.IsIn(nomenclatureIds))
-				   .GetExecutableQueryOver(uow.Session);
+				.JoinAlias(() => carUnloadAlias.Items, () => carUnloadItemsAlias)
+				.JoinAlias(() => carUnloadItemsAlias.GoodsAccountingOperation, () => movementOperationAlias)
+				.JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => !nomenclatureAlias.IsSerial)
+				.Where(() => carUnloadAlias.RouteList.Id == routeListId)
+				.Where(() => nomenclatureAlias.Id.IsIn(nomenclatureIds))
+				.GetExecutableQueryOver(uow.Session);
 
 			var returnableItems = returnableQuery.SelectList
 			(
@@ -905,40 +903,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 			.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
 			.List<ReturnsNode>();
 
-			var returnableQueryEquipment = uow.Session.QueryOver<CarUnloadDocument>(() => carUnloadAlias)
-				.JoinAlias(() => carUnloadAlias.Items, () => carUnloadItemsAlias)
-				.JoinAlias(() => carUnloadItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
-				.JoinAlias(() => movementOperationAlias.Equipment, () => equipmentAlias)
-				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
-				.Where(() => carUnloadAlias.RouteList.Id == routeListId)
-				.Where(() => nomenclatureAlias.Id.IsIn(nomenclatureIds))
-				;
-			
-
-			var returnableEquipment =
-				returnableQueryEquipment.SelectList(list => list
-					.Select(() => equipmentAlias.Id).WithAlias(() => resultAlias.Id)
-					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(() => nomenclatureAlias.IsSerial).WithAlias(() => resultAlias.Trackable)
-					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
-					.Select(() => nomenclatureAlias.Kind).WithAlias(() => resultAlias.EquipmentKind)
-					.Select(() => carUnloadItemsAlias.DefectSource).WithAlias(() => resultAlias.DefectSource)
-									  )
-				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
-				.List<ReturnsNode>();
-
 			result.AddRange(returnableItems);
-			result.AddRange(returnableEquipment);
 			DomainHelper.FillPropertyByEntity<ReturnsNode, Nomenclature>(uow, result, x => x.NomenclatureId, (node, nom) => node.Nomenclature = nom);
 			return result;
 		}
 
 		public int BottlesUnloadedByCarUnloadedDocuments(IUnitOfWork uow, int emptyBottleId, int routeListId, params int[] exceptDocumentIds) {
 
-			WarehouseMovementOperation movementOperationAlias = null;
+			GoodsAccountingOperation movementOperationAlias = null;
 
 			var returnableQuery = OrderItemsReturnedToAllWarehouses(uow, routeListId, emptyBottleId).GetExecutableQueryOver(uow.Session);
 			var result = returnableQuery.WhereNot(x => x.Id.IsIn(exceptDocumentIds))
@@ -950,22 +922,18 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public QueryOver<CarUnloadDocument> OrderItemsReturnedToAllWarehouses(IUnitOfWork uow, int routeListId, params int[] nomenclatureIds)
 		{
-			List<ReturnsNode> result = new List<ReturnsNode>();
 			Nomenclature nomenclatureAlias = null;
 			CarUnloadDocumentItem carUnloadItemsAlias = null;
-			WarehouseMovementOperation movementOperationAlias = null;
-			CarUnloadDocument carUnloadAlias = null;
-
-			
+			WarehouseBulkGoodsAccountingOperation movementOperationAlias = null;
 
 			var returnableQuery = QueryOver.Of<CarUnloadDocument>()
-										   .Where(doc => doc.RouteList.Id == routeListId)
-										   .JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
-										   .JoinAlias(() => carUnloadItemsAlias.WarehouseMovementOperation, () => movementOperationAlias)
-										   .Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
-										   .JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
-										   .Where(() => !nomenclatureAlias.IsSerial)
-										   .Where(() => nomenclatureAlias.Id.IsIn(nomenclatureIds));
+			   .Where(doc => doc.RouteList.Id == routeListId)
+			   .JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
+			   .JoinAlias(() => carUnloadItemsAlias.GoodsAccountingOperation, () => movementOperationAlias)
+			   .Where(() => movementOperationAlias.Amount > 0)
+			   .JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
+			   .Where(() => !nomenclatureAlias.IsSerial)
+			   .Where(() => nomenclatureAlias.Id.IsIn(nomenclatureIds));
 
 			return returnableQuery;
 		}

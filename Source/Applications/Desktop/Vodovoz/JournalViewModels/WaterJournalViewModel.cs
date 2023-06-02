@@ -52,7 +52,7 @@ namespace Vodovoz.JournalViewModels
 			UpdateOnChanges(
 				typeof(Nomenclature),
 				typeof(MeasurementUnits),
-				typeof(WarehouseMovementOperation),
+				typeof(GoodsAccountingOperation),
 				typeof(VodovozOrder),
 				typeof(OrderItem)
 			);

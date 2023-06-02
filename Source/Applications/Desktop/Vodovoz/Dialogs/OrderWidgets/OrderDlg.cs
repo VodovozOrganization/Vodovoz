@@ -34,6 +34,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Controllers;
@@ -83,6 +84,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.SidePanel.InfoViews;
@@ -99,18 +101,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using QS.Dialog.GtkUI.FileDialog;
-using Vodovoz.Settings.Database;
-using Vodovoz.SidePanel.InfoViews;
-using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
-using VodovozInfrastructure.Configuration;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
-using System.Reflection;
-using System.ComponentModel;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
@@ -3251,7 +3246,25 @@ namespace Vodovoz
 				return;
 			}
 
+			if(HasOrderStatusExternalChangesAndCancellationImpossible(out OrderStatus actualOrderStatus))
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					$"Статус заказа был кем-то изменён на статус \"{actualOrderStatus.GetEnumTitle()}\" с момента открытия диалога, теперь отмена невозможна.");
+
+				return;
+			}
+
 			OpenDlgToCreateNewUndeliveredOrder();
+		}
+
+		private bool HasOrderStatusExternalChangesAndCancellationImpossible(out OrderStatus actualOrderStatus)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка актуального статуа заказа"))
+			{
+				actualOrderStatus = uow.GetById<Order>(Entity.Id).OrderStatus;
+			}
+
+			return !_orderRepository.GetStatusesForOrderCancelation().Contains(actualOrderStatus);
 		}
 
 		/// <summary>

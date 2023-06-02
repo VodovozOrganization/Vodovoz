@@ -15,6 +15,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		private readonly string excludeSuffix;
 		private const string _emptyIncludeParameter = "Все";
 		private const string _emptyExcludeParameter = "Нет";
+		private bool _isVisible = true;
 
 		protected List<Func<ICriterion>> FilterRelations { get; } = new List<Func<ICriterion>>();
 
@@ -26,6 +27,12 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		public virtual SelectableFilterType FilterType {
 			get => filterType;
 			set => SetField(ref filterType, value);
+		}
+
+		public bool IsVisible
+		{
+			get => _isVisible;
+			set => SetField(ref _isVisible, value);
 		}
 
 		private GenericObservableList<SelectableParameter> outputParameters = new GenericObservableList<SelectableParameter>();
@@ -100,6 +107,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		}
 
 		private string searchValue;
+
 		public void FilterParameters(string searchValue)
 		{
 			this.searchValue = searchValue;
@@ -174,12 +182,15 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		public Dictionary<string, object> GetParameters()
 		{
-			Dictionary<string, object> result = new Dictionary<string, object>();
+			var result = new Dictionary<string, object>();
 
-			var selectedValues = GetSelectedValues();
+			if(IsVisible)
+			{
+				var selectedValues = GetSelectedValues();
 
-			result.Add($"{ParameterName}{includeSuffix}", FilterType == SelectableFilterType.Include ? GetValidSelectedValues(selectedValues) : EmptyValue);
-			result.Add($"{ParameterName}{excludeSuffix}", FilterType == SelectableFilterType.Exclude ? GetValidSelectedValues(selectedValues) : EmptyValue);
+				result.Add($"{ParameterName}{includeSuffix}", FilterType == SelectableFilterType.Include ? GetValidSelectedValues(selectedValues) : EmptyValue);
+				result.Add($"{ParameterName}{excludeSuffix}", FilterType == SelectableFilterType.Exclude ? GetValidSelectedValues(selectedValues) : EmptyValue);
+			}
 
 			return result;
 		}

@@ -47,21 +47,6 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		//FIXME убрать если не понадобится.
-		/*Equipment equipment;
-				[Display (Name = "Оборудование")]
-		public virtual Equipment Equipment {
-			get { return equipment; }
-			set {
-				SetField (ref equipment, value, () => Equipment);
-				if (WarehouseChangeOperation != null && WarehouseChangeOperation.Equipment != equipment)
-					WarehouseChangeOperation.Equipment = equipment;
-
-				if (CounterpartyWriteoffOperation != null && CounterpartyWriteoffOperation.Equipment != equipment)
-					CounterpartyWriteoffOperation.Equipment = equipment;
-			}
-		}*/
-
 		decimal amount;
 
 		[Display (Name = "Количество")]
@@ -73,7 +58,7 @@ namespace Vodovoz.Domain.Documents
 				if (WarehouseIncomeOperation != null && WarehouseIncomeOperation.Amount != Amount)
 					WarehouseIncomeOperation.Amount = Amount;
 				if (WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Amount != Amount)
-					WarehouseWriteOffOperation.Amount = Amount;
+					WarehouseWriteOffOperation.Amount = -Amount;
 			}
 		}
 
@@ -107,18 +92,18 @@ namespace Vodovoz.Domain.Documents
 			set { SetField(ref source, value, () => Source); }
 		}
 
-		WarehouseMovementOperation warehouseWriteOffOperation = new WarehouseMovementOperation();
+		WarehouseBulkGoodsAccountingOperation warehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation();
 
-		public virtual WarehouseMovementOperation WarehouseWriteOffOperation {
-			get { return warehouseWriteOffOperation; }
-			set { SetField (ref warehouseWriteOffOperation, value, () => WarehouseWriteOffOperation); }
+		public virtual WarehouseBulkGoodsAccountingOperation WarehouseWriteOffOperation {
+			get => warehouseWriteOffOperation;
+			set => SetField (ref warehouseWriteOffOperation, value);
 		}
 
-		WarehouseMovementOperation warehouseIncomeOperation = new WarehouseMovementOperation();
+		WarehouseBulkGoodsAccountingOperation warehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation();
 
-		public virtual WarehouseMovementOperation WarehouseIncomeOperation {
-			get { return warehouseIncomeOperation; }
-			set { SetField (ref warehouseIncomeOperation, value, () => WarehouseIncomeOperation); }
+		public virtual WarehouseBulkGoodsAccountingOperation WarehouseIncomeOperation {
+			get => warehouseIncomeOperation;
+			set => SetField (ref warehouseIncomeOperation, value);
 		}
 
 		#region Не сохраняемые
@@ -155,16 +140,16 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
-			WarehouseWriteOffOperation = new WarehouseMovementOperation
+			WarehouseWriteOffOperation = new WarehouseBulkGoodsAccountingOperation
 				{
-					WriteoffWarehouse = warehouse,
-					Amount = Amount,
+					Warehouse = warehouse,
+					Amount = -Amount,
 					OperationTime = time,
 					Nomenclature = NomenclatureOld
 				};
-			WarehouseIncomeOperation = new WarehouseMovementOperation
+			WarehouseIncomeOperation = new WarehouseBulkGoodsAccountingOperation
 				{
-					IncomingWarehouse = warehouse,
+					Warehouse = warehouse,
 					Amount = Amount,
 					OperationTime = time,
 					Nomenclature = NomenclatureNew
