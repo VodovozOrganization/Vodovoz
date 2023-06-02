@@ -1,8 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FluentNHibernate.Data;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.PrintableDocuments
@@ -25,7 +26,7 @@ namespace Vodovoz.PrintableDocuments
         public IncomingInvoice Document { get; }
         public int? CurrentEmployeeId { get; }
 
-        public ReportInfo GetReportInfo()
+        public ReportInfo GetReportInfo(string connectionString = null)
         {
             return new ReportInfo {
                 Title = Title,

@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NHibernate.SqlCommand;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -28,6 +29,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
@@ -637,7 +639,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					DynamicsIn,
 					ShowLastSale,
 					ShowResidueForNomenclaturesWithoutSales,
-					GetWarhouseBalance,
+					GetWarehouseBalance,
 					GetData);
 			}, cancellationToken);
 		}
@@ -709,46 +711,37 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			throw new InvalidOperationException("Что-то пошло не так. Не достижимая ветка ветвления");
 		}
 
-		private decimal GetWarhouseBalance(int nomenclatureId)
+		private decimal GetWarehouseBalance(int nomenclatureId)
 		{
 			if(!ShowLastSale)
 			{
 				return 0;
 			}
-
-			WarehouseMovementOperation incomeWarehouseOperationAlias = null;
-			WarehouseMovementOperation writeoffWarehouseOperationAlias = null;
+			
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			NomenclatureStockNode resultAlias = null;
 
-			var incomeSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => incomeWarehouseOperationAlias)
-				.Where(() => incomeWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(
-					Restrictions.IsNotNull(
-						Projections.Property(() => incomeWarehouseOperationAlias.IncomingWarehouse)))
-				.Select(Projections.Sum(Projections.Property(() => incomeWarehouseOperationAlias.Amount)));
-
-			var writeoffSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => writeoffWarehouseOperationAlias)
-				.Where(() => writeoffWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(
-					Restrictions.IsNotNull(
-						Projections.Property(() => writeoffWarehouseOperationAlias.WriteoffWarehouse)))
-				.Select(Projections.Sum(Projections.Property(() => writeoffWarehouseOperationAlias.Amount)));
-
-			IProjection projection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
+			var balanceProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
 				NHibernateUtil.Decimal,
-				Projections.SubQuery(incomeSubQuery),
-				Projections.SubQuery(writeoffSubQuery));
+				Projections.Sum(() => operationAlias.Amount));
 
-			var result = _unitOfWork.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+			var result = _unitOfWork.Session.QueryOver(() => nomenclatureAlias)
+				.JoinEntityAlias(() => operationAlias,
+					() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
+					JoinType.LeftOuterJoin)
 				.Where(() => nomenclatureAlias.Id == nomenclatureId)
-				.Select(projection)
-				.SingleOrDefault<decimal>();
+				.SelectList(list => list
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(balanceProjection).WithAlias(() => resultAlias.Stock))
+				.TransformUsing(Transformers.AliasToBean<NomenclatureStockNode>())
+				.SingleOrDefault<NomenclatureStockNode>();
 
-			return result;
+			return result.Stock;
 		}
 
-		private IList<OrderItemNode> GetData(TurnoverWithDynamicsReport report)
+		private IList<TurnoverWithDynamicsReport.OrderItemNode> GetData(TurnoverWithDynamicsReport report)
 		{
 			var filterOrderStatusInclude = new OrderStatus[]
 			{
@@ -774,6 +767,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			CounterpartyContract counterpartyContractAlias = null;
 			Phone phoneAlias = null;
 			Phone orderContactPhoneAlias = null;
+			Email emailAlias = null;
 
 			OrderItemNode resultNodeAlias = null;
 
@@ -881,6 +875,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Select(
 					CustomProjections.GroupConcat(
 						PhoneProjections.GetDigitNumberLeadsWith8(),
+						separator: ",\n"));
+
+			var counterpartyEmailsSubquery = QueryOver.Of(() => emailAlias)
+				.Where(() => emailAlias.Counterparty.Id == orderAlias.Client.Id)
+				.Select(
+					CustomProjections.GroupConcat(
+						Projections.Property(()=>emailAlias.Address),
 						separator: ",\n"));
 
 			#region filter parameters
@@ -1136,6 +1137,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => counterpartyAlias.Id).WithAlias(() => resultNodeAlias.CounterpartyId)
 						.Select(() => counterpartyAlias.FullName).WithAlias(() => resultNodeAlias.CounterpartyFullName)
 						.SelectSubQuery(counterpartyPhonesSubquery).WithAlias(() => resultNodeAlias.CounterpartyPhones)
+						.SelectSubQuery(counterpartyEmailsSubquery).WithAlias(() => resultNodeAlias.CounterpartyEmails)
 						.Select(Projections.Conditional(
 							Restrictions.IsNull(Projections.Property(() => orderAlias.ContactPhone)),
 							Projections.Constant(string.Empty),

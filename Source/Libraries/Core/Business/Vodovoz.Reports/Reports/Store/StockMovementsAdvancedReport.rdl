@@ -419,12 +419,12 @@ FROM(
 		SELECT
 			ld.route_list_id AS route_list_id,
 			op.nomenclature_id AS nom_id,
-			SUM(op.amount) AS amount,
-			op.writeoff_warehouse_id AS wh_id,
+			-SUM(op.amount) AS amount,
+			op.warehouse_id AS wh_id,
 			'CarLoadDocument' AS type
 		FROM store_car_load_documents ld
 		JOIN store_car_load_document_items ldi ON ld.id = ldi.car_load_document_id
-		JOIN warehouse_movement_operations op ON op.id = ldi.warehouse_movement_operation_id
+		JOIN goods_accounting_operations op ON op.id = ldi.warehouse_movement_operation_id
 		LEFT JOIN route_lists rl ON rl.id = ld.route_list_id
 		#WHERE rl.date BETWEEN @start_date AND @end_date
 		WHERE ld.time_stamp BETWEEN @start_date AND @end_date
@@ -434,18 +434,18 @@ FROM(
 				('CarLoadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
 				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
 			)
-		GROUP BY ld.route_list_id, op.nomenclature_id, op.writeoff_warehouse_id
+		GROUP BY ld.route_list_id, op.nomenclature_id, op.warehouse_id
 	) AS loadings
 	LEFT JOIN (
 		SELECT
 			unld.route_list_id AS route_list_id,
 			op.nomenclature_id AS nom_id,
 			SUM(op.amount) AS amount,
-			op.incoming_warehouse_id AS wh_id,
+			op.warehouse_id AS wh_id,
 			'CarUnloadDocument' AS type
 		FROM store_car_unload_documents unld
 		JOIN store_car_unload_document_items unldi ON unld.id = unldi.car_unload_document_id
-		JOIN warehouse_movement_operations op ON op.id = unldi.warehouse_movement_operation_id
+		JOIN goods_accounting_operations op ON op.id = unldi.warehouse_movement_operation_id
 		LEFT JOIN route_lists rl ON rl.id = unld.route_list_id
 		#WHERE rl.date BETWEEN @start_date AND @end_date
 		WHERE unld.time_stamp BETWEEN @start_date AND @end_date
@@ -455,7 +455,7 @@ FROM(
 				('CarUnloadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
 				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
 			)
-		GROUP BY unld.route_list_id, op.nomenclature_id, op.incoming_warehouse_id
+		GROUP BY unld.route_list_id, op.nomenclature_id, op.warehouse_id
 	) AS unloadings ON loadings.nom_id = unloadings.nom_id
 		AND loadings.wh_id = unloadings.wh_id
 		AND loadings.route_list_id = unloadings.route_list_id
@@ -470,12 +470,12 @@ FROM(
 		SELECT
 			ld.route_list_id AS route_list_id,
 			op.nomenclature_id AS nom_id,
-			SUM(op.amount) AS amount,
-			op.writeoff_warehouse_id AS wh_id,
+			-SUM(op.amount) AS amount,
+			op.warehouse_id AS wh_id,
 			'CarLoadDocument' AS type
 		FROM store_car_load_documents ld
 		JOIN store_car_load_document_items ldi ON ld.id = ldi.car_load_document_id
-		JOIN warehouse_movement_operations op ON op.id = ldi.warehouse_movement_operation_id
+		JOIN goods_accounting_operations op ON op.id = ldi.warehouse_movement_operation_id
 		LEFT JOIN route_lists rl ON rl.id = ld.route_list_id
 		#WHERE rl.date BETWEEN @start_date AND @end_date
 		WHERE ld.time_stamp BETWEEN @start_date AND @end_date
@@ -485,18 +485,18 @@ FROM(
 				('CarLoadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
 				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
 			)
-		GROUP BY ld.route_list_id, op.nomenclature_id, op.writeoff_warehouse_id
+		GROUP BY ld.route_list_id, op.nomenclature_id, op.warehouse_id
 	) AS loadings
 	RIGHT JOIN (
 		SELECT
 			unld.route_list_id AS route_list_id,
 			op.nomenclature_id AS nom_id,
 			SUM(op.amount) AS amount,
-			op.incoming_warehouse_id AS wh_id,
+			op.warehouse_id AS wh_id,
 			'CarUnloadDocument' AS type
 		FROM store_car_unload_documents unld
 		JOIN store_car_unload_document_items unldi ON unld.id = unldi.car_unload_document_id
-		JOIN warehouse_movement_operations op ON op.id = unldi.warehouse_movement_operation_id
+		JOIN goods_accounting_operations op ON op.id = unldi.warehouse_movement_operation_id
 		LEFT JOIN route_lists rl ON rl.id = unld.route_list_id
 		#WHERE rl.date BETWEEN @start_date AND @end_date
 		WHERE unld.time_stamp BETWEEN @start_date AND @end_date
@@ -506,7 +506,7 @@ FROM(
 				('CarUnloadDocument' NOT IN (@doctype_exclude) AND '0' IN (@doctype_include)))
 				OR ('0' IN (@doctype_include) AND '0' IN (@doctype_exclude))
 			)
-		GROUP BY unld.route_list_id, op.nomenclature_id, op.incoming_warehouse_id
+		GROUP BY unld.route_list_id, op.nomenclature_id, op.warehouse_id
 	) AS unloadings ON loadings.nom_id = unloadings.nom_id
 		AND loadings.wh_id = unloadings.wh_id
 		AND loadings.route_list_id = unloadings.route_list_id

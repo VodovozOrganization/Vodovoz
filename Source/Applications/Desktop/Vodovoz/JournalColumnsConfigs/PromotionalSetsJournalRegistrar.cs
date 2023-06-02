@@ -1,16 +1,14 @@
 ﻿using Gamma.ColumnConfig;
-using Gdk;
 using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
+using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
 	internal sealed class PromotionalSetsJournalRegistrar : ColumnsConfigRegistrarBase<PromotionalSetsJournalViewModel, PromotionalSetJournalNode>
 	{
-		private static readonly Color _colorBlack = new Color(0, 0, 0);
-		private static readonly Color _colorDarkGrey = new Color(0x80, 0x80, 0x80);
-
 		public override IColumnsConfig Configure(FluentColumnsConfig<PromotionalSetJournalNode> config) =>
 			config.AddColumn("Код")
 					.HeaderAlignment(0.5f)
@@ -24,10 +22,10 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("В архиве?")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer()
-					.AddSetter((c, n) => c.Text = n.IsArchive ? "Да" : string.Empty)
+					.AddSetter((c, n) => c.Text = n.IsArchive.ConvertToYesOrEmpty())
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGrey : _colorBlack)
+					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.DarkGrayColor : GdkColors.BlackColor)
 				.Finish();
 	}
 }

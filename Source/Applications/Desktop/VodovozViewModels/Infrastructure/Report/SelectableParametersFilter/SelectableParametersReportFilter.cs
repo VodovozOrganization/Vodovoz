@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using QS.DomainModel.UoW;
 
 namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
@@ -10,7 +13,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		private HashSet<string> parameterNames = new HashSet<string>();
 		private readonly IUnitOfWork uow;
 
-		public List<SelectableParameterSet> ParameterSets { get; } = new List<SelectableParameterSet>();
+		public GenericObservableList<SelectableParameterSet> ParameterSets { get; } = new GenericObservableList<SelectableParameterSet>();
 
 		public SelectableParametersReportFilter(IUnitOfWork uow)
 		{
@@ -38,10 +41,48 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			parameterNames.Add(parameterName);
 
 			SelectableParameterSet parameterSet = new SelectableParameterSet(name, parametersFactory, parameterName, includeSuffix, excludeSuffix);
-
+			parameterSet.PropertyChanged += ParameterSetOnPropertyChanged;
 			ParameterSets.Add(parameterSet);
 
 			return parameterSet;
+		}
+
+		private void ParameterSetOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(SelectableParameterSet.IsVisible))
+			{
+				if(!(sender is SelectableParameterSet parameterSet))
+				{
+					return;
+				}
+				
+				if(parameterSet.IsVisible)
+				{
+					AddHidedParameterSet(parameterSet);
+				}
+				else
+				{
+					HideParameterSet(parameterSet);
+				}
+			}
+		}
+
+		private void AddHidedParameterSet(SelectableParameterSet parameterSet)
+		{
+			if(ParameterSets.Contains(parameterSet))
+			{
+				return;
+			}
+			ParameterSets.Add(parameterSet);
+		}
+
+		private void HideParameterSet(SelectableParameterSet parameterSet)
+		{
+			if(!ParameterSets.Contains(parameterSet))
+			{
+				return;
+			}
+			ParameterSets.Remove(parameterSet);
 		}
 
 		public IDictionary<string, object> GetParameters()

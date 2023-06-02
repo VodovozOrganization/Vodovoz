@@ -1,26 +1,30 @@
-﻿using QS.DomainModel.UoW;
+using Autofac;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
+using QS.Services;
+using System;
 using Vodovoz.Domain.Cash;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Cash;
-using VodovozInfrastructure.Interfaces;
 
 namespace Vodovoz.TempAdapters
 {
 	public class IncomeCategorySelectorFactory : IIncomeCategorySelectorFactory
 	{
+		private readonly ILifetimeScope _lifetimeScope;
+
+		public IncomeCategorySelectorFactory(ILifetimeScope lifetimeScope)
+		{
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+		}
+
 		public IEntityAutocompleteSelectorFactory CreateSimpleIncomeCategoryAutocompleteSelectorFactory()
 		{
-			var commonServices = ServicesConfig.CommonServices;
-			var employeeJournalFactory = new EmployeeJournalFactory();
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var incomeFactory = new IncomeCategorySelectorFactory();
-
+			var commonServices = _lifetimeScope.Resolve<ICommonServices>();
+			
 			var incomeCategoryAutocompleteSelectorFactory =
 				new SimpleEntitySelectorFactory<IncomeCategory, IncomeCategoryViewModel>(
 					() =>
@@ -28,22 +32,8 @@ namespace Vodovoz.TempAdapters
 						var incomeCategoryJournalViewModel =
 							new SimpleEntityJournalViewModel<IncomeCategory, IncomeCategoryViewModel>(
 								x => x.Name,
-								() => new IncomeCategoryViewModel(
-									EntityUoWBuilder.ForCreate(),
-									UnitOfWorkFactory.GetDefaultFactory,
-									commonServices,
-									employeeJournalFactory,
-									subdivisionJournalFactory,
-									incomeFactory
-								),
-								node => new IncomeCategoryViewModel(
-									EntityUoWBuilder.ForOpen(node.Id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									commonServices,
-									employeeJournalFactory,
-									subdivisionJournalFactory,
-									incomeFactory
-								),
+								() => _lifetimeScope.Resolve<IncomeCategoryViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForCreate())),
+								node => _lifetimeScope.Resolve<IncomeCategoryViewModel>(new TypedParameter(typeof(IEntityUoWBuilder), EntityUoWBuilder.ForOpen(node.Id))),
 								UnitOfWorkFactory.GetDefaultFactory,
 								commonServices
 							)
@@ -57,24 +47,13 @@ namespace Vodovoz.TempAdapters
 
 		public IEntityAutocompleteSelectorFactory CreateDefaultIncomeCategoryAutocompleteSelectorFactory()
 		{
-			var incomeCategoryFilter = new IncomeCategoryJournalFilterViewModel();
-			IFileChooserProvider chooserIncomeProvider = new FileChooser();
-			var employeeJournalFactory = new EmployeeJournalFactory();
-			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var incomeFactory = new IncomeCategorySelectorFactory();
+			var incomeCategoryJournalViewModel = _lifetimeScope.Resolve<IncomeCategoryJournalViewModel>();
 
 			return new EntityAutocompleteSelectorFactory<IncomeCategoryJournalViewModel>(
 				typeof(IncomeCategory),
-				() => new IncomeCategoryJournalViewModel(
-					incomeCategoryFilter,
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					chooserIncomeProvider,
-					employeeJournalFactory,
-					subdivisionJournalFactory,
-					incomeFactory)
-				{
-					SelectionMode = JournalSelectionMode.Single
+				() => {
+					incomeCategoryJournalViewModel.SelectionMode = JournalSelectionMode.Single;
+					return incomeCategoryJournalViewModel;
 				});
 		}
 	}

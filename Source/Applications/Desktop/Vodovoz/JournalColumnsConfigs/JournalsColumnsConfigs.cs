@@ -1,21 +1,22 @@
-﻿using Gamma.Binding;
+using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
-using Vodovoz.ViewModels.Journals.JournalNodes.Client;
+using Vodovoz.Infrastructure;
+using Vodovoz.Domain.Cash;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
 	public static class JournalsColumnsConfigs
 	{
-		private static readonly Color _colorWhite = new Color(0xff, 0xff, 0xff);
-		private static readonly Color _colorLightGray = new Color(0xcc, 0xcc, 0xcc);
+		private static Pixbuf _folderImg = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.folder16.png");
+		private static Pixbuf _emptyImg = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.empty16.png");
 
 		public static void RegisterColumns()
 		{
@@ -33,6 +34,16 @@ namespace Vodovoz.JournalColumnsConfigs
 				Activator.CreateInstance(type);
 			}
 
+			TreeViewColumnsConfigFactory.Register<FinancialCategoriesGroupsJournalViewModel>(
+				(vm) => FluentColumnsConfig<FinancialCategoriesJournalNode>.Create()
+					.SetTreeModel(() => new RecursiveTreeModel<FinancialCategoriesJournalNode>(vm.Items.Cast<FinancialCategoriesJournalNode>(), vm.RecuresiveConfig))
+					.AddColumn("Код")
+						.AddNumericRenderer(node => node.Id)
+						.AddPixbufRenderer(node => node.JournalNodeType == typeof(FinancialCategoriesGroup) ? _folderImg : _emptyImg)
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.Finish()
+				);
+
 			TreeViewColumnsConfigFactory.Register<RoboatsCallsRegistryJournalViewModel>(
 				(vm) => FluentColumnsConfig<RoboatsCallJournalNode>.Create()
 					.SetTreeModel(() => new RecursiveTreeModel<RoboatsCallJournalNode>(vm.Items.Cast<RoboatsCallJournalNode>(), vm.RecuresiveConfig))
@@ -45,10 +56,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
-							var color = _colorWhite;
+							var color = GdkColors.WhiteColor;
 							if(node.NodeType == RoboatsCallNodeType.RoboatsCallDetail)
 							{
-								color = _colorLightGray;
+								color = GdkColors.LightGrayColor;
 							}
 							cell.CellBackgroundGdk = color;
 						}
@@ -65,18 +76,14 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn(" ━ Изменен \n").AddTextRenderer(node => node.ChangedTime)
 					.AddColumn(" ━ Статус \n").AddTextRenderer(node => node.Status)
 					.AddColumn(" ━ Сумма \n").AddNumericRenderer(node => node.ReceiptSum).Digits(2).Editing(false)
-					.AddColumn(" ━ Код МЛ \n").AddTextRenderer(node => node.RouteList)	
+					.AddColumn(" ━ Код МЛ \n").AddTextRenderer(node => node.RouteList)
 					.AddColumn(" ━ Водитель \n").AddTextRenderer(node => node.DriverFIO)
 					.AddColumn(" ┯ Код заказа\n └ Код стр. заказа ").AddNumericRenderer(node => node.OrderAndItemId).Digits(0).Editing(false)
-
 					.AddColumn(" ┯ Статус фиск. док.\n └ Исх. GTIN ").AddTextRenderer(node => node.FiscalDocStatusOrSourceGtin)
 					.AddColumn(" ┯ Номер фиск. док.\n └ Исх. Сер. номер ").AddTextRenderer(node => node.FiscalDocNumberOrSourceCodeInfo)
 					.AddColumn(" ┯ Дата фиск. док.\n └ Итог. GTIN ").AddTextRenderer(node => node.FiscalDocDateOrResultGtin)
 					.AddColumn(" ┯ Дата статуса фиск. док.\n └ Итог. Сер. номер ").AddTextRenderer(node => node.FiscalDocStatusDateOrResultSerialnumber)
-
-
 					.AddColumn(" ┯ Ручная отправка\n └ Брак ").AddToggleRenderer(node => node.IsManualSentOrIsDefectiveCode).Editing(false)
-
 					.AddColumn(" ━ Отправлен на \n").AddTextRenderer(node => node.Contact)
 					.AddColumn(" ━ Причина не отскан. бутылей \n").AddTextRenderer(node => node.UnscannedReason).WrapMode(Pango.WrapMode.Word).WrapWidth(300)
 					.AddColumn(" ━ Описание ошибки \n ").AddTextRenderer(node => node.ErrorDescription).WrapMode(Pango.WrapMode.Word).WrapWidth(300)
@@ -84,31 +91,14 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 					.AddSetter<CellRenderer>(
 						(cell, node) => {
-							var color = _colorWhite;
+							var color = GdkColors.WhiteColor;
 							if(node.NodeType == CashReceiptNodeType.Code)
 							{
-								color = _colorLightGray;
+								color = GdkColors.LightGrayColor;
 							}
 							cell.CellBackgroundGdk = color;
 						}
 					)
-					.Finish()
-			);
-			
-			//ExternalCounterpartiesMatchingJournalViewModel
-			TreeViewColumnsConfigFactory.Register<ExternalCounterpartiesMatchingJournalViewModel>(
-				() => FluentColumnsConfig<ExternalCounterpartyMatchingJournalNode>.Create()
-					.AddColumn("Телефон")
-						.AddTextRenderer(node => node.PhoneNumber)
-					.AddColumn("Источник")
-						.AddEnumRenderer(node => node.CounterpartyFrom)
-					.AddColumn("Дата/время")
-						.AddTextRenderer(node => node.Created.ToString("g"))
-					.AddColumn("Статус")
-						.AddEnumRenderer(node => node.Status)
-					.AddColumn("Присвоенный КА")
-						.AddTextRenderer(node => node.CounterpartyName)
-					.AddColumn("")
 					.Finish()
 			);
 		}

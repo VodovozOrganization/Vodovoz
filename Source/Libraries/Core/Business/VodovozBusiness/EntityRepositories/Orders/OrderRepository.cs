@@ -1,5 +1,4 @@
-﻿using GeoAPI.CoordinateSystems;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -8,7 +7,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TrueMarkApi.Library.Dto;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -23,6 +21,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -709,8 +708,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		public bool HasFlyersOnStock(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroupId)
 		{
-			WarehouseMovementOperation operationAddAlias = null;
-			WarehouseMovementOperation operationRemoveAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			VodovozOrder orderAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
@@ -720,21 +718,13 @@ namespace Vodovoz.EntityRepositories.Orders
 				? routeListParametersProvider.WarehouseSofiiskayaId 
 				: routeListParametersProvider.WarehouseBugriId;
 
-			var subqueryAdded = uow.Session.QueryOver(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == flyerId)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
-				.Where(o => o.IncomingWarehouse.Id == warehouseId)
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
+			var subQueryBalance = uow.Session.QueryOver(() => operationAlias)
+				.Where(() => operationAlias.Nomenclature.Id == flyerId)
+				.Where(o => o.Warehouse.Id == warehouseId)
+				.Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(o => o.Amount))
 				.SingleOrDefault<decimal>();
 
-			var subqueryRemoved = uow.Session.QueryOver(() => operationRemoveAlias)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == flyerId)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
-				.Where(o => o.WriteoffWarehouse.Id == warehouseId)
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
-				.SingleOrDefault<decimal>();
-
-			var subqueryReserved = uow.Session.QueryOver(() => orderAlias)
+			var subQueryReserved = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
@@ -747,7 +737,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Select(Projections.Sum(() => orderEquipmentAlias.Count))
 				.SingleOrDefault<int>();
 
-			return subqueryAdded - subqueryRemoved - subqueryReserved > 0;
+			return subQueryBalance - subQueryReserved > 0;
 		}
 
 		public bool IsMovedToTheNewOrder(IUnitOfWork uow, OrderItem orderItem)
@@ -877,7 +867,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
-				.JoinEntityAlias(() => edoContainerAlias, () => orderAlias.Id == edoContainerAlias.Order.Id, JoinType.LeftOuterJoin);
+				.JoinEntityAlias(() => edoContainerAlias,
+				() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin);
 
 			if(startDate.HasValue)
 			{
@@ -896,6 +887,23 @@ namespace Vodovoz.EntityRepositories.Orders
 						&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.TransformUsing(Transformers.RootEntity)
+				.List();
+
+			return result;
+		}
+		
+		public IList<EdoContainer> GetPreparingToSendEdoContainers(IUnitOfWork uow, DateTime startDate, int organizationId)
+		{
+			EdoContainer edoContainerAlias = null;
+			CounterpartyContract counterpartyContractAlias = null;
+			VodovozOrder orderAlais = null;
+
+			var result = uow.Session.QueryOver(() => edoContainerAlias)
+				.JoinAlias(() => edoContainerAlias.Order, () => orderAlais)
+				.JoinAlias(() => orderAlais.Contract, () => counterpartyContractAlias)
+				.Where(() => edoContainerAlias.EdoDocFlowStatus == EdoDocFlowStatus.PreparingToSend)
+				.And(() => edoContainerAlias.Created >= startDate)
+				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.List();
 
 			return result;

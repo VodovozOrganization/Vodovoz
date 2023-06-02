@@ -1,5 +1,4 @@
-﻿using ApiClientProvider;
-using Autofac;
+﻿using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -46,6 +45,8 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
 using Vodovoz.Additions.Store;
+using Vodovoz.Cash;
+using Vodovoz.Cash.FinancialCategoriesGroups;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
@@ -57,15 +58,11 @@ using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Organizations;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Filters.Views;
@@ -78,8 +75,10 @@ using Vodovoz.Footers.ViewModels;
 using Vodovoz.Footers.Views;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Print;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalColumnsConfigs;
+using Vodovoz.JournalFilters.Goods;
 using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
@@ -100,9 +99,11 @@ using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
@@ -167,6 +168,7 @@ using Vodovoz.ViewModels.ViewModels.Security;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
@@ -207,6 +209,7 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using VodovozInfrastructure.Endpoints;
+using VodovozInfrastructure.Interfaces;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
 
@@ -280,7 +283,6 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ComplaintDetalizationViewModel, ComplaintDetalizationView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
 				.RegisterWidgetForTabViewModel<IncomingInvoiceViewModel, IncomingInvoiceView>()
-				.RegisterWidgetForTabViewModel<InventoryDocumentViewModel, InventoryDocumentView>()
 				.RegisterWidgetForTabViewModel<PhoneTypeViewModel, PhoneTypeView>()
 				.RegisterWidgetForTabViewModel<EmailTypeViewModel, EmailTypeView>()
 				.RegisterWidgetForTabViewModel<UserSettingsViewModel, UserSettingsView>()
@@ -356,6 +358,11 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CloseSupplyToCounterpartyViewModel, CloseSupplyToCounterpartyView>()
 				.RegisterWidgetForTabViewModel<DeliveryPriceRuleViewModel, DeliveryPriceRuleView>()
 				.RegisterWidgetForTabViewModel<ExternalCounterpartyMatchingViewModel, ExternalCounterpartyMatchingView>()
+				.RegisterWidgetForTabViewModel<InventoryInstanceViewModel, InventoryInstanceView>()
+				.RegisterWidgetForTabViewModel<WriteOffDocumentViewModel, WriteoffDocumentView>()
+				.RegisterWidgetForTabViewModel<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, Vodovoz.Views.Warehouse.InventoryDocumentView>()
+				.RegisterWidgetForTabViewModel<ShiftChangeResidueDocumentViewModel, ShiftChangeResidueDocumentView>()
+				.RegisterWidgetForTabViewModel<InventoryInstanceMovementReportViewModel, InventoryInstanceMovementReportView>()
 				;
 
 			//Регистрация виджетов
@@ -445,6 +452,10 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CashReceiptJournalFilterViewModel, TrueMarkReceiptJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<WarehouseDocumentsItemsJournalFilterViewModel, WarehouseDocumentsItemsJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<ExternalCounterpartiesMatchingJournalFilterViewModel, ExternalCounterpartiesMatchingJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<InventoryInstancesJournalFilterViewModel, InventoryInstancesJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<InventoryInstancesStockBalanceJournalFilterViewModel, InventoryInstancesStockBalanceJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<FinancialCategoriesGroupViewModel, FinancialCategoriesGroupView>()
+				.RegisterWidgetForWidgetViewModel<FinancialCategoriesJournalFilterViewModel, FinancialCategoriesJournalFilterView>()
 				;
 			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -613,6 +624,14 @@ namespace Vodovoz
 				.AsSelf()
 				.InstancePerLifetimeScope();
 
+			builder.RegisterType<TrueMarkCodePoolLoader>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
+			builder.RegisterType<TrueMarkWaterCodeParser>()
+				.AsSelf()
+				.InstancePerLifetimeScope();
+
 			builder.RegisterType<ReceiptManualController>()
 				.AsSelf()
 				.InstancePerLifetimeScope();
@@ -623,6 +642,8 @@ namespace Vodovoz
 
 			builder.RegisterModule<DatabaseSettingsModule>();
 			builder.RegisterModule<CashReceiptClientChannelModule>();
+
+			builder.RegisterType<FileChooser>().As<IFileChooserProvider>();
 
 			#region Adapters & Factories
 
@@ -680,6 +701,9 @@ namespace Vodovoz
 			builder.RegisterType<UsersEntityPermissionValuesGetter>().AsSelf();
 			builder.RegisterType<UserPermissionsExporter>().AsSelf();
 			builder.RegisterType<AuthorizationService>().As<IAuthorizationService>();
+			builder.RegisterType<UserSettingsGetter>().As<IUserSettings>();
+			builder.RegisterType<StoreDocumentHelper>().AsSelf();
+			builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 
 			#endregion
 
@@ -799,12 +823,13 @@ namespace Vodovoz
 
 			builder.RegisterType<PaymentsJournalFilterViewModel>().AsSelf();
 			builder.RegisterType<UnallocatedBalancesJournalFilterViewModel>().AsSelf();
+			builder.RegisterType<SelectableParametersReportFilter>().AsSelf();
 
 			#endregion
 
 			#region Классы
 
-			builder.RegisterType<Domain.Employees.User>().AsSelf();
+			builder.RegisterType<User>().AsSelf();
 			builder.RegisterType<EntitySubdivisionForUserPermission>().AsSelf();
 			builder.RegisterType<EntityUserPermissionExtended>().AsSelf();
 			builder.RegisterType<EntityUserPermission>().AsSelf();
@@ -834,8 +859,6 @@ namespace Vodovoz
 				).As<DriverApiUserRegisterEndpoint>();
 
 			builder.Register(c => CurrentUserSettings.Settings).As<UserSettings>();
-
-			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 			builder.RegisterType<PasswordGenerator>().As<IPasswordGenerator>();
 

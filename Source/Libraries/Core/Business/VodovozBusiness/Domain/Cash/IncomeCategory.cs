@@ -10,10 +10,11 @@ namespace Vodovoz.Domain.Cash
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "статьи дохода",
-		Nominative = "статья дохода")]
+		Nominative = "статья дохода",
+		Accusative = "статью дохода")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class IncomeCategory : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class IncomeCategory : PropertyChangedBase, IDomainObject, IValidatableObject, IFinancialCategory
 	{
 		private const int _maxNameLength = 45;
 
@@ -25,6 +26,7 @@ namespace Vodovoz.Domain.Cash
 		private IncomeCategory _parent;
 		private IList<IncomeCategory> _childs;
 		private bool _isChildsFetched = false;
+		private int? _financialCategoryGroupId;
 
 		public IncomeCategory()
 		{
@@ -87,6 +89,14 @@ namespace Vodovoz.Domain.Cash
 		{
 			get => _childs;
 			set => SetField(ref _childs, value);
+		}
+
+		public virtual FinancialCategoryTypeEnum FinancialCategoryType => FinancialCategoryTypeEnum.IncomeCategory;
+
+		public virtual int? FinancialCategoryGroupId
+		{
+			get => _financialCategoryGroupId;
+			set => SetField(ref _financialCategoryGroupId, value);
 		}
 
 		public virtual void SetIsArchiveRecursively(bool value)

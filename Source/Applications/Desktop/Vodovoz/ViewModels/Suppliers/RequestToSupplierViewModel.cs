@@ -1,4 +1,4 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -196,11 +196,14 @@ namespace Vodovoz.ViewModels.Suppliers
 			NeedRefresh = false;
 		}
 
-		protected override void BeforeValidation()
+		protected override bool BeforeValidation()
 		{
 			if(UoW.IsNew)
+			{
 				Entity.Creator = CurrentEmployee;
-			base.BeforeValidation();
+			}
+
+			return base.BeforeValidation();
 		}
 
 		void ConfigureEntityPropertyChanges()

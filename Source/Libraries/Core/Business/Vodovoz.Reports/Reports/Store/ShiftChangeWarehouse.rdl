@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     nomenclature.id as nomenclature_id,
@@ -49,7 +49,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -83,12 +83,24 @@ WHERE
     <DataSet Name="Doc">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    store_shiftchange.id, time_stamp, warehouses.name as warehouse, comment
+        <CommandText>SELECT
+    store_shiftchange.id,
+    time_stamp,
+    (
+        CASE
+            WHEN w.id is not null THEN w.name
+            WHEN c.id is not null THEN CONCAT(cm.name, ' ', c.reg_number)
+        END
+    )as storage,
+    comment
 FROM
     store_shiftchange
         LEFT JOIN
-    warehouses ON warehouses.id = store_shiftchange.warehouse_id
+    warehouses w ON w.id = store_shiftchange.warehouse_id
+        LEFT JOIN
+    cars c ON c.id = store_shiftchange.car_id
+        LEFT JOIN
+    car_models cm ON cm.id = c.model_id
 WHERE
     store_shiftchange.id = @document_id;</CommandText>
         <QueryParameters>
@@ -106,8 +118,8 @@ WHERE
           <DataField>time_stamp</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="warehouse">
-          <DataField>warehouse</DataField>
+        <Field Name="storage">
+          <DataField>storage</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="comment">
@@ -284,6 +296,80 @@ WHERE stored_resource.id = @id1</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="InstanceData">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    ni.id as instance_id,
+    ni.inventory_number,
+    n.name AS nomenclature,
+    ROUND(amount_in_db) as amount_in_db,
+    IF(is_missing, 0, 1) as amount_in_fact,
+    ROUND((select amount_in_fact) - amount_in_db) as difference,
+    store_shiftchange_instance_item.comment,
+    CASE n.category
+        WHEN 'rent' THEN 'Аренда кулеров'
+        WHEN 'water' THEN 'Вода в многооборотной таре'
+        WHEN 'deposit' THEN 'Залог'
+        WHEN 'spare_parts' THEN 'Запчасти'
+        WHEN 'equipment' THEN 'Оборудование'
+        WHEN 'additional' THEN 'Товары'
+        WHEN 'service' THEN 'Услуга'
+        WHEN 'bottle' THEN 'Тара'
+        WHEN 'material' THEN 'Сырьё'
+        WHEN 'disposableBottleWater' THEN 'Вода в одноразовой таре'
+        WHEN 'master' THEN 'Выезд мастера'
+        ELSE ''
+        END as category
+FROM
+    store_shiftchange_instance_item
+        LEFT JOIN
+    nomenclature_instances ni ON store_shiftchange_instance_item.nomenclature_instance_id = ni.id
+        LEFT JOIN
+    nomenclature n ON n.id = ni.nomenclature_id
+WHERE
+    store_shiftchange_instance_item.store_shiftchange_id = @document_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="document_id">
+            <Value>={?document_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="instance_id">
+          <DataField>instance_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nomenclature">
+          <DataField>nomenclature</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="amount_in_db">
+          <DataField>amount_in_db</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="amount_in_fact">
+          <DataField>amount_in_fact</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="difference">
+          <DataField>difference</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="category">
+          <DataField>category</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="inventory_number">
+          <DataField>inventory_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -310,7 +396,7 @@ WHERE stored_resource.id = @id1</CommandText>
             <Width>37.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>164.1pt</Width>
+            <Width>169.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.7pt</Width>
@@ -322,7 +408,7 @@ WHERE stored_resource.id = @id1</CommandText>
             <Width>58.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>161.8pt</Width>
+            <Width>165.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -675,7 +761,7 @@ WHERE stored_resource.id = @id1</CommandText>
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>5.4pt</Left>
+        <Left>0.0pt</Left>
         <Top>173.7pt</Top>
         <TableGroups>
           <TableGroup>
@@ -719,7 +805,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Left>0.00pt</Left>
         <Width>575.75pt</Width>
         <Height>19.60pt</Height>
-        <Value>='Акт передачи склада ' + First({warehouse}, 'Doc')</Value>
+        <Value>='Акт передачи остатков ' + First({storage}, 'Doc')</Value>
         <Style>
           <FontSize>14pt</FontSize>
           <FontWeight>Bold</FontWeight>
@@ -793,10 +879,10 @@ WHERE stored_resource.id = @id1</CommandText>
       <Textbox Name="Textbox23">
         <Height>15.76pt</Height>
         <Width>259.02pt</Width>
-        <Value>Комментарий ответственного за склад:</Value>
+        <Value>Комментарий ответственного:</Value>
         <ZIndex>1</ZIndex>
-        <Left>15.3pt</Left>
-        <Top>241.5pt</Top>
+        <Left>10.5pt</Left>
+        <Top>319.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -810,8 +896,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Width>548.11pt</Width>
         <Value>=First({comment}, 'Doc')</Value>
         <ZIndex>1</ZIndex>
-        <Left>15.6pt</Left>
-        <Top>257.1pt</Top>
+        <Left>10.8pt</Left>
+        <Top>335.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -824,8 +910,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Width>262.79pt</Width>
         <Value>Подпись передающего</Value>
         <ZIndex>1</ZIndex>
-        <Left>13.1pt</Left>
-        <Top>285.0pt</Top>
+        <Left>8.3pt</Left>
+        <Top>363.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -838,8 +924,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Width>277.71pt</Width>
         <Value>Подпись принимающего</Value>
         <ZIndex>1</ZIndex>
-        <Left>282.7pt</Left>
-        <Top>284.8pt</Top>
+        <Left>277.9pt</Left>
+        <Top>363.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -853,8 +939,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Value>
         </Value>
         <ZIndex>1</ZIndex>
-        <Left>43.4pt</Left>
-        <Top>306.2pt</Top>
+        <Left>38.6pt</Left>
+        <Top>384.6pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -870,8 +956,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Value>
         </Value>
         <ZIndex>1</ZIndex>
-        <Left>158.6pt</Left>
-        <Top>305.8pt</Top>
+        <Left>153.8pt</Left>
+        <Top>384.2pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -886,8 +972,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Width>9.92pt</Width>
         <Value>(</Value>
         <ZIndex>1</ZIndex>
-        <Left>150.4pt</Left>
-        <Top>305.5pt</Top>
+        <Left>145.6pt</Left>
+        <Top>383.9pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>None</Bottom>
@@ -902,8 +988,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Width>9.92pt</Width>
         <Value>)</Value>
         <ZIndex>1</ZIndex>
-        <Left>266.0pt</Left>
-        <Top>305.4pt</Top>
+        <Left>261.2pt</Left>
+        <Top>383.8pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>None</Bottom>
@@ -919,8 +1005,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Value>
         </Value>
         <ZIndex>1</ZIndex>
-        <Left>309.4pt</Left>
-        <Top>306.0pt</Top>
+        <Left>304.6pt</Left>
+        <Top>384.4pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -936,8 +1022,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Value>
         </Value>
         <ZIndex>1</ZIndex>
-        <Left>424.6pt</Left>
-        <Top>305.6pt</Top>
+        <Left>419.8pt</Left>
+        <Top>384.0pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -952,8 +1038,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Width>9.92pt</Width>
         <Value>(</Value>
         <ZIndex>1</ZIndex>
-        <Left>416.4pt</Left>
-        <Top>305.3pt</Top>
+        <Left>411.6pt</Left>
+        <Top>383.7pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>None</Bottom>
@@ -968,8 +1054,8 @@ WHERE stored_resource.id = @id1</CommandText>
         <Width>9.92pt</Width>
         <Value>)</Value>
         <ZIndex>1</ZIndex>
-        <Left>532.0pt</Left>
-        <Top>305.2pt</Top>
+        <Left>527.2pt</Left>
+        <Top>383.6pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>None</Bottom>
@@ -979,8 +1065,470 @@ WHERE stored_resource.id = @id1</CommandText>
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
+      <Table Name="Table2">
+        <DataSetName>InstanceData</DataSetName>
+        <NoRows>Нет добавленных экземпляров!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>31.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>37.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>113.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>108.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>52.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>47.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>145.0pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>24.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>№</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>Id
+экз-ра</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>Номенклатура</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>Инвентарный
+номер</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>В учете шт.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>По факту шт.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>Разница шт.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value>Что случилось</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>=RowNumber()</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>={instance_id}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign >Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>={nomenclature}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>={inventory_number}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>={amount_in_db}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>={amount_in_fact}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>={difference}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Value>={comment}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>255.1pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>12.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum({amount_in_db})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum({amount_in_fact})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum({difference})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="InstanceCategoryGroup">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression>={category}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox58">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                          <Value>={category}</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>8</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+          </TableGroup>
+        </TableGroups>
+      </Table>
     </ReportItems>
-    <Height>334.4pt</Height>
+    <Height>415.6pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>

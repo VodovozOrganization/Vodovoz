@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -96,6 +96,7 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {
@@ -1080,6 +1081,10 @@ namespace Vodovoz
 			yChkBtnIsNotSendDocumentsByEdo.Sensitive = false;
 			yChkBtnIsNotSendDocumentsByEdo.Binding
 				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
+				.InitializeFromSource();
+
+			yChkBtnNeedSendBillByEdo.Binding
+				.AddBinding(Entity, e => e.NeedSendBillByEdo, w => w.Active)
 				.InitializeFromSource();
 
 			edoValidatedINN.ValidationMode = QSWidgetLib.ValidationType.numeric;

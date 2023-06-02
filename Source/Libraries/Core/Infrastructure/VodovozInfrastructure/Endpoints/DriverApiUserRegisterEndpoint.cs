@@ -1,8 +1,8 @@
-﻿using ApiClientProvider;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using ApiClientProvider;
 
 namespace VodovozInfrastructure.Endpoints
 {
@@ -30,7 +30,7 @@ namespace VodovozInfrastructure.Endpoints
 			}
 
 			var payload = new RegisterPayload { Username = username, Password = password };
-
+			
 			using(HttpResponseMessage response = await _apiHelper.Client.PostAsJsonAsync(_sendEndpointPath, payload))
 			{
 				if(!response.IsSuccessStatusCode)

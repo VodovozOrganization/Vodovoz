@@ -4,7 +4,6 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.EntityRepositories.Equipments
 {
@@ -20,8 +19,6 @@ namespace Vodovoz.EntityRepositories.Equipments
 		QueryOver<Equipment> GetEquipmentAtDeliveryPointQuery(Counterparty client, DeliveryPoint deliveryPoint);
 		IList<Equipment> GetEquipmentAtDeliveryPoint(IUnitOfWork uow, DeliveryPoint deliveryPoint);
 		IList<Equipment> GetEquipmentForClient(IUnitOfWork uow, Counterparty counterparty);
-		QueryOver<Equipment> GetUnusedEquipment(Nomenclature nomenclature);
-		IList<Equipment> GetEquipmentUnloadedTo(IUnitOfWork uow, RouteList routeList);
 		EquipmentLocation GetLocation(IUnitOfWork uow, Equipment equ);
 	}
 }

@@ -11,6 +11,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 {
 	public class NomenclatureFilterViewModel : FilterViewModelBase<NomenclatureFilterViewModel>, IJournalFilterViewModel
 	{
+		public NomenclatureFilterViewModel(Action<NomenclatureFilterViewModel> filterParams = null)
+		{
+			if(filterParams != null)
+			{
+				SetAndRefilterAtOnce(filterParams);
+			}
+		}
+		
 		NomenclatureCategory[] availableCategories;
 		public virtual NomenclatureCategory[] AvailableCategories {
 			get {

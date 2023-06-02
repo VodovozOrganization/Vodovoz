@@ -83,6 +83,7 @@ namespace Vodovoz.ViewModels.Complaints
 		#region Status
 
 		public virtual ComplaintStatuses[] HiddenStatuses => new[] { ComplaintStatuses.Closed };
+		public virtual ComplaintDiscussionStatuses[] HiddenDiscussionStatuses => new[] { ComplaintDiscussionStatuses.Closed };
 
 		public bool CanEditStatus => CanEdit && Entity.Status != ComplaintDiscussionStatuses.Closed || (CanEdit && _canCompleteComplaintDiscussionPermission);
 

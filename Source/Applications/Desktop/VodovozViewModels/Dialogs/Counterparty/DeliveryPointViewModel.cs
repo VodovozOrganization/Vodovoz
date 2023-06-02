@@ -426,7 +426,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			{
 				_isBuildingsInLoadingProcess = true;
 
-				var address = $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict} {Entity.Street} {Entity.StreetType}, {Entity.Building}";
+				var address = $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}";
 				var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
 				if(findedByGeoCoder != null)
 				{

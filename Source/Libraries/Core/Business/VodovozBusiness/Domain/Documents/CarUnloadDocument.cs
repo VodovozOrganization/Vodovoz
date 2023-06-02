@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -26,59 +26,69 @@ namespace Vodovoz.Domain.Documents
 	public class CarUnloadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private const int _commentLimit = 150;
-		
+		private string _comment;
+		private RouteList _routeList;
+		private Warehouse _warehouse;
+		private IList<CarUnloadDocumentItem> _items = new List<CarUnloadDocumentItem>();
+		private GenericObservableList<CarUnloadDocumentItem> _observableItems;
+
 		#region Сохраняемые свойства
 
-		public override DateTime TimeStamp {
+		public override DateTime TimeStamp
+		{
 			get => base.TimeStamp;
-			set {
+			set
+			{
 				base.TimeStamp = value;
 				if(!NHibernateUtil.IsInitialized(Items))
+				{
 					return;
+				}
+
 				UpdateOperationsTime();
 			}
 		}
 
-		private RouteList routeList;
-		public virtual RouteList RouteList {
-			get => routeList;
-			set => SetField(ref routeList, value, () => RouteList);
+		public virtual RouteList RouteList
+		{
+			get => _routeList;
+			set => SetField(ref _routeList, value);
 		}
 
-		private Warehouse warehouse;
-		public virtual Warehouse Warehouse {
-			get => warehouse;
-			set {
-				if(SetField(ref warehouse, value, () => Warehouse))
+		public virtual Warehouse Warehouse
+		{
+			get => _warehouse;
+			set
+			{
+				if(SetField(ref _warehouse, value, () => Warehouse))
+				{
 					UpdateWarehouse();
+				}
 			}
 		}
 
-		private IList<CarUnloadDocumentItem> items = new List<CarUnloadDocumentItem>();
 		[Display(Name = "Строки")]
-		public virtual IList<CarUnloadDocumentItem> Items {
-			get => items;
-			set {
-				if(SetField(ref items, value, () => Items))
-					observableItems = null;
+		public virtual IList<CarUnloadDocumentItem> Items
+		{
+			get => _items;
+			set
+			{
+				if(SetField(ref _items, value))
+				{
+					_observableItems = null;
+				}
 			}
 		}
 
-		private GenericObservableList<CarUnloadDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<CarUnloadDocumentItem> ObservableItems {
-			get {
-				if(observableItems == null)
-					observableItems = new GenericObservableList<CarUnloadDocumentItem>(Items);
-				return observableItems;
-			}
-		}
+		public virtual GenericObservableList<CarUnloadDocumentItem> ObservableItems =>
+			_observableItems ?? (_observableItems = new GenericObservableList<CarUnloadDocumentItem>(Items));
 
-		private string comment;
 		[Display(Name = "Комментарий")]
-		public virtual string Comment {
-			get => comment;
-			set => SetField(ref comment, value, () => Comment);
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
 
 		#endregion
@@ -112,7 +122,9 @@ namespace Vodovoz.Domain.Documents
 		public virtual void InitializeDefaultValues(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository)
 		{
 			if(nomenclatureRepository == null)
+			{
 				throw new ArgumentNullException(nameof(nomenclatureRepository));
+			}
 
 			DefBottleId = nomenclatureRepository.GetDefaultBottleNomenclature(uow).Id;
 		}
@@ -134,11 +146,11 @@ namespace Vodovoz.Domain.Documents
 			DefectSource source = DefectSource.None, 
 			CullingCategory typeOfDefect = null)
 		{
-			var warehouseMovementOperation = new WarehouseMovementOperation {
+			var warehouseMovementOperation = new WarehouseBulkGoodsAccountingOperation
+			{
 				Amount = amount,
 				Nomenclature = nomenclature,
-				IncomingWarehouse = Warehouse,
-				Equipment = equipment,
+				Warehouse = Warehouse,
 				OperationTime = TimeStamp
 			};
 			
@@ -151,7 +163,7 @@ namespace Vodovoz.Domain.Documents
 
 			var item = new CarUnloadDocumentItem {
 				ReciveType = reciveType,
-				WarehouseMovementOperation = warehouseMovementOperation,
+				GoodsAccountingOperation = warehouseMovementOperation,
 				EmployeeNomenclatureMovementOperation = employeeNomenclatureMovementOperation,
 				ServiceClaim = serviceClaim,
 				Redhead = redhead,
@@ -167,11 +179,15 @@ namespace Vodovoz.Domain.Documents
 		public virtual void UpdateWarehouse()
 		{
 			if(Warehouse == null)
+			{
 				return;
-			
-			foreach(var item in Items) {
-				if(item.WarehouseMovementOperation != null) {
-					item.WarehouseMovementOperation.IncomingWarehouse = Warehouse;
+			}
+
+			foreach(var item in Items)
+			{
+				if(item.GoodsAccountingOperation != null)
+				{
+					item.GoodsAccountingOperation.Warehouse = Warehouse;
 				}
 			}
 		}
@@ -186,9 +202,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual bool IsDefaultBottle(CarUnloadDocumentItem item)
 		{
-			if(item.WarehouseMovementOperation?.Nomenclature.Id != DefBottleId)
+			if(item.GoodsAccountingOperation?.Nomenclature.Id != DefBottleId)
 				return false;
-			TareToReturn += (int)(item.WarehouseMovementOperation?.Amount ?? 0);
+			TareToReturn += (int)(item.GoodsAccountingOperation?.Amount ?? 0);
 			return true;
 		}
 
@@ -199,8 +215,8 @@ namespace Vodovoz.Domain.Documents
 		private void UpdateOperationsTime()
 		{
 			foreach(var item in Items) {
-				if(item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.OperationTime != TimeStamp)
-					item.WarehouseMovementOperation.OperationTime = TimeStamp;
+				if(item.GoodsAccountingOperation != null && item.GoodsAccountingOperation.OperationTime != TimeStamp)
+					item.GoodsAccountingOperation.OperationTime = TimeStamp;
 				if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.OperationTime != TimeStamp)
 					item.EmployeeNomenclatureMovementOperation.OperationTime = TimeStamp;
 			}
@@ -230,15 +246,15 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			foreach(var item in Items) {
-				if(item.WarehouseMovementOperation.Nomenclature.Category == NomenclatureCategory.bottle && item.WarehouseMovementOperation.Amount < 0) {
+				if(item.GoodsAccountingOperation.Nomenclature.Category == NomenclatureCategory.bottle && item.GoodsAccountingOperation.Amount < 0) {
 					yield return new ValidationResult(
-						$"Для оборудования {item.WarehouseMovementOperation.Nomenclature.Name}, нельзя указывать отрицательное значение.",
+						$"Для оборудования {item.GoodsAccountingOperation.Nomenclature.Name}, нельзя указывать отрицательное значение.",
 						new[] { nameof(Items) }
 					);
 				}
-				if(item.WarehouseMovementOperation.Nomenclature.IsDefectiveBottle && item.TypeOfDefect == null) {
+				if(item.GoodsAccountingOperation.Nomenclature.IsDefectiveBottle && item.TypeOfDefect == null) {
 					yield return new ValidationResult(
-						$"Для брака {item.WarehouseMovementOperation.Nomenclature.Name} необходимо указать его вид",
+						$"Для брака {item.GoodsAccountingOperation.Nomenclature.Name} необходимо указать его вид",
 						new[] { nameof(Items) }
 					);
 				}
@@ -257,7 +273,7 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			var needWeightOrVolume = Items
-				.Select(item => item.WarehouseMovementOperation.Nomenclature)
+				.Select(item => item.GoodsAccountingOperation.Nomenclature)
 				.Where(nomenclature =>
 					Nomenclature.CategoriesWithWeightAndVolume.Contains(nomenclature.Category)
 					&& (nomenclature.Weight == default

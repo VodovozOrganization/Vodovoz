@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services.FileDialog;
 using QS.Services;
@@ -148,7 +148,7 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		protected override void BeforeValidation()
+        protected override bool BeforeValidation()
 		{
 			if(UoW.IsNew) {
 				Entity.CreatedBy = CurrentEmployee;
@@ -158,7 +158,7 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.ChangedBy = CurrentEmployee;
 			Entity.ChangedDate = DateTime.Now;
 
-			base.BeforeValidation();
+			return base.BeforeValidation();
 		}
 	}
 }

@@ -195,9 +195,9 @@ namespace Vodovoz.Domain.Documents
 		{
 			foreach(var item in Items) {
 				if(item.Amount == 0) {
-					if(item.WarehouseMovementOperation != null) {
-						uow.Delete(item.WarehouseMovementOperation);
-						item.WarehouseMovementOperation = null;
+					if(item.GoodsAccountingOperation != null) {
+						uow.Delete(item.GoodsAccountingOperation);
+						item.GoodsAccountingOperation = null;
 					}
 					if(item.EmployeeNomenclatureMovementOperation != null) {
 						uow.Delete(item.EmployeeNomenclatureMovementOperation);
@@ -211,7 +211,7 @@ namespace Vodovoz.Domain.Documents
 					}
 				}
 				else {
-					if(item.WarehouseMovementOperation != null) {
+					if(item.GoodsAccountingOperation != null) {
 						item.UpdateWarehouseMovementOperation(Warehouse);
 					} else {
 						item.CreateWarehouseMovementOperation(Warehouse, TimeStamp);
@@ -245,8 +245,8 @@ namespace Vodovoz.Domain.Documents
 		private void UpdateOperationsTime()
 		{
 			foreach(var item in Items) {
-				if(item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.OperationTime != TimeStamp)
-					item.WarehouseMovementOperation.OperationTime = TimeStamp;
+				if(item.GoodsAccountingOperation != null && item.GoodsAccountingOperation.OperationTime != TimeStamp)
+					item.GoodsAccountingOperation.OperationTime = TimeStamp;
 				if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.OperationTime != TimeStamp)
 					item.EmployeeNomenclatureMovementOperation.OperationTime = TimeStamp;
 			}

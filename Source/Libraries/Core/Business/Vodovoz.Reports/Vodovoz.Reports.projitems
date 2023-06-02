@@ -16,6 +16,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Complaints\ComplaintsWithDepartmentsReactionJournalReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Documents\ForwarderReceipt.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\FastDeliveryPercentCoverageReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -28,7 +31,7 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Orders\EdoUpdReport.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-	<None Include="$(MSBuildThisFileDirectory)Reports\Sales\ProfitabilitySalesReport.rd">
+    <None Include="$(MSBuildThisFileDirectory)Reports\Sales\ProfitabilitySalesReport.rdl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Sales\ProfitabilitySalesReportDetail.rdl">

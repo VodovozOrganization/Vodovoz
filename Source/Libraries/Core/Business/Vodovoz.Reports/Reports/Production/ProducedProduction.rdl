@@ -30,53 +30,56 @@ FROM nomenclature
          LEFT JOIN warehouses w on nomenclature.warehouse_id = w.id
          LEFT JOIN
      (SELECT
-          warehouse_movement_operations.nomenclature_id as id,
-          SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                     AND store_incoming_water.id IS NOT NULL, cast(warehouse_movement_operations.amount as signed), 0)) as sum,
+          goods_accounting_operations.nomenclature_id as id,
+          SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+             AND goods_accounting_operations.amount &gt; 0
+             AND store_incoming_water.id IS NOT NULL, cast(goods_accounting_operations.amount as signed), 0)) as sum,
           (SELECT warehouses.name FROM warehouses WHERE id = @warehouse_id) as name_for_group
 
       FROM
-          warehouse_movement_operations
-              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = warehouse_movement_operations.id
+          goods_accounting_operations
+              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = goods_accounting_operations.id
 
       WHERE
               store_incoming_water.time_stamp &gt;= @month_start
         AND store_incoming_water.time_stamp &lt;= DATE_ADD(@month_end, INTERVAL 1 DAY)
-      GROUP BY warehouse_movement_operations.nomenclature_id) as subquery1 on subquery1.id  = nomenclature.id
+      GROUP BY goods_accounting_operations.nomenclature_id) as subquery1 on subquery1.id  = nomenclature.id
 
 
          LEFT JOIN
      (SELECT
-          warehouse_movement_operations.nomenclature_id as id,
-          SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                     AND store_incoming_water.id IS NOT NULL, cast(warehouse_movement_operations.amount as signed), 0)) as sum,
+          goods_accounting_operations.nomenclature_id as id,
+          SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+             AND goods_accounting_operations.amount &gt; 0
+             AND store_incoming_water.id IS NOT NULL, cast(goods_accounting_operations.amount as signed), 0)) as sum,
           (SELECT warehouses.name FROM warehouses WHERE id = @warehouse_id) as name_for_group
 
       FROM
-          warehouse_movement_operations
-              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = warehouse_movement_operations.id
+          goods_accounting_operations
+              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = goods_accounting_operations.id
 
       WHERE
               store_incoming_water.time_stamp &gt;= @month_minus_1_start
         AND store_incoming_water.time_stamp &lt;= DATE_ADD(@month_minus_1_end, INTERVAL 1 DAY)
-      GROUP BY warehouse_movement_operations.nomenclature_id) as subquery2 on subquery2.id  = nomenclature.id
+      GROUP BY goods_accounting_operations.nomenclature_id) as subquery2 on subquery2.id  = nomenclature.id
 
 
          LEFT JOIN
      (SELECT
-          warehouse_movement_operations.nomenclature_id as id,
-          SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                     AND store_incoming_water.id IS NOT NULL, cast(warehouse_movement_operations.amount as signed), 0)) as sum,
+          goods_accounting_operations.nomenclature_id as id,
+          SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+             AND goods_accounting_operations.amount &gt; 0
+             AND store_incoming_water.id IS NOT NULL, cast(goods_accounting_operations.amount as signed), 0)) as sum,
           (SELECT warehouses.name FROM warehouses WHERE id = @warehouse_id) as name_for_group
 
       FROM
-          warehouse_movement_operations
-              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = warehouse_movement_operations.id
+          goods_accounting_operations
+              LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = goods_accounting_operations.id
 
       WHERE
               store_incoming_water.time_stamp &gt;= @month_minus_2_start
         AND store_incoming_water.time_stamp &lt;= DATE_ADD(@month_minus_2_end, INTERVAL 1 DAY)
-      GROUP BY warehouse_movement_operations.nomenclature_id) as subquery3 on subquery3.id  = nomenclature.id
+      GROUP BY goods_accounting_operations.nomenclature_id) as subquery3 on subquery3.id  = nomenclature.id
 
 WHERE nomenclature.category = 'water' AND
     (nomenclature.id = @nomenclature_id OR @nomenclature_id = -1)

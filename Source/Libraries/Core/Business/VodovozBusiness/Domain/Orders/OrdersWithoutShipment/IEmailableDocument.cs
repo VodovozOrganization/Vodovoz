@@ -12,6 +12,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		DateTime? DocumentDate { get; }
 		Counterparty Counterparty { get; }
 		EmailTemplate GetEmailTemplate();
-		ReportInfo GetReportInfo();
+		ReportInfo GetReportInfo(string connectionString = null);
 	}
 }

@@ -116,7 +116,11 @@ namespace Vodovoz
 		int bottlesReturnedTotal;
 		int defectiveBottlesReturnedToWarehouse;
 
-		private IList<RouteListAddressKeepingDocumentItem> _addressKeepingDocumentItemsCacheList;
+		private Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>> _addressKeepingDocumentItemsCacheList =
+			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
+
+		private Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>> _addressKeepingDocumentBottlesCacheList =
+			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -356,6 +360,24 @@ namespace Vodovoz
 				.InitializeFromSource();
 			deliveryfreebalanceview.ShowAll();
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
+
+			routeListAddressesView.Items.PropertyOfElementChanged += OnRouteListItemPropertyOfElementChanged;
+		}
+
+		private void OnRouteListItemPropertyOfElementChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(RouteListItem.BottlesReturned))
+			{
+				var node = routeListAddressesView.GetSelectedRouteListItem();
+
+				if(!_addressKeepingDocumentBottlesCacheList.ContainsKey(node.Id))
+				{
+					_addressKeepingDocumentBottlesCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
+				}
+
+				_addressKeepingDocumentBottlesCacheList[node.Id] = _routeListAddressKeepingDocumentController
+					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
+			}
 		}
 
 		private void UpdateSensitivity()
@@ -608,6 +630,14 @@ namespace Vodovoz
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
 
+			if(!_addressKeepingDocumentItemsCacheList.ContainsKey(node.Id))
+			{
+				_addressKeepingDocumentItemsCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
+			}
+
+			_addressKeepingDocumentItemsCacheList[node.Id] = _routeListAddressKeepingDocumentController
+				.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentItemsCacheList[node.Id]);
+
 			ReloadDiscrepancies();
 
 			((OrderReturnsView)sender).TabClosed -= OnOrderReturnsViewTabClosed;
@@ -616,9 +646,6 @@ namespace Vodovoz
 		void OnRouteListItemChanged(object aList, int[] aIdx)
 		{
 			var item = routeListAddressesView.Items[aIdx[0]];
-
-			_addressKeepingDocumentItemsCacheList = _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, item,
-				_addressKeepingDocumentItemsCacheList);
 
 			Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
 			item.RecalculateTotalCash();

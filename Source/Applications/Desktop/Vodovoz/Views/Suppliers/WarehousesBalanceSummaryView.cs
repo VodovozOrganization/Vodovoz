@@ -1,14 +1,17 @@
-﻿using System;
+using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ClosedXML.Excel;
 using Gamma.ColumnConfig;
+using Gamma.Widgets;
 using Gtk;
 using QS.Views.GtkUI;
-using QSWidgetLib;
+using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Views.Suppliers
 {
@@ -20,8 +23,7 @@ namespace Vodovoz.Views.Suppliers
 
 		public WarehousesBalanceSummaryView(WarehousesBalanceSummaryViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-
+			Build();
 			Configure();
 		}
 
@@ -68,9 +70,14 @@ namespace Vodovoz.Views.Suppliers
 			vboxNomsFilter.Add(nomsWidget);
 			nomsWidget.Show();
 
-			var warsWidget = new SelectableParameterReportFilterView(ViewModel.WarsViewModel);
+			var warsWidget = new SelectableParameterReportFilterView(ViewModel.StoragesViewModel);
 			vboxWarsFilter.Add(warsWidget);
 			warsWidget.Show();
+			
+			enumChkListStorages.EnumType = typeof(StorageType);
+			enumChkListStorages.SelectAll();
+			enumChkListStorages.CheckStateChanged += EnumChkListStoragesOnCheckStateChanged;
+			enumChkListStorages.OnlySelectAt(0);
 
 			eventboxArrow.ButtonPressEvent += (o, args) =>
 			{
@@ -81,13 +88,57 @@ namespace Vodovoz.Views.Suppliers
 			treeData.EnableGridLines = TreeViewGridLines.Both;
 		}
 
+		private void EnumChkListStoragesOnCheckStateChanged(object sender, CheckStateChangedEventArgs e)
+		{
+			SelectableParameterSet parameterSet = null;
+			switch(e.Item)
+			{
+				case StorageType.Warehouse:
+					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(
+						x => x.ParameterName == WarehousesBalanceSummaryViewModel.ParameterWarehouseStorages);
+					break;
+				case StorageType.Employee:
+					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(
+						x => x.ParameterName == WarehousesBalanceSummaryViewModel.ParameterEmployeeStorages);
+					break;
+				case StorageType.Car:
+					parameterSet = ViewModel.StoragesParametersSets.SingleOrDefault(
+						x => x.ParameterName == WarehousesBalanceSummaryViewModel.ParameterCarStorages);
+					break;
+			}
+
+			if(parameterSet is null)
+			{
+				return;
+			}
+
+			parameterSet.IsVisible = e.IsChecked;
+		}
+
 		private void ConfigureTreeView()
 		{
 			var columnsConfig = FluentColumnsConfig<BalanceSummaryRow>.Create()
-				.AddColumn("№").AddNumericRenderer(row => row.Num).XAlign(0.5f)
-				.AddColumn("Код").AddNumericRenderer(row => row.NomId).XAlign(0.5f)
-				.AddColumn("Наименование").AddTextRenderer(row => row.NomTitle)
-				.AddColumn("Мин. остаток").AddNumericRenderer(row => row.Min).XAlign(0.5f);
+				.AddColumn("№")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(row => row.Num)
+					.XAlign(0.5f)
+				.AddColumn("Код")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(row => row.EntityId)
+					.XAlign(0.5f)
+				.AddColumn("Наименование")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(row => row.NomTitle)
+					.XAlign(0.5f)
+					.WrapWidth(500).WrapMode(WrapMode.Word)
+				.AddColumn("Инвентарный\nномер")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(row => row.InventoryNumber)
+					.XAlign(0.5f)
+				.AddColumn("Мин. остаток")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(row => row.Min)
+					.XAlign(0.5f);
 
 			if(ViewModel.ShowReserve)
 			{
@@ -97,8 +148,14 @@ namespace Vodovoz.Views.Suppliers
 			}
 
 			columnsConfig
-				.AddColumn("Общий остаток").AddNumericRenderer(row => row.Common).XAlign(0.5f)
-				.AddColumn("Разница").AddNumericRenderer(row => row.Diff).XAlign(0.5f);
+				.AddColumn("Общий остаток")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(row => row.Common)
+					.XAlign(0.5f)
+				.AddColumn("Разница")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(row => row.Diff)
+					.XAlign(0.5f);
 
 			if(ViewModel.ShowPrices)
 			{
@@ -108,11 +165,28 @@ namespace Vodovoz.Views.Suppliers
 					.AddColumn("Цена KulerSale").AddNumericRenderer(row => row.AlternativePrice).XAlign(0.5f).Digits(2);
 			}
 
-			for(var i = 0; i < ViewModel.Report.WarehousesTitles.Count; i++)
+			for(var i = 0; i < ViewModel.Report.WarehouseStoragesTitles?.Count; i++)
 			{
 				var index = i;
-				columnsConfig.AddColumn($"{ViewModel.Report.WarehousesTitles[i]}").AddNumericRenderer(row => row.Separate[index])
-					.XAlign(0.5f);
+				columnsConfig.AddColumn($"{ViewModel.Report.WarehouseStoragesTitles[i]}")
+				.AddNumericRenderer(row => row.WarehousesBalances[index])
+				.XAlign(0.5f);
+			}
+			
+			for(var i = 0; i < ViewModel.Report.EmployeeStoragesTitles?.Count; i++)
+			{
+				var index = i;
+				columnsConfig.AddColumn($"{ViewModel.Report.EmployeeStoragesTitles[i]}")
+				.AddNumericRenderer(row => row.EmployeesBalances[index])
+				.XAlign(0.5f);
+			}
+			
+			for(var i = 0; i < ViewModel.Report.CarStoragesTitles?.Count; i++)
+			{
+				var index = i;
+				columnsConfig.AddColumn($"{ViewModel.Report.CarStoragesTitles[i]}")
+				.AddNumericRenderer(row => row.CarsBalances[index])
+				.XAlign(0.5f);
 			}
 
 			treeData.ColumnsConfig = columnsConfig.AddColumn("").Finish();
@@ -180,7 +254,7 @@ namespace Vodovoz.Views.Suppliers
 			}
 			catch(OutOfMemoryException)
 			{
-				ViewModel.ShowWarning($"Слишком большой обьём данных.\n Пожалуйста, уменьшите выборку.");
+				ViewModel.ShowWarning("Слишком большой обьём данных.\n Пожалуйста, уменьшите выборку.");
 			}
 			catch(Exception ex)
 			{
