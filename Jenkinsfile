@@ -63,9 +63,10 @@ DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
 DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
 LINUX_BUILD_TOOL = "msbuild"
+LINUX_WEB_BUILD_TOOL = "dotnet publish"
 JOB_FOLDER_NAME = GetJobFolderName()
 IS_PULL_REQUEST = env.CHANGE_ID != null
-IS_HOTFIX = true //env.BRANCH_NAME == 'master'
+IS_HOTFIX = env.BRANCH_NAME == 'master'
 IS_RELEASE = env.BRANCH_NAME ==~ /^[Rr]elease(.*?)/
 IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 
@@ -74,7 +75,7 @@ IS_MANUAL_BUILD = env.BRANCH_NAME ==~ /^manual-build(.*?)/
 // 104	Настройки. Восстановление пакетов
 
 // 105	Настройки. Сборка
-CAN_BUILD_DESKTOP = false //true
+CAN_BUILD_DESKTOP = true
 CAN_BUILD_WEB = true
 CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
 CAN_BUILD_WCF = true
@@ -211,6 +212,16 @@ stage('Build'){
 						echo "Build WCF not needed"
 					}
 				}
+				stage('Build Linux WEB'){
+					if(CAN_PUBLISH_BUILD_WEB)
+					{
+						PublishBuildLinux("${APP_PATH}/Backend/WebAPI/VodovozMangoService/VodovozMangoService.csproj")
+					}
+					else
+					{
+						echo "Publish Build Linux WEB not needed"
+					}
+				}
 			}
 		}
 	)
@@ -265,6 +276,7 @@ stage('Delivery'){
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
+
 		"VodovozMangoService" : { DeliveryWebLinuxArtifact("VodovozMangoService") },
 
 		"SmsInformerService" : { DeliveryWcfArtifact("VodovozSmsInformerService") },
@@ -344,6 +356,10 @@ def Build(config){
 	}
 }
 
+def PublishBuildLinux(projectPath){
+	sh "${LINUX_WEB_BUILD_TOOL} ${projectPath} --configuration Release"
+}
+
 // 304	Фукнции. Запаковка
 
 def CompressDesktopArtifact(){
@@ -397,7 +413,7 @@ def CompressWebLinuxArtifact(relativeProjectPath){
 	} 
 	else
 	{
-		echo "Compress WCF artifacts not needed"
+		echo "Compress Web Linux artifacts not needed"
 	}
 }
 
@@ -588,14 +604,27 @@ def PublishWCF(projectName){
 	}
 }
 
-def PublishWebLinux(projectPath){
+def PublishWebLinux(projectName){
 	node(NODE_LINUX_RUNTIME){
-		echo projectPath
+		if(CAN_PUBLISH_WEB)
+		{
+			if(IS_HOTFIX)
+			{
+				def newHotfixPath = "${WCF_PUBLISH_PATH}/${projectName}/${NEW_WCF_HOTFIX_FOLDER_NAME}"
+				DecompressArtifact(newHotfixPath, projectName)
+				return
+			}
 
-		sh "dotnet build  \"${projectPath}\" --configuration Release"
-		sh "dotnet publish \"${projectPath}\" --configuration Release"
+			if(IS_RELEASE)
+			{
+				def newReleasePath = "${WCF_PUBLISH_PATH}/${projectName}/${NEW_RELEASE_FOLDER_NAME}"
+				DecompressArtifact(newReleasePath, projectName)
+				return
+			}
 
-		echo "dotnet build  \"${projectPath}\" --configuration Release"
+		}
+
+		echo "Publish not needed"
 	}
 }
 
