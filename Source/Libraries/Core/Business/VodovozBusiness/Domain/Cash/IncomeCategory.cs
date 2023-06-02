@@ -93,7 +93,7 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual FinancialCategoryTypeEnum FinancialCategoryType => FinancialCategoryTypeEnum.IncomeCategory;
 
-		public virtual int? FinancialCategoryGroupId
+		public virtual int? FinancialIncomeCategoryId
 		{
 			get => _financialCategoryGroupId;
 			set => SetField(ref _financialCategoryGroupId, value);
