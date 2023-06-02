@@ -36,6 +36,9 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
 		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
 		private bool _usingInGroupPriceSet;
+		private bool _hasInventoryAccounting;
+		
+		private int _id;
 
 		private decimal _length;
 		private decimal _width;
@@ -51,7 +54,11 @@ namespace Vodovoz.Domain.Goods
 
 		#region Свойства
 
-		public virtual int Id { get; set; }
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
 
 		private DateTime? createDate;
 		[Display(Name = "Дата создания")]
@@ -614,7 +621,13 @@ namespace Vodovoz.Domain.Goods
 			get => _gtin;
 			set => SetField(ref _gtin, value);
 		}
-
+		
+		[Display(Name = "Инвентарный учет")]
+		public virtual bool HasInventoryAccounting
+		{
+			get => _hasInventoryAccounting;
+			set => SetField(ref _hasInventoryAccounting, value);
+		}
 		#endregion
 
 		#region Свойства товаров для магазина

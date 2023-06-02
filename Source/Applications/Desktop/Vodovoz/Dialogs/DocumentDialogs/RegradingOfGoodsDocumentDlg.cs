@@ -3,13 +3,13 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
-using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz
@@ -19,7 +19,7 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper();
+		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsGetter());
 
 		public RegradingOfGoodsDocumentDlg()
 		{
@@ -77,14 +77,11 @@ namespace Vodovoz
 
 			var availableWarehousesIds =
 				_storeDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.RegradingOfGoodsEdit);
-			var warehouseFilter = new WarehouseJournalFilterViewModel
-			{
-				IncludeWarehouseIds = availableWarehousesIds
-			};
+			Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = availableWarehousesIds;
 
 			var warehouseJournalFactory = new WarehouseJournalFactory();
 
-			warehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(warehouseFilter));
+			warehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(filterParams));
 			warehouseEntry.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 

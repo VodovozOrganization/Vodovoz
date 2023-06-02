@@ -27,11 +27,11 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref document, value); }
 		}
 
-		WarehouseMovementOperation warehouseMovementOperation;
+		WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
 
-		public virtual WarehouseMovementOperation WarehouseMovementOperation { 
-			get { return warehouseMovementOperation; }
-			set { SetField (ref warehouseMovementOperation, value); }
+		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation { 
+			get { return _goodsAccountingOperation; }
+			set { SetField (ref _goodsAccountingOperation, value); }
 		}
 
 		EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperation;
@@ -54,8 +54,8 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField (ref nomenclature, value);
 
-				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Nomenclature != nomenclature)
-					WarehouseMovementOperation.Nomenclature = nomenclature;
+				if (GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != nomenclature)
+					GoodsAccountingOperation.Nomenclature = nomenclature;
 			}
 		}
 
@@ -63,12 +63,8 @@ namespace Vodovoz.Domain.Documents
 
 		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
-			get { return equipment; }
-			set {
-				SetField (ref equipment, value);
-				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Equipment != equipment)
-					WarehouseMovementOperation.Equipment = equipment;
-			}
+			get => equipment;
+			set => SetField(ref equipment, value);
 		}
 
 		OwnTypes ownType;
@@ -132,9 +128,9 @@ namespace Vodovoz.Domain.Documents
 		}
 			
 		public virtual string Title =>
-			WarehouseMovementOperation == null ? Nomenclature.Name : String.Format("[{2}] {0} - {1}",
-				WarehouseMovementOperation.Nomenclature.Name,
-				WarehouseMovementOperation.Nomenclature.Unit?.MakeAmountShortStr(WarehouseMovementOperation.Amount) ?? WarehouseMovementOperation.Amount.ToString(),
+			GoodsAccountingOperation == null ? Nomenclature.Name : String.Format("[{2}] {0} - {1}",
+				GoodsAccountingOperation.Nomenclature.Name,
+				GoodsAccountingOperation.Nomenclature.Unit?.MakeAmountShortStr(GoodsAccountingOperation.Amount) ?? GoodsAccountingOperation.Amount.ToString(),
 				document.Title);
 
         #endregion
@@ -143,21 +139,19 @@ namespace Vodovoz.Domain.Documents
 
         public virtual void CreateWarehouseMovementOperation(Warehouse warehouse, DateTime time)
 		{
-			WarehouseMovementOperation = new WarehouseMovementOperation {
-				WriteoffWarehouse = warehouse,
-				Amount = Amount,
+			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
+			{
+				Warehouse = warehouse,
+				Amount = -Amount,
 				OperationTime = time,
-				Nomenclature = Nomenclature,
-				Equipment = Equipment
+				Nomenclature = Nomenclature
 			};
 		}
 
 		public virtual void UpdateWarehouseMovementOperation(Warehouse warehouse)
 		{
-			WarehouseMovementOperation.WriteoffWarehouse = warehouse;
-			WarehouseMovementOperation.IncomingWarehouse = null;
-			WarehouseMovementOperation.Amount = Amount;
-			WarehouseMovementOperation.Equipment = Equipment;
+			GoodsAccountingOperation.Warehouse = warehouse;
+			GoodsAccountingOperation.Amount = -Amount;
 		}
 		
 		public virtual void CreateEmployeeNomenclatureMovementOperation(DateTime time)

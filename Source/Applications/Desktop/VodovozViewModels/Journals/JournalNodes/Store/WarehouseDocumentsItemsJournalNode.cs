@@ -4,6 +4,9 @@ using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.InventoryDocuments;
+using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 {
@@ -32,24 +35,14 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 				switch(DocumentTypeEnum)
 				{
 					case DocumentType.IncomingInvoice:
-						return $"Поставщик: {Counterparty}; Склад поступления: {FromWarehouse};";
+						return $"Поставщик: {Counterparty}; Склад поступления: {ToStorage};";
 					case DocumentType.IncomingWater:
-						return $"Количество: {Amount}; Склад поступления: {FromWarehouse}; Продукт производства: {NomenclatureName}";
+						return $"Количество: {Amount}; Склад поступления: {ToStorage}; Продукт производства: {NomenclatureName}";
 					case DocumentType.MovementDocument:
 						var carInfo = string.IsNullOrEmpty(CarNumber) ? null : $", Фура: {CarNumber}";
-						return $"{FromWarehouse} -> {ToWarehouse}{carInfo}";
+						return $"{FromStorage} -> {ToStorage}{carInfo}";
 					case DocumentType.WriteoffDocument:
-						if(FromWarehouse != string.Empty)
-						{
-							return $"Со склада \"{FromWarehouse}\"";
-						}
-
-						if(Counterparty != string.Empty)
-						{
-							return $"От клиента \"{Counterparty}\"";
-						}
-
-						return string.Empty;
+						return !string.IsNullOrWhiteSpace(FromStorage) ? $"С \"{FromStorage}\"" : FromStorage;
 					case DocumentType.CarLoadDocument:
 						return string.Format(
 							"Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}",
@@ -75,19 +68,19 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 							RouteListId
 						);
 					case DocumentType.InventoryDocument:
-						return string.Format("По складу: {0}", FromWarehouse);
+						return $"По: {FromStorage}";
 					case DocumentType.ShiftChangeDocument:
-						return string.Format("По складу: {0}", FromWarehouse);
+						return $"По: {FromStorage}";
 					case DocumentType.RegradingOfGoodsDocument:
-						return string.Format("По складу: {0}", FromWarehouse);
+						return $"По складу: {FromStorage}";
 					case DocumentType.SelfDeliveryDocument:
-						return string.Format("Склад: {0}, Заказ №: {1}, Клиент: {2}", FromWarehouse, OrderId, Counterparty);
+						return $"Склад: {FromStorage}, Заказ №: {OrderId}, Клиент: {Counterparty}";
 					case DocumentType.DriverTerminalGiveout:
 						return "Выдача терминала водителю " +
-							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} со склада {FromWarehouse}";
+							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} со склада {FromStorage}";
 					case DocumentType.DriverTerminalReturn:
 						return "Возврат терминала водителем " +
-							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} на склад {FromWarehouse}";
+							   $"{PersonHelper.PersonNameWithInitials(DriverSurname, DriverName, DriverPatronymic)} на склад {ToStorage}";
 					default:
 						return string.Empty;
 				}
@@ -99,12 +92,17 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 		public int OrderId { get; set; }
 
 		public string FromWarehouse { get; set; }
+		public string FromStorage { get; set; }
 
 		public int FromWarehouseId { get; set; }
+		public int FromStorageId { get; set; }
+		public StorageType StorageFromType { get; set; }
 
 		public string ToWarehouse { get; set; }
+		public string ToStorage { get; set; }
 
 		public int ToWarehouseId { get; set; }
+		public int ToStorageId { get; set; }
 
 		public decimal Amount { get; set; }
 
@@ -147,6 +145,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Store
 		public string DriverPatronymic { get; set; }
 
 		public MovementDocumentStatus MovementDocumentStatus { get; set; }
+		public WriteOffType WriteOffType { get; set; }
+		public InventoryDocumentType InventoryDocumentType { get; set; }
+		public ShiftChangeResidueDocumentType ShiftChangeResidueDocumentType { get; set; }
 
 		public bool MovementDocumentDiscrepancy { get; set; }
 

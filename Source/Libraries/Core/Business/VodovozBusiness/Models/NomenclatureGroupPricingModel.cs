@@ -8,17 +8,17 @@ using Vodovoz.Factories;
 
 namespace Vodovoz.Models
 {
-	public class NomenclatureGroupPricingModel : IValidatableObject
+	public class NomenclatureGroupPricingModel : IValidatableObject, INomenclatureGroupPricingModel
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly INomenclaturePricesRepository _nomenclaturePricesRepository;
-		private readonly NomenclatureGroupPricingPriceModelFactory _nomenclatureGroupPricingPriceModelFactory;
+		private readonly INomenclatureGroupPricingPriceModelFactory _nomenclatureGroupPricingPriceModelFactory;
 		private IUnitOfWork _uow;
 
 		public NomenclatureGroupPricingModel(
 			IUnitOfWorkFactory uowFactory,
 			INomenclaturePricesRepository nomenclaturePricesRepository,
-			NomenclatureGroupPricingPriceModelFactory nomenclatureGroupPricingPriceModelFactory
+			INomenclatureGroupPricingPriceModelFactory nomenclatureGroupPricingPriceModelFactory
 		)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));

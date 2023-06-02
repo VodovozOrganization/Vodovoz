@@ -19,6 +19,7 @@ using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
 

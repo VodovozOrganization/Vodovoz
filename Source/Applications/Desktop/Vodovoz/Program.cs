@@ -79,6 +79,7 @@ namespace Vodovoz
 
 			QSMain.SetupFromArgs(args);
 			QS.Project.Search.GtkUI.SearchView.QueryDelay = 1500;
+			QS.Views.Control.EntityEntry.QueryDelay = 250;
 
 			Gtk.Settings.Default.SetLongProperty("gtk-button-images", 1, "");
 			// Создаем окно входа

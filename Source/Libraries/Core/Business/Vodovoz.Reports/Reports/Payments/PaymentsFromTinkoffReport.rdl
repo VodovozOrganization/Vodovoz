@@ -1182,8 +1182,8 @@ FROM
             p_online.*
         From orders o_online
         JOIN payments_by_card_online p_online on p_online.number = o_online.online_order
-            AND p_online.date_and_time &gt; DATE_ADD(o_online.create_date, INTERVAL -10 DAY)
-            AND p_online.date_and_time &lt; DATE_ADD(o_online.create_date, INTERVAL 10 DAY)
+            AND p_online.date_and_time &gt; DATE_ADD(o_online.create_date, INTERVAL -45 DAY)
+            AND p_online.date_and_time &lt; DATE_ADD(o_online.create_date, INTERVAL 45 DAY)
             AND p_online.payment_by_card_from != 'FromSMS'
 
         UNION
@@ -1193,8 +1193,8 @@ FROM
             p_sms.*
         From orders o_sms
         JOIN payments_by_card_online p_sms on p_sms.number = o_sms.id
-            AND p_sms.date_and_time &gt; DATE_ADD(o_sms.create_date, INTERVAL -10 DAY)
-            AND p_sms.date_and_time &lt; DATE_ADD(o_sms.create_date, INTERVAL 10 DAY)
+            AND p_sms.date_and_time &gt; DATE_ADD(o_sms.create_date, INTERVAL -45 DAY)
+            AND p_sms.date_and_time &lt; DATE_ADD(o_sms.create_date, INTERVAL 45 DAY)
             AND p_sms.payment_by_card_from = 'FromSMS'
     ) as p on p.order_id = o.id
         LEFT JOIN

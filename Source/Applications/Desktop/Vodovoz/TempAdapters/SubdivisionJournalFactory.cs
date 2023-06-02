@@ -4,6 +4,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.TempAdapters

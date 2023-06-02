@@ -19,8 +19,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using Vodovoz.Additions.Store;
-using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Permissions.Warehouses;
@@ -31,12 +30,14 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 {
+	[Obsolete("Снести после обновления 29.05.23")]
 	public class InventoryDocumentViewModel : EntityTabViewModelBase<InventoryDocument>
 	{
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
@@ -45,7 +46,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 		private InventoryDocumentItem _selectedInventoryDocumentItem;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWarehouseRepository _warehouseRepository;
-		private readonly IStoreDocumentHelper _storeDocumentHelper;
+		private readonly StoreDocumentHelper _storeDocumentHelper;
 		private readonly IStockRepository _stockRepository;
 		private readonly INomenclatureJournalFactory _nomenclatureJournalFactory;
 		private readonly IEntityExtendedPermissionValidator _entityExtendedPermissionValidator;
@@ -57,7 +58,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			ICommonServices commonServices,
 			IEmployeeRepository employeeRepository,
 			IWarehouseRepository warehouseRepository,
-			IStoreDocumentHelper storeDocumentHelper,
+			StoreDocumentHelper storeDocumentHelper,
 			IStockRepository stockRepository,
 			INomenclatureJournalFactory nomenclatureJournalFactory,
 			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
@@ -112,12 +113,12 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 			SubscribeOnEntityChanges();
 			SortDocumentItems();
-			Entity.Items.Reconnect();
+			Entity.ObservableNomenclatureItems.Reconnect();
 		}
 
 		private void ClearItems()
 		{
-			Entity.ClearItems();
+			Entity.ObservableNomenclatureItems.Clear();
 		}
 
 		private void ValidateNomenclatures()
@@ -128,7 +129,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			stringBuilder.AppendLine(
 				  "Не установлены единицы измерения у следующих номенклатур:");
 
-			foreach(var item in UoWGeneric.Root.Items)
+			foreach(var item in Entity.ObservableNomenclatureItems)
 			{
 				if(item.Nomenclature.Unit == null)
 				{
@@ -221,7 +222,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 		public bool CanFillItems => Entity.CanEdit && Entity.Warehouse != null;
 
-		public string FillItemsButtonTitle => Entity.Items.Count > 0
+		public string FillItemsButtonTitle => Entity.ObservableNomenclatureItems.Count > 0
 			? "Обновить остатки"
 			: "Заполнить по складу";
 
@@ -273,10 +274,10 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 				() => CanFillItems);
 
 			SetPropertyChangeRelation(
-				iDoc => iDoc.Items,
+				iDoc => iDoc.ObservableNomenclatureItems,
 				() => FillItemsButtonTitle);
 
-			Entity.Items.ListChanged += (list) => OnPropertyChanged(nameof(FillItemsButtonTitle));
+			Entity.ObservableNomenclatureItems.ListChanged += (list) => OnPropertyChanged(nameof(FillItemsButtonTitle));
 
 			SetPropertyChangeRelation(
 				iDoc => iDoc.CanEdit,
@@ -406,13 +407,13 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			{
 				foreach(var node in e.SelectedNodes)
 				{
-					if(Entity.Items.Any(x => x.Nomenclature.Id == node.Id))
+					if(Entity.ObservableNomenclatureItems.Any(x => x.Nomenclature.Id == node.Id))
 					{
 						continue;
 					}
 
 					var nomenclature = UoW.GetById<Nomenclature>(node.Id);
-					Entity.AddItem(nomenclature, 0, 0);
+					Entity.AddNomenclatureItem(nomenclature, 0, 0);
 				}
 
 				SortDocumentItems();
@@ -423,11 +424,11 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 		{
 			if(Entity.SortedByNomenclatureName)
 			{
-				Entity.SortItems(x => x.Nomenclature.OfficialName);
+				Entity.SortItems(true);
 			}
 			else
 			{
-				Entity.SortItems(x => x.Nomenclature.Id);
+				Entity.SortItems();
 			}
 		}
 
@@ -495,8 +496,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 		private void Print()
 		{
-			if(UoWGeneric.HasChanges
-				&& CommonServices.InteractiveService.Question(
+			if(UoWGeneric.HasChanges && CommonServices.InteractiveService.Question(
 					"Для печати необходимо сохранить документ." +
 					" Сохранить акт инвентаризации?"))
 			{
@@ -522,8 +522,8 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			// Костыль для передачи из фильтра предназначенного только для отчетов данных в подходящем виде
 			var nomenclaturesToInclude = new List<int>();
 			var nomenclaturesToExclude = new List<int>();
-			var nomenclatureCategoryToInclude = new List<string>();
-			var nomenclatureCategoryToExclude = new List<string>();
+			var nomenclatureCategoryToInclude = new List<NomenclatureCategory>();
+			var nomenclatureCategoryToExclude = new List<NomenclatureCategory>();
 			var productGroupToInclude = new List<int>();
 			var productGroupToExclude = new List<int>();
 
@@ -552,14 +552,14 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 						{
 							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected))
 							{
-								nomenclatureCategoryToInclude.Add(value.Value.ToString());
+								nomenclatureCategoryToInclude.Add((NomenclatureCategory)value.Value);
 							}
 						}
 						else
 						{
 							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected))
 							{
-								nomenclatureCategoryToExclude.Add(value.Value.ToString());
+								nomenclatureCategoryToExclude.Add((NomenclatureCategory)value.Value);
 							}
 						}
 						break;
@@ -584,9 +584,9 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 			FillDiscrepancies();
 
-			if(Entity.Items.Count == 0)
+			if(Entity.ObservableNomenclatureItems.Count == 0)
 			{
-				Entity.FillItemsFromStock(
+				Entity.FillNomenclatureItemsFromStock(
 					UoW,
 					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
@@ -598,7 +598,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 			}
 			else
 			{
-				Entity.UpdateItemsFromStock(
+				Entity.UpdateNomenclatureItemsFromStock(
 					UoW,
 					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
@@ -614,12 +614,12 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses.Documents
 
 		private void FillFactByAccounting()
 		{
-			for(int i = 0; i < Entity.Items.Count; i++)
+			for(int i = 0; i < Entity.ObservableNomenclatureItems.Count; i++)
 			{
-				if(Entity.Items[i].AmountInFact != Entity.Items[i].AmountInDB)
+				if(Entity.ObservableNomenclatureItems[i].AmountInFact != Entity.ObservableNomenclatureItems[i].AmountInDB)
 				{
-					Entity.Items[i].AmountInFact = Entity.Items[i].AmountInDB;
-					Entity.Items.OnPropertyChanged(nameof(Entity.Items));
+					Entity.ObservableNomenclatureItems[i].AmountInFact = Entity.ObservableNomenclatureItems[i].AmountInDB;
+					Entity.ObservableNomenclatureItems.OnPropertyChanged(nameof(Entity.ObservableNomenclatureItems));
 				}
 			}
 		}

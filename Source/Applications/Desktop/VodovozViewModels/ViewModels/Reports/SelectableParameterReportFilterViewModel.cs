@@ -1,4 +1,4 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.ViewModels;
 using System;
 using System.Linq;

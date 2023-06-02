@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QSOrmProject;
 using QSProjectsLib;
 using QS.Tdi;
@@ -27,6 +28,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -167,15 +169,12 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseJournalFactory());
-			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
+			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
-			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			);
-
+			var vm = MainClass.MainWin.NavigationManager
+				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
+				.ViewModel;
+			
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.TabName = "Выберите номенклатуру на замену";
 			vm.OnEntitySelectedResult += (s, ea) => {
@@ -224,7 +223,6 @@ namespace Vodovoz
 
 				MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
 			};
-			MyTab.TabParent.AddSlaveTab(MyTab, vm);
 		}
 
         void SelectNewNomenclature_ObjectSelected (object sender, JournalSelectedNodesEventArgs e)
@@ -259,14 +257,11 @@ namespace Vodovoz
 
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureStockFilterViewModel(new WarehouseJournalFactory());
-			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
+			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
-			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			);
+			var vm = MainClass.MainWin.NavigationManager
+				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
+				.ViewModel;
 
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.TabName = "Изменить старую номенклатуру";
@@ -280,7 +275,6 @@ namespace Vodovoz
 				row.NomenclatureOld = nomenclature;
 				row.AmountInStock = selectedNode.StockAmount;
 			};
-			MyTab.TabParent.AddSlaveTab(MyTab, vm);
 		}
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)

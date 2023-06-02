@@ -4,8 +4,7 @@ namespace Vodovoz.Domain.Documents
 {
 	public interface ITwoWarhousesBindedDocument : IDocument
 	{
-		Warehouse FromWarehouse { get; }
-
-		Warehouse ToWarehouse { get; }
+		Warehouse WriteOffWarehouse { get; }
+		Warehouse IncomingWarehouse { get; }
 	}
 }

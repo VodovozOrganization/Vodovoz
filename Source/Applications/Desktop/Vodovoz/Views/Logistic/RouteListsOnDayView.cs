@@ -29,6 +29,8 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Gamma.Binding.Core.LevelTreeConfig;
 using Vodovoz.ViewModels.Dialogs.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -1113,7 +1115,11 @@ namespace Vodovoz.Views.Logistic
 				x => x.Archive = false,
 				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
 			);
-			var journal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ViewModel.CommonServices);
+			var journal = new CarJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ViewModel.CommonServices,
+				MainClass.AppDIContainer.BeginLifetimeScope());
 			journal.SelectionMode = JournalSelectionMode.Single;
 			journal.OnEntitySelectedResult += (o, args) =>
 			{

@@ -5,7 +5,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Permissions;
-using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -135,8 +134,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			_driverApiUserRegisterEndpoint =
-				driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
+			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			UoWGeneric = entityUoWBuilder.CreateUoW<Employee>(unitOfWorkFactory, TabName);
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

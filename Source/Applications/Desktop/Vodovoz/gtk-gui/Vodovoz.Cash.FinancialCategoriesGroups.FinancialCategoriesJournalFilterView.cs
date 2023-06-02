@@ -18,17 +18,13 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 
 		private global::Gamma.GtkWidgets.yEntry yentrySearch;
 
-		private global::Gtk.Label labelDocumentExpenseType;
-
-		private global::Gtk.Label labelIncomeDocumentType;
-
 		private global::Gtk.Label labelParent;
 
 		private global::Gtk.Label labelSubdivision;
 
-		private global::Gamma.Widgets.yEnumComboBox yenumExpenseDocumentType;
+		private global::Gtk.Label labelTargetDocument;
 
-		private global::Gamma.Widgets.yEnumComboBox yenumIncomeDocumentType;
+		private global::Gamma.Widgets.yEnumComboBox yenumTargetDocument;
 
 		protected virtual void Build()
 		{
@@ -50,8 +46,8 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.chkIsArchive.UseUnderline = true;
 			this.tableMain.Add(this.chkIsArchive);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.tableMain[this.chkIsArchive]));
-			w1.LeftAttach = ((uint)(4));
-			w1.RightAttach = ((uint)(5));
+			w1.TopAttach = ((uint)(1));
+			w1.BottomAttach = ((uint)(2));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
@@ -107,77 +103,51 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.labelDocumentExpenseType = new global::Gtk.Label();
-			this.labelDocumentExpenseType.Name = "labelDocumentExpenseType";
-			this.labelDocumentExpenseType.Xalign = 0F;
-			this.labelDocumentExpenseType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип документа статьи расхода:");
-			this.tableMain.Add(this.labelDocumentExpenseType);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelDocumentExpenseType]));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.labelIncomeDocumentType = new global::Gtk.Label();
-			this.labelIncomeDocumentType.Name = "labelIncomeDocumentType";
-			this.labelIncomeDocumentType.Xalign = 1F;
-			this.labelIncomeDocumentType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип документа статьи дохода:");
-			this.tableMain.Add(this.labelIncomeDocumentType);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelIncomeDocumentType]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
 			this.labelParent = new global::Gtk.Label();
 			this.labelParent.Name = "labelParent";
 			this.labelParent.Xalign = 1F;
 			this.labelParent.LabelProp = global::Mono.Unix.Catalog.GetString("Родительская группа:");
 			this.tableMain.Add(this.labelParent);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelParent]));
-			w9.LeftAttach = ((uint)(2));
-			w9.RightAttach = ((uint)(3));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelParent]));
+			w7.LeftAttach = ((uint)(2));
+			w7.RightAttach = ((uint)(3));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.labelSubdivision = new global::Gtk.Label();
 			this.labelSubdivision.Name = "labelSubdivision";
 			this.labelSubdivision.Xalign = 1F;
 			this.labelSubdivision.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение:");
 			this.tableMain.Add(this.labelSubdivision);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelSubdivision]));
-			w10.TopAttach = ((uint)(1));
-			w10.BottomAttach = ((uint)(2));
-			w10.LeftAttach = ((uint)(2));
-			w10.RightAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelSubdivision]));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
+			w8.LeftAttach = ((uint)(2));
+			w8.RightAttach = ((uint)(3));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.labelTargetDocument = new global::Gtk.Label();
+			this.labelTargetDocument.Name = "labelTargetDocument";
+			this.labelTargetDocument.Xalign = 0F;
+			this.labelTargetDocument.LabelProp = global::Mono.Unix.Catalog.GetString("Тип документа статьи:");
+			this.tableMain.Add(this.labelTargetDocument);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelTargetDocument]));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.yenumTargetDocument = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumTargetDocument.Name = "yenumTargetDocument";
+			this.yenumTargetDocument.ShowSpecialStateAll = false;
+			this.yenumTargetDocument.ShowSpecialStateNot = false;
+			this.yenumTargetDocument.UseShortTitle = false;
+			this.yenumTargetDocument.DefaultFirst = false;
+			this.tableMain.Add(this.yenumTargetDocument);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yenumTargetDocument]));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.yenumExpenseDocumentType = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumExpenseDocumentType.Name = "yenumExpenseDocumentType";
-			this.yenumExpenseDocumentType.ShowSpecialStateAll = false;
-			this.yenumExpenseDocumentType.ShowSpecialStateNot = false;
-			this.yenumExpenseDocumentType.UseShortTitle = false;
-			this.yenumExpenseDocumentType.DefaultFirst = false;
-			this.tableMain.Add(this.yenumExpenseDocumentType);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yenumExpenseDocumentType]));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.yenumIncomeDocumentType = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumIncomeDocumentType.Name = "yenumIncomeDocumentType";
-			this.yenumIncomeDocumentType.ShowSpecialStateAll = false;
-			this.yenumIncomeDocumentType.ShowSpecialStateNot = false;
-			this.yenumIncomeDocumentType.UseShortTitle = false;
-			this.yenumIncomeDocumentType.DefaultFirst = false;
-			this.tableMain.Add(this.yenumIncomeDocumentType);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yenumIncomeDocumentType]));
-			w12.TopAttach = ((uint)(1));
-			w12.BottomAttach = ((uint)(2));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.tableMain);
 			if ((this.Child != null))
 			{
