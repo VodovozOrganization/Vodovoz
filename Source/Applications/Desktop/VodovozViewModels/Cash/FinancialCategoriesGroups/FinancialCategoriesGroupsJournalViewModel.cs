@@ -1,4 +1,5 @@
-﻿using FluentNHibernate.Conventions;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using FluentNHibernate.Conventions;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using MoreLinq;
 using NHibernate.Linq;
@@ -296,7 +297,12 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 						&& ((node.FinancialSubType == FinancialSubType.Income && objectType == _financialIncomeCategoryType)
 							|| (node.FinancialSubType == FinancialSubType.Expense && objectType == _financialExpenseCategoryType)
 							|| objectType == _financialCategoriesGroupType),
-					(selected) => _domainObjectsPermissions[objectType].CanCreate,
+					(selected) => _domainObjectsPermissions[objectType].CanCreate
+						&& ((selected.FirstOrDefault() is FinancialCategoriesJournalNode node
+							&& ((objectType == _financialIncomeCategoryType && node.FinancialSubType == FinancialSubType.Income)
+							|| (objectType == _financialExpenseCategoryType && node.FinancialSubType == FinancialSubType.Expense)
+							|| objectType == _financialCategoriesGroupType))
+							|| selected.IsEmpty()),
 					(selected) =>
 					{
 						if(selected.FirstOrDefault() is FinancialCategoriesJournalNode node)
