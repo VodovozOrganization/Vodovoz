@@ -21,7 +21,7 @@
 	c.name AS counertparty_name,
     CASE o.payment_type 
 		WHEN 'Cash' THEN 'Наличная'
-		WHEN 'TerminalQR' THEN 'Терминал (QR-код терминал)'
+		WHEN 'Terminal' THEN 'Терминал (QR-код терминал)'
 		WHEN 'DriverApplicationQR' THEN 'МП водителя (QR-код)'
 		WHEN 'SmsQR' THEN 'SMS (QR-код)'
 		WHEN 'PaidOnline' THEN 'Оплачено онлайн'

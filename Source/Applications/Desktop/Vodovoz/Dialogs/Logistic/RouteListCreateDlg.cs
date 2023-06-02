@@ -790,7 +790,7 @@ namespace Vodovoz
 					else
 					{
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
-						var needTerminal = Entity.Addresses.Any(x => x.Order.PaymentType == PaymentType.TerminalQR);
+						var needTerminal = Entity.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
 						if(!Entity.NeedToLoad && !needTerminal)
 						{

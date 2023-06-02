@@ -51,11 +51,11 @@ namespace DriverAPI.Library.Converters
 						.Sum(rla => rla.Order.OrderSum),
 					TerminalMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
-							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.TerminalQR)
+							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal)
 						.Sum(rla => rla.Order.OrderSum),
 					TerminalOrdersCount = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
-							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.TerminalQR)
+							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal)
 						.Count(),
 					FullBottlesToReturn = (int)fullBottlesToReturn,
 					EmptyBottlesToReturn = routeList.Addresses

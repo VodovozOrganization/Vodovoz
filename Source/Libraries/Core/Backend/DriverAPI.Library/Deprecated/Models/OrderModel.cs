@@ -154,7 +154,7 @@ namespace DriverAPI.Library.Deprecated.Models
 				availablePaymentTypes.Add(PaymentDtoType.Terminal);
 			}
 
-			if(order.PaymentType == PaymentType.TerminalQR)
+			if(order.PaymentType == PaymentType.Terminal)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
 			}

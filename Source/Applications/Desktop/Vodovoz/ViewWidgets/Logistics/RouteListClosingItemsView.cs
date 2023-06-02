@@ -190,7 +190,7 @@ namespace Vodovoz
 				.AddColumn("№ оплаты")
 					.AddTextRenderer(node => node.Order.OnlineOrder.ToString())
 						.AddSetter((cell, node) => cell.Editable = 
-							(node.Order.PaymentType == PaymentType.TerminalQR || node.Order.PaymentType == PaymentType.PaidOnline) &&
+							(node.Order.PaymentType == PaymentType.Terminal || node.Order.PaymentType == PaymentType.PaidOnline) &&
 							node.Status != RouteListItemStatus.Transfered &&
 							node.Status != RouteListItemStatus.Canceled &&
 							node.Status != RouteListItemStatus.Overdue)
@@ -200,7 +200,7 @@ namespace Vodovoz
 				.AddColumn("Итого\n(терм.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => 
 						(node.Status != RouteListItemStatus.Transfered && 
-						node.Order.PaymentType == PaymentType.TerminalQR) ? node.Order.OrderSum : 0)
+						node.Order.PaymentType == PaymentType.Terminal) ? node.Order.OrderSum : 0)
 				.AddColumn ("Комментарий\nкассира")
 					.AddTextRenderer (node => node.CashierComment).EditedEvent(CommentCellEdited).Editable()
 				// Комментарий менеджера ответственного за водительский телефон

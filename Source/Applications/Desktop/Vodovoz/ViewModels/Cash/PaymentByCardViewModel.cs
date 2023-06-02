@@ -46,7 +46,7 @@ namespace Vodovoz.ViewModels.Cash
 
 			TabName = "Оплата по карте";
 
-			Entity.PaymentType = PaymentType.TerminalQR;
+			Entity.PaymentType = PaymentType.Terminal;
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			

@@ -1092,7 +1092,7 @@ namespace Vodovoz
 
 		public RouteListItem RouteListItem { get; set; }
 		public string DalyNumber => RouteListItem.Order.DailyNumber.ToString();
-		public bool NeedTerminal => RouteListItem.Order.PaymentType == PaymentType.TerminalQR;
+		public bool NeedTerminal => RouteListItem.Order.PaymentType == PaymentType.Terminal;
 	}
 }
 

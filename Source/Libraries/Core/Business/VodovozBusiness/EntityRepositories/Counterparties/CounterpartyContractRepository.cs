@@ -106,7 +106,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			{
 				case PaymentType.Cash:
 				case PaymentType.PaidOnline:
-				case PaymentType.TerminalQR:
+				case PaymentType.Terminal:
 					if(clientType == PersonType.legal)
 					{
 						return ContractType.CashUL;

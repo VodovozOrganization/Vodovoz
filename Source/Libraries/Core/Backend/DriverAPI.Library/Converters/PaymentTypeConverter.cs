@@ -11,8 +11,8 @@ namespace DriverAPI.Library.Converters
 			{
 				case PaymentType.Cash:
 					return PaymentDtoType.Cash;
-				case PaymentType.TerminalQR:
-					return PaymentDtoType.TerminalQR;
+				case PaymentType.Terminal:
+					return PaymentDtoType.Terminal;
 				case PaymentType.DriverApplicationQR:
 					return PaymentDtoType.DriverApplicationQR;
 				case PaymentType.SmsQR:

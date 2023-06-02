@@ -452,7 +452,7 @@ namespace Vodovoz.Domain.Orders
 						case PaymentType.Barter:
 						case PaymentType.Cashless:
 						case PaymentType.ContractDocumentation:
-						case PaymentType.TerminalQR:
+						case PaymentType.Terminal:
 							PaymentByCardFrom = null;
 							break;
 						case PaymentType.PaidOnline:
@@ -1129,7 +1129,7 @@ namespace Vodovoz.Domain.Orders
 					if(Client.IsDeliveriesClosed
 						&& PaymentType != PaymentType.Cash
 						&& PaymentType != PaymentType.PaidOnline
-						&& PaymentType != PaymentType.TerminalQR)
+						&& PaymentType != PaymentType.Terminal)
 						yield return new ValidationResult(
 							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
 							new[] { nameof(PaymentType) }
@@ -1185,7 +1185,7 @@ namespace Vodovoz.Domain.Orders
 
 			bool isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
 			if (validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"] )
-				if (PaymentType == PaymentType.TerminalQR && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
+				if (PaymentType == PaymentType.Terminal && OnlineOrder == null && !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus) && !isTransferedAddress)
 					yield return new ValidationResult($"В заказе с оплатой по терминалу №{Id} отсутствует номер оплаты.");
 
 			if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null && x.PromoSet == null))
@@ -1314,7 +1314,7 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			if((new[] { PaymentType.Cash, PaymentType.TerminalQR }.Contains(PaymentType)
+			if((new[] { PaymentType.Cash, PaymentType.Terminal }.Contains(PaymentType)
 				   || (PaymentType == PaymentType.PaidOnline
 					   && PaymentByCardFrom != null
 					   && !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderParametersProvider)))
@@ -3400,7 +3400,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case PaymentType.Cashless:
 				case PaymentType.PaidOnline:
-				case PaymentType.TerminalQR:
+				case PaymentType.Terminal:
 					ChangeStatusAndCreateTasks(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
 					break;
 				case PaymentType.Barter:
@@ -3551,7 +3551,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ChangePaymentTypeToByCardTerminal (CallTaskWorker callTaskWorker)
 		{
-			PaymentType = PaymentType.TerminalQR;
+			PaymentType = PaymentType.Terminal;
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
 		}
 
@@ -4458,7 +4458,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			PaymentType.Cash,
 			PaymentType.PaidOnline,
-			PaymentType.TerminalQR,
+			PaymentType.Terminal,
 			PaymentType.Cashless
 		};
 

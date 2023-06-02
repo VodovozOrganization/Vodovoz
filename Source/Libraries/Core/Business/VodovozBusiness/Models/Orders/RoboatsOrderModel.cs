@@ -233,7 +233,7 @@ namespace Vodovoz.Models.Orders
 					order.Trifle = roboatsOrderArgs.BanknoteForReturn;
 					break;
 				case RoboAtsOrderPayment.Terminal:
-					order.PaymentType = PaymentType.TerminalQR;
+					order.PaymentType = PaymentType.Terminal;
 					break;
 				case RoboAtsOrderPayment.QrCode:
 					order.PaymentType = PaymentType.DriverApplicationQR;

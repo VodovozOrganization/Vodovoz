@@ -643,7 +643,7 @@ namespace Vodovoz
 		{
 			labelOnlineOrder.Visible = entryOnlineOrder.Visible =
 				(_routeListItem.Order.PaymentType == PaymentType.PaidOnline
-				 || _routeListItem.Order.PaymentType == PaymentType.TerminalQR);
+				 || _routeListItem.Order.PaymentType == PaymentType.Terminal);
 		}
 
 		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)

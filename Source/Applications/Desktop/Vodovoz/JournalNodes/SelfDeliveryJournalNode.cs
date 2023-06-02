@@ -23,12 +23,12 @@ namespace Vodovoz.JournalNodes
 		public decimal OrderSum { get; set; }
 		public decimal OrderReturnSum { get; set; }
 		public decimal OrderCashSumTotal => (PaymentTypeEnum == 
-				PaymentType.Cash || (PaymentTypeEnum == PaymentType.TerminalQR && StatusEnum == OrderStatus.WaitForPayment) || (PaymentTypeEnum == PaymentType.TerminalQR && PayAfterLoad && StatusEnum != OrderStatus.Closed)) 
+				PaymentType.Cash || (PaymentTypeEnum == PaymentType.Terminal && StatusEnum == OrderStatus.WaitForPayment) || (PaymentTypeEnum == PaymentType.Terminal && PayAfterLoad && StatusEnum != OrderStatus.Closed)) 
 				? OrderSum - OrderReturnSum 
 				: 0;
 		public decimal OrderCashlessSumTotal => PaymentTypeEnum == PaymentType.Cashless || 
 		                                        PaymentTypeEnum == PaymentType.PaidOnline ||
-		                                        PaymentTypeEnum == PaymentType.TerminalQR ? OrderReturnSum - OrderReturnSum : 0;
+		                                        PaymentTypeEnum == PaymentType.Terminal ? OrderReturnSum - OrderReturnSum : 0;
 
 		//наличные по кассе
 		public decimal CashPaid { get; set; }

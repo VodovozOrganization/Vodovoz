@@ -261,7 +261,7 @@ namespace Vodovoz.Representations
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.Cash || (selectedNode.PaymentTypeEnum == PaymentType.TerminalQR && selectedNode.OrderCashSumTotal != 0)) && selectedNode.StatusEnum != OrderStatus.Closed;
+						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.Cash || (selectedNode.PaymentTypeEnum == PaymentType.Terminal && selectedNode.OrderCashSumTotal != 0)) && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => _userCanChangePayTypeToByCard,
 					selectedItems => {
@@ -290,7 +290,7 @@ namespace Vodovoz.Representations
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.Cash || (selectedNode.PaymentTypeEnum == PaymentType.TerminalQR && selectedNode.OrderCashSumTotal != 0)) && selectedNode.StatusEnum != OrderStatus.Closed;
+						return selectedNodes.Count == 1 && (selectedNode.PaymentTypeEnum == PaymentType.Cash || (selectedNode.PaymentTypeEnum == PaymentType.Terminal && selectedNode.OrderCashSumTotal != 0)) && selectedNode.StatusEnum != OrderStatus.Closed;
 					},
 					selectedItems => _userCanChangePayTypeToByCard,
 					selectedItems => {

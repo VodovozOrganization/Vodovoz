@@ -1036,7 +1036,7 @@
                       <Value>=
 Switch(
    {payment_type}='Cash', 'Наличными',
-   {payment_type}='TerminalQR', 'По терминалу (QR-код терминал)',
+   {payment_type}='Terminal', 'По терминалу (QR-код терминал)',
    {payment_type}='DriverApplicationQR', 'По QR-коду (приложение водителя)',
    {payment_type}='SmsQR', Iif({fast_payment_paid}, 'Оплачено', 'По QR-коду (приложение водителя)'),
    {payment_type}='PaidOnline', 'Оплачено',
@@ -2250,7 +2250,7 @@ LIMIT 1
     CONCAT(DATE_FORMAT(route_list_addresses.plan_time_start, '%H:%i'),'-', DATE_FORMAT(route_list_addresses.plan_time_end, '%H:%i')) AS PlanTime,
     IFNULL(orders.bottles_return, 0) + IFNULL(orders.bottles_by_stock_count, 0) AS empty_btls_from_client,
     IF(orders.payment_type = 'Cash', orders.sum_to_receive, 0) AS Total,
-    IF(orders.payment_type = 'TerminalQR',
+    IF(orders.payment_type = 'Terminal',
         (
             SELECT Round(SUM(IFNULL(actual_count, count) * price - discount_money), 2)
             FROM order_items

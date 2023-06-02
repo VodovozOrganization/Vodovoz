@@ -144,11 +144,11 @@ namespace DriverAPI.Library.Models
 
 			if(order.PaymentType == PaymentType.Cash)
 			{
-				availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
+				availablePaymentTypes.Add(PaymentDtoType.Terminal);
 				availablePaymentTypes.Add(PaymentDtoType.DriverApplicationQR);
 			}
 
-			if(order.PaymentType == PaymentType.TerminalQR)
+			if(order.PaymentType == PaymentType.Terminal)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
 				availablePaymentTypes.Add(PaymentDtoType.DriverApplicationQR);
@@ -157,7 +157,7 @@ namespace DriverAPI.Library.Models
 			if(order.PaymentType == PaymentType.DriverApplicationQR)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
-				availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
+				availablePaymentTypes.Add(PaymentDtoType.Terminal);
 			}
 
 			return availablePaymentTypes;

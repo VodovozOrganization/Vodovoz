@@ -85,7 +85,7 @@ namespace Vodovoz.ExportTo1c
 		public void AddOrder(Order order)
 		{
 			OrdersTotalSum += order.OrderSum;
-			if(order.PaymentType == PaymentType.PaidOnline || order.PaymentType == PaymentType.Cash || order.PaymentType == PaymentType.TerminalQR) {
+			if(order.PaymentType == PaymentType.PaidOnline || order.PaymentType == PaymentType.Cash || order.PaymentType == PaymentType.Terminal) {
 				CreateRetailDocument(order);
 			}
 			else
@@ -366,7 +366,7 @@ namespace Vodovoz.ExportTo1c
 				exportRetailDocument.Tables.Add(exportRefundTerminalTable);
 			}
 
-			bool isTerminalPaid = (order.PaymentType == PaymentType.PaidOnline || order.PaymentType == PaymentType.TerminalQR);
+			bool isTerminalPaid = (order.PaymentType == PaymentType.PaidOnline || order.PaymentType == PaymentType.Terminal);
 			
 			foreach (var orderItem in order.OrderItems)
 			{				

@@ -391,7 +391,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			CarLoadDocumentItem carLoadDocumentItemAlias = null;
 			
 			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
-			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.TerminalQR);
+			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
 			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
 									.JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)
@@ -486,7 +486,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
 			var routeList = uow.Query<RouteList>().Where(x => x.Id == routeListId).SingleOrDefault();
-			var anyAddressesRequireTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.TerminalQR);
+			var anyAddressesRequireTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal);
 
 			var giveoutDoc = GetLastTerminalDocumentForEmployee(uow, routeList.Driver) as DriverAttachedTerminalGiveoutDocument;
 
@@ -517,7 +517,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			var transferedCount = TerminalTransferedCountToRouteList(uow, routeList);
 
 			var terminalId = _terminalNomenclatureProvider.GetNomenclatureIdForTerminal;
-			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.TerminalQR) && transferedCount == 0;
+			var needTerminal = routeList.Addresses.Any(x => x.Order.PaymentType == PaymentType.Terminal) && transferedCount == 0;
 
 			var loadedTerminal = uow.Session.QueryOver<CarLoadDocument>()
 									.JoinAlias(x => x.Items, () => carLoadDocumentItemAlias)

@@ -3147,7 +3147,7 @@ namespace Vodovoz
 			switch(Entity.PaymentType) {
 				case PaymentType.PaidOnline:
 					return true;
-				case PaymentType.TerminalQR:
+				case PaymentType.Terminal:
 				case PaymentType.SmsQR:
 				case PaymentType.DriverApplicationQR:
 					return Entity.OnlineOrder != null;

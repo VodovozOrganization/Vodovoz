@@ -19,7 +19,7 @@ namespace DriverAPI.Library.Deprecated.Converters
 				case PaymentType.PaidOnline:
 					return PaymentDtoType.ByCard; //В прошлой версии отсутствует "оплачено" заглушено через по карте
 				case PaymentType.DriverApplicationQR: //В прошлой версии отсутствует оплата через МП заглушено через терминал
-				case PaymentType.TerminalQR:
+				case PaymentType.Terminal:
 					return PaymentDtoType.Terminal;
 				case PaymentType.SmsQR:
 					if(paid)

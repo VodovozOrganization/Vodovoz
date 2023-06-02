@@ -6,7 +6,7 @@ namespace DriverAPI.Library.DTOs
 	public enum PaymentDtoType
 	{
 		Cash,
-		TerminalQR,
+		Terminal,
 		DriverApplicationQR,
 		Paid,
 		Cashless,

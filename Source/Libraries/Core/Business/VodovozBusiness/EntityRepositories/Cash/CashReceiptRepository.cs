@@ -50,7 +50,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		private ICriterion GetPaymentTypeRestriction()
 		{
 			var restriction = Restrictions.Disjunction()
-				.Add(() => _orderAlias.PaymentType == PaymentType.TerminalQR)
+				.Add(() => _orderAlias.PaymentType == PaymentType.Terminal)
 				.Add(() => _orderAlias.PaymentType == PaymentType.Cash)
 				.Add(() => _orderAlias.PaymentType == PaymentType.DriverApplicationQR)
 				.Add(() => _orderAlias.PaymentType == PaymentType.SmsQR)

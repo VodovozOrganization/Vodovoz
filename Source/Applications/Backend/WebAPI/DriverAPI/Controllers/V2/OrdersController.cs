@@ -145,9 +145,9 @@ namespace DriverAPI.Controllers.V2
 
 				Vodovoz.Domain.Client.PaymentType newVodovozPaymentType;
 
-				if(newPaymentType == PaymentDtoType.TerminalQR)
+				if(newPaymentType == PaymentDtoType.Terminal)
 				{
-					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.TerminalQR;
+					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.Terminal;
 				}
 				else if(newPaymentType == PaymentDtoType.Cash)
 				{

@@ -195,7 +195,7 @@ namespace Vodovoz.Tools.Orders
 
 			var cashless = (key.PaymentType == PaymentType.Cashless && key.IsPriceOfAllOrderItemsZero)
 				&& (!key.NeedToRefundDepositToClient || key.NeedToReturnBottles);
-			var paidOnline = (key.PaymentType == PaymentType.PaidOnline || key.PaymentType == PaymentType.TerminalQR) && key.HasOrderItems;
+			var paidOnline = (key.PaymentType == PaymentType.PaidOnline || key.PaymentType == PaymentType.Terminal) && key.HasOrderItems;
 			var cash = key.PaymentType == PaymentType.Cash;
 			var fastPaymentQr = (key.PaymentType == PaymentType.DriverApplicationQR || key.PaymentType == PaymentType.SmsQR) && key.HasOrderItems;
 
@@ -377,7 +377,7 @@ namespace Vodovoz.Tools.Orders
 
 			if((key.PaymentType == PaymentType.Cashless || 
 			    key.PaymentType == PaymentType.PaidOnline || 
-			    key.PaymentType == PaymentType.TerminalQR) && !key.HasOrderItems) {
+			    key.PaymentType == PaymentType.Terminal) && !key.HasOrderItems) {
 				result = true;
 			}
 			return result;
@@ -394,7 +394,7 @@ namespace Vodovoz.Tools.Orders
 				return false;
 			}
 
-			if((key.PaymentType == PaymentType.PaidOnline || key.PaymentType == PaymentType.TerminalQR) &&
+			if((key.PaymentType == PaymentType.PaidOnline || key.PaymentType == PaymentType.Terminal) &&
 			   (key.HasOrderEquipment || (!key.HasOrderEquipment && key.NeedToReturnBottles))) {
 				result = true;
 			}

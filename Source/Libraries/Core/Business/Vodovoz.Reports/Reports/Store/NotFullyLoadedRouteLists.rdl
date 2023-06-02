@@ -370,7 +370,7 @@ FROM route_lists rl
          WHERE rl.not_fully_loaded
            AND rl.date BETWEEN @start_date AND @end_date 
            AND (!rla.was_transfered OR rla.address_transfer_type = 'NeedToReload')
-           AND o.payment_type = 'TerminalQR' 
+           AND o.payment_type = 'Terminal' 
          GROUP BY rl_id
          UNION ALL # FastDelivery additional loading                  
          SELECT

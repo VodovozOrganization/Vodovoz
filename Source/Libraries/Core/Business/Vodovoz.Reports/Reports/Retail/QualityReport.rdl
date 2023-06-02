@@ -816,7 +816,7 @@
 	sales_channels.name AS channel_name,
 	CASE
 		WHEN orders.payment_type = 'Cash' THEN 'Наличная'
-		WHEN orders.payment_type = 'TerminalQR' THEN 'Терминал (QR-код терминал)'
+		WHEN orders.payment_type = 'Terminal' THEN 'Терминал (QR-код терминал)'
 		WHEN orders.payment_type = 'DriverApplicationQR' THEN 'МП водителя (QR-код)'
 		WHEN orders.payment_type = 'SmsQR' THEN 'SMS (QR-код)'
 		WHEN orders.payment_type = 'PaidOnline' THEN 'Оплачено онлайн'

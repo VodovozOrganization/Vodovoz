@@ -467,7 +467,7 @@ GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.pat
 sales_channels.name AS channel_name,
 CASE
      WHEN counterparty.payment_method = 'Cash' THEN 'Наличная'
-     WHEN counterparty.payment_method = 'TerminalQR' THEN 'Терминал (QR-код терминал)'
+     WHEN counterparty.payment_method = 'Terminal' THEN 'Терминал (QR-код терминал)'
      WHEN counterparty.payment_method = 'DriverApplicationQR' THEN 'SMS (QR-код)'
      WHEN counterparty.payment_method = 'SmsQR' THEN 'МП водителя (QR-код)'
      WHEN counterparty.payment_method = 'PaidOnline' THEN 'Оплачено онлайн'

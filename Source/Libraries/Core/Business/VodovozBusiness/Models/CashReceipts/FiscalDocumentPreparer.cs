@@ -282,7 +282,7 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			switch(orderPaymentType)
 			{
-				case PaymentType.TerminalQR:
+				case PaymentType.Terminal:
 				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:
 				case PaymentType.PaidOnline:

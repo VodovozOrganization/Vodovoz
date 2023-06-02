@@ -53,7 +53,7 @@
 	END AS order_signature_type,
 	CASE orders.payment_type 
 		WHEN 'Cash' THEN 'Наличные'
-		WHEN 'TerminalQR' THEN 'По терминалу (QR-код терминал)'
+		WHEN 'Terminal' THEN 'По терминалу (QR-код терминал)'
 		WHEN 'DriverApplicationQR' THEN 'По QR-коду (приложение водителя)'
 		WHEN 'SmsQR' THEN IF(
         (SELECT count(*) &gt; 0
@@ -3397,7 +3397,7 @@ WHERE stored_resource.id = @id1</CommandText>
         Iif(First({trifle},'Order')&gt;0,
             "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
             " "),
-    First({order_payment_type}, "Order") = "TerminalQR",
+    First({order_payment_type}, "Order") = "Terminal",
         "К оплате: \nПО ТЕРМИНАЛУ "+
         Convert.ToString
         (
