@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
@@ -68,20 +68,20 @@ namespace Vodovoz.ViewModels.Cash
 		}
 
 		protected override bool BeforeValidation()
-		{
+        {
 			Entity.ChangePaymentTypeToByCardTerminal(_callTaskWorker);
 
-			if(!Entity.PayAfterShipment)
-			{
-				Entity.SelfDeliveryToLoading(_currentEmployee, CommonServices.CurrentPermissionService, _callTaskWorker);
-			}
+	        if(!Entity.PayAfterShipment)
+	        {
+		        Entity.SelfDeliveryToLoading(_currentEmployee, CommonServices.CurrentPermissionService, _callTaskWorker);
+	        }
 
-			if(Entity.SelfDelivery)
-			{
-				Entity.IsSelfDeliveryPaid = true;
-			}
+	        if(Entity.SelfDelivery)
+	        {
+		        Entity.IsSelfDeliveryPaid = true;
+	        }
 
-			return true;
-		}
-	}
+	        return true;
+        }
+    }
 }

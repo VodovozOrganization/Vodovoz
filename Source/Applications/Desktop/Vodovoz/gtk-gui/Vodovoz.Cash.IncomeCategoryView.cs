@@ -157,7 +157,7 @@ namespace Vodovoz.Cash
 			this.labelParent = new global::Gtk.Label();
 			this.labelParent.Name = "labelParent";
 			this.labelParent.Xalign = 0F;
-			this.labelParent.LabelProp = global::Mono.Unix.Catalog.GetString("Родительская группа:");
+			this.labelParent.LabelProp = global::Mono.Unix.Catalog.GetString("Связь с новой статьей:");
 			this.tableMain.Add(this.labelParent);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelParent]));
 			w12.TopAttach = ((uint)(4));

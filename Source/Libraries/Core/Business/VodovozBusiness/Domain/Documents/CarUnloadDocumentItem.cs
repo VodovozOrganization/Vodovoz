@@ -32,10 +32,11 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref reciveType, value, () => ReciveType); }
 		}
 
-		private WarehouseMovementOperation warehouseMovementOperation;
-		public virtual WarehouseMovementOperation WarehouseMovementOperation { 
-			get => warehouseMovementOperation;
-			set { SetField (ref warehouseMovementOperation, value, () => WarehouseMovementOperation); }
+		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
+		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation
+		{ 
+			get => _goodsAccountingOperation;
+			set => SetField (ref _goodsAccountingOperation, value);
 		}
 
 		private EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperation;
@@ -80,13 +81,13 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title =>
 			String.Format("[{2}] {0} - {1}",
-				WarehouseMovementOperation.Nomenclature.Name,
-				WarehouseMovementOperation.Nomenclature.Unit.MakeAmountShortStr(WarehouseMovementOperation.Amount),
+				GoodsAccountingOperation.Nomenclature.Name,
+				GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount),
 				document.Title);
 
 		public virtual void CreateOrUpdateDeliveryFreeBalanceOperation(int terminalId)
 		{
-			if(reciveType == ReciveTypes.Defective || WarehouseMovementOperation.Nomenclature.Id == terminalId)
+			if(reciveType == ReciveTypes.Defective || GoodsAccountingOperation.Nomenclature.Id == terminalId)
 			{
 				return;
 			}
@@ -94,11 +95,11 @@ namespace Vodovoz.Domain.Documents
 			var deliveryFreeBalanceOperation = DeliveryFreeBalanceOperation
 				?? new DeliveryFreeBalanceOperation
 				{
-					Nomenclature = new Nomenclature { Id = WarehouseMovementOperation.Nomenclature.Id },
+					Nomenclature = new Nomenclature { Id = GoodsAccountingOperation.Nomenclature.Id },
 					RouteList = Document.RouteList
 				};
 
-			deliveryFreeBalanceOperation.Amount = -WarehouseMovementOperation.Amount;
+			deliveryFreeBalanceOperation.Amount = -GoodsAccountingOperation.Amount;
 			DeliveryFreeBalanceOperation = deliveryFreeBalanceOperation;
 		}
 	}

@@ -18,20 +18,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NHibernate.SqlCommand;
+using QS.Project.DB;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.IncomingInvoices;
+using Vodovoz.Domain.Documents.InventoryDocuments;
+using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.NHibernateProjections.Documents;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes.Store;
 using Vodovoz.ViewModels.ViewModels.Employees;
-using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
@@ -40,13 +48,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 	{
 		private const string _journalReportTemplatePath = @".\Reports\Store\WarehouseDocumentsItemsJournalReport.xlsx";
 		private const string _warehouseAccountingCardTemplatePath = @".\Reports\Store\WarehouseAccountingCard.xlsx";
+		private const string _notSpecified = "Не указан";
 		private readonly IFileDialogService _fileDialogService;
 
 		private readonly Type[] _documentItemsTypes;
 		private readonly Type[] _documentTypes;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private WarehouseDocumentsItemsJournalReport _warehouseDocumentsItemsJournalReport;
-		private WarhouseAccountingCard _warehouseAccountingCard;
+		private WarehouseAccountingCard _warehouseAccountingCard;
 		private CancellationTokenSource _cancellationTokenSource;
 
 		public WarehouseDocumentsItemsJournalViewModel(
@@ -76,7 +85,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				typeof(IncomingInvoiceItem),
 				typeof(IncomingWaterMaterial),
 				typeof(MovementDocumentItem),
-				typeof(WriteoffDocumentItem),
+				typeof(WriteOffDocumentItem),
 				typeof(SelfDeliveryDocumentItem),
 				typeof(CarLoadDocumentItem),
 				typeof(CarUnloadDocumentItem),
@@ -90,7 +99,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				typeof(IncomingInvoice),
 				typeof(IncomingWater),
 				typeof(MovementDocument),
-				typeof(WriteoffDocument),
+				typeof(WriteOffDocument),
 				typeof(SelfDeliveryDocument),
 				typeof(CarLoadDocument),
 				typeof(CarUnloadDocument),
@@ -116,33 +125,33 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			_cancellationTokenSource = new CancellationTokenSource();
 			CreateJournalReportCommand = new DelegateCommand(async () => await CreateReport(_cancellationTokenSource.Token));
 			ExportJournalReportCommand = new DelegateCommand(ExportJournalReport);
-			CreateWarhouseAccountingCardCommand = new DelegateCommand(async () => await CreateWarhouseAccountingCard(_cancellationTokenSource.Token));
-			ExportWarhouseAccountingCardCommand = new DelegateCommand(ExportWarhouseAccountingCard);
+			CreateWarehouseAccountingCardCommand = new DelegateCommand(async () => await CreateWarehouseAccountingCard(_cancellationTokenSource.Token));
+			ExportWarehouseAccountingCardCommand = new DelegateCommand(ExportWarehouseAccountingCard);
 
 			FilterViewModel.PropertyChanged += OnFilterViewModelPropertyChanged;
 		}
 
 		private void OnFilterViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			var canExportWarhouseAccountingCardPropertiesAffected = new string[]
+			var canExportWarehouseAccountingCardPropertiesAffected = new string[]
 			{
 				nameof(FilterViewModel.Nomenclature),
 				nameof(FilterViewModel.WarehouseIds),
 				nameof(FilterViewModel.TargetSource)
 			};
 
-			if(canExportWarhouseAccountingCardPropertiesAffected.Contains(e.PropertyName))
+			if(canExportWarehouseAccountingCardPropertiesAffected.Contains(e.PropertyName))
 			{
-				OnPropertyChanged(nameof(CanExportWarhouseAccountingCard));
+				OnPropertyChanged(nameof(CanExportWarehouseAccountingCard));
 			}
 		}
 
 		public DelegateCommand CreateJournalReportCommand { get; }
 		public DelegateCommand ExportJournalReportCommand { get; }
-		public DelegateCommand CreateWarhouseAccountingCardCommand { get; }
-		public DelegateCommand ExportWarhouseAccountingCardCommand { get; }
+		public DelegateCommand CreateWarehouseAccountingCardCommand { get; }
+		public DelegateCommand ExportWarehouseAccountingCardCommand { get; }
 
-		public bool CanExportWarhouseAccountingCard =>
+		public bool CanExportWarehouseAccountingCard =>
 			FilterViewModel.Nomenclature != null
 			&& FilterViewModel.WarehouseIds.Count == 1
 			&& FilterViewModel.TargetSource == TargetSource.Both;
@@ -210,7 +219,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			RegisterEntity(GetQueryIncomingInvoiceItem)
 				.AddDocumentConfiguration(
 					() => null,
-					(node) => NavigationManager.OpenViewModel<IncomingInvoiceViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
+					(node) => NavigationManager.OpenViewModel<IncomingInvoiceViewModel, IEntityUoWBuilder>(
+						null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
 					(node) => node.EntityType == typeof(IncomingInvoiceItem))
 					.FinishConfiguration();
 
@@ -232,15 +242,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				}.AsEnumerable())
 				.AddDocumentConfiguration(
 					() => null,
-					(node) => NavigationManager.OpenViewModel<MovementDocumentViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
+					(node) => NavigationManager.OpenViewModel<MovementDocumentViewModel, IEntityUoWBuilder>(
+						null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
 					(node) => node.EntityType == typeof(MovementDocumentItem))
 					.FinishConfiguration();
 
-			RegisterEntity(GetQueryWriteoffDocumentItem)
+			RegisterEntity(GetQueryWriteOffDocumentItem)
 				.AddDocumentConfiguration<ITdiTab>(
 					() => null,
-					(node) => _gtkTabsOpener.OpenWriteoffDocumentDlg(node.DocumentId),
-					(node) => node.EntityType == typeof(WriteoffDocumentItem))
+					(node) => NavigationManager.OpenViewModel<WriteOffDocumentViewModel, IEntityUoWBuilder>(
+						null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
+					(node) => node.EntityType == typeof(WriteOffDocumentItem))
 					.FinishConfiguration();
 
 			RegisterEntity(GetQuerySelfDeliveryDocumentItem)
@@ -267,7 +279,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			RegisterEntity(GetQueryInventoryDocumentItem)
 				.AddDocumentConfiguration(
 					() => null,
-					(node) => NavigationManager.OpenViewModel<InventoryDocumentViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
+					(node) => NavigationManager.OpenViewModel<InventoryDocumentViewModel, IEntityUoWBuilder>(
+						null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
 					(node) => node.EntityType == typeof(InventoryDocumentItem))
 					.FinishConfiguration();
 
@@ -293,14 +306,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			RegisterEntity(GetQueryDriverAttachedTerminalGiveoutDocument)
 				.AddDocumentConfiguration(
 					() => null,
-					(node) => NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
+					(node) => NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(
+						null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
 					(node) => node.EntityType == typeof(DriverAttachedTerminalGiveoutDocument))
 					.FinishConfiguration();
 
 			RegisterEntity(GetQueryDriverAttachedTerminalReturnDocument)
 				.AddDocumentConfiguration(
 					() => null,
-					(node) => NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
+					(node) => NavigationManager.OpenViewModel<DriverAttachedTerminalViewModel, IEntityUoWBuilder>(
+						null, EntityUoWBuilder.ForOpen(node.DocumentId)).ViewModel,
 					(node) => node.EntityType == typeof(DriverAttachedTerminalReturnDocument))
 					.FinishConfiguration();
 
@@ -407,15 +422,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => typeof(IncomingInvoiceItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => counterpartyAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
+						Projections.Constant(_notSpecified, NHibernateUtil.String),
 						Projections.Property(() => counterpartyAlias.Name)))
 					.WithAlias(() => resultAlias.Counterparty)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => warehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
+						Projections.Constant(_notSpecified, NHibernateUtil.String),
 						Projections.Property(() => warehouseAlias.Name)))
-					.WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.WithAlias(() => resultAlias.ToStorage)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => incomingInvoiceItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
@@ -505,8 +520,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return waterQuery
-				.Left.JoinAlias(() => incomingWaterAlias.ToWarehouse, () => toWarehouseAlias)
-				.Left.JoinAlias(() => incomingWaterAlias.FromWarehouse, () => fromWarehouseAlias)
+				.Left.JoinAlias(() => incomingWaterAlias.IncomingWarehouse, () => toWarehouseAlias)
+				.Left.JoinAlias(() => incomingWaterAlias.WriteOffWarehouse, () => fromWarehouseAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.LastEditor, () => lastEditorAlias)
 				.Left.JoinAlias(() => incomingWaterMaterialAlias.Nomenclature, () => nomenclatureAlias)
@@ -519,16 +534,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => typeof(IncomingWaterMaterial)).WithAlias(() => resultAlias.EntityType)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => fromWarehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
+						Projections.Constant(_notSpecified, NHibernateUtil.String),
 						Projections.Property(() => fromWarehouseAlias.Name)))
-					.WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => fromWarehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.WithAlias(() => resultAlias.FromStorage)
+					.Select(() => fromWarehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => toWarehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
+						Projections.Constant(_notSpecified, NHibernateUtil.String),
 						Projections.Property(() => toWarehouseAlias.Name)))
-					.WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => toWarehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.WithAlias(() => resultAlias.ToStorage)
+					.Select(() => toWarehouseAlias.Id).WithAlias(() => resultAlias.ToStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => incomingWaterMaterialAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
@@ -584,7 +599,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 					if(FilterViewModel.TargetSource != TargetSource.Source)
 					{
-						warehouseCriterion = Restrictions.In(Projections.Property(() => incomingWaterAlias.ToWarehouse.Id), FilterViewModel.WarehouseIds);
+						warehouseCriterion = Restrictions.In(Projections.Property(() => incomingWaterAlias.IncomingWarehouse.Id), FilterViewModel.WarehouseIds);
 					}
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
@@ -618,8 +633,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return waterQuery
-				.Left.JoinAlias(() => incomingWaterAlias.ToWarehouse, () => toWarehouseAlias)
-				.Left.JoinAlias(() => incomingWaterAlias.FromWarehouse, () => fromWarehouseAlias)
+				.Left.JoinAlias(() => incomingWaterAlias.IncomingWarehouse, () => toWarehouseAlias)
+				.Left.JoinAlias(() => incomingWaterAlias.WriteOffWarehouse, () => fromWarehouseAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.LastEditor, () => lastEditorAlias)
 				.Left.JoinAlias(() => incomingWaterAlias.Product, () => nomenclatureAlias)
@@ -632,16 +647,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => typeof(IncomingWaterMaterial)).WithAlias(() => resultAlias.EntityType)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => fromWarehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
+						Projections.Constant(_notSpecified, NHibernateUtil.String),
 						Projections.Property(() => fromWarehouseAlias.Name)))
-					.WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => fromWarehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.WithAlias(() => resultAlias.FromStorage)
+					.Select(() => fromWarehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
 					.Select(Projections.Conditional(
 						Restrictions.Where(() => toWarehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
+						Projections.Constant(_notSpecified, NHibernateUtil.String),
 						Projections.Property(() => toWarehouseAlias.Name)))
-					.WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => toWarehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.WithAlias(() => resultAlias.ToStorage)
+					.Select(() => toWarehouseAlias.Id).WithAlias(() => resultAlias.ToStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(Projections.Cast(NHibernateUtil.Decimal, Projections.Property(() => incomingWaterAlias.Amount))).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
@@ -664,12 +679,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Warehouse fromWarehouseAlias = null;
 			Warehouse toWarehouseAlias = null;
 			MovementWagon movementWagonAlias = null;
+			Employee fromEmployeeAlias = null;
+			Employee toEmployeeAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Car fromCarAlias = null;
+			CarModel fromCarModelAlias = null;
+			Car toCarAlias = null;
+			CarModel toCarModelAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
 			var movementQuery = unitOfWork.Session.QueryOver(() => movementDocumentItemAlias)
-				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias);
+				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
+				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => fromWarehouseAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.ToWarehouse, () => toWarehouseAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.FromEmployee, () => fromEmployeeAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.ToEmployee, () => toEmployeeAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.FromCar, () => fromCarAlias)
+				.Left.JoinAlias(() => fromCarAlias.CarModel, () => fromCarModelAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.ToCar, () => toCarAlias)
+				.Left.JoinAlias(() => toCarAlias.CarModel, () => toCarModelAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.MovementWagon, () => movementWagonAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.LastEditor, () => lastEditorAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
@@ -742,40 +775,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return movementQuery
-				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => fromWarehouseAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.ToWarehouse, () => toWarehouseAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.MovementWagon, () => movementWagonAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.LastEditor, () => lastEditorAlias)
 				.SelectList(list => list
 					.Select(() => movementDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => movementDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => movementDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => fromWarehouseAlias.Name).WithAlias(() => resultAlias.Source)
+					.Select(WarehouseDocumentsProjections.GetFromStorageProjection(_notSpecified)).WithAlias(() => resultAlias.Source)
 					.Select(() => DocumentType.MovementDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(MovementDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => movementDocumentAlias.Status).WithAlias(() => resultAlias.MovementDocumentStatus)
 					.Select(() => movementDocumentAlias.HasDiscrepancy).WithAlias(() => resultAlias.MovementDocumentDiscrepancy)
 					.Select(() => movementWagonAlias.Name).WithAlias(() => resultAlias.CarNumber)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => fromWarehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => fromWarehouseAlias.Name)))
-					.WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => fromWarehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => toWarehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => toWarehouseAlias.Name)))
-					.WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => toWarehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(WarehouseDocumentsProjections.GetFromStorageProjection(_notSpecified)).WithAlias(() => resultAlias.FromStorage)
+					.Select(WarehouseDocumentsProjections.GetFromStorageIdProjection()).WithAlias(() => resultAlias.FromStorageId)
+					.Select(WarehouseDocumentsProjections.GetToStorageProjection(_notSpecified)).WithAlias(() => resultAlias.ToStorage)
+					.Select(WarehouseDocumentsProjections.GetToStorageIdProjection()).WithAlias(() => resultAlias.ToStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(Projections.Conditional(
 						Restrictions.Eq(
 							Projections.Property(() => movementDocumentAlias.Status), MovementDocumentStatus.Accepted),
 							Projections.Property(() => movementDocumentItemAlias.ReceivedAmount),
-							Projections.Property(() => movementDocumentItemAlias.SendedAmount)))
+							Projections.Property(() => movementDocumentItemAlias.SentAmount)))
 					.WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -798,12 +817,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Warehouse fromWarehouseAlias = null;
 			Warehouse toWarehouseAlias = null;
 			MovementWagon movementWagonAlias = null;
+			Employee fromEmployeeAlias = null;
+			Employee toEmployeeAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Car fromCarAlias = null;
+			CarModel fromCarModelAlias = null;
+			Car toCarAlias = null;
+			CarModel toCarModelAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
 			var movementQuery = unitOfWork.Session.QueryOver(() => movementDocumentItemAlias)
-				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias);
+				.JoinQueryOver(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
+				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => fromWarehouseAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.ToWarehouse, () => toWarehouseAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.FromEmployee, () => fromEmployeeAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.ToEmployee, () => toEmployeeAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.FromCar, () => fromCarAlias)
+				.Left.JoinAlias(() => fromCarAlias.CarModel, () => fromCarModelAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.ToCar, () => toCarAlias)
+				.Left.JoinAlias(() => toCarAlias.CarModel, () => toCarModelAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.MovementWagon, () => movementWagonAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => movementDocumentAlias.LastEditor, () => lastEditorAlias);
 
 			if((FilterViewModel.DocumentType == null
 				|| FilterViewModel.DocumentType == DocumentType.MovementDocument)
@@ -875,34 +912,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return movementQuery
-				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.FromWarehouse, () => fromWarehouseAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.ToWarehouse, () => toWarehouseAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.MovementWagon, () => movementWagonAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => movementDocumentAlias.LastEditor, () => lastEditorAlias)
 				.SelectList(list => list
 					.Select(() => movementDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => movementDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
 					.Select(() => movementDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => toWarehouseAlias.Name).WithAlias(() => resultAlias.Target)
+					.Select(WarehouseDocumentsProjections.GetToStorageProjection(_notSpecified)).WithAlias(() => resultAlias.Target)
 					.Select(() => DocumentType.MovementDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(MovementDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => movementDocumentAlias.Status).WithAlias(() => resultAlias.MovementDocumentStatus)
 					.Select(() => movementDocumentAlias.HasDiscrepancy).WithAlias(() => resultAlias.MovementDocumentDiscrepancy)
 					.Select(() => movementWagonAlias.Name).WithAlias(() => resultAlias.CarNumber)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => fromWarehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => fromWarehouseAlias.Name)))
-					.WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => fromWarehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => toWarehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => toWarehouseAlias.Name)))
-					.WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => toWarehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(WarehouseDocumentsProjections.GetFromStorageProjection(_notSpecified)).WithAlias(() => resultAlias.FromStorage)
+					.Select(WarehouseDocumentsProjections.GetFromStorageIdProjection()).WithAlias(() => resultAlias.FromStorageId)
+					.Select(WarehouseDocumentsProjections.GetToStorageProjection(_notSpecified)).WithAlias(() => resultAlias.ToStorage)
+					.Select(WarehouseDocumentsProjections.GetToStorageIdProjection()).WithAlias(() => resultAlias.ToStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => movementDocumentItemAlias.ReceivedAmount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
@@ -917,20 +940,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
-		private IQueryOver<WriteoffDocumentItem> GetQueryWriteoffDocumentItem(IUnitOfWork unitOfWork)
+		private IQueryOver<WriteOffDocumentItem> GetQueryWriteOffDocumentItem(IUnitOfWork unitOfWork)
 		{
 			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
-			WriteoffDocumentItem writeoffDocumentItemAlias = null;
-			WriteoffDocument writeoffDocumentAlias = null;
-			Counterparty counterpartyAlias = null;
-			Warehouse warehouseAlias = null;
+			WriteOffDocumentItem writeOffDocumentItemAlias = null;
+			WriteOffDocument writeOffDocumentAlias = null;
+			Warehouse fromWarehouseAlias = null;
+			Employee fromEmployeeAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
+			Car fromCarAlias = null;
+			CarModel fromCarModelAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			var writeoffQuery = unitOfWork.Session.QueryOver(() => writeoffDocumentItemAlias)
-				.JoinQueryOver(() => writeoffDocumentItemAlias.Document, () => writeoffDocumentAlias);
+			var writeoffQuery = unitOfWork.Session.QueryOver(() => writeOffDocumentItemAlias)
+				.JoinQueryOver(() => writeOffDocumentItemAlias.Document, () => writeOffDocumentAlias);
 
 			if((FilterViewModel.DocumentType == null || FilterViewModel.DocumentType == DocumentType.WriteoffDocument)
 				&& FilterViewModel.Driver == null
@@ -939,23 +964,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			{
 				if(FilterViewModel.DocumentId != null)
 				{
-					writeoffQuery.Where(() => writeoffDocumentAlias.Id == FilterViewModel.DocumentId);
+					writeoffQuery.Where(() => writeOffDocumentAlias.Id == FilterViewModel.DocumentId);
 				}
 
 				if(FilterViewModel.StartDate != null)
 				{
-					writeoffQuery.Where(() => writeoffDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
+					writeoffQuery.Where(() => writeOffDocumentAlias.TimeStamp >= FilterViewModel.StartDate);
 				}
 
 				if(FilterViewModel.EndDate != null)
 				{
-					writeoffQuery.Where(() => writeoffDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
+					writeoffQuery.Where(() => writeOffDocumentAlias.TimeStamp <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.WarehouseIds.Any()
 					&& (FilterViewModel.TargetSource == TargetSource.Source || FilterViewModel.TargetSource == TargetSource.Both))
 				{
-					var  warehouseCriterion = Restrictions.In(Projections.Property(() => warehouseAlias.Id), FilterViewModel.WarehouseIds);
+					var  warehouseCriterion = Restrictions.In(Projections.Property(() => fromWarehouseAlias.Id), FilterViewModel.WarehouseIds);
 
 					if(FilterViewModel.FilterType == Vodovoz.Infrastructure.Report.SelectableParametersFilter.SelectableFilterType.Include)
 					{
@@ -984,43 +1009,36 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 			else
 			{
-				writeoffQuery.Where(() => writeoffDocumentAlias.Id == -1);
+				writeoffQuery.Where(() => writeOffDocumentAlias.Id == -1);
 			}
 
 			return writeoffQuery
-				.Left.JoinAlias(() => writeoffDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Left.JoinAlias(() => writeoffDocumentAlias.Client, () => counterpartyAlias)
-				.Left.JoinAlias(() => writeoffDocumentAlias.Warehouse, () => warehouseAlias)
-				.Left.JoinAlias(() => writeoffDocumentAlias.Author, () => authorAlias)
-				.Left.JoinAlias(() => writeoffDocumentAlias.LastEditor, () => lastEditorAlias)
+				.Left.JoinAlias(() => writeOffDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => writeOffDocumentAlias.WriteOffFromWarehouse, () => fromWarehouseAlias)
+				.Left.JoinAlias(() => writeOffDocumentAlias.WriteOffFromEmployee, () => fromEmployeeAlias)
+				.Left.JoinAlias(() => writeOffDocumentAlias.WriteOffFromCar, () => fromCarAlias)
+				.Left.JoinAlias(() => fromCarAlias.CarModel, () => fromCarModelAlias)
+				.Left.JoinAlias(() => writeOffDocumentAlias.Author, () => authorAlias)
+				.Left.JoinAlias(() => writeOffDocumentAlias.LastEditor, () => lastEditorAlias)
 				.SelectList(list => list
-					.Select(() => writeoffDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => writeoffDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
-					.Select(() => writeoffDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Source)
+					.Select(() => writeOffDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => writeOffDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
+					.Select(() => writeOffDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
+					.Select(WarehouseDocumentsProjections.GetFromStorageProjection(string.Empty)).WithAlias(() => resultAlias.Source)
 					.Select(() => DocumentType.WriteoffDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
-					.Select(() => typeof(WriteoffDocumentItem)).WithAlias(() => resultAlias.EntityType)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => counterpartyAlias.Name == null),
-						Projections.Constant(string.Empty, NHibernateUtil.String),
-						Projections.Property(() => counterpartyAlias.Name)))
-					.WithAlias(() => resultAlias.Counterparty)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => warehouseAlias.Name == null),
-						Projections.Constant(string.Empty, NHibernateUtil.String),
-						Projections.Property(() => warehouseAlias.Name)))
-					.WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => typeof(WriteOffDocumentItem)).WithAlias(() => resultAlias.EntityType)
+					.Select(WarehouseDocumentsProjections.GetFromStorageProjection(string.Empty)).WithAlias(() => resultAlias.FromStorage)
+					.Select(WarehouseDocumentsProjections.GetFromStorageIdProjection()).WithAlias(() => resultAlias.FromStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-					.Select(() => writeoffDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => writeOffDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 					.Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorSurname)
 					.Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
 					.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-					.Select(() => writeoffDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
-					.Select(() => writeoffDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
+					.Select(() => writeOffDocumentAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+					.Select(() => writeOffDocumentAlias.Comment).WithAlias(() => resultAlias.Comment))
 				.OrderBy(x => x.TimeStamp).Desc
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
@@ -1127,8 +1145,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => DocumentType.SelfDeliveryDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(SelfDeliveryDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
-					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromStorage)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => selfDeliveryDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
@@ -1241,8 +1259,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
-					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromStorage)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => carLoadDocumentItemAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
@@ -1272,7 +1290,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			WarehouseMovementOperation warehouseMovementOperationAlias = null;
+			GoodsAccountingOperation goodsAccountingOperationAlias = null;
 
 			var carUnloadQuery = unitOfWork.Session.QueryOver(() => carUnLoadDocumentItemAlias)
 					.JoinQueryOver(() => carUnLoadDocumentItemAlias.Document, () => carUnLoadDocumentAlias);
@@ -1337,8 +1355,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return carUnloadQuery
-				.Left.JoinAlias(() => carUnLoadDocumentItemAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
-				.Left.JoinAlias(() => warehouseMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => carUnLoadDocumentItemAlias.GoodsAccountingOperation, () => goodsAccountingOperationAlias)
+				.Left.JoinAlias(() => goodsAccountingOperationAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => carUnLoadDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => carUnLoadDocumentAlias.RouteList, () => routeListAlias)
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
@@ -1358,10 +1376,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
-					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToStorage)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => goodsAccountingOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -1382,6 +1400,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			InventoryDocumentItem inventoryDocumentItemAlias = null;
 			InventoryDocument inventoryDocumentAlias = null;
 			Warehouse warehouseAlias = null;
+			Employee employeeAlias = null;
+			Car carAlias = null;
+			CarModel carModelAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -1467,6 +1488,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.Left.JoinAlias(() => inventoryDocumentAlias.Warehouse, () => warehouseAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => inventoryDocumentAlias.LastEditor, () => lastEditorAlias)
+				.Left.JoinAlias(() => inventoryDocumentAlias.Employee, () => employeeAlias)
+				.Left.JoinAlias(() => inventoryDocumentAlias.Car, () => carAlias)
+				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.SelectList(list => list
 					.Select(() => inventoryDocumentItemAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => inventoryDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
@@ -1476,50 +1500,45 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 							Restrictions.GeProperty(
 								Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
 								Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
-						Projections.Property(() => warehouseAlias.Name),
-						Projections.Constant(string.Empty)))
-					.WithAlias(() => resultAlias.Source)
+						WarehouseDocumentsProjections.GetStorageProjection(),
+						Projections.Constant(string.Empty))).WithAlias(() => resultAlias.Source)
 					.Select(
 						Projections.Conditional(
 							Restrictions.LtProperty(
 								Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
 								Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
-						Projections.Property(() => warehouseAlias.Name),
-						Projections.Constant(string.Empty)))
-					.WithAlias(() => resultAlias.Target)
+							WarehouseDocumentsProjections.GetStorageProjection(),
+						Projections.Constant(string.Empty))).WithAlias(() => resultAlias.Target)
 					.Select(() => DocumentType.InventoryDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(InventoryDocumentItem)).WithAlias(() => resultAlias.EntityType)
 					.Select(Projections.Conditional(
 						Restrictions.GeProperty(
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
-						Projections.Property(() => warehouseAlias.Name),
-						Projections.Constant("")))
-						.WithAlias(() => resultAlias.FromWarehouse)
+						WarehouseDocumentsProjections.GetStorageProjection(),
+						Projections.Constant(string.Empty))).WithAlias(() => resultAlias.FromStorage)
 					.Select(Projections.Conditional(
 						Restrictions.GeProperty(
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
-						Projections.Property(() => warehouseAlias.Id),
-						Projections.Constant(0))
-					).WithAlias(() => resultAlias.FromWarehouseId)
+						WarehouseDocumentsProjections.GetStorageIdProjection(),
+						Projections.Constant(0))).WithAlias(() => resultAlias.FromStorageId)
 					.Select(Projections.Conditional(
 						Restrictions.LtProperty(
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
-						Projections.Property(() => warehouseAlias.Name),
-						Projections.Constant("")))
-						.WithAlias(() => resultAlias.ToWarehouse)
+						WarehouseDocumentsProjections.GetStorageProjection(),
+						Projections.Constant(string.Empty))).WithAlias(() => resultAlias.ToStorage)
 					.Select(Projections.Conditional(
 						Restrictions.LtProperty(
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInFact),
 							Projections.Property(() => inventoryDocumentItemAlias.AmountInDB)),
-						Projections.Property(() => warehouseAlias.Id),
-						Projections.Constant(0))
-					).WithAlias(() => resultAlias.ToWarehouseId)
+						WarehouseDocumentsProjections.GetStorageIdProjection(),
+						Projections.Constant(0))).WithAlias(() => resultAlias.ToStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => inventoryDocumentItemAlias.AmountInFact - inventoryDocumentItemAlias.AmountInDB)
 						.WithAlias(() => resultAlias.Amount)
+					.Select(() => inventoryDocumentAlias.InventoryDocumentType).WithAlias(() => resultAlias.InventoryDocumentType)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -1540,6 +1559,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			ShiftChangeWarehouseDocument shiftChangeWarehouseDocumentAlias = null;
 
 			Warehouse warehouseAlias = null;
+			Car carAlias = null;
+			CarModel carModelAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -1618,6 +1639,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			return shiftchangeQuery
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Warehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Car, () => carAlias)
+				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => shiftChangeWarehouseDocumentAlias.LastEditor, () => lastEditorAlias)
 				.SelectList(list => list
@@ -1629,21 +1652,46 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 							Restrictions.GeProperty(
 								Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact),
 								Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInDB)),
-						Projections.Property(() => warehouseAlias.Name),
-						Projections.Constant(string.Empty)))
-					.WithAlias(() => resultAlias.Source)
+							ShiftChangeDocumentProjections.GetStorageProjection(),
+						Projections.Constant(string.Empty))).WithAlias(() => resultAlias.Source)
 					.Select(
 						Projections.Conditional(
 							Restrictions.LtProperty(
 								Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact),
 								Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInDB)),
-						Projections.Property(() => warehouseAlias.Name),
-						Projections.Constant(string.Empty)))
-					.WithAlias(() => resultAlias.Target)
+						ShiftChangeDocumentProjections.GetStorageProjection(),
+						Projections.Constant(string.Empty))).WithAlias(() => resultAlias.Target)
 					.Select(() => DocumentType.ShiftChangeDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(ShiftChangeWarehouseDocumentItem)).WithAlias(() => resultAlias.EntityType)
-					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => shiftChangeWarehouseDocumentAlias.ShiftChangeResidueDocumentType)
+					.WithAlias(() => resultAlias.ShiftChangeResidueDocumentType)
+					.Select(
+						Projections.Conditional(
+							Restrictions.GeProperty(
+								Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact),
+								Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInDB)),
+							ShiftChangeDocumentProjections.GetStorageProjection(),
+							Projections.Constant(string.Empty))).WithAlias(() => resultAlias.FromStorage)
+					.Select(Projections.Conditional(
+						Restrictions.GeProperty(
+							Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact),
+							Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInDB)),
+						ShiftChangeDocumentProjections.GetStorageIdProjection(),
+						Projections.Constant(0))).WithAlias(() => resultAlias.FromStorageId)
+					.Select(
+						Projections.Conditional(
+							Restrictions.LtProperty(
+								Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact),
+								Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInDB)),
+							ShiftChangeDocumentProjections.GetStorageProjection(),
+							Projections.Constant(string.Empty))).WithAlias(() => resultAlias.ToStorage)
+					.Select(
+						Projections.Conditional(
+							Restrictions.LtProperty(
+								Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact),
+								Projections.Property(() => shiftChangeWarehouseDocumentItemAlias.AmountInDB)),
+							ShiftChangeDocumentProjections.GetStorageIdProjection(),
+							Projections.Constant(0))).WithAlias(() => resultAlias.ToStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => shiftChangeWarehouseDocumentItemAlias.AmountInFact - shiftChangeWarehouseDocumentItemAlias.AmountInDB)
 						.WithAlias(() => resultAlias.Amount)
@@ -1740,8 +1788,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Source)
 					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(RegradingOfGoodsDocumentItem)).WithAlias(() => resultAlias.EntityType)
-					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromStorage)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => -regradingOfGoodsDocumentItemAlias.Amount)
 						.WithAlias(() => resultAlias.Amount)
@@ -1838,8 +1886,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Target)
 					.Select(() => DocumentType.RegradingOfGoodsDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(RegradingOfGoodsDocumentItem)).WithAlias(() => resultAlias.EntityType)
-					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToStorage)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
 					.Select(() => regradingOfGoodsDocumentItemAlias.Amount)
 						.WithAlias(() => resultAlias.Amount)
@@ -1860,7 +1908,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			DriverAttachedTerminalGiveoutDocument driverAttachedTerminalGiveoutDocumentAlias = null;
-			WarehouseMovementOperation warehouseMovementOperationAlias = null;
+			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
 			Warehouse warehouseAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			Employee authorAlias = null;
@@ -1923,22 +1971,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return queryDriverAttachedTerminalGiveout
-				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
-				.Left.JoinAlias(() => warehouseMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.GoodsAccountingOperation, () => warehouseBulkOperationAlias)
+				.Left.JoinAlias(() => warehouseBulkOperationAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => driverAttachedTerminalGiveoutDocumentAlias.Author, () => lastEditorAlias)
-				.Left.JoinAlias(() => warehouseMovementOperationAlias.WriteoffWarehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => warehouseBulkOperationAlias.Warehouse, () => warehouseAlias)
 				.SelectList(list => list
 					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => driverAttachedTerminalGiveoutDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
-					.Select(() => warehouseMovementOperationAlias.OperationTime).WithAlias(() => resultAlias.Date)
+					.Select(() => warehouseBulkOperationAlias.OperationTime).WithAlias(() => resultAlias.Date)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Source)
 					.Select(() => DocumentType.DriverTerminalGiveout).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(DriverAttachedTerminalGiveoutDocument)).WithAlias(() => resultAlias.EntityType)
-					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromWarehouse)
-					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromWarehouseId)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromStorage)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => warehouseBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -1955,7 +2003,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			DriverAttachedTerminalReturnDocument driverAttachedTerminalReturnDocumentAlias = null;
-			WarehouseMovementOperation warehouseMovementOperationAlias = null;
+			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
 			Warehouse warehouseAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			Employee authorAlias = null;
@@ -2018,22 +2066,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			}
 
 			return queryDriverAttachedTerminalReturn
-				.Left.JoinAlias(() => driverAttachedTerminalReturnDocumentAlias.WarehouseMovementOperation, () => warehouseMovementOperationAlias)
-				.Left.JoinAlias(() => warehouseMovementOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => driverAttachedTerminalReturnDocumentAlias.GoodsAccountingOperation, () => warehouseBulkOperationAlias)
+				.Left.JoinAlias(() => warehouseBulkOperationAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(() => driverAttachedTerminalReturnDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => driverAttachedTerminalReturnDocumentAlias.Author, () => lastEditorAlias)
-				.Left.JoinAlias(() => warehouseMovementOperationAlias.WriteoffWarehouse, () => warehouseAlias)
+				.Left.JoinAlias(() => warehouseBulkOperationAlias.Warehouse, () => warehouseAlias)
 				.SelectList(list => list
 					.Select(() => driverAttachedTerminalReturnDocumentAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => driverAttachedTerminalReturnDocumentAlias.Id).WithAlias(() => resultAlias.DocumentId)
-					.Select(() => warehouseMovementOperationAlias.OperationTime).WithAlias(() => resultAlias.Date)
+					.Select(() => warehouseBulkOperationAlias.OperationTime).WithAlias(() => resultAlias.Date)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Target)
 					.Select(() => DocumentType.DriverTerminalReturn).WithAlias(() => resultAlias.DocumentTypeEnum)
 					.Select(() => typeof(DriverAttachedTerminalReturnDocument)).WithAlias(() => resultAlias.EntityType)
-					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToWarehouse)
-					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToWarehouseId)
+					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.ToStorage)
+					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.ToStorageId)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-					.Select(() => warehouseMovementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => warehouseBulkOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
 					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
 					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -2079,7 +2127,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			lines.AddRange(GetQueryIncomingWaterToMaterial(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryMovementFromDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryMovementToDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
-			lines.AddRange(GetQueryWriteoffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryWriteOffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQuerySelfDeliveryDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryCarLoadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryCarUnloadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
@@ -2146,8 +2194,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				(selected) => {
 					try
 					{
-						CreateWarhouseAccountingCardCommand?.Execute();
-						ExportWarhouseAccountingCardCommand?.Execute();
+						CreateWarehouseAccountingCardCommand?.Execute();
+						ExportWarehouseAccountingCardCommand?.Execute();
 					}
 					catch(Exception)
 					{
@@ -2159,7 +2207,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			NodeActionsList.Add(exportJournalReportAction);
 		}
 
-		private async Task CreateWarhouseAccountingCard(CancellationToken token)
+		private async Task CreateWarehouseAccountingCard(CancellationToken token)
 		{
 			List<WarehouseDocumentsItemsJournalNode> lines = new List<WarehouseDocumentsItemsJournalNode>();
 
@@ -2168,7 +2216,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			lines.AddRange(GetQueryIncomingWaterToMaterial(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryMovementFromDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryMovementToDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
-			lines.AddRange(GetQueryWriteoffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
+			lines.AddRange(GetQueryWriteOffDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQuerySelfDeliveryDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryCarLoadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
 			lines.AddRange(GetQueryCarUnloadDocumentItem(UoW).List<WarehouseDocumentsItemsJournalNode>());
@@ -2185,7 +2233,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var warehouseName = UoW.Query<Warehouse>().Where(x => x.Id == warehouseId)
 				.SingleOrDefault().Name;
 
-			_warehouseAccountingCard = WarhouseAccountingCard.Create(
+			_warehouseAccountingCard = WarehouseAccountingCard.Create(
 				FilterViewModel.StartDate.Value,
 				FilterViewModel.EndDate.Value,
 				warehouseId,
@@ -2193,12 +2241,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				FilterViewModel.Nomenclature.Id,
 				FilterViewModel.Nomenclature.Name,
 				lines,
-				GetWarhouseBalance);
+				GetWarehouseBalance);
 
 			await Task.CompletedTask;
 		}
 
-		private void ExportWarhouseAccountingCard()
+		private void ExportWarehouseAccountingCard()
 		{
 			var dialogSettings = new DialogSettings
 			{
@@ -2210,11 +2258,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 			if(result.Successful)
 			{
-				SaveWarhouseAccountingCard(result.Path);
+				SaveWarehouseAccountingCard(result.Path);
 			}
 		}
 
-		private void SaveWarhouseAccountingCard(string path)
+		private void SaveWarehouseAccountingCard(string path)
 		{
 			var template = new XLTemplate(_warehouseAccountingCardTemplatePath);
 			template.AddVariable(_warehouseAccountingCard);
@@ -2224,42 +2272,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 		#endregion WarehouseAccountingCard
 
-		private decimal GetWarhouseBalance(int nomenclatureId, int warehouseId, DateTime upToDateTime)
+		private decimal GetWarehouseBalance(int nomenclatureId, int warehouseId, DateTime upToDateTime)
 		{
-			WarehouseMovementOperation incomeWarehouseOperationAlias = null;
-			WarehouseMovementOperation writeoffWarehouseOperationAlias = null;
+			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			NomenclatureStockNode resultAlias = null;
 
-			var incomeSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => incomeWarehouseOperationAlias)
-				.Where(() => incomeWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And(() => incomeWarehouseOperationAlias.IncomingWarehouse.Id == warehouseId)
-				.And(Restrictions.Le(Projections.Property(() => incomeWarehouseOperationAlias.OperationTime), upToDateTime))
-				.Where(
-					Restrictions.IsNotNull(
-						Projections.Property(() => incomeWarehouseOperationAlias.IncomingWarehouse)))
-				.Select(Projections.Sum(Projections.Property(() => incomeWarehouseOperationAlias.Amount)));
-
-			var writeoffSubQuery = QueryOver.Of<WarehouseMovementOperation>(() => writeoffWarehouseOperationAlias)
-				.Where(() => writeoffWarehouseOperationAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And(() => writeoffWarehouseOperationAlias.WriteoffWarehouse.Id == warehouseId)
-				.And(Restrictions.Le(Projections.Property(() => writeoffWarehouseOperationAlias.OperationTime), upToDateTime))
-				.Where(
-					Restrictions.IsNotNull(
-						Projections.Property(() => writeoffWarehouseOperationAlias.WriteoffWarehouse)))
-				.Select(Projections.Sum(Projections.Property(() => writeoffWarehouseOperationAlias.Amount)));
-
-			IProjection projection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
+			var balanceProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
 				NHibernateUtil.Decimal,
-				Projections.SubQuery(incomeSubQuery),
-				Projections.SubQuery(writeoffSubQuery));
+				Projections.Sum(() => warehouseBulkOperationAlias.Amount));
 
-			var result = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+			var result = UoW.Session.QueryOver(() => nomenclatureAlias)
+				.JoinEntityAlias(() => warehouseBulkOperationAlias,
+					() => nomenclatureAlias.Id == warehouseBulkOperationAlias.Nomenclature.Id
+						&& warehouseBulkOperationAlias.Warehouse.Id == warehouseId,
+					JoinType.LeftOuterJoin)
 				.Where(() => nomenclatureAlias.Id == nomenclatureId)
-				.Select(projection)
-				.SingleOrDefault<decimal>();
+				.SelectList(list => list
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(balanceProjection).WithAlias(() => resultAlias.Stock))
+				.TransformUsing(Transformers.AliasToBean<NomenclatureStockNode>())
+				.SingleOrDefault<NomenclatureStockNode>();
 
-			return result;
+			return result.Stock;
 		}
 	}
 }

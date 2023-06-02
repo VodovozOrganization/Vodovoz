@@ -1,6 +1,6 @@
 ﻿using Gamma.ColumnConfig;
-using Gdk;
 using Gtk;
+using Vodovoz.Infrastructure;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 
@@ -8,9 +8,6 @@ namespace Vodovoz.JournalColumnsConfigs
 {
 	internal sealed class ReturnTareReasonsJournalRegistrar : ColumnsConfigRegistrarBase<ReturnTareReasonsJournalViewModel, ReturnTareReasonsJournalNode>
 	{
-		private static readonly Color _colorBlack = new Color(0, 0, 0);
-		private static readonly Color _colorDarkGray = new Color(0x80, 0x80, 0x80);
-
 		public override IColumnsConfig Configure(FluentColumnsConfig<ReturnTareReasonsJournalNode> config) =>
 			config.AddColumn("Код")
 					.HeaderAlignment(0.5f)
@@ -27,7 +24,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.XAlign(0.5f)
 				.AddColumn("")
 				.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? _colorDarkGray : _colorBlack)
+					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.DarkGrayColor : GdkColors.BlackColor)
 				.Finish();
 	}
 }

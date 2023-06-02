@@ -5,12 +5,12 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Warehouses;
 
@@ -19,24 +19,32 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 	public class WarehouseJournalViewModel : SingleEntityJournalViewModelBase<Warehouse, WarehouseViewModel, WarehouseJournalNode>
 	{
 		private readonly ISubdivisionRepository _subdivisionRepository;
-		private readonly WarehouseJournalFilterViewModel _filterViewModel;
+		private WarehouseJournalFilterViewModel _filterViewModel;
 		private WarehousePermissionsType[] _warehousePermissions;
 		
 		public WarehouseJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
-			WarehouseJournalFilterViewModel filterViewModel = null)
+			Action<WarehouseJournalFilterViewModel> filterParams = null)
 				: base(unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал складов";
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			_filterViewModel = filterViewModel;
 			_warehousePermissions = new[] { WarehousePermissionsType.WarehouseView };
 
+			CreateFilter(filterParams);
+			
 			UpdateOnChanges(
 				typeof(Warehouse)
 			);
+		}
+
+		private void CreateFilter(Action<WarehouseJournalFilterViewModel> filterParams)
+		{
+			var filter = new WarehouseJournalFilterViewModel();
+			filterParams?.Invoke(filter);
+			_filterViewModel = filter;
 		}
 
 		protected override void CreateNodeActions()
@@ -99,12 +107,5 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			commonServices,
 			_subdivisionRepository
 		);
-	}
-
-
-	public class WarehouseJournalFilterViewModel
-	{
-		public IEnumerable<int> IncludeWarehouseIds { get; set; }
-		public int[] ExcludeWarehousesIds { get; set; }
 	}
 }

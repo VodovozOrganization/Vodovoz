@@ -72,7 +72,7 @@ FROM
 	LEFT JOIN
 		store_car_unload_documents unload ON unload_items.car_unload_document_id = unload.id
 	LEFT JOIN
-		warehouse_movement_operations o ON o.id = unload_items.warehouse_movement_operation_id
+		goods_accounting_operations o ON o.id = unload_items.warehouse_movement_operation_id
 	LEFT JOIN
 		route_lists rl ON unload.route_list_id = rl.id
 	LEFT JOIN
@@ -198,7 +198,7 @@ FROM
 	LEFT JOIN
 		store_car_unload_documents unload ON unload_items.car_unload_document_id = unload.id
 	LEFT JOIN
-		warehouse_movement_operations o ON o.id = unload_items.warehouse_movement_operation_id
+		goods_accounting_operations o ON o.id = unload_items.warehouse_movement_operation_id
 	LEFT JOIN
 		route_lists rl ON unload.route_list_id = rl.id
 	LEFT JOIN
@@ -275,7 +275,7 @@ FROM
 	LEFT JOIN
 		store_car_unload_documents unload ON unload_items.car_unload_document_id = unload.id
 	LEFT JOIN
-		warehouse_movement_operations o ON o.id = unload_items.warehouse_movement_operation_id
+		goods_accounting_operations o ON o.id = unload_items.warehouse_movement_operation_id
 	LEFT JOIN
 		route_lists rl ON unload.route_list_id = rl.id
 	LEFT JOIN

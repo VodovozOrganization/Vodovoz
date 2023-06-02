@@ -16,7 +16,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.DefectSource).Column("source").CustomType<DefectSourceStringType>();
 
 			References(x => x.Document).Column("car_unload_document_id");
-			References(x => x.WarehouseMovementOperation).Column("warehouse_movement_operation_id").Cascade.All();
+			References(x => x.GoodsAccountingOperation).Column("warehouse_movement_operation_id").Cascade.All();
 			References(x => x.EmployeeNomenclatureMovementOperation).Column("employee_nomenclature_movement_operation_id").Cascade.All();
 			References(x => x.DeliveryFreeBalanceOperation).Column("delivery_free_balance_operation_id").Cascade.All();
 			References(x => x.ServiceClaim).Column("service_claim_id");

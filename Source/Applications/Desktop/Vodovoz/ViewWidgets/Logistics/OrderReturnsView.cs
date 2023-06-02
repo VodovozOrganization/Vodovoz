@@ -41,6 +41,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
@@ -349,7 +350,7 @@ namespace Vodovoz
 						)
 						.AddSetter((c, n) =>
 							{
-								if(n.OrderItem?.PromoSet != null)
+								if(n.OrderItem?.PromoSet != null && n.DiscountReason == null && n.Discount > 0)
 								{
 									c.Text = n.OrderItem.PromoSet.DiscountReasonInfo;
 								}
@@ -396,12 +397,6 @@ namespace Vodovoz
 				.AddBinding(_routeListItem.Order, e => e.BottlesByStockActualCount, w => w.ValueAsInt).InitializeFromSource();
 			yspinbuttonBottlesByStockActualCount.ValueChanged += OnYspinbuttonBottlesByStockActualCountChanged;
 			hboxBottlesByStock.Visible = _routeListItem.Order.IsBottleStock;
-
-			yspinbuttonEmptyBottlesCount.Binding.AddBinding(_routeListItem.Order, e => e.BottlesReturn, w => w.ValueAsInt)
-				.InitializeFromSource();
-			yspinbuttonEmptyBottlesActualCount.Binding
-				.AddBinding(_routeListItem, e => e.BottlesReturned, w => w.ValueAsInt).InitializeFromSource();
-			hboxEmptyBottles.Visible = _routeListItem.IsDelivered();
 
 			OnlineOrderVisible();
 		}

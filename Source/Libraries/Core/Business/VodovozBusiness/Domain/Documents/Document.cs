@@ -1,7 +1,11 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.IncomingInvoices;
+using Vodovoz.Domain.Documents.InventoryDocuments;
+using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Documents
@@ -24,35 +28,35 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual DateTime TimeStamp
 		{
-			get { return _timeStamp; }
-			set { SetField(ref _timeStamp, value, () => TimeStamp); }
+			get => _timeStamp;
+			set => SetField (ref _timeStamp, value);
 		}
 
 		Employee author;
 
-		[Display(Name = "Автор")]
+		[Display (Name = "Автор")]
 		public virtual Employee Author
 		{
-			get { return author; }
-			set { SetField(ref author, value, () => Author); }
+			get => author;
+			set => SetField(ref author, value);
 		}
 
 		Employee lastEditor;
 
-		[Display(Name = "Последний редактор")]
+		[Display (Name = "Последний редактор")]
 		public virtual Employee LastEditor
 		{
-			get { return lastEditor; }
-			set { SetField(ref lastEditor, value, () => LastEditor); }
+			get => lastEditor;
+			set => SetField (ref lastEditor, value);
 		}
 
 		DateTime lastEditedTime;
 
-		[Display(Name = "Последние изменения")]
+		[Display (Name = "Последние изменения")]
 		public virtual DateTime LastEditedTime
 		{
-			get { return lastEditedTime; }
-			set { SetField(ref lastEditedTime, value, () => LastEditedTime); }
+			get => lastEditedTime;
+			set => SetField (ref lastEditedTime, value);
 		}
 
 		public virtual string DateString => TimeStamp.ToShortDateString() + " " + TimeStamp.ToShortTimeString();
@@ -72,7 +76,7 @@ namespace Vodovoz.Domain.Documents
 				case DocumentType.MovementDocument:
 					return typeof(MovementDocument);
 				case DocumentType.WriteoffDocument:
-					return typeof(WriteoffDocument);
+					return typeof(WriteOffDocument);
 				case DocumentType.SelfDeliveryDocument:
 					return typeof(SelfDeliveryDocument);
 				case DocumentType.CarLoadDocument:
@@ -118,7 +122,7 @@ namespace Vodovoz.Domain.Documents
 		CarUnloadDocument,
 		[Display(Name = "Инвентаризация")]
 		InventoryDocument,
-		[Display(Name = "Акт передачи склада")]
+		[Display(Name = "Акт передачи остатков")]
 		ShiftChangeDocument,
 		[Display (Name = "Пересортица товаров")]
 		RegradingOfGoodsDocument,

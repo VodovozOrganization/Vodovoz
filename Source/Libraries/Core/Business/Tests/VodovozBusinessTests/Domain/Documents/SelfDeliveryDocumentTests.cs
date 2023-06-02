@@ -42,7 +42,7 @@ namespace VodovozBusinessTests.Domain.Documents
 					new SelfDeliveryDocumentReturned {
 						Amount = 1,
 						Nomenclature = nomenclatureMock,
-						WarehouseMovementOperation = Substitute.For<WarehouseMovementOperation>(),
+						GoodsAccountingOperation = Substitute.For<WarehouseBulkGoodsAccountingOperation>(),
 						CounterpartyMovementOperation = Substitute.For<CounterpartyMovementOperation>()
 					},
 					Substitute.For<SelfDeliveryDocumentReturned>()
@@ -57,12 +57,12 @@ namespace VodovozBusinessTests.Domain.Documents
 					new SelfDeliveryDocumentReturned {
 						Amount = 0,
 						Nomenclature = nomenclatureMock,
-						WarehouseMovementOperation = Substitute.For<WarehouseMovementOperation>()
+						GoodsAccountingOperation = Substitute.For<WarehouseBulkGoodsAccountingOperation>()
 					},
 					new SelfDeliveryDocumentReturned {
 						Amount = 0,
 						Nomenclature = Substitute.For<Nomenclature>(),
-						WarehouseMovementOperation = Substitute.For<WarehouseMovementOperation>()
+						GoodsAccountingOperation = Substitute.For<WarehouseBulkGoodsAccountingOperation>()
 					}
 				}
 			};
@@ -121,7 +121,7 @@ namespace VodovozBusinessTests.Domain.Documents
 					new SelfDeliveryDocumentReturned {
 						Amount = 1,
 						Nomenclature = nomenclatureMock,
-						WarehouseMovementOperation = new WarehouseMovementOperation {
+						GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation {
 							Amount = 1
 						},
 						CounterpartyMovementOperation = Substitute.For<CounterpartyMovementOperation>()
@@ -135,7 +135,7 @@ namespace VodovozBusinessTests.Domain.Documents
 			// assert
 			Assert.That(selfDelivery.ReturnedItems.Count, Is.EqualTo(1));
 			Assert.That(selfDelivery.ReturnedItems.FirstOrDefault(s => s.Nomenclature == nomenclatureMock).Amount, Is.EqualTo(6));
-			Assert.That(selfDelivery.ReturnedItems.FirstOrDefault(s => s.Nomenclature == nomenclatureMock).WarehouseMovementOperation.Amount, Is.EqualTo(6));
+			Assert.That(selfDelivery.ReturnedItems.FirstOrDefault(s => s.Nomenclature == nomenclatureMock).GoodsAccountingOperation.Amount, Is.EqualTo(6));
 		}
 
 		[Test(Description = "При добавлении номенклатуры на возврат, происходит создание строки на возврат в самовывозе и создание соответствующей строки номенклатуры на возврат")]
@@ -162,7 +162,7 @@ namespace VodovozBusinessTests.Domain.Documents
 			// assert
 			Assert.That(selfDelivery.ReturnedItems.Count, Is.EqualTo(1));
 			Assert.That(selfDelivery.ReturnedItems.FirstOrDefault(s => s.Nomenclature == nomenclatureMock).Amount, Is.EqualTo(4));
-			Assert.That(selfDelivery.ReturnedItems.FirstOrDefault(s => s.Nomenclature == nomenclatureMock).WarehouseMovementOperation.Amount, Is.EqualTo(4));
+			Assert.That(selfDelivery.ReturnedItems.FirstOrDefault(s => s.Nomenclature == nomenclatureMock).GoodsAccountingOperation.Amount, Is.EqualTo(4));
 		}
 
 		[Test(Description = "При выставлении в существующей номенклатуре на возврат кол-ва = 0, происходит её удаление")]
@@ -182,7 +182,7 @@ namespace VodovozBusinessTests.Domain.Documents
 					new SelfDeliveryDocumentReturned {
 						Amount = 2,
 						Nomenclature = nomenclatureMock,
-						WarehouseMovementOperation = Substitute.For<WarehouseMovementOperation>()
+						GoodsAccountingOperation = Substitute.For<WarehouseBulkGoodsAccountingOperation>()
 					}
 				}
 			};

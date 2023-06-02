@@ -16,7 +16,7 @@ namespace Vodovoz.HibernateMapping.Documents.DriverTerminal
 			Map(x => x.CreationDate).Column("creation_date");
 			References(x => x.Author).Column("author_id").Cascade.All();
 			References(x => x.Driver).Column("driver_id").Cascade.All();
-			References(x => x.WarehouseMovementOperation).Cascade.All()
+			References(x => x.GoodsAccountingOperation).Cascade.All()
 				.Column("warehouse_movement_operation_id");
 			References(x => x.EmployeeNomenclatureMovementOperation).Cascade.All()
 				.Column("employee_nomenclature_movement_operation_id");

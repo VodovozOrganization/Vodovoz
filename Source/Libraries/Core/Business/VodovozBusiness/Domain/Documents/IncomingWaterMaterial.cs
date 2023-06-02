@@ -60,7 +60,7 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField(ref amount, value, () => Amount);
 				if(ConsumptionMaterialOperation != null && ConsumptionMaterialOperation.Amount != amount)
-					ConsumptionMaterialOperation.Amount = amount;
+					ConsumptionMaterialOperation.Amount = -amount;
 			}
 		}
 
@@ -77,9 +77,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Name => Nomenclature != null ? Nomenclature.Name : "";
 
-		WarehouseMovementOperation consumptionMaterialOperation;
+		WarehouseBulkGoodsAccountingOperation consumptionMaterialOperation;
 
-		public virtual WarehouseMovementOperation ConsumptionMaterialOperation {
+		public virtual WarehouseBulkGoodsAccountingOperation ConsumptionMaterialOperation {
 			get { return consumptionMaterialOperation; }
 			set { SetField(ref consumptionMaterialOperation, value, () => ConsumptionMaterialOperation); }
 		}
@@ -99,9 +99,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Warehouse warehouseSrc, DateTime time)
 		{
-			ConsumptionMaterialOperation = new WarehouseMovementOperation {
-				WriteoffWarehouse = warehouseSrc,
-				Amount = Amount,
+			ConsumptionMaterialOperation = new WarehouseBulkGoodsAccountingOperation {
+				Warehouse = warehouseSrc,
+				Amount = -Amount,
 				OperationTime = time,
 				Nomenclature = Nomenclature
 			};

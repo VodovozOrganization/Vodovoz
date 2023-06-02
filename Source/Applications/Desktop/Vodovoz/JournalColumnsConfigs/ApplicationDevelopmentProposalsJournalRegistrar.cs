@@ -4,6 +4,7 @@ using Gdk;
 using Gtk;
 using System.Globalization;
 using Vodovoz.Domain.Proposal;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 
@@ -11,9 +12,6 @@ namespace Vodovoz.JournalColumnsConfigs
 {
 	internal sealed class ApplicationDevelopmentProposalsJournalRegistrar : ColumnsConfigRegistrarBase<ApplicationDevelopmentProposalsJournalViewModel, ApplicationDevelopmentProposalsJournalNode>
 	{
-		private static readonly Color _colorBlack = new Color(0, 0, 0);
-		private static readonly Color _colorRed = new Color(0xfe, 0x5c, 0x5c);
-
 		public override IColumnsConfig Configure(FluentColumnsConfig<ApplicationDevelopmentProposalsJournalNode> config) =>
 			config.AddColumn("Код")
 					.HeaderAlignment(0.5f)
@@ -34,7 +32,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("")
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) =>
-						c.ForegroundGdk = n.Status == ApplicationDevelopmentProposalStatus.Rejected ? _colorRed : _colorBlack)
+						c.ForegroundGdk = n.Status == ApplicationDevelopmentProposalStatus.Rejected ? GdkColors.RedColor2 : GdkColors.BlackColor)
 				.Finish();
 	}
 }

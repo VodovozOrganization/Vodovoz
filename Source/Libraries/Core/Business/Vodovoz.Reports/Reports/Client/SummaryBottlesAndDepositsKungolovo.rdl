@@ -203,16 +203,16 @@ LEFT JOIN
 	FROM (
 		SELECT 
 			route_list_addresses.order_id AS order_id,
-			warehouse_movement_operations.amount AS amount,
-			warehouse_movement_operations.nomenclature_id AS nomenclature_id
+			goods_accounting_operations.amount AS amount,
+			goods_accounting_operations.nomenclature_id AS nomenclature_id
 		FROM store_car_unload_document_items
-		LEFT JOIN store_car_unload_documents
-		ON store_car_unload_documents.id=store_car_unload_document_items.car_unload_document_id
-		LEFT JOIN warehouse_movement_operations
-		ON warehouse_movement_operations.id=store_car_unload_document_items.warehouse_movement_operation_id
-		LEFT JOIN route_list_addresses
-		ON route_list_addresses.route_list_id=store_car_unload_documents.route_list_id
-		WHERE warehouse_movement_operations.nomenclature_id IN(38,72,295,580)
+        LEFT JOIN store_car_unload_documents
+		    ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
+        LEFT JOIN goods_accounting_operations
+		    ON goods_accounting_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+        LEFT JOIN route_list_addresses
+		    ON route_list_addresses.route_list_id = store_car_unload_documents.route_list_id
+		WHERE goods_accounting_operations.nomenclature_id IN(38,72,295,580)
 	) AS intl_unld_doc
     GROUP BY order_id
 ) AS unload_documents ON docs.doc_id=unload_documents.order_id

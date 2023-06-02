@@ -9,13 +9,16 @@ namespace Vodovoz.Journals.JournalNodes
 
 		public string NomenclatureName { get; set; }
 
-		public decimal StockAmount { get; set; }
+		public decimal StockAmount => HasInventoryAccounting ? InstanceStockAmount : BulkStockAmount;
+		public decimal BulkStockAmount { get; set; }
+		public decimal InstanceStockAmount { get; set; }
 
 		public decimal MinNomenclatureAmount { get; set; }
 
 		public decimal DiffCount => StockAmount - MinNomenclatureAmount;
 
 		public bool NomenclatureIsArchive { get; set; }
+		public bool HasInventoryAccounting { get; set; }
 
 		public string UnitName { get; set; }
 

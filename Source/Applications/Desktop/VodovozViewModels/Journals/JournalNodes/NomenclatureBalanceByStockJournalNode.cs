@@ -8,8 +8,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 	{
 		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public string WarehouseName { get; set; }
-		public decimal NomenclatureAmount => Added - Removed;
-		public decimal Added { get; set; }
-		public decimal Removed { get; set; }
+		public decimal NomenclatureAmount { get; set; }
 	}
 }

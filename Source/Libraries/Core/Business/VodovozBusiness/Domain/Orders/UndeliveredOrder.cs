@@ -29,6 +29,9 @@ namespace Vodovoz.Domain.Orders
 	{
 		private UndeliveryTransferAbsenceReason _undeliveryTransferAbsenceReason;
 		private List<UndeliveryTransferAbsenceReason> _undeliveryTransferAbsenceReasonItems;
+		private IList<UndeliveredOrderResultComment> _resultComments = new List<UndeliveredOrderResultComment>();
+		private GenericObservableList<UndeliveredOrderResultComment> _observableResultComments;
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -240,6 +243,27 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _undeliveryTransferAbsenceReason;
 			set => SetField(ref _undeliveryTransferAbsenceReason, value);
+		}
+
+		[Display(Name = "Комментарии - результаты")]
+		public virtual IList<UndeliveredOrderResultComment> ResultComments
+		{
+			get => _resultComments;
+			set => SetField(ref _resultComments, value);
+		}
+
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<UndeliveredOrderResultComment> ObservableResultComments
+		{
+			get
+			{
+				if(_observableResultComments == null)
+				{
+					_observableResultComments = new GenericObservableList<UndeliveredOrderResultComment>(ResultComments);
+				}
+
+				return _observableResultComments;
+			}
 		}
 
 		#endregion

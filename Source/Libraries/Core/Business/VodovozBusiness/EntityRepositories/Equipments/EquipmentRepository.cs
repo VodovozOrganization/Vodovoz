@@ -32,7 +32,8 @@ namespace Vodovoz.EntityRepositories.Equipments
 				.Where(eq => eq.Nomenclature.Id == nomenclature.Id)
 				.Where(eq => !eq.OnDuty)
 				.Take(1)
-				.List().First();
+				.List()
+				.First();
 		}
 
 		public IList<Equipment> GetEquipmentForSaleByNomenclature(IUnitOfWork uow, Nomenclature nomenclature, int count = 0, int[] exceptIDs = null)
@@ -107,16 +108,14 @@ namespace Vodovoz.EntityRepositories.Equipments
 		{
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			Equipment equipmentAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAddAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 
-			var equipmentInStockCriterion = Subqueries.IsNotNull(
-												QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
+			var equipmentInStockCriterion = Subqueries.IsNotNull(QueryOver.Of(() => operationAddAlias)
 				.OrderBy(() => operationAddAlias.OperationTime).Desc
-				.Where(() => equipmentAlias.Id == operationAddAlias.Equipment.Id)
-				.Select(op => op.IncomingWarehouse)
-				.Take(1).DetachedCriteria
-											);
+				.Where(() => equipmentAlias.Nomenclature.Id == operationAddAlias.Nomenclature.Id)
+				.Select(op => op.Warehouse)
+				.Take(1).DetachedCriteria);
 
 			var subqueryAllReservedEquipment = QueryOver.Of(() => orderAlias)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Accepted
@@ -181,68 +180,21 @@ namespace Vodovoz.EntityRepositories.Equipments
 				.List();
 		}
 
-		public QueryOver<Equipment> GetUnusedEquipment(Nomenclature nomenclature)
-		{
-			Equipment equipmantAlias = null;
-
-			var counterpartyOperationsSubquery = QueryOver.Of<CounterpartyMovementOperation>()
-				.Where(op => op.Equipment.Id == equipmantAlias.Id)
-				.Select(op => op.Id);
-
-			var warehouseOperationsSubquery = QueryOver.Of<WarehouseMovementOperation>()
-				.Where(op => op.Equipment.Id == equipmantAlias.Id)
-				.Select(op => op.Id);
-
-			return QueryOver.Of<Equipment>(() => equipmantAlias)
-				.Where(() => equipmantAlias.Nomenclature.Id == nomenclature.Id)
-				.WithSubquery.WhereNotExists(counterpartyOperationsSubquery)
-				.WithSubquery.WhereNotExists(warehouseOperationsSubquery);
-		}
-
-		public IList<Equipment> GetEquipmentUnloadedTo(IUnitOfWork uow, RouteList routeList)
-		{
-			CarUnloadDocumentItem unloadItemAlias = null;
-			WarehouseMovementOperation operationAlias = null;
-			Equipment equipmentAlias = null;
-			
-			var unloadedEquipmentIdsQuery = QueryOver.Of<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeList.Id)
-				.JoinAlias(doc => doc.Items, () => unloadItemAlias)
-				.JoinAlias(() => unloadItemAlias.WarehouseMovementOperation, () => operationAlias)
-				.JoinAlias(() => operationAlias.Equipment, () => equipmentAlias)
-				.Select(op => equipmentAlias.Id);
-			
-			return uow.Session.QueryOver<Equipment>(() => equipmentAlias).WithSubquery.WhereProperty(() => equipmentAlias.Id).In(unloadedEquipmentIdsQuery).List();
-		}
-
 		public EquipmentLocation GetLocation(IUnitOfWork uow, Equipment equ)
 		{
 			var result = new EquipmentLocation();
-			
-			var lastWarehouseOp = uow.Session.QueryOver<WarehouseMovementOperation>()
-				.Where(o => o.Equipment == equ)
-				.OrderBy(o => o.OperationTime).Desc
-				.Take(1)
-				.SingleOrDefault();
-			
+
 			var lastCouterpartyOp = uow.Session.QueryOver<CounterpartyMovementOperation>()
 				.Where(o => o.Equipment == equ)
 				.OrderBy(o => o.OperationTime).Desc
 				.Take(1)
 				.SingleOrDefault();
 
-			if(lastWarehouseOp == null && lastCouterpartyOp == null)
+			if(lastCouterpartyOp == null)
 			{
 				result.Type = LocationType.NoMovements;
 			}
-			else if(lastWarehouseOp?.IncomingWarehouse != null
-			        && (lastCouterpartyOp == null || lastCouterpartyOp.OperationTime < lastWarehouseOp.OperationTime))
-			{
-				result.Type = LocationType.Warehouse;
-				result.Warehouse = lastWarehouseOp.IncomingWarehouse;
-				result.Operation = lastWarehouseOp;
-			}
-			else if(lastCouterpartyOp?.IncomingCounterparty != null
-			        && (lastWarehouseOp == null || lastWarehouseOp.OperationTime < lastCouterpartyOp.OperationTime))
+			else if(lastCouterpartyOp.IncomingCounterparty != null)
 			{
 				result.Type = LocationType.Couterparty;
 				result.Operation = lastCouterpartyOp;

@@ -1,22 +1,20 @@
-﻿using QS.Views.GtkUI;
+﻿using System;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Documents;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Journals;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.Views.Warehouse
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MovementDocumentView : TabViewBase<MovementDocumentViewModel>
 	{
 		public MovementDocumentView(MovementDocumentViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			ConfigureView();
 		}
 
@@ -31,49 +29,118 @@ namespace Vodovoz.Views.Warehouse
 			ylabelDiscrepancyAccepterValue.Binding.AddBinding(ViewModel.Entity, e => e.DiscrepancyAccepter, w => w.Visible, new NullToBooleanConverter()).InitializeFromSource();
 			ylabelDiscrepancyAccepter.Binding.AddBinding(ViewModel.Entity, e => e.DiscrepancyAccepter, w => w.Visible, new NullToBooleanConverter()).InitializeFromSource();
 
-			//yentryrefWagon.SubjectType = typeof(MovementWagon);
-			yentryrefWagon.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<MovementWagon, MovementWagonJournalViewModel, MovementWagonJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
-				);
-			yentryrefWagon.Binding.AddBinding(ViewModel.Entity, e => e.MovementWagon, w => w.Subject).InitializeFromSource();
+			enumCmbMovementTypeByStorage.ItemsEnum = typeof(MovementDocumentTypeByStorage);
+			enumCmbMovementTypeByStorage.Binding
+				.AddBinding(ViewModel.Entity, e => e.MovementDocumentTypeByStorage, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanChangeDocumentTypeByStorageAndStorageFrom, w => w.Sensitive)
+				.InitializeFromSource();
 
-			yentryrefWagon.CanEditReference = false;
-			yentryrefWagon.Binding.AddBinding(ViewModel, vm => vm.CanChangeWagon, w => w.Sensitive).InitializeFromSource();
-			ylabelWagon.Binding.AddBinding(ViewModel, vm => vm.CanVisibleWagon, w => w.Visible).InitializeFromSource();
-			yentryrefWagon.Binding.AddBinding(ViewModel, vm => vm.CanVisibleWagon, w => w.Visible).InitializeFromSource();
+			wagonEntry.WidthRequest = 350;
+			wagonEntry.ViewModel = ViewModel.WagonEntryViewModel;
+			wagonEntry.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeWagon, w => w.Sensitive)
+				.InitializeFromSource();
+			ylabelWagon.Binding
+				.AddBinding(ViewModel, vm => vm.CanVisibleWagon, w => w.Visible)
+				.InitializeFromSource();
+			wagonEntry.Binding
+				.AddBinding(ViewModel, vm => vm.CanVisibleWagon, w => w.Visible)
+				.InitializeFromSource();
 
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Editable).InitializeFromSource();
 
-			comboWarehouseFrom.Binding.AddBinding(ViewModel, vm => vm.WarehousesFrom, w => w.ItemsList).InitializeFromSource();
-			comboWarehouseFrom.Binding.AddBinding(ViewModel.Entity, e => e.FromWarehouse, w => w.SelectedItem).InitializeFromSource();
-			comboWarehouseFrom.Binding.AddBinding(ViewModel, vm => vm.CanChangeWarehouseFrom, w => w.Sensitive).InitializeFromSource();
+			#region Отправитель
 
-			comboWarehouseTo.Binding.AddBinding(ViewModel, vm => vm.WarehousesTo, w => w.ItemsList).InitializeFromSource();
-			comboWarehouseTo.Binding.AddBinding(ViewModel.Entity, e => e.ToWarehouse, w => w.SelectedItem).InitializeFromSource();
-			comboWarehouseTo.Binding.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Sensitive).InitializeFromSource();
+			enumCmbStorage.ItemsEnum = typeof(StorageType);
+			enumCmbStorage.Binding
+				.AddBinding(ViewModel.Entity, e => e.StorageFrom, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanChangeDocumentTypeByStorageAndStorageFrom, w => w.Sensitive)
+				.InitializeFromSource();
+
+			vboxStorageFrom.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeDocumentTypeByStorageAndStorageFrom, w => w.Sensitive)
+				.InitializeFromSource();
+			hboxWarehouseFrom.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowWarehouseFrom, w => w.Visible)
+				.InitializeFromSource();
+			comboWarehouseFrom.Binding
+				.AddBinding(ViewModel, vm => vm.WarehousesFrom, w => w.ItemsList)
+				.InitializeFromSource();
+			comboWarehouseFrom.Binding
+				.AddBinding(ViewModel.Entity, e => e.FromWarehouse, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			employeeEntryFrom.ViewModel = ViewModel.FromEmployeeStorageEntryViewModel;
+			employeeEntryFrom.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowEmployeeFrom, w => w.Visible)
+				.InitializeFromSource();
+			employeeEntryFrom.Sensitive = ViewModel.HasAccessToEmployeeStorages;
+			carEntryFrom.ViewModel = ViewModel.FromCarStorageEntryViewModel;
+			carEntryFrom.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowCarFrom, w => w.Visible)
+				.InitializeFromSource();
+			carEntryFrom.Sensitive = ViewModel.HasAccessToCarStorages;
+
+			#endregion
+
+			#region Получатель
+
+			hboxWarehouseTo.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowWarehouseTo, w => w.Visible)
+				.InitializeFromSource();
+			comboWarehouseTo.Binding
+				.AddBinding(ViewModel, vm => vm.WarehousesTo, w => w.ItemsList)
+				.InitializeFromSource();
+			comboWarehouseTo.Binding
+				.AddBinding(ViewModel.Entity, e => e.ToWarehouse, w => w.SelectedItem)
+				.InitializeFromSource();
+			comboWarehouseTo.Binding
+				.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Sensitive)
+				.InitializeFromSource();
+
+			employeeEntryTo.ViewModel = ViewModel.ToEmployeeStorageEntryViewModel;
+			employeeEntryTo.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowEmployeeTo, w => w.Visible)
+				.InitializeFromSource();
+			employeeEntryTo.Sensitive = ViewModel.HasAccessToEmployeeStorages;
+			carEntryTo.ViewModel = ViewModel.ToCarStorageEntryViewModel;
+			carEntryTo.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowCarTo, w => w.Visible)
+				.InitializeFromSource();
+			carEntryTo.Sensitive = ViewModel.HasAccessToCarStorages;
+
+			#endregion
 
 			ytreeviewItems.ColumnsConfig = FluentColumnsConfig<MovementDocumentItem>.Create()
-					.AddColumn("Наименование").HeaderAlignment(0.5f)
-						.AddTextRenderer(i => i.Name)
-					.AddColumn("Отправлено").HeaderAlignment(0.5f)
-						.AddNumericRenderer(i => i.SendedAmount, false)
-						.XAlign(0.5f)
-						.AddSetter((c, i) => c.Editable = ViewModel.CanEditSendedAmount)
-						.WidthChars(10)
-						.AddSetter((c, i) => c.Adjustment = new Gtk.Adjustment(0, 0, (double)i.AmountOnSource, 1, 100, 0))
-						.AddSetter((c, i) => c.Digits = (uint)(i.Nomenclature?.Unit?.Digits ?? 0))
-						.AddTextRenderer(i => i.Nomenclature.Unit.Name, false)
-					.AddColumn("Принято").HeaderAlignment(0.5f)
-						.AddNumericRenderer(i => i.ReceivedAmount)
-						.XAlign(0.5f)
-						.AddSetter((c, i) => c.Editable = ViewModel.CanEditReceivedAmount)
-						.WidthChars(10)
-						.AddSetter((c, i) => c.Adjustment = new Gtk.Adjustment(0, 0, 99999999, 1, 100, 0))
-						.AddSetter((c, i) => c.Digits = (uint)(i.Nomenclature?.Unit?.Digits ?? 0))
-						.AddTextRenderer(i => i.Nomenclature.Unit.Name, false)
-					.AddColumn("")
-					.Finish();
+				.AddColumn("Наименование").HeaderAlignment(0.5f)
+					.AddTextRenderer(i => i.Name)
+				.AddColumn("Инвентарный номер").HeaderAlignment(0.5f)
+					.AddTextRenderer(i => i.InventoryNumber)
+				.AddColumn("Отправлено").HeaderAlignment(0.5f)
+					.AddNumericRenderer(i => i.SentAmount, false)
+					.XAlign(0.5f)
+					.AddSetter((c, i) =>
+						c.Editable = ViewModel.CanEditSentAmount && i.CanEditAmount)
+					.WidthChars(10)
+					.AddSetter((c, i) => c.Adjustment = new Gtk.Adjustment(0, 0, (double)i.AmountOnSource, 1, 100, 0))
+					.AddSetter((c, i) => c.Digits = (uint)(i.Nomenclature?.Unit?.Digits ?? 0))
+					.AddTextRenderer(i => i.Nomenclature.Unit.Name, false)
+				.AddColumn("Принято").HeaderAlignment(0.5f)
+					.AddNumericRenderer(i => i.ReceivedAmount)
+					.XAlign(0.5f)
+					.AddSetter((c, i) => c.Editable = ViewModel.CanEditReceivedAmount)
+					.WidthChars(10)
+					.AddSetter((c, i) =>
+						{
+							c.Adjustment = i.CanEditAmount
+								? new Gtk.Adjustment(0, 0, 99999999, 1, 100, 0)
+								: new Gtk.Adjustment(0, 0, 1, 1, 1, 0);
+						})
+					.AddSetter((c, i) => c.Digits = (uint)(i.Nomenclature?.Unit?.Digits ?? 0))
+					.AddTextRenderer(i => i.Nomenclature.Unit.Name, false)
+				.AddColumn("")
+				.Finish();
 
 			ytreeviewItems.ItemsDataSource = ViewModel.Entity.ObservableItems;
 
@@ -89,6 +156,11 @@ namespace Vodovoz.Views.Warehouse
 			ViewModel.DeleteItemCommand.CanExecuteChanged += (sender, e) => ybuttonDeleteItem.Sensitive = ViewModel.DeleteItemCommand.CanExecute(GetSelectedItem());
 			ytreeviewItems.Selection.Changed += (sender, e) => ViewModel.DeleteItemCommand.RaiseCanExecuteChanged();
 			ybuttonDeleteItem.Sensitive = ViewModel.DeleteItemCommand.CanExecute(GetSelectedItem());
+			
+			btnAddNomenclatureInstance.Clicked += OnAddNomenclatureInstanceClicked;
+			btnAddNomenclatureInstance.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddItem, w => w.Sensitive)
+				.InitializeFromSource();
 
 			buttonSend.Clicked += (sender, e) => ViewModel.SendCommand.Execute();
 			ViewModel.SendCommand.CanExecuteChanged += (sender, e) => buttonSend.Sensitive = ViewModel.SendCommand.CanExecute();
@@ -107,6 +179,11 @@ namespace Vodovoz.Views.Warehouse
 			buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+		}
+
+		private void OnAddNomenclatureInstanceClicked(object sender, EventArgs e)
+		{
+			ViewModel.AddInventoryInstanceCommand.Execute();
 		}
 
 		private MovementDocumentItem GetSelectedItem()

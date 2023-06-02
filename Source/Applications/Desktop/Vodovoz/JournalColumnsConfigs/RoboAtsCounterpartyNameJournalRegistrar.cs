@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -10,7 +11,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			config.AddColumn("Код").AddNumericRenderer(node => node.Id)
 				.AddColumn("Имя").AddTextRenderer(node => node.Name)
 				.AddColumn("Ударение").AddTextRenderer(node => node.Accent)
-				.AddColumn("Готов для Roboats").AddTextRenderer(node => node.ReadyForRoboats ? "Да" : string.Empty)
+				.AddColumn("Готов для Roboats").AddTextRenderer(node => node.ReadyForRoboats.ConvertToYesOrEmpty())
 				.Finish();
 	}
 }

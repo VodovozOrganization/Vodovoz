@@ -1,23 +1,26 @@
-﻿using Gamma.Binding;
+using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using System;
 using System.Linq;
+using System.Reflection;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+using Vodovoz.Domain.StoredResources;
+using Vodovoz.Parameters;
+using Vodovoz.Representations.ProductGroups;
+using Vodovoz.Settings.Database;
+using Vodovoz.Infrastructure;
 using Vodovoz.Domain.Cash;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
-using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
 	public static class JournalsColumnsConfigs
 	{
-		private static readonly Color _colorWhite = new Color(0xff, 0xff, 0xff);
-		private static readonly Color _colorLightGray = new Color(0xcc, 0xcc, 0xcc);
 		private static Pixbuf _folderImg = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.folder16.png");
 		private static Pixbuf _emptyImg = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.empty16.png");
 
@@ -58,12 +61,11 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Детали звонка").AddTextRenderer(node => node.Description)
 					.RowCells()
 					.AddSetter<CellRenderer>(
-						(cell, node) =>
-						{
-							var color = _colorWhite;
+						(cell, node) => {
+							var color = GdkColors.WhiteColor;
 							if(node.NodeType == RoboatsCallNodeType.RoboatsCallDetail)
 							{
-								color = _colorLightGray;
+								color = GdkColors.LightGrayColor;
 							}
 							cell.CellBackgroundGdk = color;
 						}
@@ -94,33 +96,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.RowCells()
 					.AddSetter<CellRenderer>(
-						(cell, node) =>
-						{
-							var color = _colorWhite;
+						(cell, node) => {
+							var color = GdkColors.WhiteColor;
 							if(node.NodeType == CashReceiptNodeType.Code)
 							{
-								color = _colorLightGray;
+								color = GdkColors.LightGrayColor;
 							}
 							cell.CellBackgroundGdk = color;
 						}
 					)
-					.Finish()
-			);
-
-			//ExternalCounterpartiesMatchingJournalViewModel
-			TreeViewColumnsConfigFactory.Register<ExternalCounterpartiesMatchingJournalViewModel>(
-				() => FluentColumnsConfig<ExternalCounterpartyMatchingJournalNode>.Create()
-					.AddColumn("Телефон")
-						.AddTextRenderer(node => node.PhoneNumber)
-					.AddColumn("Источник")
-						.AddEnumRenderer(node => node.CounterpartyFrom)
-					.AddColumn("Дата/время")
-						.AddTextRenderer(node => node.Created.ToString("g"))
-					.AddColumn("Статус")
-						.AddEnumRenderer(node => node.Status)
-					.AddColumn("Присвоенный КА")
-						.AddTextRenderer(node => node.CounterpartyName)
-					.AddColumn("")
 					.Finish()
 			);
 		}

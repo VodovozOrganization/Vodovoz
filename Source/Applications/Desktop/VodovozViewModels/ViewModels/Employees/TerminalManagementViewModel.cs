@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 			else
 			{
-				var income = _entity.WarehouseMovementOperation.WriteoffWarehouse;
+				var income = _entity.GoodsAccountingOperation.Warehouse;
 				var returnDocument = new DriverAttachedTerminalReturnDocument
 				{
 					CreationDate = DateTime.Now,

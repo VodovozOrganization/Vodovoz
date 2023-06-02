@@ -339,13 +339,13 @@ FROM
         LEFT JOIN #Бутылей по складу
         (
             SELECT 
-                ROUND(SUM(warehouse_movement_operations.amount)) AS BottlesByWarehouse,
+                ROUND(SUM(goods_accounting_operations.amount)) AS BottlesByWarehouse,
                 store_car_unload_documents.route_list_id AS RlId
             FROM 
                 store_car_unload_documents
                 LEFT JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-                LEFT JOIN warehouse_movement_operations ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
-                LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+                LEFT JOIN goods_accounting_operations ON goods_accounting_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+                LEFT JOIN nomenclature ON nomenclature.id = goods_accounting_operations.nomenclature_id
             WHERE
                 nomenclature.category = 'bottle' AND
                 nomenclature.is_disposable_tare = false

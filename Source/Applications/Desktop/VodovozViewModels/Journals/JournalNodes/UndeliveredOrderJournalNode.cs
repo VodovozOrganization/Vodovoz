@@ -90,6 +90,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string Fined { get; set; }
 		public OrderStatus StatusOnOldOrderCancel { get; set; }
 		public string InProcessAt { get; set; }
+		public string LastResultCommentAuthor { get; set; }
 
 		//старый заказ
 		public int OldOrderId { get; set; }

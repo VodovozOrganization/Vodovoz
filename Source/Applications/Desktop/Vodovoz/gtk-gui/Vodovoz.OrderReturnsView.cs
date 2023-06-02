@@ -52,18 +52,6 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonBottlesByStockActualCount;
 
-		private global::Gtk.VSeparator vseparator2;
-
-		private global::Gtk.HBox hboxEmptyBottles;
-
-		private global::Gtk.Label labelEmptyBottlesCount;
-
-		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonEmptyBottlesCount;
-
-		private global::Gtk.Label labelEmptyBottlesActualCount;
-
-		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonEmptyBottlesActualCount;
-
 		private global::Gtk.Frame frame1;
 
 		private global::Gtk.Alignment GtkAlignment5;
@@ -354,75 +342,11 @@ namespace Vodovoz
 			w22.Position = 0;
 			w22.Expand = false;
 			w22.Fill = false;
-			// Container child yhboxBottles.Gtk.Box+BoxChild
-			this.vseparator2 = new global::Gtk.VSeparator();
-			this.vseparator2.Name = "vseparator2";
-			this.yhboxBottles.Add(this.vseparator2);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yhboxBottles[this.vseparator2]));
+			this.vbox1.Add(this.yhboxBottles);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yhboxBottles]));
 			w23.Position = 1;
 			w23.Expand = false;
 			w23.Fill = false;
-			// Container child yhboxBottles.Gtk.Box+BoxChild
-			this.hboxEmptyBottles = new global::Gtk.HBox();
-			this.hboxEmptyBottles.Name = "hboxEmptyBottles";
-			this.hboxEmptyBottles.Spacing = 6;
-			// Container child hboxEmptyBottles.Gtk.Box+BoxChild
-			this.labelEmptyBottlesCount = new global::Gtk.Label();
-			this.labelEmptyBottlesCount.Name = "labelEmptyBottlesCount";
-			this.labelEmptyBottlesCount.LabelProp = global::Mono.Unix.Catalog.GetString("Пустых бутылей план:");
-			this.hboxEmptyBottles.Add(this.labelEmptyBottlesCount);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hboxEmptyBottles[this.labelEmptyBottlesCount]));
-			w24.Position = 0;
-			w24.Expand = false;
-			w24.Fill = false;
-			// Container child hboxEmptyBottles.Gtk.Box+BoxChild
-			this.yspinbuttonEmptyBottlesCount = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000000D, 1D);
-			this.yspinbuttonEmptyBottlesCount.Sensitive = false;
-			this.yspinbuttonEmptyBottlesCount.CanFocus = true;
-			this.yspinbuttonEmptyBottlesCount.Name = "yspinbuttonEmptyBottlesCount";
-			this.yspinbuttonEmptyBottlesCount.Adjustment.PageIncrement = 10D;
-			this.yspinbuttonEmptyBottlesCount.ClimbRate = 1D;
-			this.yspinbuttonEmptyBottlesCount.Numeric = true;
-			this.yspinbuttonEmptyBottlesCount.ValueAsDecimal = 0m;
-			this.yspinbuttonEmptyBottlesCount.ValueAsInt = 0;
-			this.hboxEmptyBottles.Add(this.yspinbuttonEmptyBottlesCount);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hboxEmptyBottles[this.yspinbuttonEmptyBottlesCount]));
-			w25.Position = 1;
-			w25.Expand = false;
-			w25.Fill = false;
-			// Container child hboxEmptyBottles.Gtk.Box+BoxChild
-			this.labelEmptyBottlesActualCount = new global::Gtk.Label();
-			this.labelEmptyBottlesActualCount.Name = "labelEmptyBottlesActualCount";
-			this.labelEmptyBottlesActualCount.LabelProp = global::Mono.Unix.Catalog.GetString("факт:");
-			this.hboxEmptyBottles.Add(this.labelEmptyBottlesActualCount);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hboxEmptyBottles[this.labelEmptyBottlesActualCount]));
-			w26.Position = 2;
-			w26.Expand = false;
-			w26.Fill = false;
-			// Container child hboxEmptyBottles.Gtk.Box+BoxChild
-			this.yspinbuttonEmptyBottlesActualCount = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000000D, 1D);
-			this.yspinbuttonEmptyBottlesActualCount.CanFocus = true;
-			this.yspinbuttonEmptyBottlesActualCount.Name = "yspinbuttonEmptyBottlesActualCount";
-			this.yspinbuttonEmptyBottlesActualCount.Adjustment.PageIncrement = 10D;
-			this.yspinbuttonEmptyBottlesActualCount.ClimbRate = 1D;
-			this.yspinbuttonEmptyBottlesActualCount.Numeric = true;
-			this.yspinbuttonEmptyBottlesActualCount.ValueAsDecimal = 0m;
-			this.yspinbuttonEmptyBottlesActualCount.ValueAsInt = 0;
-			this.hboxEmptyBottles.Add(this.yspinbuttonEmptyBottlesActualCount);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hboxEmptyBottles[this.yspinbuttonEmptyBottlesActualCount]));
-			w27.Position = 3;
-			w27.Expand = false;
-			w27.Fill = false;
-			this.yhboxBottles.Add(this.hboxEmptyBottles);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yhboxBottles[this.hboxEmptyBottles]));
-			w28.Position = 2;
-			w28.Expand = false;
-			w28.Fill = false;
-			this.vbox1.Add(this.yhboxBottles);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yhboxBottles]));
-			w29.Position = 1;
-			w29.Expand = false;
-			w29.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.frame1 = new global::Gtk.Frame();
 			this.frame1.Name = "frame1";
@@ -445,8 +369,8 @@ namespace Vodovoz
 			this.ytreeToClient.Name = "ytreeToClient";
 			this.GtkScrolledWindow1.Add(this.ytreeToClient);
 			this.vbox5.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.GtkScrolledWindow1]));
-			w31.Position = 0;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.GtkScrolledWindow1]));
+			w25.Position = 0;
 			// Container child vbox5.Gtk.Box+BoxChild
 			this.hbox6 = new global::Gtk.HBox();
 			this.hbox6.Name = "hbox6";
@@ -457,33 +381,33 @@ namespace Vodovoz
 			this.buttonAddOrderItem.Name = "buttonAddOrderItem";
 			this.buttonAddOrderItem.UseUnderline = true;
 			this.buttonAddOrderItem.Label = global::Mono.Unix.Catalog.GetString("Добавить товар");
-			global::Gtk.Image w32 = new global::Gtk.Image();
-			w32.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.buttonAddOrderItem.Image = w32;
+			global::Gtk.Image w26 = new global::Gtk.Image();
+			w26.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAddOrderItem.Image = w26;
 			this.hbox6.Add(this.buttonAddOrderItem);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAddOrderItem]));
-			w33.Position = 0;
-			w33.Expand = false;
-			w33.Fill = false;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAddOrderItem]));
+			w27.Position = 0;
+			w27.Expand = false;
+			w27.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonDeleteOrderItem = new global::Gtk.Button();
 			this.buttonDeleteOrderItem.CanFocus = true;
 			this.buttonDeleteOrderItem.Name = "buttonDeleteOrderItem";
 			this.buttonDeleteOrderItem.UseUnderline = true;
 			this.buttonDeleteOrderItem.Label = global::Mono.Unix.Catalog.GetString("Удалить товар");
-			global::Gtk.Image w34 = new global::Gtk.Image();
-			w34.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
-			this.buttonDeleteOrderItem.Image = w34;
+			global::Gtk.Image w28 = new global::Gtk.Image();
+			w28.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.buttonDeleteOrderItem.Image = w28;
 			this.hbox6.Add(this.buttonDeleteOrderItem);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonDeleteOrderItem]));
-			w35.Position = 1;
-			w35.Expand = false;
-			w35.Fill = false;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonDeleteOrderItem]));
+			w29.Position = 1;
+			w29.Expand = false;
+			w29.Fill = false;
 			this.vbox5.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox6]));
-			w36.Position = 1;
-			w36.Expand = false;
-			w36.Fill = false;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox6]));
+			w30.Position = 1;
+			w30.Expand = false;
+			w30.Fill = false;
 			this.GtkAlignment5.Add(this.vbox5);
 			this.frame1.Add(this.GtkAlignment5);
 			this.GtkLabel10 = new global::Gtk.Label();
@@ -492,8 +416,8 @@ namespace Vodovoz
 			this.GtkLabel10.UseMarkup = true;
 			this.frame1.LabelWidget = this.GtkLabel10;
 			this.vbox1.Add(this.frame1);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame1]));
-			w39.Position = 2;
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame1]));
+			w33.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox7 = new global::Gtk.HBox();
 			this.hbox7.Name = "hbox7";
@@ -520,11 +444,11 @@ namespace Vodovoz
 			this.GtkLabel14.UseMarkup = true;
 			this.frame2.LabelWidget = this.GtkLabel14;
 			this.hbox7.Add(this.frame2);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.frame2]));
-			w42.Position = 0;
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.frame2]));
+			w36.Position = 0;
 			this.vbox1.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
-			w43.Position = 3;
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
+			w37.Position = 3;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.frame3 = new global::Gtk.Frame();
 			this.frame3.Name = "frame3";
@@ -544,8 +468,8 @@ namespace Vodovoz
 			this.depositrefunditemsview1.Name = "depositrefunditemsview1";
 			this.depositrefunditemsview1.Sensitive = false;
 			this.vbox3.Add(this.depositrefunditemsview1);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.depositrefunditemsview1]));
-			w44.Position = 0;
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.depositrefunditemsview1]));
+			w38.Position = 0;
 			this.GtkAlignment12.Add(this.vbox3);
 			this.frame3.Add(this.GtkAlignment12);
 			this.GtkLabel18 = new global::Gtk.Label();
@@ -554,8 +478,8 @@ namespace Vodovoz
 			this.GtkLabel18.UseMarkup = true;
 			this.frame3.LabelWidget = this.GtkLabel18;
 			this.vbox1.Add(this.frame3);
-			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame3]));
-			w47.Position = 4;
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame3]));
+			w41.Position = 4;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
