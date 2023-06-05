@@ -61,6 +61,8 @@
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\TargetDocument.cs" />
     <Compile Include="Domain\Cash\FinancialCategoryTypeEnum.cs" />
     <Compile Include="Domain\Cash\IFinancialCategory.cs" />
+    <Compile Include="Domain\Cash\IncomeInvoiceDocumentType.cs" />
+    <Compile Include="Domain\Cash\IncomeType.cs" />
     <Compile Include="Domain\Client\ExternalCounterpartyMatchingStatus.cs" />
     <Compile Include="Domain\Documents\IncomingInvoices\AccountingType.cs" />
     <Compile Include="Domain\Documents\InventoryDocuments\InventoryDocumentStatus.cs" />
