@@ -38,6 +38,8 @@ namespace Vodovoz.TempAdapters
 		ITdiTab OpenRegradingOfGoodsDocumentDlg(int regradingOfGoodsDocumentId, ITdiTab master = null);
 		ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab);
 		ITdiTab OpenRouteListCreateDlg(ITdiTab tab);
+		ITdiTab CreateRouteListCreateDlg();
+		ITdiTab CreateRouteListCreateDlg(int id);
 		ITdiTab OpenRouteListControlDlg(ITdiTabParent tabParent, int id);
 		string GenerateDialogHashName<T>(int id) where T : IDomainObject;
 		void OpenCarLoadDocumentDlg(ITdiTabParent tabParent, Action<CarLoadDocument, IUnitOfWork, int, int> fillCarLoadDocumentFunc, int routeListId, int warehouseId);

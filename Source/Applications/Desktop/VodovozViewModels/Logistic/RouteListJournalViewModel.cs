@@ -290,9 +290,9 @@ namespace Vodovoz.ViewModels.Logistic
 			return result;
 		};
 
-		protected override Func<ITdiTab> CreateDialogFunction => () => _gtkTabsOpener.OpenRouteListCreateDlg(TabParent);
+		protected override Func<ITdiTab> CreateDialogFunction => () => _gtkTabsOpener.CreateRouteListCreateDlg();
 
-		protected override Func<RouteListJournalNode, ITdiTab> OpenDialogFunction => node => _gtkTabsOpener.OpenRouteListCreateDlg(TabParent, node.Id);
+		protected override Func<RouteListJournalNode, ITdiTab> OpenDialogFunction => node => _gtkTabsOpener.CreateRouteListCreateDlg(node.Id);
 
 		#region PopupActions
 
