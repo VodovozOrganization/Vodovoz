@@ -30,7 +30,7 @@ namespace Vodovoz.TempAdapters
 
             var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
             var userRepository = new UserRepository();
-            var counterpartyJournalFactory = new CounterpartyJournalFactory();
+            var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 
 			WaterJournalViewModel waterJournal = new WaterJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,

@@ -253,7 +253,7 @@ namespace Vodovoz
 		private ICounterpartyJournalFactory counterpartySelectorFactory;
 
 		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
-			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory());
+			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()));
 
 		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 
