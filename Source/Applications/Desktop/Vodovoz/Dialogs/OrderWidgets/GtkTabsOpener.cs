@@ -1,9 +1,11 @@
 ﻿using Dialogs.Logistic;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
 using Vodovoz.Dialogs.DocumentDialogs;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -16,6 +18,9 @@ namespace Vodovoz.Dialogs.OrderWidgets
 {
 	public class GtkTabsOpener : IGtkTabsOpener
 	{
+		public string GenerateDialogHashName<T>(int id)
+			where T : IDomainObject => DialogHelper.GenerateDialogHashName<T>(id);
+
 		public ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment) =>
 			new OrderDlg { IsForRetail = isForRetail, IsForSalesDepartment = isForSalesDepartment};
 		
@@ -40,37 +45,43 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 
-		public void OpenRouteListCreateDlg(ITdiTab tab, int id)
-		{
-			tab.TabParent.OpenTab(
+		public ITdiTab OpenRouteListCreateDlg(ITdiTab tab) =>
+			OpenRouteListCreateDlg(tab.TabParent);
+
+		public ITdiTab OpenRouteListCreateDlg(ITdiTab tab, int id) =>
+			OpenRouteListCreateDlg(tab.TabParent, id);
+
+		public ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab, int id) =>
+			tab.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(id),
-				() => new RouteListCreateDlg(id)
-			);
-		}
+				() => new RouteListCreateDlg(id));
 
-		public void OpenRouteListKeepingDlg(ITdiTab tab, int routeListId)
-		{
-			tab.TabParent.OpenTab(
+		public ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab) =>
+			tab.OpenTab(() => new RouteListCreateDlg());
+
+		public ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId) =>
+			tab.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
-				() => new RouteListKeepingDlg(routeListId)
-			);
-		}
+				() => new RouteListKeepingDlg(routeListId));
 
-		public void OpenRouteListKeepingDlg(ITdiTab tab, int routeListId, int[] selectedOrdersIds)
-		{
-			tab.TabParent.OpenTab(
+		public ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId, int[] selectedOrdersIds) =>
+			tab.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
-				() => new RouteListKeepingDlg(routeListId, selectedOrdersIds)
-			);
-		}
+				() => new RouteListKeepingDlg(routeListId, selectedOrdersIds));
 
-		public ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId)
-		{
-			return master.TabParent.OpenTab(
+		public ITdiTab OpenRouteListKeepingDlg(ITdiTab tab, int routeListId, int[] selectedOrdersIds) =>
+			OpenRouteListKeepingDlg(tab.TabParent, routeListId, selectedOrdersIds);
+
+		public ITdiTab OpenRouteListKeepingDlg(ITdiTab tab, int routeListId) =>
+			OpenRouteListKeepingDlg(tab.TabParent, routeListId);
+
+		public ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId) =>
+			OpenRouteListClosingDlg(master.TabParent, routelistId);
+
+		public ITdiTab OpenRouteListClosingDlg(ITdiTabParent tab, int routelistId) =>
+			tab.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(routelistId),
-				() => new RouteListClosingDlg(routelistId)
-			);
-		}
+				() => new RouteListClosingDlg(routelistId));
 
 		public ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0, bool isForSalesDepartment = false)
 		{
@@ -190,6 +201,35 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			TDIMain.MainNotebook.AddTab(entityDlg);
 
 			return entityDlg;
+		}
+
+		public ITdiTab OpenRouteListControlDlg(ITdiTabParent tabParent, int id) =>
+			tabParent.OpenTab(
+				DialogHelper.GenerateDialogHashName<RouteList>(id),
+				() => new RouteListControlDlg(id));
+
+		public void OpenCarLoadDocumentDlg(ITdiTabParent tabParent, Action<CarLoadDocument, IUnitOfWork, int, int> fillCarLoadDocumentFunc, int routeListId, int warehouseId)
+		{
+			var dlg = new CarLoadDocumentDlg();
+			fillCarLoadDocumentFunc(dlg.Entity, dlg.UoW, routeListId, warehouseId);
+			tabParent.OpenTab(() => dlg);
+		}
+
+		public void ShowTrackWindow(int id)
+		{
+			var track = new TrackOnMapWnd(id);
+			track.Show();
+		}
+
+		public void OpenOrderDlgAsSlave(ITdiTab tab, Order order)
+		{
+			var dlg = new OrderDlg(order)
+			{
+				HasChanges = false
+			};
+
+			dlg.SetDlgToReadOnly();
+			tab.TabParent.AddSlaveTab(tab, dlg);
 		}
 	}
 }

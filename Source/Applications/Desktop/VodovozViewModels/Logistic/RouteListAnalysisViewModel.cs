@@ -1,36 +1,33 @@
-﻿using System;
+﻿using QS.Commands;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
+using QS.Services;
+using QS.ViewModels;
+using QS.ViewModels.Extension;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
-using QS.Services;
-using QS.ViewModels;
-using Vodovoz.Domain.Logistic;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders;
-using QS.Commands;
-using QS.Navigation;
-using QS.Project.Journal;
-using QS.ViewModels.Extension;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalViewModels.Employees;
-using Vodovoz.JournalViewers;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -38,8 +35,7 @@ namespace Vodovoz.ViewModels.Logistic
 	{
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
 		private readonly IEmployeeService _employeeService;
-		private readonly WageParameterService _wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
+		private readonly IWageParameterService _wageParameterService;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
@@ -67,10 +63,13 @@ namespace Vodovoz.ViewModels.Logistic
 			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IDeliveryShiftRepository deliveryShiftRepository,
 			IEmployeeSettings employeeSettings,
+			IEmployeeService employeeService,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IRouteListItemRepository routeListItemRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider) : base (uowBuilder, unitOfWorkFactory, commonServices)
+			IWageParameterService wageParameterService,
+			ISubdivisionParametersProvider subdivisionParametersProvider)
+			: base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -84,11 +83,13 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 
 			if(deliveryShiftRepository == null)
 			{
@@ -103,8 +104,6 @@ namespace Vodovoz.ViewModels.Logistic
 			DeliveryShifts = deliveryShiftRepository.ActiveShifts(UoW);
 			Entity.ObservableAddresses.PropertyOfElementChanged += ObservableAddressesOnPropertyOfElementChanged;
 			
-			_undeliveryViewOpener = new UndeliveredOrdersJournalOpener();
-			_employeeService = VodovozGtkServicesConfig.EmployeeService;
 			CurrentEmployee = _employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
 			
 			if(CurrentEmployee == null) {
@@ -153,13 +152,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private DelegateCommand openOrderCommand;
 		public DelegateCommand OpenOrderCommand => openOrderCommand ?? (openOrderCommand = new DelegateCommand(
 			() => {
-				var dlg = new OrderDlg(SelectedItem.Order) {
-					HasChanges = false
-				};
-
-				dlg.SetDlgToReadOnly();
-				TabParent.AddSlaveTab(this, dlg);
-
+				_gtkDialogsOpener.OpenOrderDlgAsSlave(this, SelectedItem.Order);
 			}, () => SelectedItem != null
 		));
 		

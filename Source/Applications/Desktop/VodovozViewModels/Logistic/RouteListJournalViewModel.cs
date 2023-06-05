@@ -1,91 +1,66 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.Deletion;
+using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.DB;
+using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Report;
 using QS.Services;
+using QS.Tdi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Dialogs.Logistic;
-using QS.Deletion;
-using QS.Dialog;
-using QS.Dialog.Gtk;
-using QS.Project.Domain;
-using QS.Report;
-using QS.Tdi;
-using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Infrastructure;
-using Vodovoz.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.ViewModels.FuelDocuments;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using Vodovoz.ViewModels.Journals.JournalNodes;
-using Vodovoz.ViewModels.Logistic;
-using Vodovoz.ViewModels.TempAdapters;
-using Order = Vodovoz.Domain.Orders.Order;
-using QS.Navigation;
-using QS.Project.DB;
-using Vodovoz.Controllers;
-using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Profitability;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.TempAdapters;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.FuelDocuments;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalNodes;
+using Order = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListJournalViewModel : FilterableSingleEntityJournalViewModelBase
 		<RouteList, ITdiTab, RouteListJournalNode, RouteListJournalFilterViewModel>
 	{
 		private readonly IRouteListRepository _routeListRepository;
-		private readonly IFuelRepository _fuelRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
-		private readonly ICategoryRepository _categoryRepository;
-		private readonly ITrackRepository _trackRepository;
-		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
-		private readonly IDeliveryShiftRepository _deliveryShiftRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IWarehouseRepository _warehouseRepository;
-		private readonly ICarJournalFactory _carJournalFactory;
-		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
-		private readonly IOrderSelectorFactory _orderSelectorFactory;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
-		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
-		private readonly IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private readonly IStockRepository _stockRepository;
 		private readonly IReportPrinter _reportPrinter;
 		private readonly ITerminalNomenclatureProvider _terminalNomenclatureProvider;
-		private readonly IEmployeeSettings _employeeSettings;
-		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
+		private readonly IUserSettings _userSettings;
+		private readonly IStoreDocumentHelper _storeDocumentHelper;
 		private readonly decimal _routeListProfitabilityIndicator;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
 		private readonly Employee _currentEmployee;
@@ -95,75 +70,44 @@ namespace Vodovoz.JournalViewModels
 		public RouteListJournalViewModel(
 			RouteListJournalFilterViewModel filterViewModel,
 			IRouteListRepository routeListRepository,
-			IFuelRepository fuelRepository,
 			ISubdivisionRepository subdivisionRepository,
-			ICategoryRepository categoryRepository,
-			ITrackRepository trackRepository,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository,
-			IDeliveryShiftRepository deliveryShiftRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			INavigationManager navigationManager,
 			ICallTaskWorker callTaskWorker,
 			IWarehouseRepository warehouseRepository,
-			ICarJournalFactory carJournalFactory,
-			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeeRepository employeeRepository,
 			IGtkTabsOpener gtkTabsOpener,
-			IOrderSelectorFactory orderSelectorFactory,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory,
-			ISubdivisionJournalFactory subdivisionJournalFactory,
-			IUndeliveredOrdersJournalOpener undeliveredOrdersJournalOpener,
 			IStockRepository stockRepository,
 			IReportPrinter reportPrinter,
 			ITerminalNomenclatureProvider terminalNomenclatureProvider,
-			IEmployeeSettings employeeSettings,
 			ICommonServices commonServices,
-			IRouteListProfitabilityController routeListProfitabilityController,
-			IRouteListItemRepository routeListItemRepository,
-			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService,
-			IRouteListDailyNumberProvider routeListDailyNumberProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IRouteListDailyNumberProvider routeListDailyNumberProvider,
+			IUserSettings userSettings,
+			IStoreDocumentHelper storeDocumentHelper)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
-			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-			_undeliveredOrdersRepository =
-				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
-			_deliveryShiftRepository = deliveryShiftRepository ?? throw new ArgumentNullException(nameof(deliveryShiftRepository));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
-			_carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
-			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
-			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_deliveryPointJournalFactory =
-				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
-			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
-			_undeliveredOrdersJournalOpener =
-				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			_reportPrinter = reportPrinter ?? throw new ArgumentNullException(nameof(reportPrinter));
 			_terminalNomenclatureProvider =
 				terminalNomenclatureProvider ?? throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			_routeListProfitabilityController =
-				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
-			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_subdivisionParametersProvider =
-				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
-
+			_userSettings = userSettings;
+			_storeDocumentHelper = storeDocumentHelper;
 			_currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			_warehousePermissionValidator =
 				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService))).GetValidator();
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			TabName = "Журнал МЛ";
 
@@ -346,9 +290,9 @@ namespace Vodovoz.JournalViewModels
 			return result;
 		};
 
-		protected override Func<ITdiTab> CreateDialogFunction => () => new RouteListCreateDlg();
+		protected override Func<ITdiTab> CreateDialogFunction => () => _gtkTabsOpener.OpenRouteListCreateDlg(TabParent);
 
-		protected override Func<RouteListJournalNode, ITdiTab> OpenDialogFunction => node => new RouteListCreateDlg(node.Id);
+		protected override Func<RouteListJournalNode, ITdiTab> OpenDialogFunction => node => _gtkTabsOpener.OpenRouteListCreateDlg(TabParent, node.Id);
 
 		#region PopupActions
 
@@ -384,8 +328,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						var track = new TrackOnMapWnd(selectedNode.Id);
-						track.Show();
+						_gtkTabsOpener.ShowTrackWindow(selectedNode.Id);
 					}
 				}
 			);
@@ -401,10 +344,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListCreateDlg(selectedNode.Id)
-						);
+						_gtkTabsOpener.OpenRouteListCreateDlg(TabParent, selectedNode.Id);
 					}
 				}
 			);
@@ -421,10 +361,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListControlDlg(selectedNode.Id)
-						);
+						_gtkTabsOpener.OpenRouteListControlDlg(TabParent, selectedNode.Id);
 					}
 				}
 			);
@@ -438,7 +375,7 @@ namespace Vodovoz.JournalViewModels
 				.Select(x => x.Id)
 				.List<int>();
 
-			var defaultWarehouse = CurrentUserSettings.Settings.DefaultWarehouse;
+			var defaultWarehouse = _userSettings.Settings.DefaultWarehouse;
 
 			if(defaultWarehouse != null
 			   && !cashWarehouseIds.Contains(defaultWarehouse.Id)
@@ -460,7 +397,7 @@ namespace Vodovoz.JournalViewModels
 			}
 
 			var warehousesAvailableForUser =
-				new StoreDocumentHelper(new UserSettingsGetter()).GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit)
+				_storeDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissionsType.CarLoadEdit)
 					.Where(x => !cashWarehouseIds.Contains(x.Id))
 					.ToList();
 
@@ -528,10 +465,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListKeepingDlg(selectedNode.Id)
-						);
+						_gtkTabsOpener.OpenRouteListKeepingDlg(TabParent, selectedNode.Id);
 					}
 				}
 			);
@@ -557,7 +491,7 @@ namespace Vodovoz.JournalViewModels
 
 						foreach(var routeList in routeLists.Where(arg => arg.Status == RouteListStatus.Delivered))
 						{
-							if(TabParent.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
+							if(TabParent.FindTab(_gtkTabsOpener.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
 							{
 								commonServices.InteractiveService.ShowMessage(
 									ImportanceLevel.Info, "Требуется закрыть подчиненную вкладку");
@@ -590,10 +524,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-							() => new RouteListClosingDlg(selectedNode.Id)
-						);
+						_gtkTabsOpener.OpenRouteListClosingDlg(TabParent, selectedNode.Id);
 					}
 				}
 			);
@@ -610,27 +541,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						TabParent.AddTab(
-							new RouteListAnalysisViewModel(
-								EntityUoWBuilder.ForOpen(selectedNode.Id),
-								UnitOfWorkFactory,
-								commonServices,
-								_orderSelectorFactory,
-								_employeeJournalFactory,
-								_counterpartyJournalFactory,
-								_deliveryPointJournalFactory,
-								_subdivisionJournalFactory,
-								_gtkTabsOpener,
-								_undeliveredOrdersJournalOpener,
-								_deliveryShiftRepository,
-								_employeeSettings,
-								_undeliveredOrdersRepository,
-								_routeListProfitabilityController,
-								_routeListItemRepository,
-								_subdivisionParametersProvider),
-							this,
-							false
-						);
+						NavigationManager.OpenViewModel<RouteListAnalysisViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 					}
 				}
 			);
@@ -649,7 +560,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					if(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode)
 					{
-						MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(
+						NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(
 							this, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 					}
 				}
@@ -718,21 +629,8 @@ namespace Vodovoz.JournalViewModels
 					}
 
 					var routeList = UoW.GetById<RouteList>(selectedNode.Id);
-					TabParent.OpenTab(
-						DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
-						() => new FuelDocumentViewModel(
-							routeList,
-							commonServices,
-							_subdivisionRepository,
-							_employeeRepository,
-							_fuelRepository,
-							NavigationManagerProvider.NavigationManager,
-							_trackRepository,
-							_categoryRepository,
-							_employeeJournalFactory,
-							_carJournalFactory
-						)
-					);
+
+					NavigationManager.OpenViewModel<FuelDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(selectedNode.Id));
 				}
 			);
 		}
@@ -820,9 +718,7 @@ namespace Vodovoz.JournalViewModels
 					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Не удалось автоматически отгрузить Маршрутный лист");
 
-					var dlg = new CarLoadDocumentDlg();
-					FillCarLoadDocument(dlg.Entity, dlg.UoW, routeList.Id, warehouse.Id);
-					TabParent.OpenTab(() => dlg);
+					_gtkTabsOpener.OpenCarLoadDocumentDlg(TabParent, FillCarLoadDocument, routeList.Id, warehouse.Id);
 				}
 			}
 		}
@@ -944,7 +840,7 @@ namespace Vodovoz.JournalViewModels
 				bool isSlaveTabActive = false;
 				foreach(var routeList in routeLists.Where(arg => arg.Status == RouteListStatus.Confirmed))
 				{
-					if(TabParent.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
+					if(TabParent.FindTab(_gtkTabsOpener.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
 					{
 						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Требуется закрыть подчиненную вкладку");
 						isSlaveTabActive = true;
