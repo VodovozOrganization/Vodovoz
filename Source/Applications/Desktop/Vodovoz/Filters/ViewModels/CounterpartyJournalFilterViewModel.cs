@@ -10,7 +10,7 @@ using Vodovoz.Representations;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class CounterpartyJournalFilterViewModel : FilterViewModelBase<CounterpartyJournalFilterViewModel>, IJournalFilter
+	public class CounterpartyJournalFilterViewModel : FilterViewModelBase<CounterpartyJournalFilterViewModel>, IJournalFilter, IJournalFilterViewModel
 	{
 		private string _counterpartyName;
 		private string _deliveryPointPhone;
@@ -116,6 +116,7 @@ namespace Vodovoz.Filters.ViewModels
 			get => _reasonForLeaving;
 			set => SetField(ref _reasonForLeaving, value);
 		}
+		public bool IsShow { get; set; }
 
 		private void UnsubscribeOnCheckChanged()
 		{
