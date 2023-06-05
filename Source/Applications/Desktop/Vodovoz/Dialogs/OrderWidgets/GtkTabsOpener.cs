@@ -54,10 +54,14 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		public ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab, int id) =>
 			tab.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(id),
-				() => new RouteListCreateDlg(id));
+				() => CreateRouteListCreateDlg(id));
 
 		public ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab) =>
-			tab.OpenTab(() => new RouteListCreateDlg());
+			tab.OpenTab(CreateRouteListCreateDlg);
+
+		public ITdiTab CreateRouteListCreateDlg() => new RouteListCreateDlg();
+
+		public ITdiTab CreateRouteListCreateDlg(int id) => new RouteListCreateDlg(id);
 
 		public ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId) =>
 			tab.OpenTab(
