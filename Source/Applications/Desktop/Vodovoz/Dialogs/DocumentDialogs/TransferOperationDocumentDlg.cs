@@ -52,7 +52,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			datepickerDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 
-			var clientFactory = new CounterpartyJournalFactory();
+			var clientFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 			referenceCounterpartyFrom.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
 

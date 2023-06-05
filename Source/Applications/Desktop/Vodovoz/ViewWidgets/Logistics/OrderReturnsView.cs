@@ -212,7 +212,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
 				new NomenclatureJournalFactory(),
-				new CounterpartyJournalFactory(),
+				new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
 				_nomenclatureRepository,
 				new UserRepository()
 			) {
