@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -3412,7 +3412,7 @@ WHERE stored_resource.id = @id1</CommandText>
     First({order_payment_type}, "Order") = 'SmsQR',
         Iif(First({fast_payment_paid},'Order'),
         "ОПЛАЧЕНО",
-        "К оплате: \nПО QR-КОДУ SMS "+
+        "К оплате: \nПО QR-КОДУ МП "+
         Convert.ToString
         (
             (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
