@@ -25,11 +25,17 @@ namespace Vodovoz.JournalViewModels
 		public CounterpartyJournalViewModel(
 			CounterpartyJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			Action<CounterpartyJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал контрагентов";
 
 			_userHaveAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
+
+			if(filterConfiguration != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfiguration);
+			}
 
 			UpdateOnChanges(
 				typeof(Counterparty),

@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 
-namespace Vodovoz.Additions.Store
+namespace Vodovoz.Tools.Store
 {
-	// TODO: Зарефакторить, возможно раскидать функционал, лежит тут, чтобы проще было искать где его выпиливать
 	public interface IStoreDocumentHelper
 	{
 		bool CanEditDocument(WarehousePermissionsType edit, params Warehouse[] warehouses);

@@ -749,7 +749,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 
 		tdiMain.OpenTab(
 			() => new NomenclaturesJournalViewModel(
@@ -1052,7 +1052,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		var subdivisionJournalFactory = new SubdivisionJournalFactory();
 		var subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 
 		tdiMain.OpenTab(
 			() => new UserSettingsViewModel(
@@ -1240,7 +1240,7 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
 			() => new QSReport.ReportViewDlg(new QualityReport(
-				new CounterpartyJournalFactory(),
+				new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
 				new EmployeeJournalFactory(),
 				new SalesChannelJournalFactory(),
 				UnitOfWorkFactory.GetDefaultFactory,
@@ -1732,7 +1732,7 @@ public partial class MainWindow : Gtk.Window
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
 
-		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 
 		tdiMain.AddTab(
 			new PromotionalSetsJournalViewModel(
@@ -1993,7 +1993,7 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
 			() => new QSReport.ReportViewDlg(
-				new PaymentsFromBankClientReport(new CounterpartyJournalFactory(), new UserRepository(), ServicesConfig.CommonServices))
+				new PaymentsFromBankClientReport(new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new UserRepository(), ServicesConfig.CommonServices))
 		);
 	}
 
@@ -2201,7 +2201,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var employeeJournalFactory = new EmployeeJournalFactory();
 
@@ -2589,7 +2589,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 		IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory = new BulkEmailEventReasonJournalFactory();
 		IFileDialogService fileDialogService = new FileDialogService();
 

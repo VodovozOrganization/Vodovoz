@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -44,7 +44,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
-using Vodovoz.Additions.Store;
 using Vodovoz.Cash;
 using Vodovoz.Cash.FinancialCategoriesGroups;
 using Vodovoz.Core;
@@ -647,6 +646,7 @@ namespace Vodovoz
 
 			builder.RegisterType<FileChooser>().As<IFileChooserProvider>();
 
+
 			#region Adapters & Factories
 
 			builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
@@ -706,6 +706,7 @@ namespace Vodovoz
 			builder.RegisterType<UserSettingsGetter>().As<IUserSettings>();
 			builder.RegisterType<StoreDocumentHelper>().AsSelf();
 			builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
+			builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 
 			#endregion
 
@@ -863,6 +864,8 @@ namespace Vodovoz
 			builder.Register(c => CurrentUserSettings.Settings).As<UserSettings>();
 
 			builder.RegisterType<PasswordGenerator>().As<IPasswordGenerator>();
+
+			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 			#endregion
 

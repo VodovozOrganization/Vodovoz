@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -61,6 +61,8 @@
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\TargetDocument.cs" />
     <Compile Include="Domain\Cash\FinancialCategoryTypeEnum.cs" />
     <Compile Include="Domain\Cash\IFinancialCategory.cs" />
+    <Compile Include="Domain\Cash\IncomeInvoiceDocumentType.cs" />
+    <Compile Include="Domain\Cash\IncomeType.cs" />
     <Compile Include="Domain\Client\ExternalCounterpartyMatchingStatus.cs" />
     <Compile Include="Domain\Documents\IncomingInvoices\AccountingType.cs" />
     <Compile Include="Domain\Documents\InventoryDocuments\InventoryDocumentStatus.cs" />
@@ -394,6 +396,7 @@
     <Compile Include="Domain\Goods\VAT.cs" />
     <Compile Include="Domain\Goods\VATStringType.cs" />
     <Compile Include="Domain\Versions\VersionEntityBase.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\IWageParameterService.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
@@ -891,6 +894,7 @@
     <Compile Include="Permissions\Cash.cs" />
     <Compile Include="Permissions\Cash.Income.cs" />
     <Compile Include="Permissions\Cash.Expense.cs" />
+    <Compile Include="Permissions\Logistic.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
@@ -1275,6 +1279,7 @@
     <Compile Include="HibernateMapping\Cash\Transfer\CashTransferOperationMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\IncomeCashTransferedItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\ExpenseCashTransferedItemMap.cs" />
+    <Compile Include="Tools\Store\IStoreDocumentHelper.cs" />
     <Compile Include="Tools\StringUtils.cs" />
     <Compile Include="Tools\TypeUtils.cs" />
     <Compile Include="Tools\Store\StoreDocumentHelper.cs" />

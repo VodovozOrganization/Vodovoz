@@ -555,7 +555,6 @@
     <Compile Include="JournalNodes\ReturnTareReasonCategoriesJournalNode.cs" />
     <Compile Include="JournalViewModels\RetailOrderJournalViewModel.cs" />
     <Compile Include="JournalViewModels\ReturnTareReasonCategoriesJournalViewModel.cs" />
-    <Compile Include="JournalViewModels\RouteListJournalViewModel.cs" />
     <Compile Include="JournalViewModels\UserRolesJournalViewModel.cs" />
     <Compile Include="JournalViewModels\WaterJournalViewModel.cs" />
     <Compile Include="MainWindow.cs" />
@@ -1343,7 +1342,6 @@
     <Compile Include="ViewModels\Logistic\RouteColumnTag.cs" />
     <Compile Include="Additions\Logistic\PointMarkerType.cs" />
     <Compile Include="Additions\Logistic\PointMarkerShape.cs" />
-    <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
     <Compile Include="ViewWidgets\AdvancedWageParameterViews\BottlesCountAdvancedWageParameterWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.BottlesCountAdvancedWageParameterWidget.cs" />
     <Compile Include="ViewWidgets\AdvancedWageParameterViews\DeliveryTimeAdvancedWagePrameterView.cs" />
@@ -1520,7 +1518,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.ProductionRequestReport.cs" />
     <Compile Include="ReportsParameters\Logistic\NonClosedRLByPeriodReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.NonClosedRLByPeriodReport.cs" />
-    <Compile Include="ViewModels\Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="Views\Logistic\RouteListAnalysisView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListAnalysisView.cs" />
     <Compile Include="Views\Logistic\LateArrivalReasonView.cs" />

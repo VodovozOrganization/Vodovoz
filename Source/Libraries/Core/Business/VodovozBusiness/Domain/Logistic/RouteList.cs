@@ -2719,7 +2719,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Зарплата
 
-		private IRouteListWageCalculationService GetDriverWageCalculationService(WageParameterService wageParameterService)
+		private IRouteListWageCalculationService GetDriverWageCalculationService(IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -2728,7 +2728,7 @@ namespace Vodovoz.Domain.Logistic
 			return wageParameterService.ActualizeWageParameterAndGetCalculationService(UoW, Driver, DriverWageCalculationSrc);
 		}
 
-		private IRouteListWageCalculationService GetForwarderWageCalculationService(WageParameterService wageParameterService)
+		private IRouteListWageCalculationService GetForwarderWageCalculationService(IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
@@ -2815,7 +2815,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Расчитывает и записывает зарплату
 		/// </summary>
-		public virtual void CalculateWages(WageParameterService wageParameterService)
+		public virtual void CalculateWages(IWageParameterService wageParameterService)
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
