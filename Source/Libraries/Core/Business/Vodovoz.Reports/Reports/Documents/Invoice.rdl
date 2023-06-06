@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -60,10 +60,10 @@
          FROM fast_payments fp
          WHERE (fp.order_id = orders.id
              OR fp.external_id = orders.id)
-         AND fp.payment_status = 'Performed'), 'Оплачено', 'По QR-коду (приложение водителя)')
-		WHEN 'PaidOnline' THEN 'Оплачено'
-		WHEN 'Barter' THEN 'Оплачено'
-		WHEN 'ContractDocumentation' THEN 'Оплачено'
+         AND fp.payment_status = 'Performed'), 'СМС (QR-код)', 'По QR-коду (приложение водителя)')
+		WHEN 'PaidOnline' THEN 'Оплачено онлайн'
+		WHEN 'Barter' THEN 'Безденежно'
+		WHEN 'ContractDocumentation' THEN ''
 		WHEN 'Cashless' THEN 'Безналичная'
 		ELSE orders.payment_type
 	END AS pay_type,
@@ -3398,7 +3398,7 @@ WHERE stored_resource.id = @id1</CommandText>
             "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
             " "),
     First({order_payment_type}, "Order") = "Terminal",
-        "К оплате: \nПО ТЕРМИНАЛУ "+
+        "К оплате: \nПО ТЕРМИНАЛУ (QR-КОД)"+
         Convert.ToString
         (
             (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
