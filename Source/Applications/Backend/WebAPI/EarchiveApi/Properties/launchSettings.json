@@ -1,0 +1,18 @@
+﻿{
+  "profiles": {
+    "EarchiveApi": {
+      "commandName": "Project",
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development"
+			},
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://localhost:7101"
+    },
+		"Docker": {
+			"commandName": "Docker",
+			"launchUrl": "http://localhost:7101",
+			"publishAllPorts": true,
+			"useSSL": false
+		}
+  }
+}
