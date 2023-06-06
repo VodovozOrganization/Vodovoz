@@ -85,28 +85,38 @@ namespace Vodovoz.Models.CashReceipts
 
 		private ICashboxClient GetCashBoxClient(CashReceipt cashReceipt)
 		{
-			var order = cashReceipt.Order;
+			int cashBoxId;
 
-			if(order.Contract == null)
+			if(cashReceipt.CashboxId.HasValue)
 			{
-				throw new InvalidOperationException($"В заказе ({order.Id}) не указан договор.");
+				cashBoxId = cashReceipt.CashboxId.Value;
+			}
+			else
+			{
+				var order = cashReceipt.Order;
+
+				if(order.Contract == null)
+				{
+					throw new InvalidOperationException($"В заказе ({order.Id}) не указан договор.");
+				}
+
+				var organization = order.Contract.Organization;
+				if(organization == null)
+				{
+					throw new InvalidOperationException($"В договоре заказа ({order.Id}) не указана организация.");
+				}
+
+				if(organization.CashBoxId == null)
+				{
+					throw new InvalidOperationException($"В организации ({organization.Id}) для заказа ({order.Id}) не указан код кассового аппарата.");
+				}
+
+				cashBoxId = organization.CashBoxId.Value;
 			}
 
-			var organization = order.Contract.Organization;
-			if(organization == null)
+			if(!_cashboxes.TryGetValue(cashBoxId, out ICashboxClient cashboxClient))
 			{
-				throw new InvalidOperationException($"В договоре заказа ({order.Id}) не указана организация.");
-			}
-
-			var cashBoxId = organization.CashBoxId;
-			if(cashBoxId == null)
-			{
-				throw new InvalidOperationException($"В организации ({organization.Id}) для заказа ({order.Id}) не указан код кассового аппарата.");
-			}
-
-			if(!_cashboxes.TryGetValue(cashBoxId.Value, out ICashboxClient cashboxClient))
-			{
-				throw new InvalidOperationException($"Не найден необходимый кассовый апарат ({cashBoxId.Value}) в списке доступных.");
+				throw new InvalidOperationException($"Не найден необходимый кассовый апарат ({cashBoxId}) в списке доступных.");
 			}
 
 			return cashboxClient;
