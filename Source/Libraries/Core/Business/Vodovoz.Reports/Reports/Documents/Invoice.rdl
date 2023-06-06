@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -58,8 +58,8 @@
 		WHEN 'SmsQR' THEN IF(
         (SELECT count(*) &gt; 0
          FROM fast_payments fp
-         WHERE (fp.order_id = order_id
-             OR fp.external_id = order_id)
+         WHERE (fp.order_id = orders.id
+             OR fp.external_id = orders.id)
          AND fp.payment_status = 'Performed'), 'Оплачено', 'По QR-коду (приложение водителя)')
 		WHEN 'PaidOnline' THEN 'Оплачено'
 		WHEN 'Barter' THEN 'Оплачено'
