@@ -84,7 +84,7 @@ namespace Vodovoz.Models
 				return order.Client.WorksThroughOrganization;
 			}
 
-			if(order.Contract != null && _cashReceiptRepository.HasReceipt(order.Id))
+			if(order.Contract != null && _cashReceiptRepository.ReceiptWorkWasStarted(order.Id))
 			{
 				return order.Contract.Organization;
 			}
