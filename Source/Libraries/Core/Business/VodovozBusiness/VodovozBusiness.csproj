@@ -73,6 +73,7 @@
     <Compile Include="Domain\Cash\IFuelCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\IIncomeCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\IncomeInvoiceDocumentType.cs" />
+    <Compile Include="Domain\Cash\DocumentTypesExtensions.cs" />
     <Compile Include="Domain\Cash\IncomeType.cs" />
     <Compile Include="Domain\Cash\ISelfDeliveryCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\IRouteListCashOrganisationDistributor.cs" />
