@@ -1,4 +1,4 @@
-namespace Vodovoz.Services
+﻿namespace Vodovoz.Services
 {
     public interface IOrderParametersProvider
     {
@@ -7,6 +7,7 @@ namespace Vodovoz.Services
 		int PaymentByCardFromSmsId { get; }
 		int PaymentByCardFromOnlineStoreId { get; }
 		int PaymentFromTerminalId { get; }
+		int PaymentFromSmsYuKassaId { get; }
 		int OldInternalOnlineStoreId { get; }
 		int GetPaymentByCardFromMarketplaceId { get; }
 		int GetPaymentByCardFromFastPaymentServiceId { get; }

@@ -32,6 +32,7 @@ namespace Vodovoz.Models.CashReceipts
 				{
 					var cashboxClient = await _cashboxClientProvider.GetCashboxAsync(cashReceipt, cancellationToken);
 					result.FiscalizationResult = await cashboxClient.SendFiscalDocument(receiptData.FiscalDocument, cancellationToken);
+					result.CashReceipt.CashboxId = cashboxClient.CashboxId;
 				}
 				catch(Exception ex)
 				{

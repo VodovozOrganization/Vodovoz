@@ -62,6 +62,7 @@ namespace Vodovoz.EntityRepositories.Cash
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromMobileAppId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSiteId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromSmsYuKassaId)
 						)
 					);
 			return restriction;
@@ -323,13 +324,12 @@ namespace Vodovoz.EntityRepositories.Cash
 			}
 		}
 
-		public bool HasReceipt(int orderId)
+		public bool ReceiptWorkWasStarted(int orderId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var query = uow.Session.QueryOver(() => _cashReceiptAlias)
 					.Where(() => _cashReceiptAlias.Order.Id == orderId)
-					.Where(() => _cashReceiptAlias.Status == CashReceiptStatus.Sended)
 					.Select(Projections.Id());
 				var result = query.List<int>();
 				return result.Any();

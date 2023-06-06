@@ -30,7 +30,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				return null;
 			}
 
-			if(order.Contract != null && order.Id != 0 && _cashReceiptRepository.HasReceipt(order.Id))
+			if(order.Contract != null && order.Id != 0 && _cashReceiptRepository.ReceiptWorkWasStarted(order.Id))
 			{
 				return order.Contract;
 			}
@@ -54,7 +54,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 		public CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, Organization organization)
 		{
-			if(order.Contract != null && order.Id != 0 && _cashReceiptRepository.HasReceipt(order.Id))
+			if(order.Contract != null && order.Id != 0 && _cashReceiptRepository.ReceiptWorkWasStarted(order.Id))
 			{
 				return order.Contract;
 			}
