@@ -58,7 +58,7 @@ namespace Vodovoz
 				new CashDistributionCommonOrganisationProvider(
 					new OrganizationParametersProvider(_parametersProvider)));
 		
-		List<Selectable<Expense>> selectableAdvances;
+		private List<Selectable<Expense>> _selectableAdvances = new List<Selectable<Expense>>();
 
 		public CashIncomeDlg()
 		{
@@ -126,7 +126,7 @@ namespace Vodovoz
 			Entity.ExpenseCategory = advance.ExpenseCategory;
 			Entity.Employee = advance.Employee;
 			Entity.Organisation = advance.Organisation;
-			selectableAdvances.Find(x => x.Value.Id == advance.Id).Selected = true;
+			_selectableAdvances.Find(x => x.Value.Id == advance.Id).Selected = true;
 		}
 
 		public CashIncomeDlg(Income sub) : this(sub.Id) {}
@@ -193,6 +193,7 @@ namespace Vodovoz
 			comboCategory.ItemsList = _categoryRepository.IncomeCategories(UoW).Where(x =>
 				x.IncomeDocumentType != IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery && x.Id != excludeIncomeCategoryId);
 			comboCategory.Binding.AddBinding (Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource ();
+			comboCategory.ItemSelected += OnComboCategoryItemSelected;
 
 			specialListCmbOrganisation.ShowSpecialStateNot = true;
 			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
@@ -223,6 +224,11 @@ namespace Vodovoz
 				buttonSave.Sensitive = false;
 				accessfilteredsubdivisionselectorwidget.Sensitive = false;
 			}
+		}
+
+		private void OnComboCategoryItemSelected(object sender, ItemSelectedEventArgs e)
+		{
+			UpdateRouteListInfo();
 		}
 
 		private void SpecialListCmbOrganisationOnItemSelected(object sender, ItemSelectedEventArgs e)
@@ -279,11 +285,45 @@ namespace Vodovoz
 				Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
 			}
 		}
-		
+
+		private void UpdateRouteListInfo()
+		{
+			SetRouteListControlsVisibility();
+			SetRouteListReference();
+		}
+
+		private void SetRouteListControlsVisibility()
+		{
+			var routeListControlsVisibility =
+				Entity.TypeOperation == IncomeType.DriverReport
+				|| Entity.TypeOperation == IncomeType.Return;
+
+			lblRouteList.Visible = routeListControlsVisibility;
+			yEntryRouteList.Visible = routeListControlsVisibility;
+
+			yEntryRouteList.Sensitive =
+				Entity.TypeOperation == IncomeType.DriverReport;
+		}
+
+		private void SetRouteListReference()
+		{
+			var selectedAdvances = _selectableAdvances
+				.Where(expense => expense.Selected)
+				.Select(e => e.Value.RouteListClosing)
+				.ToList();
+
+			if(selectedAdvances.Count != 1)
+			{
+				Entity.RouteListClosing = null;
+			}
+
+			Entity.RouteListClosing = selectedAdvances.FirstOrDefault();
+		}
+
 		public override bool Save ()
 		{
-			if (Entity.TypeOperation == IncomeType.Return && UoW.IsNew && selectableAdvances != null)
-				Entity.PrepareCloseAdvance(selectableAdvances.Where(x => x.Selected).Select(x => x.Value).ToList());
+			if (Entity.TypeOperation == IncomeType.Return && UoW.IsNew && _selectableAdvances.Count > 0)
+				Entity.PrepareCloseAdvance(_selectableAdvances.Where(x => x.Selected).Select(x => x.Value).ToList());
 
 			var valid = new QSValidator<Income> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
@@ -375,14 +415,14 @@ namespace Vodovoz
 			CheckOperation((IncomeType)e.SelectedItem);
 		}
 
-		void CheckOperation(IncomeType incomeType){
-			lblRouteList.Visible = yEntryRouteList.Visible
-				= incomeType == IncomeType.DriverReport;
-
+		void CheckOperation(IncomeType incomeType)
+		{
 			if(incomeType == IncomeType.DriverReport){
 				Entity.IncomeCategory = UoW.GetById<IncomeCategory>(1);
 			}
-		}
+
+			UpdateRouteListInfo();
+		}		
 
 		protected void OnComboExpenseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
@@ -395,32 +435,35 @@ namespace Vodovoz
 			{
 				var advances = _accountableDebtsRepository
 					.UnclosedAdvance(UoW, Entity.Employee, Entity.ExpenseCategory, Entity.Organisation?.Id);
-				selectableAdvances = advances.Select (advance => new Selectable<Expense> (advance))
+				_selectableAdvances = advances.Select (advance => new Selectable<Expense> (advance))
 				.ToList ();
-				selectableAdvances.ForEach (advance => advance.SelectChanged += OnAdvanceSelectionChanged);
-				ytreeviewDebts.ItemsDataSource = selectableAdvances;
+				_selectableAdvances.ForEach (advance => advance.SelectChanged += OnAdvanceSelectionChanged);
+				ytreeviewDebts.ItemsDataSource = _selectableAdvances;
 			}
 		}
 
-		protected void OnAdvanceSelectionChanged(object sender, EventArgs args){
+		protected void OnAdvanceSelectionChanged(object sender, EventArgs args)
+		{
 			if(checkNoClose.Active && (sender as Selectable<Expense>).Selected)
 			{
-				selectableAdvances.Where(x => x != sender).ToList().ForEach(x => x.SilentUnselect());
+				_selectableAdvances.Where(x => x != sender).ToList().ForEach(x => x.SilentUnselect());
 			}
 
 			if (checkNoClose.Active)
 				return;
 
-			Entity.Money = selectableAdvances.
+			Entity.Money = _selectableAdvances.
 				Where(expense=>expense.Selected)
 				.Sum (selectedExpense => selectedExpense.Value.UnclosedMoney);
+
+			UpdateRouteListInfo();
 		}
 			
 		protected void OnCheckNoCloseToggled(object sender, EventArgs e)
 		{
-			if (selectableAdvances == null)
+			if (_selectableAdvances == null)
 				return;
-			if(checkNoClose.Active && selectableAdvances.Count(x => x.Selected) > 1)
+			if(checkNoClose.Active && _selectableAdvances.Count(x => x.Selected) > 1)
 			{
 				MessageDialogHelper.RunWarningDialog("Частично вернуть можно только один аванс.");
 				checkNoClose.Active = false;
@@ -429,7 +472,7 @@ namespace Vodovoz
 			yspinMoney.Sensitive = checkNoClose.Active;
 			if(!checkNoClose.Active)
 			{
-				yspinMoney.ValueAsDecimal = selectableAdvances.Where(x => x.Selected).Sum(x => x.Value.UnclosedMoney);
+				yspinMoney.ValueAsDecimal = _selectableAdvances.Where(x => x.Selected).Sum(x => x.Value.UnclosedMoney);
 			}
 		}
 
