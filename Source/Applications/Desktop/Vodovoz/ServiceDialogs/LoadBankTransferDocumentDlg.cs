@@ -473,7 +473,7 @@ namespace Vodovoz
 						cuow.Root.FullName = doc.PayerName;
 						cuow.Root.INN = doc.PayerInn;
 						cuow.Root.KPP = doc.PayerKpp;
-						cuow.Root.PaymentMethod = PaymentType.cashless;
+						cuow.Root.PaymentMethod = PaymentType.Cashless;
 						cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.PayerName);
 						if (cuow.Root.TypeOfOwnership != null)
 							cuow.Root.PersonType = PersonType.legal;
@@ -525,7 +525,7 @@ namespace Vodovoz
 						cuow.Root.FullName = doc.RecipientName;
 						cuow.Root.INN = doc.RecipientInn;
 						cuow.Root.KPP = doc.RecipientKpp;
-						cuow.Root.PaymentMethod = PaymentType.cashless;
+						cuow.Root.PaymentMethod = PaymentType.Cashless;
 						cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.RecipientName);
 						if (cuow.Root.TypeOfOwnership != null)
 							cuow.Root.PersonType = PersonType.legal;
@@ -602,7 +602,7 @@ namespace Vodovoz
 							expenseUoW.Root.Date = doc.Date;
 							expenseUoW.Root.Total = doc.Total;
 							expenseUoW.Root.Description = doc.PaymentPurpose;
-							expenseUoW.Root.MoneyOperation.PaymentType = PaymentType.cashless;
+							expenseUoW.Root.MoneyOperation.PaymentType = PaymentType.Cashless;
 							expenseUoW.Root.Organization = organization;
 							expenseUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
 							expenseUoW.Root.Counterparty = _counterpartyRepository.GetCounterpartyByINN (expenseUoW, doc.RecipientInn);
@@ -624,7 +624,7 @@ namespace Vodovoz
 							incomeUoW.Root.Date = doc.Date;
 							incomeUoW.Root.Total = doc.Total;
 							incomeUoW.Root.Description = doc.PaymentPurpose;
-							incomeUoW.Root.MoneyOperation.PaymentType = PaymentType.cashless;
+							incomeUoW.Root.MoneyOperation.PaymentType = PaymentType.Cashless;
 						var counterparty = _counterpartyRepository.GetCounterpartyByINN(incomeUoW, doc.PayerInn);
 						
 						if(counterparty == null)

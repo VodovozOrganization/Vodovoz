@@ -143,7 +143,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				case Export1cMode.BuhgalteriaOOO:
 					query
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
-						.Where(o => o.PaymentType == PaymentType.cashless)
+						.Where(o => o.PaymentType == PaymentType.Cashless)
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
 				case Export1cMode.BuhgalteriaOOONew:
@@ -177,7 +177,7 @@ namespace Vodovoz.EntityRepositories.Orders
 							)
 						)
 						.Where(Restrictions.Disjunction()
-							.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+							.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 							.Add(Restrictions.Where(() => cashReceiptAlias.Status == CashReceiptStatus.Sended))
 							//Включение в выгрузку старых заказов, на которых нет чеков
 							//(с 26.04.2023 16:10 заказы с этими источниками оплаты имеют чеки сформированные через ДВ)
@@ -190,7 +190,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				case Export1cMode.IPForTinkoff:
 					query
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
-						.Where(o => o.PaymentType == PaymentType.ByCard)
+						.Where(o => o.PaymentType == PaymentType.PaidOnline)
 						.Where(o => o.OnlineOrder != null)
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
@@ -663,7 +663,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.Select(OrderProjections.GetOrderSumProjection())
@@ -674,7 +674,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
 				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
@@ -831,7 +831,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(() => orderAlias.OrderStatus == OrderStatus.Shipped
 							|| orderAlias.OrderStatus == OrderStatus.UnloadingOnStock
 							|| orderAlias.OrderStatus == OrderStatus.Closed)
-				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.And(() => deliveryScheduleAlias.Id != closingDocumentDeliveryScheduleId)
 				.SelectList(list => 
@@ -876,7 +876,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			}
 
 			var result = query.Where(() => counterpartyAlias.PersonType == PersonType.legal)
-				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
 				.And(Restrictions.Disjunction()
@@ -970,18 +970,18 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
-						.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
 							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
-						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
 						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
 					)
 				)
-				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc)
+				.And(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
 				.TransformUsing(Transformers.RootEntity) 
 				.List();
 
@@ -1024,18 +1024,18 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
-						.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
 							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
-						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
 						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
 					)
 				)
-				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc)
+				.And(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
 				.TransformUsing(Transformers.RootEntity)
 				.List();
 
@@ -1088,7 +1088,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
-						.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
 							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
@@ -1097,11 +1097,11 @@ namespace Vodovoz.EntityRepositories.Orders
 							)
 						)
 					.Add(Restrictions.Conjunction()
-						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
 						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
 					)
 				)
-				.Where(() => orderAlias.PaymentType != PaymentType.ContractDoc)
+				.Where(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
 				.Where(() => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id)
 				.Where(() => orderAlias.DeliveryDate > startDate)
 				.Select(o => o.Id);

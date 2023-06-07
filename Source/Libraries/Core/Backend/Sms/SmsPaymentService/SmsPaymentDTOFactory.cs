@@ -30,7 +30,7 @@ namespace SmsPaymentService
 				Amount = smsPayment.Amount,
 				RecepientType = smsPayment.Recepient.PersonType,
 				Items = GetCalculatedSmsPaymentItemDTOs(order.OrderItems),
-				OrganizationId = _organizationProvider.GetOrganization(uow, order, paymentFrom, PaymentType.ByCard).Id
+				OrganizationId = _organizationProvider.GetOrganization(uow, order, paymentFrom, PaymentType.PaidOnline).Id
 			};
 
 			return newSmsPaymentDTO;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
@@ -32,6 +32,8 @@ namespace Vodovoz.JournalNodes
 			if(entityType == typeof(OrderWithoutShipmentForAdvancePayment))
 				ViewType = "Счет на предоплату";
 		}
+
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 
 		public OrderStatus StatusEnum { get; set; }
 		

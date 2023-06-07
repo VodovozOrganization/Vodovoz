@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -1071,7 +1071,7 @@ WHERE
         DATE_ADD(orders.delivery_date, INTERVAL IFNULL(counterparty.delay_days_for_buyers, 0) DAY) &lt; DATE(@date)
   AND orders.order_payment_status IN ('UnPaid', 'PartiallyPaid')
   AND counterparty.is_chain_store = 1
-  AND orders.payment_type = 'cashless'
+  AND orders.payment_type = 'Cashless'
   AND orders.order_status NOT IN ('Canceled', 'NotDelivered', 'DeliveryCanceled')
   AND (orders.order_status &lt;&gt; 'WaitForPayment' OR (orders.pay_after_shipment = 1 AND orders.self_delivery = 1))
   AND (@counterparty_id = -1 OR counterparty.id = @counterparty_id )

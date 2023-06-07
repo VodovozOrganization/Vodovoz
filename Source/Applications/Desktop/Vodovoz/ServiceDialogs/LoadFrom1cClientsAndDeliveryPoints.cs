@@ -316,7 +316,7 @@ namespace Vodovoz.ServiceDialogs
 			if(personTypeAttr != null) {
 				var isJur = personTypeAttr.Value == "ЮрЛица" || personTypeAttr.Value == "СвоиЮрЛица";
 				counterparty.PersonType = isJur ? PersonType.legal : PersonType.natural;
-				counterparty.PaymentMethod = isJur ? PaymentType.cashless : PaymentType.cash;
+				counterparty.PaymentMethod = isJur ? PaymentType.Cashless : PaymentType.Cash;
 			}
 
 			var addressAttr = node.Attributes["ФактАдрес"];

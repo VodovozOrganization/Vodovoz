@@ -40,7 +40,7 @@ namespace Vodovoz.Controllers
 		/// <param name="order">Заказ</param>
 		public void UpdateAllocatedSum(IUnitOfWork uow, Order order)
 		{
-			if(HasOrderUndeliveredStatus(order.OrderStatus) || order.PaymentType != PaymentType.cashless)
+			if(HasOrderUndeliveredStatus(order.OrderStatus) || order.PaymentType != PaymentType.Cashless)
 			{
 				return;
 			}
@@ -91,8 +91,8 @@ namespace Vodovoz.Controllers
 		/// <param name="order">Заказ</param>
 		public void ReturnAllocatedSumToClientBalanceIfChangedPaymentTypeFromCashless(IUnitOfWork uow, Order order)
 		{
-			if(_orderRepository.GetCurrentOrderPaymentTypeInDB(uow, order.Id) == PaymentType.cashless
-				&& order.PaymentType != PaymentType.cashless)
+			if(_orderRepository.GetCurrentOrderPaymentTypeInDB(uow, order.Id) == PaymentType.Cashless
+				&& order.PaymentType != PaymentType.Cashless)
 			{
 				ReturnAllocatedSumToClientBalance(uow, order, RefundPaymentReason.ChangeOrderPaymentType);
 			}
@@ -127,7 +127,7 @@ namespace Vodovoz.Controllers
 		public void CancelRefundedPaymentIfOrderRevertFromUndelivery(IUnitOfWork uow, Order order, OrderStatus previousOrderStatus)
 		{
 			if(HasOrderUndeliveredStatus(previousOrderStatus)
-				&& order.PaymentType == PaymentType.cashless
+				&& order.PaymentType == PaymentType.Cashless
 				&& HasNotCancelledRefundedPayment(uow, order.Id, out var refundedPayment))
 			{
 				refundedPayment.CancelAllocation(
@@ -197,7 +197,7 @@ namespace Vodovoz.Controllers
 			if(order.OrderPaymentStatus != OrderPaymentStatus.UnPaid)
 			{
 				order.OrderPaymentStatus =
-					order.PaymentType == PaymentType.cashless
+					order.PaymentType == PaymentType.Cashless
 						? OrderPaymentStatus.UnPaid
 						: OrderPaymentStatus.None;
 			}

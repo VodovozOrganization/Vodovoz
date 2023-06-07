@@ -233,9 +233,9 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.List<string>();
 		}
 
-		public PaymentType[] GetPaymentTypesForCash() => new PaymentType[] { PaymentType.cash };
+		public PaymentType[] GetPaymentTypesForCash() => new PaymentType[] { PaymentType.Cash };
 
-		public PaymentType[] GetPaymentTypesForCashless() => new PaymentType[] { PaymentType.cashless, PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
+		public PaymentType[] GetPaymentTypesForCashless() => new PaymentType[] { PaymentType.Cashless, PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 
 		public bool IsCashPayment(PaymentType payment) => GetPaymentTypesForCash().Contains(payment);
 

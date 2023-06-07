@@ -23,7 +23,7 @@ namespace Vodovoz.EntityRepositories.Logistic
                 .And(() => routeListAlias.Date >= startDate)
                 .And(() => routeListAlias.Date <= endDate)
                 .And(() => orderAlias.OrderStatus == OrderStatus.Closed)
-                .And(() => orderAlias.PaymentType == PaymentType.cashless)
+                .And(() => orderAlias.PaymentType == PaymentType.Cashless)
                 .List();
         }
     }

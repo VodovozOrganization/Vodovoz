@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -955,7 +955,7 @@ namespace Vodovoz
 	        var routeListToItems = routeListItemsTo?.Addresses.Select(t => t.Order.Id) ?? new List<int>();
 
 	        var filter = new OrderJournalFilterViewModel(
-                new CounterpartyJournalFactory(),
+                new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
                 new DeliveryPointJournalFactory(),
                 new EmployeeJournalFactory())
             {

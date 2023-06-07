@@ -16,6 +16,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Autofac;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -191,13 +192,12 @@ namespace Vodovoz.Filters.ViewModels
 
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory =>
 			_counterpartySelectorFactory ?? (_counterpartySelectorFactory =
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel,
-					CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+				MainClass.AppDIContainer.BeginLifetimeScope().Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory());
 
 		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
 			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(),
+					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
 					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())), new UserRepository()));
 	}
 

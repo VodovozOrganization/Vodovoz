@@ -10,6 +10,8 @@ namespace Vodovoz.JournalNodes
 	{
 		public BusinessTaskJournalNode(Type entityType) : base(entityType) => NodeType = entityType;
 
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
+
 		public Type NodeType { get; set; }
 
 		public BusinessTaskStatus TaskStatus { get; set; }

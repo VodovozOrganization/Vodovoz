@@ -60,7 +60,7 @@ namespace Vodovoz.Filters.ViewModels
 						ImportanceLevel.Info,
 						"В журнал попадают клиенты у которых есть нераспределенный баланс и сумма долга больше 0\n" +
 						"Сумма долга рассчитывается по заказам у которых:\n" +
-						$"- форма оплаты {PaymentType.cashless.GetEnumTitle()}\n" +
+						$"- форма оплаты {PaymentType.Cashless.GetEnumTitle()}\n" +
 						$"- статус оплаты отличен от {OrderPaymentStatus.Paid.GetEnumTitle()}\n" +
 						"- сумма заказа больше 0\n" +
 						"Сортировка по убыванию суммы баланса клиента");

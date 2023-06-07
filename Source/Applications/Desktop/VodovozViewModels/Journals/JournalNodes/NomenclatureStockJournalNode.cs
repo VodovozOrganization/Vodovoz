@@ -5,6 +5,8 @@ namespace Vodovoz.Journals.JournalNodes
 {
 	public class NomenclatureStockJournalNode : JournalEntityNodeBase<Nomenclature>
 	{
+		public override string Title => NomenclatureName;
+
 		public string NomenclatureName { get; set; }
 
 		public decimal StockAmount => HasInventoryAccounting ? InstanceStockAmount : BulkStockAmount;

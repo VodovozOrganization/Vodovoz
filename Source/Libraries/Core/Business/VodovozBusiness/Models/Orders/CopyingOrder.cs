@@ -234,7 +234,7 @@ namespace Vodovoz.Models.Orders
 		/// </summary>
 		public CopyingOrder CopyPaymentByCardDataIfPossible()
 		{
-			if(_copiedOrder.PaymentType != PaymentType.ByCard)
+			if(_copiedOrder.PaymentType != PaymentType.PaidOnline)
 			{
 				return this;
 			}

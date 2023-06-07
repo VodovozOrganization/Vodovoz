@@ -448,14 +448,14 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value != _paymentType && SetField(ref _paymentType, value)) {
 					switch(PaymentType) {
-						case PaymentType.cash:
-						case PaymentType.barter:
-						case PaymentType.cashless:
-						case PaymentType.ContractDoc:
+						case PaymentType.Cash:
+						case PaymentType.Barter:
+						case PaymentType.Cashless:
+						case PaymentType.ContractDocumentation:
 						case PaymentType.Terminal:
 							PaymentByCardFrom = null;
 							break;
-						case PaymentType.ByCard:
+						case PaymentType.PaidOnline:
 							break;
 					}
 
@@ -812,21 +812,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref contactlessDelivery, value, () => ContactlessDelivery);
 		}
 
-		bool paymentBySms;
-		[Display(Name = "Оплата по SMS")]
-		public virtual bool PaymentBySms {
-			get => paymentBySms;
-			set => SetField(ref paymentBySms, value, () => PaymentBySms);
-		}
-		
-		bool _paymentByQr;
-		[Display(Name = "Оплата по QR")]
-		public virtual bool PaymentByQr
-		{
-			get => _paymentByQr;
-			set => SetField(ref _paymentByQr, value);
-		}
-
 		ReturnTareReason returnTareReason;
 		[Display(Name = "Причина забора тары")]
 		public virtual ReturnTareReason ReturnTareReason {
@@ -1047,7 +1032,7 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("В заказе не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
 
-					if(!IsLoadedFrom1C && PaymentType == PaymentType.cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
+					if(!IsLoadedFrom1C && PaymentType == PaymentType.Cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
 						yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
 
@@ -1061,7 +1046,7 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("Необходимо указать категорию причины забора тары.",
 							new[] { nameof(ReturnTareReasonCategory) });
 
-					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.cash) && this.OrderSum > 0m)
+					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.Cash) && this.OrderSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
@@ -1142,8 +1127,8 @@ namespace Vodovoz.Domain.Orders
 					}
 
 					if(Client.IsDeliveriesClosed
-						&& PaymentType != PaymentType.cash
-						&& PaymentType != PaymentType.ByCard
+						&& PaymentType != PaymentType.Cash
+						&& PaymentType != PaymentType.PaidOnline
 						&& PaymentType != PaymentType.Terminal)
 						yield return new ValidationResult(
 							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
@@ -1179,7 +1164,7 @@ namespace Vodovoz.Domain.Orders
 					}
 				}
 
-				if(OrderAddressType == OrderAddressType.Service && PaymentType == PaymentType.cashless
+				if(OrderAddressType == OrderAddressType.Service && PaymentType == PaymentType.Cashless
 				   && newStatus == OrderStatus.Accepted
 				   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders"))
 				   {
@@ -1224,11 +1209,11 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
-			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
+			if(PaymentType == PaymentType.PaidOnline && OnlineOrder == null)
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 
-			if(PaymentType == PaymentType.ByCard && PaymentByCardFrom == null)
+			if(PaymentType == PaymentType.PaidOnline && PaymentByCardFrom == null)
 				yield return new ValidationResult(
 					"Выбран тип оплаты по карте. Необходимо указать откуда произведена оплата.",
 					new[] { this.GetPropertyName(o => o.PaymentByCardFrom) }
@@ -1275,9 +1260,17 @@ namespace Vodovoz.Domain.Orders
 				);
 			}
 
-			if(SelfDelivery && PaymentType == PaymentType.ContractDoc) {
+			if(SelfDelivery && PaymentType == PaymentType.ContractDocumentation) {
 				yield return new ValidationResult(
 					"Тип оплаты - контрактная документация невозможен для самовывоза",
+					new[] { this.GetPropertyName(o => o.PaymentType) }
+				);
+			}
+
+			if(SelfDelivery && PaymentType == PaymentType.DriverApplicationQR)
+			{
+				yield return new ValidationResult(
+					"Тип оплаты - Qr-код МП водителя невозможен для самовывоза",
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
 			}
@@ -1309,7 +1302,7 @@ namespace Vodovoz.Domain.Orders
 
 			var orderParametersProvider = validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider;
 
-			if(SelfDelivery && PaymentType == PaymentType.ByCard && PaymentByCardFrom != null && OnlineOrder == null)
+			if(SelfDelivery && PaymentType == PaymentType.PaidOnline && PaymentByCardFrom != null && OnlineOrder == null)
 			{
 				if(orderParametersProvider == null)
 				{
@@ -1321,8 +1314,8 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			if((new[] { PaymentType.cash, PaymentType.Terminal }.Contains(PaymentType)
-				   || (PaymentType == PaymentType.ByCard
+			if((new[] { PaymentType.Cash, PaymentType.Terminal }.Contains(PaymentType)
+				   || (PaymentType == PaymentType.PaidOnline
 					   && PaymentByCardFrom != null
 					   && !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderParametersProvider)))
 						   .PaymentsByCardFromNotToSendSalesReceipts.Contains(PaymentByCardFrom.Id)))
@@ -1467,7 +1460,7 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Наличных к получению")]
 		public virtual decimal OrderCashSum
 		{
-			get => PaymentType == PaymentType.cash ? OrderSum : 0;
+			get => PaymentType == PaymentType.Cash ? OrderSum : 0;
 			protected set {; }
 		}
 
@@ -1539,7 +1532,7 @@ namespace Vodovoz.Domain.Orders
 			|| ObservableOrderEquipments.Any(orderEquipment =>
 				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderEquipment.Nomenclature.Category) && !orderEquipment.Nomenclature.NoDelivery);
 
-		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.cashless
+		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless
 			&& (Contract?.Organization?.WithoutVAT ?? false);
 
 		public virtual void RefreshContactPhone()
@@ -1774,7 +1767,7 @@ namespace Vodovoz.Domain.Orders
 			var notSendedByEmail = !emailRepository.HaveSendedEmailForBill(Id);
 			var notSended = notSendedByEdo && notSendedByEmail;
 			if((OrderStatus == OrderStatus.NewOrder || OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
-			   && PaymentType == PaymentType.cashless
+			   && PaymentType == PaymentType.Cashless
 			   && notSended)
 			{
 				//Проверка должен ли формироваться счет для текущего заказа
@@ -2181,7 +2174,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			if(!DeliveryDate.HasValue)
 				return;
-			if(Client.PersonType != PersonType.legal && PaymentType != PaymentType.cashless)
+			if(Client.PersonType != PersonType.legal && PaymentType != PaymentType.Cashless)
 				return;
 
 			bool existProxies = Client.Proxies
@@ -2907,7 +2900,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.DeliveryCanceled:
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Canceled:
-					if(PaymentType == PaymentType.cashless)
+					if(PaymentType == PaymentType.Cashless)
 					{
 						_paymentFromBankClientController.ReturnAllocatedSumToClientBalance(UoW, this);
 					}
@@ -3018,7 +3011,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(!SelfDelivery)
 				return;
-			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard)
+			if(PaymentType != PaymentType.Cashless && PaymentType != PaymentType.PaidOnline)
 				return;
 			if(OrderStatus != OrderStatus.WaitForPayment)
 				return;
@@ -3065,7 +3058,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(!SelfDelivery)
 				return;
-			if(PaymentType != PaymentType.cash)
+			if(PaymentType != PaymentType.Cash)
 				return;
 			if((incomeCash - expenseCash) != OrderCashSum)
 				return;
@@ -3402,16 +3395,16 @@ namespace Vodovoz.Domain.Orders
 
 			switch(PaymentType)
 			{
-				case PaymentType.cash:
+				case PaymentType.Cash:
 					ChangeStatusAndCreateTasks(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
 					break;
-				case PaymentType.cashless:
-				case PaymentType.ByCard:
+				case PaymentType.Cashless:
+				case PaymentType.PaidOnline:
 				case PaymentType.Terminal:
 					ChangeStatusAndCreateTasks(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
 					break;
-				case PaymentType.barter:
-				case PaymentType.ContractDoc:
+				case PaymentType.Barter:
+				case PaymentType.ContractDocumentation:
 					ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
 					break;
 			}
@@ -3454,15 +3447,15 @@ namespace Vodovoz.Domain.Orders
 
 			switch(PaymentType)
 			{
-				case PaymentType.cash:
+				case PaymentType.Cash:
 					ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
 					break;
-				case PaymentType.cashless:
-				case PaymentType.ByCard:
+				case PaymentType.Cashless:
+				case PaymentType.PaidOnline:
 					ChangeStatus(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed);
 					break;
-				case PaymentType.barter:
-				case PaymentType.ContractDoc:
+				case PaymentType.Barter:
+				case PaymentType.ContractDocumentation:
 					ChangeStatus(OrderStatus.Closed);
 					break;
 			}
@@ -3564,7 +3557,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ChangePaymentTypeToOnline(CallTaskWorker callTaskWorker)
 		{
-			PaymentType = PaymentType.ByCard;
+			PaymentType = PaymentType.PaidOnline;
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
 		}
 
@@ -4463,10 +4456,10 @@ namespace Vodovoz.Domain.Orders
 
 		public static PaymentType[] PaymentTypesFastDeliveryAvailableFor => new[]
 		{
-			PaymentType.cash,
-			PaymentType.ByCard,
+			PaymentType.Cash,
+			PaymentType.PaidOnline,
 			PaymentType.Terminal,
-			PaymentType.cashless
+			PaymentType.Cashless
 		};
 
 		#endregion

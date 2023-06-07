@@ -18,11 +18,14 @@ namespace Vodovoz.ReportsParameters
 	public partial class ChainStoreDelayReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		
-		public ChainStoreDelayReport(IEmployeeJournalFactory employeeJournalFactory)
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+
+		public ChainStoreDelayReport(
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory)
 		{
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			Build();
 			Configure();
 		}
@@ -39,8 +42,8 @@ namespace Vodovoz.ReportsParameters
 
 		private void ConfigureEntries()
 		{
-			entityviewmodelentryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty,
-				CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCounterparty.SetEntityAutocompleteSelectorFactory(
+				_counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			
 			entityviewmodelentrySellManager.SetEntityAutocompleteSelectorFactory(
 				_employeeJournalFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());

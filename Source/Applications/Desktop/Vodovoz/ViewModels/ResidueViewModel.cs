@@ -37,6 +37,7 @@ namespace Vodovoz.ViewModels
 		private readonly IBottlesRepository bottlesRepository;
 		private readonly IDepositRepository depositRepository;
 		private readonly IMoneyRepository moneyRepository;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 
 		public ResidueViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -49,7 +50,8 @@ namespace Vodovoz.ViewModels
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ICounterpartyJournalFactory counterpartyJournalFactory
 		)
 		: base(uowBuilder, uowFactory, commonServices)
 		{
@@ -58,6 +60,7 @@ namespace Vodovoz.ViewModels
 			this.bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			this.depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
 			this.moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			TabName = "Ввод остатков";
 			if(CurrentEmployee == null) {
 				AbortOpening("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, " +
@@ -183,6 +186,8 @@ namespace Vodovoz.ViewModels
 
 		public DelegateCommand AddDepositEquipmentItemCommand { get; private set; }
 		public DelegateCommand<ResidueEquipmentDepositItem> RemoveDepositEquipmentItemCommand { get; private set; }
+
+		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
 
 		private void CreateCommands()
 		{

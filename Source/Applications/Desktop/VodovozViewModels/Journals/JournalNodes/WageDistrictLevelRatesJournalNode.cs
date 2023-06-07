@@ -5,6 +5,7 @@ namespace Vodovoz.Journals.JournalNodes
 {
 	public class WageDistrictLevelRatesJournalNode : JournalEntityNodeBase<WageDistrictLevelRates>
 	{
+		public override string Title => Name;
 		public string IsArchiveString => IsArchive ? "Да" : "Нет";
 		public string IsDefaultLevelString => IsDefaultLevel ? "Да" : string.Empty;
 		public string IsDefaultLevelOurCarsString => IsDefaultLevelOurCars ? "Да" : string.Empty;

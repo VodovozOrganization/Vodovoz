@@ -165,7 +165,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					ServicesConfig.CommonServices,
 					_employeeService,
 					_nomenclatureSelectorFactory,
-					_counterpartySelectorFactory,
+					CounterpartySelectorFactory,
 					_nomenclatureRepository,
 					_userRepository
 				) {
@@ -221,7 +221,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			},
 			() => true
 		));
-		
+
+		public ICounterpartyJournalFactory CounterpartySelectorFactory => _counterpartySelectorFactory;
+
 		#endregion Commands
 
 		public void OnTabAdded()

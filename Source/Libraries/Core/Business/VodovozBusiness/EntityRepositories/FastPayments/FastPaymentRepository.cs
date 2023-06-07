@@ -29,13 +29,20 @@ namespace Vodovoz.EntityRepositories.FastPayments
 				.List();
 		}
 
-		public FastPaymentStatus? GetOrderFastPaymentStatus(IUnitOfWork uow, int orderId)
+		public FastPaymentStatus? GetOrderFastPaymentStatus(IUnitOfWork uow, int orderId, int? onlineOrder = null)
 		{
 			var fastPayments = GetAllFastPaymentsByOrderOrderByStatusDesc(uow, orderId);
 
 			if(fastPayments.Any())
 			{
-				return fastPayments[0].FastPaymentStatus;
+				return fastPayments.First().FastPaymentStatus;
+			}
+
+			var fastPaymentsByExternalId = GetPerformedFastPaymentByExternalId(uow, onlineOrder ?? -1);
+
+			if(fastPaymentsByExternalId != null)
+			{
+				return fastPaymentsByExternalId.FastPaymentStatus;
 			}
 
 			return null;

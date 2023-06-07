@@ -73,7 +73,7 @@ namespace Vodovoz.Models.Orders
 				order.Author = roboatsEmployee;
 				order.Client = counterparty;
 				order.DeliveryPoint = deliveryPoint;
-				order.PaymentType = PaymentType.cash;
+				order.PaymentType = PaymentType.Cash;
 				foreach(var waterInfo in roboatsOrderArgs.WatersInfo)
 				{
 					var nomenclature = uow.GetById<Nomenclature>(waterInfo.NomenclatureId);
@@ -229,17 +229,15 @@ namespace Vodovoz.Models.Orders
 			switch(roboatsOrderArgs.PaymentType)
 			{
 				case RoboAtsOrderPayment.Cash:
-					order.PaymentType = PaymentType.cash;
+					order.PaymentType = PaymentType.Cash;
 					order.Trifle = roboatsOrderArgs.BanknoteForReturn;
 					break;
 				case RoboAtsOrderPayment.Terminal:
 					order.PaymentType = PaymentType.Terminal;
 					break;
 				case RoboAtsOrderPayment.QrCode:
-					order.PaymentType = PaymentType.cash;
+					order.PaymentType = PaymentType.DriverApplicationQR;
 					order.Trifle = 0;
-					order.PaymentByQr = true;
-					order.PaymentBySms = false;
 					break;
 				default:
 					throw new NotSupportedException("Неподдерживаемый тип оплаты через Roboats");

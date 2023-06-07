@@ -25,7 +25,7 @@ namespace Vodovoz.JournalViewers
 				ServicesConfig.CommonServices,
 				new OrderSelectorFactory(),
 				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(),
+				new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
 				new SubdivisionJournalFactory())
 			{

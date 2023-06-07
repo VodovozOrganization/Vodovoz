@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using Vodovoz.Domain;
@@ -8,8 +8,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 {
     public class FinancialDistrictsSetsJournalNode : JournalEntityNodeBase<FinancialDistrictsSet>
     {
+		public override string Title => Name;
         public string Name { get; set; }
-        public DateTime DateCreated { get; set; }
+		public DateTime DateCreated { get; set; }
         public DateTime? DateActivated { get; set; }
         public DateTime? DateClosed { get; set; }
         public DistrictsSetStatus Status { get; set; }

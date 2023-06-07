@@ -78,6 +78,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 	public class PhoneTypeJournalNode : JournalEntityNodeBase<PhoneType>
 	{
+		public override string Title => Name;
 		public string Name { get; set; }
 		public PhonePurpose PhonePurpose { get; set; }
 	}

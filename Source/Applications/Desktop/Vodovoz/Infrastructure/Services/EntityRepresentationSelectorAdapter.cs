@@ -137,5 +137,7 @@ namespace Vodovoz.Infrastructure.Services
 		{
 			Id = id;
 		}
+
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 	}
 }

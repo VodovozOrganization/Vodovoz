@@ -5,16 +5,20 @@ namespace Vodovoz.Domain.Client
 	public enum PaymentType
 	{
 		[Display(Name = "Наличная", ShortName = "нал.")]
-		cash,
-		[Display(Name = "По карте/SMS", ShortName = "карта")]
-		ByCard,
-		[Display(Name = "Терминал", ShortName = "терм.")]
+		Cash,
+		[Display(Name = "Терминал (QR-код терминал)", ShortName = "терм.")]
 		Terminal,
+		[Display(Name = "МП водителя (QR-код)", ShortName = "МП вод.")]
+		DriverApplicationQR,
+		[Display(Name = "SMS (QR-код)", ShortName = "смс qr")]
+		SmsQR,
+		[Display(Name = "Оплачено онлайн", ShortName = "онлайн")]
+		PaidOnline,
 		[Display(Name = "Бартер", ShortName = "бар.")]
-		barter,
+		Barter,
 		[Display(Name = "Контрактная документация", ShortName = "контрактн.")]
-		ContractDoc,
+		ContractDocumentation,
 		[Display(Name = "Безналичная", ShortName = "б/н.")]
-		cashless,
+		Cashless,
 	}
 }

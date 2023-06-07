@@ -24,8 +24,6 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gamma.GtkWidgets.yButton btnSendFastPaymentPayByCardUrlBySms;
 
-		private global::Gamma.GtkWidgets.yButton ySendSmsButton;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -118,17 +116,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			w9.Position = 4;
 			w9.Expand = false;
 			w9.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
-			this.ySendSmsButton = new global::Gamma.GtkWidgets.yButton();
-			this.ySendSmsButton.CanFocus = true;
-			this.ySendSmsButton.Name = "ySendSmsButton";
-			this.ySendSmsButton.UseUnderline = true;
-			this.ySendSmsButton.Label = global::Mono.Unix.Catalog.GetString("Отправить смс");
-			this.vbox2.Add(this.ySendSmsButton);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ySendSmsButton]));
-			w10.Position = 5;
-			w10.Expand = false;
-			w10.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

@@ -2,11 +2,10 @@
 
 namespace DriverAPI.Library.DTOs
 {
-	public class TrackCoordinateDto : IActionTimeTrackable
+	public class TrackCoordinateDto
 	{
 		public decimal Latitude { get; set; }
 		public decimal Longitude { get; set; }
-		public DateTime? ActionTime { get; set; }
-		public DateTime? ActionTimeUtc { get; set; }
+		public DateTime ActionTimeUtc { get; set; }
 	}
 }

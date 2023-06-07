@@ -71,11 +71,11 @@
     <Compile Include="Factories\CarModelJournalFactory.cs" />
     <Compile Include="Factories\OdometerReadingsViewModelFactory.cs" />
     <Compile Include="Factories\IOdometerReadingsViewModelFactory.cs" />
+    <Compile Include="FuelDocuments\FuelDocumentViewModel.cs" />
     <Compile Include="Infrastructure\InfoProviders\CurrentObjectChangedArgs.cs" />
     <Compile Include="Infrastructure\InfoProviders\ICustomWidthInfoProvider.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSelectionChangedEventArgs.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSetSelectionChanged.cs" />
-    <Compile Include="Infrastructure\Services\IStoreDocumentHelper.cs" />
     <Compile Include="Journals\FilterViewModels\Counterparties\ExternalCounterpartiesMatchingJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Counterparties\PhonesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\InventoryInstancesJournalFilterViewModel.cs" />
@@ -117,6 +117,8 @@
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Organizations\OrganizationOwnershipTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
+    <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
+    <Compile Include="Logistic\RouteListJournalViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyMatchingNode.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointMatchingNode.cs" />
     <Compile Include="ViewModels\Counterparty\ExistingExternalCounterpartyNode.cs" />
