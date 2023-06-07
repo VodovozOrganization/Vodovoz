@@ -10,6 +10,7 @@ using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.Banks.Repositories;
 using QS.Commands;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -24,6 +25,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.NHibernateProjections.Orders;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure;
 using SearchHelper = QS.Project.Journal.Search.SearchHelper;
@@ -52,7 +54,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IDialogsFactory _dialogsFactory;
 		private readonly IOrganizationRepository _organizationRepository;
-
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private DelegateCommand _revertAllocatedSum;
 
 		public ManualPaymentMatchingViewModel(
@@ -63,14 +65,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IPaymentItemsRepository paymentItemsRepository,
 			IPaymentsRepository paymentsRepository,
 			IDialogsFactory dialogsFactory,
-			IOrganizationRepository organizationRepository) : base(uowBuilder, uowFactory, commonServices)
+			IOrganizationRepository organizationRepository,
+			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			if(uowBuilder.IsNewEntity)
 			{
 				throw new AbortCreatingPageException(
@@ -406,7 +409,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						FullName = Entity.CounterpartyName,
 						INN = Entity.CounterpartyInn,
 						KPP = Entity.CounterpartyKpp ?? string.Empty,
-						PaymentMethod = PaymentType.cashless,
+						PaymentMethod = PaymentType.Cashless,
 						TypeOfOwnership = TryGetOrganizationType(Entity.CounterpartyName)
 					};
 
@@ -457,6 +460,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			() => HasPaymentItems
 			)
 		);
+
+		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
 
 		#endregion Commands
 
@@ -602,7 +607,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				.Left.JoinAlias(o => o.Contract, () => contractAlias)
 				.Left.JoinAlias(() => contractAlias.Organization, () => organisationAlias)
 				.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(_orderRepository.GetUndeliveryStatuses())
-				.And(o => o.PaymentType == PaymentType.cashless)
+				.And(o => o.PaymentType == PaymentType.Cashless)
 				.And(() => organisationAlias.Id == Entity.Organization.Id);
 
 			if(Entity.Counterparty != null)
@@ -804,6 +809,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 	public class ManualPaymentMatchingViewModelNode : JournalEntityNodeBase<VodOrder>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public OrderStatus OrderStatus { get; set; }
 		public DateTime OrderDate { get; set; }
 		public decimal ActualOrderSum { get; set; }

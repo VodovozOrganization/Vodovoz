@@ -58,7 +58,7 @@ namespace Vodovoz.TempAdapters
 		public IEntityAutocompleteSelectorFactory CreateCashSelfDeliveryOrderAutocompleteSelector()
 		{
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
@@ -71,7 +71,7 @@ namespace Vodovoz.TempAdapters
 					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory);
 					filter.SetAndRefilterAtOnce(
 						x => x.RestrictStatus = OrderStatus.WaitForPayment,
-						x => x.AllowPaymentTypes = new[] { PaymentType.cash },
+						x => x.AllowPaymentTypes = new[] { PaymentType.Cash },
 						x => x.RestrictOnlySelfDelivery = true,
 						x => x.RestrictWithoutSelfDelivery = false,
 						x => x.RestrictHideService = true,
@@ -105,7 +105,7 @@ namespace Vodovoz.TempAdapters
 		public IEntityAutocompleteSelectorFactory CreateSelfDeliveryDocumentOrderAutocompleteSelector()
 		{
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
@@ -149,7 +149,7 @@ namespace Vodovoz.TempAdapters
 		public OrderJournalViewModel CreateOrderJournalViewModel(OrderJournalFilterViewModel filterViewModel = null)
 		{
 			var subdivisionJournalFactory = new SubdivisionJournalFactory();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 			var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();

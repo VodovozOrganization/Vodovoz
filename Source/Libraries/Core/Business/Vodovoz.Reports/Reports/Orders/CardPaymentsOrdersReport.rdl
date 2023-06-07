@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -717,7 +717,7 @@ LEFT JOIN employees e
 ON e.id = o.author_employee_id
 LEFT JOIN order_items oi
 ON oi.order_id = o.id
-WHERE o.payment_type = 'ByCard'
+WHERE o.payment_type = 'PaidOnline'
 	AND o.delivery_date &gt;= @start_date
 	AND o.delivery_date &lt;= @end_date
 	AND (

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
 using Gtk;
@@ -17,11 +17,9 @@ using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
@@ -57,12 +55,10 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
@@ -84,7 +80,6 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.Journals;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
-using Vodovoz.JournalSelector;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
@@ -116,7 +111,6 @@ using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Dialogs.Roboats;
 using Vodovoz.ViewModels.Goods;
-using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -159,7 +153,6 @@ using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using VodovozInfrastructure.Configuration;
-using VodovozInfrastructure.Interfaces;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -756,7 +749,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 
 		tdiMain.OpenTab(
 			() => new NomenclaturesJournalViewModel(
@@ -1059,7 +1052,7 @@ public partial class MainWindow : Gtk.Window
 	{
 		var subdivisionJournalFactory = new SubdivisionJournalFactory();
 		var subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 
 		tdiMain.OpenTab(
 			() => new UserSettingsViewModel(
@@ -1247,7 +1240,7 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
 			() => new QSReport.ReportViewDlg(new QualityReport(
-				new CounterpartyJournalFactory(),
+				new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
 				new EmployeeJournalFactory(),
 				new SalesChannelJournalFactory(),
 				UnitOfWorkFactory.GetDefaultFactory,
@@ -1739,7 +1732,7 @@ public partial class MainWindow : Gtk.Window
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
 
-		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 
 		tdiMain.AddTab(
 			new PromotionalSetsJournalViewModel(
@@ -2000,7 +1993,7 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
 			() => new QSReport.ReportViewDlg(
-				new PaymentsFromBankClientReport(new CounterpartyJournalFactory(), new UserRepository(), ServicesConfig.CommonServices))
+				new PaymentsFromBankClientReport(new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new UserRepository(), ServicesConfig.CommonServices))
 		);
 	}
 
@@ -2013,11 +2006,12 @@ public partial class MainWindow : Gtk.Window
 	}
 	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
 	{
+		ILifetimeScope lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
 		var employeeJournalFactory = new EmployeeJournalFactory();
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
-			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport(employeeJournalFactory))
+			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport(employeeJournalFactory, lifetimeScope.Resolve<ICounterpartyJournalFactory>()))
 		);
 	}
 
@@ -2208,7 +2202,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var employeeJournalFactory = new EmployeeJournalFactory();
 
@@ -2596,7 +2590,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 		IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory = new BulkEmailEventReasonJournalFactory();
 		IFileDialogService fileDialogService = new FileDialogService();
 

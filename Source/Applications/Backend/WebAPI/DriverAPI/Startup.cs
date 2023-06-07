@@ -1,6 +1,6 @@
 ﻿using DriverAPI.Data;
+using DriverAPI.Library;
 using DriverAPI.Library.Helpers;
-using DriverAPI.Library.Models;
 using DriverAPI.Middleware;
 using DriverAPI.Options;
 using DriverAPI.Services;
@@ -25,7 +25,6 @@ using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -49,7 +48,7 @@ namespace DriverAPI
 {
 	public class Startup
 	{
-		private const string _nLogSectionName = "NLog";
+		private const string _nLogSectionName = nameof(NLog);
 		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
@@ -309,32 +308,7 @@ namespace DriverAPI
 			services.AddScoped<ITerminalNomenclatureProvider, BaseParametersProvider>();
 			services.AddScoped<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 
-			// Конвертеры
-			foreach(var type in typeof(Library.AssemblyFinder)
-									.Assembly
-									.GetTypes()
-									.Where(type => type.IsClass)
-									.Where(type => type.Name.EndsWith("Converter"))
-									.ToList())
-			{
-				services.AddScoped(type);
-			}
-
-
-			// Хелперы
-			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>();
-			services.AddScoped<IFCMAPIHelper, FCMAPIHelper>();
-			services.AddScoped<IActionTimeHelper, ActionTimeHelper>();
-
-			// DAL обертки
-			services.AddScoped<ITrackPointsModel, TrackPointsModel>();
-			services.AddScoped<IDriverMobileAppActionRecordModel, DriverMobileAppActionRecordModel>();
-			services.AddScoped<IRouteListModel, RouteListModel>();
-			services.AddScoped<IOrderModel, OrderModel>();
-			services.AddScoped<IEmployeeModel, EmployeeModel>();
-			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
-			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
-			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
+			services.AddDriverApiLibrary();
 		}
 	}
 }

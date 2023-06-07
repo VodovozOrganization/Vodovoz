@@ -1,6 +1,6 @@
-﻿using DriverAPI.DTOs;
+﻿using DriverAPI.DTOs.V1;
+using DriverAPI.Library.Deprecated.Helpers;
 using DriverAPI.Library.DTOs;
-using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using ITrackPointsModel = DriverAPI.Library.Deprecated.Models.ITrackPointsModel;
 
 namespace DriverAPI.Controllers.V1
 {

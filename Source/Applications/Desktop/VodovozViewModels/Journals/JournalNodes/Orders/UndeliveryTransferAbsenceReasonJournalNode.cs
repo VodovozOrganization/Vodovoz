@@ -6,6 +6,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 {
 	public class UndeliveryTransferAbsenceReasonJournalNode : JournalEntityNodeBase<UndeliveryTransferAbsenceReason>
 	{
+		public override string Title => Name;
 		public string Name { get; set; }
 		public DateTime CreateDate { get; set; }
 	}

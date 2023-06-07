@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FastPaymentsAPI.Library.DTO_s;
 using FastPaymentsAPI.Library.DTO_s.Responses;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Organizations;
 
@@ -19,6 +20,7 @@ namespace FastPaymentsAPI.Library.Models
 			FastPaymentPayType payType,
 			Organization organization,
 			RequestFromType requestFromType,
+			PaymentType paymentType,
 			string phoneNumber = null);
 		void SaveNewTicketForOnlineOrder(
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,

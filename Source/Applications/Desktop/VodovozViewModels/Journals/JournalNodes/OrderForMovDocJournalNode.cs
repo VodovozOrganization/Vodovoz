@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using QS.DomainModel.Entity;
 using QS.Project.Journal;
-using QS.Utilities.Text;
+using System;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Journals.JournalNodes
 {
 	public class OrderForMovDocJournalNode : JournalEntityNodeBase<Order>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
+
 		public OrderStatus StatusEnum { get; set; }
 
 		public DateTime Date { get; set; }

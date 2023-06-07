@@ -9,7 +9,7 @@ namespace Vodovoz.EntityRepositories.FastPayments
 	{
 		IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOrder(IUnitOfWork uow, int orderId);
 		IList<FastPayment> GetAllPerformedOrProcessingFastPaymentsByOnlineOrder(IUnitOfWork uow, int onlineOrderId, decimal onlineOrderSum);
-		FastPaymentStatus? GetOrderFastPaymentStatus(IUnitOfWork uow, int orderId);
+		FastPaymentStatus? GetOrderFastPaymentStatus(IUnitOfWork uow, int orderId, int? onlineOrder = null);
 		FastPayment GetFastPaymentByTicket(IUnitOfWork uow, string ticket);
 		FastPayment GetFastPaymentByGuid(IUnitOfWork uow, Guid fastPaymentGuid);
 		bool FastPaymentWithTicketExists(IUnitOfWork uow, string ticket);

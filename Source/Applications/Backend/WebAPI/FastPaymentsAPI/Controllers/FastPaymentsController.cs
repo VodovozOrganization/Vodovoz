@@ -10,6 +10,7 @@ using FastPaymentsAPI.Library.Models;
 using FastPaymentsAPI.Library.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 
 namespace FastPaymentsAPI.Controllers
@@ -152,7 +153,13 @@ namespace FastPaymentsAPI.Controllers
 
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
 				_fastPaymentModel.SaveNewTicketForOrder(
-					orderRegistrationResponseDto, orderId, fastPaymentGuid, FastPaymentPayType.ByQrCode, organization, requestType);
+					orderRegistrationResponseDto,
+					orderId,
+					fastPaymentGuid,
+					FastPaymentPayType.ByQrCode,
+					organization,
+					requestType,
+					PaymentType.DriverApplicationQR);
 
 				response.QRCode = orderRegistrationResponseDto.QRPngBase64;
 				response.FastPaymentStatus = FastPaymentStatus.Processing;
@@ -262,8 +269,16 @@ namespace FastPaymentsAPI.Controllers
 
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
 				var payType = isQr ? FastPaymentPayType.ByQrCode : FastPaymentPayType.ByCard;
+				var paymentType = isQr ? PaymentType.SmsQR : PaymentType.PaidOnline;
 				_fastPaymentModel.SaveNewTicketForOrder(
-					orderRegistrationResponseDto, orderId, fastPaymentGuid, payType, organization, requestType, phoneNumber);
+					orderRegistrationResponseDto,
+					orderId,
+					fastPaymentGuid,
+					payType,
+					organization,
+					requestType,
+					paymentType,
+					phoneNumber);
 
 				response.Ticket = orderRegistrationResponseDto.Ticket;
 				response.FastPaymentGuid = fastPaymentGuid;

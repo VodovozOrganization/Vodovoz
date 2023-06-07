@@ -1,4 +1,4 @@
-﻿using DriverAPI.DTOs;
+﻿using DriverAPI.DTOs.V2;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;

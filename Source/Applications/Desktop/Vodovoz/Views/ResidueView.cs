@@ -26,9 +26,8 @@ namespace Vodovoz.Views
 		{
 			ypickerDocDate.Binding.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
-			var counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices);
 			entryClient.Binding.AddBinding(ViewModel.Entity, e => e.Customer, w => w.Subject).InitializeFromSource();
-			entryClient.SetEntityAutocompleteSelectorFactory(counterpartySelectorFactory);
+			entryClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			buttonOpenSlider.Clicked += OnButtonOpenSliderClicked;
 
 			ySpecCmbDeliveryPoint.Binding.AddBinding(ViewModel.Entity, r => r.Customer, w => w.Sensitive, new NullToBooleanConverter()).InitializeFromSource();

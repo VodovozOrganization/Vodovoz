@@ -79,7 +79,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 				var driverTicket = documents.FirstOrDefault(x => x.Document is DriverTicketDocument);
 				var invoiceDocument = documents.FirstOrDefault(x => x.Document is InvoiceDocument);
 				
-				if(driverTicket != null && _currentOrder.PaymentType == Domain.Client.PaymentType.cashless) 
+				if(driverTicket != null && _currentOrder.PaymentType == Domain.Client.PaymentType.Cashless) 
 				{
 					SelectedDocument = driverTicket;
 					PreviewDocument?.Invoke();

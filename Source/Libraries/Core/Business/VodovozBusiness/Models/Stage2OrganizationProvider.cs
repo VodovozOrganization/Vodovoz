@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -122,16 +122,19 @@ namespace Vodovoz.Models
 			int organizationId;
 			switch(paymentType)
 			{
-				case PaymentType.barter:
-				case PaymentType.cashless:
-				case PaymentType.ContractDoc:
+				case PaymentType.Barter:
+				case PaymentType.Cashless:
+				case PaymentType.ContractDocumentation:
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
-				case PaymentType.cash:
+				case PaymentType.Cash:
 				case PaymentType.Terminal:
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
-				case PaymentType.ByCard:
+				case PaymentType.SmsQR:
+					organizationId = GetOrganizationIdForByCard(uow, uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId), geographicGroup, orderCreateDate, onlineOrderId); 
+					break;
+				case PaymentType.PaidOnline:
 					organizationId = GetOrganizationIdForByCard(uow, paymentFrom, geographicGroup, orderCreateDate, onlineOrderId);
 					break;
 				default:
@@ -158,19 +161,24 @@ namespace Vodovoz.Models
 		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
 			PaymentFrom paymentFrom, GeoGroup geographicGroup, int? onlineOrderId)
 		{
+			
 			int organizationId;
 			switch(paymentType)
 			{
-				case PaymentType.barter:
-				case PaymentType.cashless:
-				case PaymentType.ContractDoc:
+				case PaymentType.Barter:
+				case PaymentType.Cashless:
+				case PaymentType.ContractDocumentation:
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
-				case PaymentType.cash:
+				case PaymentType.Cash:
 				case PaymentType.Terminal:
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
-				case PaymentType.ByCard:
+				case PaymentType.DriverApplicationQR:
+				case PaymentType.SmsQR:
+					organizationId = GetOrganizationIdForByCard(uow, uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId), geographicGroup, orderCreateDate, onlineOrderId);
+					break;
+				case PaymentType.PaidOnline:
 					organizationId = GetOrganizationIdForByCard(uow, paymentFrom, geographicGroup, orderCreateDate, onlineOrderId);
 					break;
 				default:

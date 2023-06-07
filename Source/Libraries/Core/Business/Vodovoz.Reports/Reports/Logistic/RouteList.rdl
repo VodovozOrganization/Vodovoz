@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -132,7 +132,7 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>4</ColSpan>
@@ -288,7 +288,7 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>4</ColSpan>
@@ -907,7 +907,7 @@
                         <FontStyle>Normal</FontStyle>
                         <FontSize>8pt</FontSize>
                         <PaddingBottom>=Len({phone_and_name_and_order}) / 3 + "pt"</PaddingBottom>
-                        <PaddingTop >=Len({phone_and_name_and_order}) / 6 + "pt"</PaddingTop>
+                        <PaddingTop>=Len({phone_and_name_and_order}) / 6 + "pt"</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1035,17 +1035,14 @@
                     <Textbox Name="Textbox69">
                       <Value>=
 Switch(
-   {payment_type}='ByCard', 'Оплачено',
-   {payment_type}='cashless', 'Б/Н \n Подписать \n УПД',
-   {payment_type}='barter', 'Оплачено',
-   {payment_type}='ContractDoc', 'Оплачено',
-   {payment_type}='Terminal', 'Терминал',
-   {payment_type}='cash',
-        Iif({payment_by_sms} = false AND {payment_by_qr} = false, 'Наличными',
-            Iif({payment_by_sms} = true AND {payment_by_qr} = false,
-            'Наличными \n или смс',
-            'Наличными \n или qr')
-        )
+   {payment_type}='Cash', 'Наличными',
+   {payment_type}='Terminal', 'По терминалу (QR-код)',
+   {payment_type}='DriverApplicationQR', 'По QR-коду (приложение водителя)',
+   {payment_type}='SmsQR', Iif({fast_payment_paid}, 'Оплачено', 'По QR-коду (приложение водителя)'),
+   {payment_type}='PaidOnline', 'Оплачено',
+   {payment_type}='Barter', 'Оплачено',
+   {payment_type}='ContractDocumentation', 'Оплачено',
+   {payment_type}='Cashless', 'Б/Н \n Подписать \n УПД'
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -2238,7 +2235,7 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId,
@@ -2252,7 +2249,7 @@ LIMIT 1
     CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
     CONCAT(DATE_FORMAT(route_list_addresses.plan_time_start, '%H:%i'),'-', DATE_FORMAT(route_list_addresses.plan_time_end, '%H:%i')) AS PlanTime,
     IFNULL(orders.bottles_return, 0) + IFNULL(orders.bottles_by_stock_count, 0) AS empty_btls_from_client,
-    IF(orders.payment_type in ('cash', 'BeveragesWorld'), orders.sum_to_receive, 0) AS Total,
+    IF(orders.payment_type = 'Cash', orders.sum_to_receive, 0) AS Total,
     IF(orders.payment_type = 'Terminal',
         (
             SELECT Round(SUM(IFNULL(actual_count, count) * price - discount_money), 2)
@@ -2316,8 +2313,11 @@ LIMIT 1
     IF(route_list_addresses.deposits_collected IS NULL, 0, route_list_addresses.deposits_collected) AS BottlesDeposit,
     route_list_addresses.status AS Status,
     orders.payment_type AS payment_type,
-    orders.payment_by_sms AS payment_by_sms,
-    orders.payment_by_qr AS payment_by_qr
+    (SELECT count(*) > 0
+     FROM fast_payments fp
+     WHERE (fp.order_id = orders.id
+		OR fp.external_id = orders.id)
+     AND fp.payment_status = 'Performed') AS fast_payment_paid
     <!--sql_select-->
 FROM route_list_addresses
          LEFT JOIN orders ON orders.id = route_list_addresses.order_id
@@ -2438,7 +2438,7 @@ ORDER BY order_in_route
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2511,10 +2511,6 @@ ORDER BY order_in_route
           <DataField>payment_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="payment_by_sms">
-          <DataField>payment_by_sms</DataField>
-          <TypeName>System.Boolean</TypeName>
-        </Field>
         <Field Name="terminals_sum">
           <DataField>terminals_sum</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -2523,8 +2519,8 @@ ORDER BY order_in_route
           <DataField>phone_and_name_and_order</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="payment_by_qr">
-          <DataField>payment_by_qr</DataField>
+        <Field Name="fast_payment_paid">
+          <DataField>fast_payment_paid</DataField>
           <TypeName>System.Boolean</TypeName>
         </Field>
         <!--fields-->

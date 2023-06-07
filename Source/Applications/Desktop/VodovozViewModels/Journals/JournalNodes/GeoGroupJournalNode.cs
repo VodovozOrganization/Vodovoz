@@ -5,8 +5,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 {
 	public class GeoGroupJournalNode : JournalEntityNodeBase<GeoGroup>
 	{
+		public override string Title => Name;
 		public string Name { get; set; }
-
-		public string Title => Name;
 	}
 }

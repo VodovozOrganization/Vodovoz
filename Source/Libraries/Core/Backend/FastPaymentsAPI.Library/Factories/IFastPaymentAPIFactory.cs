@@ -3,6 +3,7 @@ using FastPaymentsAPI.Library.DTO_s;
 using FastPaymentsAPI.Library.DTO_s.Requests;
 using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Managers;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -27,6 +28,7 @@ namespace FastPaymentsAPI.Library.Factories
 			FastPaymentPayType payType,
 			Organization organization,
 			PaymentFrom paymentByCardFrom,
+			PaymentType paymentType,
 			Order order = null,
 			string phoneNumber = null,
 			int? onlineOrderId = null,

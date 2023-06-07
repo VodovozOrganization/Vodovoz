@@ -44,6 +44,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.WrapWidth(450).WrapMode(WrapMode.WordChar)
 				.AddColumn("В работе\nу отдела").HeaderAlignment(0.5f).AddTextRenderer(node => node.InProcessAt)
 					.WrapWidth(450).WrapMode(WrapMode.WordChar)
+				.AddColumn("Отработатно\nОКС").HeaderAlignment(0.5f).AddTextRenderer(node => node.LastResultCommentAuthor)
+					.WrapWidth(450).WrapMode(WrapMode.WordChar)
 				.Finish();
 	}
 }

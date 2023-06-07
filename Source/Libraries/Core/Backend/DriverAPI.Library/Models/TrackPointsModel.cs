@@ -1,5 +1,4 @@
 ﻿using DriverAPI.Library.DTOs;
-using DriverAPI.Library.Helpers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -17,21 +16,18 @@ namespace DriverAPI.Library.Models
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IRouteListModel _routeListModel;
 		private readonly IUnitOfWork _unitOfWork;
-		private readonly IActionTimeHelper _actionTimeHelper;
 
 		public TrackPointsModel(ILogger<TrackPointsModel> logger,
 			ITrackRepository trackRepository,
 			IRouteListRepository routeListRepository,
 			IRouteListModel routeListModel,
-			IUnitOfWork unitOfWork,
-			IActionTimeHelper actionTimeHelper)
+			IUnitOfWork unitOfWork)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListModel = routeListModel ?? throw new ArgumentNullException(nameof(routeListModel));
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
 		}
 
 		public void RegisterForRouteList(int routeListId, IList<TrackCoordinateDto> trackList, int driverId)
@@ -59,7 +55,7 @@ namespace DriverAPI.Library.Models
 				throw new InvalidOperationException("Нельзя регистрировать координаты трека к чужому МЛ");
 			}
 
-			if (track == null)
+			if(track == null)
 			{
 				track = new Track
 				{
@@ -70,19 +66,17 @@ namespace DriverAPI.Library.Models
 
 			foreach(var trackPoint in trackList)
 			{
-				var actionTime = _actionTimeHelper.GetActionTime(trackPoint);
-
 				trackPoint.Latitude = Math.Round(trackPoint.Latitude, 8);
 				trackPoint.Longitude = Math.Round(trackPoint.Longitude, 8);
-				trackPoint.ActionTime = 
+				trackPoint.ActionTimeUtc =
 					new DateTime(
-						actionTime.Year,
-						actionTime.Month,
-						actionTime.Day,
-						actionTime.Hour,
-						actionTime.Minute,
-						actionTime.Second,
-						actionTime.Kind
+						trackPoint.ActionTimeUtc.Year,
+						trackPoint.ActionTimeUtc.Month,
+						trackPoint.ActionTimeUtc.Day,
+						trackPoint.ActionTimeUtc.Hour,
+						trackPoint.ActionTimeUtc.Minute,
+						trackPoint.ActionTimeUtc.Second,
+						trackPoint.ActionTimeUtc.Kind
 					);
 			}
 
@@ -90,7 +84,7 @@ namespace DriverAPI.Library.Models
 				.GroupBy(x =>
 					new
 					{
-						ActionTime = x.ActionTime.Value,
+						x.ActionTimeUtc,
 						x.Latitude,
 						x.Longitude
 					})
@@ -100,7 +94,7 @@ namespace DriverAPI.Library.Models
 						Track = track,
 						Latitude = decimal.ToDouble(group.Key.Latitude),
 						Longitude = decimal.ToDouble(group.Key.Longitude),
-						TimeStamp = group.Key.ActionTime
+						TimeStamp = group.Key.ActionTimeUtc
 					});
 
 			foreach(var trackPoint in trackPoints)

@@ -76,6 +76,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 	public class EmailTypeJournalNode : JournalEntityNodeBase<EmailType>
 	{
+		public override string Title => Name;
 		public string Name { get; set; }
 		public EmailPurpose EmailPurpose { get; set; }
 	}

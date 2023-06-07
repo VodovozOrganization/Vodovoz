@@ -1,15 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
-using DriverAPI.DTOs;
-using DriverAPI.Library.Converters;
-using DriverAPI.Library.DTOs;
-using DriverAPI.Library.Helpers;
+﻿using DriverAPI.DTOs.V1;
+using DriverAPI.Library.Deprecated.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using IOrderModel = DriverAPI.Library.Deprecated.Models.IOrderModel;
+using PayByQRResponseDTO = DriverAPI.Library.Deprecated.DTOs.PayByQRResponseDTO;
+using QRPaymentConverter = DriverAPI.Library.Deprecated.Converters.QRPaymentConverter;
 
 namespace DriverAPI.Controllers.V1
 {

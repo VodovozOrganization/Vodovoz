@@ -26,6 +26,7 @@ namespace Vodovoz.JournalViewModels
 	{
 		readonly IEntityAutocompleteSelectorFactory _employeeSelectorFactory;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 
 		public ResidueJournalViewModel(
 			ResidueFilterViewModel filterViewModel,
@@ -38,7 +39,8 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
-			ISubdivisionParametersProvider subdivisionParametersProvider
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			ICounterpartyJournalFactory counterpartyJournalFactory
 		) 
 		: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -53,7 +55,7 @@ namespace Vodovoz.JournalViewModels
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
-
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			SetOrder(x => x.Date, true);
 			UpdateOnChanges(
 				typeof(Residue)
@@ -139,7 +141,8 @@ namespace Vodovoz.JournalViewModels
 			commonServices,
 			_employeeJournalFactory,
 			_subdivisionJournalFactory,
-			_subdivisionParametersProvider
+			_subdivisionParametersProvider,
+			_counterpartyJournalFactory
 		);
 
 		protected override Func<ResidueJournalNode, ResidueViewModel> OpenDialogFunction => (node) => new ResidueViewModel(
@@ -153,7 +156,8 @@ namespace Vodovoz.JournalViewModels
 			commonServices,
 			_employeeJournalFactory,
 			_subdivisionJournalFactory,
-			_subdivisionParametersProvider
+			_subdivisionParametersProvider,
+			_counterpartyJournalFactory
 		);
 	}
 }

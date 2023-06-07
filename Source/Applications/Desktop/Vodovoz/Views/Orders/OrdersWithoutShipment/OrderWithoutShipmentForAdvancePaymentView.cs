@@ -37,9 +37,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			btnDeleteOrderItem.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedItem != null, w => w.Sensitive).InitializeFromSource();
 			yCheckBtnHideSignature.Binding.AddBinding(ViewModel.Entity, e => e.HideSignature, w => w.Active).InitializeFromSource();
 
-			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
-			);
+			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory.CreateCounterpartyAutocompleteSelectorFactory());
 
 			entityViewModelEntryCounterparty.Changed += ViewModel.OnEntityViewModelEntryChanged;
 

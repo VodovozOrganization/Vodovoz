@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -170,7 +170,7 @@ namespace Vodovoz
 				new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())));
 
 		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
-			_counterpartySelectorFactory ?? (_counterpartySelectorFactory = new CounterpartyJournalFactory());
+			_counterpartySelectorFactory ?? (_counterpartySelectorFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()));
 
 		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
 			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
@@ -1303,7 +1303,7 @@ namespace Vodovoz
 			ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 			var orderJournalFilter = new OrderJournalFilterViewModel(
-				new CounterpartyJournalFactory(),
+				new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
 				new EmployeeJournalFactory()) { RestrictCounterparty = Entity };
 			var orderJournalViewModel = new OrderJournalViewModel(
@@ -1315,7 +1315,7 @@ namespace Vodovoz
 				_userRepository,
 				new OrderSelectorFactory(),
 				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(),
+				new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
 				subdivisionJournalFactory,
 				new GtkTabsOpener(),
@@ -1581,12 +1581,12 @@ namespace Vodovoz
 
 		protected void OnEnumPaymentEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			enumDefaultDocumentType.Visible = labelDefaultDocumentType.Visible = (PaymentType)e.SelectedItem == PaymentType.cashless;
+			enumDefaultDocumentType.Visible = labelDefaultDocumentType.Visible = (PaymentType)e.SelectedItem == PaymentType.Cashless;
 		}
 
 		protected void OnEnumPaymentChangedByUser(object sender, EventArgs e)
 		{
-			if(Entity.PaymentMethod == PaymentType.cashless)
+			if(Entity.PaymentMethod == PaymentType.Cashless)
 			{
 				Entity.DefaultDocumentType = DefaultDocumentType.upd;
 			}

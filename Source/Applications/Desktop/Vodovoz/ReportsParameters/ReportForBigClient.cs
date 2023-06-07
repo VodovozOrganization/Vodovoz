@@ -23,7 +23,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			_counterpartyJournalFactory = new CounterpartyJournalFactory();
+			_counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
 			_deliveryPointJournalFilterViewModel = new DeliveryPointJournalFilterViewModel();
 			_deliveryPointJournalFactory = new DeliveryPointJournalFactory(_deliveryPointJournalFilterViewModel);
 

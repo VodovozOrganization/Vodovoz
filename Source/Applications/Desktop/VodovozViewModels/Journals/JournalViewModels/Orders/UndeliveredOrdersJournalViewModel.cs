@@ -130,6 +130,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			Subdivision inProcessAtSubdivisionAlias = null;
 			Subdivision authorSubdivisionAlias = null;
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
+			UndeliveredOrderResultComment undeliveredOrderResultCommentAlias = null;
+			Employee lastResultCommentAuthorAlias = null;
 
 			var subqueryDrivers = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
 				.Where(() => routeListItemAlias.Order.Id == oldOrderAlias.Id)
@@ -211,6 +213,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 						Projections.Property(() => subdivisionAlias.ShortName)
 					)
 				);
+
+			var subqueryLastResultCommentAuthor = QueryOver.Of<UndeliveredOrderResultComment>(() => undeliveredOrderResultCommentAlias)
+				.Where(() => undeliveredOrderAlias.Id == undeliveredOrderResultCommentAlias.UndeliveredOrder.Id)
+				.Left.JoinAlias(() => undeliveredOrderResultCommentAlias.Author, () => lastResultCommentAuthorAlias)
+				.OrderBy(() => undeliveredOrderResultCommentAlias.CreationTime).Desc
+				.Select(
+					Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT( ?1, ' ', SUBSTRING(?2, 1, 1), '. ', SUBSTRING(?3, 1, 1), '.')"),
+							NHibernateUtil.String,
+							Projections.Property(() => lastResultCommentAuthorAlias.LastName),
+							Projections.Property(() => lastResultCommentAuthorAlias.Name),
+							Projections.Property(() => lastResultCommentAuthorAlias.Patronymic)
+					))
+				.Take(1);
 
 			var subqueryFined = QueryOver.Of<Fine>(() => fineAlias)
 				.Where(() => fineAlias.UndeliveredOrder.Id == undeliveredOrderAlias.Id)
@@ -405,6 +421,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.SelectSubQuery(subqueryFined).WithAlias(() => resultAlias.Fined)
 					.SelectSubQuery(subqueryGuilty).WithAlias(() => resultAlias.Guilty)
 					.Select(addressProjection).WithAlias(() => resultAlias.Address)
+					.SelectSubQuery(subqueryLastResultCommentAuthor).WithAlias(() => resultAlias.LastResultCommentAuthor)
 				).OrderBy(() => oldOrderAlias.DeliveryDate).Asc
 				.TransformUsing(Transformers.AliasToBean<UndeliveredOrderJournalNode>());
 

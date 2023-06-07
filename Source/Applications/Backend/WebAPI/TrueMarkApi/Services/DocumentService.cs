@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -279,7 +279,7 @@ namespace TrueMarkApi.Services
 						continue;
 					}
 
-					IDocumentFactory productDocumentFactory = order.PaymentType == PaymentType.barter
+					IDocumentFactory productDocumentFactory = order.PaymentType == PaymentType.Barter
 						? new ProductDocumentForDonationFactory(organization.INN, order)
 						: new ProductDocumentForOwnUseFactory(organization.INN, order);
 
@@ -303,7 +303,7 @@ namespace TrueMarkApi.Services
 			}
 		}
 
-		private IDocumentFactory CreateProductDocumentFactory(string inn, Order order) => order.PaymentType == PaymentType.barter 
+		private IDocumentFactory CreateProductDocumentFactory(string inn, Order order) => order.PaymentType == PaymentType.Barter 
 			? new ProductDocumentForDonationFactory(inn, order) 
 			: new ProductDocumentForOwnUseFactory(inn, order);
 

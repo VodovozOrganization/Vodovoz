@@ -495,7 +495,7 @@ namespace Vodovoz
 
 				var jurNode = node.SelectSingleNode ("Свойство[@Имя='ЮрФизЛицо']/Значение");
 				counterparty.PersonType = jurNode.InnerText == "ЮрЛицо" ? PersonType.legal : PersonType.natural;
-				counterparty.PaymentMethod = jurNode.InnerText == "ЮрЛицо" ? PaymentType.cashless : PaymentType.cash;
+				counterparty.PaymentMethod = jurNode.InnerText == "ЮрЛицо" ? PaymentType.Cashless : PaymentType.Cash;
 
 				var accountNode = node.SelectSingleNode ("Свойство[@Имя='ОсновнойБанковскийСчет']/Ссылка/Свойство[@Имя='Код']/Значение");
 				if(accountNode != null)
@@ -758,17 +758,17 @@ namespace Vodovoz
 
 			var deliverySchedule = DeliverySchedules.FirstOrDefault(x => x.Name == deliverySchedulesNode?.InnerText);
 
-			PaymentType paymentType = PaymentType.cashless;
+			PaymentType paymentType = PaymentType.Cashless;
 			if(organisationNode != null) {
 				foreach(var cashStr in cashStrings) {
 					if(organisationNode.InnerText.Contains(cashStr)) {
-						paymentType = PaymentType.cash;
+						paymentType = PaymentType.Cash;
 						break;
 					}
 				}
 
 				if(organisationNode.InnerText.Contains(cashlessString) || organisationNode.InnerText.Contains(barterString))
-					paymentType = PaymentType.cashless;
+					paymentType = PaymentType.Cashless;
 			}
 
 			var reasons = _uow.Session.QueryOver<NonReturnReason>().OrderBy(x => x.Name).Asc.List();
