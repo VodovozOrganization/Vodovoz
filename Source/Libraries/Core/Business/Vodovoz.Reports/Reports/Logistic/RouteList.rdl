@@ -1036,7 +1036,7 @@
                       <Value>=
 Switch(
    {payment_type}='Cash', 'Наличными',
-   {payment_type}='Terminal', 'По терминалу (QR-код терминал)',
+   {payment_type}='Terminal', 'По терминалу (QR-код)',
    {payment_type}='DriverApplicationQR', 'По QR-коду (приложение водителя)',
    {payment_type}='SmsQR', Iif({fast_payment_paid}, 'Оплачено', 'По QR-коду (приложение водителя)'),
    {payment_type}='PaidOnline', 'Оплачено',
