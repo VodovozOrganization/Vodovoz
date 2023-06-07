@@ -1,4 +1,4 @@
-﻿using DriverAPI.DTOs;
+﻿using DriverAPI.DTOs.V1;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;

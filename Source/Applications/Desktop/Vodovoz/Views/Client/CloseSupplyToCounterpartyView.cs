@@ -186,8 +186,8 @@ namespace Vodovoz.Views.Client
 			enumDefaultDocumentType.Binding
 				.AddBinding(ViewModel.Entity, s => s.DefaultDocumentType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
-			enumDefaultDocumentType.Visible = ViewModel.Entity.PaymentMethod == PaymentType.cashless;
-			labelDefaultDocumentType.Visible = ViewModel.Entity.PaymentMethod == PaymentType.cashless;
+			enumDefaultDocumentType.Visible = ViewModel.Entity.PaymentMethod == PaymentType.Cashless;
+			labelDefaultDocumentType.Visible = ViewModel.Entity.PaymentMethod == PaymentType.Cashless;
 
 			lblTax.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.PersonType == PersonType.legal, w => w.Visible)

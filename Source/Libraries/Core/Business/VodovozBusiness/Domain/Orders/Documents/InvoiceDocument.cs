@@ -9,11 +9,23 @@ namespace Vodovoz.Domain.Orders.Documents
 {
 	public class InvoiceDocument : PrintableOrderDocument, IPrintableRDLDocument, IAdvertisable, ISignableDocument
 	{
+		int _copiesToPrint = 1;
+		bool _withoutAdvertising;
+		bool _hideSignature = true;
+
+		public override string Name => string.Format("Накладная №{0}", Order.Id);
+
+		public override DateTime? DocumentDate => Order?.DeliveryDate;
+
+		public override PrinterType PrintType => PrinterType.RDL;
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.Invoice;
 		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
+		
+		public virtual Dictionary<object, object> Parameters { get; set; }
+
 		public virtual ReportInfo GetReportInfo(string connectionString = null)
 		{
 			return new ReportInfo {
@@ -24,41 +36,29 @@ namespace Vodovoz.Domain.Orders.Documents
 					{ "without_advertising", WithoutAdvertising },
 					{ "hide_signature", HideSignature },
 					{ "contactless_delivery", Order.ContactlessDelivery },
-					{ "payment_by_sms", Order.PaymentBySms },
-					{ "payment_by_qr", Order.PaymentByQr },
 					{ "need_terminal", Order.PaymentType == PaymentType.Terminal }
 			}
 			};
 		}
-		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => String.Format("Накладная №{0}", Order.Id);
-
-		public override DateTime? DocumentDate => Order?.DeliveryDate;
-
-		public override PrinterType PrintType => PrinterType.RDL;
-
-		int copiesToPrint = 1;
 		public override int CopiesToPrint {
-			get => copiesToPrint;
-			set => copiesToPrint = value;
+			get => _copiesToPrint;
+			set => _copiesToPrint = value;
 		}
 
 		#region Свои свойства
 
-		bool withoutAdvertising;
 		[Display(Name = "Без рекламы")]
 		public virtual bool WithoutAdvertising {
-			get => withoutAdvertising;
-			set => SetField(ref withoutAdvertising, value, () => WithoutAdvertising);
+			get => _withoutAdvertising;
+			set => SetField(ref _withoutAdvertising, value);
 		}
 
-		bool hideSignature = true;
 		[Display(Name = "Без подписей и печати")]
 		public virtual bool HideSignature {
-			get => hideSignature;
-			set => SetField(ref hideSignature, value, () => HideSignature);
+			get => _hideSignature;
+			set => SetField(ref _hideSignature, value);
 		}
 
 		#endregion

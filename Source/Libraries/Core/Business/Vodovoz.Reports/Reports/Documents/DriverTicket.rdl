@@ -524,7 +524,7 @@ FROM
     ON proxy_persons.counterparty_proxy_id = counterparty_proxies.id
 WHERE 
 	orders.id = @order_id
-    AND orders.payment_type = 'cashless'
+    AND orders.payment_type = 'Cashless'
     AND orders.signature_type = 'ByProxy'</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">

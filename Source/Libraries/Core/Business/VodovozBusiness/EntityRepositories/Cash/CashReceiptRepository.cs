@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -51,9 +51,11 @@ namespace Vodovoz.EntityRepositories.Cash
 		{
 			var restriction = Restrictions.Disjunction()
 				.Add(() => _orderAlias.PaymentType == PaymentType.Terminal)
-				.Add(() => _orderAlias.PaymentType == PaymentType.cash)
+				.Add(() => _orderAlias.PaymentType == PaymentType.Cash)
+				.Add(() => _orderAlias.PaymentType == PaymentType.DriverApplicationQR)
+				.Add(() => _orderAlias.PaymentType == PaymentType.SmsQR)
 				.Add(Restrictions.Conjunction()
-					.Add(() => _orderAlias.PaymentType == PaymentType.ByCard)
+					.Add(() => _orderAlias.PaymentType == PaymentType.PaidOnline)
 					.Add(Restrictions.Disjunction()
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
@@ -200,7 +202,7 @@ namespace Vodovoz.EntityRepositories.Cash
 				.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
 				.Where(() => _orderAlias.Id == orderId)
 				.Where(GetCashReceiptExistRestriction())
-				.Where(() => _orderAlias.PaymentType == PaymentType.cash)
+				.Where(() => _orderAlias.PaymentType == PaymentType.Cash)
 				.Where(GetPositiveSumRestriction())
 				.Where(GetDeliveryDateRestriction())
 				.Where(Restrictions.Disjunction()

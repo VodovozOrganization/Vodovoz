@@ -2,20 +2,14 @@
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Services;
-using QS.Utilities.Numeric;
 using Sms.Internal;
 using Sms.Internal.Client.Framework;
-using SmsPaymentService;
 using System;
 using System.Linq;
-using System.Text;
-using Vodovoz.Additions;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
@@ -28,30 +22,22 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SmsSendPanelView : Gtk.Bin, IPanelView
 	{
-		private readonly ISmsPaymentRepository _smsPaymentRepository;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
 		private readonly IPermissionResult _orderPermissionResult;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ISmsSettings _smsSettings;
 		private readonly SmsClientChannelFactory _smsClientChannelFactory;
-		
-		private readonly PhoneFormatter _phoneFormatter;
-		private static readonly SmsPaymentStatus[] _excludeSmsPaymentStatuses =
-			{ SmsPaymentStatus.ReadyToSend, SmsPaymentStatus.Cancelled };
 
 		private readonly bool _canSendSmsForAdditionalOrderStatuses;
-		private readonly bool _canSendSmsForPayFromYookassa;
 		private readonly bool _canSendSmsForPayFromSbpByCard;
 		private Phone _selectedPhone;
 		private Counterparty _counterparty;
 		private Order _order;
 		private bool _isPaidOrder;
 		
-
 		public SmsSendPanelView(
 			ICommonServices commonServices,
-			ISmsPaymentRepository smsPaymentRepository,
 			IFastPaymentRepository fastPaymentRepository,
 			IFastPaymentParametersProvider fastPaymentParametersProvider)
 		{
@@ -59,19 +45,16 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				throw new ArgumentNullException(nameof(commonServices));
 			}
-			_smsPaymentRepository = smsPaymentRepository ?? throw new ArgumentNullException(nameof(smsPaymentRepository));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_fastPaymentParametersProvider =
 				fastPaymentParametersProvider ?? throw new ArgumentNullException(nameof(fastPaymentParametersProvider));
 			var currentPermissionService = commonServices.CurrentPermissionService;
 			_interactiveService = commonServices.InteractiveService;
-			_phoneFormatter = new PhoneFormatter(PhoneFormat.BracketWithWhitespaceLastTen);
 
 			Build();
 			_orderPermissionResult = currentPermissionService.ValidateEntityPermission(typeof(Order));
 			_canSendSmsForAdditionalOrderStatuses =
 				currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
-			_canSendSmsForPayFromYookassa = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_yookassa");
 			_canSendSmsForPayFromSbpByCard = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_sbp_by_card");
 			var settingsController = new SettingsController(UnitOfWorkFactory.GetDefaultFactory);
 			_smsSettings = new SmsSettings(settingsController, MainClass.DataBaseInfo);
@@ -99,118 +82,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 			validatedPhoneEntry.Sensitive = _orderPermissionResult.CanRead;
 
-			ySendSmsButton.Sensitive = _canSendSmsForPayFromYookassa;
 			btnSendFastPaymentPayByCardUrlBySms.Sensitive = _canSendSmsForPayFromSbpByCard;
 				
-			ySendSmsButton.Pressed += OnSendSmsButtonPressed;
 			btnSendFastPaymentPayByQrUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
 			btnSendFastPaymentPayByCardUrlBySms.Clicked += OnSendFastPaymentUrlBySmsClicked;
-		}
-
-		private void OnSendSmsButtonPressed(object btn, EventArgs args)
-		{
-			if(_order.Id == 0)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, "Перед отправкой SMS необходимо сохранить заказ",
-					"Не удалось отправить SMS");
-				return;
-			}
-			if(string.IsNullOrWhiteSpace(validatedPhoneEntry.Text))
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, "Вы забыли выбрать номер.", "Не удалось отправить SMS");
-				return;
-			}
-
-			var alreadySentSms = _smsPaymentRepository.GetSmsPaymentsForOrder(
-				InfoProvider.UoW,
-				_order.Id,
-				_excludeSmsPaymentStatuses
-			);
-
-			var paidSmsPayments = alreadySentSms.Where(x => x.SmsPaymentStatus == SmsPaymentStatus.Paid).ToList();
-			var waitingSmsPayments = alreadySentSms.Where(x =>
-				x.SmsPaymentStatus == SmsPaymentStatus.WaitingForPayment
-				&& DateTime.Now.Subtract(x.CreationDate).TotalMinutes < 60
-			).ToList();
-
-			if(paidSmsPayments.Any())
-			{
-				var paidStringBuilder = new StringBuilder();
-
-				foreach(var payment in paidSmsPayments)
-				{
-					paidStringBuilder.AppendLine($"\tКод платежа:     {payment.Id}");
-					paidStringBuilder.AppendLine($"\tТелефон:            +7 {_phoneFormatter.FormatString(payment.PhoneNumber)}");
-					paidStringBuilder.AppendLine($"\tДата создания:  {payment.CreationDate}");
-					paidStringBuilder.AppendLine($"\tДата оплаты:     {payment.PaidDate}");
-					paidStringBuilder.AppendLine($"\tНомер оплаты:  {payment.ExternalId}");
-					paidStringBuilder.AppendLine();
-				}
-
-				var sendPayment = _interactiveService.Question("Для заказа уже есть ранее оплаченные платежи по SMS:\n\n" +
-					$"{paidStringBuilder}" +
-					"Вы уверены что хотите отправить ещё одну SMS?");
-
-				if(!sendPayment)
-				{
-					return;
-				}
-			}
-			else if(waitingSmsPayments.Any())
-			{
-				var waitingStringBuilder = new StringBuilder();
-
-				foreach(var payment in waitingSmsPayments)
-				{
-					waitingStringBuilder.AppendLine($"\tКод платежа:     {payment.Id}");
-					waitingStringBuilder.AppendLine($"\tТелефон:            +7 {_phoneFormatter.FormatString(payment.PhoneNumber)}");
-					waitingStringBuilder.AppendLine($"\tДата создания:  {payment.CreationDate}");
-					waitingStringBuilder.AppendLine();
-				}
-
-				var sendPayment = _interactiveService.Question("Для заказа найдены SMS, ожидающие оплату клиента:\n\n" +
-					$"{waitingStringBuilder}" +
-					"Вы уверены что хотите отправить ещё одну SMS?");
-
-				if(!sendPayment)
-				{
-					return;
-				}
-			}
-
-			btnSendFastPaymentPayByQrUrlBySms.Sensitive = btnSendFastPaymentPayByCardUrlBySms.Sensitive = ySendSmsButton.Sensitive = false;
-			GLib.Timeout.Add(10000, () =>
-			{
-				btnSendFastPaymentPayByQrUrlBySms.Sensitive = true;
-				btnSendFastPaymentPayByCardUrlBySms.Sensitive = _canSendSmsForPayFromSbpByCard;
-				ySendSmsButton.Sensitive = _canSendSmsForPayFromYookassa;
-
-				return false;
-			});
-
-			var smsSender = new SmsPaymentSender();
-			PaymentResult result;
-			try
-			{
-				result = smsSender.SendSmsPaymentToNumber(_order.Id, validatedPhoneEntry.Text);
-			}
-			catch(TimeoutException)
-			{
-				_interactiveService.ShowMessage(ImportanceLevel.Warning,
-					"Превышено время ожидания ответа от сервиса оплаты по SMS.\nЕсли SMS не была отправлена, произведите повторную отправку");
-				return;
-			}
-			switch(result.Status)
-			{
-				case PaymentResult.MessageStatus.Ok:
-					_interactiveService.ShowMessage(ImportanceLevel.Info, "SMS отправлена успешно");
-					break;
-				case PaymentResult.MessageStatus.Error:
-					_interactiveService.ShowMessage(ImportanceLevel.Error, result.ErrorDescription, "Не удалось отправить SMS");
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
 		}
 		
 		private void OnSendFastPaymentUrlBySmsClicked(object btn, EventArgs args)
@@ -244,14 +119,13 @@ namespace Vodovoz.SidePanel.InfoViews
 				}
 			}
 
-			btnSendFastPaymentPayByQrUrlBySms.Sensitive = btnSendFastPaymentPayByCardUrlBySms.Sensitive = ySendSmsButton.Sensitive = false;
+			btnSendFastPaymentPayByQrUrlBySms.Sensitive = btnSendFastPaymentPayByCardUrlBySms.Sensitive = false;
 			GLib.Timeout.Add(10000, () =>
 			{
 				if(!_isPaidOrder)
 				{
 					btnSendFastPaymentPayByQrUrlBySms.Sensitive = true;
 					btnSendFastPaymentPayByCardUrlBySms.Sensitive = _canSendSmsForPayFromSbpByCard;
-					ySendSmsButton.Sensitive = _canSendSmsForPayFromYookassa;
 				}
 
 				return false;
@@ -272,7 +146,6 @@ namespace Vodovoz.SidePanel.InfoViews
 					if(result.OrderAlreadyPaied)
 					{
 						_isPaidOrder = true;
-						ySendSmsButton.Sensitive = false;
 					}
 					_interactiveService.ShowMessage(ImportanceLevel.Error, result.ErrorMessage, "Не удалось отправить SMS");
 					break;
@@ -296,7 +169,6 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			ySendSmsButton.Sensitive = _orderPermissionResult.CanRead && _canSendSmsForPayFromYookassa;
 			yPhonesListTreeView.ItemsDataSource = _counterparty.Phones;
 		}
 

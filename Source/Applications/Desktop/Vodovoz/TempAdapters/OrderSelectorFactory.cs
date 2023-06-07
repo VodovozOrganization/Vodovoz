@@ -71,7 +71,7 @@ namespace Vodovoz.TempAdapters
 					var filter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory);
 					filter.SetAndRefilterAtOnce(
 						x => x.RestrictStatus = OrderStatus.WaitForPayment,
-						x => x.AllowPaymentTypes = new[] { PaymentType.cash },
+						x => x.AllowPaymentTypes = new[] { PaymentType.Cash },
 						x => x.RestrictOnlySelfDelivery = true,
 						x => x.RestrictWithoutSelfDelivery = false,
 						x => x.RestrictHideService = true,

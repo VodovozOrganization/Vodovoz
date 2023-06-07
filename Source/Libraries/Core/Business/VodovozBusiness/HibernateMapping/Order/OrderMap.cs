@@ -58,8 +58,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.BottlesByStockActualCount)         .Column("bottles_by_stock_actual_count");
 			Map(x => x.EShopOrder)                        .Column("e_shop_order");
 			Map(x => x.ContactlessDelivery)               .Column("contactless_delivery");
-			Map(x => x.PaymentBySms)                      .Column("payment_by_sms");
-			Map(x => x.PaymentByQr)                       .Column("payment_by_qr");
 			Map(x => x.ODZComment)                        .Column("odz_comment");
 			Map(x => x.OPComment)                         .Column("op_comment");
 			Map(x => x.CommentOPManagerUpdatedAt)         .Column("comment_opmanager_updated_at");

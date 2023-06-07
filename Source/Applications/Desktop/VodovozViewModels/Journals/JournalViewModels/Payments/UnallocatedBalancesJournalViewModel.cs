@@ -181,7 +181,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.Inner.JoinAlias(() => counterpartyContractAlias.Organization, () => orderOrganizationAlias)
 				.Where(() => orderAlias.Client.Id == counterpartyAlias.Id)
 				.And(() => orderOrganizationAlias.Id == organizationAlias.Id)
-				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.Select(orderSumProjection)
 				.Where(Restrictions.Gt(orderSumProjection, 0));
@@ -194,7 +194,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 				.Where(() => orderAlias2.Client.Id == counterpartyAlias.Id)
 				.And(() => orderOrganizationAlias.Id == organizationAlias.Id)
 				.And(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
-				.And(() => orderAlias2.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias2.PaymentType == PaymentType.Cashless)
 				.And(() => orderAlias2.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
 				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
 

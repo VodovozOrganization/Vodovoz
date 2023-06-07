@@ -288,7 +288,7 @@ namespace Vodovoz.Domain.Client
 
 				if(value == PersonType.natural)
 				{
-					PaymentMethod = PaymentType.cash;
+					PaymentMethod = PaymentType.Cash;
 				}
 			}
 		}

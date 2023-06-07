@@ -5,6 +5,7 @@ using FastPaymentsAPI.Library.DTO_s.Requests;
 using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Managers;
 using Microsoft.Extensions.Configuration;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -122,6 +123,7 @@ namespace FastPaymentsAPI.Library.Factories
 			FastPaymentPayType payType,
 			Organization organization,
 			PaymentFrom paymentByCardFrom,
+			PaymentType paymentType,
 			Order order = null,
 			string phoneNumber = null,
 			int? onlineOrderId = null,
@@ -134,6 +136,7 @@ namespace FastPaymentsAPI.Library.Factories
 				Order = order,
 				Organization = organization,
 				PaymentByCardFrom = paymentByCardFrom,
+				PaymentType = paymentType,
 				Ticket = orderRegistrationResponseDto.Ticket,
 				QRPngBase64 = orderRegistrationResponseDto.QRPngBase64,
 				ExternalId = externalId,

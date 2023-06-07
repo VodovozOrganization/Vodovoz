@@ -175,7 +175,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal BottleDepositsCollected {
 			get {
-				if(Order.PaymentType == PaymentType.ContractDoc || Order.PaymentType == PaymentType.cashless) {
+				if(Order.PaymentType == PaymentType.ContractDocumentation || Order.PaymentType == PaymentType.Cashless) {
 					return 0;
 				}
 
@@ -199,7 +199,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal EquipmentDepositsCollected {
 			get {
-				if(Order.PaymentType == PaymentType.ContractDoc || Order.PaymentType == PaymentType.cashless) {
+				if(Order.PaymentType == PaymentType.ContractDocumentation || Order.PaymentType == PaymentType.Cashless) {
 					return 0;
 				}
 
@@ -216,7 +216,7 @@ namespace Vodovoz.Domain.Logistic
 				if(!IsDelivered()) {
 					return 0;
 				}
-				if(Order.PaymentType != PaymentType.cash) {
+				if(Order.PaymentType != PaymentType.Cash) {
 					return 0;
 				}
 				return Order.OrderCashSum + OldBottleDepositsCollected + OldEquipmentDepositsCollected + ExtraCash;

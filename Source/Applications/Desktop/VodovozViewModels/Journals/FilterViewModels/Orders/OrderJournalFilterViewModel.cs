@@ -154,8 +154,8 @@ namespace Vodovoz.Filters.ViewModels
 				if(UpdateFilterField(ref _restrictPaymentType, value))
 				{
 					CanChangePaymentType = false;
-					PaymentsFromVisibility = _restrictPaymentType == PaymentType.ByCard;
-					if(_restrictPaymentType != PaymentType.ByCard && PaymentByCardFrom != null)
+					PaymentsFromVisibility = _restrictPaymentType == PaymentType.PaidOnline;
+					if(_restrictPaymentType != PaymentType.PaidOnline && PaymentByCardFrom != null)
 					{
 						PaymentByCardFrom = null;
 					}

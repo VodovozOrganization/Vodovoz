@@ -43,7 +43,7 @@ namespace Vodovoz.ReportsParameters.Retail
             yEntitySalesChannel.SetEntityAutocompleteSelectorFactory(salesChannelSelectorFactory);
             yEntityDistrict.SetEntityAutocompleteSelectorFactory(districtSelectorFactory);
             yenumPaymentType.ItemsEnum = typeof(PaymentType);
-            yenumPaymentType.SelectedItem = PaymentType.cash;
+            yenumPaymentType.SelectedItem = PaymentType.Cash;
         }
 
         private ReportInfo GetReportInfo()

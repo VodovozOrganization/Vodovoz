@@ -47,7 +47,7 @@ namespace DriverAPI.Library.Converters
 					RouteListStatus = _routeListStatusConverter.convertToAPIRouteListStatus(routeList.Status),
 					CashMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
-							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.cash)
+							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cash)
 						.Sum(rla => rla.Order.OrderSum),
 					TerminalMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed

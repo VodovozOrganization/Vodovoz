@@ -1,6 +1,4 @@
-﻿using DriverAPI.DTOs;
-using DriverAPI.Library.DTOs;
-using DriverAPI.Library.Helpers;
+﻿using DriverAPI.Library.Deprecated.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +10,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using ChangeOrderPaymentTypeRequestDto = DriverAPI.DTOs.V1.ChangeOrderPaymentTypeRequestDto;
+using CompletedOrderRequestDto = DriverAPI.DTOs.V1.CompletedOrderRequestDto;
+using IOrderModel = DriverAPI.Library.Deprecated.Models.IOrderModel;
+using OrderDto = DriverAPI.Library.Deprecated.DTOs.OrderDto;
+using PaymentDtoType = DriverAPI.Library.Deprecated.DTOs.PaymentDtoType;
 
 namespace DriverAPI.Controllers.V1
 {
@@ -154,7 +157,7 @@ namespace DriverAPI.Controllers.V1
 				}
 				else if(newPaymentType == PaymentDtoType.Cash)
 				{
-					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.cash;
+					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.Cash;
 				}
 				else
 				{

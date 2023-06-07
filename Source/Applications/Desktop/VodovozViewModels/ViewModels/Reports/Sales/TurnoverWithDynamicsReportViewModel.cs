@@ -504,7 +504,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 						var paymentTypeList = Enum.GetValues(typeof(PaymentType)).Cast<PaymentType>();
 						var combinedNodesTypesWithChildFroms = paymentTypeList.Select(x => new CombinedPaymentNode { Title = x.GetEnumTitle(), PaymentType = x, IsTopLevel = true }).ToList();
-						combinedNodesTypesWithChildFroms.Single(x => x.PaymentType == PaymentType.ByCard).Childs = paymentFromCombinedNodes;
+						combinedNodesTypesWithChildFroms.Single(x => x.PaymentType == PaymentType.PaidOnline).Childs = paymentFromCombinedNodes;
 
 						return combinedNodesTypesWithChildFroms;
 					},

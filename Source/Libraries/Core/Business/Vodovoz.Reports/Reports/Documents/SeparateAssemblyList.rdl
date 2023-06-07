@@ -155,7 +155,7 @@ WHERE
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    IF(orders.payment_type = 'cash', GET_TOTAL_SUM_FOR_ORDER_ITEM(order_items.id), 0) AS total_payment
+    IF(orders.payment_type = 'Cash', GET_TOTAL_SUM_FOR_ORDER_ITEM(order_items.id), 0) AS total_payment
 FROM order_items
 LEFT JOIN orders ON orders.id = order_items.order_id
 LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
