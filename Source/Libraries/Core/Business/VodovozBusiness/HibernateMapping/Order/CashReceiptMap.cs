@@ -26,6 +26,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Contact).Column("contact");
 			Map(x => x.WithoutMarks).Column("without_marks");
 			Map(x => x.InnerNumber).Column("inner_number");
+			Map(x => x.CashboxId).Column("cashbox_id");
 
 			HasMany(x => x.ScannedCodes).Cascade.AllDeleteOrphan().Not.LazyLoad().Inverse()
 				.KeyColumn("cash_receipt_id");
