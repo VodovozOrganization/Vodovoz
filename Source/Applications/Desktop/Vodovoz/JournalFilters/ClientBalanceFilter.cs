@@ -30,7 +30,10 @@ namespace Vodovoz
 		{
 			ILifetimeScope lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
 
-			nomenclatureEntry.SetEntityAutocompleteSelectorFactory(lifetimeScope.Resolve<NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>>());
+			nomenclatureEntry.SetEntityAutocompleteSelectorFactory(
+			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
+				ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(lifetimeScope),
+				new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())), new UserRepository()));
 			
 			nomenclatureEntry.ChangedByUser += NomenclatureEntryOnChangedByUser;
 
