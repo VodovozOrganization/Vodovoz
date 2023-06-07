@@ -2006,11 +2006,12 @@ public partial class MainWindow : Gtk.Window
 	}
 	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
 	{
+		ILifetimeScope lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
 		var employeeJournalFactory = new EmployeeJournalFactory();
 
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
-			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport(employeeJournalFactory))
+			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport(employeeJournalFactory, lifetimeScope.Resolve<ICounterpartyJournalFactory>()))
 		);
 	}
 

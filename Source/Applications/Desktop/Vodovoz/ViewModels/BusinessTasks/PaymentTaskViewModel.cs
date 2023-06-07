@@ -21,7 +21,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 {
 	public class PaymentTaskViewModel : EntityTabViewModelBase<PaymentTask>
 	{
-		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; private set; }
+		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; private set; }
 		public IEntityAutocompleteSelectorFactory OrderSelectorFactory { get; private set; }
 		public IEntityAutocompleteSelectorFactory SubdivisionSelectorFactory { get; private set; }
@@ -32,7 +32,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			IEmployeeRepository employeeRepository,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices) : base(uowBuilder, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			if(uowBuilder.IsNewEntity) {
 				TabName = "Новая задача";
@@ -44,18 +45,20 @@ namespace Vodovoz.ViewModels.BusinessTasks
 				TabName = Entity.Counterparty?.Name;
 			}
 
+			if(counterpartyJournalFactory is null)
+			{
+				throw new ArgumentNullException(nameof(counterpartyJournalFactory));
+			}
+
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 
 			Initialize();
 			CreateCommands();
+			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 		}
 
 		private void Initialize()
 		{
-			CounterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty,
-																						CounterpartyJournalViewModel,
-																						CounterpartyJournalFilterViewModel>(CommonServices);
-
 			EmployeeSelectorFactory = new EmployeeJournalFactory().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 
 			OrderSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order,
