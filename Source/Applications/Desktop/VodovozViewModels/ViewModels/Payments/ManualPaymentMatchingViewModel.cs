@@ -10,6 +10,7 @@ using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.Banks.Repositories;
 using QS.Commands;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -804,6 +805,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 	public class ManualPaymentMatchingViewModelNode : JournalEntityNodeBase<VodOrder>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public OrderStatus OrderStatus { get; set; }
 		public DateTime OrderDate { get; set; }
 		public decimal ActualOrderSum { get; set; }

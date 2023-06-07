@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
@@ -8,6 +9,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 {
 	public class UndeliveredOrderJournalNode : JournalEntityNodeBase<UndeliveredOrder>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public int NumberInList { get; set; }
 		public string Address { get; set; }
 		public string Client { get; set; }

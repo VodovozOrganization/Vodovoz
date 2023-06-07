@@ -23,7 +23,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.XAlign(0.5f)
 				.AddColumn("Тема")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(node => node.Title)
+					.AddTextRenderer(node => node.Subject)
 					.XAlign(0.5f)
 				.AddColumn("Статус")
 					.HeaderAlignment(0.5f)

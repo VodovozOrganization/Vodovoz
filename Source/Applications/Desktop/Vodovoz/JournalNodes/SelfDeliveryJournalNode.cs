@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Client;
@@ -8,6 +9,8 @@ namespace Vodovoz.JournalNodes
 {
 	public class SelfDeliveryJournalNode : JournalEntityNodeBase<Order>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
+
 		public OrderStatus StatusEnum { get; set; }
 
 		public DateTime Date { get; set; }

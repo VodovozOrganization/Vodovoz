@@ -1,5 +1,5 @@
-﻿using System;
-using QS.Project.Journal;
+﻿using QS.Project.Journal;
+using System;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Client
