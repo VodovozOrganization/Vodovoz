@@ -1,9 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using NHibernate.Type;
+﻿using NHibernate.Type;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using System;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -28,6 +28,7 @@ namespace Vodovoz.Domain.FastPayments
 		private Order _order;
 		private Organization _organization;
 		private PaymentFrom _paymentByCardFrom;
+		private PaymentType _paymentType;
 		private DateTime _creationDate;
 		private DateTime? _paidDate;
 		private FastPaymentStatus _fastPaymentStatus;
@@ -66,7 +67,14 @@ namespace Vodovoz.Domain.FastPayments
 			get => _organization;
 			set => SetField(ref _organization, value);
 		}
-		
+
+		[Display(Name = "Тип оплаты по карте")]
+		public virtual PaymentType PaymentType
+		{
+			get => _paymentType;
+			set => SetField(ref _paymentType, value);
+		}
+
 		[Display(Name = "Источник оплаты по карте")]
 		public virtual PaymentFrom PaymentByCardFrom
 		{
@@ -158,7 +166,7 @@ namespace Vodovoz.Domain.FastPayments
 		{
 			FastPaymentStatus = FastPaymentStatus.Performed;
 
-			if(Order.PaymentType == PaymentType.cash
+			if(Order.PaymentType == PaymentType.Cash
 				&& Order.SelfDelivery
 				&& Order.OrderStatus == OrderStatus.WaitForPayment
 				&& Order.PayAfterShipment)
@@ -172,7 +180,7 @@ namespace Vodovoz.Domain.FastPayments
 				Order.IsSelfDeliveryPaid = true;
 			}
 
-			if(Order.PaymentType == PaymentType.cash
+			if(Order.PaymentType == PaymentType.Cash
 				&& Order.SelfDelivery
 				&& Order.OrderStatus == OrderStatus.WaitForPayment
 				&& !Order.PayAfterShipment)
@@ -183,7 +191,7 @@ namespace Vodovoz.Domain.FastPayments
 			
 			PaidDate = paidDate;
 			Order.OnlineOrder = ExternalId;
-			Order.PaymentType = PaymentType.ByCard;
+			Order.PaymentType = PaymentType;
 			Order.PaymentByCardFrom = PaymentByCardFrom;
 			Order.ForceUpdateContract(Organization);
 

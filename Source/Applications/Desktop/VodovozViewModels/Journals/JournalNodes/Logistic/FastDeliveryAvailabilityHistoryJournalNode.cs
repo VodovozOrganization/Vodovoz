@@ -2,11 +2,13 @@
 using System;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic.FastDelivery;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 {
 	public class FastDeliveryAvailabilityHistoryJournalNode : JournalEntityNodeBase<FastDeliveryAvailabilityHistory>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public int SequenceNumber { get; set; }
 		public DateTime VerificationDate { get; set; }
 		public string AuthorName { get; set; }

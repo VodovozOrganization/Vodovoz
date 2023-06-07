@@ -203,7 +203,7 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 				ImportanceLevel.Info,
 				"Во все отчёты попадают только:\n" +
 				$"Контрагенты с формой '{PersonType.legal.GetEnumTitle()}'\n" +
-				$"Заказы с формой оплаты '{PaymentType.cashless.GetEnumTitle()}', суммой больше 0 и статусом оплаты не равным '{OrderPaymentStatus.Paid.GetEnumTitle()}'\n\n" +
+				$"Заказы с формой оплаты '{PaymentType.Cashless.GetEnumTitle()}', суммой больше 0 и статусом оплаты не равным '{OrderPaymentStatus.Paid.GetEnumTitle()}'\n\n" +
 				$"<b>{ybuttonCounterpartyDebtBalance.Label}</b>:\n" +
 				"Доступен только если не выбран контрагент \n\n" +
 				$"<b>{ybuttonCounterpartyDebtDetails.Label}</b>:\n" +

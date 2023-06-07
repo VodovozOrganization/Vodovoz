@@ -31,6 +31,7 @@ namespace Vodovoz.Domain.TrueMark
 		private string _contact;
 		private bool _withoutMarks;
 		private int? _innerNumber;
+		private int? _сashboxId;
 		private IList<CashReceiptProductCode> _scannedCodes = new List<CashReceiptProductCode>();
 		private GenericObservableList<CashReceiptProductCode> _observableScannedCodes;
 
@@ -139,6 +140,13 @@ namespace Vodovoz.Domain.TrueMark
 		{
 			get => _innerNumber;
 			set => SetField(ref _innerNumber, value);
+		}
+
+		[Display(Name = "Касса куда был отправлен чек")]
+		public virtual int? CashboxId
+		{
+			get => _сashboxId;
+			set => SetField(ref _сashboxId, value);
 		}
 
 		[Display(Name = "Отсканированные коды")]

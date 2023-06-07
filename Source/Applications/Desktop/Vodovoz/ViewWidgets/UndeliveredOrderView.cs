@@ -91,7 +91,7 @@ namespace Vodovoz.ViewWidgets
 				if(!grantedStatusesArray.Contains(status))
 					hiddenStatusesList.Add(status);
 			}
-			var filterOrders = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory(), new EmployeeJournalFactory());
+			var filterOrders = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), new EmployeeJournalFactory());
 			filterOrders.SetAndRefilterAtOnce(x => x.HideStatuses = hiddenStatusesList.Cast<Enum>().ToArray());
 			evmeOldUndeliveredOrder.Changed += (sender, e) => {
 				_oldOrder = undelivery.OldOrder;
@@ -456,7 +456,7 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnBtnChooseOrderClicked(object sender, EventArgs e)
 		{
-			var filter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(), new DeliveryPointJournalFactory(), new EmployeeJournalFactory());
+			var filter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), new EmployeeJournalFactory());
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCounterparty = _oldOrder.Client,
 				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
@@ -483,7 +483,7 @@ namespace Vodovoz.ViewWidgets
 				_newOrder.Author = this._oldOrder.Author;
 				SetLabelsAcordingToNewOrder();
 				_undelivery.NewDeliverySchedule = _newOrder.DeliverySchedule;
-				if ((_oldOrder.PaymentType == Domain.Client.PaymentType.ByCard) &&
+				if ((_oldOrder.PaymentType == Domain.Client.PaymentType.PaidOnline) &&
 					(_oldOrder.OrderSum == _newOrder.OrderSum) &&
 					MessageDialogHelper.RunQuestionDialog("Перенести на выбранный заказ Оплату по Карте?")){
 					_newOrder.PaymentType = _oldOrder.PaymentType;

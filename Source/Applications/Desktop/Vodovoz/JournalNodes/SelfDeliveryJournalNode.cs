@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Client;
@@ -8,6 +9,8 @@ namespace Vodovoz.JournalNodes
 {
 	public class SelfDeliveryJournalNode : JournalEntityNodeBase<Order>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
+
 		public OrderStatus StatusEnum { get; set; }
 
 		public DateTime Date { get; set; }
@@ -23,11 +26,11 @@ namespace Vodovoz.JournalNodes
 		public decimal OrderSum { get; set; }
 		public decimal OrderReturnSum { get; set; }
 		public decimal OrderCashSumTotal => (PaymentTypeEnum == 
-				PaymentType.cash || (PaymentTypeEnum == PaymentType.Terminal && StatusEnum == OrderStatus.WaitForPayment) || (PaymentTypeEnum == PaymentType.Terminal && PayAfterLoad && StatusEnum != OrderStatus.Closed)) 
+				PaymentType.Cash || (PaymentTypeEnum == PaymentType.Terminal && StatusEnum == OrderStatus.WaitForPayment) || (PaymentTypeEnum == PaymentType.Terminal && PayAfterLoad && StatusEnum != OrderStatus.Closed)) 
 				? OrderSum - OrderReturnSum 
 				: 0;
-		public decimal OrderCashlessSumTotal => PaymentTypeEnum == PaymentType.cashless || 
-		                                        PaymentTypeEnum == PaymentType.ByCard ||
+		public decimal OrderCashlessSumTotal => PaymentTypeEnum == PaymentType.Cashless || 
+		                                        PaymentTypeEnum == PaymentType.PaidOnline ||
 		                                        PaymentTypeEnum == PaymentType.Terminal ? OrderReturnSum - OrderReturnSum : 0;
 
 		//наличные по кассе

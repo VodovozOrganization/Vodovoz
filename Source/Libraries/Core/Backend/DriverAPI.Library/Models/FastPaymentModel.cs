@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Domain.FastPayments;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.FastPayments;
 
 namespace DriverAPI.Library.Models
@@ -18,9 +19,11 @@ namespace DriverAPI.Library.Models
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 		}
 
-		public FastPaymentStatus? GetOrderFastPaymentStatus(int orderId)
+		public FastPaymentStatus? GetOrderFastPaymentStatus(int orderId, int? onlineOrder = null)
 		{
-			return _fastPaymentRepository.GetOrderFastPaymentStatus(_uow, orderId);
+			onlineOrder ??= _uow.GetById<Order>(orderId).OnlineOrder;
+
+			return _fastPaymentRepository.GetOrderFastPaymentStatus(_uow, orderId, onlineOrder);
 		}
 	}
 }

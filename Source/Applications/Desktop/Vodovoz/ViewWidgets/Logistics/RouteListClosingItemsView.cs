@@ -190,7 +190,7 @@ namespace Vodovoz
 				.AddColumn("№ оплаты")
 					.AddTextRenderer(node => node.Order.OnlineOrder.ToString())
 						.AddSetter((cell, node) => cell.Editable = 
-							(node.Order.PaymentType == PaymentType.Terminal || node.Order.PaymentType == PaymentType.ByCard) &&
+							(node.Order.PaymentType == PaymentType.Terminal || node.Order.PaymentType == PaymentType.PaidOnline) &&
 							node.Status != RouteListItemStatus.Transfered &&
 							node.Status != RouteListItemStatus.Canceled &&
 							node.Status != RouteListItemStatus.Overdue)

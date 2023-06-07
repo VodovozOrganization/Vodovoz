@@ -43,7 +43,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						.Where(order => order != null
 							&& !_orderUndeliveredStatuses.Contains(order.OrderStatus)
 							&& order.Client.Id == payment.Counterparty.Id
-							&& order.PaymentType == PaymentType.cashless
+							&& order.PaymentType == PaymentType.Cashless
 							&& order.OrderPaymentStatus == OrderPaymentStatus.UnPaid
 							&& order.OrderSum > 0));
 

@@ -23,6 +23,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Email;
 using VodOrder = Vodovoz.Domain.Orders.Order;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -152,7 +153,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 					.Where(x => x.OrderStatus == OrderStatus.Closed)
-					.Where(x => x.PaymentType == PaymentType.cashless);
+					.Where(x => x.PaymentType == PaymentType.Cashless);
 
 			if(Entity.Client != null)
 			{
@@ -231,6 +232,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 	public class OrderWithoutShipmentForPaymentNode : JournalEntityNodeBase<VodOrder>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public bool IsSelected { get; set; }
 		public int OrderId { get; set; }
 		public DateTime OrderDate { get; set; }

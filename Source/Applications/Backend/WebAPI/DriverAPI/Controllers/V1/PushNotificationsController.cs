@@ -1,4 +1,4 @@
-﻿using DriverAPI.DTOs;
+﻿using DriverAPI.DTOs.V1;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using DriverAPI.Services;
@@ -38,7 +38,7 @@ namespace DriverAPI.Controllers.V1
 			_aPIRouteListData = aPIRouteListData ?? throw new ArgumentNullException(nameof(aPIRouteListData));
 			_iFCMAPIHelper = iFCMAPIHelper ?? throw new ArgumentNullException(nameof(iFCMAPIHelper));
 			_employeeData = employeeData ?? throw new ArgumentNullException(nameof(employeeData));
-			_wakeUpDriverClientService = wakeUpDriverClientService;
+			_wakeUpDriverClientService = wakeUpDriverClientService ?? throw new ArgumentNullException(nameof(wakeUpDriverClientService));
 		}
 
 		/// <summary>

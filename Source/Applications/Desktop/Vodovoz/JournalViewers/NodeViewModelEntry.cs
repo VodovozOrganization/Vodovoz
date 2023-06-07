@@ -268,9 +268,9 @@ namespace Vodovoz.JournalViewers
                     return;
 
                 foreach(var item in _nodeAutoCompleteSelector.Items) {
-                    if(item is JournalNodeBase) {
+                    if(item is IJournalNode) {
                         completionListStore.AppendValues(
-                            (item as JournalNodeBase).Title,
+                            (item as IJournalNode).Title,
                             item
                         );
                     } else if(item is INodeWithEntryFastSelect) {

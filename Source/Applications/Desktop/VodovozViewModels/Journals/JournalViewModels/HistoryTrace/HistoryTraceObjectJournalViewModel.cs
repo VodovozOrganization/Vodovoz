@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.HistoryTrace
             DataLoader.ItemsListUpdated += (s, e) => { ListUpdated?.Invoke(this, EventArgs.Empty); };
             OnSelectResult += (s, e) => { 
                 OnEntitySelectedResult?.Invoke(this,
-                    new JournalSelectedNodesNodesEventArgs(e.SelectedObjects.OfType<JournalNodeBase>().ToArray())
+                    new JournalSelectedNodesNodesEventArgs(e.SelectedObjects.OfType<IJournalNode>().ToArray())
                 );
             };
         }

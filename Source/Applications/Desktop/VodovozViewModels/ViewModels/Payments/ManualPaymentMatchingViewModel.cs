@@ -10,6 +10,7 @@ using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.Banks.Repositories;
 using QS.Commands;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -406,7 +407,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						FullName = Entity.CounterpartyName,
 						INN = Entity.CounterpartyInn,
 						KPP = Entity.CounterpartyKpp ?? string.Empty,
-						PaymentMethod = PaymentType.cashless,
+						PaymentMethod = PaymentType.Cashless,
 						TypeOfOwnership = TryGetOrganizationType(Entity.CounterpartyName)
 					};
 
@@ -602,7 +603,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				.Left.JoinAlias(o => o.Contract, () => contractAlias)
 				.Left.JoinAlias(() => contractAlias.Organization, () => organisationAlias)
 				.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(_orderRepository.GetUndeliveryStatuses())
-				.And(o => o.PaymentType == PaymentType.cashless)
+				.And(o => o.PaymentType == PaymentType.Cashless)
 				.And(() => organisationAlias.Id == Entity.Organization.Id);
 
 			if(Entity.Counterparty != null)
@@ -804,6 +805,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 	public class ManualPaymentMatchingViewModelNode : JournalEntityNodeBase<VodOrder>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public OrderStatus OrderStatus { get; set; }
 		public DateTime OrderDate { get; set; }
 		public decimal ActualOrderSum { get; set; }

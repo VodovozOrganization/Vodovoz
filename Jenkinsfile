@@ -63,6 +63,7 @@ DESKTOP_WATER_DELIVERY_PATH = "C:/Program Files (x86)/Vodovoz/WaterDelivery"
 DESKTOP_WORK_PATH = "${DESKTOP_WATER_DELIVERY_PATH}/Work"
 UPDATE_LOCK_FILE = "${DESKTOP_WORK_PATH}/current.lock"
 LINUX_BUILD_TOOL = "msbuild"
+LINUX_WEB_BUILD_TOOL = "dotnet publish"
 JOB_FOLDER_NAME = GetJobFolderName()
 IS_PULL_REQUEST = env.CHANGE_ID != null
 IS_HOTFIX = env.BRANCH_NAME == 'master'
@@ -211,6 +212,16 @@ stage('Build'){
 						echo "Build WCF not needed"
 					}
 				}
+				stage('Build Linux WEB'){
+					if(CAN_PUBLISH_BUILD_WEB)
+					{
+						PublishBuildLinux("${APP_PATH}/Backend/WebAPI/VodovozMangoService/VodovozMangoService.csproj")
+					}
+					else
+					{
+						echo "Publish Build Linux WEB not needed"
+					}
+				}
 			}
 		}
 	)
@@ -236,6 +247,7 @@ stage('Compress'){
 		"CashReceiptPrepareWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { CompressWebArtifact("Backend/Workers/IIS/CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { CompressWebArtifact("Backend/Workers/IIS/TrueMarkCodePoolCheckWorker") },
+		"VodovozMangoService" : { CompressWebLinuxArtifact("Backend/WebAPI/VodovozMangoService") },
 
 		"VodovozSmsInformerService" : { CompressWcfArtifact("Backend/Workers/Mono/VodovozSmsInformerService") },
 		"VodovozSmsPaymentService" : { CompressWcfArtifact("Backend/WCF/VodovozSmsPaymentService") },
@@ -264,6 +276,8 @@ stage('Delivery'){
 		"CashReceiptPrepareWorker" : { DeliveryWebArtifact("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { DeliveryWebArtifact("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { DeliveryWebArtifact("TrueMarkCodePoolCheckWorker") },
+
+		"VodovozMangoService" : { DeliveryWebLinuxArtifact("VodovozMangoService") },
 
 		"SmsInformerService" : { DeliveryWcfArtifact("VodovozSmsInformerService") },
 		"SmsPaymentService" : { DeliveryWcfArtifact("VodovozSmsPaymentService") },
@@ -297,9 +311,9 @@ stage('Publish'){
 		"CashReceiptPrepareWorker" : { PublishWeb("CashReceiptPrepareWorker") },
 		"CashReceiptSendWorker" : { PublishWeb("CashReceiptSendWorker") },
 		"TrueMarkCodePoolCheckWorker" : { PublishWeb("TrueMarkCodePoolCheckWorker") },
-
+		"VodovozMangoService" : { PublishWebLinux("VodovozMangoService") },
 		"SmsInformerService" : { PublishWCF("VodovozSmsInformerService") },
-		"SmsPaymentService" : { PublishWCF("VodovozSmsInformerService") },
+		"SmsPaymentService" : { PublishWCF("VodovozSmsPaymentService") },
 	)
 }
 
@@ -342,6 +356,10 @@ def Build(config){
 	}
 }
 
+def PublishBuildLinux(projectPath){
+	sh "${LINUX_WEB_BUILD_TOOL} ${projectPath} --configuration Release"
+}
+
 // 304	Фукнции. Запаковка
 
 def CompressDesktopArtifact(){
@@ -382,6 +400,20 @@ def CompressWcfArtifact(relativeProjectPath){
 	else
 	{
 		echo "Compress WCF artifacts not needed"
+	}
+}
+
+def CompressWebLinuxArtifact(relativeProjectPath){
+	if(CAN_COMPRESS_WEB)
+	{
+		node(NODE_LINUX_BUILD){
+			def webLinuxProjectName = GetFolderName(relativeProjectPath)
+			CompressArtifact("${APP_PATH}/${relativeProjectPath}/bin/Release/netcoreapp3.1/publish", webLinuxProjectName)
+		}
+	} 
+	else
+	{
+		echo "Compress Web Linux artifacts not needed"
 	}
 }
 
@@ -430,6 +462,17 @@ def DeliveryWebArtifact(projectName){
 
 def DeliveryWcfArtifact(projectName){
 	if(CAN_DELIVERY_WCF)
+	{
+		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}")
+	}
+	else
+	{
+		echo "Delivery ${projectName} artifact  not needed"
+	}
+}
+
+def DeliveryWebLinuxArtifact(projectName){
+	if(CAN_DELIVERY_WEB)
 	{
 		DeliveryLinuxArtifact("${projectName}${ARCHIVE_EXTENTION}")
 	}
@@ -540,6 +583,30 @@ def PublishWeb(projectName){
 def PublishWCF(projectName){
 	node(NODE_LINUX_RUNTIME){
 		if(CAN_PUBLISH_WCF)
+		{
+			if(IS_HOTFIX)
+			{
+				def newHotfixPath = "${WCF_PUBLISH_PATH}/${projectName}/${NEW_WCF_HOTFIX_FOLDER_NAME}"
+				DecompressArtifact(newHotfixPath, projectName)
+				return
+			}
+
+			if(IS_RELEASE)
+			{
+				def newReleasePath = "${WCF_PUBLISH_PATH}/${projectName}/${NEW_RELEASE_FOLDER_NAME}"
+				DecompressArtifact(newReleasePath, projectName)
+				return
+			}
+
+		}
+
+		echo "Publish not needed"
+	}
+}
+
+def PublishWebLinux(projectName){
+	node(NODE_LINUX_RUNTIME){
+		if(CAN_PUBLISH_WEB)
 		{
 			if(IS_HOTFIX)
 			{

@@ -33,6 +33,8 @@ namespace Vodovoz.JournalNodes
 				ViewType = "Счет на предоплату";
 		}
 
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
+
 		public OrderStatus StatusEnum { get; set; }
 		
 		public OrderPaymentStatus OrderPaymentStatus { get; set; }

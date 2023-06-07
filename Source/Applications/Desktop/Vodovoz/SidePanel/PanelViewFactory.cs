@@ -49,7 +49,6 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.SmsSendPanelView:
 					return new SmsSendPanelView(
 						ServicesConfig.CommonServices,
-						new SmsPaymentRepository(),
 						new FastPaymentRepository(),
 						new FastPaymentParametersProvider(new ParametersProvider()));
 				case PanelViewType.FixedPricesPanelView:
