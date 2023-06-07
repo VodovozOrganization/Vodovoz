@@ -184,7 +184,7 @@ namespace Vodovoz
 				_categoryRepository.ExpenseCategories(UoW).Where(x => 
 					x.ExpenseDocumentType != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery);
 			comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
-			
+
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(
 				s => 
 					comboCategory.ItemsList = _categoryRepository.IncomeCategories(UoW).Where(x =>
@@ -193,7 +193,6 @@ namespace Vodovoz
 			comboCategory.ItemsList = _categoryRepository.IncomeCategories(UoW).Where(x =>
 				x.IncomeDocumentType != IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery && x.Id != excludeIncomeCategoryId);
 			comboCategory.Binding.AddBinding (Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource ();
-			comboCategory.ItemSelected += OnComboCategoryItemSelected;
 
 			specialListCmbOrganisation.ShowSpecialStateNot = true;
 			specialListCmbOrganisation.ItemsList = UoW.GetAll<Organization>();
@@ -224,11 +223,6 @@ namespace Vodovoz
 				buttonSave.Sensitive = false;
 				accessfilteredsubdivisionselectorwidget.Sensitive = false;
 			}
-		}
-
-		private void OnComboCategoryItemSelected(object sender, ItemSelectedEventArgs e)
-		{
-			UpdateRouteListInfo();
 		}
 
 		private void SpecialListCmbOrganisationOnItemSelected(object sender, ItemSelectedEventArgs e)
@@ -294,12 +288,8 @@ namespace Vodovoz
 
 		private void SetRouteListControlsVisibility()
 		{
-			var routeListControlsVisibility =
-				Entity.TypeOperation == IncomeType.DriverReport
-				|| Entity.TypeOperation == IncomeType.Return;
-
-			lblRouteList.Visible = routeListControlsVisibility;
-			yEntryRouteList.Visible = routeListControlsVisibility;
+			lblRouteList.Visible = _allowedToSpecifyRouteList;
+			yEntryRouteList.Visible = true;// _allowedToSpecifyRouteList;
 
 			yEntryRouteList.Sensitive =
 				Entity.TypeOperation == IncomeType.DriverReport;
@@ -307,6 +297,12 @@ namespace Vodovoz
 
 		private void SetRouteListReference()
 		{
+			if(!_allowedToSpecifyRouteList)
+			{
+				Entity.RouteListClosing = null;
+				return;
+			}
+
 			var selectedAdvances = _selectableAdvances
 				.Where(expense => expense.Selected)
 				.Select(e => e.Value.RouteListClosing)
@@ -315,10 +311,16 @@ namespace Vodovoz
 			if(selectedAdvances.Count != 1)
 			{
 				Entity.RouteListClosing = null;
+				return;
 			}
 
 			Entity.RouteListClosing = selectedAdvances.FirstOrDefault();
 		}
+
+		private bool _allowedToSpecifyRouteList => 
+			Entity.TypeOperation == IncomeType.DriverReport
+			|| Entity.TypeOperation == IncomeType.Return;
+
 
 		public override bool Save ()
 		{
@@ -411,8 +413,9 @@ namespace Vodovoz
 			yspinMoney.Sensitive = Entity.TypeOperation != IncomeType.Return;
 			yspinMoney.ValueAsDecimal = 0;
 
-			FillDebts ();
+			FillDebts();
 			CheckOperation((IncomeType)e.SelectedItem);
+			UpdateRouteListInfo();
 		}
 
 		void CheckOperation(IncomeType incomeType)
@@ -420,13 +423,12 @@ namespace Vodovoz
 			if(incomeType == IncomeType.DriverReport){
 				Entity.IncomeCategory = UoW.GetById<IncomeCategory>(1);
 			}
-
-			UpdateRouteListInfo();
 		}		
 
 		protected void OnComboExpenseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			FillDebts ();
+			UpdateRouteListInfo();
 		}
 
 		protected void FillDebts()
