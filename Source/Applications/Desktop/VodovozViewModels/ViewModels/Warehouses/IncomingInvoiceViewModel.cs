@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Commands;
@@ -45,6 +45,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private readonly INomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
 		private readonly IWarehousePermissionValidator _warehousePermissionValidator;
         private readonly IStockRepository _stockRepository;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private bool _canDuplicateInstance;
 		private Employee _currentEmployee;
 		private IEnumerable<Warehouse> _allowedWarehousesFrom;
@@ -72,7 +73,8 @@ namespace Vodovoz.ViewModels.Warehouses
 			ICommonServices commonServices,
 			INomenclaturePurchasePriceModel nomenclaturePurchasePriceModel,
 			IStockRepository stockRepository,
-			INavigationManager navigationManager)
+			INavigationManager navigationManager,
+			ICounterpartyJournalFactory counterpartyJournalFactory)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -89,7 +91,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			_nomenclaturePurchasePriceModel =
 				nomenclaturePurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePriceModel));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
-			
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			if(navigationManager is null)
 			{
 				throw new ArgumentNullException(nameof(navigationManager));
@@ -407,12 +409,14 @@ namespace Vodovoz.ViewModels.Warehouses
 					};
 					OnPropertyChanged(nameof(TotalSum));
 				}));
-		
-        #endregion
+
+		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
+
+		#endregion
 
 		#region Functions
 
-        private void ConfigureEntityChangingRelations()
+		private void ConfigureEntityChangingRelations()
         {
             SetPropertyChangeRelation(e => e.CanAddItem, () => CanAddItem, () => CanFillFromOrders);
             SetPropertyChangeRelation(e => e.CanDeleteItems, () => CanDeleteItems);
