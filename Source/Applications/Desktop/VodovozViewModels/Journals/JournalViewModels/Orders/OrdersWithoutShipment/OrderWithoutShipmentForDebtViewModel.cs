@@ -14,6 +14,7 @@ using Vodovoz.Infrastructure.Print;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Email;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -21,6 +22,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 	{
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
+
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 		public Action<string> OpenCounterpartyJournal;
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
@@ -33,7 +36,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			CommonMessages commonMessages,
-			IRDLPreviewOpener rdlPreviewOpener) : base(uowBuilder, uowFactory, commonServices)
+			IRDLPreviewOpener rdlPreviewOpener,
+			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(employeeService == null)
 			{
@@ -42,7 +46,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			bool canCreateBillsWithoutShipment = 
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
@@ -108,7 +112,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			},
 			() => true
 		));
-		
+
+		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
+
 		#endregion
 
 		public void OnTabAdded()

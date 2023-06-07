@@ -1129,6 +1129,8 @@ public partial class MainWindow : Window
 
 	void ActionResidueActivated(object sender, System.EventArgs e)
 	{
+		ILifetimeScope scope = MainClass.AppDIContainer.BeginLifetimeScope();
+
 		IMoneyRepository moneyRepository = new MoneyRepository();
 		IDepositRepository depositRepository = new DepositRepository();
 		IBottlesRepository bottlesRepository = new BottlesRepository();
@@ -1148,7 +1150,8 @@ public partial class MainWindow : Window
 			ServicesConfig.CommonServices,
 			employeeJournalFactory,
 			subdivisionJournalFactory,
-			subdivisionParametersProvider
+			subdivisionParametersProvider,
+			new CounterpartyJournalFactory(scope)
 		);
 		tdiMain.AddTab(residueJournalViewModel);
 	}
