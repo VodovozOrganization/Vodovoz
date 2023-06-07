@@ -48,7 +48,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
@@ -97,7 +96,6 @@ namespace Vodovoz.JournalViewModels
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_counterpartySelectorFactory = counterpartyJournalFactory;
 			_undeliveredOrdersJournalOpener =
 				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_undeliveredOrdersRepository =
@@ -532,7 +530,8 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -540,7 +539,8 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
 					"Счет без отгрузки на долг",
@@ -684,7 +684,8 @@ namespace Vodovoz.JournalViewModels
 						_employeeService,
 						new ParametersProvider(),
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -693,7 +694,8 @@ namespace Vodovoz.JournalViewModels
 						_employeeService,
 						new ParametersProvider(),
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
 					"Счет без отгрузки на постоплату",
@@ -826,7 +828,7 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						_nomenclatureSelectorFactory,
-						_counterpartySelectorFactory,
+						_counterpartyJournalFactory,
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
@@ -841,7 +843,7 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						_nomenclatureSelectorFactory,
-						_counterpartySelectorFactory,
+						_counterpartyJournalFactory,
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
