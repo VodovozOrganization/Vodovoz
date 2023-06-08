@@ -198,11 +198,11 @@ namespace Vodovoz
 
 		private global::Gtk.VSeparator vseparator11;
 
-		private global::Gtk.Label labelRouteListDebt;
+		private global::Gtk.Label labelTotal;
 
 		private global::Gtk.VSeparator vseparator16;
 
-		private global::Gtk.Label labelTotal;
+		private global::Gtk.Label labelRouteListDebt;
 
 		private global::Gtk.Label labelClosing;
 
@@ -1108,7 +1108,9 @@ namespace Vodovoz
 			this.ylabelUnclosedAdvancesMoney.UseMarkup = true;
 			this.hbxStatistics2.Add(this.ylabelUnclosedAdvancesMoney);
 			global::Gtk.Box.BoxChild w91 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics2[this.ylabelUnclosedAdvancesMoney]));
-			w91.Position = 17;
+			w91.Position = 8;
+			w91.Expand = false;
+			w91.Fill = false;
 			// Container child hbxStatistics2.Gtk.Box+BoxChild
 			this.buttonAccept = new global::Gtk.Button();
 			this.buttonAccept.CanFocus = true;
@@ -1121,7 +1123,7 @@ namespace Vodovoz
 			this.hbxStatistics2.Add(this.buttonAccept);
 			global::Gtk.Box.BoxChild w93 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics2[this.buttonAccept]));
 			w93.PackType = ((global::Gtk.PackType)(1));
-			w93.Position = 18;
+			w93.Position = 10;
 			w93.Expand = false;
 			w93.Fill = false;
 			// Container child hbxStatistics2.Gtk.Box+BoxChild
@@ -1134,7 +1136,7 @@ namespace Vodovoz
 			this.hbxStatistics2.Add(this.ycheckConfirmDifferences);
 			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics2[this.ycheckConfirmDifferences]));
 			w94.PackType = ((global::Gtk.PackType)(1));
-			w94.Position = 19;
+			w94.Position = 11;
 			w94.Expand = false;
 			w94.Fill = false;
 			this.vboxRouteList.Add(this.hbxStatistics2);
@@ -1212,14 +1214,12 @@ namespace Vodovoz
 			w102.Expand = false;
 			w102.Fill = false;
 			// Container child hbxStatistics3.Gtk.Box+BoxChild
-			this.labelRouteListDebt = new global::Gtk.Label();
-			this.labelRouteListDebt.Name = "labelRouteListDebt";
-			this.labelRouteListDebt.Xalign = 1F;
-			this.labelRouteListDebt.LabelProp = global::Mono.Unix.Catalog.GetString("Долг по МЛ");
-			this.hbxStatistics3.Add(this.labelRouteListDebt);
-			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics3[this.labelRouteListDebt]));
-			w103.PackType = ((global::Gtk.PackType)(1));
-			w103.Position = 8;
+			this.labelTotal = new global::Gtk.Label();
+			this.labelTotal.Name = "labelTotal";
+			this.labelTotal.LabelProp = global::Mono.Unix.Catalog.GetString("Сдано выручка по МЛ");
+			this.hbxStatistics3.Add(this.labelTotal);
+			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics3[this.labelTotal]));
+			w103.Position = 7;
 			w103.Expand = false;
 			w103.Fill = false;
 			// Container child hbxStatistics3.Gtk.Box+BoxChild
@@ -1227,18 +1227,17 @@ namespace Vodovoz
 			this.vseparator16.Name = "vseparator16";
 			this.hbxStatistics3.Add(this.vseparator16);
 			global::Gtk.Box.BoxChild w104 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics3[this.vseparator16]));
-			w104.PackType = ((global::Gtk.PackType)(1));
-			w104.Position = 9;
+			w104.Position = 8;
 			w104.Expand = false;
 			w104.Fill = false;
 			// Container child hbxStatistics3.Gtk.Box+BoxChild
-			this.labelTotal = new global::Gtk.Label();
-			this.labelTotal.Name = "labelTotal";
-			this.labelTotal.LabelProp = global::Mono.Unix.Catalog.GetString("Сдано выручка по МЛ");
-			this.hbxStatistics3.Add(this.labelTotal);
-			global::Gtk.Box.BoxChild w105 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics3[this.labelTotal]));
-			w105.PackType = ((global::Gtk.PackType)(1));
-			w105.Position = 10;
+			this.labelRouteListDebt = new global::Gtk.Label();
+			this.labelRouteListDebt.Name = "labelRouteListDebt";
+			this.labelRouteListDebt.Xalign = 1F;
+			this.labelRouteListDebt.LabelProp = global::Mono.Unix.Catalog.GetString("Долг по МЛ");
+			this.hbxStatistics3.Add(this.labelRouteListDebt);
+			global::Gtk.Box.BoxChild w105 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics3[this.labelRouteListDebt]));
+			w105.Position = 9;
 			w105.Expand = false;
 			w105.Fill = false;
 			this.vboxRouteList.Add(this.hbxStatistics3);
