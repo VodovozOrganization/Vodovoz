@@ -446,17 +446,41 @@ namespace Vodovoz
 
 		protected void OnAdvanceSelectionChanged(object sender, EventArgs args)
 		{
-			if(checkNoClose.Active && (sender as Selectable<Expense>).Selected)
+			var selectedExpense = sender as Selectable<Expense>;
+
+			if(checkNoClose.Active && selectedExpense.Selected)
 			{
-				_selectableAdvances.Where(x => x != sender).ToList().ForEach(x => x.SilentUnselect());
+				_selectableAdvances
+					.Where(x => x != selectedExpense)
+					.ToList()
+					.ForEach(x => x.SilentUnselect());
 			}
 
-			if (checkNoClose.Active)
+			//if(selectedExpense.Value.RouteListClosing == null)
+			//{
+			//	_selectableAdvances
+			//		.Where(x => x.Value.RouteListClosing != null)
+			//		.ToList()
+			//		.ForEach(x => x.SilentUnselect());
+			//}
+			//else
+			//{
+			//	_selectableAdvances
+			//		.Where(x => x.Value.RouteListClosing != selectedExpense.Value.RouteListClosing)
+			//		.ToList()
+			//		.ForEach(x => x.SilentUnselect());
+			//}
+			_selectableAdvances
+					.Where(x => x.Value.RouteListClosing != selectedExpense.Value.RouteListClosing)
+					.ToList()
+					.ForEach(x => x.SilentUnselect());
+
+			if(checkNoClose.Active)
 				return;
 
 			Entity.Money = _selectableAdvances.
 				Where(expense=>expense.Selected)
-				.Sum (selectedExpense => selectedExpense.Value.UnclosedMoney);
+				.Sum(se => se.Value.UnclosedMoney);
 
 			UpdateRouteListInfo();
 		}
