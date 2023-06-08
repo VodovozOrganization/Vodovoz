@@ -54,6 +54,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.Models;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
+using QS.DomainModel.NotifyChange;
 
 namespace Vodovoz
 {
@@ -330,6 +331,9 @@ namespace Vodovoz
 			//Подписки на обновления
 			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric += OnCalUnloadUpdated;
 
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Expense>(s => CalculateTotal());
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Income>(s => CalculateTotal());
+
 			enumPrint.ItemsEnum = typeof(RouteListPrintDocuments);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintDocuments)e.ItemEnum);
 
@@ -368,10 +372,29 @@ namespace Vodovoz
 
 		private void OnYbuttonCashChangeReturnClicked(object sender, EventArgs e)
 		{
-			var expense = UoW.GetById<Expense>(135846);
+			var unclosedExpense = UoW.GetAll<Expense>()
+				.Where(ex => 
+					ex.AdvanceClosed == false
+					&& ex.TypeOperation == ExpenseType.Advance
+					&& ex.RouteListClosing != null
+					&& ex.RouteListClosing.Id == Entity.Id)
+				.FirstOrDefault();
 
-			var dlg = new CashIncomeDlg(expense);
-			OpenNewTab(dlg);
+			if(unclosedExpense != null)
+			{
+				var dlg = new CashIncomeDlg(unclosedExpense);
+				OpenNewTab(dlg);
+			}
+		}
+
+		private void UpdateYbuttonCashChangeReturnSensitivity()
+		{
+			var hasUnclosedAdvances = GetRouteListCashAdvance() > GetRouteListCashReturn();
+			var routeListStatusesForCloseAdvance = 
+				new[] { RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck };
+			var hasStatusForCloseAdvance = routeListStatusesForCloseAdvance.Contains(Entity.Status);
+
+			ybuttonCashChangeReturn.Sensitive = hasUnclosedAdvances && hasStatusForCloseAdvance;
 		}
 
 		private void OnRouteListItemPropertyOfElementChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -831,6 +854,8 @@ namespace Vodovoz
 				);
 				buttonFineEditState = Entity.BottleFine != null;
 			}
+
+			UpdateYbuttonCashChangeReturnSensitivity();
 		}
 
 		protected bool IsConsistentWithUnloadDocument()
@@ -1313,6 +1338,7 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric -= OnCalUnloadUpdated;
 			base.Destroy();
 		}
