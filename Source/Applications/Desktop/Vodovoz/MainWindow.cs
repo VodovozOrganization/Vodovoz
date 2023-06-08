@@ -2703,4 +2703,8 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
 	}
+
+	protected void OnActionActionWarehousesBalanceSummaryReportActivated(object sender, EventArgs e)
+	{
+	}
 }
