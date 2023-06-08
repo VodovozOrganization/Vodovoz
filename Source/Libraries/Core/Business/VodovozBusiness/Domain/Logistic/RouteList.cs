@@ -344,6 +344,15 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref bottleFine, value, () => BottleFine);
 		}
 
+		private decimal _routeListDebt;
+
+		[Display(Name = "Долг по МЛ")]
+		public virtual decimal RouteListDebt
+		{
+			get => _routeListDebt;
+			set => SetField(ref _routeListDebt, value);
+		}
+
 		private FuelOperation fuelOutlayedOperation;
 
 		[Display(Name = "Операции расхода топлива")]
