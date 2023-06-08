@@ -362,6 +362,16 @@ namespace Vodovoz
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
 
 			routeListAddressesView.Items.PropertyOfElementChanged += OnRouteListItemPropertyOfElementChanged;
+
+			ybuttonCashChangeReturn.Clicked += OnYbuttonCashChangeReturnClicked;
+		}
+
+		private void OnYbuttonCashChangeReturnClicked(object sender, EventArgs e)
+		{
+			var expense = UoW.GetById<Expense>(135846);
+
+			var dlg = new CashIncomeDlg(expense);
+			OpenNewTab(dlg);
 		}
 
 		private void OnRouteListItemPropertyOfElementChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
