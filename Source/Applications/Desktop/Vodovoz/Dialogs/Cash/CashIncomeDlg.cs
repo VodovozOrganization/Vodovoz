@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Subdivisions;
 using QS.Services;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -206,13 +207,20 @@ namespace Vodovoz
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
 
 			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<Selectable<Expense>> ()
-				.AddColumn ("Закрыть").AddToggleRenderer (a => a.Selected).Editing ()
+				.AddColumn ("Закрыть").AddToggleRenderer (a => a.Selected).Editing()
 				.AddColumn ("Дата").AddTextRenderer (a => a.Value.Date.ToString ())
 				.AddColumn ("Получено").AddTextRenderer (a => a.Value.Money.ToString ("C"))
 				.AddColumn ("Непогашено").AddTextRenderer (a => a.Value.UnclosedMoney.ToString ("C"))
 				.AddColumn ("Статья").AddTextRenderer (a => a.Value.ExpenseCategory.Name)
 				.AddColumn ("Основание").AddTextRenderer (a => a.Value.Description)
-				.Finish ();
+				.RowCells().AddSetter<CellRenderer>(
+					(cell, node) =>
+					{
+						cell.Sensitive =
+							node.Value.RouteListClosing == Entity.RouteListClosing
+							|| _selectableAdvances.Count(s => s.Selected) == 0;
+					})
+				.Finish();
 			UpdateSubdivision();
 
 			if (!CanEdit)
@@ -284,12 +292,14 @@ namespace Vodovoz
 		{
 			SetRouteListControlsVisibility();
 			SetRouteListReference();
+
+			ytreeviewDebts.ItemsDataSource = _selectableAdvances;
 		}
 
 		private void SetRouteListControlsVisibility()
 		{
 			lblRouteList.Visible = _allowedToSpecifyRouteList;
-			yEntryRouteList.Visible = true;// _allowedToSpecifyRouteList;
+			yEntryRouteList.Visible = _allowedToSpecifyRouteList;
 
 			yEntryRouteList.Sensitive =
 				Entity.TypeOperation == IncomeType.DriverReport;
@@ -308,7 +318,8 @@ namespace Vodovoz
 				.Select(e => e.Value.RouteListClosing)
 				.ToList();
 
-			if(selectedAdvances.Count != 1)
+			var selectedRouteListsCount = selectedAdvances.GroupBy(rl => rl?.Id).Count();
+			if(selectedRouteListsCount != 1)
 			{
 				Entity.RouteListClosing = null;
 				return;
@@ -413,6 +424,8 @@ namespace Vodovoz
 			yspinMoney.Sensitive = Entity.TypeOperation != IncomeType.Return;
 			yspinMoney.ValueAsDecimal = 0;
 
+			Entity.RouteListClosing = null;
+
 			FillDebts();
 			CheckOperation((IncomeType)e.SelectedItem);
 			UpdateRouteListInfo();
@@ -441,7 +454,10 @@ namespace Vodovoz
 				.ToList ();
 				_selectableAdvances.ForEach (advance => advance.SelectChanged += OnAdvanceSelectionChanged);
 				ytreeviewDebts.ItemsDataSource = _selectableAdvances;
+				return;
 			}
+			_selectableAdvances = new List<Selectable<Expense>>();
+			ytreeviewDebts.ItemsDataSource = _selectableAdvances;
 		}
 
 		protected void OnAdvanceSelectionChanged(object sender, EventArgs args)
@@ -456,20 +472,6 @@ namespace Vodovoz
 					.ForEach(x => x.SilentUnselect());
 			}
 
-			//if(selectedExpense.Value.RouteListClosing == null)
-			//{
-			//	_selectableAdvances
-			//		.Where(x => x.Value.RouteListClosing != null)
-			//		.ToList()
-			//		.ForEach(x => x.SilentUnselect());
-			//}
-			//else
-			//{
-			//	_selectableAdvances
-			//		.Where(x => x.Value.RouteListClosing != selectedExpense.Value.RouteListClosing)
-			//		.ToList()
-			//		.ForEach(x => x.SilentUnselect());
-			//}
 			_selectableAdvances
 					.Where(x => x.Value.RouteListClosing != selectedExpense.Value.RouteListClosing)
 					.ToList()
