@@ -2250,7 +2250,14 @@ LIMIT 1
     CONCAT(DATE_FORMAT(route_list_addresses.plan_time_start, '%H:%i'),'-', DATE_FORMAT(route_list_addresses.plan_time_end, '%H:%i')) AS PlanTime,
     IFNULL(orders.bottles_return, 0) + IFNULL(orders.bottles_by_stock_count, 0) AS empty_btls_from_client,
     IF(orders.payment_type = 'Cash', orders.sum_to_receive, 0) AS Total,
-    IF(orders.payment_type = 'Terminal',
+    IF((orders.payment_type = 'Terminal'
+    OR orders.payment_type = 'DriverApplicationQR'
+    OR (orders.payment_type = 'SmsQR' AND
+        (SELECT count(*) = 0 AS "Performed"
+        FROM fast_payments fp
+        WHERE (fp.order_id = orders.id
+        OR fp.external_id = orders.id)
+        AND fp.payment_status = 'Performed'))),
         (
             SELECT Round(SUM(IFNULL(actual_count, count) * price - discount_money), 2)
             FROM order_items
