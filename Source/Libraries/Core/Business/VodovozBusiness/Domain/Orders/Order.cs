@@ -4459,6 +4459,8 @@ namespace Vodovoz.Domain.Orders
 			PaymentType.Cash,
 			PaymentType.PaidOnline,
 			PaymentType.Terminal,
+			PaymentType.DriverApplicationQR,
+			PaymentType.SmsQR,
 			PaymentType.Cashless
 		};
 
