@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
@@ -24,6 +25,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddTextRenderer(node => node.DriverAndCar)
 				.AddColumn("Сдается в кассу")
 					.AddTextRenderer(node => node.ClosingSubdivision)
+				.AddColumn("Долг по МЛ")
+					.AddTextRenderer(node => node.RouteListDebt.ToShortCurrencyString())
 				.AddColumn("Комментарий ЛО")
 					.AddTextRenderer(node => node.LogisticiansComment)
 					.WrapWidth(300)
