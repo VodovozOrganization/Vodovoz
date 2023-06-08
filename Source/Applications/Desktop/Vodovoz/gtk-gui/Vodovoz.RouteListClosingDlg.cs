@@ -1109,8 +1109,6 @@ namespace Vodovoz
 			this.hbxStatistics2.Add(this.ylabelUnclosedAdvancesMoney);
 			global::Gtk.Box.BoxChild w91 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics2[this.ylabelUnclosedAdvancesMoney]));
 			w91.Position = 8;
-			w91.Expand = false;
-			w91.Fill = false;
 			// Container child hbxStatistics2.Gtk.Box+BoxChild
 			this.buttonAccept = new global::Gtk.Button();
 			this.buttonAccept.CanFocus = true;
@@ -1123,7 +1121,7 @@ namespace Vodovoz
 			this.hbxStatistics2.Add(this.buttonAccept);
 			global::Gtk.Box.BoxChild w93 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics2[this.buttonAccept]));
 			w93.PackType = ((global::Gtk.PackType)(1));
-			w93.Position = 10;
+			w93.Position = 9;
 			w93.Expand = false;
 			w93.Fill = false;
 			// Container child hbxStatistics2.Gtk.Box+BoxChild
@@ -1136,7 +1134,7 @@ namespace Vodovoz
 			this.hbxStatistics2.Add(this.ycheckConfirmDifferences);
 			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.hbxStatistics2[this.ycheckConfirmDifferences]));
 			w94.PackType = ((global::Gtk.PackType)(1));
-			w94.Position = 11;
+			w94.Position = 10;
 			w94.Expand = false;
 			w94.Fill = false;
 			this.vboxRouteList.Add(this.hbxStatistics2);
