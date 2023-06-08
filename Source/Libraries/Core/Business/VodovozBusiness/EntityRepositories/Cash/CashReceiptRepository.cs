@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -181,6 +181,7 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Left.JoinAlias(() => _orderAlias.OrderItems, () => _orderItemAlias)
 				.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
 				.Where(() => _orderAlias.Id == orderId)
+				//Эта проверка нужна для проверки смены договора
 				.Where(GetCashReceiptExistRestriction())
 				.Where(GetPaymentTypeRestriction())
 				.Where(GetPositiveSumRestriction())
@@ -212,6 +213,17 @@ namespace Vodovoz.EntityRepositories.Cash
 
 			var id = query.Select(Projections.Id()).SingleOrDefault<int>();
 			return id == orderId;
+		}
+
+		public IEnumerable<CashReceipt> GetReceiptsForOrder(IUnitOfWork uow, int orderId)
+		{
+			CashReceipt receiptAlias = null;
+
+			var result =uow.Session.QueryOver(() => receiptAlias)
+				.Where(() => receiptAlias.Order.Id == orderId)
+				.List();
+
+			return result;
 		}
 
 		public CashReceipt LoadReceipt(IUnitOfWork uow, int receiptId)
@@ -326,15 +338,26 @@ namespace Vodovoz.EntityRepositories.Cash
 			}
 		}
 
-		public bool ReceiptWorkWasStarted(int orderId)
+		public bool HasNeededReceipt(int orderId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var query = uow.Session.QueryOver(() => _cashReceiptAlias)
 					.Where(() => _cashReceiptAlias.Order.Id == orderId)
+					.Where(() => _cashReceiptAlias.Status != CashReceiptStatus.ReceiptNotNeeded)
 					.Select(Projections.Id());
 				var result = query.List<int>();
-				return result.Any();
+				var hasNeededReceipts = result.Any();
+
+				if(hasNeededReceipts)
+				{
+					return hasNeededReceipts;
+				}
+				else
+				{
+					var receiptNeeded = CashReceiptNeeded(uow, orderId);
+					return receiptNeeded;
+				}
 			}
 		}
 
