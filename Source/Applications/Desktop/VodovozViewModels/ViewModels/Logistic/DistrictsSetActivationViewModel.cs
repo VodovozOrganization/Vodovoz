@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NHibernate;
 using NHibernate.Persister.Entity;
 using NHibernate.Transform;
 using QS.Dialog;
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private DistrictsSet _activeDistrictsSet;
 		private List<DriverDistrictPriority> _notCopiedPriorities;
 		private bool _wasActivated;
+		private readonly TimeSpan _queriesTimeout = TimeSpan.FromSeconds(240);
 
 		public DistrictsSetActivationViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -45,6 +47,7 @@ namespace Vodovoz.ViewModels.Logistic
 			WasActivated = false;
 			NotCopiedPriorities = new List<DriverDistrictPriority>();
 			ActiveDistrictsSet = UoW.Session.QueryOver<DistrictsSet>()
+				.SetTimeout((int)_queriesTimeout.TotalSeconds)
 				.Where(x => x.Status == DistrictsSetStatus.Active)
 				.Take(1)
 				.SingleOrDefault();
@@ -163,13 +166,17 @@ namespace Vodovoz.ViewModels.Logistic
 			var query = $"UPDATE {dpPersister.TableName} dp SET {districtColumn} = "
 				+ $"(SELECT districts.{districtPersister.KeyColumnNames.First()} FROM {districtPersister.TableName} AS districts"
 				+ $" WHERE districts.{districtsSetColumn} = {Entity.Id} AND ST_WITHIN(PointFromText(CONCAT('POINT(', dp.{latColumn} ,' ', dp.{longColumn} ,')')), districts.{borderColumn}) LIMIT 1);";
-			uow.Session.CreateSQLQuery(query).SetTimeout(120).ExecuteUpdate();
+
+			uow.Session.CreateSQLQuery(query)
+				.SetTimeout((int)_queriesTimeout.TotalSeconds)
+				.ExecuteUpdate();
 		}
 
 		private void TryToFindNearbyDistrict(IUnitOfWork uow, DistrictsSet districtsSet)
 		{
 			ActivationStatus = "Поиск районов для точек доставки без районов...";
 			var deliveryPoints = uow.Session.QueryOver<DeliveryPoint>()
+				.SetTimeout((int)_queriesTimeout.TotalSeconds)
 				.Where(d => d.District == null)
 				.And(x => x.Latitude != null)
 				.And(x => x.Longitude != null)
@@ -194,6 +201,7 @@ namespace Vodovoz.ViewModels.Logistic
 			var employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(uow);
 
 			var drivers = uow.Session.QueryOver<Employee>()
+				.SetTimeout((int)_queriesTimeout.TotalSeconds)
 				.Inner.JoinAlias(x => x.DriverDistrictPrioritySets, () => districtPrioritySetAlias)
 				.TransformUsing(Transformers.DistinctRootEntity)
 				.List<Employee>();
