@@ -9,7 +9,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
     public interface ICounterpartyContractRepository
     {
         CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, IErrorReporter errorReporter);
-		CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, Organization organization);
+		CounterpartyContract GetCounterpartyContractByOrganization(IUnitOfWork uow, Order order, Organization organization);
 		ContractType GetContractTypeForPaymentType(PersonType clientType, PaymentType paymentType);
     }
 }
