@@ -25,6 +25,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.NHibernateProjections.Orders;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozInfrastructure;
 using SearchHelper = QS.Project.Journal.Search.SearchHelper;
@@ -53,7 +54,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly IDialogsFactory _dialogsFactory;
 		private readonly IOrganizationRepository _organizationRepository;
-
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private DelegateCommand _revertAllocatedSum;
 
 		public ManualPaymentMatchingViewModel(
@@ -64,14 +65,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IPaymentItemsRepository paymentItemsRepository,
 			IPaymentsRepository paymentsRepository,
 			IDialogsFactory dialogsFactory,
-			IOrganizationRepository organizationRepository) : base(uowBuilder, uowFactory, commonServices)
+			IOrganizationRepository organizationRepository,
+			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, uowFactory, commonServices)
 		{
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			if(uowBuilder.IsNewEntity)
 			{
 				throw new AbortCreatingPageException(
@@ -458,6 +460,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			() => HasPaymentItems
 			)
 		);
+
+		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
 
 		#endregion Commands
 
