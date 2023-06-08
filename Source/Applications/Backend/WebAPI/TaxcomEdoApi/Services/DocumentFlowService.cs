@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -266,7 +266,12 @@ namespace TaxcomEdoApi.Services
 					_logger.LogInformation("Обрабатываем полученные контейнеры {DocFlowUpdatesCount}", docFlowUpdates.Updates.Count);
 					foreach(var item in docFlowUpdates.Updates)
 					{
-						var container = _orderRepository.GetEdoContainerByMainDocumentId(uow, item.Documents[0].ExternalIdentifier);
+						EdoContainer container = null;
+
+						if(item.Documents.Count > 0)
+						{
+							container = _orderRepository.GetEdoContainerByMainDocumentId(uow, item.Documents[0].ExternalIdentifier);
+						}
 
 						if(container != null)
 						{
