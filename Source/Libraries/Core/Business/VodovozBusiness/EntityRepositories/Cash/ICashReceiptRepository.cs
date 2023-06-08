@@ -17,10 +17,11 @@ namespace Vodovoz.EntityRepositories.Cash
 		/// <returns>Id's заказов</returns>
 		IEnumerable<int> GetDeliveryOrderIdsForCashReceipt();
 		IEnumerable<CashReceipt> GetCashReceiptsForSend(IUnitOfWork uow, int count);
+		IEnumerable<CashReceipt> GetReceiptsForOrder(IUnitOfWork uow, int orderId);
 		CashReceipt LoadReceipt(IUnitOfWork uow, int receiptId);
 		IEnumerable<CashReceipt> LoadReceipts(IUnitOfWork uow, IEnumerable<int> receiptId);
 		bool HasReceiptBySum(DateTime date, decimal sum);
-		bool ReceiptWorkWasStarted(int orderId);
+		bool HasNeededReceipt(int orderId);
 		int GetCodeErrorsReceiptCount(IUnitOfWork uow);
 		IEnumerable<int> GetReceiptIdsForPrepare(int count);
 		IEnumerable<int> GetUnfinishedReceiptIds(int count);
