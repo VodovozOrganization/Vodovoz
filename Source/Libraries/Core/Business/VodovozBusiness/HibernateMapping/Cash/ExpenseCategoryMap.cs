@@ -13,7 +13,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Name).Column("name");
 			Map(x => x.IsArchive).Column("is_archive");
 			Map(x => x.Numbering).Column("numbering");
-			Map(x => x.ExpenseDocumentType).Column("type_document").CustomType<ExpenseInvoiceDocumentTypeStringType>();
+			Map(x => x.ExpenseDocumentType).Column("type_document");
 			Map(x => x.FinancialExpenseCategoryId).Column("financial_categories_group_id");
 
 			References(x => x.Subdivision).Column("subdivision_id");
