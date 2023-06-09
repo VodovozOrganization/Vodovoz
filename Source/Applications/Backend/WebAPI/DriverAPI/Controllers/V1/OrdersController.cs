@@ -115,7 +115,8 @@ namespace DriverAPI.Controllers.V1
 		public async Task ChangeOrderPaymentTypeAsync(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
 			var recievedTime = DateTime.Now;
-
+			
+			var actionTime = _actionTimeHelper.GetActionTime(changeOrderPaymentTypeRequestModel);
 			var orderId = changeOrderPaymentTypeRequestModel.OrderId;
 			var newPaymentType = changeOrderPaymentTypeRequestModel.NewPaymentType;
 
@@ -123,7 +124,7 @@ namespace DriverAPI.Controllers.V1
 				" на стороне мобильного приложения в {ActionTime} пользователем {Username} в {RecievedTime} | User token: {AccessToken}",
 				orderId,
 				newPaymentType,
-				changeOrderPaymentTypeRequestModel.ActionTime,
+				actionTime,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				recievedTime,
 				Request.Headers[HeaderNames.Authorization]);
@@ -132,8 +133,6 @@ namespace DriverAPI.Controllers.V1
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 
 			var resultMessage = "OK";
-
-			var actionTime = _actionTimeHelper.GetActionTime(changeOrderPaymentTypeRequestModel);
 
 			try
 			{
