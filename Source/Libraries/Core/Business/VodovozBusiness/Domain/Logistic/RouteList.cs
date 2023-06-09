@@ -722,6 +722,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal CurrentFastDeliveryMaxDistanceValue => GetFastDeliveryMaxDistanceValue();
 
+		public virtual List<RouteListItem> DeliveredRouteListAddresses =>
+			Addresses.Where(a => a.IsDelivered()).ToList();
+
 		#endregion
 
 		void ObservableAddresses_ElementRemoved(object aList, int[] aIdx, object aObject)
@@ -2243,6 +2246,25 @@ namespace Vodovoz.Domain.Logistic
 				new RouteListClosingDocumentsController(
 					_baseParametersProvider, _employeeRepository, _routeListRepository, _baseParametersProvider);
 			controller.UpdateDocuments(this, uow);
+		}
+
+		public virtual decimal CalculateRouteListDebt()
+		{
+			decimal routeListDebt = 0;
+			if(Id > 0)
+			{
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+				{
+					var totalCachAmount = DeliveredRouteListAddresses.Sum(item => item.TotalCash) - PhoneSum;
+					var routeListCashAdvance = _cashRepository.GetRouteListCashExpensesSum(uow, Id);
+					var routeListCashReturn = _cashRepository.GetRouteListCashReturnSum(uow, Id);
+					var routeListRevenue = _cashRepository.CurrentRouteListCash(uow, Id);
+
+					routeListDebt = totalCachAmount + routeListCashAdvance - routeListCashReturn - routeListRevenue;
+				}
+			}
+
+			return routeListDebt;
 		}
 
 		#endregion

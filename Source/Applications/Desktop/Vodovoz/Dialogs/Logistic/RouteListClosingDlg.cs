@@ -248,9 +248,9 @@ namespace Vodovoz
 
 			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
 
-			decimal unclosedAdvanceMoney = _accountableDebtsRepository.EmployeeDebt(UoW, Entity.Driver);
+			decimal unclosedAdvanceMoney = _accountableDebtsRepository.TotalEmployeeDebt(UoW, Entity.Driver);
 			ylabelUnclosedAdvancesMoney.LabelProp =
-				string.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Долг: {0}</b></span>" : "", unclosedAdvanceMoney);
+				string.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Общий долг водителя: {0}</b></span>" : "", unclosedAdvanceMoney);
 
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
 			labelOrderEarly.Text = "Сдано ранее: " + GetCashOrder().ToString();
@@ -389,7 +389,7 @@ namespace Vodovoz
 
 		private void UpdateYbuttonCashChangeReturnSensitivity()
 		{
-			var hasUnclosedAdvances = GetRouteListCashAdvance() > GetRouteListCashReturn();
+			var hasUnclosedAdvances = GetRouteListCashExpenses() > GetRouteListCashReturn();
 			var routeListStatusesForCloseAdvance = 
 				new[] { RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck };
 			var hasStatusForCloseAdvance = routeListStatusesForCloseAdvance.Contains(Entity.Status);
@@ -537,9 +537,9 @@ namespace Vodovoz
 			?? (_canEditFuelCardNumber =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number")).Value;
 
-		private decimal GetCashOrder() => _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
-		private decimal GetRouteListCashAdvance() => _cashRepository.CurrentRouteListCashAdvance(UoW, Entity.Id);
-		private decimal GetRouteListCashReturn() => _cashRepository.CurrentRouteListCashReturn(UoW, Entity.Id);
+		private decimal GetCashOrder() => _cashRepository.GetRouteListBalanceExceptAccountableCash(UoW, Entity.Id);
+		private decimal GetRouteListCashExpenses() => _cashRepository.GetRouteListCashExpensesSum(UoW, Entity.Id);
+		private decimal GetRouteListCashReturn() => _cashRepository.GetRouteListCashReturnSum(UoW, Entity.Id);
 
 		private decimal GetTerminalOrdersSum()
 		{
@@ -764,9 +764,10 @@ namespace Vodovoz
 
 			var totalCachAmount = totalCollected - Entity.PhoneSum;
 			var routeListRevenue = GetCashOrder() - (decimal)advanceSpinbutton.Value;
-			var routeListCashAdvance = GetRouteListCashAdvance();
+			var routeListCashAdvance = GetRouteListCashExpenses();
 			var routeListCashReturn = GetRouteListCashReturn();
-			var routeListDebt = totalCachAmount + routeListCashAdvance - routeListCashReturn - routeListRevenue;
+
+			Entity.RouteListDebt = Entity.CalculateRouteListDebt();
 
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(
@@ -809,7 +810,7 @@ namespace Vodovoz
 			);
 			labelGivenChange.Markup = $"Выдано по МЛ (сдача): {routeListCashAdvance:F2} {CurrencyWorks.CurrencyShortName}";
 			labelReceivedChange.Markup = $"Сдано сдача по МЛ: {routeListCashReturn:F2} {CurrencyWorks.CurrencyShortName}";
-			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{routeListDebt:F2}</b> {CurrencyWorks.CurrencyShortName}"; 
+			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{Entity.RouteListDebt:F2}</b> {CurrencyWorks.CurrencyShortName}"; 
 
 			if(defectiveBottlesReturnedToWarehouse > 0) {
 				lblQtyOfDefectiveGoods.Visible = true;
@@ -1366,6 +1367,8 @@ namespace Vodovoz
 
 			if (cashIncome != null) UoW.Save(cashIncome);
 			if (cashExpense != null) UoW.Save(cashExpense);
+
+			Entity.RouteListDebt = Entity.CalculateRouteListDebt();
 
 			UoW.Save();
 

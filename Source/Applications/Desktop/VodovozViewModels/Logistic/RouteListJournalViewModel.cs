@@ -274,6 +274,7 @@ namespace Vodovoz.ViewModels.Logistic
 					.Select(() => driverAlias.Name).WithAlias(() => routeListJournalNodeAlias.DriverName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => routeListJournalNodeAlias.DriverPatronymic)
 					.Select(() => driverAlias.Comment).WithAlias(() => routeListJournalNodeAlias.DriverComment)
+					.Select(() => routeListAlias.RouteListDebt).WithAlias(() => routeListJournalNodeAlias.RouteListDebt)
 					.Select(() => routeListAlias.LogisticiansComment).WithAlias(() => routeListJournalNodeAlias.LogisticiansComment)
 					.Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
 					.SelectSubQuery(closingSubdivision).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)

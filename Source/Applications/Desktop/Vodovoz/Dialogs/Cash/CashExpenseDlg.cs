@@ -279,7 +279,37 @@ namespace Vodovoz
 			_logger.Info("Сохраняем расходный ордер...");
 			UoWGeneric.Save();
 			_logger.Info("Ok");
+
+			if(Entity.RouteListClosing != null)
+			{
+				_logger.Info("Обновляем сумму долга по МЛ...");
+				UpdateRouteListDebt();
+				_logger.Info("Ok");
+			}
 			return true;
+		}
+
+		private void UpdateRouteListDebt()
+		{
+			if(Entity.RouteListClosing == null)
+			{
+				return;
+			}
+
+			var routeListDebt = Entity.RouteListClosing.CalculateRouteListDebt();
+
+			if(Entity.RouteListClosing.RouteListDebt == routeListDebt)
+			{
+				_logger.Info("Обновление суммы долга по МЛ не требуется...");
+				return;
+			}
+
+			using(var uow =
+				UnitOfWorkFactory.CreateForRoot<RouteList>(Entity.RouteListClosing.Id, "Обновление суммы долга по МЛ"))
+			{
+				uow.Root.RouteListDebt = routeListDebt;
+				uow.Save();
+			}
 		}
 
 		private void DistributeCash()
