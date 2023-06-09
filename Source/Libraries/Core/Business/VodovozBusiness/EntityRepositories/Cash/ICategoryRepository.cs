@@ -18,5 +18,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		IList<ExpenseCategory> ExpenseSelfDeliveryCategories(IUnitOfWork uow);
 		QueryOver<ExpenseCategory> ExpenseCategoriesQuery();
 		QueryOver<IncomeCategory> IncomeCategoriesQuery();
+		int GetRouteListClosingExpenseCategoryId();
+		int GetRouteListClosingIncomeCategoryId();
 	}
 }

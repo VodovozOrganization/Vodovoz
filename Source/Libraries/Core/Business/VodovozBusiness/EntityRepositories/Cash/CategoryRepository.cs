@@ -75,6 +75,9 @@ namespace Vodovoz.EntityRepositories.Cash
 			return null;
 		}
 
+		public int GetRouteListClosingIncomeCategoryId()
+			=> int.Parse(_parametersProvider.GetParameterValue(routeListClosingIncomeCategory));
+
 		public IncomeCategory RouteListClosingIncomeCategory(IUnitOfWork uow)
 		{
 			if (_parametersProvider.ContainsParameter(routeListClosingIncomeCategory))
@@ -94,6 +97,9 @@ namespace Vodovoz.EntityRepositories.Cash
 			}
 			return null;
 		}
+
+		public int GetRouteListClosingExpenseCategoryId()
+			=> int.Parse(_parametersProvider.GetParameterValue(routeListClosingExpenseCategory));
 
 		public ExpenseCategory RouteListClosingExpenseCategory(IUnitOfWork uow)
 		{
