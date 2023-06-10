@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -471,6 +471,28 @@ namespace Vodovoz
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
+			if(e.PropertyName == nameof(Entity.Car) 
+				&& Entity.Car != null 
+				&& Entity.GetCarVersion == null)
+			{
+				MessageDialogHelper.RunErrorDialog(
+					$"Ошибка при выборе автомобиля id={Entity.Car.Id}. " +
+					$"Нет данных о версии автомобиля на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
+				
+				Entity.Car = null;
+			}
+
+			if(e.PropertyName == nameof(Entity.Driver)
+				&& Entity.Driver != null
+				&& Entity.Driver.GetActualWageParameter(Entity.Date) == null)
+			{
+				MessageDialogHelper.RunErrorDialog(
+					$"Нет данных о параметрах расчета зарплаты водителя id={Entity.Driver.Id} " +
+					$"на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
+
+				Entity.Driver = null;
+			}
+
 			switch(e.PropertyName)
 			{
 				case nameof(Entity.NormalWage):
@@ -693,7 +715,7 @@ namespace Vodovoz
 		{
 			buttonAccept.Sensitive = 
 				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck
-				                                            || Entity.Status == RouteListStatus.Delivered) 
+															|| Entity.Status == RouteListStatus.Delivered) 
 				&& canCloseRoutelist;
 		}
 
@@ -1402,7 +1424,7 @@ namespace Vodovoz
 					  _categoryRepository,
 					  new EmployeeJournalFactory(),
 					  new CarJournalFactory(MainClass.MainWin.NavigationManager)
-  			);
+			);
 			TabParent.AddSlaveTab(this, tab);
 		}
 
@@ -1420,7 +1442,7 @@ namespace Vodovoz
 				  _categoryRepository,
 				  new EmployeeJournalFactory(),
 				  new CarJournalFactory(MainClass.MainWin.NavigationManager)
-		  	);
+			);
 			TabParent.AddSlaveTab(this, tab);
 		}
 

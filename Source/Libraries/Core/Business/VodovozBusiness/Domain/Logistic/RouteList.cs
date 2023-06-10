@@ -1836,9 +1836,21 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult("Не заполнен водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
 
+			if(Driver != null && Driver.GetActualWageParameter(Date) == null)
+			{
+				yield return new ValidationResult($"Нет данных о параметрах расчета зарплаты водителя на выбранную дату доставки.",
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
+			}
+
 			if(Car == null)
 				yield return new ValidationResult("На заполнен автомобиль.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car) });
+
+			if(Car != null && GetCarVersion == null)
+			{
+				yield return new ValidationResult("Нет данных о версии автомобиля на выбранную дату доставки.",
+				new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car.CarVersions) });
+			}
 
 			if(MileageComment?.Length > 500)
 			{
@@ -2868,6 +2880,20 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if(wageParameterService == null) {
 				throw new ArgumentNullException(nameof(wageParameterService));
+			}
+
+			if(GetCarVersion == null)
+			{
+				var exceptionMessage = $"Нет данных о версии автомобиля id={Car.Id} на выбранную дату доставки {Date:dd.MM.yyyy}.";
+				Car = null;
+				throw new InvalidOperationException(exceptionMessage);
+			}
+
+			if(Driver.GetActualWageParameter(Date) == null)
+			{
+				var exceptionMessage = $"Нет данных о параметрах расчета зарплаты водителя id={Driver.Id} на выбранную дату доставки {Date:dd.MM.yyyy}.";
+				Driver = null;
+				throw new InvalidOperationException(exceptionMessage);
 			}
 
 			CalculateWages(wageParameterService);
