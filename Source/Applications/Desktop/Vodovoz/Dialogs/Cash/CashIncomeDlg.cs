@@ -466,7 +466,7 @@ namespace Vodovoz
 			if(incomeType == IncomeType.DriverReport){
 				Entity.IncomeCategory = UoW.GetById<IncomeCategory>(1);
 			}
-		}		
+		}
 
 		protected void OnComboExpenseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{

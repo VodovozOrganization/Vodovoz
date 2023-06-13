@@ -727,8 +727,9 @@ namespace Vodovoz
 		void UpdateButtonState()
 		{
 			buttonAccept.Sensitive = 
-				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck
-															|| Entity.Status == RouteListStatus.Delivered) 
+				(Entity.Status == RouteListStatus.OnClosing 
+				|| Entity.Status == RouteListStatus.MileageCheck
+				|| Entity.Status == RouteListStatus.Delivered)
 				&& canCloseRoutelist;
 		}
 
