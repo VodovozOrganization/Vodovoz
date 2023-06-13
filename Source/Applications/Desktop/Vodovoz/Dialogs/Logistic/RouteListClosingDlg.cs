@@ -475,7 +475,7 @@ namespace Vodovoz
 				&& Entity.GetCarVersion == null)
 			{
 				MessageDialogHelper.RunErrorDialog(
-					$"Ошибка при выборе автомобиля id={Entity.Car.Id}. " +
+					$"Ошибка при выборе автомобиля с рег. номером \"{Entity.Car.RegistrationNumber}\". " +
 					$"Нет данных о версии автомобиля на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
 				
 				Entity.Car = null;
@@ -486,7 +486,7 @@ namespace Vodovoz
 				&& Entity.Driver.GetActualWageParameter(Entity.Date) == null)
 			{
 				MessageDialogHelper.RunErrorDialog(
-					$"Нет данных о параметрах расчета зарплаты водителя id={Entity.Driver.Id} " +
+					$"Нет данных о параметрах расчета зарплаты водителя \"{Entity.Driver.FullName}\" " +
 					$"на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
 
 				Entity.Driver = null;
@@ -549,6 +549,17 @@ namespace Vodovoz
 		void ReferenceForwarder_Changed(object sender, EventArgs e)
 		{
 			var newForwarder = Entity.Forwarder;
+
+			if(Entity.Forwarder != null
+				&& Entity.Forwarder.GetActualWageParameter(Entity.Date) == null)
+			{
+				MessageDialogHelper.RunErrorDialog(
+					$"Нет данных о параметрах расчета зарплаты экспедитора \"{Entity.Forwarder.FullName}\" " +
+					$"на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
+
+				Entity.Forwarder = null;
+				newForwarder = null;
+			}
 
 			if((previousForwarder == null && newForwarder != null)
 			 || (previousForwarder != null && newForwarder == null))
