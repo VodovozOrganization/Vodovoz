@@ -58,6 +58,6 @@ namespace Vodovoz.Domain.Documents
 			DeliveryFreeBalanceOperation = operation;
 		}
 
-		public virtual string Title => $"Строка документа ведения свободных остатков МЛ для адреса №{RouteListAddressKeepingDocument.RouteListItem.Id} {Nomenclature.Name} кол-во {Amount}";
+		public virtual string Title => $"Строка документа ведения свободных остатков МЛ для заказа №{RouteListAddressKeepingDocument.RouteListItem.Order.Id} {Nomenclature.Name} кол-во {Amount}";
 	}
 }
