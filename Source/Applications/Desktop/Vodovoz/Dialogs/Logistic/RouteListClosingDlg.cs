@@ -250,7 +250,7 @@ namespace Vodovoz
 
 			decimal unclosedAdvanceMoney = _accountableDebtsRepository.TotalEmployeeDebt(UoW, Entity.Driver);
 			ylabelUnclosedAdvancesMoney.LabelProp =
-				string.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Общий долг водителя: {0}</b></span>" : "", unclosedAdvanceMoney);
+				string.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Общий долг водителя: {0}</b></span>" : "", unclosedAdvanceMoney.ToShortCurrencyString());
 
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
 			labelOrderEarly.Text = "Сдано ранее: " + GetCashOrder().ToString();
