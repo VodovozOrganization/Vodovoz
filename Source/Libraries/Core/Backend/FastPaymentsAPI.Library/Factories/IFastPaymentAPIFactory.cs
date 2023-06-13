@@ -36,5 +36,7 @@ namespace FastPaymentsAPI.Library.Factories
 		FastPayment GetFastPayment(Order order, FastPaymentDTO paymentDto);
 		FastPaymentStatusChangeNotificationDto GetFastPaymentStatusChangeNotificationDto(
 			int onlineOrderId, decimal amount, bool paymentSucceeded);
+
+		OnlinePaymentDetailsDto GetNewOnlinePaymentDetailsDto(int onlineOrderId, decimal amount);
 	}
 }

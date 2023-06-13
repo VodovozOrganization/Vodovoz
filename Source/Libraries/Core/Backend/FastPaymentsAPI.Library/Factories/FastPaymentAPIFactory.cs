@@ -176,17 +176,21 @@ namespace FastPaymentsAPI.Library.Factories
 			};
 		}
 
-		private OnlinePaymentDetailsDto GetNewOnlinePaymentDetailsDto(int onlineOrderId, decimal amount) =>
-			new OnlinePaymentDetailsDto
+		public OnlinePaymentDetailsDto GetNewOnlinePaymentDetailsDto(int onlineOrderId, decimal amount)
+		{
+			return new OnlinePaymentDetailsDto
 			{
 				OnlineOrderId = onlineOrderId,
 				PaymentSumDetails = GetNewOnlinePaymentSumDetailsDto(amount)
 			};
+		}
 
-		private OnlinePaymentSumDetailsDto GetNewOnlinePaymentSumDetailsDto(decimal amount) =>
-			new OnlinePaymentSumDetailsDto
+		private OnlinePaymentSumDetailsDto GetNewOnlinePaymentSumDetailsDto(decimal amount)
+		{
+			return new OnlinePaymentSumDetailsDto
 			{
 				PaymentSum = amount
 			};
+		}
 	}
 }

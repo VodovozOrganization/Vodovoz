@@ -38,6 +38,8 @@ namespace FastPaymentsAPI
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = "NLog";
+
 		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
@@ -50,19 +52,18 @@ namespace FastPaymentsAPI
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddHttpClient()
-				.AddControllers()
-				.AddXmlSerializerFormatters();
-
+			var nlogConfig = Configuration.GetSection(_nLogSectionName);
 			services.AddLogging(
 				logging =>
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
+					logging.AddConfiguration(nlogConfig);
 				});
 
-			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
-				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+			services.AddHttpClient()
+				.AddControllers()
+				.AddXmlSerializerFormatters();
 
 			// Подключение к БД
 			services.AddScoped(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис быстрых платежей"));
@@ -102,6 +103,10 @@ namespace FastPaymentsAPI
 			{
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
 			});
+
+			// Unit Of Work
+			services.AddScoped<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
+			services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
 
 			//backgroundServices
 			services.AddHostedService<FastPaymentStatusUpdater>();
@@ -152,11 +157,11 @@ namespace FastPaymentsAPI
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			// Configure the HTTP request pipeline.
+			app.UseSwagger();
+
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				app.UseSwagger();
 				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FastPaymentsAPI v1"));
 			}
 			else
@@ -181,8 +186,6 @@ namespace FastPaymentsAPI
 
 		private void CreateBaseConfig()
 		{
-			_logger.LogInformation("Настройка параметров Nhibernate...");
-
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
 			var domainDBConfig = Configuration.GetSection("DomainDB");
