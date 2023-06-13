@@ -530,7 +530,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			_logger.Info($"Вызван метод сохранения МЛ {Entity.Id}...");
+			_logger.Info("Вызван метод сохранения МЛ {EntityId}...", Entity.Id);
 
 			var valid = new QSValidator<RouteList>(Entity, new Dictionary<object, object>() { { nameof(IRouteListItemRepository), new RouteListItemRepository() } });
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
@@ -565,7 +565,7 @@ namespace Vodovoz
 			var commonFastDeliveryMaxDistance = (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(DateTime.Now);
 			Entity.UpdateFastDeliveryMaxDistanceValue(commonFastDeliveryMaxDistance);
 
-			_logger.Info($"Сохраняем маршрутный лист {Entity.Id}...");
+			_logger.Info("Сохраняем маршрутный лист {EntityId}...", Entity.Id);
 			UoWGeneric.Save();
 			_logger.Info("Ok");
 			
@@ -574,9 +574,9 @@ namespace Vodovoz
 			_logger.Debug("Закончили пересчет рентабельности МЛ");
 			UoW.Save(Entity.RouteListProfitability);
 
-			_logger.Info($"Выполняем коммит изменений МЛ {Entity.Id}...");
+			_logger.Info("Выполняем коммит изменений МЛ {EntityId}...", Entity.Id);
 			UoW.Commit();
-			_logger.Info($"Коммит изменений {Entity.Id} выполнен");
+			_logger.Info("Коммит изменений {EntityId} выполнен", Entity.Id);
 
 			return true;
 		}
@@ -766,7 +766,7 @@ namespace Vodovoz
 					}
 					finally
 					{
-						_logger.Log(LogLevel.Info, $"Создаём операции по свободным остаткам МЛ {Entity.Id}...");
+						_logger.Log(LogLevel.Info, "Создаём операции по свободным остаткам МЛ {EntityId}...", Entity.Id);
 
 						var routeListKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
 
@@ -783,7 +783,7 @@ namespace Vodovoz
 							}
 						}
 
-						_logger.Log(LogLevel.Info, $"Операции по свободным остаткакам МЛ {Entity.Id} созданы.");
+						_logger.Log(LogLevel.Info, "Операции по свободным остаткакам МЛ {EntityId} созданы.", Entity.Id);
 					}
 
 					if(Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !Entity.NeedToLoad)
@@ -848,7 +848,8 @@ namespace Vodovoz
 			}
 			catch(Exception ex)
 			{
-				_logger.Log(LogLevel.Error, $"Произошла ошибка во время подтверждения МЛ {Entity.Id}: {ex.Message}");
+				_logger.Error("Произошла ошибка во время подтверждения МЛ {EntityId}: {Message}.", Entity.Id, ex.Message);
+
 				throw ex;
 			}
 			finally
