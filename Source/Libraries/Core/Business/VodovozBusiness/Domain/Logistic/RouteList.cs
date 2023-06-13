@@ -1842,6 +1842,12 @@ namespace Vodovoz.Domain.Logistic
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
 			}
 
+			if(Forwarder != null && Forwarder.GetActualWageParameter(Date) == null)
+			{
+				yield return new ValidationResult($"Нет данных о параметрах расчета зарплаты экспедитора на выбранную дату доставки.",
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Forwarder) });
+			}
+
 			if(Car == null)
 				yield return new ValidationResult("На заполнен автомобиль.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Car) });
@@ -2749,6 +2755,14 @@ namespace Vodovoz.Domain.Logistic
 			if(Forwarder == null) {
 				return null;
 			}
+
+			if(Forwarder != null && Forwarder.GetActualWageParameter(Date) == null)
+			{
+				var exceptionMessage = $"Нет данных о параметрах расчета зарплаты экспедитора id={Forwarder.Id} на выбранную дату доставки {Date:dd.MM.yyyy}.";
+				Forwarder = null;
+				throw new InvalidOperationException(exceptionMessage);
+			}
+
 			return wageParameterService.ActualizeWageParameterAndGetCalculationService(UoW, Forwarder, ForwarderWageCalculationSrc);
 		}
 
