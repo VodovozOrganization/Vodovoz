@@ -654,7 +654,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal PhoneSum {
 			get {
-				if(GetCarVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster)
+				if(GetCarVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck || Driver == null || Driver.VisitingMaster)
 				{
 					return 0;
 				}
@@ -2853,26 +2853,36 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
-			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
-			FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().FixedWage;
+			IRouteListWageCalculationService routeListDriverWageCalculationService = null;
+			if(Driver != null)
+			{
+				routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
+				FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().FixedWage;
+			}
 
 			IRouteListWageCalculationService routeListForwarderWageCalculationService = null;
-			if(Forwarder != null) {
+			if(Driver != null && Forwarder != null) 
+			{
 				routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
 				FixedForwarderWage = routeListForwarderWageCalculationService.CalculateWage().FixedWage;
 			}
 
-			foreach(var address in Addresses) {
-				var drvWageResult = routeListDriverWageCalculationService.CalculateWageForRouteListItem(address.DriverWageCalculationSrc);
-				address.DriverWage = drvWageResult.Wage;
-				address.DriverWageCalcMethodicTemporaryStore = drvWageResult.WageDistrictLevelRate;
-				if(Forwarder != null) {
+			foreach(var address in Addresses) 
+			{
+				if(routeListDriverWageCalculationService != null)
+				{
+					var drvWageResult = routeListDriverWageCalculationService.CalculateWageForRouteListItem(address.DriverWageCalculationSrc);
+					address.DriverWage = drvWageResult.Wage;
+					address.DriverWageCalcMethodicTemporaryStore = drvWageResult.WageDistrictLevelRate;
+					address.IsDriverForeignDistrict = address.DriverWageCalculationSrc.IsDriverForeignDistrict;
+				}
+				
+				if(routeListForwarderWageCalculationService != null)
+				{
 					var fwdWageResult = routeListForwarderWageCalculationService.CalculateWageForRouteListItem(address.ForwarderWageCalculationSrc);
 					address.ForwarderWage = fwdWageResult.Wage;
 					address.ForwarderWageCalcMethodicTemporaryStore = fwdWageResult.WageDistrictLevelRate;
 				}
-
-				address.IsDriverForeignDistrict = address.DriverWageCalculationSrc.IsDriverForeignDistrict;
 			}
 		}
 
@@ -2903,9 +2913,9 @@ namespace Vodovoz.Domain.Logistic
 				throw new InvalidOperationException(exceptionMessage);
 			}
 
-			if(Driver.GetActualWageParameter(Date) == null)
+			if(Driver?.GetActualWageParameter(Date) == null)
 			{
-				var exceptionMessage = $"Нет данных о параметрах расчета зарплаты водителя id={Driver.Id} на выбранную дату доставки {Date:dd.MM.yyyy}.";
+				var exceptionMessage = $"Нет данных о параметрах расчета зарплаты водителя id={Driver?.Id} на выбранную дату доставки {Date:dd.MM.yyyy}.";
 				Driver = null;
 				throw new InvalidOperationException(exceptionMessage);
 			}

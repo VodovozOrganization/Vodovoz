@@ -481,15 +481,22 @@ namespace Vodovoz
 				Entity.Car = null;
 			}
 
-			if(e.PropertyName == nameof(Entity.Driver)
-				&& Entity.Driver != null
-				&& Entity.Driver.GetActualWageParameter(Entity.Date) == null)
+			if(e.PropertyName == nameof(Entity.Driver))
 			{
-				MessageDialogHelper.RunErrorDialog(
-					$"Нет данных о параметрах расчета зарплаты водителя \"{Entity.Driver.FullName}\" " +
-					$"на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
+				if(Entity.Driver == null)
+				{
+					Entity.Forwarder = null;
+				}
 
-				Entity.Driver = null;
+				if(Entity.Driver != null && Entity.Driver.GetActualWageParameter(Entity.Date) == null)
+				{
+					MessageDialogHelper.RunErrorDialog(
+						$"Нет данных о параметрах расчета зарплаты водителя \"{Entity.Driver.FullName}\" " +
+						$"на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
+
+					Entity.Driver = null;
+					Entity.Forwarder = null;
+				}
 			}
 
 			switch(e.PropertyName)
@@ -560,11 +567,17 @@ namespace Vodovoz
 				newForwarder = null;
 			}
 
-			if((previousForwarder == null && newForwarder != null)
-			 || (previousForwarder != null && newForwarder == null))
-				Entity.RecalculateAllWages(wageParameterService);
+			if(Entity.Driver != null)
+			{
+				if((previousForwarder == null && newForwarder != null)
+						|| (previousForwarder != null && newForwarder == null))
+				{
+					Entity.RecalculateAllWages(wageParameterService);
+				}
+			}
 
 			previousForwarder = Entity.Forwarder;
+			OnItemsUpdated();
 		}
 
 		private bool NoActualWageParameterForSelectedForwarder =>
@@ -660,7 +673,6 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
-
 		private void OnOrderReturnsViewTabClosed(object sender, EventArgs e)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
@@ -687,7 +699,10 @@ namespace Vodovoz
 				Entity.Forwarder = null;
 			}
 			
-			Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
+			if(Entity.Driver != null)
+			{
+				Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
+			}
 
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered() && item.Status != RouteListItemStatus.Transfered)
