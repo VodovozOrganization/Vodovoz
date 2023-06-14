@@ -103,7 +103,6 @@ namespace Vodovoz
 		private Employee previousForwarder = null;
 		private bool _canEdit;
 		private bool? _canEditFuelCardNumber;
-		private List<int> _hasActualCountsChangesItemIds = new List<int>();
 
 		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
@@ -871,7 +870,12 @@ namespace Vodovoz
 		}
 
 		public override bool Save() {
-			
+
+			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
+			{
+				return false;
+			}
+
 			var valid = new QSValidator<RouteList>(Entity,
 				new Dictionary<object, object>
 				{

@@ -1872,7 +1872,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			var counterpartyContract = organization != null
-				? contractRepository.GetCounterpartyContract(uow, this, organization)
+				? contractRepository.GetCounterpartyContractByOrganization(uow, this, organization)
 				: contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
 			
 			if(counterpartyContract == null)
@@ -4459,6 +4459,8 @@ namespace Vodovoz.Domain.Orders
 			PaymentType.Cash,
 			PaymentType.PaidOnline,
 			PaymentType.Terminal,
+			PaymentType.DriverApplicationQR,
+			PaymentType.SmsQR,
 			PaymentType.Cashless
 		};
 

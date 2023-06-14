@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -84,7 +84,7 @@ namespace Vodovoz.Models
 				return order.Client.WorksThroughOrganization;
 			}
 
-			if(order.Contract != null && _cashReceiptRepository.ReceiptWorkWasStarted(order.Id))
+			if(order.Id != 0 && order.Contract != null && _cashReceiptRepository.HasNeededReceipt(order.Id))
 			{
 				return order.Contract.Organization;
 			}

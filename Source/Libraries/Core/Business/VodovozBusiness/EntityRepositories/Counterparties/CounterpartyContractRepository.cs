@@ -1,16 +1,19 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models;
 using Vodovoz.Tools;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
+
+	//Необходима смена репозитория на модель, так как по сути происходит логика смены договора
 	public class CounterpartyContractRepository : ICounterpartyContractRepository
 	{
 		private readonly IOrganizationProvider _organizationProvider;
@@ -34,12 +37,26 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				throw new ArgumentNullException(nameof(order));
 			}
 
+			var changedContract = GetChangedCounterpartyContract(uow, order, errorReporter);
+			if(changedContract == order.Contract)
+			{
+				return order.Contract;
+			}
+
+			RenewOrderReceipts(uow, order);
+
+			return changedContract;
+		}
+
+		private CounterpartyContract GetChangedCounterpartyContract(IUnitOfWork uow, Order order, IErrorReporter errorReporter = null)
+		{
 			if(order.Client == null)
 			{
 				return null;
 			}
 
-			if(order.Contract != null && order.Id != 0 && _cashReceiptRepository.ReceiptWorkWasStarted(order.Id))
+			var cantChangeContract = CantChangeContractWithReceipts(order);
+			if(cantChangeContract)
 			{
 				return order.Contract;
 			}
@@ -74,9 +91,23 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			}
 		}
 
-		public CounterpartyContract GetCounterpartyContract(IUnitOfWork uow, Order order, Organization organization)
+		public CounterpartyContract GetCounterpartyContractByOrganization(IUnitOfWork uow, Order order, Organization organization)
 		{
-			if(order.Contract != null && order.Id != 0 && _cashReceiptRepository.ReceiptWorkWasStarted(order.Id))
+			var changedContract = GetChangedCounterpartyContractByOrganization(uow, order, organization);
+			if(changedContract == order.Contract)
+			{
+				return order.Contract;
+			}
+
+			RenewOrderReceipts(uow, order);
+
+			return changedContract;
+		}
+
+		private CounterpartyContract GetChangedCounterpartyContractByOrganization(IUnitOfWork uow, Order order, Organization organization)
+		{
+			var cantChangeContract = CantChangeContractWithReceipts(order);
+			if(cantChangeContract)
 			{
 				return order.Contract;
 			}
@@ -87,6 +118,33 @@ namespace Vodovoz.EntityRepositories.Counterparties
 
 			IList<CounterpartyContract> result = GetCounterpartyContractsOrderByIssueDateDesc(uow, order, organization, contractType);
 			return result.FirstOrDefault();
+		}
+
+		private bool CantChangeContractWithReceipts(Order order)
+		{
+			if(order.Contract == null)
+			{
+				return false;
+			}
+
+			if(order.Id == 0)
+			{
+				return false;
+			}
+
+			var hasNeededReceipts = _cashReceiptRepository.HasNeededReceipt(order.Id);
+			return hasNeededReceipts;
+		}
+
+		private void RenewOrderReceipts(IUnitOfWork uow, Order order)
+		{
+			var receipts = _cashReceiptRepository.GetReceiptsForOrder(uow, order.Id);
+			var notNeededReceipts = receipts.Where(x => x.Status == CashReceiptStatus.ReceiptNotNeeded);
+			foreach(var receipt in notNeededReceipts)
+			{
+				receipt.Status = CashReceiptStatus.New;
+				uow.Save(receipt);
+			}
 		}
 
 		public IList<CounterpartyContract> GetActiveContractsWithOrganization(IUnitOfWork uow, Counterparty counterparty, Organization org, ContractType type)

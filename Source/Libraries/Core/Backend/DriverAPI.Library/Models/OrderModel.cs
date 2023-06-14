@@ -142,6 +142,8 @@ namespace DriverAPI.Library.Models
 		{
 			var availablePaymentTypes = new List<PaymentDtoType>();
 
+			bool paid = _fastPaymentModel.GetOrderFastPaymentStatus(order.Id) == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed;
+
 			if(order.PaymentType == PaymentType.Cash)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Terminal);
@@ -154,7 +156,8 @@ namespace DriverAPI.Library.Models
 				availablePaymentTypes.Add(PaymentDtoType.DriverApplicationQR);
 			}
 
-			if(order.PaymentType == PaymentType.DriverApplicationQR)
+			if(order.PaymentType == PaymentType.DriverApplicationQR
+				|| (order.PaymentType == PaymentType.SmsQR && !paid))
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
 				availablePaymentTypes.Add(PaymentDtoType.Terminal);
