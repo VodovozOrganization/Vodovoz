@@ -68,7 +68,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IRouteListItemRepository routeListItemRepository,
 			IWageParameterService wageParameterService,
-			ISubdivisionParametersProvider subdivisionParametersProvider)
+			ISubdivisionParametersProvider subdivisionParametersProvider,
+			IUndeliveredOrdersJournalOpener undeliveryViewOpener)
 			: base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -86,6 +87,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
