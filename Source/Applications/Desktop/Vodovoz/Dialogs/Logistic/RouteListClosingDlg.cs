@@ -475,7 +475,7 @@ namespace Vodovoz
 				&& Entity.GetCarVersion == null)
 			{
 				MessageDialogHelper.RunErrorDialog(
-					$"Ошибка при выборе автомобиля с рег. номером \"{Entity.Car.RegistrationNumber}\". " +
+					$"Ошибка при выборе автомобиля с гос. номером \"{Entity.Car.RegistrationNumber}\". " +
 					$"Нет данных о версии автомобиля на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
 				
 				Entity.Car = null;
@@ -550,8 +550,7 @@ namespace Vodovoz
 		{
 			var newForwarder = Entity.Forwarder;
 
-			if(Entity.Forwarder != null
-				&& Entity.Forwarder.GetActualWageParameter(Entity.Date) == null)
+			if(NoActualWageParameterForSelectedForwarder)
 			{
 				MessageDialogHelper.RunErrorDialog(
 					$"Нет данных о параметрах расчета зарплаты экспедитора \"{Entity.Forwarder.FullName}\" " +
@@ -567,6 +566,10 @@ namespace Vodovoz
 
 			previousForwarder = Entity.Forwarder;
 		}
+
+		private bool NoActualWageParameterForSelectedForwarder =>
+			Entity.Forwarder != null
+			&& Entity.Forwarder.GetActualWageParameter(Entity.Date) == null;
 
 		void EnummenuRLActions_EnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
@@ -679,7 +682,13 @@ namespace Vodovoz
 		{
 			var item = routeListAddressesView.Items[aIdx[0]];
 
+			if(NoActualWageParameterForSelectedForwarder)
+			{
+				Entity.Forwarder = null;
+			}
+			
 			Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
+
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered() && item.Status != RouteListItemStatus.Transfered)
 				foreach(var itm in item.Order.OrderItems)
