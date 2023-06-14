@@ -479,6 +479,13 @@ namespace Vodovoz
 				copying.CopyPaymentByCardDataIfPossible();
 			}
 
+			if(copying.GetCopiedOrder.PaymentType == PaymentType.DriverApplicationQR 
+				|| copying.GetCopiedOrder.PaymentType == PaymentType.SmsQR)
+			{
+				copying.CopyPaymentByQrDataIfPossible();
+				hbxOnlineOrder.Visible = UpdateVisibilityHboxOnlineOrder();
+			}
+
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
