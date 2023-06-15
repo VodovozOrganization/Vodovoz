@@ -200,7 +200,17 @@ namespace Vodovoz
 
 			var routeListJournalFilterViewModelFrom = new RouteListJournalFilterViewModel()
 			{
-				DisplayableStatuses = new[] { RouteListStatus.InLoading, RouteListStatus.EnRoute },
+				DisplayableStatuses = new[] 
+				{ 
+					RouteListStatus.New,
+					RouteListStatus.Confirmed,
+					RouteListStatus.InLoading,
+					RouteListStatus.EnRoute,
+					RouteListStatus.Delivered,
+					RouteListStatus.OnClosing,
+					RouteListStatus.MileageCheck,
+					RouteListStatus.Closed
+				},
 				StartDate = DateTime.Today.AddDays(-3),
 				EndDate = DateTime.Today.AddDays(1)
 			};
