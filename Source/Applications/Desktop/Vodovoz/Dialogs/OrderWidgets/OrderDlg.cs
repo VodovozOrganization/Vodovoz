@@ -123,6 +123,7 @@ namespace Vodovoz
 		IAskSaveOnCloseViewModel,
 		IEdoLightsMatrixInfoProvider
 	{
+		private readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
@@ -479,6 +480,13 @@ namespace Vodovoz
 				copying.CopyPaymentByCardDataIfPossible();
 			}
 
+			if(copying.GetCopiedOrder.PaymentType == PaymentType.DriverApplicationQR 
+				|| copying.GetCopiedOrder.PaymentType == PaymentType.SmsQR)
+			{
+				copying.CopyPaymentByQrDataIfPossible();
+				hbxOnlineOrder.Visible = UpdateVisibilityHboxOnlineOrder();
+			}
+
 			Entity.UpdateDocuments();
 			CheckForStopDelivery();
 			UpdateOrderAddressTypeWithUI();
@@ -720,7 +728,7 @@ namespace Vodovoz
 				.AddFuncBinding(e => e.Client != null, w => w.Sensitive)
 				.InitializeFromSource();
 
-			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var deliveryScheduleRepository = new DeliveryScheduleRepository();
 			var fileDialogService = new FileDialogService();

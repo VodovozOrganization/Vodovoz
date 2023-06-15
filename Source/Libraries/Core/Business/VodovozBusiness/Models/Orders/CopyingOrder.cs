@@ -246,6 +246,22 @@ namespace Vodovoz.Models.Orders
 		}
 
 		/// <summary>
+		/// Копирование данных об оплате по QR коду из приложения водителя или СМС
+		/// </summary>
+		public CopyingOrder CopyPaymentByQrDataIfPossible()
+		{
+			if(_copiedOrder.PaymentType != PaymentType.DriverApplicationQR
+				&& _copiedOrder.PaymentType != PaymentType.SmsQR)
+			{
+				return this;
+			}
+
+			_resultOrder.OnlineOrder = _copiedOrder.OnlineOrder;
+
+			return this;
+		}
+
+		/// <summary>
 		/// Копирование промонаборов <see cref="PromotionalSet"/> и связанных с ними товаров <see cref="OrderItem"/>
 		/// </summary>
 		public CopyingOrder CopyPromotionalSets()
