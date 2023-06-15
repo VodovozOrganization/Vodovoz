@@ -767,7 +767,7 @@ namespace Vodovoz
 			var routeListCashAdvance = GetRouteListCashExpenses();
 			var routeListCashReturn = GetRouteListCashReturn();
 
-			Entity.RouteListDebt = Entity.CalculateRouteListDebt();
+			var routeListDebt = Entity.RouteListDebt;
 
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(
@@ -806,7 +806,7 @@ namespace Vodovoz
 			);
 			labelGivenChange.Markup = $"Выдано по МЛ (сдача): {routeListCashAdvance.ToShortCurrencyString()}";
 			labelReceivedChange.Markup = $"Сдано сдача по МЛ: {routeListCashReturn.ToShortCurrencyString()}";
-			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{Entity.RouteListDebt.ToShortCurrencyString()}</b>"; 
+			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{routeListDebt.ToShortCurrencyString()}</b>"; 
 
 			if(defectiveBottlesReturnedToWarehouse > 0) {
 				lblQtyOfDefectiveGoods.Visible = true;
@@ -1369,7 +1369,7 @@ namespace Vodovoz
 			if (cashIncome != null) UoW.Save(cashIncome);
 			if (cashExpense != null) UoW.Save(cashExpense);
 
-			Entity.RouteListDebt = Entity.CalculateRouteListDebt();
+			Entity.UpdateRouteListDebt();
 
 			UoW.Save();
 

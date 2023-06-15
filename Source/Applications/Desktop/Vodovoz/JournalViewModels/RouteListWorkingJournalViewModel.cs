@@ -104,6 +104,7 @@ namespace Vodovoz.JournalViewModels
 			GeoGroup geoGroupAlias = null;
 			GeoGroupVersion geoGroupVersionAlias = null;
 			RouteListProfitability routeListProfitabilityAlias = null;
+			RouteListDebt routeListDebtAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
@@ -241,6 +242,11 @@ namespace Vodovoz.JournalViewModels
 				.And(() => geoGroupVersionAlias.ClosingDate == null || geoGroupVersionAlias.ClosingDate >= routeListAlias.Date)
 				.Select(s => s.Name);
 
+			var routeListDebtSubquery = QueryOver.Of(() => routeListDebtAlias)
+				.Where(() => routeListAlias.Id == routeListDebtAlias.RouteList.Id)
+				.Select(r => r.Debt)
+				.Take(1);
+
 			var result = query
 				.SelectList(list => list
 					.SelectGroup(() => routeListAlias.Id).WithAlias(() => routeListJournalNodeAlias.Id)
@@ -253,7 +259,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => driverAlias.Name).WithAlias(() => routeListJournalNodeAlias.DriverName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => routeListJournalNodeAlias.DriverPatronymic)
 					.Select(() => driverAlias.Comment).WithAlias(() => routeListJournalNodeAlias.DriverComment)
-					.Select(() => routeListAlias.RouteListDebt).WithAlias(() => routeListJournalNodeAlias.RouteListDebt)
+					.SelectSubQuery(routeListDebtSubquery).WithAlias(() => routeListJournalNodeAlias.RouteListDebt)
 					.Select(() => routeListAlias.LogisticiansComment).WithAlias(() => routeListJournalNodeAlias.LogisticiansComment)
 					.Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
 					.SelectSubQuery(closingSubdivision).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
