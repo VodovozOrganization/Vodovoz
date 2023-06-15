@@ -160,7 +160,7 @@ namespace Vodovoz
 					if(httpClient.GetAsync($"{squidServer}/squid-internal-static/icons/SN.png").Result.IsSuccessStatusCode)
 					{
 						GMapProvider.WebProxy = new WebProxy(gMapParametersProviders.SquidServer);
-						logger.Info("Используется прокси серверкарт: {MapsProxyServerUrl}", squidServer);
+						logger.Info("Используется прокси сервер карт: {MapsProxyServerUrl}", squidServer);
 					}
 					else
 					{
