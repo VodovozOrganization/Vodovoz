@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
@@ -129,7 +129,7 @@ namespace Vodovoz.EntityRepositories.Store
 				.SelectList(list => list
 					.SelectGroup(x => x.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.Select(Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.Int32, "?1 * ?2"),
+						new SQLFunctionTemplate(NHibernateUtil.Int32, "-?1 * ?2"),
 						NHibernateUtil.Int32,
 						Projections.Sum<WarehouseBulkGoodsAccountingOperation>(wmo => wmo.Amount),
 						Projections.Property(() => nomenclatureAlias.Weight))).WithAlias(() => resultAlias.TotalShippedKg))
