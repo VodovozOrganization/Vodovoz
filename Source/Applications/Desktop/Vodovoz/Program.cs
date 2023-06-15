@@ -150,18 +150,29 @@ namespace Vodovoz
 			);
 			GMapProvider.Language = GMap.NET.LanguageType.Russian;
 
-			using(var httpClient = new HttpClient()){
-				var squidServer = gMapParametersProviders.SquidServer;
-				if(httpClient.GetAsync($"{squidServer}/squid-internal-static/icons/SN.png").Result.IsSuccessStatusCode)
+			var squidServer = string.Empty;
+
+			try
+			{
+				using(var httpClient = new HttpClient())
 				{
-					GMapProvider.WebProxy = new WebProxy(gMapParametersProviders.SquidServer);
-					logger.Info("Используется прокси серверкарт: {MapsProxyServerUrl}", squidServer);
-				}
-				else
-				{
-					logger.Warn("Прокси сервер карт недоступен: {MapsProxyServerUrl}", squidServer);
+					squidServer = gMapParametersProviders.SquidServer;
+					if(httpClient.GetAsync($"{squidServer}/squid-internal-static/icons/SN.png").Result.IsSuccessStatusCode)
+					{
+						GMapProvider.WebProxy = new WebProxy(gMapParametersProviders.SquidServer);
+						logger.Info("Используется прокси серверкарт: {MapsProxyServerUrl}", squidServer);
+					}
+					else
+					{
+						logger.Warn("Прокси сервер карт недоступен: {MapsProxyServerUrl}", squidServer);
+					}
 				}
 			}
+			catch(Exception ex)
+			{
+				logger.Error(ex, "Прокси сервер карт недоступен: {MapsProxyServerUrl}", squidServer);
+			}
+			
 			
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
 
