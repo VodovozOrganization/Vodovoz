@@ -1,9 +1,15 @@
 ﻿using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Vodovoz.Domain.Logistic
 {
+	[Appellative(Gender = GrammaticalGender.Neuter,
+		NominativePlural = "требования к логистике",
+		Nominative = "требования к логистике"
+	)]
+	[HistoryTrace]
 	public class LogisticsRequirements : PropertyChangedBase, IDomainObject
 	{
 		private bool _forwarderRequired;
@@ -49,7 +55,7 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _largusRequired, value);
 		}
 
-		public virtual string Title => $"Требования к логистике";
+		public virtual string Title => $"Требования к логистике №{Id}";
 
 		public virtual int SelectedRequirementsCount => SelectedLogisticsRequirementsCount();
 
