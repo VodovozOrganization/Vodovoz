@@ -252,7 +252,7 @@ namespace Vodovoz
 				string.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Общий долг водителя: {0}</b></span>" : "", unclosedAdvanceMoney.ToShortCurrencyString());
 
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
-			labelOrderEarly.Text = "Сдано ранее: " + GetCashOrder().ToString();
+			labelOrderEarly.Text = "Сдано ранее: " + GetCashOrder().ToShortCurrencyString();
 			spinCashOrder.Value = 0;
 			advanceSpinbutton.Value = 0;
 			advanceSpinbutton.Visible = false;
@@ -778,25 +778,21 @@ namespace Vodovoz
 			labelFullBottles.Text = string.Format("Полных бут.: {0}", fullBottlesTotal);
 			labelEmptyBottles.Text = string.Format("Пустых бут.: {0}", bottlesReturnedTotal);
 			labelDeposits.Text = string.Format(
-				"Из них возврат залогов (информационно): {0} {1}",
-				depositsCollectedTotal + equipmentDepositsCollectedTotal,
-				CurrencyWorks.CurrencyShortName
+				"Из них возврат залогов (информационно): {0}",
+				(depositsCollectedTotal + equipmentDepositsCollectedTotal).ToShortCurrencyString()
 			);
 			labelCash.Text = string.Format(
-				"Нал по заказам: {0} {1}",
-				totalCollected,
-				CurrencyWorks.CurrencyShortName
+				"Нал по заказам: {0}",
+				totalCollected.ToShortCurrencyString()
 			);
 			labelTotalCollected.Text = string.Format(
-				"Итоговая сумма(нал.): {0} {1}",
-				totalCachAmount,
-				CurrencyWorks.CurrencyShortName
+				"Итоговая сумма(нал.): {0}",
+				totalCachAmount.ToShortCurrencyString()
 			);
-			labelTerminalSum.Text = $"По терминалу: {GetTerminalOrdersSum()} {CurrencyWorks.CurrencyShortName}";
+			labelTerminalSum.Text = $"По терминалу: {GetTerminalOrdersSum().ToShortCurrencyString()}";
 			labelTotal.Markup = string.Format(
-				"Сдано выручка по МЛ: {0:F2} {1}",
-				routeListRevenue,
-				CurrencyWorks.CurrencyShortName
+				"Сдано выручка по МЛ: {0}",
+				routeListRevenue.ToShortCurrencyString()
 			);
 			labelWage1.Markup = string.Format(
 				"ЗП вод.: <b>{0}</b> {2}" + "  " + "ЗП эксп.: <b>{1}</b> {2}",
@@ -808,9 +804,9 @@ namespace Vodovoz
 				bottlesReturnedToWarehouse,
 				bottlesReturnedTotal
 			);
-			labelGivenChange.Markup = $"Выдано по МЛ (сдача): {routeListCashAdvance:F2} {CurrencyWorks.CurrencyShortName}";
-			labelReceivedChange.Markup = $"Сдано сдача по МЛ: {routeListCashReturn:F2} {CurrencyWorks.CurrencyShortName}";
-			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{Entity.RouteListDebt:F2}</b> {CurrencyWorks.CurrencyShortName}"; 
+			labelGivenChange.Markup = $"Выдано по МЛ (сдача): {routeListCashAdvance.ToShortCurrencyString()}";
+			labelReceivedChange.Markup = $"Сдано сдача по МЛ: {routeListCashReturn.ToShortCurrencyString()}";
+			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{Entity.RouteListDebt.ToShortCurrencyString()}</b>"; 
 
 			if(defectiveBottlesReturnedToWarehouse > 0) {
 				lblQtyOfDefectiveGoods.Visible = true;
