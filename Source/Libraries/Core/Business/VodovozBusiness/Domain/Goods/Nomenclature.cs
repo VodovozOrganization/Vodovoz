@@ -1170,7 +1170,8 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.OfficeEquipment,
 				NomenclatureCategory.PromotionalProducts,
 				NomenclatureCategory.Overalls,
-				NomenclatureCategory.HouseholdInventory
+				NomenclatureCategory.HouseholdInventory,
+				NomenclatureCategory.Tools
 			};
 		}
 
