@@ -1290,6 +1290,29 @@ namespace Vodovoz.EntityRepositories.Logistic
 				AddressTransferType.FromFreeBalance
 			};
 
+		public int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId)
+		{
+			//var routeListsCount = uow.GetAll<RouteList>()
+			//	.Where(r => 
+			//		r.Driver.Id == driverId
+			//		&& r.Status != RouteListStatus.Closed
+			//		&& r.RouteListDebt > 0)
+			//	.Count();
+
+			//return routeListsCount;
+			return 0;
+		}
+
+		public decimal GetRouteListsDebtSumByDriver(IUnitOfWork uow, int driverId)
+		{
+			//var routeListsDebtSum = uow.GetAll<RouteList>()
+			//	.Where(r => r.Driver.Id == driverId
+			//		&& r.RouteListDebt > 0)
+			//	.Sum(r => r.RouteListDebt);
+
+			//return routeListsDebtSum;
+			return 0;
+		}
 	}
 
 	#region DTO
