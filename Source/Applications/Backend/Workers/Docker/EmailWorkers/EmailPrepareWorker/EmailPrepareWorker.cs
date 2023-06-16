@@ -60,9 +60,7 @@ namespace EmailPrepareWorker
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
 
-			var oldCulture = CultureInfo.CurrentCulture;
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
-			_logger.LogInformation("Смена настройки культуры с {0} на {1} ", oldCulture, CultureInfo.CurrentCulture);
 
 			_emailSendKey = configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendKeyParameter);
