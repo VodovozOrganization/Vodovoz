@@ -92,6 +92,7 @@ namespace Vodovoz
 				return;
 			}
 
+			Entity.Organisation = UoW.GetById<Organization>(_expenseParametersProvider.DefaultExpenseOrganizationId);
 			Entity.Date = DateTime.Now;
 			_changeAdvanceCategory = UoW.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId);
 

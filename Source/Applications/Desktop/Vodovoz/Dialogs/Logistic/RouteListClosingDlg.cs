@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -500,6 +500,35 @@ namespace Vodovoz
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
+			if(e.PropertyName == nameof(Entity.Car) 
+				&& Entity.Car != null 
+				&& Entity.GetCarVersion == null)
+			{
+				MessageDialogHelper.RunErrorDialog(
+					$"Ошибка при выборе автомобиля с гос. номером \"{Entity.Car.RegistrationNumber}\". " +
+					$"Нет данных о версии автомобиля на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
+				
+				Entity.Car = null;
+			}
+
+			if(e.PropertyName == nameof(Entity.Driver))
+			{
+				if(Entity.Driver == null)
+				{
+					Entity.Forwarder = null;
+				}
+
+				if(Entity.Driver != null && Entity.Driver.GetActualWageParameter(Entity.Date) == null)
+				{
+					MessageDialogHelper.RunErrorDialog(
+						$"Нет данных о параметрах расчета зарплаты водителя \"{Entity.Driver.FullName}\" " +
+						$"на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
+
+					Entity.Driver = null;
+					Entity.Forwarder = null;
+				}
+			}
+
 			switch(e.PropertyName)
 			{
 				case nameof(Entity.NormalWage):
@@ -560,12 +589,32 @@ namespace Vodovoz
 		{
 			var newForwarder = Entity.Forwarder;
 
-			if((previousForwarder == null && newForwarder != null)
-			 || (previousForwarder != null && newForwarder == null))
-				Entity.RecalculateAllWages(wageParameterService);
+			if(NoActualWageParameterForSelectedForwarder)
+			{
+				MessageDialogHelper.RunErrorDialog(
+					$"Нет данных о параметрах расчета зарплаты экспедитора \"{Entity.Forwarder.FullName}\" " +
+					$"на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
+
+				Entity.Forwarder = null;
+				newForwarder = null;
+			}
+
+			if(Entity.Driver != null)
+			{
+				if((previousForwarder == null && newForwarder != null)
+						|| (previousForwarder != null && newForwarder == null))
+				{
+					Entity.RecalculateAllWages(wageParameterService);
+				}
+			}
 
 			previousForwarder = Entity.Forwarder;
+			OnItemsUpdated();
 		}
+
+		private bool NoActualWageParameterForSelectedForwarder =>
+			Entity.Forwarder != null
+			&& Entity.Forwarder.GetActualWageParameter(Entity.Date) == null;
 
 		void EnummenuRLActions_EnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
@@ -656,7 +705,6 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
-
 		private void OnOrderReturnsViewTabClosed(object sender, EventArgs e)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
@@ -678,7 +726,16 @@ namespace Vodovoz
 		{
 			var item = routeListAddressesView.Items[aIdx[0]];
 
-			Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
+			if(NoActualWageParameterForSelectedForwarder)
+			{
+				Entity.Forwarder = null;
+			}
+			
+			if(Entity.Driver != null)
+			{
+				Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
+			}
+
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered() && item.Status != RouteListItemStatus.Transfered)
 				foreach(var itm in item.Order.OrderItems)
@@ -723,9 +780,8 @@ namespace Vodovoz
 		void UpdateButtonState()
 		{
 			buttonAccept.Sensitive = 
-				(Entity.Status == RouteListStatus.OnClosing 
-				|| Entity.Status == RouteListStatus.MileageCheck
-				|| Entity.Status == RouteListStatus.Delivered)
+				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck
+															|| Entity.Status == RouteListStatus.Delivered) 
 				&& canCloseRoutelist;
 		}
 
