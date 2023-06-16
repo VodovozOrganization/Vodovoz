@@ -313,6 +313,11 @@ namespace Vodovoz
 				return;
 			}
 
+			if(!UoW.IsNew)
+			{
+				return;
+			}
+
 			var selectedAdvances = _selectableAdvances
 				.Where(expense => expense.Selected)
 				.Select(e => e.Value.RouteListClosing)
@@ -431,7 +436,10 @@ namespace Vodovoz
 			yspinMoney.Sensitive = Entity.TypeOperation != IncomeType.Return;
 			yspinMoney.ValueAsDecimal = 0;
 
-			Entity.RouteListClosing = null;
+			if(UoW.IsNew)
+			{
+				Entity.RouteListClosing = null;
+			}
 
 			FillDebts();
 			CheckOperation((IncomeType)e.SelectedItem);
