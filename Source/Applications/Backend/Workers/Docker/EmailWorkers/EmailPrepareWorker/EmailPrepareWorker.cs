@@ -7,27 +7,27 @@ using MySql.Data.MySqlClient;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Report;
+using QSOrmProject;
 using QSProjectsLib;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using RabbitMQ.MailSending;
 using RdlEngine;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using QSOrmProject;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
-using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
-using System.Reflection;
 using Vodovoz.Settings.Database;
+using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker
 {
@@ -59,6 +59,11 @@ namespace EmailPrepareWorker
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+
+			var oldCulture = CultureInfo.CurrentCulture;
+			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
+			_logger.LogInformation("Смена настройки культуры с {0} на {1} ", oldCulture, CultureInfo.CurrentCulture);
+
 			_emailSendKey = configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendKeyParameter);
 			_emailSendExchange = configuration.GetSection(_queuesConfigurationSection)
