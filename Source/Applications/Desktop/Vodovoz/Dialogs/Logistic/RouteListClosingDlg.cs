@@ -247,10 +247,6 @@ namespace Vodovoz
 
 			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
 
-			decimal unclosedAdvanceMoney = _accountableDebtsRepository.TotalEmployeeDebt(UoW, Entity.Driver);
-			ylabelUnclosedAdvancesMoney.LabelProp =
-				string.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Общий долг водителя: {0}</b></span>" : "", unclosedAdvanceMoney.ToShortCurrencyString());
-
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
 			labelOrderEarly.Text = "Сдано ранее: " + GetCashOrder().ToShortCurrencyString();
 			spinCashOrder.Value = 0;
@@ -430,6 +426,7 @@ namespace Vodovoz
 				routelistdiscrepancyview.Sensitive = false;
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
+				hbxStatistics3.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
 				toggleWageDetails.Sensitive = _canEdit;
 				permissioncommentview.Sensitive = _canEdit;
@@ -768,6 +765,7 @@ namespace Vodovoz
 			var routeListCashReturn = GetRouteListCashReturn();
 
 			var routeListDebt = Entity.RouteListDebt;
+			decimal unclosedAdvanceMoney = _accountableDebtsRepository.TotalEmployeeDebt(UoW, Entity.Driver);
 
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(
@@ -806,7 +804,12 @@ namespace Vodovoz
 			);
 			labelGivenChange.Markup = $"Выдано по МЛ (сдача): {routeListCashAdvance.ToShortCurrencyString()}";
 			labelReceivedChange.Markup = $"Сдано сдача по МЛ: {routeListCashReturn.ToShortCurrencyString()}";
-			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{routeListDebt.ToShortCurrencyString()}</b>"; 
+			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{routeListDebt.ToShortCurrencyString()}</b>";			
+
+			ylabelUnclosedAdvancesMoney.Markup =
+				unclosedAdvanceMoney > 0m
+				? $"<span foreground='red'><b>Общий долг водителя: {unclosedAdvanceMoney.ToShortCurrencyString()}</b></span>"
+				: "";
 
 			if(defectiveBottlesReturnedToWarehouse > 0) {
 				lblQtyOfDefectiveGoods.Visible = true;

@@ -2309,6 +2309,8 @@ namespace Vodovoz.Domain.Logistic
 
 		private decimal GetRouteListDebt()
 		{
+			UpdateRouteListDebt();
+
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var routeListDebt = uow.GetAll<RouteListDebt>()
