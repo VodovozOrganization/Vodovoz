@@ -60,9 +60,6 @@ namespace RoboatsService
 			NLogBuilder.ConfigureNLog("NLog.config");
 
 			CreateBaseConfig();
-			SettingsController settingsController = new SettingsController(UnitOfWorkFactory.GetDefaultFactory);
-			settingsController.RefreshSettings();
-
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -138,7 +135,9 @@ namespace RoboatsService
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if(env.IsDevelopment()) {
+			app.ApplicationServices.GetService<SettingsController>().RefreshSettings();
+
+			if(env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
 

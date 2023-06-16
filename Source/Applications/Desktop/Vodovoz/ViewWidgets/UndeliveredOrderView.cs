@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
@@ -33,6 +34,7 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class UndeliveredOrderView : WidgetOnDialogBase
 	{
+		private readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
@@ -125,7 +127,7 @@ namespace Vodovoz.ViewWidgets
 			if(undelivery.Id <= 0)
 				yDateDispatcherCallTime.DateOrNull = DateTime.Now;
 
-			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var deliveryScheduleRepository = new DeliveryScheduleRepository();
 			var fileDialogService = new FileDialogService();

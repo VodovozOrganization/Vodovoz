@@ -226,16 +226,18 @@ namespace Vodovoz.Dialogs.Cash
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ExpenseCategoryEntityviewmodelentry = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.ExpenseCategoryEntityviewmodelentry.WidthRequest = 660;
 			this.ExpenseCategoryEntityviewmodelentry.Events = ((global::Gdk.EventMask)(256));
 			this.ExpenseCategoryEntityviewmodelentry.Name = "ExpenseCategoryEntityviewmodelentry";
 			this.ExpenseCategoryEntityviewmodelentry.CanEditReference = false;
+			this.ExpenseCategoryEntityviewmodelentry.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.ExpenseCategoryEntityviewmodelentry);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.ExpenseCategoryEntityviewmodelentry]));
 			w12.TopAttach = ((uint)(13));
 			w12.BottomAttach = ((uint)(14));
 			w12.LeftAttach = ((uint)(1));
 			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.XOptions = ((global::Gtk.AttachOptions)(0));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
