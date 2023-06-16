@@ -82,6 +82,7 @@ namespace Vodovoz
 				return;
 			}
 
+			Entity.Organisation = UoW.GetById<Organization>(_expenseParametersProvider.DefaultExpenseOrganizationId);
 			Entity.Date = DateTime.Now;
 			ConfigureDlg();
 		}

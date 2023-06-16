@@ -4,5 +4,6 @@
 	{
 		int DefaultChangeOrganizationId { get; }
 		int ChangeCategoryId { get; }
+		int DefaultExpenseOrganizationId { get; }
 	}
 }
