@@ -16,5 +16,7 @@ namespace Vodovoz.Parameters
 
 		public int ChangeCategoryId => _parametersProvider.GetIntValue("expense_change_category_id");
 		public int DefaultChangeOrganizationId => _organizationParametersProvider.SosnovcevOrganizationId;
+
+		public int DefaultExpenseOrganizationId => _organizationParametersProvider.SosnovcevOrganizationId;
 	}
 }
