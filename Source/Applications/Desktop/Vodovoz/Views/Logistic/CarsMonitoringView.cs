@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using GLib;
 using GMap.NET;
@@ -75,6 +75,11 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(vm => vm.ShowFastDeliveryOnly, w => w.Sensitive)
 				.InitializeFromSource();
 
+			yckbtnIsAvailableForFastDelivery.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowActualFastDeliveryOnly, w => w.Active)
+				.AddBinding(vm => vm.ShowFastDeliveryOnly, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ConfigureWorkingDriversTreeView();
 
 			ConfigureRouteListAddressesTreeView();
@@ -103,11 +108,13 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ylblCoveragePercent.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.ShowDistrictsOverlay, w => w.Visible)
+				.AddFuncBinding(vm => vm.ShowDistrictsOverlay || vm.ShowActualFastDeliveryOnly, w => w.Visible)
 				.AddBinding(vm => vm.CoveragePercentString, w => w.Text)
 				.InitializeFromSource();
 
-			ylblCoveragePercentBefore.Binding.AddBinding(ViewModel, vm => vm.ShowDistrictsOverlay, w => w.Visible)
+			ylblCoveragePercentBefore.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => vm.ShowDistrictsOverlay || vm.ShowActualFastDeliveryOnly, w => w.Visible)
+				.AddBinding(vm => vm.CoveragePercentBeforeText, w => w.Text)
 				.InitializeFromSource();
 
 			ConfigureMap();

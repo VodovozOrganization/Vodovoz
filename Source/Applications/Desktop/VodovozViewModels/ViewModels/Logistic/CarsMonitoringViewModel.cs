@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using NHibernate.Dialect.Function;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -48,6 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool _showCarCirclesOverlay = false;
 		private bool _showDistrictsOverlay = false;
 		private bool _showFastDeliveryOnly = false;
+		private bool _showActualFastDeliveryOnly;
 		private bool _showAddresses = false;
 		private bool _separateVindowOpened = false;
 		private bool _canShowAddresses = true;
@@ -166,6 +168,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		[PropertyChangedAlso(nameof(CoveragePercentBeforeText))]
+		public bool ShowActualFastDeliveryOnly
+		{
+			get => _showActualFastDeliveryOnly;
+			set
+			{
+				if(SetField(ref _showActualFastDeliveryOnly, value))
+				{
+					RefreshWorkingDriversCommand?.Execute();
+					RefreshFastDeliveryDistrictsCommand?.Execute();
+				}
+			}
+
+		}
+
 		public bool ShowFastDeliveryOnly
 		{
 			get => _showFastDeliveryOnly;
@@ -176,6 +193,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					ShowCarCirclesOverlay = false;
 					ShowHistory = false;
+					ShowActualFastDeliveryOnly = false;
 				}
 				RefreshWorkingDriversCommand?.Execute();
 			}
@@ -302,6 +320,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public Color[] AvailableTrackColors => _availableTrackColors;
 
 		public string CoveragePercentString => $"{CoveragePercent:P}";
+
+		public string CoveragePercentBeforeText => ShowActualFastDeliveryOnly ? "Доступно для заказа" : "Процент покрытия";
 
 		[PropertyChangedAlso(nameof(CoveragePercentString))]
 		public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
@@ -454,6 +474,26 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				query.Where(() => routeListAlias.AdditionalLoadingDocument != null);
 			}
 
+			if(ShowActualFastDeliveryOnly)
+			{
+				var specificTimeForFastOrdersCount = (int)_deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
+
+				var addressCountSubquery = QueryOver.Of(() => routeListItemAlias)
+					.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+					.Where(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
+					.And(() => routeListItemAlias.Status == RouteListItemStatus.EnRoute)
+				.And(() => orderAlias.IsFastDelivery)
+					.And(Restrictions.GtProperty(
+						Projections.Property(() => routeListItemAlias.CreationDate),
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.DateTime,
+								$"TIMESTAMPADD(MINUTE, -{specificTimeForFastOrdersCount}, CURRENT_TIMESTAMP)"),
+							NHibernateUtil.DateTime)))
+					.Select(Projections.Count(() => routeListItemAlias.Id));
+
+				query.WithSubquery.WhereValue(_deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime).Gt(addressCountSubquery);
+			}
+
 			query.JoinAlias(rl => rl.Driver, () => driverAlias)
 				.JoinAlias(rl => rl.Car, () => carAlias)
 				.JoinEntityAlias(() => carVersionAlias,
@@ -595,7 +635,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			FastDeliveryDistricts.Clear();
 
-			if(ShowDistrictsOverlay)
+			if(ShowDistrictsOverlay || ShowActualFastDeliveryOnly)
 			{
 				IList<District> districts;
 				if(ShowHistory)
@@ -641,7 +681,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				OnPropertyChanged(nameof(CoveragePercent));
 			}
-			FastDeliveryDistrictChanged?.Invoke();
+
+			if(ShowDistrictsOverlay)
+			{
+				FastDeliveryDistrictChanged?.Invoke();
+			}
 		}
 
 		private void RefreshLastDriverPositions()
