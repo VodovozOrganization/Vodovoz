@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -821,7 +821,7 @@ namespace Vodovoz
 			var routeListCashReturn = GetRouteListCashReturn();
 
 			var routeListDebt = Entity.RouteListDebt;
-			decimal unclosedAdvanceMoney = _accountableDebtsRepository.TotalEmployeeDebt(UoW, Entity.Driver);
+			decimal unclosedAdvanceMoney = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Entity.Driver.Id);
 
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
@@ -1307,7 +1307,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return routeListsCount;
 		}
 
-		public decimal GetRouteListsDebtSumByDriver(IUnitOfWork uow, int driverId)
+		public decimal GetUnclosedRouteListsDebtsSumByDriver(IUnitOfWork uow, int driverId)
 		{
 			RouteList routeListAlias = null;
 			RouteListDebt routeListDebtAlias = null;
