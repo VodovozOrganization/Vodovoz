@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
@@ -322,12 +322,12 @@ namespace Vodovoz
 				return;
 			}
 
-			var selectedAdvances = _selectableAdvances
+			var selectedAdvances = _selectableAdvances?
 				.Where(expense => expense.Selected)
 				.Select(e => e.Value.RouteListClosing)
 				.ToList();
 
-			var selectedRouteListsCount = selectedAdvances.GroupBy(rl => rl?.Id).Count();
+			var selectedRouteListsCount = selectedAdvances?.GroupBy(rl => rl?.Id).Count();
 			if(selectedRouteListsCount != 1)
 			{
 				Entity.RouteListClosing = null;
