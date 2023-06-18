@@ -152,6 +152,9 @@ namespace Vodovoz
 			evmeEmployee.Binding.AddBinding(Entity, e => e.Accountable, w => w.Subject).InitializeFromSource();
 			evmeEmployee.Changed += (sender, e) => FillDebt();
 
+			ytextviewRouteList.Sensitive = false;
+			ytextviewRouteList.Visible = false;
+
 			evmeCashier.Binding.AddBinding(Entity, e => e.Casher, w => w.Subject).InitializeFromSource();
 			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 
@@ -260,6 +263,14 @@ namespace Vodovoz
 				}
 			}
 			logger.Info("Ok");
+
+			if(Entity.RouteList != null)
+			{
+				logger.Info("Обновляем сумму долга по МЛ...");
+				Entity.RouteList.UpdateRouteListDebt();
+				logger.Info("Ok");
+			}
+
 			return true;
 		}
 
@@ -337,12 +348,6 @@ namespace Vodovoz
 				return;
 			}
 
-			if(!_allowedToSpecifyRouteList)
-			{
-				Entity.RouteList = null;
-				return;
-			}
-
 			var selectedAdvances = advanceList?
 				.Where(a => a.Selected)
 				.Select(a => a.Advance?.RouteListClosing)
@@ -360,10 +365,10 @@ namespace Vodovoz
 
 		private void SetRouteListControlsVisibility()
 		{
-
+			labelRouteList.Visible = Entity.RouteList != null;
+			ytextviewRouteList.Visible = Entity.RouteList != null;
+			ytextviewRouteList.Buffer.Text = Entity.RouteList?.Title;
 		}
-
-		private bool _allowedToSpecifyRouteList => true;
 
 		void I_SelectChanged(object sender, EventArgs e)
 		{
