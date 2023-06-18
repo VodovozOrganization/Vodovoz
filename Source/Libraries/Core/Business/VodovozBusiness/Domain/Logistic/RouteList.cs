@@ -1757,6 +1757,32 @@ namespace Vodovoz.Domain.Logistic
 			return (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date ?? DateTime.Now);
 		}
 
+		private (bool IsDebtInPermittedRange, string Message) CheckDriversDebts()
+		{
+			var resultString = string.Empty;
+
+			if(Driver != null && (Status == RouteListStatus.New || Status == RouteListStatus.Confirmed || Status == RouteListStatus.InLoading))
+			{
+				var unclosedRouteListsHavingDebtsCount = _routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id);
+				var unclosedRouteListsDebtsSum = _routeListRepository.GetRouteListsDebtSumByDriver(UoW, Driver.Id);
+
+				if(unclosedRouteListsHavingDebtsCount <= 2 && unclosedRouteListsDebtsSum <= 1000)
+				{
+					resultString =
+						$"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
+						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей";
+
+					if(ServicesConfig.InteractiveService.Question(resultString, "Ошибка при сохранении МЛ"))
+					{
+						return (true, resultString);
+					}
+					
+					return (false, resultString);
+				}
+			}
+			return (true, resultString);
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
@@ -1872,7 +1898,14 @@ namespace Vodovoz.Domain.Logistic
 
 			if(GeographicGroups.Any(x => x.GetVersionOrNull(Date) == null))
 			{
-				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", new[] { nameof(GeographicGroups) });
+				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", 
+					new[] { nameof(GeographicGroups) });
+			}
+
+			var driversDebtsCheckResult = CheckDriversDebts();
+			if(!driversDebtsCheckResult.IsDebtInPermittedRange)
+			{
+				yield return new ValidationResult(driversDebtsCheckResult.Message, new[] { nameof(RouteListDebt) });
 			}
 		}
 
