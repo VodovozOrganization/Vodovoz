@@ -1292,26 +1292,36 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId)
 		{
-			//var routeListsCount = uow.GetAll<RouteList>()
-			//	.Where(r => 
-			//		r.Driver.Id == driverId
-			//		&& r.Status != RouteListStatus.Closed
-			//		&& r.RouteListDebt > 0)
-			//	.Count();
+			RouteList routeListAlias = null;
+			RouteListDebt routeListDebtAlias = null;
 
-			//return routeListsCount;
-			return 0;
+			var routeListsCount = uow.Session.QueryOver(() => routeListDebtAlias)
+				.JoinAlias(() => routeListDebtAlias.RouteList, () => routeListAlias)
+				.Where(() =>
+					routeListAlias.Driver.Id == driverId
+					&& routeListAlias.Status != RouteListStatus.Closed
+					&& routeListDebtAlias.Debt > 0)
+				.Select(Projections.Count(() => routeListDebtAlias.RouteList))
+				.SingleOrDefault<int>();
+
+			return routeListsCount;
 		}
 
 		public decimal GetRouteListsDebtSumByDriver(IUnitOfWork uow, int driverId)
 		{
-			//var routeListsDebtSum = uow.GetAll<RouteList>()
-			//	.Where(r => r.Driver.Id == driverId
-			//		&& r.RouteListDebt > 0)
-			//	.Sum(r => r.RouteListDebt);
+			RouteList routeListAlias = null;
+			RouteListDebt routeListDebtAlias = null;
 
-			//return routeListsDebtSum;
-			return 0;
+			var routeListsDebtsSum = uow.Session.QueryOver(() => routeListDebtAlias)
+				.JoinAlias(() => routeListDebtAlias.RouteList, () => routeListAlias)
+				.Where(() =>
+					routeListAlias.Driver.Id == driverId
+					&& routeListAlias.Status != RouteListStatus.Closed
+					&& routeListDebtAlias.Debt > 0)
+				.Select(Projections.Sum(() => routeListDebtAlias.Debt))
+				.SingleOrDefault<decimal>();
+
+			return routeListsDebtsSum;
 		}
 	}
 
