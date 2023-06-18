@@ -565,6 +565,7 @@ namespace Vodovoz
 		private decimal GetCashOrder() => _cashRepository.GetRouteListBalanceExceptAccountableCash(UoW, Entity.Id);
 		private decimal GetRouteListCashExpenses() => _cashRepository.GetRouteListCashExpensesSum(UoW, Entity.Id);
 		private decimal GetRouteListCashReturn() => _cashRepository.GetRouteListCashReturnSum(UoW, Entity.Id);
+		private decimal GetRouteListAdvanceReport() => _cashRepository.GetRouteListAdvancsReportsSum(UoW, Entity.Id);
 
 		private decimal GetTerminalOrdersSum()
 		{
@@ -819,6 +820,7 @@ namespace Vodovoz
 			var routeListRevenue = GetCashOrder() - (decimal)advanceSpinbutton.Value;
 			var routeListCashAdvance = GetRouteListCashExpenses();
 			var routeListCashReturn = GetRouteListCashReturn();
+			var routeListAdvancesReturn = GetRouteListAdvanceReport();
 
 			var routeListDebt = Entity.RouteListDebt;
 			decimal unclosedAdvanceMoney = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Entity.Driver.Id);
@@ -859,7 +861,7 @@ namespace Vodovoz
 				bottlesReturnedTotal
 			);
 			labelGivenChange.Markup = $"Выдано по МЛ (сдача): {routeListCashAdvance.ToShortCurrencyString()}";
-			labelReceivedChange.Markup = $"Сдано сдача по МЛ: {routeListCashReturn.ToShortCurrencyString()}";
+			labelReceivedChange.Markup = $"Сдано сдача по МЛ: {(routeListCashReturn + routeListAdvancesReturn).ToShortCurrencyString()}";
 			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{routeListDebt.ToShortCurrencyString()}</b>";			
 
 			ylabelUnclosedAdvancesMoney.Markup =

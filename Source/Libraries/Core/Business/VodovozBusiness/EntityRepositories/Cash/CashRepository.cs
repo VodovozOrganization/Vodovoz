@@ -191,6 +191,15 @@ namespace Vodovoz.EntityRepositories.Cash
 			return income;
 		}
 
+		public decimal GetRouteListAdvancsReportsSum(IUnitOfWork uow, int routeListId)
+		{
+			decimal advanceReports = uow.Session.QueryOver<AdvanceReport>()
+								.Where(exp => exp.RouteList.Id == routeListId)
+								.Select(Projections.Sum<AdvanceReport>(o => o.Money)).SingleOrDefault<decimal>();
+
+			return advanceReports;
+		}
+
 		public decimal GetRouteListCashExpensesSum(IUnitOfWork uow, int routeListId)
 		{
 			decimal expense = uow.Session.QueryOver<Expense>()

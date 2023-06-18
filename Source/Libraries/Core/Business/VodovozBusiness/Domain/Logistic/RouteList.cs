@@ -2268,8 +2268,9 @@ namespace Vodovoz.Domain.Logistic
 					var routeListCashAdvance = _cashRepository.GetRouteListCashExpensesSum(uow, Id);
 					var routeListCashReturn = _cashRepository.GetRouteListCashReturnSum(uow, Id);
 					var routeListRevenue = _cashRepository.CurrentRouteListCash(uow, Id);
+					var routeListAdvances = _cashRepository.GetRouteListAdvancsReportsSum(uow, Id);
 
-					routeListDebt = totalCachAmount + routeListCashAdvance - routeListCashReturn - routeListRevenue;
+					routeListDebt = totalCachAmount + routeListCashAdvance - routeListCashReturn - routeListRevenue - routeListAdvances;
 				}
 			}
 

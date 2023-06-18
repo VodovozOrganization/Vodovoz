@@ -17,6 +17,7 @@ namespace Vodovoz.EntityRepositories.Cash
 		decimal GetRouteListBalanceExceptAccountableCash(IUnitOfWork uow, int routeListId);
 		decimal GetRouteListCashReturnSum(IUnitOfWork uow, int routeListId);
 		decimal GetRouteListCashExpensesSum(IUnitOfWork uow, int routeListId);
+		decimal GetRouteListAdvancsReportsSum(IUnitOfWork uow, int routeListId);
 		decimal GetCashInTransferring(IUnitOfWork uow);
 		Expense GetExpenseByRouteListId(IUnitOfWork uow, int routeListId);
 		decimal GetExpenseReturnSumForOrder(IUnitOfWork uow, int orderId, int? excludedExpenseDoc = null);
