@@ -1,4 +1,4 @@
-using NetTopologySuite.Geometries;
+﻿using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -481,15 +481,27 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				var addressCountSubquery = QueryOver.Of(() => routeListItemAlias)
 					.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 					.Where(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
-					.And(() => routeListItemAlias.Status == RouteListItemStatus.EnRoute)
-				.And(() => orderAlias.IsFastDelivery)
-					.And(Restrictions.GtProperty(
-						Projections.Property(() => routeListItemAlias.CreationDate),
-						Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.DateTime,
-								$"TIMESTAMPADD(MINUTE, -{specificTimeForFastOrdersCount}, CURRENT_TIMESTAMP)"),
-							NHibernateUtil.DateTime)))
-					.Select(Projections.Count(() => routeListItemAlias.Id));
+					.And(() => orderAlias.IsFastDelivery);
+
+				if(ShowHistory)
+				{
+					addressCountSubquery.Where(Restrictions.Or(
+							Restrictions.Ge(Projections.Property(() => orderAlias.TimeDelivered), HistoryDateTime),
+							Restrictions.Eq(Projections.Property(() => routeListItemAlias.Status), RouteListItemStatus.EnRoute)))
+						.And(() => routeListItemAlias.CreationDate <= HistoryDateTime);
+				}
+				else
+				{
+					addressCountSubquery.Where(() => routeListItemAlias.Status == RouteListItemStatus.EnRoute)
+						.And(Restrictions.GtProperty(
+							Projections.Property(() => routeListItemAlias.CreationDate),
+							Projections.SqlFunction(
+								new SQLFunctionTemplate(NHibernateUtil.DateTime,
+									$"TIMESTAMPADD(MINUTE, -{specificTimeForFastOrdersCount}, CURRENT_TIMESTAMP)"),
+								NHibernateUtil.DateTime)));
+				}
+
+				addressCountSubquery.Select(Projections.Count(() => routeListItemAlias.Id));
 
 				query.WithSubquery.WhereValue(_deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime).Gt(addressCountSubquery);
 			}
