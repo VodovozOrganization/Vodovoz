@@ -119,7 +119,7 @@ namespace Vodovoz
 			this.entityVMEntryDeliveryPoint = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityVMEntryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryDeliveryPoint.Name = "entityVMEntryDeliveryPoint";
-			this.entityVMEntryDeliveryPoint.CanEditReference = false;
+			this.entityVMEntryDeliveryPoint.CanEditReference = true;
 			this.entityVMEntryDeliveryPoint.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityVMEntryDeliveryPoint);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryDeliveryPoint]));
