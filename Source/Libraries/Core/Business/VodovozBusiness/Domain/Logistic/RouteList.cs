@@ -97,6 +97,9 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime _date;
 		private GenericObservableList<DeliveryFreeBalanceOperation> _observableDeliveryFreeBalanceOperations;
 
+		private readonly bool _canEditDriversStopListParameters =
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -1772,9 +1775,9 @@ namespace Vodovoz.Domain.Logistic
 						$"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
 						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей";
 
-					if(ServicesConfig.InteractiveService.Question(resultString, "Ошибка при сохранении МЛ"))
+					if(_canEditDriversStopListParameters && ServicesConfig.InteractiveService.Question(resultString, "Ошибка при сохранении МЛ"))
 					{
-						return (true, resultString);
+						return (true, string.Empty);
 					}
 					
 					return (false, resultString);
