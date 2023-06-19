@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using FastPaymentsAPI.Library.ApiClients;
 using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Models;
+using FastPaymentsAPI.Library.Notifications;
 using FastPaymentsAPI.Library.Services;
 using FastPaymentsAPI.Library.Validators;
 using Microsoft.AspNetCore.Builder;
@@ -32,6 +34,7 @@ using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.FastPayments;
 using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI
@@ -92,17 +95,14 @@ namespace FastPaymentsAPI
 				c.BaseAddress = new Uri(Configuration.GetSection("DriverAPIService").GetValue<string>("ApiBase"));
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
 			});
+
+			services.AddScoped<ISiteSettings, SiteSettings>();
+			services.AddScoped<SiteClient>();
+			services.AddScoped<MobileAppClient>();
+			services.AddScoped<SiteNotifier>();
+			services.AddScoped<MobileAppNotifier>();
+			services.AddScoped<NotificationModel>();
 			
-			services.AddHttpClient<IVodovozSiteNotificationService, VodovozSiteNotificationService>(c =>
-			{
-				c.BaseAddress = new Uri(Configuration.GetSection("VodovozSiteNotificationService").GetValue<string>("BaseUrl"));
-				c.DefaultRequestHeaders.Add("Accept", "application/json");
-			});
-			
-			services.AddHttpClient<IMobileAppNotificationService, MobileAppNotificationService>(c =>
-			{
-				c.DefaultRequestHeaders.Add("Accept", "application/json");
-			});
 
 			// Unit Of Work
 			services.AddScoped<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
@@ -129,7 +129,7 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
 
 			//factories
-			services.AddSingleton<IFastPaymentAPIFactory, FastPaymentAPIFactory>();
+			services.AddSingleton<IFastPaymentFactory, FastPaymentFactory>();
 
 			//converters
 			services.AddSingleton<IOrderSumConverter, OrderSumConverter>();
@@ -151,7 +151,6 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IErrorHandler, ErrorHandler>();
 			services.AddSingleton(_ => new FastPaymentFileCache("/tmp/VodovozFastPaymentServiceTemp.txt"));
 			services.AddScoped<IOrderRequestManager, OrderRequestManager>();
-			services.AddScoped<IFastPaymentStatusChangeNotifier, FastPaymentStatusChangeNotifier>();
 		}
 		
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -113,5 +113,23 @@ namespace Vodovoz.EntityRepositories.FastPayments
 			return QueryOver.Of<FastPayment>()
 				.Where(fp => fp.Ticket == ticket);
 		}
+
+		public FastPaymentNotification GetNotificationsForPayment(IUnitOfWork uow, FastPaymentNotificationType notificationType, int paymentId)
+		{
+			var result = uow.Session.QueryOver<FastPaymentNotification>()
+				.Where(x => x.Payment.Id == paymentId)
+				.Where(x => x.Type == notificationType)
+				.SingleOrDefault();
+			return result;
+		}
+
+		public IEnumerable<FastPaymentNotification> GetActiveNotifications(IUnitOfWork uow)
+		{
+			var result = uow.Session.QueryOver<FastPaymentNotification>()
+				.Where(x => !x.SuccessfullyNotified)
+				.Where(x => !x.StopNotifications)
+				.List();
+			return result;
+		}
 	}
 }

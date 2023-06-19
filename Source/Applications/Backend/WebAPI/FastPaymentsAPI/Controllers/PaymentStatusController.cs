@@ -1,10 +1,12 @@
 ﻿using FastPaymentsAPI.Library.DTO_s.Requests;
 using FastPaymentsAPI.Library.Factories;
+using FastPaymentsAPI.Library.Notifications;
 using Microsoft.AspNetCore.Mvc;
 using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System.Linq;
 using System.Net.Http;
+using Vodovoz.Domain.FastPayments;
 using Vodovoz.EntityRepositories.FastPayments;
 
 namespace FastPaymentsAPI.Controllers
@@ -15,13 +17,20 @@ namespace FastPaymentsAPI.Controllers
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
-		private readonly IFastPaymentAPIFactory _fastPaymentAPIFactory;
+		private readonly IFastPaymentFactory _fastPaymentAPIFactory;
+		private readonly NotificationModel _notificationModel;
 
-		public PaymentStatusController(IUnitOfWork uow, IFastPaymentRepository fastPaymentRepository, IFastPaymentAPIFactory fastPaymentAPIFactory)
+		public PaymentStatusController(
+			IUnitOfWork uow, 
+			IFastPaymentRepository fastPaymentRepository, 
+			IFastPaymentFactory fastPaymentAPIFactory,
+			NotificationModel notificationModel
+			)
 		{
 			_uow = uow ?? throw new System.ArgumentNullException(nameof(uow));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new System.ArgumentNullException(nameof(fastPaymentRepository));
 			_fastPaymentAPIFactory = fastPaymentAPIFactory ?? throw new System.ArgumentNullException(nameof(fastPaymentAPIFactory));
+			_notificationModel = notificationModel ?? throw new System.ArgumentNullException(nameof(notificationModel));
 		}
 
 		/// <summary>
@@ -51,6 +60,9 @@ namespace FastPaymentsAPI.Controllers
 			var payment = payments.First();
 			result.PaymentStatus = (RequestPaymentStatus)payment.FastPaymentStatus;
 			result.PaymentDetails = _fastPaymentAPIFactory.GetNewOnlinePaymentDetailsDto(orderId, payment.Amount);
+
+			_notificationModel.SaveNotification(payment, FastPaymentNotificationType.Site, true);
+			_notificationModel.SaveNotification(payment, FastPaymentNotificationType.MobileApp, true);
 
 			return result;
 		}

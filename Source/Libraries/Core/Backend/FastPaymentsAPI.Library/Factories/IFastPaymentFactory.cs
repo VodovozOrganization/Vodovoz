@@ -10,7 +10,7 @@ using Vodovoz.Domain.Organizations;
 
 namespace FastPaymentsAPI.Library.Factories
 {
-	public interface IFastPaymentAPIFactory
+	public interface IFastPaymentFactory
 	{
 		OrderInfoRequestDTO GetOrderInfoRequestDTO(string ticket, int shopId);
 		OrderRegistrationRequestDTO GetOrderRegistrationRequestDTO(int orderId, string signature, decimal orderSum, int shopId);
@@ -34,9 +34,7 @@ namespace FastPaymentsAPI.Library.Factories
 			int? onlineOrderId = null,
 			string callbackUrl = null);
 		FastPayment GetFastPayment(Order order, FastPaymentDTO paymentDto);
-		FastPaymentStatusChangeNotificationDto GetFastPaymentStatusChangeNotificationDto(
-			int onlineOrderId, decimal amount, bool paymentSucceeded);
-
+		FastPaymentStatusChangeNotificationDto GetFastPaymentStatusChangeNotificationDto(FastPayment payment);
 		OnlinePaymentDetailsDto GetNewOnlinePaymentDetailsDto(int onlineOrderId, decimal amount);
 	}
 }

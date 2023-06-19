@@ -321,11 +321,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerAppsApi.Library", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalCounterpartyAssignNotifier", "Applications\Backend\Workers\Docker\ExternalCounterpartyAssignNotifier\ExternalCounterpartyAssignNotifier.csproj", "{105DC24B-9955-4D68-8B1C-C2CD9F687DE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz.Presentation.ViewModels", "Applications\Desktop\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj", "{396CC0BB-294B-44E0-8428-31677419B8BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Presentation.ViewModels", "Applications\Desktop\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj", "{396CC0BB-294B-44E0-8428-31677419B8BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz.Presentation.Gtk", "Vodovoz.Presentation.Gtk\Vodovoz.Presentation.Gtk.csproj", "{491CE880-2151-406B-9095-1CEAA0CB7AA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Presentation.Gtk", "Vodovoz.Presentation.Gtk\Vodovoz.Presentation.Gtk.csproj", "{491CE880-2151-406B-9095-1CEAA0CB7AA7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EarchiveApi", "Applications\Backend\WebAPI\EarchiveApi\EarchiveApi.csproj", "{B3C9F199-7CAE-4D5A-91AE-5FFD3F318592}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastPaymentsNotificationWorker", "Applications\Backend\Workers\IIS\FastPaymentsNotificationWorker\FastPaymentsNotificationWorker.csproj", "{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1050,8 +1052,6 @@ Global
 		{50993438-F358-4DCD-8E0A-CE1446C76487}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
 		{50993438-F358-4DCD-8E0A-CE1446C76487}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{50993438-F358-4DCD-8E0A-CE1446C76487}.WinDesktop|x86.Build.0 = Debug|Any CPU
-		{50993438-F358-4DCD-8E0A-CE1446C76487}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
-		{50993438-F358-4DCD-8E0A-CE1446C76487}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
 		{3C82A870-3F2F-4F5E-9B7B-15710141FD93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3C82A870-3F2F-4F5E-9B7B-15710141FD93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C82A870-3F2F-4F5E-9B7B-15710141FD93}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -3836,6 +3836,42 @@ Global
 		{B3C9F199-7CAE-4D5A-91AE-5FFD3F318592}.Web|x86.Build.0 = Debug|Any CPU
 		{B3C9F199-7CAE-4D5A-91AE-5FFD3F318592}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
 		{B3C9F199-7CAE-4D5A-91AE-5FFD3F318592}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Debug|x86.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Docker|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Docker|x86.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Release|x86.ActiveCfg = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Release|x86.Build.0 = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.ReleaseWin|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.ReleaseWin|Any CPU.Build.0 = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.ReleaseWin|x86.Build.0 = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WCF|Any CPU.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WCF|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WCF|x86.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Web|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Web|Any CPU.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Web|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Web|x86.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WinDesktop|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -3989,6 +4025,7 @@ Global
 		{396CC0BB-294B-44E0-8428-31677419B8BE} = {46A793AD-2BAC-4F9D-A7B0-1C4DDD0B6107}
 		{491CE880-2151-406B-9095-1CEAA0CB7AA7} = {46A793AD-2BAC-4F9D-A7B0-1C4DDD0B6107}
 		{B3C9F199-7CAE-4D5A-91AE-5FFD3F318592} = {9A64FD38-1065-4C74-A62A-666EA82BECF9}
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E} = {AA384BE0-D7B1-4A95-BFB4-6B4B5ACD452E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}

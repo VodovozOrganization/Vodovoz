@@ -80,6 +80,8 @@
     <Compile Include="Domain\Employees\ToolbarStyleStringType.cs" />
     <Compile Include="Domain\Client\ContractType.cs" />
     <Compile Include="Domain\Client\ContractTypeStringType.cs" />
+    <Compile Include="Domain\FastPayments\FastPaymentNotification.cs" />
+    <Compile Include="Domain\FastPayments\FastPaymentNotificationType.cs" />
     <Compile Include="Domain\Goods\AlternativeNomenclaturePrice.cs" />
     <Compile Include="Domain\Goods\NomenclatureInstanceType.cs" />
     <Compile Include="Domain\Goods\NomenclaturePriceBase.cs" />
@@ -673,6 +675,7 @@
     <Compile Include="HibernateMapping\Employees\EmployeeRegistrationMap.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeRegistrationVersionMap.cs" />
     <Compile Include="HibernateMapping\FastPayments\FastPaymentMap.cs" />
+    <Compile Include="HibernateMapping\FastPayments\FastPaymentNotificationMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Geocoder\GeocoderCoordinatesCacheMap.cs" />
