@@ -17,6 +17,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 using static Vodovoz.ViewModels.ViewModels.Reports.FastDelivery.FastDeliveryPercentCoverageReport;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 {
@@ -183,41 +184,71 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			{
 				RouteList routeListAlias = null;
 
+				var additionalLoadingRestriction = Restrictions.Where(() => routeListAlias.AdditionalLoadingDocument != null);
+
+				var dateRestriction = Restrictions.And(
+					Restrictions.Or(
+						Restrictions.Ge(Projections.Property(() => routeListAlias.DeliveredAt), date),
+						Restrictions.IsNull(Projections.Property(() => routeListAlias.DeliveredAt))),
+					Restrictions.In(Projections.Property(() => routeListAlias.Status), routeListHistoryStatuses));
+
+				TrackPoint trackPointAlias = null;
+
 				var trackSubquery = QueryOver.Of<Track>()
 					.Where(x => x.RouteList.Id == routeListAlias.Id)
 					.Select(x => x.Id);
-
-				var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
-
-				query.Where(() => routeListAlias.AdditionalLoadingDocument != null);
-
-				query.Where(
-					Restrictions.And(
-						Restrictions.Or(
-							Restrictions.Ge(Projections.Property(() => routeListAlias.DeliveredAt), date),
-							Restrictions.IsNull(Projections.Property(() => routeListAlias.DeliveredAt))),
-						Restrictions.In(Projections.Property(() => routeListAlias.Status), routeListHistoryStatuses)));
-
-				TrackPoint trackPointAlias = null;
 
 				trackSubquery.Inner.JoinAlias(x => x.TrackPoints, () => trackPointAlias)
 					.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), date))
 					.Where(Restrictions.Ge(Projections.Property(() => trackPointAlias.TimeStamp), date.Add(DriverDisconnectedTimespan)))
 					.Take(1);
 
-				query.Where(Restrictions.IsNotNull(Projections.SubQuery(trackSubquery)));
+				var trackRestriction = Restrictions.IsNotNull(Projections.SubQuery(trackSubquery));
+
+				var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
+				query.Where(additionalLoadingRestriction);
+				query.Where(dateRestriction);
+				query.Where(trackRestriction);
 
 				var routeListsIds = query.Select(Projections.Property(() => routeListAlias.Id)).List<int>().ToArray();
 
+				RouteListItem routeListItemAlias = null;
+				Order orderAlias = null;
+
+				var addressCountSubquery = QueryOver.Of(() => routeListItemAlias)
+					.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+					.Where(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
+					.And(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
+					.And(() => orderAlias.IsFastDelivery)
+					.And(Restrictions.Or(
+						Restrictions.Ge(Projections.Property(() => orderAlias.TimeDelivered), date),
+						Restrictions.Eq(Projections.Property(() => routeListItemAlias.Status), RouteListItemStatus.EnRoute)))
+					.And(() => routeListItemAlias.CreationDate <= date)
+					.Select(Projections.Count(() => routeListItemAlias.Id));
+
+				var actualQuery = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
+				actualQuery.Where(additionalLoadingRestriction);
+				actualQuery.Where(dateRestriction);
+				actualQuery.Where(trackRestriction);
+				actualQuery.WithSubquery.WhereValue(_deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime).Gt(addressCountSubquery);
+
+				var actualRouteListsIds = actualQuery.Select(Projections.Property(() => routeListAlias.Id)).List<int>().ToArray();
+
 				var lastDriversCoordinates = _trackRepository.GetLastPointForRouteListsWithRadius(UoW, routeListsIds, date);
+				var actualLastDriversCoordinates = _trackRepository.GetLastPointForRouteListsWithRadius(UoW, actualRouteListsIds, date);
 
 				var carsCount = lastDriversCoordinates.Count;
-				
+				var actualCarsCount = actualLastDriversCoordinates.Count;
+
 				var serviceRadiusAtDateTime =
 					carsCount > 0 
 					? lastDriversCoordinates.Average(d => d.FastDeliveryRadius)
 					: _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date);
-								
+
+				var actualServiceRadiusAtDateTime =
+					actualCarsCount > 0
+						? actualLastDriversCoordinates.Average(d => d.FastDeliveryRadius)
+						: _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date);
 
 				var activeDistrictsAtDateTime = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDeliveryAtDateTime(UoW, date).Select(d => d.DistrictBorder);
 
@@ -225,7 +256,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					activeDistrictsAtDateTime.ToList(),
 					lastDriversCoordinates);
 
-				rawRows.Add(new ValueRow(date, carsCount, serviceRadiusAtDateTime, percentCoverage));
+				var actualPercentCoverage = DistanceCalculator.CalculateCoveragePercent(
+					activeDistrictsAtDateTime.ToList(),
+					actualLastDriversCoordinates);
+
+				rawRows.Add(new ValueRow(date, carsCount, serviceRadiusAtDateTime, actualServiceRadiusAtDateTime, percentCoverage, actualPercentCoverage));
 			}
 
 			var groupingDate = startDate.Date;
