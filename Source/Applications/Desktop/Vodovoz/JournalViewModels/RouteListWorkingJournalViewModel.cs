@@ -81,7 +81,7 @@ namespace Vodovoz.JournalViewModels
 				.GetRouteListProfitabilityIndicatorInPercents;
 			UseSlider = false;
 
-			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability));
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(Expense), typeof(Income), typeof(AdvanceReport), typeof(RouteListItem));
 			InitPopupActions();
 		}
 
