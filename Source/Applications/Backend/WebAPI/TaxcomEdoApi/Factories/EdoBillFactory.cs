@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Taxcom.Client.Api.Entity;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -11,6 +11,7 @@ namespace TaxcomEdoApi.Factories
 		{
 			var nonformalizedDocument = new NonformalizedDocument
 			{
+				Number = order.Id.ToString(),
 				Type = DocumentType.Account,
 				Attachment = new FileData
 				{
