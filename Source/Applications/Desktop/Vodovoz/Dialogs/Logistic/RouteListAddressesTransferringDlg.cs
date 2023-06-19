@@ -507,6 +507,12 @@ namespace Vodovoz
 					}
 				}
 
+				if(HasAddressChanges(item))
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Статус {item.Title} был изменён другим пользователем, для его переноса переоткройте диалог.");
+					continue;
+				}
+
 				var transferredAddressFromRouteListTo =
 					_routeListItemRepository.GetTransferredRouteListItemFromRouteListForOrder(UoW, routeListTo.Id, item.Order.Id);
 
@@ -536,6 +542,18 @@ namespace Vodovoz
 
 					routeListTo.ObservableAddresses.Add(newItem);
 					routeListFrom.TransferAddressTo(UoW, item, newItem);
+				}
+
+				if(routeListTo.Status == RouteListStatus.New)
+				{
+					if(item.AddressTransferType == AddressTransferType.NeedToReload)
+					{
+						item.Order.ChangeStatus(OrderStatus.InTravelList);
+					}
+					if(item.AddressTransferType == AddressTransferType.FromHandToHand)
+					{
+						item.Order.ChangeStatus(OrderStatus.OnLoading);
+					}
 				}
 
 				//Пересчёт зарплаты после изменения МЛ
@@ -726,6 +744,12 @@ namespace Vodovoz
 					continue;
 				}
 
+				if(HasAddressChanges(address))
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Адрес {address.Title} был изменён другим пользователем, переоткройте диалог.");
+					continue;
+				}
+
 				RouteListItem pastPlace = 
 					(evmeRouteListFrom.Subject as RouteList)
 						?.Addresses
@@ -772,6 +796,22 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Для следующих адресов у водителя не хватает остатков, поэтому они не были перенесены:\n * " +
 				                                     string.Join("\n * ", deliveryNotEnoughQuantityAddresses));
 			}
+		}
+
+		private bool HasAddressChanges(RouteListItem address)
+		{
+			RouteListItemStatus actualStatus;
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение статуса адреса"))
+			{
+				actualStatus = uow.GetById<RouteListItem>(address.Id).Status;
+			}
+			
+			if(actualStatus == address.Status)
+			{
+				return false;
+			}
+
+			return true;
 		}
 
 		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to)

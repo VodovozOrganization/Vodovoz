@@ -3951,7 +3951,7 @@ namespace Vodovoz
 				{
 					if(Counterparty.NeedSendBillByEdo && Counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 					{
-						SendBillByEdo(uow, document);
+						SendBillByEdo(uow);
 					}
 					else
 					{
@@ -3966,7 +3966,7 @@ namespace Vodovoz
 			}
 		}
 
-		private void SendBillByEdo(IUnitOfWork uow, OrderDocument document)
+		private void SendBillByEdo(IUnitOfWork uow)
 		{
 			var edoContainer = _edoContainers.SingleOrDefault(x => x.Type == Type.Bill)
 							   ?? new EdoContainer

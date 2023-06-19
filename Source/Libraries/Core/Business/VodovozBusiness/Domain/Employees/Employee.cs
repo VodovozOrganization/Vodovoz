@@ -403,11 +403,13 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult($"Сотрудник уже привязан к пользователю",
 					new[] { nameof(LoginForNewUser) });
 			}
-			var regex = new Regex(@"^[a-zA-Z0-9].{3,25}$");
-			if(!String.IsNullOrEmpty(LoginForNewUser) && !regex.IsMatch(LoginForNewUser)) {
-				yield return new ValidationResult($"Логин пользователя должен иметь длину от 3 до 25 символов и состоять из латинских букв и цифр",
-					new[] { nameof(LoginForNewUser) });
+
+			var regex = new Regex(@"^[A-Za-z\d.,_-]+\Z");
+			if(!string.IsNullOrEmpty(LoginForNewUser) && !regex.IsMatch(LoginForNewUser))
+			{
+				yield return new ValidationResult("Логин может состоять только из букв английского алфавита, нижнего подчеркивания, дефиса, точки и запятой", new[] { nameof(LoginForNewUser) });
 			}
+
 			if(!String.IsNullOrEmpty(LoginForNewUser)) {
 				User exist = userRepository.GetUserByLogin(UoW, LoginForNewUser);
 				if(exist != null && exist.Id != Id)
