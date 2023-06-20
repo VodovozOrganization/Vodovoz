@@ -97,9 +97,6 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime _date;
 		private GenericObservableList<DeliveryFreeBalanceOperation> _observableDeliveryFreeBalanceOperations;
 
-		private readonly bool _canEditDriversStopListParameters =
-				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
-
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -1769,13 +1766,17 @@ namespace Vodovoz.Domain.Logistic
 				var unclosedRouteListsHavingDebtsCount = _routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id);
 				var unclosedRouteListsDebtsSum = _routeListRepository.GetRouteListsDebtSumByDriver(UoW, Driver.Id);
 
-				if(unclosedRouteListsHavingDebtsCount <= 2 && unclosedRouteListsDebtsSum <= 1000)
+				if(unclosedRouteListsHavingDebtsCount > 3 || unclosedRouteListsDebtsSum > 1000)
 				{
 					resultString =
 						$"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
-						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей";
+						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей.\n" +
+						$"Все равно продолжить?";
 
-					if(_canEditDriversStopListParameters && ServicesConfig.InteractiveService.Question(resultString, "Ошибка при сохранении МЛ"))
+					var canEditDriversStopListParameters =
+						ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
+
+					if(canEditDriversStopListParameters && ServicesConfig.InteractiveService.Question(resultString, "Ошибка при сохранении МЛ"))
 					{
 						return (true, string.Empty);
 					}
