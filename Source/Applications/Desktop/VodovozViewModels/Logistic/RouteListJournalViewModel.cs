@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -111,7 +112,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			TabName = "Журнал МЛ";
 
-			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability));
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(Expense), typeof(Income), typeof(AdvanceReport), typeof(RouteListItem));
 			InitPopupActions();
 		}
 
