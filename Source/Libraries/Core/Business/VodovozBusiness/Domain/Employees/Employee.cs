@@ -405,7 +405,7 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			var regex = new Regex(@"^[A-Za-z\d.,_-]+\Z");
-			if(!regex.IsMatch(LoginForNewUser))
+			if(!string.IsNullOrEmpty(LoginForNewUser) && !regex.IsMatch(LoginForNewUser))
 			{
 				yield return new ValidationResult("Логин может состоять только из букв английского алфавита, нижнего подчеркивания, дефиса, точки и запятой", new[] { nameof(LoginForNewUser) });
 			}
