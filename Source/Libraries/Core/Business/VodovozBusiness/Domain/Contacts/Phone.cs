@@ -167,6 +167,19 @@ namespace Vodovoz.Domain.Contacts
 			return "+7 " + Number;
 		}
 
+		public virtual bool IsValidPhoneNumber => IsValidPhoneNumberFormat();
+
+		private bool IsValidPhoneNumberFormat()
+		{
+			var phone = Regex.Replace(Number, "[^0-9]", "");
+			if(Regex.IsMatch(phone, "^[3 4 8 9]{1}[0-9]{9}"))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
 		public virtual string Title => $"{ ToString() }, { DeliveryPoint?.Title ?? Counterparty?.Name }";
 	}
 }
