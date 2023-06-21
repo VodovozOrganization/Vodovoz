@@ -40,7 +40,8 @@ namespace Vodovoz.Domain.Contacts
 
 		private bool IsValidEmailFormat()
 		{
-			var emailPattern = @"^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,8})+$";
+			var emailPattern = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Zа-яА-Я0-9]+([\.-]?[a-zA-Zа-яА-Я0-9]+)*(\.[a-zA-Zа-яА-Я]{2,10})+$";
+			
 			if(Regex.IsMatch(Address, emailPattern))
 			{
 				return true;
