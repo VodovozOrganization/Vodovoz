@@ -72,7 +72,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			StartDate = EndDate = DateTime.Today.AddDays(-1);
 
-			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-20);
+			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-(int)_deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint.TotalMinutes);
 
 			StartHour = TimeSpan.FromHours(_defaultStartHour);
 			EndHour = TimeSpan.FromHours(_defaultEndHour);

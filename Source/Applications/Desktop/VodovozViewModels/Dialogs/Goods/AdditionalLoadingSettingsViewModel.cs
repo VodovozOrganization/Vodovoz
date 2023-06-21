@@ -249,6 +249,13 @@ namespace Vodovoz.ViewModels.Goods
 				return false;
 			}
 
+			if(MaxFastOrdersPerSpecificTime < 1)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning,
+					"Кол-во заказов с доставкой за час не может быть меньше 1");
+				return false;
+			}
+
 			return base.Validate();
 		}
 

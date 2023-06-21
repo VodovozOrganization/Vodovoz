@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -110,7 +110,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CarRefreshInterval = TimeSpan.FromSeconds(_deliveryRulesParametersProvider.CarsMonitoringResfreshInSeconds);
 
 			DefaultMapCenterPosition = new Coordinate(59.93900, 30.31646);
-			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-20);
+			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-(int)_deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint.TotalMinutes);
 
 			var timespanRange = new List<TimeSpan>();
 
@@ -478,10 +478,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				var specificTimeForFastOrdersCount = (int)_deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
 
+				TrackPoint trackPointAlias = null;
+
 				var addressCountSubquery = QueryOver.Of(() => routeListItemAlias)
 					.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 					.Where(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
 					.And(() => orderAlias.IsFastDelivery);
+
+
+				var trackPointSubQuery = QueryOver.Of(() => trackPointAlias)
+					.JoinAlias(() => trackPointAlias.Track, () => trackAlias)
+					.Where(() => trackAlias.RouteList.Id == routeListAlias.Id);
+
+				DateTime trackDate;
 
 				if(ShowHistory)
 				{
@@ -489,6 +498,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 							Restrictions.Ge(Projections.Property(() => orderAlias.TimeDelivered), HistoryDateTime),
 							Restrictions.Eq(Projections.Property(() => routeListItemAlias.Status), RouteListItemStatus.EnRoute)))
 						.And(() => routeListItemAlias.CreationDate <= HistoryDateTime);
+
+					trackDate = HistoryDateTime;
 				}
 				else
 				{
@@ -499,11 +510,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 								new SQLFunctionTemplate(NHibernateUtil.DateTime,
 									$"TIMESTAMPADD(MINUTE, -{specificTimeForFastOrdersCount}, CURRENT_TIMESTAMP)"),
 								NHibernateUtil.DateTime)));
+
+					trackDate = DateTime.Now;
 				}
 
 				addressCountSubquery.Select(Projections.Count(() => routeListItemAlias.Id));
-
 				query.WithSubquery.WhereValue(_deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime).Gt(addressCountSubquery);
+
+				trackPointSubQuery.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), trackDate))
+					.Where(Restrictions.Ge(Projections.Property(() => trackPointAlias.TimeStamp), trackDate.Add(DriverDisconnectedTimespan)))
+					.Select(Projections.Property(() => trackPointAlias.ReceiveTimeStamp))
+					.Take(1);
+
+				query.WithSubquery.WhereValue(trackDate.Add(DriverDisconnectedTimespan)).Le(trackPointSubQuery);
 			}
 
 			query.JoinAlias(rl => rl.Driver, () => driverAlias)
@@ -693,11 +712,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				OnPropertyChanged(nameof(CoveragePercent));
 			}
-
-			if(ShowDistrictsOverlay)
+			
+			if(!ShowDistrictsOverlay)
 			{
-				FastDeliveryDistrictChanged?.Invoke();
+				FastDeliveryDistricts.Clear();
 			}
+
+			FastDeliveryDistrictChanged?.Invoke();
 		}
 
 		private void RefreshLastDriverPositions()
