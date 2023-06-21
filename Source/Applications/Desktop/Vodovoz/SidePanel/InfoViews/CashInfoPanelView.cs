@@ -8,6 +8,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -56,13 +57,17 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public void Refresh()
 		{
-			if(!(InfoProvider is ICashInfoProvider infoProvider))
+			if(InfoProvider is ICashInfoProvider infoProvider)
 			{
-				return;
+				var filter = infoProvider.CashFilter;
+				labelInfo.Text = $"{GetAllCashSummaryInfo(filter)}";
 			}
 
-			var filter = infoProvider.CashFilter;
-			labelInfo.Text = $"{GetAllCashSummaryInfo(filter)}";
+			if(InfoProvider is IDocumentsInfoProvider documentsInfoProvider)
+			{
+				var filter = documentsInfoProvider.DocumentsFilterViewModel;
+				labelInfo.Text = $"{GetAllCashSummaryInfo(filter)}";
+			}
 		}
 
 		private string GetAllCashSummaryInfo(CashDocumentsFilter filter)
@@ -92,6 +97,44 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			var total = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}. ";
 			var separatedCash = filter.SelectedSubdivisions.Any() ? $"\r\n\tИз них: {allCashString}" : "";
+			var cashInTransferringMessage = $"\n\nВ сейфе инкассатора: {CurrencyWorks.GetShortCurrencyString(inTransferring)}";
+			return total + separatedCash + cashInTransferringMessage;
+		}
+
+		private string GetAllCashSummaryInfo(DocumentsFilterViewModel filter)
+		{
+			if(filter == null)
+			{
+				return "";
+			}
+
+			var selectedSubdivisionsIds = filter.Subdivision != null
+				? new int[] { filter.Subdivision.Id }
+				: filter.AvailableSubdivisions
+					.Select(x => x.Id)
+					.ToArray();
+
+			decimal totalCash = 0;
+			var allCashString = "";
+			var distinctBalances = _cashRepository
+				.CurrentCashForGivenSubdivisions(_uow, selectedSubdivisionsIds)
+				.ToList();
+
+			var inTransferring = _cashRepository.GetCashInTransferring(_uow);
+
+			if(selectedSubdivisionsIds.Count() > 1)
+			{
+				distinctBalances = distinctBalances.OrderBy(x => _sortedSubdivisionsIds.IndexOf(x.Id)).ToList();
+			}
+
+			foreach(var node in distinctBalances)
+			{
+				totalCash += node.Balance;
+				allCashString += $"\r\n{node.Name}: {CurrencyWorks.GetShortCurrencyString(node.Balance)}";
+			}
+
+			var total = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}. ";
+			var separatedCash = selectedSubdivisionsIds.Any() ? $"\r\n\tИз них: {allCashString}" : "";
 			var cashInTransferringMessage = $"\n\nВ сейфе инкассатора: {CurrencyWorks.GetShortCurrencyString(inTransferring)}";
 			return total + separatedCash + cashInTransferringMessage;
 		}
