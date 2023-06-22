@@ -106,7 +106,6 @@ namespace FastPaymentsAPI
 
 			// Unit Of Work
 			services.AddScoped<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
-			services.AddScoped<IUnitOfWork>((sp) => UnitOfWorkFactory.CreateWithoutRoot("Мобильное приложение водителей"));
 
 			//backgroundServices
 			services.AddHostedService<FastPaymentStatusUpdater>();

@@ -32,7 +32,7 @@ namespace FastPaymentsNotificationWorker
 
 			try
 			{
-				_logger.LogInformation("Вызов обработки уведомлений");
+				_logger.LogInformation("Вызов обработки уведомлений смены статуса быстрой оплаты");
 				await _notificationHandler.HandleNotifications(stoppingToken);
 			}
 			catch(Exception ex)
@@ -47,12 +47,12 @@ namespace FastPaymentsNotificationWorker
 
 		protected override void OnStartService()
 		{
-			_logger.LogInformation("Запущен сервис обработки чеков");
+			_logger.LogInformation("Запущен сервис обработки уведомлений смены статуса быстрой оплаты");
 		}
 
 		protected override void OnStopService()
 		{
-			_logger.LogInformation("Остановлен сервис обработки чеков");
+			_logger.LogInformation("Остановлен сервис обработки уведомлений смены статуса быстрой оплаты");
 		}
 	}
 }
