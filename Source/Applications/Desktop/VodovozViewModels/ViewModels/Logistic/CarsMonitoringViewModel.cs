@@ -177,7 +177,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				if(SetField(ref _showActualFastDeliveryOnly, value))
 				{
 					RefreshWorkingDriversCommand?.Execute();
-					RefreshFastDeliveryDistrictsCommand?.Execute();
+					if(ShowDistrictsOverlay)
+					{
+						RefreshFastDeliveryDistrictsCommand?.Execute();
+					}
 				}
 			}
 
@@ -666,7 +669,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			FastDeliveryDistricts.Clear();
 
-			if(ShowDistrictsOverlay || ShowActualFastDeliveryOnly)
+			if(ShowDistrictsOverlay)
 			{
 				IList<District> districts;
 				if(ShowHistory)
@@ -711,11 +714,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				}
 
 				OnPropertyChanged(nameof(CoveragePercent));
-			}
-			
-			if(!ShowDistrictsOverlay)
-			{
-				FastDeliveryDistricts.Clear();
 			}
 
 			FastDeliveryDistrictChanged?.Invoke();

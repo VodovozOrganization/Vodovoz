@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using GLib;
 using GMap.NET;
@@ -108,12 +108,12 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ylblCoveragePercent.Binding.AddSource(ViewModel)
-				.AddFuncBinding(vm => vm.ShowDistrictsOverlay || vm.ShowActualFastDeliveryOnly, w => w.Visible)
+				.AddFuncBinding(vm => vm.ShowDistrictsOverlay, w => w.Visible)
 				.AddBinding(vm => vm.CoveragePercentString, w => w.Text)
 				.InitializeFromSource();
 
 			ylblCoveragePercentBefore.Binding.AddSource(ViewModel)
-				.AddFuncBinding(vm => vm.ShowDistrictsOverlay || vm.ShowActualFastDeliveryOnly, w => w.Visible)
+				.AddFuncBinding(vm => vm.ShowDistrictsOverlay, w => w.Visible)
 				.AddBinding(vm => vm.CoveragePercentBeforeText, w => w.Text)
 				.InitializeFromSource();
 
