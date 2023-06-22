@@ -1,8 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Cash
 {

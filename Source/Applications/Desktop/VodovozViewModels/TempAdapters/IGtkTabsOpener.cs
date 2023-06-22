@@ -28,7 +28,7 @@ namespace Vodovoz.TempAdapters
 		ITdiTab OpenCounterpartyDlg(ITdiTab master, int counterpartyId);
 		void OpenTrackOnMapWnd(int routeListId);
 		void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType);
-		void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description);
+		void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, int routeListId, decimal balance, string description);
 		ITdiTab OpenCounterpartyEdoTab(int counterpartyId, ITdiTab master = null);
 		ITdiTab OpenIncomingWaterDlg(int incomingWaterId, ITdiTab master = null);
 		ITdiTab OpenSelfDeliveryDocumentDlg(int selfDeliveryDocumentId, ITdiTab master = null);

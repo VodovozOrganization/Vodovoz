@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Permissions;
 
@@ -28,6 +29,7 @@ namespace Vodovoz.Domain.Cash
 		private string _description;
 		private decimal _money;
 		private Organization _organisation;
+		private RouteList _routeList;
 
 		#region Свойства
 
@@ -95,6 +97,13 @@ namespace Vodovoz.Domain.Cash
 		{
 			get => _organisation;
 			set => SetField(ref _organisation, value);
+		}
+
+		[Display(Name = "Маршрутный лист")]
+		public virtual RouteList RouteList
+		{
+			get => _routeList;
+			set => SetField(ref _routeList, value);
 		}
 
 		public virtual string Title => $"Авансовый отчет №{Id} от {Date:d}";
