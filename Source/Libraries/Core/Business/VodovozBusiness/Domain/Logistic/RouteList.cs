@@ -48,7 +48,6 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
-using NPOI.SS.Formula.Functions;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -1763,7 +1762,10 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool IsDriversDebtInPermittedRangeVerification()
 		{
-			if(Driver != null && (Status == RouteListStatus.New || Status == RouteListStatus.Confirmed || Status == RouteListStatus.InLoading))
+			if(Driver != null 
+				&& (Status == RouteListStatus.New 
+					|| Status == RouteListStatus.Confirmed 
+					|| Status == RouteListStatus.InLoading))
 			{
 				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
 				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsParametersProvider.DriversRouteListsMaxDebtSum;
