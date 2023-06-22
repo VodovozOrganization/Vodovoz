@@ -67,7 +67,7 @@
     <Compile Include="Domain\Cash\IncomeType.cs" />
     <Compile Include="Domain\Cash\ISelfDeliveryCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Client\ExternalCounterpartyMatchingStatus.cs" />
-    <Compile Include="Domain\Client\PaymentByTerminalSubtype.cs" />
+    <Compile Include="Domain\Client\PaymentByTerminalSource.cs" />
     <Compile Include="Domain\Documents\IncomingInvoices\AccountingType.cs" />
     <Compile Include="Domain\Documents\InventoryDocuments\InventoryDocumentStatus.cs" />
     <Compile Include="Domain\Documents\InventoryDocuments\InventoryDocumentType.cs" />
