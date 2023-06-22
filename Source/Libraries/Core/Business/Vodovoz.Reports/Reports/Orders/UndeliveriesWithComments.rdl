@@ -836,7 +836,7 @@
             WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
             WHEN 'ServiceMan' THEN 'Мастер СЦ'
             WHEN 'ForceMajor' THEN 'Форс-мажор'
-            WHEN 'DirectorLO' THEN 'Директор ЛО (Доставка за час)'
+            WHEN 'DirectorLO' THEN 'Доставка за час'
             WHEN 'DirectorLOCurrentDayDelivery' THEN 'Директор ЛО (Доставка в тот же день)'
             WHEN 'None' THEN 'Нет (не недовоз)'
             WHEN 'Unknown' THEN 'Неизвестно'
@@ -1033,7 +1033,7 @@ FROM
 				WHEN 'Client' THEN 'Клиент'
 				WHEN 'Driver' THEN 'Водитель'
 				WHEN 'ServiceMan' THEN 'Мастер СЦ'
-				WHEN 'DirectorLO' THEN 'Директор ЛО (Доставка за час)'
+				WHEN 'DirectorLO' THEN 'Доставка за час'
 				WHEN 'DirectorLOCurrentDayDelivery' THEN 'Директор ЛО (Доставка в тот же день)'
 				WHEN 'None' THEN 'Нет (не недовоз)'
 				WHEN 'Unknown' THEN 'Неизвестно'
