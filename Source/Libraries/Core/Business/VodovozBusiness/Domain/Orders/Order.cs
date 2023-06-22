@@ -464,6 +464,15 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private PaymentByTerminalSubtype _paymentByTerminalSubtype;
+
+		[Display(Name = "Подтип оплаты по терминалу")]
+		public virtual PaymentByTerminalSubtype PaymentByTerminalSubtype
+		{
+			get => _paymentByTerminalSubtype;
+			set => SetField(ref _paymentByTerminalSubtype, value);
+		}
+
 		CounterpartyContract contract;
 
 		[Display(Name = "Договор")]

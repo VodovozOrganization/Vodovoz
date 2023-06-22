@@ -73,6 +73,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.PaymentType)                       .Column("payment_type")
 				.CustomType<PaymentTypeStringType>()
 				.Access.CamelCaseField(Prefix.Underscore);
+			Map(x => x.PaymentByTerminalSubtype)		  .Column("terminal_subtype");
 			Map(x => x.DocumentType)                      .Column("document_type")
 				.CustomType<DefaultDocumentTypeStringType>();
 			Map(x => x.DriverCallType)                    .Column("driver_call_type")
