@@ -1769,25 +1769,25 @@ namespace Vodovoz.Domain.Logistic
 				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsParametersProvider.DriversRouteListsMaxDebtSum;
 
 				var unclosedRouteListsHavingDebtsCount = _routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id);
-				var unclosedRouteListsDebtsSum = _routeListRepository.GetRouteListsDebtSumByDriver(UoW, Driver.Id);
+				var unclosedRouteListsDebtsSum = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id);
 
 				if(unclosedRouteListsHavingDebtsCount > maxDriversUnclosedRouteListsCountParameter 
 					|| unclosedRouteListsDebtsSum > maxDriversRouteListsDebtsSumParameter)
 				{
 					var messageString =
 						$"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
-						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей.\n" +
-						$"Все равно продолжить?";
+						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей.";
 
 					var canEditDriversStopListParameters =
 						ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
 
 					if(canEditDriversStopListParameters)
 					{
+						messageString += "\n\nВсе равно продолжить?";
 						return ServicesConfig.InteractiveService.Question(messageString, "Требуется подтверждение");
 					}
 
-					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, messageString);
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, messageString);
 					return false;
 				}
 			}
