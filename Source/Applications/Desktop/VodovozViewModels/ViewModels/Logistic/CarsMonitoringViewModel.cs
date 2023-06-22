@@ -455,8 +455,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			IProjection isCompanyCarProjection = CarProjections.GetIsCompanyCarProjection();
 
+			DateTime selectedDateTime = ShowHistory ? HistoryDateTime : DateTime.Now;
+
 			var water19LSubquery = QueryOver.Of<DeliveryFreeBalanceOperation>()
 				.Where(o => o.RouteList.Id == routeListAlias.Id)
+				.And(o => o.OperationTime <= selectedDateTime)
 				.JoinQueryOver(o => o.Nomenclature)
 				.Where(n => n.Category == NomenclatureCategory.water
 				            && n.TareVolume == TareVolume.Vol19L)
@@ -493,16 +496,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					.JoinAlias(() => trackPointAlias.Track, () => trackAlias)
 					.Where(() => trackAlias.RouteList.Id == routeListAlias.Id);
 
-				DateTime trackDate;
-
 				if(ShowHistory)
 				{
 					addressCountSubquery.Where(Restrictions.Or(
 							Restrictions.Ge(Projections.Property(() => orderAlias.TimeDelivered), HistoryDateTime),
 							Restrictions.Eq(Projections.Property(() => routeListItemAlias.Status), RouteListItemStatus.EnRoute)))
 						.And(() => routeListItemAlias.CreationDate <= HistoryDateTime);
-
-					trackDate = HistoryDateTime;
 				}
 				else
 				{
@@ -513,19 +512,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 								new SQLFunctionTemplate(NHibernateUtil.DateTime,
 									$"TIMESTAMPADD(MINUTE, -{specificTimeForFastOrdersCount}, CURRENT_TIMESTAMP)"),
 								NHibernateUtil.DateTime)));
-
-					trackDate = DateTime.Now;
 				}
 
 				addressCountSubquery.Select(Projections.Count(() => routeListItemAlias.Id));
 				query.WithSubquery.WhereValue(_deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime).Gt(addressCountSubquery);
 
-				trackPointSubQuery.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), trackDate))
-					.Where(Restrictions.Ge(Projections.Property(() => trackPointAlias.TimeStamp), trackDate.Add(DriverDisconnectedTimespan)))
+				trackPointSubQuery.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), selectedDateTime))
+					.Where(Restrictions.Ge(Projections.Property(() => trackPointAlias.TimeStamp), selectedDateTime.Add(DriverDisconnectedTimespan)))
 					.Select(Projections.Property(() => trackPointAlias.ReceiveTimeStamp))
 					.Take(1);
 
-				query.WithSubquery.WhereValue(trackDate.Add(DriverDisconnectedTimespan)).Le(trackPointSubQuery);
+				query.WithSubquery.WhereValue(selectedDateTime.Add(DriverDisconnectedTimespan)).Le(trackPointSubQuery);
 			}
 
 			query.JoinAlias(rl => rl.Driver, () => driverAlias)
