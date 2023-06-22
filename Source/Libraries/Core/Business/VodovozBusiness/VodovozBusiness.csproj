@@ -298,6 +298,7 @@
     <Compile Include="Domain\Logistic\FastDeliveryMaxDistanceParameterVersion.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Logistic\LogisticsRequirements.cs" />
+    <Compile Include="Domain\Logistic\RouteListDebt.cs" />
     <Compile Include="Domain\Logistic\RouteListFastDeliveryMaxDistance.cs" />
     <Compile Include="Domain\Operations\DeliveryFreeBalanceOperation.cs" />
     <Compile Include="Domain\Operations\BulkGoodsAccountingOperation.cs" />
@@ -711,6 +712,7 @@
     <Compile Include="HibernateMapping\Logistic\LateArrivalReasonMap.cs" />
     <Compile Include="HibernateMapping\Logistic\ArchivedTrackPointMap.cs" />
     <Compile Include="HibernateMapping\Logistic\LogisticsRequirementsMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\RouteListDebtMap.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteListFastDeliveryMaxDistanceMap.cs" />
     <Compile Include="HibernateMapping\Operations\BulkGoodsAccountingOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\CarBulkGoodsAccountingOperationMap.cs" />

@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.TempAdapters;
 using Vodovoz.EntityRepositories.Subdivisions;
 using QS.Services;
+using Gtk;
 using Vodovoz.Services;
 
 namespace Vodovoz
@@ -61,7 +62,7 @@ namespace Vodovoz
 				new CashDistributionCommonOrganisationProvider(
 					new OrganizationParametersProvider(_parametersProvider)));
 		
-		List<Selectable<Expense>> selectableAdvances;
+		private List<Selectable<Expense>> _selectableAdvances = new List<Selectable<Expense>>();
 
 		public CashIncomeDlg()
 		{
@@ -130,7 +131,7 @@ namespace Vodovoz
 			Entity.ExpenseCategory = advance.ExpenseCategory;
 			Entity.Employee = advance.Employee;
 			Entity.Organisation = advance.Organisation;
-			selectableAdvances.Find(x => x.Value.Id == advance.Id).Selected = true;
+			_selectableAdvances.Find(x => x.Value.Id == advance.Id).Selected = true;
 		}
 
 		public CashIncomeDlg(Income sub) : this(sub.Id) {}
@@ -188,7 +189,7 @@ namespace Vodovoz
 				_categoryRepository.ExpenseCategories(UoW).Where(x => 
 					x.ExpenseDocumentType != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery);
 			comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
-			
+
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(
 				s => 
 					comboCategory.ItemsList = _categoryRepository.IncomeCategories(UoW).Where(x =>
@@ -210,13 +211,20 @@ namespace Vodovoz
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
 
 			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<Selectable<Expense>> ()
-				.AddColumn ("Закрыть").AddToggleRenderer (a => a.Selected).Editing ()
+				.AddColumn ("Закрыть").AddToggleRenderer (a => a.Selected).Editing()
 				.AddColumn ("Дата").AddTextRenderer (a => a.Value.Date.ToString ())
 				.AddColumn ("Получено").AddTextRenderer (a => a.Value.Money.ToString ("C"))
 				.AddColumn ("Непогашено").AddTextRenderer (a => a.Value.UnclosedMoney.ToString ("C"))
 				.AddColumn ("Статья").AddTextRenderer (a => a.Value.ExpenseCategory.Name)
 				.AddColumn ("Основание").AddTextRenderer (a => a.Value.Description)
-				.Finish ();
+				.RowCells().AddSetter<CellRenderer>(
+					(cell, node) =>
+					{
+						cell.Sensitive =
+							node.Value.RouteListClosing == Entity.RouteListClosing
+							|| _selectableAdvances.Count(s => s.Selected) == 0;
+					})
+				.Finish();
 			UpdateSubdivision();
 
 			if (!CanEdit)
@@ -283,11 +291,61 @@ namespace Vodovoz
 				Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
 			}
 		}
-		
+
+		private void UpdateRouteListInfo()
+		{
+			SetRouteListControlsVisibility();
+			SetRouteListReference();
+
+			ytreeviewDebts.ItemsDataSource = _selectableAdvances;
+		}
+
+		private void SetRouteListControlsVisibility()
+		{
+			lblRouteList.Visible = _allowedToSpecifyRouteList;
+			yEntryRouteList.Visible = _allowedToSpecifyRouteList;
+
+			yEntryRouteList.Sensitive =
+				Entity.TypeOperation == IncomeType.DriverReport;
+		}
+
+		private void SetRouteListReference()
+		{
+			if(!_allowedToSpecifyRouteList)
+			{
+				Entity.RouteListClosing = null;
+				return;
+			}
+
+			if(!UoW.IsNew)
+			{
+				return;
+			}
+
+			var selectedAdvances = _selectableAdvances?
+				.Where(expense => expense.Selected)
+				.Select(e => e.Value.RouteListClosing)
+				.ToList();
+
+			var selectedRouteListsCount = selectedAdvances?.GroupBy(rl => rl?.Id).Count();
+			if(selectedRouteListsCount != 1)
+			{
+				Entity.RouteListClosing = null;
+				return;
+			}
+
+			Entity.RouteListClosing = selectedAdvances.FirstOrDefault();
+		}
+
+		private bool _allowedToSpecifyRouteList => 
+			Entity.TypeOperation == IncomeType.DriverReport
+			|| Entity.TypeOperation == IncomeType.Return;
+
+
 		public override bool Save ()
 		{
-			if (Entity.TypeOperation == IncomeType.Return && UoW.IsNew && selectableAdvances != null)
-				Entity.PrepareCloseAdvance(selectableAdvances.Where(x => x.Selected).Select(x => x.Value).ToList());
+			if (Entity.TypeOperation == IncomeType.Return && UoW.IsNew && _selectableAdvances.Count > 0)
+				Entity.PrepareCloseAdvance(_selectableAdvances.Where(x => x.Selected).Select(x => x.Value).ToList());
 
 			var valid = new QSValidator<Income> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
@@ -305,9 +363,16 @@ namespace Vodovoz
 			else {
 				UpdateCashDistributionsDocuments();
 			}
-			
+
 			UoWGeneric.Save();
 			logger.Info ("Ok");
+
+			if(Entity.RouteListClosing != null)
+			{
+				logger.Info("Обновляем сумму долга по МЛ...");
+				Entity.RouteListClosing.UpdateRouteListDebt();
+				logger.Info("Ok");
+			}
 			return true;
 		}
 
@@ -375,14 +440,18 @@ namespace Vodovoz
 			yspinMoney.Sensitive = Entity.TypeOperation != IncomeType.Return;
 			yspinMoney.ValueAsDecimal = 0;
 
-			FillDebts ();
+			if(UoW.IsNew)
+			{
+				Entity.RouteListClosing = null;
+			}
+
+			FillDebts();
 			CheckOperation((IncomeType)e.SelectedItem);
+			UpdateRouteListInfo();
 		}
 
-		void CheckOperation(IncomeType incomeType){
-			lblRouteList.Visible = yEntryRouteList.Visible
-				= incomeType == IncomeType.DriverReport;
-
+		void CheckOperation(IncomeType incomeType)
+		{
 			if(incomeType == IncomeType.DriverReport){
 				Entity.IncomeCategory = UoW.GetById<IncomeCategory>(1);
 			}
@@ -391,6 +460,7 @@ namespace Vodovoz
 		protected void OnComboExpenseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			FillDebts ();
+			UpdateRouteListInfo();
 		}
 
 		protected void FillDebts()
@@ -399,32 +469,48 @@ namespace Vodovoz
 			{
 				var advances = _accountableDebtsRepository
 					.UnclosedAdvance(UoW, Entity.Employee, Entity.ExpenseCategory, Entity.Organisation?.Id);
-				selectableAdvances = advances.Select (advance => new Selectable<Expense> (advance))
+				_selectableAdvances = advances.Select (advance => new Selectable<Expense> (advance))
 				.ToList ();
-				selectableAdvances.ForEach (advance => advance.SelectChanged += OnAdvanceSelectionChanged);
-				ytreeviewDebts.ItemsDataSource = selectableAdvances;
+				_selectableAdvances.ForEach (advance => advance.SelectChanged += OnAdvanceSelectionChanged);
+				ytreeviewDebts.ItemsDataSource = _selectableAdvances;
+				return;
 			}
+			_selectableAdvances = new List<Selectable<Expense>>();
+			ytreeviewDebts.ItemsDataSource = _selectableAdvances;
 		}
 
-		protected void OnAdvanceSelectionChanged(object sender, EventArgs args){
-			if(checkNoClose.Active && (sender as Selectable<Expense>).Selected)
+		protected void OnAdvanceSelectionChanged(object sender, EventArgs args)
+		{
+			var selectedExpense = sender as Selectable<Expense>;
+
+			if(checkNoClose.Active && selectedExpense.Selected)
 			{
-				selectableAdvances.Where(x => x != sender).ToList().ForEach(x => x.SilentUnselect());
+				_selectableAdvances
+					.Where(x => x != selectedExpense)
+					.ToList()
+					.ForEach(x => x.SilentUnselect());
 			}
 
-			if (checkNoClose.Active)
+			_selectableAdvances
+					.Where(x => x.Value.RouteListClosing != selectedExpense.Value.RouteListClosing)
+					.ToList()
+					.ForEach(x => x.SilentUnselect());
+
+			if(checkNoClose.Active)
 				return;
 
-			Entity.Money = selectableAdvances.
+			Entity.Money = _selectableAdvances.
 				Where(expense=>expense.Selected)
-				.Sum (selectedExpense => selectedExpense.Value.UnclosedMoney);
+				.Sum(se => se.Value.UnclosedMoney);
+
+			UpdateRouteListInfo();
 		}
 			
 		protected void OnCheckNoCloseToggled(object sender, EventArgs e)
 		{
-			if (selectableAdvances == null)
+			if (_selectableAdvances == null)
 				return;
-			if(checkNoClose.Active && selectableAdvances.Count(x => x.Selected) > 1)
+			if(checkNoClose.Active && _selectableAdvances.Count(x => x.Selected) > 1)
 			{
 				MessageDialogHelper.RunWarningDialog("Частично вернуть можно только один аванс.");
 				checkNoClose.Active = false;
@@ -433,7 +519,7 @@ namespace Vodovoz
 			yspinMoney.Sensitive = checkNoClose.Active;
 			if(!checkNoClose.Active)
 			{
-				yspinMoney.ValueAsDecimal = selectableAdvances.Where(x => x.Selected).Sum(x => x.Value.UnclosedMoney);
+				yspinMoney.ValueAsDecimal = _selectableAdvances.Where(x => x.Selected).Sum(x => x.Value.UnclosedMoney);
 			}
 		}
 

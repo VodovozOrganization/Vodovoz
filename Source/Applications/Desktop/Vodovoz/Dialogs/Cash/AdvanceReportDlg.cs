@@ -17,6 +17,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -151,6 +152,9 @@ namespace Vodovoz
 			evmeEmployee.Binding.AddBinding(Entity, e => e.Accountable, w => w.Subject).InitializeFromSource();
 			evmeEmployee.Changed += (sender, e) => FillDebt();
 
+			ytextviewRouteList.Sensitive = false;
+			ytextviewRouteList.Visible = false;
+
 			evmeCashier.Binding.AddBinding(Entity, e => e.Casher, w => w.Subject).InitializeFromSource();
 			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateEmployeeAutocompleteSelectorFactory());
 
@@ -176,6 +180,13 @@ namespace Vodovoz
 				.AddColumn("Непогашено").AddTextRenderer(a => a.Advance.UnclosedMoney.ToString("C"))
 				.AddColumn("Статья").AddTextRenderer(a => a.Advance.ExpenseCategory.Name)
 				.AddColumn("Основание").AddTextRenderer(a => a.Advance.Description)
+				.RowCells().AddSetter<CellRenderer>(
+					(cell, node) =>
+					{
+						cell.Sensitive =
+							node.Advance.RouteListClosing == Entity.RouteList
+							|| advanceList.Count(s => s.Selected) == 0;
+					})
 				.Finish();
 			UpdateSubdivision();
 
@@ -252,6 +263,14 @@ namespace Vodovoz
 				}
 			}
 			logger.Info("Ok");
+
+			if(Entity.RouteList != null)
+			{
+				logger.Info("Обновляем сумму долга по МЛ...");
+				Entity.RouteList.UpdateRouteListDebt();
+				logger.Info("Ok");
+			}
+
 			return true;
 		}
 
@@ -316,8 +335,54 @@ namespace Vodovoz
 			logger.Info("Ok");
 		}
 
+		private void UpdateRouteListInfo()
+		{
+			SetRouteListReference();
+			SetRouteListControlsVisibility();
+		}
+
+		private void SetRouteListReference()
+		{
+			if(!UoW.IsNew)
+			{
+				return;
+			}
+
+			var selectedAdvances = advanceList?
+				.Where(a => a.Selected)
+				.Select(a => a.Advance?.RouteListClosing)
+				.ToList();
+
+			var selectedRouteListsCount = selectedAdvances?.GroupBy(rl => rl?.Id).Count();
+			if(selectedRouteListsCount != 1)
+			{
+				Entity.RouteList = null;
+				return;
+			}
+
+			Entity.RouteList = selectedAdvances.FirstOrDefault();
+		}
+
+		private void SetRouteListControlsVisibility()
+		{
+			labelRouteList.Visible = Entity.RouteList != null;
+			ytextviewRouteList.Visible = Entity.RouteList != null;
+			ytextviewRouteList.Buffer.Text = Entity.RouteList?.Title;
+		}
+
 		void I_SelectChanged(object sender, EventArgs e)
 		{
+			var recivedAdvances = sender as RecivedAdvance;
+
+			advanceList?
+					.Where(x => x.Advance?.RouteListClosing != recivedAdvances?.Advance?.RouteListClosing)
+					.ToList()
+					.ForEach(x => x.SilentUnselect());
+
+			UpdateRouteListInfo();
+
+			ytreeviewDebts.ItemsDataSource = advanceList;
+
 			ClosingSum = advanceList.Where(a => a.Selected).Sum(a => a.Advance.UnclosedMoney);
 			Entity.Money = ClosingSum;
 			ylabel1.Visible = specialListCmbOrganisation.Visible = Entity.NeedValidateOrganisation = ClosingSum != Entity.Money;
@@ -326,6 +391,7 @@ namespace Vodovoz
 		protected void OnComboExpenseChanged(object sender, EventArgs e)
 		{
 			FillDebt();
+			UpdateRouteListInfo();
 		}
 
 		class RecivedAdvance
@@ -341,6 +407,11 @@ namespace Vodovoz
 			}
 
 			public event EventHandler SelectChanged;
+
+			public void SilentUnselect()
+			{
+				selected = false;
+			}
 
 			public Expense Advance { get; set; }
 
