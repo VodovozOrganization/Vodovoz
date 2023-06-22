@@ -903,6 +903,11 @@ namespace Vodovoz.Domain.Client
 				{
 					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано отчество контрагента.");
 				}
+
+				if(!phone.IsValidPhoneNumber)
+				{
+					phonesValidationStringBuilder.AppendLine($"Номер {phone.Number} имеет неправильный формат.");
+				}
 			}
 
 			var phonesValidationMessage = phonesValidationStringBuilder.ToString();
