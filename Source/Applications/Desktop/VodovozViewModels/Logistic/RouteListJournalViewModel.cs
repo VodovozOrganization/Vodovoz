@@ -666,6 +666,12 @@ namespace Vodovoz.ViewModels.Logistic
 			using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var routeList = localUow.GetById<RouteList>(selectedNode.Id);
+
+				if(!routeList.IsDriversDebtInPermittedRangeVerification())
+				{
+					return;
+				}
+
 				routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, _callTaskWorker);
 
 				var carLoadDocument = new CarLoadDocument();
@@ -761,6 +767,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 				foreach(var routeList in routeLists)
 				{
+					if(!routeList.IsDriversDebtInPermittedRangeVerification())
+					{
+						return;
+					}
+
 					int warehouseId = 0;
 
 					var geoGroup = routeList.GeographicGroups.FirstOrDefault();
