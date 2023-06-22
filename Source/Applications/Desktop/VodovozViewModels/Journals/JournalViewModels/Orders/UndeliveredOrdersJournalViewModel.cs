@@ -10,6 +10,7 @@ using QS.Services;
 using System;
 using System.Collections;
 using System.Linq;
+using Gamma.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -195,14 +196,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 						new SQLFunctionTemplate(NHibernateUtil.String,
 							"GROUP_CONCAT(CONCAT(" +
 							"CASE ?1 " +
-							$"WHEN '{nameof(GuiltyTypes.Client)}' THEN 'Клиент' " +
-							$"WHEN '{nameof(GuiltyTypes.Driver)}' THEN 'Водитель' " +
+							$"WHEN '{nameof(GuiltyTypes.Client)}' THEN '{GuiltyTypes.Client.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.Driver)}' THEN '{GuiltyTypes.Driver.GetEnumTitle()}' " +
 							$"WHEN '{nameof(GuiltyTypes.Department)}' THEN 'Отд' " +
-							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN 'Мастер СЦ' " +
-							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN 'Форс-мажор' " +
-							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN 'Директор ЛО (Доставка за час)' " +
-							$"WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN 'Директор ЛО (Доставка в тот же день)' " +
-							$"WHEN '{nameof(GuiltyTypes.None)}' THEN 'Нет (не недовоз)' " +
+							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN '{GuiltyTypes.ServiceMan.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN '{GuiltyTypes.ForceMajor.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN '{GuiltyTypes.DirectorLO.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN '{GuiltyTypes.DirectorLOCurrentDayDelivery.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.None)}' THEN '{GuiltyTypes.None.GetEnumTitle()})' " +
 							"ELSE 'Неизвестно' " +
 							"END, " +
 							"IF(?1 = 'Department' AND ?2 = '', ':Неизвестно', " +
