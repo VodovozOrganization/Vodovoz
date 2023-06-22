@@ -96,7 +96,8 @@ namespace Vodovoz
 		private DateTime _previousSelectedDate;
 		private bool _isLogistican;
 		private bool _canСreateRoutelistInPastPeriod;
-		private GenericObservableList<RouteListProfitability> _routeListProfitabilities; 
+		private GenericObservableList<RouteListProfitability> _routeListProfitabilities;
+		private bool _driversDebtIsConfirmed = false;
 
 		public RouteListCreateDlg()
 		{
@@ -532,6 +533,11 @@ namespace Vodovoz
 		{
 			_logger.Info("Вызван метод сохранения МЛ {EntityId}...", Entity.Id);
 
+			if(!_driversDebtIsConfirmed && !Entity.IsDriversDebtInPermittedRangeVerification())
+			{
+				return false;
+			}
+
 			var valid = new QSValidator<RouteList>(Entity, new Dictionary<object, object>() { { nameof(IRouteListItemRepository), new RouteListItemRepository() } });
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 			{
@@ -671,6 +677,12 @@ namespace Vodovoz
 		{
 			try
 			{
+				_driversDebtIsConfirmed = Entity.IsDriversDebtInPermittedRangeVerification();
+				if(!_driversDebtIsConfirmed)
+				{
+					return;
+				}
+
 				SetSensetivity(false);
 				var callTaskWorker = new CallTaskWorker(
 					CallTaskSingletonFactory.GetInstance(),
