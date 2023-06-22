@@ -129,7 +129,10 @@ namespace Vodovoz.EntityRepositories.Cash
 					.Where(GetDeliveryDateRestriction())
 					;
 
-				var result = query.Select(Projections.Id()).List<int>();
+				var result = 
+					query.SelectList(list => list
+							.SelectGroup(() => _orderAlias.Id))
+						.List<int>();
 				return result;
 			}
 		}
@@ -154,7 +157,10 @@ namespace Vodovoz.EntityRepositories.Cash
 					.And(GetOrderStatusRestriction())
 					.And(() => !_orderAlias.SelfDelivery);
 
-				var result = query.Select(Projections.Id()).List<int>();
+				var result = 
+					query.SelectList(list => list
+							.SelectGroup(() => _orderAlias.Id))
+						.List<int>();
 				return result;
 			}
 		}
