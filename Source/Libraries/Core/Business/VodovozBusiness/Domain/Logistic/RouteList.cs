@@ -48,6 +48,7 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
+using NPOI.SS.Formula.Functions;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -1757,18 +1758,20 @@ namespace Vodovoz.Domain.Logistic
 			return (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date ?? DateTime.Now);
 		}
 
-		private (bool IsDebtInPermittedRange, string Message) CheckDriversDebts()
+		public virtual bool IsDriversDebtInPermittedRangeVerification()
 		{
-			var resultString = string.Empty;
-
 			if(Driver != null && (Status == RouteListStatus.New || Status == RouteListStatus.Confirmed || Status == RouteListStatus.InLoading))
 			{
+				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
+				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+
 				var unclosedRouteListsHavingDebtsCount = _routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id);
 				var unclosedRouteListsDebtsSum = _routeListRepository.GetRouteListsDebtSumByDriver(UoW, Driver.Id);
 
-				if(unclosedRouteListsHavingDebtsCount > 3 || unclosedRouteListsDebtsSum > 1000)
+				if(unclosedRouteListsHavingDebtsCount > maxDriversUnclosedRouteListsCountParameter 
+					|| unclosedRouteListsDebtsSum > maxDriversRouteListsDebtsSumParameter)
 				{
-					resultString =
+					var messageString =
 						$"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
 						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей.\n" +
 						$"Все равно продолжить?";
@@ -1776,15 +1779,16 @@ namespace Vodovoz.Domain.Logistic
 					var canEditDriversStopListParameters =
 						ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
 
-					if(canEditDriversStopListParameters && ServicesConfig.InteractiveService.Question(resultString, "Ошибка при сохранении МЛ"))
+					if(canEditDriversStopListParameters)
 					{
-						return (true, string.Empty);
+						return ServicesConfig.InteractiveService.Question(messageString, "Требуется подтверждение");
 					}
-					
-					return (false, resultString);
+
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, messageString);
+					return false;
 				}
 			}
-			return (true, resultString);
+			return true;
 		}
 
 		#endregion
@@ -1904,12 +1908,6 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", 
 					new[] { nameof(GeographicGroups) });
-			}
-
-			var driversDebtsCheckResult = CheckDriversDebts();
-			if(!driversDebtsCheckResult.IsDebtInPermittedRange)
-			{
-				yield return new ValidationResult(driversDebtsCheckResult.Message, new[] { nameof(RouteListDebt) });
 			}
 		}
 
