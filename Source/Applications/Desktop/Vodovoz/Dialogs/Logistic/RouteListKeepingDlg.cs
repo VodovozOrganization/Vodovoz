@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
@@ -300,6 +300,16 @@ namespace Vodovoz
 			UpdateBottlesSummaryInfo();
 
 			UpdateNodes();
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
+			}
 		}
 
 		void YtreeviewAddresses_RowActivated(object o, RowActivatedArgs args)
