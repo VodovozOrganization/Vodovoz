@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -222,6 +222,7 @@ namespace Vodovoz
 			var driverFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
+			evmeDriver.ChangedByUser += OnEvmeDriverChangedByUser;
 
 			previousForwarder = Entity.Forwarder;
 			var forwarderFilter = new EmployeeFilterViewModel();
@@ -363,6 +364,17 @@ namespace Vodovoz
 			routeListAddressesView.Items.PropertyOfElementChanged += OnRouteListItemPropertyOfElementChanged;
 
 			ybuttonCashChangeReturn.Clicked += OnYbuttonCashChangeReturnClicked;
+		}
+
+		private void OnEvmeDriverChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.Driver != null)
+			{
+				if(!Entity.IsDriversDebtInPermittedRangeVerification())
+				{
+					Entity.Driver = null;
+				}
+			}
 		}
 
 		private void OnYbuttonCashChangeReturnClicked(object sender, EventArgs e)

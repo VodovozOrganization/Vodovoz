@@ -1762,16 +1762,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool IsDriversDebtInPermittedRangeVerification()
 		{
-			if(Driver != null 
-				&& (Status == RouteListStatus.New 
-					|| Status == RouteListStatus.Confirmed 
-					|| Status == RouteListStatus.InLoading))
+			if(Driver != null)
 			{
 				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
 				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsParametersProvider.DriversRouteListsMaxDebtSum;
 
-				var unclosedRouteListsHavingDebtsCount = _routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id);
-				var unclosedRouteListsDebtsSum = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id);
+				var unclosedRouteListsHavingDebtsCount = _routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
+				var unclosedRouteListsDebtsSum = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
 
 				if(unclosedRouteListsHavingDebtsCount > maxDriversUnclosedRouteListsCountParameter 
 					|| unclosedRouteListsDebtsSum > maxDriversRouteListsDebtsSumParameter)
