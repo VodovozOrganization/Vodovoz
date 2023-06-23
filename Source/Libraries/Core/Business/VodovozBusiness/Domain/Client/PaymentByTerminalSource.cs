@@ -4,9 +4,9 @@ namespace Vodovoz.Domain.Client
 {
 	public enum PaymentByTerminalSource
 	{
-		[Display(Name = "По карте", ShortName = "карта")]
+		[Display(Name = "Картой", ShortName = "картой")]
 		ByCard,
-		[Display(Name = "По QR-коду", ShortName = "qr-код")]
+		[Display(Name = "QR-код", ShortName = "qr-код")]
 		ByQR
 	}
 }
