@@ -787,7 +787,8 @@ namespace Vodovoz
 							if(address.TransferedTo == null &&
 							   (!address.WasTransfered || address.AddressTransferType != AddressTransferType.FromHandToHand))
 							{
-								routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, address, DeliveryFreeBalanceType.Decrease, true);
+								routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
+									UoW, address, DeliveryFreeBalanceType.Decrease, isFullRecreation: true, needRouteListUpdate: false);
 							}
 							else
 							{
