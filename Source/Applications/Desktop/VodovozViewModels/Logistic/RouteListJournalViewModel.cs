@@ -112,7 +112,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			TabName = "Журнал МЛ";
 
-			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(Expense), typeof(Income), typeof(AdvanceReport), typeof(RouteListItem));
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(RouteListDebt));
 			InitPopupActions();
 		}
 
