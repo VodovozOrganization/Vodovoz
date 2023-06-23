@@ -62,6 +62,8 @@
     <Compile Include="Dialogs\Goods\NomenclatureGroupPricingProductGroupViewModel.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureGroupPricingViewModel.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureViewModel.cs" />
+    <Compile Include="Dialogs\Logistic\CargoDailyNormNode.cs" />
+    <Compile Include="Dialogs\Logistic\CargoDailyNormViewModel.cs" />
     <Compile Include="Dialogs\Logistic\AtWorkFilterViewModel.cs" />
     <Compile Include="Dialogs\Logistic\DeliveryShiftNode.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupVersionViewModel.cs" />
