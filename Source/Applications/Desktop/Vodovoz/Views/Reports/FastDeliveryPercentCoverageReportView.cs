@@ -143,11 +143,20 @@ namespace Vodovoz.Views.Reports
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? "" : x.ServiceRadius.ToString("0.00"))
 					.XAlign(0.5f)
+				.AddColumn("Доступный радиус обслуживания")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? "" : x.ActualServiceRadius.ToString("0.00"))
+					.XAlign(0.5f)
 				.AddColumn("Процент покрытия")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? ""
 						: x.PercentCoverage.ToString("P"))
 					.XAlign(0.5f)
+				.AddColumn("Доступно для заказа")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? ""
+						: x.ActualPercentCoverage.ToString("P"))
+				.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 

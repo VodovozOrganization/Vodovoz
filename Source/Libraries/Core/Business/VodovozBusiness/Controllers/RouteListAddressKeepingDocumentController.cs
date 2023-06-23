@@ -49,7 +49,9 @@ namespace Vodovoz.Controllers
 			throw new ArgumentOutOfRangeException(nameof(oldStatus));
 		}
 
-		private void CreateOperationsForReturns(IUnitOfWork uow, RouteListItem routeListItem, RouteListAddressKeepingDocument routeListKeepingDocument, RouteListItemStatus? oldStatus, RouteListItemStatus? newStatus)
+		private void CreateOperationsForReturns(IUnitOfWork uow, RouteListItem routeListItem,
+			RouteListAddressKeepingDocument routeListKeepingDocument, RouteListItemStatus? oldStatus, RouteListItemStatus? newStatus,
+			bool needRouteListUpdate = true)
 		{
 			var routeList = routeListItem.RouteList;
 
@@ -79,7 +81,10 @@ namespace Vodovoz.Controllers
 			bottleRouteListKeepingDocumentItem.CreateOrUpdateOperation();
 			routeListKeepingDocument.Items.Add(bottleRouteListKeepingDocumentItem);
 
-			routeList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+			if(needRouteListUpdate)
+			{
+				routeList.ObservableDeliveryFreeBalanceOperations.Add(bottleRouteListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+			}
 
 			var isOldUndelivered = RouteListItem.GetUndeliveryStatuses().Contains(oldStatus.Value);
 
@@ -95,7 +100,10 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 
-				routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				if(needRouteListUpdate)
+				{
+					routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				}
 			}
 		}
 
@@ -180,7 +188,7 @@ namespace Vodovoz.Controllers
 
 		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem,
 			DeliveryFreeBalanceType deliveryFreeBalanceType, bool isFullRecreation = false, bool isActualCount = false,
-			RouteListItemStatus? oldStatus = null, RouteListItemStatus? newStatus = null)
+			RouteListItemStatus? oldStatus = null, RouteListItemStatus? newStatus = null, bool needRouteListUpdate = true)
 		{
 			var routeListKeepingDocument =
 				uow.GetAll<RouteListAddressKeepingDocument>()
@@ -195,7 +203,7 @@ namespace Vodovoz.Controllers
 
 			if(deliveryFreeBalanceType == DeliveryFreeBalanceType.Unchange)
 			{
-				CreateOperationsForReturns(uow, routeListItem, routeListKeepingDocument, oldStatus, newStatus);
+				CreateOperationsForReturns(uow, routeListItem, routeListKeepingDocument, oldStatus, newStatus, needRouteListUpdate);
 				uow.Save(routeListKeepingDocument);
 				return;
 			}
@@ -217,14 +225,18 @@ namespace Vodovoz.Controllers
 			{
 				foreach(var item in routeListKeepingDocument.Items)
 				{
-					routeList.ObservableDeliveryFreeBalanceOperations.Remove(item.DeliveryFreeBalanceOperation);
+					if(needRouteListUpdate)
+					{
+						routeList.ObservableDeliveryFreeBalanceOperations.Remove(item.DeliveryFreeBalanceOperation);
+					}
+
 					uow.Delete(item);
 				}
 
 				routeListKeepingDocument.Items.Clear();
 			}
 
-			CreateOperationsForReturns(uow, routeListItem, routeListKeepingDocument, oldStatus, newStatus);
+			CreateOperationsForReturns(uow, routeListItem, routeListKeepingDocument, oldStatus, newStatus, needRouteListUpdate);
 
 			foreach(var item in routeListItem.Order.GetAllGoodsToDeliver(isActualCount))
 			{
@@ -238,7 +250,10 @@ namespace Vodovoz.Controllers
 
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
 
-				routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				if(needRouteListUpdate)
+				{
+					routeList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				}
 			}
 
 			uow.Save(routeListKeepingDocument);

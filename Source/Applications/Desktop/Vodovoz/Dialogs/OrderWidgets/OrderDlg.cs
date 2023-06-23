@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -2074,15 +2074,22 @@ namespace Vodovoz
 				Entity.UpdateDocuments();
 			}
 
-			if(!Save())
+			try
 			{
-				return false;
+				if(!Save())
+				{
+					return false;
+				}
 			}
-
-			if(fastDeliveryAddress != null)
+			finally
 			{
-				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
-				UoW.Commit();
+				if(fastDeliveryAddress != null)
+				{
+					_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
+						UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease, needRouteListUpdate: false);
+
+					UoW.Commit();
+				}
 			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();

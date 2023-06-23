@@ -1,4 +1,4 @@
-﻿using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using NHibernate.Dialect.Function;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -48,6 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private bool _showCarCirclesOverlay = false;
 		private bool _showDistrictsOverlay = false;
 		private bool _showFastDeliveryOnly = false;
+		private bool _showActualFastDeliveryOnly;
 		private bool _showAddresses = false;
 		private bool _separateVindowOpened = false;
 		private bool _canShowAddresses = true;
@@ -108,7 +110,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CarRefreshInterval = TimeSpan.FromSeconds(_deliveryRulesParametersProvider.CarsMonitoringResfreshInSeconds);
 
 			DefaultMapCenterPosition = new Coordinate(59.93900, 30.31646);
-			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-20);
+			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-(int)_deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint.TotalMinutes);
 
 			var timespanRange = new List<TimeSpan>();
 
@@ -166,6 +168,24 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
+		[PropertyChangedAlso(nameof(CoveragePercentBeforeText))]
+		public bool ShowActualFastDeliveryOnly
+		{
+			get => _showActualFastDeliveryOnly;
+			set
+			{
+				if(SetField(ref _showActualFastDeliveryOnly, value))
+				{
+					RefreshWorkingDriversCommand?.Execute();
+					if(ShowDistrictsOverlay)
+					{
+						RefreshFastDeliveryDistrictsCommand?.Execute();
+					}
+				}
+			}
+
+		}
+
 		public bool ShowFastDeliveryOnly
 		{
 			get => _showFastDeliveryOnly;
@@ -176,6 +196,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				{
 					ShowCarCirclesOverlay = false;
 					ShowHistory = false;
+					ShowActualFastDeliveryOnly = false;
 				}
 				RefreshWorkingDriversCommand?.Execute();
 			}
@@ -302,6 +323,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public Color[] AvailableTrackColors => _availableTrackColors;
 
 		public string CoveragePercentString => $"{CoveragePercent:P}";
+
+		public string CoveragePercentBeforeText => ShowActualFastDeliveryOnly ? "Доступно для заказа" : "Процент покрытия";
 
 		[PropertyChangedAlso(nameof(CoveragePercentString))]
 		public double CoveragePercent => DistanceCalculator.CalculateCoveragePercent(
@@ -432,8 +455,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			IProjection isCompanyCarProjection = CarProjections.GetIsCompanyCarProjection();
 
+			DateTime selectedDateTime = ShowHistory ? HistoryDateTime : DateTime.Now;
+
 			var water19LSubquery = QueryOver.Of<DeliveryFreeBalanceOperation>()
 				.Where(o => o.RouteList.Id == routeListAlias.Id)
+				.And(o => o.OperationTime <= selectedDateTime)
 				.JoinQueryOver(o => o.Nomenclature)
 				.Where(n => n.Category == NomenclatureCategory.water
 				            && n.TareVolume == TareVolume.Vol19L)
@@ -452,6 +478,51 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			if(ShowFastDeliveryOnly)
 			{
 				query.Where(() => routeListAlias.AdditionalLoadingDocument != null);
+			}
+
+			if(ShowActualFastDeliveryOnly)
+			{
+				var specificTimeForFastOrdersCount = (int)_deliveryRulesParametersProvider.SpecificTimeForMaxFastOrdersCount.TotalMinutes;
+
+				TrackPoint trackPointAlias = null;
+
+				var addressCountSubquery = QueryOver.Of(() => routeListItemAlias)
+					.Inner.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
+					.Where(() => routeListItemAlias.RouteList.Id == routeListAlias.Id)
+					.And(() => orderAlias.IsFastDelivery);
+
+
+				var trackPointSubQuery = QueryOver.Of(() => trackPointAlias)
+					.JoinAlias(() => trackPointAlias.Track, () => trackAlias)
+					.Where(() => trackAlias.RouteList.Id == routeListAlias.Id);
+
+				if(ShowHistory)
+				{
+					addressCountSubquery.Where(Restrictions.Or(
+							Restrictions.Ge(Projections.Property(() => orderAlias.TimeDelivered), HistoryDateTime),
+							Restrictions.Eq(Projections.Property(() => routeListItemAlias.Status), RouteListItemStatus.EnRoute)))
+						.And(() => routeListItemAlias.CreationDate <= HistoryDateTime);
+				}
+				else
+				{
+					addressCountSubquery.Where(() => routeListItemAlias.Status == RouteListItemStatus.EnRoute)
+						.And(Restrictions.GtProperty(
+							Projections.Property(() => routeListItemAlias.CreationDate),
+							Projections.SqlFunction(
+								new SQLFunctionTemplate(NHibernateUtil.DateTime,
+									$"TIMESTAMPADD(MINUTE, -{specificTimeForFastOrdersCount}, CURRENT_TIMESTAMP)"),
+								NHibernateUtil.DateTime)));
+				}
+
+				addressCountSubquery.Select(Projections.Count(() => routeListItemAlias.Id));
+				query.WithSubquery.WhereValue(_deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime).Gt(addressCountSubquery);
+
+				trackPointSubQuery.Where(Restrictions.Le(Projections.Property(() => trackPointAlias.ReceiveTimeStamp), selectedDateTime))
+					.Where(Restrictions.Ge(Projections.Property(() => trackPointAlias.TimeStamp), selectedDateTime.Add(DriverDisconnectedTimespan)))
+					.Select(Projections.Property(() => trackPointAlias.ReceiveTimeStamp))
+					.Take(1);
+
+				query.WithSubquery.WhereValue(selectedDateTime.Add(DriverDisconnectedTimespan)).Le(trackPointSubQuery);
 			}
 
 			query.JoinAlias(rl => rl.Driver, () => driverAlias)
@@ -641,6 +712,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 				OnPropertyChanged(nameof(CoveragePercent));
 			}
+
 			FastDeliveryDistrictChanged?.Invoke();
 		}
 
