@@ -139,6 +139,7 @@ namespace Vodovoz.Views.Logistic
 			this.btnCopyEntityId.Image = w5;
 			this.hboxHeader.Add(this.btnCopyEntityId);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxHeader[this.btnCopyEntityId]));
+			w6.PackType = ((global::Gtk.PackType)(1));
 			w6.Position = 3;
 			w6.Expand = false;
 			w6.Fill = false;
