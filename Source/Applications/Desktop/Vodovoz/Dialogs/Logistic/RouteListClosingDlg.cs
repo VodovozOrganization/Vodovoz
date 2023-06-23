@@ -363,6 +363,16 @@ namespace Vodovoz
 			routeListAddressesView.Items.PropertyOfElementChanged += OnRouteListItemPropertyOfElementChanged;
 
 			ybuttonCashChangeReturn.Clicked += OnYbuttonCashChangeReturnClicked;
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
+			}
 		}
 
 		private void OnYbuttonCashChangeReturnClicked(object sender, EventArgs e)
