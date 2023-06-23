@@ -2022,7 +2022,9 @@ namespace Vodovoz
 			}
 
 			var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
-			var edoLightsMatrixViewModel = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel;
+			var edoLightsMatrixViewModel = edoLightsMatrixPanelView is null
+				? new EdoLightsMatrixViewModel()
+				: edoLightsMatrixPanelView.ViewModel.EdoLightsMatrixViewModel;
 			edoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
 
 			var edoLightsMatrixPaymentType = Entity.PaymentType == PaymentType.Cashless
