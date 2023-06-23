@@ -154,6 +154,7 @@ namespace Vodovoz.Views.Settings
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.textviewRouteListPrintedFormPhones = new global::Gamma.GtkWidgets.yTextView();
+			this.textviewRouteListPrintedFormPhones.HeightRequest = 100;
 			this.textviewRouteListPrintedFormPhones.CanFocus = true;
 			this.textviewRouteListPrintedFormPhones.Name = "textviewRouteListPrintedFormPhones";
 			this.GtkScrolledWindow.Add(this.textviewRouteListPrintedFormPhones);
@@ -223,8 +224,6 @@ namespace Vodovoz.Views.Settings
 			this.ybuttonSaveDriversStopListSettings.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
 			this.ytableStopListProp.Add(this.ybuttonSaveDriversStopListSettings);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.ytableStopListProp[this.ybuttonSaveDriversStopListSettings]));
-			w12.TopAttach = ((uint)(3));
-			w12.BottomAttach = ((uint)(4));
 			w12.LeftAttach = ((uint)(1));
 			w12.RightAttach = ((uint)(2));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -254,12 +253,10 @@ namespace Vodovoz.Views.Settings
 			// Container child ytableStopListProp.Gtk.Table+TableChild
 			this.ylabelTitle2 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelTitle2.Name = "ylabelTitle2";
-			this.ylabelTitle2.Yalign = 1F;
-			this.ylabelTitle2.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Параметры стоп-листа для водителей</b>");
+			this.ylabelTitle2.LabelProp = global::Mono.Unix.Catalog.GetString("Параметры стоп-листа для водителей");
 			this.ylabelTitle2.UseMarkup = true;
 			this.ytableStopListProp.Add(this.ylabelTitle2);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.ytableStopListProp[this.ylabelTitle2]));
-			w15.RightAttach = ((uint)(2));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableStopListProp.Gtk.Table+TableChild
@@ -301,8 +298,6 @@ namespace Vodovoz.Views.Settings
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.ytableStopListProp]));
 			w18.PackType = ((global::Gtk.PackType)(1));
 			w18.Position = 3;
-			w18.Expand = false;
-			w18.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.hseparator2 = new global::Gtk.HSeparator();
 			this.hseparator2.Name = "hseparator2";
@@ -326,7 +321,7 @@ namespace Vodovoz.Views.Settings
 			w22.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.complaintSubdivisionsView = new global::Vodovoz.Views.Settings.SubdivisionsSettingsView();
-			this.complaintSubdivisionsView.HeightRequest = 300;
+			this.complaintSubdivisionsView.HeightRequest = 200;
 			this.complaintSubdivisionsView.Events = ((global::Gdk.EventMask)(256));
 			this.complaintSubdivisionsView.Name = "complaintSubdivisionsView";
 			this.vboxMain.Add(this.complaintSubdivisionsView);
