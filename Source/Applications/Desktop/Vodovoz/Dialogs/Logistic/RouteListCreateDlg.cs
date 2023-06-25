@@ -313,6 +313,17 @@ namespace Vodovoz
 			ConfigureTreeRouteListProfitability();
 
 			#endregion
+
+			btnCopyEntityId.Sensitive = Entity.Id > 0;
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
+			}
 		}
 
 		private void OnInformationToggled(object sender, EventArgs e)
