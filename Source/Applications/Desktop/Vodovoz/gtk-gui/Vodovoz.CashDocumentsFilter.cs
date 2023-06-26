@@ -10,13 +10,13 @@ namespace Vodovoz
 
 		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodDocs;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryCashExpenseCategory;
+		private global::QS.Views.Control.EntityEntry entryEmployee;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityVMEntryCashIncomeCategory;
+		private global::QS.Views.Control.EntityEntry entryExpenseFinancialCategory;
+
+		private global::QS.Views.Control.EntityEntry entryIncomeFinancialCategory;
 
 		private global::Gamma.Widgets.yEnumComboBox enumcomboDocumentType;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeEmployee;
 
 		private global::Gtk.Label label1;
 
@@ -36,6 +36,7 @@ namespace Vodovoz
 			this.Name = "Vodovoz.CashDocumentsFilter";
 			// Container child Vodovoz.CashDocumentsFilter.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(4)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -65,29 +66,39 @@ namespace Vodovoz
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entityVMEntryCashExpenseCategory = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityVMEntryCashExpenseCategory.Events = ((global::Gdk.EventMask)(256));
-			this.entityVMEntryCashExpenseCategory.Name = "entityVMEntryCashExpenseCategory";
-			this.entityVMEntryCashExpenseCategory.CanEditReference = false;
-			this.table1.Add(this.entityVMEntryCashExpenseCategory);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryCashExpenseCategory]));
-			w3.TopAttach = ((uint)(1));
-			w3.BottomAttach = ((uint)(2));
-			w3.LeftAttach = ((uint)(3));
-			w3.RightAttach = ((uint)(4));
+			this.entryEmployee = new global::QS.Views.Control.EntityEntry();
+			this.entryEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.entryEmployee.Name = "entryEmployee";
+			this.table1.Add(this.entryEmployee);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entryEmployee]));
+			w3.TopAttach = ((uint)(2));
+			w3.BottomAttach = ((uint)(3));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entityVMEntryCashIncomeCategory = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entityVMEntryCashIncomeCategory.Events = ((global::Gdk.EventMask)(256));
-			this.entityVMEntryCashIncomeCategory.Name = "entityVMEntryCashIncomeCategory";
-			this.entityVMEntryCashIncomeCategory.CanEditReference = false;
-			this.table1.Add(this.entityVMEntryCashIncomeCategory);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryCashIncomeCategory]));
+			this.entryExpenseFinancialCategory = new global::QS.Views.Control.EntityEntry();
+			this.entryExpenseFinancialCategory.Events = ((global::Gdk.EventMask)(256));
+			this.entryExpenseFinancialCategory.Name = "entryExpenseFinancialCategory";
+			this.table1.Add(this.entryExpenseFinancialCategory);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.entryExpenseFinancialCategory]));
+			w4.TopAttach = ((uint)(1));
+			w4.BottomAttach = ((uint)(2));
 			w4.LeftAttach = ((uint)(3));
 			w4.RightAttach = ((uint)(4));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.entryIncomeFinancialCategory = new global::QS.Views.Control.EntityEntry();
+			this.entryIncomeFinancialCategory.Events = ((global::Gdk.EventMask)(256));
+			this.entryIncomeFinancialCategory.Name = "entryIncomeFinancialCategory";
+			this.table1.Add(this.entryIncomeFinancialCategory);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.entryIncomeFinancialCategory]));
+			w5.LeftAttach = ((uint)(3));
+			w5.RightAttach = ((uint)(4));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.enumcomboDocumentType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumcomboDocumentType.Name = "enumcomboDocumentType";
@@ -96,22 +107,9 @@ namespace Vodovoz
 			this.enumcomboDocumentType.UseShortTitle = false;
 			this.enumcomboDocumentType.DefaultFirst = false;
 			this.table1.Add(this.enumcomboDocumentType);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboDocumentType]));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.evmeEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.evmeEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.evmeEmployee.Name = "evmeEmployee";
-			this.evmeEmployee.CanEditReference = true;
-			this.table1.Add(this.evmeEmployee);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeEmployee]));
-			w6.TopAttach = ((uint)(2));
-			w6.BottomAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboDocumentType]));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
@@ -174,8 +172,6 @@ namespace Vodovoz
 			}
 			this.Hide();
 			this.enumcomboDocumentType.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnEnumcomboDocumentTypeEnumItemSelected);
-			this.entityVMEntryCashIncomeCategory.Changed += new global::System.EventHandler(this.OnEntityVMEntryCashIncomeCategoryChanged);
-			this.entityVMEntryCashExpenseCategory.Changed += new global::System.EventHandler(this.OnEntityVMEntryCashExpenseCategoryChanged);
 			this.dateperiodDocs.PeriodChanged += new global::System.EventHandler(this.OnDateperiodDocsPeriodChanged);
 		}
 	}

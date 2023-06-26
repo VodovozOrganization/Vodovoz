@@ -16,6 +16,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalNodes.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
@@ -72,7 +73,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					}
 					else
 					{
-						_gtkTabsOpener.OpenCashExpenseDlg(master: this, node.Id, node.Balance, canChangeEmployee: false, ExpenseType.Salary);
+						var page = NavigationManager.OpenViewModel<ExpenseViewModel>(this);
+
+						page.ViewModel.ConfigureForSalaryGiveout(node.Id, node.Balance);
 					}
 				},
 				hotKeys: "Insert");

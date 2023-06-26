@@ -1,6 +1,6 @@
-﻿using System;
-using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Cash;
+﻿using QSOrmProject.RepresentationModel;
+using System;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
@@ -11,11 +11,10 @@ namespace Vodovoz
 
 		Employee RestrictAccountable { get;}
 
-		ExpenseCategory RestrictExpenseCategory { get;}
+		FinancialExpenseCategory RestrictExpenseCategory { get;}
 
 		DateTime? RestrictStartDate { get;}
 
 		DateTime? RestrictEndDate { get;}
 	}
 }
-

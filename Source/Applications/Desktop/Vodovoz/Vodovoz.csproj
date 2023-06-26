@@ -464,6 +464,7 @@
     <Compile Include="JournalColumnsConfigs\DiscountReasonJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DistrictJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DistrictsSetJournalRegistrar.cs" />
+    <Compile Include="Cash\DocumentsJournal\DocumentsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DriverComplaintReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DriverTareMessagesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\EdoOperatorsJournalRegistrar.cs" />
@@ -1922,6 +1923,22 @@
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesGroupView.cs" />
     <Compile Include="Cash\ExpenseCategoryView.cs" />
     <Compile Include="Cash\IncomeCategoryView.cs" />
+    <Compile Include="Cash\IncomeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.IncomeView.cs" />
+    <Compile Include="Cash\ExpenseView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.ExpenseView.cs" />
+    <Compile Include="Cash\AdvanceReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.AdvanceReportView.cs" />
+    <Compile Include="Cash\ExpenseSelfDeliveryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.ExpenseSelfDeliveryView.cs" />
+    <Compile Include="Cash\IncomeSelfDeliveryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.IncomeSelfDeliveryView.cs" />
+    <Compile Include="Cash\TransferExpenseView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.TransferExpenseView.cs" />
+    <Compile Include="Cash\TransferIncomeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.TransferIncomeView.cs" />
+    <Compile Include="Cash\DocumentsJournal\DocumentsFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.DocumentsJournal.DocumentsFilterView.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialExpenseCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialExpenseCategoryView.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialIncomeCategoryView.cs" />
@@ -1932,7 +1949,6 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="JournalFilters\Goods\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2419,6 +2435,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QSWidgetLib\QSWidgetLib.csproj">
       <Project>{5a2bb01e-e124-432e-8099-d1343d3897b9}</Project>
       <Name>QSWidgetLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
+      <Project>{396CC0BB-294B-44E0-8428-31677419B8BE}</Project>
+      <Name>Vodovoz.Presentation.ViewModels</Name>
     </ProjectReference>
     <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
       <Project>{6E56E39A-F886-4645-98E1-8619F75F7AEA}</Project>

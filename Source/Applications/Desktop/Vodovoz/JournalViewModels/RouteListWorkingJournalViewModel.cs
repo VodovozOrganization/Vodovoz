@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Data;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -8,6 +7,7 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
@@ -33,6 +33,7 @@ using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -511,13 +512,11 @@ namespace Vodovoz.JournalViewModels
 							return;
 						}
 
-						_gtkTabsOpener.OpenRouteListChangeGiveoutExpenceDlg(this,
+						var page = NavigationManager.OpenViewModel<ExpenseViewModel>(this);
+
+						page.ViewModel.ConfigureForRouteListChangeGiveout(
 							driverId,
-							routeList.Id,
-							changesToOrders.Sum(item => item.Value),
-							$"Сдача по МЛ №{routeList.Id}" +
-							$"\n-----" +
-							"\n" + string.Join("\n", changesToOrders.Select(pair => $"Заказ №{pair.Key} - {pair.Value}руб.")));
+							routeList.Id);
 					}
 				}
 			));
@@ -533,36 +532,9 @@ namespace Vodovoz.JournalViewModels
 						return;
 					}
 
-					using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
-					{
-						var routeList = localUow.GetById<RouteList>(selectedNode.Id);
-						var driverId = routeList.Driver.Id;
+					var page = NavigationManager.OpenViewModel<IncomeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 
-						var expenseChangeCategory =
-							localUow
-							.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId);
-
-						var unclosedExpenses = UoW.GetAll<Expense>()
-							.Where(ex =>
-								ex.AdvanceClosed == false
-								&& ex.TypeOperation == ExpenseType.Advance
-								&& ex.ExpenseCategory != null
-								&& ex.ExpenseCategory.Id == expenseChangeCategory.Id
-								&& ex.RouteListClosing != null
-								&& ex.RouteListClosing.Id == routeList.Id)
-							.ToList();
-
-						if(unclosedExpenses.Count == 0)
-						{
-							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
-								"Для данного маршрутного листа отсутствуют авансы со статусом \"Сдача клиенту\"", "Нельзя выполнить возврат сдачи");
-							return;
-						}
-
-						var dlg = new CashIncomeDlg(unclosedExpenses.First());
-
-						this.TabParent.AddTab(dlg, this);
-					}
+					page.ViewModel.ConFigureForReturnChange(selectedNode.Id);
 				}
 			));
 

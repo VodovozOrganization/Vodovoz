@@ -1016,16 +1016,12 @@ namespace Vodovoz
 					SqlSelect = "SELECT id, name FROM @tablename ",
 					DisplayString = "Статья дохода {1}",
 					DeleteItems = new List<DeleteDependenceInfo> {
-						DeleteDependenceInfo.Create<AccountIncome> (item => item.Category),
-						DeleteDependenceInfo.Create<Income> (item => item.IncomeCategory)
+						DeleteDependenceInfo.Create<AccountIncome> (item => item.Category)
 					}
 				}.FillFromMetaInfo()
 			);
 
 			DeleteConfig.AddHibernateDeleteInfo<ExpenseCategory>()
-				.AddDeleteDependence<Expense>(item => item.ExpenseCategory)
-				.AddDeleteDependence<AdvanceReport>(item => item.ExpenseCategory)
-				.AddDeleteDependence<Income>(item => item.ExpenseCategory)
 				.AddDeleteDependence<AccountExpense>(item => item.Category)
 				.AddDeleteDependence<ExpenseCategory>(x => x.Parent)
 				.AddClearDependence<Counterparty>(item => item.DefaultExpenseCategory);

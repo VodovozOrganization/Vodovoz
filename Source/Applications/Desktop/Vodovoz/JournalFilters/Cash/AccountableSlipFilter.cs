@@ -1,7 +1,8 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Cash;
+using System;
+using System.ComponentModel;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
@@ -9,7 +10,7 @@ using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class AccountableSlipFilter : RepresentationFilterBase<AccountableSlipFilter>, IAccountableSlipsFilter
 	{
 		protected override void ConfigureWithUow()
@@ -29,36 +30,44 @@ namespace Vodovoz
 
 		public AccountableSlipFilter()
 		{
-			this.Build();
+			Build();
 		}
 
-		public ExpenseCategory RestrictExpenseCategory {
-			get { return yentryExpense.Subject as ExpenseCategory; }
-			set {
+		public FinancialExpenseCategory RestrictExpenseCategory
+		{
+			get => yentryExpense.Subject as FinancialExpenseCategory;
+			set
+			{
 				yentryExpense.Subject = value;
 				yentryExpense.Sensitive = false;
 			}
 		}
 
-		public Employee RestrictAccountable {
-			get { return evmeEmployee.Subject as Employee; }
-			set {
+		public Employee RestrictAccountable
+		{
+			get => evmeEmployee.Subject as Employee;
+			set
+			{
 				evmeEmployee.Subject = value;
 				evmeEmployee.Sensitive = false;
 			}
 		}
 
-		public DateTime? RestrictStartDate {
-			get { return dateperiod.StartDateOrNull; }
-			set {
+		public DateTime? RestrictStartDate
+		{
+			get => dateperiod.StartDateOrNull;
+			set
+			{
 				dateperiod.StartDateOrNull = value;
 				dateperiod.Sensitive = false;
 			}
 		}
 
-		public DateTime? RestrictEndDate {
-			get { return dateperiod.EndDateOrNull; }
-			set {
+		public DateTime? RestrictEndDate
+		{
+			get => dateperiod.EndDateOrNull;
+			set
+			{
 				dateperiod.EndDateOrNull = value;
 				dateperiod.Sensitive = false;
 			}

@@ -1,7 +1,7 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Cash;
+using System;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
 
@@ -22,12 +22,14 @@ namespace Vodovoz
 
 		public AccountableDebtsFilter()
 		{
-			this.Build();
+			Build();
 		}
 
-		public ExpenseCategory RestrictExpenseCategory {
-			get { return entryreferenceExpense.Subject as ExpenseCategory; }
-			set {
+		public FinancialExpenseCategory RestrictExpenseCategory
+		{
+			get => entryreferenceExpense.Subject as FinancialExpenseCategory;
+			set
+			{
 				entryreferenceExpense.Subject = value;
 				entryreferenceExpense.Sensitive = false;
 			}

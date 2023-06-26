@@ -48,9 +48,9 @@ namespace Vodovoz.ViewModel
 
 			if(Filter.RestrictExpenseCategory != null)
 			{
-				subqueryAdd.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
-				subqueryReturn.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
-				subqueryRemove.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
+				//subqueryAdd.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
+				//subqueryReturn.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
+				//subqueryRemove.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
 			}
 
 			var stocklist = UoW.Session.QueryOver<Employee> (() => employeeAlias)

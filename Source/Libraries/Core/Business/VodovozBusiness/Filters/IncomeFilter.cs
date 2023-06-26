@@ -70,11 +70,11 @@ namespace Vodovoz.Filters
 			}
 
 			if(IncomeCategory != null) {
-				result = Restrictions.And(result, Restrictions.Where<Income>(x => x.IncomeCategory == IncomeCategory));
+				result = Restrictions.And(result, Restrictions.Where<Income>(x => x.IncomeCategoryId == IncomeCategory.Id));
 			}
 
 			if(ExpenseCategory != null) {
-				result = Restrictions.And(result, Restrictions.Where<Income>(x => x.ExpenseCategory == ExpenseCategory));
+				result = Restrictions.And(result, Restrictions.Where<Income>(x => x.ExpenseCategoryId == ExpenseCategory.Id));
 			}
 
 			return result;

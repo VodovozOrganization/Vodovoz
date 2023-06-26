@@ -3,86 +3,96 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
+	[System.ComponentModel.ToolboxItem(true)]
 	public partial class AccountableSlipsView : QS.Dialog.Gtk.TdiTabBase
 	{
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 		private IUnitOfWork _uow;
 
-		public IUnitOfWork UoW {
-			get {
-				return _uow;
-			}
-			set {
-				if (_uow == value)
+		public IUnitOfWork UoW
+		{
+			get => _uow;
+			set
+			{
+				if(_uow == value)
+				{
 					return;
+				}
+
 				_uow = value;
 				accountableslipfilter1.UoW = value;
-				var vm = new ViewModel.AccountableSlipsVM (accountableslipfilter1);
+				var vm = new ViewModel.AccountableSlipsVM(accountableslipfilter1);
 				vm.ItemsListUpdated += Vm_ItemsListUpdated;
 				representationSlips.RepresentationModel = vm;
-				representationSlips.RepresentationModel.UpdateNodes ();
+				representationSlips.RepresentationModel.UpdateNodes();
 			}
 		}
 
-		void Vm_ItemsListUpdated (object sender, EventArgs e)
+		private void Vm_ItemsListUpdated(object sender, EventArgs e)
 		{
-			Calculate ();
+			Calculate();
 		}
 
-		public AccountableSlipsView(Employee accountable, ExpenseCategory expense): this()
+		public AccountableSlipsView(
+			Employee accountable,
+			FinancialExpenseCategory financialExpenseCategory) : this()
 		{
-			if (accountable != null)
+			if(accountable != null)
+			{
 				accountableslipfilter1.SetAndRefilterAtOnce(x => x.RestrictAccountable = accountable);
-			if (expense != null)
-				accountableslipfilter1.SetAndRefilterAtOnce(x => x.RestrictExpenseCategory = expense);
+			}
+
+			if(financialExpenseCategory != null)
+			{
+				accountableslipfilter1.SetAndRefilterAtOnce(x => x.RestrictExpenseCategory = financialExpenseCategory);
+			}
 		}
 
-		public AccountableSlipsView ()
+		public AccountableSlipsView()
 		{
-			this.Build ();
-			this.TabName = "Движения по подотчетным деньгам";
+			Build();
+			TabName = "Движения по подотчетным деньгам";
 			accountableslipfilter1.Refiltered += Accountableslipfilter1_Refiltered;
-			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
-		void Accountableslipfilter1_Refiltered (object sender, EventArgs e)
+		private void Accountableslipfilter1_Refiltered(object sender, EventArgs e)
 		{
 			if(accountableslipfilter1.RestrictAccountable == null)
+			{
 				TabName = "Движения по подотчетным деньгам";
+			}
 			else
-				TabName = String.Format ("Движения по {0}", accountableslipfilter1.RestrictAccountable.ShortName);
+			{
+				TabName = $"Движения по {accountableslipfilter1.RestrictAccountable.ShortName}";
+			}
 		}
 
-		void Calculate()
+		private void Calculate()
 		{
 			if(accountableslipfilter1.RestrictAccountable != null)
 			{
-				labelCurrentDebt.LabelProp = String.Format("Текущий долг: {0}",
-					CurrencyWorks.GetShortCurrencyString(
-						_accountableDebtsRepository.EmployeeDebt(UoW, accountableslipfilter1.RestrictAccountable))
-				);
+				labelCurrentDebt.LabelProp = $"Текущий долг: {CurrencyWorks.GetShortCurrencyString(_accountableDebtsRepository.EmployeeDebt(UoW, accountableslipfilter1.RestrictAccountable))}";
 			}
 			else
 			{
-				labelCurrentDebt.LabelProp = String.Empty;
+				labelCurrentDebt.LabelProp = string.Empty;
 			}
 
 			decimal Recived = 0, Closed = 0;
-			foreach(var node in representationSlips.RepresentationModel.ItemsList.Cast<ViewModel.AccountableSlipsVMNode> ())
+			foreach(var node in representationSlips.RepresentationModel.ItemsList.Cast<ViewModel.AccountableSlipsVMNode>())
 			{
 				Recived += node.Append;
 				Closed += node.Removed;
 			}
-			labelRecived.LabelProp = String.Format ("Получено: {0}",
-				CurrencyWorks.GetShortCurrencyString (Recived));
-			labelClosed.LabelProp = String.Format ("Закрыто: {0}",
-				CurrencyWorks.GetShortCurrencyString (Closed));
+			labelRecived.LabelProp = $"Получено: {CurrencyWorks.GetShortCurrencyString(Recived)}";
+			labelClosed.LabelProp = $"Закрыто: {CurrencyWorks.GetShortCurrencyString(Closed)}";
 		}
 	}
 }

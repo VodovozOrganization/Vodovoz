@@ -285,7 +285,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			FuelCashExpense = new Expense {
-				ExpenseCategory = expenseCategory,
+				ExpenseCategoryId = expenseCategory.Id,
 				TypeOperation = ExpenseType.Advance,
 				Date = Date,
 				Casher = Author,

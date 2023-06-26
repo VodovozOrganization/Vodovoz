@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Reflection;
@@ -46,6 +46,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
+using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -194,13 +195,13 @@ namespace Vodovoz.Configuration
                     .Column("Подмена", x => x.ReplacementEquipment != null ? "Да" : "Нет")
                     .Column("Точка доставки", x => x.DeliveryPoint.Title).End(),
                 //Касса
-                OrmObjectMapping<Income>.Create().Dialog<CashIncomeDlg>(),
+                OrmObjectMapping<Income>.Create().Dialog<IncomeViewModel>(),
                 OrmObjectMapping<ExpenseCategory>.Create().Dialog<ExpenseCategoryViewModel>().DefaultTableView()
                     .Column("Код", x => x.Id.ToString()).SearchColumn("Название", e => e.Name)
                     .Column("Тип документа", e => e.ExpenseDocumentType.GetEnumTitle())
                     .TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End(),
-                OrmObjectMapping<Expense>.Create().Dialog<CashExpenseDlg>(),
-                OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportDlg>(),
+                OrmObjectMapping<Expense>.Create().Dialog<ExpenseViewModel>(),
+                OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportViewModel>(),
                 OrmObjectMapping<Fine>.Create().Dialog<FineDlg>(),
                 OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferDlg>(),
                 OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferDlg>(),

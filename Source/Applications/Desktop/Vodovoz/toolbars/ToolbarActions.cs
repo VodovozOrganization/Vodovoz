@@ -1,6 +1,8 @@
-﻿using Dialogs.Employees;
+﻿using Autofac;
+using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -9,9 +11,8 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using System;
-using QS.Dialog.GtkUI.FileDialog;
 using QS.Project.Services.FileDialog;
+using System;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
@@ -25,7 +26,6 @@ using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Chats;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
@@ -65,6 +65,7 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Cash;
@@ -79,17 +80,15 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
-using Vodovoz.ViewModels.ViewModels.Logistic;
-using Autofac;
-using Vodovoz.Domain.Store;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 
 public partial class MainWindow : Window
 {
@@ -710,10 +709,7 @@ public partial class MainWindow : Window
 
 	void ActionUnclosedAdvances_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<UnclosedAdvancesView>(),
-			() => new UnclosedAdvancesView()
-		);
+		NavigationManager.OpenTdiTab<UnclosedAdvancesView>(null);
 	}
 
 	void ActionTransferBankDocs_Activated(object sender, System.EventArgs e)
@@ -957,10 +953,7 @@ public partial class MainWindow : Window
 
 	void ActionAccountableDebt_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<AccountableDebts>(),
-			() => new AccountableDebts()
-		);
+		NavigationManager.OpenTdiTab<AccountableDebts>(null);
 	}
 
 	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
@@ -1011,16 +1004,18 @@ public partial class MainWindow : Window
 
 	void ActionCashDocuments_Activated(object sender, System.EventArgs e)
 	{
-		var cashRepository = new CashRepository();
+		NavigationManager.OpenViewModel<DocumentsJournalViewModel>(null);
 
-		tdiMain.OpenTab(
-			RepresentationJournalDialog.GenerateHashName<CashMultipleDocumentVM>(),
-			() =>
-			{
-				var vm = new CashMultipleDocumentVM(new CashDocumentsFilter(), cashRepository);
-				return new MultipleEntityJournal("Журнал кассовых документов", vm, vm);
-			}
-		);
+		//var cashRepository = new CashRepository();
+
+		//tdiMain.OpenTab(
+		//	RepresentationJournalDialog.GenerateHashName<CashMultipleDocumentVM>(),
+		//	() =>
+		//	{
+		//		var vm = new CashMultipleDocumentVM(new CashDocumentsFilter(), cashRepository);
+		//		return new MultipleEntityJournal("Журнал кассовых документов", vm, vm);
+		//	}
+		//);
 	}
 
 	void ActionReadyForShipmentActivated(object sender, System.EventArgs e)

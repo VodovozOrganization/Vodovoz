@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -39,6 +40,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly ILifetimeScope _scope;
 		private readonly bool _createSelectAction;
 
 		private bool _isAdmin;
@@ -62,6 +64,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
 			IFileDialogService fileDialogService,
+			ILifetimeScope scope,
 			bool createSelectAction = true) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -74,6 +77,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_expenseCategorySelectorFactory = expenseCategorySelectorFactory
 											  ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_scope = scope;
 			_createSelectAction = createSelectAction;
 
 			TabName = "Журнал заявок ДС";
@@ -354,9 +358,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 						_commonServices,
 						_employeeRepository,
 						_cashRepository,
-						_employeeJournalFactory,
-						_subdivisionJournalFactory,
-						_expenseCategorySelectorFactory
+						NavigationManager,
+						_scope
 					),
 					//функция диалога открытия документа
 					CreateCashRequestViewModelForOpen,
@@ -378,9 +381,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices,
 				_employeeRepository,
 				_cashRepository,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_expenseCategorySelectorFactory
+				NavigationManager,
+				_scope
 			);
 		}
 

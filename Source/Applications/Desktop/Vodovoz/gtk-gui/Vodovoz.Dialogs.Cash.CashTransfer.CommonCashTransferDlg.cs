@@ -48,7 +48,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private global::Gamma.Widgets.ySpecComboBox comboboxCashSubdivisionFrom;
 
-		private global::Gamma.Widgets.ySpecComboBox comboExpenseCategory;
+		private global::QS.Views.Control.EntityEntry entryExpenseFinancialCategory;
 
 		private global::Gtk.Label labelCashierSender;
 
@@ -68,7 +68,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private global::Gamma.Widgets.ySpecComboBox comboboxCashSubdivisionTo;
 
-		private global::Gamma.Widgets.ySpecComboBox comboIncomeCategory;
+		private global::QS.Views.Control.EntityEntry entryIncomeFinancialCategory;
 
 		private global::Gtk.Label labelCashierReceiver;
 
@@ -255,6 +255,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			this.evmeDriver.Events = ((global::Gdk.EventMask)(256));
 			this.evmeDriver.Name = "evmeDriver";
 			this.evmeDriver.CanEditReference = true;
+			this.evmeDriver.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.evmeDriver);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.evmeDriver]));
 			w17.Position = 1;
@@ -273,6 +274,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			this.entityviewmodelentryCar.Events = ((global::Gdk.EventMask)(256));
 			this.entityviewmodelentryCar.Name = "entityviewmodelentryCar";
 			this.entityviewmodelentryCar.CanEditReference = true;
+			this.entityviewmodelentryCar.CanOpenWithoutTabParent = false;
 			this.hbox2.Add(this.entityviewmodelentryCar);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.entityviewmodelentryCar]));
 			w19.Position = 3;
@@ -317,14 +319,11 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			w22.RightAttach = ((uint)(3));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFrom.Gtk.Table+TableChild
-			this.comboExpenseCategory = new global::Gamma.Widgets.ySpecComboBox();
-			this.comboExpenseCategory.Name = "comboExpenseCategory";
-			this.comboExpenseCategory.AddIfNotExist = false;
-			this.comboExpenseCategory.DefaultFirst = false;
-			this.comboExpenseCategory.ShowSpecialStateAll = false;
-			this.comboExpenseCategory.ShowSpecialStateNot = true;
-			this.tableFrom.Add(this.comboExpenseCategory);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.tableFrom[this.comboExpenseCategory]));
+			this.entryExpenseFinancialCategory = new global::QS.Views.Control.EntityEntry();
+			this.entryExpenseFinancialCategory.Events = ((global::Gdk.EventMask)(256));
+			this.entryExpenseFinancialCategory.Name = "entryExpenseFinancialCategory";
+			this.tableFrom.Add(this.entryExpenseFinancialCategory);
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.tableFrom[this.entryExpenseFinancialCategory]));
 			w23.TopAttach = ((uint)(1));
 			w23.BottomAttach = ((uint)(2));
 			w23.LeftAttach = ((uint)(1));
@@ -432,14 +431,11 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			w32.RightAttach = ((uint)(3));
 			w32.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableTo.Gtk.Table+TableChild
-			this.comboIncomeCategory = new global::Gamma.Widgets.ySpecComboBox();
-			this.comboIncomeCategory.Name = "comboIncomeCategory";
-			this.comboIncomeCategory.AddIfNotExist = false;
-			this.comboIncomeCategory.DefaultFirst = false;
-			this.comboIncomeCategory.ShowSpecialStateAll = false;
-			this.comboIncomeCategory.ShowSpecialStateNot = true;
-			this.tableTo.Add(this.comboIncomeCategory);
-			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.tableTo[this.comboIncomeCategory]));
+			this.entryIncomeFinancialCategory = new global::QS.Views.Control.EntityEntry();
+			this.entryIncomeFinancialCategory.Events = ((global::Gdk.EventMask)(256));
+			this.entryIncomeFinancialCategory.Name = "entryIncomeFinancialCategory";
+			this.tableTo.Add(this.entryIncomeFinancialCategory);
+			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.tableTo[this.entryIncomeFinancialCategory]));
 			w33.TopAttach = ((uint)(1));
 			w33.BottomAttach = ((uint)(2));
 			w33.LeftAttach = ((uint)(1));

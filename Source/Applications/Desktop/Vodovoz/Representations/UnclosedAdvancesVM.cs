@@ -40,8 +40,8 @@ namespace Vodovoz.ViewModel
 			var expense = UoW.Session.QueryOver<Expense>(() => expenseAlias)
 				.Where(e => e.AdvanceClosed == false && e.TypeOperation == ExpenseType.Advance);
 
-			if(Filter.RestrictExpenseCategory != null)
-				expense.Where(i => i.ExpenseCategory == Filter.RestrictExpenseCategory);
+			//if(Filter.RestrictExpenseCategory != null)
+			//	expense.Where(i => i.ExpenseCategory == Filter.RestrictExpenseCategory);
 			if(Filter.RestrictAccountable != null)
 				expense.Where(o => o.Employee == Filter.RestrictAccountable);
 			if(Filter.RestrictStartDate != null)
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModel
 			var expenseList = expense
 				.JoinQueryOver(() => expenseAlias.Employee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => expenseAlias.Casher, () => casherAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => expenseAlias.ExpenseCategory, () => expenseCategoryAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+//				.JoinQueryOver(() => expenseAlias.ExpenseCategory, () => expenseCategoryAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList(list => list
 				   .Select(() => expenseAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => expenseAlias.Date).WithAlias(() => resultAlias.Date)

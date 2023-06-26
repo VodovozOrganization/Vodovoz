@@ -47,9 +47,9 @@ namespace Vodovoz.ViewModel
 			//Добавляем условия по фильтру
 			if(Filter.RestrictExpenseCategory != null)
 			{
-				recived.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
-				returned.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
-				reported.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
+				//recived.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
+				//returned.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
+				//reported.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
 			}
 				
 			if(Filter.RestrictStartDate.HasValue)

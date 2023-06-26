@@ -2087,7 +2087,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(casheInput > 0) {
 				cashIncome = new Income {
-					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
+					IncomeCategoryId = categoryRepository.GetRouteListClosingIncomeCategoryId(),
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -2102,7 +2102,7 @@ namespace Vodovoz.Domain.Logistic
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
-					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
+					ExpenseCategoryId = categoryRepository.GetRouteListClosingExpenseCategoryId(),
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -2126,7 +2126,7 @@ namespace Vodovoz.Domain.Logistic
 				return "Создающий кассовый документ пользователь - не привязан к сотруднику!";
 
 			cashExpense = new Expense {
-				ExpenseCategory = categoryRepository.EmployeeSalaryExpenseCategory(UoW),
+				ExpenseCategoryId = categoryRepository.GetRouteListClosingExpenseCategoryId(),
 				TypeOperation = ExpenseType.EmployeeAdvance,
 				Date = DateTime.Now,
 				Casher = this.Cashier,
@@ -2415,7 +2415,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(different > 0) {
 				cashIncome = new Income {
-					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
+					IncomeCategoryId = categoryRepository.GetRouteListClosingIncomeCategoryId(),
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -2430,7 +2430,7 @@ namespace Vodovoz.Domain.Logistic
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
-					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
+					ExpenseCategoryId = categoryRepository.GetRouteListClosingExpenseCategoryId(),
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
 					Casher = this.Cashier,

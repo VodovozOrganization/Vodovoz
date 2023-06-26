@@ -64,7 +64,7 @@ namespace Vodovoz.Filters
 			}
 
 			if(ExpenseCategory != null) {
-				result = Restrictions.And(result, Restrictions.Where<Expense>(x => x.ExpenseCategory == ExpenseCategory));
+				result = Restrictions.And(result, Restrictions.Where<Expense>(x => x.ExpenseCategoryId == ExpenseCategory.Id));
 			}
 
 			return result;

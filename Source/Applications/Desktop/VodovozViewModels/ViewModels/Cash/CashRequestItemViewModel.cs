@@ -1,133 +1,137 @@
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using System;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
 {
-    public class CashRequestItemViewModel: TabViewModelBase, ISingleUoWDialog
-    {
-        public PayoutRequestUserRole UserRole;
+	public partial class CashRequestItemViewModel : TabViewModelBase, ISingleUoWDialog
+	{
+		private CashRequestSumItem _entity;
+		private Employee _accountableEmployee;
+		private DateTime _date;
+		private decimal _sum;
+		private string _comment;
+		private readonly ILifetimeScope _scope;
 
-        public IUnitOfWork UoW { get; set; }
+		public CashRequestItemViewModel(
+			IUnitOfWork uow,
+			IInteractiveService interactiveService,
+			INavigationManager navigation,
+			PayoutRequestUserRole userRole,
+			ILifetimeScope scope)
+			: base(interactiveService, navigation)
+		{
+			_scope = scope;
+			UoW = uow;
+			UserRole = userRole;
 
-        private CashRequestSumItem entity;
-        public CashRequestSumItem Entity 
-        {
-            get => entity;
-            set {
-                SetField(ref entity, value);
-                AccountableEmployee = value.AccountableEmployee;
-                Date = value.Date;
-                Sum = value.Sum;
-                Comment = value.Comment;
-            }
-        }
+			var employeeEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashRequestSumItem>(this, Entity, UoW, NavigationManager, _scope);
 
-        private Employee accountableEmployee;
-        public Employee AccountableEmployee
-        { 
-            get => accountableEmployee; 
-            set => SetField(ref accountableEmployee, value);
-        }
+			EmployeeViewModel = employeeEntryViewModelBuilder
+				.ForProperty(x => x.AccountableEmployee)
+				.UseViewModelDialog<EmployeeViewModel>()
+				.UseViewModelJournalAndAutocompleter<EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					filter =>
+					{
+					})
+				.Finish();
 
-        private DateTime date;
-        public DateTime Date { 
-            get => date;
-            set => SetField(ref date, value);
-        }
+			AcceptCommand = new DelegateCommand(() => {
+				Entity.Date = Date;
+				Entity.AccountableEmployee = _accountableEmployee;
+				Entity.Sum = Sum;
+				Entity.Comment = Comment;
+				Close(true, CloseSource.Self);
+				EntityAccepted?.Invoke(this, new CashRequestSumItemAcceptedEventArgs(Entity));
+			},
+			() => true);
 
-        private decimal sum;
-        public decimal Sum { 
-            get => sum;
-            set => SetField(ref sum, value);
-        }
+			CancelCommand = new DelegateCommand(() =>
+			{
+				Close(true, CloseSource.Cancel);
+			},
+			() => true);
+		}
 
-        private string comment;
-        public string Comment {
-            get => comment;
-            set => SetField(ref comment, value);
-        }
+		public PayoutRequestUserRole UserRole { get; set; }
 
-        public CashRequestItemViewModel(
-            IUnitOfWork uow,
-            IInteractiveService interactiveService, 
-            INavigationManager navigation,
-            PayoutRequestUserRole userRole,
-            IEmployeeJournalFactory employeeJournalFactory) 
-            : base(interactiveService, navigation)
-        {
-	        EmployeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-	        UoW = uow;
-            UserRole = userRole;
-        }
+		public IUnitOfWork UoW { get; set; }
 
-        public EventHandler EntityAccepted;
-        public IEmployeeJournalFactory EmployeeJournalFactory { get; }
+		public CashRequestSumItem Entity
+		{
+			get => _entity;
+			set {
+				SetField(ref _entity, value);
+				AccountableEmployee = value.AccountableEmployee;
+				Date = value.Date;
+				Sum = value.Sum;
+				Comment = value.Comment;
+			}
+		}
 
-        //Создана - только для невыданных сумм - Заявитель, Согласователь
-        //Согласована - Согласователь
-        public bool CanEditOnlyinStateNRC_OrRoleCoordinator
-        {
-            get
-            {
-                //В новой редактирование всегда разрешено
-                if (Entity.Id == 0)
-                {
-                    return true;
-                } else {
-                    return (
-                        Entity.CashRequest.PayoutRequestState == PayoutRequestState.New
-                        && !Entity.ObservableExpenses.Any()
-                        && (UserRole == PayoutRequestUserRole.RequestCreator
-                            || UserRole == PayoutRequestUserRole.Coordinator)
-                        || (Entity.CashRequest.PayoutRequestState == PayoutRequestState.Agreed
-                            && UserRole == PayoutRequestUserRole.Coordinator)
-                        );
-                }
-            }
-        }
+		public Employee AccountableEmployee
+		{
+			get => _accountableEmployee;
+			set => SetField(ref _accountableEmployee, value);
+		}
 
-        #region Commands
+		public DateTime Date {
+			get => _date;
+			set => SetField(ref _date, value);
+		}
 
-        private DelegateCommand acceptCommand;
-        public DelegateCommand AcceptCommand => acceptCommand ?? (acceptCommand = new DelegateCommand(
-            () => {
-                Entity.Date = Date;
-                Entity.AccountableEmployee = accountableEmployee;
-                Entity.Sum = Sum;
-                Entity.Comment = Comment;
-                Close(true, CloseSource.Self);
-                EntityAccepted?.Invoke(this, new CashRequestSumItemAcceptedEventArgs(Entity));
-            },
-            () => true
-        ));
+		public decimal Sum {
+			get => _sum;
+			set => SetField(ref _sum, value);
+		}
 
-        private DelegateCommand cancelCommand;
-        public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
-            () => {
-                Close(true, CloseSource.Cancel);
-            },
-            () => true
-        ));
+		public string Comment {
+			get => _comment;
+			set => SetField(ref _comment, value);
+		}
 
-        #endregion Commands
-    }
+		public EventHandler EntityAccepted;
 
-    public class CashRequestSumItemAcceptedEventArgs : EventArgs
-    {
-        public CashRequestSumItemAcceptedEventArgs(CashRequestSumItem cashRequestSumItem)
-        {
-            AcceptedEntity = cashRequestSumItem;
-        }
+		//Создана - только для невыданных сумм - Заявитель, Согласователь
+		//Согласована - Согласователь
+		public bool CanEditOnlyinStateNRC_OrRoleCoordinator
+		{
+			get
+			{
+				//В новой редактирование всегда разрешено
+				if(Entity.Id == 0)
+				{
+					return true;
+				}
+				else
+				{
+					return (
+						Entity.CashRequest.PayoutRequestState == PayoutRequestState.New
+						&& !Entity.ObservableExpenses.Any()
+						&& (UserRole == PayoutRequestUserRole.RequestCreator
+							|| UserRole == PayoutRequestUserRole.Coordinator)
+						|| (Entity.CashRequest.PayoutRequestState == PayoutRequestState.Agreed
+							&& UserRole == PayoutRequestUserRole.Coordinator)
+						);
+				}
+			}
+		}
 
-        public CashRequestSumItem AcceptedEntity { get; private set; }
-    }
+		public IEntityEntryViewModel EmployeeViewModel { get; }
+
+		public DelegateCommand AcceptCommand { get; }
+
+		public DelegateCommand CancelCommand { get; }
+	}
 }

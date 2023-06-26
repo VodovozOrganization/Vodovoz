@@ -29,7 +29,8 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			yenumTargetDocument.ItemsEnum = typeof(TargetDocument);
 			yenumTargetDocument.ShowSpecialStateAll = true;
 			yenumTargetDocument.Binding
-				.AddBinding(ViewModel, e => e.TargetDocument, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.TargetDocument, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel, vm => vm.TargetDocumentRestricted, w => w.Sensitive)
 				.InitializeFromSource();
 
 			chkIsArchive.Binding

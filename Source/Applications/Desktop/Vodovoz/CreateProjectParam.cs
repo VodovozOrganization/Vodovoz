@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -48,6 +48,7 @@ using Vodovoz.Additions;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.Cash;
+using Vodovoz.Cash.DocumentsJournal;
 using Vodovoz.Cash.FinancialCategoriesGroups;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
@@ -108,6 +109,7 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Complaints;
@@ -463,6 +465,12 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<InventoryInstancesStockBalanceJournalFilterViewModel, InventoryInstancesStockBalanceJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<FinancialCategoriesGroupViewModel, FinancialCategoriesGroupView>()
 				.RegisterWidgetForWidgetViewModel<FinancialCategoriesJournalFilterViewModel, FinancialCategoriesJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<DocumentsFilterViewModel, DocumentsFilterView>()
+				.RegisterWidgetForWidgetViewModel<ExpenseViewModel, ExpenseView>()
+				.RegisterWidgetForWidgetViewModel<IncomeViewModel, IncomeView>()
+				.RegisterWidgetForWidgetViewModel<ExpenseSelfDeliveryViewModel, ExpenseSelfDeliveryView>()
+				.RegisterWidgetForWidgetViewModel<IncomeSelfDeliveryViewModel, IncomeSelfDeliveryView>()
+				.RegisterWidgetForWidgetViewModel<AdvanceReportViewModel, AdvanceReportView>()
 				.RegisterWidgetForWidgetViewModel<CargoDailyNormViewModel, CargoDailyNormView>()
 				;
 			
@@ -551,6 +559,7 @@ namespace Vodovoz
 
 			#region Репозитории
 
+			builder.Register(cc => cc.Resolve<IUnitOfWorkFactory>().CreateWithoutRoot()).As<IUnitOfWork>().InstancePerLifetimeScope();
 			builder.RegisterType<UserPrintingRepository>().As<IUserPrintingRepository>().SingleInstance();
 
 			#endregion

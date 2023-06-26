@@ -2,6 +2,7 @@
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
@@ -19,6 +20,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.FuelDocuments
@@ -280,6 +282,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			}
 
 			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
+
+			OpenExpenseCommand = new DelegateCommand(OpenExpense);
 		}
 
 		#endregion ctor
@@ -537,6 +541,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public DelegateCommand SaveCommand { get; private set; }
 		public DelegateCommand CancelCommand { get; private set; }
 		public DelegateCommand SetRemainCommand { get; private set; }
+
+		public DelegateCommand OpenExpenseCommand { get; private set; }
+
+		private void OpenExpense()
+		{
+			if(FuelDocument.FuelCashExpense?.Id > 0)
+			{
+				NavigationManager.OpenViewModel<ExpenseViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(FuelDocument.FuelCashExpense.Id));
+			}
+		}
 
 		private void CreateCommands()
 		{
