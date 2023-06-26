@@ -1,32 +1,22 @@
-﻿using System;
-using QS.Dialog.Gtk;
-using Vodovoz.Domain.Cash.CashTransfer;
-using QS.Tdi;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
-using QSProjectsLib;
-using System.Linq;
-using Gamma.ColumnConfig;
-using Vodovoz.ViewModelBased;
-using Vodovoz.Domain.Cash;
 using Gtk;
-using Vodovoz.Domain.Logistic;
-using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Views.GtkUI;
+using QSProjectsLib;
+using System;
+using System.Linq;
+using Vodovoz.Domain.Cash.CashTransfer;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class IncomeCashTransferDlg : TdiTabBase, IViewModelBasedDialog<IncomeCashTransferDocumentViewModel, IncomeCashTransferDocument>, ISingleUoWDialog
+	public partial class IncomeCashTransferDlg : TabViewBase<IncomeCashTransferDocumentViewModel>
 	{
-		private bool tabClosed = false;
-
-		public IncomeCashTransferDocumentViewModel ViewModel { get; set; }
-
-		public IncomeCashTransferDlg(IncomeCashTransferDocumentViewModel viewModel)
+		public IncomeCashTransferDlg(IncomeCashTransferDocumentViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-			this.ViewModel = viewModel;
-			viewModel.EntitySaved += ViewModel_EntitySaved;
+			Build();
 			ConfigureDlg();
 		}
 
@@ -108,6 +98,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			};
 
 			buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
+
+			buttonSave.Clicked += (s, e) => ViewModel.SaveAndClose();
+			buttonCancel.Clicked += (s, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}
 
 		private void ConfigureTreeViews()
@@ -187,42 +180,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		public bool HasChanges => ViewModel.HasChanges;
 
 		public IUnitOfWork UoW => ViewModel.UoW;
-
-		public event EventHandler<EntitySavedEventArgs> EntitySaved;
-
-		void ViewModel_EntitySaved(object sender, EventArgs e)
-		{
-			EntitySaved?.Invoke(this, new EntitySavedEventArgs(ViewModel.RootEntity, tabClosed));
-		}
-
-		public bool Save()
-		{
-			return ViewModel.Save();
-		}
-
-		public override void Destroy()
-		{
-			ViewModel.Dispose();
-			base.Destroy();
-		}
-
-		public void SaveAndClose()
-		{
-			tabClosed = true;
-			if(Save()) {
-				OnCloseTab(false);
-			}
-		}
-
-		protected void OnButtonSaveClicked(object sender, EventArgs e)
-		{
-			SaveAndClose();
-		}
-
-		protected void OnButtonCancelClicked(object sender, EventArgs e)
-		{
-			OnCloseTab(true);
-		}
 
 		protected void OnButtonSendClicked(object sender, EventArgs e)
 		{

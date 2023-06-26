@@ -9,7 +9,9 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.RepresentationModel.GtkUI;
+using QS.Services;
 using QS.Validation;
+using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QSProjectsLib;
 using System;
@@ -20,43 +22,45 @@ using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.JournalFilters.QueryFilterViews;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
-	public class IncomeCashTransferDocumentViewModel : ViewModel<IncomeCashTransferDocument>
+	public class IncomeCashTransferDocumentViewModel : EntityTabViewModelBase<IncomeCashTransferDocument>
 	{
-		private readonly ICategoryRepository _categoryRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IReportViewOpener _reportViewOpener;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private FinancialIncomeCategory _financialIncomeCategory;
 
 		public IncomeCashTransferDocumentViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICategoryRepository categoryRepository,
 			IEmployeeRepository employeeRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			ICarJournalFactory carJournalFactory,
+			ICommonServices commonServices,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory)
+			ILifetimeScope lifetimeScope,
+			IGtkTabsOpener gtkTabsOpener,
+			IReportViewOpener reportViewOpener)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			EmployeeAutocompleteSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
@@ -82,8 +86,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			SetPropertyChangeRelation(
 				e => e.IncomeCategoryId,
 				() => FinancialIncomeCategory);
-
-			View = new IncomeCashTransferDlg(this);
 
 			ConfigEntityUpdateSubscribes();
 			ConfigureEntityPropertyChanges();
@@ -111,7 +113,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private IEntityEntryViewModel BuildFinancialExpenseCategoryViewModel()
 		{
-			var financialIncomeCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<IncomeCashTransferDocumentViewModel>(View, this, UoW, NavigationManager, _lifetimeScope);
+			var financialIncomeCategoryViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<IncomeCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
 			var viewModel = financialIncomeCategoryViewModelEntryViewModelBuilder
 				.ForProperty(x => x.FinancialIncomeCategory)
@@ -133,7 +135,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private IEntityEntryViewModel BuildFinancialIncomeCategoryViewModel()
 		{
-			var financialExpenseCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<IncomeCashTransferDocumentViewModel>(View, this, UoW, NavigationManager, _lifetimeScope);
+			var financialExpenseCategoryViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<IncomeCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
 			var viewModel = financialExpenseCategoryViewModelEntryViewModelBuilder
 				.ForProperty(x => x.FinancialExpenseCategory)
@@ -180,32 +182,28 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		public bool CanEdit => Entity.Status == CashTransferDocumentStatuses.New;
 
-		public override bool Save()
-		{
-			var valid = new QSValidator<IncomeCashTransferDocument>(Entity, new Dictionary<object, object>());
-
-			if(valid.RunDlgIfNotValid()) {
-				return false;
-			}
-
-			return base.Save();
-		}
-
 		private void ConfigureEntityPropertyChanges()
 		{
 			SetPropertyChangeRelation(e => e.Status,
 				() => CanEdit
 			);
 
-			OnEntityPropertyChanged(e => e.CashSubdivisionFrom, () => {
+			Entity.PropertyChanged += OnEntityPropertyChanged;
+		}
+
+		private void OnEntityPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Entity.CashSubdivisionFrom))
+			{
 				UpdateSubdivisionsTo();
 				Entity.ObservableCashTransferDocumentIncomeItems.Clear();
 				Entity.ObservableCashTransferDocumentExpenseItems.Clear();
-			});
+			}
 
-			OnEntityPropertyChanged(e => e.CashSubdivisionTo, () => {
+			if(e.PropertyName == nameof(Entity.CashSubdivisionTo))
+			{
 				UpdateSubdivisionsFrom();
-			});
+			}
 		}
 
 		#region Подписки на внешние измнения сущностей
@@ -274,7 +272,8 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 					if(parameter.RouteListClosing == null) {
 						return;
 					}
-					View.TabParent.OpenTab<RouteListClosingDlg, int>(parameter.RouteListClosing.Id);
+
+					_gtkTabsOpener.OpenRouteListClosingDlg(TabParent, parameter.RouteListClosing.Id);
 				},
 				(Income parameter) => { return parameter != null && parameter.RouteListClosing != null; }
 			);
@@ -356,7 +355,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 					var incomesSelectDlg = new RepresentationJournalDialog(incomesVM);
 					incomesSelectDlg.Mode = JournalSelectMode.Multiple;
 					incomesSelectDlg.ObjectSelected += IncomesSelectDlg_ObjectSelected;
-					View.TabParent.AddSlaveTab(View, incomesSelectDlg);
+					TabParent.AddSlaveTab(this, incomesSelectDlg);
 				},
 				() => {
 					return Entity.Status == CashTransferDocumentStatuses.New 
@@ -398,7 +397,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 					var expensesSelectDlg = new RepresentationJournalDialog(expensesVM);
 					expensesSelectDlg.Mode = JournalSelectMode.Multiple;
 					expensesSelectDlg.ObjectSelected += ExpensesSelectDlg_ObjectSelected;;
-					View.TabParent.AddSlaveTab(View, expensesSelectDlg);
+					TabParent.AddSlaveTab(this, expensesSelectDlg);
 				},
 				() => {
 					return Entity.Status == CashTransferDocumentStatuses.New
@@ -415,13 +414,12 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			PrintCommand = new DelegateCommand(
 				() => {
 					var reportInfo = new QS.Report.ReportInfo {
-						Title = String.Format($"Документ перемещения №{Entity.Id} от {Entity.CreationDate:d}"),
+						Title = $"Документ перемещения №{Entity.Id} от {Entity.CreationDate:d}",
 						Identifier = "Documents.IncomeCashTransfer",
 						Parameters = new Dictionary<string, object> { { "transfer_document_id",  Entity.Id } }
 					};
 
-					var report = new QSReport.ReportViewDlg(reportInfo);
-					View.TabParent.AddTab(report, View, false);
+					_reportViewOpener.OpenReport(TabParent, reportInfo);
 				},
 				() => Entity.Id != 0
 			);
@@ -475,7 +473,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			get => subdivisionsTo;
 			set => SetField(ref subdivisionsTo, value, () => SubdivisionsTo);
 		}
-		public INavigationManager NavigationManager { get; }
 
 		private void UpdateCashSubdivisions()
 		{

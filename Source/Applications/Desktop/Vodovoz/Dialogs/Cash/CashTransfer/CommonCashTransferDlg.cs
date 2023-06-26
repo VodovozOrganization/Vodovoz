@@ -1,27 +1,17 @@
 ﻿using Gamma.Utilities;
-using QS.Dialog;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.Tdi;
+using QS.Views.GtkUI;
 using System;
-using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CommonCashTransferDlg : TdiTabBase, IViewModelBasedDialog<CommonCashTransferDocumentViewModel, CommonCashTransferDocument>, ISingleUoWDialog
+	public partial class CommonCashTransferDlg : TabViewBase<CommonCashTransferDocumentViewModel>
 	{
-		private bool tabClosed = false;
-
-		public CommonCashTransferDocumentViewModel ViewModel { get; set; }
-
-		public CommonCashTransferDlg(CommonCashTransferDocumentViewModel viewModel)
+		public CommonCashTransferDlg(CommonCashTransferDocumentViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
-			this.ViewModel = viewModel;
-			viewModel.EntitySaved += ViewModel_EntitySaved;
+			Build();
 			ConfigureDlg();
 		}
 
@@ -92,40 +82,14 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		public IUnitOfWork UoW => ViewModel.UoW;
 
-		public event EventHandler<EntitySavedEventArgs> EntitySaved;
-
-		void ViewModel_EntitySaved(object sender, EventArgs e)
-		{
-			EntitySaved?.Invoke(this, new EntitySavedEventArgs(ViewModel.RootEntity, tabClosed));
-		}
-
-		public bool Save()
-		{
-			return ViewModel.Save();
-		}
-
-		public override void Destroy()
-		{
-			ViewModel.Dispose();
-			base.Destroy();
-		}
-
-		public void SaveAndClose()
-		{
-			tabClosed = true;
-			if(Save()) {
-				OnCloseTab(false);
-			}
-		}
-
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			SaveAndClose();
+			ViewModel.SaveAndClose();
 		}
 
 		protected void OnButtonCancelClicked(object sender, EventArgs e)
 		{
-			OnCloseTab(true);
+			ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
 		}
 
 		protected void OnButtonSendClicked(object sender, EventArgs e)

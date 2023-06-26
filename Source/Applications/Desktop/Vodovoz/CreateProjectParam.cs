@@ -21,7 +21,6 @@ using QS.Permissions;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
-using QS.Project.Journal.DataLoader;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Project.Services.GtkUI;
@@ -54,6 +53,7 @@ using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs.Cash;
+using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
@@ -84,6 +84,7 @@ using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalColumnsConfigs;
+using Vodovoz.JournalFilters.Cash;
 using Vodovoz.JournalFilters.Goods;
 using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
@@ -176,7 +177,6 @@ using Vodovoz.ViewModels.ViewModels.Settings;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
-using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 using Vodovoz.ViewModels.Warehouses;
@@ -210,7 +210,6 @@ using Vodovoz.Views.Suppliers;
 using Vodovoz.Views.Users;
 using Vodovoz.Views.WageCalculation;
 using Vodovoz.Views.Warehouse;
-using Vodovoz.Views.Warehouse.Documents;
 using Vodovoz.ViewWidgets;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
@@ -471,6 +470,9 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<ExpenseSelfDeliveryViewModel, ExpenseSelfDeliveryView>()
 				.RegisterWidgetForWidgetViewModel<IncomeSelfDeliveryViewModel, IncomeSelfDeliveryView>()
 				.RegisterWidgetForWidgetViewModel<AdvanceReportViewModel, AdvanceReportView>()
+				.RegisterWidgetForWidgetViewModel<IncomeCashTransferDocumentViewModel, IncomeCashTransferDlg>()
+				.RegisterWidgetForWidgetViewModel<CommonCashTransferDocumentViewModel, CommonCashTransferDlg>()
+				.RegisterWidgetForWidgetViewModel<Vodovoz.ViewModels.Cash.TransferDocumentsJournal.FilterViewModel, CashTransferDocumentsFilter>()
 				.RegisterWidgetForWidgetViewModel<CargoDailyNormViewModel, CargoDailyNormView>()
 				;
 			

@@ -10,7 +10,8 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 		NominativePlural = "документы перемещения денежных средств по ордерам",
 		Nominative = "документ перемещения денежных средств по ордерам",
 		Prepositional = "документе перемещения денежных средств по ордерам",
-		PrepositionalPlural = "документах перемещения общих денежных средств по ордерам"
+		PrepositionalPlural = "документах перемещения общих денежных средств по ордерам",
+		Accusative = "документ перемещения денежных средств по ордерам"
 	)]
 	public class IncomeCashTransferDocument : CashTransferDocumentBase
 	{

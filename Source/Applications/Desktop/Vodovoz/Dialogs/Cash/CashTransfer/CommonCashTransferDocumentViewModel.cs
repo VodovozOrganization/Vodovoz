@@ -4,7 +4,9 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.Services;
 using QS.Validation;
+using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
@@ -17,18 +19,18 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
-	public class CommonCashTransferDocumentViewModel : ViewModel<CommonCashTransferDocument>
+	public class CommonCashTransferDocumentViewModel : EntityTabViewModelBase<CommonCashTransferDocument>
 	{
 		private readonly ICategoryRepository _categoryRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IReportViewOpener _reportViewOpener;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private FinancialIncomeCategory _financialIncomeCategory;
 
@@ -40,19 +42,22 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		public CommonCashTransferDocumentViewModel(
 			IEntityUoWBuilder entityUoWBuilder,
-			IUnitOfWorkFactory factory,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICategoryRepository categoryRepository,
 			IEmployeeRepository employeeRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope) : base(entityUoWBuilder, factory)
+			ICommonServices commonServices,
+			ILifetimeScope lifetimeScope,
+			IReportViewOpener reportViewOpener)
+			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			EmployeeSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
@@ -77,8 +82,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			SetPropertyChangeRelation(
 				e => e.IncomeCategoryId,
 				() => FinancialIncomeCategory);
-
-			View = new CommonCashTransferDlg(this);
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
 
@@ -107,7 +110,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private IEntityEntryViewModel BuildFinancialExpenseCategoryViewModel()
 		{
-			var financialIncomeCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(View, this, UoW, NavigationManager, _lifetimeScope);
+			var financialIncomeCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
 			var viewModel = financialIncomeCategoryViewModelEntryViewModelBuilder
 				.ForProperty(x => x.FinancialIncomeCategory)
@@ -120,7 +123,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 					})
 				.Finish();
 
-
 			viewModel.IsEditable = CanEdit;
 
 			return viewModel;
@@ -130,7 +132,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private IEntityEntryViewModel BuildFinancialIncomeCategoryViewModel()
 		{
-			var financialExpenseCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(View, this, UoW, NavigationManager, _lifetimeScope);
+			var financialExpenseCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
 			var viewModel = financialExpenseCategoryViewModelEntryViewModelBuilder
 				.ForProperty(x => x.FinancialExpenseCategory)
@@ -165,18 +167,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		}
 
 		public bool CanEdit => Entity.Status == CashTransferDocumentStatuses.New;
-
-		public override bool Save()
-		{
-			var valid = new QSValidator<CommonCashTransferDocument>(Entity, new Dictionary<object, object>());
-
-			if(valid.RunDlgIfNotValid())
-			{
-				return false;
-			}
-
-			return base.Save();
-		}
 
 		protected void ConfigureEntityChangingRelations()
 		{
@@ -269,8 +259,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 						Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } }
 					};
 
-					var report = new QSReport.ReportViewDlg(reportInfo);
-					View.TabParent.AddTab(report, View, false);
+					_reportViewOpener.OpenReport(TabParent, reportInfo);
 				},
 				() => Entity.Id != 0
 			);
@@ -294,8 +283,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			set => SetField(ref _subdivisionsTo, value);
 		}
 
-		public INavigationManager NavigationManager { get; }
-
 		private void UpdateCashSubdivisions()
 		{
 			Type[] cashDocumentTypes = { typeof(Income), typeof(Expense), typeof(AdvanceReport) };
@@ -313,8 +300,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			SubdivisionsFrom = _availableSubdivisionsForUser;
 			SubdivisionsTo = _cashSubdivisions;
 		}
-
-
 
 		private void UpdateSubdivisionsFrom()
 		{

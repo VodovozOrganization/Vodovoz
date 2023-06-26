@@ -803,26 +803,8 @@ public partial class MainWindow : Window
 		tdiMain.AddTab(selfDeliveriesJournal);
 	}
 
-	void ActionCashTransferDocuments_Activated(object sender, System.EventArgs e)
-	{
-		ILifetimeScope scope = MainClass.AppDIContainer.BeginLifetimeScope();
-
-		tdiMain.OpenTab(
-			RepresentationJournalDialog.GenerateHashName<CashTransferDocumentVM>(),
-			() =>
-			{
-				var vm = new CashTransferDocumentVM(
-					UnitOfWorkFactory.GetDefaultFactory,
-					new CashTransferDocumentsFilter(),
-					scope.Resolve<ICashRepository>(),
-					new ParametersProvider(),
-					MainClass.MainWin.NavigationManager,
-					scope);
-
-				return new MultipleEntityJournal("Журнал перемещения д/с", vm, vm);
-			}
-		);
-	}
+	void ActionCashTransferDocuments_Activated(object sender, System.EventArgs e) =>
+		NavigationManager.OpenViewModel<TransferDocumentsJournalViewModel>(null);
 
 	void ActionFuelTransferDocuments_Activated(object sender, EventArgs e)
 	{

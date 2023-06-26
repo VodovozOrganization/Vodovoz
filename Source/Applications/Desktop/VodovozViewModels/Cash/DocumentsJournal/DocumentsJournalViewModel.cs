@@ -82,8 +82,6 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 			RegisterDocuments();
 
 			UpdateAllEntityPermissions();
-			CreateNodeActions();
-			CreatePopupActions();
 
 			DataLoader.DynamicLoadingEnabled = false;
 			DataLoader.ItemsListUpdated += OnItemsUpdated;
@@ -640,7 +638,6 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 				{
 					query.Where(advanceReport => advanceReport.Accountable == FilterViewModel.Employee);
 				}
-
 
 				query.Where(GetSearchCriterion(
 					() => advanceReportAlias.Id,
