@@ -10,9 +10,9 @@ using IActionTimeHelper = DriverAPI.Library.Helpers.IActionTimeHelper;
 using IDeprecatedActionTimeHelper = DriverAPI.Library.Deprecated.Helpers.IActionTimeHelper;
 using IDeprecatedOrderModel = DriverAPI.Library.Deprecated.Models.IOrderModel;
 using IDeprecatedTrackPointsModel = DriverAPI.Library.Deprecated.Models.ITrackPointsModel;
-using IOrderModel = DriverAPI.Library.Models.IOrderModel;
+//using IOrderModel = DriverAPI.Library.Models.IOrderModel;
 using ITrackPointsModel = DriverAPI.Library.Models.ITrackPointsModel;
-using OrderModel = DriverAPI.Library.Models.OrderModel;
+//using OrderModel = DriverAPI.Library.Models.OrderModel;
 using TrackPointsModel = DriverAPI.Library.Models.TrackPointsModel;
 
 namespace DriverAPI.Library
@@ -40,8 +40,8 @@ namespace DriverAPI.Library
 			// DAL обертки
 			services.AddScoped<ITrackPointsModel, TrackPointsModel>();
 			services.AddScoped<IDriverMobileAppActionRecordModel, DriverMobileAppActionRecordModel>();
-			services.AddScoped<IRouteListModel, RouteListModel>();
-			services.AddScoped<IOrderModel, OrderModel>();
+			//services.AddScoped<IRouteListModel, RouteListModel>();
+			//services.AddScoped<IOrderModel, OrderModel>();
 			services.AddScoped<IEmployeeModel, EmployeeModel>();
 			services.AddScoped<ISmsPaymentModel, SmsPaymentModel>();
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();

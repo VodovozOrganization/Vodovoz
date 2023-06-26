@@ -1,5 +1,5 @@
 ﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Deprecated2.DTOs;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -8,9 +8,12 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using DriverAPI.Library.Deprecated2.Converters;
+using DriverAPI.Library.Models;
 
-namespace DriverAPI.Library.Models
+namespace DriverAPI.Library.Deprecated2.Models
 {
+	[Obsolete("Будет удален с прекращением поддержки API v2")]
 	public class RouteListModel : IRouteListModel
 	{
 		private readonly ILogger<RouteListModel> _logger;

@@ -1,4 +1,6 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Deprecated2.DTOs;
+using DriverAPI.Library.DTOs;
+using DriverAPI.Library.Converters;
 using QS.Utilities.Numeric;
 using System;
 using System.Collections.Generic;
@@ -7,8 +9,9 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 
-namespace DriverAPI.Library.Converters
+namespace DriverAPI.Library.Deprecated2.Converters
 {
+	[Obsolete("Будет удален с прекращением поддержки API v2")]
 	public class OrderConverter
 	{
 		private readonly DeliveryPointConverter _deliveryPointConverter;

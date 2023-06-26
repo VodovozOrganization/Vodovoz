@@ -1,10 +1,13 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Deprecated2.DTOs;
+using DriverAPI.Library.Converters;
+using System;
 using Vodovoz.Domain.Client;
 
-namespace DriverAPI.Library.Converters
+namespace DriverAPI.Library.Deprecated2.Converters
 {
 	public class PaymentTypeConverter
 	{
+		[Obsolete("Будет удален с прекращением поддержки API v2")]
 		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, bool paid)
 		{
 			switch(paymentType)

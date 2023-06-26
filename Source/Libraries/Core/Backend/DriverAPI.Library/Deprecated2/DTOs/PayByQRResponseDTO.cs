@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using DriverAPI.Library.DTOs;
 
-namespace DriverAPI.Library.DTOs
+namespace DriverAPI.Library.Deprecated2.DTOs
 {
+	[Obsolete("Будет удален с прекращением поддержки API v2")]
 	public class PayByQRResponseDTO
 	{
 		public IEnumerable<PaymentDtoType> AvailablePaymentTypes { get; set; }

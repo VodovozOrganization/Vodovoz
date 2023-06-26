@@ -1,4 +1,5 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Deprecated2.DTOs;
+using DriverAPI.Library.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -6,8 +7,9 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 
-namespace DriverAPI.Library.Models
+namespace DriverAPI.Library.Deprecated2.Models
 {
+	[Obsolete("Будет удален с прекращением поддержки API v2")]
 	public interface IOrderModel
 	{
 		OrderDto Get(int orderId);

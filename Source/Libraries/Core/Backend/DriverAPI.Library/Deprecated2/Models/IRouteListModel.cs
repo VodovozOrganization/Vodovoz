@@ -1,9 +1,10 @@
-﻿using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.Deprecated2.DTOs;
 using System;
 using System.Collections.Generic;
 
-namespace DriverAPI.Library.Models
+namespace DriverAPI.Library.Deprecated2.Models
 {
+	[Obsolete("Будет удален с прекращением поддержки API v2")]
 	public interface IRouteListModel
 	{
 		RouteListDto Get(int routeListId);

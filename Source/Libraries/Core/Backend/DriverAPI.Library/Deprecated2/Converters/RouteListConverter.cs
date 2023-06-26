@@ -1,13 +1,14 @@
-﻿using DriverAPI.Library.DTOs;
-using Microsoft.Extensions.Logging;
+﻿using DriverAPI.Library.Deprecated2.DTOs;
+using DriverAPI.Library.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using DriverAPI.Library.Converters;
 
-namespace DriverAPI.Library.Converters
+namespace DriverAPI.Library.Deprecated2.Converters
 {
+	[Obsolete("Будет удален с прекращением поддержки API v2")]
 	public class RouteListConverter
 	{
 		private readonly DeliveryPointConverter _deliveryPointConverter;

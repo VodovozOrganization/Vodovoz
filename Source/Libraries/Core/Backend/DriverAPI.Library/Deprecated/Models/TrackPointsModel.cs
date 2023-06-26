@@ -8,6 +8,7 @@ using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using TrackCoordinateDto = DriverAPI.Library.Deprecated.DTOs.TrackCoordinateDto;
+using DriverAPI.Library.Deprecated2.Models;
 
 namespace DriverAPI.Library.Deprecated.Models
 {
