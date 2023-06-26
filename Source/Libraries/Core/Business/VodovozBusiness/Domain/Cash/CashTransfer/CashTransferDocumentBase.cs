@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Gamma.Utilities;
-using NLog;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
@@ -23,145 +22,163 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 	[EntityPermission]
 	public abstract class CashTransferDocumentBase : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		Logger logger = LogManager.GetCurrentClassLogger();
+		private int _id;
+		private DateTime _creationDate;
+		private Employee _authtor;
+		private Car _car;
+		private Employee _driver;
+		private CashTransferDocumentStatuses _status;
+		private decimal _transferedSum;
+		private CashTransferOperation _cashTransferOperation;
+		private Subdivision _cashSubdivisionFrom;
+		private Expense _expenseOperation;
+		private ExpenseCategory _expenseCategory;
+		private DateTime? _sendTime;
+		private Employee _cashierSender;
+		private Subdivision _cashSubdivisionTo;
+		private Income _incomeOperation;
+		private IncomeCategory _incomeCategory;
+		private DateTime? _receiveTime;
+		private Employee _cashierReceiver;
+		private string _comment;
 
-		private int id;
-		public virtual int Id {
-			get => id;
-			set => SetField(ref id, value, () => Id);
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
 		}
 
-		private DateTime creationDate;
 		[Display(Name = "Дата создания")]
-		public virtual DateTime CreationDate {
-			get => creationDate;
-			set => SetField(ref creationDate, value, () => CreationDate);
+		public virtual DateTime CreationDate
+		{
+			get => _creationDate;
+			set => SetField(ref _creationDate, value);
 		}
 
-		private Employee authtor;
 		[Display(Name = "Автор")]
-		public virtual Employee Author {
-			get => authtor;
-			set => SetField(ref authtor, value, () => Author);
+		public virtual Employee Author
+		{
+			get => _authtor;
+			set => SetField(ref _authtor, value);
 		}
 
-		private Car car;
 		[Display(Name = "Автомобиль")]
-		public virtual Car Car {
-			get => car;
-			set => SetField(ref car, value, () => Car);
+		public virtual Car Car
+		{
+			get => _car;
+			set => SetField(ref _car, value);
 		}
 
-		private Employee driver;
 		[Display(Name = "Водитель")]
-		public virtual Employee Driver {
-			get => driver;
-			set => SetField(ref driver, value, () => Driver);
+		public virtual Employee Driver
+		{
+			get => _driver;
+			set => SetField(ref _driver, value);
 		}
 
-		private CashTransferDocumentStatuses status;
 		[Display(Name = "Статус")]
-		public virtual CashTransferDocumentStatuses Status {
-			get => status;
-			set => SetField(ref status, value, () => Status);
+		public virtual CashTransferDocumentStatuses Status
+		{
+			get => _status;
+			set => SetField(ref _status, value);
 		}
 
-		private decimal transferedSum;
 		[Display(Name = "Транспортируемая сумма")]
-		public virtual decimal TransferedSum {
-			get => transferedSum;
-			set => SetField(ref transferedSum, value, () => TransferedSum);
+		public virtual decimal TransferedSum
+		{
+			get => _transferedSum;
+			set => SetField(ref _transferedSum, value);
 		}
 
-		private CashTransferOperation cashTransferOperation;
 		[Display(Name = "Операция транспортировки денег")]
-		public virtual CashTransferOperation CashTransferOperation {
-			get => cashTransferOperation;
-			set => SetField(ref cashTransferOperation, value, () => CashTransferOperation);
+		public virtual CashTransferOperation CashTransferOperation
+		{
+			get => _cashTransferOperation;
+			set => SetField(ref _cashTransferOperation, value);
 		}
 
 		#region sender information
 
-		private Subdivision cashSubdivisionFrom;
 		[Display(Name = "Касса отправитель")]
-		public virtual Subdivision CashSubdivisionFrom {
-			get => cashSubdivisionFrom;
-			set => SetField(ref cashSubdivisionFrom, value, () => CashSubdivisionFrom);
+		public virtual Subdivision CashSubdivisionFrom
+		{
+			get => _cashSubdivisionFrom;
+			set => SetField(ref _cashSubdivisionFrom, value);
 		}
 
-		private Expense expenseOperation;
 		[Display(Name = "Ордер списания денег с кассы отправителя")]
-		public virtual Expense ExpenseOperation {
-			get => expenseOperation;
-			set => SetField(ref expenseOperation, value, () => ExpenseOperation);
+		public virtual Expense ExpenseOperation
+		{
+			get => _expenseOperation;
+			set => SetField(ref _expenseOperation, value);
 		}
 
-		private ExpenseCategory expenseCategory;
 		[Display(Name = "Статья расхода")]
-		public virtual ExpenseCategory ExpenseCategory {
-			get => expenseCategory;
-			set => SetField(ref expenseCategory, value, () => ExpenseCategory);
+		public virtual ExpenseCategory ExpenseCategory
+		{
+			get => _expenseCategory;
+			set => SetField(ref _expenseCategory, value);
 		}
 
-		private DateTime? sendTime;
 		[Display(Name = "Время отправки")]
-		public virtual DateTime? SendTime {
-			get => sendTime;
-			set => SetField(ref sendTime, value, () => SendTime);
+		public virtual DateTime? SendTime
+		{
+			get => _sendTime;
+			set => SetField(ref _sendTime, value);
 		}
 
-		private Employee cashierSender;
 		[Display(Name = "Отправивший кассир")]
-		public virtual Employee CashierSender {
-			get => cashierSender;
-			set => SetField(ref cashierSender, value, () => CashierSender);
+		public virtual Employee CashierSender
+		{
+			get => _cashierSender;
+			set => SetField(ref _cashierSender, value);
 		}
 
 		#endregion sender information
 
 		#region receiver information
 
-		private Subdivision cashSubdivisionTo;
 		[Display(Name = "Касса получатель")]
-		public virtual Subdivision CashSubdivisionTo {
-			get => cashSubdivisionTo;
-			set => SetField(ref cashSubdivisionTo, value, () => CashSubdivisionTo);
+		public virtual Subdivision CashSubdivisionTo
+		{
+			get => _cashSubdivisionTo;
+			set => SetField(ref _cashSubdivisionTo, value);
 		}
 
-		private Income incomeOperation;
 		[Display(Name = "Ордер прихода денег в кассу получателя")]
-		public virtual Income IncomeOperation {
-			get => incomeOperation;
-			set => SetField(ref incomeOperation, value, () => IncomeOperation);
+		public virtual Income IncomeOperation
+		{
+			get => _incomeOperation;
+			set => SetField(ref _incomeOperation, value);
 		}
 
-		private IncomeCategory incomeCategory;
 		[Display(Name = "Статья прихода")]
-		public virtual IncomeCategory IncomeCategory {
-			get => incomeCategory;
-			set => SetField(ref incomeCategory, value, () => IncomeCategory);
+		public virtual IncomeCategory IncomeCategory
+		{
+			get => _incomeCategory;
+			set => SetField(ref _incomeCategory, value);
 		}
 
 
-		private DateTime? receiveTime;
 		[Display(Name = "Время получения")]
-		public virtual DateTime? ReceiveTime {
-			get => receiveTime;
-			set => SetField(ref receiveTime, value, () => ReceiveTime);
+		public virtual DateTime? ReceiveTime
+		{
+			get => _receiveTime;
+			set => SetField(ref _receiveTime, value);
 		}
 
-		private Employee cashierReceiver;
 		[Display(Name = "Принявший кассир")]
-		public virtual Employee CashierReceiver {
-			get => cashierReceiver;
-			set => SetField(ref cashierReceiver, value, () => CashierReceiver);
+		public virtual Employee CashierReceiver
+		{
+			get => _cashierReceiver;
+			set => SetField(ref _cashierReceiver, value);
 		}
 
-		private string comment;
 		[Display(Name = "Комментарий")]
-		public virtual string Comment {
-			get => comment;
-			set => SetField(ref comment, value, () => Comment);
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
 
 		#endregion receiver information
@@ -187,36 +204,44 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 		/// <exception cref="InvalidOperationException"></exception>
 		public virtual void Send(Employee sender, string description)
 		{
-			if(sender == null) {
+			if(sender == null)
+			{
 				throw new ArgumentNullException(nameof(sender), $"Не указано кто является кассиром");
 			}
 
-			if(Status != CashTransferDocumentStatuses.New) {
+			if(Status != CashTransferDocumentStatuses.New)
+			{
 				throw new InvalidOperationException($"Невозможно отправить документ транспортировки денег не из статуса {CashTransferDocumentStatuses.New.GetEnumTitle()}");
 			}
 
-			if(CashTransferOperation != null || ExpenseOperation != null) {
+			if(CashTransferOperation != null || ExpenseOperation != null)
+			{
 				throw new InvalidOperationException($"Денежные средства уже были отправлены ранее в этом же документе, изменить данные о факте отправки денег невозможно");
 			}
 
 			TransferedSum = CalculateTransferedSum();
 
 			string exceptionMessage = RaiseValidationAndGetResult();
-			if(!string.IsNullOrWhiteSpace(exceptionMessage)) {
+
+			if(!string.IsNullOrWhiteSpace(exceptionMessage))
+			{
 				throw new InvalidOperationException(exceptionMessage);
 			}
 
 			DateTime now = DateTime.Now;
 
-			try {
-				CashTransferOperation newCashTransferOperation = new CashTransferOperation {
+			try
+			{
+				CashTransferOperation newCashTransferOperation = new CashTransferOperation
+				{
 					SubdivisionFrom = CashSubdivisionFrom,
 					SubdivisionTo = CashSubdivisionTo,
 					TransferedSum = TransferedSum,
 					SendTime = now
 				};
 
-				Expense newExpenseOperation = new Expense {
+				Expense newExpenseOperation = new Expense
+				{
 					TypeDocument = ExpenseInvoiceDocumentType.ExpenseTransferDocument,
 					Description = description,
 					Employee = sender,
@@ -234,7 +259,9 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 				SendTime = now;
 				CashTransferOperation = newCashTransferOperation;
 				ExpenseOperation = newExpenseOperation;
-			} catch(Exception) {
+			}
+			catch(Exception)
+			{
 				//восстанавливаем состояние
 				Status = CashTransferDocumentStatuses.New;
 				CashTransferOperation = null;
@@ -256,30 +283,36 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 		/// <exception cref="InvalidOperationException"></exception>
 		public virtual void Receive(Employee receiver, string description)
 		{
-			if(receiver == null) {
+			if(receiver == null)
+			{
 				throw new ArgumentNullException($"Не указано кто является кассиром");
 			}
 
-			if(CashTransferOperation == null) {
+			if(CashTransferOperation == null)
+			{
 				throw new InvalidOperationException($"Не было создано операции перемещения денежных средств, без нее невозможно создать операцию принятия");
 			}
 
-			if(Status != CashTransferDocumentStatuses.Sent) {
+			if(Status != CashTransferDocumentStatuses.Sent)
+			{
 				throw new InvalidOperationException($"Невозможно принять документ транспортировки денег не из статуса \"{CashTransferDocumentStatuses.Sent.GetEnumTitle()}\"");
 			}
 
-			if(IncomeOperation != null || CashTransferOperation.ReceiveTime.HasValue) {
+			if(IncomeOperation != null || CashTransferOperation.ReceiveTime.HasValue)
+			{
 				throw new InvalidOperationException($"Денежные средства уже были приняты ранее, изменить данные о факте принятия денег невозможно");
 			}
 
 			string exceptionMessage = RaiseValidationAndGetResult();
-			if(!string.IsNullOrWhiteSpace(exceptionMessage)) {
+			if(!string.IsNullOrWhiteSpace(exceptionMessage))
+			{
 				throw new InvalidOperationException(exceptionMessage);
 			}
 
 			DateTime now = DateTime.Now;
 
-			try {
+			try
+			{
 				Income newIncomeOperation = new Income
 				{
 					TypeDocument = IncomeInvoiceDocumentType.IncomeTransferDocument,
@@ -299,7 +332,9 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 				ReceiveTime = now;
 				CashTransferOperation.ReceiveTime = now;
 				IncomeOperation = newIncomeOperation;
-			} catch(Exception) {
+			}
+			catch(Exception)
+			{
 				//восстанавливаем состояние
 				Status = CashTransferDocumentStatuses.Sent;
 				CashierReceiver = null;
@@ -315,7 +350,9 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 		{
 			string result = null;
 			var validationResult = Validate(new ValidationContext(this, new Dictionary<object, object>()));
-			if(validationResult.Any()) {
+
+			if(validationResult.Any())
+			{
 				result = string.Join(Environment.NewLine, validationResult.Select(x => x.ErrorMessage));
 			}
 			return result;
@@ -329,51 +366,53 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Driver == null) {
+			if(Driver == null)
+			{
 				yield return new ValidationResult("Должен быть заполнен водитель", new[] { nameof(Driver) });
 			}
-			if(Car == null) {
+
+			if(Car == null)
+			{
 				yield return new ValidationResult("Должен быть заполнен автомобиль", new[] { nameof(Car) });
 			}
-			if(CashSubdivisionFrom == null) {
+
+			if(CashSubdivisionFrom == null)
+			{
 				yield return new ValidationResult("Должна быть заполнена касса из которой переносятся деньги", new[] { nameof(CashSubdivisionFrom) });
-			} else if(CashSubdivisionFrom.Id == 0) {
+			}
+			else if(CashSubdivisionFrom.Id == 0)
+			{
 				yield return new ValidationResult("Должна быть выбрана существующая касса", new[] { nameof(CashSubdivisionFrom) });
 			}
-			if(CashSubdivisionTo == null) {
+
+			if(CashSubdivisionTo == null)
+			{
 				yield return new ValidationResult("Должна быть заполнена касса в которую переносятся деньги", new[] { nameof(CashSubdivisionTo) });
-			} else if(CashSubdivisionTo.Id == 0) {
+			}
+			else if(CashSubdivisionTo.Id == 0)
+			{
 				yield return new ValidationResult("Должна быть выбрана существующая касса", new[] { nameof(CashSubdivisionTo) });
 			}
-			if(CashSubdivisionFrom != null && CashSubdivisionTo != null && CashSubdivisionFrom.Id == CashSubdivisionTo.Id) {
+
+			if(CashSubdivisionFrom != null && CashSubdivisionTo != null && CashSubdivisionFrom.Id == CashSubdivisionTo.Id)
+			{
 				yield return new ValidationResult("Невозможно перенести деньги в ту же самую кассу");
 			}
-			if(IncomeCategory == null) {
+
+			if(IncomeCategory == null)
+			{
 				yield return new ValidationResult("Должна быть выбрана статья прихода", new[] { nameof(IncomeCategory) });
 			}
-			if(ExpenseCategory == null) {
+
+			if(ExpenseCategory == null)
+			{
 				yield return new ValidationResult("Должна быть выбрана статья расхода", new[] { nameof(ExpenseCategory) });
 			}
-			if(CalculateTransferedSum() <= 0) {
+
+			if(CalculateTransferedSum() <= 0)
+			{
 				yield return new ValidationResult("Сумма денежных средств для перемещения должна быть больше нуля");
 			}
-		}
-	}
-
-	public enum CashTransferDocumentStatuses
-	{
-		[Display(Name = "Новый")]
-		New,
-		[Display(Name = "Отправлен")]
-		Sent,
-		[Display(Name = "Получен")]
-		Received
-	}
-
-	public class CashTransferDocumentStatusesStringType : NHibernate.Type.EnumStringType
-	{
-		public CashTransferDocumentStatusesStringType() : base(typeof(CashTransferDocumentStatuses))
-		{
 		}
 	}
 }
