@@ -814,7 +814,7 @@ public partial class MainWindow : Window
 				var vm = new CashTransferDocumentVM(
 					UnitOfWorkFactory.GetDefaultFactory,
 					new CashTransferDocumentsFilter(),
-					scope.Resolve<CashRepository>(),
+					scope.Resolve<ICashRepository>(),
 					scope.Resolve<ParametersProvider>(),
 					MainClass.MainWin.NavigationManager,
 					scope);
