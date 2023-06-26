@@ -314,7 +314,7 @@ namespace Vodovoz.ViewModels.Logistic
 						return;
 					}
 
-					Entity.ConfirmedDistance = (decimal)track.TotalDistance.Value;
+					Entity.ConfirmedDistance = track.TotalDistance.HasValue ? (decimal)track.TotalDistance.Value : 0;
 				}
 			));
 
