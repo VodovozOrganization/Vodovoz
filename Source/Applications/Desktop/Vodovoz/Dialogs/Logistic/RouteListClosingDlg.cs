@@ -222,7 +222,7 @@ namespace Vodovoz
 			var driverFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
-			evmeDriver.ChangedByUser += OnEvmeDriverChangedByUser;
+			evmeDriver.Changed += OnEvmeDriverChanged;
 
 			previousForwarder = Entity.Forwarder;
 			var forwarderFilter = new EmployeeFilterViewModel();
@@ -376,7 +376,7 @@ namespace Vodovoz
 			}
 		}
 
-		private void OnEvmeDriverChangedByUser(object sender, EventArgs e)
+		private void OnEvmeDriverChanged(object sender, EventArgs e)
 		{
 			if(Entity.Driver != null)
 			{
