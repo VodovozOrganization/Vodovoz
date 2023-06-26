@@ -13,10 +13,11 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Logistic;
+using QS.Project.Journal;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
-	public class RouteListJournalFilterViewModel : FilterViewModelBase<RouteListJournalFilterViewModel>
+	public class RouteListJournalFilterViewModel : FilterViewModelBase<RouteListJournalFilterViewModel>, IJournalFilterViewModel
 	{
 		private bool _showDriversWithTerminal;
 		private bool _hasAccessToDriverTerminal;
@@ -245,6 +246,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				" то строка будет выделена серым цветом\n" +
 				"В остальных случаях используется стандартная расцветка")
 		));
+
+		public bool IsShow { get; set; }
 
 		private void SubscribeOnCheckChanged()
 		{
