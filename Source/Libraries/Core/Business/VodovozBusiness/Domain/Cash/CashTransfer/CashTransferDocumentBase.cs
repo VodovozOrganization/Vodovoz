@@ -32,12 +32,12 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 		private CashTransferOperation _cashTransferOperation;
 		private Subdivision _cashSubdivisionFrom;
 		private Expense _expenseOperation;
-		private ExpenseCategory _expenseCategory;
+		private int? _expenseCategoryId;
 		private DateTime? _sendTime;
 		private Employee _cashierSender;
 		private Subdivision _cashSubdivisionTo;
 		private Income _incomeOperation;
-		private IncomeCategory _incomeCategory;
+		private int? _incomeCategoryId;
 		private DateTime? _receiveTime;
 		private Employee _cashierReceiver;
 		private string _comment;
@@ -114,10 +114,10 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 		}
 
 		[Display(Name = "Статья расхода")]
-		public virtual ExpenseCategory ExpenseCategory
+		public virtual int? ExpenseCategoryId
 		{
-			get => _expenseCategory;
-			set => SetField(ref _expenseCategory, value);
+			get => _expenseCategoryId;
+			set => SetField(ref _expenseCategoryId, value);
 		}
 
 		[Display(Name = "Время отправки")]
@@ -153,12 +153,11 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 		}
 
 		[Display(Name = "Статья прихода")]
-		public virtual IncomeCategory IncomeCategory
+		public virtual int? IncomeCategoryId
 		{
-			get => _incomeCategory;
-			set => SetField(ref _incomeCategory, value);
+			get => _incomeCategoryId;
+			set => SetField(ref _incomeCategoryId, value);
 		}
-
 
 		[Display(Name = "Время получения")]
 		public virtual DateTime? ReceiveTime
@@ -247,7 +246,7 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 					Employee = sender,
 					Casher = sender,
 					Date = now,
-					ExpenseCategoryId = ExpenseCategory.Id,
+					ExpenseCategoryId = ExpenseCategoryId,
 					TypeOperation = ExpenseType.Expense,
 					Money = TransferedSum,
 					RelatedToSubdivision = CashSubdivisionFrom,
@@ -320,7 +319,7 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 					Casher = receiver,
 					Description = description,
 					Date = now,
-					IncomeCategoryId = IncomeCategory.Id,
+					IncomeCategoryId = IncomeCategoryId,
 					TypeOperation = IncomeType.Common,
 					Money = TransferedSum,
 					RelatedToSubdivision = CashSubdivisionTo,
@@ -399,14 +398,14 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 				yield return new ValidationResult("Невозможно перенести деньги в ту же самую кассу");
 			}
 
-			if(IncomeCategory == null)
+			if(IncomeCategoryId == null)
 			{
-				yield return new ValidationResult("Должна быть выбрана статья прихода", new[] { nameof(IncomeCategory) });
+				yield return new ValidationResult("Должна быть выбрана статья прихода", new[] { nameof(IncomeCategoryId) });
 			}
 
-			if(ExpenseCategory == null)
+			if(ExpenseCategoryId == null)
 			{
-				yield return new ValidationResult("Должна быть выбрана статья расхода", new[] { nameof(ExpenseCategory) });
+				yield return new ValidationResult("Должна быть выбрана статья расхода", new[] { nameof(ExpenseCategoryId) });
 			}
 
 			if(CalculateTransferedSum() <= 0)

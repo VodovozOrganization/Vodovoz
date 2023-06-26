@@ -1,27 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
-using QS.RepresentationModel.GtkUI;
-using QSProjectsLib;
-using QS.Validation;
-using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Cash.CashTransfer;
-using Vodovoz.Domain.Employees;
-using Vodovoz.ViewModelBased;
-using Vodovoz.JournalFilters.QueryFilterViews;
+﻿using Autofac;
 using NHibernate.Criterion;
 using QS.Commands;
-using Vodovoz.Domain.Logistic;
 using QS.DomainModel.NotifyChange;
-using QS.Project.Domain;
 using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
+using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.RepresentationModel.GtkUI;
+using QS.Validation;
+using QS.ViewModels.Control.EEVM;
+using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.CashTransfer;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.JournalFilters.QueryFilterViews;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModelBased;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
+using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
@@ -31,7 +37,10 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		private readonly ICategoryRepository _categoryRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
-	
+		private readonly ILifetimeScope _lifetimeScope;
+		private FinancialExpenseCategory _financialExpenseCategory;
+		private FinancialIncomeCategory _financialIncomeCategory;
+
 		public IncomeCashTransferDocumentViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -39,11 +48,15 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			IEmployeeRepository employeeRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
-			ICarJournalFactory carJournalFactory) : base(uowBuilder, unitOfWorkFactory)
+			ICarJournalFactory carJournalFactory,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope) : base(uowBuilder, unitOfWorkFactory)
 		{
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			EmployeeAutocompleteSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
@@ -57,13 +70,87 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			}
 			CreateCommands();
 			UpdateCashSubdivisions();
-			UpdateIncomeCategories();
-			UpdateExpenseCategories();
 			View = new IncomeCashTransferDlg(this);
 
 			ConfigEntityUpdateSubscribes();
 			ConfigureEntityPropertyChanges();
+
+			FinancialExpenseCategoryViewModel = BuildFinancialIncomeCategoryViewModel();
+
+			SetPropertyChangeRelation(
+				e => e.ExpenseCategoryId,
+				() => FinancialExpenseCategory);
+
+			FinancialIncomeCategoryViewModel = BuildFinancialExpenseCategoryViewModel();
+
+			SetPropertyChangeRelation(
+				e => e.IncomeCategoryId,
+				() => FinancialIncomeCategory);
 		}
+
+		#region Id Ref Propeties
+
+		public FinancialExpenseCategory FinancialExpenseCategory
+		{
+			get => this.GetIdRefField(ref _financialExpenseCategory, Entity.ExpenseCategoryId);
+			set => this.SetIdRefField(SetField, ref _financialExpenseCategory, () => Entity.ExpenseCategoryId, value);
+		}
+
+		public FinancialIncomeCategory FinancialIncomeCategory
+		{
+			get => this.GetIdRefField(ref _financialIncomeCategory, Entity.IncomeCategoryId);
+			set => this.SetIdRefField(SetField, ref _financialIncomeCategory, () => Entity.IncomeCategoryId, value);
+		}
+
+		#endregion Id Ref Propeties
+
+		#region EntityEntry ViewModels
+
+		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
+
+		private IEntityEntryViewModel BuildFinancialExpenseCategoryViewModel()
+		{
+			var financialIncomeCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<IncomeCashTransferDocumentViewModel>(View, this, UoW, NavigationManager, _lifetimeScope);
+
+			var viewModel = financialIncomeCategoryViewModelEntryViewModelBuilder
+				.ForProperty(x => x.FinancialIncomeCategory)
+				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
+					filter =>
+					{
+						filter.RestrictFinancialSubtype = FinancialSubType.Income;
+						filter.TargetDocument = TargetDocument.Transfer;
+						filter.RestrictNodeSelectTypes.Add(typeof(FinancialIncomeCategory));
+					})
+				.Finish();
+
+			viewModel.IsEditable = CanEdit;
+			
+			return viewModel;
+		}
+
+		public IEntityEntryViewModel FinancialIncomeCategoryViewModel { get; }
+
+		private IEntityEntryViewModel BuildFinancialIncomeCategoryViewModel()
+		{
+			var financialExpenseCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<IncomeCashTransferDocumentViewModel>(View, this, UoW, NavigationManager, _lifetimeScope);
+
+			var viewModel = financialExpenseCategoryViewModelEntryViewModelBuilder
+				.ForProperty(x => x.FinancialExpenseCategory)
+				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
+					filter =>
+					{
+						filter.RestrictFinancialSubtype = FinancialSubType.Expense;
+						filter.TargetDocument = TargetDocument.Transfer;
+						filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
+					})
+				.Finish();
+
+			viewModel.IsEditable = CanEdit;
+
+			return viewModel;
+		}
+
+		#endregion EntityEntry ViewModels
 
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CarAutocompleteSelectorFactory { get; }
@@ -125,8 +212,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		private void ConfigEntityUpdateSubscribes()
 		{
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(RoutelistEntityConfig_EntityUpdated);
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(IncomeCategoryEntityConfig_EntityUpdated);
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ExpenseCategory>(ExpenseCategoryEntityConfig_EntityUpdated);
 		}
 
 		private void RoutelistEntityConfig_EntityUpdated(EntityChangeEvent[] changeEvents)
@@ -142,30 +227,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 					if(foundRouteList != null) {
 						UoW.Session.Refresh(foundRouteList);
 					}
-				}
-			}
-		}
-
-		private void IncomeCategoryEntityConfig_EntityUpdated(EntityChangeEvent[] changeEvents)
-		{
-			foreach(var updatedItem in changeEvents.Select(x => x.Entity)) {
-				IncomeCategory updatedIncomeCategory = updatedItem as IncomeCategory;
-				//Если хотябы одна необходимая статья обновилась можем обнлять весь список.
-				if(updatedIncomeCategory != null && updatedIncomeCategory.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeTransferDocument) {
-					UpdateIncomeCategories();
-					return;
-				}
-			}
-		}
-
-		private void ExpenseCategoryEntityConfig_EntityUpdated(EntityChangeEvent[] changeEvents)
-		{
-			foreach(var updatedItem in changeEvents.Select(x => x.Entity)) {
-				ExpenseCategory updatedExpenseCategory = updatedItem as ExpenseCategory;
-				//Если хотябы одна необходимая статья обновилась можем обнлять весь список.
-				if(updatedExpenseCategory != null && updatedExpenseCategory.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseTransferDocument) {
-					UpdateExpenseCategories();
-					return;
 				}
 			}
 		}
@@ -232,11 +293,12 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 						&& Entity.Car != null
 						&& Entity.CashSubdivisionFrom != null
 						&& Entity.CashSubdivisionTo != null
-						&& Entity.ExpenseCategory != null
-						&& Entity.IncomeCategory != null
+						&& Entity.ExpenseCategoryId != null
+						&& Entity.IncomeCategoryId != null
 						&& Entity.TransferedSum > 0;
 				}
 			);
+
 			SendCommand.CanExecuteChangedWith(Entity,
 				x => x.Status,
 				x => x.Driver,
@@ -244,8 +306,8 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 				x => x.CashSubdivisionFrom,
 				x => x.CashSubdivisionTo,
 				x => x.TransferedSum,
-				x => x.ExpenseCategory,
-				x => x.IncomeCategory
+				x => x.ExpenseCategoryId,
+				x => x.IncomeCategoryId
 			);
 
 			ReceiveCommand = new DelegateCommand(
@@ -396,50 +458,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		#endregion Commands
 
-		#region Настройка списков статей дохода и прихода
-
-		private IList<IncomeCategory> incomeCategories;
-		public virtual IList<IncomeCategory> IncomeCategories {
-			get => incomeCategories;
-			set => SetField(ref incomeCategories, value, () => IncomeCategories);
-		}
-
-		private IList<ExpenseCategory> expenseCategories;
-		public virtual IList<ExpenseCategory> ExpenseCategories {
-			get => expenseCategories;
-			set => SetField(ref expenseCategories, value, () => ExpenseCategories);
-		}
-
-		private void UpdateIncomeCategories()
-		{
-			if(!CanEdit) {
-				return;
-			}
-			var currentSelectedCategory = Entity.IncomeCategory;
-			IncomeCategories =
-				_categoryRepository.IncomeCategories(UoW)
-					.Where(x => x.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeTransferDocument).ToList();
-			if(IncomeCategories.Contains(currentSelectedCategory)) {
-				Entity.IncomeCategory = currentSelectedCategory;
-			}
-		}
-
-		private void UpdateExpenseCategories()
-		{
-			if(!CanEdit) {
-				return;
-			}
-			var currentSelectedCategory = Entity.ExpenseCategory;
-			ExpenseCategories =
-				_categoryRepository.ExpenseCategories(UoW)
-					.Where(x => x.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseTransferDocument).ToList();
-			if(ExpenseCategories.Contains(currentSelectedCategory)) {
-				Entity.ExpenseCategory = currentSelectedCategory;
-			}
-		}
-
-		#endregion Настройка списков статей дохода и прихода
-
 		#region Настройка списков доступных подразделений кассы
 
 		private IEnumerable<Subdivision> cashSubdivisions;
@@ -456,6 +474,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			get => subdivisionsTo;
 			set => SetField(ref subdivisionsTo, value, () => SubdivisionsTo);
 		}
+		public INavigationManager NavigationManager { get; }
 
 		private void UpdateCashSubdivisions()
 		{

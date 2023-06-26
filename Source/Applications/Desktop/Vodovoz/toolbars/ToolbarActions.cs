@@ -805,7 +805,7 @@ public partial class MainWindow : Window
 
 	void ActionCashTransferDocuments_Activated(object sender, System.EventArgs e)
 	{
-		var cashRepository = new CashRepository();
+		ILifetimeScope scope = MainClass.AppDIContainer.BeginLifetimeScope();
 
 		tdiMain.OpenTab(
 			RepresentationJournalDialog.GenerateHashName<CashTransferDocumentVM>(),
@@ -814,8 +814,10 @@ public partial class MainWindow : Window
 				var vm = new CashTransferDocumentVM(
 					UnitOfWorkFactory.GetDefaultFactory,
 					new CashTransferDocumentsFilter(),
-					cashRepository,
-					new ParametersProvider());
+					scope.Resolve<CashRepository>(),
+					scope.Resolve<ParametersProvider>(),
+					MainClass.MainWin.NavigationManager,
+					scope);
 
 				return new MultipleEntityJournal("Журнал перемещения д/с", vm, vm);
 			}

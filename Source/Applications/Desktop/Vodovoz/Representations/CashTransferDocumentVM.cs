@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.RepresentationModel.GtkUI;
 using QS.Utilities.Text;
@@ -28,7 +30,7 @@ namespace Vodovoz.Representations
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ICashRepository _cashRepository;
 		private readonly IParametersProvider _parametersProvider;
-
+		private readonly ILifetimeScope _lifetimeScope;
 		private CashTransferDocumentVMNode resultAlias = null;
 
         public CashTransferDocumentsFilter Filter
@@ -36,17 +38,21 @@ namespace Vodovoz.Representations
             get => RepresentationFilter as CashTransferDocumentsFilter;
             set => RepresentationFilter = value as IRepresentationFilter;
         }
+		public INavigationManager NavigationManager { get; }
 
-        public CashTransferDocumentVM(
+		public CashTransferDocumentVM(
 	        IUnitOfWorkFactory unitOfWorkFactory,
 	        CashTransferDocumentsFilter cashTransferDocumentsFilter,
 	        ICashRepository cashRepository,
-	        IParametersProvider parametersProvider)
+	        IParametersProvider parametersProvider,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			_parametersProvider = parametersProvider ?? throw new ArgumentNullException(nameof(parametersProvider));
-
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Filter = cashTransferDocumentsFilter;
 			Filter.UoW = UoW;
@@ -160,7 +166,9 @@ namespace Vodovoz.Representations
 						new EmployeeRepository(),
 						new SubdivisionRepository(_parametersProvider),
 						new EmployeeJournalFactory(),
-						new CarJournalFactory(MainClass.MainWin.NavigationManager));
+						new CarJournalFactory(NavigationManager),
+						NavigationManager,
+						_lifetimeScope);
 					return viewModel.View as IncomeCashTransferDlg;
 				},
 				//функция диалога открытия документа
@@ -172,7 +180,9 @@ namespace Vodovoz.Representations
 						new EmployeeRepository(),
 						new SubdivisionRepository(_parametersProvider),
 						new EmployeeJournalFactory(),
-						new CarJournalFactory(MainClass.MainWin.NavigationManager));
+						new CarJournalFactory(NavigationManager),
+						NavigationManager,
+						_lifetimeScope);
 					return viewModel.View as IncomeCashTransferDlg;
 				}
 			);
@@ -254,7 +264,9 @@ namespace Vodovoz.Representations
 						new CategoryRepository(_parametersProvider),
 						new EmployeeRepository(),
 						new SubdivisionRepository(_parametersProvider),
-						new EmployeeJournalFactory());
+						new EmployeeJournalFactory(),
+						NavigationManager,
+						_lifetimeScope);
 					return viewModel.View as CommonCashTransferDlg;
 				},
 				//функция диалога открытия документа
@@ -265,7 +277,9 @@ namespace Vodovoz.Representations
 						new CategoryRepository(_parametersProvider),
 						new EmployeeRepository(),
 						new SubdivisionRepository(_parametersProvider),
-						new EmployeeJournalFactory());
+						new EmployeeJournalFactory(),
+						NavigationManager,
+						_lifetimeScope);
 					return viewModel.View as CommonCashTransferDlg;
 				}
 			);

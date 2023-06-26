@@ -1,13 +1,12 @@
-﻿using System;
-using QS.Dialog.Gtk;
-using Vodovoz.Domain.Cash.CashTransfer;
-using QS.Tdi;
-using Gamma.Utilities;
-using Vodovoz.ViewModelBased;
-using Vodovoz.Domain.Cash;
+﻿using Gamma.Utilities;
 using QS.Dialog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Tdi;
+using System;
+using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
@@ -58,15 +57,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			comboboxCashSubdivisionTo.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			comboboxCashSubdivisionTo.Binding.AddBinding(ViewModel.Entity, e => e.CashSubdivisionTo, w => w.SelectedItem).InitializeFromSource();
 
-			comboExpenseCategory.SetRenderTextFunc<ExpenseCategory>(s => s.Name);
-			comboExpenseCategory.Binding.AddBinding(ViewModel, vm => vm.ExpenseCategories, w => w.ItemsList).InitializeFromSource();
-			comboExpenseCategory.Binding.AddBinding(ViewModel.Entity, e => e.ExpenseCategory, w => w.SelectedItem).InitializeFromSource();
-			comboExpenseCategory.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			entryExpenseFinancialCategory.ViewModel = ViewModel.FinancialExpenseCategoryViewModel;
 
-			comboIncomeCategory.SetRenderTextFunc<IncomeCategory>(s => s.Name);
-			comboIncomeCategory.Binding.AddBinding(ViewModel, vm => vm.IncomeCategories, w => w.ItemsList).InitializeFromSource();
-			comboIncomeCategory.Binding.AddBinding(ViewModel.Entity, e => e.IncomeCategory, w => w.SelectedItem).InitializeFromSource();
-			comboIncomeCategory.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			entryIncomeFinancialCategory.ViewModel = ViewModel.FinancialIncomeCategoryViewModel;
 
 			ylabelCashierSender.Binding.AddFuncBinding(ViewModel.Entity, e => e.CashierSender != null ? e.CashierSender.GetPersonNameWithInitials() : "", w => w.LabelProp).InitializeFromSource();
 			ylabelCashierReceiver.Binding.AddFuncBinding(ViewModel.Entity, e => e.CashierReceiver != null ? e.CashierReceiver.GetPersonNameWithInitials() : "", w => w.LabelProp).InitializeFromSource();
