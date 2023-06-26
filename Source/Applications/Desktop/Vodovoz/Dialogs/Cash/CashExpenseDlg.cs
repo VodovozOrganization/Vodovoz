@@ -491,7 +491,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			var unclosedChangeAdvances = _accountableDebtsRepository.UnclosedAdvance(
+			var unclosedChangeAdvances = _accountableDebtsRepository.GetUnclosedAdvances(
 					UoW,
 					Entity.RouteListClosing.Driver,
 					_changeAdvanceCategory,

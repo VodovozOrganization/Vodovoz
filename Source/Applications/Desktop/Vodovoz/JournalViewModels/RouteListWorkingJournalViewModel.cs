@@ -492,7 +492,7 @@ namespace Vodovoz.JournalViewModels
 						var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 						var driverId = routeList.Driver.Id;
 
-						if(_accountableDebtsRepository.UnclosedAdvance(localUow,
+						if(_accountableDebtsRepository.GetUnclosedAdvances(localUow,
 							   routeList.Driver,
 							   localUow.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId),
 							   null).Count > 0)
