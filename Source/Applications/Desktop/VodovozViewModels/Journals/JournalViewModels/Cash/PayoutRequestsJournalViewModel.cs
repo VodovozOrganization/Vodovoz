@@ -505,7 +505,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 						new EmployeeRepository(),
 						EntityUoWBuilder.ForCreate(),
 						_unitOfWorkFactory,
-						_commonServices
+						_commonServices,
+						NavigationManager,
+						_scope
 					),
 					//функция диалога открытия документа
 					CreateCashlessRequestViewModelForOpen,
@@ -529,7 +531,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				new EmployeeRepository(),
 				EntityUoWBuilder.ForOpen(node.Id),
 				_unitOfWorkFactory,
-				_commonServices
+				_commonServices,
+				NavigationManager,
+				_scope
 			);
 		}
 
