@@ -815,7 +815,7 @@ public partial class MainWindow : Window
 					UnitOfWorkFactory.GetDefaultFactory,
 					new CashTransferDocumentsFilter(),
 					scope.Resolve<ICashRepository>(),
-					scope.Resolve<ParametersProvider>(),
+					new ParametersProvider(),
 					MainClass.MainWin.NavigationManager,
 					scope);
 
