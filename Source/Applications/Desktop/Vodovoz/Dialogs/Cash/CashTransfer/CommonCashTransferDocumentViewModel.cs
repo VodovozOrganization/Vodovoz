@@ -110,7 +110,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private IEntityEntryViewModel BuildFinancialExpenseCategoryViewModel()
 		{
-			var financialIncomeCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
+			var financialIncomeCategoryViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
 			var viewModel = financialIncomeCategoryViewModelEntryViewModelBuilder
 				.ForProperty(x => x.FinancialIncomeCategory)
@@ -132,7 +132,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private IEntityEntryViewModel BuildFinancialIncomeCategoryViewModel()
 		{
-			var financialExpenseCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
+			var financialExpenseCategoryViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
 			var viewModel = financialExpenseCategoryViewModelEntryViewModelBuilder
 				.ForProperty(x => x.FinancialExpenseCategory)

@@ -16,15 +16,12 @@ namespace Vodovoz.Cash.TransferDocumentsJournal
 				.AddColumn("Автор").AddTextRenderer(node => node.AuthorShortFullName)
 				.AddColumn("Статус").AddTextRenderer(node => node.Status.GetEnumTitle())
 				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.TransferedSum))
-
 				.AddColumn("Отправлено из").AddTextRenderer(node => node.SubdivisionFrom)
 				.AddColumn("Время отпр.").AddTextRenderer(node => node.SendTime.HasValue ? node.SendTime.Value.ToShortDateString() : "")
 				.AddColumn("Отправил").AddTextRenderer(node => node.CashierSenderShortFullName)
-
 				.AddColumn("Отправлено в").AddTextRenderer(node => node.SubdivisionTo)
 				.AddColumn("Время принятия").AddTextRenderer(node => node.ReceiveTime.HasValue ? node.ReceiveTime.Value.ToShortDateString() : "")
 				.AddColumn("Принял").AddTextRenderer(node => node.CashierReceiverShortFullName)
-
 				.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
 				.Finish();
 	}

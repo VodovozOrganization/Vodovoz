@@ -62,6 +62,9 @@ namespace Vodovoz.Representations
 
 			UpdateAllEntityPermissions();
 
+			CreateNodeActions();
+			CreatePopupActions();
+
 			DataLoader.DynamicLoadingEnabled = false;
 			DataLoader.ItemsListUpdated += OnItemsUpdated;
 		}

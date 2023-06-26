@@ -83,6 +83,9 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 			UpdateAllEntityPermissions();
 
+			CreateNodeActions();
+			CreatePopupActions();
+
 			DataLoader.DynamicLoadingEnabled = false;
 			DataLoader.ItemsListUpdated += OnItemsUpdated;
 		}
