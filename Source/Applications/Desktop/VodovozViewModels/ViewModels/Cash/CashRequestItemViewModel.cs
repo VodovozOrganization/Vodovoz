@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			UoW = uow;
 			UserRole = userRole;
 
-			var employeeEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashRequestSumItem>(this, Entity, UoW, NavigationManager, _scope);
+			var employeeEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashRequestItemViewModel>(this, this, UoW, NavigationManager, _scope);
 
 			EmployeeViewModel = employeeEntryViewModelBuilder
 				.ForProperty(x => x.AccountableEmployee)

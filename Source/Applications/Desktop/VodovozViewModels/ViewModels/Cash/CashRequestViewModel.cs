@@ -101,7 +101,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			var expenseCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashRequest>(this, Entity, UoW, NavigationManager, _scope);
 
-			ExpenseCategoryViewModel = expenseCategoryEntryViewModelBuilder
+			FinancialExpenseCategoryViewModel = expenseCategoryEntryViewModelBuilder
 				.ForProperty(x => x.ExpenseCategory)
 				.UseViewModelDialog<FinancialCategoriesGroupViewModel>()
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
@@ -267,7 +267,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
 
-		public IEntityEntryViewModel ExpenseCategoryViewModel { get; }
+		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
 
 		public IEntityEntryViewModel SubdivisionViewModel { get; }
 

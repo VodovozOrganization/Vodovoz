@@ -33,8 +33,7 @@ namespace Vodovoz.Dialogs.Cash
 
 			//Причина расхода
 
-			entryExpenseFinancialCategory.ViewModel = ViewModel.ExpenseCategoryViewModel;
-
+			entryFinancialExpenceCategory.ViewModel = ViewModel.FinancialExpenseCategoryViewModel;
 
 			#region Combo
 
@@ -162,8 +161,12 @@ namespace Vodovoz.Dialogs.Cash
 			yentryCancelReason.Binding
 				.AddBinding(ViewModel, vm => vm.CanEditOnlyCoordinator, w => w.Sensitive)
 				.InitializeFromSource();
-			entryExpenseFinancialCategory.Binding
+
+			entryFinancialExpenceCategory.ViewModel = ViewModel.FinancialExpenseCategoryViewModel;
+
+			entryFinancialExpenceCategory.Binding
 				.AddBinding(ViewModel, vm => vm.ExpenseCategorySensitive, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible)
 				.InitializeFromSource();
 
 			speccomboOrganization.Binding
@@ -189,9 +192,6 @@ namespace Vodovoz.Dialogs.Cash
 				.InitializeFromSource();
 
 			labelCategoryEntityviewmodelentry.Binding
-				.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible)
-				.InitializeFromSource();
-			entryExpenseFinancialCategory.Binding
 				.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible)
 				.InitializeFromSource();
 
