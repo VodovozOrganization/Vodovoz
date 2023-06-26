@@ -70,10 +70,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			}
 			CreateCommands();
 			UpdateCashSubdivisions();
-			View = new IncomeCashTransferDlg(this);
-
-			ConfigEntityUpdateSubscribes();
-			ConfigureEntityPropertyChanges();
 
 			FinancialExpenseCategoryViewModel = BuildFinancialIncomeCategoryViewModel();
 
@@ -86,6 +82,11 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			SetPropertyChangeRelation(
 				e => e.IncomeCategoryId,
 				() => FinancialIncomeCategory);
+
+			View = new IncomeCashTransferDlg(this);
+
+			ConfigEntityUpdateSubscribes();
+			ConfigureEntityPropertyChanges();
 		}
 
 		#region Id Ref Propeties
