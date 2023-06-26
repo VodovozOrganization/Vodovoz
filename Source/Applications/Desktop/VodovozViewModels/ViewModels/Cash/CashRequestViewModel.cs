@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
+using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
@@ -35,6 +36,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private readonly ICashRepository _cashRepository;
 		private readonly HashSet<CashRequestSumItem> _sumsGiven = new HashSet<CashRequestSumItem>();
 		private readonly ILifetimeScope _scope;
+		private FinancialExpenseCategory _financialExpenseCategory;
 
 		public CashRequestViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -99,10 +101,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					})
 				.Finish();
 
-			var expenseCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashRequest>(this, Entity, UoW, NavigationManager, _scope);
+			var expenseCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashRequestViewModel>(this, this, UoW, NavigationManager, _scope);
 
 			FinancialExpenseCategoryViewModel = expenseCategoryEntryViewModelBuilder
-				.ForProperty(x => x.ExpenseCategory)
+				.ForProperty(x => x.FinancialExpenseCategory)
 				.UseViewModelDialog<FinancialCategoriesGroupViewModel>()
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
@@ -112,6 +114,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 						filter.RestrictNodeSelectTypes.Add(typeof(ExpenseCategory));
 					})
 				.Finish();
+
+			SetPropertyChangeRelation(
+				e => e.ExpenseCategoryId,
+				() => FinancialExpenseCategory);
 
 			ApproveCommand = new DelegateCommand(() =>
 				{
@@ -146,7 +152,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ConveyForResultsCommand = new DelegateCommand(() =>
 				{
 					if(Entity.PayoutRequestState == PayoutRequestState.Agreed
-					&& Entity.ExpenseCategory == null
+					&& Entity.ExpenseCategoryId == null
 					&& UserRole == PayoutRequestUserRole.Cashier)
 					{
 						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
@@ -234,7 +240,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			AfterSaveCommand = new DelegateCommand(
 				() =>
 				{
-					if(Entity.ExpenseCategory == null
+					if(Entity.ExpenseCategoryId == null
 						&& UserRole == PayoutRequestUserRole.Cashier)
 					{
 						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
@@ -268,6 +274,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
 
 		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
+
+		public FinancialExpenseCategory FinancialExpenseCategory
+		{
+			get => this.GetIdRefField(ref _financialExpenseCategory, Entity.ExpenseCategoryId);
+			set => this.SetIdRefField(SetField, ref _financialExpenseCategory, () => Entity.ExpenseCategoryId, value);
+		}
 
 		public IEntityEntryViewModel SubdivisionViewModel { get; }
 
@@ -324,7 +336,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				return;
 			}
 
-			if(Entity.ExpenseCategory == null)
+			if(Entity.ExpenseCategoryId == null)
 			{
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"У данной заявки не заполнена статья расхода");
 				return;
@@ -533,7 +545,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				UoW,
 				CurrentEmployee,
 				Entity.Subdivision,
-				Entity.ExpenseCategory,
+				Entity.ExpenseCategoryId,
 				Entity.Basis,
 				Entity.Organization,
 				sum

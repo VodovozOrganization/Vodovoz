@@ -144,7 +144,7 @@ namespace Vodovoz.Domain.Cash
 				}
 				case PayoutRequestState.Closed:
 				{
-					if(ExpenseCategory == null)
+					if(ExpenseCategoryId == null)
 					{
 						yield return new ValidationResult("Необходимо заполнить статью расхода", new[] { nameof(ExpenseCategory) });
 					}

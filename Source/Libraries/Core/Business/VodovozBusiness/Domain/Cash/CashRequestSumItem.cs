@@ -73,7 +73,7 @@ namespace Vodovoz.Domain.Cash
 			IUnitOfWork unitOfWork,
 			Employee casher,
 			Subdivision subdivision,
-			ExpenseCategory expenseCategory,
+			int? expenseCategoryId,
 			string basis,
 			Organization organization,
 			decimal money)
@@ -84,7 +84,7 @@ namespace Vodovoz.Domain.Cash
 				Date = DateTime.Now,
 				Employee = _accountableEmployee,
 				TypeOperation = ExpenseType.Advance,
-				ExpenseCategoryId = expenseCategory.Id,
+				ExpenseCategoryId = expenseCategoryId,
 				Money = money,
 				Description = basis ?? "",
 				Organisation = organization,
