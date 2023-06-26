@@ -9,6 +9,7 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Services;
@@ -25,6 +26,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
+		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
+		private NomenclatureOnlineParameters _vodovozWebSiteNomenclatureOnlineParameters;
+		private NomenclatureOnlineParameters _kulerSaleWebSiteNomenclatureOnlineParameters;
+
 
 		public Action PricesViewSaveChanges;
 
@@ -51,16 +56,44 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
 
-			NomenclatureCostPricesViewModel =
-				new NomenclatureCostPricesViewModel(Entity, new NomenclatureCostPriceModel(commonServices.CurrentPermissionService));
-			NomenclaturePurchasePricesViewModel =
-				new NomenclaturePurchasePricesViewModel(Entity, new NomenclaturePurchasePriceModel(commonServices.CurrentPermissionService));
-			NomenclatureInnerDeliveryPricesViewModel =
-				new NomenclatureInnerDeliveryPricesViewModel(Entity, new NomenclatureInnerDeliveryPriceModel(commonServices.CurrentPermissionService));
-			
+			ConfigureEntryViewModels();
+			ConfigureOnlineParameters();
 			ConfigureEntityPropertyChanges();
 			ConfigureValidationContext();
 			SetPermissions();
+		}
+
+		private void ConfigureOnlineParameters()
+		{
+			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForMobileApp);
+			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForVodovozWebSite);
+			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForKulerSaleWebSite);
+		}
+
+		private NomenclatureOnlineParameters GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType type)
+		{
+			var parameters = Entity.NomenclatureOnlineParameters.SingleOrDefault(x => x.Type == type);
+
+			if(!(parameters is null))
+			{
+				return parameters;
+			}
+
+			switch(type)
+			{
+				case NomenclatureOnlineParameterType.ForMobileApp:
+					parameters = new MobileAppNomenclatureOnlineParameters();
+					break;
+				case NomenclatureOnlineParameterType.ForVodovozWebSite:
+					parameters = new VodovozWebSiteNomenclatureOnlineParameters();
+					break;
+				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+					parameters = new KulerSaleWebSiteNomenclatureOnlineParameters();
+					break;
+			}
+			Entity.NomenclatureOnlineParameters.Add(parameters);
+
+			return parameters;
 		}
 
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
@@ -88,15 +121,41 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public bool AskSaveOnClose => CanEdit;
 		public bool UserCanCreateNomenclaturesWithInventoryAccounting =>
 			IsNewEntity && CanCreateNomenclaturesWithInventoryAccountingPermission;
-		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; }
-		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; }
-		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; }
+
+		public NomenclatureOnlineParameters MobileAppNomenclatureOnlineParameters
+		{
+			get => _mobileAppNomenclatureOnlineParameters;
+			set => SetField(ref _mobileAppNomenclatureOnlineParameters, value);
+		}
+		public NomenclatureOnlineParameters VodovozWebSiteNomenclatureOnlineParameters
+		{
+			get => _vodovozWebSiteNomenclatureOnlineParameters;
+			set => SetField(ref _vodovozWebSiteNomenclatureOnlineParameters, value);
+		}
+		public NomenclatureOnlineParameters KulerSaleWebSiteNomenclatureOnlineParameters
+		{
+			get => _kulerSaleWebSiteNomenclatureOnlineParameters;
+			set => SetField(ref _kulerSaleWebSiteNomenclatureOnlineParameters, value);
+		}
+		public NomenclatureCostPricesViewModel NomenclatureCostPricesViewModel { get; private set; }
+		public NomenclaturePurchasePricesViewModel NomenclaturePurchasePricesViewModel { get; private set; }
+		public NomenclatureInnerDeliveryPricesViewModel NomenclatureInnerDeliveryPricesViewModel { get; private set; }
 		private bool IsNewEntity => Entity.Id == 0;
 		private bool CanCreateNomenclaturesWithInventoryAccountingPermission { get; set; }
 
 		private void ConfigureValidationContext()
 		{
 			ValidationContext.ServiceContainer.AddService(typeof(INomenclatureRepository), _nomenclatureRepository);
+		}
+		
+		private void ConfigureEntryViewModels()
+		{
+			NomenclatureCostPricesViewModel =
+				new NomenclatureCostPricesViewModel(Entity, new NomenclatureCostPriceModel(CommonServices.CurrentPermissionService));
+			NomenclaturePurchasePricesViewModel =
+				new NomenclaturePurchasePricesViewModel(Entity, new NomenclaturePurchasePriceModel(CommonServices.CurrentPermissionService));
+			NomenclatureInnerDeliveryPricesViewModel =
+				new NomenclatureInnerDeliveryPricesViewModel(Entity, new NomenclatureInnerDeliveryPriceModel(CommonServices.CurrentPermissionService));
 		}
 
 		private void ConfigureEntityPropertyChanges() {

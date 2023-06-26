@@ -5,13 +5,13 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
@@ -43,6 +43,7 @@ namespace Vodovoz.Domain.Goods
 		private decimal _length;
 		private decimal _width;
 		private decimal _height;
+		private IList<NomenclatureOnlineParameters> _nomenclatureOnlineParameters = new List<NomenclatureOnlineParameters>();
 
 		private bool _isAccountableInTrueMark;
 		private string _gtin;
@@ -560,6 +561,12 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _usingInGroupPriceSet;
 			set => SetField(ref _usingInGroupPriceSet, value);
+		}
+
+		public virtual IList<NomenclatureOnlineParameters> NomenclatureOnlineParameters
+		{
+			get => _nomenclatureOnlineParameters;
+			set => SetField(ref _nomenclatureOnlineParameters, value);
 		}
 
 		[Display(Name = "Цены закупки ТМЦ")]

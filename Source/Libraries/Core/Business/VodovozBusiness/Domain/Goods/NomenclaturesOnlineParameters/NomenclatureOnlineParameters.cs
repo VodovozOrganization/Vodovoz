@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 
-namespace Vodovoz.Domain.Goods.NomenclatureOnlineParameters
+namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 {
 	public abstract class NomenclatureOnlineParameters : PropertyChangedBase, IDomainObject
 	{

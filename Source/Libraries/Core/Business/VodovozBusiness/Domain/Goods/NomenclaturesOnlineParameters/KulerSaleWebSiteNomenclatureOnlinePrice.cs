@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Domain.Goods.NomenclatureOnlineParameters
+﻿namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 {
 	public class KulerSaleWebSiteNomenclatureOnlinePrice : NomenclatureOnlinePrice
 	{

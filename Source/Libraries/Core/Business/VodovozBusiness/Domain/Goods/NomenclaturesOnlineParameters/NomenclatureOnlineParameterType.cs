@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Goods.NomenclatureOnlineParameters
+namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 {
 	public enum NomenclatureOnlineParameterType
 	{
