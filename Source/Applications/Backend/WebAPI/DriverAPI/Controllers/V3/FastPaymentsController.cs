@@ -1,4 +1,4 @@
-﻿using DriverAPI.DTOs.V2;
+using DriverAPI.DTOs.V2;
 using DriverAPI.Library.Converters;
 using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;

@@ -16,6 +16,8 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
 using IOrderModel = DriverAPI.Library.Deprecated.Models.IOrderModel;
 using OrderDto = DriverAPI.Library.Deprecated.DTOs.OrderDto;
+using IRouteListModel = DriverAPI.Library.Deprecated2.Models.IRouteListModel;
+using RouteListDto = DriverAPI.Library.Deprecated2.DTOs.RouteListDto;
 
 namespace DriverAPI.Controllers.V1
 {

@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
 using ITrackPointsModel = DriverAPI.Library.Deprecated.Models.ITrackPointsModel;
+using IRouteListModel = DriverAPI.Library.Deprecated2.Models.IRouteListModel;
 
 namespace DriverAPI.Controllers.V1
 {
