@@ -561,7 +561,6 @@ namespace Vodovoz
 
 			#region Репозитории
 
-			builder.Register(cc => cc.Resolve<IUnitOfWorkFactory>().CreateWithoutRoot()).As<IUnitOfWork>().InstancePerLifetimeScope();
 			builder.RegisterType<UserPrintingRepository>().As<IUserPrintingRepository>().SingleInstance();
 			builder.RegisterType<CashRepository>().As<ICashRepository>();
 
