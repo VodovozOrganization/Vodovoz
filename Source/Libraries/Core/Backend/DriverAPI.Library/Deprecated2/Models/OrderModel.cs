@@ -1,6 +1,8 @@
 ﻿using DriverAPI.Library.Converters;
+using DriverAPI.Library.Deprecated2.DTOs;
 using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Models;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -20,8 +22,9 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
 
-namespace DriverAPI.Library.Models
+namespace DriverAPI.Library.Deprecated2.Models
 {
+	[Obsolete("Будет удален с прекращением поддержки API v2")]
 	public class OrderModel : IOrderModel
 	{
 		private readonly ILogger<OrderModel> _logger;
@@ -157,7 +160,7 @@ namespace DriverAPI.Library.Models
 			}
 
 			if(order.PaymentType == PaymentType.DriverApplicationQR
-				|| (order.PaymentType == PaymentType.SmsQR && !paid))
+				|| order.PaymentType == PaymentType.SmsQR && !paid)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
 				availablePaymentTypes.Add(PaymentDtoType.Terminal);
