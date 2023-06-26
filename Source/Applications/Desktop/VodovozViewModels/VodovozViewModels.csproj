@@ -82,7 +82,6 @@
     <Compile Include="Dialogs\Sale\GeoGroupVersionViewModel.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
     <Compile Include="Extensions\EntityTabViewModelBaseExtensions.cs" />
-    <Compile Include="Extensions\ViewModelExtensions.cs" />
     <Compile Include="Factories\IRoboatsViewModelFactory.cs" />
     <Compile Include="Factories\CarManufacturerJournalFactory.cs" />
     <Compile Include="Factories\CarModelJournalFactory.cs" />
