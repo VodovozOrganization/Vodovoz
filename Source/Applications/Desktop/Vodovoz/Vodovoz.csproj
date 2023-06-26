@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -723,12 +723,6 @@
     <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CashDocumentsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
-    <Compile Include="Dialogs\Cash\CashIncomeDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CashIncomeDlg.cs" />
-    <Compile Include="Dialogs\Cash\CashExpenseDlg.cs" />
-    <Compile Include="Dialogs\Cash\AdvanceReportDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CashExpenseDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AdvanceReportDlg.cs" />
     <Compile Include="Representations\AccountableDebtsVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableDebts.cs" />
     <Compile Include="Representations\AccountableSlipsVM.cs" />
@@ -1097,12 +1091,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromTinkoffReport.cs" />
     <Compile Include="Dialogs\Logistic\OptimizingParametersDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.OptimizingParametersDlg.cs" />
-    <Compile Include="Dialogs\Cash\CashIncomeSelfDeliveryDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeSelfDeliveryDlg.cs" />
     <Compile Include="Dialogs\Cash\CashIncomeCategoryDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeCategoryDlg.cs" />
-    <Compile Include="Dialogs\Cash\CashExpenseSelfDeliveryDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashExpenseSelfDeliveryDlg.cs" />
     <Compile Include="ReportsParameters\Logistic\OrdersByDistrictsAndDeliverySchedulesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.OrdersByDistrictsAndDeliverySchedulesReport.cs" />
     <Compile Include="Dialogs\Employees\EmployeeDocDlg.cs" />
@@ -1126,7 +1116,6 @@
     <Compile Include="Core\Journal\MultipleEntityJournal.cs" />
     <Compile Include="Core\Journal\MultipleEntityVMNodeBase.cs" />
     <Compile Include="Core\Journal\MultipleEntityModelBase.cs" />
-    <Compile Include="Representations\CashMultipleDocumentVM.cs" />
     <Compile Include="Core\Journal\IMultipleEntityRepresentationModel.cs" />
     <Compile Include="Core\Journal\ActionForCreateEntityConfig.cs" />
     <Compile Include="Core\Journal\MultipleEntityModelDocumentConfig.cs" />
@@ -1160,10 +1149,6 @@
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.QueryFilterViews.CashIncomeFilterView.cs" />
     <Compile Include="JournalFilters\QueryFilterViews\CashExpenseFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.QueryFilterViews.CashExpenseFilterView.cs" />
-    <Compile Include="Dialogs\Cash\TransferIncomeDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.TransferIncomeDlg.cs" />
-    <Compile Include="Dialogs\Cash\TransferExpenseDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.TransferExpenseDlg.cs" />
     <Compile Include="Dialogs\Cash\CashTransfer\CommonCashTransferDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashTransfer.CommonCashTransferDlg.cs" />
     <Compile Include="Dialogs\Cash\CashTransfer\CommonCashTransferDocumentViewModel.cs" />

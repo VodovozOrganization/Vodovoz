@@ -29,8 +29,8 @@ namespace Vodovoz
 		{
 			enumcomboDocumentType.ItemsEnum = typeof(CashDocumentType);
 			var employeeFactory = new EmployeeJournalFactory();
-			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
-			evmeEmployee.Changed += (sender, args) => OnRefiltered();
+			//evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			//evmeEmployee.Changed += (sender, args) => OnRefiltered();
 
 			ConfigureEntityViewModelEntry();
 
@@ -45,10 +45,10 @@ namespace Vodovoz
 				MainClass.AppDIContainer.BeginLifetimeScope());
 			IExpenseCategorySelectorFactory expenseFactory = new ExpenseCategorySelectorFactory(
 					UnitOfWorkFactory.GetDefaultFactory, MainClass.AppDIContainer.BeginLifetimeScope());
-			entityVMEntryCashIncomeCategory
-				.SetEntityAutocompleteSelectorFactory(incomeFactory.CreateSimpleIncomeCategoryAutocompleteSelectorFactory());
-			entityVMEntryCashExpenseCategory
-				.SetEntityAutocompleteSelectorFactory(expenseFactory.CreateDefaultExpenseCategoryAutocompleteSelectorFactory());
+			//entityVMEntryCashIncomeCategory
+			//	.SetEntityAutocompleteSelectorFactory(incomeFactory.CreateSimpleIncomeCategoryAutocompleteSelectorFactory());
+			//entityVMEntryCashExpenseCategory
+			//	.SetEntityAutocompleteSelectorFactory(expenseFactory.CreateDefaultExpenseCategoryAutocompleteSelectorFactory());
 		}
 
 		public CashDocumentsFilter(IUnitOfWork uow) : this()
@@ -102,29 +102,29 @@ namespace Vodovoz
 			}
 		}
 
-		public ExpenseCategory RestrictExpenseCategory {
-			get => entityVMEntryCashExpenseCategory.Subject as ExpenseCategory;
-			set {
-				entityVMEntryCashExpenseCategory.Subject = value;
-				entityVMEntryCashExpenseCategory.Sensitive = false;
-			}
-		}
+		//public ExpenseCategory RestrictExpenseCategory {
+		//	get => entityVMEntryCashExpenseCategory.Subject as ExpenseCategory;
+		//	set {
+		//		entityVMEntryCashExpenseCategory.Subject = value;
+		//		entityVMEntryCashExpenseCategory.Sensitive = false;
+		//	}
+		//}
 
-		public IncomeCategory RestrictIncomeCategory {
-			get => entityVMEntryCashIncomeCategory.Subject as IncomeCategory;
-			set {
-				entityVMEntryCashIncomeCategory.Subject = value;
-				entityVMEntryCashIncomeCategory.Sensitive = false;
-			}
-		}
+		//public IncomeCategory RestrictIncomeCategory {
+		//	get => entityVMEntryCashIncomeCategory.Subject as IncomeCategory;
+		//	set {
+		//		entityVMEntryCashIncomeCategory.Subject = value;
+		//		entityVMEntryCashIncomeCategory.Sensitive = false;
+		//	}
+		//}
 
-		public Employee RestrictEmployee {
-			get { return evmeEmployee.Subject as Employee; }
-			set {
-				evmeEmployee.Subject = value;
-				evmeEmployee.Sensitive = false;
-			}
-		}
+		//public Employee RestrictEmployee {
+		//	get { return evmeEmployee.Subject as Employee; }
+		//	set {
+		//		evmeEmployee.Subject = value;
+		//		evmeEmployee.Sensitive = false;
+		//	}
+		//}
 
 		public DateTime? RestrictStartDate {
 			get { return dateperiodDocs.StartDateOrNull; }
