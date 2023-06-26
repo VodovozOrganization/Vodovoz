@@ -986,21 +986,8 @@ public partial class MainWindow : Window
 		NavigationManager.OpenTdiTab<RouteListMileageCheckView>(null);
 	}
 
-	void ActionCashDocuments_Activated(object sender, System.EventArgs e)
-	{
+	void ActionCashDocuments_Activated(object sender, System.EventArgs e) =>
 		NavigationManager.OpenViewModel<DocumentsJournalViewModel>(null);
-
-		//var cashRepository = new CashRepository();
-
-		//tdiMain.OpenTab(
-		//	RepresentationJournalDialog.GenerateHashName<CashMultipleDocumentVM>(),
-		//	() =>
-		//	{
-		//		var vm = new CashMultipleDocumentVM(new CashDocumentsFilter(), cashRepository);
-		//		return new MultipleEntityJournal("Журнал кассовых документов", vm, vm);
-		//	}
-		//);
-	}
 
 	void ActionReadyForShipmentActivated(object sender, System.EventArgs e)
 	{
