@@ -637,7 +637,6 @@
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Old1612ExportNodes\TableNode.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Old1612ExportNodes\TableRecordNode.cs" />
     <Compile Include="ServiceDialogs\Old1612ExportTo1c\Old1612ExportOperation.cs" />
-    <Compile Include="SidePanel\InfoProviders\ICashInfoProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\IFixedPricesHolderProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
@@ -722,12 +721,10 @@
     <Compile Include="JournalFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="JournalFilters\ServiceClaimFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CashDocumentsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
     <Compile Include="Representations\AccountableDebtsVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableDebts.cs" />
     <Compile Include="Representations\AccountableSlipsVM.cs" />
-    <Compile Include="JournalFilters\Cash\CashDocumentsFilter.cs" />
     <Compile Include="JournalFilters\Cash\IAccountableSlipsFilter.cs" />
     <Compile Include="JournalFilters\Cash\AccountableDebtsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableDebtsFilter.cs" />
