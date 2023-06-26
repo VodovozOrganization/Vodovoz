@@ -178,7 +178,7 @@ namespace Vodovoz.Cash
 			this.table1.Add(this.entryExpenseFinancialCategory);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.entryExpenseFinancialCategory]));
 			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(3));
+			w10.RightAttach = ((uint)(4));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
