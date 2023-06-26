@@ -39,7 +39,6 @@ using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
-using QS.Project.Domain;
 using System.Net.Http;
 
 namespace Vodovoz

@@ -321,7 +321,7 @@ namespace Vodovoz
 			//Debt = Repository.Cash.AccountableDebtsRepository.EmloyeeDebt (UoW, Entity.Accountable);
 
 			var advances =
-				_accountableDebtsRepository.UnclosedAdvance(UoW, Entity.Accountable, Entity.ExpenseCategory, Entity.Organisation?.Id);
+				_accountableDebtsRepository.GetUnclosedAdvances(UoW, Entity.Accountable, Entity.ExpenseCategory, Entity.Organisation?.Id);
 
 			Debt = advances.Sum(a => a.UnclosedMoney);
 

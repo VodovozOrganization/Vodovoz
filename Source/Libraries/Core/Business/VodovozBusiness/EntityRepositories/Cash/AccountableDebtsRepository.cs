@@ -30,7 +30,7 @@ namespace Vodovoz.EntityRepositories.Cash
 			return received - returned - reported;
 		}
 
-		public IList<Expense> UnclosedAdvance(IUnitOfWork uow, Employee accountable, ExpenseCategory category, int? organisationId)
+		public IList<Expense> GetUnclosedAdvances(IUnitOfWork uow, Employee accountable, ExpenseCategory category, int? organisationId)
 		{
 			var query = uow.Session.QueryOver<Expense>()
 				.Where(e => e.Employee == accountable
