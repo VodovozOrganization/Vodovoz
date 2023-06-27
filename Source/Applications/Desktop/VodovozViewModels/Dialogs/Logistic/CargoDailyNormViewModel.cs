@@ -19,9 +19,8 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 			IRouteListParametersProvider routeListParametersProvider)
 			: base(unitOfWorkFactory, navigation)
 		{
-
 			_routeListParametersProvider = routeListParametersProvider ??
-				throw new ArgumentNullException(nameof(routeListParametersProvider));
+			                               throw new ArgumentNullException(nameof(routeListParametersProvider));
 
 			Initialize();
 		}
@@ -57,6 +56,5 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 		public List<CargoDailyNormNode> CargoDailyNormNodes { get; } = new List<CargoDailyNormNode>();
 
 		public override string Title => "Настройка нормы вывоза в день";
-
 	}
 }

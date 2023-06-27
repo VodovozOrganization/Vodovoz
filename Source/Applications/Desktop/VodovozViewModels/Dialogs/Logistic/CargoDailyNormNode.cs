@@ -1,4 +1,4 @@
-﻿using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.ViewModels.Dialogs.Logistic
 {
