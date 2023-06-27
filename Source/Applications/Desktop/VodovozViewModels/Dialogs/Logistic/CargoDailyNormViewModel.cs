@@ -12,15 +12,17 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 	public class CargoDailyNormViewModel : UowDialogViewModelBase
 	{
 		private readonly IRouteListParametersProvider _routeListParametersProvider;
+		private readonly CarTypeOfUse[] _excludeCarTypeOfUses;
 
 		public CargoDailyNormViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigation,
-			IRouteListParametersProvider routeListParametersProvider)
+			IRouteListParametersProvider routeListParametersProvider,
+			CarTypeOfUse[] excludeCarTypeOfUses)
 			: base(unitOfWorkFactory, navigation)
 		{
-			_routeListParametersProvider = routeListParametersProvider ??
-			                               throw new ArgumentNullException(nameof(routeListParametersProvider));
+			_routeListParametersProvider = routeListParametersProvider ?? throw new ArgumentNullException(nameof(routeListParametersProvider));
+			_excludeCarTypeOfUses = excludeCarTypeOfUses;
 
 			Initialize();
 		}
@@ -28,16 +30,18 @@ namespace Vodovoz.ViewModels.Dialogs.Logistic
 
 		private void Initialize()
 		{
-			var carTypesOfUse = Enum.GetValues(typeof(CarTypeOfUse)).Cast<CarTypeOfUse>().ToList();
+			var carTypeOfUses = Enum.GetValues(typeof(CarTypeOfUse)).Cast<CarTypeOfUse>()
+				.Where(x => !_excludeCarTypeOfUses.Contains(x))
+				.ToList();
 
-			foreach(var carType in carTypesOfUse)
+			foreach(var carTypeOfUse in carTypeOfUses)
 			{
-				var amount = _routeListParametersProvider.GetCargoDailyNorm(carType);
+				var amount = _routeListParametersProvider.GetCargoDailyNorm(carTypeOfUse);
 
 				CargoDailyNormNodes.Add(
 					new CargoDailyNormNode
 					{
-						CarTypeOfUse = carType,
+						CarTypeOfUse = carTypeOfUse,
 						Amount = amount
 					});
 			}
