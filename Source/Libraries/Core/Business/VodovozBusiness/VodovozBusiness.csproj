@@ -427,10 +427,6 @@
     <Compile Include="Domain\Logistic\Drivers\DriverDistrictPrioritySet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWorkSchedule.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWorkScheduleSet.cs" />
-    <Compile Include="EntityRepositories\Accounting\AccountExpenseRepository.cs" />
-    <Compile Include="EntityRepositories\Accounting\AccountIncomeRepository.cs" />
-    <Compile Include="EntityRepositories\Accounting\IAccountExpenseRepository.cs" />
-    <Compile Include="EntityRepositories\Accounting\IAccountIncomeRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\CullingCategoryRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\DeliveryScheduleRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\ICullingCategoryRepository.cs" />
@@ -963,8 +959,6 @@
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Domain\Accounting\AccountExpense.cs" />
-    <Compile Include="Domain\Accounting\AccountIncome.cs" />
     <Compile Include="Domain\BasicHandbooks\CullingCategory.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentColors.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentKind.cs" />
@@ -1051,8 +1045,6 @@
     <Compile Include="Domain\Store\RegradingOfGoodsTemplateItem.cs" />
     <Compile Include="Domain\Store\Warehouse.cs" />
     <Compile Include="Domain\Wages.cs" />
-    <Compile Include="HibernateMapping\Accounting\AccountExpenseMap.cs" />
-    <Compile Include="HibernateMapping\Accounting\AccountIncomeMap.cs" />
     <Compile Include="HibernateMapping\Cash\AdvanceClosingMap.cs" />
     <Compile Include="HibernateMapping\Cash\AdvanceReportMap.cs" />
     <Compile Include="HibernateMapping\Cash\ExpenseCategoryMap.cs" />

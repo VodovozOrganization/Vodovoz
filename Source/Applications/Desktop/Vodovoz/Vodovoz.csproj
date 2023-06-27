@@ -732,15 +732,8 @@
     <Compile Include="gtk-gui\Vodovoz.AccountableSlipFilter.cs" />
     <Compile Include="ReportsParameters\CashFlow.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.CashFlow.cs" />
-    <Compile Include="ServiceDialogs\LoadBankTransferDocumentDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.LoadBankTransferDocumentDlg.cs" />
-    <Compile Include="Representations\AccountingVM.cs" />
-    <Compile Include="JournalViewers\AccountingView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AccountingView.cs" />
     <Compile Include="JournalFilters\AccountingFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountingFilter.cs" />
-    <Compile Include="ReportsParameters\AccountFlow.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Reports.AccountFlow.cs" />
     <Compile Include="JournalViewers\Cash\AccountableDebts.cs" />
     <Compile Include="JournalViewers\Cash\AccountableSlipsView.cs" />
     <Compile Include="JournalViewers\Cash\UnclosedAdvancesView.cs" />

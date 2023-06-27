@@ -414,10 +414,7 @@ public partial class MainWindow : Window
 		ActionReportDebtorsBottles.Activated += ActionReportDebtorsBottles_Activated;
 
 		//Бухгалтерия
-		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionPaymentFromBank.Activated += ActionPaymentFromBank_Activated;
-		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
-		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
 		ActionRevision.Activated += ActionRevision_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		ActionOldExportTo1c.Activated += ActionOldExportTo1c_Activated;
@@ -699,25 +696,9 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionAccountingTable_Activated(object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<AccountingView>(),
-			() => new AccountingView()
-		);
-	}
-
 	void ActionUnclosedAdvances_Activated(object sender, System.EventArgs e)
 	{
 		NavigationManager.OpenTdiTab<UnclosedAdvancesView>(null);
-	}
-
-	void ActionTransferBankDocs_Activated(object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<LoadBankTransferDocumentDlg>(),
-			() => new LoadBankTransferDocumentDlg()
-		);
 	}
 
 	void ActionPaymentFromBank_Activated(object sender, EventArgs e)
@@ -892,14 +873,6 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Revision>(),
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Revision())
-		);
-	}
-
-	void ActionAccountFlow_Activated(object sender, System.EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.AccountFlow>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.AccountFlow(new CategoryRepository(new ParametersProvider())))
 		);
 	}
 

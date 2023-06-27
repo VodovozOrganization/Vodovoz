@@ -27,7 +27,6 @@ using Vodovoz.Dialogs.Employees;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Client;
@@ -205,9 +204,6 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Fine>.Create().Dialog<FineDlg>(),
                 OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferDlg>(),
                 OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferDlg>(),
-                //Банкинг
-                OrmObjectMapping<AccountIncome>.Create(),
-                OrmObjectMapping<AccountExpense>.Create(),
                 //Склад
                 OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w => w.Name)
                     .Column("В архиве", w => w.IsArchive ? "Да" : "").End(),
