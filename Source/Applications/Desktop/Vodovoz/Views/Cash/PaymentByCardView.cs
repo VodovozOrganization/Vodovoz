@@ -41,12 +41,12 @@ namespace Vodovoz.Views.Cash
 				PaymentType.SmsQR);
 			enumPaymentType.SelectedItem = ViewModel.PaymentType;
 
-			//yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);
-			//yenumcomboboxTerminalSubtype.Binding
-			//	.AddSource(ViewModel.Entity)
-			//	.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItem)
-			//	.AddFuncBinding(s => s.PaymentType == PaymentType.Terminal, w => w.Visible)
-			//	.InitializeFromSource();
+			yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);
+			yenumcomboboxTerminalSubtype.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItem)
+				.AddFuncBinding(s => s.PaymentType == PaymentType.Terminal, w => w.Visible)
+				.InitializeFromSource();
 		}
 	}
 }

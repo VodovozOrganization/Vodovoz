@@ -884,7 +884,7 @@ namespace Vodovoz
 				totalCachAmount.ToShortCurrencyString()
 			);
 			labelTerminalSum.Text = $"По терминалу: {GetTerminalOrdersSum().ToShortCurrencyString()}";
-			//labelTerminalIncludedSBP.Text = $"В том числе по СБП: {GetTerminalSbpOrdersSum().ToShortCurrencyString()}";
+			labelTerminalIncludedSBP.Text = $"В том числе по СБП: {GetTerminalSbpOrdersSum().ToShortCurrencyString()}";
 			labelTotal.Markup = string.Format(
 				"Сдано выручка по МЛ: {0}",
 				routeListRevenue.ToShortCurrencyString()
