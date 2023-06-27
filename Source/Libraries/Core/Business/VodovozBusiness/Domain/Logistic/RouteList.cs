@@ -874,7 +874,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			var routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
-			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address);
+			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address, true);
 
 			ObservableAddresses.Remove(address);
 			return true;
