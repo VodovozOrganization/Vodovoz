@@ -1,21 +1,22 @@
-﻿using DriverAPI.Library.Deprecated2.DTOs;
-using System;
+﻿using DriverAPI.Library.DTOs;
 using Vodovoz.Domain.Client;
-using ConverterException = DriverAPI.Library.Converters.ConverterException;
 
-namespace DriverAPI.Library.Deprecated2.Converters
+namespace DriverAPI.Library.Converters
 {
 	public class PaymentTypeConverter
 	{
-		[Obsolete("Будет удален с прекращением поддержки API v2")]
-		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, bool paid)
+		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, bool paid, PaymentByTerminalSource? paymentByTerminalSource)
 		{
 			switch(paymentType)
 			{
 				case PaymentType.Cash:
 					return PaymentDtoType.Cash;
 				case PaymentType.Terminal:
-					return PaymentDtoType.Terminal;
+					if(paymentByTerminalSource != null && paymentByTerminalSource == PaymentByTerminalSource.ByQR)
+					{
+						return PaymentDtoType.TerminalQR;
+					}
+					return PaymentDtoType.TerminalCard;
 				case PaymentType.DriverApplicationQR:
 					return PaymentDtoType.DriverApplicationQR;
 				case PaymentType.SmsQR:

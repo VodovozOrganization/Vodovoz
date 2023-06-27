@@ -3,16 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
-using CompletedRouteListDto = DriverAPI.Library.Deprecated2.DTOs.CompletedRouteListDto;
-using RouteListDto = DriverAPI.Library.Deprecated2.DTOs.RouteListDto;
-using DeliveryPointConverter = DriverAPI.Library.Converters.DeliveryPointConverter;
-using RouteListStatusConverter = DriverAPI.Library.Converters.RouteListStatusConverter;
-using RouteListAddressStatusConverter = DriverAPI.Library.Converters.RouteListAddressStatusConverter;
-using RouteListCompletionStatusConverter = DriverAPI.Library.Converters.RouteListCompletionStatusConverter;
 
-namespace DriverAPI.Library.Deprecated2.Converters
+namespace DriverAPI.Library.Converters
 {
-	[Obsolete("Будет удален с прекращением поддержки API v2")]
 	public class RouteListConverter
 	{
 		private readonly DeliveryPointConverter _deliveryPointConverter;
@@ -54,9 +47,15 @@ namespace DriverAPI.Library.Deprecated2.Converters
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
 							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cash)
 						.Sum(rla => rla.Order.OrderSum),
-					TerminalMoney = routeList.Addresses
+					TerminalCardMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
-							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal)
+							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal
+							&& rla.Order.PaymentByTerminalSource == Vodovoz.Domain.Client.PaymentByTerminalSource.ByCard)
+						.Sum(rla => rla.Order.OrderSum),
+					TerminalQRMoney = routeList.Addresses
+						.Where(rla => rla.Status == RouteListItemStatus.Completed
+							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal
+							&& rla.Order.PaymentByTerminalSource == Vodovoz.Domain.Client.PaymentByTerminalSource.ByQR)
 						.Sum(rla => rla.Order.OrderSum),
 					TerminalOrdersCount = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed

@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using SmsPaymentDtoStatus = DriverAPI.Library.DTOs.SmsPaymentDtoStatus;
-using QRPaymentDTOStatus = DriverAPI.Library.DTOs.QRPaymentDTOStatus;
-using PhoneDto = DriverAPI.Library.DTOs.PhoneDto;
-using AddressDto = DriverAPI.Library.DTOs.AddressDto;
-using OrderSaleItemDto = DriverAPI.Library.DTOs.OrderSaleItemDto;
-using OrderDeliveryItemDto = DriverAPI.Library.DTOs.OrderDeliveryItemDto;
-using OrderReceptionItemDto = DriverAPI.Library.DTOs.OrderReceptionItemDto;
-using SignatureDtoType = DriverAPI.Library.DTOs.SignatureDtoType;
+﻿using System.Collections.Generic;
 
-namespace DriverAPI.Library.Deprecated2.DTOs
+namespace DriverAPI.Library.DTOs
 {
-	[Obsolete("Будет удален с прекращением поддержки API v2")]
 	public class OrderDto
 	{
 		public int OrderId { get; set; }

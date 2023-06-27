@@ -1,7 +1,6 @@
-﻿using DriverAPI.Library.Deprecated2.Converters;
-using DriverAPI.Library.Deprecated2.DTOs;
+﻿using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
-using DriverAPI.Library.Models;
+using DriverAPI.Library.Converters;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -20,11 +19,9 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Services;
-using QRPaymentDTOStatus = DriverAPI.Library.DTOs.QRPaymentDTOStatus;
 
-namespace DriverAPI.Library.Deprecated2.Models
+namespace DriverAPI.Library.Models
 {
-	[Obsolete("Будет удален с прекращением поддержки API v2")]
 	public class OrderModel : IOrderModel
 	{
 		private readonly ILogger<OrderModel> _logger;
@@ -149,7 +146,8 @@ namespace DriverAPI.Library.Deprecated2.Models
 
 			if(order.PaymentType == PaymentType.Cash)
 			{
-				availablePaymentTypes.Add(PaymentDtoType.Terminal);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalCard);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
 				availablePaymentTypes.Add(PaymentDtoType.DriverApplicationQR);
 			}
 
@@ -163,7 +161,8 @@ namespace DriverAPI.Library.Deprecated2.Models
 				|| order.PaymentType == PaymentType.SmsQR && !paid)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
-				availablePaymentTypes.Add(PaymentDtoType.Terminal);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalCard);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
 			}
 
 			return availablePaymentTypes;
@@ -218,7 +217,7 @@ namespace DriverAPI.Library.Deprecated2.Models
 			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
 
-		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver)
+		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver, PaymentByTerminalSource? paymentByTerminalSource)
 		{
 			if(driver is null)
 			{
@@ -245,6 +244,7 @@ namespace DriverAPI.Library.Deprecated2.Models
 			}
 
 			vodovozOrder.PaymentType = paymentType;
+			vodovozOrder.PaymentByTerminalSource = paymentByTerminalSource;
 			_uow.Save(vodovozOrder);
 			_uow.Commit();
 		}

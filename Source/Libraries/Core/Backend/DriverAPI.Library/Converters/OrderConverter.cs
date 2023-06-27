@@ -6,14 +6,9 @@ using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
-using DeliveryPointConverter = DriverAPI.Library.Converters.DeliveryPointConverter;
-using SmsPaymentStatusConverter = DriverAPI.Library.Converters.SmsPaymentStatusConverter;
-using SignatureTypeConverter = DriverAPI.Library.Converters.SignatureTypeConverter;
-using OrderDto = DriverAPI.Library.Deprecated2.DTOs.OrderDto;
 
-namespace DriverAPI.Library.Deprecated2.Converters
+namespace DriverAPI.Library.Converters
 {
-	[Obsolete("Будет удален с прекращением поддержки API v2")]
 	public class OrderConverter
 	{
 		private readonly DeliveryPointConverter _deliveryPointConverter;
@@ -54,7 +49,7 @@ namespace DriverAPI.Library.Deprecated2.Converters
 				EmptyBottlesToReturn = (vodovozOrder.BottlesReturn ?? 0) + vodovozOrder.BottlesByStockCount,
 				Counterparty = vodovozOrder.Client.FullName,
 				PhoneNumbers = CreatePhoneList(vodovozOrder),
-				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == FastPaymentStatus.Performed),
+				PaymentType = _paymentTypeConverter.ConvertToAPIPaymentType(vodovozOrder.PaymentType, qrPaymentDtoStatus == FastPaymentStatus.Performed, vodovozOrder.PaymentByTerminalSource),
 				Address = _deliveryPointConverter.ExtractAPIAddressFromDeliveryPoint(vodovozOrder.DeliveryPoint),
 				OrderComment = vodovozOrder.Comment,
 				OrderSum = vodovozOrder.OrderSum,
