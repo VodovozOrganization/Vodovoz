@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private DelegateCommand _openMapCommand;
 		private DelegateCommand _fromTrackCommand;
 		private DelegateCommand _distributeMileageCommand;
+		private DelegateCommand _checkDriversRouteListsDebtCommand;
 		private readonly IValidationContextFactory _validationContextFactory;
 
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
@@ -349,6 +350,19 @@ namespace Vodovoz.ViewModels.Logistic
 
 					NavigationManager.OpenViewModel<RouteListMileageDistributionViewModel, IEntityUoWBuilder, ITdiTabParent, ITdiTab>(
 						this, EntityUoWBuilder.ForOpen(Entity.Id), TabParent, this, OpenPageOptions.AsSlave);
+				}
+			));
+
+		public DelegateCommand CheckDriversRouteListsDebtCommand =>
+			_checkDriversRouteListsDebtCommand ?? (_checkDriversRouteListsDebtCommand = new DelegateCommand(() =>
+				{
+					if(Entity.Driver != null)
+					{
+						if(!Entity.IsDriversDebtInPermittedRangeVerification())
+						{
+							Entity.Driver = null;
+						}
+					}
 				}
 			));
 	}

@@ -1,4 +1,4 @@
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gtk;
 using QS.Views.GtkUI;
 using System;
@@ -27,6 +27,7 @@ namespace Vodovoz.Views.Logistic
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, widget => widget.Subject).InitializeFromSource();
+			evmeDriver.Changed += (s, e) => ViewModel.CheckDriversRouteListsDebtCommand.Execute();
 
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(ViewModel.ForwarderSelectorFactory);
 			evmeForwarder.Binding.AddSource(ViewModel.Entity)

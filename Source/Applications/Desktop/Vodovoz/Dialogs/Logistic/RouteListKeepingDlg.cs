@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
@@ -164,6 +164,7 @@ namespace Vodovoz
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			evmeDriver.Sensitive = _logisticanEditing;
+			evmeDriver.Changed += OnEvmeDriverChanged;
 
 			var forwarderFilter = new EmployeeFilterViewModel();
 			forwarderFilter.SetAndRefilterAtOnce(
@@ -309,6 +310,17 @@ namespace Vodovoz
 			if(Entity.Id > 0)
 			{
 				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
+			}
+		}
+
+		private void OnEvmeDriverChanged(object sender, EventArgs e)
+		{
+			if(Entity.Driver != null)
+			{
+				if(!Entity.IsDriversDebtInPermittedRangeVerification())
+				{
+					Entity.Driver = null;
+				}
 			}
 		}
 
