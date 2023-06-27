@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using NHibernate.Criterion;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
@@ -21,7 +22,6 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
 			IRouteListProfitabilityController routeListProfitabilityController,
+			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope)
 			: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -63,6 +64,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			SubdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			ExpenseSelectorFactory =
@@ -109,7 +111,7 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 		{
 			var financialExpenseCategoryViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<FuelWriteoffDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
-			return financialExpenseCategoryViewModelEntryViewModelBuilder
+			var viewModel = financialExpenseCategoryViewModelEntryViewModelBuilder
 				.ForProperty(x => x.FinancialExpenseCategory)
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
@@ -118,11 +120,16 @@ namespace Vodovoz.ViewModels.Dialogs.Fuel
 						filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
 					})
 				.Finish();
+
+			viewModel.IsEditable = CanEdit;
+
+			return viewModel;
 		}
 
 		#endregion EntityEntry ViewModels
 
 		public IExpenseCategorySelectorFactory ExpenseSelectorFactory { get; }
+		public INavigationManager NavigationManager { get; }
 
 		public Employee CurrentEmployee {
 			get {

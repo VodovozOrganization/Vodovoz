@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -37,8 +38,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	    private readonly IReportViewOpener _reportViewOpener;
 	    private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
 	    private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly ILifetimeScope _lifetimeScope;
 
-	    public FuelDocumentsJournalViewModel(
+		public FuelDocumentsJournalViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IEmployeeService employeeService,
@@ -51,7 +53,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ICarJournalFactory carJournalFactory,
             IReportViewOpener reportViewOpener,
             IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
-            IRouteListProfitabilityController routeListProfitabilityController) : base(unitOfWorkFactory, commonServices)
+            IRouteListProfitabilityController routeListProfitabilityController,
+			ILifetimeScope lifetimeScope) : base(unitOfWorkFactory, commonServices)
         {
 	        _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 	        _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -68,8 +71,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		        expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 	        _routeListProfitabilityController =
 		        routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
-
-	        TabName = "Журнал учета топлива";
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			TabName = "Журнал учета топлива";
 
 			var loader = new ThreadDataLoader<FuelDocumentJournalNode>(unitOfWorkFactory);
 			loader.MergeInOrderBy(x => x.CreationDate, true);
@@ -333,7 +336,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _reportViewOpener,
 					    _subdivisionJournalFactory,
 					    _expenseCategorySelectorFactory,
-					    _routeListProfitabilityController),
+					    _routeListProfitabilityController,
+						NavigationManager,
+						_lifetimeScope),
 				    //функция диалога открытия документа
 				    (FuelDocumentJournalNode node) => new FuelWriteoffDocumentViewModel(
 					    EntityUoWBuilder.ForOpen(node.Id),
@@ -346,7 +351,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _reportViewOpener,
 					    _subdivisionJournalFactory,
 					    _expenseCategorySelectorFactory,
-					    _routeListProfitabilityController),
+					    _routeListProfitabilityController,
+						NavigationManager,
+						_lifetimeScope),
 				    //функция идентификации документа 
 				    (FuelDocumentJournalNode node) => {
 					    return node.EntityType == typeof(FuelWriteoffDocument);

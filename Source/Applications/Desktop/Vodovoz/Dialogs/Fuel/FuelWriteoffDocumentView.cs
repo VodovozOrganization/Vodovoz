@@ -23,7 +23,7 @@ namespace Vodovoz.Dialogs.Fuel
 			ydatepickerDate.Binding.AddBinding(ViewModel, e => e.CanEditDate, w => w.Sensitive).InitializeFromSource();
 			ylabelCashierValue.Binding.AddBinding(ViewModel.Entity, e => e.Cashier, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
 
-			//entryExpenseFinancialCategory.ViewModel = ViewModel.
+			entryExpenseFinancialCategory.ViewModel = ViewModel.FinancialExpenseCategoryViewModel;
 			
 			entryEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeAutocompleteSelectorFactory);
 			entryEmployee.Binding.AddBinding(ViewModel.Entity, e => e.Employee, w => w.Subject).InitializeFromSource();
