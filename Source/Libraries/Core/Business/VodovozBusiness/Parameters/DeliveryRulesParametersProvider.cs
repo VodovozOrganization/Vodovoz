@@ -65,6 +65,9 @@ namespace Vodovoz.Parameters
 		public void UpdateFlyerForNewCounterpartyEnabledParameter(string value) =>
 			_parametersProvider.CreateOrUpdateParameter(_additionalLoadingFlyerForNewCounterpartyEnabledParameter, value);
 
+		public void UpdateMaxFastOrdersPerSpecificTimeParameter(string value) =>
+			_parametersProvider.CreateOrUpdateParameter(_maxFastOrdersPerSpecificTimeParameter, value);
+
 		#region FastDelivery
 
 		public int DriverGoodWeightLiftPerHandInKg => _parametersProvider.GetValue<int>(_driverGoodWeightLiftPerHandInKgParameter);

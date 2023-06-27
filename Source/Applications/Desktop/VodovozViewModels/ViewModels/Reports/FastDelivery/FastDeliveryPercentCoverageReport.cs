@@ -89,7 +89,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			public virtual double ServiceRadius { get; }
 
+			public virtual double ActualServiceRadius { get; }
+
 			public virtual double PercentCoverage { get; }
+
+			public virtual double ActualPercentCoverage { get; }
 		}
 
 		public class Subheader : Row
@@ -115,8 +119,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			public override double CarsCount => _rows.Sum(x => x.CarsCount) / _rows.Count();
 
 			public override double ServiceRadius => _rows.Sum(x => x.ServiceRadius) / _rows.Count();
+			
+			public override double ActualServiceRadius => _rows.Sum(x => x.ActualServiceRadius) / _rows.Count();
 
 			public override double PercentCoverage => _rows.Sum(x => x.PercentCoverage) / _rows.Count();
+
+			public override double ActualPercentCoverage => _rows.Sum(x => x.ActualPercentCoverage) / _rows.Count();
 
 			#region IGrouping<bool, DayGrouping>
 			public IEnumerator<DayGrouping> GetEnumerator()
@@ -151,7 +159,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			public override double ServiceRadius => _rows.Sum(x => x.ServiceRadius) / _rows.Count();
 
+			public override double ActualServiceRadius => _rows.Sum(x => x.ActualServiceRadius) / _rows.Count();
+
 			public override double PercentCoverage => _rows.Sum(x => x.PercentCoverage) / _rows.Count();
+
+			public override double ActualPercentCoverage => _rows.Sum(x => x.ActualPercentCoverage) / _rows.Count();
 
 			#region IGrouping<DateTime, FastDeliveryPercentCoverageReportValueRow>
 			public IEnumerator<ValueRow> GetEnumerator()
@@ -172,12 +184,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			private TimeSpan _hourSpan => _dateTime - _dateTime.Date;
 
-			public ValueRow(DateTime dateTime, double carsCount, double serviceRadius, double percentCoverage)
+			public ValueRow(DateTime dateTime, double carsCount, double serviceRadius, double actualServiceRadius, double percentCoverage, double actualPercentCoverage)
 			{
 				_dateTime = dateTime;
 				CarsCount = carsCount;
 				ServiceRadius = serviceRadius;
+				ActualServiceRadius = actualServiceRadius;
 				PercentCoverage = percentCoverage;
+				ActualPercentCoverage = actualPercentCoverage;
 			}
 
 			public DateTime Date => _dateTime;
@@ -188,7 +202,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			public override double ServiceRadius { get; }
 
+			public override double ActualPercentCoverage { get; }
+
 			public override double PercentCoverage { get; }
+
+			public override double ActualServiceRadius { get; }
 		}
 	}
 }

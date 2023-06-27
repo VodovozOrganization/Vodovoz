@@ -1290,7 +1290,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				AddressTransferType.FromFreeBalance
 			};
 
-		public int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId)
+		public int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0)
 		{
 			RouteList routeListAlias = null;
 			RouteListDebt routeListDebtAlias = null;
@@ -1300,6 +1300,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Where(() =>
 					routeListAlias.Driver.Id == driverId
 					&& routeListAlias.Status != RouteListStatus.Closed
+					&& routeListAlias.Id != excludeRouteListId
 					&& routeListDebtAlias.Debt > 0)
 				.Select(Projections.Count(() => routeListDebtAlias.RouteList))
 				.SingleOrDefault<int>();
@@ -1307,7 +1308,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return routeListsCount;
 		}
 
-		public decimal GetUnclosedRouteListsDebtsSumByDriver(IUnitOfWork uow, int driverId)
+		public decimal GetUnclosedRouteListsDebtsSumByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0)
 		{
 			RouteList routeListAlias = null;
 			RouteListDebt routeListDebtAlias = null;
@@ -1317,6 +1318,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Where(() =>
 					routeListAlias.Driver.Id == driverId
 					&& routeListAlias.Status != RouteListStatus.Closed
+					&& routeListAlias.Id != excludeRouteListId
 					&& routeListDebtAlias.Debt > 0)
 				.Select(Projections.Sum(() => routeListDebtAlias.Debt))
 				.SingleOrDefault<decimal>();

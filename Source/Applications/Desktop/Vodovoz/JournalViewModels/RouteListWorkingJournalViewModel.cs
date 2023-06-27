@@ -81,7 +81,7 @@ namespace Vodovoz.JournalViewModels
 				.GetRouteListProfitabilityIndicatorInPercents;
 			UseSlider = false;
 
-			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(Expense), typeof(Income), typeof(AdvanceReport), typeof(RouteListItem));
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(RouteListDebt));
 			InitPopupActions();
 		}
 
@@ -492,7 +492,7 @@ namespace Vodovoz.JournalViewModels
 						var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 						var driverId = routeList.Driver.Id;
 
-						if(_accountableDebtsRepository.UnclosedAdvance(localUow,
+						if(_accountableDebtsRepository.GetUnclosedAdvances(localUow,
 							   routeList.Driver,
 							   localUow.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId),
 							   null).Count > 0)

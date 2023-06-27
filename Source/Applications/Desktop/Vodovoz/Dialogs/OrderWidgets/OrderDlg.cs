@@ -2029,7 +2029,9 @@ namespace Vodovoz
 			}
 
 			var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
-			var edoLightsMatrixViewModel = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel;
+			var edoLightsMatrixViewModel = edoLightsMatrixPanelView is null
+				? new EdoLightsMatrixViewModel()
+				: edoLightsMatrixPanelView.ViewModel.EdoLightsMatrixViewModel;
 			edoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
 
 			var edoLightsMatrixPaymentType = Entity.PaymentType == PaymentType.Cashless
@@ -2081,15 +2083,22 @@ namespace Vodovoz
 				Entity.UpdateDocuments();
 			}
 
-			if(!Save())
+			try
 			{
-				return false;
+				if(!Save())
+				{
+					return false;
+				}
 			}
-
-			if(fastDeliveryAddress != null)
+			finally
 			{
-				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
-				UoW.Commit();
+				if(fastDeliveryAddress != null)
+				{
+					_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
+						UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
+
+					UoW.Commit();
+				}
 			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();

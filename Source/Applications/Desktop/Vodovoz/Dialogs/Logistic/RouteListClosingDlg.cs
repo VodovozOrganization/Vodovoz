@@ -222,6 +222,7 @@ namespace Vodovoz
 			var driverFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
+			evmeDriver.Changed += OnEvmeDriverChanged;
 
 			previousForwarder = Entity.Forwarder;
 			var forwarderFilter = new EmployeeFilterViewModel();
@@ -363,6 +364,27 @@ namespace Vodovoz
 			routeListAddressesView.Items.PropertyOfElementChanged += OnRouteListItemPropertyOfElementChanged;
 
 			ybuttonCashChangeReturn.Clicked += OnYbuttonCashChangeReturnClicked;
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
+			}
+		}
+
+		private void OnEvmeDriverChanged(object sender, EventArgs e)
+		{
+			if(Entity.Driver != null)
+			{
+				if(!Entity.IsDriversDebtInPermittedRangeVerification())
+				{
+					Entity.Driver = null;
+				}
+			}
 		}
 
 		private void OnYbuttonCashChangeReturnClicked(object sender, EventArgs e)
@@ -834,7 +856,12 @@ namespace Vodovoz
 			var routeListAdvancesReturn = GetRouteListAdvanceReport();
 
 			var routeListDebt = Entity.RouteListDebt;
-			decimal unclosedAdvanceMoney = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Entity.Driver.Id);
+			decimal unclosedAdvanceMoney = default(decimal);
+
+			if(Entity.Driver != null)
+			{
+				unclosedAdvanceMoney = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Entity.Driver.Id);
+			}
 
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(

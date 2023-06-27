@@ -81,7 +81,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		decimal GetRouteListPaidDeliveriesSum(IUnitOfWork uow, int routeListId, IEnumerable<int> paidDeliveriesNomenclaturesIds);
 		decimal GetRouteListSalesSum(IUnitOfWork uow, int routeListId);
 		bool HasFreeBalanceForOrder(IUnitOfWork uow, Order order, RouteList routeListTo);
-		int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId);
-		decimal GetUnclosedRouteListsDebtsSumByDriver(IUnitOfWork uow, int driverId);
+		int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0);
+		decimal GetUnclosedRouteListsDebtsSumByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0);
 	}
 }

@@ -468,7 +468,7 @@ namespace Vodovoz
 			if (Entity.TypeOperation == IncomeType.Return && Entity.Employee != null)
 			{
 				var advances = _accountableDebtsRepository
-					.UnclosedAdvance(UoW, Entity.Employee, Entity.ExpenseCategory, Entity.Organisation?.Id);
+					.GetUnclosedAdvances(UoW, Entity.Employee, Entity.ExpenseCategory, Entity.Organisation?.Id);
 				_selectableAdvances = advances.Select (advance => new Selectable<Expense> (advance))
 				.ToList ();
 				_selectableAdvances.ForEach (advance => advance.SelectChanged += OnAdvanceSelectionChanged);

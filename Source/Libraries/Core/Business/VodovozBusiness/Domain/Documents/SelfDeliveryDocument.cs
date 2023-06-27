@@ -207,8 +207,10 @@ namespace Vodovoz.Domain.Documents
 			var nomenclatureIds = Items.Select(x => x.Nomenclature.Id).ToArray();
 			var inStock = stockRepository.NomenclatureInStock(uow, nomenclatureIds, Warehouse.Id, TimeStamp);
 
-			foreach(var item in Items) {
-				item.AmountInStock = inStock[item.Nomenclature.Id];
+			foreach(var item in Items)
+			{
+				inStock.TryGetValue(item.Nomenclature.Id, out var stockValue);
+				item.AmountInStock = stockValue;
 			}
 		}
 

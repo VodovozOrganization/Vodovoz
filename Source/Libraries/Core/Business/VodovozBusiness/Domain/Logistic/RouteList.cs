@@ -877,7 +877,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			var routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
-			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address);
+			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address, true);
 
 			ObservableAddresses.Remove(address);
 			return true;
@@ -1760,6 +1760,39 @@ namespace Vodovoz.Domain.Logistic
 			return (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date ?? DateTime.Now);
 		}
 
+		public virtual bool IsDriversDebtInPermittedRangeVerification()
+		{
+			if(Driver != null)
+			{
+				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
+				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+
+				var unclosedRouteListsHavingDebtsCount = _routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
+				var unclosedRouteListsDebtsSum = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
+
+				if(unclosedRouteListsHavingDebtsCount > maxDriversUnclosedRouteListsCountParameter 
+					|| unclosedRouteListsDebtsSum > maxDriversRouteListsDebtsSumParameter)
+				{
+					var messageString =
+						$"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
+						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей.";
+
+					var canEditDriversStopListParameters =
+						ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
+
+					if(canEditDriversStopListParameters)
+					{
+						messageString += "\n\nВсе равно продолжить?";
+						return ServicesConfig.InteractiveService.Question(messageString, "Требуется подтверждение");
+					}
+
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, messageString);
+					return false;
+				}
+			}
+			return true;
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
@@ -1875,7 +1908,8 @@ namespace Vodovoz.Domain.Logistic
 
 			if(GeographicGroups.Any(x => x.GetVersionOrNull(Date) == null))
 			{
-				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", new[] { nameof(GeographicGroups) });
+				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", 
+					new[] { nameof(GeographicGroups) });
 			}
 		}
 

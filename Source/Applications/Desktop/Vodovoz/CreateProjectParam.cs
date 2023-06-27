@@ -21,6 +21,7 @@ using QS.Permissions;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Journal.DataLoader;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Project.Services.GtkUI;
@@ -44,6 +45,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Additions;
+using Vodovoz.CachingRepositories.Cash;
+using Vodovoz.CachingRepositories.Common;
 using Vodovoz.Cash;
 using Vodovoz.Cash.FinancialCategoriesGroups;
 using Vodovoz.Core;
@@ -56,11 +59,14 @@ using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Organizations;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
@@ -707,6 +713,7 @@ namespace Vodovoz
 			builder.RegisterType<StoreDocumentHelper>().AsSelf();
 			builder.RegisterType<WarehousePermissionValidator>().As<IWarehousePermissionValidator>();
 			builder.RegisterType<WageParameterService>().As<IWageParameterService>();
+			builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
 
 			#endregion
 
@@ -751,6 +758,13 @@ namespace Vodovoz
 				.SingleInstance();
 
 			#endregion
+
+			#region Кэширующие репозитории
+
+			builder.RegisterType<FinancialExpenseCategoriesNodesInMemoryCacheRepository>()
+				.As<IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory>>();
+
+			#endregion Кэширующие репозитории
 
 			#region Mango
 
@@ -828,7 +842,7 @@ namespace Vodovoz
 			builder.RegisterType<UnallocatedBalancesJournalFilterViewModel>().AsSelf();
 			builder.RegisterType<SelectableParametersReportFilter>().AsSelf();
 
-			#endregion
+		#endregion
 
 			#region Классы
 
@@ -864,6 +878,18 @@ namespace Vodovoz
 			builder.Register(c => CurrentUserSettings.Settings).As<UserSettings>();
 
 			builder.RegisterType<PasswordGenerator>().As<IPasswordGenerator>();
+
+			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
+
+			builder.RegisterType<AdvanceCashOrganisationDistributor>().As<IAdvanceCashOrganisationDistributor>();
+
+			builder.RegisterType<RouteListCashOrganisationDistributor>().As<IRouteListCashOrganisationDistributor>();
+
+			builder.RegisterType<IncomeCashOrganisationDistributor>().As<IIncomeCashOrganisationDistributor>();
+
+			builder.RegisterType<ExpenseCashOrganisationDistributor>().As<IExpenseCashOrganisationDistributor>();
+
+			builder.RegisterType<FuelCashOrganisationDistributor>().As<IFuelCashOrganisationDistributor>();
 
 			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 

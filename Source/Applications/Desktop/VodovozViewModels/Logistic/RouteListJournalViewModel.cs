@@ -112,7 +112,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			TabName = "Журнал МЛ";
 
-			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(Expense), typeof(Income), typeof(AdvanceReport), typeof(RouteListItem));
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(RouteListDebt));
 			InitPopupActions();
 		}
 
@@ -674,6 +674,12 @@ namespace Vodovoz.ViewModels.Logistic
 			using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var routeList = localUow.GetById<RouteList>(selectedNode.Id);
+
+				if(!routeList.IsDriversDebtInPermittedRangeVerification())
+				{
+					return;
+				}
+
 				routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, _callTaskWorker);
 
 				var carLoadDocument = new CarLoadDocument();
@@ -769,6 +775,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 				foreach(var routeList in routeLists)
 				{
+					if(!routeList.IsDriversDebtInPermittedRangeVerification())
+					{
+						return;
+					}
+
 					int warehouseId = 0;
 
 					var geoGroup = routeList.GeographicGroups.FirstOrDefault();

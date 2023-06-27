@@ -164,6 +164,7 @@ namespace Vodovoz
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			evmeDriver.Sensitive = _logisticanEditing;
+			evmeDriver.Changed += OnEvmeDriverChanged;
 
 			var forwarderFilter = new EmployeeFilterViewModel();
 			forwarderFilter.SetAndRefilterAtOnce(
@@ -300,6 +301,27 @@ namespace Vodovoz
 			UpdateBottlesSummaryInfo();
 
 			UpdateNodes();
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
+			}
+		}
+
+		private void OnEvmeDriverChanged(object sender, EventArgs e)
+		{
+			if(Entity.Driver != null)
+			{
+				if(!Entity.IsDriversDebtInPermittedRangeVerification())
+				{
+					Entity.Driver = null;
+				}
+			}
 		}
 
 		void YtreeviewAddresses_RowActivated(object o, RowActivatedArgs args)
