@@ -305,11 +305,20 @@ namespace Vodovoz.SidePanel.InfoViews
 
 					var timeElapsedFormated = timeElapsed.ToString(spanFormat);
 
-					var timeElapsedString = (timeElapsed.TotalMinutes <= 20 && timeElapsed.TotalMinutes > 0)
-						? Blue(timeElapsedFormated)
-						: (timeElapsed.TotalMilliseconds > 0)
-							? timeElapsedFormated
-							: Red("-" + timeElapsedFormated);
+					var timeElapsedString = string.Empty;
+
+					if(timeElapsed.TotalMinutes >= 50)
+					{
+						timeElapsedString = Green(timeElapsedFormated);
+					}
+					else
+					{
+						timeElapsedString = (timeElapsed.TotalMinutes <= 20 && timeElapsed.TotalMinutes > 0)
+							? Blue(timeElapsedFormated)
+							: (timeElapsed.TotalMilliseconds > 0)
+								? timeElapsedFormated
+								: Red("-" + timeElapsedFormated);
+					}
 
 					Nodes.Add(new FastDeliveryMonitoringNode
 					{
@@ -326,6 +335,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		private static string Red(string input) => $"<span color=\"Red\">{input}</span>";
 
 		private static string Blue(string input) => $"<span color=\"Blue\">{input}</span>";
+
+		private static string Green(string input) => $"<span color=\"Green\">{input}</span>";
 
 		public override void Destroy()
 		{
