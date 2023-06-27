@@ -144,10 +144,17 @@ namespace DriverAPI.Controllers.V3
 				}
 
 				Vodovoz.Domain.Client.PaymentType newVodovozPaymentType;
+				Vodovoz.Domain.Client.PaymentByTerminalSource? paymentByTerminalSource = null; ;
 
-				if(newPaymentType == PaymentDtoType.Terminal)
+				if(newPaymentType == PaymentDtoType.TerminalCard)
 				{
 					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.Terminal;
+					paymentByTerminalSource = Vodovoz.Domain.Client.PaymentByTerminalSource.ByCard;
+				}
+				else if(newPaymentType == PaymentDtoType.TerminalQR)
+				{
+					newVodovozPaymentType = Vodovoz.Domain.Client.PaymentType.Terminal;
+					paymentByTerminalSource = Vodovoz.Domain.Client.PaymentByTerminalSource.ByQR;
 				}
 				else if(newPaymentType == PaymentDtoType.Cash)
 				{
@@ -165,7 +172,7 @@ namespace DriverAPI.Controllers.V3
 						string.Format(errorFormat, orderId, newPaymentType));
 				}
 
-				_aPIOrderData.ChangeOrderPaymentType(orderId, newVodovozPaymentType, driver);
+				_aPIOrderData.ChangeOrderPaymentType(orderId, newVodovozPaymentType, driver, paymentByTerminalSource);
 			}
 			catch(Exception ex)
 			{
