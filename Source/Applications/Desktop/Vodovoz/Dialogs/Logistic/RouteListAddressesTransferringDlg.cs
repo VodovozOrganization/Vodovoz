@@ -1059,7 +1059,7 @@ namespace Vodovoz
 
             UoW.Save(newRouteListItem);
 
-            _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, newRouteListItem, DeliveryFreeBalanceType.Decrease);
+            _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, newRouteListItem, DeliveryFreeBalanceType.Decrease, needRouteListUpdate: true);
 
             UoW.Commit();
         }

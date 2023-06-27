@@ -776,11 +776,11 @@ namespace Vodovoz
 							   (!address.WasTransfered || address.AddressTransferType != AddressTransferType.FromHandToHand))
 							{
 								routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
-									UoW, address, DeliveryFreeBalanceType.Decrease, isFullRecreation: true, needRouteListUpdate: false);
+									UoW, address, DeliveryFreeBalanceType.Decrease, isFullRecreation: true, needRouteListUpdate: true);
 							}
 							else
 							{
-								routeListKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address);
+								routeListKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address, true);
 							}
 						}
 

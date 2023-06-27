@@ -164,16 +164,6 @@ namespace Vodovoz.Controllers
 		private bool IsNegative(RouteListItemStatus status) => new[] { RouteListItemStatus.EnRoute }.Contains(status);
 		private bool IsNeutral(RouteListItemStatus status) => new[] { RouteListItemStatus.Completed }.Contains(status);
 
-		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, Order order, DeliveryFreeBalanceType deliveryFreeBalanceType)
-		{
-			var address = uow.GetAll<RouteListItem>().FirstOrDefault(x => x.Order.Id == order.Id);
-
-			if(address != null)
-			{
-				CreateOrUpdateRouteListKeepingDocument(uow, address, deliveryFreeBalanceType);
-			}
-		}
-
 		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem, RouteListItemStatus oldStatus, RouteListItemStatus newStatus)
 		{
 			if(newStatus == RouteListItemStatus.Transfered || oldStatus == RouteListItemStatus.Transfered)
@@ -183,12 +173,12 @@ namespace Vodovoz.Controllers
 
 			var balanceType = GetDeliveryFreeBalanceType(oldStatus, newStatus);
 
-			CreateOrUpdateRouteListKeepingDocument(uow, routeListItem, balanceType, false, false, oldStatus, newStatus);
+			CreateOrUpdateRouteListKeepingDocument(uow, routeListItem, balanceType, false, false, oldStatus, newStatus, true);
 		}
 
 		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem,
 			DeliveryFreeBalanceType deliveryFreeBalanceType, bool isFullRecreation = false, bool isActualCount = false,
-			RouteListItemStatus? oldStatus = null, RouteListItemStatus? newStatus = null, bool needRouteListUpdate = true)
+			RouteListItemStatus? oldStatus = null, RouteListItemStatus? newStatus = null, bool needRouteListUpdate = false)
 		{
 			var routeListKeepingDocument =
 				uow.GetAll<RouteListAddressKeepingDocument>()
@@ -257,14 +247,6 @@ namespace Vodovoz.Controllers
 			}
 
 			uow.Save(routeListKeepingDocument);
-		}
-
-		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uoW, RouteList routeList, DeliveryFreeBalanceType deliveryFreeBalanceType, bool isFullRecreation, bool isActualCount)
-		{
-			foreach(var address in routeList.Addresses)
-			{
-				CreateOrUpdateRouteListKeepingDocument(uoW, address, deliveryFreeBalanceType, isFullRecreation, isActualCount, newStatus: RouteListItemStatus.Completed);
-			}
 		}
 
 		public HashSet<RouteListAddressKeepingDocumentItem> CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(
@@ -465,7 +447,7 @@ namespace Vodovoz.Controllers
 			return newItems;
 		}
 
-		public void RemoveRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem)
+		public void RemoveRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem, bool needRouteListUpdate = false)
 		{
 			var routeListKeepingDocument =
 				uow.GetAll<RouteListAddressKeepingDocument>()
@@ -478,7 +460,11 @@ namespace Vodovoz.Controllers
 
 			foreach(var item in routeListKeepingDocument.Items)
 			{
-				routeListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Remove(item.DeliveryFreeBalanceOperation);
+				if(needRouteListUpdate)
+				{
+					routeListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Remove(item.DeliveryFreeBalanceOperation);
+				}
+
 				uow.Delete(item);
 			}
 
