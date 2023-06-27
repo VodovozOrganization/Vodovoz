@@ -11,6 +11,7 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Cash;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Logistic
@@ -171,7 +172,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void CreateOperations(IFuelRepository fuelRepository, 
 			CashDistributionCommonOrganisationProvider commonOrganisationProvider,
-			ICategoryRepository categoryRepository)
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
 			if(fuelRepository == null) {
 				throw new ArgumentNullException(nameof(fuelRepository));
@@ -179,11 +180,6 @@ namespace Vodovoz.Domain.Logistic
 			
 			if(commonOrganisationProvider == null) {
 				throw new ArgumentNullException(nameof(commonOrganisationProvider));
-			}
-
-			ExpenseCategory expenseCategory = categoryRepository.FuelDocumentExpenseCategory(UoW);
-			if(expenseCategory == null) {
-				throw new InvalidProgramException("Не возможно найти подходящую статью расхода, возможно в параметрах базы не настроена статья расхода по умолчанию.");
 			}
 
 			ValidationContext context = new ValidationContext(this, new Dictionary<object, object>() {
@@ -198,7 +194,7 @@ namespace Vodovoz.Domain.Logistic
 			try {
 				CreateFuelOperation();
 				CreateFuelExpenseOperation();
-				CreateFuelCashExpense(expenseCategory, commonOrganisationProvider);
+				CreateFuelCashExpense(financialCategoriesGroupsSettings.FuelExpenseCategoryId, commonOrganisationProvider);
 			} catch(Exception ex) {
 				//восстановление исходного состояния
 				FuelOperation = null;
@@ -209,16 +205,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void UpdateFuelOperation(ICategoryRepository categoryRepository)
+		public virtual void UpdateFuelOperation()
 		{
-			ExpenseCategory expenseCategory = categoryRepository.FuelDocumentExpenseCategory(UoW);
-			
-			if(expenseCategory == null)
-			{
-				throw new InvalidProgramException(
-					"Не возможно найти подходящую статью расхода, возможно в параметрах базы не настроена статья расхода по умолчанию.");
-			}
-
 			if(FuelOperation.PayedLiters <= 0m)
 			{
 				return;
@@ -270,7 +258,7 @@ namespace Vodovoz.Domain.Logistic
 			};
 		}
 
-		private void CreateFuelCashExpense(ExpenseCategory expenseCategory, 
+		private void CreateFuelCashExpense(int financialExpenseCategory, 
 			CashDistributionCommonOrganisationProvider commonOrganisationProvider)
 		{
 			if(FuelPaymentType.HasValue && FuelPaymentType.Value == Logistic.FuelPaymentType.Cashless)
@@ -285,7 +273,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			FuelCashExpense = new Expense {
-				ExpenseCategoryId = expenseCategory.Id,
+				ExpenseCategoryId = financialExpenseCategory,
 				TypeOperation = ExpenseType.Advance,
 				Date = Date,
 				Casher = Author,

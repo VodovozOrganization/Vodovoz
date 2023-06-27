@@ -26,26 +26,6 @@ namespace Vodovoz.EntityRepositories.Cash
 			return received - returned - reported;
 		}
 
-		public IList<Expense> GetUnclosedAdvances(IUnitOfWork uow, Employee accountable, ExpenseCategory category, int? organisationId)
-		{
-			var query = uow.Session.QueryOver<Expense>()
-				.Where(e => e.Employee == accountable
-							&& e.TypeOperation == ExpenseType.Advance
-							&& e.AdvanceClosed == false);
-
-			if(category != null)
-			{
-				query.And(e => e.ExpenseCategoryId == category.Id);
-			}
-
-			if(organisationId != null)
-			{
-				query.And(e => e.Organisation == null || e.Organisation.Id == organisationId);
-			}
-
-			return query.List();
-		}
-
 		public IEnumerable<Expense> GetUnclosedAdvances(
 			IUnitOfWork unitOfWork,
 			Employee accountableEmployee,
