@@ -146,7 +146,7 @@ namespace Vodovoz.Domain.Cash
 				{
 					if(ExpenseCategoryId == null)
 					{
-						yield return new ValidationResult("Необходимо заполнить статью расхода", new[] { nameof(ExpenseCategory) });
+						yield return new ValidationResult("Необходимо заполнить статью расхода", new[] { nameof(ExpenseCategoryId) });
 					}
 
 					break;

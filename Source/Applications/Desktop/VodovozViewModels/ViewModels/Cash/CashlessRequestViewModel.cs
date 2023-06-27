@@ -87,7 +87,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					{
 						filter.RestrictFinancialSubtype = FinancialSubType.Expense;
 						filter.RestrictNodeTypes.Add(typeof(FinancialCategoriesGroup));
-						filter.RestrictNodeSelectTypes.Add(typeof(ExpenseCategory));
+						filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
 					})
 				.Finish();
 

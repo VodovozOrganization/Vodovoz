@@ -495,8 +495,8 @@ namespace Vodovoz.JournalViewModels
 
 						if(_accountableDebtsRepository.GetUnclosedAdvances(localUow,
 							   routeList.Driver,
-							   localUow.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId),
-							   null).Count > 0)
+							   _expenseParametersProvider.ChangeCategoryId,
+							   null).Count() > 0)
 						{
 							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
 								"Закройте сначала прошлые авансовые со статусом \"Сдача клиенту\"", "Нельзя выдать сдачу");
