@@ -58,11 +58,11 @@ namespace Vodovoz.Domain.Fuel
 			set => SetField(ref reason, value, () => Reason);
 		}
 
-		private ExpenseCategory expenseCategory;
+		private int? expenseCategoryId;
 		[Display(Name = "Статья расхода")]
-		public virtual ExpenseCategory ExpenseCategory {
-			get => expenseCategory;
-			set => SetField(ref expenseCategory, value, () => ExpenseCategory);
+		public virtual int? ExpenseCategoryId {
+			get => expenseCategoryId;
+			set => SetField(ref expenseCategoryId, value);
 		}
 
 		IList<FuelWriteoffDocumentItem> fuelWriteoffDocumentItems = new List<FuelWriteoffDocumentItem>();
@@ -125,7 +125,7 @@ namespace Vodovoz.Domain.Fuel
 			if(string.IsNullOrWhiteSpace(Reason)) {
 				yield return new ValidationResult("Необходимо ввести основание");
 			}
-			if(ExpenseCategory == null) {
+			if(ExpenseCategoryId == null) {
 				yield return new ValidationResult("Необходимо выбрать статью расхода");
 			}
 			if(ObservableFuelWriteoffDocumentItems == null) {

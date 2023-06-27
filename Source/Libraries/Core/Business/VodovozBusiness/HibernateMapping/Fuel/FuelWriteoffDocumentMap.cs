@@ -13,12 +13,11 @@ namespace Vodovoz.HibernateMapping.Fuel
 
 			Map(x => x.Date).Column("date");
 			Map(x => x.Reason).Column("reason");
-
+			Map(x => x.ExpenseCategoryId).Column("financial_expense_category_id");
 
 			References(x => x.Cashier).Column("cashier_id");
 			References(x => x.Employee).Column("employee_id");
 			References(x => x.CashSubdivision).Column("cash_subdivision_id");
-			References(x => x.ExpenseCategory).Column("expense_category_id");
 
 			HasMany(x => x.FuelWriteoffDocumentItems).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("fuel_writeoff_document_id");
 		}

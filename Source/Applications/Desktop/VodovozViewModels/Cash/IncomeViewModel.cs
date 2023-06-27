@@ -173,13 +173,13 @@ namespace Vodovoz.ViewModels.Cash
 
 			RouteListViewModel = BuildRouteListEntitiViewModel();
 
-			FinancialExpenseCategoryViewModel = BuildFinancialIncomeCategoryViewModel();
+			FinancialExpenseCategoryViewModel = BuildFinancialExpenseCategoryViewModel();
 
 			SetPropertyChangeRelation(
 				e => e.ExpenseCategoryId,
 				() => FinancialExpenseCategory);
 
-			FinancialIncomeCategoryViewModel = BuildFinancialExpenseCategoryViewModel();
+			FinancialIncomeCategoryViewModel = BuildFinancialIncomeCategoryViewModel();
 
 			SetPropertyChangeRelation(
 				e => e.IncomeCategoryId,
@@ -325,9 +325,9 @@ namespace Vodovoz.ViewModels.Cash
 			}
 		}
 
-		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
+		public IEntityEntryViewModel FinancialIncomeCategoryViewModel { get; }
 
-		private IEntityEntryViewModel BuildFinancialExpenseCategoryViewModel()
+		private IEntityEntryViewModel BuildFinancialIncomeCategoryViewModel()
 		{
 			var financialIncomeCategoryViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<IncomeViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
@@ -343,9 +343,9 @@ namespace Vodovoz.ViewModels.Cash
 				.Finish();
 		}
 
-		public IEntityEntryViewModel FinancialIncomeCategoryViewModel { get; }
+		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
 
-		private IEntityEntryViewModel BuildFinancialIncomeCategoryViewModel()
+		private IEntityEntryViewModel BuildFinancialExpenseCategoryViewModel()
 		{
 			var financialExpenseCategoryViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<IncomeViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 

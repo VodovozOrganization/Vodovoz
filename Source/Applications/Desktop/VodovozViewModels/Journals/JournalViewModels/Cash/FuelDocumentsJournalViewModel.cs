@@ -9,6 +9,7 @@ using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
@@ -271,14 +272,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			Employee cashierAlias = null;
 			Employee employeeAlias = null;
 			Subdivision subdivisionAlias = null;
-			ExpenseCategory expenseCategoryAlias = null;
+			FinancialExpenseCategory financialExpenseCategoryAlias = null;
 			FuelWriteoffDocumentItem fuelWriteoffItemAlias = null;
 			var fuelWriteoffQuery = uow.Session.QueryOver<FuelWriteoffDocument>(() => fuelWriteoffAlias)
-				.Left.JoinQueryOver(() => fuelWriteoffAlias.Cashier, () => cashierAlias)
-				.Left.JoinQueryOver(() => fuelWriteoffAlias.Employee, () => employeeAlias)
-				.Left.JoinQueryOver(() => fuelWriteoffAlias.CashSubdivision, () => subdivisionAlias)
-				.Left.JoinQueryOver(() => fuelWriteoffAlias.ExpenseCategory, () => expenseCategoryAlias)
-				.Left.JoinQueryOver(() => fuelWriteoffAlias.FuelWriteoffDocumentItems, () => fuelWriteoffItemAlias)
+				.Left.JoinAlias(() => fuelWriteoffAlias.Cashier, () => cashierAlias)
+				.Left.JoinAlias(() => fuelWriteoffAlias.Employee, () => employeeAlias)
+				.Left.JoinAlias(() => fuelWriteoffAlias.CashSubdivision, () => subdivisionAlias)
+				.JoinEntityAlias(
+						() => financialExpenseCategoryAlias,
+						() => fuelWriteoffAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => fuelWriteoffAlias.FuelWriteoffDocumentItems, () => fuelWriteoffItemAlias)
 				.SelectList(list => list
 					.SelectGroup(() => fuelWriteoffAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => fuelWriteoffAlias.Date).WithAlias(() => resultAlias.CreationDate)
@@ -292,7 +296,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmployeeSurname)
 					.Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmployeePatronymic)
 
-					.Select(() => expenseCategoryAlias.Name).WithAlias(() => resultAlias.ExpenseCategory)
+					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.ExpenseCategory)
 					.Select(Projections.Sum(Projections.Property(() => fuelWriteoffItemAlias.Liters))).WithAlias(() => resultAlias.Liters)
 
 					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionFrom)
