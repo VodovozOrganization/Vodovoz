@@ -12,6 +12,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
+using QSReport;
 using System;
 using Vodovoz;
 using Vodovoz.Core.DataService;
@@ -736,13 +737,21 @@ public partial class MainWindow : Window
 
 	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{
-		var parametersProvider = new ParametersProvider();
+		var scope = MainClass.AppDIContainer.BeginLifetimeScope();
 
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashFlow>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashFlow(
-				new SubdivisionRepository(parametersProvider), ServicesConfig.CommonServices, new CategoryRepository(parametersProvider)))
-		);
+		var report = scope.Resolve<Vodovoz.Reports.CashFlow>();
+
+		var page = NavigationManager.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, report);
+
+		report.ParentTab = page.TdiTab;
+
+		//tdiMain.OpenTab(
+		//	QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashFlow>(),
+		//	() => {
+		//		var result = new QSReport.ReportViewDlg(report);
+		//			report.ParentTab = result;
+		//		return result;
+		//		);
 	}
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)

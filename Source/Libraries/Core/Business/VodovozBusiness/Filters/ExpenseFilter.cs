@@ -5,6 +5,7 @@ using NHibernate.Dialect.Function;
 using QS.DomainModel.Entity;
 using QS.Tools;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Filters
@@ -30,10 +31,10 @@ namespace Vodovoz.Filters
 			set => SetField(ref employee, value, () => Employee);
 		}
 
-		private ExpenseCategory expenseCategory;
-		public ExpenseCategory ExpenseCategory {
-			get => expenseCategory;
-			set => SetField(ref expenseCategory, value, () => ExpenseCategory);
+		private FinancialExpenseCategory _financialExpenseCategory;
+		public FinancialExpenseCategory FinancialExpenseCategory {
+			get => _financialExpenseCategory;
+			set => SetField(ref _financialExpenseCategory, value);
 		}
 
 		public ExpenseFilter()
@@ -63,8 +64,8 @@ namespace Vodovoz.Filters
 				result = Restrictions.And(result, Restrictions.Where<Expense>(x => x.Employee == Employee));
 			}
 
-			if(ExpenseCategory != null) {
-				result = Restrictions.And(result, Restrictions.Where<Expense>(x => x.ExpenseCategoryId == ExpenseCategory.Id));
+			if(FinancialExpenseCategory != null) {
+				result = Restrictions.And(result, Restrictions.Where<Expense>(x => x.ExpenseCategoryId == FinancialExpenseCategory.Id));
 			}
 
 			return result;

@@ -163,8 +163,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelRepository fuelRepository,
 			INavigationManager navigationManager,
 			ITrackRepository trackRepository,
-			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -199,8 +199,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IFuelRepository fuelRepository,
 			INavigationManager navigationManager,
 			ITrackRepository trackRepository,
-			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IEmployeeJournalFactory employeeJournalFactory,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			ICarJournalFactory carJournalFactory) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

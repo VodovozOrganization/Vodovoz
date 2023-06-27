@@ -30,6 +30,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -47,6 +48,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
 		private readonly IExpenseParametersProvider _expenseParametersProvider;
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
@@ -61,6 +63,7 @@ namespace Vodovoz.JournalViewModels
 			ICallTaskRepository callTaskRepository,
 			BaseParametersProvider baseParametersProvider,
 			IExpenseParametersProvider expenseParametersProvider,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			ISubdivisionRepository subdivisionRepository,
 			IAccountableDebtsRepository accountableDebtsRepository,
 			IGtkTabsOpener gtkTabsOpener,
@@ -74,6 +77,7 @@ namespace Vodovoz.JournalViewModels
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
 			_expenseParametersProvider = expenseParametersProvider ?? throw new ArgumentNullException(nameof(expenseParametersProvider));
+			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -432,8 +436,8 @@ namespace Vodovoz.JournalViewModels
 								_fuelRepository,
 								NavigationManagerProvider.NavigationManager,
 								new TrackRepository(),
-								new CategoryRepository(new ParametersProvider()),
 								new EmployeeJournalFactory(),
+								_financialCategoriesGroupsSettings,
 								new CarJournalFactory(NavigationManager)
 							)
 						);

@@ -35,7 +35,7 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 				.OrderBy(x => x.Name)
 				.Finish();
 			entryExpenseCategory.RepresentationModel = expenseCategoryVM;
-			entryExpenseCategory.Binding.AddBinding(Filter, x => x.ExpenseCategory, w => w.Subject).InitializeFromSource();
+			//entryExpenseCategory.Binding.AddBinding(Filter, x => x.ExpenseCategory, w => w.Subject).InitializeFromSource();
 			entryExpenseCategory.ChangedByUser += (sender, e) => Refilter();
 		}
 

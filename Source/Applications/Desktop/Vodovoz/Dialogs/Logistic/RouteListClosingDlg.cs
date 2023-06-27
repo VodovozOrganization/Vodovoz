@@ -1,3 +1,4 @@
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -49,6 +50,9 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -63,7 +67,6 @@ namespace Vodovoz
 	public partial class RouteListClosingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		#region поля
-
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
@@ -81,6 +84,7 @@ namespace Vodovoz
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings = MainClass.AppDIContainer.Resolve<IFinancialCategoriesGroupsSettings>();
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
@@ -1529,8 +1533,8 @@ namespace Vodovoz
 					  new FuelRepository(),
 					  NavigationManagerProvider.NavigationManager,
 					  _trackRepository,
-					  _categoryRepository,
 					  new EmployeeJournalFactory(),
+					  _financialCategoriesGroupsSettings,
 					  new CarJournalFactory(MainClass.MainWin.NavigationManager)
 			);
 			TabParent.AddSlaveTab(this, tab);
@@ -1547,8 +1551,8 @@ namespace Vodovoz
 				  new FuelRepository(),
 				  NavigationManagerProvider.NavigationManager,
 				  _trackRepository,
-				  _categoryRepository,
 				  new EmployeeJournalFactory(),
+				  _financialCategoriesGroupsSettings,
 				  new CarJournalFactory(MainClass.MainWin.NavigationManager)
 			);
 			TabParent.AddSlaveTab(this, tab);
