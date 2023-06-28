@@ -2709,4 +2709,16 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
 	}
+
+	protected void OnActionUndeliveryObjectActivated(object sender, EventArgs e)
+	{
+	}
+
+	protected void OnActionUndeliveryKindActivated(object sender, EventArgs e)
+	{
+	}
+
+	protected void OnActionUndeliveryDetalizationActivated(object sender, EventArgs e)
+	{
+	}
 }
