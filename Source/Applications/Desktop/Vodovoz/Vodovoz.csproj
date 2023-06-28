@@ -1926,6 +1926,12 @@
     <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialExpenseCategoryView.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialIncomeCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialIncomeCategoryView.cs" />
+    <Compile Include="Views\Orders\UndeliveryObjectView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryObjectView.cs" />
+    <Compile Include="Views\Orders\UndeliveryKindView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryKindView.cs" />
+    <Compile Include="Views\Orders\UndeliveryDetalizationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryDetalizationView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
