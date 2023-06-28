@@ -6,7 +6,7 @@ namespace Vodovoz
 	{
 		private global::Gtk.Table table1;
 
-		private global::QSOrmProject.EntryReference entryreferenceExpense;
+		private global::QS.Views.Control.EntityEntry entryExpenseFinancialCategory;
 
 		private global::Gtk.Label label1;
 
@@ -22,14 +22,13 @@ namespace Vodovoz
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferenceExpense = new global::QSOrmProject.EntryReference();
-			this.entryreferenceExpense.Events = ((global::Gdk.EventMask)(256));
-			this.entryreferenceExpense.Name = "entryreferenceExpense";
-			this.table1.Add(this.entryreferenceExpense);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferenceExpense]));
+			this.entryExpenseFinancialCategory = new global::QS.Views.Control.EntityEntry();
+			this.entryExpenseFinancialCategory.Events = ((global::Gdk.EventMask)(256));
+			this.entryExpenseFinancialCategory.Name = "entryExpenseFinancialCategory";
+			this.table1.Add(this.entryExpenseFinancialCategory);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entryExpenseFinancialCategory]));
 			w1.LeftAttach = ((uint)(1));
 			w1.RightAttach = ((uint)(2));
-			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
@@ -40,11 +39,11 @@ namespace Vodovoz
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.entryreferenceExpense.Changed += new global::System.EventHandler(this.OnEntryreferenceExpenseChanged);
 		}
 	}
 }
