@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -447,8 +447,11 @@
     <Compile Include="JournalColumnsConfigs\CarModelJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ClientCameFromJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ColumnsConfigRegistrarBase.cs" />
+    <Compile Include="JournalColumnsConfigs\UndeliveryDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintDetalizationJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\UndeliveryKindJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintKindJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\UndeliveryObjectJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintObjectJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfCounterpartyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfEmployeesJournalRegistrar.cs" />
@@ -1942,7 +1945,6 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="JournalFilters\Goods\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

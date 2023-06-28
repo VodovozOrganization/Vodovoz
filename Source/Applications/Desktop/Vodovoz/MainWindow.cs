@@ -2712,14 +2712,16 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionUndeliveryObjectActivated(object sender, EventArgs e)
 	{
-		NavigationManager.OpenViewModel<ComplaintDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+		NavigationManager.OpenViewModel<UndeliveryObjectJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnActionUndeliveryKindActivated(object sender, EventArgs e)
 	{
+		NavigationManager.OpenViewModel<UndeliveryKindJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnActionUndeliveryDetalizationActivated(object sender, EventArgs e)
 	{
+		NavigationManager.OpenViewModel<UndeliveryDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 }

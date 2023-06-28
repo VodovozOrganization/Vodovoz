@@ -1,12 +1,19 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+
 namespace Vodovoz.Filters.GtkViews
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UndeliveryObjectFilterView : Gtk.Bin
+	public partial class UndeliveryObjectFilterView : FilterViewBase<UndeliveryObjectJournalFilterViewModel>
 	{
-		public UndeliveryObjectFilterView()
+		public UndeliveryObjectFilterView(UndeliveryObjectJournalFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
+			Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			chkIsArchive.Binding.AddBinding(ViewModel, vm => vm.IsArchive, w => w.Active).InitializeFromSource();
 		}
 	}
 }
