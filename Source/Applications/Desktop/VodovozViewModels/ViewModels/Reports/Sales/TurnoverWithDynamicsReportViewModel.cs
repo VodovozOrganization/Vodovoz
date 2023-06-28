@@ -37,6 +37,7 @@ using Vodovoz.NHibernateProjections.Orders;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozCounterparty = Vodovoz.Domain.Client.Counterparty;
+using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.ViewModels.Reports.Sales
 {
@@ -1236,16 +1237,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				yield return "Для разреза месяц нельзя выбрать интервал более 60х месяцев";
 			}
-		}
-
-		public class CombinedPaymentNode : IDomainObject
-		{
-			public bool IsTopLevel { get; set; }
-			public PaymentType? PaymentType { get; set; }
-			public int Id { get; set; }
-			public string Title { get; set; }
-			public int? TopLevelId { get; set; }
-			public IList<CombinedPaymentNode> Childs { get; set; }
 		}
 
 		public override void Dispose()
