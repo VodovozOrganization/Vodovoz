@@ -30,6 +30,7 @@ namespace Vodovoz
 				var vm = new ViewModel.AccountableDebtsVM(accountabledebtsfilter1);
 				representationtreeviewDebts.RepresentationModel = vm;
 				representationtreeviewDebts.RepresentationModel.UpdateNodes();
+				accountabledebtsfilter1.JournalTab = this;
 			}
 		}
 
@@ -62,7 +63,7 @@ namespace Vodovoz
 		protected void OnButtonAdvanceReportClicked(object sender, EventArgs e)
 		{
 			var accountable = UoW.GetById<Employee>(representationtreeviewDebts.GetSelectedId());
-			var expenseCategoryId = accountabledebtsfilter1.RestrictExpenseCategory.Id;
+			var expenseCategoryId = accountabledebtsfilter1.FinancialExpenseCategory.Id;
 			decimal money = representationtreeviewDebts.GetSelectedObject<AccountableDebtsVMNode>().Debt;
 
 			var page = NavigationManager.OpenViewModel<AdvanceReportViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
@@ -75,7 +76,7 @@ namespace Vodovoz
 		protected void OnButtonSlipsClicked(object sender, EventArgs e)
 		{
 			var accountable = UoW.GetById<Employee>(representationtreeviewDebts.GetSelectedId());
-			var category = accountabledebtsfilter1.RestrictExpenseCategory;
+			var category = accountabledebtsfilter1.FinancialExpenseCategory;
 
 			var dlg = new AccountableSlipsView(accountable, category);
 			OpenNewTab(dlg);
@@ -89,7 +90,7 @@ namespace Vodovoz
 		protected void OnButtonUnclosedClicked(object sender, EventArgs e)
 		{
 			var accountable = UoW.GetById<Employee>(representationtreeviewDebts.GetSelectedId());
-			var category = accountabledebtsfilter1.RestrictExpenseCategory;
+			var category = accountabledebtsfilter1.FinancialExpenseCategory;
 
 			var dlg = new UnclosedAdvancesView(accountable, category, NavigationManager);
 			OpenNewTab(dlg);

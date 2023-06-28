@@ -56,7 +56,7 @@ namespace Vodovoz
 
 			if(financialExpenseCategory != null)
 			{
-				unclosedadvancesfilter1.SetAndRefilterAtOnce(x => x.RestrictExpenseCategory = financialExpenseCategory);
+				unclosedadvancesfilter1.SetAndRefilterAtOnce(x => x.FinancialExpenseCategory = financialExpenseCategory);
 			}
 		}
 
@@ -70,6 +70,7 @@ namespace Vodovoz
 			unclosedadvancesfilter1.UoW = UoW;
 			representationUnclosed.Selection.Changed += RepresentationUnclosed_Selection_Changed;
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			unclosedadvancesfilter1.JournalTab = this;
 		}
 
 		void RepresentationUnclosed_Selection_Changed(object sender, EventArgs e)

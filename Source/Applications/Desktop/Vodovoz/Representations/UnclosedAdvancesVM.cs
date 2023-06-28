@@ -42,8 +42,8 @@ namespace Vodovoz.ViewModel
 			var expense = UoW.Session.QueryOver<Expense>(() => expenseAlias)
 				.Where(e => e.AdvanceClosed == false && e.TypeOperation == ExpenseType.Advance);
 
-			if(Filter.RestrictExpenseCategory != null)
-				expense.Where(i => i.ExpenseCategoryId == Filter.RestrictExpenseCategory.Id);
+			if(Filter.FinancialExpenseCategory != null)
+				expense.Where(i => i.ExpenseCategoryId == Filter.FinancialExpenseCategory.Id);
 			if(Filter.RestrictAccountable != null)
 				expense.Where(o => o.Employee == Filter.RestrictAccountable);
 			if(Filter.RestrictStartDate != null)
