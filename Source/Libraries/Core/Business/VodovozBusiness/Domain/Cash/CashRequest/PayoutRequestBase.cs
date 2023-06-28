@@ -1,8 +1,10 @@
 ﻿using NHibernate.Type;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 
@@ -69,6 +71,7 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		[Display(Name = "Статья расхода")]
+		[HistoryIdentifier(TargetType = typeof(FinancialExpenseCategory))]
 		public virtual int? ExpenseCategoryId
 		{
 			get => _expenseCategoryId;

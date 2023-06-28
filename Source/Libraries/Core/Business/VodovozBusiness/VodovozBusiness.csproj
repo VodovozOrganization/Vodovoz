@@ -51,6 +51,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CachingRepositories\Cash\FinancialIncomeCategoriesNodesInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Cash\FinancialExpenseCategoriesNodesInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
@@ -1320,8 +1321,6 @@
     <Compile Include="ViewModelBased\ViewModelBase.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
     <Compile Include="ViewModelBased\ViewModelGeneric.cs" />
-    <Compile Include="Filters\IncomeFilter.cs" />
-    <Compile Include="Filters\ExpenseFilter.cs" />
     <Compile Include="Domain\Fuel\FuelIncomeInvoice.cs" />
     <Compile Include="Domain\Fuel\FuelIncomeOperation.cs" />
     <Compile Include="Domain\Fuel\FuelExpenseOperation.cs" />

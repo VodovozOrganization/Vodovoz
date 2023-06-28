@@ -108,18 +108,12 @@ namespace Vodovoz.Cash
 			specialListCmbOrganisation.Binding
 				.AddBinding(ViewModel, vm => vm.CachedOrganizations, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.IsNew, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, e => e.Organisation, w => w.SelectedItem)
-				.InitializeFromSource();
-
-			specialListCmbOrganisation.Binding
 				.AddBinding(ViewModel, vm => vm.IsReturnOperation, w => w.Visible)
+				.AddBinding(ViewModel.Entity, e => e.Organisation, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			checkNoClose.Binding
 				.AddBinding(ViewModel, vm => vm.NoClose, w => w.Active)
-				.InitializeFromSource();
-
-			checkNoClose.Binding
 				.AddBinding(ViewModel, vm => vm.IsReturnOperationOrNew, w => w.Visible)
 				.InitializeFromSource();
 

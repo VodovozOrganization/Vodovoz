@@ -12,7 +12,7 @@ namespace Vodovoz.Cash.DocumentsJournal
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<DocumentNode> config) =>
 			config.AddColumn("№ РКО/ПКО").AddTextRenderer(node => node.Id.ToString())
-				  .AddColumn("Тип документа").AddTextRenderer(node => node.EntityType.GetClassUserFriendlyName().Nominative)
+				  .AddColumn("Тип документа").AddTextRenderer(node => node.EntityType.GetClassUserFriendlyName().Nominative.CapitalizeSentence())
 				  .AddColumn("Дата").AddTextRenderer(node => node.Date.ToShortDateString())
 				  .AddColumn("Сотрудник").AddTextRenderer(node => PersonHelper.PersonNameWithInitials(node.EmployeeSurname, node.EmployeeName, node.EmployeePatronymic))
 				  .AddColumn("Статья").AddTextRenderer(node => node.Category)

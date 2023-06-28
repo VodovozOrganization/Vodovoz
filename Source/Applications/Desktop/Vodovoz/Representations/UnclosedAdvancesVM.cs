@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -9,6 +10,7 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModel
@@ -33,15 +35,15 @@ namespace Vodovoz.ViewModel
 			Employee casherAlias = null;
 
 			Expense expenseAlias = null;
-			ExpenseCategory expenseCategoryAlias = null;
+			FinancialExpenseCategory financialExpenseCategoryAlias = null;
 
 			AdvanceClosing clousingAliace = null;
 
 			var expense = UoW.Session.QueryOver<Expense>(() => expenseAlias)
 				.Where(e => e.AdvanceClosed == false && e.TypeOperation == ExpenseType.Advance);
 
-			//if(Filter.RestrictExpenseCategory != null)
-			//	expense.Where(i => i.ExpenseCategory == Filter.RestrictExpenseCategory);
+			if(Filter.RestrictExpenseCategory != null)
+				expense.Where(i => i.ExpenseCategoryId == Filter.RestrictExpenseCategory.Id);
 			if(Filter.RestrictAccountable != null)
 				expense.Where(o => o.Employee == Filter.RestrictAccountable);
 			if(Filter.RestrictStartDate != null)
@@ -54,9 +56,12 @@ namespace Vodovoz.ViewModel
 				.Select(Projections.Sum<AdvanceClosing>(o => o.Money));
 
 			var expenseList = expense
-				.JoinQueryOver(() => expenseAlias.Employee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => expenseAlias.Casher, () => casherAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-//				.JoinQueryOver(() => expenseAlias.ExpenseCategory, () => expenseCategoryAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinEntityAlias(
+						() => financialExpenseCategoryAlias,
+						() => expenseAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => expenseAlias.Employee, () => employeeAlias)
+				.Left.JoinAlias(() => expenseAlias.Casher, () => casherAlias)
 				.SelectList(list => list
 				   .Select(() => expenseAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => expenseAlias.Date).WithAlias(() => resultAlias.Date)
@@ -68,7 +73,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => casherAlias.Name).WithAlias(() => resultAlias.CasherName)
 				   .Select(() => casherAlias.LastName).WithAlias(() => resultAlias.CasherSurname)
 				   .Select(() => casherAlias.Patronymic).WithAlias(() => resultAlias.CasherPatronymic)
-				   .Select(() => expenseCategoryAlias.Name).WithAlias(() => resultAlias.Category)
+				   .Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.Category)
 				   .SelectSubQuery(subqueryClosed).WithAlias(() => resultAlias.СloseMoney)
 				)
 				.TransformUsing(Transformers.AliasToBean<UnclosedAdvancesVMNode>())

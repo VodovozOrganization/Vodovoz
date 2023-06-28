@@ -186,9 +186,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
 			CreateEditAction();
-			CreateDefaultDeleteAction();
 		}
 
 		protected void CreateEditAction()

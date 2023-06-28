@@ -7,6 +7,7 @@ using QS.Navigation;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.RepresentationModel.GtkUI;
 using QS.Services;
@@ -17,6 +18,7 @@ using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.CachingRepositories.Common;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -24,9 +26,10 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.JournalFilters.QueryFilterViews;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
+using Vodovoz.ViewModels.Cash.TransferDocumentsJournal;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.TempAdapters;
 
@@ -39,6 +42,8 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IReportViewOpener _reportViewOpener;
+		private readonly IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> _financialExpenseCategoryCacheRepository;
+		private readonly IDomainEntityNodeInMemoryCacheRepository<FinancialIncomeCategory> _financialIncomeCategoryCacheRepository;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private FinancialIncomeCategory _financialIncomeCategory;
 
@@ -53,7 +58,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
 			IGtkTabsOpener gtkTabsOpener,
-			IReportViewOpener reportViewOpener)
+			IReportViewOpener reportViewOpener,
+			IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> financialExpenseCategoryCacheRepository,
+			IDomainEntityNodeInMemoryCacheRepository<FinancialIncomeCategory> financialIncomeCategoryCacheRepository)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -61,6 +68,8 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+			_financialExpenseCategoryCacheRepository = financialExpenseCategoryCacheRepository ?? throw new ArgumentNullException(nameof(financialExpenseCategoryCacheRepository));
+			_financialIncomeCategoryCacheRepository = financialIncomeCategoryCacheRepository ?? throw new ArgumentNullException(nameof(financialIncomeCategoryCacheRepository));
 			EmployeeAutocompleteSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
@@ -68,20 +77,21 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
 				.CreateCarAutocompleteSelectorFactory();
 
-			if(uowBuilder.IsNewEntity) {
+			if(uowBuilder.IsNewEntity)
+			{
 				Entity.CreationDate = DateTime.Now;
 				Entity.Author = Cashier;
 			}
 			CreateCommands();
 			UpdateCashSubdivisions();
 
-			FinancialExpenseCategoryViewModel = BuildFinancialIncomeCategoryViewModel();
+			FinancialExpenseCategoryViewModel = BuildFinancialExpenseCategoryViewModel();
 
 			SetPropertyChangeRelation(
 				e => e.ExpenseCategoryId,
 				() => FinancialExpenseCategory);
 
-			FinancialIncomeCategoryViewModel = BuildFinancialExpenseCategoryViewModel();
+			FinancialIncomeCategoryViewModel = BuildFinancialIncomeCategoryViewModel();
 
 			SetPropertyChangeRelation(
 				e => e.IncomeCategoryId,
@@ -111,11 +121,11 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
 
-		private IEntityEntryViewModel BuildFinancialExpenseCategoryViewModel()
+		private IEntityEntryViewModel BuildFinancialIncomeCategoryViewModel()
 		{
-			var financialIncomeCategoryViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<IncomeCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
+			var financialIncomeCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<IncomeCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
-			var viewModel = financialIncomeCategoryViewModelEntryViewModelBuilder
+			var viewModel = financialIncomeCategoryEntryViewModelBuilder
 				.ForProperty(x => x.FinancialIncomeCategory)
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
@@ -133,11 +143,11 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		public IEntityEntryViewModel FinancialIncomeCategoryViewModel { get; }
 
-		private IEntityEntryViewModel BuildFinancialIncomeCategoryViewModel()
+		private IEntityEntryViewModel BuildFinancialExpenseCategoryViewModel()
 		{
-			var financialExpenseCategoryViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<IncomeCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
+			var financialExpenseCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<IncomeCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
-			var viewModel = financialExpenseCategoryViewModelEntryViewModelBuilder
+			var viewModel = financialExpenseCategoryEntryViewModelBuilder
 				.ForProperty(x => x.FinancialExpenseCategory)
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
@@ -328,34 +338,23 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 			AddIncomesCommand = new DelegateCommand(
 				() => {
-					var existsIncomes = Entity.CashTransferDocumentIncomeItems.Select(x => x.Income.Id).ToArray();
+					var page = NavigationManager.OpenViewModel<DocumentsJournalViewModel, Action<DocumentsFilterViewModel>>(
+						this,
+						filter =>
+						{
+							filter.RestrictDocument = typeof(Income);
 
-					//скрываем уже выбранные приходники и отображаем расходники только выбранного подразделения
-					var restriction = Restrictions.On<Income>(x => x.Id).Not.IsIn(existsIncomes);
-					if(Entity.CashSubdivisionFrom != null) {
-						restriction = Restrictions.And(restriction, Restrictions.Where<Income>(x => x.RelatedToSubdivision == Entity.CashSubdivisionFrom));
-					}
-					//скрываем приходники выбранные в других документах перемещения
-					restriction = Restrictions.And(restriction, Restrictions.Where<Income>(x => x.TransferedBy == null));
+							//скрываем уже выбранные приходники и отображаем расходники только выбранного подразделения
+							filter.HiddenIncomes.AddRange(Entity.CashTransferDocumentIncomeItems.Select(x => x.Income.Id));
 
+							filter.RestrictRelatedToSubdivisionId = Entity.CashSubdivisionFrom?.Id;
 
-					var filter = new CashIncomeFilterView();
-					var incomesVM = new EntityCommonRepresentationModelConstructor<Income>(UoW)
-						.AddColumn("№", x => x.Id.ToString())
-						.AddColumn("Дата", x => x.Date.ToShortDateString())
-						.AddColumn("Сотрудник", x => x.Employee != null ? x.Employee.GetPersonNameWithInitials() : "")
-						//.AddColumn("Статья", x => x.IncomeCategory != null ? x.IncomeCategory.Name : "")
-						.AddColumn("Сумма", x => CurrencyWorks.GetShortCurrencyString(x.Money))
-						.AddColumn("Кассир", x => x.Casher != null ? x.Casher.GetPersonNameWithInitials() : "")
-						.AddColumn("Основание", x => x.Description)
-						.OrderByDesc(x => x.Date)
-						.SetFixedRestriction(restriction)
-						.SetQueryFilter(filter)
-						.Finish();
-					var incomesSelectDlg = new RepresentationJournalDialog(incomesVM);
-					incomesSelectDlg.Mode = JournalSelectMode.Multiple;
-					incomesSelectDlg.ObjectSelected += IncomesSelectDlg_ObjectSelected;
-					TabParent.AddSlaveTab(this, incomesSelectDlg);
+							//скрываем приходники выбранные в других документах перемещения
+							filter.RestrictNotTransfered = true;
+						});
+
+					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+					page.ViewModel.OnEntitySelectedResult += IncomesSelectDlg_ObjectSelected;
 				},
 				() => {
 					return Entity.Status == CashTransferDocumentStatuses.New 
@@ -371,33 +370,23 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 			AddExpensesCommand = new DelegateCommand(
 				() => {
-					var existsExpenses = Entity.CashTransferDocumentExpenseItems.Select(x => x.Expense.Id).ToArray();
+					var page = NavigationManager.OpenViewModel<DocumentsJournalViewModel, Action<DocumentsFilterViewModel>>(
+						this,
+						filter =>
+						{
+							filter.RestrictDocument = typeof(Expense);
 
-					//скрываем уже выбранные расходники и отображаем расходники только выбранного подразделения
-					var restriction = Restrictions.On<Expense>(x => x.Id).Not.IsIn(existsExpenses);
-					if(Entity.CashSubdivisionFrom != null) {
-						restriction = Restrictions.And(restriction, Restrictions.Where<Expense>(x => x.RelatedToSubdivision == Entity.CashSubdivisionFrom));
-					}
-					//скрываем расходники выбранные в других документах перемещения
-					restriction = Restrictions.And(restriction, Restrictions.Where<Expense>(x => x.TransferedBy == null));
+							//скрываем уже выбранные расходники и отображаем расходники только выбранного подразделения
+							filter.HiddenExpenses.AddRange(Entity.CashTransferDocumentExpenseItems.Select(x => x.Expense.Id));
 
-					var filter = new CashExpenseFilterView();
-					var expensesVM = new EntityCommonRepresentationModelConstructor<Expense>(UoW)
-						.AddColumn("№", x => x.Id.ToString())
-						.AddColumn("Дата", x => x.Date.ToShortDateString())
-						.AddColumn("Сотрудник", x => x.Employee != null ? x.Employee.GetPersonNameWithInitials() : "")
-						//.AddColumn("Статья", x => x.ExpenseCategory != null ? x.ExpenseCategory.Name : "")
-						.AddColumn("Сумма", x => CurrencyWorks.GetShortCurrencyString(x.Money))
-						.AddColumn("Кассир", x => x.Casher != null ? x.Casher.GetPersonNameWithInitials() : "")
-						.AddColumn("Основание", x => x.Description)
-						.OrderByDesc(x => x.Date)
-						.SetFixedRestriction(restriction)
-						.SetQueryFilter(filter)
-						.Finish();
-					var expensesSelectDlg = new RepresentationJournalDialog(expensesVM);
-					expensesSelectDlg.Mode = JournalSelectMode.Multiple;
-					expensesSelectDlg.ObjectSelected += ExpensesSelectDlg_ObjectSelected;;
-					TabParent.AddSlaveTab(this, expensesSelectDlg);
+							filter.RestrictRelatedToSubdivisionId = Entity.CashSubdivisionFrom?.Id;
+
+							//скрываем расходники выбранные в других документах перемещения
+							filter.RestrictNotTransfered = true;
+						});
+
+					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
+					page.ViewModel.OnEntitySelectedResult += ExpensesSelectDlg_ObjectSelected;
 				},
 				() => {
 					return Entity.Status == CashTransferDocumentStatuses.New
@@ -425,33 +414,37 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			);
 		}
 
-		void IncomesSelectDlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
+		void IncomesSelectDlg_ObjectSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
-			if(!e.Selected.Any()) {
+			if(!e.SelectedNodes.Any())
+			{
 				return;
 			}
 
-			foreach(var item in e.Selected) {
-				var incomeItem = item as Income;
+			var ids = e.SelectedNodes.Select(x => x.Id);
 
-				if(incomeItem != null) {
-					Entity.AddIncomeItem(incomeItem);
-				}
+			var incomesToAdd = UoW.Session.Query<Income>().Where(x => ids.Contains(x.Id));
+
+			foreach(var item in incomesToAdd)
+			{
+				Entity.AddIncomeItem(item);
 			}
 		}
 
-		void ExpensesSelectDlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
+		void ExpensesSelectDlg_ObjectSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
-			if(!e.Selected.Any()) {
+			if(!e.SelectedNodes.Any())
+			{
 				return;
 			}
 
-			foreach(var item in e.Selected) {
-				var expenseItem = item as Expense;
+			var ids = e.SelectedNodes.Select(x => x.Id);
 
-				if(expenseItem != null) {
-					Entity.AddExpenseItem(expenseItem);
-				}
+			var incomesToAdd = UoW.Session.Query<Expense>().Where(x => ids.Contains(x.Id));
+
+			foreach(var item in incomesToAdd)
+			{
+				Entity.AddExpenseItem(item);
 			}
 		}
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -22,19 +22,19 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	cash_income_category.name AS Category,
+	financial_categories_groups.title AS Category,
 	SUM(cash_income.money) AS sum
 FROM
 	cash_income
 LEFT JOIN
-	cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
+	financial_categories_groups ON financial_categories_groups.id = cash_income.financial_income_category_id
 WHERE
 	cash_income.type_operation &lt;&gt; 'Return' AND
 	cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
 	AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 	AND (@Employee = -1 OR cash_income.employee_id = @Employee)
 	AND cash_income.related_to_subdivision_id in (@cash_subdivisions)
-GROUP BY cash_income.cash_income_category_id
+GROUP BY cash_income.financial_income_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -69,18 +69,18 @@ ORDER BY Category;</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	cash_expense_category.name as Category,
+	financial_categories_groups.title as Category,
 	SUM(cash_expense.money) as Sum
 FROM
 	cash_expense
 LEFT JOIN
-	cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
+	financial_categories_groups ON financial_categories_groups.id = cash_expense.financial_expense_category_id
 WHERE cash_expense.type_operation &lt;&gt; 'Advance' AND
 	cash_expense.date BETWEEN @startDate AND @endDate
 AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_expense.employee_id = @Employee)
 AND cash_expense.related_to_subdivision_id in (@cash_subdivisions)
-GROUP BY cash_expense.cash_expense_category_id
+GROUP BY cash_expense.financial_expense_category_id
 ORDER BY Category
 ;</CommandText>
         <QueryParameters>
@@ -116,18 +116,18 @@ ORDER BY Category
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	cash_expense_category.name as Category,
+	financial_categories_groups.title as Category,
 	SUM(cash_expense.money) as Sum
 FROM
 	cash_expense
 LEFT JOIN
-	cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
+	financial_categories_groups ON financial_categories_groups.id = cash_expense.financial_expense_category_id
 WHERE cash_expense.type_operation = 'Advance' AND
 	cash_expense.date BETWEEN @startDate AND @endDate
 	AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
 	AND (@Employee = -1 OR cash_expense.employee_id = @Employee)
 	AND cash_expense.related_to_subdivision_id in (@cash_subdivisions)
-GROUP BY cash_expense.cash_expense_category_id
+GROUP BY cash_expense.financial_expense_category_id
 ORDER BY Category
 ;</CommandText>
         <QueryParameters>
@@ -163,19 +163,19 @@ ORDER BY Category
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	cash_expense_category.name AS Category,
+	financial_categories_groups.title AS Category,
 	SUM(cash_income.money) AS sum
 FROM
 	cash_income
 LEFT JOIN
-	cash_expense_category ON cash_expense_category.id = cash_income.cash_expense_category_id
+	financial_categories_groups ON financial_categories_groups.id = cash_income.financial_expense_category_id
 WHERE
 	cash_income.type_operation = 'Return' 
     AND cash_income.date BETWEEN @startDate AND @endDate
 	AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 	AND (@Employee = -1 OR cash_income.employee_id = @Employee)
 	AND cash_income.related_to_subdivision_id in (@cash_subdivisions)
-GROUP BY cash_income.cash_expense_category_id
+GROUP BY cash_income.financial_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -210,18 +210,18 @@ ORDER BY Category;</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	cash_expense_category.name AS Category,
+	financial_categories_groups.title AS Category,
 	SUM(cash_advance_report.money) AS sum
 FROM
 	cash_advance_report
 		LEFT JOIN
-	cash_expense_category ON cash_expense_category.id = cash_advance_report.cash_expense_category_id
+	financial_categories_groups ON financial_categories_groups.id = cash_advance_report.financial_expense_category_id
 WHERE
 	cash_advance_report.date BETWEEN @startDate AND @endDate
 	AND (@Casher = -1 OR cash_advance_report.casher_employee_id = @Casher)
 	AND (@Employee = -1 OR cash_advance_report.employee_id = @Employee)
 	AND cash_advance_report.related_to_subdivision_id in (@cash_subdivisions)
-GROUP BY cash_advance_report.cash_expense_category_id
+GROUP BY cash_advance_report.financial_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">

@@ -51,6 +51,8 @@ namespace Vodovoz.ViewModels.Cash
 		private List<SelectableNode<Expense>> _advanceList = new List<SelectableNode<Expense>>();
 		private FinancialExpenseCategory _financialExpenseCategory;
 
+		public event Action<EventArgs> OnDebtsChanged;
+
 		public AdvanceReportViewModel(
 			ILogger<AdvanceReportViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
@@ -191,6 +193,11 @@ namespace Vodovoz.ViewModels.Cash
 
 				Entity.RouteList = selectedAdvances.FirstOrDefault();
 			}
+
+			if(e.PropertyName == nameof(Entity.Organisation))
+			{
+				UpdateDebts();
+			}
 		}
 
 		#region Commands
@@ -273,11 +280,14 @@ namespace Vodovoz.ViewModels.Cash
 
 		public IReadOnlyCollection<Organization> CachedOrganizaions { get; }
 
+		[PropertyChangedAlso(nameof(DebtString))]
 		public decimal Debt
 		{
 			get => _debt;
 			set => SetField(ref _debt, value);
 		}
+
+		public string DebtString => $"{Debt:C} {CurrencySymbol}";
 
 		[PropertyChangedAlso(nameof(ClosingSumNotEqualsMoney))]
 		public decimal Money
@@ -298,7 +308,8 @@ namespace Vodovoz.ViewModels.Cash
 			nameof(ClosingSumNotEqualsMoney),
 			nameof(CreatingMessage),
 			nameof(ChangeSumMessage),
-			nameof(ChangeTypeMessage))]
+			nameof(ChangeTypeMessage),
+			nameof(ClosingSumString))]
 		public decimal ClosingSum
 		{
 			get => _closingSum;
@@ -366,6 +377,8 @@ namespace Vodovoz.ViewModels.Cash
 		public List<SelectableNode<Expense>> AdvanceList => _advanceList;
 
 		public bool CanEditRectroactively { get; }
+
+		public string ClosingSumString => $"{ClosingSum:C} {CurrencySymbol}";
 
 		public override bool Save(bool close)
 		{
@@ -455,6 +468,8 @@ namespace Vodovoz.ViewModels.Cash
 					.ForEach(advance => advance.SelectChanged -= AdvanceListElementSelectionChanged);
 
 				AdvanceList.Clear();
+
+				OnDebtsChanged?.Invoke(EventArgs.Empty);
 			}
 		}
 
@@ -499,6 +514,8 @@ namespace Vodovoz.ViewModels.Cash
 				.ForEach(advance => advance.SelectChanged += AdvanceListElementSelectionChanged);
 
 			CalculateBalance();
+
+			OnDebtsChanged?.Invoke(EventArgs.Empty);
 
 			_logger.LogInformation("Ok");
 		}

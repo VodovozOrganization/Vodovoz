@@ -20,7 +20,7 @@ using Vodovoz.ViewModels.Cash.TransferDocumentsJournal;
 
 namespace Vodovoz.Representations
 {
-	public class TransferDocumentsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<DocumentNode, FilterViewModel>
+	public class TransferDocumentsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<DocumentNode, TransferDocumentsJournalFilterViewModel>
 	{
 		private readonly IDictionary<Type, IPermissionResult> _domainObjectsPermissions;
 
@@ -30,7 +30,7 @@ namespace Vodovoz.Representations
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		public TransferDocumentsJournalViewModel(
-			FilterViewModel filterViewModel,
+			TransferDocumentsJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
@@ -69,12 +69,11 @@ namespace Vodovoz.Representations
 			DataLoader.ItemsListUpdated += OnItemsUpdated;
 		}
 
-		private IDictionary<Type, IPermissionResult> InitializePermissionsMatrix(
-	IEnumerable<Type> typews)
+		private IDictionary<Type, IPermissionResult> InitializePermissionsMatrix(IEnumerable<Type> types)
 		{
 			var result = new Dictionary<Type, IPermissionResult>();
 
-			foreach(var domainObject in typews)
+			foreach(var domainObject in types)
 			{
 				result.Add(domainObject, _currentPermissionService.ValidateEntityPermission(domainObject));
 			}

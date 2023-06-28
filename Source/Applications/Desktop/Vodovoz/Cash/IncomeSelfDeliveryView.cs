@@ -29,11 +29,12 @@ namespace Vodovoz.Cash
 
 			accessfilteredsubdivisionselectorwidget.OnSelected += (_, _2) => UpdateSubdivision();
 
+			UpdateSubdivision();
+
 			permissioncommentview.UoW = ViewModel.UoW;
 			permissioncommentview.Title = "Комментарий по проверке закрытия МЛ: ";
 			permissioncommentview.Comment = ViewModel.Entity.CashierReviewComment;
 			permissioncommentview.PermissionName = "can_edit_cashier_review_comment";
-			permissioncommentview.Comment = ViewModel.Entity.CashierReviewComment;
 			permissioncommentview.CommentChanged += (comment) => ViewModel.Entity.CashierReviewComment = comment;
 
 			enumcomboOperation.ItemsEnum = typeof(IncomeType);

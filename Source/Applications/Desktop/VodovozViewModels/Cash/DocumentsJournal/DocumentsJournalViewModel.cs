@@ -63,11 +63,6 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 			FilterViewModel.JournalViewModel = this;
 
-			if(filterAction != null)
-			{
-				FilterViewModel.SetAndRefilterAtOnce(filterAction);
-			}
-
 			UseSlider = false;
 
 			UpdateOnChanges(DomainObjectsTypes.Concat(
@@ -88,6 +83,11 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 			DataLoader.DynamicLoadingEnabled = false;
 			DataLoader.ItemsListUpdated += OnItemsUpdated;
+
+			if(filterAction != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterAction);
+			}
 		}
 
 		private void OnItemsUpdated(object sender, EventArgs e)
@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 		public Type[] DomainObjectsTypes { get; }
 
-		public int[] AvailableSubdivisionsIds => FilterViewModel.AvailableSubdivisions.Select(x => x.Id).ToArray();
+		public int[] AvailableSubdivisionsIds => FilterViewModel.AvailableSubdivisions?.Select(x => x.Id).ToArray() ?? Array.Empty<int>();
 
 		public string TotalSumString =>
 			CurrencyWorks.GetShortCurrencyString(
@@ -131,12 +131,11 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 				}));
 		}
 
-		private IDictionary<Type, IPermissionResult> InitializePermissionsMatrix(
-			IEnumerable<Type> typews)
+		private IDictionary<Type, IPermissionResult> InitializePermissionsMatrix(IEnumerable<Type> types)
 		{
 			var result = new Dictionary<Type, IPermissionResult>();
 
-			foreach(var domainObject in typews)
+			foreach(var domainObject in types)
 			{
 				result.Add(domainObject, _currentPermissionService.ValidateEntityPermission(domainObject));
 			}
@@ -144,7 +143,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 			return result;
 		}
 
-		public override string FooterInfo => $"Сумма выбранных документов: {TotalSumString}. " + 
+		public override string FooterInfo => $"Сумма выбранных документов: {TotalSumString}. " +
 			$"Загружено: {Items.Count} шт.";
 
 		public DocumentsFilterViewModel DocumentsFilterViewModel => FilterViewModel;
@@ -154,6 +153,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
 			CreateAddActions();
 			CreateOpenDocumentAction();
 		}
@@ -364,8 +364,8 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 			var query = unitOfWork.Session.QueryOver(() => incomeAlias);
 
-			if(FilterViewModel.CashDocumentType == null
-				|| incomeDocumentTypes.Contains(FilterViewModel.CashDocumentType.Value))
+			if((FilterViewModel.CashDocumentType is null || incomeDocumentTypes.Contains(FilterViewModel.CashDocumentType.Value))
+				&& (FilterViewModel.RestrictDocument is null || FilterViewModel.RestrictDocument == typeof(Income)))
 			{
 				if(FilterViewModel.Subdivision is null)
 				{
@@ -414,6 +414,21 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 					query.Where(income => income.Employee == FilterViewModel.Employee);
 				}
 
+				if(FilterViewModel.HiddenIncomes.Any())
+				{
+					query.Where(income => !FilterViewModel.HiddenExpenses.Contains(income.Id));
+				}
+
+				if(FilterViewModel.RestrictRelatedToSubdivisionId != null)
+				{
+					query.Where(income => income.RelatedToSubdivision.Id == FilterViewModel.RestrictRelatedToSubdivisionId);
+				}
+
+				if(FilterViewModel.RestrictNotTransfered)
+				{
+					query.Where(income => income.TransferedBy == null);
+				}
+
 				query.Where(GetSearchCriterion(
 					() => incomeAlias.Id,
 					() => incomeAlias.Description,
@@ -427,51 +442,50 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 					() => incomeAlias.Money,
 					() => financialExpenseCategoryAlias.Title,
 					() => financialIncomeCategoryAlias.Title));
-
-				query
-					.Left.JoinAlias(() => incomeAlias.Employee, () => employeeAlias)
-					.Left.JoinAlias(() => incomeAlias.Casher, () => casherAlias)
-					.JoinEntityAlias(
-						() => financialIncomeCategoryAlias,
-						() => incomeAlias.IncomeCategoryId == financialIncomeCategoryAlias.Id,
-						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinEntityAlias(
-						() => financialExpenseCategoryAlias,
-						() => incomeAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
-						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.SelectList(list => list
-						.Select(() => incomeAlias.Id).WithAlias(() => resultAlias.Id)
-						.Select(IncomeProjections.GetTitleProjection()).WithAlias(() => resultAlias.Name)
-						.Select(() => incomeAlias.Date).WithAlias(() => resultAlias.Date)
-						.Select(() => incomeAlias.Money).WithAlias(() => resultAlias.Money)
-						.Select(() => incomeAlias.Description).WithAlias(() => resultAlias.Description)
-						.Select(() => employeeAlias.Name).WithAlias(() => resultAlias.EmployeeName)
-						.Select(() => typeof(Income)).WithAlias(() => resultAlias.EntityType)
-						.Select(Projections.Conditional(
-							Restrictions.Eq(
-								Projections.Property(
-									() => incomeAlias.TypeDocument),
-									IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery),
-							Projections.Constant(CashDocumentType.IncomeSelfDelivery),
-							Projections.Constant(CashDocumentType.Income)))
-						.WithAlias(() => resultAlias.CashDocumentType)
-						.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmployeeSurname)
-						.Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmployeePatronymic)
-						.Select(() => casherAlias.Name).WithAlias(() => resultAlias.CasherName)
-						.Select(() => casherAlias.LastName).WithAlias(() => resultAlias.CasherSurname)
-						.Select(() => casherAlias.Patronymic).WithAlias(() => resultAlias.CasherPatronymic)
-						.Select(Projections.SqlFunction(
-							 "COALESCE",
-							 NHibernateUtil.String,
-							 Projections.Property(() => financialIncomeCategoryAlias.Title),
-							 Projections.Property(() => financialExpenseCategoryAlias.Title)))
-						.WithAlias(() => resultAlias.Category)
-						.Select(() => incomeAlias.TypeDocument).WithAlias(() => resultAlias.IncomeDocumentType));
 			}
 			else
 			{
 				query.Where(() => incomeAlias.Id == -1);
 			}
+
+			query.Left.JoinAlias(() => incomeAlias.Employee, () => employeeAlias)
+				.Left.JoinAlias(() => incomeAlias.Casher, () => casherAlias)
+				.JoinEntityAlias(
+					() => financialIncomeCategoryAlias,
+					() => incomeAlias.IncomeCategoryId == financialIncomeCategoryAlias.Id,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinEntityAlias(
+					() => financialExpenseCategoryAlias,
+					() => incomeAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.SelectList(list => list
+					.Select(() => incomeAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(IncomeProjections.GetTitleProjection()).WithAlias(() => resultAlias.Name)
+					.Select(() => incomeAlias.Date).WithAlias(() => resultAlias.Date)
+					.Select(() => incomeAlias.Money).WithAlias(() => resultAlias.Money)
+					.Select(() => incomeAlias.Description).WithAlias(() => resultAlias.Description)
+					.Select(() => employeeAlias.Name).WithAlias(() => resultAlias.EmployeeName)
+					.Select(() => typeof(Income)).WithAlias(() => resultAlias.EntityType)
+					.Select(Projections.Conditional(
+						Restrictions.Eq(
+							Projections.Property(
+								() => incomeAlias.TypeDocument),
+								IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery),
+						Projections.Constant(CashDocumentType.IncomeSelfDelivery),
+						Projections.Constant(CashDocumentType.Income)))
+					.WithAlias(() => resultAlias.CashDocumentType)
+					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmployeeSurname)
+					.Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmployeePatronymic)
+					.Select(() => casherAlias.Name).WithAlias(() => resultAlias.CasherName)
+					.Select(() => casherAlias.LastName).WithAlias(() => resultAlias.CasherSurname)
+					.Select(() => casherAlias.Patronymic).WithAlias(() => resultAlias.CasherPatronymic)
+					.Select(Projections.SqlFunction(
+							"COALESCE",
+							NHibernateUtil.String,
+							Projections.Property(() => financialIncomeCategoryAlias.Title),
+							Projections.Property(() => financialExpenseCategoryAlias.Title)))
+					.WithAlias(() => resultAlias.Category)
+					.Select(() => incomeAlias.TypeDocument).WithAlias(() => resultAlias.IncomeDocumentType));
 
 			return query
 				.OrderBy(x => x.Date).Desc
@@ -497,8 +511,8 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 			var query = unitOfWork.Session.QueryOver(() => expenseAlias);
 
 			if(FilterViewModel.FinancialIncomeCategory == null
-				&& (FilterViewModel.CashDocumentType == null
-					|| expenseDocTypes.Contains(FilterViewModel.CashDocumentType.Value)))
+				&& (FilterViewModel.CashDocumentType == null || expenseDocTypes.Contains(FilterViewModel.CashDocumentType.Value))
+				&& (FilterViewModel.RestrictDocument is null || FilterViewModel.RestrictDocument == typeof(Expense)))
 			{
 				if(FilterViewModel.Subdivision is null)
 				{
@@ -510,7 +524,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 					query.Where(x => x.RelatedToSubdivision.Id == FilterViewModel.Subdivision.Id);
 				}
 
-			if(FilterViewModel.CashDocumentType != null)
+				if(FilterViewModel.CashDocumentType != null)
 				{
 					var documentType = ExpenseInvoiceDocumentType.ExpenseInvoice;
 
@@ -542,6 +556,11 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 					query.Where(expense => expense.Employee == FilterViewModel.Employee);
 				}
 
+				if(FilterViewModel.HiddenExpenses.Any())
+				{
+					query.Where(expense => !FilterViewModel.HiddenExpenses.Contains(expense.Id));
+				}
+
 				query.Where(GetSearchCriterion(
 					() => expenseAlias.Id,
 					() => expenseAlias.Description,
@@ -554,41 +573,40 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 					() => casherAlias.Patronymic,
 					() => expenseAlias.Money,
 					() => financialExpenseCategoryAlias.Title));
-
-				query
-					.Left.JoinAlias(() => expenseAlias.Employee, () => employeeAlias)
-					.Left.JoinAlias(() => expenseAlias.Casher, () => casherAlias)
-					.JoinEntityAlias(
-						() => financialExpenseCategoryAlias,
-						() => expenseAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
-						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.SelectList(list => list
-					   .Select(() => expenseAlias.Id).WithAlias(() => resultAlias.Id)
-					   .Select(ExpenseProjections.GetTitleProjection()).WithAlias(() => resultAlias.Name)
-					   .Select(() => expenseAlias.Date).WithAlias(() => resultAlias.Date)
-					   .Select(() => expenseAlias.Money).WithAlias(() => resultAlias.Money)
-					   .Select(() => expenseAlias.Description).WithAlias(() => resultAlias.Description)
-					   .Select(() => employeeAlias.Name).WithAlias(() => resultAlias.EmployeeName)
-					   .Select(() => typeof(Expense)).WithAlias(() => resultAlias.EntityType)
-						.Select(Projections.Conditional(
-							Restrictions.Eq(
-								Projections.Property(
-									() => expenseAlias.TypeDocument),
-									ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery),
-							Projections.Constant(CashDocumentType.ExpenseSelfDelivery),
-							Projections.Constant(CashDocumentType.Expense)))
-					   .Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmployeeSurname)
-					   .Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmployeePatronymic)
-					   .Select(() => casherAlias.Name).WithAlias(() => resultAlias.CasherName)
-					   .Select(() => casherAlias.LastName).WithAlias(() => resultAlias.CasherSurname)
-					   .Select(() => casherAlias.Patronymic).WithAlias(() => resultAlias.CasherPatronymic)
-					   .Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.Category)
-					   .Select(() => expenseAlias.TypeDocument).WithAlias(() => resultAlias.ExpenseDocumentType));
 			}
 			else
 			{
 				query.Where(() => expenseAlias.Id == -1);
 			}
+
+			query.Left.JoinAlias(() => expenseAlias.Employee, () => employeeAlias)
+				.Left.JoinAlias(() => expenseAlias.Casher, () => casherAlias)
+				.JoinEntityAlias(
+					() => financialExpenseCategoryAlias,
+					() => expenseAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.SelectList(list => list
+					.Select(() => expenseAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(ExpenseProjections.GetTitleProjection()).WithAlias(() => resultAlias.Name)
+					.Select(() => expenseAlias.Date).WithAlias(() => resultAlias.Date)
+					.Select(() => expenseAlias.Money).WithAlias(() => resultAlias.Money)
+					.Select(() => expenseAlias.Description).WithAlias(() => resultAlias.Description)
+					.Select(() => employeeAlias.Name).WithAlias(() => resultAlias.EmployeeName)
+					.Select(() => typeof(Expense)).WithAlias(() => resultAlias.EntityType)
+					.Select(Projections.Conditional(
+						Restrictions.Eq(
+							Projections.Property(
+								() => expenseAlias.TypeDocument),
+								ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery),
+						Projections.Constant(CashDocumentType.ExpenseSelfDelivery),
+						Projections.Constant(CashDocumentType.Expense)))
+					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmployeeSurname)
+					.Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmployeePatronymic)
+					.Select(() => casherAlias.Name).WithAlias(() => resultAlias.CasherName)
+					.Select(() => casherAlias.LastName).WithAlias(() => resultAlias.CasherSurname)
+					.Select(() => casherAlias.Patronymic).WithAlias(() => resultAlias.CasherPatronymic)
+					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.Category)
+					.Select(() => expenseAlias.TypeDocument).WithAlias(() => resultAlias.ExpenseDocumentType));
 
 			return query
 				.OrderBy(x => x.Date).Desc
@@ -609,8 +627,8 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 			var query = unitOfWork.Session.QueryOver(() => advanceReportAlias);
 
 			if(FilterViewModel.FinancialIncomeCategory == null
-				&& (FilterViewModel.CashDocumentType == null
-					|| FilterViewModel.CashDocumentType == CashDocumentType.AdvanceReport))
+				&& (FilterViewModel.CashDocumentType == null || FilterViewModel.CashDocumentType == CashDocumentType.AdvanceReport)
+				&& (FilterViewModel.RestrictDocument is null || FilterViewModel.RestrictDocument == typeof(AdvanceReport)))
 			{
 				if(FilterViewModel.Subdivision is null)
 				{
@@ -654,33 +672,33 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 					() => casherAlias.Patronymic,
 					() => advanceReportAlias.Money,
 					() => financialExpenseCategoryAlias.Title));
-
-				query.Left.JoinAlias(() => advanceReportAlias.Accountable, () => employeeAlias)
-					.Left.JoinAlias(() => advanceReportAlias.Casher, () => casherAlias)
-					.JoinEntityAlias(
-						() => financialExpenseCategoryAlias,
-						() => advanceReportAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
-						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.SelectList(list => list
-					   .Select(() => advanceReportAlias.Id).WithAlias(() => resultAlias.Id)
-					   .Select(AdvanceReportProjections.GetTitleProjection()).WithAlias(() => resultAlias.Name)
-					   .Select(() => typeof(AdvanceReport)).WithAlias(() => resultAlias.EntityType)
-					   .Select(() => CashDocumentType.AdvanceReport).WithAlias(() => resultAlias.CashDocumentType)
-					   .Select(() => advanceReportAlias.Date).WithAlias(() => resultAlias.Date)
-					   .Select(() => advanceReportAlias.Money).WithAlias(() => resultAlias.Money)
-					   .Select(() => advanceReportAlias.Description).WithAlias(() => resultAlias.Description)
-					   .Select(() => employeeAlias.Name).WithAlias(() => resultAlias.EmployeeName)
-					   .Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmployeeSurname)
-					   .Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmployeePatronymic)
-					   .Select(() => casherAlias.Name).WithAlias(() => resultAlias.CasherName)
-					   .Select(() => casherAlias.LastName).WithAlias(() => resultAlias.CasherSurname)
-					   .Select(() => casherAlias.Patronymic).WithAlias(() => resultAlias.CasherPatronymic)
-					   .Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.Category));
 			}
 			else
 			{
 				query.Where(() => advanceReportAlias.Id == -1);
 			}
+
+			query.Left.JoinAlias(() => advanceReportAlias.Accountable, () => employeeAlias)
+				.Left.JoinAlias(() => advanceReportAlias.Casher, () => casherAlias)
+				.JoinEntityAlias(
+					() => financialExpenseCategoryAlias,
+					() => advanceReportAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.SelectList(list => list
+					.Select(() => advanceReportAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(AdvanceReportProjections.GetTitleProjection()).WithAlias(() => resultAlias.Name)
+					.Select(() => typeof(AdvanceReport)).WithAlias(() => resultAlias.EntityType)
+					.Select(() => CashDocumentType.AdvanceReport).WithAlias(() => resultAlias.CashDocumentType)
+					.Select(() => advanceReportAlias.Date).WithAlias(() => resultAlias.Date)
+					.Select(() => advanceReportAlias.Money).WithAlias(() => resultAlias.Money)
+					.Select(() => advanceReportAlias.Description).WithAlias(() => resultAlias.Description)
+					.Select(() => employeeAlias.Name).WithAlias(() => resultAlias.EmployeeName)
+					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmployeeSurname)
+					.Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmployeePatronymic)
+					.Select(() => casherAlias.Name).WithAlias(() => resultAlias.CasherName)
+					.Select(() => casherAlias.LastName).WithAlias(() => resultAlias.CasherSurname)
+					.Select(() => casherAlias.Patronymic).WithAlias(() => resultAlias.CasherPatronymic)
+					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.Category));
 
 			return query
 				.OrderBy(x => x.Date).Desc

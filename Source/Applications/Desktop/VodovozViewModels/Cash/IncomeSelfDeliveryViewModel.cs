@@ -61,9 +61,15 @@ namespace Vodovoz.ViewModels.Cash
 			ICashRepository cashRepository,
 			ISelfDeliveryCashOrganisationDistributor selfDeliveryCashOrganisationDistributor,
 			IReportViewOpener reportViewOpener,
-			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			IFinancialIncomeCategoriesRepository financialIncomeCategoriesRepository)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			if(financialIncomeCategoriesRepository is null)
+			{
+				throw new ArgumentNullException(nameof(financialIncomeCategoriesRepository));
+			}
+
 			TabName = IsNew ? "Приходный кассовый ордер самовывоза" : $"Приходный кассовый ордер самовывоза {Entity.Id}";
 
 			if(userService is null)
@@ -145,6 +151,8 @@ namespace Vodovoz.ViewModels.Cash
 				() => Money);
 
 			ValidationContext.Items.Add("IsSelfDelivery", true);
+			ValidationContext.ServiceContainer.AddService(typeof(IUnitOfWork), UoW);
+			ValidationContext.ServiceContainer.AddService(typeof(IFinancialIncomeCategoriesRepository), financialIncomeCategoriesRepository);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 

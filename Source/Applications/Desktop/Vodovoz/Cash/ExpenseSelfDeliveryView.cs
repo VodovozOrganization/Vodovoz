@@ -28,7 +28,11 @@ namespace Vodovoz.Cash
 
 			accessfilteredsubdivisionselectorwidget.OnSelected += (_, _2) => UpdateSubdivision();
 
+			UpdateSubdivision();
+
 			accessfilteredsubdivisionselectorwidget.Sensitive = ViewModel.CanEdit;
+
+			ViewModel.Entity.RelatedToSubdivision = accessfilteredsubdivisionselectorwidget.SelectedSubdivision;
 
 			entryCashier.ViewModel = ViewModel.CashierViewModel;
 

@@ -8,6 +8,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
@@ -60,6 +61,7 @@ namespace Vodovoz.Domain.Fuel
 
 		private int? expenseCategoryId;
 		[Display(Name = "Статья расхода")]
+		[HistoryIdentifier(TargetType = typeof(FinancialExpenseCategory))]
 		public virtual int? ExpenseCategoryId {
 			get => expenseCategoryId;
 			set => SetField(ref expenseCategoryId, value);

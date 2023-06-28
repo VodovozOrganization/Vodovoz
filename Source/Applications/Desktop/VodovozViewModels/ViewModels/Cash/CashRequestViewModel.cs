@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			IsNewEntity = uowBuilder?.IsNewEntity ?? throw new ArgumentNullException(nameof(uowBuilder));
 
-			_scope = scope;
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			CurrentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			if(UoWGeneric.IsNew)
@@ -110,7 +110,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					filter =>
 					{
 						filter.RestrictFinancialSubtype = FinancialSubType.Expense;
-						filter.RestrictNodeTypes.Add(typeof(FinancialCategoriesGroup));
 						filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
 					})
 				.Finish();

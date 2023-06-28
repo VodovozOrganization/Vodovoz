@@ -29,9 +29,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	{
 		private PayoutRequestUserRole _userRole;
 		private readonly Employee _currentEmployee;
-		private readonly IExpenseCategorySelectorFactory _expenseCategoryJournalFactory;
 		private readonly ILifetimeScope _lifetimeScope;
-		private IEntityAutocompleteSelectorFactory _expenseCategoryAutocompleteSelectorFactory;
 		private FinancialExpenseCategory _financialExpenseCategory;
 
 		public CashlessRequestViewModel(
@@ -51,8 +49,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			CounterpartyAutocompleteSelector =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
-			_expenseCategoryJournalFactory =
-				expenseCategoryJournalFactory ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFactory));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_currentEmployee =
 				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
@@ -86,7 +82,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					filter =>
 					{
 						filter.RestrictFinancialSubtype = FinancialSubType.Expense;
-						filter.RestrictNodeTypes.Add(typeof(FinancialCategoriesGroup));
 						filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
 					})
 				.Finish();
@@ -105,10 +100,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public CashlessRequestFilesViewModel CashlessRequestFilesViewModel { get; }
 		public IEnumerable<Organization> OurOrganisations { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelector { get; }
-		public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory =>
-			_expenseCategoryAutocompleteSelectorFactory
-		    ?? (_expenseCategoryAutocompleteSelectorFactory =
-				_expenseCategoryJournalFactory.CreateDefaultExpenseCategoryAutocompleteSelectorFactory());
 
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
 

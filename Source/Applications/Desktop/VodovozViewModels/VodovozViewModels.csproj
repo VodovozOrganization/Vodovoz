@@ -57,7 +57,7 @@
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialExpenseCategoryViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialIncomeCategoryViewModel.cs" />
     <Compile Include="Cash\TransferDocumentsJournal\DocumentNode.cs" />
-    <Compile Include="Cash\TransferDocumentsJournal\FilterViewModel.cs" />
+    <Compile Include="Cash\TransferDocumentsJournal\TransferDocumentsJournalFilterViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ComplaintsJournalsViewModel.cs" />

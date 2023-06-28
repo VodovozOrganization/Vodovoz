@@ -52,7 +52,8 @@ namespace Vodovoz.ViewModels.Cash
 			ICashRepository cashRepository,
 			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
 			IReportViewOpener reportViewOpener,
-			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
+			IFinancialExpenseCategoriesRepository financialExpenseCategoriesRepository)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			TabName = IsNew ? "Расходный кассовый ордер самовывоза" : $"Расходный кассовый ордер самовывоза {Entity.Id}";
@@ -132,6 +133,10 @@ namespace Vodovoz.ViewModels.Cash
 			SetPropertyChangeRelation(
 				e => e.ExpenseCategoryId,
 				() => FinancialExpenseCategory);
+
+			ValidationContext.Items.Add("IsSelfDelivery", true);
+			ValidationContext.ServiceContainer.AddService(typeof(IUnitOfWork), UoW);
+			ValidationContext.ServiceContainer.AddService(typeof(IFinancialExpenseCategoriesRepository), financialExpenseCategoriesRepository);
 
 			PrintCommand = new DelegateCommand(Print);
 			SaveCommand = new DelegateCommand(SaveAndClose, () => CanEdit);

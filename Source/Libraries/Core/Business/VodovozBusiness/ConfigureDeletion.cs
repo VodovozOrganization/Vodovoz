@@ -1012,10 +1012,6 @@ namespace Vodovoz
 				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddHibernateDeleteInfo<ExpenseCategory>()
-				.AddDeleteDependence<ExpenseCategory>(x => x.Parent)
-				.AddClearDependence<Counterparty>(item => item.DefaultExpenseCategory);
-
 			DeleteConfig.AddHibernateDeleteInfo<FineNomenclature>();
 
 			DeleteConfig.AddHibernateDeleteInfo<CashTransferDocumentBase>()

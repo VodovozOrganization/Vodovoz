@@ -744,14 +744,6 @@ public partial class MainWindow : Window
 		var page = NavigationManager.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, report);
 
 		report.ParentTab = page.TdiTab;
-
-		//tdiMain.OpenTab(
-		//	QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashFlow>(),
-		//	() => {
-		//		var result = new QSReport.ReportViewDlg(report);
-		//			report.ParentTab = result;
-		//		return result;
-		//		);
 	}
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)

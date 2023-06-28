@@ -44,10 +44,6 @@ namespace Vodovoz.Cash
 
 			entryCashier.ViewModel = ViewModel.CashierViewModel;
 
-			entryCashier.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.IsNew, w => w.ViewModel.IsEditable)
-				.InitializeFromSource();
-
 			ydateDocument.Binding
 				.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date)
 				.InitializeFromSource();
@@ -86,7 +82,6 @@ namespace Vodovoz.Cash
 
 			ConfigureTreeViewDebts();
 
-
 			if(ViewModel.Entity.RelatedToSubdivision != null)
 			{
 				accessfilteredsubdivisionselectorwidget
@@ -102,6 +97,10 @@ namespace Vodovoz.Cash
 
 			ylabelDebtTitle.Binding
 				.AddBinding(ViewModel, vm => vm.IsNew, w => w.Visible)
+				.InitializeFromSource();
+
+			labelCurrentDebt.Binding
+				.AddBinding(ViewModel, vm => vm.DebtString, w => w.Text)
 				.InitializeFromSource();
 
 			ylabelLastGivenAdvances.Binding
@@ -124,6 +123,9 @@ namespace Vodovoz.Cash
 				.InitializeFromSource();
 
 			ylabelChangeType.UseMarkup = true;
+
+			ylabelClosingSum.Binding.AddBinding(ViewModel, vm => vm.ClosingSumString, w => w.LabelProp)
+				.InitializeFromSource();
 
 			table1.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
@@ -165,11 +167,12 @@ namespace Vodovoz.Cash
 					})
 				.Finish();
 
-			ytreeviewDebts.ItemsDataSource = ViewModel.AdvanceList;
-
 			ytreeviewDebts.Binding
+				.AddBinding(ViewModel, vm => vm.AdvanceList, w => w.ItemsDataSource)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+
+			ViewModel.OnDebtsChanged += (_) => ytreeviewDebts.YTreeModel.EmitModelChanged();
 		}
 
 		public void UpdateSubdivision()

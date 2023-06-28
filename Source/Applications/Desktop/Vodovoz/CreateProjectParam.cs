@@ -472,7 +472,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<AdvanceReportViewModel, AdvanceReportView>()
 				.RegisterWidgetForWidgetViewModel<IncomeCashTransferDocumentViewModel, IncomeCashTransferDlg>()
 				.RegisterWidgetForWidgetViewModel<CommonCashTransferDocumentViewModel, CommonCashTransferDlg>()
-				.RegisterWidgetForWidgetViewModel<Vodovoz.ViewModels.Cash.TransferDocumentsJournal.FilterViewModel, CashTransferDocumentsFilter>()
+				.RegisterWidgetForWidgetViewModel<Vodovoz.ViewModels.Cash.TransferDocumentsJournal.TransferDocumentsJournalFilterViewModel, CashTransferDocumentsFilter>()
 				.RegisterWidgetForWidgetViewModel<CargoDailyNormViewModel, CargoDailyNormView>()
 				;
 			
@@ -775,6 +775,9 @@ namespace Vodovoz
 
 			builder.RegisterType<FinancialExpenseCategoriesNodesInMemoryCacheRepository>()
 				.As<IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory>>();
+
+			builder.RegisterType<FinancialIncomeCategoriesNodesInMemoryCacheRepository>()
+				.As<IDomainEntityNodeInMemoryCacheRepository<FinancialIncomeCategory>>();
 
 			#endregion Кэширующие репозитории
 

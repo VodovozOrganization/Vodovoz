@@ -6,9 +6,9 @@ using Vodovoz.ViewModels.Cash.TransferDocumentsJournal;
 namespace Vodovoz.JournalFilters.Cash
 {
 	[OrmDefaultIsFiltered(true)]
-	public partial class CashTransferDocumentsFilter : FilterViewBase<FilterViewModel>
+	public partial class CashTransferDocumentsFilter : FilterViewBase<TransferDocumentsJournalFilterViewModel>
 	{
-		public CashTransferDocumentsFilter(FilterViewModel filterViewModel)
+		public CashTransferDocumentsFilter(TransferDocumentsJournalFilterViewModel filterViewModel)
 			: base(filterViewModel)
 		{
 			Build();

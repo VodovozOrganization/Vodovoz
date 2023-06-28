@@ -29,7 +29,6 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private readonly Type _financialCategoriesGroupType = typeof(FinancialCategoriesGroup);
 		private readonly Type _financialIncomeCategoryType = typeof(FinancialIncomeCategory);
 		private readonly Type _financialExpenseCategoryType = typeof(FinancialExpenseCategory);
-		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly FinancialCategoriesJournalFilterViewModel _filter;
 		private readonly HierarchicalChunkLinqLoader<FinancialCategoriesGroup, FinancialCategoriesJournalNode> _hierarchicalChunkLinqLoader;
@@ -68,7 +67,6 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			filter.JournalViewModel = this;
 			JournalFilter = filter;
 
-			_interactiveService = interactiveService;
 			_currentPermissionService = currentPermissionService
 				?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_filter = filter ?? throw new ArgumentNullException(nameof(filter));

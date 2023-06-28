@@ -8,14 +8,12 @@ using QS.Report;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels.Control.EEVM;
-using QSOrmProject;
 using QSReport;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
@@ -92,9 +90,6 @@ namespace Vodovoz.Reports
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.CanOpenWithoutTabParent = true;
 
-			var recurciveConfig = OrmMain.GetObjectDescription<ExpenseCategory>().TableView.RecursiveTreeConfig;
-
-
 			UserSubdivisions = GetSubdivisionsForUser();
 			specialListCmbCashSubdivisions.SetRenderTextFunc<Subdivision>(s => s.Name);
 			specialListCmbCashSubdivisions.ItemsList = UserSubdivisions;
@@ -130,9 +125,9 @@ namespace Vodovoz.Reports
 
 		private IEntityEntryViewModel BuildFinancialExpenseCategoryViewModel()
 		{
-			var financialIncomeCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CashFlow>(ParentTab, this, UoW, NavigationManager, _lifetimeScope);
+			var financialExpenseCategoryEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CashFlow>(ParentTab, this, UoW, NavigationManager, _lifetimeScope);
 
-			var viewModel = financialIncomeCategoryViewModelEntryViewModelBuilder
+			var viewModel = financialExpenseCategoryEntryViewModelBuilder
 				.ForProperty(x => x.FinancialExpenseCategory)
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
@@ -149,9 +144,9 @@ namespace Vodovoz.Reports
 
 		private IEntityEntryViewModel BuildFinancialIncomeCategoryViewModel()
 		{
-			var financialExpenseCategoryViewModelEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CashFlow>(ParentTab, this, UoW, NavigationManager, _lifetimeScope);
+			var financialIncomeCategoryEntryViewModelBuilder = new LegacyEEVMBuilderFactory<CashFlow>(ParentTab, this, UoW, NavigationManager, _lifetimeScope);
 
-			var viewModel = financialExpenseCategoryViewModelEntryViewModelBuilder
+			var viewModel = financialIncomeCategoryEntryViewModelBuilder
 				.ForProperty(x => x.FinancialIncomeCategory)
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
@@ -317,7 +312,7 @@ namespace Vodovoz.Reports
 				? -1
 				: FinancialIncomeCategory.Id;
 
-			bool exCategorySelected = FinancialExpenseCategory is null;
+			bool exCategorySelected = FinancialExpenseCategory != null;
 			var ids = new List<int>();
 
 			if(exCategorySelected)

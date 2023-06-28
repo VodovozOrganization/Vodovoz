@@ -72,15 +72,11 @@ namespace Vodovoz.Cash
 				.AddBinding(ViewModel, vm => vm.CachedOrganizations, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.OrganisationVisible, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.Organisation, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.IsNew, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ylabel1.Binding
 				.AddBinding(ViewModel, vm => vm.OrganisationVisible, w => w.Visible)
-				.InitializeFromSource();
-
-			specialListCmbOrganisation.Binding
-				.AddBinding(ViewModel.Entity, e => e.Organisation, w => w.SelectedItem)
-				.AddBinding(ViewModel, vm => vm.IsNew, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspinMoney.CurrencyFormat = true;

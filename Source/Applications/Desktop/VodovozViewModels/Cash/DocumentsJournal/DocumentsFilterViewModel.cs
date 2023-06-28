@@ -31,6 +31,12 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 		private CashDocumentType? _cashDocumentType;
 		private DateTime? _endDate;
 		private DateTime? _startDate;
+		private Type _restrictDocument;
+
+		private List<int> _hiddedExpenses = new List<int>();
+		private List<int> _hiddenIncomes = new List<int>();
+		private int? _restrictRelatedToSubdivisionId;
+		private bool _restrictNotTransfered = false;
 
 		public DocumentsFilterViewModel(
 			INavigationManager navigationManager,
@@ -90,6 +96,28 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 			set => UpdateFilterField(ref _financialIncomeCategory, value);
 		}
 
+		public Type RestrictDocument
+		{
+			get => _restrictDocument;
+			set => UpdateFilterField(ref _restrictDocument, value);
+		}
+
+		public int? RestrictRelatedToSubdivisionId
+		{
+			get => _restrictRelatedToSubdivisionId;
+			set => UpdateFilterField(ref _restrictRelatedToSubdivisionId, value);
+		}
+
+		public bool RestrictNotTransfered
+		{
+			get => _restrictNotTransfered;
+			set => UpdateFilterField(ref _restrictNotTransfered, value);
+		}
+
+		public List<int> HiddenIncomes => _hiddenIncomes;
+
+		public List<int> HiddenExpenses => _hiddedExpenses;
+
 		public DialogViewModelBase JournalViewModel
 		{
 			get => _journalViewModel;
@@ -113,7 +141,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 				FinancialIncomeCategoryViewModel = cashIncomeCategoryViewModelEntryViewModelBuilder
 					.ForProperty(x => x.FinancialIncomeCategory)
-					.UseViewModelDialog<IncomeCategoryViewModel>()
+					.UseViewModelDialog<FinancialIncomeCategoryViewModel>()
 					.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 						filter =>
 						{
@@ -126,7 +154,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 				FinancialExpenseCategoryViewModel = cashExpenseCategoryViewModelEntryViewModelBuilder
 					.ForProperty(x => x.FinancialExpenseCategory)
-					.UseViewModelDialog<ExpenseCategoryViewModel>()
+					.UseViewModelDialog<FinancialExpenseCategoryViewModel>()
 					.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 						filter =>
 						{

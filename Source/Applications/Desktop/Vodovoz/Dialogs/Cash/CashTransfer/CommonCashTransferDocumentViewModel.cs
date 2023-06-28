@@ -71,13 +71,13 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			CreateCommands();
 			UpdateCashSubdivisions();
 
-			FinancialExpenseCategoryViewModel = BuildFinancialIncomeCategoryViewModel();
+			FinancialExpenseCategoryViewModel = BuildFinancialExpenseCategoryViewModel();
 
 			SetPropertyChangeRelation(
 				e => e.ExpenseCategoryId,
 				() => FinancialExpenseCategory);
 
-			FinancialIncomeCategoryViewModel = BuildFinancialExpenseCategoryViewModel();
+			FinancialIncomeCategoryViewModel = BuildFinancialIncomeCategoryViewModel();
 
 			SetPropertyChangeRelation(
 				e => e.IncomeCategoryId,
@@ -108,11 +108,11 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
 
-		private IEntityEntryViewModel BuildFinancialExpenseCategoryViewModel()
+		private IEntityEntryViewModel BuildFinancialIncomeCategoryViewModel()
 		{
-			var financialIncomeCategoryViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
+			var financialIncomeCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
-			var viewModel = financialIncomeCategoryViewModelEntryViewModelBuilder
+			var viewModel = financialIncomeCategoryEntryViewModelBuilder
 				.ForProperty(x => x.FinancialIncomeCategory)
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
@@ -130,11 +130,11 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		public IEntityEntryViewModel FinancialIncomeCategoryViewModel { get; }
 
-		private IEntityEntryViewModel BuildFinancialIncomeCategoryViewModel()
+		private IEntityEntryViewModel BuildFinancialExpenseCategoryViewModel()
 		{
-			var financialExpenseCategoryViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
+			var financialExpenseCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<CommonCashTransferDocumentViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
 
-			var viewModel = financialExpenseCategoryViewModelEntryViewModelBuilder
+			var viewModel = financialExpenseCategoryEntryViewModelBuilder
 				.ForProperty(x => x.FinancialExpenseCategory)
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>

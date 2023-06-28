@@ -516,7 +516,7 @@ namespace Vodovoz.JournalViewModels
 							return;
 						}
 
-						var page = NavigationManager.OpenViewModel<ExpenseViewModel>(this);
+						var page = NavigationManager.OpenViewModel<ExpenseViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 
 						page.ViewModel.ConfigureForRouteListChangeGiveout(
 							driverId,
