@@ -20,10 +20,6 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelCreateDate;
-
-		private global::Gamma.GtkWidgets.yLabel ylabelCreateDateName;
-
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -73,7 +69,7 @@ namespace Vodovoz.Views.Orders
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -83,8 +79,6 @@ namespace Vodovoz.Views.Orders
 			this.labelName.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
 			this.table1.Add(this.labelName);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.labelName]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -96,8 +90,8 @@ namespace Vodovoz.Views.Orders
 			this.ycheckbuttonArchive.UseUnderline = true;
 			this.table1.Add(this.ycheckbuttonArchive);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonArchive]));
-			w7.TopAttach = ((uint)(2));
-			w7.BottomAttach = ((uint)(3));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
 			w7.LeftAttach = ((uint)(1));
 			w7.RightAttach = ((uint)(2));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -110,36 +104,14 @@ namespace Vodovoz.Views.Orders
 			this.yentryName.InvisibleChar = '●';
 			this.table1.Add(this.yentryName);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryName]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
 			w8.LeftAttach = ((uint)(1));
 			w8.RightAttach = ((uint)(2));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ylabelCreateDate = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelCreateDate.Name = "ylabelCreateDate";
-			this.ylabelCreateDate.Xalign = 0F;
-			this.ylabelCreateDate.LabelProp = global::Mono.Unix.Catalog.GetString("ylabel2");
-			this.table1.Add(this.ylabelCreateDate);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCreateDate]));
-			w9.LeftAttach = ((uint)(1));
-			w9.RightAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ylabelCreateDateName = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelCreateDateName.Name = "ylabelCreateDateName";
-			this.ylabelCreateDateName.Xalign = 1F;
-			this.ylabelCreateDateName.LabelProp = global::Mono.Unix.Catalog.GetString("Дата создания:");
-			this.table1.Add(this.ylabelCreateDateName);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCreateDateName]));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.table1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.table1]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.table1]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{

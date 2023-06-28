@@ -1932,6 +1932,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryKindView.cs" />
     <Compile Include="Views\Orders\UndeliveryDetalizationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryDetalizationView.cs" />
+    <Compile Include="Filters\GtkViews\UndeliveryObjectFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryObjectFilterView.cs" />
+    <Compile Include="Filters\GtkViews\UndeliveryKindFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryKindFilterView.cs" />
+    <Compile Include="Filters\GtkViews\UndeliveryDetalizationFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryDetalizationFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
