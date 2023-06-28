@@ -11,7 +11,7 @@ namespace Vodovoz
 
 		Employee RestrictAccountable { get;}
 
-		FinancialExpenseCategory RestrictExpenseCategory { get;}
+		FinancialExpenseCategory FinancialExpenseCategory { get; }
 
 		DateTime? RestrictStartDate { get;}
 

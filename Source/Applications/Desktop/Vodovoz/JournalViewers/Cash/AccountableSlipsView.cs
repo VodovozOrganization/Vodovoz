@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
@@ -50,7 +51,7 @@ namespace Vodovoz
 
 			if(financialExpenseCategory != null)
 			{
-				accountableslipfilter1.SetAndRefilterAtOnce(x => x.RestrictExpenseCategory = financialExpenseCategory);
+				accountableslipfilter1.SetAndRefilterAtOnce(x => x.FinancialExpenseCategory = financialExpenseCategory);
 			}
 		}
 
@@ -60,6 +61,7 @@ namespace Vodovoz
 			TabName = "Движения по подотчетным деньгам";
 			accountableslipfilter1.Refiltered += Accountableslipfilter1_Refiltered;
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			accountableslipfilter1.JournalTab = this;
 		}
 
 		private void Accountableslipfilter1_Refiltered(object sender, EventArgs e)

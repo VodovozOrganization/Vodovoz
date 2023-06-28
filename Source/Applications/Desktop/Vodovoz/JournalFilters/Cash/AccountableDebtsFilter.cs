@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using QS.Tdi;
 using QSOrmProject.RepresentationModel;
 using System;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -10,6 +11,18 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class AccountableDebtsFilter : RepresentationFilterBase<AccountableDebtsFilter>
 	{
+		private ITdiTab _journalTab;
+
+		public ITdiTab JournalTab
+		{
+			get => _journalTab;
+			set
+			{
+				_journalTab = value;
+				
+			}
+		}
+
 		protected override void ConfigureWithUow()
 		{
 			entryreferenceExpense.ItemsQuery = new CategoryRepository(new ParametersProvider()).ExpenseCategoriesQuery();
