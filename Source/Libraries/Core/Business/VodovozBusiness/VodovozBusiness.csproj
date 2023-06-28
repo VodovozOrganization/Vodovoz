@@ -63,6 +63,9 @@
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialIncomeCategory.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialSubType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\GroupType.cs" />
+    <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
+    <Compile Include="Domain\Orders\UndeliveryKind.cs" />
+    <Compile Include="Domain\Orders\UndeliveryObject.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialIncomeCategoriesRepository.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\TargetDocument.cs" />
@@ -737,6 +740,9 @@
     <Compile Include="HibernateMapping\Operations\InstanceGoodsAccountingOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\WarehouseBulkGoodsAccountingOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\WarehouseInstanceGoodsAccountingOperationMap.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveryDetalizationMap.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveryKindMap.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveryObjectMap.cs" />
     <Compile Include="HibernateMapping\Order\TrueMarkApiDocumentMap.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonNomenclatureCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\EdoContainerMap.cs" />

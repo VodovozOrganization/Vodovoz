@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -368,6 +368,9 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, Vodovoz.Views.Warehouse.InventoryDocumentView>()
 				.RegisterWidgetForTabViewModel<ShiftChangeResidueDocumentViewModel, ShiftChangeResidueDocumentView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceMovementReportViewModel, InventoryInstanceMovementReportView>()
+				.RegisterWidgetForTabViewModel<UndeliveryObjectViewModel, UndeliveryObjectView>()
+				.RegisterWidgetForTabViewModel<UndeliveryKindViewModel, UndeliveryKindView>()
+				.RegisterWidgetForTabViewModel<UndeliveryDetalizationViewModel, UndeliveryDetalizationView>()
 				;
 
 			//Регистрация виджетов

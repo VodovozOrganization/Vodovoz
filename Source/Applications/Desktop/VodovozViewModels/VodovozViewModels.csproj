@@ -80,6 +80,9 @@
     <Compile Include="Journals\FilterViewModels\Counterparties\PhonesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\InventoryInstancesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\UndeliveryDetalizationJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\UndeliveryKindJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\UndeliveryObjectJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\OrderJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\TrueMark\CashReceiptJournalFilterViewModel.cs" />
@@ -97,6 +100,9 @@
     <Compile Include="Journals\FilterViewModels\Organization\OrganizationOwnershipTypeJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Client\ExternalCounterpartyMatchingJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\UndeliveryDetalizationJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\UndeliveryKindJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\UndeliveryObjectJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Organizations\OrganizationOwnershipTypeJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\InventoryInstancesJournalNode.cs" />
@@ -115,6 +121,9 @@
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintsWithDepartmentsReactionJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveryDetalizationJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveryKindJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveryObjectJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Organizations\OrganizationOwnershipTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
@@ -396,6 +405,9 @@
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryDetalizationViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryKindViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryObjectViewModel.cs" />
     <Compile Include="ViewModels\Orders\DiscountReasonViewModel.cs" />
     <Compile Include="ViewModels\Orders\NomenclaturePlanViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\NomenclaturesPlanJournalViewModel.cs" />
