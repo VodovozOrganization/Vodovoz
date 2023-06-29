@@ -165,14 +165,14 @@ namespace Vodovoz.Reports
 
 				if(selectedPaymentTypes.Count > 0)
 				{
-					var topLevelSelectedPaymmentTypes = GetTopLevelPaymentTypes(selectedPaymentTypes);
+					var topLevelSelectedPaymmentTypes = CombinedPaymentNode.GetTopLevelPaymentTypesNames(selectedPaymentTypes);
 
 					parameters["payment_type_include"] =
 						(topLevelSelectedPaymmentTypes.Length > 0)
 						? topLevelSelectedPaymmentTypes
 						: new string[] { "0" };
 
-					var selectedTerminalSubtypes = GetTerminalPaymentTypeSubtypes(selectedPaymentTypes);
+					var selectedTerminalSubtypes = CombinedPaymentNode.GetTerminalPaymentTypeSubtypesNames(selectedPaymentTypes);
 
 					if(selectedTerminalSubtypes.Length > 0)
 					{
@@ -191,14 +191,14 @@ namespace Vodovoz.Reports
 
 				if(selectedPaymentTypes.Count > 0)
 				{
-					var topLevelSelectedPaymmentTypes = GetTopLevelPaymentTypes(selectedPaymentTypes);
+					var topLevelSelectedPaymmentTypes = CombinedPaymentNode.GetTopLevelPaymentTypesNames(selectedPaymentTypes);
 
 					parameters["payment_type_exclude"] =
 						(topLevelSelectedPaymmentTypes.Length > 0)
 						? topLevelSelectedPaymmentTypes
 						: new string[] { "0" };
 
-					var selectedTerminalSubtypes = GetTerminalPaymentTypeSubtypes(selectedPaymentTypes);
+					var selectedTerminalSubtypes = CombinedPaymentNode.GetTerminalPaymentTypeSubtypesNames(selectedPaymentTypes);
 
 					if(selectedTerminalSubtypes.Length > 0)
 					{
@@ -206,28 +206,6 @@ namespace Vodovoz.Reports
 					}
 				}
 			}
-		}
-
-		private string[] GetTopLevelPaymentTypes(IEnumerable<CombinedPaymentNode> paymentTypes)
-		{
-			var topLevelPaymmentTypes =
-				paymentTypes
-				.Where(x => x.IsTopLevel)
-				.Select(x => x.PaymentType?.ToString())
-				.ToArray();
-
-			return topLevelPaymmentTypes;
-		}
-
-		private string[] GetTerminalPaymentTypeSubtypes(IEnumerable<CombinedPaymentNode> paymentTypes)
-		{
-			var terminalPaymentTypeSubtypes =
-				paymentTypes
-				.Where(x => x.PaymentSubType != null && x.PaymentType == PaymentType.Terminal)
-				.Select(x => x.PaymentSubType)
-				.ToArray();
-
-			return terminalPaymentTypeSubtypes;
 		}
 
 		private void SetupFilter()
