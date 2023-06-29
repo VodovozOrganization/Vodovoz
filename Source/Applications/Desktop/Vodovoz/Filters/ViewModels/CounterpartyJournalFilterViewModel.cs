@@ -26,7 +26,8 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.CounterpartyType,
 				x => x.ReasonForLeaving,
 				x => x.RestrictIncludeArchive,
-				x => x.Tag
+				x => x.Tag,
+				x => x.IsNeedToSendBillByEdo
 			);
 		}
 

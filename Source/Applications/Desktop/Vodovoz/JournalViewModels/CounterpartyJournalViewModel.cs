@@ -382,6 +382,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
 			}
 
+			if(FilterViewModel.IsNeedToSendBillByEdo)
+			{
+				query.Where(c => c.NeedSendBillByEdo);
+			}
+
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
 				.Left.JoinAlias(c => c.Counterparty, () => counterpartyAliasForSubquery)
 				.Where(() => counterpartyAlias.Id == counterpartyAliasForSubquery.Id)

@@ -41,6 +41,8 @@ namespace Vodovoz.Filters.GtkViews
 			
 			checkIncludeArhive.Binding.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active).InitializeFromSource();
 
+			checkNeedSendEdo.Binding.AddBinding(ViewModel, vm => vm.IsNeedToSendBillByEdo, w => w.Active).InitializeFromSource();
+
 			if (ViewModel?.IsForRetail ?? false)
 			{
 				ytreeviewSalesChannels.ColumnsConfig = ColumnsConfigFactory.Create<SalesChannelSelectableNode>()
