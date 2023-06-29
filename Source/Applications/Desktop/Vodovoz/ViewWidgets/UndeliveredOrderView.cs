@@ -178,10 +178,10 @@ namespace Vodovoz.ViewWidgets
 			yenumcomboboxTransferType.ItemsEnum = typeof(TransferType);
 			yenumcomboboxTransferType.Binding.AddBinding(undelivery, u => u.OrderTransferType, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			comboProblemSource.SetRenderTextFunc<UndeliveryProblemSource>(k => k.GetFullName);
-			comboProblemSource.Binding.AddBinding(undelivery, u => u.ProblemSourceItems, w => w.ItemsList).InitializeFromSource();
-			comboProblemSource.Binding.AddBinding(undelivery, u => u.ProblemSource, w => w.SelectedItem).InitializeFromSource();
-			comboProblemSource.Sensitive = _canChangeProblemSource;
+			//comboProblemSource.SetRenderTextFunc<UndeliveryProblemSource>(k => k.GetFullName);
+			//comboProblemSource.Binding.AddBinding(undelivery, u => u.ProblemSourceItems, w => w.ItemsList).InitializeFromSource();
+			//comboProblemSource.Binding.AddBinding(undelivery, u => u.ProblemSource, w => w.SelectedItem).InitializeFromSource();
+			//comboProblemSource.Sensitive = _canChangeProblemSource;
 
 			comboTransferAbsenceReason.SetRenderTextFunc<UndeliveryTransferAbsenceReason>(u => u.Name);
 			comboTransferAbsenceReason.Binding.AddBinding(undelivery, u => u.UndeliveryTransferAbsenceReasonItems, w => w.ItemsList).InitializeFromSource();
