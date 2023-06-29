@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -19,7 +20,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NHibernate.SqlCommand;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -27,6 +27,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Store;
@@ -37,7 +38,6 @@ using Vodovoz.NHibernateProjections.Orders;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozCounterparty = Vodovoz.Domain.Client.Counterparty;
-using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.ViewModels.Reports.Sales
 {
