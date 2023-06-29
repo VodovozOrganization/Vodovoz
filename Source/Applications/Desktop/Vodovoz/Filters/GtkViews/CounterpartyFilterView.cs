@@ -50,10 +50,10 @@ namespace Vodovoz.Filters.GtkViews
 
 				ytreeviewSalesChannels.ItemsDataSource = ViewModel.SalesChannels;
 			} else
-            {
+			{
 				frame2.Visible = false;
 			}
-        }
+		}
 
 		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)
 		{
