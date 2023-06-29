@@ -1067,6 +1067,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool AddOrdersToRouteList(IList<OrderNode> selectedOrderNodes, RouteList routeList)
 		{
+			if(!routeList.IsDriversDebtInPermittedRangeVerification())
+			{
+				return false;
+			}
+
 			bool recalculateLoading = false;
 
 			if(IsAutoroutingModeActive) {

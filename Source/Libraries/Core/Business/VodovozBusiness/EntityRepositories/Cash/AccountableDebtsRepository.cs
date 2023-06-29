@@ -1,8 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Cash
 {
@@ -25,7 +30,7 @@ namespace Vodovoz.EntityRepositories.Cash
 			return received - returned - reported;
 		}
 
-		public IList<Expense> UnclosedAdvance(IUnitOfWork uow, Employee accountable, ExpenseCategory category, int? organisationId)
+		public IList<Expense> GetUnclosedAdvances(IUnitOfWork uow, Employee accountable, ExpenseCategory category, int? organisationId)
 		{
 			var query = uow.Session.QueryOver<Expense>()
 				.Where(e => e.Employee == accountable

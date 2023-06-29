@@ -1,4 +1,5 @@
-﻿using Gamma.GtkWidgets;
+﻿using Autofac;
+using Gamma.GtkWidgets;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Services;
@@ -12,6 +13,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
+using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Sms;
 using Vodovoz.Settings.Sms;
@@ -22,6 +24,8 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SmsSendPanelView : Gtk.Bin, IPanelView
 	{
+		private readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
+
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
 		private readonly IPermissionResult _orderPermissionResult;
@@ -56,7 +60,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			_canSendSmsForAdditionalOrderStatuses =
 				currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
 			_canSendSmsForPayFromSbpByCard = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_sbp_by_card");
-			var settingsController = new SettingsController(UnitOfWorkFactory.GetDefaultFactory);
+			var settingsController = _lifetimeScope.Resolve<ISettingsController>();
 			_smsSettings = new SmsSettings(settingsController, MainClass.DataBaseInfo);
 			_smsClientChannelFactory = new SmsClientChannelFactory(_smsSettings);
 

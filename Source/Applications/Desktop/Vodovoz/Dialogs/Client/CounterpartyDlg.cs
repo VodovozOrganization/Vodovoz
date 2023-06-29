@@ -103,6 +103,7 @@ namespace Vodovoz
 	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab,
 		IAskSaveOnCloseViewModel
 	{
+		private readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
 		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
 		private readonly bool _canSetWorksThroughOrganization =
@@ -141,9 +142,8 @@ namespace Vodovoz
 		private IContactListService _contactListService;
 		private TrueMarkApiClient _trueMarkApiClient;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-		private IEdoSettings _edoSettings = new EdoSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
-		private ICounterpartySettings _counterpartySettings =
-			new CounterpartySettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+		private IEdoSettings _edoSettings;
+		private ICounterpartySettings _counterpartySettings;
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 		private IRevenueServiceClient _revenueServiceClient;
 
@@ -316,7 +316,10 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
+			_edoSettings = _lifetimeScope.Resolve < IEdoSettings>();
+			_counterpartySettings = _lifetimeScope.Resolve < ICounterpartySettings>();
+
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);

@@ -1,5 +1,5 @@
-﻿using NHibernate.Persister.Entity;
-using NLog;
+﻿using Microsoft.Extensions.Logging;
+using NHibernate.Persister.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Concurrent;
@@ -10,13 +10,14 @@ namespace Vodovoz.Settings.Database
 {
 	public class SettingsController : ISettingsController
 	{
-		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+		private readonly ILogger<SettingsController> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private static readonly ConcurrentDictionary<string, Setting> _settings = new ConcurrentDictionary<string, Setting>();
 
-		public SettingsController(IUnitOfWorkFactory uowFactory)
+		public SettingsController(IUnitOfWorkFactory uowFactory, ILogger<SettingsController> logger)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_logger = logger;
 		}
 
 		public bool ContainsSetting(string settingName)
@@ -55,18 +56,18 @@ namespace Vodovoz.Settings.Database
 				if(isInsert)
 				{
 					sql = $"INSERT INTO {tableName} ({nameColumnName}, {strValueColumnName}) VALUES ('{name}', '{value}')";
-					_logger.Debug($"Добавляем новую настройку в базу {name}='{value}'");
+					_logger.LogDebug("Добавляем новую настройку в базу {Name}='{Value}'", name, value);
 				}
 				else
 				{
 					sql = $"UPDATE {tableName} SET {strValueColumnName} = '{value}' WHERE {nameColumnName} = '{name}'";
-					_logger.Debug($"Изменяем настройку в базе {name}='{value}'");
+					_logger.LogDebug("Изменяем настройку в базе {Name}='{Value}'", name, value);
 				}
 				uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
 				RefreshSetting(name);
 			}
 
-			_logger.Debug("Ок");
+			_logger.LogDebug("Ок");
 		}
 
 		private void RefreshSetting(string settingName)
@@ -240,7 +241,7 @@ namespace Vodovoz.Settings.Database
 				parameter = _settings[settingName];
 			}
 
-			if(String.IsNullOrWhiteSpace(parameter.StrValue))
+			if(string.IsNullOrWhiteSpace(parameter.StrValue))
 			{
 				throw new InvalidProgramException(GetIncorrectSettingMessage(settingName));
 			}
@@ -272,6 +273,7 @@ namespace Vodovoz.Settings.Database
 		{
 			return $"В базе данных не добавлена настройка ({settingName})";
 		}
+
 		private string GetIncorrectSettingMessage(string settingName)
 		{
 			return $"В базе данных настройка ({settingName}) имеет некорректное значение.";

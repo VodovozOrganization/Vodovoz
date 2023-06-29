@@ -1290,6 +1290,41 @@ namespace Vodovoz.EntityRepositories.Logistic
 				AddressTransferType.FromFreeBalance
 			};
 
+		public int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0)
+		{
+			RouteList routeListAlias = null;
+			RouteListDebt routeListDebtAlias = null;
+
+			var routeListsCount = uow.Session.QueryOver(() => routeListDebtAlias)
+				.JoinAlias(() => routeListDebtAlias.RouteList, () => routeListAlias)
+				.Where(() =>
+					routeListAlias.Driver.Id == driverId
+					&& routeListAlias.Status != RouteListStatus.Closed
+					&& routeListAlias.Id != excludeRouteListId
+					&& routeListDebtAlias.Debt > 0)
+				.Select(Projections.Count(() => routeListDebtAlias.RouteList))
+				.SingleOrDefault<int>();
+
+			return routeListsCount;
+		}
+
+		public decimal GetUnclosedRouteListsDebtsSumByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0)
+		{
+			RouteList routeListAlias = null;
+			RouteListDebt routeListDebtAlias = null;
+
+			var routeListsDebtsSum = uow.Session.QueryOver(() => routeListDebtAlias)
+				.JoinAlias(() => routeListDebtAlias.RouteList, () => routeListAlias)
+				.Where(() =>
+					routeListAlias.Driver.Id == driverId
+					&& routeListAlias.Status != RouteListStatus.Closed
+					&& routeListAlias.Id != excludeRouteListId
+					&& routeListDebtAlias.Debt > 0)
+				.Select(Projections.Sum(() => routeListDebtAlias.Debt))
+				.SingleOrDefault<decimal>();
+
+			return routeListsDebtsSum;
+		}
 	}
 
 	#region DTO

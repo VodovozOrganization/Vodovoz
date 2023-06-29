@@ -203,7 +203,7 @@ namespace Vodovoz.Domain.Cash
 
 		#region Функции
 
-		public virtual void AcceptSelfDeliveryPaid(CallTaskWorker callTaskWorker)
+		public virtual void AcceptSelfDeliveryPaid(ICallTaskWorker callTaskWorker)
 		{
 			if(Id == 0)
 			{
