@@ -8,6 +8,6 @@ namespace Vodovoz.EntityRepositories.Cash
 	public interface IAccountableDebtsRepository
 	{
 		decimal EmployeeDebt(IUnitOfWork uow, Employee accountable);
-		IList<Expense> UnclosedAdvance(IUnitOfWork uow, Employee accountable, ExpenseCategory category, int? organisationId);
+		IList<Expense> GetUnclosedAdvances(IUnitOfWork uow, Employee accountable, ExpenseCategory category, int? organisationId);
 	}
 }

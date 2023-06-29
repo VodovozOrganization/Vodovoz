@@ -21,6 +21,7 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.ChangeReturn).Column ("return_id");
 			References(x => x.RelatedToSubdivision).Column("related_to_subdivision_id");
 			References(x => x.Organisation).Column("organisation_id");
+			References(x => x.RouteList).Column("route_list_id");
 		}
 	}
 }

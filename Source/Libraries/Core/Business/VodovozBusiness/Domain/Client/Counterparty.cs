@@ -1382,6 +1382,10 @@ namespace Vodovoz.Domain.Client
 					phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано отчество контрагента.");
 				}
 
+				if(!phone.IsValidPhoneNumber)
+				{
+					phonesValidationStringBuilder.AppendLine($"Номер {phone.Number} имеет неправильный формат.");
+				}
 				#region Проверка дубликатов номера телефона
 
 				if(!phoneNumberDuplicatesIsChecked.Contains(phone.Number))
@@ -1410,6 +1414,14 @@ namespace Vodovoz.Domain.Client
 			if(IsNotSendDocumentsByEdo && IsPaperlessWorkflow)
 			{
 				yield return new ValidationResult("При выборе \"Не отправлять документы по EDO\" должен быть отключен \"Отказ от печатных документов\"");
+			}
+
+			foreach(var email in Emails)
+			{
+				if(!email.IsValidEmail)
+				{
+					yield return new ValidationResult($"Адрес электронной почты {email.Address} имеет неправильный формат.");
+				}
 			}
 		}
 

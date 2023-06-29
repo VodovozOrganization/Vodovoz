@@ -1,7 +1,9 @@
-﻿using NHibernate;
+﻿using FluentNHibernate.Data;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using NHibernate.Util;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.NotifyChange;
@@ -79,7 +81,7 @@ namespace Vodovoz.JournalViewModels
 				.GetRouteListProfitabilityIndicatorInPercents;
 			UseSlider = false;
 
-			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability));
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(RouteListDebt));
 			InitPopupActions();
 		}
 
@@ -102,6 +104,7 @@ namespace Vodovoz.JournalViewModels
 			GeoGroup geoGroupAlias = null;
 			GeoGroupVersion geoGroupVersionAlias = null;
 			RouteListProfitability routeListProfitabilityAlias = null;
+			RouteListDebt routeListDebtAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
@@ -239,6 +242,11 @@ namespace Vodovoz.JournalViewModels
 				.And(() => geoGroupVersionAlias.ClosingDate == null || geoGroupVersionAlias.ClosingDate >= routeListAlias.Date)
 				.Select(s => s.Name);
 
+			var routeListDebtSubquery = QueryOver.Of(() => routeListDebtAlias)
+				.Where(() => routeListAlias.Id == routeListDebtAlias.RouteList.Id)
+				.Select(r => r.Debt)
+				.Take(1);
+
 			var result = query
 				.SelectList(list => list
 					.SelectGroup(() => routeListAlias.Id).WithAlias(() => routeListJournalNodeAlias.Id)
@@ -251,6 +259,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => driverAlias.Name).WithAlias(() => routeListJournalNodeAlias.DriverName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => routeListJournalNodeAlias.DriverPatronymic)
 					.Select(() => driverAlias.Comment).WithAlias(() => routeListJournalNodeAlias.DriverComment)
+					.SelectSubQuery(routeListDebtSubquery).WithAlias(() => routeListJournalNodeAlias.RouteListDebt)
 					.Select(() => routeListAlias.LogisticiansComment).WithAlias(() => routeListJournalNodeAlias.LogisticiansComment)
 					.Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
 					.SelectSubQuery(closingSubdivision).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
@@ -310,6 +319,13 @@ namespace Vodovoz.JournalViewModels
 {
 			RouteListStatus.InLoading,
 			RouteListStatus.EnRoute
+		};
+
+		private readonly RouteListStatus[] _canReturnChangeFromRL = new[]
+{
+			RouteListStatus.Delivered,
+			RouteListStatus.OnClosing,
+			RouteListStatus.MileageCheck
 		};
 
 		#endregion
@@ -476,7 +492,7 @@ namespace Vodovoz.JournalViewModels
 						var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 						var driverId = routeList.Driver.Id;
 
-						if(_accountableDebtsRepository.UnclosedAdvance(localUow,
+						if(_accountableDebtsRepository.GetUnclosedAdvances(localUow,
 							   routeList.Driver,
 							   localUow.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId),
 							   null).Count > 0)
@@ -497,10 +513,55 @@ namespace Vodovoz.JournalViewModels
 
 						_gtkTabsOpener.OpenRouteListChangeGiveoutExpenceDlg(this,
 							driverId,
+							routeList.Id,
 							changesToOrders.Sum(item => item.Value),
 							$"Сдача по МЛ №{routeList.Id}" +
 							$"\n-----" +
 							"\n" + string.Join("\n", changesToOrders.Select(pair => $"Заказ №{pair.Key} - {pair.Value}руб.")));
+					}
+				}
+			));
+
+			PopupActionsList.Add(new JournalAction(
+				"Возврат сдачи",
+				(selectedItems) => selectedItems.Any(x => _canReturnChangeFromRL.Contains((x as RouteListJournalNode).StatusEnum)),
+				(selectedItems) => selectedItems.Any(x => _canReturnChangeFromRL.Contains((x as RouteListJournalNode).StatusEnum)),
+				(selectedItems) =>
+				{
+					if(!(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode))
+					{
+						return;
+					}
+
+					using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
+					{
+						var routeList = localUow.GetById<RouteList>(selectedNode.Id);
+						var driverId = routeList.Driver.Id;
+
+						var expenseChangeCategory =
+							localUow
+							.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId);
+
+						var unclosedExpenses = UoW.GetAll<Expense>()
+							.Where(ex =>
+								ex.AdvanceClosed == false
+								&& ex.TypeOperation == ExpenseType.Advance
+								&& ex.ExpenseCategory != null
+								&& ex.ExpenseCategory.Id == expenseChangeCategory.Id
+								&& ex.RouteListClosing != null
+								&& ex.RouteListClosing.Id == routeList.Id)
+							.ToList();
+
+						if(unclosedExpenses.Count == 0)
+						{
+							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
+								"Для данного маршрутного листа отсутствуют авансы со статусом \"Сдача клиенту\"", "Нельзя выполнить возврат сдачи");
+							return;
+						}
+
+						var dlg = new CashIncomeDlg(unclosedExpenses.First());
+
+						this.TabParent.AddTab(dlg, this);
 					}
 				}
 			));

@@ -51,18 +51,31 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CachingRepositories\Cash\FinancialExpenseCategoriesNodesInMemoryCacheRepository.cs" />
+    <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
+    <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Domain\Cash\ExpenseInvoiceDocumentType.cs" />
+    <Compile Include="Domain\Cash\ExpenseType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialCategoriesGroup.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialExpenseCategory.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialIncomeCategory.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialSubType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\GroupType.cs" />
+    <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\FinancialIncomeCategoriesRepository.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\TargetDocument.cs" />
     <Compile Include="Domain\Cash\FinancialCategoryTypeEnum.cs" />
+    <Compile Include="Domain\Cash\IAdvanceCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Cash\IExpenseCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\IFinancialCategory.cs" />
+    <Compile Include="Domain\Cash\IFuelCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Cash\IIncomeCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\IncomeInvoiceDocumentType.cs" />
     <Compile Include="Domain\Cash\IncomeType.cs" />
+    <Compile Include="Domain\Cash\ISelfDeliveryCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Cash\IRouteListCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Client\ExternalCounterpartyMatchingStatus.cs" />
     <Compile Include="Domain\Documents\IncomingInvoices\AccountingType.cs" />
     <Compile Include="Domain\Documents\InventoryDocuments\InventoryDocumentStatus.cs" />
@@ -295,6 +308,7 @@
     <Compile Include="Domain\Logistic\FastDeliveryMaxDistanceParameterVersion.cs" />
     <Compile Include="Domain\Logistic\FuelPriceVersion.cs" />
     <Compile Include="Domain\Logistic\LogisticsRequirements.cs" />
+    <Compile Include="Domain\Logistic\RouteListDebt.cs" />
     <Compile Include="Domain\Logistic\RouteListFastDeliveryMaxDistance.cs" />
     <Compile Include="Domain\Operations\DeliveryFreeBalanceOperation.cs" />
     <Compile Include="Domain\Operations\BulkGoodsAccountingOperation.cs" />
@@ -426,6 +440,8 @@
     <Compile Include="EntityRepositories\Cash\IAccountableDebtsRepository.cs" />
     <Compile Include="EntityRepositories\Cash\ICashReceiptRepository.cs" />
     <Compile Include="EntityRepositories\Cash\ICategoryRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\IFinancialExpenseCategoriesRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\IFinancialIncomeCategoriesRepository.cs" />
     <Compile Include="EntityRepositories\Cash\OperationNode.cs" />
     <Compile Include="EntityRepositories\Chats\ChatMessageRepository.cs" />
     <Compile Include="EntityRepositories\Chats\ChatRepository.cs" />
@@ -708,6 +724,7 @@
     <Compile Include="HibernateMapping\Logistic\LateArrivalReasonMap.cs" />
     <Compile Include="HibernateMapping\Logistic\ArchivedTrackPointMap.cs" />
     <Compile Include="HibernateMapping\Logistic\LogisticsRequirementsMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\RouteListDebtMap.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteListFastDeliveryMaxDistanceMap.cs" />
     <Compile Include="HibernateMapping\Operations\BulkGoodsAccountingOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\CarBulkGoodsAccountingOperationMap.cs" />
@@ -847,6 +864,9 @@
     <Compile Include="Models\TrueMark\TrueMarkTransactionalCodesPool.cs" />
     <Compile Include="Models\TrueMark\TrueMarkWaterCode.cs" />
     <Compile Include="Models\TrueMark\TrueMarkWaterCodeParser.cs" />
+    <Compile Include="NHibernateProjections\Cash\AdvanceReportProjections.cs" />
+    <Compile Include="NHibernateProjections\Cash\ExpenseProjections.cs" />
+    <Compile Include="NHibernateProjections\Cash\IncomeProjections.cs" />
     <Compile Include="NHibernateProjections\Contacts\PhoneProjections.cs" />
     <Compile Include="NHibernateProjections\Documents\ShiftChangeDocumentProjections.cs" />
     <Compile Include="NHibernateProjections\Documents\WarehouseDocumentsProjections.cs" />
@@ -1734,6 +1754,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Domain\Common\" />
     <Folder Include="NHibernateProjections\Counterparty\" />
   </ItemGroup>
 </Project>

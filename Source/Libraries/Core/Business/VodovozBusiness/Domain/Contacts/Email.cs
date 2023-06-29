@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 
@@ -33,6 +34,20 @@ namespace Vodovoz.Domain.Contacts
 		{
 			get { return _counterparty; }
 			set { SetField(ref _counterparty, value); }
+		}
+
+		public virtual bool IsValidEmail => IsValidEmailFormat();
+
+		private bool IsValidEmailFormat()
+		{
+			var emailPattern = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Zа-яА-Я0-9]+([\.-]?[a-zA-Zа-яА-Я0-9]+)*(\.[a-zA-Zа-яА-Я]{2,10})+$";
+			
+			if(Regex.IsMatch(Address, emailPattern))
+			{
+				return true;
+			}
+
+			return false;
 		}
 	}
 }
