@@ -3271,7 +3271,13 @@ namespace Vodovoz
 				actualOrderStatus = uow.GetById<Order>(Entity.Id).OrderStatus;
 			}
 
-			return !_orderRepository.GetStatusesForOrderCancelation().Contains(actualOrderStatus);
+			var hasOrderStatusChanges = Entity.OrderStatus != actualOrderStatus;
+			var isOrderStatusForbiddenForCancellation = !_orderRepository.GetStatusesForOrderCancelation().Contains(actualOrderStatus);
+			var isSelfDeliveryOnLoadingOrder = Entity.SelfDelivery && actualOrderStatus == OrderStatus.OnLoading;
+
+			return hasOrderStatusChanges
+				   && isOrderStatusForbiddenForCancellation
+				   && !isSelfDeliveryOnLoadingOrder;
 		}
 
 		/// <summary>
