@@ -1,5 +1,4 @@
-﻿//using DriverAPI.Library.Converters;
-using DriverAPI.Library.Deprecated2.DTOs;
+﻿using DriverAPI.Library.Deprecated2.DTOs;
 using DriverAPI.Library.Models;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
