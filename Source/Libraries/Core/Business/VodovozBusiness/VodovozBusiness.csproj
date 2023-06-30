@@ -583,6 +583,7 @@
     <Compile Include="Errors\Result.cs" />
     <Compile Include="Errors\ResultT.cs" />
     <Compile Include="Extensions\DriverPositionExtensions.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Factories\CashReceiptFactory.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
     <Compile Include="Factories\EmployeeRegistrationFactory.cs" />
@@ -1318,6 +1319,8 @@
     <Compile Include="Tools\TypeUtils.cs" />
     <Compile Include="Tools\Store\StoreDocumentHelper.cs" />
     <Compile Include="Tools\Validation\PasswordValidationSettingsFactory.cs" />
+    <Compile Include="Validation\FastDeliveryValidator.cs" />
+    <Compile Include="Validation\IFastDeliveryValidator.cs" />
     <Compile Include="ViewModelBased\ViewModelBase.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
     <Compile Include="ViewModelBased\ViewModelGeneric.cs" />

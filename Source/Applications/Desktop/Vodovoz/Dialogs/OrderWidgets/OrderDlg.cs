@@ -85,13 +85,13 @@ using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Validation;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
@@ -129,6 +129,8 @@ namespace Vodovoz
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+
+		private readonly IFastDeliveryValidator _fastDeliveryValidator = new FastDeliveryValidator();
 
 		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
 			new DeliveryRulesParametersProvider(_parametersProvider);
@@ -1194,7 +1196,7 @@ namespace Vodovoz
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
 		{
-			var fastDeliveryValidationResult = ValidateFastDeliveryOrder();
+			var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity);
 
 			if(fastDeliveryValidationResult.IsFailure)
 			{
@@ -1218,53 +1220,6 @@ namespace Vodovoz
 			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
 			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
 				null, fastDeliveryVerificationViewModel);
-		}
-
-		private Result ValidateFastDeliveryOrder()
-		{
-			if(!Entity.DeliveryDate.HasValue || Entity.DeliveryDate.Value.Date != DateTime.Now.Date)
-			{
-				return Result.Failure(Errors.Orders.Order.FastDelivery.InvalidDate);
-			}
-
-			if(!Order.PaymentTypesFastDeliveryAvailableFor.Contains(Entity.PaymentType))
-			{
-				return Result.Failure(Errors.Orders.Order.FastDelivery.CreateInvalidPaymentTypeError(Entity.PaymentType.GetEnumTitle()));
-			}
-
-			if(Entity.DeliveryPoint == null)
-			{
-				return Result.Failure(Errors.Orders.Order.FastDelivery.DeliveryPointIsMissing);
-			}
-
-			if(Entity.DeliveryPoint.Longitude == null || Entity.DeliveryPoint.Latitude == null)
-			{
-				return Result.Failure(Errors.Clients.DeliveryPoint.FastDelivery.CoordinatesIsMissing);
-			}
-
-			var district = Entity.DeliveryPoint.District;
-
-			if(district == null)
-			{
-				return Result.Failure(Errors.Clients.DeliveryPoint.FastDelivery.DistrictIsMissing);
-			}
-
-			if(district.TariffZone == null)
-			{
-				return Result.Failure(Errors.Logistics.District.FastDelivery.TariffZoneIsMissing);
-			}
-
-			if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
-			{
-				return Result.Failure(Errors.Logistics.TariffZone.FastDelivery.CreateFastDeliveryIsUnavailableAtCurrentTimeError(district.TariffZone.FastDeliveryTimeFrom));
-			}
-
-			if(Entity.Total19LBottlesToDeliver == 0)
-			{
-				return Result.Failure(Errors.Orders.Order.FastDelivery.Water19LIsMissing);
-			}
-
-			return Result.Success();
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
@@ -1987,9 +1942,9 @@ namespace Vodovoz
 
 			if(Entity.IsFastDelivery)
 			{
-				var fastDeliveryValidationResult = ValidateFastDeliveryOrder();
+				var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity);
 
-				if(validationResult.IsFailure)
+				if(fastDeliveryValidationResult.IsFailure)
 				{
 					return Result.Failure(fastDeliveryValidationResult.Errors);
 				}
