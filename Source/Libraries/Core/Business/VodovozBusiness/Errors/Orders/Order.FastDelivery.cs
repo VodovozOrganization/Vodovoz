@@ -1,4 +1,6 @@
 ﻿using System;
+using Vodovoz.Domain.Client;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.Errors.Orders
 {
@@ -30,11 +32,11 @@ namespace Vodovoz.Errors.Orders
 			/// </summary>
 			public static Error InvalidPaymentType => throw new NotImplementedException();
 
-			public static Error CreateInvalidPaymentTypeError(string paymentType) =>
+			public static Error CreateInvalidPaymentTypeError(PaymentType paymentType) =>
 				new Error(
 					typeof(FastDelivery),
 					nameof(InvalidPaymentType),
-					$"Нельзя выбрать доставку за час для заказа с формой оплаты {paymentType}");
+					$"Нельзя выбрать доставку за час для заказа с формой оплаты {paymentType.GetEnumDisplayName()}");
 
 			public static Error DeliveryPointIsMissing =>
 				new Error(
