@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModels.Orders
 			
 			OrganizationSelectorFactory =
 				(organizationJournalFactory ?? throw new ArgumentNullException(nameof(organizationJournalFactory)))
-				.CreateOrganizationsForAvangardPaymentsAutocompleteSelectorFactory();
+				.CreateOrganizationAutocompleteSelectorFactory();
 			
 			CanShowOrganization = true;
 			ValidationContext.ServiceContainer.AddService(typeof(IPaymentFromRepository), paymentFromRepository);
