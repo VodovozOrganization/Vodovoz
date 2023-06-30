@@ -583,6 +583,7 @@ namespace Vodovoz
 				.AddDeleteDependence<Track>(x => x.RouteList)
 				.AddDeleteDependence<FuelDocument>(x => x.RouteList)
 				.AddDeleteDependence<RouteListFastDeliveryMaxDistance>(x => x.RouteList)
+				.AddDeleteDependence<RouteListDebt>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
 				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation)
 				.AddDeleteCascadeDependence(x => x.DriverWageOperation)
@@ -603,6 +604,7 @@ namespace Vodovoz
 						.AddRemoveFromDependence<RouteList>(x => x.Addresses);
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
+			DeleteConfig.AddHibernateDeleteInfo<RouteListDebt>();
 
 			DeleteConfig.AddHibernateDeleteInfo<GeoGroup>()
 						.AddDeleteDependence<AtWorkDriver>(x => x.GeographicGroup)
