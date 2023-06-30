@@ -132,6 +132,7 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
 				case PaymentType.SmsQR:
+				case PaymentType.DriverApplicationQR:
 					organizationId = GetOrganizationIdForByCard(uow, uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId), geographicGroup, orderCreateDate, onlineOrderId); 
 					break;
 				case PaymentType.PaidOnline:
