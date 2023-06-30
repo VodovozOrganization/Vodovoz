@@ -32,7 +32,7 @@ namespace Vodovoz.Views.Orders
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.AddBinding(vm => vm.CanShowOrganization, w => w.Visible)
-				.AddBinding(ViewModel.Entity, e => e.OrganizationForAvangardPayments, w => w.Subject)
+				.AddBinding(ViewModel.Entity, e => e.OrganizationForOnlinePayments, w => w.Subject)
 				.InitializeFromSource();
 
 			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();

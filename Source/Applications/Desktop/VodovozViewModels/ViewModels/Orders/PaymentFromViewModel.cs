@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
@@ -32,17 +31,9 @@ namespace Vodovoz.ViewModels.Orders
 				(organizationJournalFactory ?? throw new ArgumentNullException(nameof(organizationJournalFactory)))
 				.CreateOrganizationsForAvangardPaymentsAutocompleteSelectorFactory();
 			
-			if(uoWBuilder.IsNewEntity)
-			{
-				CanShowOrganization = false;
-			}
-			else
-			{
-				CanShowOrganization = (orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider)))
-					.PaymentsByCardFromAvangard.Contains(Entity.Id);
-			}
-			
+			CanShowOrganization = true;
 			ValidationContext.ServiceContainer.AddService(typeof(IPaymentFromRepository), paymentFromRepository);
+			ValidationContext.ServiceContainer.AddService(typeof(IOrderParametersProvider), orderParametersProvider);
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
