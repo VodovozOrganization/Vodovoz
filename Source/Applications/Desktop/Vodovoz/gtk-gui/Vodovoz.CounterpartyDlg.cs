@@ -528,6 +528,20 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelEdo;
 
+		private global::Gamma.GtkWidgets.yVBox yvboxEdoDocumentsMain;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxEdoDocumentsInfo;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelEdoDocumentsInfo;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindowEdoDocuments;
+
+		private global::Gamma.GtkWidgets.yTreeView treeViewEdoDocumentsContainer;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxEdoDocumentsButtons;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonEdoDocumentsSendAllUnsent;
+
 		private global::Gtk.Label labelEdoDocuments;
 
 		protected virtual void Build()
@@ -3335,18 +3349,72 @@ namespace Vodovoz
 			this.labelEdo.LabelProp = global::Mono.Unix.Catalog.GetString("Настройки ЭДО и Честного знака");
 			this.notebook1.SetTabLabel(this.scrolledWindowEdo, this.labelEdo);
 			this.labelEdo.ShowAll();
+			// Container child notebook1.Gtk.Notebook+NotebookChild
+			this.yvboxEdoDocumentsMain = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxEdoDocumentsMain.Name = "yvboxEdoDocumentsMain";
+			this.yvboxEdoDocumentsMain.Spacing = 6;
+			// Container child yvboxEdoDocumentsMain.Gtk.Box+BoxChild
+			this.yhboxEdoDocumentsInfo = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxEdoDocumentsInfo.Name = "yhboxEdoDocumentsInfo";
+			this.yhboxEdoDocumentsInfo.Spacing = 6;
+			// Container child yhboxEdoDocumentsInfo.Gtk.Box+BoxChild
+			this.ylabelEdoDocumentsInfo = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelEdoDocumentsInfo.Name = "ylabelEdoDocumentsInfo";
+			this.ylabelEdoDocumentsInfo.LabelProp = global::Mono.Unix.Catalog.GetString("Электронные документы:");
+			this.yhboxEdoDocumentsInfo.Add(this.ylabelEdoDocumentsInfo);
+			global::Gtk.Box.BoxChild w258 = ((global::Gtk.Box.BoxChild)(this.yhboxEdoDocumentsInfo[this.ylabelEdoDocumentsInfo]));
+			w258.Position = 0;
+			w258.Expand = false;
+			w258.Fill = false;
+			this.yvboxEdoDocumentsMain.Add(this.yhboxEdoDocumentsInfo);
+			global::Gtk.Box.BoxChild w259 = ((global::Gtk.Box.BoxChild)(this.yvboxEdoDocumentsMain[this.yhboxEdoDocumentsInfo]));
+			w259.Position = 0;
+			w259.Expand = false;
+			w259.Fill = false;
+			// Container child yvboxEdoDocumentsMain.Gtk.Box+BoxChild
+			this.GtkScrolledWindowEdoDocuments = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowEdoDocuments.Name = "GtkScrolledWindowEdoDocuments";
+			this.GtkScrolledWindowEdoDocuments.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowEdoDocuments.Gtk.Container+ContainerChild
+			this.treeViewEdoDocumentsContainer = new global::Gamma.GtkWidgets.yTreeView();
+			this.treeViewEdoDocumentsContainer.CanFocus = true;
+			this.treeViewEdoDocumentsContainer.Name = "treeViewEdoDocumentsContainer";
+			this.GtkScrolledWindowEdoDocuments.Add(this.treeViewEdoDocumentsContainer);
+			this.yvboxEdoDocumentsMain.Add(this.GtkScrolledWindowEdoDocuments);
+			global::Gtk.Box.BoxChild w261 = ((global::Gtk.Box.BoxChild)(this.yvboxEdoDocumentsMain[this.GtkScrolledWindowEdoDocuments]));
+			w261.Position = 1;
+			// Container child yvboxEdoDocumentsMain.Gtk.Box+BoxChild
+			this.yhboxEdoDocumentsButtons = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxEdoDocumentsButtons.Name = "yhboxEdoDocumentsButtons";
+			this.yhboxEdoDocumentsButtons.Spacing = 6;
+			// Container child yhboxEdoDocumentsButtons.Gtk.Box+BoxChild
+			this.ybuttonEdoDocumentsSendAllUnsent = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonEdoDocumentsSendAllUnsent.CanFocus = true;
+			this.ybuttonEdoDocumentsSendAllUnsent.Name = "ybuttonEdoDocumentsSendAllUnsent";
+			this.ybuttonEdoDocumentsSendAllUnsent.UseUnderline = true;
+			this.ybuttonEdoDocumentsSendAllUnsent.Label = global::Mono.Unix.Catalog.GetString("Отправить все неотправленные УПД");
+			this.yhboxEdoDocumentsButtons.Add(this.ybuttonEdoDocumentsSendAllUnsent);
+			global::Gtk.Box.BoxChild w262 = ((global::Gtk.Box.BoxChild)(this.yhboxEdoDocumentsButtons[this.ybuttonEdoDocumentsSendAllUnsent]));
+			w262.Position = 0;
+			w262.Expand = false;
+			w262.Fill = false;
+			this.yvboxEdoDocumentsMain.Add(this.yhboxEdoDocumentsButtons);
+			global::Gtk.Box.BoxChild w263 = ((global::Gtk.Box.BoxChild)(this.yvboxEdoDocumentsMain[this.yhboxEdoDocumentsButtons]));
+			w263.Position = 2;
+			w263.Expand = false;
+			w263.Fill = false;
+			this.notebook1.Add(this.yvboxEdoDocumentsMain);
+			global::Gtk.Notebook.NotebookChild w264 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.yvboxEdoDocumentsMain]));
+			w264.Position = 13;
 			// Notebook tab
-			global::Gtk.Label w258 = new global::Gtk.Label();
-			w258.Visible = true;
-			this.notebook1.Add(w258);
 			this.labelEdoDocuments = new global::Gtk.Label();
 			this.labelEdoDocuments.Name = "labelEdoDocuments";
 			this.labelEdoDocuments.LabelProp = global::Mono.Unix.Catalog.GetString("Документы по ЭДО");
-			this.notebook1.SetTabLabel(w258, this.labelEdoDocuments);
+			this.notebook1.SetTabLabel(this.yvboxEdoDocumentsMain, this.labelEdoDocuments);
 			this.labelEdoDocuments.ShowAll();
 			this.vbox2.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w259 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
-			w259.Position = 3;
+			global::Gtk.Box.BoxChild w265 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
+			w265.Position = 3;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
