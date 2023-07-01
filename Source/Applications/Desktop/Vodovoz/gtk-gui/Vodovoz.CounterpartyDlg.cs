@@ -713,7 +713,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbxRadioButtons[this.rbnEmails]));
 			w19.Position = 10;
 			// Container child hbxRadioButtons.Gtk.Box+BoxChild
-			this.rbnEdo = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("ЭДО и Честный знак"));
+			this.rbnEdo = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Настройки ЭДО и Честного знака"));
 			this.rbnEdo.CanFocus = true;
 			this.rbnEdo.Name = "rbnEdo";
 			this.rbnEdo.DrawIndicator = false;
@@ -3318,7 +3318,7 @@ namespace Vodovoz
 			// Notebook tab
 			this.labelEdo = new global::Gtk.Label();
 			this.labelEdo.Name = "labelEdo";
-			this.labelEdo.LabelProp = global::Mono.Unix.Catalog.GetString("ЭДО и Честный знак");
+			this.labelEdo.LabelProp = global::Mono.Unix.Catalog.GetString("Настройки ЭДО и Честного знака");
 			this.notebook1.SetTabLabel(this.scrolledWindowEdo, this.labelEdo);
 			this.labelEdo.ShowAll();
 			this.vbox2.Add(this.notebook1);
