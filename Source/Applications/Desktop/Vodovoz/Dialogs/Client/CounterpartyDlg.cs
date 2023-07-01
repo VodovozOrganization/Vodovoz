@@ -1528,6 +1528,14 @@ namespace Vodovoz
 			}
 		}
 
+		protected void OnRadioEdoDocumentsToggled(object sender, EventArgs e)
+		{
+			if(rbnEdoDocuments.Active)
+			{
+				notebook1.CurrentPage = 13;
+			}
+		}
+
 		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
 		{
 			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
