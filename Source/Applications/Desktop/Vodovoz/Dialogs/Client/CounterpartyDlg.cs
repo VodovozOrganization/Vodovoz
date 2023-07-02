@@ -1240,6 +1240,13 @@ namespace Vodovoz
 			}
 
 			treeViewEdoDocumentsContainer.ItemsDataSource = _edoContainers;
+			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnButtonEdoDocumentsSendAllUnsentClicked;
+			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoContainers();
+		}
+
+		private void OnButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
+		{
+			MainClass.MainWin.NavigationManager.OpenViewModel<ResendCounterpartyEdoDocumentsViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(Entity.Id));
 		}
 
 		private void UpdateEdoContainers()

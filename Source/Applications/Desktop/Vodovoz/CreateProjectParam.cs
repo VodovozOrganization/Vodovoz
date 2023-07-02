@@ -361,6 +361,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
 				.RegisterWidgetForTabViewModel<CounterpartyDetailsFromRevenueServiceViewModel, CounterpartyDetailsFromRevenueServiceView>()
 				.RegisterWidgetForTabViewModel<CloseSupplyToCounterpartyViewModel, CloseSupplyToCounterpartyView>()
+				.RegisterWidgetForTabViewModel<ResendCounterpartyEdoDocumentsViewModel, ResendCounterpartyEdoDocumentsView>()
 				.RegisterWidgetForTabViewModel<DeliveryPriceRuleViewModel, DeliveryPriceRuleView>()
 				.RegisterWidgetForTabViewModel<ExternalCounterpartyMatchingViewModel, ExternalCounterpartyMatchingView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceViewModel, InventoryInstanceView>()
