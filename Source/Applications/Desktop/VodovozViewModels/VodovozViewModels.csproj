@@ -50,7 +50,7 @@
     <Compile Include="Dialogs\Complaints\ComplaintsJournalsViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />
     <Compile Include="Dialogs\Counterparty\CloseSupplyToCounterpartyViewModel.cs" />
-    <Compile Include="Dialogs\Counterparty\ResendCounterpartyEdoDocementsViewModel.cs" />
+    <Compile Include="Dialogs\Counterparty\ResendCounterpartyEdoDocumentsViewModel.cs" />
     <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />

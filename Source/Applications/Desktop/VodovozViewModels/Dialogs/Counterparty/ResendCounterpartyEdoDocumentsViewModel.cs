@@ -9,13 +9,13 @@ using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
-	public class ResendCounterpartyEdoDocementsViewModel : EntityTabViewModelBase<Domain.Client.Counterparty>
+	public class ResendCounterpartyEdoDocumentsViewModel : EntityTabViewModelBase<Domain.Client.Counterparty>
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private GenericObservableList<EdoContainerSelectableNode> _edoContainerNodes = new GenericObservableList<EdoContainerSelectableNode>();
 
-		public ResendCounterpartyEdoDocementsViewModel(
+		public ResendCounterpartyEdoDocumentsViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
