@@ -1992,7 +1992,7 @@
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
     <PackageReference Include="NLog" Version="5.1.2" />
     <PackageReference Include="NLog.Extensions.Logging">
-      <Version>5.0.1</Version>
+      <Version>5.2.1</Version>
     </PackageReference>
     <PackageReference Include="OneOf">
       <Version>3.0.243</Version>
