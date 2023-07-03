@@ -6,6 +6,7 @@ namespace Vodovoz.Domain.Operations
 {
 	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "операции передвижения товаров по складу",
+		Accusative = "операцию передвижения товаров по складу",
 		Nominative = "операция передвижения товаров по складу")]
 	public class GoodsAccountingOperation : OperationBase
 	{
