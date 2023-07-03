@@ -10,7 +10,7 @@
 	  <TreatAsUsed>true</TreatAsUsed>
 	</PackageReference>
 	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.17" />
-	<PackageReference Include="MySql.Data" Version="8.0.28">
+	<PackageReference Include="MySql.Data" Version="8.0.32.1">
 	  <TreatAsUsed>true</TreatAsUsed>
 	</PackageReference>
 	<PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0">
