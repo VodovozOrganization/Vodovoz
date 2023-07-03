@@ -983,6 +983,7 @@ namespace Vodovoz
 			UpdateAvailableEnumSignatureTypes();
 
 			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) => UpdateEdoContainers();
+			ybuttonSendDocumentAgain.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
 
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
