@@ -47,7 +47,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.21.7" />
+    <PackageReference Include="Google.Protobuf" Version="3.22.1" />
     <PackageReference Include="Grpc" Version="2.44.0" />
     <PackageReference Include="Grpc.Core" Version="2.46.6" />
     <PackageReference Include="Grpc.Core.Api" Version="2.44.0" />
