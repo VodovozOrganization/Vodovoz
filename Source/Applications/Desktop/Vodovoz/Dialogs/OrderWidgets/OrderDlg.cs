@@ -207,6 +207,7 @@ namespace Vodovoz
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
+		private EdoContainer _selectedEdoContainer;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -983,7 +984,10 @@ namespace Vodovoz
 			UpdateAvailableEnumSignatureTypes();
 
 			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) => UpdateEdoContainers();
+
 			ybuttonSendDocumentAgain.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			ybuttonSendDocumentAgain.Sensitive = false;
+			ybuttonSendDocumentAgain.Clicked += OnButtonSendDocumentAgainClicked;
 
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
@@ -991,6 +995,30 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+		}
+
+		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		{
+			if(_selectedEdoContainer == null
+				|| _selectedEdoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
+			{ 
+				return; 
+			}
+
+			if(_selectedEdoContainer.EdoDocFlowStatus == EdoDocFlowStatus.InProgress)
+			{
+				if(!ServicesConfig.InteractiveService.Question("Документ в процессе отправки.\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+			
+			ResendUpd();
+		}
+
+		private void ResendUpd()
+		{
+
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
@@ -1661,6 +1689,7 @@ namespace Vodovoz
 			}
 
 			treeViewEdoContainers.ItemsDataSource = _edoContainers;
+			treeViewEdoContainers.Selection.Changed += OnTreeViewEdoContainersSelectionChanged;
 
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
 				.AddColumn("Статус заявки").SetDataProperty(node => node.Status.GetEnumTitle())
@@ -1672,6 +1701,23 @@ namespace Vodovoz
 
 			treeServiceClaim.ItemsDataSource = Entity.ObservableInitialOrderService;
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
+		}
+
+		private void OnTreeViewEdoContainersSelectionChanged(object sender, EventArgs e)
+		{
+			ybuttonSendDocumentAgain.Sensitive = false;
+			_selectedEdoContainer = null;
+
+			if(treeViewEdoContainers.SelectedRows.Count() != 1)
+			{
+				return;
+			}
+
+			if(treeViewEdoContainers.SelectedRow is EdoContainer edoContainer)
+			{
+				_selectedEdoContainer = edoContainer;
+				ybuttonSendDocumentAgain.Sensitive = _selectedEdoContainer.EdoDocFlowStatus != EdoDocFlowStatus.Succeed;
+			}
 		}
 
 		private void OnCountEdited(object o, EditedArgs args)
