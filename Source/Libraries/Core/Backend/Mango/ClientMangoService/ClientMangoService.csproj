@@ -51,7 +51,7 @@
     <PackageReference Include="Grpc" Version="2.44.0" />
     <PackageReference Include="Grpc.Core" Version="2.44.0" />
     <PackageReference Include="Grpc.Core.Api" Version="2.44.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.44.0">
+    <PackageReference Include="Grpc.Tools" Version="2.52.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
