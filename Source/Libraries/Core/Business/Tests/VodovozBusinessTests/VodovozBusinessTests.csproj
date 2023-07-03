@@ -142,7 +142,7 @@
     <PackageReference Include="Iesi.Collections" Version="4.0.5" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.16" />
-    <PackageReference Include="K4os.Hash.xxHash" Version="1.0.7" />
+    <PackageReference Include="K4os.Hash.xxHash" Version="1.0.8" />
     <PackageReference Include="MySql.Data" Version="8.0.32.1" />
     <PackageReference Include="NetTopologySuite" Version="2.4.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
