@@ -2591,10 +2591,10 @@ WHERE o.id = @order_id
           </Textbox>
           <Textbox Name="Textbox134">
             <Height>9.03pt</Height>
-            <Width>523.29pt</Width>
+            <Width>563.06pt</Width>
             <Value>(договор; доверенность и др.)</Value>
             <ZIndex>1</ZIndex>
-            <Left>254.1pt</Left>
+            <Left>214.33pt</Left>
             <Top>56.7pt</Top>
             <Style>
               <BorderStyle>
@@ -3525,11 +3525,11 @@ WHERE o.id = @order_id
             <Top>0.00pt</Top>
           </Line>
           <Textbox Name="Textbox128">
-            <Height>11.25pt</Height>
-            <Width>326.90pt</Width>
+            <Height>9.75pt</Height>
+            <Width>562.15pt</Width>
             <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_contract_number}) = false,{special_contract_number},Fields!contract_number.Value + ' от ' + Fields!contract_date.Value)</Value>
             <ZIndex>1</ZIndex>
-            <Left>258.70pt</Left>
+            <Left>213.59pt</Left>
             <Top>45.70pt</Top>
             <Style>
               <BorderStyle />
@@ -3537,6 +3537,7 @@ WHERE o.id = @order_id
               <BorderWidth />
               <FontSize>8pt</FontSize>
             </Style>
+            <CanGrow >true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox129">
             <Height>42.10pt</Height>
