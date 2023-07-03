@@ -1,5 +1,6 @@
 ﻿using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
@@ -19,6 +20,9 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		private DelegateCommand _resendSelectedEdoDocumentsCommand;
 		private DelegateCommand _selectAllCommand;
+		private DelegateCommand _unselectAllCommand;
+		private DelegateCommand _invertSelectionCommand;
+		private DelegateCommand _cancelCommand;
 
 		public ResendCounterpartyEdoDocumentsViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -29,7 +33,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 
-			Title = $"Отправить все неотправленные УПД контрагента {Entity.Name}";
+			Title = $"Повторная отправка неотправленных УПД контрагента {Entity.Name}";
 
 			GetUndeliveredUpd();
 		}
@@ -46,11 +50,15 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		private void GetUndeliveredUpd()
 		{
+			var startDate = new DateTime(2022, 10, 15);
+
 			var documents = UoW.GetAll<EdoContainer>()
 				.Where(x => 
 					x.Counterparty.Id == Entity.Id
 					&& x.Type == Domain.Orders.Documents.Type.Upd
-					&& !x.Received)
+					&& !x.IsIncoming
+					&& x.EdoDocFlowStatus != EdoDocFlowStatus.Succeed
+					&& x.Created >= startDate)
 				.OrderBy(x => x.Created)
 				.Select( x => new EdoContainerSelectableNode { IsSelected = true, EdoContainer = x })
 				.ToList();
@@ -113,7 +121,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		#region UnselectAll
 
-		private DelegateCommand _unselectAllCommand;
 		public DelegateCommand UnselectAllCommand
 		{
 			get
@@ -141,7 +148,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		#region InvertSelection
 
-		private DelegateCommand _invertSelectionCommand;
 		public DelegateCommand InvertSelectionCommand
 		{
 			get
@@ -167,6 +173,30 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		#endregion
 
+		#region CancelCommand
+
+		public DelegateCommand CancelCommand
+		{
+			get
+			{
+				if(_cancelCommand == null)
+				{
+					_cancelCommand = new DelegateCommand(Cancel, () => CanCancel);
+					_cancelCommand.CanExecuteChangedWith(this, x => x.CanCancel);
+				}
+				return _cancelCommand;
+			}
+		}
+
+		public bool CanCancel => true;
+
+		private void Cancel()
+		{
+			Close(false, CloseSource.Cancel);
+		}
+
+		#endregion
+
 		#endregion
 
 		public override void Dispose()
@@ -178,6 +208,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		public class EdoContainerSelectableNode
 		{
 			public bool IsSelected { get; set; }
+			public EdoDocFlowStatus EdoDocFlowStatus => EdoContainer.EdoDocFlowStatus;
 			public EdoContainer EdoContainer { get; set; }
 		}
 	}

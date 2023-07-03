@@ -1234,19 +1234,28 @@ namespace Vodovoz
 				.AddColumn("")
 				.Finish();
 
-			if(Entity.Id != 0)
+			if(Entity.Id > 0)
 			{
 				UpdateEdoContainers();
 			}
 
 			treeViewEdoDocumentsContainer.ItemsDataSource = _edoContainers;
+			ybuttonEdoDocumentsSendAllUnsent.Sensitive = Entity.Id > 0;
 			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnButtonEdoDocumentsSendAllUnsentClicked;
 			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoContainers();
 		}
 
 		private void OnButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
 		{
-			MainClass.MainWin.NavigationManager.OpenViewModel<ResendCounterpartyEdoDocumentsViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(Entity.Id));
+			if(Entity.Id > 0)
+			{
+				var resendEdoDocumentsDialog = new ResendCounterpartyEdoDocumentsViewModel(
+					EntityUoWBuilder.ForOpen(Entity.Id),
+					UnitOfWorkFactory.GetDefaultFactory,
+					_commonServices,
+					_counterpartyRepository);
+				TabParent.AddSlaveTab(this, resendEdoDocumentsDialog);
+			}
 		}
 
 		private void UpdateEdoContainers()

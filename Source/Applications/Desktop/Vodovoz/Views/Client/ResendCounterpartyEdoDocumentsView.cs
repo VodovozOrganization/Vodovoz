@@ -1,8 +1,5 @@
 ﻿using Gamma.ColumnConfig;
-using QS.Navigation;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Models.CashReceipts;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using static Vodovoz.ViewModels.Dialogs.Counterparty.ResendCounterpartyEdoDocumentsViewModel;
 
@@ -25,7 +22,7 @@ namespace Vodovoz.Views.Client
 			}
 
 			ybuttonSendSelected.Clicked += (sender, args) => ViewModel.ResendSelectedEdoDocumentsCommand.Execute();
-			ybuttonCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
+			ybuttonCancel.Clicked += (sender, args) => ViewModel.CancelCommand.Execute();
 			ybuttonSelectAll.Clicked += (sender, args) => ViewModel.SelectAllCommand.Execute();
 			ybuttonUnselectAll.Clicked += (sender, args) => ViewModel.UnselectAllCommand.Execute();
 			ybuttonInvertSelected.Clicked += (sender, args) => ViewModel.InvertSelectionCommand.Execute();
@@ -43,7 +40,7 @@ namespace Vodovoz.Views.Client
 				.AddColumn(" Отправленные \n документы ")
 					.AddTextRenderer(x => x.EdoContainer.SentDocuments)
 				.AddColumn(" Статус \n документооборота ")
-					.AddEnumRenderer(x => x.EdoContainer.EdoDocFlowStatus)
+					.AddEnumRenderer(x => x.EdoDocFlowStatus)
 				.AddColumn(" Доставлено \n клиенту? ")
 					.AddToggleRenderer(x => x.EdoContainer.Received)
 					.Editing(false)
@@ -54,6 +51,12 @@ namespace Vodovoz.Views.Client
 				.Finish();
 
 			ytreeviewEdoDocuments.ItemsDataSource = ViewModel.EdoContainerNodes;
+		}
+
+		public override void Destroy()
+		{
+			ytreeviewEdoDocuments.Destroy();
+			base.Destroy();
 		}
 	}
 }
