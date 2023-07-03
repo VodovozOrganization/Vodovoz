@@ -2,10 +2,11 @@
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using System;
-using System.Data.Bindings.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -16,7 +17,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly ICounterpartyRepository _counterpartyRepository;
-		private GenericObservableList<EdoContainerSelectableNode> _edoContainerNodes = new GenericObservableList<EdoContainerSelectableNode>();
+		private List<EdoContainerSelectableNode> _edoContainerNodes = new List<EdoContainerSelectableNode>();
 
 		private DelegateCommand _resendSelectedEdoDocumentsCommand;
 		private DelegateCommand _selectAllCommand;
@@ -38,9 +39,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			GetUndeliveredUpd();
 		}
 
+		public event EventHandler EdoContainerNodesListChanged;
+
 		#region Свойства
 
-		public GenericObservableList<EdoContainerSelectableNode> EdoContainerNodes
+		public List<EdoContainerSelectableNode> EdoContainerNodes
 		{
 			get => _edoContainerNodes;
 			set => SetField(ref _edoContainerNodes, value);
@@ -59,7 +62,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 					&& !x.IsIncoming
 					&& x.EdoDocFlowStatus != EdoDocFlowStatus.Succeed
 					&& x.Created >= startDate)
-				.OrderBy(x => x.Created)
+				.OrderByDescending(x => x.Created)
 				.Select( x => new EdoContainerSelectableNode { IsSelected = true, EdoContainer = x })
 				.ToList();
 
@@ -89,7 +92,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		private void ResendSelectedEdoDocuments()
 		{
+			var documentsToResend = _edoContainerNodes.Where(x => x.IsSelected).ToList();
+			var infoMessage = $"Будет отправлено {documentsToResend.Count}";
 
+			ServicesConfig.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info, infoMessage);
+
+			//Close(false, CloseSource.Cancel);
 		}
 		#endregion
 
@@ -116,6 +124,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			{
 				item.IsSelected = true;
 			}
+			EdoContainerNodesListChanged?.Invoke(this, EventArgs.Empty);
 		}
 		#endregion
 
@@ -142,6 +151,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			{
 				item.IsSelected = false;
 			}
+			EdoContainerNodesListChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		#endregion
@@ -169,6 +179,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			{
 				item.IsSelected = !item.IsSelected;
 			}
+			EdoContainerNodesListChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		#endregion

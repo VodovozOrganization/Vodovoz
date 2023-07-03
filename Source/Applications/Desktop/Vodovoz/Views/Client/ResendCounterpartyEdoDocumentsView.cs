@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
+using System;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using static Vodovoz.ViewModels.Dialogs.Counterparty.ResendCounterpartyEdoDocumentsViewModel;
 
@@ -51,11 +52,19 @@ namespace Vodovoz.Views.Client
 				.Finish();
 
 			ytreeviewEdoDocuments.ItemsDataSource = ViewModel.EdoContainerNodes;
+
+			ViewModel.EdoContainerNodesListChanged += OnEdoContainerListChanged;
+		}
+
+		private void OnEdoContainerListChanged(object sender, EventArgs e)
+		{
+			ytreeviewEdoDocuments.ItemsDataSource = ViewModel.EdoContainerNodes;
 		}
 
 		public override void Destroy()
 		{
-			ytreeviewEdoDocuments.Destroy();
+			ViewModel.EdoContainerNodesListChanged -= OnEdoContainerListChanged;
+			ytreeviewEdoDocuments?.Destroy();
 			base.Destroy();
 		}
 	}
