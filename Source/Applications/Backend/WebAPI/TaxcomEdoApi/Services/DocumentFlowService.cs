@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -16,7 +16,6 @@ using TaxcomEdoApi.Factories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Parameters;
@@ -56,7 +55,7 @@ namespace TaxcomEdoApi.Services
 			EdoBillFactory edoBillFactory,
 			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,
 			X509Certificate2 certificate,
-			PrintableDocumentSaver printableDocumentSaver)
+            PrintableDocumentSaver printableDocumentSaver)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
@@ -99,29 +98,6 @@ namespace TaxcomEdoApi.Services
 			}
 		}
 
-		public async Task CreateAndSendUpdByOrderAsync(int orderId)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				var order = uow.GetById<Order>(orderId);
-				if(order == null)
-				{
-					_logger.LogInformation("Ошибка формирования и отправки УПД. Заказ Id={OrderId} не найден!", orderId);
-					return;
-				}
-
-				try
-				{
-					var edoAccountId = _apiSection.GetValue<string>("EdxClientId");
-					await CreateAndSendUpd(uow, order, edoAccountId);
-				}
-				catch(Exception e)
-				{
-					_logger.LogError(e, "Ошибка в процессе получения заказов для формирования УПД");
-				}
-			}
-		}
-
 		private Task CreateAndSendUpd(IUnitOfWork uow, DateTime startDate)
 		{
 			try
@@ -148,65 +124,57 @@ namespace TaxcomEdoApi.Services
 				_logger.LogInformation("Всего заказов для формирования УПД и отправки: {FilteredOrdersCount}", filteredOrders.Count);
 				foreach(var order in filteredOrders)
 				{
-					CreateAndSendUpd(uow, order, edoAccountId);
+					_logger.LogInformation("Создаем УПД по заказу №{OrderId}", order.Id);
+					try
+					{
+						var updXml = _edoUpdFactory.CreateNewUpdXml(order, edoAccountId, _certificate.Subject);
+						var container = new TaxcomContainer
+						{
+							SignMode = DocumentSignMode.UseSpecifiedCertificate
+						};
+
+						var upd = new UniversalInvoiceDocument();
+						UniversalInvoiceConverter.Convert(upd, updXml);
+
+						if(!upd.Validate(out var errors))
+						{
+							var errorsString = string.Join(", ", errors);
+							_logger.LogError("УПД {OrderId} не прошла валидацию\nОшибки: {ErrorsString}", order.Id, errorsString);
+							continue;
+						}
+
+						container.Documents.Add(upd);
+						upd.AddCertificateForSign(_certificate.Thumbprint);
+
+						var containerRawData = container.ExportToZip();
+
+						var edoContainer = new EdoContainer
+						{
+							Type = Type.Upd,
+							Created = DateTime.Now,
+							Container = containerRawData,
+							Order = order,
+							Counterparty = order.Client,
+							MainDocumentId = $"{upd.FileIdentifier}.xml",
+							EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
+						};
+
+						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
+						uow.Save(edoContainer);
+						uow.Commit();
+
+						_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", order.Id);
+						_taxcomApi.Send(container);
+					}
+					catch(Exception e)
+					{
+						_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", order.Id);
+					}
 				}
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка в процессе получения заказов для формирования УПД");
-			}
-
-			return Task.CompletedTask;
-		}
-
-		private Task CreateAndSendUpd(IUnitOfWork uow, Order order, string edoAccountId)
-		{
-			_logger.LogInformation("Создаем УПД по заказу №{OrderId}", order.Id);
-			try
-			{
-				var updXml = _edoUpdFactory.CreateNewUpdXml(order, edoAccountId, _certificate.Subject);
-				var container = new TaxcomContainer
-				{
-					SignMode = DocumentSignMode.UseSpecifiedCertificate
-				};
-
-				var upd = new UniversalInvoiceDocument();
-				UniversalInvoiceConverter.Convert(upd, updXml);
-
-				if(!upd.Validate(out var errors))
-				{
-					var errorsString = string.Join(", ", errors);
-					_logger.LogError("УПД {OrderId} не прошла валидацию\nОшибки: {ErrorsString}", order.Id, errorsString);
-
-					return Task.CompletedTask;
-				}
-
-				container.Documents.Add(upd);
-				upd.AddCertificateForSign(_certificate.Thumbprint);
-
-				var containerRawData = container.ExportToZip();
-
-				var edoContainer = new EdoContainer
-				{
-					Type = Type.Upd,
-					Created = DateTime.Now,
-					Container = containerRawData,
-					Order = order,
-					Counterparty = order.Client,
-					MainDocumentId = $"{upd.FileIdentifier}.xml",
-					EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
-				};
-
-				_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
-				uow.Save(edoContainer);
-				uow.Commit();
-
-				_logger.LogInformation("Отправляем контейнер по заказу №{OrderId}", order.Id);
-				_taxcomApi.Send(container);
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка в процессе формирования УПД №{OrderId} и ее отправки", order.Id);
 			}
 
 			return Task.CompletedTask;
