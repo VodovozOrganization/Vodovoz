@@ -177,7 +177,8 @@ namespace Vodovoz.ViewModels.Cash
 			SetPropertyChangeRelation(
 				e => e.Employee,
 				() => EmployeeTypeString,
-				() => EmployeeBalanceVisible);
+				() => EmployeeBalanceVisible,
+				() => CurrentEmployeeWageBalanceLabelString);
 
 			SetPropertyChangeRelation(
 				e => e.TypeOperation,
@@ -544,7 +545,7 @@ namespace Vodovoz.ViewModels.Cash
 			{
 				RefreshCurrentEmployeeWage();
 
-				OnPropertyChanged(() => CurrentEmployeeWageBalanceLabelString);
+				OnPropertyChanged(nameof(CurrentEmployeeWageBalanceLabelString));
 
 				if(!IsAdvance && Entity.RouteListClosing != null)
 				{

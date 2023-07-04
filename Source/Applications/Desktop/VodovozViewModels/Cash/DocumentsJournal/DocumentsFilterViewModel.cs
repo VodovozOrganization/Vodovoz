@@ -12,7 +12,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
-using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Cash.DocumentsJournal
