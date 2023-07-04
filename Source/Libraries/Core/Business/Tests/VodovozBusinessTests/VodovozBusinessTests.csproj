@@ -68,6 +68,10 @@
       <Project>{3d3d6700-c625-46c5-9702-5f010a8dd035}</Project>
       <Name>QS.HistoryLog</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project.Abstract\QS.Project.Abstract.csproj">
+      <Project>{e95be5dc-a197-4657-87dc-a2d677eadb76}</Project>
+      <Name>QS.Project.Abstract</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{C01AE5A4-3CFF-4C7B-884D-45B07ACDE761}</Project>
       <Name>QS.Project.Core</Name>
