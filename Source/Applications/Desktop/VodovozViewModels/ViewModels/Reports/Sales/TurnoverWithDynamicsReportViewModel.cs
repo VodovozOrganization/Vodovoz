@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			_userIsSalesRepresentative =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
-				&& !_commonServices.UserService.GetCurrentUser(_unitOfWork).IsAdmin;
+				&& !_commonServices.UserService.GetCurrentUser().IsAdmin;
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;

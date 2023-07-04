@@ -149,7 +149,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_currentEmployee = _employeeRepository.GetEmployeesForUser(UoW, userId).First();
 			_currentEmployeeId = _currentEmployee.Id;
 
-			_isAdmin = _commonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+			_isAdmin = _commonServices.UserService.GetCurrentUser().IsAdmin;
 			_cashRequestFinancier =
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_financier_cash_request", userId);
 			_cashRequestCoordinator =
