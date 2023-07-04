@@ -64,7 +64,7 @@ namespace Vodovoz
 			
 			var userHasOnlyAccessToWarehouseAndComplaints =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			if(userHasOnlyAccessToWarehouseAndComplaints)
 			{
@@ -90,7 +90,7 @@ namespace Vodovoz
 				warehouseEntry.Sensitive = false;
 
 			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), _employeeRepository);
-			Entity.CanEdit = permmissionValidator.Validate(typeof(RegradingOfGoodsDocument), _userRepository.GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			Entity.CanEdit = permmissionValidator.Validate(typeof(RegradingOfGoodsDocument), _userRepository.GetCurrentUser().Id, nameof(RetroactivelyClosePermission));
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				warehouseEntry.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
