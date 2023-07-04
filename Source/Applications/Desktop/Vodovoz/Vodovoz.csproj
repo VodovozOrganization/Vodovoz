@@ -410,6 +410,7 @@
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
     <Compile Include="Core\DocumentPrinter.cs" />
+    <Compile Include="Core\ViewFactory.cs" />
     <Compile Include="Core\WidgetResolveException.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
@@ -2347,6 +2348,10 @@
       <Project>{a869ec36-67d2-4a36-95e9-0b1e7350928f}</Project>
       <Name>QS.BaseParameters</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Configuration\QS.Configuration.csproj">
+      <Project>{5D124360-C8FB-4779-958B-0DA5D6B90C29}</Project>
+      <Name>QS.Configuration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
       <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
       <Name>QS.DocTemplates</Name>
@@ -2366,6 +2371,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Osrm\QS.Osrm.csproj">
       <Project>{84D04158-2201-407F-AAC9-F4A04E84AD1E}</Project>
       <Name>QS.Osrm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Project.Abstract\QS.Project.Abstract.csproj">
+      <Project>{e95be5dc-a197-4657-87dc-a2d677eadb76}</Project>
+      <Name>QS.Project.Abstract</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{c01ae5a4-3cff-4c7b-884d-45b07acde761}</Project>
