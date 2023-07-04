@@ -57,8 +57,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 			CarVersion carVersionAlias = null;
 
 			return uow.Session.QueryOver(() => carEventAlias)
-				.Left.JoinAlias(() => carEventAlias.Car, () => carAlias)
-				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+				.JoinAlias(() => carEventAlias.Car, () => carAlias)
+				.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.JoinEntityAlias(
 					() => carVersionAlias,
 					() => carAlias.Id == carVersionAlias.Car.Id
