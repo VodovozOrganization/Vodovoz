@@ -104,7 +104,7 @@ namespace VodovozSmsPaymentService
 						Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 					});
 
-				QS.HistoryLog.HistoryMain.Enable();
+				QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 
 				var driverApiSection = configuration.GetSection("DriverAPI");
 
