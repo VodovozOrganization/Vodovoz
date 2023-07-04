@@ -493,7 +493,7 @@ namespace Vodovoz.ViewModels.Cash
 			if(Entity.TypeOperation == IncomeType.Return && Entity.Employee != null)
 			{
 				var advances = _accountableDebtsRepository
-				.GetUnclosedAdvances(UoW, Entity.Employee, Entity.ExpenseCategoryId, Entity.Organisation?.Id);
+					.GetUnclosedAdvances(UoW, Entity.Employee, Entity.ExpenseCategoryId, Entity.Organisation?.Id);
 
 				ClearDebts();
 
@@ -517,6 +517,11 @@ namespace Vodovoz.ViewModels.Cash
 
 		private void ClearDebts()
 		{
+			if(!NoClose)
+			{
+				Money = 0m;
+			}
+
 			if(SelectableAdvances.Any())
 			{
 				SelectableAdvances
@@ -665,7 +670,7 @@ namespace Vodovoz.ViewModels.Cash
 				return;
 			}
 
-			Entity.Money = SelectableAdvances
+			Money = SelectableAdvances
 				.Where(expense => expense.Selected)
 				.Sum(selectedExpense => selectedExpense.Value.UnclosedMoney);
 
@@ -756,12 +761,6 @@ namespace Vodovoz.ViewModels.Cash
 			}
 
 			return true;
-		}
-
-		public override void Dispose()
-		{
-
-			base.Dispose();
 		}
 	}
 }

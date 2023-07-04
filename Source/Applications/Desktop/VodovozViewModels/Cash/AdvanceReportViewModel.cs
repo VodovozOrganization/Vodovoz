@@ -462,6 +462,9 @@ namespace Vodovoz.ViewModels.Cash
 
 		private void ClearDebts()
 		{
+			Money = 0m;
+			ClosingSum = 0m;
+
 			if(AdvanceList.Any())
 			{
 				AdvanceList
@@ -527,7 +530,7 @@ namespace Vodovoz.ViewModels.Cash
 				return;
 			}
 
-			Balance = ClosingSum - Entity.Money;
+			Balance = ClosingSum - Money;
 		}
 
 		public void InitializationFailed(
@@ -572,7 +575,7 @@ namespace Vodovoz.ViewModels.Cash
 
 			Entity.Accountable = expense.Employee;
 			Entity.ExpenseCategoryId = expense.ExpenseCategoryId;
-			Entity.Money = expense.UnclosedMoney;
+			Money = expense.UnclosedMoney;
 
 			AdvanceList
 				.Find(x => x.Value.Id == expenseId)
