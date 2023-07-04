@@ -269,7 +269,7 @@ namespace DriverAPI
 
 			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
 
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 
 		private void RegisterDependencies(ref IServiceCollection services)

@@ -226,7 +226,7 @@ namespace FastPaymentsAPI
 			}
 
 			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

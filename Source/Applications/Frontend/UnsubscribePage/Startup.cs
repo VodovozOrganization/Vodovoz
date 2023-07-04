@@ -137,7 +137,7 @@ namespace UnsubscribePage
 				}
 			);
 
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

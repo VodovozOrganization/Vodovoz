@@ -97,7 +97,7 @@ namespace EmailPrepareWorker
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 			});
 
-			QS.HistoryLog.HistoryMain.Enable();
+			QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Email prepare worker"))
 			{
