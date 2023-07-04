@@ -40,6 +40,7 @@ using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using System.Net.Http;
+using QS.ErrorReporting.Handlers;
 
 namespace Vodovoz
 {
@@ -123,14 +124,19 @@ namespace Vodovoz
 			exceptionHandler.InteractiveService = ServicesConfig.InteractiveService;
 			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactoryWithUserService;
 			//Настройка обычных обработчиков ошибок.
-			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
-			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
-			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.NHibernateStaleObjectStateExceptionHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionConnectionTimeoutHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionAuthHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.SocketTimeoutException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.GeoGroupVersionNotFoundException);
+
+			UnhandledExceptionHandler unhandledExceptionHandler = new UnhandledExceptionHandler();
+			//Передаем в настройки GUI поток, чтобы обработчик мог отличать вызовы исключений из других потоков и не падал при этом в момент попытки отобразить диалог пользователю.
+			GtkGuiDispatcher.GuiThread = System.Threading.Thread.CurrentThread;
+			//Получаем все необходимые зависимости из контейнера.
+			unhandledExceptionHandler.UpdateDependencies(AppDIContainer);
+			//Подписываемся на необработанные исключения текущего приложения.
+			unhandledExceptionHandler.SubscribeToUnhandledExceptions();
 
 			#endregion
 
