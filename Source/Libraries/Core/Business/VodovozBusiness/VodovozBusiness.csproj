@@ -491,9 +491,11 @@
     <Compile Include="EntityRepositories\HistoryChanges\IArchivedHistoryChangesRepository.cs" />
     <Compile Include="EntityRepositories\HistoryChanges\ArchivedHistoryChangesRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\CarEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
     <Compile Include="EntityRepositories\Logistic\ICachedDistanceRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\ICarEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IDeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IArchivedTrackPointRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IRouteColumnRepository.cs" />
