@@ -18,7 +18,7 @@
     <Height>565pt</Height>
     <ReportItems>
       <List Name="List1">
-        <Height>557pt</Height>
+        <Height>557.00pt</Height>
         <Width>816.59pt</Width>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
@@ -3345,7 +3345,7 @@
   </DataSources>
   <DataSets>
     <DataSet Name="Cars">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	IFNULL(cm.name, ' ') as car_model,
@@ -3373,7 +3373,9 @@ WHERE
     AND ISNULL(empl.date_fired)  
     AND empl.subdivision_id IN (@subdivisions)
     AND cm.car_type_of_use IN (@auto_types)
-    AND cv.car_own_type IN (@owner_types)</CommandText>
+    AND cv.car_own_type IN (@owner_types)
+    AND cv.start_date &lt;= @date AND (cv.end_date &gt; @date OR ISNULL(cv.end_date))
+ORDER BY driver</CommandText>
         <QueryParameters>
           <QueryParameter Name="subdivisions">
             <Value>={?subdivisions}</Value>
@@ -3384,9 +3386,12 @@ WHERE
           <QueryParameter Name="owner_types">
             <Value>={?owner_types}</Value>
           </QueryParameter>
+          <QueryParameter Name="date">
+            <Value>={?date}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="car_model">
           <DataField>car_model</DataField>
           <TypeName>System.String</TypeName>
