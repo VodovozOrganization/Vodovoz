@@ -40,6 +40,9 @@ using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using System.Net.Http;
+using QS.Utilities.Debug;
+using System.IO;
+using QS.Configuration;
 using QS.ErrorReporting.Handlers;
 
 namespace Vodovoz
@@ -81,13 +84,13 @@ namespace Vodovoz
 			QS.Project.Search.GtkUI.SearchView.QueryDelay = 1500;
 			QS.Views.Control.EntityEntry.QueryDelay = 250;
 
+			var configurationFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Vodovoz.ini");
+
+			var configuration = new IniFileConfiguration(configurationFile);
 			Gtk.Settings.Default.SetLongProperty("gtk-button-images", 1, "");
 			// Создаем окно входа
-			Login LoginDialog = new Login ();
+			Login LoginDialog = new Login (configuration);
 			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png");
-			LoginDialog.SetDefaultNames ("Vodovoz");
-			LoginDialog.DefaultLogin = "user";
-			LoginDialog.DefaultServer = "sql.vod.qsolution.ru";
 			LoginDialog.UpdateFromGConf ();
 
 			ResponseType LoginResult;
