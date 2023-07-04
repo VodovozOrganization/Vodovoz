@@ -309,6 +309,7 @@
     <Compile Include="Domain\Logistic\LogisticsRequirements.cs" />
     <Compile Include="Domain\Logistic\RouteListDebt.cs" />
     <Compile Include="Domain\Logistic\RouteListFastDeliveryMaxDistance.cs" />
+    <Compile Include="Domain\NamedDomainObjectNode.cs" />
     <Compile Include="Domain\Operations\DeliveryFreeBalanceOperation.cs" />
     <Compile Include="Domain\Operations\BulkGoodsAccountingOperation.cs" />
     <Compile Include="Domain\Operations\CarBulkGoodsAccountingOperation.cs" />

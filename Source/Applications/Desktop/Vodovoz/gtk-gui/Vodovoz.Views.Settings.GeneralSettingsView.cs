@@ -66,6 +66,8 @@ namespace Vodovoz.Views.Settings
 
 		private global::Vodovoz.Views.Settings.SubdivisionsSettingsView alternativePriceSubdivisionsView;
 
+		private global::Vodovoz.Views.Settings.NamedDomainEntitiesSettingsView warehousesForPricesAndStocksIntegrationsView;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -318,11 +320,18 @@ namespace Vodovoz.Views.Settings
 			w27.Position = 0;
 			w27.Expand = false;
 			w27.Fill = false;
-			this.hboxMain.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.warehousesForPricesAndStocksIntegrationsView = new global::Vodovoz.Views.Settings.NamedDomainEntitiesSettingsView();
+			this.warehousesForPricesAndStocksIntegrationsView.Events = ((global::Gdk.EventMask)(256));
+			this.warehousesForPricesAndStocksIntegrationsView.Name = "warehousesForPricesAndStocksIntegrationsView";
+			this.vbox1.Add(this.warehousesForPricesAndStocksIntegrationsView);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.warehousesForPricesAndStocksIntegrationsView]));
 			w28.Position = 1;
-			w28.Expand = false;
-			w28.Fill = false;
+			this.hboxMain.Add(this.vbox1);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
+			w29.Position = 1;
+			w29.Expand = false;
+			w29.Fill = false;
 			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{

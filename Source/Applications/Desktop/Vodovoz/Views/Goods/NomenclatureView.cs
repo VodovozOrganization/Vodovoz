@@ -9,7 +9,11 @@ using QS.Views.GtkUI;
 using QSOrmProject;
 using QSWidgetLib;
 using System;
+using System.Globalization;
 using System.Linq;
+using Gamma.Binding;
+using Gamma.Binding.Converters;
+using Gamma.ColumnConfig;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -18,7 +22,6 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Representations.ProductGroups;
 using Vodovoz.ServiceDialogs.Database;
-using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Dialogs.Goods;
 
 namespace Vodovoz.Views.Goods
@@ -37,6 +40,16 @@ namespace Vodovoz.Views.Goods
 		private void Configure()
 		{
 			notebook.ShowTabs = false;
+			validatedentry1.ValidationMode = QS.Widgets.ValidationType.Price;
+			/*validatedentry1.Binding
+				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
+				.InitializeFromSource();*/
+
+			validatedentry1.MaxLength = 5;
+			validatedentry1.TextInserted += Validatedentry1OnTextInserted;
+			validatedentry1.KeyPressEvent += Validatedentry1OnKeyPressEvent;
+			validatedentry1.KeyReleaseEvent += Validatedentry1OnKeyReleaseEvent;
+			validatedentry1.TextDeleted += Validatedentry1OnTextDeleted;
 
 			#region RadioButtons
 
@@ -451,6 +464,39 @@ namespace Vodovoz.Views.Goods
 			ConfigureActionsMenu();
 		}
 
+		private void Validatedentry1OnTextDeleted(object o, TextDeletedArgs args)
+		{
+			
+		}
+
+		private void Validatedentry1OnKeyReleaseEvent(object o, KeyReleaseEventArgs args)
+		{
+			
+		}
+
+		private void Validatedentry1OnKeyPressEvent(object o, KeyPressEventArgs args)
+		{
+			var f = true;
+			//if(args.Event.Key == Gdk.Key)
+		}
+
+		private void Validatedentry1OnButtonPressEvent(object o, ButtonPressEventArgs args)
+		{
+			
+		}
+
+		private void Validatedentry1OnTextInserted(object o, TextInsertedArgs args)
+		{
+			var f = args.Text;
+			if(f.Contains(","))
+			{
+				var replacedText = validatedentry1.Text.Replace(",", ".");
+				validatedentry1.Text = replacedText;
+				var pos = validatedentry1.Text.Length;
+				validatedentry1.InsertText(".", ref pos);
+			}
+		}
+
 		private void ConfigureParametersForMobileApp()
 		{
 			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(NomenclatureOnlineAvailability);
@@ -463,9 +509,9 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineMarker, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 			
-			spinBtnOnlineDiscountMobileApp.Binding
+			/*spinBtnOnlineDiscountMobileApp.Binding
 				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.ValueAsDecimal)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
 		}
 		
 		private void ConfigureParametersForVodovozWebSite()
@@ -518,7 +564,34 @@ namespace Vodovoz.Views.Goods
 		
 		private void ConfigureTreeOnlinePrices()
 		{
-			throw new NotImplementedException();
+			treeViewOnlinePrices.ColumnsConfig = FluentColumnsConfig<NomenclatureOnlinePricesNode>.Create()
+				.AddColumn("Кол-во (от)")
+				.AddNumericRenderer(x => x.MinCount)
+				.AddColumn("Цена продажи")
+				.AddNumericRenderer(x => x.NomenclaturePrice, new NullableDecimalToDecimalConverter())
+				.Digits(2)
+				.AddColumn("Цена продажи\nКулер-Сейл")
+				.AddNumericRenderer(x => x.KulerSalePrice, new NullableDecimalToDecimalConverter())
+				.Digits(2)
+				.AddColumn("Приложение\n\nЦена без\nскидки")
+				.AddNumericRenderer(x => x.MobileAppPriceWithoutDiscount, new NullableDecimalToDecimalConverter())
+				.Digits(2)
+				.Adjustment(new Adjustment(0, 0, 1_000_000, 1, 10, 0))
+				.AddSetter((cell, node) => cell.Editable = node.CanChangeMobileAppPriceWithoutDiscount)
+				.AddColumn("Сайт ВВ\n\nЦена без\nскидки")
+				.AddNumericRenderer(x => x.VodovozWebSitePriceWithoutDiscount, new NullableDecimalToDecimalConverter())
+				.Digits(2)
+				.Adjustment(new Adjustment(0, 0, 1_000_000, 1, 10, 0))
+				.AddSetter((cell, node) => cell.Editable = node.CanChangeVodovozWebSitePriceWithoutDiscount)
+				.AddColumn("Кулер-Сейл\n\nЦена без\nскидки")
+				.AddNumericRenderer(x => x.KulerSaleWebSitePriceWithoutDiscount, new NullableDecimalToDecimalConverter())
+				.Digits(2)
+				.Adjustment(new Adjustment(0, 0, 1_000_000, 1, 10, 0))
+				.AddSetter((cell, node) => cell.Editable = node.CanChangeKulerSaleWebSitePriceWithoutDiscount)
+				.AddColumn("")
+				.Finish();
+
+			treeViewOnlinePrices.ItemsDataSource = ViewModel.NomenclatureOnlinePrices;
 		}
 
 		private void ConfigureActionsMenu()
@@ -687,5 +760,23 @@ namespace Vodovoz.Views.Goods
 
 		#endregion
 
+	}
+	
+	public class NullableDecimalToDecimalConverter : IValueConverter
+	{
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			return value is null ? 0d : System.Convert.ToDouble(value);
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			if(decimal.TryParse(value.ToString(), out var result) && result != 0)
+			{
+				return result;
+			}
+
+			return null;
+		}
 	}
 }

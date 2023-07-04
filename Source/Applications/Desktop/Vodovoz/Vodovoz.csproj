@@ -1926,6 +1926,8 @@
     <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialExpenseCategoryView.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialIncomeCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialIncomeCategoryView.cs" />
+    <Compile Include="Views\Settings\NamedDomainEntitiesSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Settings.NamedDomainEntitiesSettingsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

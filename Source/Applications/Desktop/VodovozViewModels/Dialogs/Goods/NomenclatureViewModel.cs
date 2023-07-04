@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using NLog;
 using QS.Commands;
@@ -68,36 +70,72 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			MobileAppNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForMobileApp);
 			VodovozWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForVodovozWebSite);
 			KulerSaleWebSiteNomenclatureOnlineParameters = GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType.ForKulerSaleWebSite);
+			
+			UpdateNomenclatureOnlinePrices();
 		}
 
 		private NomenclatureOnlineParameters GetNomenclatureOnlineParameters(NomenclatureOnlineParameterType type)
 		{
 			var parameters = Entity.NomenclatureOnlineParameters.SingleOrDefault(x => x.Type == type);
+			return parameters ?? CreateNomenclatureOnlineParameters(type);
+		}
 
-			if(!(parameters is null))
-			{
-				return parameters;
-			}
-
+		private NomenclatureOnlineParameters CreateNomenclatureOnlineParameters(NomenclatureOnlineParameterType type)
+		{
+			NomenclatureOnlineParameters parameters = null;
 			switch(type)
 			{
 				case NomenclatureOnlineParameterType.ForMobileApp:
 					parameters = new MobileAppNomenclatureOnlineParameters();
+
+					foreach(var nomenclaturePrice in Entity.NomenclaturePrice)
+					{
+						var onlinePrice = new MobileAppNomenclatureOnlinePrice
+						{
+							NomenclatureOnlineParameters = parameters,
+							NomenclaturePrice = nomenclaturePrice
+						};
+						parameters.NomenclatureOnlinePrices.Add(onlinePrice);
+					}
 					break;
 				case NomenclatureOnlineParameterType.ForVodovozWebSite:
 					parameters = new VodovozWebSiteNomenclatureOnlineParameters();
+					
+					foreach(var nomenclaturePrice in Entity.NomenclaturePrice)
+					{
+						var onlinePrice = new VodovozWebSiteNomenclatureOnlinePrice
+						{
+							NomenclatureOnlineParameters = parameters,
+							NomenclaturePrice = nomenclaturePrice
+						};
+						parameters.NomenclatureOnlinePrices.Add(onlinePrice);
+					}
 					break;
 				case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
 					parameters = new KulerSaleWebSiteNomenclatureOnlineParameters();
+
+					foreach(var alternativeNomenclaturePrice in Entity.AlternativeNomenclaturePrices)
+					{
+						var onlinePrice = new KulerSaleWebSiteNomenclatureOnlinePrice
+						{
+							NomenclatureOnlineParameters = parameters,
+							NomenclaturePrice = alternativeNomenclaturePrice
+						};
+						parameters.NomenclatureOnlinePrices.Add(onlinePrice);
+					}
 					break;
 			}
-			Entity.NomenclatureOnlineParameters.Add(parameters);
 
+			parameters.Nomenclature = Entity;
+			Entity.NomenclatureOnlineParameters.Add(parameters);
 			return parameters;
 		}
 
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
+
+		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; private set; }
+			= new GenericObservableList<NomenclatureOnlinePricesNode>();
 
 		public bool ImageLoaded { get; set; }
 		public NomenclatureImage PopupMenuOn { get; set; }
@@ -257,6 +295,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 		protected override bool BeforeSave() {
 			logger.Info("Сохраняем номенклатуру...");
+			var t = MobileAppNomenclatureOnlineParameters;
 			Entity.SetNomenclatureCreationInfo(_userRepository);
 			PricesViewSaveChanges?.Invoke();
 			return base.BeforeSave();
@@ -275,5 +314,132 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		);
 
 		#endregion
+
+		private void UpdateNomenclatureOnlinePrices()
+		{
+			NomenclatureOnlinePrices.Clear();
+			var onlinePrices = new Dictionary<decimal, NomenclatureOnlinePricesNode>();
+
+			foreach(var nomenclatureOnlineParameter in Entity.NomenclatureOnlineParameters)
+			{
+				foreach(var onlinePrice in nomenclatureOnlineParameter.NomenclatureOnlinePrices.OrderBy(x => x.NomenclaturePrice.MinCount))
+				{
+					onlinePrices.TryGetValue(onlinePrice.NomenclaturePrice.MinCount, out var nomenclatureOnlinePricesNode);
+
+					if(nomenclatureOnlinePricesNode is null)
+					{
+						switch(onlinePrice.Type)
+						{
+							case NomenclatureOnlineParameterType.ForMobileApp:
+								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
+								{
+									MobileAppNomenclatureOnlinePrice = onlinePrice
+								};
+								break;
+							case NomenclatureOnlineParameterType.ForVodovozWebSite:
+								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
+								{
+									VodovozWebSiteNomenclatureOnlinePrice = onlinePrice
+								};
+								break;
+							case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+								nomenclatureOnlinePricesNode = new NomenclatureOnlinePricesNode
+								{
+									KulerSaleWebSiteNomenclatureOnlinePrice = onlinePrice
+								};
+								break;
+						}
+
+						var minCount = onlinePrice.NomenclaturePrice.MinCount;
+						nomenclatureOnlinePricesNode.MinCount = minCount;
+						onlinePrices.Add(minCount, nomenclatureOnlinePricesNode);
+						NomenclatureOnlinePrices.Add(nomenclatureOnlinePricesNode);
+					}
+					else
+					{
+						switch(onlinePrice.Type)
+						{
+							case NomenclatureOnlineParameterType.ForMobileApp:
+								nomenclatureOnlinePricesNode.MobileAppNomenclatureOnlinePrice = onlinePrice;
+								break;
+							case NomenclatureOnlineParameterType.ForVodovozWebSite:
+								nomenclatureOnlinePricesNode.VodovozWebSiteNomenclatureOnlinePrice = onlinePrice;
+								break;
+							case NomenclatureOnlineParameterType.ForKulerSaleWebSite:
+								nomenclatureOnlinePricesNode.KulerSaleWebSiteNomenclatureOnlinePrice = onlinePrice;
+								break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/*public class NomenclatureOnlinePricesNode
+	{
+		public decimal MinCount => 
+		public decimal? NomenclaturePrice { get; set; }
+		public decimal? KulerSalePrice { get; set; }
+		public decimal? MobileAppPriceWithoutDiscount { get; set; }
+		public decimal? VodovozWebSitePriceWithoutDiscount { get; set; }
+		public decimal? KulerSaleWebSitePriceWithoutDiscount { get; set; }
+		public bool CanChangeMobileAppPriceWithoutDiscount => NomenclaturePrice.HasValue;
+		public bool CanChangeVodovozWebSitePriceWithoutDiscount => NomenclaturePrice.HasValue;
+		public bool CanChangeKulerSaleWebSitePriceWithoutDiscount => KulerSalePrice.HasValue;
+	}*/
+	
+	public class NomenclatureOnlinePricesNode
+	{
+		public decimal MinCount { get; set; }
+		public NomenclatureOnlinePrice MobileAppNomenclatureOnlinePrice { get; set; }
+		public NomenclatureOnlinePrice VodovozWebSiteNomenclatureOnlinePrice { get; set; }
+		public NomenclatureOnlinePrice KulerSaleWebSiteNomenclatureOnlinePrice { get; set; }
+		public decimal? NomenclaturePrice => MobileAppNomenclatureOnlinePrice?.NomenclaturePrice.Price;
+		public decimal? KulerSalePrice => KulerSaleWebSiteNomenclatureOnlinePrice?.NomenclaturePrice.Price;
+
+		public decimal? MobileAppPriceWithoutDiscount
+		{
+			get => MobileAppNomenclatureOnlinePrice?.PriceWithoutDiscount;
+			set
+			{
+				if(MobileAppNomenclatureOnlinePrice is null)
+				{
+					return;
+				}
+
+				MobileAppNomenclatureOnlinePrice.PriceWithoutDiscount = value;
+			}
+		} 
+
+		public decimal? VodovozWebSitePriceWithoutDiscount
+		{
+			get => VodovozWebSiteNomenclatureOnlinePrice?.PriceWithoutDiscount;
+			set
+			{
+				if(VodovozWebSiteNomenclatureOnlinePrice is null)
+				{
+					return;
+				}
+
+				VodovozWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = value;
+			}
+		}
+
+		public decimal? KulerSaleWebSitePriceWithoutDiscount
+		{
+			get => KulerSaleWebSiteNomenclatureOnlinePrice?.PriceWithoutDiscount;
+			set
+			{
+				if(KulerSaleWebSiteNomenclatureOnlinePrice is null)
+				{
+					return;
+				}
+
+				KulerSaleWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = value;
+			}
+		}
+		public bool CanChangeMobileAppPriceWithoutDiscount => NomenclaturePrice.HasValue;
+		public bool CanChangeVodovozWebSitePriceWithoutDiscount => NomenclaturePrice.HasValue;
+		public bool CanChangeKulerSaleWebSitePriceWithoutDiscount => KulerSalePrice.HasValue;
 	}
 }

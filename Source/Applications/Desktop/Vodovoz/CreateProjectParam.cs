@@ -457,6 +457,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<InventoryInstancesStockBalanceJournalFilterViewModel, InventoryInstancesStockBalanceJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<FinancialCategoriesGroupViewModel, FinancialCategoriesGroupView>()
 				.RegisterWidgetForWidgetViewModel<FinancialCategoriesJournalFilterViewModel, FinancialCategoriesJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
 				;
 			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

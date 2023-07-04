@@ -350,6 +350,8 @@ namespace Vodovoz.Views.Goods
 
 		private global::Gamma.GtkWidgets.ySpinButton spinBtnOnlineDiscountVodovozWebSite;
 
+		private global::QS.Widgets.ValidatedEntry validatedentry1;
+
 		private global::Gamma.GtkWidgets.yLabel lblOnlinePrices;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindowOnlinePrices;
@@ -515,7 +517,7 @@ namespace Vodovoz.Views.Goods
 			this.notebook = new global::Gtk.Notebook();
 			this.notebook.CanFocus = true;
 			this.notebook.Name = "notebook";
-			this.notebook.CurrentPage = 0;
+			this.notebook.CurrentPage = 6;
 			// Container child notebook.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -2094,7 +2096,7 @@ namespace Vodovoz.Views.Goods
 			// Container child vboxSitesAndApps.Gtk.Box+BoxChild
 			this.ytable1 = new global::Gamma.GtkWidgets.yTable();
 			this.ytable1.Name = "ytable1";
-			this.ytable1.NRows = ((uint)(4));
+			this.ytable1.NRows = ((uint)(5));
 			this.ytable1.NColumns = ((uint)(4));
 			this.ytable1.RowSpacing = ((uint)(6));
 			this.ytable1.ColumnSpacing = ((uint)(6));
@@ -2302,11 +2304,25 @@ namespace Vodovoz.Views.Goods
 			w169.RightAttach = ((uint)(3));
 			w169.XOptions = ((global::Gtk.AttachOptions)(4));
 			w169.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytable1.Gtk.Table+TableChild
+			this.validatedentry1 = new global::QS.Widgets.ValidatedEntry();
+			this.validatedentry1.CanFocus = true;
+			this.validatedentry1.Name = "validatedentry1";
+			this.validatedentry1.IsEditable = true;
+			this.validatedentry1.InvisibleChar = '•';
+			this.ytable1.Add(this.validatedentry1);
+			global::Gtk.Table.TableChild w170 = ((global::Gtk.Table.TableChild)(this.ytable1[this.validatedentry1]));
+			w170.TopAttach = ((uint)(4));
+			w170.BottomAttach = ((uint)(5));
+			w170.LeftAttach = ((uint)(1));
+			w170.RightAttach = ((uint)(2));
+			w170.XOptions = ((global::Gtk.AttachOptions)(4));
+			w170.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxSitesAndApps.Add(this.ytable1);
-			global::Gtk.Box.BoxChild w170 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.ytable1]));
-			w170.Position = 0;
-			w170.Expand = false;
-			w170.Fill = false;
+			global::Gtk.Box.BoxChild w171 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.ytable1]));
+			w171.Position = 0;
+			w171.Expand = false;
+			w171.Fill = false;
 			// Container child vboxSitesAndApps.Gtk.Box+BoxChild
 			this.lblOnlinePrices = new global::Gamma.GtkWidgets.yLabel();
 			this.lblOnlinePrices.Name = "lblOnlinePrices";
@@ -2314,10 +2330,10 @@ namespace Vodovoz.Views.Goods
 			this.lblOnlinePrices.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Цены:</b>");
 			this.lblOnlinePrices.UseMarkup = true;
 			this.vboxSitesAndApps.Add(this.lblOnlinePrices);
-			global::Gtk.Box.BoxChild w171 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.lblOnlinePrices]));
-			w171.Position = 1;
-			w171.Expand = false;
-			w171.Fill = false;
+			global::Gtk.Box.BoxChild w172 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.lblOnlinePrices]));
+			w172.Position = 1;
+			w172.Expand = false;
+			w172.Fill = false;
 			// Container child vboxSitesAndApps.Gtk.Box+BoxChild
 			this.GtkScrolledWindowOnlinePrices = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowOnlinePrices.Name = "GtkScrolledWindowOnlinePrices";
@@ -2328,11 +2344,11 @@ namespace Vodovoz.Views.Goods
 			this.treeViewOnlinePrices.Name = "treeViewOnlinePrices";
 			this.GtkScrolledWindowOnlinePrices.Add(this.treeViewOnlinePrices);
 			this.vboxSitesAndApps.Add(this.GtkScrolledWindowOnlinePrices);
-			global::Gtk.Box.BoxChild w173 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.GtkScrolledWindowOnlinePrices]));
-			w173.Position = 2;
+			global::Gtk.Box.BoxChild w174 = ((global::Gtk.Box.BoxChild)(this.vboxSitesAndApps[this.GtkScrolledWindowOnlinePrices]));
+			w174.Position = 2;
 			this.notebook.Add(this.vboxSitesAndApps);
-			global::Gtk.Notebook.NotebookChild w174 = ((global::Gtk.Notebook.NotebookChild)(this.notebook[this.vboxSitesAndApps]));
-			w174.Position = 6;
+			global::Gtk.Notebook.NotebookChild w175 = ((global::Gtk.Notebook.NotebookChild)(this.notebook[this.vboxSitesAndApps]));
+			w175.Position = 6;
 			// Notebook tab
 			this.lblSitesAndApps = new global::Gtk.Label();
 			this.lblSitesAndApps.Name = "lblSitesAndApps";
@@ -2340,8 +2356,8 @@ namespace Vodovoz.Views.Goods
 			this.notebook.SetTabLabel(this.vboxSitesAndApps, this.lblSitesAndApps);
 			this.lblSitesAndApps.ShowAll();
 			this.vbox1.Add(this.notebook);
-			global::Gtk.Box.BoxChild w175 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook]));
-			w175.Position = 1;
+			global::Gtk.Box.BoxChild w176 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook]));
+			w176.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -2352,6 +2368,7 @@ namespace Vodovoz.Views.Goods
 			this.radioCharacteristics.Toggled += new global::System.EventHandler(this.OnRadioCharacteristicsToggled);
 			this.radioImages.Toggled += new global::System.EventHandler(this.OnRadioImagesToggled);
 			this.radioPurchasePrice.Toggled += new global::System.EventHandler(this.OnPurchasePriceToggled);
+			this.radioSitesAndApps.Toggled += new global::System.EventHandler(this.OnPurchasePriceToggled);
 			this.buttonAddImage.Clicked += new global::System.EventHandler(this.OnButtonAddImageClicked);
 		}
 	}
