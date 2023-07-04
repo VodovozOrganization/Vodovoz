@@ -94,9 +94,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<IncomeCashTransferDocument>(Entity, new Dictionary<object, object>());
-
-			if(valid.RunDlgIfNotValid()) {
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
 			}
 
@@ -219,8 +219,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 			SendCommand = new DelegateCommand(
 				() => {
-					var valid = new QSValidator<IncomeCashTransferDocument>(Entity, new Dictionary<object, object>());
-					if(valid.RunDlgIfNotValid()) {
+					var validator = new ObjectValidator(new GtkValidationViewFactory());
+					if(!validator.Validate(Entity))
+					{
 						return;
 					}
 					Entity.Send(Cashier, Entity.Comment);

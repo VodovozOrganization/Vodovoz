@@ -173,13 +173,13 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<AccountingVMNode>.Create ()
-			.AddColumn ("Номер").SetDataProperty (node => node.Number.ToString ())
-			.AddColumn ("Дата").SetDataProperty (node => node.Date.ToShortDateString ())
-			.AddColumn ("Категория дохода/расхода").SetDataProperty (node => node.Category)
+			.AddColumn ("Номер").AddTextRenderer(node => node.Number.ToString ())
+			.AddColumn ("Дата").AddTextRenderer(node => node.Date.ToShortDateString ())
+			.AddColumn ("Категория дохода/расхода").AddTextRenderer(node => node.Category)
 			.AddColumn ("Приход").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Income))
 			.AddColumn ("Расход").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Expense))
-			.AddColumn ("Контрагент/сотрудник").SetDataProperty (node => node.Name)
-			.AddColumn ("Назначение").SetDataProperty (node => node.Description)
+			.AddColumn ("Контрагент/сотрудник").AddTextRenderer(node => node.Name)
+			.AddColumn ("Назначение").AddTextRenderer(node => node.Description)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {

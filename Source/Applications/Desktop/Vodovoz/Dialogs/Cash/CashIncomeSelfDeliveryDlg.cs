@@ -22,6 +22,7 @@ using System.Linq;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -187,10 +188,13 @@ namespace Vodovoz.Dialogs.Cash
 
 		public override bool Save()
 		{
-			var validationContext = new Dictionary<object, object> {{"IsSelfDelivery", true}};
-			var valid = new QSValidator<Income>(UoWGeneric.Root, validationContext);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var contextItems = new Dictionary<object, object> { { "IsSelfDelivery", true } };
+			var context = new ValidationContext(Entity, null, contextItems);
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity, context))
+			{
 				return false;
+			}
 
 			Entity.AcceptSelfDeliveryPaid(CallTaskWorker);
 

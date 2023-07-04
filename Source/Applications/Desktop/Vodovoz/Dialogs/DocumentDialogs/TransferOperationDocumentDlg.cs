@@ -73,9 +73,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			var messages = new List<string>();
 
-			var valid = new QSValidator<TransferOperationDocument>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.LastEditor == null) {

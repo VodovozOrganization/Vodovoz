@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Reflection;
 using Gamma.Binding;
 using Gamma.Utilities;
+using MySql.Data.MySqlClient;
 using NHibernate.AdoNet;
 using NLog;
 using QS.Banks.Domain;
@@ -67,7 +68,7 @@ namespace Vodovoz.Configuration
             logger.Debug("Конфигурация ORM...");
 
             //Увеличиваем таймаут если нужно
-            var dbConnectionStringBuilder = new DbConnectionStringBuilder { ConnectionString = QSMain.ConnectionString };
+            var dbConnectionStringBuilder = new MySqlConnectionStringBuilder { ConnectionString = QSMain.ConnectionString };
             if(dbConnectionStringBuilder.TryGetValue("ConnectionTimeout", out var timeoutAsObject)
                 && timeoutAsObject is string timeoutAsString
             ) {
@@ -110,7 +111,9 @@ namespace Vodovoz.Configuration
                 }
             );
 
-            logger.Debug("OK");
+			HistoryMain.Enable(dbConnectionStringBuilder);
+
+			logger.Debug("OK");
         }
 
         public void CreateApplicationConfig()
@@ -315,7 +318,6 @@ namespace Vodovoz.Configuration
 
             #endregion
 
-            HistoryMain.Enable();
             TemplatePrinter.InitPrinter();
             ImagePrinter.InitPrinter();
 

@@ -70,8 +70,8 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig treeViewConfig = ColumnsConfigFactory.Create<AccountableDebtsVMNode> ()
-			.AddColumn("Имя сотрудника").SetDataProperty (node => node.AccountableName)
-			.AddColumn ("Задолжность").SetDataProperty (node => node.DebtText)
+			.AddColumn("Имя сотрудника").AddTextRenderer (node => node.AccountableName)
+			.AddColumn ("Задолжность").AddTextRenderer(node => node.DebtText)
 			.RowCells ().AddSetter<Gtk.CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 

@@ -5,6 +5,7 @@ using Gamma.GtkWidgets;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Utilities.Text;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
@@ -78,14 +79,13 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig treeViewConfig = ColumnsConfigFactory.Create<UnclosedAdvancesVMNode>()
-			//.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
-			.AddColumn("Дата").SetDataProperty(node => node.DateString)
-			.AddColumn("Сотрудник").SetDataProperty(node => node.EmployeeString)
-			.AddColumn("Статья").SetDataProperty(node => node.Category)
+			.AddColumn("Дата").AddTextRenderer(node => node.DateString)
+			.AddColumn("Сотрудник").AddTextRenderer(node => node.EmployeeString)
+			.AddColumn("Статья").AddTextRenderer(node => node.Category)
 			.AddColumn("Получено").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Money))
 			.AddColumn("Непогашено").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.UncloseMoney))
-			.AddColumn("Кассир").SetDataProperty(node => node.CasherString)
-			.AddColumn("Основание").SetDataProperty(node => node.Description)
+			.AddColumn("Кассир").AddTextRenderer(node => node.CasherString)
+			.AddColumn("Основание").AddTextRenderer(node => node.Description)
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -135,7 +135,7 @@ namespace Vodovoz.ViewModel
 
 		public string EmployeeString {
 			get {
-				return StringWorks.PersonNameWithInitials(EmployeeSurname, EmployeeName, EmployeePatronymic);
+				return PersonHelper.PersonNameWithInitials(EmployeeSurname, EmployeeName, EmployeePatronymic);
 			}
 		}
 
@@ -145,7 +145,7 @@ namespace Vodovoz.ViewModel
 
 		public string CasherString {
 			get {
-				return StringWorks.PersonNameWithInitials(CasherSurname, CasherName, CasherPatronymic);
+				return PersonHelper.PersonNameWithInitials(CasherSurname, CasherName, CasherPatronymic);
 			}
 		}
 

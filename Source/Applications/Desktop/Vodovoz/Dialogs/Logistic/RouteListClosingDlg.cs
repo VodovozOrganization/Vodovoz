@@ -55,6 +55,7 @@ using Vodovoz.Models;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using QS.DomainModel.NotifyChange;
+using QS.Utilities.Debug;
 
 namespace Vodovoz
 {
@@ -959,18 +960,20 @@ namespace Vodovoz
 			{
 				return false;
 			}
-
-			var valid = new QSValidator<RouteList>(Entity,
-				new Dictionary<object, object>
+			var contextItems = new Dictionary<object, object>
 				{
 					{nameof(IRouteListItemRepository), _routeListItemRepository},
 					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition && Entity.Status == RouteListStatus.Closed}
-				});
-			
+				};
+			var context = new ValidationContext(Entity, null, contextItems);
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+
 			permissioncommentview.Save();
 
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+			if(!validator.Validate(Entity, context))
+			{
 				return false;
+			}
 
 			if(!ValidateOrders()) {
 				return false;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using FluentNHibernate.Data;
 using Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -90,8 +91,8 @@ namespace Vodovoz.Dialogs
 
 		private bool Save()
 		{
-			var valid = new QSValidator<UndeliveredOrder>(undelivery);
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(undelivery))
 			{
 				return false;
 			}

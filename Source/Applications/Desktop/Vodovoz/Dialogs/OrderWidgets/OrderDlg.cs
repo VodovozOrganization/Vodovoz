@@ -1611,10 +1611,10 @@ namespace Vodovoz
 			treeViewEdoContainers.ItemsDataSource = _edoContainers;
 
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
-				.AddColumn("Статус заявки").SetDataProperty(node => node.Status.GetEnumTitle())
-				.AddColumn("Номенклатура оборудования").SetDataProperty(node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
-				.AddColumn("Серийный номер").SetDataProperty(node => node.Equipment != null && node.Equipment.Nomenclature.IsSerial ? node.Equipment.Serial : "-")
-				.AddColumn("Причина").SetDataProperty(node => node.Reason)
+				.AddColumn("Статус заявки").AddTextRenderer(node => node.Status.GetEnumTitle())
+				.AddColumn("Номенклатура оборудования").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
+				.AddColumn("Серийный номер").AddTextRenderer(node => node.Equipment != null && node.Equipment.Nomenclature.IsSerial ? node.Equipment.Serial : "-")
+				.AddColumn("Причина").AddTextRenderer(node => node.Reason)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 				.Finish();
 

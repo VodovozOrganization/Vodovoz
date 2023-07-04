@@ -152,9 +152,11 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<Subdivision>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid())
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			UoWGeneric.Save();
 			subdivisionentitypermissionwidget?.ViewModel.SavePermissions();

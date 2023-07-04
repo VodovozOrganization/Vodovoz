@@ -42,14 +42,14 @@ namespace Vodovoz.Dialogs
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<StoredResource>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
-			else {
-				UoWGeneric.Save();
-				return true;
 			}
-
+			
+			UoWGeneric.Save();
+			return true;
 		}
 	}
 }

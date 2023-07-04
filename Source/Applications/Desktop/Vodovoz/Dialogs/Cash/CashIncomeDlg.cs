@@ -347,9 +347,11 @@ namespace Vodovoz
 			if (Entity.TypeOperation == IncomeType.Return && UoW.IsNew && _selectableAdvances.Count > 0)
 				Entity.PrepareCloseAdvance(_selectableAdvances.Where(x => x.Selected).Select(x => x.Value).ToList());
 
-			var valid = new QSValidator<Income> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			logger.Info ("Сохраняем Приходный ордер..."); 
 			if (Entity.TypeOperation == IncomeType.Return && UoW.IsNew) {
