@@ -153,7 +153,7 @@ namespace CustomerAppsApi
 			}
 
 			UserRepository.GetCurrentUserId = () => serviceUserId;
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

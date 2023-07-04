@@ -211,7 +211,7 @@ namespace RoboatsService
 
 			UserRepository.GetCurrentUserId = () => serviceUserId;
 
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

@@ -77,7 +77,7 @@ namespace EmailStatusUpdateWorker
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				});
 
-				QS.HistoryLog.HistoryMain.Enable();
+				QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 			}
 			catch(Exception ex)
 			{
