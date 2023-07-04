@@ -232,6 +232,7 @@ namespace Vodovoz.Domain.Cash
 			}
 
 			var closing = new AdvanceClosing(this, income, sum);
+
 			if(AdvanceCloseItems == null)
 			{
 				AdvanceCloseItems = new List<AdvanceClosing>();

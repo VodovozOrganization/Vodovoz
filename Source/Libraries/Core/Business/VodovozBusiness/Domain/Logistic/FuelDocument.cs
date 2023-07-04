@@ -194,7 +194,7 @@ namespace Vodovoz.Domain.Logistic
 			try {
 				CreateFuelOperation();
 				CreateFuelExpenseOperation();
-				CreateFuelCashExpense(financialCategoriesGroupsSettings.FuelExpenseCategoryId, commonOrganisationProvider);
+				CreateFuelCashExpense(financialCategoriesGroupsSettings.FuelFinancialExpenseCategoryId, commonOrganisationProvider);
 			} catch(Exception ex) {
 				//восстановление исходного состояния
 				FuelOperation = null;

@@ -434,7 +434,7 @@ namespace Vodovoz.ViewModels.Cash
 		private void DistributeCash()
 		{
 			if(IsDriverReport
-				&& Entity.IncomeCategoryId == _categoryRepository.GetRouteListClosingIncomeCategoryId())
+				&& Entity.IncomeCategoryId == _financialCategoriesGroupsSettings.RouteListClosingFinancialIncomeCategoryId)
 			{
 				_routeListCashOrganisationDistributor
 					.DistributeIncomeCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
@@ -536,7 +536,7 @@ namespace Vodovoz.ViewModels.Cash
 
 			var rl = UoW.GetById<RouteList>(routelistId);
 
-			Entity.IncomeCategoryId = _categoryRepository.GetRouteListClosingIncomeCategoryId();
+			Entity.IncomeCategoryId = _financialCategoriesGroupsSettings.RouteListClosingFinancialIncomeCategoryId;
 			Entity.TypeOperation = IncomeType.DriverReport;
 			Entity.Date = DateTime.Now;
 			Entity.Casher = cashier;
@@ -577,7 +577,7 @@ namespace Vodovoz.ViewModels.Cash
 
 				if(IsDriverReport)
 				{
-					Entity.IncomeCategoryId = _financialCategoriesGroupsSettings.DriverReportIncomeCategoryId;
+					Entity.IncomeCategoryId = _financialCategoriesGroupsSettings.DriverReportFinancialIncomeCategoryId;
 				}
 			}
 
@@ -621,6 +621,25 @@ namespace Vodovoz.ViewModels.Cash
 
 				unclosedSelectableExpense.Selected = true;
 			}
+		}
+
+		public void ConfigureForReturn(int expenseId)
+		{
+			var expense = UoW.GetById<Expense>(expenseId);
+
+			if(expense.Employee == null)
+			{
+				var errorMessage = "Аванс без сотрудника. Для него нельзя открыть диалог возврата.";
+				_logger.LogError(errorMessage);
+				InitializationFailed("Ошибка", errorMessage);
+				return;
+			}
+
+			Entity.TypeOperation = IncomeType.Return;
+			Entity.ExpenseCategoryId = expense.ExpenseCategoryId;
+			Entity.Employee = expense.Employee;
+			Entity.Organisation = expense.Organisation;
+			SelectableAdvances.Find(x => x.Value.Id == expenseId).Selected = true;
 		}
 
 		protected void OnAdvanceSelectionChanged(object sender, EventArgs args)
@@ -692,7 +711,7 @@ namespace Vodovoz.ViewModels.Cash
 			_reportViewOpener.OpenReport(this, reportInfo);
 		}
 
-		protected override bool BeforeSave()
+		protected override bool BeforeValidation()
 		{
 			if(Entity.TypeOperation == IncomeType.Return && UoW.IsNew && SelectableAdvances != null)
 			{
@@ -701,6 +720,12 @@ namespace Vodovoz.ViewModels.Cash
 					.Select(x => x.Value)
 					.ToList());
 			}
+
+			return true;
+		}
+
+		protected override bool BeforeSave()
+		{
 
 			if(Entity.TypeOperation == IncomeType.Return && UoW.IsNew)
 			{

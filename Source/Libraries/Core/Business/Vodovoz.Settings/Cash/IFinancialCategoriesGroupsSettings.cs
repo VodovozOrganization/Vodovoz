@@ -2,13 +2,12 @@
 {
 	public interface IFinancialCategoriesGroupsSettings
 	{
-		int DefaultIncomeCategoryId { get; }
-		int EmployeeSalaryExpenseCategoryId { get; }
-		int FuelExpenseCategoryId { get; }
-		int RouteListClosingExpenseCategoryId { get; }
-		int RouteListClosingIncomeCategoryId { get; }
-		int DriverReportIncomeCategoryId { get; }
-		int IncomeSelfDeliveryDefauilCategoryId { get; }
-		int ExpenseSelfDeliveryDefauilCategoryId { get; }
+		int EmployeeSalaryFinancialExpenseCategoryId { get; }
+		int FuelFinancialExpenseCategoryId { get; }
+		int RouteListClosingFinancialExpenseCategoryId { get; }
+		int RouteListClosingFinancialIncomeCategoryId { get; }
+		int DriverReportFinancialIncomeCategoryId { get; }
+		int SelfDeliveryDefaultFinancialIncomeCategoryId { get; }
+		int SelfDeliveryDefaultFinancialExpenseCategoryId { get; }
 	}
 }

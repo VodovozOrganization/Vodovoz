@@ -61,6 +61,7 @@ using Vodovoz.PermissionExtensions;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.Services;
+using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -586,6 +587,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
 	{
+		var scope = MainClass.AppDIContainer.BeginLifetimeScope();
 		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
@@ -604,7 +606,7 @@ public partial class MainWindow : Window
 				routeListItemRepository,
 				employeeService,
 				ServicesConfig.CommonServices,
-				new CategoryRepository(parametersProvider),
+				scope.Resolve<IFinancialCategoriesGroupsSettings>(),
 				employeeRepository,
 				nomenclatureParametersProvider
 			)
@@ -779,7 +781,8 @@ public partial class MainWindow : Window
 			new OrderPaymentSettings(parametersProvider),
 			new OrderParametersProvider(parametersProvider),
 			new DeliveryRulesParametersProvider(parametersProvider),
-			VodovozGtkServicesConfig.EmployeeService
+			VodovozGtkServicesConfig.EmployeeService,
+			NavigationManager
 		);
 
 		tdiMain.AddTab(selfDeliveriesJournal);

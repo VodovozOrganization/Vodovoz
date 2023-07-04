@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -674,7 +674,7 @@ namespace Vodovoz
 							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
-							_categoryRepository,
+							_financialCategoriesGroupsSettings,
 							_employeeRepository,
 							_nomenclatureParametersProvider
 						)
@@ -698,7 +698,7 @@ namespace Vodovoz
 							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
-							_categoryRepository,
+							_financialCategoriesGroupsSettings,
 							_employeeRepository,
 							_nomenclatureParametersProvider
 						)
@@ -1087,7 +1087,7 @@ namespace Vodovoz
 					if(driverWage > 0)
 					{
 						var newDriverAdvanceSum = driverWage > newDriverAdvanceSumParameter ? newDriverAdvanceSumParameter : driverWage * 0.5m;
-						newDriverAdvanceModel.CreateNewDriverAdvance(UoW, _categoryRepository, newDriverAdvanceSum);
+						newDriverAdvanceModel.CreateNewDriverAdvance(UoW, _financialCategoriesGroupsSettings, newDriverAdvanceSum);
 					}
 				}
 			}
@@ -1108,7 +1108,7 @@ namespace Vodovoz
 				Entity.RecountMileage();
 			}
 
-			Entity.UpdateMovementOperations(_categoryRepository);
+			Entity.UpdateMovementOperations(_financialCategoriesGroupsSettings);
 
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
 
@@ -1442,7 +1442,7 @@ namespace Vodovoz
 			var inputCashOrder = (decimal)spinCashOrder.Value;
 			try
 			{
-				messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _categoryRepository));
+				messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _financialCategoriesGroupsSettings));
 			}
 			catch(MissingOrdersWithCashlessPaymentTypeException ex)
 			{
@@ -1475,7 +1475,7 @@ namespace Vodovoz
 				return;
 			}
 
-			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput, _categoryRepository);
+			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput, _financialCategoriesGroupsSettings);
 
 			if(cashExpense != null)
 				UoW.Save(cashExpense);
@@ -1572,7 +1572,7 @@ namespace Vodovoz
 				}
 			}
 
-			var operationsResultMessage = Entity.UpdateCashOperations(_categoryRepository);
+			var operationsResultMessage = Entity.UpdateCashOperations(_financialCategoriesGroupsSettings);
 			messages.AddRange(operationsResultMessage);
 
 			CalculateTotal();

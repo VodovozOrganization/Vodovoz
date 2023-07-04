@@ -35,7 +35,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 		{
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
@@ -90,7 +90,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 		{
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
@@ -152,7 +152,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			// имитация того что нужной статьи не было найдено
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 			var fuelDocument = new FuelDocument();
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
@@ -180,7 +180,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 		{
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
@@ -233,7 +233,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 		{
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
@@ -288,7 +288,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			// имитация того что нужной статьи не было найдено
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 			var fuelDocument = new FuelDocument();
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
@@ -316,7 +316,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 		{
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
@@ -371,7 +371,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			// имитация того что нужной статьи не было найдено
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 			var fuelDocument = new FuelDocument();
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
@@ -400,7 +400,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			// arrange
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
@@ -448,7 +448,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 		{
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
@@ -497,7 +497,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 		{
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
@@ -546,7 +546,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 		{
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);
@@ -607,7 +607,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 		{
 			// arrange
 			var financialCategoriesGroupSettingsMock = Substitute.For<IFinancialCategoriesGroupsSettings>();
-			financialCategoriesGroupSettingsMock.FuelExpenseCategoryId.Returns(1);
+			financialCategoriesGroupSettingsMock.FuelFinancialExpenseCategoryId.Returns(1);
 
 			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			fuelTypeMock.Cost.Returns(30);

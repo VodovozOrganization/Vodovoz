@@ -44,7 +44,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ILifetimeScope _scope;
 		private readonly bool _createSelectAction;
@@ -68,7 +67,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
 			IFileDialogService fileDialogService,
 			INavigationManager navigationManager,
 			ILifetimeScope scope,
@@ -83,8 +81,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_expenseCategorySelectorFactory = expenseCategorySelectorFactory
-											  ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));

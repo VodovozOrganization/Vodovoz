@@ -6,7 +6,9 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services.FileDialog;
 using QS.Services;
@@ -36,6 +38,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IFileDialogService fileDialogService,
+			INavigationManager navigationManager,
 			bool hideJournalForOpenDialog = false,
 			bool hideJournalForCreateDialog = false)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, hideJournalForOpenDialog, hideJournalForCreateDialog)
@@ -44,7 +47,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			UpdateOnChanges(
 				typeof(Employee),
 				typeof(WagesMovementOperations)
@@ -73,7 +76,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					}
 					else
 					{
-						var page = NavigationManager.OpenViewModel<ExpenseViewModel>(this);
+						var page = NavigationManager.OpenViewModel<ExpenseViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 
 						page.ViewModel.ConfigureForSalaryGiveout(node.Id, node.Balance);
 					}
@@ -197,5 +200,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 		protected override Func<EmployeeWithLastWorkingDayJournalNode, EmployeeViewModel> OpenDialogFunction => (node) =>
 			throw new NotSupportedException("Не поддерживается изменение сотрудника из журнала");
+
+		public INavigationManager NavigationManager { get; }
 	}
 }

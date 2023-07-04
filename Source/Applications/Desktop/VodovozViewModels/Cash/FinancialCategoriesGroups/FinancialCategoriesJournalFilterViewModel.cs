@@ -97,7 +97,10 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			}
 		}
 
+		[PropertyChangedAlso(nameof(TargetDocumentNotRestricted))]
 		public bool TargetDocumentRestricted => RestrictTargetDocument != null;
+
+		public bool TargetDocumentNotRestricted => !TargetDocumentRestricted;
 
 		public IEntityEntryViewModel ParentGroupViewModel { get; private set; }
 

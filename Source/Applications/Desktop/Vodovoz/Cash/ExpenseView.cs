@@ -90,6 +90,7 @@ namespace Vodovoz.Cash
 
 			ytextviewDescription.Binding
 				.AddBinding(ViewModel.Entity, s => s.Description, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Editable)
 				.InitializeFromSource();
 
 			labelEmployee.Binding
@@ -109,10 +110,6 @@ namespace Vodovoz.Cash
 
 			buttonSave.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
-
-			ytextviewDescription.Binding
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Editable)
 				.InitializeFromSource();
 
 			buttonSave.Clicked += (_, _2) => ViewModel.SaveCommand.Execute();

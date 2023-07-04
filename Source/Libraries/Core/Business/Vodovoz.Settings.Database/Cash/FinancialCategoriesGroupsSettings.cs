@@ -12,24 +12,21 @@ namespace Vodovoz.Settings.Database.Cash
 				?? throw new System.ArgumentNullException(nameof(settingsController));
 		}
 
-		public int DefaultIncomeCategoryId => _settingsController.GetValue<int>("default_income_category_id");
+		public int RouteListClosingFinancialIncomeCategoryId => _settingsController.GetValue<int>(nameof(RouteListClosingFinancialIncomeCategoryId).FromPascalCaseToSnakeCase());
 
-		public int RouteListClosingIncomeCategoryId => _settingsController.GetValue<int>("routelist_income_category_id");
+		public int RouteListClosingFinancialExpenseCategoryId => _settingsController.GetValue<int>(nameof(RouteListClosingFinancialExpenseCategoryId).FromPascalCaseToSnakeCase());
 
-		public int RouteListClosingExpenseCategoryId => _settingsController.GetValue<int>("routelist_expense_category_id");
-
-		public int FuelExpenseCategoryId => _settingsController.GetValue<int>("fuel_expense_categoty_id");
+		public int FuelFinancialExpenseCategoryId => _settingsController.GetValue<int>(nameof(FuelFinancialExpenseCategoryId).FromPascalCaseToSnakeCase());
 
 		/// <summary>
 		/// Параметр базы для статьи расхода для авансов.
 		/// </summary>
-		public int EmployeeSalaryExpenseCategoryId => _settingsController.GetValue<int>("employee_salary_expense_category_id");
+		public int EmployeeSalaryFinancialExpenseCategoryId => _settingsController.GetValue<int>(nameof(EmployeeSalaryFinancialExpenseCategoryId).FromPascalCaseToSnakeCase());
 		
-		// TODO: Старая категория #1, не забудь проставить в базе;
-		public int DriverReportIncomeCategoryId => _settingsController.GetValue<int>("driver_income_category_id");
+		public int DriverReportFinancialIncomeCategoryId => _settingsController.GetValue<int>(nameof(DriverReportFinancialIncomeCategoryId).FromPascalCaseToSnakeCase());
 
-		public int IncomeSelfDeliveryDefauilCategoryId => _settingsController.GetValue<int>("income_self_delivery_default_financial_category_id");
+		public int SelfDeliveryDefaultFinancialIncomeCategoryId => _settingsController.GetValue<int>(nameof(SelfDeliveryDefaultFinancialIncomeCategoryId).FromPascalCaseToSnakeCase());
 
-		public int ExpenseSelfDeliveryDefauilCategoryId => _settingsController.GetValue<int>("expense_self_delivery_default_financial_category_id");
+		public int SelfDeliveryDefaultFinancialExpenseCategoryId => _settingsController.GetValue<int>(nameof(SelfDeliveryDefaultFinancialExpenseCategoryId).FromPascalCaseToSnakeCase());
 	}
 }

@@ -287,7 +287,7 @@ namespace Vodovoz.ViewModels.Cash
 			set => SetField(ref _debt, value);
 		}
 
-		public string DebtString => $"{Debt:C} {CurrencySymbol}";
+		public string DebtString => $"{Debt:C}";
 
 		[PropertyChangedAlso(nameof(ClosingSumNotEqualsMoney))]
 		public decimal Money
@@ -378,7 +378,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		public bool CanEditRectroactively { get; }
 
-		public string ClosingSumString => $"{ClosingSum:C} {CurrencySymbol}";
+		public string ClosingSumString => $"{ClosingSum:C}";
 
 		public override bool Save(bool close)
 		{
@@ -548,7 +548,7 @@ namespace Vodovoz.ViewModels.Cash
 				&& AdvanceList.Any(x => x.Value.RouteListClosing != null && x.Selected))
 			{
 				AdvanceList
-					.Where(x => x.Value.RouteListClosing.Id != e.SelectableNode.Value.RouteListClosing.Id)
+					.Where(x => x.Value.RouteListClosing?.Id != e.SelectableNode.Value.RouteListClosing.Id)
 					.ToList()
 					.ForEach(x => x.SilentUnselect());
 			}
@@ -558,6 +558,25 @@ namespace Vodovoz.ViewModels.Cash
 				.Sum(a => a.Value.UnclosedMoney);
 
 			Money = ClosingSum;
+		}
+
+		public void ConfigureForReturn(int expenseId)
+		{
+			var expense = UoW.GetById<Expense>(expenseId);
+
+			if(expense.Employee is null)
+			{
+				InitializationFailed("Ошибка", "Аванс без сотрудника. Для него нельзя открыть диалог возврата.");
+				return;
+			}
+
+			Entity.Accountable = expense.Employee;
+			Entity.ExpenseCategoryId = expense.ExpenseCategoryId;
+			Entity.Money = expense.UnclosedMoney;
+
+			AdvanceList
+				.Find(x => x.Value.Id == expenseId)
+				.Selected = true;
 		}
 
 		public string GetCachedExpenseCategoryTitle(int id) =>

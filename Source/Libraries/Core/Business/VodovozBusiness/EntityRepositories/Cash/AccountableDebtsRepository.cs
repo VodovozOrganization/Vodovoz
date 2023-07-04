@@ -33,11 +33,10 @@ namespace Vodovoz.EntityRepositories.Cash
 			int? organisationId)
 		{
 			Expense expenseAlias = null;
-			Employee employeeAlias = null;
 
 			var queryOver = unitOfWork.Query(() => expenseAlias)
-				.Left.JoinAlias(() => expenseAlias.Employee, () => employeeAlias)
 				.Where(() => expenseAlias.TypeOperation == ExpenseType.Advance)
+				.And(() => expenseAlias.Employee == accountableEmployee)
 				.And(() => expenseAlias.AdvanceClosed == false)
 				.And(() => expenseCategoryId == null || expenseAlias.ExpenseCategoryId == expenseCategoryId)
 				.And(() => organisationId == null || expenseAlias.Organisation == null || expenseAlias.Organisation.Id == organisationId)

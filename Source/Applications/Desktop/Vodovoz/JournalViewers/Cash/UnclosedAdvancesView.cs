@@ -87,31 +87,16 @@ namespace Vodovoz
 
 		protected void OnButtonReturnClicked(object sender, EventArgs e)
 		{
-			var expense = UoW.GetById<Expense>(representationUnclosed.GetSelectedId());
+			var page = NavigationManager.OpenViewModel<IncomeViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 
-			if(expense.Employee == null)
-			{
-				// TODO: При обновлении вернуть
-				//_logger.LogError("Аванс без сотрудника. Для него нельзя открыть диалог возврата.");
-				return;
-			}
-
-			var page = NavigationManager.OpenViewModel<IncomeViewModel>(null);
-
-			page.ViewModel.Entity.TypeOperation = IncomeType.Return;
-			page.ViewModel.Entity.ExpenseCategoryId = expense.ExpenseCategoryId;
-			page.ViewModel.Entity.Employee = expense.Employee;
-			page.ViewModel.Entity.Organisation = expense.Organisation;
-			page.ViewModel.SelectableAdvances.Find(x => x.Value.Id == expense.Id).Selected = true;
+			page.ViewModel.ConfigureForReturn(representationUnclosed.GetSelectedId());
 		}
 
 		protected void OnButtonCloseClicked(object sender, EventArgs e)
 		{
 			var page = NavigationManager.OpenViewModel<AdvanceReportViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 
-			page.ViewModel.AdvanceList
-				.Find(x => x.Value.Id == representationUnclosed.GetSelectedId())
-				.Selected = true;
+			page.ViewModel.ConfigureForReturn(representationUnclosed.GetSelectedId());
 		}
 
 		public override void Destroy()

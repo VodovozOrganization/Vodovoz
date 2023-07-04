@@ -156,7 +156,7 @@ namespace Vodovoz.ViewModels.Cash
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
-			Entity.IncomeCategoryId = _financialCategoriesGroupsSettings.IncomeSelfDeliveryDefauilCategoryId;
+			Entity.IncomeCategoryId = _financialCategoriesGroupsSettings.SelfDeliveryDefaultFinancialIncomeCategoryId;
 
 			PrintCommand = new DelegateCommand(Print);
 			SaveCommand = new DelegateCommand(SaveAndClose, () => CanEdit);

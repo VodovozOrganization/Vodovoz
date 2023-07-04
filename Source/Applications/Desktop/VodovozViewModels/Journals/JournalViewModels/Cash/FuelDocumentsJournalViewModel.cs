@@ -4,6 +4,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -36,7 +37,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	    private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 	    private readonly ICarJournalFactory _carJournalFactory;
 	    private readonly IReportViewOpener _reportViewOpener;
-	    private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
 	    private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly ILifetimeScope _lifetimeScope;
 
@@ -52,8 +52,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ISubdivisionJournalFactory subdivisionJournalFactory,
             ICarJournalFactory carJournalFactory,
             IReportViewOpener reportViewOpener,
-            IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
             IRouteListProfitabilityController routeListProfitabilityController,
+			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope) : base(unitOfWorkFactory, commonServices)
         {
 	        _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -67,10 +67,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	        _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 	        _carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 	        _reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
-	        _expenseCategorySelectorFactory =
-		        expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 	        _routeListProfitabilityController =
 		        routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			TabName = "Журнал учета топлива";
 
@@ -104,10 +103,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			    return result;
 		    }
 	    }
-	    
-	    #region IncomeInvoice
 
-	    private IQueryOver<FuelIncomeInvoice> GetFuelIncomeQuery(IUnitOfWork uow)
+		public INavigationManager NavigationManager { get; }
+
+		#region IncomeInvoice
+
+		private IQueryOver<FuelIncomeInvoice> GetFuelIncomeQuery(IUnitOfWork uow)
 	    {
 		    FuelDocumentJournalNode resultAlias = null;
 		    FuelIncomeInvoice fuelIncomeInvoiceAlias = null;
@@ -335,7 +336,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _employeeJournalFactory,
 					    _reportViewOpener,
 					    _subdivisionJournalFactory,
-					    _expenseCategorySelectorFactory,
 					    _routeListProfitabilityController,
 						NavigationManager,
 						_lifetimeScope),
@@ -350,7 +350,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _employeeJournalFactory,
 					    _reportViewOpener,
 					    _subdivisionJournalFactory,
-					    _expenseCategorySelectorFactory,
 					    _routeListProfitabilityController,
 						NavigationManager,
 						_lifetimeScope),

@@ -107,7 +107,7 @@ namespace Vodovoz.ViewModels.Cash
 				Entity.TypeDocument = ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery;
 				Entity.TypeOperation = ExpenseType.ExpenseSelfDelivery;
 
-				Entity.ExpenseCategoryId = _financialCategoriesGroupsSettings.ExpenseSelfDeliveryDefauilCategoryId;
+				Entity.ExpenseCategoryId = _financialCategoriesGroupsSettings.SelfDeliveryDefaultFinancialExpenseCategoryId;
 
 				Entity.Date = DateTime.Now;
 			}

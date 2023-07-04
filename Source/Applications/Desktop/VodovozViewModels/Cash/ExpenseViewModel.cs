@@ -27,6 +27,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
@@ -51,6 +52,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly IExpenseCashOrganisationDistributor _expenseCashOrganisationDistributor;
 		private readonly ICategoryRepository _categoryRepository;
 		private readonly IFuelCashOrganisationDistributor _fuelCashOrganisationDistributor;
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IUserService _userService;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IPermissionResult _entityPermissionResult;
@@ -76,7 +78,8 @@ namespace Vodovoz.ViewModels.Cash
 			ICategoryRepository categoryRepository,
 			ILifetimeScope lifetimeScope,
 			IReportViewOpener reportViewOpener,
-			IAccountableDebtsRepository accountableDebtsRepository)
+			IAccountableDebtsRepository accountableDebtsRepository,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			if(navigation is null)
@@ -110,6 +113,8 @@ namespace Vodovoz.ViewModels.Cash
 				?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_accountableDebtsRepository = accountableDebtsRepository
 				?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
+			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings
+				?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 
 			_entityPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Expense));
 
@@ -329,14 +334,18 @@ namespace Vodovoz.ViewModels.Cash
 		[PropertyChangedAlso(nameof(CurrentEmployeeWageBalanceLabelString))]
 		public decimal CurrentEmployeeWage { get; private set; }
 
+		public string CurrentEmployeeWageString => $"<span font='large' weight='bold'>Текущий баланс сотрудника: {CurrentEmployeeWage:C}</span>";
+
 		[PropertyChangedAlso(nameof(CurrentEmployeeWageBalanceLabelString))]
 		public decimal CurrentDriverFutureFinesBalance { get; private set; }
+
+		public string FutureEmployeeWageString => $"      <span font='large' weight='bold'>Будущие штрафы: {-CurrentDriverFutureFinesBalance:C}</span>";
 
 		public string CurrentEmployeeWageBalanceLabelString =>
 			(Entity.Employee?.Category == EmployeeCategory.driver
 			&& Entity.Employee?.Status == EmployeeStatus.IsWorking)
-			? $"      <span font='large' weight='bold'>Будущие штрафы: {-CurrentDriverFutureFinesBalance}</span>"
-				: $"<span font='large' weight='bold'>Текущий баланс сотрудника: {CurrentEmployeeWage:0.00} {CurrencySymbol}</span>";
+				? $"{CurrentEmployeeWageString} {FutureEmployeeWageString}"
+				: CurrentEmployeeWageString;
 
 		public bool IsNew => UoWGeneric.IsNew;
 
@@ -391,8 +400,6 @@ namespace Vodovoz.ViewModels.Cash
 				&& Entity.Employee.Status == EmployeeStatus.IsWorking)
 			{
 				CurrentDriverFutureFinesBalance = _wagesMovementRepository.GetDriverFutureFinesBalance(UoW, Entity.Employee.Id);
-
-				return;
 			}
 
 			CurrentEmployeeWage = _wagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, Entity.Employee.Id);
@@ -411,20 +418,23 @@ namespace Vodovoz.ViewModels.Cash
 				UpdateCashDistributionsDocuments();
 			}
 
+			return true;
+		}
+
+		protected override void AfterSave()
+		{
 			if(Entity.RouteListClosing != null)
 			{
 				_logger.LogInformation("Обновляем сумму долга по МЛ...");
 				Entity.RouteListClosing.UpdateRouteListDebt();
 				_logger.LogInformation("Ok");
 			}
-
-			return true;
 		}
 
 		private void DistributeCash()
 		{
 			if(Entity.TypeOperation == ExpenseType.Expense
-				&& Entity.ExpenseCategoryId == _categoryRepository.GetRouteListClosingExpenseCategoryId())
+				&& Entity.ExpenseCategoryId == _financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId)
 			{
 				_routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, Entity.RouteListClosing, Entity, Entity.Money);
 			}
@@ -509,7 +519,7 @@ namespace Vodovoz.ViewModels.Cash
 			int employeeId,
 			int routelistId)
 		{
-			Entity.Employee = UoW.GetById<Employee>(employeeId);
+			RestrictEmployee = UoW.GetById<Employee>(employeeId);
 			Entity.TypeOperation = ExpenseType.Advance;
 			Entity.RouteListClosing = UoW.GetById<RouteList>(routelistId);
 			AddRouteListInfoToDescription();
@@ -533,6 +543,8 @@ namespace Vodovoz.ViewModels.Cash
 				|| e.PropertyName == nameof(Entity.Employee))
 			{
 				RefreshCurrentEmployeeWage();
+
+				OnPropertyChanged(() => CurrentEmployeeWageBalanceLabelString);
 
 				if(!IsAdvance && Entity.RouteListClosing != null)
 				{
@@ -609,7 +621,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		private void AddRouteListInfoToDescription()
 		{
-			if(!IsCashExpenceForChangesAdvance)
+			if(!IsCashExpenceForChangesAdvance && !string.IsNullOrWhiteSpace(Entity.Description))
 			{
 				return;
 			}

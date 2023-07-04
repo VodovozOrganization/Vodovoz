@@ -310,7 +310,7 @@ namespace Vodovoz.Representations
 
 			query.Left.JoinAlias(() => commonTransferDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => commonTransferDocumentAlias.CashierSender, () => cashierSenderAlias)
-				.JoinQueryOver(() => commonTransferDocumentAlias.CashierReceiver, () => cashierReceiverAlias)
+				.Left.JoinAlias(() => commonTransferDocumentAlias.CashierReceiver, () => cashierReceiverAlias)
 				.Left.JoinAlias(() => commonTransferDocumentAlias.CashSubdivisionFrom, () => subdivisionFromAlias)
 				.Left.JoinAlias(() => commonTransferDocumentAlias.CashSubdivisionTo, () => subdivisionToAlias)
 				.SelectList(list => list

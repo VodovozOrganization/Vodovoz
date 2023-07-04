@@ -30,7 +30,7 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			yenumTargetDocument.ShowSpecialStateAll = true;
 			yenumTargetDocument.Binding
 				.AddBinding(ViewModel, vm => vm.TargetDocument, w => w.SelectedItemOrNull)
-				.AddBinding(ViewModel, vm => vm.TargetDocumentRestricted, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.TargetDocumentNotRestricted, w => w.Sensitive)
 				.InitializeFromSource();
 
 			chkIsArchive.Binding

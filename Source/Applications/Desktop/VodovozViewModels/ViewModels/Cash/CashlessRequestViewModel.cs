@@ -34,7 +34,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public CashlessRequestViewModel(
 			IFileDialogService fileDialogService,
-			IExpenseCategorySelectorFactory expenseCategoryJournalFactory,
 			IUserRepository userRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IEmployeeRepository employeeRepository,

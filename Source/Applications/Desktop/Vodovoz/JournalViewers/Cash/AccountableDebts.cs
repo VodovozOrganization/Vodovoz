@@ -63,7 +63,7 @@ namespace Vodovoz
 		protected void OnButtonAdvanceReportClicked(object sender, EventArgs e)
 		{
 			var accountable = UoW.GetById<Employee>(representationtreeviewDebts.GetSelectedId());
-			var expenseCategoryId = accountabledebtsfilter1.FinancialExpenseCategory.Id;
+			var expenseCategoryId = accountabledebtsfilter1.FinancialExpenseCategory?.Id;
 			decimal money = representationtreeviewDebts.GetSelectedObject<AccountableDebtsVMNode>().Debt;
 
 			var page = NavigationManager.OpenViewModel<AdvanceReportViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
