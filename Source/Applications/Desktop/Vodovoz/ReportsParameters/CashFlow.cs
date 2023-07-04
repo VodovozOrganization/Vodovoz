@@ -104,7 +104,7 @@ namespace Vodovoz.Reports
 		}
 
 		private IEnumerable<Subdivision> GetSubdivisionsForUser() => 
-			_subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, _commonServices.UserService.GetCurrentUser(UoW));
+			_subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, _commonServices.UserService.GetCurrentUser());
 
 		void HandleCellLayoutDataFunc (Gtk.CellLayout cell_layout, CellRenderer cell, Gtk.TreeModel tree_model, Gtk.TreeIter iter)
 		{

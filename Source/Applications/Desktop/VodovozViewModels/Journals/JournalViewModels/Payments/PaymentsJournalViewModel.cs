@@ -90,7 +90,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 		private void CreateDeleteAction()
 		{
-			if(_commonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+			if(_commonServices.UserService.GetCurrentUser().IsAdmin)
 			{
 				var deleteAction = new JournalAction("Удалить",
 					(selected) => _paymentPermissionResult.CanDelete && selected.Any(),

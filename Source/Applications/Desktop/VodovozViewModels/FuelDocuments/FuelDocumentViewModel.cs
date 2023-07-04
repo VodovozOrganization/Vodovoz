@@ -124,7 +124,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		{
 			get
 			{
-				var user = CommonServices.UserService.GetCurrentUser(UoW);
+				var user = CommonServices.UserService.GetCurrentUser();
 				var employee = EmployeeRepository.GetEmployeesForUser(UoW, user.Id).FirstOrDefault();
 				var subdivisions = SubdivisionsRepository.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();
 

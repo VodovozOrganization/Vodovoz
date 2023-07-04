@@ -321,7 +321,7 @@ namespace Vodovoz
 		{
 			using (var uow = UnitOfWorkFactory.GetDefaultFactory.CreateWithoutRoot())
 			{
-				var dBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).Login;
+				var dBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser().Login;
 
 				string sid = "";
 				// Получение данных пользователя системы

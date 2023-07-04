@@ -28,7 +28,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			_uow = uowFactory?.CreateWithoutRoot("Боковая панель остатков по кассам") ?? throw new ArgumentNullException(nameof(uowFactory));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 
-			var currentUser = ServicesConfig.CommonServices.UserService.GetCurrentUser(_uow);
+			var currentUser = ServicesConfig.CommonServices.UserService.GetCurrentUser();
 			var availableSubdivisions = subdivisionRepository.GetCashSubdivisionsAvailableForUser(_uow, currentUser).ToList();
 			var settings =
 				(userRepository ?? throw new ArgumentNullException(nameof(userRepository)))
