@@ -54,6 +54,7 @@ using System.Data.Bindings.Collections.Generic;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Factories;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
@@ -549,8 +550,13 @@ namespace Vodovoz
 				return false;
 			}
 
-			var valid = new QSValidator<RouteList>(Entity, new Dictionary<object, object>() { { nameof(IRouteListItemRepository), new RouteListItemRepository() } });
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var contextItems = new Dictionary<object, object>
+				{
+					{nameof(IRouteListItemRepository), new RouteListItemRepository()}
+				};
+			var context = new ValidationContext(Entity, null, contextItems);
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity, context))
 			{
 				return false;
 			}
@@ -745,12 +751,14 @@ namespace Vodovoz
 
 				if(Entity.Status == RouteListStatus.New)
 				{
-					var valid = new QSValidator<RouteList>(Entity,
-									new Dictionary<object, object> {
-						{ "NewStatus", RouteListStatus.Confirmed },
-						{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
-						});
-					if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+					var contextItems = new Dictionary<object, object>
+						{
+							{ "NewStatus", RouteListStatus.Confirmed },
+							{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
+						};
+					var context = new ValidationContext(Entity, null, contextItems);
+					var validator = new ObjectValidator(new GtkValidationViewFactory());
+					if(!validator.Validate(Entity, context))
 					{
 						return;
 					}
@@ -828,19 +836,20 @@ namespace Vodovoz
 						{
 							if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle()))
 							{
-								valid = new QSValidator<RouteList>(
-									Entity,
-									new Dictionary<object, object>
+								var contextItemsEnroute = new Dictionary<object, object>
 									{
 										{ "NewStatus", RouteListStatus.EnRoute },
 										{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
-									});
-								if(!valid.IsValid)
+									};
+								var contextEnroute = new ValidationContext(Entity, null, contextItemsEnroute);
+								var validatorEnroute = new ObjectValidator(new GtkValidationViewFactory());
+								var isValid = validatorEnroute.Validate(Entity, contextEnroute);
+								if(!isValid)
 								{
 									return;
 								}
 
-								Entity.ChangeStatusAndCreateTask(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute, callTaskWorker);
+								Entity.ChangeStatusAndCreateTask(isValid ? RouteListStatus.New : RouteListStatus.EnRoute, callTaskWorker);
 							}
 							else
 							{

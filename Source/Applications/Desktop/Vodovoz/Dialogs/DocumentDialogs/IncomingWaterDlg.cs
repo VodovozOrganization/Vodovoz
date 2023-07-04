@@ -106,7 +106,7 @@ namespace Vodovoz
 			
 			Entity.CanEdit =
 				permmissionValidator.Validate(
-					typeof(IncomingWater), _userRepository.GetCurrentUser().Id, nameof(RetroactivelyClosePermission));
+					typeof(IncomingWater), _userRepository.GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				spinAmount.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -147,10 +147,12 @@ namespace Vodovoz
 				MessageDialogHelper.RunErrorDialog("На складе не хватает материалов");
 				return false;
 			}
-				
-			var valid = new QSValidator<IncomingWater> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser (UoW);
 			Entity.LastEditedTime = DateTime.Now;

@@ -37,10 +37,10 @@ namespace Vodovoz.JournalViewers
 
 			datatreeviewOrderDocuments.ColumnsConfig = FluentColumnsConfig<SelectedOrdersDocumentVMNode>
 				.Create()
-				.AddColumn("Выбрать").SetDataProperty(node => node.Selected)
-				.AddColumn("Заказ").SetDataProperty(node => node.OrderId)
-				.AddColumn("Дата").SetDataProperty(node => node.OrderDate.ToString("d"))
-				.AddColumn("Клиент").SetDataProperty(node => node.ClientName)
+				.AddColumn("Выбрать").AddToggleRenderer(node => node.Selected).Editing(false)
+				.AddColumn("Заказ").AddNumericRenderer(node => node.OrderId).Editing(false)
+				.AddColumn("Дата").AddTextRenderer(node => node.OrderDate.ToString("d"))
+				.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
 				.AddColumn("Документ").AddTextRenderer(node => node.DocumentType.GetAttribute<DisplayAttribute>().Name)
 				.AddColumn("Адрес").AddTextRenderer(node => node.AddressString)
 				.RowCells()

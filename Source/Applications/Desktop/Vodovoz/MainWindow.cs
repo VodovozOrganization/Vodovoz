@@ -105,6 +105,9 @@ using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
+using Vodovoz.ViewModels.ViewModels.Suppliers;
+using QS.Utilities.Debug;
 
 public partial class MainWindow : Gtk.Window
 {
