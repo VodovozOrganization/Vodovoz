@@ -47,6 +47,7 @@ namespace Vodovoz.Domain.Cash
 		private CashTransferDocumentBase _cashTransferDocument;
 		private string _cashierReviewComment;
 		private Organization _organisation;
+		private bool _noFullCloseMode;
 
 		public Income() { }
 
@@ -219,7 +220,11 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual List<Expense> AdvanceForClosing { get; protected set; }
 
-		public virtual bool NoFullCloseMode { get; set; }
+		public virtual bool NoFullCloseMode
+		{
+			get => _noFullCloseMode;
+			set => SetField(ref _noFullCloseMode, value);
+		}
 
 		#endregion
 

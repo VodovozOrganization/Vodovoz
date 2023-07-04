@@ -199,7 +199,8 @@ namespace Vodovoz.ViewModels.Cash
 
 			SetPropertyChangeRelation(
 				e => e.NoFullCloseMode,
-				() => NoClose);
+				() => NoClose,
+				() => CanChangeMoney);
 
 			SetPropertyChangeRelation(
 				e => e.TypeOperation,
@@ -208,7 +209,8 @@ namespace Vodovoz.ViewModels.Cash
 				() => IsNotReturnOperation,
 				() => IsReturnOperationOrNew,
 				() => IsDriverReport,
-				() => ShowRouteList);
+				() => ShowRouteList,
+				() => CanChangeMoney);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 
@@ -374,6 +376,8 @@ namespace Vodovoz.ViewModels.Cash
 			get => Entity.Money;
 			set => Entity.Money = value;
 		}
+
+		public bool CanChangeMoney => IsNotReturnOperation || NoClose;
 
 		public string CurrencySymbol => NumberFormatInfo.CurrentInfo.CurrencySymbol;
 

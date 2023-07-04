@@ -121,8 +121,7 @@ namespace Vodovoz.Cash
 
 			yspinMoney.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.Money, w => w.ValueAsDecimal)
-				.AddBinding(vm => vm.NoClose, w => w.Sensitive)
-				.AddBinding(vm => vm.IsNotReturnOperation, w => w.Sensitive)
+				.AddBinding(vm => vm.CanChangeMoney, w => w.Sensitive)
 				.InitializeFromSource();
 
 			currencylabel1.Binding
