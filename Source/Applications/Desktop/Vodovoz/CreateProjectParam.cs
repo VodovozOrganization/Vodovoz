@@ -16,6 +16,7 @@ using QS.Dialog.ViewModels;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.ErrorReporting.Handlers;
 using QS.Navigation;
 using QS.Permissions;
 using QS.Project.DB;
@@ -67,7 +68,6 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
@@ -636,6 +636,14 @@ namespace Vodovoz
 			builder.RegisterType<ProgressWindowViewModel>().AsSelf();
 
 			#endregion
+
+			#region Обработчики ошибок
+
+			builder.RegisterType<MySqlException1055OnlyFullGroupBy>().AsSelf();
+			builder.RegisterType<MySqlException1366IncorrectStringValue>().AsSelf();
+			builder.RegisterType<NHibernateFlushAfterException>().AsSelf();
+
+			#endregion Обработчики ошибок
 
 			RegisterVodovozClassConfig(builder);
 
