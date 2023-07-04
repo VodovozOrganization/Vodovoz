@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -474,6 +474,8 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CommonCashTransferDocumentViewModel, CommonCashTransferDlg>()
 				.RegisterWidgetForWidgetViewModel<Vodovoz.ViewModels.Cash.TransferDocumentsJournal.TransferDocumentsJournalFilterViewModel, CashTransferDocumentsFilter>()
 				.RegisterWidgetForWidgetViewModel<CargoDailyNormViewModel, CargoDailyNormView>()
+				.RegisterWidgetForWidgetViewModel<TransferExpenseViewModel, TransferExpenseView>()
+				.RegisterWidgetForWidgetViewModel<TransferIncomeViewModel, TransferIncomeView>()
 				;
 			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

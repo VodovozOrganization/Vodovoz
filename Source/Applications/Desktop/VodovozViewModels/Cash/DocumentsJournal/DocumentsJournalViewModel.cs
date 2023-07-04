@@ -63,8 +63,6 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 			FilterViewModel.JournalViewModel = this;
 
-			UseSlider = false;
-
 			UpdateOnChanges(DomainObjectsTypes.Concat(
 				new Type[]
 				{

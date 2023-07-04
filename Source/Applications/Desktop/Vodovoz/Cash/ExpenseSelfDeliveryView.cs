@@ -2,6 +2,7 @@
 using QS.Views.GtkUI;
 using System.ComponentModel;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Cash;
 
@@ -47,7 +48,12 @@ namespace Vodovoz.Cash
 
 			ViewModel.OrderViewModel = clientEntryViewModelBuilder.ForProperty(x => x.Order)
 				.UseTdiEntityDialog()
-				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictOnlySelfDelivery = true;
+					filter.RestrictStatus = Domain.Orders.OrderStatus.WaitForPayment;
+					filter.RestrictHideService = true;
+				})
 				.Finish();
 
 			entryOrder.ViewModel = ViewModel.OrderViewModel;

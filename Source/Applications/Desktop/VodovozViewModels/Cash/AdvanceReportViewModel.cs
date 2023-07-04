@@ -289,7 +289,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		public string DebtString => $"{Debt:C}";
 
-		[PropertyChangedAlso(nameof(ClosingSumNotEqualsMoney))]
+		[PropertyChangedAlso(nameof(ClosingSumEqualsMoney))]
 		public decimal Money
 		{
 			get => Entity.Money;
@@ -305,7 +305,7 @@ namespace Vodovoz.ViewModels.Cash
 		}
 
 		[PropertyChangedAlso(
-			nameof(ClosingSumNotEqualsMoney),
+			nameof(ClosingSumEqualsMoney),
 			nameof(CreatingMessage),
 			nameof(ChangeSumMessage),
 			nameof(ChangeTypeMessage),
@@ -342,7 +342,7 @@ namespace Vodovoz.ViewModels.Cash
 					: $"<span foreground=\"blue\">Будет создан приходный ордер на сумму {Math.Abs(Balance):C}, в качестве сдачи от подотчетного лица.</span>";
 
 		public string ChangeTypeMessage =>
-			ClosingSum == 0
+			ClosingSum == 0 || ClosingSumEqualsMoney
 				? string.Empty
 				: Balance == 0
 					? "Доплата:"
@@ -359,7 +359,10 @@ namespace Vodovoz.ViewModels.Cash
 
 		public string CurrencySymbol => NumberFormatInfo.CurrentInfo.CurrencySymbol;
 
-		public bool ClosingSumNotEqualsMoney => ClosingSum != Money;
+		public bool ClosingSumNotEqualsMoney => !ClosingSumEqualsMoney;
+
+		[PropertyChangedAlso(nameof(ClosingSumNotEqualsMoney))]
+		public bool ClosingSumEqualsMoney => ClosingSum == Money;
 
 		public bool CanCreate => _entityPermissionResult.CanCreate;
 
