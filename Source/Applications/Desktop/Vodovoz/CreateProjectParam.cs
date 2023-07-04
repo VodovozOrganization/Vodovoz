@@ -612,7 +612,7 @@ namespace Vodovoz
 			builder.Register((ctx) => new AutofacViewModelsGtkPageFactory(AppDIContainer)).AsSelf();
 			builder.RegisterType<TdiNavigationManager>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>()
 				.SingleInstance();
-			builder.Register(cc => new ClassNamesBaseGtkViewResolver(
+			builder.Register(cc => new ClassNamesBaseGtkViewResolver(cc.Resolve<IGtkViewFactory>(),
 				typeof(InternalTalkView),
 				typeof(DeletionView),
 				typeof(RdlViewerView))
