@@ -1062,8 +1062,10 @@ namespace Vodovoz
 		private void ResendUpd()
 		{
 			TaxcomEdoSender edoSender = new TaxcomEdoSender(_edoSettings);
-			var sendResult = edoSender.SendUpdByOrderAsync(Entity.Id).Result;
-			ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, sendResult.Message);
+			var sendResultTask = edoSender.SendUpdByOrderAsync(Entity.Id);
+			sendResultTask.Wait();
+			var sendResult = sendResultTask.Result;
+			ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, sendResult);
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
