@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "статьи дохода",
-		Nominative = "статья дохада",
+		Nominative = "статья дохода",
 		Accusative = "статью дохода",
 		Genitive = "финансовой статьи дохода")]
 	[EntityPermission]
