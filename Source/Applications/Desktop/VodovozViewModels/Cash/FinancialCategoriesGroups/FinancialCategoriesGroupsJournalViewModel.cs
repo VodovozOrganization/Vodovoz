@@ -139,7 +139,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 					   && (_filter.RestrictNodeTypes.IsEmpty() || _filter.RestrictNodeTypes.Contains(_financialCategoriesGroupType))
 					   && (_filter.ShowArchive || !financialCategoriesGroup.IsArchive)
 					   && (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == financialCategoriesGroup.FinancialSubtype)
-					   && (!_filter.RestrictNodeSelectTypes.Any() || _filter.RestrictNodeSelectTypes.Contains(_financialCategoriesGroupType))
+					   && (!_filter.RestrictNodeSelectTypes.Any() || string.IsNullOrWhiteSpace(searchString) || _filter.RestrictNodeSelectTypes.Contains(_financialCategoriesGroupType))
 				   let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
 				   let title = !string.IsNullOrWhiteSpace(searchString) ? GetPath(unitOfWork, financialCategoriesGroup) : financialCategoriesGroup.Title
 				   select new FinancialCategoriesJournalNode
