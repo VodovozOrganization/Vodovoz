@@ -1133,9 +1133,9 @@
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.TasksView.cs" />
     <Compile Include="Representations\DebtorsJournalViewModel.cs" />
     <Compile Include="Cash\Transfer\IncomeCashTransferView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashTransfer.IncomeCashTransferDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.Transfer.IncomeCashTransferView.cs" />
     <Compile Include="Cash\Transfer\CommonCashTransferView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashTransfer.CommonCashTransferDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.Transfer.CommonCashTransferView.cs" />
     <Compile Include="ReportsParameters\Orders\FirstClientsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.FirstClientsReport.cs" />
     <Compile Include="ReportsParameters\TariffZoneDebts.cs" />
