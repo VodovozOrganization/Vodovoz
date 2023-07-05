@@ -275,7 +275,8 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 						.OpenViewModel<AdvanceReportViewModel, IEntityUoWBuilder>(
 							this,
 							EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
-					(node) => node.EntityType == typeof(AdvanceReport))
+					(node) => node.EntityType == typeof(AdvanceReport),
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = false })
 				.FinishConfiguration();
 
 			RegisterEntity(GetQueryIncome)
@@ -306,7 +307,8 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 								this,
 								EntityUoWBuilder.ForOpen(id)).ViewModel;
 					},
-					(node) => node.EntityType == typeof(Income))
+					(node) => node.EntityType == typeof(Income),
+					journalParameters: new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = false })
 				.FinishConfiguration();
 
 			RegisterEntity(GetQueryExpense)
@@ -337,7 +339,8 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 								this,
 								EntityUoWBuilder.ForOpen(id)).ViewModel;
 					},
-					(node) => node.EntityType == typeof(Expense))
+					(node) => node.EntityType == typeof(Expense),
+					journalParameters: new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = false })
 				.FinishConfiguration();
 
 			var dataLoader = DataLoader as ThreadDataLoader<DocumentNode>;

@@ -165,7 +165,8 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 						.OpenViewModel<CommonCashTransferDocumentViewModel, IEntityUoWBuilder>(
 						this,
 						EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
-					(node) => node.EntityType == typeof(CommonCashTransferDocument))
+					(node) => node.EntityType == typeof(CommonCashTransferDocument),
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = false })
 				.FinishConfiguration();
 
 
@@ -176,7 +177,8 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 						.OpenViewModel<IncomeCashTransferDocumentViewModel, IEntityUoWBuilder>(
 						this,
 						EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
-					(node) => node.EntityType == typeof(IncomeCashTransferDocument))
+					(node) => node.EntityType == typeof(IncomeCashTransferDocument),
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = false })
 				.FinishConfiguration();
 
 			var dataLoader = DataLoader as ThreadDataLoader<DocumentNode>;
