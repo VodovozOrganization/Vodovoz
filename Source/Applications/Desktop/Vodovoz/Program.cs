@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Gtk;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

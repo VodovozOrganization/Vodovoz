@@ -3,7 +3,7 @@ using Mailjet.Api.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Report;
