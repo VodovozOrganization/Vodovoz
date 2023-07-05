@@ -3,7 +3,7 @@ using QS.Utilities.Text;
 using System;
 using Vodovoz.Domain.Cash.CashTransfer;
 
-namespace Vodovoz.ViewModels.Cash.TransferDocumentsJournal
+namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 {
 	public class DocumentNode : JournalEntityNodeBase
 	{

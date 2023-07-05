@@ -1,7 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using QSOrmProject;
 using Vodovoz.Domain.Cash.CashTransfer;
-using Vodovoz.ViewModels.Cash.TransferDocumentsJournal;
+using Vodovoz.ViewModels.Cash.Transfer.Journal;
 
 namespace Vodovoz.JournalFilters.Cash
 {

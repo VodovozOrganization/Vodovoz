@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Cash.Transfer;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {

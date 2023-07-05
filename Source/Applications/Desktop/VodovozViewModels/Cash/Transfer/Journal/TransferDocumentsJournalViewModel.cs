@@ -6,19 +6,16 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
-using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
-using Vodovoz.ViewModels.Cash.TransferDocumentsJournal;
 
-namespace Vodovoz.Representations
+namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 {
 	public class TransferDocumentsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<DocumentNode, TransferDocumentsJournalFilterViewModel>
 	{
@@ -90,7 +87,7 @@ namespace Vodovoz.Representations
 			OnPropertyChanged(nameof(FooterInfo));
 		}
 
-		public override string FooterInfo => $"{base.FooterInfo}. В сейфе инкасcатора: { CurrencyWorks.GetShortCurrencyString(_cashRepository.GetCashInTransferring(UoW)) }";
+		public override string FooterInfo => $"{base.FooterInfo}. В сейфе инкасcатора: {_cashRepository.GetCashInTransferring(UoW):C}";
 
 		protected override void CreateNodeActions()
 		{
@@ -339,5 +336,5 @@ namespace Vodovoz.Representations
 		}
 
 		#endregion Queries
-	}	
+	}
 }

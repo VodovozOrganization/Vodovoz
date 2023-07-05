@@ -112,6 +112,8 @@ using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
+using Vodovoz.ViewModels.Cash.Transfer;
+using Vodovoz.ViewModels.Cash.Transfer.Journal;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
@@ -472,7 +474,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<AdvanceReportViewModel, AdvanceReportView>()
 				.RegisterWidgetForWidgetViewModel<IncomeCashTransferDocumentViewModel, IncomeCashTransferDlg>()
 				.RegisterWidgetForWidgetViewModel<CommonCashTransferDocumentViewModel, CommonCashTransferDlg>()
-				.RegisterWidgetForWidgetViewModel<Vodovoz.ViewModels.Cash.TransferDocumentsJournal.TransferDocumentsJournalFilterViewModel, CashTransferDocumentsFilter>()
+				.RegisterWidgetForWidgetViewModel<TransferDocumentsJournalFilterViewModel, CashTransferDocumentsFilter>()
 				.RegisterWidgetForWidgetViewModel<CargoDailyNormViewModel, CargoDailyNormView>()
 				.RegisterWidgetForWidgetViewModel<TransferExpenseViewModel, TransferExpenseView>()
 				.RegisterWidgetForWidgetViewModel<TransferIncomeViewModel, TransferIncomeView>()

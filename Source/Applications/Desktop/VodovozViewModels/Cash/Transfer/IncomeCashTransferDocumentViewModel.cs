@@ -1,20 +1,14 @@
 ﻿using Autofac;
-using NHibernate.Criterion;
 using QS.Commands;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.RepresentationModel.GtkUI;
 using QS.Services;
-using QS.Validation;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,11 +23,10 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
-using Vodovoz.ViewModels.Cash.TransferDocumentsJournal;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.TempAdapters;
 
-namespace Vodovoz.Dialogs.Cash.CashTransfer
+namespace Vodovoz.ViewModels.Cash.Transfer
 {
 	public class IncomeCashTransferDocumentViewModel : EntityTabViewModelBase<IncomeCashTransferDocument>
 	{
@@ -137,7 +130,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 				.Finish();
 
 			viewModel.IsEditable = CanEdit;
-			
+
 			return viewModel;
 		}
 
@@ -169,9 +162,12 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		public IEntityAutocompleteSelectorFactory CarAutocompleteSelectorFactory { get; }
 
 		private Employee cashier;
-		public Employee Cashier {
-			get {
-				if(cashier == null) {
+		public Employee Cashier
+		{
+			get
+			{
+				if(cashier == null)
+				{
 					cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				}
 				return cashier;
@@ -179,13 +175,15 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		}
 
 		private bool incomesSelected;
-		public virtual bool IncomesSelected {
+		public virtual bool IncomesSelected
+		{
 			get => incomesSelected;
 			set => SetField(ref incomesSelected, value, () => IncomesSelected);
 		}
 
 		private bool expensesSelected;
-		public virtual bool ExpensesSelected {
+		public virtual bool ExpensesSelected
+		{
 			get => expensesSelected;
 			set => SetField(ref expensesSelected, value, () => ExpensesSelected);
 		}
@@ -195,8 +193,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		private void ConfigureEntityPropertyChanges()
 		{
 			SetPropertyChangeRelation(e => e.Status,
-				() => CanEdit
-			);
+				() => CanEdit);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
@@ -225,15 +222,18 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private void RoutelistEntityConfig_EntityUpdated(EntityChangeEvent[] changeEvents)
 		{
-			foreach(var updatedItem in changeEvents.Select(x => x.Entity)) {
+			foreach(var updatedItem in changeEvents.Select(x => x.Entity))
+			{
 				RouteList updatedRouteList = updatedItem as RouteList;
-				if(updatedRouteList != null) {
+				if(updatedRouteList != null)
+				{
 					var foundRouteList = Entity.CashTransferDocumentIncomeItems
 						.Where(x => x.Income != null)
 						.Where(x => x.Income.RouteListClosing != null)
 						.Select(x => x.Income.RouteListClosing)
 						.FirstOrDefault(x => x.Id == updatedRouteList.Id);
-					if(foundRouteList != null) {
+					if(foundRouteList != null)
+					{
 						UoW.Session.Refresh(foundRouteList);
 					}
 				}
@@ -257,8 +257,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		{
 			DeleteIncomesCommand = new DelegateCommand<IEnumerable<IncomeCashTransferedItem>>(
 				Entity.DeleteTransferedIncomes,
-				(IEnumerable<IncomeCashTransferedItem> parameter) => {
-					return parameter != null 
+				(parameter) =>
+				{
+					return parameter != null
 						&& parameter.Any()
 						&& CanEdit;
 				}
@@ -268,8 +269,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 			DeleteExpensesCommand = new DelegateCommand<IEnumerable<ExpenseCashTransferedItem>>(
 				Entity.DeleteTransferedExpenses,
-				(IEnumerable<ExpenseCashTransferedItem> parameter) => {
-					return parameter != null 
+				(parameter) =>
+				{
+					return parameter != null
 						&& parameter.Any()
 						&& CanEdit;
 				}
@@ -278,25 +280,29 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			DeleteExpensesCommand.CanExecuteChangedWith(Entity, x => x.Status);
 
 			OpenRouteListCommand = new DelegateCommand<Income>(
-				(Income parameter) => {
-					if(parameter.RouteListClosing == null) {
+				(parameter) =>
+				{
+					if(parameter.RouteListClosing == null)
+					{
 						return;
 					}
 
 					_gtkTabsOpener.OpenRouteListClosingDlg(TabParent, parameter.RouteListClosing.Id);
 				},
-				(Income parameter) => { return parameter != null && parameter.RouteListClosing != null; }
+				(parameter) => { return parameter != null && parameter.RouteListClosing != null; }
 			);
 
 			SendCommand = new DelegateCommand(
-				() => {
-					var valid = new QSValidator<IncomeCashTransferDocument>(Entity, new Dictionary<object, object>());
-					if(valid.RunDlgIfNotValid()) {
+				() =>
+				{
+					if(!Validate())
+					{
 						return;
 					}
 					Entity.Send(Cashier, Entity.Comment);
 				},
-				() => {
+				() =>
+				{
 					return Cashier != null
 						&& Entity.Status == CashTransferDocumentStatuses.New
 						&& Entity.Driver != null
@@ -321,10 +327,12 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			);
 
 			ReceiveCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					Entity.Receive(Cashier, Entity.Comment);
 				},
-				() => {
+				() =>
+				{
 					return Cashier != null
 						&& Entity.Status == CashTransferDocumentStatuses.Sent
 						&& availableSubdivisionsForUser.Contains(Entity.CashSubdivisionTo)
@@ -337,7 +345,8 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			);
 
 			AddIncomesCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					var page = NavigationManager.OpenViewModel<DocumentsJournalViewModel, Action<DocumentsFilterViewModel>>(
 						this,
 						filter =>
@@ -356,8 +365,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 					page.ViewModel.OnEntitySelectedResult += IncomesSelectDlg_ObjectSelected;
 				},
-				() => {
-					return Entity.Status == CashTransferDocumentStatuses.New 
+				() =>
+				{
+					return Entity.Status == CashTransferDocumentStatuses.New
 						&& Entity.CashSubdivisionTo != null
 						&& Entity.CashSubdivisionFrom != null;
 				}
@@ -369,7 +379,8 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			);
 
 			AddExpensesCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
 					var page = NavigationManager.OpenViewModel<DocumentsJournalViewModel, Action<DocumentsFilterViewModel>>(
 						this,
 						filter =>
@@ -388,7 +399,8 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 					page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
 					page.ViewModel.OnEntitySelectedResult += ExpensesSelectDlg_ObjectSelected;
 				},
-				() => {
+				() =>
+				{
 					return Entity.Status == CashTransferDocumentStatuses.New
 						&& Entity.CashSubdivisionTo != null
 						&& Entity.CashSubdivisionFrom != null;
@@ -401,11 +413,13 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			);
 
 			PrintCommand = new DelegateCommand(
-				() => {
-					var reportInfo = new QS.Report.ReportInfo {
+				() =>
+				{
+					var reportInfo = new QS.Report.ReportInfo
+					{
 						Title = $"Документ перемещения №{Entity.Id} от {Entity.CreationDate:d}",
 						Identifier = "Documents.IncomeCashTransfer",
-						Parameters = new Dictionary<string, object> { { "transfer_document_id",  Entity.Id } }
+						Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } }
 					};
 
 					_reportViewOpener.OpenReport(TabParent, reportInfo);
@@ -456,13 +470,15 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		private IList<Subdivision> availableSubdivisionsForUser;
 
 		private IEnumerable<Subdivision> subdivisionsFrom;
-		public virtual IEnumerable<Subdivision> SubdivisionsFrom {
+		public virtual IEnumerable<Subdivision> SubdivisionsFrom
+		{
 			get => subdivisionsFrom;
 			set => SetField(ref subdivisionsFrom, value, () => SubdivisionsFrom);
 		}
 
 		private IEnumerable<Subdivision> subdivisionsTo;
-		public virtual IEnumerable<Subdivision> SubdivisionsTo {
+		public virtual IEnumerable<Subdivision> SubdivisionsTo
+		{
 			get => subdivisionsTo;
 			set => SetField(ref subdivisionsTo, value, () => SubdivisionsTo);
 		}
@@ -471,7 +487,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		{
 			Type[] cashDocumentTypes = { typeof(Income), typeof(Expense), typeof(AdvanceReport) };
 			availableSubdivisionsForUser = _subdivisionRepository.GetAvailableSubdivionsForUser(UoW, cashDocumentTypes).ToList();
-			
+
 			if(Entity.Id != 0
 			   && !CanEdit
 			   && Entity.CashSubdivisionFrom != null
@@ -479,7 +495,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			{
 				availableSubdivisionsForUser.Add(Entity.CashSubdivisionFrom);
 			}
-			
+
 			cashSubdivisions = _subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, cashDocumentTypes).Distinct();
 			SubdivisionsFrom = availableSubdivisionsForUser;
 			SubdivisionsTo = cashSubdivisions;
@@ -490,13 +506,15 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private void UpdateSubdivisionsFrom()
 		{
-			if(isUpdatingSubdivisions) {
+			if(isUpdatingSubdivisions)
+			{
 				return;
 			}
 			isUpdatingSubdivisions = true;
 			var currentSubdivisonFrom = Entity.CashSubdivisionFrom;
 			SubdivisionsFrom = availableSubdivisionsForUser.Where(x => x != Entity.CashSubdivisionTo);
-			if(SubdivisionsTo.Contains(currentSubdivisonFrom)) {
+			if(SubdivisionsTo.Contains(currentSubdivisonFrom))
+			{
 				Entity.CashSubdivisionFrom = currentSubdivisonFrom;
 			}
 			isUpdatingSubdivisions = false;
@@ -504,13 +522,15 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private void UpdateSubdivisionsTo()
 		{
-			if(isUpdatingSubdivisions) {
+			if(isUpdatingSubdivisions)
+			{
 				return;
 			}
 			isUpdatingSubdivisions = true;
 			var currentSubdivisonTo = Entity.CashSubdivisionTo;
 			SubdivisionsTo = cashSubdivisions.Where(x => x != Entity.CashSubdivisionFrom);
-			if(SubdivisionsTo.Contains(currentSubdivisonTo)) {
+			if(SubdivisionsTo.Contains(currentSubdivisonTo))
+			{
 				Entity.CashSubdivisionTo = currentSubdivisonTo;
 			}
 			isUpdatingSubdivisions = false;

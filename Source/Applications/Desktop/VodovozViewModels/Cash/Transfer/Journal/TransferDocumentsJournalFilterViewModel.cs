@@ -2,7 +2,7 @@
 using QS.Project.Journal;
 using Vodovoz.Domain.Cash.CashTransfer;
 
-namespace Vodovoz.ViewModels.Cash.TransferDocumentsJournal
+namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 {
 	public class TransferDocumentsJournalFilterViewModel : FilterViewModelBase<TransferDocumentsJournalFilterViewModel>, IJournalFilterViewModel
 	{

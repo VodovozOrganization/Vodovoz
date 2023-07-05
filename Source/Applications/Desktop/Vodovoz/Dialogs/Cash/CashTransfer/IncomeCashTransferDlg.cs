@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModels.Cash.Transfer;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {

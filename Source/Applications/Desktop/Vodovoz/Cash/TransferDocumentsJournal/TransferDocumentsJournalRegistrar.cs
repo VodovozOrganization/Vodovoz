@@ -1,9 +1,8 @@
 ﻿using Gamma.ColumnConfig;
 using Vodovoz.JournalColumnsConfigs;
-using Vodovoz.Representations;
-using Vodovoz.ViewModels.Cash.TransferDocumentsJournal;
 using Gamma.Utilities;
 using QS.Utilities;
+using Vodovoz.ViewModels.Cash.Transfer.Journal;
 
 namespace Vodovoz.Cash.TransferDocumentsJournal
 {

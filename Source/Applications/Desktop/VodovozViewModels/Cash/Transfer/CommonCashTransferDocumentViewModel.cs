@@ -5,7 +5,6 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
-using QS.Validation;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
@@ -22,7 +21,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 
-namespace Vodovoz.Dialogs.Cash.CashTransfer
+namespace Vodovoz.ViewModels.Cash.Transfer
 {
 	public class CommonCashTransferDocumentViewModel : EntityTabViewModelBase<CommonCashTransferDocument>
 	{
@@ -199,8 +198,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			SendCommand = new DelegateCommand(
 				() =>
 				{
-					var valid = new QSValidator<CommonCashTransferDocument>(Entity, new Dictionary<object, object>());
-					if(valid.RunDlgIfNotValid())
+					if(!Validate())
 					{
 						return;
 					}
