@@ -8,9 +8,9 @@ using Vodovoz.ViewModels.Cash.Transfer;
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CommonCashTransferDlg : TabViewBase<CommonCashTransferDocumentViewModel>
+	public partial class CommonCashTransferView : TabViewBase<CommonCashTransferDocumentViewModel>
 	{
-		public CommonCashTransferDlg(CommonCashTransferDocumentViewModel viewModel) : base(viewModel)
+		public CommonCashTransferView(CommonCashTransferDocumentViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			ConfigureDlg();

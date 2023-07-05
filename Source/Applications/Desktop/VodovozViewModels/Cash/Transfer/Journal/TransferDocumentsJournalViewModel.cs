@@ -13,7 +13,6 @@ using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 {

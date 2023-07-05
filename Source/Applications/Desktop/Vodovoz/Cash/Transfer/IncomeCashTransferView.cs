@@ -13,9 +13,9 @@ using Vodovoz.ViewModels.Cash.Transfer;
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class IncomeCashTransferDlg : TabViewBase<IncomeCashTransferDocumentViewModel>
+	public partial class IncomeCashTransferView : TabViewBase<IncomeCashTransferDocumentViewModel>
 	{
-		public IncomeCashTransferDlg(IncomeCashTransferDocumentViewModel viewModel) : base(viewModel)
+		public IncomeCashTransferView(IncomeCashTransferDocumentViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			ConfigureDlg();

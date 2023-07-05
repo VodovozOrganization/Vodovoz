@@ -202,8 +202,8 @@ namespace Vodovoz.Configuration
                 OrmObjectMapping<Expense>.Create().Dialog<ExpenseViewModel>(),
                 OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportViewModel>(),
                 OrmObjectMapping<Fine>.Create().Dialog<FineDlg>(),
-                OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferDlg>(),
-                OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferDlg>(),
+                OrmObjectMapping<IncomeCashTransferDocument>.Create().Dialog<IncomeCashTransferView>(),
+                OrmObjectMapping<CommonCashTransferDocument>.Create().Dialog<CommonCashTransferView>(),
                 //Склад
                 OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w => w.Name)
                     .Column("В архиве", w => w.IsArchive ? "Да" : "").End(),
