@@ -154,6 +154,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 			CreateDefaultSelectAction();
 			CreateAddActions();
 			CreateOpenDocumentAction();
+			CreateDefaultDeleteAction();
 		}
 
 		private void CreateAddActions()
@@ -206,7 +207,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 		private void CreateOpenDocumentAction()
 		{
 			var editAction = new JournalAction(
-				"Открыть документ",
+				"Редактировать",
 				(selected) =>
 				{
 					var selectedNodes = selected.OfType<DocumentNode>();
