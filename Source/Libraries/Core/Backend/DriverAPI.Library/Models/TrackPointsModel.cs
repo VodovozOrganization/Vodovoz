@@ -94,7 +94,7 @@ namespace DriverAPI.Library.Models
 						Track = track,
 						Latitude = decimal.ToDouble(group.Key.Latitude),
 						Longitude = decimal.ToDouble(group.Key.Longitude),
-						TimeStamp = group.Key.ActionTimeUtc
+						TimeStamp = group.Key.ActionTimeUtc.ToLocalTime()
 					});
 
 			foreach(var trackPoint in trackPoints)
