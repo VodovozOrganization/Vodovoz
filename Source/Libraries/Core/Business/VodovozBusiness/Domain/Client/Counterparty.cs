@@ -43,6 +43,7 @@ namespace Vodovoz.Domain.Client
 	public class Counterparty : AccountOwnerBase, IDomainObject, IValidatableObject
 	{
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
+		private const int _specialContractNameLimit = 800;
 		public virtual IUnitOfWork UoW { get; set; }
 		private const int _cargoReceiverLimitSymbols = 500;
 		private bool _roboatsExclude;
@@ -1351,6 +1352,15 @@ namespace Vodovoz.Domain.Client
 					&& (string.IsNullOrWhiteSpace(SpecialContractNumber) || string.IsNullOrWhiteSpace(SpecialContractName)))
 				{
 					yield return new ValidationResult("Помимо специальной даты договора надо заполнить его название и номер");
+				}
+			}
+
+			if(UseSpecialDocFields)
+			{
+				if(!string.IsNullOrWhiteSpace(SpecialContractName) && SpecialContractName.Length > _specialContractNameLimit)
+				{
+					yield return new ValidationResult(
+						$"Длина наименования особого договора превышена на {SpecialContractName.Length - _specialContractNameLimit}");
 				}
 			}
 
