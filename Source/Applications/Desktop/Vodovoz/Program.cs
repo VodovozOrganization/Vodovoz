@@ -51,6 +51,7 @@ namespace Vodovoz
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private static IApplicationInfo applicationInfo;
+		private static IErrorReportingSettings _errorReportingSettings;
 		private static IPasswordValidator passwordValidator;
 
 		public static MainWindow MainWin;
@@ -62,6 +63,8 @@ namespace Vodovoz
 			Application.Init ();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			applicationInfo = new ApplicationVersionInfo();
+
+			_errorReportingSettings = new ErrorReportingSettings(false, false, true, 100);
 
 			#region Первоначальная настройка обработки ошибок
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
@@ -133,14 +136,6 @@ namespace Vodovoz
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.SocketTimeoutException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.GeoGroupVersionNotFoundException);
 
-			UnhandledExceptionHandler unhandledExceptionHandler = new UnhandledExceptionHandler();
-			//Передаем в настройки GUI поток, чтобы обработчик мог отличать вызовы исключений из других потоков и не падал при этом в момент попытки отобразить диалог пользователю.
-			GtkGuiDispatcher.GuiThread = System.Threading.Thread.CurrentThread;
-			//Получаем все необходимые зависимости из контейнера.
-			unhandledExceptionHandler.UpdateDependencies(AppDIContainer);
-			//Подписываемся на необработанные исключения текущего приложения.
-			unhandledExceptionHandler.SubscribeToUnhandledExceptions();
-
 			#endregion
 
 			passwordValidator = new PasswordValidator(
@@ -200,7 +195,15 @@ namespace Vodovoz
 
 			AutofacClassConfig();
 			PerformanceHelper.AddTimePoint("Закончена настройка AutoFac.");
-			
+
+			UnhandledExceptionHandler unhandledExceptionHandler = new UnhandledExceptionHandler();
+			//Передаем в настройки GUI поток, чтобы обработчик мог отличать вызовы исключений из других потоков и не падал при этом в момент попытки отобразить диалог пользователю.
+			GtkGuiDispatcher.GuiThread = System.Threading.Thread.CurrentThread;
+			//Получаем все необходимые зависимости из контейнера.
+			unhandledExceptionHandler.UpdateDependencies(AppDIContainer);
+			//Подписываемся на необработанные исключения текущего приложения.
+			unhandledExceptionHandler.SubscribeToUnhandledExceptions();
+
 			if(QSMain.User.Login == "root")
 			{
 				string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";

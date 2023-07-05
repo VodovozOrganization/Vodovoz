@@ -16,15 +16,21 @@ using QS.Dialog.ViewModels;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.ErrorReporting;
 using QS.ErrorReporting.Handlers;
+using QS.Journal.GtkUI;
 using QS.Navigation;
 using QS.Permissions;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Search;
+using QS.Project.Search.GtkUI;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Project.Services.GtkUI;
+using QS.Project.Versioning;
 using QS.Report;
 using QS.Report.Repository;
 using QS.Report.ViewModels;
@@ -212,6 +218,7 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
+using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
 
@@ -350,7 +357,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<BulkEmailEventReasonViewModel, BulkEmailEventReasonView>()
 				.RegisterWidgetForTabViewModel<GeoGroupViewModel, GeoGroupView>()
 				.RegisterWidgetForTabViewModel<NomenclatureGroupPricingViewModel, NomenclatureGroupPricingView>()
-				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
+				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, RouteListMileageCheckView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
 				.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
@@ -362,7 +369,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ExternalCounterpartyMatchingViewModel, ExternalCounterpartyMatchingView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceViewModel, InventoryInstanceView>()
 				.RegisterWidgetForTabViewModel<WriteOffDocumentViewModel, WriteoffDocumentView>()
-				.RegisterWidgetForTabViewModel<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, Vodovoz.Views.Warehouse.InventoryDocumentView>()
+				.RegisterWidgetForTabViewModel<InventoryDocumentViewModel, InventoryDocumentView>()
 				.RegisterWidgetForTabViewModel<ShiftChangeResidueDocumentViewModel, ShiftChangeResidueDocumentView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceMovementReportViewModel, InventoryInstanceMovementReportView>()
 				;
@@ -461,8 +468,9 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<FinancialCategoriesGroupViewModel, FinancialCategoriesGroupView>()
 				.RegisterWidgetForWidgetViewModel<FinancialCategoriesJournalFilterViewModel, FinancialCategoriesJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<CargoDailyNormViewModel, CargoDailyNormView>()
+				.RegisterWidgetForWidgetViewModel<SearchViewModel, SearchView>()
 				;
-			
+
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
@@ -535,6 +543,11 @@ namespace Vodovoz
 
 			var builder = new ContainerBuilder();
 
+			
+			builder.RegisterInstance(applicationInfo).As<IApplicationInfo>().SingleInstance();
+			builder.RegisterInstance(_errorReportingSettings).As<IErrorReportingSettings>().SingleInstance();
+			builder.RegisterType<LogService>().As<ILogService>().SingleInstance();
+
 			builder.RegisterInstance(loggerFactory).As<ILoggerFactory>().SingleInstance();
 
 			builder.RegisterGeneric(typeof(Logger<>)).As(typeof(ILogger<>)).SingleInstance();
@@ -560,7 +573,7 @@ namespace Vodovoz
 			builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
 
 			builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
-			builder.RegisterType<UserService>().As<IUserService>();
+			builder.RegisterInstance(ServicesConfig.UserService).As<IUserService>();
 			builder.RegisterType<DeleteEntityGUIService>().As<IDeleteEntityService>();
 			builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 			builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();

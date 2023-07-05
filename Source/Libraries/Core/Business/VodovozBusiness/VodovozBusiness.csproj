@@ -1566,8 +1566,6 @@
     <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModel.cs" />
     <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorReporter.cs" />
-    <Compile Include="Tools\ErrorReporting\ILogService.cs" />
-    <Compile Include="Tools\ErrorReporting\LogService.cs" />
     <Compile Include="Tools\ErrorReporting\IErrorReporter.cs" />
     <Compile Include="Tools\ErrorReporting\IErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageModelBase.cs" />
@@ -1716,6 +1714,10 @@
     <ProjectReference Include="..\..\..\External\QSProjects\QS.ErrorReporting.Client\QS.ErrorReporting.Client.csproj">
       <Project>{baba2cb7-6efe-4b1b-9324-74cbcbacf257}</Project>
       <Name>QS.ErrorReporting.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\External\QSProjects\QS.ErrorReporting\QS.ErrorReporting.csproj">
+      <Project>{7baff136-4379-4d1d-a554-7dc340caf7a2}</Project>
+      <Name>QS.ErrorReporting</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
       <Project>{3d3d6700-c625-46c5-9702-5f010a8dd035}</Project>

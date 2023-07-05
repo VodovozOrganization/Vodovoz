@@ -13,6 +13,7 @@ using QS.Project.Versioning;
 [assembly: AssemblyCopyright("Quality Solution 2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyProductCode(3)]
 [assembly: AssemblyModificationAttribute("gpl")]
 [assembly: AssemblyLogoIcon("Vodovoz.icons.logo.png")]
 [assembly: AssemblyAppWebsite("http://www.qsolution.ru/")]
