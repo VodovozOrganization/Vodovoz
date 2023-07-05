@@ -20,7 +20,7 @@ using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
 using Vodovoz.Dialogs;
-using Vodovoz.Dialogs.Cash.CashTransfer;
+using Vodovoz.Cash.Transfer;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;

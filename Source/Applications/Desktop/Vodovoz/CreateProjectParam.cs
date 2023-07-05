@@ -53,7 +53,7 @@ using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs.Cash;
-using Vodovoz.Dialogs.Cash.CashTransfer;
+using Vodovoz.Cash.Transfer;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
