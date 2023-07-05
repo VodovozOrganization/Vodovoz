@@ -20,6 +20,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
@@ -53,9 +54,15 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			IGtkTabsOpener gtkTabsOpener,
 			IReportViewOpener reportViewOpener,
 			IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> financialExpenseCategoryCacheRepository,
-			IDomainEntityNodeInMemoryCacheRepository<FinancialIncomeCategory> financialIncomeCategoryCacheRepository)
+			IDomainEntityNodeInMemoryCacheRepository<FinancialIncomeCategory> financialIncomeCategoryCacheRepository,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(financialCategoriesGroupsSettings is null)
+			{
+				throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
+			}
+
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
@@ -74,6 +81,8 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			{
 				Entity.CreationDate = DateTime.Now;
 				Entity.Author = Cashier;
+				Entity.IncomeCategoryId = financialCategoriesGroupsSettings.TransferDefaultFinancialIncomeCategoryId;
+				Entity.ExpenseCategoryId = financialCategoriesGroupsSettings.TransferDefaultFinancialExpenseCategoryId;
 			}
 			CreateCommands();
 			UpdateCashSubdivisions();

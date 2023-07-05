@@ -9,5 +9,7 @@
 		int DriverReportFinancialIncomeCategoryId { get; }
 		int SelfDeliveryDefaultFinancialIncomeCategoryId { get; }
 		int SelfDeliveryDefaultFinancialExpenseCategoryId { get; }
+		int TransferDefaultFinancialIncomeCategoryId { get; }
+		int TransferDefaultFinancialExpenseCategoryId { get; }
 	}
 }

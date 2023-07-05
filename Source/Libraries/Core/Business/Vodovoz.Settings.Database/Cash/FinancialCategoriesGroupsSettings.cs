@@ -28,5 +28,9 @@ namespace Vodovoz.Settings.Database.Cash
 		public int SelfDeliveryDefaultFinancialIncomeCategoryId => _settingsController.GetValue<int>(nameof(SelfDeliveryDefaultFinancialIncomeCategoryId).FromPascalCaseToSnakeCase());
 
 		public int SelfDeliveryDefaultFinancialExpenseCategoryId => _settingsController.GetValue<int>(nameof(SelfDeliveryDefaultFinancialExpenseCategoryId).FromPascalCaseToSnakeCase());
+
+		public int TransferDefaultFinancialIncomeCategoryId => _settingsController.GetValue<int>(nameof(TransferDefaultFinancialIncomeCategoryId).FromPascalCaseToSnakeCase());
+
+		public int TransferDefaultFinancialExpenseCategoryId => _settingsController.GetValue<int>(nameof(TransferDefaultFinancialExpenseCategoryId).FromPascalCaseToSnakeCase());
 	}
 }
