@@ -6,13 +6,14 @@ using QS.Views.GtkUI;
 using QSProjectsLib;
 using System;
 using System.Linq;
+using System.ComponentModel;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModels.Cash.Transfer;
 
-namespace Vodovoz.Dialogs.Cash.CashTransfer
+namespace Vodovoz.Cash.Transfer
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class IncomeCashTransferView : TabViewBase<IncomeCashTransferDocumentViewModel>
 	{
 		public IncomeCashTransferView(IncomeCashTransferDocumentViewModel viewModel) : base(viewModel)

@@ -2,12 +2,13 @@
 using QS.DomainModel.UoW;
 using QS.Views.GtkUI;
 using System;
+using System.ComponentModel;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.Transfer;
 
-namespace Vodovoz.Dialogs.Cash.CashTransfer
+namespace Vodovoz.Cash.Transfer
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class CommonCashTransferView : TabViewBase<CommonCashTransferDocumentViewModel>
 	{
 		public CommonCashTransferView(CommonCashTransferDocumentViewModel viewModel) : base(viewModel)
