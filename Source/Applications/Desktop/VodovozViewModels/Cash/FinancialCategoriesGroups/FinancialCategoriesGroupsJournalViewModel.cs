@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using FluentNHibernate.Conventions;
+﻿using FluentNHibernate.Conventions;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using MoreLinq;
 using NHibernate.Linq;
@@ -141,11 +140,13 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 						&& (_filter.ShowArchive || !financialCategoriesGroup.IsArchive)
 						&& (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == financialCategoriesGroup.FinancialSubtype)
 					let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
+					let fullTitle = !string.IsNullOrWhiteSpace(searchString) ? GetPath(unitOfWork, financialCategoriesGroup) : string.Empty
 					select new FinancialCategoriesJournalNode
 					{
 						Id = financialCategoriesGroup.Id,
 						ParentId = parentId,
 						Name = financialCategoriesGroup.Title,
+						FullTitle = fullTitle,
 						JournalNodeType = _financialCategoriesGroupType,
 						FinancialSubType = financialCategoriesGroup.FinancialSubtype,
 						Children = children.ToList()
@@ -165,6 +166,23 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				: Enumerable.Empty<FinancialCategoriesJournalNode>().AsQueryable();
 		}
 
+		private string GetPath(IUnitOfWork unitOfWork, FinancialCategoriesGroup financialCategoriesGroup)
+		{
+			if(financialCategoriesGroup == null)
+			{
+				return string.Empty;
+			}
+
+			if(financialCategoriesGroup.ParentId is null)
+			{
+				return financialCategoriesGroup.Title;
+			}
+
+			var path = GetPath(unitOfWork, unitOfWork.Session.Query<FinancialCategoriesGroup>().Where(x => x.Id == financialCategoriesGroup.ParentId).FirstOrDefault());
+
+			return string.IsNullOrWhiteSpace(path) ? financialCategoriesGroup.Title : string.Join(" \\ ", path, financialCategoriesGroup.Title);
+		}
+
 		private IQueryable<FinancialCategoriesJournalNode> GetIncomeCategories(IUnitOfWork unitOfWork, int? parentId, string searchString, int subdivisionId) =>
 			from incomeCategory in unitOfWork.GetAll<FinancialIncomeCategory>()
 			where ((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || incomeCategory.ParentId == parentId)
@@ -174,10 +192,14 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				&& (_filter.TargetDocument == null || _filter.TargetDocument == incomeCategory.TargetDocument)
 				&& (_filter.Subdivision == null || incomeCategory.SubdivisionId == subdivisionId)
 				&& (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == incomeCategory.FinancialSubtype)
+			let fullTitle = !string.IsNullOrWhiteSpace(searchString)
+				? GetPath(unitOfWork, unitOfWork.Session.Query<FinancialCategoriesGroup>().Where(x => x.Id == incomeCategory.ParentId).FirstOrDefault()) + " \\ " + incomeCategory.Title
+				: string.Empty
 			select new FinancialCategoriesJournalNode
 			{
 				Id = incomeCategory.Id,
 				Name = incomeCategory.Title,
+				FullTitle = fullTitle,
 				JournalNodeType = _financialIncomeCategoryType,
 				FinancialSubType = incomeCategory.FinancialSubtype,
 				ParentId = parentId,
@@ -192,10 +214,14 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				&& (_filter.TargetDocument == null || _filter.TargetDocument == expenseCategory.TargetDocument)
 				&& (_filter.Subdivision == null || expenseCategory.SubdivisionId == subdivisionId)
 				&& (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == expenseCategory.FinancialSubtype)
+			let fullTitle = !string.IsNullOrWhiteSpace(searchString)
+				? GetPath(unitOfWork, unitOfWork.Session.Query<FinancialCategoriesGroup>().Where(x => x.Id == expenseCategory.ParentId).FirstOrDefault()) + " \\ " + expenseCategory.Title
+				: string.Empty
 			select new FinancialCategoriesJournalNode
 			{
 				Id = expenseCategory.Id,
 				Name = expenseCategory.Title,
+				FullTitle = fullTitle,
 				JournalNodeType = _financialExpenseCategoryType,
 				FinancialSubType = expenseCategory.FinancialSubtype,
 				ParentId = parentId,

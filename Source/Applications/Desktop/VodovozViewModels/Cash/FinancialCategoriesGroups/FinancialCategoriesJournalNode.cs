@@ -9,6 +9,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 	public class FinancialCategoriesJournalNode : JournalNodeBase, IHierarchicalNode<FinancialCategoriesJournalNode>
 	{
 		public override string Title => Name;
+		public string FullTitle { get; set; } = string.Empty;
 		public string Name { get; set; }
 		public int Id { get; set; }
 		public int? ParentId { get; set; }
