@@ -64,6 +64,10 @@
       <Project>{BABA2CB7-6EFE-4B1B-9324-74CBCBACF257}</Project>
       <Name>QS.ErrorReporting.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\..\External\QSProjects\QS.ErrorReporting\QS.ErrorReporting.csproj">
+      <Project>{7baff136-4379-4d1d-a554-7dc340caf7a2}</Project>
+      <Name>QS.ErrorReporting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
       <Project>{3d3d6700-c625-46c5-9702-5f010a8dd035}</Project>
       <Name>QS.HistoryLog</Name>

@@ -3,6 +3,8 @@ using QS.Banks.Domain;
 using QS.Deletion.Views;
 using QS.Dialog.GtkUI;
 using QS.HistoryLog;
+using QS.Journal.GtkUI;
+using QS.Project.Journal;
 using QS.RepresentationModel;
 using QS.Tdi;
 using QS.ViewModels;
@@ -12,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Vodovoz.Infrastructure.Services;
+using IJournalFilter = QS.RepresentationModel.IJournalFilter;
 
 namespace Vodovoz.Core
 {
@@ -49,6 +52,11 @@ namespace Vodovoz.Core
 		{
 			if(tab is Widget) {
 				return (Widget)tab;
+			}
+
+			if(tab is JournalViewModelBase journalTab)
+			{
+				return new JournalView(journalTab, this);
 			}
 
 			if(tab is EntityRepresentationSelectorAdapter) {
