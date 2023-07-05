@@ -616,9 +616,9 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					row.PurchasePrice = instanceData[instancesCounter].PurchasePrice;
 				}
 
-				FillStoragesBalance(row.WarehousesBalances, warehouseStorages, instanceId, instanceWarehousesResult, cancellationToken);
-				FillStoragesBalance(row.EmployeesBalances, employeeStorages, instanceId, instanceEmployeesResult, cancellationToken);
-				FillStoragesBalance(row.CarsBalances, carStorages, instanceId, instanceCarsResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Warehouse, warehouseStorages, instanceId, instanceWarehousesResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Employee, employeeStorages, instanceId, instanceEmployeesResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Car, carStorages, instanceId, instanceCarsResult, cancellationToken);
 
 				AddRow(report, row);
 			}
@@ -665,30 +665,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 					Min = minStockResult[nomsCounter]
 				};
 
-				FillStoragesBalance(row.WarehousesBalances, warehouseStorages, nomenclatureId, bulkWarehousesResult, cancellationToken);
-				FillStoragesBalance(row.EmployeesBalances, employeeStorages, nomenclatureId, bulkEmployeesResult, cancellationToken);
-				FillStoragesBalance(row.CarsBalances, carStorages, nomenclatureId, bulkCarsResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Warehouse, warehouseStorages, nomenclatureId, bulkWarehousesResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Employee, employeeStorages, nomenclatureId, bulkEmployeesResult, cancellationToken);
+				row.FillStoragesBalance(StorageType.Car, carStorages, nomenclatureId, bulkCarsResult, cancellationToken);
 
 				AddRow(report, row);
-			}
-		}
-
-		private void FillStoragesBalance(
-			IList<decimal> storagesBalances,
-			IList<SelectableParameter> storages,
-			int entityId,
-			IReadOnlyDictionary<NomenclatureStorageIds, BalanceBean> storagesResult,
-			CancellationToken cancellationToken)
-		{
-			for(var i = 0; i < storages?.Count; i++)
-			{
-				cancellationToken.ThrowIfCancellationRequested();
-				
-				var key = new NomenclatureStorageIds(entityId, (int)storages[i].Value);
-				storagesResult.TryGetValue(key, out var tempBulkBalanceBean);
-				var amount = tempBulkBalanceBean?.Amount ?? 0;
-				
-				storagesBalances.Add(amount);
 			}
 		}
 
@@ -954,10 +935,10 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		private void AddRow(BalanceSummaryReport report, BalanceSummaryRow row)
 		{
 			if(AllNomenclatures
-				|| IsGreaterThanZeroByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war > 0) > 0
-				|| IsLessOrEqualZeroByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war <= 0) <= 0
-				|| IsLessThanMinByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war < row.Min) < row.Min
-				|| IsGreaterOrEqualThanMinByNomenclature && row.WarehousesBalances.FirstOrDefault(war => war >= row.Min) >= row.Min)
+				|| (IsGreaterThanZeroByNomenclature && row.HasGreaterThanZeroBalance)
+				|| (IsLessOrEqualZeroByNomenclature && row.HasLessOrEqualZeroBalance)
+				|| (IsLessThanMinByNomenclature && row.HasLessThanMinBalance)
+				|| (IsGreaterOrEqualThanMinByNomenclature && row.HasGreaterOrEqualThanMinBalance))
 			{
 				report.SummaryRows.Add(row);
 			}
