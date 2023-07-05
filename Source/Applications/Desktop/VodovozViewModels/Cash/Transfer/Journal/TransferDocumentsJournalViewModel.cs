@@ -49,8 +49,6 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 
 			_domainObjectsPermissions = InitializePermissionsMatrix(DomainObjectsTypes);
 
-			UseSlider = false;
-
 			Filter.HidenByDefault = true;
 
 			UpdateOnChanges(DomainObjectsTypes);
@@ -94,12 +92,13 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 			NodeActionsList.Clear();
 			CreateAddActions();
 			CreateOpenDocumentAction();
+			CreateDefaultDeleteAction();
 		}
 
 		private void CreateOpenDocumentAction()
 		{
 			var editAction = new JournalAction(
-				"Открыть документ",
+				"Редактировать",
 				(selected) =>
 				{
 					var selectedNodes = selected.OfType<DocumentNode>();
@@ -162,23 +161,23 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 		{
 			RegisterEntity(GetCommonTransferDocumentQuery)
 				.AddDocumentConfiguration(
-				() => null,
-				(node) => NavigationManager
-					.OpenViewModel<CommonCashTransferDocumentViewModel, IEntityUoWBuilder>(
-					this,
-					EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
-				(node) => node.EntityType == typeof(CommonCashTransferDocument))
+					() => null,
+					(node) => NavigationManager
+						.OpenViewModel<CommonCashTransferDocumentViewModel, IEntityUoWBuilder>(
+						this,
+						EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(node) => node.EntityType == typeof(CommonCashTransferDocument))
 				.FinishConfiguration();
 
 
 			RegisterEntity(GetIncomeTransferDocumentQuery)
 				.AddDocumentConfiguration(
-				() => null,
-				(node) => NavigationManager
-					.OpenViewModel<IncomeCashTransferDocumentViewModel, IEntityUoWBuilder>(
-					this,
-					EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
-				(node) => node.EntityType == typeof(IncomeCashTransferDocument))
+					() => null,
+					(node) => NavigationManager
+						.OpenViewModel<IncomeCashTransferDocumentViewModel, IEntityUoWBuilder>(
+						this,
+						EntityUoWBuilder.ForOpen(node.Id)).ViewModel,
+					(node) => node.EntityType == typeof(IncomeCashTransferDocument))
 				.FinishConfiguration();
 
 			var dataLoader = DataLoader as ThreadDataLoader<DocumentNode>;
@@ -191,24 +190,29 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 
 			foreach(var documentType in DomainObjectsTypes)
 			{
-				var incomeCreateNodeAction = new JournalAction(
-				documentType.GetClassUserFriendlyName().Accusative.CapitalizeSentence(),
-				(selected) => _domainObjectsPermissions[documentType].CanCreate,
-				(selected) => _domainObjectsPermissions[documentType].CanCreate,
-				(selected) =>
+				if(documentType == typeof(CommonCashTransferDocument))
 				{
-					if(documentType == typeof(CommonCashTransferDocument))
-					{
-						NavigationManager.OpenViewModel<CommonCashTransferDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
-					}
+					var commonCreateAction = new JournalAction("На сумму",
+						(selected) => _domainObjectsPermissions[documentType].CanCreate,
+						(selected) => _domainObjectsPermissions[documentType].CanCreate,
+						(selected) =>
+						{
+							NavigationManager.OpenViewModel<CommonCashTransferDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+						});
+					addParentNodeAction.ChildActionsList.Add(commonCreateAction);
+				}
 
-					if(documentType == typeof(IncomeCashTransferDocument))
-					{
-						NavigationManager.OpenViewModel<IncomeCashTransferDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
-					}
-				});
-
-				addParentNodeAction.ChildActionsList.Add(incomeCreateNodeAction);
+				if(documentType == typeof(IncomeCashTransferDocument))
+				{
+					var incomeCreateNodeAction = new JournalAction("По ордерам",
+						(selected) => _domainObjectsPermissions[documentType].CanCreate,
+						(selected) => _domainObjectsPermissions[documentType].CanCreate,
+						(selected) =>
+						{
+							NavigationManager.OpenViewModel<IncomeCashTransferDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+						});
+					addParentNodeAction.ChildActionsList.Add(incomeCreateNodeAction);
+				}
 			}
 
 			NodeActionsList.Add(addParentNodeAction);
