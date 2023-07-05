@@ -398,7 +398,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		public bool CanChangeRouteList =>
 			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanDelete)
-			|| IsDriverReport;
+			&& IsDriverReport;
 
 		public bool IsReturnOperation => Entity.TypeOperation == IncomeType.Return;
 
