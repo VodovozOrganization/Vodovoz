@@ -9,7 +9,7 @@ using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog;
 using QS.Project.DB;
 using SmsPaymentService;

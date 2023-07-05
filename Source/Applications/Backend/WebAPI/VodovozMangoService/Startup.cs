@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using VodovozMangoService.HostedServices;
 using VodovozMangoService.Services;
 
@@ -32,7 +32,7 @@ namespace VodovozMangoService
 			connectionStringBuilder.DefaultCommandTimeout = 5;
 			
 			services.AddSingleton(x =>
-				new MySqlConnection(connectionStringBuilder.GetConnectionString(true)));
+				new MySqlConnection(connectionStringBuilder.ConnectionString));
 	 
 			services.AddSingleton(x =>
 				new MangoController(Configuration["Mango:vpbx_api_key"], Configuration["Mango:vpbx_api_salt"]));

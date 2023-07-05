@@ -2,7 +2,7 @@
 using Fias.Client;
 using Fias.Client.Cache;
 using Gtk;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog;
 using QS.Banks.Domain;
 using QS.BaseParameters;
@@ -29,7 +29,7 @@ using QS.Project.Views;
 using QS.Report.ViewModels;
 using QS.Tdi;
 using QS.Tdi.Gtk;
-using QS.Tools;
+using QS.Utilities.Debug;
 using QS.Validation;
 using QS.ViewModels;
 using QSBanks;
@@ -152,15 +152,14 @@ using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Settings;
+using Vodovoz.ViewModels.ViewModels.Suppliers;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 using VodovozInfrastructure.Configuration;
 using VodovozInfrastructure.Passwords;
 using Connection = QS.Project.DB.Connection;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
-using Vodovoz.ViewModels.ViewModels.Warehouses;
-using Vodovoz.ViewModels.ViewModels.Suppliers;
-using QS.Utilities.Debug;
 
 public partial class MainWindow : Gtk.Window
 {

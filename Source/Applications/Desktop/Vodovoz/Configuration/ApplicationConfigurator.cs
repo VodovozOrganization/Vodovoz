@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Reflection;
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.Utilities;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NHibernate.AdoNet;
 using NLog;
 using QS.Banks.Domain;
@@ -20,6 +16,9 @@ using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Dialogs.Client;
@@ -58,7 +57,7 @@ using InventoryDocumentViewModel = Vodovoz.ViewModels.ViewModels.Warehouses.Inve
 
 namespace Vodovoz.Configuration
 {
-    public class ApplicationConfigurator : IApplicationConfigurator
+	public class ApplicationConfigurator : IApplicationConfigurator
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private const int connectionTimeoutSeconds = 120;
