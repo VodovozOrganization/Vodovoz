@@ -39,32 +39,38 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.DebtorsJournalReport
 				var worksheet = workbook.Worksheets.Add("Журнал задолженностей");
 
 				worksheet.Column(1).Width = 5;
-				worksheet.Column(2).Width = 40;
-				worksheet.Column(3).Width = 75;
-				worksheet.Column(4).Width = 15;
-				worksheet.Column(5).Width = 30;
-				worksheet.Column(6).Width = 10;
-				worksheet.Column(7).Width = 12;
+				worksheet.Column(2).Width = 15;
+				worksheet.Column(3).Width = 40;
+				worksheet.Column(4).Width = 75;
+				worksheet.Column(5).Width = 15;
+				worksheet.Column(6).Width = 30;
+				worksheet.Column(7).Width = 15;
+				worksheet.Column(8).Width = 10;
+				worksheet.Column(9).Width = 12;
 	
 				worksheet.Cell(1, 1).Value = "№";
-				worksheet.Cell(1, 2).Value = "Клиент";
-				worksheet.Cell(1, 3).Value = "Адрес";
-				worksheet.Cell(1, 4).Value = "Номер телефона";
-				worksheet.Cell(1, 5).Value = "Email";
-				worksheet.Cell(1, 6).Value = "Долг по таре\n(по адресу) бутылей";
-				worksheet.Cell(1, 7).Value = "Кол-во отгруженных\nв последнюю реализацию\nбутылей";
+				worksheet.Cell(1, 2).Value = "Код контрагента";
+				worksheet.Cell(1, 3).Value = "Клиент";
+				worksheet.Cell(1, 4).Value = "Адрес";
+				worksheet.Cell(1, 5).Value = "Номер телефона";
+				worksheet.Cell(1, 6).Value = "Email";
+				worksheet.Cell(1, 7).Value = "Дата последнего заказа";
+				worksheet.Cell(1, 8).Value = "Долг по таре\n(по адресу) бутылей";
+				worksheet.Cell(1, 9).Value = "Кол-во отгруженных\nв последнюю реализацию\nбутылей";
 
 				var rows = _report.Rows;
 
 				for(int i = 0; i < rows.Count; i++)
 				{
 					worksheet.Cell(i + 2, 1).Value = i + 1;
-					worksheet.Cell(i + 2, 2).Value = rows[i].ClientName;
-					worksheet.Cell(i + 2, 3).Value = rows[i].Address;
-					worksheet.Cell(i + 2, 4).Value = rows[i].Phones;
-					worksheet.Cell(i + 2, 5).Value = rows[i].Emails;
-					worksheet.Cell(i + 2, 6).Value = rows[i].DebtByAddress;
-					worksheet.Cell(i + 2, 7).Value = rows[i].LastOrderBottles;
+					worksheet.Cell(i + 2, 2).Value = rows[i].ClientId;
+					worksheet.Cell(i + 2, 3).Value = rows[i].ClientName;
+					worksheet.Cell(i + 2, 4).Value = rows[i].Address;
+					worksheet.Cell(i + 2, 5).Value = rows[i].Phones;
+					worksheet.Cell(i + 2, 6).Value = rows[i].Emails;
+					worksheet.Cell(i + 2, 7).Value = rows[i].LastOrderDate;
+					worksheet.Cell(i + 2, 8).Value = rows[i].DebtByAddress;
+					worksheet.Cell(i + 2, 9).Value = rows[i].LastOrderBottles;
 				}
 
 				worksheet.Column(4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
