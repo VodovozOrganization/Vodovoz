@@ -116,10 +116,12 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		public void UpdateOutputParameters()
 		{
+			foreach(SelectableParameter sp in Parameters)
+			{
+				sp.FilterChilds(searchValue);
+			}
+
 			if(Parameters.Any(x => x.Children.Any())) {
-				foreach(SelectableParameter sp in Parameters) {
-					sp.FilterChilds(searchValue);
-				}
 				OutputParameters = new GenericObservableList<SelectableParameter>(Parameters.Where(x => x.Children.Any() || x.Title.ToLower().Contains(searchValue == null ? "" : searchValue.ToLower())).ToList());
 			} else {
 				OutputParameters = new GenericObservableList<SelectableParameter>(Parameters.Where(x => x.Title.ToLower().Contains(searchValue == null ? "" : searchValue.ToLower())).ToList());
