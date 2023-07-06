@@ -22,6 +22,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Representations.ProductGroups;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Dialogs.Nodes;
 
 namespace Vodovoz.Views.Goods
 {
@@ -29,9 +30,6 @@ namespace Vodovoz.Views.Goods
 	public partial class NomenclatureView : TabViewBase<NomenclatureViewModel>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private const int _onlineDiscountMaxSimbols = 5;
-		private const decimal _maxOnlineDiscount = 99;
-
 		private Entry _entry;
 		
 		public NomenclatureView(NomenclatureViewModel viewModel) : base(viewModel)
@@ -457,23 +455,6 @@ namespace Vodovoz.Views.Goods
 			ConfigureActionsMenu();
 		}
 
-		private void Validatedentry1OnChanged(object sender, EventArgs e)
-		{
-			var chars = validatedentry1.Text.ToCharArray();
-			
-			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars, 2);
-
-			if(string.IsNullOrWhiteSpace(text))
-			{
-				validatedentry1.Text = string.Empty;
-			}
-			else
-			{
-				var result = decimal.Parse(text);
-				validatedentry1.Text = result > _maxOnlineDiscount ? _maxOnlineDiscount.ToString() : text;
-			}
-		}
-
 		private void ConfigureParametersForMobileApp()
 		{
 			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(NomenclatureOnlineAvailability);
@@ -489,6 +470,7 @@ namespace Vodovoz.Views.Goods
 			entryOnlineDiscountMobileApp.Binding
 				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
+			entryOnlineDiscountMobileApp.Changed += OnEntryOnlineDiscountChanged;
 		}
 		
 		private void ConfigureParametersForVodovozWebSite()
@@ -506,6 +488,7 @@ namespace Vodovoz.Views.Goods
 			entryOnlineDiscountVodovozWebSite.Binding
 				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
+			entryOnlineDiscountVodovozWebSite.Changed += OnEntryOnlineDiscountChanged;
 		}
 		
 		private void ConfigureParametersForKulerSaleWebSite()
@@ -523,6 +506,16 @@ namespace Vodovoz.Views.Goods
 			entryOnlineDiscountKulerSaleWebSite.Binding
 				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
+			entryOnlineDiscountKulerSaleWebSite.Changed += OnEntryOnlineDiscountChanged;
+		}
+		
+		private void OnEntryOnlineDiscountChanged(object sender, EventArgs e)
+		{
+			var entry = sender as Entry;
+			var chars = entry.Text.ToCharArray();
+			
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars);
+			entry.Text = string.IsNullOrWhiteSpace(text) ? string.Empty : text;
 		}
 
 		private void ConfigureNotSpecialStateForOnlineAvailabilityWidgets()
@@ -543,23 +536,26 @@ namespace Vodovoz.Views.Goods
 		{
 			treeViewOnlinePrices.ColumnsConfig = FluentColumnsConfig<NomenclatureOnlinePricesNode>.Create()
 				.AddColumn("Кол-во (от)")
-				.AddNumericRenderer(x => x.MinCount)
+					.AddNumericRenderer(x => x.MinCount)
 				.AddColumn("Цена продажи")
-				.AddTextRenderer(x => x.NomenclaturePrice.ToString())
+					.AddTextRenderer(x => x.NomenclaturePrice.ToString())
 				.AddColumn("Цена продажи\nКулер-Сейл")
-				.AddTextRenderer(x => x.KulerSalePrice.ToString())
+					.AddTextRenderer(x => x.KulerSalePrice.ToString())
 				.AddColumn("Приложение\n\nЦена без\nскидки")
-				.AddTextRenderer(x => x.MobileAppPriceWithoutDiscountString)
-				.EditingStartedEvent(OnPriceWithoutDiscountStartedEditing)
-				.EditedEvent(OnPriceWithoutDiscountEdited)
-				.Editable()
-				.AddSetter((cell, node) => cell.Editable = node.CanChangeMobileAppPriceWithoutDiscount)
+					.AddTextRenderer(x => x.MobileAppPriceWithoutDiscountString)
+					.EditingStartedEvent(OnPriceWithoutDiscountStartedEditing)
+					.EditedEvent(OnPriceWithoutDiscountEdited)
+					.AddSetter((cell, node) => cell.Editable = node.CanChangeMobileAppPriceWithoutDiscount)
 				.AddColumn("Сайт ВВ\n\nЦена без\nскидки")
-				.AddTextRenderer(x => x.VodovozWebSitePriceWithoutDiscountString)
-				.AddSetter((cell, node) => cell.Editable = node.CanChangeVodovozWebSitePriceWithoutDiscount)
+					.AddTextRenderer(x => x.VodovozWebSitePriceWithoutDiscountString)
+					.EditingStartedEvent(OnPriceWithoutDiscountStartedEditing)
+					.EditedEvent(OnPriceWithoutDiscountEdited)
+					.AddSetter((cell, node) => cell.Editable = node.CanChangeVodovozWebSitePriceWithoutDiscount)
 				.AddColumn("Кулер-Сейл\n\nЦена без\nскидки")
-				.AddTextRenderer(x => x.KulerSaleWebSitePriceWithoutDiscountString)
-				.AddSetter((cell, node) => cell.Editable = node.CanChangeKulerSaleWebSitePriceWithoutDiscount)
+					.AddTextRenderer(x => x.KulerSaleWebSitePriceWithoutDiscountString)
+					.EditingStartedEvent(OnPriceWithoutDiscountStartedEditing)
+					.EditedEvent(OnPriceWithoutDiscountEdited)
+					.AddSetter((cell, node) => cell.Editable = node.CanChangeKulerSaleWebSitePriceWithoutDiscount)
 				.AddColumn("")
 				.Finish();
 

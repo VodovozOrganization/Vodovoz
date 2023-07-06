@@ -10,7 +10,7 @@
 		/// <param name="chars">входной массив символов</param>
 		/// <param name="fractionalPart">дробная часть</param>
 		/// <returns>числовая строка, может содержать разделитель дробной части в виде запятой</returns>
-		public string ConvertCharsArrayToNumericString(char[] chars, int fractionalPart)
+		public string ConvertCharsArrayToNumericString(char[] chars, int fractionalPart = 0)
 		{
 			var result = string.Empty;
 			var hasDotOrComma = false;

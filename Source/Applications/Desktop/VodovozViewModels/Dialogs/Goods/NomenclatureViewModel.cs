@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Services;
 using Vodovoz.Models;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Dialogs.Nodes;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
 
@@ -377,130 +378,5 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				}
 			}
 		}
-	}
-
-	/*public class NomenclatureOnlinePricesNode
-	{
-		public decimal MinCount => 
-		public decimal? NomenclaturePrice { get; set; }
-		public decimal? KulerSalePrice { get; set; }
-		public decimal? MobileAppPriceWithoutDiscount { get; set; }
-		public decimal? VodovozWebSitePriceWithoutDiscount { get; set; }
-		public decimal? KulerSaleWebSitePriceWithoutDiscount { get; set; }
-		public bool CanChangeMobileAppPriceWithoutDiscount => NomenclaturePrice.HasValue;
-		public bool CanChangeVodovozWebSitePriceWithoutDiscount => NomenclaturePrice.HasValue;
-		public bool CanChangeKulerSaleWebSitePriceWithoutDiscount => KulerSalePrice.HasValue;
-	}*/
-	
-	public class NomenclatureOnlinePricesNode
-	{
-		public decimal MinCount { get; set; }
-		public NomenclatureOnlinePrice MobileAppNomenclatureOnlinePrice { get; set; }
-		public NomenclatureOnlinePrice VodovozWebSiteNomenclatureOnlinePrice { get; set; }
-		public NomenclatureOnlinePrice KulerSaleWebSiteNomenclatureOnlinePrice { get; set; }
-		public decimal? NomenclaturePrice => MobileAppNomenclatureOnlinePrice?.NomenclaturePrice.Price;
-		public decimal? KulerSalePrice => KulerSaleWebSiteNomenclatureOnlinePrice?.NomenclaturePrice.Price;
-
-		public decimal? MobileAppPriceWithoutDiscount
-		{
-			get => MobileAppNomenclatureOnlinePrice?.PriceWithoutDiscount;
-			set
-			{
-				if(MobileAppNomenclatureOnlinePrice is null)
-				{
-					return;
-				}
-
-				MobileAppNomenclatureOnlinePrice.PriceWithoutDiscount = value;
-			}
-		} 
-
-		public decimal? VodovozWebSitePriceWithoutDiscount
-		{
-			get => VodovozWebSiteNomenclatureOnlinePrice?.PriceWithoutDiscount;
-			set
-			{
-				if(VodovozWebSiteNomenclatureOnlinePrice is null)
-				{
-					return;
-				}
-
-				VodovozWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = value;
-			}
-		}
-
-		public decimal? KulerSaleWebSitePriceWithoutDiscount
-		{
-			get => KulerSaleWebSiteNomenclatureOnlinePrice?.PriceWithoutDiscount;
-			set
-			{
-				if(KulerSaleWebSiteNomenclatureOnlinePrice is null)
-				{
-					return;
-				}
-
-				KulerSaleWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = value;
-			}
-		}
-		
-		public string MobileAppPriceWithoutDiscountString
-		{
-			get => MobileAppNomenclatureOnlinePrice?.PriceWithoutDiscount.ToString();
-			set
-			{
-				if(MobileAppNomenclatureOnlinePrice is null)
-				{
-					return;
-				}
-				
-				if(string.IsNullOrWhiteSpace(value))
-				{
-					MobileAppNomenclatureOnlinePrice.PriceWithoutDiscount = null;
-				}
-
-				MobileAppNomenclatureOnlinePrice.PriceWithoutDiscount = decimal.Parse(value);
-			}
-		} 
-
-		public string VodovozWebSitePriceWithoutDiscountString
-		{
-			get => VodovozWebSiteNomenclatureOnlinePrice?.PriceWithoutDiscount.ToString();
-			set
-			{
-				if(VodovozWebSiteNomenclatureOnlinePrice is null)
-				{
-					return;
-				}
-				
-				if(string.IsNullOrWhiteSpace(value))
-				{
-					VodovozWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = null;
-				}
-
-				VodovozWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = decimal.Parse(value);
-			}
-		}
-
-		public string KulerSaleWebSitePriceWithoutDiscountString
-		{
-			get => KulerSaleWebSiteNomenclatureOnlinePrice?.PriceWithoutDiscount.ToString();
-			set
-			{
-				if(KulerSaleWebSiteNomenclatureOnlinePrice is null)
-				{
-					return;
-				}
-				
-				if(string.IsNullOrWhiteSpace(value))
-				{
-					KulerSaleWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = null;
-				}
-
-				KulerSaleWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = decimal.Parse(value);
-			}
-		}
-		public bool CanChangeMobileAppPriceWithoutDiscount => NomenclaturePrice.HasValue;
-		public bool CanChangeVodovozWebSitePriceWithoutDiscount => NomenclaturePrice.HasValue;
-		public bool CanChangeKulerSaleWebSitePriceWithoutDiscount => KulerSalePrice.HasValue;
 	}
 }

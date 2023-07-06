@@ -4,11 +4,17 @@ using Gamma.Binding;
 
 namespace Vodovoz.Infrastructure.Converters
 {
-	public class NullableIntToStringConverter : IValueConverter
+	public class NullableDecimalToStringConverter : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			return value?.ToString();
+			if(value is null)
+			{
+				return null;
+			}
+
+			var f = string.Format(CultureInfo.InvariantCulture, "{0}", value);
+			return f;
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -17,8 +23,8 @@ namespace Vodovoz.Infrastructure.Converters
 			{
 				return null;
 			}
-
-			if(targetType == typeof(int?) && int.TryParse(value.ToString(), out var number))
+			
+			if(targetType == typeof(decimal?) && decimal.TryParse(value.ToString(), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var number))
 			{
 				return number;
 			}
