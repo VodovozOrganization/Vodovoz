@@ -40,16 +40,6 @@ namespace Vodovoz.Views.Goods
 		private void Configure()
 		{
 			notebook.ShowTabs = false;
-			validatedentry1.ValidationMode = QS.Widgets.ValidationType.Price;
-			/*validatedentry1.Binding
-				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
-				.InitializeFromSource();*/
-
-			validatedentry1.MaxLength = 5;
-			validatedentry1.TextInserted += Validatedentry1OnTextInserted;
-			validatedentry1.KeyPressEvent += Validatedentry1OnKeyPressEvent;
-			validatedentry1.KeyReleaseEvent += Validatedentry1OnKeyReleaseEvent;
-			validatedentry1.TextDeleted += Validatedentry1OnTextDeleted;
 
 			#region RadioButtons
 
@@ -464,39 +454,6 @@ namespace Vodovoz.Views.Goods
 			ConfigureActionsMenu();
 		}
 
-		private void Validatedentry1OnTextDeleted(object o, TextDeletedArgs args)
-		{
-			
-		}
-
-		private void Validatedentry1OnKeyReleaseEvent(object o, KeyReleaseEventArgs args)
-		{
-			
-		}
-
-		private void Validatedentry1OnKeyPressEvent(object o, KeyPressEventArgs args)
-		{
-			var f = true;
-			//if(args.Event.Key == Gdk.Key)
-		}
-
-		private void Validatedentry1OnButtonPressEvent(object o, ButtonPressEventArgs args)
-		{
-			
-		}
-
-		private void Validatedentry1OnTextInserted(object o, TextInsertedArgs args)
-		{
-			var f = args.Text;
-			if(f.Contains(","))
-			{
-				var replacedText = validatedentry1.Text.Replace(",", ".");
-				validatedentry1.Text = replacedText;
-				var pos = validatedentry1.Text.Length;
-				validatedentry1.InsertText(".", ref pos);
-			}
-		}
-
 		private void ConfigureParametersForMobileApp()
 		{
 			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(NomenclatureOnlineAvailability);
@@ -509,9 +466,9 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineMarker, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 			
-			/*spinBtnOnlineDiscountMobileApp.Binding
-				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.ValueAsDecimal)
-				.InitializeFromSource();*/
+			entryOnlineDiscountMobileApp.Binding
+				.AddBinding(ViewModel.MobileAppNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
+				.InitializeFromSource();
 		}
 		
 		private void ConfigureParametersForVodovozWebSite()
@@ -526,8 +483,8 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineMarker, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 			
-			spinBtnOnlineDiscountVodovozWebSite.Binding
-				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.ValueAsDecimal)
+			entryOnlineDiscountVodovozWebSite.Binding
+				.AddBinding(ViewModel.VodovozWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
 		}
 		
@@ -543,8 +500,8 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineMarker, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 			
-			spinBtnOnlineDiscountKulerSaleWebSite.Binding
-				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.ValueAsDecimal)
+			entryOnlineDiscountKulerSaleWebSite.Binding
+				.AddBinding(ViewModel.KulerSaleWebSiteNomenclatureOnlineParameters, p => p.NomenclatureOnlineDiscount, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
 		}
 
