@@ -4,6 +4,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories.Nodes;
 
 namespace Vodovoz.EntityRepositories.Goods
@@ -84,5 +85,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		decimal GetWarehouseExpensesForRoute(IUnitOfWork uow, int routeListId, decimal warehouseExpenses);
 		Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId);
 		bool Has19LWater(IUnitOfWork uow, int[] nomenclaturesIds);
+		IList<NomenclatureOnlineParameters> GetNomenclaturesOnlineParametersForSend(
+			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType);
 	}
 }

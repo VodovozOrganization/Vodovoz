@@ -77,16 +77,20 @@ namespace CustomerAppsApi
 			services.AddSingleton<IExternalCounterpartyFactory, ExternalCounterpartyFactory>();
 			services.AddSingleton<CounterpartyModelFactory>();
 			services.AddSingleton<ICounterpartyFactory, CounterpartyFactory>();
+			services.AddSingleton<INomenclatureFactory, NomenclatureFactory>();
 			services.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen));
 			services.AddSingleton<ICounterpartySettings, CounterpartySettings>();
 			services.AddSingleton<ICameFromConverter, CameFromConverter>();
+			services.AddSingleton<ISourceConverter, SourceConverter>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromOne>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromTwo>();
 			services.AddSingleton<ContactFinderForExternalCounterpartyFromMany>();
 			services.AddSingleton<IContactManagerForExternalCounterparty, ContactManagerForExternalCounterparty>();
+			services.AddSingleton<INomenclatureOnlineParametersController, NomenclatureOnlineParametersController>();
 
 			services.AddScoped<IUnitOfWork>(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис интеграции"));
 			services.AddScoped<ICounterpartyModel, CounterpartyModel>();
+			services.AddScoped<INomenclatureModel, NomenclatureModel>();
 			services.AddScoped<CounterpartyModelValidator>();
 		}
 

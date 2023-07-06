@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
@@ -540,6 +541,15 @@ namespace Vodovoz.EntityRepositories.Goods
 				.And(n => n.TareVolume == TareVolume.Vol19L)
 				.List()
 				.Any();
+		}
+
+		public IList<NomenclatureOnlineParameters> GetNomenclaturesOnlineParametersForSend(
+			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
+		{
+			return uow.Session.QueryOver<NomenclatureOnlineParameters>()
+				.Where(p => p.Type == parameterType)
+				.And(p => p.NomenclatureOnlineAvailability != null)
+				.List();
 		}
 	}
 

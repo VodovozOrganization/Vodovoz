@@ -1,4 +1,4 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.BusinessCommon.Domain;
@@ -12,7 +12,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Gamma.Binding;
-using Gamma.Binding.Converters;
 using Gamma.ColumnConfig;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
@@ -30,10 +29,14 @@ namespace Vodovoz.Views.Goods
 	public partial class NomenclatureView : TabViewBase<NomenclatureViewModel>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private const int _onlineDiscountMaxSimbols = 5;
+		private const decimal _maxOnlineDiscount = 99;
+
+		private Entry _entry;
 		
 		public NomenclatureView(NomenclatureViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -454,6 +457,23 @@ namespace Vodovoz.Views.Goods
 			ConfigureActionsMenu();
 		}
 
+		private void Validatedentry1OnChanged(object sender, EventArgs e)
+		{
+			var chars = validatedentry1.Text.ToCharArray();
+			
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars, 2);
+
+			if(string.IsNullOrWhiteSpace(text))
+			{
+				validatedentry1.Text = string.Empty;
+			}
+			else
+			{
+				var result = decimal.Parse(text);
+				validatedentry1.Text = result > _maxOnlineDiscount ? _maxOnlineDiscount.ToString() : text;
+			}
+		}
+
 		private void ConfigureParametersForMobileApp()
 		{
 			enumCmbOnlineAvailabilityMobileApp.ItemsEnum = typeof(NomenclatureOnlineAvailability);
@@ -525,30 +545,52 @@ namespace Vodovoz.Views.Goods
 				.AddColumn("Кол-во (от)")
 				.AddNumericRenderer(x => x.MinCount)
 				.AddColumn("Цена продажи")
-				.AddNumericRenderer(x => x.NomenclaturePrice, new NullableDecimalToDecimalConverter())
-				.Digits(2)
+				.AddTextRenderer(x => x.NomenclaturePrice.ToString())
 				.AddColumn("Цена продажи\nКулер-Сейл")
-				.AddNumericRenderer(x => x.KulerSalePrice, new NullableDecimalToDecimalConverter())
-				.Digits(2)
+				.AddTextRenderer(x => x.KulerSalePrice.ToString())
 				.AddColumn("Приложение\n\nЦена без\nскидки")
-				.AddNumericRenderer(x => x.MobileAppPriceWithoutDiscount, new NullableDecimalToDecimalConverter())
-				.Digits(2)
-				.Adjustment(new Adjustment(0, 0, 1_000_000, 1, 10, 0))
+				.AddTextRenderer(x => x.MobileAppPriceWithoutDiscountString)
+				.EditingStartedEvent(OnPriceWithoutDiscountStartedEditing)
+				.EditedEvent(OnPriceWithoutDiscountEdited)
+				.Editable()
 				.AddSetter((cell, node) => cell.Editable = node.CanChangeMobileAppPriceWithoutDiscount)
 				.AddColumn("Сайт ВВ\n\nЦена без\nскидки")
-				.AddNumericRenderer(x => x.VodovozWebSitePriceWithoutDiscount, new NullableDecimalToDecimalConverter())
-				.Digits(2)
-				.Adjustment(new Adjustment(0, 0, 1_000_000, 1, 10, 0))
+				.AddTextRenderer(x => x.VodovozWebSitePriceWithoutDiscountString)
 				.AddSetter((cell, node) => cell.Editable = node.CanChangeVodovozWebSitePriceWithoutDiscount)
 				.AddColumn("Кулер-Сейл\n\nЦена без\nскидки")
-				.AddNumericRenderer(x => x.KulerSaleWebSitePriceWithoutDiscount, new NullableDecimalToDecimalConverter())
-				.Digits(2)
-				.Adjustment(new Adjustment(0, 0, 1_000_000, 1, 10, 0))
+				.AddTextRenderer(x => x.KulerSaleWebSitePriceWithoutDiscountString)
 				.AddSetter((cell, node) => cell.Editable = node.CanChangeKulerSaleWebSitePriceWithoutDiscount)
 				.AddColumn("")
 				.Finish();
 
 			treeViewOnlinePrices.ItemsDataSource = ViewModel.NomenclatureOnlinePrices;
+		}
+
+		private void OnPriceWithoutDiscountStartedEditing(object o, EditingStartedArgs args)
+		{
+			if(args.Args.First() is Entry entry)
+			{
+				_entry = entry;
+				_entry.Changed += OnPriceWithoutDiscountChanged;
+			}
+		}
+		
+		private void OnPriceWithoutDiscountEdited(object o, EditedArgs args)
+		{
+			if(_entry != null)
+			{
+				_entry.Changed -= OnPriceWithoutDiscountChanged;
+				_entry = null;
+			}
+		}
+
+		private void OnPriceWithoutDiscountChanged(object sender, EventArgs e)
+		{
+			var entry = sender as Entry;
+			var chars = entry.Text.ToCharArray();
+			
+			var text = ViewModel.StringHandler.ConvertCharsArrayToNumericString(chars, 2);
+			entry.Text = string.IsNullOrWhiteSpace(text) ? string.Empty : text;
 		}
 
 		private void ConfigureActionsMenu()

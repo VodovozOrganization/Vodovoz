@@ -18,6 +18,7 @@ using Vodovoz.Services;
 using Vodovoz.Models;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Goods;
+using VodovozInfrastructure.StringHandlers;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
@@ -43,13 +44,15 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureJournalFactory nomenclatureSelectorFactory,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			INomenclatureRepository nomenclatureRepository,
-			IUserRepository userRepository) : base(uowBuilder, uowFactory, commonServices)
+			IUserRepository userRepository,
+			IStringHandler stringHandler) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(nomenclatureSelectorFactory is null)
 			{
 				throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			}
 
+			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -131,6 +134,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			return parameters;
 		}
 
+		public IStringHandler StringHandler { get; }
 		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
@@ -436,6 +440,63 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				}
 
 				KulerSaleWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = value;
+			}
+		}
+		
+		public string MobileAppPriceWithoutDiscountString
+		{
+			get => MobileAppNomenclatureOnlinePrice?.PriceWithoutDiscount.ToString();
+			set
+			{
+				if(MobileAppNomenclatureOnlinePrice is null)
+				{
+					return;
+				}
+				
+				if(string.IsNullOrWhiteSpace(value))
+				{
+					MobileAppNomenclatureOnlinePrice.PriceWithoutDiscount = null;
+				}
+
+				MobileAppNomenclatureOnlinePrice.PriceWithoutDiscount = decimal.Parse(value);
+			}
+		} 
+
+		public string VodovozWebSitePriceWithoutDiscountString
+		{
+			get => VodovozWebSiteNomenclatureOnlinePrice?.PriceWithoutDiscount.ToString();
+			set
+			{
+				if(VodovozWebSiteNomenclatureOnlinePrice is null)
+				{
+					return;
+				}
+				
+				if(string.IsNullOrWhiteSpace(value))
+				{
+					VodovozWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = null;
+				}
+
+				VodovozWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = decimal.Parse(value);
+			}
+		}
+
+		public string KulerSaleWebSitePriceWithoutDiscountString
+		{
+			get => KulerSaleWebSiteNomenclatureOnlinePrice?.PriceWithoutDiscount.ToString();
+			set
+			{
+				if(KulerSaleWebSiteNomenclatureOnlinePrice is null)
+				{
+					return;
+				}
+				
+				if(string.IsNullOrWhiteSpace(value))
+				{
+					KulerSaleWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = null;
+				}
+
+				KulerSaleWebSiteNomenclatureOnlinePrice.PriceWithoutDiscount = decimal.Parse(value);
 			}
 		}
 		public bool CanChangeMobileAppPriceWithoutDiscount => NomenclaturePrice.HasValue;

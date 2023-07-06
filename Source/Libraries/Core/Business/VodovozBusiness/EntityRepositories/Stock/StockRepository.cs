@@ -4,6 +4,7 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents.MovementDocuments;
@@ -57,28 +58,28 @@ namespace Vodovoz.EntityRepositories.Stock
 		{
 			Nomenclature nomenclatureAlias = null;
 			NomenclatureStockNode resultAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 
-			var query = uow.Session.QueryOver<WarehouseBulkGoodsAccountingOperation>()
-				.JoinAlias(op => op.Nomenclature, () => nomenclatureAlias)
+			var query = uow.Session.QueryOver(() => nomenclatureAlias)
+				.JoinEntityAlias(
+					() => operationAlias,
+					() => nomenclatureAlias.Id == operationAlias.Nomenclature.Id,
+					JoinType.LeftOuterJoin)
 				.Where(() => nomenclatureAlias.Id.IsIn(nomenclatureIds));
-				
+
 			if(onDate.HasValue)
 			{
-				query.And(op => op.OperationTime < onDate.Value);
+				query.And(() => operationAlias.OperationTime < onDate.Value);
 			}
 
 			if(warehouseId.HasValue)
 			{
-				query.And(op => op.Warehouse.Id == warehouseId);
+				query.And(() => operationAlias.Warehouse.Id == warehouseId);
 			}
-			else
-			{
-				query.And(op => op.Warehouse != null);
-			}
-			
+
 			var stockList = query.SelectList(list => list
 				.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-				.Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(op => op.Amount)
+				.Select(Projections.Sum(() => operationAlias.Amount)
 					.WithAlias(() => resultAlias.Stock))
 				)
 				.TransformUsing(Transformers.AliasToBean<NomenclatureStockNode>())

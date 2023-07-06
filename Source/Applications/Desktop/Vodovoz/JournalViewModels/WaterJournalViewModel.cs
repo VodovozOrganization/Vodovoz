@@ -19,6 +19,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using VodovozInfrastructure.StringHandlers;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
@@ -142,6 +143,6 @@ namespace Vodovoz.JournalViewModels
 		protected override Func<WaterJournalNode, NomenclatureViewModel> OpenDialogFunction =>
 			node => new NomenclatureViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices,
 				employeeService, _nomenclatureSelectorFactory, counterpartySelectorFactory, nomenclatureRepository,
-				userRepository);
+				userRepository, new StringHandler());
 	}
 }

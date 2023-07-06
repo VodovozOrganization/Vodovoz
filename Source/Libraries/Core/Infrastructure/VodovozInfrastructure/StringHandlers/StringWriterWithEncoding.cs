@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace VodovozInfrastructure
+namespace VodovozInfrastructure.StringHandlers
 {
 	public sealed class StringWriterWithEncoding : StringWriter
 	{
