@@ -23,7 +23,6 @@
 				if(chValue == 46 && !hasDotOrComma && fractionalPart > 0)
 				{
 					result += ',';
-					//_sb.Append(',');
 					hasDotOrComma = true;
 					continue;
 				}
@@ -32,7 +31,6 @@
 				if(chValue == 44 && !hasDotOrComma && fractionalPart > 0)
 				{
 					result += ch;
-					//_sb.Append(ch);
 					hasDotOrComma = true;
 					continue;
 				}
@@ -45,7 +43,6 @@
 						if(fractionalPart > 0)
 						{
 							result += ch;
-							//_sb.Append(ch);
 							fractionalPart--;
 						}
 						
@@ -53,7 +50,6 @@
 					}
 
 					result += ch;
-					//_sb.Append(ch);
 				}
 			}
 
