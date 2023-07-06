@@ -209,6 +209,7 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
+using VodovozInfrastructure.StringHandlers;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
 
@@ -686,6 +687,7 @@ namespace Vodovoz
 
 			builder.RegisterType<GeoGroupVersionsModel>().SingleInstance().AsSelf();
 			builder.RegisterType<NomenclatureFixedPriceController>().As<INomenclatureFixedPriceProvider>().AsSelf();
+			builder.RegisterType<StringHandler>().As<IStringHandler>();
 
 			#endregion
 
