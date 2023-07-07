@@ -422,14 +422,23 @@ namespace Vodovoz.ViewModels.Cash
 			return true;
 		}
 
-		protected override void AfterSave()
+		public override bool Save(bool close)
 		{
-			if(Entity.RouteListClosing != null)
+			if(base.Save(false))
 			{
-				_logger.LogInformation("Обновляем сумму долга по МЛ...");
-				Entity.RouteListClosing.UpdateRouteListDebt();
-				_logger.LogInformation("Ok");
+				if(Entity.RouteListClosing != null)
+				{
+					_logger.LogInformation("Обновляем сумму долга по МЛ...");
+					Entity.RouteListClosing.UpdateRouteListDebt();
+					_logger.LogInformation("Ok");
+				}
+
+				Close(false, CloseSource.Save);
+
+				return true;
 			}
+
+			return false;
 		}
 
 		private void DistributeCash()
