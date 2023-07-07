@@ -16,6 +16,8 @@ namespace Vodovoz.Settings.Database.Cash
 
 		public int RouteListClosingFinancialExpenseCategoryId => _settingsController.GetValue<int>(nameof(RouteListClosingFinancialExpenseCategoryId).FromPascalCaseToSnakeCase());
 
+		public int ChangeFinancialExpenseCategoryId => _settingsController.GetValue<int>(nameof(ChangeFinancialExpenseCategoryId).FromPascalCaseToSnakeCase());
+
 		public int FuelFinancialExpenseCategoryId => _settingsController.GetValue<int>(nameof(FuelFinancialExpenseCategoryId).FromPascalCaseToSnakeCase());
 
 		/// <summary>

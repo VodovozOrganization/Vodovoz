@@ -525,7 +525,7 @@ namespace Vodovoz.ViewModels.Cash
 			Entity.RouteListClosing = UoW.GetById<RouteList>(routelistId);
 			AddRouteListInfoToDescription();
 
-			Entity.ExpenseCategoryId = _expenseParametersProvider.ChangeCategoryId;
+			Entity.ExpenseCategoryId = _financialCategoriesGroupsSettings.ChangeFinancialExpenseCategoryId;
 			Entity.Organisation = UoW.GetById<Organization>(_expenseParametersProvider.DefaultChangeOrganizationId);
 			Entity.Money = _orderIdsToChanges.Sum(item => item.Value);
 		}

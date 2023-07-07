@@ -11,5 +11,6 @@
 		int SelfDeliveryDefaultFinancialExpenseCategoryId { get; }
 		int TransferDefaultFinancialIncomeCategoryId { get; }
 		int TransferDefaultFinancialExpenseCategoryId { get; }
+		int ChangeFinancialExpenseCategoryId { get; }
 	}
 }
