@@ -17,6 +17,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
@@ -49,9 +50,15 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			INavigationManager navigationManager,
 			ICommonServices commonServices,
 			ILifetimeScope lifetimeScope,
-			IReportViewOpener reportViewOpener)
+			IReportViewOpener reportViewOpener,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 			: base(entityUoWBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
+			if(financialCategoriesGroupsSettings is null)
+			{
+				throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
+			}
+
 			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -65,6 +72,8 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			{
 				Entity.CreationDate = DateTime.Now;
 				Entity.Author = Cashier;
+				Entity.IncomeCategoryId = financialCategoriesGroupsSettings.TransferDefaultFinancialIncomeCategoryId;
+				Entity.ExpenseCategoryId = financialCategoriesGroupsSettings.TransferDefaultFinancialExpenseCategoryId;
 			}
 
 			CreateCommands();
