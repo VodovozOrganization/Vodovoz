@@ -17,6 +17,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Nodes;
+using Vodovoz.Nodes;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -543,13 +544,43 @@ namespace Vodovoz.EntityRepositories.Goods
 				.Any();
 		}
 
-		public IList<NomenclatureOnlineParameters> GetNomenclaturesOnlineParametersForSend(
+		public IList<NomenclatureOnlineParametersNode> GetNomenclaturesOnlineParametersForSend(
 			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
 		{
+			Nomenclature nomenclatureAlias = null;
+			NomenclatureOnlineParametersNode resultAlias = null;
+			
 			return uow.Session.QueryOver<NomenclatureOnlineParameters>()
+				.Left.JoinAlias(p => p.Nomenclature, () => nomenclatureAlias)
 				.Where(p => p.Type == parameterType)
 				.And(p => p.NomenclatureOnlineAvailability != null)
-				.List();
+				.SelectList(list => list
+					.Select(p => p.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(p => p.NomenclatureOnlineAvailability).WithAlias(() => resultAlias.AvailableForSale)
+					.Select(p => p.NomenclatureOnlineMarker).WithAlias(() => resultAlias.Marker)
+					.Select(p => p.NomenclatureOnlineDiscount).WithAlias(() => resultAlias.PercentDiscount))
+				.TransformUsing(Transformers.AliasToBean<NomenclatureOnlineParametersNode>())
+				.List<NomenclatureOnlineParametersNode>();
+		}
+		
+		public IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(
+			IUnitOfWork uow, IEnumerable<int> onlineParametersIds)
+		{
+			NomenclaturePriceBase nomenclaturePriceAlias = null;
+			NomenclatureOnlinePriceNode resultAlias = null;
+			
+			return uow.Session.QueryOver<NomenclatureOnlinePrice>()
+				.Left.JoinAlias(p => p.NomenclaturePrice, () => nomenclaturePriceAlias)
+				.WhereRestrictionOn(p => p.NomenclatureOnlineParameters.Id).IsInG(onlineParametersIds)
+				.SelectList(list => list
+					.Select(p => p.Id).WithAlias(() => resultAlias.Id)
+					.Select(p => p.NomenclatureOnlineParameters.Id).WithAlias(() => resultAlias.NomenclatureOnlineParametersId)
+					.Select(p => p.PriceWithoutDiscount).WithAlias(() => resultAlias.PriceWithoutDiscount)
+					.Select(() => nomenclaturePriceAlias.MinCount).WithAlias(() => resultAlias.MinCount)
+					.Select(() => nomenclaturePriceAlias.Price).WithAlias(() => resultAlias.Price))
+				.TransformUsing(Transformers.AliasToBean<NomenclatureOnlinePriceNode>())
+				.List<NomenclatureOnlinePriceNode>();
 		}
 	}
 

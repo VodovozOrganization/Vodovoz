@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Nodes;
 
 namespace Vodovoz.Controllers
 {
@@ -21,25 +21,29 @@ namespace Vodovoz.Controllers
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 		}
 		
-		public IDictionary<int, NomenclatureOnlineParameters> GetNomenclaturesOnlineParametersForSend(
+		public NomenclatureOnlineParametersData GetNomenclaturesOnlineParametersForSend(
 			IUnitOfWork uow, NomenclatureOnlineParameterType parameterType)
 		{
 			var parameters =
 				_nomenclatureRepository.GetNomenclaturesOnlineParametersForSend(uow, parameterType)
-					.ToDictionary(x => x.Nomenclature.Id);
+					.ToDictionary(x => x.NomenclatureId);
+			
+			var prices =
+				_nomenclatureRepository.GetNomenclaturesOnlinePricesByOnlineParameters(uow, parameters.Select(x => x.Value.Id))
+					.ToLookup(x => x.NomenclatureOnlineParametersId);
 
 			var nomenclaturesIds =
-				parameters.Where(x => x.Value.NomenclatureOnlineAvailability == NomenclatureOnlineAvailability.ShowAndSale)
+				parameters.Where(x => x.Value.AvailableForSale == NomenclatureOnlineAvailability.ShowAndSale)
 					.Select(x => x.Key);
 			
 			var stocksForShowAndSellParams = _stockRepository.NomenclatureInStock(uow, nomenclaturesIds.ToArray());
 
 			foreach(var keyPairValue in stocksForShowAndSellParams.Where(keyPairValue => keyPairValue.Value <= 0))
 			{
-				parameters[keyPairValue.Key].NomenclatureOnlineAvailability = NomenclatureOnlineAvailability.Show;
+				parameters[keyPairValue.Key].AvailableForSale = NomenclatureOnlineAvailability.Show;
 			}
 
-			return parameters;
+			return new NomenclatureOnlineParametersData(parameters, prices);
 		}
 	}
 }

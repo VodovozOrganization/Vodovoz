@@ -30,9 +30,9 @@ namespace CustomerAppsApi.Models
 		public NomenclaturesPricesAndStockDto GetNomenclaturesPricesAndStocks(Source source)
 		{
 			var parameterType = _sourceConverter.ConvertToNomenclatureOnlineParameterType(source);
-			var parameters = _nomenclatureOnlineParametersController.GetNomenclaturesOnlineParametersForSend(_uow, parameterType);
+			var parametersData = _nomenclatureOnlineParametersController.GetNomenclaturesOnlineParametersForSend(_uow, parameterType);
 
-			return _nomenclatureFactory.CreateNomenclaturesPricesAndStockDto(parameters);
+			return _nomenclatureFactory.CreateNomenclaturesPricesAndStockDto(parametersData);
 		}
 	}
 }

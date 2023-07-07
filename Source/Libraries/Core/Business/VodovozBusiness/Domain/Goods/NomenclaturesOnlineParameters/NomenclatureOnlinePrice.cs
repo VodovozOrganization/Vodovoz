@@ -1,8 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "онлайн цены номенклатуры для ИПЗ",
+		Accusative = "онлайн цену номенклатуры для ИПЗ",
+		Nominative = "онлайн цена номенклатуры для ИПЗ")]
+	[HistoryTrace]
 	public abstract class NomenclatureOnlinePrice : PropertyChangedBase, IDomainObject
 	{
 		private decimal? _priceWithoutDiscount;

@@ -1,5 +1,5 @@
 ﻿using CustomerAppsApi.Library.Dto;
-using Vodovoz.Domain.Goods.NomenclatureOnlineParameters;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace CustomerAppsApi.Converters
 {

@@ -1,9 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "параметры номенклатуры для ИПЗ",
+		Accusative = "параметры номенклатуры для ИПЗ",
+		Nominative = "параметры номенклатуры для ИПЗ")]
+	[HistoryTrace]
 	public abstract class NomenclatureOnlineParameters : PropertyChangedBase, IDomainObject
 	{
 		private decimal? _nomenclatureOnlineDiscount;
@@ -50,21 +56,5 @@ namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 		}
 		
 		public abstract NomenclatureOnlineParameterType Type { get; }
-	}
-
-	public enum NomenclatureOnlineMarker
-	{
-		[Display(Name = "Товар недели")]
-		ProductOfWeek,
-		[Display(Name = "Скидка")]
-		Sale
-	}
-	
-	public enum NomenclatureOnlineAvailability
-	{
-		[Display(Name = "Передавать и продавать")]
-		ShowAndSale,
-		[Display(Name = "Передавать и не продавать")]
-		Show
 	}
 }

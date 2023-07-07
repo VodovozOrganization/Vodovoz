@@ -3,6 +3,7 @@ using System.Reflection;
 using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Factories;
+using CustomerAppsApi.Middleware;
 using CustomerAppsApi.Models;
 using CustomerAppsApi.Validators;
 using Microsoft.AspNetCore.Builder;
@@ -25,10 +26,13 @@ using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Roboats;
+using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Factories;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using UserRepository = QS.Project.Repositories.UserRepository;
@@ -37,6 +41,8 @@ namespace CustomerAppsApi
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = "NLog";
+
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -55,6 +61,7 @@ namespace CustomerAppsApi
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
+					logging.AddConfiguration(Configuration.GetSection(_nLogSectionName));
 				});
 
 			RegisterDependencies(services);
@@ -67,9 +74,13 @@ namespace CustomerAppsApi
 			services.AddSingleton<IEmailRepository, EmailRepository>();
 			services.AddSingleton<ISettingsController, SettingsController>();
 			services.AddSingleton<ISessionProvider, DefaultSessionProvider>();
+			services.AddSingleton<IParametersProvider, ParametersProvider>();
+			services.AddSingleton<INomenclatureParametersProvider, NomenclatureParametersProvider>();
 			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
+			services.AddSingleton<INomenclatureRepository, NomenclatureRepository>();
+			services.AddSingleton<IStockRepository, StockRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
 			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
 			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
@@ -104,6 +115,7 @@ namespace CustomerAppsApi
 				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CustomerAppsApi v1"));
 			}
 
+			app.UseMiddleware<ResponseLoggingMiddleware>();
 			app.UseHttpsRedirection();
 			app.UseRouting();
 

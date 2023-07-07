@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Models;
+using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace CustomerAppsApi.Controllers
 {
+	[ApiController]
+	[Route("/api/")]
 	public class NomenclatureController : ControllerBase
 	{
 		private readonly ILogger<CounterpartyController> _logger;
@@ -26,13 +28,17 @@ namespace CustomerAppsApi.Controllers
 		[Route("GetNomenclaturesPricesAndStocks")]
 		public NomenclaturesPricesAndStockDto GetNomenclaturesPricesAndStocks([FromQuery] Source source)
 		{
+			var sourceName = source.GetEnumTitle();
 			try
 			{
-				var lastRequestTime = _requestTimes.GetOrAdd(source, DateTime.Now);
-				var passedTime = (lastRequestTime - DateTime.Now).TotalMinutes;
+				_logger.LogInformation("Поступил запрос на выборку цен и остатков от источника {Source}", sourceName);
+				var now = DateTime.Now;
+				var lastRequestTime = _requestTimes.GetOrAdd(source, now);
+				var passedTime = lastRequestTime == now ? 0d : (now - lastRequestTime).TotalMinutes;
 
-				if(passedTime < 1)
+				if(passedTime > 0 && passedTime < 1)
 				{
+					_logger.LogInformation("Превышен интервал обращений для источника {Source}", sourceName);
 					return new NomenclaturesPricesAndStockDto
 					{
 						ErrorMessage = "Превышен интервал обращений"
@@ -45,7 +51,7 @@ namespace CustomerAppsApi.Controllers
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при получении цен и остатков для {Source}", source);
+				_logger.LogError(e, "Ошибка при получении цен и остатков для источника {Source}", sourceName);
 				return new NomenclaturesPricesAndStockDto
 				{
 					ErrorMessage = e.Message

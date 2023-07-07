@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using CustomerAppsApi.Library.Dto;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+﻿using CustomerAppsApi.Library.Dto;
+using Vodovoz.Nodes;
 
 namespace CustomerAppsApi.Factories
 {
 	public interface INomenclatureFactory
 	{
 		NomenclaturesPricesAndStockDto CreateNomenclaturesPricesAndStockDto(
-			IDictionary<int, NomenclatureOnlineParameters> parameters);
+			NomenclatureOnlineParametersData parametersData);
 	}
 }
