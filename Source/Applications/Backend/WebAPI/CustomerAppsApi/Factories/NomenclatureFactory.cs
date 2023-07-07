@@ -34,7 +34,7 @@ namespace CustomerAppsApi.Factories
 		{
 			var prices = onlinePrices[parametersId];
 			return !prices.Any()
-				? null
+				? new List<NomenclaturePricesDto>()
 				: prices.Select(CreateNomenclaturePricesDto).ToList();
 		}
 
