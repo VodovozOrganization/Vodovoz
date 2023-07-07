@@ -1,8 +1,10 @@
 using System;
+using System.Threading.Tasks;
 using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Factories;
+using CustomerAppsApi.Repositories;
 using CustomerAppsApi.Validators;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -26,6 +28,7 @@ namespace CustomerAppsApi.Models
 		private readonly IExternalCounterpartyMatchingRepository _externalCounterpartyMatchingRepository;
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IEmailRepository _emailRepository;
+		private readonly ICachedBottlesDebtRepository _cachedBottlesDebtRepository;
 		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly ICameFromConverter _cameFromConverter;
 		private readonly CounterpartyModelFactory _counterpartyModelFactory;
@@ -40,6 +43,7 @@ namespace CustomerAppsApi.Models
 			IExternalCounterpartyMatchingRepository externalCounterpartyMatchingRepository,
 			IRoboatsRepository roboatsRepository,
 			IEmailRepository emailRepository,
+			ICachedBottlesDebtRepository cachedBottlesDebtRepository,
 			IRoboatsSettings roboatsSettings,
 			ICameFromConverter cameFromConverter,
 			CounterpartyModelFactory counterpartyModelFactory,
@@ -55,6 +59,7 @@ namespace CustomerAppsApi.Models
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
+			_cachedBottlesDebtRepository = cachedBottlesDebtRepository ?? throw new ArgumentNullException(nameof(cachedBottlesDebtRepository));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_cameFromConverter = cameFromConverter ?? throw new ArgumentNullException(nameof(cameFromConverter));
 			_counterpartyModelFactory = counterpartyModelFactory ?? throw new ArgumentNullException(nameof(counterpartyModelFactory));
@@ -302,6 +307,13 @@ namespace CustomerAppsApi.Models
 			{
 				CounterpartyUpdateStatus = CounterpartyUpdateStatus.CounterpartyUpdated
 			};
+		}
+
+		public async Task<CounterpartyBottlesDebtDto> GetCounterpartyBottlesDebt(int counterpartyId)
+		{
+			_logger.LogInformation("Поступил запрос на выборку долга по бутылям клиента {CounterpartyId}", counterpartyId);
+			var debt = await _cachedBottlesDebtRepository.GetCounterpartyBottlesDebt(_uow, counterpartyId);
+			return _counterpartyFactory.CounterpartyBottlesDebtDto(counterpartyId, debt);
 		}
 		
 		private Email GetCounterpartyEmailForExternalCounterparty(int counterpartyId)

@@ -155,7 +155,7 @@ namespace Vodovoz.Dialogs
 		{
 			if(Entity.DeliveryPoint != null)
 			{
-				debtByAddressEntry.Text = _bottleRepository.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint).ToString();
+				debtByAddressEntry.Text = _bottleRepository.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint.Id).ToString();
 				entryReserve.Text = Entity.DeliveryPoint.BottleReserv.ToString();
 				DeliveryPointPhonesView.ViewModel.PhonesList = Entity.DeliveryPoint.ObservablePhones;
 				ytextviewOldComments.Buffer.Text = _callTaskRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
@@ -174,11 +174,11 @@ namespace Vodovoz.Dialogs
 		{
 			if(Entity.Counterparty != null)
 			{
-				debtByClientEntry.Text = _bottleRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Counterparty).ToString();
+				debtByClientEntry.Text = _bottleRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Counterparty.Id).ToString();
 				ClientPhonesView.ViewModel.PhonesList = Entity.Counterparty?.ObservablePhones;
 				if(Entity.DeliveryPoint == null)
 				{
-					debtByAddressEntry.Text = _bottleRepository.GetBottleDebtBySelfDelivery(UoW, Entity.Counterparty).ToString();
+					debtByAddressEntry.Text = _bottleRepository.GetBottleDebtBySelfDelivery(UoW, Entity.Counterparty.Id).ToString();
 				}
 			}
 			else

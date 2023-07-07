@@ -288,10 +288,10 @@ namespace Vodovoz.Domain.Client
 				BottlesMovementOperation.OperationTime = Date;
 				BottlesMovementOperation.DeliveryPoint = DeliveryPoint;
 				int bottleDebt;
-				if(DeliveryPoint == null)
-					bottleDebt = bottlesRepository.GetBottlesDebtAtCounterparty(uow, Customer, Date);
-				else
-					bottleDebt = bottlesRepository.GetBottlesDebtAtDeliveryPoint(uow, DeliveryPoint, Date);
+				
+				bottleDebt = DeliveryPoint == null
+					? bottlesRepository.GetBottlesDebtAtCounterparty(uow, Customer.Id, Date)
+					: bottlesRepository.GetBottlesDebtAtDeliveryPoint(uow, DeliveryPoint.Id, Date);
 
 				var needCorrect = BottlesResidue.Value - bottleDebt;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,10 @@ namespace CustomerAppsApi.Controllers
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при идентификации контрагента");
+				_logger.LogError(
+					e,
+					"Ошибка при идентификации контрагента {ExternalCounterpartyId}",
+					counterpartyContactInfoDto.ExternalCounterpartyId);
 				throw;
 			}
 		}
@@ -46,7 +50,10 @@ namespace CustomerAppsApi.Controllers
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при регистрации контрагента");
+				_logger.LogError(
+					e,
+					"Ошибка при регистрации контрагента {ExternalCounterpartyId}",
+					counterpartyDto.ExternalCounterpartyId);
 				throw;
 			}
 		}

@@ -112,8 +112,10 @@ namespace Vodovoz.Domain.Orders
 
 			//Долг по точкам доставки
 			foreach(var deliveryPoint in order.Client.DeliveryPoints) {
-				if(bottlesRepository.GetBottlesDebtAtDeliveryPoint(order.UoW, deliveryPoint) != 0)
+				if(bottlesRepository.GetBottlesDebtAtDeliveryPoint(order.UoW, deliveryPoint.Id) != 0)
+				{
 					return false;
+				}
 			}
 
 			//Возврат бутылей и(ничего или возврат залога или неустойка)

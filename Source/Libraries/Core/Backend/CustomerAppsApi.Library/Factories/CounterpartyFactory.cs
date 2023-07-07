@@ -15,6 +15,15 @@ namespace CustomerAppsApi.Library.Factories
 					return CreateNaturalCounterparty(counterpartyDto);
 			}
 		}
+		
+		public CounterpartyBottlesDebtDto CounterpartyBottlesDebtDto(int counterpartyId, int debt)
+		{
+			return new CounterpartyBottlesDebtDto
+			{
+				ErpCounterpartyId = counterpartyId,
+				CounterpartyBottlesDebt = debt
+			};
+		}
 
 		private Counterparty CreateLegalCounterparty(CounterpartyDto counterpartyDto)
 		{
