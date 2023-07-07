@@ -418,7 +418,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 				if(FilterViewModel.HiddenIncomes.Any())
 				{
-					query.Where(income => !FilterViewModel.HiddenExpenses.Contains(income.Id));
+					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => incomeAlias.Id), FilterViewModel.HiddenIncomes)));
 				}
 
 				if(FilterViewModel.RestrictRelatedToSubdivisionId != null)
@@ -560,7 +560,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 				if(FilterViewModel.HiddenExpenses.Any())
 				{
-					query.Where(expense => !FilterViewModel.HiddenExpenses.Contains(expense.Id));
+					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => expenseAlias.Id), FilterViewModel.HiddenExpenses)));
 				}
 
 				query.Where(GetSearchCriterion(
