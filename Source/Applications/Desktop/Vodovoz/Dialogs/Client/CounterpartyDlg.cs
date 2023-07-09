@@ -95,6 +95,7 @@ using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
 {
@@ -1234,38 +1235,69 @@ namespace Vodovoz
 				.AddColumn("")
 				.Finish();
 
-			if(Entity.Id > 0)
-			{
-				UpdateEdoContainers();
-			}
-
+			UpdateEdoContainers();
 			treeViewEdoDocumentsContainer.ItemsDataSource = _edoContainers;
-			ybuttonEdoDocumentsSendAllUnsent.Sensitive = Entity.Id > 0;
 			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnButtonEdoDocumentsSendAllUnsentClicked;
 			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoContainers();
 		}
 
 		private void OnButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
 		{
+			_orderRepository.GetCashlessOrdersForEdoSend(UoW, DateTime.Today.AddMonths(-1), 1);
 			if(Entity.Id > 0)
 			{
 				var resendEdoDocumentsDialog = new ResendCounterpartyEdoDocumentsViewModel(
 					EntityUoWBuilder.ForOpen(Entity.Id),
 					UnitOfWorkFactory.GetDefaultFactory,
 					_commonServices,
-					_counterpartyRepository);
+					GetOrderIdsWithoutSuccessfullySentUpd());
 				TabParent.AddSlaveTab(this, resendEdoDocumentsDialog);
 			}
 		}
 
 		private void UpdateEdoContainers()
 		{
+			if(Entity.Id < 1)
+			{
+				return;
+			}
+
 			_edoContainers.Clear();
 
-			foreach(var item in _counterpartyRepository.GetEdoContainersByCounterpartyId(UoW, Entity.Id))
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				_edoContainers.Add(item);
+				foreach(var item in _counterpartyRepository.GetEdoContainersByCounterpartyId(uow, Entity.Id))
+				{
+					_edoContainers.Add(item);
+				}
 			}
+
+			SetEdoDocumentsSendAllUnsentButtonSensitive();
+		}
+
+		private void SetEdoDocumentsSendAllUnsentButtonSensitive()
+		{
+
+			ybuttonEdoDocumentsSendAllUnsent.Sensitive =
+				Entity.Id > 0
+				&& GetOrderIdsWithoutSuccessfullySentUpd().Count > 0;
+		}
+
+		private List<int> GetOrderIdsWithoutSuccessfullySentUpd()
+		{
+			var allOrdersIds = _edoContainers.Select(c => c.Order.Id).Distinct().ToList();
+
+			var orderIdsHavingUpdSentSuccessfully = _edoContainers
+				.Where(c => c.Type == Type.Upd
+					&& !c.IsIncoming
+					&& c.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
+				.Select(c => c.Order.Id)
+				.Distinct()
+				.ToList();
+
+			var orderIdsWithoutSuccessfullySentUpd = allOrdersIds.Except(orderIdsHavingUpdSentSuccessfully).ToList();
+
+			return orderIdsWithoutSuccessfullySentUpd;
 		}
 
 		private void RefreshBulkEmailEventStatus()

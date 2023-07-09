@@ -15,8 +15,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
 	public class ResendCounterpartyEdoDocumentsViewModel : EntityTabViewModelBase<Domain.Client.Counterparty>
 	{
-		private readonly ICommonServices _commonServices;
-		private readonly ICounterpartyRepository _counterpartyRepository;
 		private List<EdoContainerSelectableNode> _edoContainerNodes = new List<EdoContainerSelectableNode>();
 
 		private DelegateCommand _resendSelectedEdoDocumentsCommand;
@@ -29,14 +27,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
-			ICounterpartyRepository counterpartyRepository) :  base(uowBuilder, uowFactory, commonServices)
+			List<int> ordersIds) :  base(uowBuilder, uowFactory, commonServices)
 		{
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
-
 			Title = $"Повторная отправка неотправленных УПД контрагента {Entity.Name}";
 
-			GetUndeliveredUpd();
+			GetLastUpdByOrderIds(ordersIds);
 		}
 
 		public event EventHandler EdoContainerNodesListChanged;
@@ -51,7 +46,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 		#endregion
 
-		private void GetUndeliveredUpd()
+		private void GetLastUpdByOrderIds(List<int> orderIds)
 		{
 			var startDate = new DateTime(2022, 10, 15);
 
@@ -61,14 +56,20 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 					&& x.Type == Domain.Orders.Documents.Type.Upd
 					&& !x.IsIncoming
 					&& x.EdoDocFlowStatus != EdoDocFlowStatus.Succeed
-					&& x.Created >= startDate)
+					&& x.Created >= startDate
+					&& orderIds.Contains(x.Order.Id))
 				.OrderByDescending(x => x.Created)
-				.Select( x => new EdoContainerSelectableNode { IsSelected = true, EdoContainer = x })
+				.GroupBy(x => x.Order.Id)			
 				.ToList();
 
-			foreach (var document in documents)
+			foreach (var item in documents)
 			{
-				EdoContainerNodes.Add(document);
+				var updDocument = item
+					.OrderByDescending(x => x.Created)
+					.Select(x => new EdoContainerSelectableNode { IsSelected = true, EdoContainer = x })
+					.FirstOrDefault();
+
+				EdoContainerNodes.Add(updDocument);
 			}
 		}
 

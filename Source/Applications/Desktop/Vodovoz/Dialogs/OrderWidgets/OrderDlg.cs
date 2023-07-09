@@ -207,7 +207,6 @@ namespace Vodovoz
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
-		private EdoContainer _selectedEdoContainer;
 		private IEdoSettings _edoSettings;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
@@ -986,11 +985,15 @@ namespace Vodovoz
 
 			UpdateAvailableEnumSignatureTypes();
 
-			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) => UpdateEdoContainers();
+			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
+			{
+				UpdateEdoContainers();
+				SetSendDocumentAgainButtonSensitive();
+			};
 
 			ybuttonSendDocumentAgain.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
-			ybuttonSendDocumentAgain.Sensitive = false;
 			ybuttonSendDocumentAgain.Clicked += OnButtonSendDocumentAgainClicked;
+			SetSendDocumentAgainButtonSensitive();
 
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
@@ -1000,17 +1003,54 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
 		}
 
-		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		private List<EdoContainer> GetOutgoingUpdDocuments()
 		{
-			if(_selectedEdoContainer == null
-				|| _selectedEdoContainer.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
-			{ 
-				return; 
+			var orderUpdDocuments = new List<EdoContainer>();
+
+			if(Entity.Id == 0)
+			{
+				return orderUpdDocuments;
 			}
 
-			if(_selectedEdoContainer.EdoDocFlowStatus == EdoDocFlowStatus.InProgress)
+			orderUpdDocuments = _edoContainers
+				.Where(c =>
+					!c.IsIncoming
+					&& c.Type == Type.Upd)
+				.ToList();
+
+			return orderUpdDocuments;
+		}
+
+		private bool IsOrderHasUpdStatus(EdoDocFlowStatus status)
+		{
+			var orderUpdDocuments = GetOutgoingUpdDocuments();
+
+			var orderUpdSentSuccessfully = orderUpdDocuments
+				.Any(c =>
+					c.Type == Type.Upd
+					&& !c.IsIncoming
+					&& c.EdoDocFlowStatus == status);
+
+			return orderUpdSentSuccessfully;
+		}
+
+		private void SetSendDocumentAgainButtonSensitive()
+		{
+			var orderHasUpdDocuments = GetOutgoingUpdDocuments().Count > 0;
+			var orderUpdSentSuccessfully = IsOrderHasUpdStatus(EdoDocFlowStatus.Succeed);
+
+			ybuttonSendDocumentAgain.Sensitive =
+				orderHasUpdDocuments
+				&& !orderUpdSentSuccessfully;
+		}
+
+		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		{
+			var orderUpdInProgress = IsOrderHasUpdStatus(EdoDocFlowStatus.InProgress);
+
+			if(orderUpdInProgress)
 			{
-				if(!ServicesConfig.InteractiveService.Question("Выбранный документ в процессе отправки.\nВы уверены, что хотите отправить дубль?"))
+				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"В процессе\".\nВы уверены, что хотите отправить дубль?"))
 				{
 					return;
 				}
@@ -1691,10 +1731,10 @@ namespace Vodovoz
 			if(Entity.Id != 0)
 			{
 				UpdateEdoContainers();
+				SetSendDocumentAgainButtonSensitive();
 			}
 
 			treeViewEdoContainers.ItemsDataSource = _edoContainers;
-			treeViewEdoContainers.Selection.Changed += OnTreeViewEdoContainersSelectionChanged;
 
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
 				.AddColumn("Статус заявки").SetDataProperty(node => node.Status.GetEnumTitle())
@@ -1706,23 +1746,6 @@ namespace Vodovoz
 
 			treeServiceClaim.ItemsDataSource = Entity.ObservableInitialOrderService;
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
-		}
-
-		private void OnTreeViewEdoContainersSelectionChanged(object sender, EventArgs e)
-		{
-			ybuttonSendDocumentAgain.Sensitive = false;
-			_selectedEdoContainer = null;
-
-			if(treeViewEdoContainers.SelectedRows.Count() != 1)
-			{
-				return;
-			}
-
-			if(treeViewEdoContainers.SelectedRow is EdoContainer edoContainer)
-			{
-				_selectedEdoContainer = edoContainer;
-				ybuttonSendDocumentAgain.Sensitive = _selectedEdoContainer.EdoDocFlowStatus != EdoDocFlowStatus.Succeed;
-			}
 		}
 
 		private void OnCountEdited(object o, EditedArgs args)
@@ -1774,9 +1797,12 @@ namespace Vodovoz
 		{
 			_edoContainers.Clear();
 
-			foreach(var item in _orderRepository.GetEdoContainersByOrderId(UoW, Entity.Id))
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				_edoContainers.Add(item);
+				foreach(var item in _orderRepository.GetEdoContainersByOrderId(uow, Entity.Id))
+				{
+					_edoContainers.Add(item);
+				}
 			}
 		}
 

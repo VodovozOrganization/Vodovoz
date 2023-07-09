@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Data;
+using FluentNHibernate.Data;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
