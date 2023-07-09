@@ -841,7 +841,6 @@
     <Compile Include="Models\IFinancialDistrictProvider.cs" />
     <Compile Include="Models\RoboatsFileStorage.cs" />
     <Compile Include="Models\RouteListDailyNumberProvider.cs" />
-    <Compile Include="Models\TaxcomEdoSender.cs" />
     <Compile Include="Models\TrueMark\DeliveryOrderReceiptCreator.cs" />
     <Compile Include="Models\TrueMark\FiscalDocumentRefresher.cs" />
     <Compile Include="Models\TrueMark\FiscalizationResultSaver.cs" />

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -84,7 +84,7 @@ using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Edo;
+using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.SidePanel.InfoViews;
@@ -207,7 +207,7 @@ namespace Vodovoz
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
-		private IEdoSettings _edoSettings;
+		private EdoContainer _selectedEdoContainer;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -556,8 +556,6 @@ namespace Vodovoz
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
 			_orderParametersProvider = new OrderParametersProvider(parametersProvider);
 			_dailyNumberController = new OrderDailyNumberController(_orderRepository, UnitOfWorkFactory.GetDefaultFactory);
-
-			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint, Phone>(OnDeliveryPointChanged);
@@ -1061,11 +1059,7 @@ namespace Vodovoz
 
 		private void ResendUpd()
 		{
-			TaxcomEdoSender edoSender = new TaxcomEdoSender(_edoSettings);
-			var sendResultTask = edoSender.SendUpdByOrderAsync(Entity.Id);
-			sendResultTask.Wait();
-			var sendResult = sendResultTask.Result;
-			ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Info, sendResult);
+
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
