@@ -1,5 +1,4 @@
-using FluentNHibernate.Data;
-using fyiReporting.RDL;
+﻿using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -4031,6 +4030,27 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 			return result;
+		}
+
+		public virtual void SetNeedToRecendEdoUpd()
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var edoDocumentsActions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+					.Where(x => x.Order.Id == Id)
+					.FirstOrDefault();
+
+				if(edoDocumentsActions == null)
+				{
+					edoDocumentsActions = new OrderEdoTrueMarkDocumentsActions();
+					edoDocumentsActions.Order = this;
+				}
+
+				edoDocumentsActions.IsNeedToResendEdoUpd = true;
+
+				uow.Save(edoDocumentsActions);
+				uow.Commit();
+			}				
 		}
 
 		#endregion

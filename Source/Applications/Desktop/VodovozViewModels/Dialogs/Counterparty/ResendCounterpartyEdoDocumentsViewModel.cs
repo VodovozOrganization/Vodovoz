@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.EntityRepositories.Counterparties;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparty
 {
@@ -98,7 +97,12 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 
 			ServicesConfig.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info, infoMessage);
 
-			//Close(false, CloseSource.Cancel);
+			foreach(var document in documentsToResend)
+			{
+				document.EdoContainer.Order.SetNeedToRecendEdoUpd();
+			}
+
+			Close(false, CloseSource.Cancel);
 		}
 		#endregion
 
