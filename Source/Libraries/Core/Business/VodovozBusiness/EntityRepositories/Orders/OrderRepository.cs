@@ -1070,6 +1070,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			TrueMarkApiDocument trueMarkApiDocumentAlias = null;
+			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
@@ -1088,6 +1089,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			var correctSubquery = QueryOver.Of(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
+				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
+					() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin)
 				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
@@ -1110,6 +1113,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
 				.Where(() => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id)
 				.Where(() => orderAlias.DeliveryDate > startDate)
+				.Where(() => orderEdoTrueMarkDocumentsActionsAlias.IsNeedToCancelTrueMarkDocument == null || !orderEdoTrueMarkDocumentsActionsAlias.IsNeedToCancelTrueMarkDocument)
 				.Select(o => o.Id);
 
 			var result = uow.Session.QueryOver(() => trueMarkApiDocumentAlias)
