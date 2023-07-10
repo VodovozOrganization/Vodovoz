@@ -584,11 +584,19 @@ namespace Vodovoz.ViewModels.Cash
 
 			Entity.Accountable = expense.Employee;
 			Entity.ExpenseCategoryId = expense.ExpenseCategoryId;
+			Entity.Organisation = expense.Organisation;
 			Money = expense.UnclosedMoney;
 
-			SelectableAdvances
-				.Find(x => x.Value.Id == expenseId)
-				.Selected = true;
+			var advanceToSelect = SelectableAdvances
+				.Where(x => x.Value.Id == expenseId)
+				.FirstOrDefault();
+
+			if(advanceToSelect is null)
+			{
+				return;
+			}
+
+			advanceToSelect.Selected = true;
 		}
 
 		public string GetCachedExpenseCategoryTitle(int id) =>
