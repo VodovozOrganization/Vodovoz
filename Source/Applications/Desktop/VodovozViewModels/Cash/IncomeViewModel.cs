@@ -604,32 +604,49 @@ namespace Vodovoz.ViewModels.Cash
 
 		public void ConFigureForReturnChange(int routeListId)
 		{
+			Entity.TypeOperation = IncomeType.Return;
+
+			var routeList = UoW.GetById<RouteList>(routeListId);
+
+			if(routeList is null)
+			{
+				_logger.LogError("Конфигурация возврата прервана, МЛ {RouteListId} не найден", routeListId);
+				InitializationFailed("Ошибка", $"Не найден МЛ {routeListId}");
+				return;
+			}
+
+			Entity.RouteListClosing = routeList;
+			Entity.Employee = routeList.Driver;
+			Entity.ExpenseCategoryId = _financialCategoriesGroupsSettings.ChangeFinancialExpenseCategoryId;
+
 			var unclosedSelectableExpense = _selectableAdvances
 				.Where(ex =>
 					ex.Value.AdvanceClosed == false
 					&& ex.Value.TypeOperation == ExpenseType.Advance
+					&& ex.Value.ExpenseCategoryId == _financialCategoriesGroupsSettings.ChangeFinancialExpenseCategoryId
 					&& ex.Value.RouteListClosing != null
 					&& ex.Value.RouteListClosing.Id == routeListId)
 				.FirstOrDefault();
 
-			if(unclosedSelectableExpense != null)
+			if(unclosedSelectableExpense is null)
 			{
-				var unclosedExpense = unclosedSelectableExpense.Value;
-				if(unclosedExpense.Employee == null)
-				{
-					var errorMessage = "Аванс без сотрудника. Для него нельзя открыть диалог возврата.";
-					_logger.LogError(errorMessage);
-					InitializationFailed("Ошибка", errorMessage);
-					return;
-				}
-
-				Entity.TypeOperation = IncomeType.Return;
-				Entity.ExpenseCategoryId = unclosedExpense.ExpenseCategoryId;
-				Entity.Employee = unclosedExpense.Employee;
-				Entity.Organisation = unclosedExpense.Organisation;
-
-				unclosedSelectableExpense.Selected = true;
+				_logger.LogError("Не найдены подходящие авансы для возврвта сдачи, для МЛ {RouteLsitId}", routeListId);
+				InitializationFailed("Нельзя выполнить возврат сдачи",
+					 "Для данного маршрутного листа отсутствуют авансы со статусом \"Сдача клиенту\"");
+				return;
 			}
+
+			if(unclosedSelectableExpense.Value.Employee is null)
+			{
+				var errorMessage = "Аванс без сотрудника. Для него нельзя открыть диалог возврата.";
+				_logger.LogError(errorMessage);
+				InitializationFailed("Ошибка", errorMessage);
+				return;
+			}
+
+			Entity.Organisation = unclosedSelectableExpense.Value.Organisation;
+
+			unclosedSelectableExpense.Selected = true;
 		}
 
 		public void ConfigureForReturn(int expenseId)
