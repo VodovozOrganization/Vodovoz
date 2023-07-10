@@ -27,7 +27,6 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Settings.Cash;
@@ -57,6 +56,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IReportViewOpener _reportViewOpener;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IIncomeSettings _incomeSettings;
 		private readonly IPermissionResult _entityPermissionResult;
 
 		private readonly List<SelectableNode<Expense>> _selectableAdvances = new List<SelectableNode<Expense>>();
@@ -88,7 +88,7 @@ namespace Vodovoz.ViewModels.Cash
 			IFinancialIncomeCategoriesRepository financialIncomeCategoriesRepository,
 			IReportViewOpener reportViewOpener,
 			ILifetimeScope lifetimeScope,
-			IIncomeParametersProvider incomeParametersProvider,
+			IIncomeSettings incomeSettings,
 			IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> domainEntityNodeInMemoryCacheRepository)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -130,7 +130,7 @@ namespace Vodovoz.ViewModels.Cash
 				?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_lifetimeScope = lifetimeScope
 				?? throw new ArgumentNullException(nameof(lifetimeScope));
-
+			_incomeSettings = incomeSettings ?? throw new ArgumentNullException(nameof(incomeSettings));
 			_entityPermissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Income));
 
 			CanEditRectroactively =
@@ -161,7 +161,7 @@ namespace Vodovoz.ViewModels.Cash
 				}
 
 				Entity.Organisation = CachedOrganizations
-					.Where(x => x.Id == incomeParametersProvider.DefaultIncomeOrganizationId)
+					.Where(x => x.Id == _incomeSettings.DefaultIncomeOrganizationId)
 					.FirstOrDefault();
 
 				Entity.Date = DateTime.Now;

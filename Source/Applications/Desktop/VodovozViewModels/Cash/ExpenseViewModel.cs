@@ -25,7 +25,6 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
@@ -46,7 +45,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IWagesMovementRepository _wagesMovementRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
-		private readonly IExpenseParametersProvider _expenseParametersProvider;
+		private readonly IExpenseSettings _expenseSettings;
 		private readonly IEntityExtendedPermissionValidator _entityExtendedPermissionValidator;
 		private readonly IRouteListCashOrganisationDistributor _routeListCashOrganisationDistributor;
 		private readonly IExpenseCashOrganisationDistributor _expenseCashOrganisationDistributor;
@@ -69,7 +68,6 @@ namespace Vodovoz.ViewModels.Cash
 			INavigationManager navigation,
 			IEmployeeRepository employeeRepository,
 			IWagesMovementRepository wagesMovementRepository,
-			IExpenseParametersProvider expenseParametersProvider,
 			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
 			IRouteListCashOrganisationDistributor routeListCashOrganisationDistributor,
 			IExpenseCashOrganisationDistributor expenseCashOrganisationDistributor,
@@ -79,6 +77,7 @@ namespace Vodovoz.ViewModels.Cash
 			ILifetimeScope lifetimeScope,
 			IReportViewOpener reportViewOpener,
 			IAccountableDebtsRepository accountableDebtsRepository,
+			IExpenseSettings expenseSettings,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -93,8 +92,6 @@ namespace Vodovoz.ViewModels.Cash
 				?? throw new ArgumentNullException(nameof(employeeRepository));
 			_wagesMovementRepository = wagesMovementRepository
 				?? throw new ArgumentNullException(nameof(wagesMovementRepository));
-			_expenseParametersProvider = expenseParametersProvider
-				?? throw new ArgumentNullException(nameof(expenseParametersProvider));
 			_entityExtendedPermissionValidator = entityExtendedPermissionValidator
 				?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
 			_routeListCashOrganisationDistributor = routeListCashOrganisationDistributor
@@ -113,6 +110,7 @@ namespace Vodovoz.ViewModels.Cash
 				?? throw new ArgumentNullException(nameof(reportViewOpener));
 			_accountableDebtsRepository = accountableDebtsRepository
 				?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
+			_expenseSettings = expenseSettings ?? throw new ArgumentNullException(nameof(expenseSettings));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings
 				?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 
@@ -148,7 +146,7 @@ namespace Vodovoz.ViewModels.Cash
 				}
 
 				Entity.Organisation = CachedOrganizations
-					.Where(x => x.Id == expenseParametersProvider.DefaultExpenseOrganizationId)
+					.Where(x => x.Id == _expenseSettings.DefaultExpenseOrganizationId)
 					.FirstOrDefault();
 
 				Entity.Date = DateTime.Now;
@@ -386,7 +384,7 @@ namespace Vodovoz.ViewModels.Cash
 		public bool CanChangeEmployee => RestrictEmployee == null;
 
 		public bool IsCashExpenceForChangesAdvance =>
-			IsAdvance && Entity.ExpenseCategoryId == _expenseParametersProvider.ChangeCategoryId;
+			IsAdvance && Entity.ExpenseCategoryId == _financialCategoriesGroupsSettings.ChangeFinancialExpenseCategoryId;
 
 		public void RefreshCurrentEmployeeWage()
 		{
@@ -535,7 +533,7 @@ namespace Vodovoz.ViewModels.Cash
 			AddRouteListInfoToDescription();
 
 			Entity.ExpenseCategoryId = _financialCategoriesGroupsSettings.ChangeFinancialExpenseCategoryId;
-			Entity.Organisation = UoW.GetById<Organization>(_expenseParametersProvider.DefaultChangeOrganizationId);
+			Entity.Organisation = UoW.GetById<Organization>(_expenseSettings.DefaultChangeOrganizationId);
 			Entity.Money = _orderIdsToChanges.Sum(item => item.Value);
 		}
 
@@ -608,7 +606,7 @@ namespace Vodovoz.ViewModels.Cash
 			var unclosedChangeAdvances = _accountableDebtsRepository.GetUnclosedAdvances(
 					UoW,
 					Entity.RouteListClosing.Driver,
-					_expenseParametersProvider.ChangeCategoryId,
+					_financialCategoriesGroupsSettings.ChangeFinancialExpenseCategoryId,
 					null);
 
 			if(unclosedChangeAdvances.Count() > 0)

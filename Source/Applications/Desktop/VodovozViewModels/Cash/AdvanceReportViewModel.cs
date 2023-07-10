@@ -26,6 +26,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Settings.Cash;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -41,6 +42,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICategoryRepository _categoryRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
+		private readonly IAdvanceReportSettings _advanceReportSettings;
 		private readonly IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> _financialExpenseCategoryNodeInMemoryCacheRepository;
 		private readonly ILifetimeScope _scope;
 		private readonly IPermissionResult _entityPermissionResult;
@@ -64,6 +66,7 @@ namespace Vodovoz.ViewModels.Cash
 			ICategoryRepository categoryRepository,
 			IAccountableDebtsRepository accountableDebtsRepository,
 			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
+			IAdvanceReportSettings advanceReportSettings,
 			ILifetimeScope scope,
 			IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> domainEntityNodeInMemoryCacheRepository)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
@@ -83,6 +86,7 @@ namespace Vodovoz.ViewModels.Cash
 				?? throw new ArgumentNullException(nameof(categoryRepository));
 			_accountableDebtsRepository = accountableDebtsRepository
 				?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
+			_advanceReportSettings = advanceReportSettings ?? throw new ArgumentNullException(nameof(advanceReportSettings));
 			_scope = scope
 				?? throw new ArgumentNullException(nameof(scope));
 			_financialExpenseCategoryNodeInMemoryCacheRepository = domainEntityNodeInMemoryCacheRepository
@@ -122,6 +126,8 @@ namespace Vodovoz.ViewModels.Cash
 					FailInitialize = true;
 					return;
 				}
+
+				Entity.Organisation = UoW.GetById<Organization>(_advanceReportSettings.DefaultAdvanceReportOrganizationId);
 			}
 
 			EmployeeViewModel = BuildEmployeeEntryViewModel();

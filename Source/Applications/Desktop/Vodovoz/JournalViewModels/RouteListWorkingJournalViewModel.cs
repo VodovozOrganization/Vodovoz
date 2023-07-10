@@ -47,7 +47,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IFuelRepository _fuelRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
-		private readonly IExpenseParametersProvider _expenseParametersProvider;
+		private readonly IExpenseSettings _expenseSettings;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
@@ -62,7 +62,7 @@ namespace Vodovoz.JournalViewModels
 			IFuelRepository fuelRepository,
 			ICallTaskRepository callTaskRepository,
 			BaseParametersProvider baseParametersProvider,
-			IExpenseParametersProvider expenseParametersProvider,
+			IExpenseSettings expenseSettings,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			ISubdivisionRepository subdivisionRepository,
 			IAccountableDebtsRepository accountableDebtsRepository,
@@ -76,7 +76,7 @@ namespace Vodovoz.JournalViewModels
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
-			_expenseParametersProvider = expenseParametersProvider ?? throw new ArgumentNullException(nameof(expenseParametersProvider));
+			_expenseSettings = expenseSettings ?? throw new ArgumentNullException(nameof(expenseSettings));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
@@ -499,7 +499,7 @@ namespace Vodovoz.JournalViewModels
 
 						if(_accountableDebtsRepository.GetUnclosedAdvances(localUow,
 							   routeList.Driver,
-							   _expenseParametersProvider.ChangeCategoryId,
+							   _financialCategoriesGroupsSettings.ChangeFinancialExpenseCategoryId,
 							   null).Count() > 0)
 						{
 							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
