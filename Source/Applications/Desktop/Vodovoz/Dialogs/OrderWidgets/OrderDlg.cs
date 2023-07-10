@@ -985,12 +985,12 @@ namespace Vodovoz
 			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
 			{
 				UpdateEdoContainers();
-				SetSendDocumentAgainButtonSensitive();
+				CustomizeSendDocumentAgainButton();
 			};
 
 			ybuttonSendDocumentAgain.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
 			ybuttonSendDocumentAgain.Clicked += OnButtonSendDocumentAgainClicked;
-			SetSendDocumentAgainButtonSensitive();
+			CustomizeSendDocumentAgainButton();
 
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
@@ -1031,21 +1031,51 @@ namespace Vodovoz
 			return orderUpdSentSuccessfully;
 		}
 
-		private void SetSendDocumentAgainButtonSensitive()
+		private void CustomizeSendDocumentAgainButton()
 		{
 			var orderHasUpdDocuments = GetOutgoingUpdDocuments().Count > 0;
-			var orderUpdSentSuccessfully = IsOrderHasUpdStatus(EdoDocFlowStatus.Succeed);
 
-			ybuttonSendDocumentAgain.Sensitive =
-				orderHasUpdDocuments
-				&& !orderUpdSentSuccessfully;
+			if(Entity.Id == 0 || !orderHasUpdDocuments)
+			{
+				ybuttonSendDocumentAgain.Sensitive = false;
+				ybuttonSendDocumentAgain.Label = "Отправить повторно";
+				return;
+			}
+
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var resendUpdAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == Entity.Id)
+						.FirstOrDefault();
+
+				if(resendUpdAction != null && resendUpdAction.IsNeedToResendEdoUpd)
+				{
+					ybuttonSendDocumentAgain.Sensitive = false;
+					ybuttonSendDocumentAgain.Label = "Идет подготовка УПД";
+					return;
+				}
+			}
+
+			ybuttonSendDocumentAgain.Sensitive = orderHasUpdDocuments;
+			ybuttonSendDocumentAgain.Label = "Отправить повторно";
 		}
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			var orderUpdInProgress = IsOrderHasUpdStatus(EdoDocFlowStatus.InProgress);
+			if(Entity.OrderPaymentStatus == OrderPaymentStatus.Paid)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заказ уже оплачен. Повторная отправка УПД недоступна");
+				return;
+			}
 
-			if(orderUpdInProgress)
+			if(IsOrderHasUpdStatus(EdoDocFlowStatus.Succeed))
+			{
+				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"Документооборот завершен успешно\".\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+			else if(IsOrderHasUpdStatus(EdoDocFlowStatus.InProgress))
 			{
 				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"В процессе\".\nВы уверены, что хотите отправить дубль?"))
 				{
@@ -1054,6 +1084,7 @@ namespace Vodovoz
 			}
 			
 			ResendUpd();
+			CustomizeSendDocumentAgainButton();
 		}
 
 		private void ResendUpd()
@@ -1726,7 +1757,7 @@ namespace Vodovoz
 			if(Entity.Id != 0)
 			{
 				UpdateEdoContainers();
-				SetSendDocumentAgainButtonSensitive();
+				CustomizeSendDocumentAgainButton();
 			}
 
 			treeViewEdoContainers.ItemsDataSource = _edoContainers;
