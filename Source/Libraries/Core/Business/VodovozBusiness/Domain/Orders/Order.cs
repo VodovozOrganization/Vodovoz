@@ -4034,6 +4034,19 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void SetNeedToRecendEdoUpd()
 		{
+			var userCanResendUpd = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			if(!userCanResendUpd)
+			{
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "Текущий пользователь не имеет права повторной отправки УПД");
+				return;
+			}
+
+			if(OrderPaymentStatus == OrderPaymentStatus.Paid)
+			{
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заказ уже оплачен. Повторная отправка УПД недоступна");
+				return;
+			}
+
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var edoDocumentsActions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
@@ -4047,6 +4060,7 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				edoDocumentsActions.IsNeedToResendEdoUpd = true;
+				edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
 
 				uow.Save(edoDocumentsActions);
 				uow.Commit();
