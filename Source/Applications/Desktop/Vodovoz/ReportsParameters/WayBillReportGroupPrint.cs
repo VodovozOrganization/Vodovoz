@@ -120,8 +120,9 @@ namespace Vodovoz.ReportsParameters
 
 			ytreeviewDrivers.ColumnsConfig = FluentColumnsConfig<DriverSelectableNode>.Create()
 				.AddColumn("Выбрать").AddToggleRenderer(d => d.IsSelected)
-				.AddColumn("Код").AddNumericRenderer(d => d.Id)
-				.AddColumn("Имя").AddTextRenderer(d => d.FullName)
+				.AddColumn("№").AddNumericRenderer(d => d.NodeNumber)
+				.AddColumn("Водитель").AddTextRenderer(d => d.FullName)
+				.AddColumn("Гос. номер").AddTextRenderer(d => d.CarRegistrationNumber)
 				.Finish();
 		}
 		#endregion
@@ -221,7 +222,7 @@ namespace Vodovoz.ReportsParameters
 				_availableDriversList[i].IsSelected = selectedDriversIds.Contains(_availableDriversList[i].Id);
 			}
 
-			ytreeviewDrivers.ItemsDataSource = _availableDriversList.OrderBy(x => x.LastName).ToList();
+			ytreeviewDrivers.ItemsDataSource = _availableDriversList;
 		}
 
 		private IList<DriverSelectableNode> GetAvailableDrivers()
@@ -255,9 +256,16 @@ namespace Vodovoz.ReportsParameters
 					.Select(() => driverAlias.Id).WithAlias(() => driverNodeAlias.Id)
 					.Select(() => driverAlias.Name).WithAlias(() => driverNodeAlias.Name)
 					.Select(() => driverAlias.LastName).WithAlias(() => driverNodeAlias.LastName)
-					.Select(() => driverAlias.Patronymic).WithAlias(() => driverNodeAlias.Patronymic))
+					.Select(() => driverAlias.Patronymic).WithAlias(() => driverNodeAlias.Patronymic)
+					.Select(() => carAlias.RegistrationNumber).WithAlias(() => driverNodeAlias.CarRegistrationNumber))
 				.TransformUsing(Transformers.AliasToBean<DriverSelectableNode>())
 				.List<DriverSelectableNode>();
+
+			drivers = drivers.OrderBy(d => d.LastName).ToList();
+			for(int i = 0; i < drivers.Count; i++)
+			{
+				drivers[i].NodeNumber = i + 1;
+			}
 
 			return drivers;
 		}
@@ -300,7 +308,7 @@ namespace Vodovoz.ReportsParameters
 				$"\n<b>5.</b> В выборку попадают только неархивные автомобили, имеющие \"привязанных\" водителей." +
 				$"\nДанные водителя в каждый путевой лист вносятся автоматически." +
 				$"\n" +
-				$"\n<b>6.</b> Для исключения попадания водителя в выборку, в таблице \"Исключить водителей\" " +
+				$"\n<b>6.</b> Для исключения попадания водителя в выборку, в таблице \"Исключить из печати\" " +
 				$"\nнеобходимо установить галочку в строке соответствующего водителя.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
@@ -375,11 +383,13 @@ namespace Vodovoz.ReportsParameters
 		private class DriverSelectableNode
 		{
 			public int Id { get; set; }
+			public int NodeNumber { get; set; }
 			public string Name { get; set; }
 			public string LastName { get; set; }
 			public string Patronymic { get; set; }
+			public string CarRegistrationNumber { get; set; }
 			public bool IsSelected { get; set; } = false;
-			public string FullName => LastName + " " + Name + (string.IsNullOrWhiteSpace(Patronymic) ? "" : " " + Patronymic);
+			public string FullName => LastName + " " + Name[0] + "." + (string.IsNullOrWhiteSpace(Patronymic) ? "" : " " + Patronymic[0] + ".");
 		}
 	}
 }
