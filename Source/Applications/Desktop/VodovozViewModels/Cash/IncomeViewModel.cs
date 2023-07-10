@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.Cash
 		private bool _noClose;
 
 		public delegate void DebtsChangedHandler(bool isListReloaded = false, bool isSelectionChanged = false);
-		public event DebtsChangedHandler DebtsChanged;
+		public event DebtsChangedHandler OnDebtsChanged;
 
 		public IncomeViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -492,27 +492,32 @@ namespace Vodovoz.ViewModels.Cash
 		{
 			if(Entity.TypeOperation == IncomeType.Return && Entity.Employee != null)
 			{
-				var advances = _accountableDebtsRepository
-					.GetUnclosedAdvances(UoW, Entity.Employee, Entity.ExpenseCategoryId, Entity.Organisation?.Id);
+				var advances =
+					_accountableDebtsRepository.GetUnclosedAdvances(
+						UoW,
+						Entity.Employee,
+						Entity.ExpenseCategoryId,
+						Entity.Organisation?.Id);
 
 				ClearDebts();
 
-				_financialExpenseCategoryNodeInMemoryCacheRepository.WarmUpCacheWithIds(
-					advances.Where(x => x.ExpenseCategoryId != null)
-							.Select(x => x.ExpenseCategoryId.Value));
+				_financialExpenseCategoryNodeInMemoryCacheRepository
+					.WarmUpCacheWithIds(advances
+						.Where(x => x.ExpenseCategoryId != null)
+						.Select(x => x.ExpenseCategoryId.Value));
 
 				SelectableAdvances.AddRange(
 					advances.Select(advance => SelectableNode<Expense>.Create(advance)));
 
 				SelectableAdvances
 					.ForEach(advance => advance.SelectChanged += OnAdvanceSelectionChanged);
+
+				OnDebtsChanged?.Invoke(isListReloaded: true);
 			}
 			else
 			{
 				ClearDebts();
 			}
-
-			DebtsChanged?.Invoke(isListReloaded: true);
 		}
 
 		private void ClearDebts()
@@ -528,6 +533,8 @@ namespace Vodovoz.ViewModels.Cash
 					.ForEach(advance => advance.SelectChanged -= OnAdvanceSelectionChanged);
 
 				SelectableAdvances.Clear();
+
+				OnDebtsChanged?.Invoke(isListReloaded: true);
 			}
 		}
 
@@ -608,6 +615,8 @@ namespace Vodovoz.ViewModels.Cash
 
 			var routeList = UoW.GetById<RouteList>(routeListId);
 
+			Entity.Description = $"Приход по МЛ №{routeListId} от {routeList.Date:d}";
+
 			if(routeList is null)
 			{
 				_logger.LogError("Конфигурация возврата прервана, МЛ {RouteListId} не найден", routeListId);
@@ -668,7 +677,7 @@ namespace Vodovoz.ViewModels.Cash
 			SelectableAdvances.Find(x => x.Value.Id == expenseId).Selected = true;
 		}
 
-		protected void OnAdvanceSelectionChanged(object sender, EventArgs args)
+		protected void OnAdvanceSelectionChanged(object sender, SelectionChanged<Expense> e)
 		{
 			if(NoClose && (sender as SelectableNode<Expense>).Selected)
 			{
@@ -692,6 +701,8 @@ namespace Vodovoz.ViewModels.Cash
 				.Sum(selectedExpense => selectedExpense.Value.UnclosedMoney);
 
 			UpdateRouteListInfo();
+
+			OnDebtsChanged?.Invoke(isSelectionChanged: true);
 		}
 
 		private void UpdateRouteListInfo()

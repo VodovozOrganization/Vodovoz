@@ -163,12 +163,12 @@ namespace Vodovoz.Cash
 					{
 						cell.Sensitive =
 							node.Value.RouteListClosing == ViewModel.Entity.RouteList
-							|| !ViewModel.AdvanceList.Any(s => s.Selected);
+							|| !ViewModel.SelectableAdvances.Any(s => s.Selected);
 					})
 				.Finish();
 
 			ytreeviewDebts.Binding
-				.AddBinding(ViewModel, vm => vm.AdvanceList, w => w.ItemsDataSource)
+				.AddBinding(ViewModel, vm => vm.SelectableAdvances, w => w.ItemsDataSource)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 

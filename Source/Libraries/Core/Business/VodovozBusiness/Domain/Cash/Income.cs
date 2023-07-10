@@ -168,22 +168,7 @@ namespace Vodovoz.Domain.Cash
 		public virtual RouteList RouteListClosing
 		{
 			get => _routeListClosing;
-			set
-			{
-				if(SetField(ref _routeListClosing, value))
-				{
-					if(value is null)
-					{
-						Description = "";
-						Employee = default;
-					}
-					else
-					{
-						Description = $"Приход по МЛ №{RouteListClosing.Id} от {RouteListClosing.Date:d}";
-						Employee = RouteListClosing.Driver;
-					}
-				}
-			}
+			set => SetField(ref _routeListClosing, value);
 		}
 
 		[Display(Name = "Перемещен")]

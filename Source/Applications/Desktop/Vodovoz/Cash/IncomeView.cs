@@ -130,30 +130,7 @@ namespace Vodovoz.Cash
 
 			ytextviewDescription.Binding.AddBinding(ViewModel.Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource();
 
-			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<SelectableNode<Expense>>()
-				.AddColumn("Закрыть").AddToggleRenderer(a => a.Selected).Editing()
-				.AddColumn("Дата").AddTextRenderer(a => a.Value.Date.ToString())
-				.AddColumn("Получено").AddTextRenderer(a => a.Value.Money.ToString("C"))
-				.AddColumn("Непогашено").AddTextRenderer(a => a.Value.UnclosedMoney.ToString("C"))
-				.AddColumn("Статья").AddTextRenderer(a => a.Value.ExpenseCategoryId != null
-					? ViewModel.GetCachedExpenseCategoryTitle(a.Value.ExpenseCategoryId.Value)
-					: "")
-				.AddColumn("Основание").AddTextRenderer(a => a.Value.Description)
-				.RowCells().AddSetter<CellRenderer>(
-					(cell, node) =>
-					{
-						cell.Sensitive =
-							node.Value.RouteListClosing == ViewModel.Entity.RouteListClosing
-							|| ViewModel.SelectableAdvances.Count(s => s.Selected) == 0;
-					})
-				.Finish();
-
-			ytreeviewDebts.Binding
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.AddBinding(ViewModel, vm => vm.SelectableAdvances, w => w.ItemsDataSource)
-				.InitializeFromSource();
-
-			ViewModel.DebtsChanged += OnDebtsChanged;
+			ConfigureTreeViewForDebts();
 
 			UpdateSubdivision();
 
@@ -200,7 +177,35 @@ namespace Vodovoz.Cash
 				.InitializeFromSource();
 		}
 
-		private void OnDebtsChanged(bool isListReloaded, bool isSelectionChanged)
+		private void ConfigureTreeViewForDebts()
+		{
+			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<SelectableNode<Expense>>()
+				.AddColumn("Закрыть").AddToggleRenderer(a => a.Selected).Editing()
+				.AddColumn("Дата").AddTextRenderer(a => a.Value.Date.ToString())
+				.AddColumn("Получено").AddTextRenderer(a => a.Value.Money.ToString("C"))
+				.AddColumn("Непогашено").AddTextRenderer(a => a.Value.UnclosedMoney.ToString("C"))
+				.AddColumn("Статья").AddTextRenderer(a => a.Value.ExpenseCategoryId != null
+					? ViewModel.GetCachedExpenseCategoryTitle(a.Value.ExpenseCategoryId.Value)
+					: "")
+				.AddColumn("Основание").AddTextRenderer(a => a.Value.Description)
+				.RowCells().AddSetter<CellRenderer>(
+					(cell, node) =>
+					{
+						cell.Sensitive =
+							node.Value.RouteListClosing == ViewModel.Entity.RouteListClosing
+							|| ViewModel.SelectableAdvances.Count(s => s.Selected) == 0;
+					})
+				.Finish();
+
+			ytreeviewDebts.Binding
+				.AddBinding(ViewModel, vm => vm.SelectableAdvances, w => w.ItemsDataSource)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ViewModel.OnDebtsChanged += OnBebtsChanged;
+		}
+
+		private void OnBebtsChanged(bool isListReloaded, bool isSelectionChanged)
 		{
 			if(isListReloaded)
 			{

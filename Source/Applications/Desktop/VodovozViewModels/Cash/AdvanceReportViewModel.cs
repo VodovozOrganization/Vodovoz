@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Cash
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICategoryRepository _categoryRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
-		private readonly IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> _domainEntityNodeInMemoryCacheRepository;
+		private readonly IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> _financialExpenseCategoryNodeInMemoryCacheRepository;
 		private readonly ILifetimeScope _scope;
 		private readonly IPermissionResult _entityPermissionResult;
 		private decimal _debt = 0;
@@ -85,7 +85,7 @@ namespace Vodovoz.ViewModels.Cash
 				?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
 			_scope = scope
 				?? throw new ArgumentNullException(nameof(scope));
-			_domainEntityNodeInMemoryCacheRepository = domainEntityNodeInMemoryCacheRepository
+			_financialExpenseCategoryNodeInMemoryCacheRepository = domainEntityNodeInMemoryCacheRepository
 				?? throw new ArgumentNullException(nameof(domainEntityNodeInMemoryCacheRepository));
 
 			_entityPermissionResult = commonServices.CurrentPermissionService
@@ -140,7 +140,7 @@ namespace Vodovoz.ViewModels.Cash
 				e => e.ExpenseCategoryId,
 				() => FinancialExpenseCategory);
 
-			AdvanceList.ForEach(x => x.SelectChanged += AdvanceListElementSelectionChanged);
+			SelectableAdvances.ForEach(x => x.SelectChanged += OnAdvanceSelectionChanged);
 
 			SetPropertyChangeRelation(
 				e => e.Id,
@@ -178,7 +178,7 @@ namespace Vodovoz.ViewModels.Cash
 					return;
 				}
 
-				var selectedAdvances = AdvanceList
+				var selectedAdvances = SelectableAdvances
 					.Where(a => a.Selected)
 					.Select(a => a.Value.RouteListClosing)
 					.ToList();
@@ -377,7 +377,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		public string RouteListTitle => Entity.RouteList?.Title ?? string.Empty;
 
-		public List<SelectableNode<Expense>> AdvanceList => _advanceList;
+		public List<SelectableNode<Expense>> SelectableAdvances => _advanceList;
 
 		public bool CanEditRectroactively { get; }
 
@@ -399,7 +399,7 @@ namespace Vodovoz.ViewModels.Cash
 				var closing = Entity.CloseAdvances(
 					out Expense newExpense,
 					out Income newIncome,
-					AdvanceList
+					SelectableAdvances
 						.Where(a => a.Selected)
 						.Select(a => a.Value)
 						.ToList());
@@ -418,7 +418,7 @@ namespace Vodovoz.ViewModels.Cash
 					_distributor.DistributeCashForIncomeAdvance(UoW, newIncome, Entity);
 				}
 
-				AdvanceList
+				SelectableAdvances
 					.Where(a => a.Selected)
 					.Select(a => a.Value)
 					.ToList()
@@ -468,12 +468,12 @@ namespace Vodovoz.ViewModels.Cash
 			Money = 0m;
 			ClosingSum = 0m;
 
-			if(AdvanceList.Any())
+			if(SelectableAdvances.Any())
 			{
-				AdvanceList
-					.ForEach(advance => advance.SelectChanged -= AdvanceListElementSelectionChanged);
+				SelectableAdvances
+					.ForEach(advance => advance.SelectChanged -= OnAdvanceSelectionChanged);
 
-				AdvanceList.Clear();
+				SelectableAdvances.Clear();
 
 				OnDebtsChanged?.Invoke(EventArgs.Empty);
 			}
@@ -508,16 +508,16 @@ namespace Vodovoz.ViewModels.Cash
 
 			ClearDebts();
 
-			_domainEntityNodeInMemoryCacheRepository
+			_financialExpenseCategoryNodeInMemoryCacheRepository
 				.WarmUpCacheWithIds(advances
 					.Where(x => x.ExpenseCategoryId != null)
 					.Select(x => x.ExpenseCategoryId.Value));
 
-			AdvanceList.AddRange(
+			SelectableAdvances.AddRange(
 				advances.Select(advance => SelectableNode<Expense>.Create(advance)));
 
-			AdvanceList
-				.ForEach(advance => advance.SelectChanged += AdvanceListElementSelectionChanged);
+			SelectableAdvances
+				.ForEach(advance => advance.SelectChanged += OnAdvanceSelectionChanged);
 
 			CalculateBalance();
 
@@ -548,18 +548,18 @@ namespace Vodovoz.ViewModels.Cash
 			FailInitialize = true;
 		}
 
-		private void AdvanceListElementSelectionChanged(object sender, SelectionChanged<Expense> e)
+		private void OnAdvanceSelectionChanged(object sender, SelectionChanged<Expense> e)
 		{
 			if(e.SelectableNode.Value.RouteListClosing != null
-				&& AdvanceList.Any(x => x.Value.RouteListClosing != null && x.Selected))
+				&& SelectableAdvances.Any(x => x.Value.RouteListClosing != null && x.Selected))
 			{
-				AdvanceList
-					.Where(x => x.Value.RouteListClosing?.Id != e.SelectableNode.Value.RouteListClosing.Id)
+				SelectableAdvances
+					.Where(expense => expense.Value.RouteListClosing?.Id != e.SelectableNode.Value.RouteListClosing.Id)
 					.ToList()
-					.ForEach(x => x.SilentUnselect());
+					.ForEach(selectedExpense => selectedExpense.SilentUnselect());
 			}
 
-			ClosingSum = AdvanceList
+			ClosingSum = SelectableAdvances
 				.Where(a => a.Selected)
 				.Sum(a => a.Value.UnclosedMoney);
 
@@ -580,12 +580,12 @@ namespace Vodovoz.ViewModels.Cash
 			Entity.ExpenseCategoryId = expense.ExpenseCategoryId;
 			Money = expense.UnclosedMoney;
 
-			AdvanceList
+			SelectableAdvances
 				.Find(x => x.Value.Id == expenseId)
 				.Selected = true;
 		}
 
 		public string GetCachedExpenseCategoryTitle(int id) =>
-			_domainEntityNodeInMemoryCacheRepository.GetTitleById(id);
+			_financialExpenseCategoryNodeInMemoryCacheRepository.GetTitleById(id);
 	}
 }
