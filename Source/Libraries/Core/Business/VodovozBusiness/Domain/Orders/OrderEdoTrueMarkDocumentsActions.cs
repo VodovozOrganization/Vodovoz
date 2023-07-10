@@ -13,6 +13,7 @@ namespace Vodovoz.Domain.Orders
 	{
 		private Order _order;
 		private bool _isNeedToResendEdoUpd;
+		private bool _isNeedToCancelTrueMarkDocument;
 
 		public virtual int Id { get; set; }
 
@@ -28,6 +29,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _isNeedToResendEdoUpd;
 			set => SetField(ref _isNeedToResendEdoUpd, value);
+		}
+
+		[Display(Name = "Требуется отмена вывода из оборота в Честном Знаке")]
+		public bool IsNeedToCancelTrueMarkDocument
+		{
+			get => _isNeedToCancelTrueMarkDocument;
+			set => SetField(ref _isNeedToCancelTrueMarkDocument, value);
 		}
 
 		public virtual string Title => $"Действия с документами ЭДО и Честный знак заказа №{Order.Id}";

@@ -16,6 +16,7 @@ namespace Vodovoz.HibernateMapping.Order
 			References(x => x.Order).Column("order_id");
 
 			Map(x => x.IsNeedToResendEdoUpd).Column("is_need_to_recend_edo_upd");
+			Map(x => x.IsNeedToCancelTrueMarkDocument).Column("is_need_to_cancel_truemark_doc");
 		}
 	}
 }
