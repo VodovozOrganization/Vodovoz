@@ -569,7 +569,7 @@ namespace Vodovoz.ReportsParameters
 			this.ylabelRemoveDriversOneDayGroupReport1.Name = "ylabelRemoveDriversOneDayGroupReport1";
 			this.ylabelRemoveDriversOneDayGroupReport1.Xalign = 1F;
 			this.ylabelRemoveDriversOneDayGroupReport1.Yalign = 0F;
-			this.ylabelRemoveDriversOneDayGroupReport1.LabelProp = global::Mono.Unix.Catalog.GetString("Исключить\nводителей:");
+			this.ylabelRemoveDriversOneDayGroupReport1.LabelProp = global::Mono.Unix.Catalog.GetString("Исключить\n  из печати:");
 			this.tableOneDayGroupReport.Add(this.ylabelRemoveDriversOneDayGroupReport1);
 			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.tableOneDayGroupReport[this.ylabelRemoveDriversOneDayGroupReport1]));
 			w46.TopAttach = ((uint)(4));
