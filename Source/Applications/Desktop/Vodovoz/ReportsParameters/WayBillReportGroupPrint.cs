@@ -1,30 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using QS.Report;
-using QSReport;
-using QS.Dialog.GtkUI;
-using Vodovoz.Domain.Employees;
-using QS.DomainModel.UoW;
-using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.ViewModels.Journals.JournalFactories;
-using System.Linq;
-using NHibernate.Criterion;
-using Vodovoz.Domain.Goods;
-using NHibernate.Util;
-using QS.Utilities.Enums;
-using NHibernate;
-using FluentNHibernate.Utils;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Widgets;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Documents;
-using MoreLinq.Extensions;
-using Vodovoz.Core.Permissions;
-using System.Linq.Dynamic.Core;
+using NHibernate.Criterion;
+using NHibernate.Transform;
+using NHibernate.Util;
 using QS.Dialog;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
+using QS.Report;
+using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -37,6 +31,7 @@ namespace Vodovoz.ReportsParameters
 		private readonly IInteractiveService _interactiveService;
 		private Func<ReportInfo> _selectedReport;
 		private List<Subdivision> _availableSubdivisionsForOneDayGroupReport;
+		private List<DriverSelectableNode> _availableDriversList = new List<DriverSelectableNode>();
 
 		public WayBillReportGroupPrint(
 				IEmployeeJournalFactory employeeJournalFactory, 
@@ -100,6 +95,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			//Дата по умолчанию
 			datepickerOneDayGroupReport.Date = DateTime.Today;
+			datepickerOneDayGroupReport.DateChanged += OnDatepickerOneDayGroupReportDateChanged;
 
 			// Тип автомобиля
 			enumcheckCarTypeOfUseOneDayGroupReport.EnumType = typeof(CarTypeOfUse);
@@ -114,12 +110,20 @@ namespace Vodovoz.ReportsParameters
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
 			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
+			comboSubdivisionsOneDayGroupReport.Changed += OnComboSubdivisionsOneDayGroupReportChanged;
 
 			//Время отправления по умолчанию
 			timeHourEntryOneDayGroupReport.Text = DateTime.Now.Hour.ToString("00.##");
 			timeMinuteEntryOneDayGroupReport.Text = DateTime.Now.Minute.ToString("00.##");
 
 			yradiobuttonOneDayGroupReport.Clicked += OnRadiobuttonOneDayGroupReportClicked;
+
+			ytreeviewDrivers.ColumnsConfig = FluentColumnsConfig<DriverSelectableNode>.Create()
+				.AddColumn("Выбрать").AddToggleRenderer(d => d.IsSelected)
+				.AddColumn("№").AddNumericRenderer(d => d.NodeNumber)
+				.AddColumn("Водитель").AddTextRenderer(d => d.FullName)
+				.AddColumn("Гос. номер").AddTextRenderer(d => d.CarRegistrationNumber)
+				.Finish();
 		}
 		#endregion
 
@@ -149,22 +153,16 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetGroupReportInfoForOneDay()
 		{
-			int[] subdivisionIds = (comboSubdivisionsOneDayGroupReport.SelectedItem as Subdivision) != null
-				? new[] { (comboSubdivisionsOneDayGroupReport.SelectedItem as Subdivision).Id }
-				: _availableSubdivisionsForOneDayGroupReport.Select(s=>s.Id).ToArray();
-
-			var carTypesOfUse = enumcheckCarTypeOfUseOneDayGroupReport.SelectedValues.ToArray();
-			var carOwnTypes = enumcheckCarOwnTypeOneDayGroupReport.SelectedValues.ToArray();
-
 			return new ReportInfo
 			{
 				Identifier = "Logistic.WayBillReportOneDayGroupPrint",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "date", datepickerOneDayGroupReport.Date },
-					{ "auto_types", carTypesOfUse.Any() ? carTypesOfUse : new[] { (object)0 } },
-					{ "owner_types", carOwnTypes.Any() ? carOwnTypes : new[] { (object)0 } },
-					{ "subdivisions", subdivisionIds },
+					{ "date", _date },
+					{ "auto_types", _carTypesOfUse.Any() ? _carTypesOfUse : new[] { (object)0 } },
+					{ "owner_types", _carOwnTypes.Any() ? _carOwnTypes : new[] { (object)0 } },
+					{ "subdivisions", _subdivisionIds.Any() ? _subdivisionIds : new[] { -1 } },
+					{ "exclude_drivers", _selectedDriversIds.Any() ? _selectedDriversIds : new[] { -1 } },
 					{ "time", timeHourEntryOneDayGroupReport.Text + ":" + timeMinuteEntryOneDayGroupReport.Text },
 					{ "need_date", !datepickerOneDayGroupReport.IsEmpty }
 				}
@@ -174,8 +172,8 @@ namespace Vodovoz.ReportsParameters
 		private List<Subdivision> GetAvailableSubdivisionsListInAccordingWithCarParameters()
 		{
 
-			var selectedCarTypeOfUses = (enumcheckCarTypeOfUseOneDayGroupReport.SelectedValues).Cast<CarTypeOfUse>().ToArray();
-			var selectedCarOwnTypes = (enumcheckCarOwnTypeOneDayGroupReport.SelectedValues).Cast<CarOwnType>().ToArray();
+			var selectedCarTypeOfUses = _carTypesOfUse.Cast<CarTypeOfUse>().ToArray();
+			var selectedCarOwnTypes = _carOwnTypes.Cast<CarOwnType>().ToArray();
 
 			return _subdivisionRepository.GetAvailableSubdivisionsInAccordingWithCarTypeAndOwner(UoW, selectedCarTypeOfUses, selectedCarOwnTypes).ToList();
 		}
@@ -191,6 +189,85 @@ namespace Vodovoz.ReportsParameters
 					check.Active = true;
 				}
 			}
+		}
+
+		private Enum[] _carTypesOfUse => enumcheckCarTypeOfUseOneDayGroupReport.SelectedValues.ToArray();
+
+		private Enum[] _carOwnTypes => enumcheckCarOwnTypeOneDayGroupReport.SelectedValues.ToArray();
+
+		private int[] _subdivisionIds => 
+			(comboSubdivisionsOneDayGroupReport.SelectedItem as Subdivision) != null
+			? new[] { (comboSubdivisionsOneDayGroupReport.SelectedItem as Subdivision).Id }
+			: _availableSubdivisionsForOneDayGroupReport.Select(s => s.Id).ToArray();
+
+		private DateTime _date => 
+			datepickerOneDayGroupReport.IsEmpty
+			? DateTime.Now
+			: datepickerOneDayGroupReport.Date;
+
+		private int[] _selectedDriversIds => 
+			_availableDriversList
+			.Where(x => x.IsSelected)
+			.Select(x => x.Id)
+			.ToArray();
+
+		private void FillDriversTreeView()
+		{
+			var selectedDriversIds = _selectedDriversIds;
+
+			_availableDriversList = GetAvailableDrivers().ToList();
+
+			for(int i = 0; i < _availableDriversList.Count; i++)
+			{
+				_availableDriversList[i].IsSelected = selectedDriversIds.Contains(_availableDriversList[i].Id);
+			}
+
+			ytreeviewDrivers.ItemsDataSource = _availableDriversList;
+		}
+
+		private IList<DriverSelectableNode> GetAvailableDrivers()
+		{
+			Car carAlias = null;
+			Employee driverAlias = null;
+			FuelType fuelTypeAlias = null;
+			CarModel carModelAlias = null;
+			CarVersion carVersionAlias = null;
+			Subdivision subdivisionAlias = null;
+			DriverSelectableNode driverNodeAlias = null;
+
+			var drivers = UoW.Session.QueryOver(() => carAlias)
+				.JoinAlias(() => carAlias.Driver, () => driverAlias)
+				.Left.JoinAlias(() => carAlias.FuelType, () => fuelTypeAlias)
+				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
+				.Left.JoinAlias(() => carAlias.CarVersions, () => carVersionAlias)
+				.Left.JoinAlias(() =>  driverAlias.Subdivision, () => subdivisionAlias)
+				.Where(() => !carAlias.IsArchive)
+				.Where(() => 
+					driverAlias.Category == EmployeeCategory.driver
+					&& driverAlias.Status == EmployeeStatus.IsWorking
+					&& driverAlias.DateFired == null)
+				.Where(Restrictions.In(Projections.Property(() => driverAlias.Subdivision.Id), _subdivisionIds))
+				.Where(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse), _carTypesOfUse))
+				.Where(Restrictions.In(Projections.Property(() => carVersionAlias.CarOwnType), _carOwnTypes))
+				.Where(() => 
+					carVersionAlias.StartDate <= _date
+					&& (carVersionAlias.EndDate == null || carVersionAlias.EndDate > _date))
+				.SelectList(list => list
+					.Select(() => driverAlias.Id).WithAlias(() => driverNodeAlias.Id)
+					.Select(() => driverAlias.Name).WithAlias(() => driverNodeAlias.Name)
+					.Select(() => driverAlias.LastName).WithAlias(() => driverNodeAlias.LastName)
+					.Select(() => driverAlias.Patronymic).WithAlias(() => driverNodeAlias.Patronymic)
+					.Select(() => carAlias.RegistrationNumber).WithAlias(() => driverNodeAlias.CarRegistrationNumber))
+				.TransformUsing(Transformers.AliasToBean<DriverSelectableNode>())
+				.List<DriverSelectableNode>();
+
+			drivers = drivers.OrderBy(d => d.LastName).ToList();
+			for(int i = 0; i < drivers.Count; i++)
+			{
+				drivers[i].NodeNumber = i + 1;
+			}
+
+			return drivers;
 		}
 
 		protected void OnButtonInfoSingleReportClicked(object sender, EventArgs e)
@@ -225,9 +302,14 @@ namespace Vodovoz.ReportsParameters
 				$"\n\t'Время' - время выезда из гаража" +
 				$"\nДанные поля не являются обязательными к заполнению. При оставлении полей незаполненными (пустыми)," +
 				$"\nв путевых листах будут отсутствовать соответствующие значения." +
+				$"\nЕсли поле дата остается пустым, то в выборке будут присутствовать водители, соответствующие" +
+				$"\nусловиям фильтра на текущую дату." +
 				$"\n" +
 				$"\n<b>5.</b> В выборку попадают только неархивные автомобили, имеющие \"привязанных\" водителей." +
-				$"\nДанные водителя в каждый путевой лист вносятся автоматически.";
+				$"\nДанные водителя в каждый путевой лист вносятся автоматически." +
+				$"\n" +
+				$"\n<b>6.</b> Для исключения попадания водителя в выборку, в таблице \"Исключить из печати\" " +
+				$"\nнеобходимо установить галочку в строке соответствующего водителя.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
 		}
@@ -244,6 +326,16 @@ namespace Vodovoz.ReportsParameters
 				_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Ошибка формирования отчета");
 				return;
 			}
+
+			if(yradiobuttonOneDayGroupReport.Active 
+				&& _availableDriversList.Where(x => !x.IsSelected).Count() < 1)
+			{
+				var info = "Отсутствуют доступные водители";
+
+				_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Ошибка формирования отчета");
+				return;
+			}
+
 			LoadReport?.Invoke(this, new LoadReportEventArgs(_selectedReport.Invoke(), true));
 		}
 
@@ -259,6 +351,17 @@ namespace Vodovoz.ReportsParameters
 			_selectedReport = () => GetGroupReportInfoForOneDay();
 			frameSingleReport.Sensitive = false;
 			frameOneDayGroupReport.Sensitive = true;
+			FillDriversTreeView();
+		}
+
+		private void OnDatepickerOneDayGroupReportDateChanged(object sender, EventArgs e)
+		{
+			FillDriversTreeView();
+		}
+
+		private void OnComboSubdivisionsOneDayGroupReportChanged(object sender, EventArgs e)
+		{
+			FillDriversTreeView();
 		}
 
 		private void EnumcheckCarTypeOfUseOneDayGroupReportCheckStateChanged(object sender, CheckStateChangedEventArgs e)
@@ -266,6 +369,7 @@ namespace Vodovoz.ReportsParameters
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
 			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
+			FillDriversTreeView();
 		}
 
 		private void EnumcheckCarOwnTypeOneDayGroupReportCheckStateChanged(object sender, CheckStateChangedEventArgs e)
@@ -273,6 +377,19 @@ namespace Vodovoz.ReportsParameters
 			_availableSubdivisionsForOneDayGroupReport = GetAvailableSubdivisionsListInAccordingWithCarParameters();
 			comboSubdivisionsOneDayGroupReport.ItemsList = _availableSubdivisionsForOneDayGroupReport;
 			comboSubdivisionsOneDayGroupReport.ShowSpecialStateAll = _availableSubdivisionsForOneDayGroupReport.Count() > 0;
+			FillDriversTreeView();
+		}
+
+		private class DriverSelectableNode
+		{
+			public int Id { get; set; }
+			public int NodeNumber { get; set; }
+			public string Name { get; set; }
+			public string LastName { get; set; }
+			public string Patronymic { get; set; }
+			public string CarRegistrationNumber { get; set; }
+			public bool IsSelected { get; set; } = false;
+			public string FullName => LastName + " " + Name[0] + "." + (string.IsNullOrWhiteSpace(Patronymic) ? "" : " " + Patronymic[0] + ".");
 		}
 	}
 }
