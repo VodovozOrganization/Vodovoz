@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,9 +25,10 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Parameters;
-using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -49,6 +50,7 @@ namespace Vodovoz.ViewWidgets
 		private UndeliveredOrder _undelivery;
 		private bool _canChangeProblemSource = false;
 		private Menu _popupCopyCommentsMenu;
+		private UndeliveredOrderViewModel _viewModel;
 
 		public Func<bool> isSaved;
 		public IUnitOfWork UoW { get; set; }
@@ -67,6 +69,9 @@ namespace Vodovoz.ViewWidgets
 		{
 			Sensitive = false;
 			evmeOldUndeliveredOrder.Changed += OnUndeliveredOrderChanged;
+
+			var undeliveryDetalizationlJournalFactory = new UndeliveryDetalizationJournalFactory();
+			_viewModel = new UndeliveredOrderViewModel(undelivery, _commonServices, undeliveryDetalizationlJournalFactory, uow);
 
 			_canChangeProblemSource = _commonServices.PermissionService.ValidateUserPresetPermission("can_change_undelivery_problem_source", _commonServices.UserService.CurrentUserId);
 			_undelivery = undelivery;
@@ -178,11 +183,6 @@ namespace Vodovoz.ViewWidgets
 			yenumcomboboxTransferType.ItemsEnum = typeof(TransferType);
 			yenumcomboboxTransferType.Binding.AddBinding(undelivery, u => u.OrderTransferType, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			//comboProblemSource.SetRenderTextFunc<UndeliveryProblemSource>(k => k.GetFullName);
-			//comboProblemSource.Binding.AddBinding(undelivery, u => u.ProblemSourceItems, w => w.ItemsList).InitializeFromSource();
-			//comboProblemSource.Binding.AddBinding(undelivery, u => u.ProblemSource, w => w.SelectedItem).InitializeFromSource();
-			//comboProblemSource.Sensitive = _canChangeProblemSource;
-
 			comboTransferAbsenceReason.SetRenderTextFunc<UndeliveryTransferAbsenceReason>(u => u.Name);
 			comboTransferAbsenceReason.Binding.AddBinding(undelivery, u => u.UndeliveryTransferAbsenceReasonItems, w => w.ItemsList).InitializeFromSource();
 			comboTransferAbsenceReason.Binding.AddBinding(undelivery, u => u.UndeliveryTransferAbsenceReason, w => w.SelectedItem).InitializeFromSource();
@@ -196,7 +196,31 @@ namespace Vodovoz.ViewWidgets
 
 			yenumcomboboxTransferType.Visible = undelivery?.NewOrder != null;
 
+			cmbUndeliveryKind.SetRenderTextFunc<UndeliveryKind>(k => k.GetFullName);
+			cmbUndeliveryKind.Binding
+				.AddBinding(_viewModel, vm => vm.UndeliveryKindSource, w => w.ItemsList)
+				.AddBinding(_viewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(_viewModel, vm => vm.UndeliveryKind, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			cmbUndeliveryObject.Binding.AddSource(_viewModel)
+				.AddBinding(vm => vm.UndeliveryObjectSource, w => w.ItemsList)
+				.AddBinding(vm => vm.UndeliveryObject, w => w.SelectedItem)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+
+			evmeUndeliveryDetalization.SetEntityAutocompleteSelectorFactory(_viewModel.UndeliveryDetalizationSelectorFactory);
+			evmeUndeliveryDetalization.Binding
+				.AddBinding(undelivery, u => u.UndeliveryDetalization, w => w.Subject)
+				.AddBinding(_viewModel, vm => vm.CanChangeDetalization, w => w.Sensitive)
+				.InitializeFromSource();
+
 			undelivery.PropertyChanged += (sender, e) => {
+				if(e.PropertyName == nameof(undelivery.UndeliveryDetalization))
+				{
+					_viewModel.RefreshParentObjects();
+				}
+
 				if(e.PropertyName != "NewOrder")
 					return;
 

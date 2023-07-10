@@ -1,106 +1,99 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.ViewModels.Widgets
 {
-	public class UndeliveredOrdersViewModel : EntityWidgetViewModelBase<UndeliveredOrder>
+	public class UndeliveredOrderViewModel : EntityWidgetViewModelBase<UndeliveredOrder>
 	{
-		private DateTime? _selectedDate;
-		private UndeliveredOrder _selectedUndeliveredOrder;
-		//private DelegateCommand _addNewUndeliveredOrderCommand;
-		//private DelegateCommand _changeUndeliveredOrderStartDateCommand;
+		private UndeliveryObject _undeliveryObject;
+		private IList<UndeliveryKind> _undeliveryKindSource;
+		private IList<UndeliveryKind> _undeliveryKinds;
+		private IList<UndeliveryObject> _undeliveryObjectSource;
+		private UndeliveryKind _undeliveryKind;
+		private readonly UndeliveryDetalizationJournalFilterViewModel _undeliveryDetalizationJournalFilterViewModel;
 
-		public UndeliveredOrdersViewModel(UndeliveredOrder entity, ICommonServices commonServices)
+		public UndeliveredOrderViewModel(UndeliveredOrder entity, ICommonServices commonServices,
+			IUndeliveryDetalizationJournalFactory undeliveryDetalizationJournalFactory, IUnitOfWork uow)
 			: base(entity, commonServices)
 		{
+			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 
-			//CanRead = PermissionResult.CanRead;
-			//CanCreate = PermissionResult.CanCreate && Entity.Id == 0
-			//	|| commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_odometer_reading");
-			//CanEdit = commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_odometer_reading");
+			_undeliveryKinds = _undeliveryKindSource = UoW.GetAll<UndeliveryKind>().Where(k => !k.IsArchive).ToList();
 
-			if(IsNewCar)
-			{
-				SelectedDate = DateTime.Now.Date;
-			}
+			CanReadDetalization = CommonServices.CurrentPermissionService
+				.ValidateEntityPermission(typeof(UndeliveryDetalization)).CanRead;
+
+			_undeliveryDetalizationJournalFilterViewModel = new UndeliveryDetalizationJournalFilterViewModel();
+			UndeliveryDetalizationSelectorFactory = (undeliveryDetalizationJournalFactory ?? throw new ArgumentException(nameof(undeliveryDetalizationJournalFactory)))
+				.CreateUndeliveryDetalizationAutocompleteSelectorFactory(_undeliveryDetalizationJournalFilterViewModel);
+
+			RefreshParentObjects();
 		}
 
-		public DateTime? SelectedDate
+		public IList<UndeliveryObject> UndeliveryObjectSource =>
+			_undeliveryObjectSource ?? (_undeliveryObjectSource = UoW.GetAll<UndeliveryObject>().Where(x => !x.IsArchive).ToList());
+
+		public UndeliveryObject UndeliveryObject
 		{
-			get => _selectedDate;
+			get => _undeliveryObject;
 			set
 			{
-				if(SetField(ref _selectedDate, value))
+				if(SetField(ref _undeliveryObject, value))
 				{
-					//OnPropertyChanged(nameof(CanAddNewUndeliveredOrder));
-					//OnPropertyChanged(nameof(CanChangeUndeliveredOrderDate));
+					UndeliveryKindSource = value == null ? _undeliveryKinds : _undeliveryKinds.Where(x => x.UndeliveryObject == value).ToList();
+					_undeliveryDetalizationJournalFilterViewModel.UndeliveryObject = value;
 				}
 			}
 		}
 
-		public UndeliveredOrder SelectedUndeliveredOrder
+		public IList<UndeliveryKind> UndeliveryKindSource
 		{
-			get => _selectedUndeliveredOrder;
+			get
+			{
+				if(Entity.UndeliveryDetalization?.UndeliveryKind != null && Entity.UndeliveryDetalization.UndeliveryKind.IsArchive)
+				{
+					_undeliveryKindSource.Add(UoW.GetById<UndeliveryKind>(Entity.UndeliveryDetalization.UndeliveryKind.Id));
+				}
+
+				return _undeliveryKindSource;
+			}
+			set => SetField(ref _undeliveryKindSource, value);
+		}
+
+		public UndeliveryKind UndeliveryKind
+		{
+			get => _undeliveryKind;
 			set
 			{
-				if(SetField(ref _selectedUndeliveredOrder, value))
+				if(SetField(ref _undeliveryKind, value))
 				{
-					//OnPropertyChanged(nameof(CanChangeUndeliveredOrderDate));
+					_undeliveryDetalizationJournalFilterViewModel.UndeliveryKind = value;
+					OnPropertyChanged(nameof(CanChangeDetalization));
 				}
 			}
 		}
 
-		public bool CanRead { get; }
-		public bool CanCreate { get; }
-		public bool CanEdit { get; }
+		public bool CanEdit => PermissionResult.CanUpdate;
 
-		public bool IsNewCar => Entity.Id == 0;
+		[PropertyChangedAlso(nameof(CanChangeDetalization))]
+		public bool CanReadDetalization { get; }
+		public bool CanChangeDetalization => CanReadDetalization && _undeliveryDetalizationJournalFilterViewModel.UndeliveryKind != null;
 
-		//public bool CanAddNewUndeliveredOrder =>
-		//	CanCreate
-		//	&& SelectedDate.HasValue
-		//	&& Entity.UndeliveredOrders.All(x => x.Id != 0)
-		//	&& _undeliveredOrderController.IsValidDateForNewUndeliveredOrder(SelectedDate.Value);
+		public IEntityAutocompleteSelectorFactory UndeliveryDetalizationSelectorFactory { get; set; }
 
-		//public bool CanChangeUndeliveredOrderDate =>
-		//	SelectedDate.HasValue
-		//	&& SelectedUndeliveredOrder != null
-		//	&& (CanEdit || SelectedUndeliveredOrder.Id == 0)
-		//	&& _undeliveredOrderController.IsValidDateForUndeliveredOrderStartDateChange(SelectedUndeliveredOrder, SelectedDate.Value);
-
-
-		#region Commands
-
-		//public DelegateCommand AddNewUndeliveredOrderCommand =>
-		//	_addNewUndeliveredOrderCommand ?? (_addNewUndeliveredOrderCommand = new DelegateCommand(() =>
-		//	{
-		//		if(SelectedDate == null)
-		//		{
-		//			return;
-		//		}
-		//		_undeliveredOrderController.CreateAndAddUndeliveredOrder(SelectedDate);
-
-		//		OnPropertyChanged(nameof(CanAddNewUndeliveredOrder));
-		//		OnPropertyChanged(nameof(CanChangeUndeliveredOrderDate));
-		//	}
-		//	));
-
-		//public DelegateCommand ChangeUndeliveredOrderStartDateCommand =>
-		//	_changeUndeliveredOrderStartDateCommand ?? (_changeUndeliveredOrderStartDateCommand = new DelegateCommand(() =>
-		//	{
-		//		if(SelectedDate == null || SelectedUndeliveredOrder == null)
-		//		{
-		//			return;
-		//		}
-		//		_undeliveredOrderController.ChangeUndeliveredOrderStartDate(SelectedUndeliveredOrder, SelectedDate.Value);
-
-		//		OnPropertyChanged(nameof(CanAddNewUndeliveredOrder));
-		//		OnPropertyChanged(nameof(CanChangeUndeliveredOrderDate));
-		//	}
-		//	));
-
-		#endregion
+		public void RefreshParentObjects()
+		{
+			UndeliveryObject = Entity.UndeliveryDetalization?.UndeliveryKind?.UndeliveryObject;
+			UndeliveryKind = Entity.UndeliveryDetalization?.UndeliveryKind;
+		}
 	}
 }

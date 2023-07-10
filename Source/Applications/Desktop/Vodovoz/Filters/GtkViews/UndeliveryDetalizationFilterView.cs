@@ -17,20 +17,24 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
+			var undeliveryObject = ViewModel.UndeliveryObject;
+			var undeliveryKind = ViewModel.UndeliveryKind;
+
 			cmbUndeliveryObject.ShowSpecialStateAll = true;
 			cmbUndeliveryObject.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.UndeliveryObjects, w => w.ItemsList)
 				.AddBinding(vm => vm.UndeliveryObject, w => w.SelectedItem)
-				.AddBinding(vm => vm.CanChangeUndeliveryObject, w => w.Sensitive)
+				.AddBinding(vm => vm.UndeliveryObjects, w => w.ItemsList)
 				.InitializeFromSource();
 
 			cmbUndeliveryKind.SetRenderTextFunc<UndeliveryKind>(k => k.GetFullName);
 			cmbUndeliveryKind.ShowSpecialStateAll = true;
 			cmbUndeliveryKind.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.VisibleUndeliveryKinds, w => w.ItemsList)
 				.AddBinding(vm => vm.UndeliveryKind, w => w.SelectedItem)
-				.AddBinding(vm => vm.CanChangeUndeliveryKind, w => w.Sensitive)
+				.AddBinding(vm => vm.UndeliveryKinds, w => w.ItemsList)
 				.InitializeFromSource();
+
+			ViewModel.UndeliveryObject = undeliveryObject;
+			ViewModel.UndeliveryKind = undeliveryKind;
 		}
 	}
 }

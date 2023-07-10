@@ -1,35 +1,27 @@
-﻿using System;
+﻿using QS.Project.Filter;
 using System.Collections.Generic;
 using System.Linq;
-using QS.Project.Filter;
-using QS.Project.Journal;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 {
 	public class UndeliveryDetalizationJournalFilterViewModel
-		: FilterViewModelBase<UndeliveryDetalizationJournalFilterViewModel>, IJournalFilterViewModel
+		: FilterViewModelBase<UndeliveryDetalizationJournalFilterViewModel>
 	{
 		private UndeliveryObject _undeliveryObject;
-		private UndeliveryKind _undeliveryOKind;
-		private IEnumerable<UndeliveryKind> _visibleUndeliveryKinds;
-		private UndeliveryKind _restrictUndeliveryKind;
-		private UndeliveryObject _restrictUndeliveryObject;
-		private bool _hideArchieve = false;
+		private UndeliveryKind _undeliveryKind;
+		private bool _hideArchive;
+		private IList<UndeliveryKind> _allUndeliveryKinds;
+		private IList<UndeliveryKind> _undeliveryKinds;
+		private IList<UndeliveryObject> _undeliveryObjects;
 
-		public UndeliveryDetalizationJournalFilterViewModel(Action<UndeliveryDetalizationJournalFilterViewModel> filterParams = null)
+		public UndeliveryDetalizationJournalFilterViewModel()
 		{
 			UndeliveryObjects = UoW.Session.QueryOver<UndeliveryObject>()
-				.Where(co => !co.IsArchive)
+				.Where(o => !o.IsArchive)
 				.List();
 
-			UndeliveryKinds = UoW.Session.QueryOver<UndeliveryKind>().List();
-			VisibleUndeliveryKinds = Enumerable.Empty<UndeliveryKind>();
-
-			if(filterParams != null)
-			{
-				SetAndRefilterAtOnce(filterParams);
-			}
+			UndeliveryKinds = _allUndeliveryKinds = UoW.Session.QueryOver<UndeliveryKind>().List();
 		}
 
 		public UndeliveryObject UndeliveryObject
@@ -41,77 +33,40 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 				{
 					if(value is null)
 					{
-						VisibleUndeliveryKinds = Enumerable.Empty<UndeliveryKind>();
+						UndeliveryKinds = _allUndeliveryKinds;
 						UndeliveryKind = null;
 					}
 					else
 					{
-						VisibleUndeliveryKinds = UndeliveryKinds
-							.Where(ck => ck.UndeliveryObject == value);
+						UndeliveryKinds = _allUndeliveryKinds
+							.Where(k => k.UndeliveryObject.Id == value.Id).ToList();
 					}
-					OnPropertyChanged(nameof(CanChangeUndeliveryKind));
 				}
 			}
 		}
 
 		public UndeliveryKind UndeliveryKind
 		{
-			get => _undeliveryOKind;
-			set
-			{
-				UpdateFilterField(ref _undeliveryOKind, value);
-				OnPropertyChanged(nameof(CanChangeUndeliveryKind));
-			}
+			get => _undeliveryKind;
+			set => UpdateFilterField(ref _undeliveryKind, value);
 		}
 
-		public IList<UndeliveryObject> UndeliveryObjects { get; }
-
-		public IList<UndeliveryKind> UndeliveryKinds { get; }
-
-		public bool HideArchieve
+		public IList<UndeliveryObject> UndeliveryObjects
 		{
-			get => _hideArchieve;
-			set => UpdateFilterField(ref _hideArchieve, value);
+			get => _undeliveryObjects;
+			set => _undeliveryObjects = value;
 		}
 
-		public UndeliveryKind RestrictUndeliveryKind
+		public IList<UndeliveryKind> UndeliveryKinds
 		{
-			get => _restrictUndeliveryKind;
-			set
-			{
-				if(UpdateFilterField(ref _restrictUndeliveryKind, value))
-				{
-					UndeliveryKind = value;
-					RestrictUndeliveryObject = UndeliveryObjects
-						.Where(x => x.Id == value?.UndeliveryObject?.Id)
-						.FirstOrDefault();
-				}
-			}
+			get => _undeliveryKinds;
+			set => SetField(ref _undeliveryKinds, value);
 		}
 
-		public UndeliveryObject RestrictUndeliveryObject
+		public bool HideArchive
 		{
-			get => _restrictUndeliveryObject;
-			set
-			{
-				if(UpdateFilterField(ref _restrictUndeliveryObject, value))
-				{
-					UndeliveryObject = value;
-				}
-			}
+			get => _hideArchive;
+			set => UpdateFilterField(ref _hideArchive, value);
 		}
-
-		public bool CanChangeUndeliveryObject => RestrictUndeliveryObject is null;
-
-		public bool CanChangeUndeliveryKind => RestrictUndeliveryKind is null
-			&& UndeliveryObject != null;
-
-		public IEnumerable<UndeliveryKind> VisibleUndeliveryKinds
-		{
-			get => _visibleUndeliveryKinds;
-			private set => UpdateFilterField(ref _visibleUndeliveryKinds, value);
-		}
-
-		public bool IsShow { get; set; }
 	}
 }

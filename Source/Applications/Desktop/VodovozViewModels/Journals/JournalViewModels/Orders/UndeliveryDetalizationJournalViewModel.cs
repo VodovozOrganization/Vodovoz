@@ -1,15 +1,10 @@
-﻿using System;
-using System.Linq;
-using Autofac;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Transform;
-using QS.Dialog;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using System;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
@@ -17,30 +12,18 @@ using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
-	public class UndeliveryDetalizationJournalViewModel
-		: EntityJournalViewModelBase<
-			UndeliveryDetalization,
-			UndeliveryDetalizationViewModel,
-			UndeliveryDetalizationJournalNode>
+	public class UndeliveryDetalizationJournalViewModel : FilterableSingleEntityJournalViewModelBase
+		<UndeliveryDetalization, UndeliveryDetalizationViewModel, UndeliveryDetalizationJournalNode, UndeliveryDetalizationJournalFilterViewModel>
 	{
-		private UndeliveryDetalizationJournalFilterViewModel _filterViewModel;
-		private IPermissionResult _premissionResult;
-		private readonly ILifetimeScope _scope;
-
 		public UndeliveryDetalizationJournalViewModel(
+			UndeliveryDetalizationJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IInteractiveService interactiveService,
-			INavigationManager navigationManager,
-			ICurrentPermissionService currentPermissionService,
-			ILifetimeScope scope,
-			Action<UndeliveryDetalizationJournalFilterViewModel> filterParams = null)
-			: base(unitOfWorkFactory, interactiveService, navigationManager, currentPermissionService: currentPermissionService)
+			ICommonServices commonServices
+		)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			TabName = "Детализации видов недовоза";
-
-			CreateFilter(filterParams);
 
 			UpdateOnChanges(
 				typeof(UndeliveryKind),
@@ -48,46 +31,30 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				typeof(UndeliveryDetalization));
 		}
 
-		private void CreateFilter(Action<UndeliveryDetalizationJournalFilterViewModel> filterParams)
-		{
-			_filterViewModel = (filterParams is null)
-				? _scope.Resolve<UndeliveryDetalizationJournalFilterViewModel>()
-				: _scope.Resolve<UndeliveryDetalizationJournalFilterViewModel>(
-				new TypedParameter(typeof(Action<UndeliveryDetalizationJournalFilterViewModel>),
-				filterParams));
-			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
-			JournalFilter = _filterViewModel;
-		}
-
-		private void OnFilterViewModelFiltered(object sender, EventArgs e)
-		{
-			Refresh();
-		}
-
-		protected override IQueryOver<UndeliveryDetalization> ItemsQuery(IUnitOfWork unitOfWork)
+		protected override Func<IUnitOfWork, IQueryOver<UndeliveryDetalization>> ItemsSourceQueryFunction => (uow) =>
 		{
 			UndeliveryDetalization undeliveryDetalizationAlias = null;
 			UndeliveryKind undeliveryKindAlias = null;
 			UndeliveryObject undeliveryObjectAlias = null;
 			UndeliveryDetalizationJournalNode resultAlias = null;
 
-			var itemsQuery = unitOfWork.Session.QueryOver(() => undeliveryDetalizationAlias)
+			var itemsQuery = uow.Session.QueryOver(() => undeliveryDetalizationAlias)
 				.Left.JoinAlias(x => x.UndeliveryKind, () => undeliveryKindAlias)
 				.Left.JoinAlias(() => undeliveryKindAlias.UndeliveryObject, () => undeliveryObjectAlias);
 
-			if(_filterViewModel.UndeliveryObject != null)
+			if(FilterViewModel?.UndeliveryObject != null)
 			{
-				var undeliveryIbjectId = _filterViewModel.UndeliveryObject.Id;
+				var undeliveryIbjectId = FilterViewModel.UndeliveryObject.Id;
 				itemsQuery.Where(() => undeliveryObjectAlias.Id == undeliveryIbjectId);
 			}
 
-			if(_filterViewModel.UndeliveryKind != null)
+			if(FilterViewModel?.UndeliveryKind != null)
 			{
-				var undeliveryKindId = _filterViewModel.UndeliveryKind.Id;
+				var undeliveryKindId = FilterViewModel.UndeliveryKind.Id;
 				itemsQuery.Where(() => undeliveryKindAlias.Id == undeliveryKindId);
 			}
 
-			if(_filterViewModel.HideArchieve)
+			if(FilterViewModel?.HideArchive ?? false)
 			{
 				itemsQuery.Where(() => undeliveryDetalizationAlias.IsArchive == false);
 			}
@@ -109,72 +76,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				.TransformUsing(Transformers.AliasToBean<UndeliveryDetalizationJournalNode>());
 
 			return itemsQuery;
-		}
+		};
 
-		protected override void CreateNodeActions()
-		{
-			_premissionResult = CurrentPermissionService.ValidateEntityPermission(typeof(UndeliveryDetalization));
+		protected override Func<UndeliveryDetalizationViewModel> CreateDialogFunction => () =>
+			new UndeliveryDetalizationViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
 
-			NodeActionsList.Clear();
-
-			CreateSelectAction();
-
-			var addAction = new JournalAction("Добавить",
-				(selected) => _premissionResult.CanCreate,
-				(selected) => VisibleCreateAction,
-				(selected) => CreateEntityDialog(),
-				"Insert"
-			);
-			NodeActionsList.Add(addAction);
-
-			var editAction = new JournalAction("Изменить",
-				(selected) => _premissionResult.CanUpdate && selected.Any(),
-				(selected) => VisibleEditAction,
-				(selected) => selected.OfType<UndeliveryDetalizationJournalNode>().ToList().ForEach(EditEntityDialog)
-			);
-			NodeActionsList.Add(editAction);
-
-			if(SelectionMode == JournalSelectionMode.None)
-			{
-				RowActivatedAction = editAction;
-			}
-		}
-
-		private void CreateSelectAction()
-		{
-			var selectAction = new JournalAction("Выбрать",
-				(selected) => selected.Any(),
-				(selected) => SelectionMode != JournalSelectionMode.None,
-				(selected) => OnItemsSelected(selected)
-			);
-			if(SelectionMode == JournalSelectionMode.Single || SelectionMode == JournalSelectionMode.Multiple)
-			{
-				RowActivatedAction = selectAction;
-			}
-			NodeActionsList.Add(selectAction);
-		}
-
-		protected override void EditEntityDialog(UndeliveryDetalizationJournalNode node)
-		{
-			NavigationManager.OpenViewModel<UndeliveryDetalizationViewModel, IEntityUoWBuilder, UndeliveryObject, UndeliveryKind>(
-				this, EntityUoWBuilder.ForOpen(DomainHelper.GetId(node)),
-				_filterViewModel.RestrictUndeliveryObject,
-				_filterViewModel.RestrictUndeliveryKind);
-		}
-
-		protected override void CreateEntityDialog()
-		{
-			NavigationManager.OpenViewModel<UndeliveryDetalizationViewModel, IEntityUoWBuilder, UndeliveryObject, UndeliveryKind>(
-				this,
-				EntityUoWBuilder.ForCreate(),
-				_filterViewModel.RestrictUndeliveryObject,
-				_filterViewModel.RestrictUndeliveryKind);
-		}
-
-		public override void Dispose()
-		{
-			_filterViewModel.OnFiltered -= OnFilterViewModelFiltered;
-			base.Dispose();
-		}
+		protected override Func<UndeliveryDetalizationJournalNode, UndeliveryDetalizationViewModel> OpenDialogFunction =>
+			node => new UndeliveryDetalizationViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory, commonServices);
 	}
 }
