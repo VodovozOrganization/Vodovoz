@@ -34,8 +34,6 @@ FROM
     financial_categories_groups ON financial_categories_groups.id = IFNULL(ci.financial_income_category_id, @cash_income_category_transfer_id)
         LEFT JOIN
     organization_cash_transfer_documents octd ON octd.organisation_cash_movement_operation_to_id = ocmo.id
-       
-     
 WHERE
   (ci.type_operation != 'Return' OR octd.id IS NOT NULL )
   AND  ocmo.operation_time &gt;= @startDate AND ocmo.operation_time &lt; @endDate

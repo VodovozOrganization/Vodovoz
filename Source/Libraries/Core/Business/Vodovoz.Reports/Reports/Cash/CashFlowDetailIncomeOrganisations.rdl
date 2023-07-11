@@ -19,7 +19,7 @@
        0) as CategoryType,
     ci.id as id,
     ocmo.operation_time as Date,
-    financial_categories_groups.titlw as Category,
+    financial_categories_groups.title as Category,
     ci.financial_income_category_id as CategoryId,
     ocmo.amount as sum,
     ci.description,

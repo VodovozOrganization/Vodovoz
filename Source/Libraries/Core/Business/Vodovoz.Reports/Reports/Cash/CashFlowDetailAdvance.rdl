@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -16,26 +16,7 @@
         <CommandText>SELECT 
 	cash_expense.id as id,
 	cash_expense.financial_expense_category_id as CategoryId,
-	IF(cat1.parent_id IS NULL,
-		cat1.title,
-		CONCAT((SELECT 
-						IF(cat2.parent_id IS NULL,
-								cat2.title,
-								CONCAT((SELECT 
-												CONCAT(IF(parent_id IS NULL, '', '... '), title)
-											FROM
-												financial_categories_groups AS cat3
-											WHERE
-												id = cat2.parent_id),
-										' - ',
-										cat2.title))
-					FROM
-						financial_categories_groups AS cat2
-					WHERE
-						id = cat1.parent_id),
-				' - ',
-				cat1.title)) AS Category,
-
+	category.title AS Category,
 	cash_expense.money as Sum,
 	cash_expense.description,
 	cash_expense.date as date,
@@ -50,7 +31,7 @@
 FROM
 	cash_expense
 		LEFT JOIN
-	financial_categories_groups AS cat1 ON cat1.id = cash_expense.financial_expense_category_id
+	financial_categories_groups AS category ON category.id = cash_expense.financial_expense_category_id
 		LEFT JOIN
 	employees ON employees.id = cash_expense.employee_id
 WHERE cash_expense.type_operation = 'Advance' AND

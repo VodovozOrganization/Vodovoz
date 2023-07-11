@@ -156,25 +156,7 @@ GROUP BY rl.date</CommandText>
         <CommandText>SELECT
     ci.id as id,
     ocmo.operation_time as Date,
-    IF(cat1.parent_id IS NULL,
-       cat1.title,
-       CONCAT((SELECT
-                   IF(cat2.parent_id IS NULL,
-                      cat2.title,
-                      CONCAT((SELECT
-                                  CONCAT(IF(parent_id IS NULL, '', '... '), title)
-                              FROM
-                                  financial_categories_groups AS cat3
-                              WHERE
-                                      id = cat2.parent_id),
-                             ' - ',
-                             cat2.title))
-               FROM
-                   financial_categories_groups AS cat2
-               WHERE
-                       id = cat1.parent_id),
-              ' - ',
-              cat1.title)) AS Category,
+    category.title AS Category,
     ci.financial_expense_category_id as CategoryId,
     ocmo.amount as sum,
     ci.description,
@@ -191,7 +173,7 @@ FROM
         LEFT JOIN 
     cash_income ci ON codd.cash_income_id = ci.id
         LEFT JOIN
-    financial_categories_groups AS cat1 ON cat1.id = ci.financial_expense_category_id
+    financial_categories_groups AS category ON category.id = ci.financial_expense_category_id
         LEFT JOIN
     employees ON employees.id = codd.employee_id
         LEFT JOIN
@@ -266,25 +248,7 @@ ORDER BY Category;</CommandText>
         <CommandText>SELECT
     ce.id AS id,
     ce.financial_expense_category_id AS CategoryId,
-    IF(cat1.parent_id IS NULL,
-       cat1.title,
-       CONCAT((SELECT
-                   IF(cat2.parent_id IS NULL,
-                      cat2.title,
-                      CONCAT((SELECT
-                                  CONCAT(IF(parent_id IS NULL, '', '... '), title)
-                              FROM
-                                  financial_categories_groups AS cat3
-                              WHERE
-                                      id = cat2.parent_id),
-                             ' - ',
-                             cat2.title))
-               FROM
-                   financial_categories_groups AS cat2
-               WHERE
-                       id = cat1.parent_id),
-              ' - ',
-              cat1.title)) AS Category,
+    category.title AS Category,
     -ocmo.amount AS Sum,
     ce.description,
     ocmo.operation_time AS date,
@@ -301,7 +265,7 @@ FROM
         LEFT JOIN
     cash_expense ce ON codd.cash_expense_id = ce.id
         LEFT JOIN
-    financial_categories_groups AS cat1 ON ce.financial_expense_category_id = cat1.id
+    financial_categories_groups AS category ON ce.financial_expense_category_id = category.id
         LEFT JOIN
     employees ON employees.id = codd.employee_id
         LEFT JOIN
@@ -375,26 +339,7 @@ ORDER BY Category;</CommandText>
         <CommandText>SELECT
     ce.id as id,
     ce.financial_expense_category_id as CategoryId,
-    IF(cat1.parent_id IS NULL,
-       cat1.title,
-       CONCAT((SELECT
-                   IF(cat2.parent_id IS NULL,
-                      cat2.title,
-                      CONCAT((SELECT
-                                  CONCAT(IF(parent_id IS NULL, '', '... '), title)
-                              FROM
-                                  financial_categories_groups AS cat3
-                              WHERE
-                                      id = cat2.parent_id),
-                             ' - ',
-                             cat2.title))
-               FROM
-                   financial_categories_groups AS cat2
-               WHERE
-                       id = cat1.parent_id),
-              ' - ',
-              cat1.title)) AS Category,
-
+    category.title AS Category,
     -ocmo.amount as Sum,
     ce.description,
     ocmo.operation_time as date,
@@ -411,7 +356,7 @@ FROM
         LEFT JOIN
     cash_expense ce ON codd.cash_expense_id = ce.id
         LEFT JOIN
-    financial_categories_groups AS cat1 ON cat1.id = ce.financial_expense_category_id
+    financial_categories_groups AS category ON category.id = ce.financial_expense_category_id
         LEFT JOIN
     employees ON employees.id = codd.employee_id
         LEFT JOIN
@@ -485,25 +430,7 @@ ORDER BY Category;</CommandText>
         <CommandText>SELECT
     cash_advance_report.id AS report_id,
     cash_advance_report.financial_expense_category_id AS CategoryId,
-    IF(cat1.parent_id IS NULL,
-       cat1.title,
-       CONCAT((SELECT
-                   IF(cat2.parent_id IS NULL,
-                      cat2.title,
-                      CONCAT((SELECT
-                                  CONCAT(IF(parent_id IS NULL, '', '... '), title)
-                              FROM
-                                  financial_categories_groups AS cat3
-                              WHERE
-                                      id = cat2.parent_id),
-                             ' - ',
-                             cat2.title))
-               FROM
-                   financial_categories_groups AS cat2
-               WHERE
-                       id = cat1.parent_id),
-              ' - ',
-              cat1.title)) AS Category,
+    category.title AS Category,
     cash_advance_report.money AS Sum,
     cash_advance_report.description,
     cash_advance_report.date AS date,
@@ -523,7 +450,7 @@ FROM
         JOIN
     cash_organisation_distribution_documents codd ON cash_advance_report.id = codd.cash_advance_report_id
         LEFT JOIN
-    financial_categories_groups AS cat1 ON cat1.id = cash_advance_report.financial_expense_category_id
+    financial_categories_groups AS category ON category.id = cash_advance_report.financial_expense_category_id
         LEFT JOIN
     employees ON employees.id = cash_advance_report.employee_id
         LEFT JOIN
@@ -611,25 +538,7 @@ ORDER BY Category;</CommandText>
         <CommandText>SELECT
     ce.id as expense_id,
     ce.financial_expense_category_id AS CategoryId,
-    IF(cat1.parent_id IS NULL,
-       cat1.title,
-       CONCAT((SELECT
-                   IF(cat2.parent_id IS NULL,
-                      cat2.title,
-                      CONCAT((SELECT
-                                  CONCAT(IF(parent_id IS NULL, '', '... '), title)
-                              FROM
-                                  financial_categories_groups AS cat3
-                              WHERE
-                                      id = cat2.parent_id),
-                             ' - ',
-                             cat2.title))
-               FROM
-                   financial_categories_groups AS cat2
-               WHERE
-                       id = cat1.parent_id),
-              ' - ',
-              cat1.title)) AS Category,
+    category.title AS Category,
     -codd_expense.amount AS Sum,
     ce.description,
     codd_expense.last_edited_time AS date,
@@ -649,7 +558,7 @@ FROM
         LEFT JOIN
     cash_expense ce ON codd_expense.cash_expense_id = ce.id
         LEFT JOIN
-    financial_categories_groups AS cat1 ON cat1.id = ce.financial_expense_category_id
+    financial_categories_groups AS category ON category.id = ce.financial_expense_category_id
         LEFT JOIN
     employees ON employees.id = codd_expense.employee_id
         LEFT JOIN
