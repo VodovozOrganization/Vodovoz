@@ -4060,7 +4060,17 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				edoDocumentsActions.IsNeedToResendEdoUpd = true;
-				edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
+
+				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkApiDocument>()
+					.Where(x => x.Order.Id == Id)
+					.OrderByDescending(x => x.CreationDate)
+					.FirstOrDefault();
+
+				if(orderLastTrueMarkDocument != null 
+					&& orderLastTrueMarkDocument.Type != TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
+				{
+					edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
+				}
 
 				uow.Save(edoDocumentsActions);
 				uow.Commit();
