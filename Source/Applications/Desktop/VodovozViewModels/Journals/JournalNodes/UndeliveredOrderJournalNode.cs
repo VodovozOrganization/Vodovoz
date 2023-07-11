@@ -108,6 +108,9 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public int NewOrderId { get; set; }
 		public DateTime? NewOrderDeliveryDate { get; set; }
 		public string NewOrderDeliverySchedule { get; set; }
+		public string UndeliveryObject { get; set; }
+		public string UndeliveryKind { get; set; }
+		public string UndeliveryDetalization { get; set; }
 	}
 }
 

@@ -133,6 +133,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
 			UndeliveredOrderResultComment undeliveredOrderResultCommentAlias = null;
 			Employee lastResultCommentAuthorAlias = null;
+			UndeliveryDetalization undeliveryDetalizationAlias = null;
+			UndeliveryKind undeliveryKindAlias = null;
+			UndeliveryObject undeliveryObjectAlias = null;
 
 			var subqueryDrivers = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
 				.Where(() => routeListItemAlias.Order.Id == oldOrderAlias.Id)
@@ -256,7 +259,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				.Left.JoinAlias(u => u.InProcessAtDepartment, () => inProcessAtSubdivisionAlias)
 				.Left.JoinAlias(u => u.Author.Subdivision, () => authorSubdivisionAlias)
 				.Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
-				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias);
+				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
+				.Left.JoinAlias(() => undeliveredOrderAlias.UndeliveryDetalization, () => undeliveryDetalizationAlias)
+				.Left.JoinAlias(() => undeliveryDetalizationAlias.UndeliveryKind, () => undeliveryKindAlias)
+				.Left.JoinAlias(() => undeliveryKindAlias.UndeliveryObject, () => undeliveryObjectAlias)
+				;
 
 			if(FilterViewModel?.RestrictDriver != null)
 			{
@@ -411,6 +418,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(() => editorAlias.Name).WithAlias(() => resultAlias.EditorFirstName)
 					.Select(() => editorAlias.Patronymic).WithAlias(() => resultAlias.EditorMiddleName)
 					.Select(() => undeliveredOrderAlias.Reason).WithAlias(() => resultAlias.Reason)
+					.Select(() => undeliveryDetalizationAlias.Name).WithAlias(() => resultAlias.UndeliveryDetalization)
+					.Select(() => undeliveryKindAlias.Name).WithAlias(() => resultAlias.UndeliveryKind)
+					.Select(() => undeliveryObjectAlias.Name).WithAlias(() => resultAlias.UndeliveryObject)
 					.Select(() => undeliveredOrderAlias.UndeliveryStatus).WithAlias(() => resultAlias.UndeliveryStatus)
 					.Select(() => undeliveredOrderAlias.OldOrderStatus).WithAlias(() => resultAlias.StatusOnOldOrderCancel)
 					.Select(() => oldOrderAlias.OrderStatus).WithAlias(() => resultAlias.OldOrderCurStatus)
