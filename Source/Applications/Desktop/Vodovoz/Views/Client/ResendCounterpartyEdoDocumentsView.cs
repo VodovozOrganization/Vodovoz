@@ -63,7 +63,10 @@ namespace Vodovoz.Views.Client
 
 		public override void Destroy()
 		{
-			ViewModel.EdoContainerNodesListChanged -= OnEdoContainerListChanged;
+			if(ViewModel != null)
+			{
+				ViewModel.EdoContainerNodesListChanged -= OnEdoContainerListChanged;
+			}
 			ytreeviewEdoDocuments?.Destroy();
 			base.Destroy();
 		}
