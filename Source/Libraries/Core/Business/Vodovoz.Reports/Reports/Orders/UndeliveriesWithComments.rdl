@@ -53,10 +53,10 @@
             <Width>18.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37pt</Width>
+            <Width>25.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>30.6pt</Width>
+            <Width>26.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>32.3pt</Width>
@@ -68,28 +68,37 @@
             <Width>89.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.2pt</Width>
+            <Width>37.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.1pt</Width>
+            <Width>31.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>211.1pt</Width>
           </TableColumn>
-          <TableColumn>
-            <Width>52.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>55.9pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>45.0pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>39.1pt</Width>
+          <TableColumn >
+            <Width>34.7pt</Width>
           </TableColumn>
           <TableColumn >
-            <Width>43.8pt</Width>
+            <Width>33.9pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>34.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>36.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>35.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>29.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>29.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>34.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -259,6 +268,60 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>Объект недовоза</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>Вид недовоза</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>Детализация недовоза</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
@@ -331,7 +394,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>Отработано ОКС</Value>
@@ -543,6 +606,69 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>={undelivery_object}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingRight>1pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>={undelivery_kind}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingRight>1pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>={undelivery_detalization}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingRight>1pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
@@ -620,7 +746,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
                       <Value>={last_result_author}</Value>
@@ -796,7 +922,10 @@
             un_ord_subqry.transfer_type,
             un_ord_subqry.problem_source,
             un_ord_subqry.reason,
-            un_ord_subqry.last_result_author
+            un_ord_subqry.last_result_author,
+            un_ord_subqry.undelivery_object,
+            un_ord_subqry.undelivery_kind,
+            un_ord_subqry.undelivery_detalization
             FROM
             #поля недовоза
             (
@@ -865,8 +994,10 @@
             WHERE uorc.undelivered_order_id = un.id
             ORDER BY uorc.creation_time  DESC 
             LIMIT 1
-            ) as last_result_author
-
+            ) as last_result_author,
+            uo.name as undelivery_object,
+            uk.name as undelivery_kind,
+            ud.name as undelivery_detalization
             FROM undelivered_orders un
             LEFT JOIN undelivery_problem_sources ups ON ups.id = un.undelivery_problem_source_id
             LEFT JOIN fines ON fines.undelivery_id = un.id
@@ -886,6 +1017,9 @@
             LEFT JOIN subdivisions dep ON dep.id = g.guilty_department_id
             LEFT JOIN route_list_addresses rla ON rla.order_id = oldo.id
             LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
+            LEFT JOIN undelivery_detalizations ud on ud.id = un.undelivery_detalization_id
+            LEFT JOIN undelivery_kinds uk on uk.id = ud.undelivery_kind_id
+            LEFT JOIN undelivery_objects uo on uo.id = uk.undelivery_object_id 
             WHERE
             oldo.delivery_date &gt;= @start_date AND oldo.delivery_date &lt;= @end_date
 	AND
@@ -1014,6 +1148,18 @@ ORDER BY order_by_column ASC
         </Field>
         <Field Name="last_result_author">
           <DataField>last_result_author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="undelivery_object">
+          <DataField>undelivery_object</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="undelivery_kind">
+          <DataField>undelivery_kind</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="undelivery_detalization">
+          <DataField>undelivery_detalization</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
