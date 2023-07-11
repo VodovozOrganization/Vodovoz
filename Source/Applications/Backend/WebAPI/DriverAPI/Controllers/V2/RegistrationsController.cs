@@ -50,7 +50,7 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт записи логов действий в БД
+		/// Регистрация действий произведенных в мобильном приложении водителей
 		/// </summary>
 		/// <param name="driverActionModels">Список действий из лога для регистрации</param>
 		/// <returns></returns>
@@ -61,7 +61,11 @@ namespace DriverAPI.Controllers.V2
 			await Task.CompletedTask;
 		}
 
-		// POST: RegisterRouteListAddressCoordinates
+		/// <summary>
+		/// Регистрация предположительных координат адреса
+		/// </summary>
+		/// <param name="routeListAddressCoordinate"></param>
+		/// <returns></returns>
 		[HttpPost]
 		[Route("RegisterRouteListAddressCoordinates")]
 		public async Task RegisterRouteListAddressCoordinateAsync([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
@@ -103,7 +107,7 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт регистрации координат трека
+		/// Регистрация координат трека
 		/// </summary>
 		/// <param name="registerTrackCoordinateRequestModel"></param>
 		/// <returns></returns>

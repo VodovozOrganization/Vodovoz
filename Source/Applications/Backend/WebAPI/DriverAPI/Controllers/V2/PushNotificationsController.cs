@@ -43,7 +43,7 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт включения PUSH уведомлений
+		/// Подписка на PUSH-уведомления
 		/// </summary>
 		/// <param name="enablePushNotificationsRequest"></param>
 		[HttpPost]
@@ -62,7 +62,7 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт отключения PUSH уведомлений
+		/// Отписка от PUSH-уведомлений
 		/// </summary>
 		[HttpPost]
 		[Route("DisablePushNotifications")]
@@ -80,9 +80,9 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт уведомления о смене формы оплаты в заказе
+		/// Уведомление о смене формы оплаты в заказе
 		/// </summary>
-		/// <param name="orderId">Id заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("NotifyOfSmsPaymentStatusChanged")]
@@ -92,6 +92,11 @@ namespace DriverAPI.Controllers.V2
 			await SendPaymentStatusChangedPushNotificationAsync(orderId);
 		}
 
+		/// <summary>
+		/// Уведомление о смене типа оплаты заказа
+		/// </summary>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns></returns>
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("NotifyOfFastPaymentStatusChanged")]
@@ -116,9 +121,9 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт уведомления о новом поступившем заказе с быстрой доставкой
+		/// Уведомления о новом поступившем заказе с доставкой за час
 		/// </summary>
-		/// <param name="orderId">Id заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("NotifyOfFastDeliveryOrderAdded")]

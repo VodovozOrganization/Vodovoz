@@ -50,11 +50,12 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт получения статуса оплаты заказа посредством QR-кода
+		/// Получение статуса оплаты заказа посредством QR-кода
 		/// </summary>
 		/// <param name="orderId">Идентификатор заказа</param>
 		/// <returns>OrderPaymentStatusResponseModel или null</returns>
 		[HttpGet]
+		[Produces("application/json")]
 		[Route("GetOrderQRPaymentStatus")]
 		public OrderQRPaymentStatusResponseDto GetOrderQRPaymentStatus(int orderId)
 		{
@@ -72,10 +73,11 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт получения QR-кода для оплаты заказа
+		/// Получение QR-кода для оплаты заказа
 		/// </summary>
 		/// <param name="payByQRRequestDTO"></param>
 		[HttpPost]
+		[Produces("application/json")]
 		[Route("PayByQR")]
 		public async Task<PayByQRResponseDTO> PayByQR(PayByQRRequestDTO payByQRRequestDTO)
 		{

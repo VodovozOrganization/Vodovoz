@@ -3,6 +3,7 @@ using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,6 +20,9 @@ using RouteListDto = DriverAPI.Library.Deprecated2.DTOs.RouteListDto;
 
 namespace DriverAPI.Controllers.V2
 {
+	/// <summary>
+	/// Контроллер маршрутных листов
+	/// </summary>
 	[ApiVersion("2.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -33,6 +37,17 @@ namespace DriverAPI.Controllers.V2
 		private readonly IActionTimeHelper _actionTimeHelper;
 		private readonly UserManager<IdentityUser> _userManager;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger">Логгер</param>
+		/// <param name="aPIRouteListData"></param>
+		/// <param name="aPIOrderData"></param>
+		/// <param name="employeeData"></param>
+		/// <param name="driverMobileAppActionRecordModel"></param>
+		/// <param name="actionTimeHelper">Хелпер-класс для времени</param>
+		/// <param name="userManager">Менеджер пользователей</param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public RouteListsController(
 			ILogger<RouteListsController> logger,
 			IRouteListModel aPIRouteListData,
@@ -52,12 +67,12 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт получения информации о маршрутных листах (МЛ) и его не зввершенных заказах
-		/// В ответе сервера будет JSON объект с полями соответствующими GetRouteListsDetailsResponseModel и статусом 200
+		/// Получения детализированнной информации о маршрутных листах и связанных заказах
 		/// </summary>
-		/// <param name="routeListsIds">Список идентификаторов МЛ</param>
+		/// <param name="routeListsIds">Список номеров маршрутных листов</param>
 		/// <returns>GetRouteListsDetailsResponseModel</returns>
 		[HttpPost]
+		[Produces("application/json")]
 		[Route("GetRouteListsDetails")]
 		public GetRouteListsDetailsResponseDto Get([FromBody] int[] routeListsIds)
 		{
@@ -87,14 +102,15 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт получения информации о маршрутном листе (МЛ)
-		/// В ответе сервера будет JSON объект с полями соответствующими APIRouteList и статусом 200
-		/// Или пустой ответ с кодом 204
+		/// Получения информации о маршрутном листе
 		/// </summary>
-		/// <param name="routeListId">Идентификатор МЛ</param>
-		/// <returns>APIRouteList или null</returns>
+		/// <param name="routeListId">Номер маршрутного листа</param>
+		/// <returns><see cref="RouteListDto"/></returns>
 		[HttpGet]
+		[Produces("application/json")]
 		[Route("GetRouteList")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public RouteListDto Get(int routeListId)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
@@ -107,10 +123,11 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт получения МЛ текущего водителя
+		/// Получение номеров маршрутных листов текущего водителя
 		/// </summary>
-		/// <returns>IEnumerable<int> - список идентификаторов МЛ</returns>
+		/// <returns><see cref="IEnumerable&lt;int&gt;"/>Cписок номеров маршрутных листов водителя</returns>
 		[HttpGet]
+		[Produces("application/json")]
 		[Route("GetRouteListsIds")]
 		public async Task<IEnumerable<int>> GetIds()
 		{
@@ -125,12 +142,12 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт возвращения адреса МЛ в Путь
+		/// Возвращения адреса маршрутного листа в статус В пути
 		/// </summary>
-		/// <param name="routelistAddressId">идентификатор адреса МЛ</param>
 		/// <returns></returns>
 		[HttpPost]
 		[Route("RollbackRouteListAddressStatusEnRoute")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task RollbackRouteListAddressStatusEnRouteAsync([FromBody] RollbackRouteListAddressStatusEnRouteRequestDto requestDto)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
