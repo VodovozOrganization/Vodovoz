@@ -4044,7 +4044,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(OrderPaymentStatus == OrderPaymentStatus.Paid)
 			{
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заказ уже оплачен. Повторная отправка УПД недоступна");
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Заказ №{Id} уже оплачен. Повторная отправка УПД недоступна");
 				return;
 			}
 
