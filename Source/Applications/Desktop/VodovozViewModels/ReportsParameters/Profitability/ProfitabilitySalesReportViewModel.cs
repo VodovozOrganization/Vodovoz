@@ -69,8 +69,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
 				&& !_commonServices.UserService.GetCurrentUser(_uow).IsAdmin;
 
-			StartDate = DateTime.Now;
-			EndDate = DateTime.Now;
+			StartDate = DateTime.Today;
+			EndDate = DateTime.Today;
 
 			SetupFilter();
 

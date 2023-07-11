@@ -583,6 +583,7 @@ namespace Vodovoz
 				.AddDeleteDependence<Track>(x => x.RouteList)
 				.AddDeleteDependence<FuelDocument>(x => x.RouteList)
 				.AddDeleteDependence<RouteListFastDeliveryMaxDistance>(x => x.RouteList)
+				.AddDeleteDependence<RouteListDebt>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
 				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation)
 				.AddDeleteCascadeDependence(x => x.DriverWageOperation)
@@ -603,6 +604,7 @@ namespace Vodovoz
 						.AddRemoveFromDependence<RouteList>(x => x.Addresses);
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
+			DeleteConfig.AddHibernateDeleteInfo<RouteListDebt>();
 
 			DeleteConfig.AddHibernateDeleteInfo<GeoGroup>()
 						.AddDeleteDependence<AtWorkDriver>(x => x.GeographicGroup)
@@ -1001,26 +1003,12 @@ namespace Vodovoz
 				.AddDeleteDependence<CashOrganisationDistributionDocument>(x => x.Expense)
 				.AddDeleteCascadeDependence(x => x.WagesOperation);
 
-			DeleteConfig.AddDeleteInfo(
-				new DeleteInfo {
-					ObjectClass = typeof(AdvanceReport),
-					SqlSelect = "SELECT id, date FROM @tablename ",
-					DisplayString = "Авансовый отчет №{0} от {1:d}",
-					DeleteItems = new List<DeleteDependenceInfo> {
-						DeleteDependenceInfo.Create<AdvanceClosing> (item => item.AdvanceReport), //FIXME Запустить перерасчет калки закрытия.
-						DeleteDependenceInfo.Create<AdvanceIncomeCashDistributionDocument> (item => item.AdvanceReport),
-						DeleteDependenceInfo.Create<AdvanceExpenseCashDistributionDocument> (item => item.AdvanceReport)
-					}
-				}.FillFromMetaInfo()
-			);
+			DeleteConfig.AddHibernateDeleteInfo<AdvanceReport>()
+				.AddDeleteDependence<AdvanceClosing>(x => x.AdvanceReport)
+				.AddDeleteDependence<AdvanceIncomeCashDistributionDocument>(x => x.AdvanceReport)
+				.AddDeleteDependence<AdvanceExpenseCashDistributionDocument>(x => x.AdvanceReport);
 
-			DeleteConfig.AddDeleteInfo(
-				new DeleteInfo {
-					ObjectClass = typeof(AdvanceClosing),
-					SqlSelect = "SELECT id FROM @tablename ",
-					DisplayString = "Строка закрытия аванса №{0} на сумму #FIXME",
-				}.FillFromMetaInfo()
-			);
+			DeleteConfig.AddHibernateDeleteInfo<AdvanceClosing>();
 
 			DeleteConfig.AddDeleteInfo(
 				new DeleteInfo {

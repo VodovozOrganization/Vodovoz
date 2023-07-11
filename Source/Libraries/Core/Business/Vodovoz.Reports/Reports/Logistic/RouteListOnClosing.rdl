@@ -11,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="RouteLists">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
      route_lists.id AS routeListId,
@@ -32,8 +32,14 @@
              FROM cash_income
              WHERE cash_income.route_list_id = route_lists.id),
          0) as income_money,
+     IFNULL(
+         (
+             SELECT SUM(money)
+             FROM cash_expense
+             WHERE cash_expense.route_list_id = route_lists.id),
+         0) as expense_money,
      IFNULL((SELECT
-                     SUM(total_cash) - income_money - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected))
+                     SUM(total_cash) + expense_money - income_money - ABS(SUM(deposits_collected)) - ABS(SUM(equipment_deposits_collected))
              FROM
                  route_list_addresses
              WHERE
@@ -126,7 +132,7 @@
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="routeListId">
           <DataField>routeListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -221,7 +227,7 @@
         </TableColumns>
         <Header>
           <TableRows>
-            <TableRow >
+            <TableRow>
               <Height>42.5pt</Height>
               <TableCells>
                 <TableCell>
@@ -232,15 +238,15 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >15pt</FontSize>
+                        <FontSize>15pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>

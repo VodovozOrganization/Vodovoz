@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>296mm</PageHeight>
   <PageWidth>209mm</PageWidth>
   <Width>7.5in</Width>
@@ -35,8 +33,7 @@
           <VerticalAlign>Middle</VerticalAlign>
           <FontWeight>Bold</FontWeight>
         </Style>
-        <Visibility>
-        </Visibility>
+        <Visibility></Visibility>
       </Textbox>
       <Table Name="TableProfitability">
         <DataSetName>Sales</DataSetName>
@@ -299,8 +296,7 @@ Iif(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format>
-                        </Format>
+                        <Format></Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -427,8 +423,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -443,8 +438,7 @@ Iif(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format>
-                        </Format>
+                        <Format></Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -452,8 +446,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -476,8 +469,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -500,8 +492,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -524,8 +515,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -548,8 +538,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -572,8 +561,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -601,8 +589,7 @@ Iif(
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -613,8 +600,7 @@ Iif(
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <Format>
-                        </Format>
+                        <Format></Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -891,8 +877,7 @@ Iif(
                           <Default>Solid</Default>
                         </BorderStyle>
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1334,8 +1319,9 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
     c.name AS counterparty,
     dp.compiled_address_short AS delivery_point,
@@ -1384,7 +1370,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
 		AND (nidp.end_date IS NULL OR nidp.end_date &gt; o.delivery_date)
     ) AS inner_delivery_price_source,
     (SELECT IF(w.type_of_use = 'Production', 0, IFNULL(inner_delivery_price_source, '-'))) AS inner_delivery_price,
-    (SELECT inner_delivery_price_source IS NULL) AS missing_inner_delivery_price,
+    (SELECT inner_delivery_price_source IS NULL AND n.using_in_group_price_set) AS missing_inner_delivery_price,
     #затраты на адресную доставку на килограмм
     (
 		SELECT
@@ -1726,7 +1712,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="counterparty">
           <DataField>counterparty</DataField>
           <TypeName>System.String</TypeName>
@@ -1890,9 +1876,9 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>30</Timeout>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
 	CONCAT(
 		(IF(included_noms!=0,
@@ -2179,7 +2165,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -2191,262 +2177,230 @@ FROM
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_type_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_type_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="counterparty_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="counterparty_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organization_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organization_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="discount_reason_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="discount_reason_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_author_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_author_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="subdivision_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="subdivision_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="geographic_group_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="geographic_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="payment_type_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="payment_type_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="promotional_set_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="promotional_set_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="creation_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="product_group_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="product_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="group1">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="group2">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="group3">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="groups_count">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_status_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_status_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1929,6 +1929,8 @@
     <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialExpenseCategoryView.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialIncomeCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialIncomeCategoryView.cs" />
+    <Compile Include="Views\Logistic\CargoDailyNormView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CargoDailyNormView.cs" />
     <Compile Include="Views\Orders\UndeliveryObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryObjectView.cs" />
     <Compile Include="Views\Orders\UndeliveryKindView.cs" />
