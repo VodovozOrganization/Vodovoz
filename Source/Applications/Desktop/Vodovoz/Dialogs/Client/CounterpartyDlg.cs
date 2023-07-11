@@ -1237,13 +1237,13 @@ namespace Vodovoz
 
 			UpdateEdoContainers();
 			treeViewEdoDocumentsContainer.ItemsDataSource = _edoContainers;
+			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
 			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnButtonEdoDocumentsSendAllUnsentClicked;
 			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoContainers();
 		}
 
 		private void OnButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
 		{
-			_orderRepository.GetCashlessOrdersForEdoSend(UoW, DateTime.Today.AddMonths(-1), 1);
 			if(Entity.Id > 0)
 			{
 				var resendEdoDocumentsDialog = new ResendCounterpartyEdoDocumentsViewModel(
