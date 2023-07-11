@@ -28,6 +28,9 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using Vodovoz.Journals.JournalNodes;
+using QS.Project.Services.FileDialog;
+using Vodovoz.ViewModels.ViewModels.Reports.UndeliveryJournalReport;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
@@ -42,13 +45,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IEmployeeSettings _employeeSettings;
+		private readonly IFileDialogService _fileDialogService;
 		private Employee _currentEmployee;
 
 		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
 			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository, IEmployeeSettings employeeSettings,
-			ISubdivisionParametersProvider subdivisionParametersProvider)
+			ISubdivisionParametersProvider subdivisionParametersProvider, IFileDialogService fileDialogService)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
@@ -59,6 +63,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			_canCloseUndeliveries = commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries");
@@ -418,6 +423,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(() => editorAlias.Name).WithAlias(() => resultAlias.EditorFirstName)
 					.Select(() => editorAlias.Patronymic).WithAlias(() => resultAlias.EditorMiddleName)
 					.Select(() => undeliveredOrderAlias.Reason).WithAlias(() => resultAlias.Reason)
+					.Select(() => undeliveredOrderAlias.OrderTransferType).WithAlias(() => resultAlias.OrderTransferType)
 					.Select(() => undeliveryDetalizationAlias.Name).WithAlias(() => resultAlias.UndeliveryDetalization)
 					.Select(() => undeliveryKindAlias.Name).WithAlias(() => resultAlias.UndeliveryKind)
 					.Select(() => undeliveryObjectAlias.Name).WithAlias(() => resultAlias.UndeliveryObject)
@@ -498,6 +504,28 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			}
 
 			NodeActionsList.Add(editAction);
+		}
+
+		private void CreateUndeliveredOrderClassificationSummaryAction()
+		{
+			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов", x => true, x => true,
+				selectedItems =>
+				{
+					var nodes = GetUndeliveredOrdersQuery(UoW).List<UndeliveredOrderJournalNode>();
+					var report = new UndeliveredOrdersClassificationSummaryReport(nodes, FilterViewModel, _fileDialogService, false);
+					report.Export();
+				}));
+		}
+
+		private void CreateUndeliveredOrderWithTransfersClassificationSummaryAction()
+		{
+			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов с переносами", x => true, x => true,
+				selectedItems =>
+				{
+					var nodes = GetUndeliveredOrdersQuery(UoW).List<UndeliveredOrderJournalNode>();
+					var report = new UndeliveredOrdersClassificationSummaryReport(nodes, FilterViewModel, _fileDialogService, true);
+					report.Export();
+				}));
 		}
 
 		protected void BeforeItemsUpdated(IList items, uint start)
@@ -622,6 +650,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			CreateCustomAddActions();
 			CreateCustomEditAction();
 			CreatePrintAction();
+			CreateUndeliveredOrderClassificationSummaryAction();
+			CreateUndeliveredOrderWithTransfersClassificationSummaryAction();
 		}
 
 		private void CreatePrintAction()

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Linq;
 using NHibernate;
@@ -1097,7 +1097,8 @@ namespace Vodovoz.JournalViewModels
 							_orderSelectorFactory,
 							_undeliveredOrdersRepository,
 							new EmployeeSettings(new ParametersProvider()),
-							_subdivisionParametersProvider
+							_subdivisionParametersProvider,
+							_fileDialogService
 						);
 
 						TabParent.AddTab(dlg, this, false);

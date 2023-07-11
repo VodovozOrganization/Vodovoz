@@ -23,6 +23,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
+using QS.Project.Services.FileDialog;
 using Vodovoz.Controllers;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
@@ -59,6 +60,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public RetailOrderJournalViewModel(
@@ -80,9 +82,11 @@ namespace Vodovoz.JournalViewModels
 			IOrderDiscountsController discountsController,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
-			IRDLPreviewOpener rdlPreviewOpener) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IRDLPreviewOpener rdlPreviewOpener,
+			IFileDialogService fileDialogService) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -945,8 +949,9 @@ namespace Vodovoz.JournalViewModels
 							_orderSelectorFactory,
 							_undeliveredOrdersRepository,
 							new EmployeeSettings(new ParametersProvider()),
-							_subdivisionParametersProvider
-							);
+							_subdivisionParametersProvider,
+							_fileDialogService
+						);
 
 						MainClass.MainWin.TdiMain.AddTab(dlg);
 					}
