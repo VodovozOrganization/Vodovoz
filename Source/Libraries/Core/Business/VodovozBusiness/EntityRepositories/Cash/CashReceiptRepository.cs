@@ -65,6 +65,7 @@ namespace Vodovoz.EntityRepositories.Cash
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromMobileAppId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSiteId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromSmsYuKassaId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromKulerSaleId)
 						)
 					);
 			return restriction;

@@ -3400,6 +3400,7 @@ namespace Vodovoz.Domain.Orders
 				case PaymentType.Cashless:
 				case PaymentType.PaidOnline:
 				case PaymentType.Terminal:
+				case PaymentType.SmsQR:
 					ChangeStatusAndCreateTasks(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
 					break;
 				case PaymentType.Barter:

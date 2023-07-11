@@ -176,8 +176,9 @@ namespace Vodovoz.Views.Contacts
 		/// </summary>
 		public void RemoveEmpty()
 		{
-			Emails.Where(p => String.IsNullOrWhiteSpace(p.Address))
-				.ToList().ForEach(p => Emails.Remove(p));
+			Emails.Where(p => string.IsNullOrWhiteSpace(p.Address))
+				.ToList()
+				.ForEach(p => Emails.Remove(p));
 		}
 	}
 }

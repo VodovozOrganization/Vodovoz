@@ -18,7 +18,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.Name)
 					.XAlign(0.5f)
-				.AddColumn("Организация\nдля платежей Авангарда")
+				.AddColumn("Организация\nдля онлайн платежей")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.OrganizationName)
 					.XAlign(0.5f)

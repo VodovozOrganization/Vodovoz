@@ -1473,14 +1473,15 @@ namespace Vodovoz
 
 				Entity.UoW = UoW;
 
+				_phonesViewModel.RemoveEmpty();
+				emailsView.RemoveEmpty();
+
 				if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 				{
 					return false;
 				}
 
 				_logger.Info("Сохраняем контрагента...");
-				_phonesViewModel.RemoveEmpty();
-				emailsView.RemoveEmpty();
 				UoWGeneric.Save();
 				_logger.Info("Ok.");
 				return true;
