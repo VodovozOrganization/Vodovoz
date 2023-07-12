@@ -861,6 +861,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			CounterpartyContract counterpartyContractAlias = null;
 			VodovozOrder orderAlias = null;
 			EdoContainer edoContainerAlias = null;
+			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
@@ -868,7 +869,9 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
-				() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin);
+				() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
+				() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
 
 			if(startDate.HasValue)
 			{
@@ -878,7 +881,10 @@ namespace Vodovoz.EntityRepositories.Orders
 			var result = query.Where(() => counterpartyAlias.PersonType == PersonType.legal)
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
-				.And(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
+				.And(Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
+					.Add(Restrictions.Eq(Projections.Property(() => orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoUpd), true))
+				)
 				.And(Restrictions.Disjunction()
 					.Add(() => (counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
 								|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
@@ -886,7 +892,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 						&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
-				.TransformUsing(Transformers.RootEntity)
+				.TransformUsing(Transformers.DistinctRootEntity)
 				.List();
 
 			return result;
@@ -1064,6 +1070,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			TrueMarkApiDocument trueMarkApiDocumentAlias = null;
+			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
@@ -1082,6 +1089,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			var correctSubquery = QueryOver.Of(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
+				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
+					() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin)
 				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
@@ -1104,6 +1113,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
 				.Where(() => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id)
 				.Where(() => orderAlias.DeliveryDate > startDate)
+				.Where(() => orderEdoTrueMarkDocumentsActionsAlias.IsNeedToCancelTrueMarkDocument == null || !orderEdoTrueMarkDocumentsActionsAlias.IsNeedToCancelTrueMarkDocument)
 				.Select(o => o.Id);
 
 			var result = uow.Session.QueryOver(() => trueMarkApiDocumentAlias)

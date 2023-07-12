@@ -1928,6 +1928,8 @@
     <Compile Include="gtk-gui\Vodovoz.Cash.FinancialCategoriesGroups.FinancialIncomeCategoryView.cs" />
     <Compile Include="Views\Logistic\CargoDailyNormView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CargoDailyNormView.cs" />
+    <Compile Include="Views\Client\ResendCounterpartyEdoDocumentsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.ResendCounterpartyEdoDocumentsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
