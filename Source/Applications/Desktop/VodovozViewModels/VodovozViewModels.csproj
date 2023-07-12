@@ -681,6 +681,7 @@
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixColumn.cs" />
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixRow.cs" />
     <Compile Include="Widgets\EdoLightsMatrix\EdoLightsMatrixPaymentType.cs" />
+    <Compile Include="Widgets\FastDeliveryTransferViewModel.cs" />
     <Compile Include="Widgets\OrganizationVersionsViewModel.cs" />
     <Compile Include="Widgets\FastDeliveryVerificationViewModel.cs" />
     <Compile Include="ViewModels\Settings\RoboatsSettingsViewModel.cs" />
