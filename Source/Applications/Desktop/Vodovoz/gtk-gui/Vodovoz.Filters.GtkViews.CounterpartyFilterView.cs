@@ -329,6 +329,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.vboxMain.Add(this.filterScrolledWindow);
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.filterScrolledWindow]));
 			w28.Position = 0;
+			w28.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
