@@ -1,19 +1,19 @@
-﻿using System;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Services;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Retail;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using QS.Project.Journal;
-using Vodovoz.Domain.Retail;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
-using QS.Project.Domain;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -224,6 +224,11 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
 			}
 
+			if(FilterViewModel.IsNeedToSendBillByEdo)
+			{
+				query.Where(c => c.NeedSendBillByEdo);
+			}
+
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
 				.Left.JoinAlias(c => c.Counterparty, () => counterpartyAliasForSubquery)
 				.Where(() => counterpartyAlias.Id == counterpartyAliasForSubquery.Id)
@@ -375,6 +380,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel?.ReasonForLeaving != null)
 			{
 				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
+			}
+
+			if(FilterViewModel.IsNeedToSendBillByEdo)
+			{
+				query.Where(c => c.NeedSendBillByEdo);
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)

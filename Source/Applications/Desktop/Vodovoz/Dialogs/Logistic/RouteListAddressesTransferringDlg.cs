@@ -44,6 +44,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Cash;
 
 namespace Vodovoz
 {
@@ -60,7 +61,7 @@ namespace Vodovoz
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
-		private readonly ICategoryRepository _categoryRepository;
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly IEmployeeRepository _employeeRepository;
 
@@ -89,7 +90,7 @@ namespace Vodovoz
 			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			ICategoryRepository categoryRepository,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IEmployeeRepository employeeRepository,
 			INomenclatureParametersProvider nomenclatureParametersProvider
 			)
@@ -103,7 +104,7 @@ namespace Vodovoz
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 
@@ -120,7 +121,7 @@ namespace Vodovoz
 			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			ICategoryRepository categoryRepository,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IEmployeeRepository employeeRepository,
 			INomenclatureParametersProvider nomenclatureParametersProvider
 			)
@@ -131,7 +132,7 @@ namespace Vodovoz
 				routeListItemRepository,
 				employeeService,
 				commonServices,
-				categoryRepository,
+				financialCategoriesGroupsSettings,
 				employeeRepository,
 				nomenclatureParametersProvider)
 		{
@@ -581,12 +582,12 @@ namespace Vodovoz
 
 			if(routeListFrom.Status == RouteListStatus.Closed)
 			{
-				messages.AddRange(routeListFrom.UpdateMovementOperations(_categoryRepository));
+				messages.AddRange(routeListFrom.UpdateMovementOperations(_financialCategoriesGroupsSettings));
 			}
 
 			if(routeListTo.Status == RouteListStatus.Closed)
 			{
-				messages.AddRange(routeListTo.UpdateMovementOperations(_categoryRepository));
+				messages.AddRange(routeListTo.UpdateMovementOperations(_financialCategoriesGroupsSettings));
 			}
 
 			UoW.Save(routeListTo);

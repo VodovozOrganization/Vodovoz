@@ -92,7 +92,8 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IRDLPreviewOpener rdlPreviewOpener,
-			IRouteListItemRepository routeListItemRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IRouteListItemRepository routeListItemRepository,
+			Action<OrderJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -146,6 +147,11 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderWithoutShipmentForAdvancePaymentItem),
 				typeof(OrderItem)
 			);
+
+			if(filterConfiguration != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfiguration);
+			}
 		}
 
 		protected override void CreateNodeActions()

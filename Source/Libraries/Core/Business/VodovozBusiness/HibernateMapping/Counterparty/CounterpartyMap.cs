@@ -82,6 +82,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.FirstName).Column("first_name");
 			Map(x => x.Patronymic).Column("patronymic");
 			Map(x => x.NeedSendBillByEdo).Column("need_send_bill_by_edo");
+			Map(x => x.DefaultExpenseCategoryId).Column("default_financial_expense_category_id");
 
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
@@ -90,7 +91,6 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.BottlesManager).Column("bottles_manager_id");
 			References(x => x.MainContact).Column("main_contact_id");
 			References(x => x.FinancialContact).Column("financial_contact_id");
-			References(x => x.DefaultExpenseCategory).Column("default_cash_expense_category_id");
 			References(x => x.CameFrom).Column("counterparty_camefrom_id");
 			References(x => x.FirstOrder).Column("first_order_id");
 			References(x => x.CloseDeliveryPerson).Column("close_delivery_employee_id");

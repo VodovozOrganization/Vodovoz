@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -2216,7 +2216,7 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	cash_expense.date AS uaDate,
-	cash_expense_category.name AS uaName,
+	financial_categories_groups.title AS uaName,
 	cash_expense.money AS uaCash,
 	cash_advance_closing.money AS uaClosedCash,
 	IFNULL(cash_expense.money, 0) - IFNULL(cash_advance_closing.money, 0) AS uaCashUnclosed,
@@ -2224,7 +2224,7 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
 FROM
 	cash_expense
 LEFT JOIN
-	cash_expense_category ON cash_expense.cash_expense_category_id = cash_expense_category.id
+	financial_categories_groups ON cash_expense.financial_expense_category_id = financial_categories_groups.id
 LEFT JOIN
 	cash_advance_closing ON cash_expense.id = cash_advance_closing.expense_id
 WHERE

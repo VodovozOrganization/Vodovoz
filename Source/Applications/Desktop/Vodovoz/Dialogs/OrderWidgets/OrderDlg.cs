@@ -73,6 +73,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Errors;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
@@ -84,13 +85,13 @@ using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
-using Vodovoz.Settings.Database;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Validation;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
@@ -128,6 +129,8 @@ namespace Vodovoz
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+
+		private readonly IFastDeliveryValidator _fastDeliveryValidator = new FastDeliveryValidator();
 
 		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
 			new DeliveryRulesParametersProvider(_parametersProvider);
@@ -207,6 +210,7 @@ namespace Vodovoz
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
+		private EdoContainer _selectedEdoContainer;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -982,7 +986,15 @@ namespace Vodovoz
 
 			UpdateAvailableEnumSignatureTypes();
 
-			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) => UpdateEdoContainers();
+			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
+			{
+				UpdateEdoContainers();
+				CustomizeSendDocumentAgainButton();
+			};
+
+			ybuttonSendDocumentAgain.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			ybuttonSendDocumentAgain.Clicked += OnButtonSendDocumentAgainClicked;
+			CustomizeSendDocumentAgainButton();
 
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
@@ -990,6 +1002,98 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+		}
+
+		private List<EdoContainer> GetOutgoingUpdDocuments()
+		{
+			var orderUpdDocuments = new List<EdoContainer>();
+
+			if(Entity.Id == 0)
+			{
+				return orderUpdDocuments;
+			}
+
+			orderUpdDocuments = _edoContainers
+				.Where(c =>
+					!c.IsIncoming
+					&& c.Type == Type.Upd)
+				.ToList();
+
+			return orderUpdDocuments;
+		}
+
+		private bool IsOrderHasUpdStatus(EdoDocFlowStatus status)
+		{
+			var orderUpdDocuments = GetOutgoingUpdDocuments();
+
+			var orderUpdSentSuccessfully = orderUpdDocuments
+				.Any(c =>
+					c.Type == Type.Upd
+					&& !c.IsIncoming
+					&& c.EdoDocFlowStatus == status);
+
+			return orderUpdSentSuccessfully;
+		}
+
+		private void CustomizeSendDocumentAgainButton()
+		{
+			var orderHasUpdDocuments = GetOutgoingUpdDocuments().Count > 0;
+
+			if(Entity.Id == 0 || !orderHasUpdDocuments)
+			{
+				ybuttonSendDocumentAgain.Sensitive = false;
+				ybuttonSendDocumentAgain.Label = "Отправить повторно";
+				return;
+			}
+
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var resendUpdAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == Entity.Id)
+						.FirstOrDefault();
+
+				if(resendUpdAction != null && resendUpdAction.IsNeedToResendEdoUpd)
+				{
+					ybuttonSendDocumentAgain.Sensitive = false;
+					ybuttonSendDocumentAgain.Label = "Идет подготовка УПД";
+					return;
+				}
+			}
+
+			ybuttonSendDocumentAgain.Sensitive = orderHasUpdDocuments;
+			ybuttonSendDocumentAgain.Label = "Отправить повторно";
+		}
+
+		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		{
+			if(Entity.OrderPaymentStatus == OrderPaymentStatus.Paid)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заказ уже оплачен. Повторная отправка УПД недоступна");
+				return;
+			}
+
+			if(IsOrderHasUpdStatus(EdoDocFlowStatus.Succeed))
+			{
+				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"Документооборот завершен успешно\".\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+			else if(IsOrderHasUpdStatus(EdoDocFlowStatus.InProgress))
+			{
+				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"В процессе\".\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+			
+			ResendUpd();
+			CustomizeSendDocumentAgainButton();
+		}
+
+		private void ResendUpd()
+		{
+			Entity.SetNeedToRecendEdoUpd();
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
@@ -1193,8 +1297,11 @@ namespace Vodovoz
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
 		{
-			if(!ValidateFastDeliveryOrder())
+			var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity);
+
+			if(fastDeliveryValidationResult.IsFailure)
 			{
+				ShowErrorsWindow(fastDeliveryValidationResult.Errors);
 				return;
 			}
 
@@ -1214,63 +1321,6 @@ namespace Vodovoz
 			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
 			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
 				null, fastDeliveryVerificationViewModel);
-		}
-
-		private bool ValidateFastDeliveryOrder()
-		{
-			if(!Entity.DeliveryDate.HasValue || Entity.DeliveryDate.Value.Date != DateTime.Now.Date)
-			{
-				MessageDialogHelper.RunWarningDialog("Доставка за час возможна только на текущую дату");
-				return false;
-			}
-
-			if(!Order.PaymentTypesFastDeliveryAvailableFor.Contains(Entity.PaymentType))
-			{
-				MessageDialogHelper.RunWarningDialog(
-					$"Нельзя выбрать доставку за час для заказа с формой оплаты '{Entity.PaymentType.GetEnumTitle()}'");
-				return false;
-			}
-
-			if(Entity.DeliveryPoint == null)
-			{
-				MessageDialogHelper.RunWarningDialog("Перед выбором доставки за час необходимо выбрать точку доставки");
-				return false;
-			}
-
-			if(Entity.DeliveryPoint.Longitude == null || Entity.DeliveryPoint.Latitude == null)
-			{
-				MessageDialogHelper.RunWarningDialog("Для выбора доставки за час необходимо корректно заполнить координаты точки доставки");
-				return false;
-			}
-
-			var district = Entity.DeliveryPoint.District;
-
-			if(district == null)
-			{
-				MessageDialogHelper.RunWarningDialog("Для точки доставки не указан район");
-				return false;
-			}
-
-			if(district.TariffZone == null)
-			{
-				MessageDialogHelper.RunWarningDialog("Для района точки доставки не указана тарифная зона");
-				return false;
-			}
-
-			if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
-			{
-				MessageDialogHelper.RunWarningDialog(
-					$"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в {district.TariffZone.FastDeliveryTimeFrom:hh\\:mm}");
-				return false;
-			}
-
-			if(Entity.Total19LBottlesToDeliver == 0)
-			{
-				MessageDialogHelper.RunWarningDialog("В заказе с доставкой за час обязательно должна быть 19л вода");
-				return false;
-			}
-
-			return true;
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
@@ -1657,6 +1707,7 @@ namespace Vodovoz
 			if(Entity.Id != 0)
 			{
 				UpdateEdoContainers();
+				CustomizeSendDocumentAgainButton();
 			}
 
 			treeViewEdoContainers.ItemsDataSource = _edoContainers;
@@ -1722,9 +1773,12 @@ namespace Vodovoz
 		{
 			_edoContainers.Clear();
 
-			foreach(var item in _orderRepository.GetEdoContainersByOrderId(UoW, Entity.Id))
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				_edoContainers.Add(item);
+				foreach(var item in _orderRepository.GetEdoContainersByOrderId(uow, Entity.Id))
+				{
+					_edoContainers.Add(item);
+				}
 			}
 		}
 
@@ -1929,23 +1983,30 @@ namespace Vodovoz
 			UpdateUIState();
 		}
 
-		private bool AcceptOrder()
+		private Result AcceptOrder()
 		{
 			if(!Entity.CanSetOrderAsAccepted)
 			{
-				return false;
+				return Result.Failure(Errors.Orders.Order.CantEdit);
 			}
 
 			var canContinue = Entity.DefaultWaterCheck(ServicesConfig.InteractiveService);
 			if(canContinue.HasValue && !canContinue.Value)
 			{
 				toggleGoods.Activate();
-				return false;
+				return Result.Failure(Errors.Orders.Order.Accept.HasNoDefaultWater);
 			}
 
-			if(!ValidateAndFormOrder() || !CheckCertificates(canSaveFromHere: true))
+			var validationResult = ValidateAndFormOrder();
+
+			if(validationResult.IsFailure)
 			{
-				return false;
+				return Result.Failure(validationResult.Errors);
+			}
+
+			if(!CheckCertificates(canSaveFromHere: true))
+			{
+				return Result.Failure(Errors.Orders.Order.HasNoValidCertificates);
 			}
 
 			PromosetDuplicateFinder promosetDuplicateFinder = new PromosetDuplicateFinder(new CastomInteractiveService());
@@ -1962,17 +2023,14 @@ namespace Vodovoz
 			{
 				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones))
 				{
-					return false;
+					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
 			}
 			if(hasPromoInOrders
 				&& !canBeReorderedWithoutRestriction
 				&& Entity.CanUsedPromo(_promotionalSetRepository))
 			{
-				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.\n" +
-								 "Пожалуйста удалите промо набор или поменяйте адрес доставки.";
-				MessageDialogHelper.RunWarningDialog(message);
-				return false;
+				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
 			}
 
 			PrepareSendBillInformation();
@@ -1982,16 +2040,18 @@ namespace Vodovoz
 			   && (!Counterparty.NeedSendBillByEdo || Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
-				return false;
+				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 			}
 
 			RouteList routeListToAddFastDeliveryOrder = null;
 
 			if(Entity.IsFastDelivery)
 			{
-				if(!ValidateFastDeliveryOrder())
+				var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity);
+
+				if(fastDeliveryValidationResult.IsFailure)
 				{
-					return false;
+					return Result.Failure(fastDeliveryValidationResult.Errors);
 				}
 				
 				var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
@@ -2017,7 +2077,7 @@ namespace Vodovoz
 					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
 						null, UoW, fastDeliveryVerificationViewModel);
 
-					return false;
+					return Result.Failure(Errors.Orders.Order.FastDelivery.RouteListForFastDeliveryIsMissing);
 				}
 			}
 
@@ -2040,10 +2100,15 @@ namespace Vodovoz
 				if(ServicesConfig.InteractiveService.Question($"Данному контрагенту запрещено отгружать товары по выбранному типу оплаты\n" +
 															  $"Оставить черновик заказа в статусе \"Новый\"?"))
 				{
-					return Save();
+					if(Save())
+					{
+						return Result.Success();
+					}
+
+					return Result.Failure(Errors.Orders.Order.Save);
 				}
 
-				return false;
+				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 			}
 
 			if(Entity.PaymentType == PaymentType.Cashless)
@@ -2054,9 +2119,8 @@ namespace Vodovoz
 				   && !ServicesConfig.InteractiveService.Question(
 					   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
 				{
-					return false;
+					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
-
 			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
@@ -2080,7 +2144,7 @@ namespace Vodovoz
 			{
 				if(!Save())
 				{
-					return false;
+					return Result.Failure(Errors.Orders.Order.Save);
 				}
 			}
 			finally
@@ -2103,7 +2167,7 @@ namespace Vodovoz
 			ProcessSmsNotification();
 			UpdateUIState();
 
-			return true;
+			return Result.Success();
 		}
 
 		private void NotifyDriver()
@@ -2135,21 +2199,37 @@ namespace Vodovoz
 			}
 		}
 
-		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e)
-		{
-			if(AcceptOrder() && !NeedToCreateOrderForDailyRentEquipmentReturn)
-			{
-				OnCloseTab(false, CloseSource.Save);
-			}
-		}
+		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e) =>
+			AcceptOrder()
+				.Match(
+					() =>
+					{
+						if(!NeedToCreateOrderForDailyRentEquipmentReturn)
+						{
+							OnCloseTab(false, CloseSource.Save);
+						}
+					},
+					ShowErrorsWindow);
 
-		private void OnButtonAcceptAndReturnToOrderClicked(object sender, EventArgs e)
+		private void OnButtonAcceptAndReturnToOrderClicked(object sender, EventArgs e) =>
+			AcceptOrder()
+				.Match(
+					ReturnToEditTab,
+					ShowErrorsWindow);
+
+		private void ShowErrorsWindow(IEnumerable<Error> errors)
 		{
-			if(!AcceptOrder())
+			if(errors.All(x => x == Errors.Orders.Order.Validation
+				|| x == Errors.Orders.Order.AcceptAbortedByUser))
 			{
-				MessageDialogHelper.RunWarningDialog("Произошла ошибка при подтверждении заказа", "Ошибка подтверждения заказа");
+				return;
 			}
-			ReturnToEditTab();
+
+			var errorsStrings = errors.Select(x => $"{x.Message} : {x.Code}");
+
+			MessageDialogHelper.RunErrorDialog(
+				string.Join("\n", errorsStrings),
+				"Ошибка подтверждения заказа");
 		}
 
 		private void ProcessSmsNotification()
@@ -2158,7 +2238,7 @@ namespace Vodovoz
 			smsNotifier.NotifyIfNewClient(Entity);
 		}
 
-		private bool ValidateAndFormOrder()
+		private Result ValidateAndFormOrder()
 		{
 			Entity.CheckAndSetOrderIsService();
 
@@ -2174,15 +2254,17 @@ namespace Vodovoz
 			if(!Validate(validationContext))
 			{
 				autofacScope.Dispose();
-				return false;
+				return Result.Failure(Errors.Orders.Order.Validation);
 			}
 
 			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.CalculateDistricts(UoW).Any())
+			{
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
-
+			}
+				
 			OnFormOrderActions();
 			autofacScope.Dispose();
-			return true;
+			return Result.Success();
 		}
 
 		/// <summary>

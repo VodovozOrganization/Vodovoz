@@ -49,6 +49,7 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.JournalViewers;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.Settings.Cash;
 
 namespace Vodovoz.ViewModel
 {
@@ -56,6 +57,7 @@ namespace Vodovoz.ViewModel
 	{
 		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private bool _userHasOnlyAccessToWarehouseAndComplaints;
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings = MainClass.AppDIContainer.Resolve<IFinancialCategoriesGroupsSettings>();
 
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
@@ -676,8 +678,8 @@ namespace Vodovoz.ViewModel
 														new FuelRepository(),
 														NavigationManagerProvider.NavigationManager,
 														new TrackRepository(),
-														new CategoryRepository(_parametersProvider),
 														new EmployeeJournalFactory(),
+														_financialCategoriesGroupsSettings,
 														new CarJournalFactory(MainClass.MainWin.NavigationManager)
 									)
 								);

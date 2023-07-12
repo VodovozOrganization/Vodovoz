@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.HibernateMapping
@@ -24,10 +24,10 @@ namespace Vodovoz.HibernateMapping
 			//datetime
 			Map(x => x.Date).Column("date");
 			//Refs
+			Map(x => x.ExpenseCategoryId).Column("financial_expense_category_id");
 			References(x => x.Subdivision).Column("subdivision_id");
 			References(x => x.Author).Column("employee_id");
 			References(x => x.Organization).Column("organization_id");
-			References(x => x.ExpenseCategory).Column("expense_category_id");
 		}
 	}
 

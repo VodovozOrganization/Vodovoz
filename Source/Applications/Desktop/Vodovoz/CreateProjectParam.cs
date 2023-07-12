@@ -21,7 +21,6 @@ using QS.Permissions;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
-using QS.Project.Journal.DataLoader;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Project.Services.GtkUI;
@@ -48,11 +47,13 @@ using Vodovoz.Additions;
 using Vodovoz.CachingRepositories.Cash;
 using Vodovoz.CachingRepositories.Common;
 using Vodovoz.Cash;
+using Vodovoz.Cash.DocumentsJournal;
 using Vodovoz.Cash.FinancialCategoriesGroups;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs.Cash;
+using Vodovoz.Cash.Transfer;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
@@ -83,6 +84,7 @@ using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalColumnsConfigs;
+using Vodovoz.JournalFilters.Cash;
 using Vodovoz.JournalFilters.Goods;
 using Vodovoz.JournalFilters.Proposal;
 using Vodovoz.Journals.FilterViewModels;
@@ -108,7 +110,10 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
+using Vodovoz.ViewModels.Cash.Transfer;
+using Vodovoz.ViewModels.Cash.Transfer.Journal;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
@@ -174,7 +179,6 @@ using Vodovoz.ViewModels.ViewModels.Settings;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
-using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 using Vodovoz.ViewModels.Warehouses;
@@ -208,7 +212,6 @@ using Vodovoz.Views.Suppliers;
 using Vodovoz.Views.Users;
 using Vodovoz.Views.WageCalculation;
 using Vodovoz.Views.Warehouse;
-using Vodovoz.Views.Warehouse.Documents;
 using Vodovoz.ViewWidgets;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.ViewWidgets.Permissions;
@@ -361,6 +364,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
 				.RegisterWidgetForTabViewModel<CounterpartyDetailsFromRevenueServiceViewModel, CounterpartyDetailsFromRevenueServiceView>()
 				.RegisterWidgetForTabViewModel<CloseSupplyToCounterpartyViewModel, CloseSupplyToCounterpartyView>()
+				.RegisterWidgetForTabViewModel<ResendCounterpartyEdoDocumentsViewModel, ResendCounterpartyEdoDocumentsView>()
 				.RegisterWidgetForTabViewModel<DeliveryPriceRuleViewModel, DeliveryPriceRuleView>()
 				.RegisterWidgetForTabViewModel<ExternalCounterpartyMatchingViewModel, ExternalCounterpartyMatchingView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceViewModel, InventoryInstanceView>()
@@ -463,7 +467,18 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<InventoryInstancesStockBalanceJournalFilterViewModel, InventoryInstancesStockBalanceJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<FinancialCategoriesGroupViewModel, FinancialCategoriesGroupView>()
 				.RegisterWidgetForWidgetViewModel<FinancialCategoriesJournalFilterViewModel, FinancialCategoriesJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<DocumentsFilterViewModel, DocumentsFilterView>()
+				.RegisterWidgetForWidgetViewModel<ExpenseViewModel, ExpenseView>()
+				.RegisterWidgetForWidgetViewModel<IncomeViewModel, IncomeView>()
+				.RegisterWidgetForWidgetViewModel<ExpenseSelfDeliveryViewModel, ExpenseSelfDeliveryView>()
+				.RegisterWidgetForWidgetViewModel<IncomeSelfDeliveryViewModel, IncomeSelfDeliveryView>()
+				.RegisterWidgetForWidgetViewModel<AdvanceReportViewModel, AdvanceReportView>()
+				.RegisterWidgetForWidgetViewModel<IncomeCashTransferDocumentViewModel, IncomeCashTransferView>()
+				.RegisterWidgetForWidgetViewModel<CommonCashTransferDocumentViewModel, CommonCashTransferView>()
+				.RegisterWidgetForWidgetViewModel<TransferDocumentsJournalFilterViewModel, CashTransferDocumentsFilter>()
 				.RegisterWidgetForWidgetViewModel<CargoDailyNormViewModel, CargoDailyNormView>()
+				.RegisterWidgetForWidgetViewModel<TransferExpenseViewModel, TransferExpenseView>()
+				.RegisterWidgetForWidgetViewModel<TransferIncomeViewModel, TransferIncomeView>()
 				;
 			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -552,6 +567,7 @@ namespace Vodovoz
 			#region Репозитории
 
 			builder.RegisterType<UserPrintingRepository>().As<IUserPrintingRepository>().SingleInstance();
+			builder.RegisterType<CashRepository>().As<ICashRepository>();
 
 			#endregion
 
@@ -765,6 +781,9 @@ namespace Vodovoz
 			builder.RegisterType<FinancialExpenseCategoriesNodesInMemoryCacheRepository>()
 				.As<IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory>>();
 
+			builder.RegisterType<FinancialIncomeCategoriesNodesInMemoryCacheRepository>()
+				.As<IDomainEntityNodeInMemoryCacheRepository<FinancialIncomeCategory>>();
+
 			#endregion Кэширующие репозитории
 
 			#region Mango
@@ -777,6 +796,7 @@ namespace Vodovoz
 
 			builder.RegisterType<CounterpartyCashlessDebtsReport>().AsSelf();
 			builder.RegisterType<OrderChangesReport>().AsSelf();
+			builder.RegisterType<CashFlow>().AsSelf();
 
 			#endregion
 

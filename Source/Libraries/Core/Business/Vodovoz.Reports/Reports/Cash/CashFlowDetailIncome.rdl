@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -14,13 +14,13 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    if(cash_income.cash_income_category_id,
+    if(cash_income.financial_expense_category_id,
         1,
         0) as CategoryType,
     cash_income.id as id,
     cash_income.date as Date,
-    cash_income_category.name as Category,
-    cash_income.cash_income_category_id as CategoryId,
+    financial_categories_groups.title as Category,
+    cash_income.financial_expense_category_id as CategoryId,
     cash_income.money as sum,
     cash_income.description,
     CONCAT_WS('',
@@ -34,13 +34,13 @@
 FROM
     cash_income
         LEFT JOIN
-    cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
+    financial_categories_groups ON financial_categories_groups.id = cash_income.financial_income_category_id
         LEFT JOIN
     employees ON employees.id = cash_income.employee_id
 WHERE
 cash_income.type_operation &lt;&gt; 'Return' AND 
 cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
- AND (@incomeCategory = -1 OR cash_income_category.id = @incomeCategory)
+ AND (@incomeCategory = -1 OR financial_categories_groups.id = @incomeCategory)
 AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_income.employee_id = @Employee)
 AND cash_income.related_to_subdivision_id in (@cash_subdivisions)
