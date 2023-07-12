@@ -11,10 +11,11 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
+using QS.Project.Journal;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class OrderJournalFilterViewModel : FilterViewModelBase<OrderJournalFilterViewModel>
+	public class OrderJournalFilterViewModel : FilterViewModelBase<OrderJournalFilterViewModel>, IJournalFilterViewModel
 	{
 		#region Поля
 		
@@ -478,6 +479,7 @@ namespace Vodovoz.Filters.ViewModels
 			get => _excludeClosingDocumentDeliverySchedule;
 			set => UpdateFilterField(ref _excludeClosingDocumentDeliverySchedule, value);
 		}
+		public bool IsShow { get; set; }
 	}
 
 	public enum PaymentOrder

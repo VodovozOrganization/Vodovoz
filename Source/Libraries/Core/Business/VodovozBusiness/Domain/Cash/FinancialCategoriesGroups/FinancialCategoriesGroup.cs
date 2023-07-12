@@ -22,7 +22,8 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		[Display(Name = "Код")]
 		public virtual int Id { get; }
 
-		[Display(Name = "Код родительской группы")]
+		[Display(Name = "Родительская группа")]
+		[HistoryIdentifier(TargetType = typeof(FinancialCategoriesGroup))]
 		public virtual int? ParentId
 		{
 			get => _parentId;

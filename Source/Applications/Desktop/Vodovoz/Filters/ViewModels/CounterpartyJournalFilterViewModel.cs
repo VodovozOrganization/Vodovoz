@@ -1,9 +1,9 @@
-﻿using System.ComponentModel;
-using System.Data.Bindings.Collections.Generic;
-using NHibernate.Transform;
+﻿using NHibernate.Transform;
 using QS.Project.Filter;
 using QS.Project.Journal;
 using QS.RepresentationModel.GtkUI;
+using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Representations;
@@ -18,6 +18,7 @@ namespace Vodovoz.Filters.ViewModels
 		private GenericObservableList<SalesChannelSelectableNode> _salesChannels;
 		private bool? _isForSalesDepartment;
 		private ReasonForLeaving? _reasonForLeaving;
+		private bool _isNeedToSendBillByEdo;
 
 		public CounterpartyJournalFilterViewModel()
 		{
@@ -25,7 +26,8 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.CounterpartyType,
 				x => x.ReasonForLeaving,
 				x => x.RestrictIncludeArchive,
-				x => x.Tag
+				x => x.Tag,
+				x => x.IsNeedToSendBillByEdo
 			);
 		}
 
@@ -117,6 +119,12 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _reasonForLeaving, value);
 		}
 		public bool IsShow { get; set; }
+
+		public bool IsNeedToSendBillByEdo
+		{
+			get => _isNeedToSendBillByEdo;
+			set => SetField(ref _isNeedToSendBillByEdo, value);
+		}
 
 		private void UnsubscribeOnCheckChanged()
 		{

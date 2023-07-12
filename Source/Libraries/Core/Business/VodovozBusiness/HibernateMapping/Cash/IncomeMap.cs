@@ -17,12 +17,12 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Money).Column("money");
 			Map(x => x.Description).Column("description");
 			Map(x => x.CashierReviewComment).Column("cashier_review_comment");
+			Map(x => x.IncomeCategoryId).Column("financial_income_category_id");
+			Map(x => x.ExpenseCategoryId).Column("financial_expense_category_id");
 
 			References(x => x.Casher).Column("casher_employee_id");
 			References(x => x.Employee).Column("employee_id");
 			References(x => x.Customer).Column("customer_id");
-			References(x => x.IncomeCategory).Column("cash_income_category_id");
-			References(x => x.ExpenseCategory).Column("cash_expense_category_id");
 			References(x => x.RouteListClosing).Column("route_list_id");
 			References(x => x.Order).Column("order_id");
 			References(x => x.RelatedToSubdivision).Column("related_to_subdivision_id");

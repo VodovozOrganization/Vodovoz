@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Data;
-using fyiReporting.RDL;
+﻿using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -4034,6 +4033,51 @@ namespace Vodovoz.Domain.Orders
 			return result;
 		}
 
+		public virtual void SetNeedToRecendEdoUpd()
+		{
+			var userCanResendUpd = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			if(!userCanResendUpd)
+			{
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "Текущий пользователь не имеет права повторной отправки УПД");
+				return;
+			}
+
+			if(OrderPaymentStatus == OrderPaymentStatus.Paid)
+			{
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Заказ №{Id} уже оплачен. Повторная отправка УПД недоступна");
+				return;
+			}
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var edoDocumentsActions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+					.Where(x => x.Order.Id == Id)
+					.FirstOrDefault();
+
+				if(edoDocumentsActions == null)
+				{
+					edoDocumentsActions = new OrderEdoTrueMarkDocumentsActions();
+					edoDocumentsActions.Order = this;
+				}
+
+				edoDocumentsActions.IsNeedToResendEdoUpd = true;
+
+				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkApiDocument>()
+					.Where(x => x.Order.Id == Id)
+					.OrderByDescending(x => x.CreationDate)
+					.FirstOrDefault();
+
+				if(orderLastTrueMarkDocument != null 
+					&& orderLastTrueMarkDocument.Type != TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
+				{
+					edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
+				}
+
+				uow.Save(edoDocumentsActions);
+				uow.Commit();
+			}				
+		}
+
 		#endregion
 
 		#region Аренда
@@ -4413,6 +4457,12 @@ namespace Vodovoz.Domain.Orders
 			if(includeEquipment)
 				weight += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Weight * x.Count);
+			return weight;
+		}
+
+		public virtual decimal GetSalesItemsWeight(bool includeGoods = true, bool includeEquipment = true)
+		{
+			decimal weight = OrderItems.Sum(x => x.Nomenclature.Weight * (x.ActualCount ?? x.Count));
 			return weight;
 		}
 
