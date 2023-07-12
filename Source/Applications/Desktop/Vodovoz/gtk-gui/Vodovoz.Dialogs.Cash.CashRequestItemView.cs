@@ -14,7 +14,7 @@ namespace Vodovoz.Dialogs.Cash
 
 		private global::Gtk.Table table1;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry AccountableEntityviewmodelentry3;
+		private global::QS.Views.Control.EntityEntry entryEmployee;
 
 		private global::Gtk.Label label1;
 
@@ -83,12 +83,11 @@ namespace Vodovoz.Dialogs.Cash
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.AccountableEntityviewmodelentry3 = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.AccountableEntityviewmodelentry3.Events = ((global::Gdk.EventMask)(256));
-			this.AccountableEntityviewmodelentry3.Name = "AccountableEntityviewmodelentry3";
-			this.AccountableEntityviewmodelentry3.CanEditReference = false;
-			this.table1.Add(this.AccountableEntityviewmodelentry3);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.AccountableEntityviewmodelentry3]));
+			this.entryEmployee = new global::QS.Views.Control.EntityEntry();
+			this.entryEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.entryEmployee.Name = "entryEmployee";
+			this.table1.Add(this.entryEmployee);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.entryEmployee]));
 			w6.TopAttach = ((uint)(2));
 			w6.BottomAttach = ((uint)(3));
 			w6.LeftAttach = ((uint)(1));

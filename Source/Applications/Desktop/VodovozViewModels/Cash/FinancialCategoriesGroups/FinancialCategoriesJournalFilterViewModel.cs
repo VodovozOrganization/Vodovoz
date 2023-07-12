@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.Project.Filter;
 using QS.Project.Journal;
@@ -25,6 +26,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private DialogViewModelBase _journalViewModel;
 		private Subdivision _subdivision;
 		private TargetDocument? _targetDocument;
+		private TargetDocument? _restrictTargetDocument;
 		private FinancialSubType? _restrictFinancialSubtype;
 
 		public FinancialCategoriesJournalFilterViewModel(
@@ -81,6 +83,24 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			get => _targetDocument;
 			set => UpdateFilterField(ref _targetDocument, value);
 		}
+
+		[PropertyChangedAlso(nameof(TargetDocumentRestricted))]
+		public TargetDocument? RestrictTargetDocument
+		{
+			get => _restrictTargetDocument;
+			set
+			{
+				if(SetField(ref _restrictTargetDocument, value))
+				{
+					TargetDocument = value;
+				}
+			}
+		}
+
+		[PropertyChangedAlso(nameof(TargetDocumentNotRestricted))]
+		public bool TargetDocumentRestricted => RestrictTargetDocument != null;
+
+		public bool TargetDocumentNotRestricted => !TargetDocumentRestricted;
 
 		public IEntityEntryViewModel ParentGroupViewModel { get; private set; }
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -35,10 +35,10 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT cash_expense.date as edate, cash_expense.money as sum, cash_expense.description as details, cash_expense_category.name as expense, 
+        <CommandText>SELECT cash_expense.date as edate, cash_expense.money as sum, cash_expense.description as details, financial_categories_groups.title as expense, 
 CONCAT_WS('', CONCAT(employees.last_name, ' '), if(employees.name = '', '', CONCAT(LEFT(employees.name, 1),'.')), if(employees.patronymic = '', '', CONCAT(LEFT(employees.patronymic, 1),'.'))) as employee 
 FROM cash_expense 
-LEFT JOIN cash_expense_category ON cash_expense.cash_expense_category_id = cash_expense_category.id 
+LEFT JOIN financial_categories_groups ON cash_expense.financial_expense_category_id = financial_categories_groups.id 
 LEFT JOIN employees ON cash_expense.employee_id = employees.id 
 WHERE cash_expense.id=@id</CommandText>
         <QueryParameters>
