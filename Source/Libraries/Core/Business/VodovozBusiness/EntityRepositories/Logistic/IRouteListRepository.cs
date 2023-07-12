@@ -77,11 +77,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 			IList<(DateTime startDate, DateTime? endDate)> periods);
 
 		IList<Employee> GetDriversWithAdditionalLoading(IUnitOfWork uow, params int[] routeListIds);
-		decimal GetRouteListTotalWeight(IUnitOfWork uow, int routeListId);
+		decimal GetRouteListTotalSalesGoodsWeight(IUnitOfWork uow, int routeListId);
 		decimal GetRouteListPaidDeliveriesSum(IUnitOfWork uow, int routeListId, IEnumerable<int> paidDeliveriesNomenclaturesIds);
 		decimal GetRouteListSalesSum(IUnitOfWork uow, int routeListId);
 		bool HasFreeBalanceForOrder(IUnitOfWork uow, Order order, RouteList routeListTo);
 		int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0);
 		decimal GetUnclosedRouteListsDebtsSumByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0);
+		RouteListRepository.RouteListProfitabilitySpendings GetRouteListSpendings(IUnitOfWork uow, int routeListId, decimal routeListExpensesPerKg);
 	}
 }

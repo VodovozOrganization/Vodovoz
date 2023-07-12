@@ -4460,6 +4460,12 @@ namespace Vodovoz.Domain.Orders
 			return weight;
 		}
 
+		public virtual decimal GetSalesItemsWeight(bool includeGoods = true, bool includeEquipment = true)
+		{
+			decimal weight = OrderItems.Sum(x => x.Nomenclature.Weight * (x.ActualCount ?? x.Count));
+			return weight;
+		}
+
 		/// <summary>
 		/// Расчёт объёма товаров и оборудования к клиенту для этого заказа
 		/// </summary>
