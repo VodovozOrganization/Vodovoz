@@ -137,10 +137,10 @@ namespace DriverAPI.Controllers.V2
 
 				if(!availableTypesToChange.Contains(newPaymentType))
 				{
-					var errorFormat = "Попытка сменить тип оплаты у заказа {OrderId} на недоступный для этого заказа тип оплаты {PaymentType}";
-					_logger.LogWarning(errorFormat, orderId, newPaymentType);
-					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
-						string.Format(errorFormat, orderId, newPaymentType));
+					_logger.LogWarning("Попытка сменить тип оплаты у заказа {OrderId} на недоступный для этого заказа тип оплаты {PaymentType}", orderId, newPaymentType);
+					throw new ArgumentOutOfRangeException(
+						nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
+						$"Попытка сменить тип оплаты у заказа {orderId} на недоступный для этого заказа тип оплаты {newPaymentType}");
 				}
 
 				Vodovoz.Domain.Client.PaymentType newVodovozPaymentType;
@@ -159,10 +159,11 @@ namespace DriverAPI.Controllers.V2
 				}
 				else
 				{
-					var errorFormat = "Попытка сменить тип оплаты у заказа {OrderId} на не поддерживаемый для смены тип оплаты {PaymentType}";
-					_logger.LogWarning(errorFormat, orderId, newPaymentType);
-					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
-						string.Format(errorFormat, orderId, newPaymentType));
+					_logger.LogWarning("Попытка сменить тип оплаты у заказа {OrderId} на не поддерживаемый для смены тип оплаты {PaymentType}", orderId, newPaymentType);
+
+					throw new ArgumentOutOfRangeException(
+						nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
+						$"Попытка сменить тип оплаты у заказа {orderId} на не поддерживаемый для смены тип оплаты {newPaymentType}");
 				}
 
 				_aPIOrderData.ChangeOrderPaymentType(orderId, newVodovozPaymentType, driver);
