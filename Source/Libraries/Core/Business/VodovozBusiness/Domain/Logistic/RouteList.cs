@@ -2654,15 +2654,32 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#region Вес
+
 		/// <summary>
 		/// Полный вес товаров и оборудования в маршрутном листе
 		/// </summary>
 		/// <returns>Вес в килограммах</returns>
-		public virtual decimal GetTotalWeight() =>
-			Math.Round(
-				Addresses.Where(item => item.Status != RouteListItemStatus.Transfered).Sum(item => item.Order.FullWeight())
-				+ (AdditionalLoadingDocument?.Items.Sum(x => x.Nomenclature.Weight * x.Amount) ?? 0),
-				3);
+		public virtual decimal GetTotalWeight()
+		{
+			var ordersWeight = Addresses
+				.Where(item => item.Status != RouteListItemStatus.Transfered)
+				.Sum(item => item.Order.FullWeight());
+
+			var additionalLoadingWeight = AdditionalLoadingDocument?.Items.Sum(x => x.Nomenclature.Weight * x.Amount) ?? 0;
+			return Math.Round(ordersWeight + additionalLoadingWeight, 3);
+		}
+
+		/// <summary>
+		/// Полный вес продаваемых товаров в маршрутном листе
+		/// </summary>
+		/// <returns>Вес в килограммах</returns>
+		public virtual decimal GetTotalSalesGoodsWeight()
+		{
+			var ordersWeight = Addresses
+				.Where(item => item.Status != RouteListItemStatus.Transfered)
+				.Sum(item => item.Order.GetSalesItemsWeight());
+			return Math.Round(ordersWeight, 3);
+		}
 
 		/// <summary>
 		/// Проверка на перегруз автомобиля
