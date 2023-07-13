@@ -6,6 +6,9 @@ using Vodovoz.Services;
 
 namespace DriverAPI.Controllers.V3
 {
+	/// <summary>
+	/// Контроллер значений
+	/// </summary>
 	[ApiVersion("3.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -14,14 +17,24 @@ namespace DriverAPI.Controllers.V3
 	{
 		private readonly IDriverApiParametersProvider _webApiParametersProvider;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="webApiParametersProvider"></param>
+		/// <exception cref="ArgumentNullException"></exception>
+
 		public ValuesController(IDriverApiParametersProvider webApiParametersProvider)
 		{
 			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));
 		}
 
-		// GET: GetRouteList 
+		/// <summary>
+		/// Получение телефонного номера компании
+		/// </summary>
+		/// <returns><see cref="CompanyNumberResponseDto"/></returns>
 		[HttpGet]
 		[AllowAnonymous]
+		[Produces("application/json")]
 		[Route("GetCompanyPhoneNumber")]
 		public CompanyNumberResponseDto GetCompanyPhoneNumber()
 		{

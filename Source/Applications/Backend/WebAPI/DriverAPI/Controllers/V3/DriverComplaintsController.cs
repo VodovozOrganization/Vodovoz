@@ -21,10 +21,11 @@ namespace DriverAPI.Controllers.V3
 		}
 
 		/// <summary>
-		/// Эндпоинт получения популярных причин
+		/// Получение популярных причин низкого рейтинга адреса
 		/// </summary>
 		/// <returns>Список популярных причин</returns>
 		[HttpGet]
+		[Produces("application/json")]
 		[Route("GetDriverComplaintReasons")]
 		public IEnumerable<DriverComplaintReasonDto> GetDriverComplaintReasons()
 		{

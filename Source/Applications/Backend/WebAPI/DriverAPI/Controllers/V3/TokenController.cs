@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers.V3
 {
+	/// <summary>
+	/// Контроллер аутентификации
+	/// </summary>
 	[ApiVersion("3.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -25,6 +28,13 @@ namespace DriverAPI.Controllers.V3
 		private readonly double _tokenLifetime;
 		private readonly string _securityKey;
 		private bool _loginCaseSensitive;
+
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="configuration"></param>
+		/// <param name="context"></param>
+		/// <param name="userManager"></param>
 
 		public TokenController(
 			IConfiguration configuration,
@@ -40,7 +50,14 @@ namespace DriverAPI.Controllers.V3
 			_loginCaseSensitive = _configuration.GetValue("Security:User:LoginCaseSensitive", false);
 		}
 
+		/// <summary>
+		/// Аутентификация
+		/// </summary>
+		/// <param name="loginRequestModel"></param>
+		/// <returns><see cref="TokenResponseDto"/></returns>
+		/// <exception cref="UnauthorizedAccessException"></exception>
 		[HttpPost]
+		[Produces("application/json")]
 		[Route("Authenticate")]
 		public async Task<TokenResponseDto> Post([FromBody] LoginRequestDto loginRequestModel)
 		{

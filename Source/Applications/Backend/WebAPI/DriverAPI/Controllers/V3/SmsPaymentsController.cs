@@ -14,6 +14,9 @@ using DriverAPI.Library.Helpers;
 
 namespace DriverAPI.Controllers.V3
 {
+	/// <summary>
+	/// Контроллер оплаты по смс
+	/// </summary>
 	[ApiVersion("3.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -28,6 +31,20 @@ namespace DriverAPI.Controllers.V3
 		private readonly IEmployeeModel _employeeData;
 		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordModel;
 		private readonly UserManager<IdentityUser> _userManager;
+
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="configuration"></param>
+		/// <param name="actionTimeHelper"></param>
+		/// <param name="aPISmsPaymentData"></param>
+		/// <param name="smsPaymentConverter"></param>
+		/// <param name="aPIOrderData"></param>
+		/// <param name="employeeData"></param>
+		/// <param name="driverMobileAppActionRecordModel"></param>
+		/// <param name="userManager"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 
 		public SmsPaymentsController(ILogger<SmsPaymentsController> logger,
 			IConfiguration configuration,
@@ -58,8 +75,9 @@ namespace DriverAPI.Controllers.V3
 		/// Эндпоинт получения статуса оплаты через СМС
 		/// </summary>
 		/// <param name="orderId">Идентификатор заказа</param>
-		/// <returns>OrderPaymentStatusResponseModel или null</returns>
+		/// <returns><see cref="OrderSmsPaymentStatusResponseDto"/></returns>
 		[HttpGet]
+		[Produces("application/json")]
 		[Route("GetOrderSmsPaymentStatus")]
 		public OrderSmsPaymentStatusResponseDto GetOrderSmsPaymentStatus(int orderId)
 		{
@@ -88,6 +106,7 @@ namespace DriverAPI.Controllers.V3
 		/// </summary>
 		/// <param name="payBySmsRequestModel"></param>
 		[HttpPost]
+		[Produces("application/json")]
 		[Route("PayBySms")]
 		public async Task PayBySmsAsync(PayBySmsRequestDto payBySmsRequestModel)
 		{
