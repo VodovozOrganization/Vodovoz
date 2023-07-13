@@ -58,8 +58,6 @@ namespace Vodovoz.Domain.Logistic
 			get => _isDoNotShowInOperation;
 			set => SetField(ref _isDoNotShowInOperation, value);
 		}
-
-
 		#endregion
 
 		#region IValidatableObject implementation
