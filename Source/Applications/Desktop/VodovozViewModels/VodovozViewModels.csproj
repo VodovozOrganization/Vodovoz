@@ -42,14 +42,31 @@
     <Reference Include="mscorlib" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cash\AdvanceReportViewModel.cs" />
+    <Compile Include="Cash\DocumentsJournal\DocumentNode.cs" />
+    <Compile Include="Cash\DocumentsJournal\DocumentsFilterViewModel.cs" />
+    <Compile Include="Cash\DocumentsJournal\DocumentsJournalViewModel.cs" />
+    <Compile Include="Cash\DocumentsJournal\IDocumentsInfoProvider.cs" />
+    <Compile Include="Cash\ExpenseSelfDeliveryViewModel.cs" />
+    <Compile Include="Cash\ExpenseViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesGroupsJournalViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesJournalFilterViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialCategoriesJournalNode.cs" />
+    <Compile Include="Cash\IncomeSelfDeliveryViewModel.cs" />
+    <Compile Include="Cash\IncomeViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialExpenseCategoryViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialIncomeCategoryViewModel.cs" />
+    <Compile Include="Cash\Transfer\CommonCashTransferDocumentViewModel.cs" />
+    <Compile Include="Cash\Transfer\IncomeCashTransferDocumentViewModel.cs" />
+    <Compile Include="Cash\Transfer\Journal\DocumentNode.cs" />
+    <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalFilterViewModel.cs" />
+    <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
+    <Compile Include="Cash\TransferExpenseViewModel.cs" />
+    <Compile Include="Cash\TransferIncomeViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ComplaintsJournalsViewModel.cs" />
     <Compile Include="Dialogs\Complaints\ResponsibleViewModel.cs" />
     <Compile Include="Dialogs\Counterparty\CloseSupplyToCounterpartyViewModel.cs" />
+    <Compile Include="Dialogs\Counterparty\ResendCounterpartyEdoDocumentsViewModel.cs" />
     <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
@@ -68,6 +85,7 @@
     <Compile Include="Dialogs\Logistic\DeliveryShiftNode.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupVersionViewModel.cs" />
     <Compile Include="Dialogs\Sale\GeoGroupViewModel.cs" />
+    <Compile Include="Extensions\EntityTabViewModelBaseExtensions.cs" />
     <Compile Include="Factories\IRoboatsViewModelFactory.cs" />
     <Compile Include="Factories\CarManufacturerJournalFactory.cs" />
     <Compile Include="Factories\CarModelJournalFactory.cs" />
@@ -130,6 +148,9 @@
     <Compile Include="Journals\JournalViewModels\Orders\UndeliveryObjectJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Organizations\OrganizationOwnershipTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
+    <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
+    <Compile Include="Logistic\RouteListJournalViewModel.cs" />
+    <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="Logistic\RouteListJournalViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyMatchingNode.cs" />
@@ -739,6 +760,10 @@
       <Project>{EC80100E-0125-48C6-8D66-50EEBF26E320}</Project>
       <Name>Vodovoz.Reports.Editing</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Settings\Vodovoz.Settings.csproj">
+      <Project>{445C399F-F7F9-43FF-8278-E0392A792F03}</Project>
+      <Name>Vodovoz.Settings</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{CFC0D123-ABB8-41C5-9814-89F627F770B6}</Project>
       <Name>VodovozBusiness</Name>
@@ -810,6 +835,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Utilities\QS.Utilities.csproj">
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
+      <Project>{396cc0bb-294b-44e0-8428-31677419b8be}</Project>
+      <Name>Vodovoz.Presentation.ViewModels</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Infrastructure\ApiClientProvider\ApiClientProvider.csproj">
       <Project>{AF067268-272B-46C3-AE9B-0C1B6D7AE55C}</Project>

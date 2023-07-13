@@ -1,18 +1,15 @@
-﻿using System;
-using QS.DomainModel.UoW;
-using QS.Project.Journal.EntitySelector;
-using QS.Project.Services;
-using QS.Views.GtkUI;
-using Vodovoz.Domain.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+﻿using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
 using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.Dialogs.Cash
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class CashRequestItemView : TabViewBase<CashRequestItemViewModel>
 	{
+		private const double _maximalSum = 999_000_000d;
+
 		public CashRequestItemView(CashRequestItemViewModel viewModel) : base(viewModel)
 		{
 			Build();
@@ -21,34 +18,22 @@ namespace Vodovoz.Dialogs.Cash
 
 		private void Configure()
 		{
-			ydateDate.Binding.AddBinding(
-				ViewModel, 
-				e => e.Date,
-				w => w.Date
-			).InitializeFromSource();
+			ydateDate.Binding
+				.AddBinding(ViewModel, e => e.Date, w => w.Date)
+				.InitializeFromSource();
+
 			ydateDate.Date = DateTime.Now;
 
-			yentryComment.Binding.AddBinding(
-				ViewModel,
-				e => e.Comment, 
-				w => w.Text
-			).InitializeFromSource();
+			yentryComment.Binding
+				.AddBinding(ViewModel, e => e.Comment, w => w.Text)
+				.InitializeFromSource();
 
-			yspinsum.Adjustment.Upper = 999_000_000d;
-			yspinsum.Binding.AddBinding(
-				ViewModel, 
-				e => e.Sum, 
-				w => w.ValueAsDecimal
-			).InitializeFromSource();
-			
-			AccountableEntityviewmodelentry3.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-			
-			AccountableEntityviewmodelentry3.Binding.AddBinding(
-				ViewModel,
-				s => s.AccountableEmployee,
-				w => w.Subject
-			).InitializeFromSource();
+			yspinsum.Adjustment.Upper = _maximalSum;
+			yspinsum.Binding
+				.AddBinding(ViewModel, e => e.Sum, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			entryEmployee.ViewModel = ViewModel.EmployeeViewModel;
 
 			buttonAccept.Clicked += (sender, args) => ViewModel.AcceptCommand.Execute();
 			buttonCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
@@ -61,7 +46,9 @@ namespace Vodovoz.Dialogs.Cash
 			ydateDate.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
 			label3.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
 			
-			AccountableEntityviewmodelentry3.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
+			entryEmployee.ViewModel = ViewModel.EmployeeViewModel;
+
+			entryEmployee.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();
 			label7.Sensitive = ViewModel.CanEditOnlyinStateNRC_OrRoleCoordinator;
 			
 			yentryComment.Binding.AddBinding(ViewModel, vm => vm.CanEditOnlyinStateNRC_OrRoleCoordinator, w => w.Sensitive).InitializeFromSource();

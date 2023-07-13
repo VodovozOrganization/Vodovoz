@@ -11,7 +11,8 @@ namespace Vodovoz.Domain.Cash
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "заявки на выдачу наличных денежных средств",
-		Nominative = "заявка на выдачу наличных денежных средств")]
+		Nominative = "заявка на выдачу наличных денежных средств",
+		Accusative = "заявку на выдачу наличных денежных средств")]
 	[HistoryTrace]
 	[EntityPermission]
 	public class CashRequest : PayoutRequestBase

@@ -48,6 +48,7 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Cash;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -2076,7 +2077,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual string[] ManualCashOperations(
-			ref Income cashIncome, ref Expense cashExpense, decimal casheInput, ICategoryRepository categoryRepository)
+			ref Income cashIncome, ref Expense cashExpense, decimal casheInput, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
 			var messages = new List<string>();
 
@@ -2087,7 +2088,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(casheInput > 0) {
 				cashIncome = new Income {
-					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
+					IncomeCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialIncomeCategoryId,
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -2102,7 +2103,7 @@ namespace Vodovoz.Domain.Logistic
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
-					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
+					ExpenseCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId,
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -2119,14 +2120,14 @@ namespace Vodovoz.Domain.Logistic
 			return messages.ToArray();
 		}
 
-		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput, ICategoryRepository categoryRepository)
+		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
 			string message;
 			if(Cashier?.Subdivision == null)
 				return "Создающий кассовый документ пользователь - не привязан к сотруднику!";
 
 			cashExpense = new Expense {
-				ExpenseCategory = categoryRepository.EmployeeSalaryExpenseCategory(UoW),
+				ExpenseCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId,
 				TypeOperation = ExpenseType.EmployeeAdvance,
 				Date = DateTime.Now,
 				Casher = this.Cashier,
@@ -2395,7 +2396,7 @@ namespace Vodovoz.Domain.Logistic
 			return reportInfo;
 		}
 
-		public virtual IEnumerable<string> UpdateCashOperations(ICategoryRepository categoryRepository)
+		public virtual IEnumerable<string> UpdateCashOperations(IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
 			var messages = new List<string>();
 			//Закрываем наличку.
@@ -2415,7 +2416,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(different > 0) {
 				cashIncome = new Income {
-					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
+					IncomeCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialIncomeCategoryId,
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -2430,7 +2431,7 @@ namespace Vodovoz.Domain.Logistic
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
-					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
+					ExpenseCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId,
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -2463,9 +2464,9 @@ namespace Vodovoz.Domain.Logistic
 			return messages;
 		}
 
-		public virtual IEnumerable<string> UpdateMovementOperations(ICategoryRepository categoryRepository)
+		public virtual IEnumerable<string> UpdateMovementOperations(IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
-			var result = UpdateCashOperations(categoryRepository);
+			var result = UpdateCashOperations(financialCategoriesGroupsSettings);
 			UpdateOperations();
 			return result;
 		}
@@ -2653,15 +2654,32 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#region Вес
+
 		/// <summary>
 		/// Полный вес товаров и оборудования в маршрутном листе
 		/// </summary>
 		/// <returns>Вес в килограммах</returns>
-		public virtual decimal GetTotalWeight() =>
-			Math.Round(
-				Addresses.Where(item => item.Status != RouteListItemStatus.Transfered).Sum(item => item.Order.FullWeight())
-				+ (AdditionalLoadingDocument?.Items.Sum(x => x.Nomenclature.Weight * x.Amount) ?? 0),
-				3);
+		public virtual decimal GetTotalWeight()
+		{
+			var ordersWeight = Addresses
+				.Where(item => item.Status != RouteListItemStatus.Transfered)
+				.Sum(item => item.Order.FullWeight());
+
+			var additionalLoadingWeight = AdditionalLoadingDocument?.Items.Sum(x => x.Nomenclature.Weight * x.Amount) ?? 0;
+			return Math.Round(ordersWeight + additionalLoadingWeight, 3);
+		}
+
+		/// <summary>
+		/// Полный вес продаваемых товаров в маршрутном листе
+		/// </summary>
+		/// <returns>Вес в килограммах</returns>
+		public virtual decimal GetTotalSalesGoodsWeight()
+		{
+			var ordersWeight = Addresses
+				.Where(item => item.Status != RouteListItemStatus.Transfered)
+				.Sum(item => item.Order.GetSalesItemsWeight());
+			return Math.Round(ordersWeight, 3);
+		}
 
 		/// <summary>
 		/// Проверка на перегруз автомобиля

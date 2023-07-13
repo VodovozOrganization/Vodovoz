@@ -15,6 +15,7 @@ using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -294,12 +295,13 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		ExpenseCategory defaultExpenseCategory;
+		private int? _defaultExpenseCategoryId;
 
 		[Display(Name = "Расход по-умолчанию")]
-		public virtual ExpenseCategory DefaultExpenseCategory {
-			get => defaultExpenseCategory;
-			set => SetField(ref defaultExpenseCategory, value, () => DefaultExpenseCategory);
+		[HistoryIdentifier(TargetType = typeof(FinancialExpenseCategory))]
+		public virtual int? DefaultExpenseCategoryId {
+			get => _defaultExpenseCategoryId;
+			set => SetField(ref _defaultExpenseCategoryId, value);
 		}
 
 		Counterparty mainCounterparty;

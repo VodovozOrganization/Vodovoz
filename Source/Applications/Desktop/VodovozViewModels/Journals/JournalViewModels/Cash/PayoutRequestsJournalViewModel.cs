@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Deletion;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -19,6 +22,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -30,6 +34,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	public class PayoutRequestsJournalViewModel : FilterableMultipleEntityJournalViewModelBase
 		<PayoutRequestJournalNode, PayoutRequestJournalFilterViewModel>
 	{
+		private readonly IDictionary<Type, IPermissionResult> _domainObjectsPermissions;
+		private readonly ICurrentPermissionService _currentPermissionService;
+
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICashRepository _cashRepository;
@@ -37,8 +44,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
-		private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
 		private readonly IFileDialogService _fileDialogService;
+		private readonly ILifetimeScope _scope;
 		private readonly bool _createSelectAction;
 
 		private bool _isAdmin;
@@ -60,9 +67,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			IEmployeeJournalFactory employeeJournalFactory,
 			ISubdivisionJournalFactory subdivisionJournalFactory,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
 			IFileDialogService fileDialogService,
-			bool createSelectAction = true) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			INavigationManager navigationManager,
+			ILifetimeScope scope,
+			ICurrentPermissionService currentPermissionService,
+			bool createSelectAction = true)
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -71,9 +81,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
-			_expenseCategorySelectorFactory = expenseCategorySelectorFactory
-											  ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_createSelectAction = createSelectAction;
 
 			TabName = "Журнал заявок ДС";
@@ -86,6 +97,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				typeof(Employee)
 			);
 
+			DomainObjectsTypes = new Type[]
+			{
+				typeof(CashRequest),
+				typeof(CashlessRequest)
+			};
+
+			_domainObjectsPermissions = InitializePermissionsMatrix(DomainObjectsTypes);
+
 			RegisterCashRequest();
 			RegisterCashlessRequest();
 
@@ -97,11 +116,26 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			AccessRequest();
 		}
 
+		private IDictionary<Type, IPermissionResult> InitializePermissionsMatrix(IEnumerable<Type> types)
+		{
+			var result = new Dictionary<Type, IPermissionResult>();
+
+			foreach(var domainObject in types)
+			{
+				result.Add(domainObject, _currentPermissionService.ValidateEntityPermission(domainObject));
+			}
+
+			return result;
+		}
+
+		public Type[] DomainObjectsTypes { get; }
+
 		public override string FooterInfo
 		{
 			get => _footerInfo;
 			set => SetField(ref _footerInfo, value);
 		}
+		public INavigationManager NavigationManager { get; }
 
 		private void OnDataLoaderItemsListUpdated(object sender, EventArgs e)
 		{
@@ -137,11 +171,40 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			{
 				CreateDefaultSelectAction();
 			}
-			CreateDefaultAddActions();
+			CreateAddActions();
 			CreateApproveAction();
 			CreateSendForIssue();
 			CreateEditAction();
 			CreateDeleteAction();
+		}
+
+		private void CreateAddActions()
+		{
+			var addParentNodeAction = new JournalAction("Добавить", (selected) => true, (selected) => true, (selected) => { });
+
+			foreach(var documentType in DomainObjectsTypes)
+			{
+				var incomeCreateNodeAction = new JournalAction(
+				documentType.GetClassUserFriendlyName().Accusative.CapitalizeSentence(),
+				(selected) => _domainObjectsPermissions[documentType].CanCreate,
+				(selected) => _domainObjectsPermissions[documentType].CanCreate,
+				(selected) =>
+				{
+					if(documentType == typeof(CashRequest))
+					{
+						NavigationManager.OpenViewModel<CashRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+					}
+
+					if(documentType == typeof(CashlessRequest))
+					{
+						NavigationManager.OpenViewModel<CashlessRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+					}
+				});
+
+				addParentNodeAction.ChildActionsList.Add(incomeCreateNodeAction);
+			}
+
+			NodeActionsList.Add(addParentNodeAction);
 		}
 
 		private void CreateSendForIssue()
@@ -271,12 +334,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					}
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
-
-					TabParent.OpenTab(() => foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode), this);
-					if(foundDocumentConfig.JournalParameters.HideJournalForOpenDialog)
-					{
-						HideJournal(TabParent);
-					}
+					foundDocumentConfig.GetOpenEntityDlgFunction().Invoke(selectedNode);
 				}
 			);
 			if(SelectionMode == JournalSelectionMode.None || !_createSelectAction)
@@ -348,16 +406,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			var cashConfig = RegisterEntity(GetCashRequestQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new CashRequestViewModel(
-						EntityUoWBuilder.ForCreate(),
-						_unitOfWorkFactory,
-						_commonServices,
-						_employeeRepository,
-						_cashRepository,
-						_employeeJournalFactory,
-						_subdivisionJournalFactory,
-						_expenseCategorySelectorFactory
-					),
+					() => NavigationManager.OpenViewModel<CashRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
 					//функция диалога открытия документа
 					CreateCashRequestViewModelForOpen,
 					//функция идентификации документа
@@ -370,19 +419,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			cashConfig.FinishConfiguration();
 		}
 
-		private CashRequestViewModel CreateCashRequestViewModelForOpen(PayoutRequestJournalNode node)
-		{
-			return new CashRequestViewModel(
-				EntityUoWBuilder.ForOpen(node.Id),
-				_unitOfWorkFactory,
-				_commonServices,
-				_employeeRepository,
-				_cashRepository,
-				_employeeJournalFactory,
-				_subdivisionJournalFactory,
-				_expenseCategorySelectorFactory
-			);
-		}
+		private CashRequestViewModel CreateCashRequestViewModelForOpen(PayoutRequestJournalNode node) =>
+			NavigationManager.OpenViewModel<CashRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
 
 		private IQueryOver<CashRequest> GetCashRequestQuery(IUnitOfWork uow)
 		{
@@ -495,16 +533,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			var cashlessConfig = RegisterEntity(GetCashlessRequestQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new CashlessRequestViewModel(
-						_fileDialogService,
-						_expenseCategorySelectorFactory,
-						new UserRepository(),
-						_counterpartyJournalFactory,
-						new EmployeeRepository(),
-						EntityUoWBuilder.ForCreate(),
-						_unitOfWorkFactory,
-						_commonServices
-					),
+					() => NavigationManager.OpenViewModel<CashlessRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate()).ViewModel,
 					//функция диалога открытия документа
 					CreateCashlessRequestViewModelForOpen,
 					//функция идентификации документа
@@ -517,19 +546,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			cashlessConfig.FinishConfiguration();
 		}
 
-		private CashlessRequestViewModel CreateCashlessRequestViewModelForOpen(PayoutRequestJournalNode node)
-		{
-			return new CashlessRequestViewModel(
-				_fileDialogService,
-				_expenseCategorySelectorFactory,
-				new UserRepository(),
-				_counterpartyJournalFactory,
-				new EmployeeRepository(),
-				EntityUoWBuilder.ForOpen(node.Id),
-				_unitOfWorkFactory,
-				_commonServices
-			);
-		}
+		private CashlessRequestViewModel CreateCashlessRequestViewModelForOpen(PayoutRequestJournalNode node) =>
+			NavigationManager.OpenViewModel<CashlessRequestViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(node.Id)).ViewModel;
 
 		private IQueryOver<CashlessRequest> GetCashlessRequestQuery(IUnitOfWork uow)
 		{

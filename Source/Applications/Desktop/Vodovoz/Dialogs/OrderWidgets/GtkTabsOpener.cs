@@ -6,7 +6,6 @@ using QS.Tdi;
 using System;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
@@ -108,30 +107,6 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			return master.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Counterparty>(counterpartyId),
 				() => new CounterpartyDlg(counterpartyId));
-		}
-
-		public void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType)
-		{
-			var dlg = new CashExpenseDlg();
-			if(dlg.FailInitialize)
-			{
-				return;
-			}
-
-			dlg.ConfigureForSalaryGiveout(employeeId, balance, canChangeEmployee, expenseType);
-			master.TabParent.AddTab(dlg, master);
-		}
-
-		public void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, int routeListId, decimal balance, string description)
-		{
-			var dlg = new CashExpenseDlg();
-			if(dlg.FailInitialize)
-			{
-				return;
-			}
-
-			dlg.ConfigureForRouteListChangeGiveout(employeeId, routeListId, balance, description);
-			master.TabParent.AddTab(dlg, master);
 		}
 
 		public void OpenTrackOnMapWnd(int routeListId)
