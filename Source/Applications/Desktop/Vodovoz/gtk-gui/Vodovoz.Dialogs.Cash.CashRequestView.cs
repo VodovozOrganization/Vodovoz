@@ -225,6 +225,7 @@ namespace Vodovoz.Dialogs.Cash
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryFinancialExpenceCategory = new global::QS.Views.Control.EntityEntry();
+			this.entryFinancialExpenceCategory.WidthRequest = 600;
 			this.entryFinancialExpenceCategory.Events = ((global::Gdk.EventMask)(256));
 			this.entryFinancialExpenceCategory.Name = "entryFinancialExpenceCategory";
 			this.table1.Add(this.entryFinancialExpenceCategory);
@@ -233,7 +234,7 @@ namespace Vodovoz.Dialogs.Cash
 			w12.BottomAttach = ((uint)(14));
 			w12.LeftAttach = ((uint)(1));
 			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.XOptions = ((global::Gtk.AttachOptions)(0));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entrySubdivision = new global::QS.Views.Control.EntityEntry();
