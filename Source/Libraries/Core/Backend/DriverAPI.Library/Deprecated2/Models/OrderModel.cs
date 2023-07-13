@@ -258,23 +258,20 @@ namespace DriverAPI.Library.Deprecated2.Models
 
 			if(vodovozOrder is null)
 			{
-				var errorFormat = "Заказ не найден: {OrderId}";
-				_logger.LogWarning(errorFormat, orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Заказ не найден: {orderId}");
 			}
 
 			if(routeList is null)
 			{
-				var errorFormat = "МЛ для заказа: {OrderId} не найден";
-				_logger.LogWarning(errorFormat, orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"МЛ для заказа: {orderId} не найден");
 			}
 
 			if(routeListAddress is null)
 			{
-				var errorFormat = "Адрес МЛ для заказа: {OrderId} не найден";
-				_logger.LogWarning(errorFormat, orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Адрес МЛ для заказа: {orderId} не найден");
 			}
 
 			if(routeList.Driver.Id != driver.Id)
@@ -286,16 +283,14 @@ namespace DriverAPI.Library.Deprecated2.Models
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				var errorFormat = "Нельзя завершить заказ: {OrderId}, МЛ не в пути";
-				_logger.LogWarning(errorFormat);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Нельзя завершить заказ: {orderId}, МЛ не в пути");
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				var errorFormat = "Нельзя завершить заказ: {OrderId}, адрес МЛ не в пути";
-				_logger.LogWarning(errorFormat);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ не в пути", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Нельзя завершить заказ: {orderId}, адрес МЛ не в пути");
 			}
 
 			SaveScannedCodes(actionTime, completeOrderInfo);
@@ -589,9 +584,8 @@ namespace DriverAPI.Library.Deprecated2.Models
 
 			if(vodovozOrder is null)
 			{
-				var errorFormat = "Заказ не найден: {OrderId}";
-				_logger.LogWarning(errorFormat, orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Заказ не найден: {orderId}");
 			}
 
 			if(!vodovozOrder.IsBottleStock
