@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using DateTimeHelpers;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -408,7 +409,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 				if(FilterViewModel.EndDate != null)
 				{
-					query.Where(income => income.Date <= FilterViewModel.EndDate.Value);
+					query.Where(income => income.Date <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.Employee != null)
@@ -550,7 +551,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 				if(FilterViewModel.EndDate.HasValue)
 				{
-					query.Where(expense => expense.Date <= FilterViewModel.EndDate.Value);
+					query.Where(expense => expense.Date <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.Employee != null)
@@ -654,7 +655,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 				if(FilterViewModel.EndDate != null)
 				{
-					query.Where(advanceReport => advanceReport.Date <= FilterViewModel.EndDate.Value);
+					query.Where(advanceReport => advanceReport.Date <= FilterViewModel.EndDate.Value.LatestDayTime());
 				}
 
 				if(FilterViewModel.Employee != null)
