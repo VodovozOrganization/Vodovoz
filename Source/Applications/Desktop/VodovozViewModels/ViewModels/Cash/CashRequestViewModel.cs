@@ -208,16 +208,10 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			EditSumCommand = new DelegateCommand(
 				() =>
 				{
-					var cashRequestItemViewModel = new CashRequestItemViewModel(
-						UoW,
-						CommonServices.InteractiveService,
-						NavigationManager,
-						UserRole,
-						_scope);
+					var cashRequestItemPage = NavigationManager
+						.OpenViewModel<CashRequestItemViewModel, IUnitOfWork, PayoutRequestUserRole>(this, UoW, UserRole, OpenPageOptions.AsSlave);
 
-					cashRequestItemViewModel.Entity = SelectedItem;
-
-					TabParent.AddSlaveTab(this, cashRequestItemViewModel);
+					cashRequestItemPage.ViewModel.Entity = SelectedItem;
 				}, () => true
 			);
 

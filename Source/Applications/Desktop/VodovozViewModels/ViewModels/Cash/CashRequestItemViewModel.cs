@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.ViewModels;
@@ -70,6 +71,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public IUnitOfWork UoW { get; set; }
 
+		[PropertyChangedAlso(nameof(CanEditOnlyinStateNRC_OrRoleCoordinator))]
 		public CashRequestSumItem Entity
 		{
 			get => _entity;
