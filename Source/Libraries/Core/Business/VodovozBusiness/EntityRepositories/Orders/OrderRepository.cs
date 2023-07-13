@@ -875,7 +875,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			if(startDate.HasValue)
 			{
-				query.Where(() => orderAlias.DeliveryDate >= startDate);
+				query.Where(() => orderAlias.DeliveryDate >= startDate || orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoUpd);
 			}
 
 			var result = query.Where(() => counterpartyAlias.PersonType == PersonType.legal)
