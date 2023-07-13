@@ -28,9 +28,9 @@ namespace Vodovoz.EntityRepositories.Cash
 				return null;
 			}
 
-			return (from incomeCategory in unitOfWork.Session.Query<FinancialIncomeCategory>()
-					where incomeCategory.Id == expenseCategoryId
-					select incomeCategory.TargetDocument)
+			return (from expenseCategory in unitOfWork.Session.Query<FinancialExpenseCategory>()
+					where expenseCategory.Id == expenseCategoryId
+					select expenseCategory.TargetDocument)
 				   .FirstOrDefault();
 		}
 	}

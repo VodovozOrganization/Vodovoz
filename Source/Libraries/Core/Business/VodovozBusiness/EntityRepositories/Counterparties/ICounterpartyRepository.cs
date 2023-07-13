@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
@@ -29,5 +28,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		IList<Counterparty> GetDealers();
 		Counterparty GetCounterpartyByPersonalAccountIdInEdo(IUnitOfWork uow, string edxClientId);
 		EdoOperator GetEdoOperatorByCode(IUnitOfWork uow, string edoOperatorCode);
+		IList<EdoContainer> GetEdoContainersByCounterpartyId(IUnitOfWork uow, int counterpartyId);
 	}
 }

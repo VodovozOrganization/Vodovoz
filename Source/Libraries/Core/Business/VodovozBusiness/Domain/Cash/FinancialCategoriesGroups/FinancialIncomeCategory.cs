@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "статьи дохода",
-		Nominative = "статья дохада",
+		Nominative = "статья дохода",
 		Accusative = "статью дохода",
 		Genitive = "финансовой статьи дохода")]
 	[EntityPermission]
@@ -24,7 +24,8 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		[Display(Name = "Код")]
 		public virtual int Id { get; }
 
-		[Display(Name = "Код родительской группы")]
+		[Display(Name = "Родительская группа")]
+		[HistoryIdentifier(TargetType = typeof(FinancialCategoriesGroup))]
 		public virtual int? ParentId
 		{
 			get => _parentId;
@@ -52,7 +53,8 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 			set => SetField(ref _targetDocument, value);
 		}
 
-		[Display(Name = "Код подразделения")]
+		[Display(Name = "Подразделение")]
+		[HistoryIdentifier(TargetType = typeof(Subdivision))]
 		public virtual int? SubdivisionId
 		{
 			get => _subdivisionId;

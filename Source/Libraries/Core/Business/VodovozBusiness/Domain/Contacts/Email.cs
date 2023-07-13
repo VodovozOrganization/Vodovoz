@@ -1,7 +1,6 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
-using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Contacts
@@ -11,38 +10,40 @@ namespace Vodovoz.Domain.Contacts
 		Nominative = "E-mail адрес")]
 	public class Email : PropertyChangedBase, IDomainObject
 	{
+		private const string _emailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Zа-яА-Я0-9]+([\.-]?[a-zA-Zа-яА-Я0-9]+)*(\.[a-zA-Zа-яА-Я]{2,10})+$";
+
+		private string _address;
+		private EmailType _emailType;
 		private Counterparty _counterparty;
 
 		public virtual int Id { get; set; }
 
-		private string address;
 		[Display(Name = "Электронный адрес")]
-		public virtual string Address {
-			get { return address; }
-			set { SetField(ref address, value, () => Address); }
+		public virtual string Address
+		{
+			get => _address;
+			set => SetField(ref _address, value);
 		}
 
-		private EmailType emailType;
 		[Display(Name = "Тип адреса")]
-		public virtual EmailType EmailType {
-			get { return emailType; }
-			set { SetField(ref emailType, value, () => EmailType); }
+		public virtual EmailType EmailType
+		{
+			get => _emailType;
+			set => SetField(ref _emailType, value);
 		}
 
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty
 		{
-			get { return _counterparty; }
-			set { SetField(ref _counterparty, value); }
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 
-		public virtual bool IsValidEmail => IsValidEmailFormat();
+		public virtual bool IsValidEmail => CheckEmailFormatIsValid();
 
-		private bool IsValidEmailFormat()
+		private bool CheckEmailFormatIsValid()
 		{
-			var emailPattern = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Zа-яА-Я0-9]+([\.-]?[a-zA-Zа-яА-Я0-9]+)*(\.[a-zA-Zа-яА-Я]{2,10})+$";
-			
-			if(Regex.IsMatch(Address, emailPattern))
+			if(Regex.IsMatch(Address, _emailRegEx))
 			{
 				return true;
 			}

@@ -92,6 +92,10 @@
       <Project>{E79B382D-7E61-42D7-B14D-CD1247E586C2}</Project>
       <Name>Vodovoz.Settings.Database</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Vodovoz.Settings\Vodovoz.Settings.csproj">
+      <Project>{445C399F-F7F9-43FF-8278-E0392A792F03}</Project>
+      <Name>Vodovoz.Settings</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{cfc0d123-abb8-41c5-9814-89f627f770b6}</Project>
       <Name>VodovozBusiness</Name>

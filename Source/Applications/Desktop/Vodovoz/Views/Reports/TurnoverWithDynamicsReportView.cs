@@ -113,6 +113,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 			ShowFilter();
 
+			ytreeReportIndicatorsRows.RowActivated += OnReportRowActivated;
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
 		}
@@ -278,8 +279,20 @@ namespace Vodovoz.ReportsParameters.Sales
 			columnsConfig.AddColumn("");
 
 			ytreeReportIndicatorsRows.ColumnsConfig = columnsConfig.Finish();
-
 			ytreeReportIndicatorsRows.EnableGridLines = TreeViewGridLines.Both;
+		}
+
+		private void OnReportRowActivated(object o, RowActivatedArgs args)
+		{
+			var row = ytreeReportIndicatorsRows.GetSelectedObject<TurnoverWithDynamicsReportRow>();
+
+			if(row == null)
+			{
+				return;
+			}
+
+			var data = row.SliceColumnValues;
+			GetClipboard(Gdk.Selection.Clipboard).Text = string.Join("  \t", data);
 		}
 
 		private void ShowFilter()

@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using FluentNHibernate.Conventions;
+﻿using FluentNHibernate.Conventions;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using MoreLinq;
 using NHibernate.Linq;
@@ -29,7 +28,6 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private readonly Type _financialCategoriesGroupType = typeof(FinancialCategoriesGroup);
 		private readonly Type _financialIncomeCategoryType = typeof(FinancialIncomeCategory);
 		private readonly Type _financialExpenseCategoryType = typeof(FinancialExpenseCategory);
-		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly FinancialCategoriesJournalFilterViewModel _filter;
 		private readonly HierarchicalChunkLinqLoader<FinancialCategoriesGroup, FinancialCategoriesJournalNode> _hierarchicalChunkLinqLoader;
@@ -68,7 +66,6 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			filter.JournalViewModel = this;
 			JournalFilter = filter;
 
-			_interactiveService = interactiveService;
 			_currentPermissionService = currentPermissionService
 				?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_filter = filter ?? throw new ArgumentNullException(nameof(filter));
@@ -135,23 +132,24 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 
 			return (string.IsNullOrWhiteSpace(searchString) || parentId == null)
 				? (from financialCategoriesGroup in unitOfWork.GetAll<FinancialCategoriesGroup>()
-					where ((string.IsNullOrWhiteSpace(searchString) && financialCategoriesGroup.ParentId == parentId)
-							|| financialCategoriesGroup.Title.ToLower().Like(searchString)
-							|| financialCategoriesGroup.Id.ToString().Like(searchString))
-						&& !_filter.ExcludeFinancialGroupsIds.Contains(financialCategoriesGroup.Id)
-						&& (_filter.RestrictNodeTypes.IsEmpty() || _filter.RestrictNodeTypes.Contains(_financialCategoriesGroupType))
-						&& (_filter.ShowArchive || !financialCategoriesGroup.IsArchive)
-						&& (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == financialCategoriesGroup.FinancialSubtype)
-					let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
-					select new FinancialCategoriesJournalNode
-					{
-						Id = financialCategoriesGroup.Id,
-						ParentId = parentId,
-						Name = financialCategoriesGroup.Title,
-						JournalNodeType = _financialCategoriesGroupType,
-						FinancialSubType = financialCategoriesGroup.FinancialSubtype,
-						Children = children.ToList()
-					})
+				   where ((string.IsNullOrWhiteSpace(searchString) && financialCategoriesGroup.ParentId == parentId)
+						   || financialCategoriesGroup.Title.ToLower().Like(searchString)
+						   || financialCategoriesGroup.Id.ToString().Like(searchString))
+					   && !_filter.ExcludeFinancialGroupsIds.Contains(financialCategoriesGroup.Id)
+					   && (_filter.RestrictNodeTypes.IsEmpty() || _filter.RestrictNodeTypes.Contains(_financialCategoriesGroupType))
+					   && (_filter.ShowArchive || !financialCategoriesGroup.IsArchive)
+					   && (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == financialCategoriesGroup.FinancialSubtype)
+					   && (!_filter.RestrictNodeSelectTypes.Any() || string.IsNullOrWhiteSpace(searchString) || _filter.RestrictNodeSelectTypes.Contains(_financialCategoriesGroupType))
+				   let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
+				   select new FinancialCategoriesJournalNode
+				   {
+					   Id = financialCategoriesGroup.Id,
+					   ParentId = parentId,
+					   Name = financialCategoriesGroup.Title,
+					   JournalNodeType = _financialCategoriesGroupType,
+					   FinancialSubType = financialCategoriesGroup.FinancialSubtype,
+					   Children = children.ToList()
+				   })
 					.ToList()
 					.Concat(
 						(_filter.RestrictNodeTypes.IsEmpty()
@@ -176,6 +174,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				&& (_filter.TargetDocument == null || _filter.TargetDocument == incomeCategory.TargetDocument)
 				&& (_filter.Subdivision == null || incomeCategory.SubdivisionId == subdivisionId)
 				&& (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == incomeCategory.FinancialSubtype)
+				&& (!_filter.RestrictNodeSelectTypes.Any() || _filter.RestrictNodeSelectTypes.Contains(_financialIncomeCategoryType))
 			select new FinancialCategoriesJournalNode
 			{
 				Id = incomeCategory.Id,
@@ -194,6 +193,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				&& (_filter.TargetDocument == null || _filter.TargetDocument == expenseCategory.TargetDocument)
 				&& (_filter.Subdivision == null || expenseCategory.SubdivisionId == subdivisionId)
 				&& (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == expenseCategory.FinancialSubtype)
+				&& (!_filter.RestrictNodeSelectTypes.Any() || _filter.RestrictNodeSelectTypes.Contains(_financialExpenseCategoryType))
 			select new FinancialCategoriesJournalNode
 			{
 				Id = expenseCategory.Id,

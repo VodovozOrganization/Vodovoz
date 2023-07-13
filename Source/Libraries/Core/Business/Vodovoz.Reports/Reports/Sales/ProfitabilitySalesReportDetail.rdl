@@ -3026,7 +3026,10 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
     <DataSet Name="Sales">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
+        <Timeout>180</Timeout>
+        <CommandText>
+# При изменении этого запроса, необходимо внести соответствующие изменения в RouteListRepository.GetRouteListSpendings
+SELECT
     c.name AS counterparty,
     dp.compiled_address_short AS delivery_point,
     rla.route_list_id AS route_list,
@@ -3074,7 +3077,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
 		AND (nidp.end_date IS NULL OR nidp.end_date &gt; o.delivery_date)
     ) AS inner_delivery_price_source,
     (SELECT IF(w.type_of_use = 'Production', 0, IFNULL(inner_delivery_price_source, '-'))) AS inner_delivery_price,
-    (SELECT inner_delivery_price_source IS NULL) AS missing_inner_delivery_price,
+    (SELECT inner_delivery_price_source IS NULL AND n.using_in_group_price_set) AS missing_inner_delivery_price,
     #затраты на адресную доставку на килограмм
     (
 		SELECT
@@ -3231,6 +3234,7 @@ WHERE
 	(o.delivery_date &gt;= @start_date
 	AND o.delivery_date &lt;= @end_date)
 	AND !o.is_contract_closer
+  AND n.category != 'deposit'
 	AND (
 	        ((n.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
 	            OR
@@ -3603,7 +3607,7 @@ WHERE
     <DataSet Name="Criterions">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>30</Timeout>
+        <Timeout>180</Timeout>
         <CommandText>SELECT
 	CONCAT(
 		(IF(included_noms!=0,
@@ -3930,7 +3934,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>

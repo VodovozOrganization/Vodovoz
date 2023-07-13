@@ -1,10 +1,17 @@
-﻿using Gamma.ColumnConfig;
+﻿using Autofac;
+using EdoService;
+using EdoService.Converters;
+using EdoService.Dto;
+using EdoService.Services;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using NHibernate;
 using NHibernate.Transform;
 using NLog;
+using QS.Attachments.Domain;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.Entity;
@@ -19,9 +26,12 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
+using QS.Utilities.Text;
 using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
+using RevenueService.Client;
+using RevenueService.Client.Dto;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,11 +39,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
-using EdoService;
-using EdoService.Converters;
-using EdoService.Services;
-using QS.Dialog;
+using System.Threading;
 using TISystems.TTC.CRM.BE.Serialization;
+using TrueMarkApi.Library.Converters;
+using TrueMarkApi.Library.Dto;
+using Vodovoz.Core;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -41,6 +51,8 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.StoredEmails;
@@ -50,6 +62,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Factories;
@@ -63,6 +76,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Edo;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
@@ -76,27 +90,12 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
-using Vodovoz.ViewModels.ViewModels.Goods;
-using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
-using EdoService.Dto;
-using System.Threading;
-using TrueMarkApi.Library.Converters;
-using TrueMarkApi.Library.Dto;
-using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
-using QS.Attachments.Domain;
-using QS.Utilities.Text;
-using Vodovoz.Core;
-using Vodovoz.Settings.Edo;
-using Vodovoz.Settings.Database.Edo;
-using Vodovoz.Settings.Database;
-using Autofac;
-using RevenueService.Client;
-using RevenueService.Client.Dto;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
-using Vodovoz.EntityRepositories.Organizations;
+using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using TrueMarkApiClient = TrueMarkApi.Library.TrueMarkApiClient;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
 {
@@ -146,6 +145,7 @@ namespace Vodovoz
 		private ICounterpartySettings _counterpartySettings;
 		private IOrganizationParametersProvider _organizationParametersProvider = new OrganizationParametersProvider(new ParametersProvider());
 		private IRevenueServiceClient _revenueServiceClient;
+		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -355,6 +355,7 @@ namespace Vodovoz
 			ConfigureTabFixedPrices();
 			CongigureTabEdo();
 			ConfigureValidationContext();
+			ConfigureTabEdoContainers();
 
 			//make actions menu
 			var menu = new Gtk.Menu();
@@ -1212,6 +1213,93 @@ namespace Vodovoz
 			_trueMarkApiClient = new TrueMarkApiClient(_edoSettings.TrueMarkApiBaseUrl, _edoSettings.TrueMarkApiToken);
 		}
 
+		private void ConfigureTabEdoContainers()
+		{
+			treeViewEdoDocumentsContainer.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
+				.AddColumn(" Дата \n создания ")
+					.AddTextRenderer(x => x.Created.ToString("dd.MM.yyyy\nHH:mm"))
+				.AddColumn(" Номер \n заказа ")
+					.AddTextRenderer(x => x.Order.Id.ToString())
+				.AddColumn(" Код документооборота ")
+					.AddTextRenderer(x => x.DocFlowId.HasValue ? x.DocFlowId.ToString() : string.Empty)
+				.AddColumn(" Отправленные \n документы ")
+					.AddTextRenderer(x => x.SentDocuments)
+				.AddColumn(" Статус \n документооборота ")
+					.AddEnumRenderer(x => x.EdoDocFlowStatus)
+				.AddColumn(" Доставлено \n клиенту? ")
+					.AddToggleRenderer(x => x.Received)
+					.Editing(false)
+				.AddColumn(" Описание ошибки ")
+					.AddTextRenderer(x => x.ErrorDescription)
+					.WrapWidth(500)
+				.AddColumn("")
+				.Finish();
+
+			UpdateEdoContainers();
+			treeViewEdoDocumentsContainer.ItemsDataSource = _edoContainers;
+			ybuttonEdoDocumentsSendAllUnsent.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			ybuttonEdoDocumentsSendAllUnsent.Clicked += OnButtonEdoDocumentsSendAllUnsentClicked;
+			ybuttonEdoDocementsUpdate.Clicked += (s, e) => UpdateEdoContainers();
+		}
+
+		private void OnButtonEdoDocumentsSendAllUnsentClicked(object sender, EventArgs e)
+		{
+			if(Entity.Id > 0)
+			{
+				var resendEdoDocumentsDialog = new ResendCounterpartyEdoDocumentsViewModel(
+					EntityUoWBuilder.ForOpen(Entity.Id),
+					UnitOfWorkFactory.GetDefaultFactory,
+					_commonServices,
+					GetOrderIdsWithoutSuccessfullySentUpd());
+				TabParent.AddSlaveTab(this, resendEdoDocumentsDialog);
+			}
+		}
+
+		private void UpdateEdoContainers()
+		{
+			if(Entity.Id < 1)
+			{
+				return;
+			}
+
+			_edoContainers.Clear();
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				foreach(var item in _counterpartyRepository.GetEdoContainersByCounterpartyId(uow, Entity.Id))
+				{
+					_edoContainers.Add(item);
+				}
+			}
+
+			SetEdoDocumentsSendAllUnsentButtonSensitive();
+		}
+
+		private void SetEdoDocumentsSendAllUnsentButtonSensitive()
+		{
+
+			ybuttonEdoDocumentsSendAllUnsent.Sensitive =
+				Entity.Id > 0
+				&& GetOrderIdsWithoutSuccessfullySentUpd().Count > 0;
+		}
+
+		private List<int> GetOrderIdsWithoutSuccessfullySentUpd()
+		{
+			var allOrdersIds = _edoContainers.Select(c => c.Order.Id).Distinct().ToList();
+
+			var orderIdsHavingUpdSentSuccessfully = _edoContainers
+				.Where(c => c.Type == Type.Upd
+					&& !c.IsIncoming
+					&& c.EdoDocFlowStatus == EdoDocFlowStatus.Succeed)
+				.Select(c => c.Order.Id)
+				.Distinct()
+				.ToList();
+
+			var orderIdsWithoutSuccessfullySentUpd = allOrdersIds.Except(orderIdsHavingUpdSentSuccessfully).ToList();
+
+			return orderIdsWithoutSuccessfullySentUpd;
+		}
+
 		private void RefreshBulkEmailEventStatus()
 		{
 			var lastBulkEmailEvent = _emailRepository.GetLastBulkEmailEvent(UoW, Entity.Id);
@@ -1385,14 +1473,15 @@ namespace Vodovoz
 
 				Entity.UoW = UoW;
 
+				_phonesViewModel.RemoveEmpty();
+				emailsView.RemoveEmpty();
+
 				if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 				{
 					return false;
 				}
 
 				_logger.Info("Сохраняем контрагента...");
-				_phonesViewModel.RemoveEmpty();
-				emailsView.RemoveEmpty();
 				UoWGeneric.Save();
 				_logger.Info("Ok.");
 				return true;
@@ -1525,6 +1614,14 @@ namespace Vodovoz
 			if(rbnEdo.Active)
 			{
 				notebook1.CurrentPage = 12;
+			}
+		}
+
+		protected void OnRadioEdoDocumentsToggled(object sender, EventArgs e)
+		{
+			if(rbnEdoDocuments.Active)
+			{
+				notebook1.CurrentPage = 13;
 			}
 		}
 
