@@ -15,7 +15,7 @@ namespace Vodovoz.HibernateMapping.Logistic
 			Map(x => x.ShortName).Column("short_name");
 			Map(x => x.NeedComment).Column("need_comment");
 			Map(x => x.IsArchive).Column("is_archive");
-			Map(x => x.IsDoNotShowInExploitation).Column("is_do_not_show_in_exploitation");
+			Map(x => x.IsDoNotShowInOperation).Column("is_do_not_show_in_operation");
 		}
 	}
 }

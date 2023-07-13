@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.Logistic
 		private string _shortName;
 		private bool _needComment;
 		private bool _isArchive;
-		private bool _isDoNotShowInExploitation;
+		private bool _isDoNotShowInOperation;
 
 		#region Свойства
 
@@ -53,10 +53,10 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display(Name = "Не отображать в эксплуатации ТС")]
-		public bool IsDoNotShowInExploitation
+		public bool IsDoNotShowInOperation
 		{
-			get => _isDoNotShowInExploitation;
-			set => SetField(ref _isDoNotShowInExploitation, value);
+			get => _isDoNotShowInOperation;
+			set => SetField(ref _isDoNotShowInOperation, value);
 		}
 
 
