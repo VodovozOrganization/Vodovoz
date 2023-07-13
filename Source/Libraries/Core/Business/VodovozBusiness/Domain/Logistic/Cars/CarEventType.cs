@@ -18,6 +18,7 @@ namespace Vodovoz.Domain.Logistic
 		private string _shortName;
 		private bool _needComment;
 		private bool _isArchive;
+		private bool _isDoNotShowInExploitation;
 
 		#region Свойства
 
@@ -50,6 +51,14 @@ namespace Vodovoz.Domain.Logistic
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
+
+		[Display(Name = "Не отображать в эксплуатации ТС")]
+		public bool IsDoNotShowInExploitation
+		{
+			get => _isDoNotShowInExploitation;
+			set => SetField(ref _isDoNotShowInExploitation, value);
+		}
+
 
 		#endregion
 
