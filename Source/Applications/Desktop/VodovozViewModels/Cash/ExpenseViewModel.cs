@@ -537,8 +537,10 @@ namespace Vodovoz.ViewModels.Cash
 			Entity.Money = _orderIdsToChanges.Sum(item => item.Value);
 		}
 
-		public void CopyFromExpense(Expense source)
+		public void CopyFromExpense(int expenseId)
 		{
+			var source = UoW.GetById<Expense>(expenseId);
+
 			Entity.TypeOperation = source.TypeOperation;
 			Entity.ExpenseCategoryId = source.ExpenseCategoryId;
 			Entity.Description = source.Description;

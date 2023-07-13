@@ -122,7 +122,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 					if(selectedNode != null)
 					{
 						var page = NavigationManager.OpenViewModel<ExpenseViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
-						page.ViewModel.CopyFromExpense(UoW.GetById<Expense>(selectedNode.Id));
+						page.ViewModel.CopyFromExpense(selectedNode.Id);
 					}
 				}));
 		}
