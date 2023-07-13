@@ -113,10 +113,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 					.Any(x => x is DocumentNode node
 						&& node.CashDocumentType == CashDocumentType.Expense
 						&& node.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseInvoice),
-				(selectedItems) => selectedItems
-					.Any(x => x is DocumentNode node
-						&& node.CashDocumentType == CashDocumentType.Expense
-						&& node.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseInvoice),
+				(selectedItems) => true,
 				(selectedItems) =>
 				{
 					var selectedNodes = selectedItems.Cast<DocumentNode>();
@@ -124,7 +121,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 					if(selectedNode != null)
 					{
-						var page = NavigationManager.OpenViewModel<ExpenseViewModel>(this);
+						var page = NavigationManager.OpenViewModel<ExpenseViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 						page.ViewModel.CopyFromExpense(UoW.GetById<Expense>(selectedNode.Id));
 					}
 				}));
@@ -505,7 +502,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 			FinancialExpenseCategory financialExpenseCategoryAlias = null;
 
-			var expenseDocTypes = new CashDocumentType[]
+			var expenseDocumentTypes = new CashDocumentType[]
 			{
 				CashDocumentType.Expense,
 				CashDocumentType.ExpenseSelfDelivery
@@ -514,7 +511,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 			var query = unitOfWork.Session.QueryOver(() => expenseAlias);
 
 			if(FilterViewModel.FinancialIncomeCategory == null
-				&& (FilterViewModel.CashDocumentType == null || expenseDocTypes.Contains(FilterViewModel.CashDocumentType.Value))
+				&& (FilterViewModel.CashDocumentType == null || expenseDocumentTypes.Contains(FilterViewModel.CashDocumentType.Value))
 				&& (FilterViewModel.RestrictDocument is null || FilterViewModel.RestrictDocument == typeof(Expense)))
 			{
 				if(FilterViewModel.Subdivision is null)
@@ -603,6 +600,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 								ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery),
 						Projections.Constant(CashDocumentType.ExpenseSelfDelivery),
 						Projections.Constant(CashDocumentType.Expense)))
+					.WithAlias(() => resultAlias.CashDocumentType)
 					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmployeeSurname)
 					.Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmployeePatronymic)
 					.Select(() => casherAlias.Name).WithAlias(() => resultAlias.CasherName)
