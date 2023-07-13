@@ -196,7 +196,7 @@ namespace Vodovoz.ViewWidgets
 
 			yenumcomboboxTransferType.Visible = undelivery?.NewOrder != null;
 
-			cmbUndeliveryKind.SetRenderTextFunc<UndeliveryKind>(k => k.GetFullName);
+			/*cmbUndeliveryKind.SetRenderTextFunc<UndeliveryKind>(k => k.GetFullName);
 			cmbUndeliveryKind.Binding
 				.AddBinding(_viewModel, vm => vm.UndeliveryKindSource, w => w.ItemsList)
 				.AddBinding(_viewModel, vm => vm.CanEdit, w => w.Sensitive)
@@ -213,7 +213,7 @@ namespace Vodovoz.ViewWidgets
 			evmeUndeliveryDetalization.Binding
 				.AddBinding(undelivery, u => u.UndeliveryDetalization, w => w.Subject)
 				.AddBinding(_viewModel, vm => vm.CanChangeDetalization, w => w.Sensitive)
-				.InitializeFromSource();
+				.InitializeFromSource();*/
 
 			undelivery.PropertyChanged += (sender, e) => {
 				if(e.PropertyName == nameof(undelivery.UndeliveryDetalization))

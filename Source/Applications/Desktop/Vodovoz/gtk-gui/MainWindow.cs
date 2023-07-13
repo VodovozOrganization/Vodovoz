@@ -593,6 +593,10 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionUndeliveryDetalization;
 
+	private global::Gtk.Action ComplaintClassificationAction;
+
+	private global::Gtk.Action ActionUndeliveryClassification;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -665,27 +669,27 @@ public partial class MainWindow
 		this.ActionServices.ShortLabel = global::Mono.Unix.Catalog.GetString("Сервис");
 		w1.Add(this.ActionServices, null);
 		this.ActionLogistics = new global::Gtk.RadioAction("ActionLogistics", global::Mono.Unix.Catalog.GetString("Логистика"), null, "logistic", 0);
-		this.ActionLogistics.Group = this.ActionOrders.Group;
+		this.ActionLogistics.Group = this.ActionServices.Group;
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString("Логистика");
 		w1.Add(this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction("ActionStock", global::Mono.Unix.Catalog.GetString("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionOrders.Group;
+		this.ActionStock.Group = this.ActionServices.Group;
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString("Склад");
 		w1.Add(this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction("ActionCash", global::Mono.Unix.Catalog.GetString("Касса"), null, "cash", 0);
-		this.ActionCash.Group = this.ActionOrders.Group;
+		this.ActionCash.Group = this.ActionServices.Group;
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString("Касса");
 		w1.Add(this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction("ActionAccounting", global::Mono.Unix.Catalog.GetString("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionOrders.Group;
+		this.ActionAccounting.Group = this.ActionServices.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString("Бухгалтерия");
 		w1.Add(this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction("ActionReports", global::Mono.Unix.Catalog.GetString("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionOrders.Group;
+		this.ActionReports.Group = this.ActionServices.Group;
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчеты");
 		w1.Add(this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction("ActionArchive", global::Mono.Unix.Catalog.GetString("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionOrders.Group;
+		this.ActionArchive.Group = this.ActionServices.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString("Архив");
 		w1.Add(this.ActionArchive, null);
 		this.ActionOrg = new global::Gtk.Action("ActionOrg", global::Mono.Unix.Catalog.GetString("Организации"), null, null);
@@ -819,7 +823,7 @@ public partial class MainWindow
 		this.ActionToolBarIcon.ShortLabel = global::Mono.Unix.Catalog.GetString("Только иконки");
 		w1.Add(this.ActionToolBarIcon, null);
 		this.ActionToolBarBoth = new global::Gtk.RadioAction("ActionToolBarBoth", global::Mono.Unix.Catalog.GetString("Иконки и Текст"), null, null, 0);
-		this.ActionToolBarBoth.Group = this.ActionToolBarText.Group;
+		this.ActionToolBarBoth.Group = this.ActionToolBarIcon.Group;
 		this.ActionToolBarBoth.ShortLabel = global::Mono.Unix.Catalog.GetString("Иконки и Текст");
 		w1.Add(this.ActionToolBarBoth, null);
 		this.ActionIconsExtraSmall = new global::Gtk.RadioAction("ActionIconsExtraSmall", global::Mono.Unix.Catalog.GetString("Очень маленькие иконки"), null, null, 0);
@@ -835,7 +839,7 @@ public partial class MainWindow
 		this.ActionIconsMiddle.ShortLabel = global::Mono.Unix.Catalog.GetString("Средние иконки");
 		w1.Add(this.ActionIconsMiddle, null);
 		this.ActionIconsLarge = new global::Gtk.RadioAction("ActionIconsLarge", global::Mono.Unix.Catalog.GetString("Большие иконки"), null, null, 0);
-		this.ActionIconsLarge.Group = this.ActionIconsExtraSmall.Group;
+		this.ActionIconsLarge.Group = this.ActionIconsMiddle.Group;
 		this.ActionIconsLarge.ShortLabel = global::Mono.Unix.Catalog.GetString("Большие иконки");
 		w1.Add(this.ActionIconsLarge, null);
 		this.ActionDeliveryPoints = new global::Gtk.Action("ActionDeliveryPoints", global::Mono.Unix.Catalog.GetString("Точки доставки"), null, null);
@@ -899,7 +903,7 @@ public partial class MainWindow
 		this.ActionForwarderWageReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарплаты экспедиторов");
 		w1.Add(this.ActionForwarderWageReport, null);
 		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "employees", 0);
-		this.ActionStaff.Group = this.ActionOrders.Group;
+		this.ActionStaff.Group = this.ActionServices.Group;
 		this.ActionStaff.ShortLabel = global::Mono.Unix.Catalog.GetString("Кадры");
 		w1.Add(this.ActionStaff, null);
 		this.ActionDriversWageBalance = new global::Gtk.Action("ActionDriversWageBalance", global::Mono.Unix.Catalog.GetString("Баланс водителей"), null, null);
@@ -1107,7 +1111,7 @@ public partial class MainWindow
 		this.ActionNotFullyLoadedRouteLists.ShortLabel = global::Mono.Unix.Catalog.GetString("Недопогруженные МЛ");
 		w1.Add(this.ActionNotFullyLoadedRouteLists, null);
 		this.ActionCRM = new global::Gtk.RadioAction("ActionCRM", global::Mono.Unix.Catalog.GetString("Работа с кл."), null, "CRM", 0);
-		this.ActionCRM.Group = this.ActionOrders.Group;
+		this.ActionCRM.Group = this.ActionServices.Group;
 		this.ActionCRM.ShortLabel = global::Mono.Unix.Catalog.GetString("Работа с кл.");
 		w1.Add(this.ActionCRM, null);
 		this.ActionForShipment = new global::Gtk.Action("ActionForShipment", global::Mono.Unix.Catalog.GetString("Товары для отгрузки"), null, null);
@@ -1186,7 +1190,7 @@ public partial class MainWindow
 		this.ComplaintResultsAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Результаты рассмотрения рекламаций");
 		w1.Add(this.ComplaintResultsAction, null);
 		this.ActionSuppliers = new global::Gtk.RadioAction("ActionSuppliers", global::Mono.Unix.Catalog.GetString("Закупки"), null, "suppliers", 0);
-		this.ActionSuppliers.Group = this.ActionOrders.Group;
+		this.ActionSuppliers.Group = this.ActionServices.Group;
 		this.ActionSuppliers.ShortLabel = global::Mono.Unix.Catalog.GetString("Закупки");
 		w1.Add(this.ActionSuppliers, null);
 		this.ActionWarehouses = new global::Gtk.Action("ActionWarehouses", global::Mono.Unix.Catalog.GetString("Склады"), null, null);
@@ -1292,7 +1296,7 @@ public partial class MainWindow
 		this.ActionCashRequestJournal.ShortLabel = global::Mono.Unix.Catalog.GetString("Заявка на выдачу ДС");
 		w1.Add(this.ActionCashRequestJournal, null);
 		this.ActionCashRequest = new global::Gtk.RadioAction("ActionCashRequest", global::Mono.Unix.Catalog.GetString("Общее"), null, "gtk-file", 0);
-		this.ActionCashRequest.Group = this.ActionOrders.Group;
+		this.ActionCashRequest.Group = this.ActionServices.Group;
 		this.ActionCashRequest.ShortLabel = global::Mono.Unix.Catalog.GetString("Общее");
 		w1.Add(this.ActionCashRequest, null);
 		this.ActionProposals = new global::Gtk.Action("ActionProposals", global::Mono.Unix.Catalog.GetString("Предложения"), null, null);
@@ -1312,7 +1316,7 @@ public partial class MainWindow
 		this.registeredRMAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарегистрированные RM");
 		w1.Add(this.registeredRMAction, null);
 		this.ActionRetail = new global::Gtk.RadioAction("ActionRetail", global::Mono.Unix.Catalog.GetString("Розница"), null, "retail", 0);
-		this.ActionRetail.Group = this.ActionOrders.Group;
+		this.ActionRetail.Group = this.ActionServices.Group;
 		this.ActionRetail.ShortLabel = global::Mono.Unix.Catalog.GetString("Розница");
 		w1.Add(this.ActionRetail, null);
 		this.ActionRetailOrdersJournal = new global::Gtk.Action("ActionRetailOrdersJournal", global::Mono.Unix.Catalog.GetString("Журнал заказов"), null, null);
@@ -1391,7 +1395,7 @@ public partial class MainWindow
 		this.ActionDeliveryAnalytics.ShortLabel = global::Mono.Unix.Catalog.GetString("Аналитика объёмов доставки");
 		w1.Add(this.ActionDeliveryAnalytics, null);
 		this.ActionCarService = new global::Gtk.RadioAction("ActionCarService", global::Mono.Unix.Catalog.GetString("ТрО"), null, "car_events", 0);
-		this.ActionCarService.Group = this.ActionOrders.Group;
+		this.ActionCarService.Group = this.ActionServices.Group;
 		this.ActionCarService.ShortLabel = global::Mono.Unix.Catalog.GetString("ТрО");
 		w1.Add(this.ActionCarService, null);
 		this.ActionCarEventType = new global::Gtk.Action("ActionCarEventType", global::Mono.Unix.Catalog.GetString("Виды событий ТС"), null, null);
@@ -1479,7 +1483,7 @@ public partial class MainWindow
 		this.ActionGroupPricing.ShortLabel = global::Mono.Unix.Catalog.GetString("Групповое заполнение себестоимости");
 		w1.Add(this.ActionGroupPricing, null);
 		this.ActionSalesDepartment = new global::Gtk.RadioAction("ActionSalesDepartment", global::Mono.Unix.Catalog.GetString("Отдел продаж"), null, "sales_department", 0);
-		this.ActionSalesDepartment.Group = this.ActionCarService.Group;
+		this.ActionSalesDepartment.Group = this.ActionServices.Group;
 		this.ActionSalesDepartment.ShortLabel = global::Mono.Unix.Catalog.GetString("Отдел продаж");
 		w1.Add(this.ActionSalesDepartment, null);
 		this.ActionResponsible = new global::Gtk.Action("ActionResponsible", global::Mono.Unix.Catalog.GetString("Ответственные за рекламации"), null, null);
@@ -1548,6 +1552,12 @@ public partial class MainWindow
 		this.ActionUndeliveryDetalization = new global::Gtk.Action("ActionUndeliveryDetalization", global::Mono.Unix.Catalog.GetString("Детализация недовозов"), null, null);
 		this.ActionUndeliveryDetalization.ShortLabel = global::Mono.Unix.Catalog.GetString("Детализация недовозов");
 		w1.Add(this.ActionUndeliveryDetalization, null);
+		this.ComplaintClassificationAction = new global::Gtk.Action("ComplaintClassificationAction", global::Mono.Unix.Catalog.GetString("Классификация рекламаций"), null, null);
+		this.ComplaintClassificationAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Классификация рекламаций");
+		w1.Add(this.ComplaintClassificationAction, null);
+		this.ActionUndeliveryClassification = new global::Gtk.Action("ActionUndeliveryClassification", global::Mono.Unix.Catalog.GetString("Классификация недовозов"), null, null);
+		this.ActionUndeliveryClassification.ShortLabel = global::Mono.Unix.Catalog.GetString("Классификация недовозов");
+		w1.Add(this.ActionUndeliveryClassification, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -1593,214 +1603,216 @@ public partial class MainWindow
 				"rces\'/><menu name=\'ComplaintResultsAction\' action=\'ComplaintResultsAction\'><menu" +
 				"item name=\'ComplaintResultsOfCounterpartyAction\' action=\'ComplaintResultsOfCount" +
 				"erpartyAction\'/><menuitem name=\'ComplaintResultsOfEmployeesAction\' action=\'Compl" +
-				"aintResultsOfEmployeesAction\'/></menu><menuitem name=\'ActionComplaintObject\' act" +
-				"ion=\'ActionComplaintObject\'/><menuitem name=\'ActionComplaintKind\' action=\'Action" +
-				"ComplaintKind\'/><menuitem name=\'ActionComplaintDetalizationJournal\' action=\'Acti" +
-				"onComplaintDetalizationJournal\'/><menuitem name=\'ActionUndeliveryProblemSources\'" +
-				" action=\'ActionUndeliveryProblemSources\'/><menuitem name=\'ActionDriversComplaint" +
-				"ReasonsJournal\' action=\'ActionDriversComplaintReasonsJournal\'/><menuitem name=\'A" +
-				"ctionResponsible\' action=\'ActionResponsible\'/><separator/><menuitem name=\'Action" +
-				"PhoneTypes\' action=\'ActionPhoneTypes\'/><menuitem name=\'ActionEMailTypes\' action=" +
-				"\'ActionEMailTypes\'/><menuitem name=\'ActionUnsubscribingReasons\' action=\'ActionUn" +
-				"subscribingReasons\'/><separator/><menuitem name=\'RoboatsExportAction\' action=\'Ro" +
-				"boatsExportAction\'/><separator/></menu><menu name=\'ActionTMC\' action=\'ActionTMC\'" +
-				"><menuitem name=\'ActionNomenclature\' action=\'ActionNomenclature\'/><menu name=\'In" +
-				"ventoryAcountingAction\' action=\'InventoryAcountingAction\'><menuitem name=\'Invent" +
-				"oryInstancesAction\' action=\'InventoryInstancesAction\'/><menuitem name=\'Inventory" +
-				"NomenclaturesAction\' action=\'InventoryNomenclaturesAction\'/></menu><menuitem nam" +
-				"e=\'ActionUnits\' action=\'ActionUnits\'/><menuitem name=\'ActionProductGroups\' actio" +
-				"n=\'ActionProductGroups\'/><menuitem name=\'ActionFolders1c\' action=\'ActionFolders1" +
-				"c\'/><menuitem name=\'ActionPromotionalSets\' action=\'ActionPromotionalSets\'/><menu" +
-				"item name=\'ActionAdditionalLoadSettings\' action=\'ActionAdditionalLoadSettings\'/>" +
-				"<menuitem name=\'ActionGroupPricing\' action=\'ActionGroupPricing\'/><separator/><me" +
-				"nuitem name=\'ActionEquipment\' action=\'ActionEquipment\'/><menuitem name=\'ActionEq" +
-				"uipmentKinds\' action=\'ActionEquipmentKinds\'/><menuitem name=\'ActionManufacturers" +
-				"\' action=\'ActionManufacturers\'/><menuitem name=\'ActionColors\' action=\'ActionColo" +
-				"rs\'/><separator/><menuitem name=\'ActionProductSpecification\' action=\'ActionProdu" +
-				"ctSpecification\'/><menuitem name=\'ActionCertificates\' action=\'ActionCertificates" +
-				"\'/><menuitem name=\'ActionRegrandingOfGoodsTempalte\' action=\'ActionRegrandingOfGo" +
-				"odsTempalte\'/><menuitem name=\'ActionCullingCategory\' action=\'ActionCullingCatego" +
-				"ry\'/><menuitem name=\'ActionTransportationWagon\' action=\'ActionTransportationWago" +
-				"n\'/><separator/><menuitem name=\'ActionFreeRentPackage\' action=\'ActionFreeRentPac" +
-				"kage\'/><menuitem name=\'ActionPaidRentPackage\' action=\'ActionPaidRentPackage\'/><m" +
-				"enuitem name=\'ActionDiscountReasons\' action=\'ActionDiscountReasons\'/><menuitem n" +
-				"ame=\'ActionNonReturnReasons\' action=\'ActionNonReturnReasons\'/><menuitem name=\'Ac" +
-				"tionReturnTareReasons\' action=\'ActionReturnTareReasons\'/><menuitem name=\'ActionR" +
-				"eturnTareReasonCategories\' action=\'ActionReturnTareReasonCategories\'/><menuitem " +
-				"name=\'ActionFlyers\' action=\'ActionFlyers\'/></menu><menu name=\'ActionBanksMenu\' a" +
-				"ction=\'ActionBanksMenu\'><menuitem name=\'ActionBanksRF\' action=\'ActionBanksRF\'/><" +
-				"separator/><menuitem name=\'Action51\' action=\'Action51\'/><menuitem name=\'ActionEd" +
-				"oOperators\' action=\'ActionEdoOperators\'/></menu><menu name=\'FinancesAction\' acti" +
-				"on=\'FinancesAction\'><menuitem name=\'Action14\' action=\'Action14\'/><menuitem name=" +
-				"\'Action15\' action=\'Action15\'/><menuitem name=\'ProfitabilityConstantsAction\' acti" +
-				"on=\'ProfitabilityConstantsAction\'/><menuitem name=\'ActionFinancialCategoriesGrou" +
-				"ps\' action=\'ActionFinancialCategoriesGroups\'/></menu><menu name=\'ActionCounterpa" +
-				"rty1\' action=\'ActionCounterparty1\'><menuitem name=\'ActionCounterpartyHandbook\' a" +
-				"ction=\'ActionCounterpartyHandbook\'/><menuitem name=\'ActionDeliveryPoints\' action" +
-				"=\'ActionDeliveryPoints\'/><menuitem name=\'ActionCameFrom\' action=\'ActionCameFrom\'" +
-				"/><menuitem name=\'ActionDeliveryPointCategory\' action=\'ActionDeliveryPointCatego" +
-				"ry\'/><menuitem name=\'ActionCounterpartyActivityKinds\' action=\'ActionCounterparty" +
-				"ActivityKinds\'/><menuitem name=\'ActionResponsiblePersonTypesJournal\' action=\'Act" +
-				"ionResponsiblePersonTypesJournal\'/><menuitem name=\'ActionSalesChannelsJournal\' a" +
-				"ction=\'ActionSalesChannelsJournal\'/><menuitem name=\'ActionOrganizationOwnershipT" +
-				"ype\' action=\'ActionOrganizationOwnershipType\'/><separator/><menuitem name=\'Actio" +
-				"nCounterpartyPost\' action=\'ActionCounterpartyPost\'/><separator/><menuitem name=\'" +
-				"ActionRoboAtsCounterpartyName\' action=\'ActionRoboAtsCounterpartyName\'/><menuitem" +
-				" name=\'ActionRoboAtsCounterpartyPatronymic\' action=\'ActionRoboAtsCounterpartyPat" +
-				"ronymic\'/><separator/><menuitem name=\'ActionLoad1c\' action=\'ActionLoad1c\'/><menu" +
-				"item name=\'ExternalCounterpartiesMatchingAction\' action=\'ExternalCounterpartiesM" +
-				"atchingAction\'/></menu><menu name=\'ActionMenuLogistic\' action=\'ActionMenuLogisti" +
-				"c\'><menuitem name=\'ActionDeliverySchedule\' action=\'ActionDeliverySchedule\'/><men" +
-				"uitem name=\'ActionDeliveryPriceRules\' action=\'ActionDeliveryPriceRules\'/><menuit" +
-				"em name=\'ActionTariffZones\' action=\'ActionTariffZones\'/><separator/><menuitem na" +
-				"me=\'ActionDeliveryDaySchedule\' action=\'ActionDeliveryDaySchedule\'/><menuitem nam" +
-				"e=\'ActionDeliveryShift\' action=\'ActionDeliveryShift\'/><separator/><menuitem name" +
-				"=\'ActionCar\' action=\'ActionCar\'/><menuitem name=\'ActionFuelType\' action=\'ActionF" +
-				"uelType\'/><menuitem name=\'ActionCarModels\' action=\'ActionCarModels\'/><menuitem n" +
-				"ame=\'ActionCarManufacturers\' action=\'ActionCarManufacturers\'/><separator/><menui" +
-				"tem name=\'ActionRouteColumns\' action=\'ActionRouteColumns\'/><menuitem name=\'Actio" +
-				"nLateArrivalReasons\' action=\'ActionLateArrivalReasons\'/><menuitem name=\'ActionCa" +
-				"rEventType\' action=\'ActionCarEventType\'/></menu><menu name=\'Action12\' action=\'Ac" +
-				"tion12\'><menuitem name=\'ActionCommentTemplates\' action=\'ActionCommentTemplates\'/" +
-				"><menuitem name=\'ActionFineCommentTemplates\' action=\'ActionFineCommentTemplates\'" +
-				"/><menuitem name=\'Action47\' action=\'Action47\'/></menu><menu name=\'ActionOrdersMa" +
-				"inGroup\' action=\'ActionOrdersMainGroup\'><menuitem name=\'ActionPaymentsFrom\' acti" +
-				"on=\'ActionPaymentsFrom\'/><menuitem name=\'ActionNomenclaturePlan\' action=\'ActionN" +
-				"omenclaturePlan\'/><menuitem name=\'UndeliveryTransferAbsenceReason\' action=\'Undel" +
-				"iveryTransferAbsenceReason\'/><menuitem name=\'ActionUndeliveryObject\' action=\'Act" +
-				"ionUndeliveryObject\'/><menuitem name=\'ActionUndeliveryKind\' action=\'ActionUndeli" +
-				"veryKind\'/><menuitem name=\'ActionUndeliveryDetalization\' action=\'ActionUndeliver" +
-				"yDetalization\'/></menu></menu><menu name=\'Action60\' action=\'Action60\'><menu name" +
-				"=\'ActionReportOrders\' action=\'ActionReportOrders\'><menuitem name=\'ActionCashierC" +
-				"omments\' action=\'ActionCashierComments\'/><menuitem name=\'ActionOrdersByDistrict\'" +
-				" action=\'ActionOrdersByDistrict\'/><menuitem name=\'Action53\' action=\'Action53\'/><" +
-				"menuitem name=\'Action38\' action=\'Action38\'/><menuitem name=\'ActionOrdersWithMinP" +
-				"riceLessThan\' action=\'ActionOrdersWithMinPriceLessThan\'/><menuitem name=\'actionS" +
-				"elfDeliveryReport\' action=\'actionSelfDeliveryReport\'/><menuitem name=\'ActionSubu" +
-				"rbWaterPrice\' action=\'ActionSuburbWaterPrice\'/><menuitem name=\'ActionCounterpart" +
-				"yTag\' action=\'ActionCounterpartyTag\'/><menuitem name=\'ActionNotDeliveredOrders\' " +
-				"action=\'ActionNotDeliveredOrders\'/><menuitem name=\'ActionOrderRegistry\' action=\'" +
-				"ActionOrderRegistry\'/><menuitem name=\'ActionCardPayments\' action=\'ActionCardPaym" +
-				"ents\'/><menuitem name=\'OnLineAction\' action=\'OnLineAction\'/><menuitem name=\'Acti" +
-				"onFirstClients\' action=\'ActionFirstClients\'/><menuitem name=\'ActionSalesByDicoun" +
-				"tReport\' action=\'ActionSalesByDicountReport\'/><menuitem name=\'Action66\' action=\'" +
-				"Action66\'/><menuitem name=\'ActionPaymentsReport\' action=\'ActionPaymentsReport\'/>" +
-				"<menuitem name=\'Action71\' action=\'Action71\'/><menuitem name=\'ActionOrderAnalytic" +
-				"sReport\' action=\'ActionOrderAnalyticsReport\'/><menuitem name=\'ActionNomenclature" +
-				"PlanReport\' action=\'ActionNomenclaturePlanReport\'/><menuitem name=\'ActionPayment" +
-				"sFromAvangardReport\' action=\'ActionPaymentsFromAvangardReport\'/></menu><menu nam" +
-				"e=\'ActionReportsSales\' action=\'ActionReportsSales\'><menuitem name=\'ActionSalesRe" +
-				"port\' action=\'ActionSalesReport\'/><menuitem name=\'ActionOrderCreationDateReport\'" +
-				" action=\'ActionOrderCreationDateReport\'/><menuitem name=\'ActionPlanImplementatio" +
-				"nReport\' action=\'ActionPlanImplementationReport\'/><menuitem name=\'ActionSetBills" +
-				"Report\' action=\'ActionSetBillsReport\'/><menuitem name=\'ActionProfitabilitySalesR" +
-				"eport\' action=\'ActionProfitabilitySalesReport\'/><menuitem name=\'ActionTurnoverWi" +
-				"thDynamicsReport\' action=\'ActionTurnoverWithDynamicsReport\'/><menuitem name=\'Sal" +
-				"esBySubdivisionsAnalitycsAction\' action=\'SalesBySubdivisionsAnalitycsAction\'/></" +
-				"menu><separator/><menu name=\'ActionReportsStock\' action=\'ActionReportsStock\'><me" +
-				"nuitem name=\'ActionActionWarehousesBalanceSummaryReport\' action=\'ActionActionWar" +
-				"ehousesBalanceSummaryReport\'/><menuitem name=\'ActionStockMovements\' action=\'Acti" +
-				"onStockMovements\'/><menuitem name=\'Action50\' action=\'Action50\'/><menuitem name=\'" +
-				"ActionDefectiveItemsReport\' action=\'ActionDefectiveItemsReport\'/><menuitem name=" +
-				"\'ActionNotFullyLoadedRouteLists\' action=\'ActionNotFullyLoadedRouteLists\'/><menui" +
-				"tem name=\'ActionForShipment\' action=\'ActionForShipment\'/><menuitem name=\'ActionS" +
-				"tockMovementsAdvancedReport\' action=\'ActionStockMovementsAdvancedReport\'/><menui" +
-				"tem name=\'ActionProductionRequestReport\' action=\'ActionProductionRequestReport\'/" +
-				"><menuitem name=\'InventoryInstanceMovementReportAction\' action=\'InventoryInstanc" +
-				"eMovementReportAction\'/></menu><menu name=\'ActionOSKOKKReports\' action=\'ActionOS" +
-				"KOKKReports\'><menuitem name=\'ActionBottlesMovementSummaryReport\' action=\'ActionB" +
-				"ottlesMovementSummaryReport\'/><menuitem name=\'ActionBottlesMovementRLReport\' act" +
-				"ion=\'ActionBottlesMovementRLReport\'/><menuitem name=\'ActionShortfallBattles\' act" +
-				"ion=\'ActionShortfallBattles\'/><menuitem name=\'Action57\' action=\'Action57\'/><menu" +
-				"item name=\'Action58\' action=\'Action58\'/><menuitem name=\'ActionTariffZoneDebtsRep" +
-				"ort\' action=\'ActionTariffZoneDebtsReport\'/><menuitem name=\'ActionRLRegister\' act" +
-				"ion=\'ActionRLRegister\'/><menuitem name=\'ActionCounterpartyActivityKind\' action=\'" +
-				"ActionCounterpartyActivityKind\'/><menuitem name=\'ActionExtraBottlesReport\' actio" +
-				"n=\'ActionExtraBottlesReport\'/><menuitem name=\'ActionFirstSecondReport\' action=\'A" +
-				"ctionFirstSecondReport\'/><menuitem name=\'ActionProfitabilityBottlesByStock\' acti" +
-				"on=\'ActionProfitabilityBottlesByStock\'/><menuitem name=\'Action64\' action=\'Action" +
-				"64\'/><menuitem name=\'ActionReturnedTareReport\' action=\'ActionReturnedTareReport\'" +
-				"/><menuitem name=\'ActionBulkEmailEventsReport\' action=\'ActionBulkEmailEventsRepo" +
-				"rt\'/></menu><menu name=\'ActionLogistic\' action=\'ActionLogistic\'><menuitem name=\'" +
-				"ActionOrdersByDistrictsAndDeliverySchedules\' action=\'ActionOrdersByDistrictsAndD" +
-				"eliverySchedules\'/><menuitem name=\'ActionFuelConsumptionReport\' action=\'ActionFu" +
-				"elConsumptionReport\'/><menuitem name=\'ActionOrdersCreationTimeReport1\' action=\'A" +
-				"ctionOrdersCreationTimeReport1\'/><menuitem name=\'ActionWayBillReport\' action=\'Ac" +
-				"tionWayBillReport\'/><menuitem name=\'ActionNonClosedRLByPeriodReport\' action=\'Act" +
-				"ionNonClosedRLByPeriodReport\'/><menuitem name=\'ActionFuelConsumptionReport1\' act" +
-				"ion=\'ActionFuelConsumptionReport1\'/><menuitem name=\'ActionOrderStatisticByWeekRe" +
-				"port\' action=\'ActionOrderStatisticByWeekReport\'/><menuitem name=\'ActionCarsExplo" +
-				"itationReport\' action=\'ActionCarsExploitationReport\'/><menuitem name=\'ActionLogi" +
-				"sticsGeneralSalaryInfo\' action=\'ActionLogisticsGeneralSalaryInfo\'/><menuitem nam" +
-				"e=\'ActionDriversInfoExport\' action=\'ActionDriversInfoExport\'/><menuitem name=\'Ac" +
-				"tionAddressesOverpaymentsReport\' action=\'ActionAddressesOverpaymentsReport\'/><me" +
-				"nuitem name=\'ActionDeliveryAnalytics\' action=\'ActionDeliveryAnalytics\'/><menuite" +
-				"m name=\'ActionAnalyticsForUndelivery\' action=\'ActionAnalyticsForUndelivery\'/><me" +
-				"nuitem name=\'FastDeliverySalesReportAction\' action=\'FastDeliverySalesReportActio" +
-				"n\'/><menuitem name=\'FastDeliveryAdditionalLoadingReportAction\' action=\'FastDeliv" +
-				"eryAdditionalLoadingReportAction\'/><menuitem name=\'ActionFastDeliveryPercentCove" +
-				"rageReportActivated\' action=\'ActionFastDeliveryPercentCoverageReportActivated\'/>" +
-				"</menu><separator/><menu name=\'ActionReportEmployees\' action=\'ActionReportEmploy" +
-				"ees\'><menuitem name=\'ActionEmployeeFines\' action=\'ActionEmployeeFines\'/><menuite" +
-				"m name=\'ActionEmployeesBonuses\' action=\'ActionEmployeesBonuses\'/><menuitem name=" +
-				"\'ActionEmployeesReport\' action=\'ActionEmployeesReport\'/></menu><menu name=\'Actio" +
-				"nReportsDrivers\' action=\'ActionReportsDrivers\'><menuitem name=\'ActionDeliveriesL" +
-				"ate\' action=\'ActionDeliveriesLate\'/><menuitem name=\'ActionUnclosedRouteLists\' ac" +
-				"tion=\'ActionUnclosedRouteLists\'/><separator/><menuitem name=\'ActionRoutesListReg" +
-				"ister\' action=\'ActionRoutesListRegister\'/><menuitem name=\'ActionOnLoadTime\' acti" +
-				"on=\'ActionOnLoadTime\'/><menuitem name=\'ActionDeliveryTimeReport\' action=\'ActionD" +
-				"eliveryTimeReport\'/><menuitem name=\'ActionCompanyTrucks\' action=\'ActionCompanyTr" +
-				"ucks\'/><menuitem name=\'ActionShipmentReport\' action=\'ActionShipmentReport\'/><men" +
-				"uitem name=\'ActionMileageReport\' action=\'ActionMileageReport\'/><menuitem name=\'A" +
-				"ction67\' action=\'Action67\'/><menuitem name=\'DriversToDistrictsAssignmentReportAc" +
-				"tion\' action=\'DriversToDistrictsAssignmentReportAction\'/></menu><separator/><men" +
-				"u name=\'ActionReportService\' action=\'ActionReportService\'><menuitem name=\'Action" +
-				"42\' action=\'Action42\'/><menuitem name=\'Action41\' action=\'Action41\'/><menuitem na" +
-				"me=\'ActionMastersVisitReport\' action=\'ActionMastersVisitReport\'/></menu><menu na" +
-				"me=\'ActionBookkeepping\' action=\'ActionBookkeepping\'><menuitem name=\'ActionCloseD" +
-				"eliveryReport\' action=\'ActionCloseDeliveryReport\'/><menuitem name=\'ActionPayment" +
-				"sFinDepartmentReport\' action=\'ActionPaymentsFinDepartmentReport\'/><menuitem name" +
-				"=\'Action68\' action=\'Action68\'/><menuitem name=\'ActionOrderChangesReport\' action=" +
-				"\'ActionOrderChangesReport\'/><menuitem name=\'ActionCounterpartyCashlessDebtsRepor" +
-				"t\' action=\'ActionCounterpartyCashlessDebtsReport\'/><menuitem name=\'ActionEdoUpdR" +
-				"eport\' action=\'ActionEdoUpdReport\'/></menu><menu name=\'ActionCashMenubar\' action" +
-				"=\'ActionCashMenubar\'><menuitem name=\'ActionIncomeBalanceReport\' action=\'ActionIn" +
-				"comeBalanceReport\'/><menuitem name=\'ActionDriverWages\' action=\'ActionDriverWages" +
-				"\'/><menuitem name=\'ActionDriversWageBalance\' action=\'ActionDriversWageBalance\'/>" +
-				"<menuitem name=\'ActionFuelReport\' action=\'ActionFuelReport\'/><menuitem name=\'Act" +
-				"ionForwarderWageReport\' action=\'ActionForwarderWageReport\'/><menuitem name=\'Acti" +
-				"onWagesOperations\' action=\'ActionWagesOperations\'/><menuitem name=\'ActionCashBoo" +
-				"k\' action=\'ActionCashBook\'/><menuitem name=\'ActionDayOfSalaryGiveoutReport\' acti" +
-				"on=\'ActionDayOfSalaryGiveoutReport\'/><menuitem name=\'ActionProductionWarehouseMo" +
-				"vementReport\' action=\'ActionProductionWarehouseMovementReport\'/><menuitem name=\'" +
-				"ActionSalaryRatesReport\' action=\'ActionSalaryRatesReport\'/><menuitem name=\'Emplo" +
-				"yeesTaxesAction\' action=\'EmployeesTaxesAction\'/></menu><menu name=\'ActionProduct" +
-				"ion\' action=\'ActionProduction\'><menuitem name=\'ActionProducedProductionReport\' a" +
-				"ction=\'ActionProducedProductionReport\'/></menu><menu name=\'ActionRetailMenubar\' " +
-				"action=\'ActionRetailMenubar\'><menuitem name=\'ActionQualityRetailReport\' action=\'" +
-				"ActionQualityRetailReport\'/><menuitem name=\'ActionCounterpartyRetailReport\' acti" +
-				"on=\'ActionCounterpartyRetailReport\'/></menu><menu name=\'ActionTransportMenuBar\' " +
-				"action=\'ActionTransportMenuBar\'><menuitem name=\'ActionCostCarExploitationReport\'" +
-				" action=\'ActionCostCarExploitationReport\'/></menu></menu><menu name=\'ActionAdmin" +
-				"istration\' action=\'ActionAdministration\'><menuitem name=\'ActionTypesOfEntities\' " +
-				"action=\'ActionTypesOfEntities\'/><menuitem name=\'ActionUsers\' action=\'ActionUsers" +
-				"\'/><menuitem name=\'UsersRolesAction\' action=\'UsersRolesAction\'/><menuitem name=\'" +
-				"registeredRMAction\' action=\'registeredRMAction\'/><menuitem name=\'ActionParameter" +
-				"s\' action=\'ActionParameters\'/><menu name=\'ActionService\' action=\'ActionService\'>" +
-				"<menuitem name=\'Action45\' action=\'Action45\'/><menuitem name=\'ActionAddressDuplic" +
-				"etes\' action=\'ActionAddressDuplicetes\'/><menuitem name=\'ActionDistanceFromCenter" +
-				"\' action=\'ActionDistanceFromCenter\'/><menuitem name=\'ActionOrdersWithoutBottlesO" +
-				"peration\' action=\'ActionOrdersWithoutBottlesOperation\'/><menuitem name=\'ActionLo" +
-				"ad1cCounterpartyAndDeliveryPoints\' action=\'ActionLoad1cCounterpartyAndDeliveryPo" +
-				"ints\'/><menuitem name=\'ActionToOnlineStore\' action=\'ActionToOnlineStore\'/><menui" +
-				"tem name=\'Action62\' action=\'Action62\'/><menuitem name=\'ActionRecalculateDriverWa" +
-				"ges\' action=\'ActionRecalculateDriverWages\'/></menu><separator/><menuitem name=\'A" +
-				"ctionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem name=\'ActionGeographic" +
-				"Groups\' action=\'ActionGeographicGroups\'/><menuitem name=\'ActionImages\' action=\'A" +
-				"ctionImages\'/></menu><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem nam" +
-				"e=\'aboutAction\' action=\'aboutAction\'/></menu><menu name=\'ActionProposals\' action" +
-				"=\'ActionProposals\'><menuitem name=\'ActionOpenProposalsJournal\' action=\'ActionOpe" +
-				"nProposalsJournal\'/></menu></menubar></ui>");
+				"aintResultsOfEmployeesAction\'/></menu><menu name=\'ComplaintClassificationAction\'" +
+				" action=\'ComplaintClassificationAction\'><menuitem name=\'ActionComplaintObject\' a" +
+				"ction=\'ActionComplaintObject\'/><menuitem name=\'ActionComplaintKind\' action=\'Acti" +
+				"onComplaintKind\'/><menuitem name=\'ActionComplaintDetalizationJournal\' action=\'Ac" +
+				"tionComplaintDetalizationJournal\'/></menu><menu name=\'ActionUndeliveryClassifica" +
+				"tion\' action=\'ActionUndeliveryClassification\'/><menuitem name=\'ActionUndeliveryP" +
+				"roblemSources\' action=\'ActionUndeliveryProblemSources\'/><menuitem name=\'ActionDr" +
+				"iversComplaintReasonsJournal\' action=\'ActionDriversComplaintReasonsJournal\'/><me" +
+				"nuitem name=\'ActionResponsible\' action=\'ActionResponsible\'/><separator/><menuite" +
+				"m name=\'ActionPhoneTypes\' action=\'ActionPhoneTypes\'/><menuitem name=\'ActionEMail" +
+				"Types\' action=\'ActionEMailTypes\'/><menuitem name=\'ActionUnsubscribingReasons\' ac" +
+				"tion=\'ActionUnsubscribingReasons\'/><separator/><menuitem name=\'RoboatsExportActi" +
+				"on\' action=\'RoboatsExportAction\'/><separator/></menu><menu name=\'ActionTMC\' acti" +
+				"on=\'ActionTMC\'><menuitem name=\'ActionNomenclature\' action=\'ActionNomenclature\'/>" +
+				"<menu name=\'InventoryAcountingAction\' action=\'InventoryAcountingAction\'><menuite" +
+				"m name=\'InventoryInstancesAction\' action=\'InventoryInstancesAction\'/><menuitem n" +
+				"ame=\'InventoryNomenclaturesAction\' action=\'InventoryNomenclaturesAction\'/></menu" +
+				"><menuitem name=\'ActionUnits\' action=\'ActionUnits\'/><menuitem name=\'ActionProduc" +
+				"tGroups\' action=\'ActionProductGroups\'/><menuitem name=\'ActionFolders1c\' action=\'" +
+				"ActionFolders1c\'/><menuitem name=\'ActionPromotionalSets\' action=\'ActionPromotion" +
+				"alSets\'/><menuitem name=\'ActionAdditionalLoadSettings\' action=\'ActionAdditionalL" +
+				"oadSettings\'/><menuitem name=\'ActionGroupPricing\' action=\'ActionGroupPricing\'/><" +
+				"separator/><menuitem name=\'ActionEquipment\' action=\'ActionEquipment\'/><menuitem " +
+				"name=\'ActionEquipmentKinds\' action=\'ActionEquipmentKinds\'/><menuitem name=\'Actio" +
+				"nManufacturers\' action=\'ActionManufacturers\'/><menuitem name=\'ActionColors\' acti" +
+				"on=\'ActionColors\'/><separator/><menuitem name=\'ActionProductSpecification\' actio" +
+				"n=\'ActionProductSpecification\'/><menuitem name=\'ActionCertificates\' action=\'Acti" +
+				"onCertificates\'/><menuitem name=\'ActionRegrandingOfGoodsTempalte\' action=\'Action" +
+				"RegrandingOfGoodsTempalte\'/><menuitem name=\'ActionCullingCategory\' action=\'Actio" +
+				"nCullingCategory\'/><menuitem name=\'ActionTransportationWagon\' action=\'ActionTran" +
+				"sportationWagon\'/><separator/><menuitem name=\'ActionFreeRentPackage\' action=\'Act" +
+				"ionFreeRentPackage\'/><menuitem name=\'ActionPaidRentPackage\' action=\'ActionPaidRe" +
+				"ntPackage\'/><menuitem name=\'ActionDiscountReasons\' action=\'ActionDiscountReasons" +
+				"\'/><menuitem name=\'ActionNonReturnReasons\' action=\'ActionNonReturnReasons\'/><men" +
+				"uitem name=\'ActionReturnTareReasons\' action=\'ActionReturnTareReasons\'/><menuitem" +
+				" name=\'ActionReturnTareReasonCategories\' action=\'ActionReturnTareReasonCategorie" +
+				"s\'/><menuitem name=\'ActionFlyers\' action=\'ActionFlyers\'/></menu><menu name=\'Acti" +
+				"onBanksMenu\' action=\'ActionBanksMenu\'><menuitem name=\'ActionBanksRF\' action=\'Act" +
+				"ionBanksRF\'/><separator/><menuitem name=\'Action51\' action=\'Action51\'/><menuitem " +
+				"name=\'ActionEdoOperators\' action=\'ActionEdoOperators\'/></menu><menu name=\'Financ" +
+				"esAction\' action=\'FinancesAction\'><menuitem name=\'Action14\' action=\'Action14\'/><" +
+				"menuitem name=\'Action15\' action=\'Action15\'/><menuitem name=\'ProfitabilityConstan" +
+				"tsAction\' action=\'ProfitabilityConstantsAction\'/><menuitem name=\'ActionFinancial" +
+				"CategoriesGroups\' action=\'ActionFinancialCategoriesGroups\'/></menu><menu name=\'A" +
+				"ctionCounterparty1\' action=\'ActionCounterparty1\'><menuitem name=\'ActionCounterpa" +
+				"rtyHandbook\' action=\'ActionCounterpartyHandbook\'/><menuitem name=\'ActionDelivery" +
+				"Points\' action=\'ActionDeliveryPoints\'/><menuitem name=\'ActionCameFrom\' action=\'A" +
+				"ctionCameFrom\'/><menuitem name=\'ActionDeliveryPointCategory\' action=\'ActionDeliv" +
+				"eryPointCategory\'/><menuitem name=\'ActionCounterpartyActivityKinds\' action=\'Acti" +
+				"onCounterpartyActivityKinds\'/><menuitem name=\'ActionResponsiblePersonTypesJourna" +
+				"l\' action=\'ActionResponsiblePersonTypesJournal\'/><menuitem name=\'ActionSalesChan" +
+				"nelsJournal\' action=\'ActionSalesChannelsJournal\'/><menuitem name=\'ActionOrganiza" +
+				"tionOwnershipType\' action=\'ActionOrganizationOwnershipType\'/><separator/><menuit" +
+				"em name=\'ActionCounterpartyPost\' action=\'ActionCounterpartyPost\'/><separator/><m" +
+				"enuitem name=\'ActionRoboAtsCounterpartyName\' action=\'ActionRoboAtsCounterpartyNa" +
+				"me\'/><menuitem name=\'ActionRoboAtsCounterpartyPatronymic\' action=\'ActionRoboAtsC" +
+				"ounterpartyPatronymic\'/><separator/><menuitem name=\'ActionLoad1c\' action=\'Action" +
+				"Load1c\'/><menuitem name=\'ExternalCounterpartiesMatchingAction\' action=\'ExternalC" +
+				"ounterpartiesMatchingAction\'/></menu><menu name=\'ActionMenuLogistic\' action=\'Act" +
+				"ionMenuLogistic\'><menuitem name=\'ActionDeliverySchedule\' action=\'ActionDeliveryS" +
+				"chedule\'/><menuitem name=\'ActionDeliveryPriceRules\' action=\'ActionDeliveryPriceR" +
+				"ules\'/><menuitem name=\'ActionTariffZones\' action=\'ActionTariffZones\'/><separator" +
+				"/><menuitem name=\'ActionDeliveryDaySchedule\' action=\'ActionDeliveryDaySchedule\'/" +
+				"><menuitem name=\'ActionDeliveryShift\' action=\'ActionDeliveryShift\'/><separator/>" +
+				"<menuitem name=\'ActionCar\' action=\'ActionCar\'/><menuitem name=\'ActionFuelType\' a" +
+				"ction=\'ActionFuelType\'/><menuitem name=\'ActionCarModels\' action=\'ActionCarModels" +
+				"\'/><menuitem name=\'ActionCarManufacturers\' action=\'ActionCarManufacturers\'/><sep" +
+				"arator/><menuitem name=\'ActionRouteColumns\' action=\'ActionRouteColumns\'/><menuit" +
+				"em name=\'ActionLateArrivalReasons\' action=\'ActionLateArrivalReasons\'/><menuitem " +
+				"name=\'ActionCarEventType\' action=\'ActionCarEventType\'/></menu><menu name=\'Action" +
+				"12\' action=\'Action12\'><menuitem name=\'ActionCommentTemplates\' action=\'ActionComm" +
+				"entTemplates\'/><menuitem name=\'ActionFineCommentTemplates\' action=\'ActionFineCom" +
+				"mentTemplates\'/><menuitem name=\'Action47\' action=\'Action47\'/></menu><menu name=\'" +
+				"ActionOrdersMainGroup\' action=\'ActionOrdersMainGroup\'><menuitem name=\'ActionPaym" +
+				"entsFrom\' action=\'ActionPaymentsFrom\'/><menuitem name=\'ActionNomenclaturePlan\' a" +
+				"ction=\'ActionNomenclaturePlan\'/><menuitem name=\'UndeliveryTransferAbsenceReason\'" +
+				" action=\'UndeliveryTransferAbsenceReason\'/><menuitem name=\'ActionUndeliveryObjec" +
+				"t\' action=\'ActionUndeliveryObject\'/><menuitem name=\'ActionUndeliveryKind\' action" +
+				"=\'ActionUndeliveryKind\'/><menuitem name=\'ActionUndeliveryDetalization\' action=\'A" +
+				"ctionUndeliveryDetalization\'/></menu></menu><menu name=\'Action60\' action=\'Action" +
+				"60\'><menu name=\'ActionReportOrders\' action=\'ActionReportOrders\'><menuitem name=\'" +
+				"ActionCashierComments\' action=\'ActionCashierComments\'/><menuitem name=\'ActionOrd" +
+				"ersByDistrict\' action=\'ActionOrdersByDistrict\'/><menuitem name=\'Action53\' action" +
+				"=\'Action53\'/><menuitem name=\'Action38\' action=\'Action38\'/><menuitem name=\'Action" +
+				"OrdersWithMinPriceLessThan\' action=\'ActionOrdersWithMinPriceLessThan\'/><menuitem" +
+				" name=\'actionSelfDeliveryReport\' action=\'actionSelfDeliveryReport\'/><menuitem na" +
+				"me=\'ActionSuburbWaterPrice\' action=\'ActionSuburbWaterPrice\'/><menuitem name=\'Act" +
+				"ionCounterpartyTag\' action=\'ActionCounterpartyTag\'/><menuitem name=\'ActionNotDel" +
+				"iveredOrders\' action=\'ActionNotDeliveredOrders\'/><menuitem name=\'ActionOrderRegi" +
+				"stry\' action=\'ActionOrderRegistry\'/><menuitem name=\'ActionCardPayments\' action=\'" +
+				"ActionCardPayments\'/><menuitem name=\'OnLineAction\' action=\'OnLineAction\'/><menui" +
+				"tem name=\'ActionFirstClients\' action=\'ActionFirstClients\'/><menuitem name=\'Actio" +
+				"nSalesByDicountReport\' action=\'ActionSalesByDicountReport\'/><menuitem name=\'Acti" +
+				"on66\' action=\'Action66\'/><menuitem name=\'ActionPaymentsReport\' action=\'ActionPay" +
+				"mentsReport\'/><menuitem name=\'Action71\' action=\'Action71\'/><menuitem name=\'Actio" +
+				"nOrderAnalyticsReport\' action=\'ActionOrderAnalyticsReport\'/><menuitem name=\'Acti" +
+				"onNomenclaturePlanReport\' action=\'ActionNomenclaturePlanReport\'/><menuitem name=" +
+				"\'ActionPaymentsFromAvangardReport\' action=\'ActionPaymentsFromAvangardReport\'/></" +
+				"menu><menu name=\'ActionReportsSales\' action=\'ActionReportsSales\'><menuitem name=" +
+				"\'ActionSalesReport\' action=\'ActionSalesReport\'/><menuitem name=\'ActionOrderCreat" +
+				"ionDateReport\' action=\'ActionOrderCreationDateReport\'/><menuitem name=\'ActionPla" +
+				"nImplementationReport\' action=\'ActionPlanImplementationReport\'/><menuitem name=\'" +
+				"ActionSetBillsReport\' action=\'ActionSetBillsReport\'/><menuitem name=\'ActionProfi" +
+				"tabilitySalesReport\' action=\'ActionProfitabilitySalesReport\'/><menuitem name=\'Ac" +
+				"tionTurnoverWithDynamicsReport\' action=\'ActionTurnoverWithDynamicsReport\'/><menu" +
+				"item name=\'SalesBySubdivisionsAnalitycsAction\' action=\'SalesBySubdivisionsAnalit" +
+				"ycsAction\'/></menu><separator/><menu name=\'ActionReportsStock\' action=\'ActionRep" +
+				"ortsStock\'><menuitem name=\'ActionActionWarehousesBalanceSummaryReport\' action=\'A" +
+				"ctionActionWarehousesBalanceSummaryReport\'/><menuitem name=\'ActionStockMovements" +
+				"\' action=\'ActionStockMovements\'/><menuitem name=\'Action50\' action=\'Action50\'/><m" +
+				"enuitem name=\'ActionDefectiveItemsReport\' action=\'ActionDefectiveItemsReport\'/><" +
+				"menuitem name=\'ActionNotFullyLoadedRouteLists\' action=\'ActionNotFullyLoadedRoute" +
+				"Lists\'/><menuitem name=\'ActionForShipment\' action=\'ActionForShipment\'/><menuitem" +
+				" name=\'ActionStockMovementsAdvancedReport\' action=\'ActionStockMovementsAdvancedR" +
+				"eport\'/><menuitem name=\'ActionProductionRequestReport\' action=\'ActionProductionR" +
+				"equestReport\'/><menuitem name=\'InventoryInstanceMovementReportAction\' action=\'In" +
+				"ventoryInstanceMovementReportAction\'/></menu><menu name=\'ActionOSKOKKReports\' ac" +
+				"tion=\'ActionOSKOKKReports\'><menuitem name=\'ActionBottlesMovementSummaryReport\' a" +
+				"ction=\'ActionBottlesMovementSummaryReport\'/><menuitem name=\'ActionBottlesMovemen" +
+				"tRLReport\' action=\'ActionBottlesMovementRLReport\'/><menuitem name=\'ActionShortfa" +
+				"llBattles\' action=\'ActionShortfallBattles\'/><menuitem name=\'Action57\' action=\'Ac" +
+				"tion57\'/><menuitem name=\'Action58\' action=\'Action58\'/><menuitem name=\'ActionTari" +
+				"ffZoneDebtsReport\' action=\'ActionTariffZoneDebtsReport\'/><menuitem name=\'ActionR" +
+				"LRegister\' action=\'ActionRLRegister\'/><menuitem name=\'ActionCounterpartyActivity" +
+				"Kind\' action=\'ActionCounterpartyActivityKind\'/><menuitem name=\'ActionExtraBottle" +
+				"sReport\' action=\'ActionExtraBottlesReport\'/><menuitem name=\'ActionFirstSecondRep" +
+				"ort\' action=\'ActionFirstSecondReport\'/><menuitem name=\'ActionProfitabilityBottle" +
+				"sByStock\' action=\'ActionProfitabilityBottlesByStock\'/><menuitem name=\'Action64\' " +
+				"action=\'Action64\'/><menuitem name=\'ActionReturnedTareReport\' action=\'ActionRetur" +
+				"nedTareReport\'/><menuitem name=\'ActionBulkEmailEventsReport\' action=\'ActionBulkE" +
+				"mailEventsReport\'/></menu><menu name=\'ActionLogistic\' action=\'ActionLogistic\'><m" +
+				"enuitem name=\'ActionOrdersByDistrictsAndDeliverySchedules\' action=\'ActionOrdersB" +
+				"yDistrictsAndDeliverySchedules\'/><menuitem name=\'ActionFuelConsumptionReport\' ac" +
+				"tion=\'ActionFuelConsumptionReport\'/><menuitem name=\'ActionOrdersCreationTimeRepo" +
+				"rt1\' action=\'ActionOrdersCreationTimeReport1\'/><menuitem name=\'ActionWayBillRepo" +
+				"rt\' action=\'ActionWayBillReport\'/><menuitem name=\'ActionNonClosedRLByPeriodRepor" +
+				"t\' action=\'ActionNonClosedRLByPeriodReport\'/><menuitem name=\'ActionFuelConsumpti" +
+				"onReport1\' action=\'ActionFuelConsumptionReport1\'/><menuitem name=\'ActionOrderSta" +
+				"tisticByWeekReport\' action=\'ActionOrderStatisticByWeekReport\'/><menuitem name=\'A" +
+				"ctionCarsExploitationReport\' action=\'ActionCarsExploitationReport\'/><menuitem na" +
+				"me=\'ActionLogisticsGeneralSalaryInfo\' action=\'ActionLogisticsGeneralSalaryInfo\'/" +
+				"><menuitem name=\'ActionDriversInfoExport\' action=\'ActionDriversInfoExport\'/><men" +
+				"uitem name=\'ActionAddressesOverpaymentsReport\' action=\'ActionAddressesOverpaymen" +
+				"tsReport\'/><menuitem name=\'ActionDeliveryAnalytics\' action=\'ActionDeliveryAnalyt" +
+				"ics\'/><menuitem name=\'ActionAnalyticsForUndelivery\' action=\'ActionAnalyticsForUn" +
+				"delivery\'/><menuitem name=\'FastDeliverySalesReportAction\' action=\'FastDeliverySa" +
+				"lesReportAction\'/><menuitem name=\'FastDeliveryAdditionalLoadingReportAction\' act" +
+				"ion=\'FastDeliveryAdditionalLoadingReportAction\'/><menuitem name=\'ActionFastDeliv" +
+				"eryPercentCoverageReportActivated\' action=\'ActionFastDeliveryPercentCoverageRepo" +
+				"rtActivated\'/></menu><separator/><menu name=\'ActionReportEmployees\' action=\'Acti" +
+				"onReportEmployees\'><menuitem name=\'ActionEmployeeFines\' action=\'ActionEmployeeFi" +
+				"nes\'/><menuitem name=\'ActionEmployeesBonuses\' action=\'ActionEmployeesBonuses\'/><" +
+				"menuitem name=\'ActionEmployeesReport\' action=\'ActionEmployeesReport\'/></menu><me" +
+				"nu name=\'ActionReportsDrivers\' action=\'ActionReportsDrivers\'><menuitem name=\'Act" +
+				"ionDeliveriesLate\' action=\'ActionDeliveriesLate\'/><menuitem name=\'ActionUnclosed" +
+				"RouteLists\' action=\'ActionUnclosedRouteLists\'/><separator/><menuitem name=\'Actio" +
+				"nRoutesListRegister\' action=\'ActionRoutesListRegister\'/><menuitem name=\'ActionOn" +
+				"LoadTime\' action=\'ActionOnLoadTime\'/><menuitem name=\'ActionDeliveryTimeReport\' a" +
+				"ction=\'ActionDeliveryTimeReport\'/><menuitem name=\'ActionCompanyTrucks\' action=\'A" +
+				"ctionCompanyTrucks\'/><menuitem name=\'ActionShipmentReport\' action=\'ActionShipmen" +
+				"tReport\'/><menuitem name=\'ActionMileageReport\' action=\'ActionMileageReport\'/><me" +
+				"nuitem name=\'Action67\' action=\'Action67\'/><menuitem name=\'DriversToDistrictsAssi" +
+				"gnmentReportAction\' action=\'DriversToDistrictsAssignmentReportAction\'/></menu><s" +
+				"eparator/><menu name=\'ActionReportService\' action=\'ActionReportService\'><menuite" +
+				"m name=\'Action42\' action=\'Action42\'/><menuitem name=\'Action41\' action=\'Action41\'" +
+				"/><menuitem name=\'ActionMastersVisitReport\' action=\'ActionMastersVisitReport\'/><" +
+				"/menu><menu name=\'ActionBookkeepping\' action=\'ActionBookkeepping\'><menuitem name" +
+				"=\'ActionCloseDeliveryReport\' action=\'ActionCloseDeliveryReport\'/><menuitem name=" +
+				"\'ActionPaymentsFinDepartmentReport\' action=\'ActionPaymentsFinDepartmentReport\'/>" +
+				"<menuitem name=\'Action68\' action=\'Action68\'/><menuitem name=\'ActionOrderChangesR" +
+				"eport\' action=\'ActionOrderChangesReport\'/><menuitem name=\'ActionCounterpartyCash" +
+				"lessDebtsReport\' action=\'ActionCounterpartyCashlessDebtsReport\'/><menuitem name=" +
+				"\'ActionEdoUpdReport\' action=\'ActionEdoUpdReport\'/></menu><menu name=\'ActionCashM" +
+				"enubar\' action=\'ActionCashMenubar\'><menuitem name=\'ActionIncomeBalanceReport\' ac" +
+				"tion=\'ActionIncomeBalanceReport\'/><menuitem name=\'ActionDriverWages\' action=\'Act" +
+				"ionDriverWages\'/><menuitem name=\'ActionDriversWageBalance\' action=\'ActionDrivers" +
+				"WageBalance\'/><menuitem name=\'ActionFuelReport\' action=\'ActionFuelReport\'/><menu" +
+				"item name=\'ActionForwarderWageReport\' action=\'ActionForwarderWageReport\'/><menui" +
+				"tem name=\'ActionWagesOperations\' action=\'ActionWagesOperations\'/><menuitem name=" +
+				"\'ActionCashBook\' action=\'ActionCashBook\'/><menuitem name=\'ActionDayOfSalaryGiveo" +
+				"utReport\' action=\'ActionDayOfSalaryGiveoutReport\'/><menuitem name=\'ActionProduct" +
+				"ionWarehouseMovementReport\' action=\'ActionProductionWarehouseMovementReport\'/><m" +
+				"enuitem name=\'ActionSalaryRatesReport\' action=\'ActionSalaryRatesReport\'/><menuit" +
+				"em name=\'EmployeesTaxesAction\' action=\'EmployeesTaxesAction\'/></menu><menu name=" +
+				"\'ActionProduction\' action=\'ActionProduction\'><menuitem name=\'ActionProducedProdu" +
+				"ctionReport\' action=\'ActionProducedProductionReport\'/></menu><menu name=\'ActionR" +
+				"etailMenubar\' action=\'ActionRetailMenubar\'><menuitem name=\'ActionQualityRetailRe" +
+				"port\' action=\'ActionQualityRetailReport\'/><menuitem name=\'ActionCounterpartyReta" +
+				"ilReport\' action=\'ActionCounterpartyRetailReport\'/></menu><menu name=\'ActionTran" +
+				"sportMenuBar\' action=\'ActionTransportMenuBar\'><menuitem name=\'ActionCostCarExplo" +
+				"itationReport\' action=\'ActionCostCarExploitationReport\'/></menu></menu><menu nam" +
+				"e=\'ActionAdministration\' action=\'ActionAdministration\'><menuitem name=\'ActionTyp" +
+				"esOfEntities\' action=\'ActionTypesOfEntities\'/><menuitem name=\'ActionUsers\' actio" +
+				"n=\'ActionUsers\'/><menuitem name=\'UsersRolesAction\' action=\'UsersRolesAction\'/><m" +
+				"enuitem name=\'registeredRMAction\' action=\'registeredRMAction\'/><menuitem name=\'A" +
+				"ctionParameters\' action=\'ActionParameters\'/><menu name=\'ActionService\' action=\'A" +
+				"ctionService\'><menuitem name=\'Action45\' action=\'Action45\'/><menuitem name=\'Actio" +
+				"nAddressDuplicetes\' action=\'ActionAddressDuplicetes\'/><menuitem name=\'ActionDist" +
+				"anceFromCenter\' action=\'ActionDistanceFromCenter\'/><menuitem name=\'ActionOrdersW" +
+				"ithoutBottlesOperation\' action=\'ActionOrdersWithoutBottlesOperation\'/><menuitem " +
+				"name=\'ActionLoad1cCounterpartyAndDeliveryPoints\' action=\'ActionLoad1cCounterpart" +
+				"yAndDeliveryPoints\'/><menuitem name=\'ActionToOnlineStore\' action=\'ActionToOnline" +
+				"Store\'/><menuitem name=\'Action62\' action=\'Action62\'/><menuitem name=\'ActionRecal" +
+				"culateDriverWages\' action=\'ActionRecalculateDriverWages\'/></menu><separator/><me" +
+				"nuitem name=\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem name=\'Ac" +
+				"tionGeographicGroups\' action=\'ActionGeographicGroups\'/><menuitem name=\'ActionIma" +
+				"ges\' action=\'ActionImages\'/></menu><menu name=\'ActionAbout\' action=\'ActionAbout\'" +
+				"><menuitem name=\'aboutAction\' action=\'aboutAction\'/></menu><menu name=\'ActionPro" +
+				"posals\' action=\'ActionProposals\'><menuitem name=\'ActionOpenProposalsJournal\' act" +
+				"ion=\'ActionOpenProposalsJournal\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
