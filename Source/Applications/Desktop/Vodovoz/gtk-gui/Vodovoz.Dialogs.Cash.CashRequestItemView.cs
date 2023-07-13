@@ -84,6 +84,7 @@ namespace Vodovoz.Dialogs.Cash
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryEmployee = new global::QS.Views.Control.EntityEntry();
+			this.entryEmployee.WidthRequest = 500;
 			this.entryEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.entryEmployee.Name = "entryEmployee";
 			this.table1.Add(this.entryEmployee);
@@ -92,7 +93,7 @@ namespace Vodovoz.Dialogs.Cash
 			w6.BottomAttach = ((uint)(3));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.XOptions = ((global::Gtk.AttachOptions)(0));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
