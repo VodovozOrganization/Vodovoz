@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using Gtk;
+using QS.Commands;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -14,6 +16,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
@@ -51,6 +54,7 @@ namespace Vodovoz.Reports
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private FinancialIncomeCategory _financialIncomeCategory;
 		private ITdiTab _parentTab;
+		private bool _canGenerateDdsReport;
 
 		public CashFlow(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -107,6 +111,16 @@ namespace Vodovoz.Reports
 
 			entryExpenseFinancialCategory.Sensitive = false;
 			entryIncomeFinancialCategory.Sensitive = false;
+
+			CanGenerateDdsReport = true;
+
+			GenerateDdsReportCommand = new DelegateCommand(OnButtonGenerateDDSClicked, () => CanGenerateDdsReport);
+
+			buttonGenerateDDS.Binding
+				.AddBinding(this, dlg => dlg.CanGenerateDdsReport, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonGenerateDDS.Clicked += (s, e) => GenerateDdsReportCommand.Execute();
 		}
 
 		public FinancialExpenseCategory FinancialExpenseCategory
@@ -159,7 +173,25 @@ namespace Vodovoz.Reports
 			return viewModel;
 		}
 
-		void CheckOrganisationsToggled(object sender, EventArgs e)
+		public DelegateCommand GenerateDdsReportCommand { get; }
+
+		private void OnButtonGenerateDDSClicked()
+		{
+			Application.Invoke(async (s, e) => await GenerateDdsReport());
+
+			//return Task.CompletedTask;
+		}
+
+		private async Task GenerateDdsReport()
+		{
+			CanGenerateDdsReport = false;
+
+			await Task.Delay(2000);
+
+			CanGenerateDdsReport = true;
+		}
+
+		private void CheckOrganisationsToggled(object sender, EventArgs e)
 		{
 			if(checkOrganisations.Active)
 			{
@@ -182,12 +214,25 @@ namespace Vodovoz.Reports
 
 		public INavigationManager NavigationManager { get; }
 
+		public bool CanGenerateDdsReport
+		{
+			get => _canGenerateDdsReport;
+			private set
+			{
+				if(_canGenerateDdsReport != value)
+				{
+					_canGenerateDdsReport = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanGenerateDdsReport)));
+				}
+			}
+		}
+
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion
 
-		void OnUpdate(bool hide = false)
+		private void OnUpdate(bool hide = false)
 		{
 			if(!UserSubdivisions.Any())
 			{
@@ -441,7 +486,7 @@ namespace Vodovoz.Reports
 			}
 		}
 
-		enum ReportParts
+		private enum ReportParts
 		{
 			[Display(Name = "Поступления суммарно")]
 			IncomeAll,
