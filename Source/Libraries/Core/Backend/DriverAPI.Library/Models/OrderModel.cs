@@ -153,6 +153,15 @@ namespace DriverAPI.Library.Models
 
 			if(order.PaymentType == PaymentType.Terminal)
 			{
+				if(order.PaymentByTerminalSource == PaymentByTerminalSource.ByQR)
+				{
+					availablePaymentTypes.Add(PaymentDtoType.TerminalCard);
+				}
+				else
+				{
+					availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
+				}
+
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
 				availablePaymentTypes.Add(PaymentDtoType.DriverApplicationQR);
 			}
