@@ -68,8 +68,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			if(UoWGeneric.IsNew)
 			{
 				Entity.Author = CurrentEmployee;
-				Entity.Subdivision = CurrentEmployee.Subdivision;
 			}
+
+			Entity.Subdivision = CurrentEmployee.Subdivision;
 
 			TabName = IsNewEntity ? "Создание новой заявки на выдачу ДС" : $"{Entity.Title}";
 
