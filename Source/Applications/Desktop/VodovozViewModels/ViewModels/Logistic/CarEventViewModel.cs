@@ -246,7 +246,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		}
 		public void ChangeDoNotShowInOperation()
 		{
-			if(CarEventType?.Id == _carEventSettings.DontShowCarEventByReportId)
+			if(CarEventType?.Id == _carEventSettings.DontShowCarEventByReportId 
+				|| CarEventType?.IsDoNotShowInOperation == true)
 			{
 				DoNotShowInOperation = true;
 			}
