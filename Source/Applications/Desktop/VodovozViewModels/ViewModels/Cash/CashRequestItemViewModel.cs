@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.ViewModels;
@@ -36,6 +37,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			UoW = uow;
 			UserRole = userRole;
 
+			TabName = "Cумма заявки на выдачу Д/С";
+
 			var employeeEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashRequestItemViewModel>(this, this, UoW, NavigationManager, _scope);
 
 			EmployeeViewModel = employeeEntryViewModelBuilder
@@ -68,6 +71,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		public IUnitOfWork UoW { get; set; }
 
+		[PropertyChangedAlso(nameof(CanEditOnlyinStateNRC_OrRoleCoordinator))]
 		public CashRequestSumItem Entity
 		{
 			get => _entity;
@@ -110,7 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			get
 			{
 				//В новой редактирование всегда разрешено
-				if(Entity.Id == 0)
+				if(Entity is null || Entity.Id == 0)
 				{
 					return true;
 				}
