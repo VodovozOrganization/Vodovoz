@@ -186,19 +186,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			AddSumCommand = new DelegateCommand(
 				() =>
 				{
-					var cashRequestItemViewModel = new CashRequestItemViewModel(
-						UoW,
-						CommonServices.InteractiveService,
-						NavigationManager,
-						UserRole,
-						_scope);
+					var cashRequestItemPage = NavigationManager
+						.OpenViewModel<CashRequestItemViewModel, IUnitOfWork, PayoutRequestUserRole>(this, UoW, UserRole, OpenPageOptions.AsSlave);
 
-					cashRequestItemViewModel.Entity = new CashRequestSumItem()
+					cashRequestItemPage.ViewModel.Entity = new CashRequestSumItem()
 					{
 						AccountableEmployee = CurrentEmployee
 					};
 
-					cashRequestItemViewModel.EntityAccepted += (sender, args) =>
+					cashRequestItemPage.ViewModel.EntityAccepted += (sender, args) =>
 					{
 						if(args is CashRequestSumItemAcceptedEventArgs acceptedArgs)
 						{
@@ -206,8 +202,6 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 							acceptedArgs.AcceptedEntity.CashRequest = Entity;
 						}
 					};
-
-					TabParent.AddSlaveTab(this, cashRequestItemViewModel);
 				}, () => true
 			);
 
