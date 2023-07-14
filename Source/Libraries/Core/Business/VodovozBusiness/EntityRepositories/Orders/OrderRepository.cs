@@ -855,7 +855,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault<PaymentType>();
 		}
 
-		public IList<VodovozOrder> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime? startDate, int organizationId)
+		public IList<VodovozOrder> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime startDate, int organizationId)
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
@@ -864,6 +864,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+			var manualResendUpdStartDate = DateTime.Parse("2022-11-15");
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
@@ -873,10 +874,8 @@ namespace Vodovoz.EntityRepositories.Orders
 				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
 				() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
 
-			if(startDate.HasValue)
-			{
-				query.Where(() => orderAlias.DeliveryDate >= startDate || orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoUpd);
-			}
+			query.Where(() => orderAlias.DeliveryDate >= startDate
+					|| (orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoUpd && orderAlias.DeliveryDate >= manualResendUpdStartDate));
 
 			var result = query.Where(() => counterpartyAlias.PersonType == PersonType.legal)
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
