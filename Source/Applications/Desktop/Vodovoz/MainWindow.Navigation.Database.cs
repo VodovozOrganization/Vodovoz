@@ -52,7 +52,7 @@ public partial class MainWindow
 	{
 		var subdivisionJournalFactory = new SubdivisionJournalFactory();
 		var subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 		tdiMain.OpenTab(
 			() => new UserSettingsViewModel(
