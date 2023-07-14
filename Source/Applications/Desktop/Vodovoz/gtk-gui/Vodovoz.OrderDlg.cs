@@ -168,7 +168,7 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.ySpecComboBox ySpecPaymentFrom;
 
-		private global::Gamma.Widgets.ySpecComboBox ySpecTerminalSubtype;
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxTerminalSubtype;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelContract;
 
@@ -1440,15 +1440,14 @@ namespace Vodovoz
 			w79.Expand = false;
 			w79.Fill = false;
 			// Container child yhboxPaymentInfo.Gtk.Box+BoxChild
-			this.ySpecTerminalSubtype = new global::Gamma.Widgets.ySpecComboBox();
-			this.ySpecTerminalSubtype.Sensitive = false;
-			this.ySpecTerminalSubtype.Name = "ySpecTerminalSubtype";
-			this.ySpecTerminalSubtype.AddIfNotExist = false;
-			this.ySpecTerminalSubtype.DefaultFirst = false;
-			this.ySpecTerminalSubtype.ShowSpecialStateAll = false;
-			this.ySpecTerminalSubtype.ShowSpecialStateNot = false;
-			this.yhboxPaymentInfo.Add(this.ySpecTerminalSubtype);
-			global::Gtk.Box.BoxChild w80 = ((global::Gtk.Box.BoxChild)(this.yhboxPaymentInfo[this.ySpecTerminalSubtype]));
+			this.yenumcomboboxTerminalSubtype = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboboxTerminalSubtype.Name = "yenumcomboboxTerminalSubtype";
+			this.yenumcomboboxTerminalSubtype.ShowSpecialStateAll = false;
+			this.yenumcomboboxTerminalSubtype.ShowSpecialStateNot = false;
+			this.yenumcomboboxTerminalSubtype.UseShortTitle = false;
+			this.yenumcomboboxTerminalSubtype.DefaultFirst = false;
+			this.yhboxPaymentInfo.Add(this.yenumcomboboxTerminalSubtype);
+			global::Gtk.Box.BoxChild w80 = ((global::Gtk.Box.BoxChild)(this.yhboxPaymentInfo[this.yenumcomboboxTerminalSubtype]));
 			w80.Position = 1;
 			w80.Expand = false;
 			w80.Fill = false;
