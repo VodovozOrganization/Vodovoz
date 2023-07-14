@@ -68,8 +68,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			if(UoWGeneric.IsNew)
 			{
 				Entity.Author = CurrentEmployee;
-				Entity.Subdivision = CurrentEmployee.Subdivision;
 			}
+
+			Entity.Subdivision = CurrentEmployee.Subdivision;
 
 			TabName = IsNewEntity ? "Создание новой заявки на выдачу ДС" : $"{Entity.Title}";
 
@@ -185,19 +186,15 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			AddSumCommand = new DelegateCommand(
 				() =>
 				{
-					var cashRequestItemViewModel = new CashRequestItemViewModel(
-						UoW,
-						CommonServices.InteractiveService,
-						NavigationManager,
-						UserRole,
-						_scope);
+					var cashRequestItemPage = NavigationManager
+						.OpenViewModel<CashRequestItemViewModel, IUnitOfWork, PayoutRequestUserRole>(this, UoW, UserRole, OpenPageOptions.AsSlave);
 
-					cashRequestItemViewModel.Entity = new CashRequestSumItem()
+					cashRequestItemPage.ViewModel.Entity = new CashRequestSumItem()
 					{
 						AccountableEmployee = CurrentEmployee
 					};
 
-					cashRequestItemViewModel.EntityAccepted += (sender, args) =>
+					cashRequestItemPage.ViewModel.EntityAccepted += (sender, args) =>
 					{
 						if(args is CashRequestSumItemAcceptedEventArgs acceptedArgs)
 						{
@@ -205,24 +202,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 							acceptedArgs.AcceptedEntity.CashRequest = Entity;
 						}
 					};
-
-					TabParent.AddSlaveTab(this, cashRequestItemViewModel);
 				}, () => true
 			);
 
 			EditSumCommand = new DelegateCommand(
 				() =>
 				{
-					var cashRequestItemViewModel = new CashRequestItemViewModel(
-						UoW,
-						CommonServices.InteractiveService,
-						NavigationManager,
-						UserRole,
-						_scope);
+					var cashRequestItemPage = NavigationManager
+						.OpenViewModel<CashRequestItemViewModel, IUnitOfWork, PayoutRequestUserRole>(this, UoW, UserRole, OpenPageOptions.AsSlave);
 
-					cashRequestItemViewModel.Entity = SelectedItem;
-
-					TabParent.AddSlaveTab(this, cashRequestItemViewModel);
+					cashRequestItemPage.ViewModel.Entity = SelectedItem;
 				}, () => true
 			);
 
