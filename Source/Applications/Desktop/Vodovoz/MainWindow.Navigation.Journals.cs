@@ -1,0 +1,1289 @@
+﻿using Autofac;
+using QS.Banks.Domain;
+using QS.BusinessCommon.Domain;
+using QS.Dialog.Gtk;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Services;
+using QS.Validation;
+using QSBanks;
+using QSOrmProject;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz;
+using Vodovoz.Controllers;
+using Vodovoz.Core.DataService;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.DiscountReasons;
+using Vodovoz.EntityRepositories.Flyers;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Profitability;
+using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Factories;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Journals;
+using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels.WageCalculation;
+using Vodovoz.JournalViewers;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
+using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.Dialogs.Fuel;
+using Vodovoz.ViewModels.Dialogs.Goods;
+using Vodovoz.ViewModels.Dialogs.Roboats;
+using Vodovoz.ViewModels.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Retail;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints.ComplaintResults;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Flyers;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
+using Vodovoz.ViewModels.Profitability;
+
+public partial class MainWindow
+{
+	#region Наша организация
+
+	/// <summary>
+	/// Организации
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionOrganizationsActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(Organization));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Подразделения
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnSubdivisionsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<Subdivision>(),
+			() => new OrmReference(typeof(Subdivision))
+		);
+	}
+
+	/// <summary>
+	/// Склады
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionWarehousesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<WarehousesView>(),
+			() => new WarehousesView()
+		);
+	}
+
+	#region Зарплата
+
+	/// <summary>
+	/// Зарплатные районы
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionWageDistrictActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new WageDistrictsJournalViewModel(
+				 UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	/// <summary>
+	/// Ставки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionRatesActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new WageDistrictLevelRatesJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	/// <summary>
+	/// Планы продаж
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionSalesPlansActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new SalesPlanJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				new NomenclatureJournalFactory()
+			)
+		);
+	}
+
+	/// <summary>
+	/// Виды оформления
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnEmployeeRegistrationsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EmployeeRegistrationsJournalViewModel>(null);
+	}
+
+	#endregion Зарплата
+
+	/// <summary>
+	/// Сотрудники
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEmployeeActivated(object sender, EventArgs e)
+	{
+		var employeeFilter = new EmployeeFilterViewModel();
+
+		employeeFilter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
+
+		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+
+		tdiMain.AddTab(employeeJournalFactory.CreateEmployeesJournal());
+	}
+
+	/// <summary>
+	/// Национальность
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionNationalityActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(Nationality));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Иностранное гражданство
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionCitizenshipActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(Citizenship));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Источники рекламаций
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionComplaintSourcesActivated(object sender, EventArgs e)
+	{
+		var complaintSourcesViewModel = new SimpleEntityJournalViewModel<ComplaintSource, ComplaintSourceViewModel>(
+			x => x.Name,
+			() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
+			(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
+			 UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices
+		);
+		tdiMain.AddTab(complaintSourcesViewModel);
+	}
+
+	#region Результаты рассмотрения рекламаций
+
+	/// <summary>
+	/// Результаты рассмотрения рекламаций по клиенту
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnComplaintResultsOfCounterpartyActionActivated(object sender, EventArgs e)
+	{
+		var complaintResultsOfCounterpartyViewModel =
+			new ComplaintResultsOfCounterpartyJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(complaintResultsOfCounterpartyViewModel);
+	}
+
+	/// <summary>
+	/// Результаты рассмотрения рекламаций по сотрудникам
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnComplaintResultsOfEmployeesActionActivated(object sender, EventArgs e)
+	{
+		var complaintResultsOfEmployeesViewModel =
+			new ComplaintResultsOfEmployeesJournalViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(complaintResultsOfEmployeesViewModel);
+	}
+
+	#endregion Результаты рассмотрения рекламаций
+
+	/// <summary>
+	/// Объекты рекламаций
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionComplaintObjectActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new ComplaintObjectJournalViewModel(
+			new ComplaintObjectJournalFilterViewModel()
+			{
+				HidenByDefault = true
+			},
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+	}
+
+	/// <summary>
+	/// Виды рекламаций
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionComplaintKindActivated(object sender, EventArgs e)
+	{
+		var employeeJournalFactory = new EmployeeJournalFactory();
+		var salesPlanJournalFactory = new SalesPlanJournalFactory();
+		var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
+
+		tdiMain.OpenTab(() => new ComplaintKindJournalViewModel(
+			new ComplaintKindJournalFilterViewModel
+			{
+				HidenByDefault = true
+			},
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			employeeJournalFactory,
+			salesPlanJournalFactory,
+			nomenclatureSelectorFactory,
+			autofacScope.BeginLifetimeScope())
+		);
+	}
+
+	/// <summary>
+	/// Детализация видов рекламаций
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionComplaintDetalizationJournalActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ComplaintDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Источники проблем
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionUndeliveryProblemSourcesActivated(object sender, EventArgs e)
+	{
+		var undeliveryProblemSourcesViewModel = new SimpleEntityJournalViewModel<UndeliveryProblemSource, UndeliveryProblemSourceViewModel>(
+			x => x.Name,
+			() => new UndeliveryProblemSourceViewModel(
+				EntityUoWBuilder.ForCreate(),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			),
+			(node) => new UndeliveryProblemSourceViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			),
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices
+		);
+		undeliveryProblemSourcesViewModel.SetActionsVisible(deleteActionEnabled: false);
+		tdiMain.AddTab(undeliveryProblemSourcesViewModel);
+	}
+
+	/// <summary>
+	/// Причины рекламаций водителей
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDriversComplaintReasonsJournalActivated(object sender, EventArgs e)
+	{
+		var driversComplaintReasonsFilter = new DriverComplaintReasonJournalFilterViewModel();
+		var driversComplaintReasonsJournal = new DriverComplaintReasonsJournalViewModel(driversComplaintReasonsFilter,
+			UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(driversComplaintReasonsJournal);
+	}
+
+	/// <summary>
+	/// Ответственные за рекламации
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionResponsibleActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ResponsibleJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Типы телефонов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionPhoneTypesActivated(object sender, EventArgs e)
+	{
+		IPhoneRepository phoneRepository = new PhoneRepository();
+
+		tdiMain.AddTab(
+			new PhoneTypeJournalViewModel(
+				phoneRepository,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	/// <summary>
+	/// Типы e-mail адресов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEMailTypesActivated(object sender, EventArgs e)
+	{
+		IEmailRepository emailRepository = new EmailRepository();
+
+		tdiMain.AddTab(
+			new EmailTypeJournalViewModel(
+				emailRepository,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	/// <summary>
+	/// Причины отписки от рассылки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnUnsubscribingReasonsActionActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new BulkEmailEventReasonJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices));
+	}
+
+	/// <summary>
+	/// Справочники Roboats
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnRoboatsExportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RoboatsCatalogExportViewModel>(null);
+	}
+
+	#endregion Наша организация
+
+	#region ТМЦ
+
+	/// <summary>
+	/// Номенклатура
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionNomenclatureActivated(object sender, EventArgs e)
+	{
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		var userRepository = new UserRepository();
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+
+		tdiMain.OpenTab(
+			() => new NomenclaturesJournalViewModel(
+				new NomenclatureFilterViewModel() { HidenByDefault = true },
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				VodovozGtkServicesConfig.EmployeeService,
+				new NomenclatureJournalFactory(),
+				counterpartyJournalFactory,
+				nomenclatureRepository,
+				userRepository
+			));
+	}
+
+	#region Инвентарный учет
+
+	/// <summary>
+	/// Экземпляры номенклатур
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnInventoryInstancesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InventoryInstancesJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Номенклатуры с инвентарным учетом
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnInventoryNomenclaturesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InventoryNomenclaturesJournalViewModel>(null);
+	}
+
+	#endregion Инвентарный учет
+
+	/// <summary>
+	/// Единицы измерения
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionUnitsActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(MeasurementUnits));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Группы товаров
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionProductGroupsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<ProductGroupView>(),
+			() => new ProductGroupView()
+		);
+	}
+
+	/// <summary>
+	/// Папки номенклатуры в 1с
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionFolders1cActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<Folder1c>(),
+			() => new OrmReference(typeof(Folder1c))
+		);
+	}
+
+	/// <summary>
+	/// Рекламные наборы
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
+	{
+		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
+		var userRepository = new UserRepository();
+
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+
+		tdiMain.AddTab(
+			new PromotionalSetsJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				VodovozGtkServicesConfig.EmployeeService,
+				counterpartyJournalFactory,
+				new NomenclatureJournalFactory(),
+				nomenclatureRepository,
+				userRepository
+			)
+		);
+	}
+
+	/// <summary>
+	/// Настройка запаса и радиуса
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionAdditionalLoadSettingsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<AdditionalLoadingSettingsViewModel>(null);
+	}
+
+	/// <summary>
+	/// Групповое заполнение себестоимости
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void ActionGroupPricingActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<NomenclatureGroupPricingViewModel>(null);
+	}
+
+	/// <summary>
+	/// Оборудование
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить или удалить, не активно")]
+	protected void OnActionEquipmentActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(Equipment));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Виды оборудования
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEquipmentKindsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new EquipmentKindJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+	}
+
+	/// <summary>
+	/// Производители оборудования
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionManufacturersActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(Manufacturer));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Цвета оборудования
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionColorsActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(EquipmentColors));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Спецификация продукции
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionProductSpecificationActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(ProductSpecification));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Сертификаты продукции
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionCertificatesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<Certificate>(),
+			() => new OrmReference(typeof(Certificate))
+		);
+	}
+
+	/// <summary>
+	/// Шаблоны для пересортицы
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionRegrandingOfGoodsTempalteActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<RegradingOfGoodsTemplate>(),
+			() => new OrmReference(typeof(RegradingOfGoodsTemplate))
+		);
+	}
+
+	/// <summary>
+	/// Категории выбраковки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionCullingCategoryActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(CullingCategory));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Фуры
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionTransportationWagonActivated(object sender, EventArgs e)
+	{
+		var movingWagonFilter = new MovementWagonJournalFilterViewModel();
+		var movingWagonJournal = new MovementWagonJournalViewModel(movingWagonFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(movingWagonJournal);
+	}
+
+	/// <summary>
+	/// Пакеты бесплатной аренды
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFreeRentPackageActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FreeRentPackagesJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Условия платной аренды
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionPaidRentPackageActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<PaidRentPackagesJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Основания для скидок
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDiscountReasonsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			() =>
+			{
+				return new DiscountReasonJournalViewModel(
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					new DiscountReasonRepository(),
+					new ProductGroupJournalFactory(),
+					new NomenclatureJournalFactory()
+				);
+			}
+		);
+	}
+
+	/// <summary>
+	/// Причины несдачи тары
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionNonReturnReasonsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<NonReturnReason>(),
+			() => new OrmReference(typeof(NonReturnReason))
+		);
+	}
+
+	/// <summary>
+	/// Причины забора тары
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionReturnTareReasonsActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new ReturnTareReasonsJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	/// <summary>
+	/// Категории забора тары
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionReturnTareReasonCategoriesActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new ReturnTareReasonCategoriesJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	/// <summary>
+	/// Рекламные листовки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFlyersActivated(object sender, EventArgs e)
+	{
+		var journal = new FlyersJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			new NomenclatureJournalFactory(),
+			new FlyerRepository());
+
+		tdiMain.AddTab(journal);
+	}
+
+	#endregion ТМЦ
+
+	#region Банки/Операторы ЭДО
+
+	/// <summary>
+	/// Банки РФ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionBanksRFActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(Bank));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Обновить с сайта Центрального банка
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionUpdateBanksFromCBRActivated(object sender, EventArgs e)
+	{
+		BanksUpdater.CheckBanksUpdate(true);
+	}
+
+	/// <summary>
+	/// Операторы ЭДО
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEdoOperatorsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<EdoOperatorsJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	#endregion Банки/Операторы ЭДО
+
+	#region Финансы
+
+	/// <summary>
+	/// Статьи доходов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnAction14Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<IncomeCategoryJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Статьи расходов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnAction15Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ExpenseCategoryJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Константы для рентабельности
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnProfitabilityConstantsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ProfitabilityConstantsViewModel, IValidator>(
+			null, ServicesConfig.ValidationService, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Финансовые статьи
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFinancialCategoriesGroupsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
+	}
+
+	#endregion Финансы
+
+	#region Контрагенты
+
+	/// <summary>
+	/// Контрагенты
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
+	{
+		CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel() { IsForRetail = false };
+		var counterpartyJournal = new CounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+
+		tdiMain.AddTab(counterpartyJournal);
+	}
+
+	/// <summary>
+	/// Точки доставки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
+	{
+		var dpJournalFactory = new DeliveryPointJournalFactory();
+		var deliveryPointJournal = dpJournalFactory.CreateDeliveryPointJournal();
+		tdiMain.AddTab(deliveryPointJournal);
+	}
+
+	/// <summary>
+	/// Откуда клиент
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCameFromActivated(object sender, EventArgs e)
+	{
+		ClientCameFromFilterViewModel filter = new ClientCameFromFilterViewModel()
+		{
+			HidenByDefault = true
+		};
+
+		var journal = new ClientCameFromJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(journal);
+	}
+
+	/// <summary>
+	/// Типы объектов в точках доставки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionDeliveryPointCategoryActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<DeliveryPointCategory>(),
+			() => new OrmReference(typeof(DeliveryPointCategory))
+		);
+	}
+
+	/// <summary>
+	/// Виды деятельности контрагента
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionCounterpartyActivityKindsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<CounterpartyActivityKind>(),
+			() => new OrmReference(typeof(CounterpartyActivityKind))
+		);
+	}
+
+	/// <summary>
+	/// Типы ответственных за точку доставки лиц
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionResponsiblePersonTypesJournalActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			() => new DeliveryPointResponsiblePersonTypeJournalViewModel(
+					new DeliveryPointResponsiblePersonTypeJournalFilterViewModel(),
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	/// <summary>
+	/// Каналы сбыта
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionSalesChannelsJournalActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			() => new SalesChannelJournalViewModel(
+					new SalesChannelJournalFilterViewModel(),
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	/// <summary>
+	/// Формы собственности контрагентов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionOrganizationOwnershipTypeActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OrganizationOwnershipTypeJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Должности сотрудников контрагента
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionCounterpartyPostActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(Post));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Имена контрагентов Roboats
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionRoboAtsCounterpartyNameActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RoboAtsCounterpartyNameJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Отчества контрагентов Roboats
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionRoboAtsCounterpartyPatronymicActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RoboAtsCounterpartyPatronymicJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Загрузить из 1с 7.7
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionLoad1cActivated(object sender, EventArgs e)
+	{
+		var win = new LoadFrom1cDlg();
+		tdiMain.AddTab(win);
+	}
+
+	/// <summary>
+	/// Сопоставление клиентов из внешних источников
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnExternalCounterpartiesMatchingActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ExternalCounterpartiesMatchingJournalViewModel>(null);
+	}
+
+	#endregion Контрагенты
+
+	#region Логистика
+
+	/// <summary>
+	/// Графики доставки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDeliveryScheduleActivated(object sender, EventArgs e)
+	{
+		var journal = autofacScope.Resolve<DeliveryScheduleJournalViewModel>();
+
+		journal.SelectionMode = JournalSelectionMode.None;
+		tdiMain.AddTab(journal);
+	}
+
+	/// <summary>
+	/// Правила для цен доставки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDeliveryPriceRulesActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DeliveryPriceRuleJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Тарифные зоны
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionTariffZonesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new TariffZoneJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+	}
+
+	/// <summary>
+	/// График работы водителя
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionDeliveryDayScheduleActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<DeliveryDaySchedule>(),
+			() => new OrmReference(typeof(DeliveryDaySchedule))
+		);
+	}
+
+	/// <summary>
+	/// Смена доставки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionDeliveryShiftActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(DeliveryShift));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Автомобили
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCarsActivated(object sender, EventArgs e)
+	{
+		var page = NavigationManager.OpenViewModel<CarJournalViewModel>(null);
+		page.ViewModel.NavigationManager = NavigationManager;
+	}
+
+	/// <summary>
+	/// Виды топлива
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFuelTypeActivated(object sender, EventArgs e)
+	{
+		var parametersProvider = new ParametersProvider();
+		var nomenclatureParametersProvider = new NomenclatureParametersProvider(parametersProvider);
+		var routeListProfitabilityController = new RouteListProfitabilityController(
+			new RouteListProfitabilityFactory(), nomenclatureParametersProvider,
+			new ProfitabilityConstantsRepository(), new RouteListProfitabilityRepository(),
+			new RouteListRepository(new StockRepository(), new BaseParametersProvider(parametersProvider)),
+			new NomenclatureRepository(nomenclatureParametersProvider));
+		var commonServices = ServicesConfig.CommonServices;
+		var unitOfWorkFactory = UnitOfWorkFactory.GetDefaultFactory;
+
+		var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(
+			x => x.Name,
+			() => new FuelTypeViewModel(
+				EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, routeListProfitabilityController),
+			(node) => new FuelTypeViewModel(
+				EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, routeListProfitabilityController),
+			unitOfWorkFactory,
+			commonServices);
+
+		var fuelTypePermissionSet = commonServices.PermissionService.ValidateUserPermission(typeof(FuelType), commonServices.UserService.CurrentUserId);
+		if(fuelTypePermissionSet.CanRead && !fuelTypePermissionSet.CanUpdate)
+		{
+			var viewAction = new JournalAction("Просмотр",
+				(selected) => selected.Any(),
+				(selected) => true,
+				(selected) =>
+				{
+					var tab = fuelTypeJournalViewModel.GetTabToOpen(typeof(FuelType), selected.First().GetId());
+					fuelTypeJournalViewModel.TabParent.AddTab(tab, fuelTypeJournalViewModel);
+				}
+			);
+
+			(fuelTypeJournalViewModel.NodeActions as IList<IJournalAction>)?.Add(viewAction);
+		}
+
+		tdiMain.AddTab(fuelTypeJournalViewModel);
+	}
+
+	/// <summary>
+	/// Модели автомобилей
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCarModelsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CarModelJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Производители автомобилей
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCarManufacturersActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CarManufacturerJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// Колонки номенклатуры
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionRouteColumnsActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(RouteColumn));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Причины опозданий водителей
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionLateArrivalReasonsActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new LateArrivalReasonsJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	/// <summary>
+	/// Виды событий ТС
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCarEventTypeActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new CarEventTypeJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices)
+		);
+	}
+
+	#endregion Логистика
+
+	#region Помощники
+
+	/// <summary>
+	/// Шаблоны комментариев
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionCommentTemplatesActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(CommentTemplate));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Шаблоны комментариев для штрафов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	[Obsolete("Старый диалог, заменить")]
+	protected void OnActionFineCommentTemplatesActivated(object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference(typeof(FineTemplate));
+		tdiMain.AddTab(refWin);
+	}
+
+	/// <summary>
+	/// Шаблоны комментариев для премий
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnAction47Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<PremiumTemplateJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	#endregion Помощники
+
+	#region Заказы
+
+	/// <summary>
+	/// Типы оплаты по карте
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionPaymentsFromActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<PaymentsFromJournalViewModel>(null);
+	}
+
+	/// <summary>
+	/// План продаж для КЦ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionNomenclaturePlanActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(() => new NomenclaturesPlanJournalViewModel(
+					new NomenclaturePlanFilterViewModel() { HidenByDefault = true },
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices)
+		);
+	}
+
+	/// <summary>
+	/// Причины отсутствия переноса
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionUndeliveryTransferAbsenceReasonActivated(object sender, EventArgs e)
+	{
+		var filterViewModel = new UndeliveryTransferAbsenceReasonJournalFilterViewModel();
+
+		var journal = new UndeliveryTransferAbsenceReasonJournalViewModel(
+			filterViewModel,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices);
+
+		tdiMain.AddTab(journal);
+	}
+
+	#endregion Заказы
+}

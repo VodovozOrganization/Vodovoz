@@ -17,7 +17,7 @@ using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels.ViewModels.Settings;
 using VodovozInfrastructure.Passwords;
 
-partial class MainWindow
+public partial class MainWindow
 {
 	#region База
 
