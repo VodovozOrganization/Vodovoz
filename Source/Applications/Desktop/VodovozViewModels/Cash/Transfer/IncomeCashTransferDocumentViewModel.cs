@@ -12,7 +12,6 @@ using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.CachingRepositories.Common;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -36,10 +35,12 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IReportViewOpener _reportViewOpener;
-		private readonly IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> _financialExpenseCategoryCacheRepository;
-		private readonly IDomainEntityNodeInMemoryCacheRepository<FinancialIncomeCategory> _financialIncomeCategoryCacheRepository;
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private FinancialIncomeCategory _financialIncomeCategory;
+
+		private Employee _cashier;
+		private bool _incomesSelected;
+		private bool _expensesSelected;
 
 		public IncomeCashTransferDocumentViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -53,8 +54,6 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			ILifetimeScope lifetimeScope,
 			IGtkTabsOpener gtkTabsOpener,
 			IReportViewOpener reportViewOpener,
-			IDomainEntityNodeInMemoryCacheRepository<FinancialExpenseCategory> financialExpenseCategoryCacheRepository,
-			IDomainEntityNodeInMemoryCacheRepository<FinancialIncomeCategory> financialIncomeCategoryCacheRepository,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
@@ -68,11 +67,11 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
-			_financialExpenseCategoryCacheRepository = financialExpenseCategoryCacheRepository ?? throw new ArgumentNullException(nameof(financialExpenseCategoryCacheRepository));
-			_financialIncomeCategoryCacheRepository = financialIncomeCategoryCacheRepository ?? throw new ArgumentNullException(nameof(financialIncomeCategoryCacheRepository));
+
 			EmployeeAutocompleteSelectorFactory =
 				(employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory)))
 				.CreateWorkingEmployeeAutocompleteSelectorFactory();
+
 			CarAutocompleteSelectorFactory =
 				(carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory)))
 				.CreateCarAutocompleteSelectorFactory();
@@ -84,6 +83,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 				Entity.IncomeCategoryId = financialCategoriesGroupsSettings.TransferDefaultFinancialIncomeCategoryId;
 				Entity.ExpenseCategoryId = financialCategoriesGroupsSettings.TransferDefaultFinancialExpenseCategoryId;
 			}
+
 			CreateCommands();
 			UpdateCashSubdivisions();
 
@@ -168,33 +168,31 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 		#endregion EntityEntry ViewModels
 
 		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; }
+
 		public IEntityAutocompleteSelectorFactory CarAutocompleteSelectorFactory { get; }
 
-		private Employee cashier;
 		public Employee Cashier
 		{
 			get
 			{
-				if(cashier == null)
+				if(_cashier == null)
 				{
-					cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+					_cashier = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 				}
-				return cashier;
+				return _cashier;
 			}
 		}
 
-		private bool incomesSelected;
 		public virtual bool IncomesSelected
 		{
-			get => incomesSelected;
-			set => SetField(ref incomesSelected, value, () => IncomesSelected);
+			get => _incomesSelected;
+			set => SetField(ref _incomesSelected, value);
 		}
 
-		private bool expensesSelected;
 		public virtual bool ExpensesSelected
 		{
-			get => expensesSelected;
-			set => SetField(ref expensesSelected, value, () => ExpensesSelected);
+			get => _expensesSelected;
+			set => SetField(ref _expensesSelected, value);
 		}
 
 		public bool CanEdit => Entity.Status == CashTransferDocumentStatuses.New;
@@ -233,14 +231,14 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 		{
 			foreach(var updatedItem in changeEvents.Select(x => x.Entity))
 			{
-				RouteList updatedRouteList = updatedItem as RouteList;
-				if(updatedRouteList != null)
+				if(updatedItem is RouteList updatedRouteList)
 				{
 					var foundRouteList = Entity.CashTransferDocumentIncomeItems
 						.Where(x => x.Income != null)
 						.Where(x => x.Income.RouteListClosing != null)
 						.Select(x => x.Income.RouteListClosing)
 						.FirstOrDefault(x => x.Id == updatedRouteList.Id);
+
 					if(foundRouteList != null)
 					{
 						UoW.Session.Refresh(foundRouteList);
@@ -273,6 +271,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 						&& CanEdit;
 				}
 			);
+
 			DeleteIncomesCommand.CanExecuteChangedWith(this, x => x.IncomesSelected);
 			DeleteIncomesCommand.CanExecuteChangedWith(Entity, x => x.Status);
 
@@ -285,6 +284,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 						&& CanEdit;
 				}
 			);
+
 			DeleteExpensesCommand.CanExecuteChangedWith(this, x => x.ExpensesSelected);
 			DeleteExpensesCommand.CanExecuteChangedWith(Entity, x => x.Status);
 
@@ -344,10 +344,11 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 				{
 					return Cashier != null
 						&& Entity.Status == CashTransferDocumentStatuses.Sent
-						&& availableSubdivisionsForUser.Contains(Entity.CashSubdivisionTo)
+						&& _availableSubdivisionsForUser.Contains(Entity.CashSubdivisionTo)
 						&& Entity.Id != 0;
 				}
 			);
+
 			ReceiveCommand.CanExecuteChangedWith(Entity,
 				x => x.Status,
 				x => x.Id
@@ -381,6 +382,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 						&& Entity.CashSubdivisionFrom != null;
 				}
 			);
+
 			AddIncomesCommand.CanExecuteChangedWith(Entity,
 				x => x.Status,
 				x => x.CashSubdivisionTo,
@@ -415,6 +417,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 						&& Entity.CashSubdivisionFrom != null;
 				}
 			);
+
 			AddExpensesCommand.CanExecuteChangedWith(Entity,
 				x => x.Status,
 				x => x.CashSubdivisionTo,
@@ -437,7 +440,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			);
 		}
 
-		void IncomesSelectDlg_ObjectSelected(object sender, JournalSelectedNodesEventArgs e)
+		private void IncomesSelectDlg_ObjectSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
 			if(!e.SelectedNodes.Any())
 			{
@@ -454,7 +457,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 			}
 		}
 
-		void ExpensesSelectDlg_ObjectSelected(object sender, JournalSelectedNodesEventArgs e)
+		private void ExpensesSelectDlg_ObjectSelected(object sender, JournalSelectedNodesEventArgs e)
 		{
 			if(!e.SelectedNodes.Any())
 			{
@@ -475,74 +478,82 @@ namespace Vodovoz.ViewModels.Cash.Transfer
 
 		#region Настройка списков доступных подразделений кассы
 
-		private IEnumerable<Subdivision> cashSubdivisions;
-		private IList<Subdivision> availableSubdivisionsForUser;
+		private IEnumerable<Subdivision> _cashSubdivisions;
 
-		private IEnumerable<Subdivision> subdivisionsFrom;
+		private IList<Subdivision> _availableSubdivisionsForUser;
+
+		private IEnumerable<Subdivision> _subdivisionsFrom;
+
 		public virtual IEnumerable<Subdivision> SubdivisionsFrom
 		{
-			get => subdivisionsFrom;
-			set => SetField(ref subdivisionsFrom, value, () => SubdivisionsFrom);
+			get => _subdivisionsFrom;
+			set => SetField(ref _subdivisionsFrom, value);
 		}
 
-		private IEnumerable<Subdivision> subdivisionsTo;
+		private IEnumerable<Subdivision> _subdivisionsTo;
+
 		public virtual IEnumerable<Subdivision> SubdivisionsTo
 		{
-			get => subdivisionsTo;
-			set => SetField(ref subdivisionsTo, value, () => SubdivisionsTo);
+			get => _subdivisionsTo;
+			set => SetField(ref _subdivisionsTo, value);
 		}
 
 		private void UpdateCashSubdivisions()
 		{
 			Type[] cashDocumentTypes = { typeof(Income), typeof(Expense), typeof(AdvanceReport) };
-			availableSubdivisionsForUser = _subdivisionRepository.GetAvailableSubdivionsForUser(UoW, cashDocumentTypes).ToList();
+			_availableSubdivisionsForUser = _subdivisionRepository.GetAvailableSubdivionsForUser(UoW, cashDocumentTypes).ToList();
 
 			if(Entity.Id != 0
 			   && !CanEdit
 			   && Entity.CashSubdivisionFrom != null
-			   && !availableSubdivisionsForUser.Contains(Entity.CashSubdivisionFrom))
+			   && !_availableSubdivisionsForUser.Contains(Entity.CashSubdivisionFrom))
 			{
-				availableSubdivisionsForUser.Add(Entity.CashSubdivisionFrom);
+				_availableSubdivisionsForUser.Add(Entity.CashSubdivisionFrom);
 			}
 
-			cashSubdivisions = _subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, cashDocumentTypes).Distinct();
-			SubdivisionsFrom = availableSubdivisionsForUser;
-			SubdivisionsTo = cashSubdivisions;
+			_cashSubdivisions = _subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, cashDocumentTypes).Distinct();
+			SubdivisionsFrom = _availableSubdivisionsForUser;
+			SubdivisionsTo = _cashSubdivisions;
 		}
 
-
-		private bool isUpdatingSubdivisions = false;
+		private bool _isUpdatingSubdivisions = false;
 
 		private void UpdateSubdivisionsFrom()
 		{
-			if(isUpdatingSubdivisions)
+			if(_isUpdatingSubdivisions)
 			{
 				return;
 			}
-			isUpdatingSubdivisions = true;
+
+			_isUpdatingSubdivisions = true;
 			var currentSubdivisonFrom = Entity.CashSubdivisionFrom;
-			SubdivisionsFrom = availableSubdivisionsForUser.Where(x => x != Entity.CashSubdivisionTo);
+			SubdivisionsFrom = _availableSubdivisionsForUser.Where(x => x != Entity.CashSubdivisionTo);
+
 			if(SubdivisionsTo.Contains(currentSubdivisonFrom))
 			{
 				Entity.CashSubdivisionFrom = currentSubdivisonFrom;
 			}
-			isUpdatingSubdivisions = false;
+
+			_isUpdatingSubdivisions = false;
 		}
 
 		private void UpdateSubdivisionsTo()
 		{
-			if(isUpdatingSubdivisions)
+			if(_isUpdatingSubdivisions)
 			{
 				return;
 			}
-			isUpdatingSubdivisions = true;
+
+			_isUpdatingSubdivisions = true;
 			var currentSubdivisonTo = Entity.CashSubdivisionTo;
-			SubdivisionsTo = cashSubdivisions.Where(x => x != Entity.CashSubdivisionFrom);
+			SubdivisionsTo = _cashSubdivisions.Where(x => x != Entity.CashSubdivisionFrom);
+
 			if(SubdivisionsTo.Contains(currentSubdivisonTo))
 			{
 				Entity.CashSubdivisionTo = currentSubdivisonTo;
 			}
-			isUpdatingSubdivisions = false;
+
+			_isUpdatingSubdivisions = false;
 		}
 
 		#endregion Настройка списков доступных подразделений кассы

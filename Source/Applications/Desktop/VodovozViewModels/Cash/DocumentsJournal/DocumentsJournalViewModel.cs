@@ -561,6 +561,11 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => expenseAlias.Id), FilterViewModel.HiddenExpenses)));
 				}
 
+				if(FilterViewModel.RestrictNotTransfered)
+				{
+					query.Where(expense => expense.TransferedBy == null);
+				}
+
 				query.Where(GetSearchCriterion(
 					() => expenseAlias.Id,
 					() => expenseAlias.Description,
