@@ -245,6 +245,16 @@ namespace DriverAPI.Library.Deprecated2.Models
 			}
 
 			vodovozOrder.PaymentType = paymentType;
+
+			if(paymentType == PaymentType.Terminal)
+			{
+				vodovozOrder.PaymentByTerminalSource = PaymentByTerminalSource.ByCard;
+			}
+			else
+			{
+				vodovozOrder.PaymentByTerminalSource = null;
+			}
+
 			_uow.Save(vodovozOrder);
 			_uow.Commit();
 		}
