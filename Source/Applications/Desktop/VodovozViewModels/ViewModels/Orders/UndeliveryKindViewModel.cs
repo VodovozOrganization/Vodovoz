@@ -14,7 +14,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			UndeliveryObjects = UoW.Session.QueryOver<UndeliveryObject>().List();
+			UndeliveryObjects = UoW.Session.QueryOver<UndeliveryObject>()
+				.Where(uo => !uo.IsArchive)
+				.List();
 
 			TabName = "Вид недовоза";
 		}
@@ -30,10 +32,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					return false;
 				}
 
-				foreach(var detalizationst in UoW.Query<UndeliveryDetalization>()
+				foreach(var detalizations in UoW.Query<UndeliveryDetalization>()
 					.Where(x => x.UndeliveryKind.Id == Entity.Id).List())
 				{
-					detalizationst.IsArchive = true;
+					detalizations.IsArchive = true;
 				}
 			}
 

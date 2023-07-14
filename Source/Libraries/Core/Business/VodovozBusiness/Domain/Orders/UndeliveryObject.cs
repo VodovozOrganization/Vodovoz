@@ -8,8 +8,8 @@ using QS.HistoryLog;
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "объекты недовозов",
-		Nominative = "объект недовозов"
+		NominativePlural = "объекты недовоза",
+		Nominative = "объект недовоза"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
@@ -36,6 +36,10 @@ namespace Vodovoz.Domain.Orders
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
+
+		public virtual string GetFullName => !IsArchive ? Name : $"(Архив) {Name}";
+
+		public virtual string Title => Name;
 
 		#endregion
 

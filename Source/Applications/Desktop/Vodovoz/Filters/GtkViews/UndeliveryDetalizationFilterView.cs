@@ -21,6 +21,7 @@ namespace Vodovoz.Filters.GtkViews
 			var undeliveryKind = ViewModel.UndeliveryKind;
 
 			cmbUndeliveryObject.ShowSpecialStateAll = true;
+			cmbUndeliveryObject.SetRenderTextFunc<UndeliveryObject>(o => o.GetFullName);
 			cmbUndeliveryObject.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.UndeliveryObject, w => w.SelectedItem)
 				.AddBinding(vm => vm.UndeliveryObjects, w => w.ItemsList)

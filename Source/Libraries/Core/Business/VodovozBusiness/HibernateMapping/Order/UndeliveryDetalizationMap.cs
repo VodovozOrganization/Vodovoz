@@ -3,9 +3,9 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.HibernateMapping.Order
 {
-	public class CamplaintDetalizationMap : ClassMap<UndeliveryDetalization>
+	public class UndeliveryDetalizationMap : ClassMap<UndeliveryDetalization>
 	{
-		public CamplaintDetalizationMap()
+		public UndeliveryDetalizationMap()
 		{
 			Table("undelivery_detalizations");
 

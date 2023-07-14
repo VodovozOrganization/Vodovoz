@@ -1,4 +1,5 @@
-﻿using QS.Navigation;
+﻿using System;
+using QS.Navigation;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
@@ -18,8 +19,25 @@ namespace Vodovoz.Views.Orders
 
 			ycheckbuttonArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
-			buttonSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
+			buttonSave.Clicked += OnButtonSaveClicked;
+			buttonCancel.Clicked += OnButtonCancelClicked;
+		}
+
+		private void OnButtonSaveClicked(object sender, EventArgs e)
+		{
+			ViewModel.SaveAndClose();
+		}
+
+		private void OnButtonCancelClicked(object sender, EventArgs e)
+		{
+			ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+		}
+
+		public override void Dispose()
+		{
+			buttonSave.Clicked -= OnButtonSaveClicked;
+			buttonCancel.Clicked -= OnButtonCancelClicked;
+			base.Dispose();
 		}
 	}
 }

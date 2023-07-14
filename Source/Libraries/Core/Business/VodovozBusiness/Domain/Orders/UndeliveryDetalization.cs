@@ -7,10 +7,8 @@ using QS.HistoryLog;
 namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "детализации рекламации",
-		Nominative = "детализация рекламации",
-		Prepositional = "детализации рекламации",
-		PrepositionalPlural = "детализациях рекламаций")]
+		NominativePlural = "детализации недовоза",
+		Nominative = "детализация недовоза")]
 	[HistoryTrace]
 	[EntityPermission]
 	public class UndeliveryDetalization : PropertyChangedBase, IDomainObject, IValidatableObject
@@ -42,8 +40,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _isArchive, value);
 		}
 
-		public virtual string GetFullName => !IsArchive ? Name : $"(Архив) {Name}";
-
 		public virtual string Title => Name;
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -60,6 +56,14 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult(
 					$"Превышена максимально допустимая длина названия ({Name.Length}/100).",
 					new[] { nameof(Name) });
+			}
+
+
+			if(UndeliveryKind == null)
+			{
+				yield return new ValidationResult(
+					"Нужно обязательно выбрать вид недовоза",
+					new[] { nameof(UndeliveryKind) });
 			}
 		}
 	}

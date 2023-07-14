@@ -29,8 +29,8 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(vm => vm.CanChangeUndeliveryObject, w => w.Sensitive)
 				.InitializeFromSource();
 
-			cmbUndeliveryKind.SetRenderTextFunc<UndeliveryKind>(k => k.GetFullName);
 			cmbUndeliveryKind.ShowSpecialStateNot = true;
+			cmbUndeliveryKind.SetRenderTextFunc<UndeliveryKind>(k => k.GetFullName);
 			cmbUndeliveryKind.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.VisibleUndeliveryKinds, w => w.ItemsList)
@@ -50,24 +50,24 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			buttonSave.Clicked += ButtonSaveClicked;
-			buttonCancel.Clicked += ButtonCancelClicked;
+			buttonSave.Clicked += OnButtonSaveClicked;
+			buttonCancel.Clicked += OnButtonCancelClicked;
 		}
 
-		private void ButtonSaveClicked(object sender, EventArgs e)
+		private void OnButtonSaveClicked(object sender, EventArgs e)
 		{
 			ViewModel.SaveAndClose();
 		}
 
-		private void ButtonCancelClicked(object sender, EventArgs e)
+		private void OnButtonCancelClicked(object sender, EventArgs e)
 		{
 			ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 		}
 
 		public override void Dispose()
 		{
-			buttonSave.Clicked -= ButtonSaveClicked;
-			buttonCancel.Clicked -= ButtonCancelClicked;
+			buttonSave.Clicked -= OnButtonSaveClicked;
+			buttonCancel.Clicked -= OnButtonCancelClicked;
 			base.Dispose();
 		}
 	}

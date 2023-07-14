@@ -8,10 +8,7 @@ namespace Vodovoz.Domain.Orders
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "виды недовоза",
-		Nominative = "вид рекламации",
-		Prepositional = "виде недовоза",
-		PrepositionalPlural = "видах недовозов"
-	)]
+		Nominative = "вид недовоза")]
 	[HistoryTrace]
 	[EntityPermission]
 	public class UndeliveryKind : PropertyChangedBase, IDomainObject, IValidatableObject
@@ -60,6 +57,13 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult(
 					$"Превышена максимально допустимая длина названия ({Name.Length}/100).",
 					new[] { nameof(Name) });
+			}
+
+			if(UndeliveryObject == null)
+			{
+				yield return new ValidationResult(
+					"Нужно обязательно выбрать объект недовоза",
+					new[] { nameof(UndeliveryObject) });
 			}
 		}
 	}

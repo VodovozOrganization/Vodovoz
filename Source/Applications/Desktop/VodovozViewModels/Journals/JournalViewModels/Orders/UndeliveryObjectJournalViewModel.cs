@@ -22,8 +22,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			TabName = "Объекты недовозов";
 
 			UpdateOnChanges(
-				typeof(UndeliveryObject),
-				typeof(UndeliveryKind)
+				typeof(UndeliveryObject)
 			);
 		}
 

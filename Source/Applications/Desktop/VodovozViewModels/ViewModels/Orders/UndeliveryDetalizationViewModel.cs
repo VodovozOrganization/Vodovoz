@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
@@ -16,65 +14,32 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 	{
 		private UndeliveryObject _selectedUndeliveryObject;
 		private IEnumerable<UndeliveryKind> _visibleUndeliveryKinds;
+		private readonly IList<UndeliveryKind> _allUndeliveryKinds;
 
 		public UndeliveryDetalizationViewModel(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigation = null,
-			UndeliveryObject undeliveryObject = null,
-			UndeliveryKind undeliveryKind = null)
+			INavigationManager navigation = null)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			TabName = "Детализация недовоза";
 
-			var entityUndeliveryObjectId = Entity.UndeliveryKind?.UndeliveryObject?.Id;
-			var restrictedUndeliveryObjectId = undeliveryObject?.Id;
-
-			UndeliveryObjects = UoW.Session.QueryOver<UndeliveryObject>()
-				.Where(co => !co.IsArchive
-					|| co.Id == entityUndeliveryObjectId
-					|| co.Id == restrictedUndeliveryObjectId)
+			_allUndeliveryKinds = UoW.Session.QueryOver<UndeliveryKind>()
+				.Where(uk => !uk.IsArchive)
 				.List();
 
-			var entityUndeliveryKindId = Entity.UndeliveryKind?.Id;
-			var restrictedUndeliveryKindId = undeliveryKind?.Id;
-
-			UndeliveryKinds = UoW.Session.QueryOver<UndeliveryKind>()
-				.Where(ck => !ck.IsArchive
-					|| ck.Id == entityUndeliveryKindId
-					|| ck.Id == restrictedUndeliveryKindId)
+			UndeliveryObjects = UoW.Session.QueryOver<UndeliveryObject>()
+				.Where(uo => !uo.IsArchive)
 				.List();
 
 			VisibleUndeliveryKinds = Enumerable.Empty<UndeliveryKind>();
 
-			SelectedUndeliveryObject = undeliveryObject ?? Entity.UndeliveryKind?.UndeliveryObject;
-
-			if(undeliveryKind != null)
-			{
-				RestrictComplainKind = Entity.UndeliveryKind = undeliveryKind;
-			}
-
-			RestrictUndeliveryObject = undeliveryObject;
-
 			SelectedUndeliveryObject = Entity.UndeliveryKind?.UndeliveryObject;
-
-			Entity.PropertyChanged += EntityPropertyChanged;
-
-			SetPropertyChangeRelation(
-				undeliveryDetalization => undeliveryDetalization.Id,
-				() => CanEdit);
 		}
 
-		[PropertyChangedAlso(nameof(CanChangeUndeliveryKind))]
-		public UndeliveryKind RestrictComplainKind { get; }
-
-		[PropertyChangedAlso(nameof(CanChangeUndeliveryObject))]
-		public UndeliveryObject RestrictUndeliveryObject { get; }
 
 		public IList<UndeliveryObject> UndeliveryObjects { get; }
-
-		public IList<UndeliveryKind> UndeliveryKinds { get; }
 
 		public bool CanCreate => CommonServices.CurrentPermissionService
 			.ValidateEntityPermission(typeof(UndeliveryDetalization)).CanCreate;
@@ -102,33 +67,17 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					}
 					else
 					{
-						VisibleUndeliveryKinds = UndeliveryKinds
-							.Where(ck => ck.UndeliveryObject == value);
+						VisibleUndeliveryKinds = _allUndeliveryKinds
+							.Where(uk => uk.UndeliveryObject == value);
 					}
 				}
 			}
 		}
 
-		public bool CanChangeUndeliveryKind => CanEdit
-			&& RestrictComplainKind is null;
+		public bool CanChangeUndeliveryKind => CanEdit;
 
-		public bool CanChangeUndeliveryObject => CanEdit
-			&& RestrictUndeliveryObject is null;
+		public bool CanChangeUndeliveryObject => CanEdit;
 
 		public bool AskSaveOnClose => CanEdit;
-
-		private void EntityPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(Entity.UndeliveryKind))
-			{
-				SelectedUndeliveryObject = Entity.UndeliveryKind?.UndeliveryObject;
-			}
-		}
-
-		public override void Dispose()
-		{
-			Entity.PropertyChanged -= EntityPropertyChanged;
-			base.Dispose();
-		}
 	}
 }

@@ -1,4 +1,6 @@
 ﻿using QS.Views.GtkUI;
+using System;
+using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
@@ -19,16 +21,31 @@ namespace Vodovoz.Views.Orders
 			yspeccomboboxUndeliveryObject.ShowSpecialStateNot = true;
 			yspeccomboboxUndeliveryObject.Binding
 				.AddBinding(ViewModel, vm => vm.UndeliveryObjects, w => w.ItemsList)
-				.InitializeFromSource();
-			yspeccomboboxUndeliveryObject.Binding
 				.AddBinding(ViewModel.Entity, e => e.UndeliveryObject, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			chkIsArchive.Binding.AddBinding(ViewModel.Entity, vm => vm.IsArchive, w => w.Active)
 				.InitializeFromSource();
 
-			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+			buttonSave.Clicked += OnButtonCancelClicked;
+			buttonCancel.Clicked += OnButtonCancelClicked;
+		}
+
+		private void OnButtonSaveClicked(object sender, EventArgs e)
+		{
+			ViewModel.SaveAndClose();
+		}
+
+		private void OnButtonCancelClicked(object sender, EventArgs e)
+		{
+			ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
+		}
+
+		public override void Dispose()
+		{
+			buttonSave.Clicked -= OnButtonSaveClicked;
+			buttonCancel.Clicked -= OnButtonCancelClicked;
+			base.Dispose();
 		}
 	}
 }

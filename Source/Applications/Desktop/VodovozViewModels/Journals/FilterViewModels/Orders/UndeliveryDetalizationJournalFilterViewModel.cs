@@ -17,9 +17,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 
 		public UndeliveryDetalizationJournalFilterViewModel()
 		{
-			UndeliveryObjects = UoW.Session.QueryOver<UndeliveryObject>()
-				.Where(o => !o.IsArchive)
-				.List();
+			UndeliveryObjects = UoW.Session.QueryOver<UndeliveryObject>().List();
 
 			UndeliveryKinds = _allUndeliveryKinds = UoW.Session.QueryOver<UndeliveryKind>().List();
 		}
