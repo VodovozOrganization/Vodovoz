@@ -237,7 +237,7 @@ namespace Vodovoz.Representations
 					selectedItems => {
 						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						MainClass.MainWin.TdiMain.OpenTab(
+						Startup.MainWin.TdiMain.OpenTab(
 							DialogHelper.GenerateDialogHashName<VodovozOrder>(selectedNode.Id),
 							() => new OrderDlg(selectedNode.Id)
 						);

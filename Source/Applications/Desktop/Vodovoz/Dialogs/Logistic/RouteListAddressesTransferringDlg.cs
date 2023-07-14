@@ -167,7 +167,7 @@ namespace Vodovoz
 			
 
 			IRouteListJournalFactory routeListJournalFactory = new RouteListJournalFactory();
-			var scope = MainClass.AppDIContainer.BeginLifetimeScope();
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
 
 			_routeListJournalFilterViewModelFrom = new RouteListJournalFilterViewModel()
 			{
@@ -996,7 +996,7 @@ namespace Vodovoz
 	        var routeListToItems = routeListItemsTo?.Addresses.Select(t => t.Order.Id) ?? new List<int>();
 
 	        var filter = new OrderJournalFilterViewModel(
-                new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
+                new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
                 new DeliveryPointJournalFactory(),
                 new EmployeeJournalFactory())
             {
@@ -1014,7 +1014,7 @@ namespace Vodovoz
                 x => x.ExcludeClosingDocumentDeliverySchedule = true
             );
 
-            var orderPage = MainClass.MainWin.NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, OrderJournalFilterViewModel>(null, filter);
+            var orderPage = Startup.MainWin.NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, OrderJournalFilterViewModel>(null, filter);
             orderPage.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
             orderPage.ViewModel.OnEntitySelectedResult += OnOrderSelectedResult;
         }

@@ -103,23 +103,23 @@ namespace Vodovoz
 			DocumentType type = (DocumentType)e.ItemEnum;
 			switch(type) {
 				case DocumentType.MovementDocument:
-					MainClass.MainWin.NavigationManager
+					Startup.MainWin.NavigationManager
 						.OpenViewModelOnTdi<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.IncomingInvoice:
-					MainClass.MainWin.NavigationManager
+					Startup.MainWin.NavigationManager
 						.OpenViewModelOnTdi<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.WriteoffDocument:
-					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(
+					Startup.MainWin.NavigationManager.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(
 						this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.InventoryDocument:
-					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, IEntityUoWBuilder>(
+					Startup.MainWin.NavigationManager.OpenViewModelOnTdi<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, IEntityUoWBuilder>(
 						this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.ShiftChangeDocument:
-					MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(
+					Startup.MainWin.NavigationManager.OpenViewModelOnTdi<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(
 						this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.IncomingWater:
@@ -151,7 +151,7 @@ namespace Vodovoz
 
 				switch (DocType) {
 					case DocumentType.IncomingInvoice:
-						MainClass.MainWin.NavigationManager
+						Startup.MainWin.NavigationManager
 							.OpenViewModelOnTdi<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.IncomingWater:
@@ -161,7 +161,7 @@ namespace Vodovoz
 							this);
 						break;
 					case DocumentType.MovementDocument:
-						MainClass.MainWin.NavigationManager
+						Startup.MainWin.NavigationManager
 							.OpenViewModelOnTdi<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.DriverTerminalGiveout:
@@ -187,15 +187,15 @@ namespace Vodovoz
 						);
 						break;
 					case DocumentType.WriteoffDocument:
-						MainClass.MainWin.NavigationManager
+						Startup.MainWin.NavigationManager
 							.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.InventoryDocument:
-						MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, IEntityUoWBuilder>(
+						Startup.MainWin.NavigationManager.OpenViewModelOnTdi<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, IEntityUoWBuilder>(
 							this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.ShiftChangeDocument:
-						MainClass.MainWin.NavigationManager
+						Startup.MainWin.NavigationManager
 							.OpenViewModelOnTdi<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.RegradingOfGoodsDocument:

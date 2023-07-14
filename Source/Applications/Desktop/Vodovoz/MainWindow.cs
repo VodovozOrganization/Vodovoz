@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
 using NLog;
@@ -110,7 +110,7 @@ public partial class MainWindow : Gtk.Window
 {
 	private static Logger logger = LogManager.GetCurrentClassLogger();
 	private uint lastUiId;
-	private readonly ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+	private readonly ILifetimeScope autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
 	private readonly IApplicationInfo applicationInfo;
 	private readonly IPasswordValidator passwordValidator;
 	private readonly IApplicationConfigurator applicationConfigurator;
@@ -611,7 +611,7 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
 			() => new QSReport.ReportViewDlg(new QualityReport(
-				new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
+				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				new EmployeeJournalFactory(),
 				new SalesChannelJournalFactory(),
 				UnitOfWorkFactory.GetDefaultFactory,
@@ -1158,7 +1158,7 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
 			() => new QSReport.ReportViewDlg(
-				new PaymentsFromBankClientReport(new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new UserRepository(), ServicesConfig.CommonServices))
+				new PaymentsFromBankClientReport(new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new UserRepository(), ServicesConfig.CommonServices))
 		);
 	}
 
@@ -1171,7 +1171,7 @@ public partial class MainWindow : Gtk.Window
 	}
 	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
 	{
-		ILifetimeScope lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
+		ILifetimeScope lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		var employeeJournalFactory = new EmployeeJournalFactory();
 
 		tdiMain.OpenTab(
@@ -1331,7 +1331,7 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var employeeJournalFactory = new EmployeeJournalFactory();
 
@@ -1537,7 +1537,7 @@ public partial class MainWindow : Gtk.Window
 	
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory = new BulkEmailEventReasonJournalFactory();
 		IFileDialogService fileDialogService = new FileDialogService();
 
