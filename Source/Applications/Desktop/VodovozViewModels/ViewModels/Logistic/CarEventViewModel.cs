@@ -244,10 +244,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ChangeDoNotShowInOperation();
 			SetCompensationFromInsuranceByCourt();
 		}
+
 		public void ChangeDoNotShowInOperation()
 		{
-			if(CarEventType?.Id == _carEventSettings.DontShowCarEventByReportId 
-				|| CarEventType?.IsDoNotShowInOperation == true)
+			if(CarEventType?.IsDoNotShowInOperation == true)
 			{
 				DoNotShowInOperation = true;
 			}
