@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -715,7 +715,7 @@ namespace Vodovoz
 			yenumcomboboxTerminalSubtype.Sensitive = false;
 			yenumcomboboxTerminalSubtype.Binding
 				.AddSource(Entity)
-				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItem)
+				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItemOrNull)
 				.AddFuncBinding(s => s.PaymentType == PaymentType.Terminal, w => w.Visible)
 				.InitializeFromSource();
 
