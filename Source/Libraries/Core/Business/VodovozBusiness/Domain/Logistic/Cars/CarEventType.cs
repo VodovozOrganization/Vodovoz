@@ -53,7 +53,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		[Display(Name = "Не отображать в эксплуатации ТС")]
-		public bool IsDoNotShowInOperation
+		public virtual bool IsDoNotShowInOperation
 		{
 			get => _isDoNotShowInOperation;
 			set => SetField(ref _isDoNotShowInOperation, value);
