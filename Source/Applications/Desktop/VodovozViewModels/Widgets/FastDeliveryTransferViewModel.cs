@@ -1,18 +1,16 @@
-﻿using NLog;
-using NLog.Fluent;
+﻿using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Navigation;
-using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
-using QS.ViewModels.Dialog;
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
@@ -22,37 +20,30 @@ using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.Widgets
 {
-	public class FastDeliveryTransferViewModel : WindowDialogViewModelBase
+	public class FastDeliveryTransferViewModel : WidgetViewModelBase
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+
 		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-
-		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private readonly WageParameterService _wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(_parametersProvider));
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 
-		private TransferingOrderInfo _transferingOrderInfo;
-		private List<RouteList> _routeListsFastDelivery = new List<RouteList>();
-		private RouteList _routeListFrom = null;
-		private RouteList _routeListTo = null;
+		RouteList _routeListFrom;
+		RouteListItem _routeListItemToTransfer;
 
 		private DelegateCommand _transferCommand;
 		private DelegateCommand _cancelCommand;
 
 		public FastDeliveryTransferViewModel(
-			//RouteListItem entity,
-			//IEntityUoWBuilder uowBuilder,
-			//IUnitOfWorkFactory uowFactory,
-			INavigationManager navigationManager,
 			IRouteListRepository routeListRepository,
 			ICommonServices commonServices,
 			IRouteListItemRepository routeListItemRepository,
-			IRouteListProfitabilityController routeListProfitabilityController
-			) : base(navigationManager) //: base(navigationManager)
+			IRouteListProfitabilityController routeListProfitabilityController,
+			int routeListAddressId)
 		{
 			_routeListRepository = routeListRepository ?? throw new System.ArgumentNullException(nameof(routeListRepository));
 			_commonServices = commonServices ?? throw new System.ArgumentNullException(nameof(commonServices));
@@ -61,30 +52,30 @@ namespace Vodovoz.ViewModels.Widgets
 
 			_uow = UnitOfWorkFactory.CreateWithoutRoot();
 
-			GetRouteListFromInfo(3933326);
+			GetRouteListFromInfo(routeListAddressId);
 		}
 
 		private void GetRouteListFromInfo(int routeListAddressId)
 		{
-			var transferingRouteListItem = _uow.GetById<RouteListItem>(routeListAddressId);
+			_routeListItemToTransfer = _uow.GetById<RouteListItem>(routeListAddressId);
 			
-			if (transferingRouteListItem == null || transferingRouteListItem.RouteList == null)
+			if (_routeListItemToTransfer == null || _routeListItemToTransfer.RouteList == null)
 			{
 				return;
 			}
 
-			_routeListFrom = transferingRouteListItem.RouteList;
+			_routeListFrom = _routeListItemToTransfer.RouteList;
 		}
 
-		private void TransferAddress(RouteListItem address)
+		private void MakeAddressTransfer(RouteListItem address, RouteList routeListFrom, RouteList routeListTo)
 		{
-			RouteListItem item = address;
-			_logger.Debug("Проверка адреса с номером {0}", item?.Id.ToString() ?? "Неправильный адрес");
+			//_logger.Debug("Проверка адреса с номером {0}", address?.Id.ToString() ?? "Неправильный адрес");
 
-			if(item == null || item.Status == RouteListItemStatus.Transfered)
-			{
-				return;
-			}
+			//if(address == null || address.Status == RouteListItemStatus.Transfered)
+			//{
+			//	_commonServices.InteractiveService.ShowMessage
+			//	return;
+			//}
 
 			//if(!row.IsNeedToReload && !row.IsFromHandToHandTransfer && !row.IsFromFreeBalance)
 			//{
@@ -109,81 +100,111 @@ namespace Vodovoz.ViewModels.Widgets
 			//	}
 			//}
 
-			var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(_uow, address.Order, _routeListTo);
+			if(routeListTo.AdditionalLoadingDocument == null)
+			{
+
+			}
+
+			var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(_uow, address.Order, routeListTo);
 
 			if(!hasBalanceForTransfer)
 			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Недостаточно свободных остатков");
 				///Недостаточно свободных остатков
 				return;
 				//deliveryNotEnoughQuantityList.Add(row);
 				//continue;
 			}
 
-			if(HasAddressChanges(item))
+			if(HasAddressChanges(address))
 			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Статус {item.Title} был изменён другим пользователем, для его переноса переоткройте диалог.");
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Статус {address.Title} был изменён другим пользователем, для его переноса переоткройте диалог.");
 				return;
 			}
 
 			var transferredAddressFromRouteListTo =
-				_routeListItemRepository.GetTransferredRouteListItemFromRouteListForOrder(_uow, _routeListTo.Id, address.Order.Id);
+				_routeListItemRepository.GetTransferredRouteListItemFromRouteListForOrder(_uow, routeListTo.Id, address.Order.Id);
 
 			RouteListItem newItem = null;
 
 			if(transferredAddressFromRouteListTo != null)
 			{
 				newItem = transferredAddressFromRouteListTo;
-				newItem.AddressTransferType = item.AddressTransferType;
-				item.WasTransfered = false;
-				_routeListTo.RevertTransferAddress(_wageParameterService, newItem, item);
-				_routeListFrom.TransferAddressTo(_uow, item, newItem);
+				newItem.AddressTransferType = address.AddressTransferType;
+				address.WasTransfered = false;
+				routeListTo.RevertTransferAddress(_wageParameterService, newItem, address);
+				routeListFrom.TransferAddressTo(_uow, address, newItem);
 				newItem.WasTransfered = true;
 			}
 			else
 			{
-				newItem = new RouteListItem(_routeListTo, item.Order, item.Status)
+				newItem = new RouteListItem(routeListTo, address.Order, address.Status)
 				{
 					WasTransfered = true,
 					AddressTransferType = AddressTransferType.FromFreeBalance,
-					WithForwarder = _routeListTo.Forwarder != null
+					WithForwarder = routeListTo.Forwarder != null
 				};
 
-				_routeListTo.ObservableAddresses.Add(newItem);
-				_routeListFrom.TransferAddressTo(_uow, item, newItem);
+				routeListTo.ObservableAddresses.Add(newItem);
+				routeListFrom.TransferAddressTo(_uow, address, newItem);
 			}
 
-			if(_routeListTo.Status == RouteListStatus.New)
+			if(routeListTo.Status == RouteListStatus.New)
 			{
-				if(item.AddressTransferType == AddressTransferType.NeedToReload)
+				if(address.AddressTransferType == AddressTransferType.NeedToReload)
 				{
-					item.Order.ChangeStatus(OrderStatus.InTravelList);
+					address.Order.ChangeStatus(OrderStatus.InTravelList);
 				}
-				if(item.AddressTransferType == AddressTransferType.FromHandToHand)
+				if(address.AddressTransferType == AddressTransferType.FromHandToHand)
 				{
-					item.Order.ChangeStatus(OrderStatus.OnLoading);
+					address.Order.ChangeStatus(OrderStatus.OnLoading);
 				}
 			}
 
 			//Пересчёт зарплаты после изменения МЛ
-			_routeListFrom.CalculateWages(_wageParameterService);
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(_uow, _routeListFrom);
-			_routeListTo.CalculateWages(_wageParameterService);
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(_uow, _routeListTo);
+			routeListFrom.CalculateWages(_wageParameterService);
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(_uow, routeListFrom);
+			routeListTo.CalculateWages(_wageParameterService);
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(_uow, routeListTo);
 
-			item.RecalculateTotalCash();
+			address.RecalculateTotalCash();
 			newItem.RecalculateTotalCash();
 
-			if(_routeListTo.ClosingFilled)
+			if(routeListTo.ClosingFilled)
 			{
 				newItem.FirstFillClosing(_wageParameterService);
 			}
 
-			_uow.Save(item);
+			_uow.Save(address);
 			_uow.Save(newItem);
 
-			UpdateTranferDocuments(item, newItem);
+			UpdateTranferDocuments(address, newItem);
 
 			_uow.Commit();
+		}
+
+		private List<RouteListNode> GetFastDeliveryRouteLists()
+		{
+			RouteList routeListAlias = null;
+			Employee driverAlias = null;
+			Car carAlias = null;
+			RouteListNode routeListNodeAlias = null;
+
+			var routeLists = _uow.Session.QueryOver(() => routeListAlias)
+				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
+				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
+				.Where(() => routeListAlias.AdditionalLoadingDocument != null)
+				.SelectList(list => list
+					.Select(() => routeListAlias.Id).WithAlias(() => routeListNodeAlias.RouteListId)
+					.Select(() => driverAlias.LastName).WithAlias(() => routeListNodeAlias.LastName)
+					.Select(() => driverAlias.Name).WithAlias(() => routeListNodeAlias.Name)
+					.Select(() => driverAlias.Patronymic).WithAlias(() => routeListNodeAlias.Patronymic)
+					.Select(() => carAlias.RegistrationNumber).WithAlias(() => routeListNodeAlias.CarRegistrationNumber))
+				.TransformUsing(Transformers.AliasToBean<RouteListNode>())
+				.List<RouteListNode>()
+				.ToList();
+
+			return routeLists;
 		}
 
 		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to)
@@ -208,8 +229,10 @@ namespace Vodovoz.ViewModels.Widgets
 			return true;
 		}
 
-		public string AddressInfo => _transferingOrderInfo.Address;
-		public string DriverInfo => _transferingOrderInfo.Driver;
+		public RouteListNode RouteListToSelectedNode { get; set; }
+		public string AddressInfo => _routeListItemToTransfer?.Order?.DeliveryPoint?.ShortAddress;
+		public string DriverInfo => $"от {_routeListFrom?.Driver?.ShortName} {_routeListFrom?.Car?.RegistrationNumber}";
+		public List<RouteListNode> RouteListNodes => GetFastDeliveryRouteLists().OrderBy(x => x.LastName).ToList();
 
 		#region Commands
 
@@ -231,7 +254,19 @@ namespace Vodovoz.ViewModels.Widgets
 
 		private void Transfer()
 		{
+			if(_routeListFrom == null 
+				|| _routeListItemToTransfer == null
+				|| RouteListToSelectedNode == null)
+			{
+				return;
+			}
 
+			var routeListTo = _uow.GetById<RouteList>(RouteListToSelectedNode.RouteListId);
+
+			if(routeListTo != null)
+			{
+				MakeAddressTransfer(_routeListItemToTransfer, _routeListFrom, routeListTo);
+			}
 		}
 
 		#endregion
@@ -260,11 +295,14 @@ namespace Vodovoz.ViewModels.Widgets
 
 		#endregion
 
-		private class TransferingOrderInfo
+		public class RouteListNode
 		{
-			public string Address { get; set; }
-			public string Driver { get; set; }
+			public int RouteListId { get; set; }
+			public string CarRegistrationNumber { get; set; } = string.Empty;
+			public string Name { get; set; }
+			public string LastName { get; set; }
+			public string Patronymic { get; set; }
+			public string DriverFullName => LastName + " " + Name[0] + "." + (string.IsNullOrWhiteSpace(Patronymic) ? "" : " " + Patronymic[0] + ".");
 		}
-
 	}
 }
