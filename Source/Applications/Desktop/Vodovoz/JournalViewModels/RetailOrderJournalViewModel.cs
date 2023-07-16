@@ -898,7 +898,7 @@ namespace Vodovoz.JournalViewModels
 
 						var routes = addresses.GroupBy(x => x.RouteList.Id);
 
-						var tdiMain = MainClass.MainWin.TdiMain;
+						var tdiMain = Startup.MainWin.TdiMain;
 
 						foreach(var route in routes) {
 							tdiMain.OpenTab(
@@ -948,7 +948,7 @@ namespace Vodovoz.JournalViewModels
 							_subdivisionParametersProvider
 							);
 
-						MainClass.MainWin.TdiMain.AddTab(dlg);
+						Startup.MainWin.TdiMain.AddTab(dlg);
 					}
 				)
 			);
@@ -965,7 +965,7 @@ namespace Vodovoz.JournalViewModels
 							.Where(x => x.Order.Id.IsIn(routeListIds)).List();
 
 						var routes = addresses.GroupBy(x => x.RouteList.Id);
-						var tdiMain = MainClass.MainWin.TdiMain;
+						var tdiMain = Startup.MainWin.TdiMain;
 
 						foreach(var rl in routes) {
 							tdiMain.OpenTab(
@@ -1053,7 +1053,7 @@ namespace Vodovoz.JournalViewModels
 					
 						var dlg = new OrderDlg();
 						dlg.CopyLesserOrderFrom(order.Id);
-						var tdiMain = MainClass.MainWin.TdiMain;
+						var tdiMain = Startup.MainWin.TdiMain;
 						tdiMain.OpenTab(
 							DialogHelper.GenerateDialogHashName<Domain.Orders.Order>(65656),
 							() => dlg

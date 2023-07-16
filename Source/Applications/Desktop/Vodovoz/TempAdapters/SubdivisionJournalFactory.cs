@@ -42,7 +42,7 @@ namespace Vodovoz.TempAdapters
 					_employeeJournalFactory,
 					_salesPlanJournalFactory,
 					_nomenclatureSelectorFactory,
-					MainClass.AppDIContainer.BeginLifetimeScope()));
+					Startup.AppDIContainer.BeginLifetimeScope()));
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateDefaultSubdivisionAutocompleteSelectorFactory(
@@ -103,7 +103,7 @@ namespace Vodovoz.TempAdapters
 				_employeeJournalFactory,
 				_salesPlanJournalFactory,
 				_nomenclatureSelectorFactory,
-				MainClass.AppDIContainer.BeginLifetimeScope()
+				Startup.AppDIContainer.BeginLifetimeScope()
 			);
 		}
 	}

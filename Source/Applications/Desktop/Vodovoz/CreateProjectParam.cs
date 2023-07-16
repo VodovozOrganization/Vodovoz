@@ -231,7 +231,7 @@ using UserView = Vodovoz.Views.Users.UserView;
 
 namespace Vodovoz
 {
-	partial class MainClass
+	partial class Startup
 	{
 		internal static IDataBaseInfo DataBaseInfo;
 
