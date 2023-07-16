@@ -1,18 +1,53 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
+using QS.Tdi;
+using QS.ViewModels.Control.EEVM;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Cash;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.Parameters;
+using System;
+using System.ComponentModel;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class AccountableDebtsFilter : RepresentationFilterBase<AccountableDebtsFilter>
+	public partial class AccountableDebtsFilter : RepresentationFilterBase<AccountableDebtsFilter>, INotifyPropertyChanged
 	{
-		protected override void ConfigureWithUow()
+		private ITdiTab _journalTab;
+		private FinancialExpenseCategory _fianncialExpenseCategory;
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		public ITdiTab JournalTab
 		{
-			entryreferenceExpense.ItemsQuery = new CategoryRepository(new ParametersProvider()).ExpenseCategoriesQuery();
+			get => _journalTab;
+			set
+			{
+				_journalTab = value;
+
+				entryExpenseFinancialCategory.ViewModel = new LegacyEEVMBuilderFactory(value, UoW, Startup.MainWin.NavigationManager, Startup.AppDIContainer.BeginLifetimeScope())
+					.ForEntity<FinancialExpenseCategory>()
+					.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(filter =>
+					{
+						filter.RestrictFinancialSubtype = FinancialSubType.Expense;
+						filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
+					})
+					.Finish();
+
+				entryExpenseFinancialCategory.ViewModel.ChangedByUser += (s, e) =>
+				{
+					FinancialExpenseCategory = entryExpenseFinancialCategory.ViewModel.Entity as FinancialExpenseCategory;
+					OnRefiltered();
+				};
+			}
+		}
+
+		public FinancialExpenseCategory FinancialExpenseCategory
+		{
+			get => _fianncialExpenseCategory;
+			set
+			{
+				_fianncialExpenseCategory = value;
+			}
 		}
 
 		public AccountableDebtsFilter(IUnitOfWork uow) : this()
@@ -22,15 +57,7 @@ namespace Vodovoz
 
 		public AccountableDebtsFilter()
 		{
-			this.Build();
-		}
-
-		public ExpenseCategory RestrictExpenseCategory {
-			get { return entryreferenceExpense.Subject as ExpenseCategory; }
-			set {
-				entryreferenceExpense.Subject = value;
-				entryreferenceExpense.Sensitive = false;
-			}
+			Build();
 		}
 
 		protected void OnEntryreferenceExpenseChanged(object sender, EventArgs e)

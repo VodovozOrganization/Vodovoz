@@ -25,7 +25,7 @@ namespace Vodovoz.Reports
 			);
 			var driverFactory = new EmployeeJournalFactory(filterDriver);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			var officeFilter = new EmployeeFilterViewModel();

@@ -1,67 +1,72 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
+using QS.Project.Services;
+using QS.Tools;
+using QS.Utilities.Extensions;
+using QS.Validation;
+using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
-using Vodovoz.Parameters;
-using QS.Validation;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using Vodovoz.Controllers;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.ViewModels.FuelDocuments;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Fuel;
-using Vodovoz.EntityRepositories.Employees;
-using QS.Project.Services;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.Core.DataService;
-using Vodovoz.EntityRepositories.WageCalculation;
-using QS.Tools;
-using QS.Utilities.Extensions;
-using QS.ViewModels.Extension;
-using Vodovoz.Controllers;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Infrastructure;
-using Vodovoz.Tools.CallTasks;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
-using Vodovoz.Tools;
-using Vodovoz.Services;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.Models;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Database;
+using Vodovoz.Settings.Database.Cash;
+using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.FuelDocuments;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
-using QS.DomainModel.NotifyChange;
 
 namespace Vodovoz
 {
 	public partial class RouteListClosingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		#region поля
-
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
@@ -79,6 +84,7 @@ namespace Vodovoz
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings = Startup.AppDIContainer.Resolve<IFinancialCategoriesGroupsSettings>();
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
@@ -211,7 +217,7 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
@@ -389,19 +395,8 @@ namespace Vodovoz
 
 		private void OnYbuttonCashChangeReturnClicked(object sender, EventArgs e)
 		{
-			var unclosedExpense = UoW.GetAll<Expense>()
-				.Where(ex => 
-					ex.AdvanceClosed == false
-					&& ex.TypeOperation == ExpenseType.Advance
-					&& ex.RouteListClosing != null
-					&& ex.RouteListClosing.Id == Entity.Id)
-				.FirstOrDefault();
-
-			if(unclosedExpense != null)
-			{
-				var dlg = new CashIncomeDlg(unclosedExpense);
-				OpenNewTab(dlg);
-			}
+			var page = Startup.MainWin.NavigationManager.OpenViewModel<IncomeViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
+			page.ViewModel.ConFigureForReturnChange(Entity.Id);
 		}
 
 		private void UpdateYbuttonCashChangeReturnSensitivity()
@@ -679,7 +674,7 @@ namespace Vodovoz
 							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
-							_categoryRepository,
+							_financialCategoriesGroupsSettings,
 							_employeeRepository,
 							_nomenclatureParametersProvider
 						)
@@ -703,7 +698,7 @@ namespace Vodovoz
 							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
-							_categoryRepository,
+							_financialCategoriesGroupsSettings,
 							_employeeRepository,
 							_nomenclatureParametersProvider
 						)
@@ -1092,7 +1087,7 @@ namespace Vodovoz
 					if(driverWage > 0)
 					{
 						var newDriverAdvanceSum = driverWage > newDriverAdvanceSumParameter ? newDriverAdvanceSumParameter : driverWage * 0.5m;
-						newDriverAdvanceModel.CreateNewDriverAdvance(UoW, _categoryRepository, newDriverAdvanceSum);
+						newDriverAdvanceModel.CreateNewDriverAdvance(UoW, _financialCategoriesGroupsSettings, newDriverAdvanceSum);
 					}
 				}
 			}
@@ -1113,7 +1108,7 @@ namespace Vodovoz
 				Entity.RecountMileage();
 			}
 
-			Entity.UpdateMovementOperations(_categoryRepository);
+			Entity.UpdateMovementOperations(_financialCategoriesGroupsSettings);
 
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
 
@@ -1447,7 +1442,7 @@ namespace Vodovoz
 			var inputCashOrder = (decimal)spinCashOrder.Value;
 			try
 			{
-				messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _categoryRepository));
+				messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _financialCategoriesGroupsSettings));
 			}
 			catch(MissingOrdersWithCashlessPaymentTypeException ex)
 			{
@@ -1480,7 +1475,7 @@ namespace Vodovoz
 				return;
 			}
 
-			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput, _categoryRepository);
+			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput, _financialCategoriesGroupsSettings);
 
 			if(cashExpense != null)
 				UoW.Save(cashExpense);
@@ -1538,9 +1533,9 @@ namespace Vodovoz
 					  new FuelRepository(),
 					  NavigationManagerProvider.NavigationManager,
 					  _trackRepository,
-					  _categoryRepository,
 					  new EmployeeJournalFactory(),
-					  new CarJournalFactory(MainClass.MainWin.NavigationManager)
+					  _financialCategoriesGroupsSettings,
+					  new CarJournalFactory(Startup.MainWin.NavigationManager)
 			);
 			TabParent.AddSlaveTab(this, tab);
 		}
@@ -1556,9 +1551,9 @@ namespace Vodovoz
 				  new FuelRepository(),
 				  NavigationManagerProvider.NavigationManager,
 				  _trackRepository,
-				  _categoryRepository,
 				  new EmployeeJournalFactory(),
-				  new CarJournalFactory(MainClass.MainWin.NavigationManager)
+				  _financialCategoriesGroupsSettings,
+				  new CarJournalFactory(Startup.MainWin.NavigationManager)
 			);
 			TabParent.AddSlaveTab(this, tab);
 		}
@@ -1577,7 +1572,7 @@ namespace Vodovoz
 				}
 			}
 
-			var operationsResultMessage = Entity.UpdateCashOperations(_categoryRepository);
+			var operationsResultMessage = Entity.UpdateCashOperations(_financialCategoriesGroupsSettings);
 			messages.AddRange(operationsResultMessage);
 
 			CalculateTotal();

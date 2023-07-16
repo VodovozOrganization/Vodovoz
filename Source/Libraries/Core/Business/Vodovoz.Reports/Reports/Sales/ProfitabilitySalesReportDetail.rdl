@@ -3027,7 +3027,9 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>180</Timeout>
-        <CommandText>SELECT
+        <CommandText>
+# При изменении этого запроса, необходимо внести соответствующие изменения в RouteListRepository.GetRouteListSpendings
+SELECT
     c.name AS counterparty,
     dp.compiled_address_short AS delivery_point,
     rla.route_list_id AS route_list,
@@ -3232,6 +3234,7 @@ WHERE
 	(o.delivery_date &gt;= @start_date
 	AND o.delivery_date &lt;= @end_date)
 	AND !o.is_contract_closer
+  AND n.category != 'deposit'
 	AND (
 	        ((n.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
 	            OR

@@ -124,7 +124,7 @@ namespace Vodovoz
 		IAskSaveOnCloseViewModel,
 		IEdoLightsMatrixInfoProvider
 	{
-		private readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
@@ -171,7 +171,7 @@ namespace Vodovoz
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
-			= new RentPackagesJournalsViewModelsFactory(MainClass.MainWin.NavigationManager);
+			= new RentPackagesJournalsViewModelsFactory(Startup.MainWin.NavigationManager);
 
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
 			= new NonSerialEquipmentsForRentJournalViewModelFactory();
@@ -210,6 +210,7 @@ namespace Vodovoz
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
+		private EdoContainer _selectedEdoContainer;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -257,7 +258,7 @@ namespace Vodovoz
 		private ICounterpartyJournalFactory counterpartySelectorFactory;
 
 		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
-			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()));
+			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()));
 
 		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 
@@ -985,7 +986,15 @@ namespace Vodovoz
 
 			UpdateAvailableEnumSignatureTypes();
 
-			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) => UpdateEdoContainers();
+			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
+			{
+				UpdateEdoContainers();
+				CustomizeSendDocumentAgainButton();
+			};
+
+			ybuttonSendDocumentAgain.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			ybuttonSendDocumentAgain.Clicked += OnButtonSendDocumentAgainClicked;
+			CustomizeSendDocumentAgainButton();
 
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
@@ -993,6 +1002,98 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+		}
+
+		private List<EdoContainer> GetOutgoingUpdDocuments()
+		{
+			var orderUpdDocuments = new List<EdoContainer>();
+
+			if(Entity.Id == 0)
+			{
+				return orderUpdDocuments;
+			}
+
+			orderUpdDocuments = _edoContainers
+				.Where(c =>
+					!c.IsIncoming
+					&& c.Type == Type.Upd)
+				.ToList();
+
+			return orderUpdDocuments;
+		}
+
+		private bool IsOrderHasUpdStatus(EdoDocFlowStatus status)
+		{
+			var orderUpdDocuments = GetOutgoingUpdDocuments();
+
+			var orderUpdSentSuccessfully = orderUpdDocuments
+				.Any(c =>
+					c.Type == Type.Upd
+					&& !c.IsIncoming
+					&& c.EdoDocFlowStatus == status);
+
+			return orderUpdSentSuccessfully;
+		}
+
+		private void CustomizeSendDocumentAgainButton()
+		{
+			var orderHasUpdDocuments = GetOutgoingUpdDocuments().Count > 0;
+
+			if(Entity.Id == 0 || !orderHasUpdDocuments)
+			{
+				ybuttonSendDocumentAgain.Sensitive = false;
+				ybuttonSendDocumentAgain.Label = "Отправить повторно";
+				return;
+			}
+
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var resendUpdAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == Entity.Id)
+						.FirstOrDefault();
+
+				if(resendUpdAction != null && resendUpdAction.IsNeedToResendEdoUpd)
+				{
+					ybuttonSendDocumentAgain.Sensitive = false;
+					ybuttonSendDocumentAgain.Label = "Идет подготовка УПД";
+					return;
+				}
+			}
+
+			ybuttonSendDocumentAgain.Sensitive = orderHasUpdDocuments;
+			ybuttonSendDocumentAgain.Label = "Отправить повторно";
+		}
+
+		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		{
+			if(Entity.OrderPaymentStatus == OrderPaymentStatus.Paid)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заказ уже оплачен. Повторная отправка УПД недоступна");
+				return;
+			}
+
+			if(IsOrderHasUpdStatus(EdoDocFlowStatus.Succeed))
+			{
+				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"Документооборот завершен успешно\".\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+			else if(IsOrderHasUpdStatus(EdoDocFlowStatus.InProgress))
+			{
+				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"В процессе\".\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+			
+			ResendUpd();
+			CustomizeSendDocumentAgainButton();
+		}
+
+		private void ResendUpd()
+		{
+			Entity.SetNeedToRecendEdoUpd();
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
@@ -1218,7 +1319,7 @@ namespace Vodovoz
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
 			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
-			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
+			Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
 				null, fastDeliveryVerificationViewModel);
 		}
 
@@ -1606,6 +1707,7 @@ namespace Vodovoz
 			if(Entity.Id != 0)
 			{
 				UpdateEdoContainers();
+				CustomizeSendDocumentAgainButton();
 			}
 
 			treeViewEdoContainers.ItemsDataSource = _edoContainers;
@@ -1671,9 +1773,12 @@ namespace Vodovoz
 		{
 			_edoContainers.Clear();
 
-			foreach(var item in _orderRepository.GetEdoContainersByOrderId(UoW, Entity.Id))
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				_edoContainers.Add(item);
+				foreach(var item in _orderRepository.GetEdoContainersByOrderId(uow, Entity.Id))
+				{
+					_edoContainers.Add(item);
+				}
 			}
 		}
 
@@ -1969,14 +2074,14 @@ namespace Vodovoz
 				if(routeListToAddFastDeliveryOrder == null)
 				{
 					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
-					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
+					Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
 						null, UoW, fastDeliveryVerificationViewModel);
 
 					return Result.Failure(Errors.Orders.Order.FastDelivery.RouteListForFastDeliveryIsMissing);
 				}
 			}
 
-			var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
+			var edoLightsMatrixPanelView = Startup.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
 			var edoLightsMatrixViewModel = edoLightsMatrixPanelView is null
 				? new EdoLightsMatrixViewModel()
 				: edoLightsMatrixPanelView.ViewModel.EdoLightsMatrixViewModel;
@@ -2137,7 +2242,7 @@ namespace Vodovoz
 		{
 			Entity.CheckAndSetOrderIsService();
 
-			ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+			ILifetimeScope autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
 			var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 
 			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
@@ -3102,7 +3207,7 @@ namespace Vodovoz
 				TabParent.AddSlaveTab(this, new DocumentsPrinterViewModel(
 					_entityDocumentsPrinterFactory,
 					ServicesConfig.InteractiveService,
-					MainClass.MainWin.NavigationManager,
+					Startup.MainWin.NavigationManager,
 					Entity));
 			}
 		}

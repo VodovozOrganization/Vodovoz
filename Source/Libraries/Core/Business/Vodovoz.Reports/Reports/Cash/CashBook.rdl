@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -983,8 +983,8 @@ SELECT this_.date as doc_date,
 FROM cash_income this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-         left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
-         left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
+         left outer join financial_categories_groups incomecate3_ on this_.financial_income_category_id=incomecate3_.id
+         left outer join financial_categories_groups expensecat4_ on this_.financial_expense_category_id=expensecat4_.id
 #если выбран пункт Все кассы
 WHERE IF(@Cash != -1,
          (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
@@ -1010,7 +1010,7 @@ SELECT this_.date as doc_date,
 FROM cash_expense this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-         left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
+         left outer join financial_categories_groups expensecat3_ on this_.financial_expense_category_id=expensecat3_.id
 WHERE IF(@Cash != -1,
     (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
     (this_.date &gt;= @StartDate and this_.date &lt; @EndDate));
@@ -1140,8 +1140,8 @@ WHERE IF(@Cash != -1, s.id IN (@Cash), 1=1);</CommandText>
 FROM cash_income this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-         left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
-         left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
+         left outer join financial_categories_groups incomecate3_ on this_.financial_income_category_id=incomecate3_.id
+         left outer join financial_categories_groups expensecat4_ on this_.financial_expense_category_id=expensecat4_.id
 WHERE IF(@Cash != -1,
          (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
          (this_.date &gt;= @StartDate and this_.date &lt; @EndDate));</CommandText>
@@ -1172,7 +1172,7 @@ WHERE IF(@Cash != -1,
 FROM cash_expense this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-         left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
+         left outer join financial_categories_groups expensecat3_ on this_.financial_expense_category_id=expensecat3_.id
 WHERE IF(@Cash != -1,
          (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
          (this_.date &gt;= @StartDate and this_.date &lt; @EndDate));</CommandText>

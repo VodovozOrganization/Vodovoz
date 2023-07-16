@@ -34,7 +34,7 @@ namespace Vodovoz.TempAdapters
 							filter,
 							UnitOfWorkFactory.GetDefaultFactory,
 							ServicesConfig.CommonServices,
-							MainClass.AppDIContainer.BeginLifetimeScope());
+							Startup.AppDIContainer.BeginLifetimeScope());
 					journalViewModel.NavigationManager = _navigationManager;
 					journalViewModel.SelectionMode = multipleSelect ? JournalSelectionMode.Multiple : JournalSelectionMode.Single;
 					return journalViewModel;

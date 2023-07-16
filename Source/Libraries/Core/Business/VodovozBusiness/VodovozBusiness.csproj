@@ -51,11 +51,13 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CachingRepositories\Cash\FinancialIncomeCategoriesNodesInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Cash\FinancialExpenseCategoriesNodesInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
     <Compile Include="Domain\Cash\ExpenseInvoiceDocumentType.cs" />
     <Compile Include="Domain\Cash\ExpenseType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialCategoriesGroup.cs" />
@@ -63,6 +65,7 @@
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialIncomeCategory.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialSubType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\GroupType.cs" />
+    <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialIncomeCategoriesRepository.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\TargetDocument.cs" />
@@ -73,6 +76,7 @@
     <Compile Include="Domain\Cash\IFuelCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\IIncomeCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\IncomeInvoiceDocumentType.cs" />
+    <Compile Include="Domain\Cash\DocumentTypesExtensions.cs" />
     <Compile Include="Domain\Cash\IncomeType.cs" />
     <Compile Include="Domain\Cash\ISelfDeliveryCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\IRouteListCashOrganisationDistributor.cs" />
@@ -425,10 +429,6 @@
     <Compile Include="Domain\Logistic\Drivers\DriverDistrictPrioritySet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWorkSchedule.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWorkScheduleSet.cs" />
-    <Compile Include="EntityRepositories\Accounting\AccountExpenseRepository.cs" />
-    <Compile Include="EntityRepositories\Accounting\AccountIncomeRepository.cs" />
-    <Compile Include="EntityRepositories\Accounting\IAccountExpenseRepository.cs" />
-    <Compile Include="EntityRepositories\Accounting\IAccountIncomeRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\CullingCategoryRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\DeliveryScheduleRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\ICullingCategoryRepository.cs" />
@@ -752,6 +752,7 @@
     <Compile Include="HibernateMapping\Operations\InstanceGoodsAccountingOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\WarehouseBulkGoodsAccountingOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\WarehouseInstanceGoodsAccountingOperationMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderEdoTrueMarkDocumentsActionsMap.cs" />
     <Compile Include="HibernateMapping\Order\TrueMarkApiDocumentMap.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonNomenclatureCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\EdoContainerMap.cs" />
@@ -902,7 +903,6 @@
     <Compile Include="Parameters\DebtorsParameters.cs" />
     <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
-    <Compile Include="Parameters\ExpenseParametersProvider.cs" />
     <Compile Include="Parameters\FastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\FastPaymentParametersProvider.cs" />
     <Compile Include="Parameters\GeneralSettingsParametersProvider.cs" />
@@ -913,12 +913,9 @@
     <Compile Include="Parameters\ICounterpartySettings.cs" />
     <Compile Include="Parameters\IEmailParametersProvider.cs" />
     <Compile Include="Parameters\GMapPararmetersProviders.cs" />
-    <Compile Include="Parameters\IExpenseParametersProvider.cs" />
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
-    <Compile Include="Parameters\IIncomeParametersProvider.cs" />
-    <Compile Include="Parameters\IncomeParametersProvider.cs" />
     <Compile Include="Parameters\IRoboatsSettings.cs" />
     <Compile Include="Parameters\IRouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\IStoredResourcesSettings.cs" />
@@ -961,8 +958,6 @@
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Domain\Accounting\AccountExpense.cs" />
-    <Compile Include="Domain\Accounting\AccountIncome.cs" />
     <Compile Include="Domain\BasicHandbooks\CullingCategory.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentColors.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentKind.cs" />
@@ -1049,8 +1044,6 @@
     <Compile Include="Domain\Store\RegradingOfGoodsTemplateItem.cs" />
     <Compile Include="Domain\Store\Warehouse.cs" />
     <Compile Include="Domain\Wages.cs" />
-    <Compile Include="HibernateMapping\Accounting\AccountExpenseMap.cs" />
-    <Compile Include="HibernateMapping\Accounting\AccountIncomeMap.cs" />
     <Compile Include="HibernateMapping\Cash\AdvanceClosingMap.cs" />
     <Compile Include="HibernateMapping\Cash\AdvanceReportMap.cs" />
     <Compile Include="HibernateMapping\Cash\ExpenseCategoryMap.cs" />
@@ -1326,8 +1319,6 @@
     <Compile Include="ViewModelBased\ViewModelBase.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
     <Compile Include="ViewModelBased\ViewModelGeneric.cs" />
-    <Compile Include="Filters\IncomeFilter.cs" />
-    <Compile Include="Filters\ExpenseFilter.cs" />
     <Compile Include="Domain\Fuel\FuelIncomeInvoice.cs" />
     <Compile Include="Domain\Fuel\FuelIncomeOperation.cs" />
     <Compile Include="Domain\Fuel\FuelExpenseOperation.cs" />

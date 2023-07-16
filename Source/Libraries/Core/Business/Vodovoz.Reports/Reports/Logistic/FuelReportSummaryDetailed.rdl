@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -6067,11 +6067,11 @@ WHERE
     fuel_writeoff_documents.reason as reason,
     IFNULL(IF(fuel_writeoff_document_items.fuel_type_id = 3, fuel_writeoff_document_items.liters, 0), 0) as liters_diesel, 
     IFNULL(IF(fuel_writeoff_document_items.fuel_type_id = 1, fuel_writeoff_document_items.liters, 0), 0) as liters_benzin,
-    cash_expense_category.name as expense_category
+    financial_categories_groups.title as expense_category
 FROM
 	fuel_writeoff_documents
 		LEFT JOIN
-	cash_expense_category ON cash_expense_category.id = fuel_writeoff_documents.expense_category_id
+	financial_categories_groups ON financial_categories_groups.id = fuel_writeoff_documents.financial_expense_category_id
 		LEFT JOIN
 	fuel_writeoff_document_items ON fuel_writeoff_document_items.fuel_writeoff_document_id = fuel_writeoff_documents.id
 		LEFT JOIN

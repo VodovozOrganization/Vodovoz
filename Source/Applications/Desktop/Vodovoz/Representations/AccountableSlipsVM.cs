@@ -43,13 +43,12 @@ namespace Vodovoz.ViewModel
 			var reported = UoW.Session.QueryOver<AdvanceReport> (() => operationReportedAlias)
 				.Where (e => e.Accountable == Filter.RestrictAccountable);
 
-
 			//Добавляем условия по фильтру
-			if(Filter.RestrictExpenseCategory != null)
+			if(Filter.FinancialExpenseCategory != null)
 			{
-				recived.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
-				returned.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
-				reported.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
+				recived.Where(o => o.ExpenseCategoryId == Filter.FinancialExpenseCategory.Id);
+				returned.Where(o => o.ExpenseCategoryId == Filter.FinancialExpenseCategory.Id);
+				reported.Where(o => o.ExpenseCategoryId == Filter.FinancialExpenseCategory.Id);
 			}
 				
 			if(Filter.RestrictStartDate.HasValue)
