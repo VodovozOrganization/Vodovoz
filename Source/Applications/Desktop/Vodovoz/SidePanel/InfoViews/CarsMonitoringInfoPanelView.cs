@@ -1,19 +1,24 @@
-﻿using GLib;
+﻿using Autofac;
+using GLib;
 using Gtk;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using System;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -36,6 +41,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		private IOrderedEnumerable<IGrouping<(string DriverName, string CarNumber, int RouteListId), DataNode>> _cachedNodeGroups;
 		private TimeoutHandler _timeoutTimerHandler;
 		private uint _timerId;
+
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		public CarsMonitoringInfoPanelView(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -64,6 +71,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			ytvAddressesInProcess.HeadersVisible = false;
 			ytvAddressesInProcess.EnableGridLines = TreeViewGridLines.Both;
+			ytvAddressesInProcess.RowActivated += (s, e) => OpenFastDeliveryTransferDialog();
 
 			ytvAddressesInProcess.ItemsDataSource = Nodes;
 
@@ -108,6 +116,33 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			_timeoutTimerHandler = new TimeoutHandler(RefreshNodesTimerHandler);
 			StartTimer(_timeoutTimerHandler);
+		}
+
+		private void OpenFastDeliveryTransferDialog()
+		{
+			if(ytvAddressesInProcess.SelectedRow is FastDeliveryMonitoringNode selectedRow)
+			{
+				if(selectedRow.RouteListItemId == null 
+					|| selectedRow.IsFastDeliveryOrder == null
+					|| selectedRow.IsFastDeliveryOrder == false)
+				{
+					return;
+				}
+
+				var routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
+				var routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
+				var routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
+
+				var fastDeliveryTransferViewModel = new FastDeliveryTransferViewModel(
+						routeListRepository,
+						ServicesConfig.CommonServices,
+						routeListItemRepository,
+						routeListProfitabilityController,
+						selectedRow.RouteListItemId.Value);
+
+				Startup.MainWin.NavigationManager
+					.OpenViewModel<FastDeliveryTransferDetailsViewModel, FastDeliveryTransferViewModel>(null, fastDeliveryTransferViewModel);
+			}
 		}
 
 		private void OnYtbtnShowFiltersToggled(object sender, EventArgs e)
@@ -267,7 +302,9 @@ namespace Vodovoz.SidePanel.InfoViews
 								 CarNumber = car.RegistrationNumber,
 								 Address = address,
 								 DeliveryType = isFastDeliveryString,
-								 DeliveryBefore = deliveryBefore
+								 DeliveryBefore = deliveryBefore,
+								 RouteListItemId = rla.Id,
+								 IsFastDeliveryOrder = o.IsFastDelivery
 							 };
 
 			var nodesToAdd = nodesQuery
@@ -324,7 +361,9 @@ namespace Vodovoz.SidePanel.InfoViews
 					{
 						Column1 = node.Address.Length > 35 ? node.Address.Substring(0, 32) + "..." : node.Address,
 						Column2 = node.DeliveryType,
-						Column3 = timeElapsedString
+						Column3 = timeElapsedString,
+						RouteListItemId = node.RouteListItemId,
+						IsFastDeliveryOrder = node.IsFastDeliveryOrder
 					});
 				}
 			}
@@ -351,6 +390,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			public int RouteListId { get; set; }
 			public string CarNumber { get; set; }
 			public string Address { get; set; }
+			public int RouteListItemId { get; set; }
+			public bool IsFastDeliveryOrder { get; set; }
 			public string DeliveryType { get; set; }
 			public DateTime DeliveryBefore { get; set; }
 		}
@@ -362,6 +403,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			public string Column2 { get; set; }
 
 			public string Column3 { get; set; }
+			public int? RouteListItemId { get; set; }
+			public bool? IsFastDeliveryOrder { get; set; }
 		}
 
 		public enum FilterOrdersEnum
