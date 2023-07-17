@@ -1,23 +1,36 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.DomainModel.Entity;
 
 namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 {
 	public abstract class SelectableParameter : PropertyChangedBase
 	{
-		private bool selected;
-		public virtual bool Selected {
-			get => selected;
-			set {
-				if(SetField(ref selected, value)) {
-					if(selected) {
+		private bool _selected;
+		private string _searchValue;
+
+		protected SelectableParameter()
+		{
+		}
+
+		public virtual bool Selected
+		{
+			get => _selected;
+			set
+			{
+				if(SetField(ref _selected, value))
+				{
+					if(_selected)
+					{
 						SelectAllChilds();
-					} else {
+					}
+					else
+					{
 						UnselectAllChilds();
 					}
+
 					RaiseAnySelectedChanged(this);
 					Parent?.ActualizeSelected();
 				}
@@ -34,16 +47,16 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		public virtual SelectableParameter Parent { get; set; }
 
-		private GenericObservableList<SelectableParameter> sourceChildren = new GenericObservableList<SelectableParameter>();
 
-		private GenericObservableList<SelectableParameter> children = new GenericObservableList<SelectableParameter>();
-		public virtual GenericObservableList<SelectableParameter> Children {
-			get => children;
-			private set => SetField(ref children, value);
-		}
+		private GenericObservableList<SelectableParameter> _sourceChildren = new GenericObservableList<SelectableParameter>();
 
-		protected SelectableParameter()
+
+		private GenericObservableList<SelectableParameter> _children = new GenericObservableList<SelectableParameter>();
+
+		public virtual GenericObservableList<SelectableParameter> Children
 		{
+			get => _children;
+			private set => SetField(ref _children, value);
 		}
 
 		private void RaiseAnySelectedChanged(SelectableParameter selectableParameter)
@@ -53,69 +66,85 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		private void ActualizeSelected()
 		{
-			if(Children == null || !Children.Any()) {
+			if(Children == null || !Children.Any())
+			{
 				return;
 			}
-			if(Children.All(x => x.Selected)) {
+
+			if(Children.All(x => x.Selected))
+			{
 				SelectOnlyThis();
-			} else {
+			}
+			else
+			{
 				UnselectOnlyThis();
 			}
 		}
 
 		private void SelectOnlyThis()
 		{
-			selected = true;
+			_selected = true;
 			OnPropertyChanged(nameof(Selected));
 			Parent?.ActualizeSelected();
 		}
 
 		private void UnselectOnlyThis()
 		{
-			selected = false;
+			_selected = false;
 			OnPropertyChanged(nameof(Selected));
 			Parent?.ActualizeSelected();
 		}
 
 		private void UnselectAllChilds()
 		{
-			foreach(SelectableParameter child in Children) {
+			foreach(SelectableParameter child in Children)
+			{
 				child.Selected = false;
 			}
 		}
 
 		private void SelectAllChilds()
 		{
-			foreach(SelectableParameter child in Children) {
+			foreach(SelectableParameter child in Children)
+			{
 				child.Selected = true;
 			}
 		}
 
-		private string searchValue;
-
 		public void FilterChilds(string searchValue)
 		{
-			this.searchValue = searchValue;
-			foreach(SelectableParameter child in Children) {
+			_searchValue = searchValue;
+
+			if(!_sourceChildren.Any())
+			{
+				return;
+			}
+
+			UpdateChilds();
+
+			foreach(SelectableParameter child in Children)
+			{
 				child.FilterChilds(searchValue);
 			}
-			UpdateChilds();
 		}
 
 		private void UpdateChilds()
 		{
-			if(string.IsNullOrWhiteSpace(searchValue)) {
-				Children = sourceChildren;
-			} else {
+			if(string.IsNullOrWhiteSpace(_searchValue))
+			{
+				Children = _sourceChildren;
+			}
+			else
+			{
 				//выбираем все дочерние элементы
-				var filtered = sourceChildren.Where(x =>
-					//коротые удовлетворяют поисковому критерию
-					x.Title.ToLower().Contains(searchValue.ToLower())
-					//или имеют любые дочерние элементы
-					//(Это сделано для того чтобы, не отфильтровать родителя 
-					//который не удовлетворяет поисковому критерию, но имеет 
-					//гдето глубже в структуре дочерние элементы которые удовлетворяют)
-					|| x.Children.Any());
+				//коротые удовлетворяют поисковому критерию
+				var filtered = _sourceChildren
+					.Where(x => x.Title.ToLower().Contains(_searchValue.ToLower())
+						//или имеют любые дочерние элементы
+						//(Это сделано для того чтобы, не отфильтровать родителя 
+						//который не удовлетворяет поисковому критерию, но имеет 
+						//гдето глубже в структуре дочерние элементы которые удовлетворяют)
+						|| x.Children.Any());
 
 				Children = new GenericObservableList<SelectableParameter>(filtered.ToList());
 			}
@@ -123,30 +152,37 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		public void SetChilds(IList<SelectableParameter> childs)
 		{
-			foreach(SelectableParameter oldChild in sourceChildren) {
+			foreach(SelectableParameter oldChild in _sourceChildren)
+			{
 				oldChild.AnySelectedChanged -= OnChildAnySelectedChanged;
 			}
 
-			foreach(SelectableParameter child in childs) {
+			foreach(SelectableParameter child in childs)
+			{
 				child.AnySelectedChanged += OnChildAnySelectedChanged;
 			}
 
-			sourceChildren = new GenericObservableList<SelectableParameter>(childs.ToList());
+			_sourceChildren = new GenericObservableList<SelectableParameter>(childs.ToList());
+
 			UpdateChilds();
 		}
 
-		void OnChildAnySelectedChanged(object sender, EventArgs e)
+		private void OnChildAnySelectedChanged(object sender, EventArgs e)
 		{
 			RaiseAnySelectedChanged(this);
 		}
 
 		public IEnumerable<SelectableParameter> GetAllSelected()
 		{
-			List<SelectableParameter> result = new List<SelectableParameter>();
-			if(Selected) {
+			var result = new List<SelectableParameter>();
+
+			if(Selected)
+			{
 				result.Add(this);
 			}
+
 			result.AddRange(Children.SelectMany(x => x.GetAllSelected()));
+
 			return result;
 		}
 	}
