@@ -1,6 +1,6 @@
 ﻿using GMap.NET.MapProviders;
 using Gtk;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog;
 using QS.BaseParameters;
 using QS.ChangePassword.Views;
@@ -14,7 +14,6 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Project.Versioning;
-using QS.Tools;
 using QS.Utilities.Debug;
 using QS.Utilities.Text;
 using QS.Validation;

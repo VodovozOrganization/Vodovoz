@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -235,6 +235,7 @@ using VodovozInfrastructure.Interfaces;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace Vodovoz
 {
