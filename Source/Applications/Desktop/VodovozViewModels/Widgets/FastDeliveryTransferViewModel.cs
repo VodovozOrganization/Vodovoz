@@ -71,49 +71,31 @@ namespace Vodovoz.ViewModels.Widgets
 		{
 			//_logger.Debug("Проверка адреса с номером {0}", address?.Id.ToString() ?? "Неправильный адрес");
 
-			//if(address == null || address.Status == RouteListItemStatus.Transfered)
-			//{
-			//	_commonServices.InteractiveService.ShowMessage
-			//	return;
-			//}
+			if(address == null
+				|| routeListFrom == null
+				|| routeListTo == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Недостаточно данных для выполнения переноса");
+				return;
+			}
 
-			//if(!row.IsNeedToReload && !row.IsFromHandToHandTransfer && !row.IsFromFreeBalance)
-			//{
-			//	transferTypeNotSet.Add(row);
-			//	continue;
-			//}
-
-			//if(row.IsNeedToReload && routeListTo.Status >= RouteListStatus.EnRoute)
-			//{
-			//	transferTypeSetAndRlEnRoute.Add(row);
-			//	continue;
-			//}
-
-			//if(address.IsFromFreeBalance)
-			//{
-			//	var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(UoW, row.RouteListItem.Order, routeListTo);
-
-			//	if(!hasBalanceForTransfer)
-			//	{
-			//		deliveryNotEnoughQuantityList.Add(row);
-			//		continue;
-			//	}
-			//}
+			if(address.Status == RouteListItemStatus.Transfered)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Данный заказ уже был перенесен");
+				return;
+			}
 
 			if(routeListTo.AdditionalLoadingDocument == null)
 			{
-
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "В выбранном маршрутном листе отсутствуют дополнительная загрузка");
 			}
 
 			var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(_uow, address.Order, routeListTo);
 
 			if(!hasBalanceForTransfer)
 			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Недостаточно свободных остатков");
-				///Недостаточно свободных остатков
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "В маршрутном листе получателя недостаточно свободных остатков");
 				return;
-				//deliveryNotEnoughQuantityList.Add(row);
-				//continue;
 			}
 
 			if(HasAddressChanges(address))
@@ -125,29 +107,21 @@ namespace Vodovoz.ViewModels.Widgets
 			var transferredAddressFromRouteListTo =
 				_routeListItemRepository.GetTransferredRouteListItemFromRouteListForOrder(_uow, routeListTo.Id, address.Order.Id);
 
-			RouteListItem newItem = null;
-
 			if(transferredAddressFromRouteListTo != null)
 			{
-				newItem = transferredAddressFromRouteListTo;
-				newItem.AddressTransferType = address.AddressTransferType;
-				address.WasTransfered = false;
-				routeListTo.RevertTransferAddress(_wageParameterService, newItem, address);
-				routeListFrom.TransferAddressTo(_uow, address, newItem);
-				newItem.WasTransfered = true;
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Данный заказ уже был перенесен в МЛ №{routeListTo.Id}");
+				return;
 			}
-			else
-			{
-				newItem = new RouteListItem(routeListTo, address.Order, address.Status)
-				{
-					WasTransfered = true,
-					AddressTransferType = AddressTransferType.FromFreeBalance,
-					WithForwarder = routeListTo.Forwarder != null
-				};
 
-				routeListTo.ObservableAddresses.Add(newItem);
-				routeListFrom.TransferAddressTo(_uow, address, newItem);
-			}
+			var newItem = new RouteListItem(routeListTo, address.Order, address.Status)
+			{
+				WasTransfered = true,
+				AddressTransferType = AddressTransferType.FromFreeBalance,
+				WithForwarder = routeListTo.Forwarder != null
+			};
+
+			routeListTo.ObservableAddresses.Add(newItem);
+			routeListFrom.TransferAddressTo(_uow, address, newItem);
 
 			if(routeListTo.Status == RouteListStatus.New)
 			{
@@ -194,6 +168,7 @@ namespace Vodovoz.ViewModels.Widgets
 				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
 				.Where(() => routeListAlias.AdditionalLoadingDocument != null)
+				.Where(rl => routeListAlias.Status == RouteListStatus.EnRoute)
 				.SelectList(list => list
 					.Select(() => routeListAlias.Id).WithAlias(() => routeListNodeAlias.RouteListId)
 					.Select(() => driverAlias.LastName).WithAlias(() => routeListNodeAlias.LastName)
@@ -203,6 +178,10 @@ namespace Vodovoz.ViewModels.Widgets
 				.TransformUsing(Transformers.AliasToBean<RouteListNode>())
 				.List<RouteListNode>()
 				.ToList();
+
+			var rowNumber = 0;
+			routeLists = routeLists.OrderBy(x => x.LastName).ToList();
+			routeLists.ForEach(x => x.RowNumber = ++rowNumber);
 
 			return routeLists;
 		}
@@ -232,7 +211,7 @@ namespace Vodovoz.ViewModels.Widgets
 		public RouteListNode RouteListToSelectedNode { get; set; }
 		public string AddressInfo => _routeListItemToTransfer?.Order?.DeliveryPoint?.ShortAddress;
 		public string DriverInfo => $"от {_routeListFrom?.Driver?.ShortName} {_routeListFrom?.Car?.RegistrationNumber}";
-		public List<RouteListNode> RouteListNodes => GetFastDeliveryRouteLists().OrderBy(x => x.LastName).ToList();
+		public List<RouteListNode> RouteListNodes => GetFastDeliveryRouteLists();
 
 		#region Commands
 
@@ -297,6 +276,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public class RouteListNode
 		{
+			public int RowNumber { get; set; }
 			public int RouteListId { get; set; }
 			public string CarRegistrationNumber { get; set; } = string.Empty;
 			public string Name { get; set; }
