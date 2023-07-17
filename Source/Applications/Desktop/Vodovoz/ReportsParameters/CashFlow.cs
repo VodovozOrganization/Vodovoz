@@ -174,7 +174,7 @@ namespace Vodovoz.Reports
 		}
 
 		private IEnumerable<Subdivision> GetSubdivisionsForUser() =>
-			_subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, _commonServices.UserService.GetCurrentUser(UoW));
+			_subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, _commonServices.UserService.GetCurrentUser());
 
 		#region IParametersWidget implementation
 
