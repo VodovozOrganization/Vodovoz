@@ -24,8 +24,10 @@ namespace Vodovoz.ViewWidgets.Logistics
 			ylabelInfoDriverFrom.Text = ViewModel.DriverInfo;
 
 			ytreeviewDriversList.CreateFluentColumnsConfig<RouteListNode>()
-				.AddColumn("Водитель").AddTextRenderer(x => x.DriverFullName, useMarkup: true)
-				.AddColumn("Машина").AddTextRenderer(x => x.CarRegistrationNumber, useMarkup: true)
+				.AddColumn("№").AddTextRenderer(x => x.RowNumber.ToString())
+				.AddColumn("Водитель").AddTextRenderer(x => x.DriverFullName)
+				.AddColumn("Машина").AddTextRenderer(x => x.CarRegistrationNumber)
+				.AddColumn("МЛ").AddTextRenderer(x => x.RouteListId.ToString())
 				.Finish();
 
 			ytreeviewDriversList.Binding.AddBinding(ViewModel, v => v.RouteListToSelectedNode, t => t.SelectedRow).InitializeFromSource();
