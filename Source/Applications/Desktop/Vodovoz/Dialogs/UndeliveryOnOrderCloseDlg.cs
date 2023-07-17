@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Linq;
+using Autofac;
+using Grpc.Net.Client.Configuration;
 using Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
@@ -12,8 +15,12 @@ using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.FilterViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.ViewModelBased;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.Dialogs
 {
@@ -56,7 +63,11 @@ namespace Vodovoz.Dialogs
 				TimeOfCreation = DateTime.Now,
 				OldOrder = order
 			};
-			undeliveryView.ConfigureDlg(UoW, undelivery);
+			//undeliveryView.ConfigureDlg(UoW, undelivery);
+
+			var undeliveryDetalizationlJournalFactory = new UndeliveryDetalizationJournalFactory();
+			var undeliveredOrderViewModel = new UndeliveredOrderViewModel(undelivery, ServicesConfig.CommonServices, undeliveryDetalizationlJournalFactory, UoW);
+			undeliveryView.WidgetViewModel = undeliveredOrderViewModel;
 		}
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
@@ -96,7 +107,7 @@ namespace Vodovoz.Dialogs
 				return false;
 			}
 
-			undeliveryView.BeforeSaving();
+			//undeliveryView.BeforeSaving();
 			if(!CanCreateUndelivery())
 			{
 				OnCloseTab(false);

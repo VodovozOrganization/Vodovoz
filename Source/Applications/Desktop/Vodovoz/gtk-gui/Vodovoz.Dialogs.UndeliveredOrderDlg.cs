@@ -10,7 +10,7 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gtk.VBox mainBox;
+		private global::Gtk.VBox mainBox1;
 
 		private global::Gtk.HBox hbox4;
 
@@ -18,7 +18,7 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.Button buttonCancel;
 
-		private global::Vodovoz.ViewWidgets.UndeliveredOrderView undeliveryView;
+		private global::Vodovoz.Core.WidgetContainerView undeliveryView;
 
 		protected virtual void Build()
 		{
@@ -47,10 +47,10 @@ namespace Vodovoz.Dialogs
 			global::Gtk.Viewport w2 = new global::Gtk.Viewport();
 			w2.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.mainBox = new global::Gtk.VBox();
-			this.mainBox.Name = "mainBox";
-			this.mainBox.Spacing = 6;
-			// Container child mainBox.Gtk.Box+BoxChild
+			this.mainBox1 = new global::Gtk.VBox();
+			this.mainBox1.Name = "mainBox1";
+			this.mainBox1.Spacing = 6;
+			// Container child mainBox1.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
@@ -82,19 +82,19 @@ namespace Vodovoz.Dialogs
 			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.mainBox.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.mainBox[this.hbox4]));
+			this.mainBox1.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.mainBox1[this.hbox4]));
 			w7.Position = 0;
 			w7.Expand = false;
 			w7.Fill = false;
-			// Container child mainBox.Gtk.Box+BoxChild
-			this.undeliveryView = new global::Vodovoz.ViewWidgets.UndeliveredOrderView();
+			// Container child mainBox1.Gtk.Box+BoxChild
+			this.undeliveryView = new global::Vodovoz.Core.WidgetContainerView();
 			this.undeliveryView.Events = ((global::Gdk.EventMask)(256));
 			this.undeliveryView.Name = "undeliveryView";
-			this.mainBox.Add(this.undeliveryView);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.mainBox[this.undeliveryView]));
+			this.mainBox1.Add(this.undeliveryView);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.mainBox1[this.undeliveryView]));
 			w8.Position = 1;
-			w2.Add(this.mainBox);
+			w2.Add(this.mainBox1);
 			this.GtkScrolledWindow.Add(w2);
 			this.hbox1.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow]));

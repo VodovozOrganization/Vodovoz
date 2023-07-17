@@ -82,7 +82,7 @@ namespace Vodovoz.Dialogs
 		//реализация метода интерфейса ITdiTabAddedNotifier
 		public void OnTabAdded()
 		{
-			undeliveryView.OnTabAdded();
+			//undeliveryView.OnTabAdded();
 		}
 
 		public void ConfigureDlg(bool isForSalesDepartment = false)
@@ -93,8 +93,8 @@ namespace Vodovoz.Dialogs
 				UndeliveredOrder.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
 			}
 
-			undeliveryView.ConfigureDlg(UoW, UndeliveredOrder);
-			undeliveryView.isSaved += () => Save(false);
+			//undeliveryView.ConfigureDlg(UoW, UndeliveredOrder);
+			//undeliveryView.isSaved += () => Save(false);
 			SetAccessibilities();
 			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
 				IUnitOfWork UoWForComments = UnitOfWorkFactory.CreateWithoutRoot();
@@ -123,7 +123,7 @@ namespace Vodovoz.Dialogs
 			{
 				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
 			}
-			undeliveryView.BeforeSaving();
+			//undeliveryView.BeforeSaving();
 			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ
 			if(!CanCreateUndelivery())
 			{

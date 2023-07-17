@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
 using NLog;
@@ -84,6 +84,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Security;

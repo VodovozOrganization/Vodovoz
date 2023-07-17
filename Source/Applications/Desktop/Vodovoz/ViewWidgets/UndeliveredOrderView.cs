@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +14,7 @@ using QS.Journal.GtkUI;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using QS.Views.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -33,7 +34,7 @@ using Vodovoz.ViewModels.Widgets;
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UndeliveredOrderView : WidgetOnDialogBase
+	public partial class UndeliveredOrderView : WidgetViewBase<UndeliveredOrderViewModel>
 	{
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
@@ -50,16 +51,20 @@ namespace Vodovoz.ViewWidgets
 		private UndeliveredOrder _undelivery;
 		private bool _canChangeProblemSource = false;
 		private Menu _popupCopyCommentsMenu;
-		private UndeliveredOrderViewModel _viewModel;
+		//private UndeliveredOrderViewModel _viewModel;
 
 		public Func<bool> isSaved;
-		public IUnitOfWork UoW { get; set; }
-		public UndeliveredOrderView() => this.Build();
+
+		public UndeliveredOrderView(UndeliveredOrderViewModel viewModel) : base(viewModel)
+		{
+			this.Build();
+			ConfigureDlg(viewModel.UoW, viewModel.Entity);
+		}
 
 		public void OnTabAdded()
 		{
 			//если новый недовоз без выбранного недовезённого заказа
-			if(UoW.IsNew && _undelivery.OldOrder == null)
+			if(ViewModel.UoW.IsNew && _undelivery.OldOrder == null)
 			{//открыть окно выбора недовезённого заказа
 				evmeOldUndeliveredOrder.OpenSelectDialog("Выбор недовезённого заказа");
 			}
@@ -69,13 +74,8 @@ namespace Vodovoz.ViewWidgets
 		{
 			Sensitive = false;
 			evmeOldUndeliveredOrder.Changed += OnUndeliveredOrderChanged;
-
-			var undeliveryDetalizationlJournalFactory = new UndeliveryDetalizationJournalFactory();
-			_viewModel = new UndeliveredOrderViewModel(undelivery, _commonServices, undeliveryDetalizationlJournalFactory, uow);
-
 			_canChangeProblemSource = _commonServices.PermissionService.ValidateUserPresetPermission("can_change_undelivery_problem_source", _commonServices.UserService.CurrentUserId);
 			_undelivery = undelivery;
-			UoW = uow;
 			_oldOrder = undelivery.OldOrder;
 			_newOrder = undelivery.NewOrder;
 			if(undelivery.Id > 0 && undelivery.InProcessAtDepartment != null)
@@ -109,7 +109,7 @@ namespace Vodovoz.ViewWidgets
 													   || undelivery.OldOrderStatus == OrderStatus.Accepted
 													   || undelivery.OldOrderStatus == OrderStatus.WaitForPayment);
 
-				guiltyInUndeliveryView.ConfigureWidget(UoW, undelivery, !_routeListDoesNotExist);
+				guiltyInUndeliveryView.ConfigureWidget(ViewModel.UoW, undelivery, !_routeListDoesNotExist);
 				SetSensitivities();
 				SetVisibilities();
 				GetFines();
@@ -155,7 +155,7 @@ namespace Vodovoz.ViewWidgets
 			yentInProcessAtDepartment.Binding.AddBinding(undelivery, d => d.InProcessAtDepartment, w => w.Subject).InitializeFromSource();
 			yentInProcessAtDepartment.ChangedByUser += (s, e) => {
 				undelivery.AddCommentToTheField(
-					UoW,
+					ViewModel.UoW,
 					CommentedFields.Reason,
 					String.Format(
 						"сменил(а) \"в работе у отдела\" \nс \"{0}\" на \"{1}\"",
@@ -167,7 +167,7 @@ namespace Vodovoz.ViewWidgets
 
 			if(undelivery.Id <= 0 && undelivery.InProcessAtDepartment == null)
 			{
-				yentInProcessAtDepartment.Subject = _subdivisionRepository.GetQCDepartment(UoW);
+				yentInProcessAtDepartment.Subject = _subdivisionRepository.GetQCDepartment(ViewModel.UoW);
 			}
 
 			var employeeFactory = new EmployeeJournalFactory();
@@ -197,28 +197,28 @@ namespace Vodovoz.ViewWidgets
 			yenumcomboboxTransferType.Visible = undelivery?.NewOrder != null;
 
 			cmbUndeliveryKind.SetRenderTextFunc<UndeliveryKind>(k => k.GetFullName);
-			cmbUndeliveryKind.Binding
-				.AddBinding(_viewModel, vm => vm.UndeliveryKindSource, w => w.ItemsList)
-				.AddBinding(_viewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.AddBinding(_viewModel, vm => vm.UndeliveryKind, w => w.SelectedItem)
+			cmbUndeliveryKind.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.UndeliveryKindSource, w => w.ItemsList)
+				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(vm => vm.UndeliveryKind, w => w.SelectedItem)
 				.InitializeFromSource();
 
-			cmbUndeliveryObject.Binding.AddSource(_viewModel)
+			cmbUndeliveryObject.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.UndeliveryObjectSource, w => w.ItemsList)
 				.AddBinding(vm => vm.UndeliveryObject, w => w.SelectedItem)
 				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 
-			evmeUndeliveryDetalization.SetEntityAutocompleteSelectorFactory(_viewModel.UndeliveryDetalizationSelectorFactory);
+			evmeUndeliveryDetalization.SetEntityAutocompleteSelectorFactory(ViewModel.UndeliveryDetalizationSelectorFactory);
 			evmeUndeliveryDetalization.Binding
 				.AddBinding(undelivery, u => u.UndeliveryDetalization, w => w.Subject)
-				.AddBinding(_viewModel, vm => vm.CanChangeDetalization, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanChangeDetalization, w => w.Sensitive)
 				.InitializeFromSource();
 
 			undelivery.PropertyChanged += (sender, e) => {
 				if(e.PropertyName == nameof(undelivery.UndeliveryDetalization))
 				{
-					_viewModel.RefreshParentObjects();
+					ViewModel.RefreshParentObjects();
 				}
 
 				if(e.PropertyName != "NewOrder")
@@ -301,7 +301,7 @@ namespace Vodovoz.ViewWidgets
 				if(!string.IsNullOrWhiteSpace(ytextviewNewResult.Buffer.Text))
 				{
 					var newComment = new UndeliveredOrderResultComment();
-					var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+					var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(ViewModel.UoW);
 					newComment.UndeliveredOrder = _undelivery;
 					newComment.Author = currentEmployee;
 					newComment.Comment = ytextviewNewResult.Buffer.Text;
@@ -450,7 +450,7 @@ namespace Vodovoz.ViewWidgets
 				}
 				string text = sb.ToString().Trim();
 				if(sb.Length > 0)
-					_undelivery.AddCommentToTheField(UoW, CommentedFields.Reason, text);
+					_undelivery.AddCommentToTheField(ViewModel.UoW, CommentedFields.Reason, text);
 			}
 			#endregion
 		}
@@ -458,7 +458,7 @@ namespace Vodovoz.ViewWidgets
 		public void BeforeSaving()
 		{
 			AddAutocomment();
-			_undelivery.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+			_undelivery.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(ViewModel.UoW);
 			_undelivery.LastEditedTime = DateTime.Now;
 			if(_undelivery.DriverCallType == DriverCallType.NoCall) {
 				_undelivery.DriverCallTime = null;
@@ -491,7 +491,7 @@ namespace Vodovoz.ViewWidgets
 			var orderJournal = orderFactory.CreateOrderJournalViewModel();
 			orderJournal.SelectionMode = JournalSelectionMode.Single;
 
-			MyTab.TabParent.AddTab(orderJournal, MyTab, false);
+			//MyTab.TabParent.AddTab(orderJournal, MyTab, false);
 
 			orderJournal.OnEntitySelectedResult += (s, ea) =>
 			{
@@ -505,7 +505,7 @@ namespace Vodovoz.ViewWidgets
 					OnBtnChooseOrderClicked(sender, ea);
 					return;
 				}
-				_newOrder = _undelivery.NewOrder = UoW.GetById<Order>(selectedId);
+				_newOrder = _undelivery.NewOrder = ViewModel.UoW.GetById<Order>(selectedId);
 				_newOrder.Author = this._oldOrder.Author;
 				SetLabelsAcordingToNewOrder();
 				_undelivery.NewDeliverySchedule = _newOrder.DeliverySchedule;
@@ -527,10 +527,10 @@ namespace Vodovoz.ViewWidgets
 		{
 			var dlg = new OrderDlg();
 			dlg.CopyOrderFrom(order.Id);
-			MyTab.TabParent.OpenTab(
+			/*MyTab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Order>(dlg.Entity.Id),
 				() => dlg
-			);
+			);*/
 
 			dlg.TabClosed += (sender, e) => {
 				if(sender is OrderDlg) {
@@ -551,24 +551,24 @@ namespace Vodovoz.ViewWidgets
 		void OpenOrder(Order order)
 		{
 			if(MessageDialogHelper.RunQuestionDialog("Требуется сохранить недовоз. Сохранить?")) {
-				UoW.Save();
-				UoW.Commit();
+				ViewModel.UoW.Save();
+				ViewModel.UoW.Commit();
 				var dlg = new OrderDlg(order);
-				MyTab.TabParent.OpenTab(
+				/*MyTab.TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<Order>(order.Id),
 					() => dlg
-				);
+				);*/
 			}
 		}
 
 		protected void OnYEnumCMBDriverCallPlaceEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			var listDriverCallType = UoW.Session.QueryOver<UndeliveredOrder>()
+			var listDriverCallType = ViewModel.UoW.Session.QueryOver<UndeliveredOrder>()
 							.Where(x => x.Id == _undelivery.Id)
 							.Select(x => x.DriverCallType).List<DriverCallType>().FirstOrDefault();
 
 			if(listDriverCallType != (DriverCallType)yEnumCMBDriverCallPlace.SelectedItem) {
-				var max = UoW.Session.QueryOver<UndeliveredOrder>().Select(NHibernate.Criterion.Projections.Max<UndeliveredOrder>(x => x.DriverCallNr)).SingleOrDefault<int>();
+				var max = ViewModel.UoW.Session.QueryOver<UndeliveredOrder>().Select(NHibernate.Criterion.Projections.Max<UndeliveredOrder>(x => x.DriverCallNr)).SingleOrDefault<int>();
 				if(max != 0)
 					_undelivery.DriverCallNr = max + 1;
 				else
@@ -592,12 +592,12 @@ namespace Vodovoz.ViewWidgets
 				fineDlg = new FineDlg(uow.GetById<UndeliveredOrder>(_undelivery.Id));
 			}
 
-			MyTab.TabParent.OpenTab(
+			/*MyTab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Fine>(_undelivery.Id),
 				() => fineDlg
-			);
+			);*/
 
-			var address = new RouteListItemRepository().GetRouteListItemForOrder(UoW, _undelivery.OldOrder);
+			var address = new RouteListItemRepository().GetRouteListItemForOrder(ViewModel.UoW, _undelivery.OldOrder);
 
 			if (address != null)
 				fineDlg.Entity.AddAddress(address);

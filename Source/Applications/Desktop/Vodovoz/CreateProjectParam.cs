@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -228,6 +228,7 @@ using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz
 {
@@ -493,6 +494,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UndeliveryObjectJournalFilterViewModel, UndeliveryObjectFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryKindJournalFilterViewModel, UndeliveryKindFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryDetalizationJournalFilterViewModel, UndeliveryDetalizationFilterView>()
+				.RegisterWidgetForWidgetViewModel<UndeliveredOrderViewModel, UndeliveredOrderView>()
 				;
 			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

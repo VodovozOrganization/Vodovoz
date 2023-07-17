@@ -95,5 +95,9 @@ namespace Vodovoz.ViewModels.Widgets
 			UndeliveryObject = Entity.UndeliveryDetalization?.UndeliveryKind?.UndeliveryObject;
 			UndeliveryKind = Entity.UndeliveryDetalization?.UndeliveryKind;
 		}
+
+
+		//--------------------
+
 	}
 }
