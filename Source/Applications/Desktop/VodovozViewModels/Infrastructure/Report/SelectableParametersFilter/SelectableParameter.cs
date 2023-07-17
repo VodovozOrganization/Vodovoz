@@ -96,17 +96,10 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		public void FilterChilds(string searchValue)
 		{
 			this.searchValue = searchValue;
-
-			UpdateChilds();
-
-			if(!Children.Any())
-			{
-				return;
-			}
-
 			foreach(SelectableParameter child in Children) {
 				child.FilterChilds(searchValue);
 			}
+			UpdateChilds();
 		}
 
 		private void UpdateChilds()
