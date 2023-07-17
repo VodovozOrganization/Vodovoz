@@ -122,7 +122,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 					if(selectedNode != null)
 					{
 						var page = NavigationManager.OpenViewModel<ExpenseViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
-						page.ViewModel.CopyFromExpense(UoW.GetById<Expense>(selectedNode.Id));
+						page.ViewModel.CopyFromExpense(selectedNode.Id);
 					}
 				}));
 		}
@@ -559,6 +559,11 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 				if(FilterViewModel.HiddenExpenses.Any())
 				{
 					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => expenseAlias.Id), FilterViewModel.HiddenExpenses)));
+				}
+
+				if(FilterViewModel.RestrictNotTransfered)
+				{
+					query.Where(expense => expense.TransferedBy == null);
 				}
 
 				query.Where(GetSearchCriterion(

@@ -35,7 +35,7 @@ namespace Vodovoz.ViewWidgets
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class UndeliveredOrderView : WidgetOnDialogBase
 	{
-		private readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IDeliveryScheduleRepository _deliveryScheduleRepository = new DeliveryScheduleRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(new ParametersProvider());
@@ -98,7 +98,7 @@ namespace Vodovoz.ViewWidgets
 				if(!grantedStatusesArray.Contains(status))
 					hiddenStatusesList.Add(status);
 			}
-			var filterOrders = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), new EmployeeJournalFactory());
+			var filterOrders = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), new EmployeeJournalFactory());
 			filterOrders.SetAndRefilterAtOnce(x => x.HideStatuses = hiddenStatusesList.Cast<Enum>().ToArray());
 			evmeOldUndeliveredOrder.Changed += (sender, e) => {
 				_oldOrder = undelivery.OldOrder;
@@ -482,7 +482,7 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnBtnChooseOrderClicked(object sender, EventArgs e)
 		{
-			var filter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), new EmployeeJournalFactory());
+			var filter = new OrderJournalFilterViewModel(new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), new EmployeeJournalFactory());
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCounterparty = _oldOrder.Client,
 				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }

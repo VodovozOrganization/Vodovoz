@@ -47,7 +47,7 @@ namespace Vodovoz
 		protected void OnButtonOpenClicked (object sender, EventArgs e)
 		{
 			var node = treeRouteLists.GetSelectedNode () as ViewModel.RouteListsVMNode;
-			MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(
+			Startup.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(
 				null, EntityUoWBuilder.ForOpen(node.Id), OpenPageOptions.AsSlave);
 		}
 

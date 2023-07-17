@@ -24,7 +24,7 @@ namespace Vodovoz.SidePanel.InfoViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SmsSendPanelView : Gtk.Bin, IPanelView
 	{
-		private readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
@@ -61,7 +61,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				currentPermissionService.ValidatePresetPermission("can_send_sms_for_additional_order_statuses");
 			_canSendSmsForPayFromSbpByCard = currentPermissionService.ValidatePresetPermission("can_send_sms_for_pay_from_sbp_by_card");
 			var settingsController = _lifetimeScope.Resolve<ISettingsController>();
-			_smsSettings = new SmsSettings(settingsController, MainClass.DataBaseInfo);
+			_smsSettings = new SmsSettings(settingsController, Startup.DataBaseInfo);
 			_smsClientChannelFactory = new SmsClientChannelFactory(_smsSettings);
 
 			Configure();
