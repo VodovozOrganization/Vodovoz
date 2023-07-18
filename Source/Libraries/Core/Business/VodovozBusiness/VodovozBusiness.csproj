@@ -418,7 +418,6 @@
     <Compile Include="Domain\TrueMark\TrueMarkCashReceiptProductCode.cs" />
     <Compile Include="Domain\TrueMark\TrueMarkIdentificationCode.cs" />
     <Compile Include="Domain\Goods\VAT.cs" />
-    <Compile Include="Domain\Goods\VATStringType.cs" />
     <Compile Include="Domain\Versions\VersionEntityBase.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\IWageParameterService.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />

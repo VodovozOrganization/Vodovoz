@@ -1337,33 +1337,5 @@ namespace Vodovoz.Domain.Goods
 		[Display(Name = "Залог за оборудование")]
 		EquipmentDeposit
 	}
-
-	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType
-	{
-		public NomenclatureCategoryStringType() : base(typeof(NomenclatureCategory))
-		{
-		}
-	}
-
-	public class SaleCategoryStringType : NHibernate.Type.EnumStringType
-	{
-		public SaleCategoryStringType() : base(typeof(SaleCategory))
-		{
-		}
-	}
-
-	public class TypeOfDepositCategoryStringType : NHibernate.Type.EnumStringType
-	{
-		public TypeOfDepositCategoryStringType() : base(typeof(TypeOfDepositCategory))
-		{
-		}
-	}
-
-	public class TareVolumeStringType : NHibernate.Type.EnumStringType
-	{
-		public TareVolumeStringType() : base(typeof(TareVolume))
-		{
-		}
-	}
 }
 
