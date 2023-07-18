@@ -9,7 +9,6 @@ namespace Vodovoz.HibernateMapping
 		public DeliveryPointMap()
 		{
 			Table("delivery_points");
-			Not.LazyLoad();
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
@@ -69,7 +68,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.СoordsLastChangeUser)		.Column("coords_lastchange_user_id");
 			References(x => x.DefaultWaterNomenclature)	.Column("default_nomenclature_id");
 			References(x => x.District)					.Column("district_id");
-			References(x => x.Category)					.Column("delivery_point_category_id");
+			References(x => x.Category)					.Column("delivery_point_category_id").Fetch.Join().Not.LazyLoad();
 			References(x => x.LogisticsRequirements)	.Column("logistics_requirements_id").Cascade.All();
 
 			HasMany(x => x.Phones).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("delivery_point_id");
