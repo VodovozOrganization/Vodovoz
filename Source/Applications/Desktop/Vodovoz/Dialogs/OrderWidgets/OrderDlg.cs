@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -3336,31 +3336,7 @@ namespace Vodovoz
 				return;
 			}
 
-			if(HasOrderStatusExternalChangesAndCancellationImpossible(out OrderStatus actualOrderStatus))
-			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					$"Статус заказа был кем-то изменён на статус \"{actualOrderStatus.GetEnumTitle()}\" с момента открытия диалога, теперь отмена невозможна.");
-
-				return;
-			}
-
 			OpenDlgToCreateNewUndeliveredOrder();
-		}
-
-		private bool HasOrderStatusExternalChangesAndCancellationImpossible(out OrderStatus actualOrderStatus)
-		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка актуального статуа заказа"))
-			{
-				actualOrderStatus = uow.GetById<Order>(Entity.Id).OrderStatus;
-			}
-
-			var hasOrderStatusChanges = Entity.OrderStatus != actualOrderStatus;
-			var isOrderStatusForbiddenForCancellation = !_orderRepository.GetStatusesForOrderCancelation().Contains(actualOrderStatus);
-			var isSelfDeliveryOnLoadingOrder = Entity.SelfDelivery && actualOrderStatus == OrderStatus.OnLoading;
-
-			return hasOrderStatusChanges
-				   && isOrderStatusForbiddenForCancellation
-				   && !isSelfDeliveryOnLoadingOrder;
 		}
 
 		/// <summary>
