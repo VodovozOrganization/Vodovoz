@@ -168,14 +168,26 @@ namespace Vodovoz.EntityRepositories.Cash
 
 		public IEnumerable<CashReceipt> GetCashReceiptsForSend(IUnitOfWork uow, int count)
 		{
-			var statusesForSend = new[] { CashReceiptStatus.ReadyToSend, CashReceiptStatus.ReceiptSendError };
-			var query = uow.Session.QueryOver(() => _cashReceiptAlias)
-				.WhereRestrictionOn(() => _cashReceiptAlias.Status).IsIn(statusesForSend)
+			var queryReady = uow.Session.QueryOver(() => _cashReceiptAlias)
+				.Where(() => _cashReceiptAlias.Status == CashReceiptStatus.ReadyToSend)
 				.Select(Projections.Id())
 				.OrderBy(() => _cashReceiptAlias.CreateDate).Asc
 				.Take(count);
 
-			var receiptIds = query.List<int>();
+			var queryError = uow.Session.QueryOver(() => _cashReceiptAlias)
+				.Where(() => _cashReceiptAlias.Status == CashReceiptStatus.ReceiptSendError)
+				.Select(Projections.Id())
+				.OrderBy(() => _cashReceiptAlias.CreateDate).Asc
+				.Take(count);
+
+			var readyReceiptIds = queryReady.List<int>();
+			IEnumerable<int> receiptIds = readyReceiptIds;
+
+			if(readyReceiptIds.Count < count)
+			{
+				var receiptIdsWithError = queryError.List<int>();
+				receiptIds = readyReceiptIds.Union(receiptIdsWithError);
+			}
 
 			var result = LoadReceipts(uow, receiptIds);
 			return result;
