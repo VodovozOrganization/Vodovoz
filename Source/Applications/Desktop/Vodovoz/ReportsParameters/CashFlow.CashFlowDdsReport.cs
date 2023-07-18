@@ -38,6 +38,7 @@ namespace Vodovoz.Reports
 				var incomesCategories = (from incomeCategory in unitOfWork.Session.Query<FinancialIncomeCategory>()
 										 where incomeCategory.GroupType == GroupType.Category
 											&& incomeCategory.IsArchive == false
+											&& incomeCategory.ExcludeFromCashFlowDds == false
 										 select FinancialIncomeCategoryLine.Create(
 											  incomeCategory.Id,
 											  incomeCategory.ParentId,
@@ -58,6 +59,7 @@ namespace Vodovoz.Reports
 				var expensesCategories = (from expenseCategory in unitOfWork.Session.Query<FinancialExpenseCategory>()
 										  where expenseCategory.GroupType == GroupType.Category
 											 && expenseCategory.IsArchive == false
+											 && expenseCategory.ExcludeFromCashFlowDds == false
 										  select FinancialExpenseCategoryLine.Create(
 											  expenseCategory.Id,
 											  expenseCategory.ParentId,
