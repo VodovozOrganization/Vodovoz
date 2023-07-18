@@ -6,12 +6,11 @@
 		{
 			public class FinancialIncomeCategoryLine
 			{
-				public FinancialIncomeCategoryLine(int id, int? parentId, string title, decimal money)
+				public FinancialIncomeCategoryLine(int id, int? parentId, string title)
 				{
 					Id = id;
 					ParentId = parentId;
 					Title = title;
-					Money = money;
 				}
 
 				public int Id { get; }
@@ -20,9 +19,9 @@
 
 				public string Title { get; }
 
-				public decimal Money { get; }
+				public decimal Money { get; set; }
 
-				public static FinancialIncomeCategoryLine Create(int id, int? parentId, string title, decimal money) => new FinancialIncomeCategoryLine(id, parentId, title, money);
+				public static FinancialIncomeCategoryLine Create(int id, int? parentId, string title) => new FinancialIncomeCategoryLine(id, parentId, title);
 			}
 		}
 	}

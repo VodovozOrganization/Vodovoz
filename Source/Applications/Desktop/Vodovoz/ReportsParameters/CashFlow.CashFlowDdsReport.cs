@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 
 namespace Vodovoz.Reports
@@ -35,26 +36,44 @@ namespace Vodovoz.Reports
 			public static CashFlowDdsReport GenerateReport(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate)
 			{
 				var incomesCategories = (from incomeCategory in unitOfWork.Session.Query<FinancialIncomeCategory>()
-											   where incomeCategory.GroupType == GroupType.Category
-											      && incomeCategory.IsArchive == false
-											   let money = 0m
-											   select FinancialIncomeCategoryLine.Create(
-												   incomeCategory.Id,
-												   incomeCategory.ParentId,
-												   incomeCategory.Title,
-												   money))
-											.ToList();
+										 where incomeCategory.GroupType == GroupType.Category
+											&& incomeCategory.IsArchive == false
+										 select FinancialIncomeCategoryLine.Create(
+											  incomeCategory.Id,
+											  incomeCategory.ParentId,
+											  incomeCategory.Title))
+										.ToList();
+
+				foreach(var incomeCategory in incomesCategories)
+				{
+					incomeCategory.Money = (from cashIncome in unitOfWork.Session.Query<Income>()
+											where cashIncome.IncomeCategoryId == incomeCategory.Id
+											   && cashIncome.Date >= startDate
+											   && cashIncome.Date <= endDate
+											select cashIncome.Money)
+											.ToArray()
+											.Sum();
+				}
 
 				var expensesCategories = (from expenseCategory in unitOfWork.Session.Query<FinancialExpenseCategory>()
-												where expenseCategory.GroupType == GroupType.Category
-												   && expenseCategory.IsArchive == false
-												let money = 0m
-												select FinancialExpenseCategoryLine.Create(
-													expenseCategory.Id,
-													expenseCategory.ParentId,
-													expenseCategory.Title,
-													money))
+										  where expenseCategory.GroupType == GroupType.Category
+											 && expenseCategory.IsArchive == false
+										  select FinancialExpenseCategoryLine.Create(
+											  expenseCategory.Id,
+											  expenseCategory.ParentId,
+											  expenseCategory.Title))
 											 .ToList();
+
+				foreach(var expenseCategory in expensesCategories)
+				{
+					expenseCategory.Money = (from cashExpense in unitOfWork.Session.Query<Expense>()
+											 where cashExpense.ExpenseCategoryId == expenseCategory.Id
+												&& cashExpense.Date >= startDate
+												&& cashExpense.Date <= endDate
+											 select cashExpense.Money)
+											 .ToArray()
+											 .Sum();
+				}
 
 				var incomeGroups = (from incomeGroup in unitOfWork.Session.Query<FinancialCategoriesGroup>()
 									where incomeGroup.FinancialSubtype == FinancialSubType.Income
