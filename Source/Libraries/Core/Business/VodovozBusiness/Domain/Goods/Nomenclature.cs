@@ -898,7 +898,7 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		public bool IsFromOnlineShopGroup(int idOfOnlineShopGroup)
+		public virtual bool IsFromOnlineShopGroup(int idOfOnlineShopGroup)
 		{
 			ProductGroup parent = ProductGroup;
 			while(parent != null)

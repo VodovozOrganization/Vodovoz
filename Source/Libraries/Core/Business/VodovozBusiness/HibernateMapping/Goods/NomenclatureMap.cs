@@ -1,5 +1,4 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.HibernateMapping
@@ -9,7 +8,6 @@ namespace Vodovoz.HibernateMapping
 		public NomenclatureMap()
 		{
 			Table("nomenclature");
-			Not.LazyLoad();
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
@@ -85,7 +83,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.ShipperCounterparty).Column("shipper_counterparty_id");
 			References(x => x.CreatedBy).Column("created_by");
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
-			References(x => x.Unit).Column("unit_id").Not.LazyLoad();
+			References(x => x.Unit).Column("unit_id").Fetch.Join().Not.LazyLoad();
 			References(x => x.EquipmentColor).Column("color_id");
 			References(x => x.Kind).Column("kind_id");
 			References(x => x.Manufacturer).Column("manufacturer_id");
