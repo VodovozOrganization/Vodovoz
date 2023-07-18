@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Excel;
-using System.Drawing;
 using System.Linq;
 
 namespace Vodovoz.Reports
@@ -11,17 +10,6 @@ namespace Vodovoz.Reports
 			private const int _mainCategoryColumn = 1;
 			private const int _categoryTitleColumn = 2;
 			private const int _categoryMoney = 3;
-
-			private readonly Color _secondLevelGroupBGColor = Color.FromArgb(174, 205, 255);
-			private readonly Color _thirdLevelGroupBGColor = Color.FromArgb(174, 199, 255);
-			private readonly Color _fourthLevelGroupBGColor = Color.FromArgb(174, 205, 255);
-			private readonly Color _fifthLevelGroupBGColor = Color.FromArgb(139, 159, 204);
-			private readonly Color _sixthLevelGroupBGColor = Color.FromArgb(86, 99, 127);
-			private readonly Color _seventhLevelGroupBGColor = Color.FromArgb(86, 99, 127);
-			private readonly Color _eighthLevelGroupBGColor = Color.FromArgb(86, 99, 127);
-
-			private readonly Color _categoryBGColor = Color.FromArgb(255, 255, 0);
-
 
 			public IXLWorkbook Render(CashFlowDdsReport cashFlowDdsReport)
 			{
@@ -60,7 +48,6 @@ namespace Vodovoz.Reports
 				GoToNextRow(reportSheet);
 
 				var incomesStartLine = reportSheet.ActiveCell.Address.RowNumber;
-				reportSheet.Cell(incomesStartLine, 3).Style.Font.Bold = true;
 
 				foreach(var incomeGroup in cashFlowDdsReport.IncomesGroupLines)
 				{
@@ -74,7 +61,6 @@ namespace Vodovoz.Reports
 				GoToNextRow(reportSheet);
 
 				var expensesStartLine = reportSheet.ActiveCell.Address.RowNumber;
-				reportSheet.Cell(expensesStartLine, 3).Style.Font.Bold = true;
 
 				foreach(var expenseGroup in cashFlowDdsReport.ExpensesGroupLines)
 				{
@@ -89,7 +75,7 @@ namespace Vodovoz.Reports
 				reportSheet.Column(2).AdjustToContents();
 				reportSheet.Column(3).AdjustToContents();
 
-				SetMoney(reportSheet, summaryRow, cashFlowDdsReport.IncomesGroupLines.Sum(x => x.Money) - cashFlowDdsReport.ExpensesGroupLines.Sum(x => x.Money));
+				SetMoney(reportSheet, summaryRow, cashFlowDdsReport.IncomesGroupLines.Sum(x => x.Money) - cashFlowDdsReport.ExpensesGroupLines.Sum(x => x.Money), true);
 
 				return result;
 			}
@@ -144,7 +130,7 @@ namespace Vodovoz.Reports
 					}
 				}
 
-				SetMoney(xLWorksheet, activeAtStartCellRow, incomeGroup.Money);
+				SetMoney(xLWorksheet, activeAtStartCellRow, incomeGroup.Money, true);
 			}
 
 			private void RenderExpenseGroup(
@@ -196,7 +182,7 @@ namespace Vodovoz.Reports
 					}
 				}
 
-				SetMoney(xLWorksheet, activeAtStartCellRow, expenseGroup.Money);
+				SetMoney(xLWorksheet, activeAtStartCellRow, expenseGroup.Money, true);
 			}
 
 			private void RenderIncomeCategory(
@@ -230,44 +216,16 @@ namespace Vodovoz.Reports
 						cell1stLevel.Value = title == "Статьи расхода" ? "Расходы" : "Доходы"; // не очень корректно
 						break;
 					case 2:
-						var cell2ndLevel = xLWorksheet.Cell(row, _categoryTitleColumn);
-						cell2ndLevel.Style.Fill.BackgroundColor = XLColor.FromColor(_secondLevelGroupBGColor);
-						cell2ndLevel.Value = $"{numberPrefix}{title}";
-						break;
 					case 3:
-						var cell3rdLevel = xLWorksheet.Cell(row, _categoryTitleColumn);
-						cell3rdLevel.Style.Fill.BackgroundColor = XLColor.FromColor(_thirdLevelGroupBGColor);
-						cell3rdLevel.Value = $"{numberPrefix}{title}";
-						break;
 					case 4:
-						var cell4thLevel = xLWorksheet.Cell(row, _categoryTitleColumn);
-						cell4thLevel.Style.Fill.BackgroundColor = XLColor.FromColor(_fourthLevelGroupBGColor);
-						cell4thLevel.Value = $"{numberPrefix}{title}";
-						break;
 					case 5:
-						var cell5thLevel = xLWorksheet.Cell(row, _categoryTitleColumn);
-						cell5thLevel.Style.Fill.BackgroundColor = XLColor.FromColor(_fifthLevelGroupBGColor);
-						cell5thLevel.Value = $"{numberPrefix}{title}";
-						break;
 					case 6:
-						var cell6thLevel = xLWorksheet.Cell(row, _categoryTitleColumn);
-						cell6thLevel.Style.Fill.BackgroundColor = XLColor.FromColor(_sixthLevelGroupBGColor);
-						cell6thLevel.Value = $"{numberPrefix}{title}";
-						break;
 					case 7:
-						var cell7thLevel = xLWorksheet.Cell(row, _categoryTitleColumn);
-						cell7thLevel.Style.Fill.BackgroundColor = XLColor.FromColor(_seventhLevelGroupBGColor);
-						cell7thLevel.Value = $"{numberPrefix}{title}";
-						break;
 					case 8:
-						var cell8thLevel = xLWorksheet.Cell(row, _categoryTitleColumn);
-						cell8thLevel.Style.Fill.BackgroundColor = XLColor.FromColor(_eighthLevelGroupBGColor);
-						cell8thLevel.Value = $"{numberPrefix}{title}";
-						break;
 					default:
-						var cell = xLWorksheet.Cell(row, _categoryTitleColumn);
-						cell.Style.Fill.BackgroundColor = XLColor.Cyan;
-						cell.Value = title;
+						var leveledCell = xLWorksheet.Cell(row, _categoryTitleColumn);
+						leveledCell.Style.Font.Bold = true;
+						leveledCell.Value = $"{numberPrefix}{title}";
 						break;
 				}
 			}
@@ -276,16 +234,21 @@ namespace Vodovoz.Reports
 			{
 				var titleCell = xLWorksheet.Cell(row, _categoryTitleColumn);
 
-				titleCell.Style.Fill.BackgroundColor = XLColor.FromColor(_categoryBGColor);
 				titleCell.Value = title;
 
 				SetMoney(xLWorksheet, row, money);
 			}
 
-			private void SetMoney(IXLWorksheet xLWorksheet, int row, decimal money)
+			private void SetMoney(IXLWorksheet xLWorksheet, int row, decimal money, bool bold = false)
 			{
 				var moneyCell = xLWorksheet.Cell(row, _categoryMoney);
 
+				if(bold)
+				{
+					moneyCell.Style.Font.Bold = true;
+				}
+
+				moneyCell.Style.NumberFormat.Format = "# ##0.00 ₽;-# ##0.00 ₽";
 				moneyCell.DataType = XLDataType.Number;
 				moneyCell.Value = money;
 			}
