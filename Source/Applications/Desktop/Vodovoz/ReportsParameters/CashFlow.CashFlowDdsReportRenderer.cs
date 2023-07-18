@@ -86,6 +86,8 @@ namespace Vodovoz.Reports
 				reportSheet.Column(2).AdjustToContents();
 				reportSheet.Column(3).AdjustToContents();
 
+				reportSheet.CollapseRows();
+
 				SetMoney(reportSheet, summaryRow, cashFlowDdsReport.IncomesGroupLines.Sum(x => x.Money) - cashFlowDdsReport.ExpensesGroupLines.Sum(x => x.Money), true);
 
 				return result;
@@ -130,14 +132,17 @@ namespace Vodovoz.Reports
 
 				if(incomeGroup.IncomeCategories.Any())
 				{
-					xLWorksheet.Rows(categoriesStartRowNumber, categoriesEndRowNumber).Group();
+					if(groupLevel > 1)
+					{
+						xLWorksheet.Rows(categoriesStartRowNumber, categoriesEndRowNumber).Group(true);
+					}
 				}
 
 				if(incomeGroup.Groups.Any())
 				{
 					if(groupLevel > 1)
 					{
-						xLWorksheet.Rows(categoriesStartRowNumber, groupEndRowNumber).Group();
+						xLWorksheet.Rows(categoriesStartRowNumber, groupEndRowNumber).Group(true);
 					}
 				}
 
@@ -182,14 +187,17 @@ namespace Vodovoz.Reports
 
 				if(expenseGroup.ExpenseCategories.Any())
 				{
-					xLWorksheet.Rows(categoriesStartRowNumber, categoriesEndRowNumber).Group();
+					if(groupLevel > 1)
+					{
+						xLWorksheet.Rows(categoriesStartRowNumber, categoriesEndRowNumber).Group(true);
+					}
 				}
 
 				if(expenseGroup.Groups.Any())
 				{
 					if(groupLevel > 1)
 					{
-						xLWorksheet.Rows(categoriesStartRowNumber, groupEndRowNumber).Group();
+						xLWorksheet.Rows(categoriesStartRowNumber, groupEndRowNumber).Group(true);
 					}
 				}
 
