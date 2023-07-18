@@ -8,7 +8,7 @@ namespace Vodovoz.Reports
 	{
 		public class CashFlowDdsReportRenderer
 		{
-			private readonly Color _subTotalsBGColor = Color.FromArgb(253, 233, 216);
+			private readonly XLColor _subTotalsBGColor = XLColor.FromColor(Color.FromArgb(253, 233, 216));
 
 			private const int _mainCategoryColumn = 1;
 			private const int _categoryTitleColumn = 2;
@@ -22,29 +22,32 @@ namespace Vodovoz.Reports
 
 				var reportSheet = result.Worksheets.First();
 
-				var firstCell = "A1";
-				reportSheet.Cell(firstCell).Value = "Отчет по бюджету";
-				reportSheet.Cell(firstCell).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-				reportSheet.Cell(firstCell).Style.Font.Bold = true;
-				reportSheet.Cell(firstCell).Style.Font.FontSize = 13;
+				var firstCell = reportSheet.Cell("A1");
+				firstCell.Value = "Отчет по бюджету";
+				firstCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+				firstCell.Style.Font.Bold = true;
+				firstCell.Style.Font.FontSize = 13;
 				reportSheet.Range("A1:C1").Row(1).Merge();
 
-				var secondCell = "A2";
-				reportSheet.Cell(secondCell).Value = $"с {cashFlowDdsReport.StartDate:dd.MM.yyyy} по {cashFlowDdsReport.EndDate:dd.MM.yyyy}";
-				reportSheet.Cell(secondCell).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-				reportSheet.Cell(secondCell).Style.Font.Bold = true;
-				reportSheet.Cell(secondCell).Style.Font.FontSize = 13;
+				var secondCell = reportSheet.Cell("A2");
+				secondCell.Value = $"с {cashFlowDdsReport.StartDate:dd.MM.yyyy} по {cashFlowDdsReport.EndDate:dd.MM.yyyy}";
+				secondCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+				secondCell.Style.Font.Bold = true;
+				secondCell.Style.Font.FontSize = 13;
 				reportSheet.Range("A2:C2").Row(1).Merge();
 
 				reportSheet.Cell("B4").Active = true;
 
 				var summaryRow = reportSheet.ActiveCell.Address.RowNumber;
 
-				reportSheet.Cell(summaryRow, 2).Value = "Прибыль";
-				reportSheet.Cell(summaryRow, 2).Style.Font.Bold = true;
-				reportSheet.Cell(summaryRow, 2).Style.Font.FontSize = 13;
-				reportSheet.Cell(summaryRow, 3).Style.Font.Bold = true;
-				reportSheet.Cell(summaryRow, 3).Style.Font.FontSize = 13;
+				var summaryCell = reportSheet.Cell(summaryRow, 2);
+				summaryCell.Value = "Прибыль";
+				summaryCell.Style.Font.Bold = true;
+				summaryCell.Style.Font.FontSize = 13;
+
+				var summaryTotalCell = reportSheet.Cell(summaryRow, 3);
+				summaryTotalCell.Style.Font.Bold = true;
+				summaryTotalCell.Style.Font.FontSize = 13;
 
 				GoToNextRow(reportSheet);
 
@@ -52,9 +55,13 @@ namespace Vodovoz.Reports
 
 				var incomesStartLine = reportSheet.ActiveCell.Address.RowNumber;
 
-				reportSheet.Cell(incomesStartLine, 1).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
-				reportSheet.Cell(incomesStartLine, 2).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
-				reportSheet.Cell(incomesStartLine, 3).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
+				reportSheet.Cell(incomesStartLine, 1).Style.Fill.BackgroundColor = _subTotalsBGColor;
+				reportSheet.Cell(incomesStartLine, 2).Style.Fill.BackgroundColor = _subTotalsBGColor;
+				reportSheet.Cell(incomesStartLine, 3).Style.Fill.BackgroundColor = _subTotalsBGColor;
+
+				var incomesCell = reportSheet.Cell(incomesStartLine, _mainCategoryColumn);
+				incomesCell.Style.Font.Bold = true;
+				incomesCell.Value = "Доходы";
 
 				foreach(var incomeGroup in cashFlowDdsReport.IncomesGroupLines)
 				{
@@ -69,9 +76,13 @@ namespace Vodovoz.Reports
 
 				var expensesStartLine = reportSheet.ActiveCell.Address.RowNumber;
 
-				reportSheet.Cell(expensesStartLine, 1).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
-				reportSheet.Cell(expensesStartLine, 2).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
-				reportSheet.Cell(expensesStartLine, 3).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
+				var expenseCell = reportSheet.Cell(expensesStartLine, _mainCategoryColumn);
+				expenseCell.Style.Font.Bold = true;
+				expenseCell.Value = "Расходы";
+
+				reportSheet.Cell(expensesStartLine, 1).Style.Fill.BackgroundColor = _subTotalsBGColor;
+				reportSheet.Cell(expensesStartLine, 2).Style.Fill.BackgroundColor = _subTotalsBGColor;
+				reportSheet.Cell(expensesStartLine, 3).Style.Fill.BackgroundColor = _subTotalsBGColor;
 
 				foreach(var expenseGroup in cashFlowDdsReport.ExpensesGroupLines)
 				{
@@ -101,7 +112,10 @@ namespace Vodovoz.Reports
 			{
 				var activeAtStartCellRow = xLWorksheet.ActiveCell.Address.RowNumber;
 
-				SetLeveledGroupTitle(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, groupLevel, incomeGroup.Title, numberPrefix);
+				if(groupLevel > 1)
+				{
+					SetLeveledGroupTitle(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, incomeGroup.Title, numberPrefix);
+				}
 
 				var categoriesStartRowNumber = activeAtStartCellRow + 1;
 
@@ -157,7 +171,10 @@ namespace Vodovoz.Reports
 			{
 				var activeAtStartCellRow = xLWorksheet.ActiveCell.Address.RowNumber;
 
-				SetLeveledGroupTitle(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, groupLevel, expenseGroup.Title, numberPrefix);
+				if(groupLevel > 1)
+				{
+					SetLeveledGroupTitle(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, expenseGroup.Title, numberPrefix);
+				}
 
 				var categoriesStartRowNumber = activeAtStartCellRow + 1;
 
@@ -225,28 +242,11 @@ namespace Vodovoz.Reports
 					xLWorksheet.ActiveCell.Address.ColumnNumber).Active = true;
 			}
 
-			private void SetLeveledGroupTitle(IXLWorksheet xLWorksheet, int row, int groupLevel, string title, string numberPrefix)
+			private void SetLeveledGroupTitle(IXLWorksheet xLWorksheet, int row, string title, string numberPrefix)
 			{
-				switch(groupLevel)
-				{
-					case 1:
-						var cell1stLevel = xLWorksheet.Cell(row, _mainCategoryColumn);
-						cell1stLevel.Style.Font.Bold = true;
-						cell1stLevel.Value = title == "Статьи расхода" ? "Расходы" : "Доходы"; // не очень корректно
-						break;
-					case 2:
-					case 3:
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-					case 8:
-					default:
-						var leveledCell = xLWorksheet.Cell(row, _categoryTitleColumn);
-						leveledCell.Style.Font.Bold = true;
-						leveledCell.Value = $"{numberPrefix}{title}";
-						break;
-				}
+				var leveledCell = xLWorksheet.Cell(row, _categoryTitleColumn);
+				leveledCell.Style.Font.Bold = true;
+				leveledCell.Value = $"{numberPrefix}{title}";
 			}
 
 			private void SetCategoryRow(IXLWorksheet xLWorksheet, int row, string title, decimal money)
