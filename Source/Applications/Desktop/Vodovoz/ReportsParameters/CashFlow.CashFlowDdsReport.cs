@@ -1,0 +1,127 @@
+﻿using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
+
+namespace Vodovoz.Reports
+{
+	public partial class CashFlow
+	{
+		public partial class CashFlowDdsReport
+		{
+			public string Title => "Отчет ДДС";
+
+			private CashFlowDdsReport(
+				DateTime startDate,
+				DateTime endDate,
+				List<IncomesGroupLine> incomesGroupLines,
+				List<ExpensesGroupLine> expensesGroupLines)
+			{
+				StartDate = startDate;
+				EndDate = endDate;
+				IncomesGroupLines = incomesGroupLines;
+				ExpensesGroupLines = expensesGroupLines;
+			}
+
+			public DateTime StartDate { get; }
+
+			public DateTime EndDate { get; }
+
+			public List<IncomesGroupLine> IncomesGroupLines { get; }
+
+			public List<ExpensesGroupLine> ExpensesGroupLines { get; }
+
+			public static CashFlowDdsReport GenerateReport(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate)
+			{
+				var incomesCategories = (from incomeCategory in unitOfWork.Session.Query<FinancialIncomeCategory>()
+											   where incomeCategory.GroupType == GroupType.Category
+											      && incomeCategory.IsArchive == false
+											   let money = 0m
+											   select FinancialIncomeCategoryLine.Create(
+												   incomeCategory.Id,
+												   incomeCategory.ParentId,
+												   incomeCategory.Title,
+												   money))
+											.ToList();
+
+				var expensesCategories = (from expenseCategory in unitOfWork.Session.Query<FinancialExpenseCategory>()
+												where expenseCategory.GroupType == GroupType.Category
+												   && expenseCategory.IsArchive == false
+												let money = 0m
+												select FinancialExpenseCategoryLine.Create(
+													expenseCategory.Id,
+													expenseCategory.ParentId,
+													expenseCategory.Title,
+													money))
+											 .ToList();
+
+				var incomeGroups = (from incomeGroup in unitOfWork.Session.Query<FinancialCategoriesGroup>()
+									where incomeGroup.FinancialSubtype == FinancialSubType.Income
+									   && incomeGroup.GroupType == GroupType.Group
+									   && incomeGroup.IsArchive == false
+									select incomeGroup)
+										  .ToList();
+
+				var incomeGroupLines = ProceedIncomeGroups(null, incomeGroups, incomesCategories);
+
+				var expenseGroups = (from expenseGroup in unitOfWork.Session.Query<FinancialCategoriesGroup>()
+									 where expenseGroup.FinancialSubtype == FinancialSubType.Expense
+										&& expenseGroup.GroupType == GroupType.Group
+										&& expenseGroup.IsArchive == false
+									 select expenseGroup)
+										  .ToList();
+
+				var expenseGroupLines = ProceedExpenseGroups(null, expenseGroups, expensesCategories);
+
+				return new CashFlowDdsReport(
+					startDate,
+					endDate,
+					incomeGroupLines,
+					expenseGroupLines);
+			}
+
+			private static List<IncomesGroupLine> ProceedIncomeGroups(
+				int? parentId,
+				List<FinancialCategoriesGroup> groups,
+				List<FinancialIncomeCategoryLine> financialIncomeCategoryLines)
+			{
+				var result = new List<IncomesGroupLine>();
+
+				var groupsToProceed = groups.Where(x => x.ParentId == parentId).ToList();
+
+				foreach(var group in groupsToProceed)
+				{
+					result.Add(IncomesGroupLine.Create(
+						group.Id,
+						group.Title,
+						ProceedIncomeGroups(group.Id, groups, financialIncomeCategoryLines),
+						financialIncomeCategoryLines.Where(x => x.ParentId == group.Id).ToList()));
+				}
+
+				return result;
+			}
+
+			private static List<ExpensesGroupLine> ProceedExpenseGroups(
+				int? parentId,
+				List<FinancialCategoriesGroup> groups,
+				List<FinancialExpenseCategoryLine> financialExpenseCategoryLines)
+			{
+				var result = new List<ExpensesGroupLine>();
+
+				var groupsToProceed = groups.Where(x => x.ParentId == parentId).ToList();
+
+				foreach(var group in groupsToProceed)
+				{
+					result.Add(ExpensesGroupLine.Create(
+						group.Id,
+						group.Title,
+						ProceedExpenseGroups(group.Id, groups, financialExpenseCategoryLines),
+						financialExpenseCategoryLines.Where(x => x.ParentId == group.Id).ToList()));
+				}
+
+				return result;
+			}
+		}
+	}
+}

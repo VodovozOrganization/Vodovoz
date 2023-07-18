@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using DateTimeHelpers;
 using Gtk;
 using QS.Commands;
 using QS.Dialog;
@@ -6,6 +7,7 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
+using QS.Project.Services.FileDialog;
 using QS.Report;
 using QS.Services;
 using QS.Tdi;
@@ -14,13 +16,11 @@ using QSReport;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
@@ -34,6 +34,96 @@ namespace Vodovoz.Reports
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly ILifetimeScope _lifetimeScope;
+		private readonly IFileDialogService _fileDialogService;
+
+		private readonly CashFlowDdsReportRenderer _cashFlowDdsReportRenderer = new CashFlowDdsReportRenderer();
+
+		private bool _canGenerateCashReportsForOrganisations;
+		private bool _canGenerateCashFlowDdsReport;
+
+		private FinancialExpenseCategory _financialExpenseCategory;
+		private FinancialIncomeCategory _financialIncomeCategory;
+		private ITdiTab _parentTab;
+		private bool _canGenerateDdsReport;
+
+		private DateTime _startDate;
+		private DateTime _endDate;
+
+		public CashFlow(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ISubdivisionRepository subdivisionRepository,
+			ICommonServices commonServices,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope,
+			IFileDialogService fileDialogService)
+		{
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+
+			Build();
+
+			UoW = unitOfWorkFactory.CreateWithoutRoot();
+
+			comboPart.ItemsEnum = typeof(ReportParts);
+
+			var now = DateTime.Now;
+
+			StartDate = now.Date;
+			EndDate = now.LatestDayTime();
+
+			dateStart.Binding.AddBinding(this, dlg => dlg.StartDate, w => w.Date).InitializeFromSource();
+			dateEnd.Binding.AddBinding(this, dlg => dlg.EndDate, w => w.Date).InitializeFromSource();
+
+			var officeFilter = new EmployeeFilterViewModel();
+
+			officeFilter.SetAndRefilterAtOnce(
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.RestrictCategory = EmployeeCategory.office);
+
+			var employeeFactory = new EmployeeJournalFactory(officeFilter);
+
+			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
+			evmeCashier.CanOpenWithoutTabParent = true;
+
+			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
+			evmeEmployee.CanOpenWithoutTabParent = true;
+
+			UserSubdivisions = GetSubdivisionsForUser();
+
+			specialListCmbCashSubdivisions.SetRenderTextFunc<Subdivision>(s => s.Name);
+			specialListCmbCashSubdivisions.ItemsList = UserSubdivisions;
+
+			ylblOrganisations.Visible = specialListCmbOrganisations.Visible = false;
+			Organisations = UoW.GetAll<Organization>();
+			specialListCmbOrganisations.SetRenderTextFunc<Organization>(s => s.Name);
+			specialListCmbOrganisations.ItemsList = Organisations;
+
+			int currentUserId = commonServices.UserService.CurrentUserId;
+
+			_canGenerateCashReportsForOrganisations =
+				commonServices.PermissionService.ValidateUserPresetPermission(Permissions.Cash.CanGenerateCashReportsForOrganizations, currentUserId);
+
+			_canGenerateCashFlowDdsReport = commonServices.PermissionService.ValidateUserPresetPermission(Permissions.Cash.CanGenerateCashFlowDdsReport, currentUserId);
+
+			checkOrganisations.Visible = _canGenerateCashReportsForOrganisations;
+			checkOrganisations.Toggled += CheckOrganisationsToggled;
+
+			entryExpenseFinancialCategory.Sensitive = false;
+			entryIncomeFinancialCategory.Sensitive = false;
+
+			CanGenerateDdsReport = _canGenerateCashFlowDdsReport;
+
+			GenerateDdsReportCommand = new DelegateCommand(OnButtonGenerateDDSClicked, () => CanGenerateDdsReport);
+
+			buttonGenerateDDS.Binding
+				.AddBinding(this, dlg => dlg.CanGenerateDdsReport, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonGenerateDDS.Clicked += (s, e) => GenerateDdsReportCommand.Execute();
+		}
 
 		public ITdiTab ParentTab
 		{
@@ -50,78 +140,6 @@ namespace Vodovoz.Reports
 
 		private IEnumerable<Subdivision> UserSubdivisions { get; }
 		private IEnumerable<Organization> Organisations { get; }
-
-		private FinancialExpenseCategory _financialExpenseCategory;
-		private FinancialIncomeCategory _financialIncomeCategory;
-		private ITdiTab _parentTab;
-		private bool _canGenerateDdsReport;
-
-		public CashFlow(
-			IUnitOfWorkFactory unitOfWorkFactory,
-			ISubdivisionRepository subdivisionRepository,
-			ICommonServices commonServices,
-			ICategoryRepository categoryRepository,
-			INavigationManager navigationManager,
-			ILifetimeScope lifetimeScope)
-		{
-			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			if(categoryRepository == null)
-			{
-				throw new ArgumentNullException(nameof(categoryRepository));
-			}
-
-			Build();
-
-			UoW = unitOfWorkFactory.CreateWithoutRoot();
-
-			comboPart.ItemsEnum = typeof(ReportParts);
-
-			var now = DateTime.Now;
-			dateStart.Date = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
-			dateEnd.Date = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
-
-			var officeFilter = new EmployeeFilterViewModel();
-			officeFilter.SetAndRefilterAtOnce(
-				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictCategory = EmployeeCategory.office);
-			var employeeFactory = new EmployeeJournalFactory(officeFilter);
-			evmeCashier.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingOfficeEmployeeAutocompleteSelectorFactory());
-			evmeCashier.CanOpenWithoutTabParent = true;
-
-			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
-			evmeEmployee.CanOpenWithoutTabParent = true;
-
-			UserSubdivisions = GetSubdivisionsForUser();
-			specialListCmbCashSubdivisions.SetRenderTextFunc<Subdivision>(s => s.Name);
-			specialListCmbCashSubdivisions.ItemsList = UserSubdivisions;
-
-			ylblOrganisations.Visible = specialListCmbOrganisations.Visible = false;
-			Organisations = UoW.GetAll<Organization>();
-			specialListCmbOrganisations.SetRenderTextFunc<Organization>(s => s.Name);
-			specialListCmbOrganisations.ItemsList = Organisations;
-
-			int currentUserId = commonServices.UserService.CurrentUserId;
-			bool canCreateCashReportsForOrganisations =
-				commonServices.PermissionService.ValidateUserPresetPermission("can_create_cash_reports_for_organisations", currentUserId);
-			checkOrganisations.Visible = canCreateCashReportsForOrganisations;
-			checkOrganisations.Toggled += CheckOrganisationsToggled;
-
-			entryExpenseFinancialCategory.Sensitive = false;
-			entryIncomeFinancialCategory.Sensitive = false;
-
-			CanGenerateDdsReport = true;
-
-			GenerateDdsReportCommand = new DelegateCommand(OnButtonGenerateDDSClicked, () => CanGenerateDdsReport);
-
-			buttonGenerateDDS.Binding
-				.AddBinding(this, dlg => dlg.CanGenerateDdsReport, w => w.Sensitive)
-				.InitializeFromSource();
-
-			buttonGenerateDDS.Clicked += (s, e) => GenerateDdsReportCommand.Execute();
-		}
 
 		public FinancialExpenseCategory FinancialExpenseCategory
 		{
@@ -177,18 +195,66 @@ namespace Vodovoz.Reports
 
 		private void OnButtonGenerateDDSClicked()
 		{
-			Application.Invoke(async (s, e) => await GenerateDdsReport());
-
-			//return Task.CompletedTask;
+			GenerateCashFlowDdsReport();
 		}
 
-		private async Task GenerateDdsReport()
+		private void GenerateCashFlowDdsReport()
 		{
 			CanGenerateDdsReport = false;
 
-			await Task.Delay(2000);
+			var path = RunSaveAsDialog();
+
+			var cashFlowDdsReport = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate);
+
+			ExportCashFlowDdsReport(cashFlowDdsReport, path);
 
 			CanGenerateDdsReport = true;
+
+			RunOpenDialog(path);
+		}
+
+		private void ExportCashFlowDdsReport(CashFlowDdsReport cashFlowDdsReport, string path)
+		{
+			RenderCashFlowDdsReport(cashFlowDdsReport, path);
+		}
+
+		private void RunOpenDialog(string path)
+		{
+			Application.Invoke((s, e) =>
+			{
+				if(_commonServices.InteractiveService.Question(
+				"Открыть отчет?",
+				"Отчет сохранен"))
+				{
+					Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+				}
+			});
+		}
+
+		private string RunSaveAsDialog()
+		{
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"Отчет ДДС от {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx",
+				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+			};
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(result.Successful)
+			{
+				return result.Path;
+			}
+
+			return null;
+		}
+
+		private void RenderCashFlowDdsReport(CashFlowDdsReport report, string path)
+		{
+			var rendered = _cashFlowDdsReportRenderer.Render(report);
+			rendered.SaveAs(path);
 		}
 
 		private void CheckOrganisationsToggled(object sender, EventArgs e)
@@ -223,6 +289,32 @@ namespace Vodovoz.Reports
 				{
 					_canGenerateDdsReport = value;
 					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanGenerateDdsReport)));
+				}
+			}
+		}
+
+		public DateTime StartDate
+		{
+			get => _startDate;
+			private set
+			{
+				if(_startDate != value)
+				{
+					_startDate = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StartDate)));
+				}
+			}
+		}
+
+		public DateTime EndDate
+		{
+			get => _endDate;
+			private set
+			{
+				if(_endDate != value)
+				{
+					_endDate = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EndDate)));
 				}
 			}
 		}
@@ -484,26 +576,6 @@ namespace Vodovoz.Reports
 			{
 				throw new InvalidOperationException("Неизвестный раздел.");
 			}
-		}
-
-		private enum ReportParts
-		{
-			[Display(Name = "Поступления суммарно")]
-			IncomeAll,
-			[Display(Name = "Приход")]
-			Income,
-			[Display(Name = "Сдача")]
-			IncomeReturn,
-			[Display(Name = "Расходы суммарно")]
-			ExpenseAll,
-			[Display(Name = "Расход")]
-			Expense,
-			[Display(Name = "Авансы")]
-			Advance,
-			[Display(Name = "Авансовые отчеты")]
-			AdvanceReport,
-			[Display(Name = "Незакрытые авансы")]
-			UnclosedAdvance
 		}
 	}
 }

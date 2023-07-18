@@ -11,5 +11,7 @@
 		/// Доступен отчет ДДС
 		/// </summary>
 		public static string CanGenerateCashFlowDdsReport => "can_generate_cash_flow_dds_report";
+
+		public static string CanGenerateCashReportsForOrganizations => "can_create_cash_reports_for_organisations";
 	}
 }
