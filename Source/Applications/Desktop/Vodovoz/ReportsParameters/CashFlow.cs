@@ -36,7 +36,7 @@ namespace Vodovoz.Reports
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IFileDialogService _fileDialogService;
 
-		private readonly CashFlowDdsReportRenderer _cashFlowDdsReportRenderer = new CashFlowDdsReportRenderer();
+		private readonly CashFlowDdsReportRenderer _cashFlowDdsReportRenderer;
 
 		private bool _canGenerateCashReportsForOrganisations;
 		private bool _canGenerateCashFlowDdsReport;
@@ -55,14 +55,15 @@ namespace Vodovoz.Reports
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			IFileDialogService fileDialogService)
+			IFileDialogService fileDialogService,
+			CashFlowDdsReportRenderer cashFlowDdsReportRenderer)
 		{
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-
+			_cashFlowDdsReportRenderer = cashFlowDdsReportRenderer ?? throw new ArgumentNullException(nameof(cashFlowDdsReportRenderer));
 			Build();
 
 			UoW = unitOfWorkFactory.CreateWithoutRoot();

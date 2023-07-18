@@ -220,6 +220,7 @@ using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
+using static Vodovoz.Reports.CashFlow;
 
 namespace Vodovoz
 {
@@ -913,6 +914,8 @@ namespace Vodovoz
 			builder.RegisterType<FuelCashOrganisationDistributor>().As<IFuelCashOrganisationDistributor>();
 
 			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
+
+			builder.RegisterType<CashFlowDdsReportRenderer>().AsSelf();
 
 			#endregion
 
