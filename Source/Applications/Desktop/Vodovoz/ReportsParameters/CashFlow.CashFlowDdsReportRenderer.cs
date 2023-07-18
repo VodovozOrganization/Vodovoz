@@ -17,6 +17,8 @@ namespace Vodovoz.Reports
 			private readonly Color _fourthLevelGroupBGColor = Color.FromArgb(174, 205, 255);
 			private readonly Color _fifthLevelGroupBGColor = Color.FromArgb(139, 159, 204);
 			private readonly Color _sixthLevelGroupBGColor = Color.FromArgb(86, 99, 127);
+			private readonly Color _seventhLevelGroupBGColor = Color.FromArgb(86, 99, 127);
+			private readonly Color _eighthLevelGroupBGColor = Color.FromArgb(86, 99, 127);
 
 			private readonly Color _categoryBGColor = Color.FromArgb(255, 255, 0);
 
@@ -251,6 +253,16 @@ namespace Vodovoz.Reports
 						var cell6thLevel = xLWorksheet.Cell(row, _categoryTitleColumn);
 						cell6thLevel.Style.Fill.BackgroundColor = XLColor.FromColor(_sixthLevelGroupBGColor);
 						cell6thLevel.Value = $"{numberPrefix}{title}";
+						break;
+					case 7:
+						var cell7thLevel = xLWorksheet.Cell(row, _categoryTitleColumn);
+						cell7thLevel.Style.Fill.BackgroundColor = XLColor.FromColor(_seventhLevelGroupBGColor);
+						cell7thLevel.Value = $"{numberPrefix}{title}";
+						break;
+					case 8:
+						var cell8thLevel = xLWorksheet.Cell(row, _categoryTitleColumn);
+						cell8thLevel.Style.Fill.BackgroundColor = XLColor.FromColor(_eighthLevelGroupBGColor);
+						cell8thLevel.Value = $"{numberPrefix}{title}";
 						break;
 					default:
 						var cell = xLWorksheet.Cell(row, _categoryTitleColumn);
