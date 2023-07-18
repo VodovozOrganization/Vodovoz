@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using System.Drawing;
 using System.Linq;
 
 namespace Vodovoz.Reports
@@ -7,6 +8,8 @@ namespace Vodovoz.Reports
 	{
 		public class CashFlowDdsReportRenderer
 		{
+			private readonly Color _subTotalsBGColor = Color.FromArgb(253, 233, 216);
+
 			private const int _mainCategoryColumn = 1;
 			private const int _categoryTitleColumn = 2;
 			private const int _categoryMoney = 3;
@@ -49,6 +52,10 @@ namespace Vodovoz.Reports
 
 				var incomesStartLine = reportSheet.ActiveCell.Address.RowNumber;
 
+				reportSheet.Cell(incomesStartLine, 1).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
+				reportSheet.Cell(incomesStartLine, 2).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
+				reportSheet.Cell(incomesStartLine, 3).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
+
 				foreach(var incomeGroup in cashFlowDdsReport.IncomesGroupLines)
 				{
 					RenderIncomeGroup(
@@ -61,6 +68,10 @@ namespace Vodovoz.Reports
 				GoToNextRow(reportSheet);
 
 				var expensesStartLine = reportSheet.ActiveCell.Address.RowNumber;
+
+				reportSheet.Cell(expensesStartLine, 1).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
+				reportSheet.Cell(expensesStartLine, 2).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
+				reportSheet.Cell(expensesStartLine, 3).Style.Fill.BackgroundColor = XLColor.FromColor(_subTotalsBGColor);
 
 				foreach(var expenseGroup in cashFlowDdsReport.ExpensesGroupLines)
 				{
