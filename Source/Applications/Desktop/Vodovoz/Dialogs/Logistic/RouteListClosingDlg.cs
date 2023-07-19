@@ -84,7 +84,7 @@ namespace Vodovoz
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
-		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings = MainClass.AppDIContainer.Resolve<IFinancialCategoriesGroupsSettings>();
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings = Startup.AppDIContainer.Resolve<IFinancialCategoriesGroupsSettings>();
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
@@ -217,7 +217,7 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
@@ -395,7 +395,7 @@ namespace Vodovoz
 
 		private void OnYbuttonCashChangeReturnClicked(object sender, EventArgs e)
 		{
-			var page = MainClass.MainWin.NavigationManager.OpenViewModel<IncomeViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
+			var page = Startup.MainWin.NavigationManager.OpenViewModel<IncomeViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 			page.ViewModel.ConFigureForReturnChange(Entity.Id);
 		}
 
@@ -1535,7 +1535,7 @@ namespace Vodovoz
 					  _trackRepository,
 					  new EmployeeJournalFactory(),
 					  _financialCategoriesGroupsSettings,
-					  new CarJournalFactory(MainClass.MainWin.NavigationManager)
+					  new CarJournalFactory(Startup.MainWin.NavigationManager)
 			);
 			TabParent.AddSlaveTab(this, tab);
 		}
@@ -1553,7 +1553,7 @@ namespace Vodovoz
 				  _trackRepository,
 				  new EmployeeJournalFactory(),
 				  _financialCategoriesGroupsSettings,
-				  new CarJournalFactory(MainClass.MainWin.NavigationManager)
+				  new CarJournalFactory(Startup.MainWin.NavigationManager)
 			);
 			TabParent.AddSlaveTab(this, tab);
 		}

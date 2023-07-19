@@ -192,12 +192,12 @@ namespace Vodovoz.Filters.ViewModels
 
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory =>
 			_counterpartySelectorFactory ?? (_counterpartySelectorFactory =
-				MainClass.AppDIContainer.BeginLifetimeScope().Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory());
+				Startup.AppDIContainer.BeginLifetimeScope().Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory());
 
 		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
 			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
+					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())), new UserRepository()));
 	}
 

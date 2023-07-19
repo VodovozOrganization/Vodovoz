@@ -224,7 +224,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 					var config = EntityConfigs[selectedNode.EntityType];
 
-					return config.PermissionResult.CanUpdate;
+					return config.PermissionResult.CanRead || config.PermissionResult.CanUpdate;
 				},
 				(selected) => true,
 				(selected) =>
@@ -559,6 +559,11 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 				if(FilterViewModel.HiddenExpenses.Any())
 				{
 					query.Where(Restrictions.Not(Restrictions.In(Projections.Property(() => expenseAlias.Id), FilterViewModel.HiddenExpenses)));
+				}
+
+				if(FilterViewModel.RestrictNotTransfered)
+				{
+					query.Where(expense => expense.TransferedBy == null);
 				}
 
 				query.Where(GetSearchCriterion(

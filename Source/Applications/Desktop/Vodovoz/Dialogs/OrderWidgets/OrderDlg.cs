@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -124,7 +124,7 @@ namespace Vodovoz
 		IAskSaveOnCloseViewModel,
 		IEdoLightsMatrixInfoProvider
 	{
-		private readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
@@ -171,7 +171,7 @@ namespace Vodovoz
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
-			= new RentPackagesJournalsViewModelsFactory(MainClass.MainWin.NavigationManager);
+			= new RentPackagesJournalsViewModelsFactory(Startup.MainWin.NavigationManager);
 
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
 			= new NonSerialEquipmentsForRentJournalViewModelFactory();
@@ -258,7 +258,7 @@ namespace Vodovoz
 		private ICounterpartyJournalFactory counterpartySelectorFactory;
 
 		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
-			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()));
+			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()));
 
 		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 
@@ -1319,7 +1319,7 @@ namespace Vodovoz
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
 			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
-			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
+			Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
 				null, fastDeliveryVerificationViewModel);
 		}
 
@@ -2074,14 +2074,14 @@ namespace Vodovoz
 				if(routeListToAddFastDeliveryOrder == null)
 				{
 					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
-					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
+					Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
 						null, UoW, fastDeliveryVerificationViewModel);
 
 					return Result.Failure(Errors.Orders.Order.FastDelivery.RouteListForFastDeliveryIsMissing);
 				}
 			}
 
-			var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
+			var edoLightsMatrixPanelView = Startup.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
 			var edoLightsMatrixViewModel = edoLightsMatrixPanelView is null
 				? new EdoLightsMatrixViewModel()
 				: edoLightsMatrixPanelView.ViewModel.EdoLightsMatrixViewModel;
@@ -2242,7 +2242,7 @@ namespace Vodovoz
 		{
 			Entity.CheckAndSetOrderIsService();
 
-			ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+			ILifetimeScope autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
 			var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 
 			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
@@ -3207,7 +3207,7 @@ namespace Vodovoz
 				TabParent.AddSlaveTab(this, new DocumentsPrinterViewModel(
 					_entityDocumentsPrinterFactory,
 					ServicesConfig.InteractiveService,
-					MainClass.MainWin.NavigationManager,
+					Startup.MainWin.NavigationManager,
 					Entity));
 			}
 		}
@@ -3336,31 +3336,7 @@ namespace Vodovoz
 				return;
 			}
 
-			if(HasOrderStatusExternalChangesAndCancellationImpossible(out OrderStatus actualOrderStatus))
-			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					$"Статус заказа был кем-то изменён на статус \"{actualOrderStatus.GetEnumTitle()}\" с момента открытия диалога, теперь отмена невозможна.");
-
-				return;
-			}
-
 			OpenDlgToCreateNewUndeliveredOrder();
-		}
-
-		private bool HasOrderStatusExternalChangesAndCancellationImpossible(out OrderStatus actualOrderStatus)
-		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка актуального статуа заказа"))
-			{
-				actualOrderStatus = uow.GetById<Order>(Entity.Id).OrderStatus;
-			}
-
-			var hasOrderStatusChanges = Entity.OrderStatus != actualOrderStatus;
-			var isOrderStatusForbiddenForCancellation = !_orderRepository.GetStatusesForOrderCancelation().Contains(actualOrderStatus);
-			var isSelfDeliveryOnLoadingOrder = Entity.SelfDelivery && actualOrderStatus == OrderStatus.OnLoading;
-
-			return hasOrderStatusChanges
-				   && isOrderStatusForbiddenForCancellation
-				   && !isSelfDeliveryOnLoadingOrder;
 		}
 
 		/// <summary>

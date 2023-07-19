@@ -214,7 +214,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
 				new NomenclatureJournalFactory(),
-				new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
+				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				_nomenclatureRepository,
 				new UserRepository()
 			) {
@@ -285,7 +285,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
 			_orderNode = new OrderNode(_routeListItem.Order);
 
-			var scope = MainClass.AppDIContainer.BeginLifetimeScope();
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
 			var navigationManager =  scope.Resolve<INavigationManager>();
 			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, navigationManager, scope);
 
