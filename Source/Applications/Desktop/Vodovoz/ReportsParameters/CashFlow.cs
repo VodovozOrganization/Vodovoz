@@ -117,13 +117,17 @@ namespace Vodovoz.Reports
 
 			CanGenerateDdsReport = _canGenerateCashFlowDdsReport;
 
-			GenerateDdsReportCommand = new DelegateCommand(OnButtonGenerateDDSClicked, () => CanGenerateDdsReport);
+			GenerateDdsReportCommand = new DelegateCommand(GenerateCashFlowDdsReport, () => CanGenerateDdsReport);
+
+			ShowDdsReportInfoCommand = new DelegateCommand(ShowCashFlowDdsReportInfo);
 
 			buttonGenerateDDS.Binding
 				.AddBinding(this, dlg => dlg.CanGenerateDdsReport, w => w.Sensitive)
 				.InitializeFromSource();
 
 			buttonGenerateDDS.Clicked += (s, e) => GenerateDdsReportCommand.Execute();
+
+			buttonInfo.Clicked += (s, e) => ShowDdsReportInfoCommand.Execute();
 		}
 
 		public ITdiTab ParentTab
@@ -194,9 +198,18 @@ namespace Vodovoz.Reports
 
 		public DelegateCommand GenerateDdsReportCommand { get; }
 
-		private void OnButtonGenerateDDSClicked()
+		public DelegateCommand ShowDdsReportInfoCommand { get; }
+
+		private void ShowCashFlowDdsReportInfo()
 		{
-			GenerateCashFlowDdsReport();
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+				"Отчет ДДС генерируется только при наличии права \"Доступен отчет ДДС\"\n" +
+				"В отчет не входят статьи, в которых установлена галочка \"Не включать в ДДС\"\n" +
+				"Отчет генерируется в зависимости от указанного интервала дат, другие параметры на отчет не влияют\n" +
+				"Генерация отчета может бликировать работу программы ДВ на время генерации\n" +
+				"Отчет разбит по группам статей, затем на типы операций по статьям\n" +
+				"Отчет может генерироваться только при уровне вложенности статей 7 (6 вложенных друг в друга групп и статья, из-за ограничения Excel)",
+				"Информация по отчету ДДС");
 		}
 
 		private void GenerateCashFlowDdsReport()
@@ -213,16 +226,11 @@ namespace Vodovoz.Reports
 
 			var cashFlowDdsReport = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate);
 
-			ExportCashFlowDdsReport(cashFlowDdsReport, path);
+			RenderCashFlowDdsReport(cashFlowDdsReport, path);
 
 			CanGenerateDdsReport = true;
 
 			RunOpenDialog(path);
-		}
-
-		private void ExportCashFlowDdsReport(CashFlowDdsReport cashFlowDdsReport, string path)
-		{
-			RenderCashFlowDdsReport(cashFlowDdsReport, path);
 		}
 
 		private void RunOpenDialog(string path)
