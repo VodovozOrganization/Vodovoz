@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Reports
 {
@@ -15,6 +16,12 @@ namespace Vodovoz.Reports
 			private const int _mainCategoryColumn = 1;
 			private const int _categoryTitleColumn = 2;
 			private const int _categoryMoney = 3;
+
+			// Исключен тип Возврат от подотчетного лица
+			private readonly int _incomeTypesCount = Enum.GetValues(typeof(IncomeType)).Length - 1;
+
+			// Включен тип приходного ордера Возврат от подотчетного лица
+			private readonly int _expenseTypesCount = Enum.GetValues(typeof(ExpenseType)).Length + 1;
 
 			public IXLWorkbook Render(CashFlowDdsReport cashFlowDdsReport)
 			{
@@ -99,9 +106,9 @@ namespace Vodovoz.Reports
 				reportSheet.Column(2).AdjustToContents();
 				reportSheet.Column(3).AdjustToContents();
 
-				reportSheet.CollapseRows();
+				RenderMoney(reportSheet, summaryRow, cashFlowDdsReport.IncomesGroupLines.Sum(x => x.Money) - cashFlowDdsReport.ExpensesGroupLines.Sum(x => x.Money), true);
 
-				SetMoney(reportSheet, summaryRow, cashFlowDdsReport.IncomesGroupLines.Sum(x => x.Money) - cashFlowDdsReport.ExpensesGroupLines.Sum(x => x.Money), true);
+				reportSheet.CollapseRows();
 
 				return result;
 			}
@@ -116,14 +123,12 @@ namespace Vodovoz.Reports
 
 				if(groupLevel > 1)
 				{
-					SetLeveledGroupTitle(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, incomeGroup.Title, numberPrefix);
+					RenderGroupTitle(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, incomeGroup.Title, numberPrefix);
 				}
-
-				var categoriesStartRowNumber = activeAtStartCellRow + 1;
 
 				GoToNextRow(xLWorksheet);
 
-				var categoriesEndRowNumber = activeAtStartCellRow + incomeGroup.IncomeCategories.Count;
+				var categoriesEndRowNumber = incomeGroup.IncomeCategories.Count * _incomeTypesCount + incomeGroup.IncomeCategories.Count + activeAtStartCellRow;
 
 				if(incomeGroup.IncomeCategories.Any())
 				{
@@ -145,23 +150,27 @@ namespace Vodovoz.Reports
 
 				int groupEndRowNumber = xLWorksheet.ActiveCell.Address.RowNumber - 1;
 
-				if(incomeGroup.IncomeCategories.Any())
-				{
-					if(groupLevel > 1)
-					{
-						xLWorksheet.Rows(categoriesStartRowNumber, categoriesEndRowNumber).Group(true);
-					}
-				}
+				var categoriesStartRowNumber = activeAtStartCellRow + 1;
+
+				var operationTypesStartRowNumber = categoriesStartRowNumber + 1;
 
 				if(incomeGroup.Groups.Any())
 				{
 					if(groupLevel > 1)
 					{
-						xLWorksheet.Rows(categoriesStartRowNumber, groupEndRowNumber).Group(true);
+						xLWorksheet.Rows(categoriesStartRowNumber, groupEndRowNumber).Group();
 					}
 				}
 
-				SetMoney(xLWorksheet, activeAtStartCellRow, incomeGroup.Money, true);
+				if(incomeGroup.IncomeCategories.Any())
+				{
+					if(groupLevel > 1)
+					{
+						xLWorksheet.Rows(categoriesStartRowNumber, categoriesEndRowNumber).Group();
+					}
+				}
+
+				RenderMoney(xLWorksheet, activeAtStartCellRow, incomeGroup.Money, true);
 			}
 
 			private void RenderExpenseGroup(
@@ -174,14 +183,12 @@ namespace Vodovoz.Reports
 
 				if(groupLevel > 1)
 				{
-					SetLeveledGroupTitle(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, expenseGroup.Title, numberPrefix);
+					RenderGroupTitle(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, expenseGroup.Title, numberPrefix);
 				}
-
-				var categoriesStartRowNumber = activeAtStartCellRow + 1;
 
 				GoToNextRow(xLWorksheet);
 
-				var categoriesEndRowNumber = activeAtStartCellRow + expenseGroup.ExpenseCategories.Count();
+				var categoriesEndRowNumber = expenseGroup.ExpenseCategories.Count * _expenseTypesCount + expenseGroup.ExpenseCategories.Count + activeAtStartCellRow;
 
 				if(expenseGroup.ExpenseCategories.Any())
 				{
@@ -191,9 +198,10 @@ namespace Vodovoz.Reports
 					}
 				}
 
+				var expenseGroupsCount = expenseGroup.Groups.Count;
+
 				if(expenseGroup.Groups.Any())
 				{
-					var expenseGroupsCount = expenseGroup.Groups.Count;
 					for(int i = 0; i < expenseGroupsCount; i++)
 					{
 						RenderExpenseGroup(xLWorksheet, expenseGroup.Groups[i], groupLevel + 1, $"{numberPrefix}{i + 1}. ");
@@ -202,54 +210,58 @@ namespace Vodovoz.Reports
 
 				int groupEndRowNumber = xLWorksheet.ActiveCell.Address.RowNumber - 1;
 
-				if(expenseGroup.ExpenseCategories.Any())
-				{
-					if(groupLevel > 1)
-					{
-						xLWorksheet.Rows(categoriesStartRowNumber, categoriesEndRowNumber).Group(true);
-					}
-				}
+				var categoriesStartRowNumber = activeAtStartCellRow + 1;
+
+				var operationTypesStartRowNumber = categoriesStartRowNumber + 1;
 
 				if(expenseGroup.Groups.Any())
 				{
 					if(groupLevel > 1)
 					{
-						xLWorksheet.Rows(categoriesStartRowNumber, groupEndRowNumber).Group(true);
+						xLWorksheet.Rows(categoriesStartRowNumber, groupEndRowNumber).Group();
 					}
 				}
 
-				SetMoney(xLWorksheet, activeAtStartCellRow, expenseGroup.Money, true);
+				if(expenseGroup.ExpenseCategories.Any())
+				{
+					if(groupLevel > 1)
+					{
+						xLWorksheet.Rows(categoriesStartRowNumber, categoriesEndRowNumber).Group();
+					}
+				}
+
+				RenderMoney(xLWorksheet, activeAtStartCellRow, expenseGroup.Money, true);
 			}
 
 			private void RenderIncomeCategory(
 				CashFlowDdsReport.FinancialIncomeCategoryLine category,
 				IXLWorksheet xLWorksheet)
 			{
-				SetCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, category.Title, category.Money);
+				RenderCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, category.Title, category.Money);
 				GoToNextRow(xLWorksheet);
-				SetOperationsRows(xLWorksheet, category.OperationsMoney);
+				RenderOperationsRows(xLWorksheet, category.OperationsMoney);
 			}
 
 			private void RenderExpenseCategory(
 				CashFlowDdsReport.FinancialExpenseCategoryLine category,
 				IXLWorksheet xLWorksheet)
 			{
-				SetCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, category.Title, category.Money);
+				RenderCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, category.Title, category.Money);
 				GoToNextRow(xLWorksheet);
-				SetOperationsRows(xLWorksheet, category.OperationsMoney);
+				RenderOperationsRows(xLWorksheet, category.OperationsMoney);
 			}
 
-			private void SetOperationsRows(IXLWorksheet xLWorksheet, Dictionary<string, decimal> operationsMoney)
+			private void RenderOperationsRows(IXLWorksheet xLWorksheet, Dictionary<string, decimal> operationsMoney)
 			{
 				var startRow = xLWorksheet.ActiveCell.Address.RowNumber;
 
 				foreach(var pair in operationsMoney)
 				{
-					SetCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, pair.Key, pair.Value);
+					RenderCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, pair.Key, pair.Value, right: true);
 					GoToNextRow(xLWorksheet);
 				}
 
-				xLWorksheet.Rows(startRow, xLWorksheet.ActiveCell.Address.RowNumber - 1).Group(true);
+				xLWorksheet.Rows(startRow, xLWorksheet.ActiveCell.Address.RowNumber - 1).Group();
 			}
 
 			private void GoToNextRow(IXLWorksheet xLWorksheet)
@@ -259,23 +271,28 @@ namespace Vodovoz.Reports
 					xLWorksheet.ActiveCell.Address.ColumnNumber).Active = true;
 			}
 
-			private void SetLeveledGroupTitle(IXLWorksheet xLWorksheet, int row, string title, string numberPrefix)
+			private void RenderGroupTitle(IXLWorksheet xLWorksheet, int row, string title, string numberPrefix)
 			{
 				var leveledCell = xLWorksheet.Cell(row, _categoryTitleColumn);
 				leveledCell.Style.Font.Bold = true;
 				leveledCell.Value = $"{numberPrefix}{title}";
 			}
 
-			private void SetCategoryRow(IXLWorksheet xLWorksheet, int row, string title, decimal money)
+			private void RenderCategoryRow(IXLWorksheet xLWorksheet, int row, string title, decimal money, bool right = false)
 			{
 				var titleCell = xLWorksheet.Cell(row, _categoryTitleColumn);
 
 				titleCell.Value = title;
 
-				SetMoney(xLWorksheet, row, money);
+				if(right)
+				{
+					titleCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+				}
+
+				RenderMoney(xLWorksheet, row, money);
 			}
 
-			private void SetMoney(IXLWorksheet xLWorksheet, int row, decimal money, bool bold = false)
+			private void RenderMoney(IXLWorksheet xLWorksheet, int row, decimal money, bool bold = false)
 			{
 				var moneyCell = xLWorksheet.Cell(row, _categoryMoney);
 
