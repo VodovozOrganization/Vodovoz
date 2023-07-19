@@ -48,13 +48,32 @@ namespace Vodovoz.Reports
 
 				foreach(var incomeCategory in incomesCategories)
 				{
-					incomeCategory.OperationsMoney = (from cashIncome in unitOfWork.Session.Query<Income>()
+					var invoices = (from cashIncome in unitOfWork.Session.Query<Income>()
 													  where cashIncome.IncomeCategoryId == incomeCategory.Id
 														 && cashIncome.Date >= startDate
 														 && cashIncome.Date <= endDate
 														 && cashIncome.TypeOperation != IncomeType.Return
 													  select cashIncome)
-													.ToDictionary(x => x.TypeOperation.GetEnumTitle(), x => x.Money);
+													.GroupBy(x => x.TypeOperation)
+													.ToDictionary(x => x.Key, x => x.Sum(y => y.Money));
+
+					var operationsDictionary = new Dictionary<string, decimal>();
+
+					foreach(var operation in Enum.GetValues(typeof(IncomeType)))
+					{
+						var operationType = ((IncomeType)operation);
+
+						if(operationType == IncomeType.Return)
+						{
+							continue;
+						}
+
+						var operationTitle = operationType.GetEnumTitle();
+
+						operationsDictionary.Add(operationTitle, invoices.Where(x => x.Key == operationType).Sum(x => x.Value));
+					}
+
+					incomeCategory.OperationsMoney = operationsDictionary;
 				}
 
 				var expensesCategories = (from expenseCategory in unitOfWork.Session.Query<FinancialExpenseCategory>()
@@ -69,12 +88,24 @@ namespace Vodovoz.Reports
 
 				foreach(var expenseCategory in expensesCategories)
 				{
-					expenseCategory.OperationsMoney = (from cashExpense in unitOfWork.Session.Query<Expense>()
+					var expenses = (from cashExpense in unitOfWork.Session.Query<Expense>()
 													   where cashExpense.ExpenseCategoryId == expenseCategory.Id
 														  && cashExpense.Date >= startDate
 														  && cashExpense.Date <= endDate
 													   select cashExpense)
-													.ToDictionary(x => x.TypeOperation.GetEnumTitle(), x => x.Money);
+													.GroupBy(x => x.TypeOperation)
+													.ToDictionary(x => x.Key, x => x.Sum(y => y.Money));
+
+					var operationsDictionary = new Dictionary<string, decimal>();
+
+					foreach(var operation in Enum.GetValues(typeof(ExpenseType)))
+					{
+						var operationType = ((ExpenseType)operation);
+
+						var operationTitle = operationType.GetEnumTitle();
+
+						operationsDictionary.Add(operationTitle, expenses.Where(x => x.Key == operationType).Sum(x => x.Value));
+					}
 
 					var money = -(from cashIncome in unitOfWork.Session.Query<Income>()
 								  where cashIncome.ExpenseCategoryId == expenseCategory.Id
@@ -85,7 +116,9 @@ namespace Vodovoz.Reports
 								.ToArray()
 								.Sum();
 
-					expenseCategory.OperationsMoney.Add(IncomeType.Return.GetEnumTitle(), money);
+					operationsDictionary.Add(IncomeType.Return.GetEnumTitle(), money);
+
+					expenseCategory.OperationsMoney = operationsDictionary;
 				}
 
 				var incomeGroups = (from incomeGroup in unitOfWork.Session.Query<FinancialCategoriesGroup>()

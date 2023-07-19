@@ -1,4 +1,6 @@
 ﻿using ClosedXML.Excel;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
@@ -128,7 +130,6 @@ namespace Vodovoz.Reports
 					foreach(var category in incomeGroup.IncomeCategories)
 					{
 						RenderIncomeCategory(category, xLWorksheet);
-						GoToNextRow(xLWorksheet);
 					}
 				}
 
@@ -187,7 +188,6 @@ namespace Vodovoz.Reports
 					foreach(var category in expenseGroup.ExpenseCategories)
 					{
 						RenderExpenseCategory(category, xLWorksheet);
-						GoToNextRow(xLWorksheet);
 					}
 				}
 
@@ -226,6 +226,8 @@ namespace Vodovoz.Reports
 				IXLWorksheet xLWorksheet)
 			{
 				SetCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, category.Title, category.Money);
+				GoToNextRow(xLWorksheet);
+				SetOperationsRows(xLWorksheet, category.OperationsMoney);
 			}
 
 			private void RenderExpenseCategory(
@@ -233,6 +235,21 @@ namespace Vodovoz.Reports
 				IXLWorksheet xLWorksheet)
 			{
 				SetCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, category.Title, category.Money);
+				GoToNextRow(xLWorksheet);
+				SetOperationsRows(xLWorksheet, category.OperationsMoney);
+			}
+
+			private void SetOperationsRows(IXLWorksheet xLWorksheet, Dictionary<string, decimal> operationsMoney)
+			{
+				var startRow = xLWorksheet.ActiveCell.Address.RowNumber;
+
+				foreach(var pair in operationsMoney)
+				{
+					SetCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, pair.Key, pair.Value);
+					GoToNextRow(xLWorksheet);
+				}
+
+				xLWorksheet.Rows(startRow, xLWorksheet.ActiveCell.Address.RowNumber - 1).Group(true);
 			}
 
 			private void GoToNextRow(IXLWorksheet xLWorksheet)
