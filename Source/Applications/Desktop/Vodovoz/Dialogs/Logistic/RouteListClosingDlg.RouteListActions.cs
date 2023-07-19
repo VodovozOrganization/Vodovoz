@@ -4,7 +4,7 @@ namespace Vodovoz
 {
 	public partial class RouteListClosingDlg
 	{
-		enum RouteListActions
+		public enum RouteListActions
 		{
 			[Display(Name = "Новый штраф")]
 			CreateNewFine,
