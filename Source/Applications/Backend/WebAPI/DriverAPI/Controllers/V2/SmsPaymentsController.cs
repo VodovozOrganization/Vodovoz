@@ -74,7 +74,7 @@ namespace DriverAPI.Controllers.V2
 		/// <summary>
 		/// Эндпоинт получения статуса оплаты через СМС
 		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		/// <returns><see cref="OrderSmsPaymentStatusResponseDto"/></returns>
 		[HttpGet]
 		[Produces("application/json")]
@@ -93,7 +93,7 @@ namespace DriverAPI.Controllers.V2
 			{
 				AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
 				CanSendSms = additionalInfo.CanSendSms,
-				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(
+				SmsPaymentStatus = _smsPaymentConverter.ConvertToAPIPaymentStatus(
 					_aPISmsPaymentData.GetOrderSmsPaymentStatus(orderId)
 				)
 			};

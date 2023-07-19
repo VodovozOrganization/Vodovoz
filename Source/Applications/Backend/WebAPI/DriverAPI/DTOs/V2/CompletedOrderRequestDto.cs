@@ -14,6 +14,9 @@ namespace DriverAPI.DTOs.V2
 		[Required]
 		public int OrderId { get; set; }
 
+		/// <summary>
+		/// Количество возвращаемых бутылей
+		/// </summary>
 		[Required]
 		public int BottlesReturnCount { get; set; }
 
@@ -33,6 +36,9 @@ namespace DriverAPI.DTOs.V2
 		/// </summary>
 		public string OtherDriverComplaintReasonComment { get; set; }
 
+		/// <summary>
+		/// Комментарий в случае меньшего количества бутылей на возврат
+		/// </summary>
 		public string DriverComment { get; set; }
 
 		public IEnumerable<OrderScannedItemDto> ScannedBottles { get; set; }

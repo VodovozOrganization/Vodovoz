@@ -1,10 +1,10 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
 namespace DriverAPI
 {
-	public class Program
+	internal class Program
 	{
 		public static void Main(string[] args)
 		{

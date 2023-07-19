@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DriverAPI.DTOs.V2
 {
+	/// <summary>
+	/// Запрос оплаты по смс
+	/// </summary>
 	public class PayBySmsRequestDto
 	{
 		/// <summary>

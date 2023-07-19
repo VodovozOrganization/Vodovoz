@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DriverAPI.DTOs.V2
 {
+	/// <summary>
+	/// Запрос на регистрацию предполагаемого адреса точки доставки
+	/// </summary>
 	public class RouteListAddressCoordinateDto
 	{
 		/// <summary>

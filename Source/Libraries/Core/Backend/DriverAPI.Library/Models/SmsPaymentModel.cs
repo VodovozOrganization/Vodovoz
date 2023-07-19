@@ -5,7 +5,7 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace DriverAPI.Library.Models
 {
-	public class SmsPaymentModel : ISmsPaymentModel
+	internal class SmsPaymentModel : ISmsPaymentModel
 	{
 		private readonly IOrderRepository _orderRepository;
 		private readonly IUnitOfWork _unitOfWork;

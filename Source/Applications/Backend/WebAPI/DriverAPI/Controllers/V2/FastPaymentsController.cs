@@ -67,7 +67,7 @@ namespace DriverAPI.Controllers.V2
 		/// <summary>
 		/// Получение статуса оплаты заказа посредством QR-кода
 		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		/// <returns>OrderPaymentStatusResponseModel или null</returns>
 		[HttpGet]
 		[Produces("application/json")]

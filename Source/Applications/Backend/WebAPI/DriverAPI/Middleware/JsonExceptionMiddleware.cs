@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DriverAPI.Middleware
 {
-	public class JsonExceptionMiddleware
+	internal class JsonExceptionMiddleware
 	{
 		private readonly ILogger<JsonExceptionMiddleware> _logger;
 		private readonly RequestDelegate _next;

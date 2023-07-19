@@ -3,9 +3,18 @@ using Vodovoz.Domain.Logistic;
 
 namespace DriverAPI.Library.Converters
 {
+	/// <summary>
+	/// Конвертер статуса завершенности маршрутного листа
+	/// </summary>
 	public class RouteListCompletionStatusConverter
 	{
-		public RouteListDtoCompletionStatus convertToAPIRouteListCompletionStatus(RouteListStatus routeListStatus)
+		/// <summary>
+		/// Конвертация в статус завершенности маршрутного листа Api
+		/// </summary>
+		/// <param name="routeListStatus"></param>
+		/// <returns></returns>
+		/// <exception cref="ConverterException"></exception>
+		public RouteListDtoCompletionStatus ConvertToAPIRouteListCompletionStatus(RouteListStatus routeListStatus)
 		{
 			switch (routeListStatus)
 			{
