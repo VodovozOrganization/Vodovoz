@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
@@ -16,10 +16,6 @@ namespace Vodovoz
 			TransferAddressesToThisRL,
 			[Display(Name = "Перенести адреса из этого МЛ")]
 			TransferAddressesToAnotherRL
-
 		}
-
-		#endregion
 	}
-
 }

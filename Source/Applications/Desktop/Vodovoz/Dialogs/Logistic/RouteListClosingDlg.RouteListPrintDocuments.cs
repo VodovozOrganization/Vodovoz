@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
@@ -13,8 +13,5 @@ namespace Vodovoz
 			[Display(Name = "Штрафы")]
 			Fines
 		}
-
-		#endregion
 	}
-
 }
