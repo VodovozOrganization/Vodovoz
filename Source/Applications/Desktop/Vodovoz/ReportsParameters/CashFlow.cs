@@ -205,6 +205,11 @@ namespace Vodovoz.Reports
 
 			var path = RunSaveAsDialog();
 
+			if(string.IsNullOrWhiteSpace(path))
+			{
+				return;
+			}
+
 			var cashFlowDdsReport = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate);
 
 			ExportCashFlowDdsReport(cashFlowDdsReport, path);
