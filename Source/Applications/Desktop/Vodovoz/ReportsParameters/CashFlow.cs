@@ -207,6 +207,7 @@ namespace Vodovoz.Reports
 
 			if(string.IsNullOrWhiteSpace(path))
 			{
+				CanGenerateDdsReport = true;
 				return;
 			}
 
