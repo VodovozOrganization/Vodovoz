@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using Gamma.Utilities;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,13 +48,13 @@ namespace Vodovoz.Reports
 
 				foreach(var incomeCategory in incomesCategories)
 				{
-					incomeCategory.Money = (from cashIncome in unitOfWork.Session.Query<Income>()
-											where cashIncome.IncomeCategoryId == incomeCategory.Id
-											   && cashIncome.Date >= startDate
-											   && cashIncome.Date <= endDate
-											select cashIncome.Money)
-											.ToArray()
-											.Sum();
+					incomeCategory.OperationsMoney = (from cashIncome in unitOfWork.Session.Query<Income>()
+													  where cashIncome.IncomeCategoryId == incomeCategory.Id
+														 && cashIncome.Date >= startDate
+														 && cashIncome.Date <= endDate
+														 && cashIncome.TypeOperation != IncomeType.Return
+													  select cashIncome)
+													.ToDictionary(x => x.TypeOperation.GetEnumTitle(), x => x.Money);
 				}
 
 				var expensesCategories = (from expenseCategory in unitOfWork.Session.Query<FinancialExpenseCategory>()
@@ -68,13 +69,23 @@ namespace Vodovoz.Reports
 
 				foreach(var expenseCategory in expensesCategories)
 				{
-					expenseCategory.Money = (from cashExpense in unitOfWork.Session.Query<Expense>()
-											 where cashExpense.ExpenseCategoryId == expenseCategory.Id
-												&& cashExpense.Date >= startDate
-												&& cashExpense.Date <= endDate
-											 select cashExpense.Money)
-											 .ToArray()
-											 .Sum();
+					expenseCategory.OperationsMoney = (from cashExpense in unitOfWork.Session.Query<Expense>()
+													   where cashExpense.ExpenseCategoryId == expenseCategory.Id
+														  && cashExpense.Date >= startDate
+														  && cashExpense.Date <= endDate
+													   select cashExpense)
+													.ToDictionary(x => x.TypeOperation.GetEnumTitle(), x => x.Money);
+
+					var money = -(from cashIncome in unitOfWork.Session.Query<Income>()
+								  where cashIncome.ExpenseCategoryId == expenseCategory.Id
+									 && cashIncome.Date >= startDate
+									 && cashIncome.Date <= endDate
+									 && cashIncome.TypeOperation == IncomeType.Return
+								  select cashIncome.Money)
+								.ToArray()
+								.Sum();
+
+					expenseCategory.OperationsMoney.Add(IncomeType.Return.GetEnumTitle(), money);
 				}
 
 				var incomeGroups = (from incomeGroup in unitOfWork.Session.Query<FinancialCategoriesGroup>()
