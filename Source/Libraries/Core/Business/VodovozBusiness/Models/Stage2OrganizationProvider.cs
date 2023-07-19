@@ -75,10 +75,12 @@ namespace Vodovoz.Models
 			{
 				throw new ArgumentNullException(nameof(order));
 			}
+
 			if(order.OurOrganization != null)
 			{
 				return order.OurOrganization;
 			}
+
 			if(order.Client.WorksThroughOrganization != null)
 			{
 				return order.Client.WorksThroughOrganization;
@@ -131,8 +133,8 @@ namespace Vodovoz.Models
 				case PaymentType.Terminal:
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
-				case PaymentType.SmsQR:
 				case PaymentType.DriverApplicationQR:
+				case PaymentType.SmsQR:
 					organizationId = GetOrganizationIdForByCard(uow, uow.GetById<PaymentFrom>(_orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId), geographicGroup, orderCreateDate, onlineOrderId); 
 					break;
 				case PaymentType.PaidOnline:
