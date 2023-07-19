@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers.V2
 {
+	/// <summary>
+	/// Контроллер аккаунтов
+	/// </summary>
 	[ApiVersion("2.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -16,11 +19,23 @@ namespace DriverAPI.Controllers.V2
 	{
 		private readonly UserManager<IdentityUser> _userManager;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="userManager"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public AccountController(UserManager<IdentityUser> userManager)
 		{
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 		}
 
+		/// <summary>
+		/// Регистрирует новых пользователей, служебный
+		/// </summary>
+		/// <param name="loginRequestModel"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentException"></exception>
+		/// <exception cref="Exception"></exception>
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("Register")]

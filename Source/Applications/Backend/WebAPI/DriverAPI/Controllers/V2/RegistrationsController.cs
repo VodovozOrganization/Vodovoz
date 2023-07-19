@@ -16,6 +16,9 @@ using IRouteListModel = DriverAPI.Library.Deprecated2.Models.IRouteListModel;
 
 namespace DriverAPI.Controllers.V2
 {
+	/// <summary>
+	/// Контроллер регистраций событий
+	/// </summary>
 	[ApiVersion("2.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -30,6 +33,17 @@ namespace DriverAPI.Controllers.V2
 		private readonly ITrackPointsModel _trackPointsData;
 		private readonly IActionTimeHelper _actionTimeHelper;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="userManager"></param>
+		/// <param name="employeeData"></param>
+		/// <param name="driverMobileAppActionRecordModel"></param>
+		/// <param name="aPIRouteListData"></param>
+		/// <param name="trackPointsData"></param>
+		/// <param name="actionTimeHelper"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public RegistrationsController(
 			ILogger<RegistrationsController> logger,
 			UserManager<IdentityUser> userManager,
@@ -51,6 +65,7 @@ namespace DriverAPI.Controllers.V2
 
 		/// <summary>
 		/// Регистрация действий произведенных в мобильном приложении водителей
+		/// Отключено
 		/// </summary>
 		/// <param name="driverActionModels">Список действий из лога для регистрации</param>
 		/// <returns></returns>

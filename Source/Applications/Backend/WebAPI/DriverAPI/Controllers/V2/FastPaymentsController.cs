@@ -14,6 +14,9 @@ using PayByQRResponseDTO = DriverAPI.Library.Deprecated2.DTOs.PayByQRResponseDTO
 
 namespace DriverAPI.Controllers.V2
 {
+	/// <summary>
+	/// Контроллер оплат СБП
+	/// </summary>
 	[ApiVersion("2.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -29,6 +32,18 @@ namespace DriverAPI.Controllers.V2
 		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordModel;
 		private readonly UserManager<IdentityUser> _userManager;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="actionTimeHelper"></param>
+		/// <param name="fastPaymentModel"></param>
+		/// <param name="qrPaymentConverter"></param>
+		/// <param name="aPIOrderData"></param>
+		/// <param name="employeeData"></param>
+		/// <param name="driverMobileAppActionRecordModel"></param>
+		/// <param name="userManager"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public FastPaymentsController(ILogger<SmsPaymentsController> logger,
 			IActionTimeHelper actionTimeHelper,
 			IFastPaymentModel fastPaymentModel,

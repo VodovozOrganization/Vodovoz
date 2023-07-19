@@ -103,6 +103,7 @@ namespace DriverAPI.Controllers.V2
 
 		/// <summary>
 		/// Эндпоинт запроса СМС для оплаты заказа
+		/// Отключен
 		/// </summary>
 		/// <param name="payBySmsRequestModel"></param>
 		[HttpPost]

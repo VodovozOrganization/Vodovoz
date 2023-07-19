@@ -13,6 +13,9 @@ using IRouteListModel = DriverAPI.Library.Deprecated2.Models.IRouteListModel;
 
 namespace DriverAPI.Controllers.V2
 {
+	/// <summary>
+	/// Контроллер PUSH-сообщений
+	/// </summary>
 	[ApiVersion("2.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -26,6 +29,16 @@ namespace DriverAPI.Controllers.V2
 		private readonly IEmployeeModel _employeeData;
 		private readonly IWakeUpDriverClientService _wakeUpDriverClientService;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="userManager"></param>
+		/// <param name="aPIRouteListData"></param>
+		/// <param name="iFCMAPIHelper"></param>
+		/// <param name="employeeData"></param>
+		/// <param name="wakeUpDriverClientService"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public PushNotificationsController(
 			ILogger<PushNotificationsController> logger,
 			UserManager<IdentityUser> userManager,
@@ -81,6 +94,7 @@ namespace DriverAPI.Controllers.V2
 
 		/// <summary>
 		/// Уведомление о смене формы оплаты в заказе
+		/// Служебный
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		[HttpPost]
@@ -94,6 +108,7 @@ namespace DriverAPI.Controllers.V2
 
 		/// <summary>
 		/// Уведомление о смене типа оплаты заказа
+		/// Служебный
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns></returns>
@@ -122,6 +137,7 @@ namespace DriverAPI.Controllers.V2
 
 		/// <summary>
 		/// Уведомления о новом поступившем заказе с доставкой за час
+		/// Служебный
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
 		[HttpPost]
