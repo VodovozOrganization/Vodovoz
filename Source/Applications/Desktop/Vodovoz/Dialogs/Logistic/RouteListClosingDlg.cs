@@ -146,31 +146,6 @@ namespace Vodovoz
 			set { callTaskWorker = value; }
 		}
 
-		enum RouteListActions
-		{
-			[Display(Name = "Новый штраф")]
-			CreateNewFine,
-			[Display(Name = "Перенести разгрузку в другой МЛ")]
-			TransferReceptionToAnotherRL,
-			[Display(Name = "Перенести разгрузку в этот МЛ")]
-			TransferReceptionToThisRL,
-			[Display(Name = "Перенести адреса в этот МЛ")]
-			TransferAddressesToThisRL,
-			[Display(Name = "Перенести адреса из этого МЛ")]
-			TransferAddressesToAnotherRL
-
-		}
-
-		public enum RouteListPrintDocuments
-		{
-			[Display(Name = "Все")]
-			All,
-			[Display(Name = "Маршрутный лист")]
-			RouteList,
-			[Display(Name = "Штрафы")]
-			Fines
-		}
-
 		#endregion
 
 		#region Конструкторы и конфигурирование диалога
@@ -195,7 +170,13 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			_canEdit = _isRoleCashier && permissionResult.CanUpdate;
+			var availableStatusesForAccepting = new RouteListStatus[]
+			{
+				RouteListStatus.Delivered,
+				RouteListStatus.OnClosing
+			};
+
+			_canEdit = _isRoleCashier && permissionResult.CanUpdate && !(Entity.WasAcceptedByCashier || !availableStatusesForAccepting.Contains(Entity.Status));
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(new PaymentItemsRepository(), new OrderRepository(), new PaymentsRepository());
 			if(Entity.AddressesOrderWasChangedAfterPrinted) {
