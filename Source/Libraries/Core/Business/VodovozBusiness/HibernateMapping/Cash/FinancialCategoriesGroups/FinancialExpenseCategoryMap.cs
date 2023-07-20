@@ -20,6 +20,7 @@ namespace Vodovoz.HibernateMapping.Cash.FinancialCategoriesGroups
 			Map(x => x.TargetDocument).Column("target_document");
 			Map(x => x.SubdivisionId).Column("subdivision_id");
 			Map(x => x.Numbering).Column("numbering");
+			Map(x => x.ExcludeFromCashFlowDds).Column("exclude_from_cash_flow_dds");
 
 			Where("group_type = 'Category' AND financial_subtype = 'Expense'");
 		}
