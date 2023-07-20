@@ -15,7 +15,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -126,7 +125,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					return;
 				}
 
-				Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryTransferViewModel, int>(null, selectedRow.RouteListItemId.Value);
+				Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryOrderTransferViewModel, int>(null, selectedRow.RouteListItemId.Value);
 			}
 		}
 

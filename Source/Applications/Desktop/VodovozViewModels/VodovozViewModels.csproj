@@ -181,6 +181,7 @@
     <Compile Include="ViewModels\Counterparty\EdoOperatorViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarsMonitoringViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryTransferDetailsViewModel.cs" />
     <Compile Include="ViewModels\Logistic\LogisticsRequirementsViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListFastDeliveryMaxDistanceViewModel.cs" />

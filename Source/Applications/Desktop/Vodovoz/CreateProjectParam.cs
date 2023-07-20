@@ -369,7 +369,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
-				.RegisterWidgetForTabViewModel<FastDeliveryTransferViewModel, FastDeliveryTransferView>()
+				.RegisterWidgetForTabViewModel<FastDeliveryOrderTransferViewModel, FastDeliveryOrderTransferView>()
 				.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
 				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
 				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
