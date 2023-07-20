@@ -1,6 +1,5 @@
 ﻿using ClosedXML.Excel;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 
@@ -15,12 +14,6 @@ namespace Vodovoz.Reports
 			private const int _mainCategoryColumn = 1;
 			private const int _categoryTitleColumn = 2;
 			private const int _categoryMoney = 3;
-
-			// Исключен тип Возврат от подотчетного лица
-			private readonly int _incomeTypesCount = Enum.GetValues(typeof(IncomeType)).Length - 1;
-
-			// Включен тип приходного ордера Возврат от подотчетного лица
-			private readonly int _expenseTypesCount = Enum.GetValues(typeof(ExpenseType)).Length + 1;
 
 			public IXLWorkbook Render(CashFlowDdsReport cashFlowDdsReport)
 			{
@@ -127,7 +120,7 @@ namespace Vodovoz.Reports
 
 				GoToNextRow(xLWorksheet);
 
-				var categoriesEndRowNumber = incomeGroup.IncomeCategories.Count * _incomeTypesCount + incomeGroup.IncomeCategories.Count + activeAtStartCellRow;
+				var categoriesEndRowNumber = incomeGroup.IncomeCategories.Count + activeAtStartCellRow;
 
 				if(incomeGroup.IncomeCategories.Any())
 				{
@@ -150,8 +143,6 @@ namespace Vodovoz.Reports
 				int groupEndRowNumber = xLWorksheet.ActiveCell.Address.RowNumber - 1;
 
 				var categoriesStartRowNumber = activeAtStartCellRow + 1;
-
-				var operationTypesStartRowNumber = categoriesStartRowNumber + 1;
 
 				if(incomeGroup.Groups.Any())
 				{
@@ -187,16 +178,6 @@ namespace Vodovoz.Reports
 
 				GoToNextRow(xLWorksheet);
 
-				var categoriesEndRowNumber = expenseGroup.ExpenseCategories.Count * _expenseTypesCount + expenseGroup.ExpenseCategories.Count + activeAtStartCellRow;
-
-				if(expenseGroup.ExpenseCategories.Any())
-				{
-					foreach(var category in expenseGroup.ExpenseCategories)
-					{
-						RenderExpenseCategory(category, xLWorksheet);
-					}
-				}
-
 				var expenseGroupsCount = expenseGroup.Groups.Count;
 
 				if(expenseGroup.Groups.Any())
@@ -207,11 +188,19 @@ namespace Vodovoz.Reports
 					}
 				}
 
+				var categoriesEndRowNumber = expenseGroup.ExpenseCategories.Count + activeAtStartCellRow;
+
+				if(expenseGroup.ExpenseCategories.Any())
+				{
+					foreach(var category in expenseGroup.ExpenseCategories)
+					{
+						RenderExpenseCategory(category, xLWorksheet);
+					}
+				}
+
 				int groupEndRowNumber = xLWorksheet.ActiveCell.Address.RowNumber - 1;
 
 				var categoriesStartRowNumber = activeAtStartCellRow + 1;
-
-				var operationTypesStartRowNumber = categoriesStartRowNumber + 1;
 
 				if(expenseGroup.Groups.Any())
 				{
@@ -238,7 +227,6 @@ namespace Vodovoz.Reports
 			{
 				RenderCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, category.Title, category.Money);
 				GoToNextRow(xLWorksheet);
-				RenderOperationsRows(xLWorksheet, category.OperationsMoney);
 			}
 
 			private void RenderExpenseCategory(
@@ -247,20 +235,6 @@ namespace Vodovoz.Reports
 			{
 				RenderCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, category.Title, category.Money);
 				GoToNextRow(xLWorksheet);
-				RenderOperationsRows(xLWorksheet, category.OperationsMoney);
-			}
-
-			private void RenderOperationsRows(IXLWorksheet xLWorksheet, Dictionary<string, decimal> operationsMoney)
-			{
-				var startRow = xLWorksheet.ActiveCell.Address.RowNumber;
-
-				foreach(var pair in operationsMoney)
-				{
-					RenderCategoryRow(xLWorksheet, xLWorksheet.ActiveCell.Address.RowNumber, pair.Key, pair.Value, right: true);
-					GoToNextRow(xLWorksheet);
-				}
-
-				xLWorksheet.Rows(startRow, xLWorksheet.ActiveCell.Address.RowNumber - 1).Group();
 			}
 
 			private void GoToNextRow(IXLWorksheet xLWorksheet)

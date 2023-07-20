@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Vodovoz.Reports
+﻿namespace Vodovoz.Reports
 {
 	public partial class CashFlow
 	{
@@ -14,7 +11,6 @@ namespace Vodovoz.Reports
 					Id = id;
 					ParentId = parentId;
 					Title = title;
-					OperationsMoney = new Dictionary<string, decimal>();
 				}
 
 				public int Id { get; }
@@ -23,9 +19,7 @@ namespace Vodovoz.Reports
 
 				public string Title { get; }
 
-				public Dictionary<string, decimal> OperationsMoney { get; set; }
-
-				public decimal Money => OperationsMoney.Sum(x => x.Value);
+				public decimal Money { get; set; }
 
 				public static FinancialExpenseCategoryLine Create(int id, int? parentId, string title) => new FinancialExpenseCategoryLine(id, parentId, title);
 			}
