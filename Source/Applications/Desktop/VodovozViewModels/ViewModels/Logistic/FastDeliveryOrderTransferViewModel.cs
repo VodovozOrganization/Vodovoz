@@ -1,4 +1,5 @@
-﻿using NHibernate.Transform;
+﻿using Microsoft.Extensions.Logging;
+using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -28,8 +29,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly ICommonServices _commonServices;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-
-		private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+		private readonly ILogger<FastDeliveryOrderTransferViewModel> _logger;
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 
@@ -45,13 +45,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ICommonServices commonServices,
 			IRouteListItemRepository routeListItemRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
+			ILogger<FastDeliveryOrderTransferViewModel> logger,
 			int routeListAddressId) : base(navigationManager)
 		{
 			_routeListRepository = routeListRepository ?? throw new System.ArgumentNullException(nameof(routeListRepository));
 			_commonServices = commonServices ?? throw new System.ArgumentNullException(nameof(commonServices));
 			_routeListItemRepository = routeListItemRepository ?? throw new System.ArgumentNullException(nameof(routeListItemRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new System.ArgumentNullException(nameof(routeListProfitabilityController));
-
+			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_uow = UnitOfWorkFactory.CreateWithoutRoot();
 
 			GetRouteListFromInfo(routeListAddressId);
@@ -71,7 +72,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void MakeAddressTransfer(RouteListItem address, RouteList routeListFrom, RouteList routeListTo)
 		{
-			//_logger.Debug("Проверка адреса с номером {0}", address?.Id.ToString() ?? "Неправильный адрес");
+			_logger.LogDebug("Проверка адреса с номером {0}", address?.Id.ToString() ?? "Неправильный адрес");
 
 			if(address == null
 				|| routeListFrom == null
