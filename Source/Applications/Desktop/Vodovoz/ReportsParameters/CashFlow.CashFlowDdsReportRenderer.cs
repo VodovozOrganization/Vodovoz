@@ -1,7 +1,6 @@
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 
@@ -11,7 +10,7 @@ namespace Vodovoz.Reports
 	{
 		public class CashFlowDdsReportRenderer
 		{
-			private readonly XLColor _subTotalsBGColor = XLColor.FromColor(Color.FromArgb(253, 233, 216));
+			private readonly XLColor _subTotalsBGColor = XLColor.FromArgb(253, 233, 216);
 
 			private const int _mainCategoryColumn = 1;
 			private const int _categoryTitleColumn = 2;
@@ -64,11 +63,11 @@ namespace Vodovoz.Reports
 
 				var incomesStartLine = reportSheet.ActiveCell.Address.RowNumber;
 
-				reportSheet.Cell(incomesStartLine, 1).Style.Fill.BackgroundColor = _subTotalsBGColor;
-				reportSheet.Cell(incomesStartLine, 2).Style.Fill.BackgroundColor = _subTotalsBGColor;
-				reportSheet.Cell(incomesStartLine, 3).Style.Fill.BackgroundColor = _subTotalsBGColor;
-
 				var incomesCell = reportSheet.Cell(incomesStartLine, _mainCategoryColumn);
+
+				reportSheet.Range(incomesStartLine, 1, incomesStartLine, 3).AddConditionalFormat().WhenNotBlank().Fill.BackgroundColor = _subTotalsBGColor;
+				reportSheet.Range(incomesStartLine, 1, incomesStartLine, 3).AddConditionalFormat().WhenIsBlank().Fill.BackgroundColor = _subTotalsBGColor;
+
 				incomesCell.Style.Font.Bold = true;
 				incomesCell.Value = "Доходы";
 
@@ -86,12 +85,12 @@ namespace Vodovoz.Reports
 				var expensesStartLine = reportSheet.ActiveCell.Address.RowNumber;
 
 				var expenseCell = reportSheet.Cell(expensesStartLine, _mainCategoryColumn);
+
+				reportSheet.Range(expensesStartLine, 1, expensesStartLine, 3).AddConditionalFormat().WhenNotBlank().Fill.BackgroundColor = _subTotalsBGColor;
+				reportSheet.Range(expensesStartLine, 1, expensesStartLine, 3).AddConditionalFormat().WhenIsBlank().Fill.BackgroundColor = _subTotalsBGColor;
+
 				expenseCell.Style.Font.Bold = true;
 				expenseCell.Value = "Расходы";
-
-				reportSheet.Cell(expensesStartLine, 1).Style.Fill.BackgroundColor = _subTotalsBGColor;
-				reportSheet.Cell(expensesStartLine, 2).Style.Fill.BackgroundColor = _subTotalsBGColor;
-				reportSheet.Cell(expensesStartLine, 3).Style.Fill.BackgroundColor = _subTotalsBGColor;
 
 				foreach(var expenseGroup in cashFlowDdsReport.ExpensesGroupLines)
 				{
