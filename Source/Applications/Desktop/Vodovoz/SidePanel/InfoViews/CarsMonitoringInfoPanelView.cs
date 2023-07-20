@@ -3,18 +3,15 @@ using GLib;
 using Gtk;
 using QS.Commands;
 using QS.DomainModel.UoW;
-using QS.Project.Services;
 using System;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -129,19 +126,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					return;
 				}
 
-				var routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
-				var routeListItemRepository = _lifetimeScope.Resolve<IRouteListItemRepository>();
-				var routeListProfitabilityController = _lifetimeScope.Resolve<IRouteListProfitabilityController>();
-
-				var fastDeliveryTransferViewModel = new FastDeliveryTransferViewModel(
-						routeListRepository,
-						ServicesConfig.CommonServices,
-						routeListItemRepository,
-						routeListProfitabilityController,
-						selectedRow.RouteListItemId.Value);
-
-				Startup.MainWin.NavigationManager
-					.OpenViewModel<FastDeliveryTransferDetailsViewModel, FastDeliveryTransferViewModel>(null, fastDeliveryTransferViewModel);
+				Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryTransferViewModel, int>(null, selectedRow.RouteListItemId.Value);
 			}
 		}
 

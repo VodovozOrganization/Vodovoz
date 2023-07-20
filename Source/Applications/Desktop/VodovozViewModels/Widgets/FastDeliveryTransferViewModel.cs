@@ -2,8 +2,9 @@
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Services;
-using QS.ViewModels;
+using QS.ViewModels.Dialog;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
@@ -20,7 +21,7 @@ using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.Widgets
 {
-	public class FastDeliveryTransferViewModel : WidgetViewModelBase
+	public class FastDeliveryTransferViewModel : WindowDialogViewModelBase
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IRouteListRepository _routeListRepository;
@@ -39,11 +40,12 @@ namespace Vodovoz.ViewModels.Widgets
 		private DelegateCommand _cancelCommand;
 
 		public FastDeliveryTransferViewModel(
+			INavigationManager navigationManager,
 			IRouteListRepository routeListRepository,
 			ICommonServices commonServices,
 			IRouteListItemRepository routeListItemRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
-			int routeListAddressId)
+			int routeListAddressId) : base(navigationManager)
 		{
 			_routeListRepository = routeListRepository ?? throw new System.ArgumentNullException(nameof(routeListRepository));
 			_commonServices = commonServices ?? throw new System.ArgumentNullException(nameof(commonServices));
@@ -268,7 +270,6 @@ namespace Vodovoz.ViewModels.Widgets
 
 		private void Cancel()
 		{
-
 		}
 		#endregion
 

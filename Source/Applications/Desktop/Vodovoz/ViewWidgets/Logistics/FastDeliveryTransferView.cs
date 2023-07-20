@@ -1,11 +1,11 @@
-﻿using QS.Views.GtkUI;
+﻿using QS.Views.Dialog;
 using Vodovoz.ViewModels.Widgets;
 using static Vodovoz.ViewModels.Widgets.FastDeliveryTransferViewModel;
 
 namespace Vodovoz.ViewWidgets.Logistics
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class FastDeliveryTransferView : WidgetViewBase<FastDeliveryTransferViewModel>
+	[WindowSize(400, 600)]
+	public partial class FastDeliveryTransferView : DialogViewBase<FastDeliveryTransferViewModel>
 	{
 		public FastDeliveryTransferView(FastDeliveryTransferViewModel viewModel) : base(viewModel)
 		{
