@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -301,7 +301,7 @@ namespace Vodovoz.Reports
 					moneyCell.Style.Font.Bold = true;
 				}
 
-				moneyCell.Style.NumberFormat.Format = "# ##0.00 ₽;-# ##0.00 ₽";
+				moneyCell.Style.NumberFormat.Format = "# ### ### ##0.00 ₽;-# ### ### ##0.00 ₽";
 				moneyCell.DataType = XLDataType.Number;
 				moneyCell.Value = money;
 			}
