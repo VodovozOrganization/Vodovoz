@@ -104,6 +104,7 @@ namespace Vodovoz.Configuration
                     cnf.DataBaseIntegration(
                         dbi => {
                             dbi.BatchSize = 100;
+							dbi.Timeout = 120;
 						}
                     );
                 }
