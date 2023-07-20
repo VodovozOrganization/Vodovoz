@@ -64,7 +64,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 			this.ylabelInfoDriverFrom = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelInfoDriverFrom.Name = "ylabelInfoDriverFrom";
 			this.ylabelInfoDriverFrom.Xalign = 0F;
-			this.ylabelInfoDriverFrom.LabelProp = global::Mono.Unix.Catalog.GetString("от ФИО, №авто");
+			this.ylabelInfoDriverFrom.LabelProp = global::Mono.Unix.Catalog.GetString("от ФИО, № авто");
 			this.yvboxOrderInfo.Add(this.ylabelInfoDriverFrom);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yvboxOrderInfo[this.ylabelInfoDriverFrom]));
 			w3.Position = 1;
