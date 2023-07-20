@@ -14,8 +14,8 @@ namespace DriverAPI.Library.Models
 			IOrderRepository orderRepository,
 			IUnitOfWork unitOfWork)
 		{
-			this._orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
 		public SmsPaymentStatus? GetOrderSmsPaymentStatus(int orderId)

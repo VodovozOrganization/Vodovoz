@@ -89,7 +89,6 @@ namespace DriverAPI.Controllers.V2
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_wakeUpDriverClientService.UnSubscribe(driver);
 			_employeeData.DisablePushNotifications(driver);
-
 		}
 
 		/// <summary>

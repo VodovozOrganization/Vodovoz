@@ -22,6 +22,9 @@ namespace DriverAPI.Library.DTOs
 		/// </summary>
 		public QRPaymentDTOStatus? QRPaymentStatus { get; set; }
 
+		/// <summary>
+		/// Изображение QR-кода в формате Png закодированное в строку Base64
+		/// </summary>
 		public string QRCode { get; set; }
 
 		/// <summary>

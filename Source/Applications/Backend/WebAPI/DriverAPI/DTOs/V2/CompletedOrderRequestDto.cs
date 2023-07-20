@@ -6,6 +6,9 @@ using Vodovoz.Models.TrueMark;
 
 namespace DriverAPI.DTOs.V2
 {
+	/// <summary>
+	/// Запрос на завершение заказа
+	/// </summary>
 	public class CompletedOrderRequestDto : IDriverCompleteOrderInfo
 	{
 		/// <summary>
@@ -41,8 +44,14 @@ namespace DriverAPI.DTOs.V2
 		/// </summary>
 		public string DriverComment { get; set; }
 
+		/// <summary>
+		/// Отсканированные бутыли
+		/// </summary>
 		public IEnumerable<OrderScannedItemDto> ScannedBottles { get; set; }
 
+		/// <summary>
+		/// Причина не отсканированности бутылей
+		/// </summary>
 		public string UnscannedBottlesReason { get; set; }
 
 		/// <summary>

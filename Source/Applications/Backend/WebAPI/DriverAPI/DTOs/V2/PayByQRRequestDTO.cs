@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DriverAPI.DTOs.V2
 {
+	/// <summary>
+	/// Запрос на оплату по QR-коду
+	/// </summary>
 	public class PayByQRRequestDTO
 	{
 		/// <summary>
@@ -11,6 +14,9 @@ namespace DriverAPI.DTOs.V2
 		[Required]
 		public int OrderId { get; set; }
 
+		/// <summary>
+		/// Фактическое количество бутылей по акции
+		/// </summary>
 		public int? BottlesByStockActualCount { get; set; }
 
 		/// <summary>
