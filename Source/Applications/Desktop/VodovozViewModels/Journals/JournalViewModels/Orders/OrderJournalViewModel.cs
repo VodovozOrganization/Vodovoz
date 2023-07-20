@@ -1,47 +1,49 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
+using QS.Project.Services.FileDialog;
 using QS.Services;
+using System;
+using System.Globalization;
+using System.Linq;
+using Vodovoz.Controllers;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Sale;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalNodes;
-using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using QS.Project.Journal.DataLoader;
-using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
-using QS.Project.Domain;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Controllers;
-using Vodovoz.Domain;
-using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories.DiscountReasons;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Print;
+using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.ViewModels.Complaints;
-using Vodovoz.EntityRepositories.Subdivisions;
-using QS.Project.Services.FileDialog;
-using Vodovoz.Infrastructure.Print;
-using Vodovoz.Services;
-using Vodovoz.EntityRepositories.Logistic;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
+using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -228,6 +230,7 @@ namespace Vodovoz.JournalViewModels
 			CounterpartyContract contractAlias = null;
 			PaymentFrom paymentFromAlias = null;
 			GeoGroup geographicalGroupAlias = null;
+			EdoContainer edoContainerAlias = null;
 
 			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
@@ -443,6 +446,14 @@ namespace Vodovoz.JournalViewModels
 													)
 												)
 											);
+
+			var edoDocFlowStatusSubquery = QueryOver.Of(() => edoContainerAlias)
+				.Where(() => orderAlias.Id == edoContainerAlias.Order.Id)
+				.And(() => edoContainerAlias.Type == Type.Upd)
+				.OrderBy(() => edoContainerAlias.Created).Desc
+				.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus))
+				.Take(1);
+
 			query.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 					.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 					.Left.JoinAlias(o => o.Author, () => authorAlias)
@@ -499,6 +510,7 @@ namespace Vodovoz.JournalViewModels
 					.SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
 					.SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 					.SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
+					.SelectSubQuery(edoDocFlowStatusSubquery).WithAlias(() => resultAlias.EdoDocFlowStatus)
 				)
 				.OrderBy(x => x.CreateDate).Desc
 				.SetTimeout(60)
