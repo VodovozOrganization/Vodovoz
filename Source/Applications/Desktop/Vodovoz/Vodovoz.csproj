@@ -1924,6 +1924,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Client.ResendCounterpartyEdoDocumentsView.cs" />
     <Compile Include="ViewWidgets\Logistics\FastDeliveryTransferView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.FastDeliveryTransferView.cs" />
+    <Compile Include="Views\Logistic\FastDeliveryOrderTransferView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryOrderTransferView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
