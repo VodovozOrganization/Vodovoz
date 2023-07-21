@@ -80,7 +80,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private bool MakeAddressTransfer(RouteListItem address, RouteList routeListFrom, RouteList routeListTo)
 		{
-			_logger.LogDebug("Проверка адреса с номером {0}", address?.Id.ToString() ?? "Неправильный адрес");
+			_logger.LogDebug("Проверка адреса с номером {AddressId}", address?.Id.ToString() ?? "Неправильный адрес");
 
 			if(address == null
 				|| routeListFrom == null
