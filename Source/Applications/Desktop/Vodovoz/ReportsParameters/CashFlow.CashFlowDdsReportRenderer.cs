@@ -69,7 +69,7 @@ namespace Vodovoz.Reports
 				reportSheet.Column(_categoryTitleColumn).AdjustToContents();
 				reportSheet.Column(_moneyColumn).AdjustToContents();
 
-				//reportSheet.CollapseRows();
+				reportSheet.CollapseRows();
 
 				return result;
 			}
@@ -215,7 +215,7 @@ namespace Vodovoz.Reports
 				{
 					if(groupLevel > 1)
 					{
-						xLWorksheet.Rows(startRow + 1, categoriesEndRowNumber).Group();
+						xLWorksheet.Rows(startRow + 1, categoriesEndRowNumber - 1).Group();
 					}
 				}
 
@@ -223,7 +223,7 @@ namespace Vodovoz.Reports
 				{
 					if(groupLevel > 1)
 					{
-						xLWorksheet.Rows(categoriesStartRowNumber, categoriesEndRowNumber).Group();
+						xLWorksheet.Rows(categoriesStartRowNumber - 1, categoriesEndRowNumber - 1).Group();
 					}
 				}
 
@@ -275,7 +275,7 @@ namespace Vodovoz.Reports
 				{
 					if(groupLevel > 1)
 					{
-						xLWorksheet.Rows(startRow + 1, categoriesEndRowNumber).Group();
+						xLWorksheet.Rows(startRow + 1, categoriesEndRowNumber - 1).Group();
 					}
 				}
 
@@ -283,7 +283,7 @@ namespace Vodovoz.Reports
 				{
 					if(groupLevel > 1)
 					{
-						xLWorksheet.Rows(categoriesStartRowNumber, categoriesEndRowNumber).Group();
+						xLWorksheet.Rows(categoriesStartRowNumber - 1, categoriesEndRowNumber - 1).Group();
 					}
 				}
 
