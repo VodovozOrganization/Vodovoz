@@ -215,8 +215,6 @@ namespace Vodovoz.ViewWidgets
 				.AddBinding(ViewModel, vm => vm.CanChangeDetalization, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryUndeliveryDetalization.Visible = false;
-
 			SetResultCommentsControlsSettings();
 
 			guiltyInUndeliveryView.ConfigureWidget(ViewModel.UoW, ViewModel.Entity, !ViewModel.RouteListDoesNotExist);

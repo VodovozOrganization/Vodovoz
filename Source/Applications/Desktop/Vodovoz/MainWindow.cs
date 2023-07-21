@@ -39,6 +39,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
@@ -80,6 +81,7 @@ using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -1368,7 +1370,7 @@ public partial class MainWindow : Gtk.Window
 
 		tdiMain.AddTab(viewModel);
 	}
-	
+
 	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
 	{
 		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
@@ -1447,5 +1449,19 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionUndeliveryDetalizationActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<UndeliveryDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	protected void OnUndeliveredOrdersActionActivated(object sender, EventArgs e)
+	{
+		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
+			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
+			new DeliveryPointJournalFactory(), new SubdivisionJournalFactory())
+		{
+			HidenByDefault = true,
+			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
+			RestrictNotIsProblematicCases = true
+		};
+
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
 	}
 }
