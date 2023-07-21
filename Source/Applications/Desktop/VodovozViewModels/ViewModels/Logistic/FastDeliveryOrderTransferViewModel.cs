@@ -10,30 +10,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
-using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Parameters;
 using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
 	public class FastDeliveryOrderTransferViewModel : WindowDialogViewModelBase, IDisposable
 	{
-		private readonly IUnitOfWork _uow;
+		private readonly IUnitOfWork _unitOfWork;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly ILogger<FastDeliveryOrderTransferViewModel> _logger;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
-		private readonly WageParameterService _wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
+		private readonly IWageParameterService _wageParameterService;
 
 		RouteList _routeListFrom;
 		RouteListItem _routeListItemToTransfer;
@@ -42,6 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private DelegateCommand _cancelCommand;
 
 		public FastDeliveryOrderTransferViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigationManager,
 			IRouteListRepository routeListRepository,
 			ICommonServices commonServices,
@@ -49,22 +46,29 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListProfitabilityController routeListProfitabilityController,
 			ILogger<FastDeliveryOrderTransferViewModel> logger,
 			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			IWageParameterService wageParameterService,
 			int routeListAddressId) : base(navigationManager)
 		{
+			if(unitOfWorkFactory is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+
 			_routeListRepository = routeListRepository ?? throw new System.ArgumentNullException(nameof(routeListRepository));
 			_commonServices = commonServices ?? throw new System.ArgumentNullException(nameof(commonServices));
 			_routeListItemRepository = routeListItemRepository ?? throw new System.ArgumentNullException(nameof(routeListItemRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new System.ArgumentNullException(nameof(routeListProfitabilityController));
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
-			_uow = UnitOfWorkFactory.CreateWithoutRoot();
+			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
+			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 
 			GetRouteListFromInfo(routeListAddressId);
 		}
 
 		private void GetRouteListFromInfo(int routeListAddressId)
 		{
-			_routeListItemToTransfer = _uow.GetById<RouteListItem>(routeListAddressId);
+			_routeListItemToTransfer = _unitOfWork.GetById<RouteListItem>(routeListAddressId);
 
 			if(_routeListItemToTransfer == null || _routeListItemToTransfer.RouteList == null)
 			{
@@ -116,7 +120,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return false;
 			}
 
-			var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(_uow, address.Order, routeListTo);
+			var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(_unitOfWork, address.Order, routeListTo);
 
 			if(!hasBalanceForTransfer)
 			{
@@ -135,7 +139,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			address.AddressTransferType = AddressTransferType.FromFreeBalance;
 
 			var transferredAddressFromRouteListTo =
-				_routeListItemRepository.GetTransferredRouteListItemFromRouteListForOrder(_uow, routeListTo.Id, address.Order.Id);
+				_routeListItemRepository.GetTransferredRouteListItemFromRouteListForOrder(_unitOfWork, routeListTo.Id, address.Order.Id);
 
 			RouteListItem newItem = null;
 
@@ -144,8 +148,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				newItem = transferredAddressFromRouteListTo;
 				newItem.AddressTransferType = AddressTransferType.FromFreeBalance;
 				address.WasTransfered = false;
-				routeListTo.RevertTransferAddress(_wageParameterService, newItem, address);
-				routeListFrom.TransferAddressTo(_uow, address, newItem);
+				routeListTo.RevertTransferAddress((WageParameterService)_wageParameterService, newItem, address);
+				routeListFrom.TransferAddressTo(_unitOfWork, address, newItem);
 				newItem.WasTransfered = true;
 			}
 			else
@@ -158,30 +162,30 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				};
 
 				routeListTo.ObservableAddresses.Add(newItem);
-				routeListFrom.TransferAddressTo(_uow, address, newItem);
+				routeListFrom.TransferAddressTo(_unitOfWork, address, newItem);
 			}
 
 			routeListFrom.CalculateWages(_wageParameterService);
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(_uow, routeListFrom);
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(_unitOfWork, routeListFrom);
 			routeListTo.CalculateWages(_wageParameterService);
-			_routeListProfitabilityController.ReCalculateRouteListProfitability(_uow, routeListTo);
+			_routeListProfitabilityController.ReCalculateRouteListProfitability(_unitOfWork, routeListTo);
 
 			address.RecalculateTotalCash();
 			newItem.RecalculateTotalCash();
 
 			if(routeListTo.ClosingFilled)
 			{
-				newItem.FirstFillClosing(_wageParameterService);
+				newItem.FirstFillClosing((WageParameterService)_wageParameterService);
 			}
 
-			_uow.Save(address);
-			_uow.Save(newItem);
+			_unitOfWork.Save(address);
+			_unitOfWork.Save(newItem);
 
 			UpdateTranferDocuments(address, newItem);
 
-			_uow.Save(routeListTo);
-			_uow.Save(routeListFrom);
-			_uow.Commit();
+			_unitOfWork.Save(routeListTo);
+			_unitOfWork.Save(routeListFrom);
+			_unitOfWork.Commit();
 
 			return true;
 		}
@@ -189,7 +193,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to)
 		{
 			var addressTransferController = new AddressTransferController(new EmployeeRepository());
-			addressTransferController.UpdateDocuments(from, to, _uow);
+			addressTransferController.UpdateDocuments(from, to, _unitOfWork);
 		}
 
 		private bool HasAddressChanges(RouteListItem address)
@@ -238,7 +242,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Car carAlias = null;
 			RouteListNode routeListNodeAlias = null;
 
-			var routeLists = _uow.Session.QueryOver(() => routeListAlias)
+			var routeLists = _unitOfWork.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
 				.Where(() => routeListAlias.AdditionalLoadingDocument != null)
@@ -294,7 +298,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			var routeListTo = _uow.GetById<RouteList>(RouteListToSelectedNode.RouteListId);
+			var routeListTo = _unitOfWork.GetById<RouteList>(RouteListToSelectedNode.RouteListId);
 
 			if(routeListTo != null)
 			{
@@ -336,7 +340,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public void Dispose()
 		{
-			_uow?.Dispose();
+			_unitOfWork?.Dispose();
 		}
 
 		public class RouteListNode

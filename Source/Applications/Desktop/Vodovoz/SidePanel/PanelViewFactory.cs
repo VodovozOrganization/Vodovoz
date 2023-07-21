@@ -68,7 +68,7 @@ namespace Vodovoz.SidePanel
 					var edoLightsMatrixPanelViewModel = new EdoLightsMatrixPanelViewModel(edoLightsMatrixViewModel, gtkTabsOpener, tdiTab);
 					return new EdoLightsMatrixPanelView(edoLightsMatrixPanelViewModel);
 				case PanelViewType.CarsMonitoringInfoPanelView:
-					return new CarsMonitoringInfoPanelView(UnitOfWorkFactory.GetDefaultFactory, new DeliveryRulesParametersProvider(new ParametersProvider()));
+					return new CarsMonitoringInfoPanelView(UnitOfWorkFactory.GetDefaultFactory, new DeliveryRulesParametersProvider(new ParametersProvider()), Startup.MainWin.NavigationManager);
 				default:
 					throw new NotSupportedException();
 			}

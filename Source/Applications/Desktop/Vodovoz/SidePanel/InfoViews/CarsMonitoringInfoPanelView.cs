@@ -3,6 +3,7 @@ using GLib;
 using Gtk;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using System;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
@@ -29,6 +30,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly INavigationManager _navigationManager;
 		private FilterOrdersEnum _filterOrders;
 		private FastDeliveryIntervalFromEnum _fastDeliveryIntervalFrom;
 		private bool _isFastDeliveryOnly;
@@ -38,11 +40,10 @@ namespace Vodovoz.SidePanel.InfoViews
 		private TimeoutHandler _timeoutTimerHandler;
 		private uint _timerId;
 
-		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-
 		public CarsMonitoringInfoPanelView(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			INavigationManager navigationManager)
 			: base()
 		{
 			if(unitOfWorkFactory is null)
@@ -52,6 +53,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Панель мониторинга автомобилей");
 			_unitOfWork.Session.DefaultReadOnly = true;
+
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			Nodes = new GenericObservableList<FastDeliveryMonitoringNode>();
 
@@ -108,7 +112,6 @@ namespace Vodovoz.SidePanel.InfoViews
 
 				button.Toggled += FastDeliveryIntervalFromSelectionChanged;
 			}
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider;
 
 			_timeoutTimerHandler = new TimeoutHandler(RefreshNodesTimerHandler);
 			StartTimer(_timeoutTimerHandler);
@@ -125,7 +128,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					return;
 				}
 
-				Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryOrderTransferViewModel, int>(null, selectedRow.RouteListItemId.Value);
+				_navigationManager.OpenViewModel<FastDeliveryOrderTransferViewModel, int>(null, selectedRow.RouteListItemId.Value);
 			}
 		}
 
