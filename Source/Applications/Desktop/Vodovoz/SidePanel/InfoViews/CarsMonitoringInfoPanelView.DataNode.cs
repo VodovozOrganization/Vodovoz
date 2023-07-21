@@ -4,7 +4,7 @@ namespace Vodovoz.SidePanel.InfoViews
 {
 	public partial class CarsMonitoringInfoPanelView
 	{
-		sealed class DataNode
+		internal sealed class DataNode
 		{
 			public string DriverName { get; set; }
 			public int RouteListId { get; set; }

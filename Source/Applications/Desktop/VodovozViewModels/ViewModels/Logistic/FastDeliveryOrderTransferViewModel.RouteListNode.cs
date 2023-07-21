@@ -2,7 +2,7 @@
 {
 	public partial class FastDeliveryOrderTransferViewModel
 	{
-		public class RouteListNode
+		public sealed class RouteListNode
 		{
 			public int RowNumber { get; set; }
 			public int RouteListId { get; set; }
