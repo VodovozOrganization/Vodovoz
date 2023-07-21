@@ -29,7 +29,6 @@ namespace Vodovoz.Domain.Orders
 	public class UndeliveredOrder : BusinessObjectBase<UndeliveredOrder>, IDomainObject, IValidatableObject
 	{
 		private UndeliveryTransferAbsenceReason _undeliveryTransferAbsenceReason;
-		private List<UndeliveryTransferAbsenceReason> _undeliveryTransferAbsenceReasonItems;
 		private IList<UndeliveredOrderResultComment> _resultComments = new List<UndeliveredOrderResultComment>();
 		private GenericObservableList<UndeliveredOrderResultComment> _observableResultComments;
 		private UndeliveryDetalization _undeliveryDetalization;
@@ -233,12 +232,6 @@ namespace Vodovoz.Domain.Orders
 
 				return problemSourceItems;
 			}
-		}
-
-		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems
-		{
-			get => _undeliveryTransferAbsenceReasonItems ?? (_undeliveryTransferAbsenceReasonItems =
-				UoW.GetAll<UndeliveryTransferAbsenceReason>().Where(u => !u.IsArchive).ToList());
 		}
 
 		[Display(Name = "Причина отсутствия переноса")]

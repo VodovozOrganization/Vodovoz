@@ -1,9 +1,11 @@
 ﻿using Dialogs.Logistic;
+using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
+using QS.Tdi.Gtk;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Client;
@@ -12,6 +14,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace Vodovoz.Dialogs.OrderWidgets
 {
@@ -23,7 +26,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		public ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment) =>
 			new OrderDlg { IsForRetail = isForRetail, IsForSalesDepartment = isForSalesDepartment};
 		
-		public ITdiTab CreateOrderDlg(int? orderId) => orderId.HasValue ? new OrderDlg(orderId.Value) : new OrderDlg();
+		public ITdiTab CreateOrderDlg(int? orderId = null) => orderId.HasValue ? new OrderDlg(orderId.Value) : new OrderDlg();
 
 		public void OpenOrderDlg(ITdiTab tab, int id)
 		{
@@ -33,7 +36,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 		
-		public void OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
+		public void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId)
 		{
 			var dlg = new OrderDlg();
 			dlg.CopyLesserOrderFrom(copiedOrderId);
@@ -42,6 +45,13 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				DialogHelper.GenerateDialogHashName<Order>(65656),
 				() => dlg
 			);
+		}
+
+		public ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
+		{
+			var dlg = new OrderDlg();
+			dlg.CopyOrderFrom(copiedOrderId);
+			return tab.TabParent.OpenTab(() => dlg);
 		}
 
 		public ITdiTab OpenRouteListCreateDlg(ITdiTab tab) =>

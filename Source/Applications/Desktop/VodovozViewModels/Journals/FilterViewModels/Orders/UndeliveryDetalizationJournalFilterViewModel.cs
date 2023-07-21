@@ -1,12 +1,14 @@
 ﻿using QS.Project.Filter;
+using QS.Project.Journal;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 {
 	public class UndeliveryDetalizationJournalFilterViewModel
-		: FilterViewModelBase<UndeliveryDetalizationJournalFilterViewModel>
+		: FilterViewModelBase<UndeliveryDetalizationJournalFilterViewModel> , IJournalFilterViewModel
 	{
 		private UndeliveryObject _undeliveryObject;
 		private UndeliveryKind _undeliveryKind;
@@ -66,5 +68,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			get => _hideArchive;
 			set => UpdateFilterField(ref _hideArchive, value);
 		}
+
+		public bool IsShow { get; set; }
 	}
 }

@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Linq;
+using Autofac;
 using Gtk;
+using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
@@ -16,6 +18,8 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.Dialogs
 {
@@ -32,6 +36,8 @@ namespace Vodovoz.Dialogs
 		UndeliveredOrder UndeliveredOrder { get; set; }
 
 		private CallTaskWorker callTaskWorker;
+		private UndeliveredOrderViewModel _undeliveredOrderViewModel;
+
 		public virtual CallTaskWorker CallTaskWorker {
 			get {
 				if(callTaskWorker == null) {
@@ -82,7 +88,7 @@ namespace Vodovoz.Dialogs
 		//реализация метода интерфейса ITdiTabAddedNotifier
 		public void OnTabAdded()
 		{
-			//undeliveryView.OnTabAdded();
+			_undeliveredOrderViewModel.OnTabAdded();
 		}
 
 		public void ConfigureDlg(bool isForSalesDepartment = false)
@@ -93,8 +99,15 @@ namespace Vodovoz.Dialogs
 				UndeliveredOrder.InProcessAtDepartment = UoW.GetById<Subdivision>(salesDepartmentId);
 			}
 
-			//undeliveryView.ConfigureDlg(UoW, UndeliveredOrder);
-			//undeliveryView.isSaved += () => Save(false);
+
+			_undeliveredOrderViewModel = Startup.AppDIContainer.BeginLifetimeScope().Resolve<UndeliveredOrderViewModel>(
+				new TypedParameter(typeof(UndeliveredOrder), UndeliveredOrder),
+				new TypedParameter(typeof(IUnitOfWork), UoW),
+				new TypedParameter(typeof(ITdiTab), this as TdiTabBase));
+			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
+
+			_undeliveredOrderViewModel.IsSaved += () => Save(false);
+
 			SetAccessibilities();
 			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
 				IUnitOfWork UoWForComments = UnitOfWorkFactory.CreateWithoutRoot();
@@ -123,7 +136,7 @@ namespace Vodovoz.Dialogs
 			{
 				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
 			}
-			//undeliveryView.BeforeSaving();
+			_undeliveredOrderViewModel.BeforeSave();
 			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ
 			if(!CanCreateUndelivery())
 			{
