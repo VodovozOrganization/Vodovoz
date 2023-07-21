@@ -564,6 +564,7 @@
     <Compile Include="MainWindow.Navigation.cs" />
     <Compile Include="MainWindow.Navigation.Database.cs" />
     <Compile Include="MainWindow.Navigation.Journals.cs" />
+    <Compile Include="MainWindow.Navigation.Reports.cs" />
     <Compile Include="MainWindow.Navigation.Sections.cs" />
     <Compile Include="MainWindow.View.cs" />
     <Compile Include="Program.cs" />
@@ -579,6 +580,13 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.ExpensesGroupLine.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.FinancialExpenseCategoryLine.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.FinancialIncomeCategoryLine.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.IncomesGroupLine.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReportRenderer.cs" />
+    <Compile Include="ReportsParameters\CashFlow.ReportParts.cs" />
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="Representations\ProductGroups\INameNode.cs" />
     <Compile Include="Representations\ProductGroups\NomenclatureGroupNode.cs" />

@@ -1,12 +1,13 @@
-﻿using System;
-using System.Linq;
+using Gamma.Utilities;
 using Gtk;
-using QS.DomainModel.Entity;
+using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
+using System;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.Employees;
@@ -63,6 +64,13 @@ namespace Vodovoz.Dialogs
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
+			if(HasOrderStatusExternalChangesAndCancellationImpossible(undelivery.OldOrder, out OrderStatus actualOrderStatus))
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					$"Статус заказа был кем-то изменён на статус \"{actualOrderStatus.GetEnumTitle()}\" с момента открытия диалога, теперь отмена невозможна.");
+
+				return;
+			}
 
 			UoW.Session.Refresh(undelivery.OldOrder);
 
@@ -86,6 +94,22 @@ namespace Vodovoz.Dialogs
 			}
 
 			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(undelivery));
+		}
+
+		private bool HasOrderStatusExternalChangesAndCancellationImpossible(Order order, out OrderStatus actualOrderStatus)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка актуального статуа заказа"))
+			{
+				actualOrderStatus = uow.GetById<Order>(order.Id).OrderStatus;
+			}
+
+			var hasOrderStatusChanges = order.OrderStatus != actualOrderStatus;
+			var isOrderStatusForbiddenForCancellation = !_orderRepository.GetStatusesForOrderCancelation().Contains(actualOrderStatus);
+			var isSelfDeliveryOnLoadingOrder = order.SelfDelivery && actualOrderStatus == OrderStatus.OnLoading;
+
+			return hasOrderStatusChanges
+			       && isOrderStatusForbiddenForCancellation
+			       && !isSelfDeliveryOnLoadingOrder;
 		}
 
 		private bool Save()

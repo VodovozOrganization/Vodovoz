@@ -224,7 +224,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 
 					var config = EntityConfigs[selectedNode.EntityType];
 
-					return config.PermissionResult.CanUpdate;
+					return config.PermissionResult.CanRead || config.PermissionResult.CanUpdate;
 				},
 				(selected) => true,
 				(selected) =>
