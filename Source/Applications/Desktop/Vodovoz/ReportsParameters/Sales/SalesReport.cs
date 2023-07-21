@@ -1,29 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Transform;
+using QS.Dialog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Sale;
-using QS.Dialog.GtkUI;
-using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
-using Vodovoz.ViewModels.Reports;
-using Vodovoz.ReportsParameters;
-using NHibernate.Transform;
-using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
-using QS.Dialog;
-using QS.Project.DB;
-using Vodovoz.Domain.Organizations;
-using QS.Project.Services;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Payments;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
+using Vodovoz.ReportsParameters;
+using Vodovoz.ViewModels.Reports;
 
 namespace Vodovoz.Reports
 {
@@ -124,6 +124,8 @@ namespace Vodovoz.Reports
 				parameters.Add(item.Key, item.Value);
 			}
 
+			UpdatePaymentTypeParameters(ref parameters);
+
 			return new ReportInfo
 			{
 				Identifier = ycheckbuttonDetail.Active ? "Sales.SalesReportDetail" : "Sales.SalesReport",
@@ -146,6 +148,64 @@ namespace Vodovoz.Reports
 		private void OnUpdate(bool hide = false)
 		{
 			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
+		}
+
+		private void UpdatePaymentTypeParameters(ref Dictionary<string, object> parameters)
+		{
+			parameters.Add("payment_terminal_subtype_include", new string[] { "0" });
+			parameters.Add("payment_terminal_subtype_exclude", new string[] { "0" });
+
+			if(parameters["payment_type_include"] is IEnumerable<object> includedPaymentTypesObject)
+			{
+				var selectedPaymentTypes = 
+					includedPaymentTypesObject
+					.Where(x => x is CombinedPaymentNode)
+					.Select(x => (CombinedPaymentNode)x)
+					.ToList();
+
+				if(selectedPaymentTypes.Count > 0)
+				{
+					var topLevelSelectedPaymmentTypes = CombinedPaymentNode.GetTopLevelPaymentTypesNames(selectedPaymentTypes);
+
+					parameters["payment_type_include"] =
+						(topLevelSelectedPaymmentTypes.Length > 0)
+						? topLevelSelectedPaymmentTypes
+						: new string[] { "0" };
+
+					var selectedTerminalSubtypes = CombinedPaymentNode.GetTerminalPaymentTypeSubtypesNames(selectedPaymentTypes);
+
+					if(selectedTerminalSubtypes.Length > 0)
+					{
+						parameters["payment_terminal_subtype_include"] = selectedTerminalSubtypes;
+					}
+				}
+			}
+
+			if(parameters["payment_type_exclude"] is IEnumerable<object> excludedPaymentTypesObject)
+			{
+				var selectedPaymentTypes =
+					excludedPaymentTypesObject
+					.Where(x => x is CombinedPaymentNode)
+					.Select(x => (CombinedPaymentNode)x)
+					.ToList();
+
+				if(selectedPaymentTypes.Count > 0)
+				{
+					var topLevelSelectedPaymmentTypes = CombinedPaymentNode.GetTopLevelPaymentTypesNames(selectedPaymentTypes);
+
+					parameters["payment_type_exclude"] =
+						(topLevelSelectedPaymmentTypes.Length > 0)
+						? topLevelSelectedPaymmentTypes
+						: new string[] { "0" };
+
+					var selectedTerminalSubtypes = CombinedPaymentNode.GetTerminalPaymentTypeSubtypesNames(selectedPaymentTypes);
+
+					if(selectedTerminalSubtypes.Length > 0)
+					{
+						parameters["payment_terminal_subtype_exclude"] = selectedTerminalSubtypes;
+					}
+				}
+			}
 		}
 
 		private void SetupFilter()
@@ -392,7 +452,40 @@ namespace Vodovoz.Reports
 			_filter.CreateParameterSet(
 				"Тип оплаты",
 				"payment_type",
-				new ParametersEnumFactory<PaymentType>()
+				new RecursiveParametersFactory<CombinedPaymentNode>(
+					UoW,
+					(filters) =>
+					{
+						var paymentByTerminalSources = Enum.GetValues(typeof(PaymentByTerminalSource)).Cast<PaymentByTerminalSource>();
+						var paymentByTerminalSourceNodes = paymentByTerminalSources.Select(x =>
+							new CombinedPaymentNode
+							{
+								Id = (int)x,
+								Title = x.GetEnumTitle(),
+								PaymentType = PaymentType.Terminal,
+								PaymentSubType = x.ToString(),
+								TopLevelId = (int)PaymentType.Terminal
+							})
+						.ToList();
+
+						var paymentTypeList = Enum.GetValues(typeof(PaymentType)).Cast<PaymentType>();
+						var combinedNodesTypesWithChildFroms = paymentTypeList.Select(x =>
+							new CombinedPaymentNode
+							{
+								Id = (int)x,
+								Title = x.GetEnumTitle(),
+								PaymentType = x,
+								IsTopLevel = true
+							})
+						.ToList();
+
+						combinedNodesTypesWithChildFroms.Single(x => x.PaymentType == PaymentType.Terminal).Childs = paymentByTerminalSourceNodes;
+
+						return combinedNodesTypesWithChildFroms;
+					},
+					x => x.Title,
+					x => x.Childs,
+					true)
 			);
 
 			_filter.CreateParameterSet(

@@ -1,9 +1,7 @@
 ﻿using DriverAPI.Library.DTOs;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 
 namespace DriverAPI.Library.Converters
@@ -49,9 +47,15 @@ namespace DriverAPI.Library.Converters
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
 							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cash)
 						.Sum(rla => rla.Order.OrderSum),
-					TerminalMoney = routeList.Addresses
+					TerminalCardMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
-							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal)
+							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal
+							&& rla.Order.PaymentByTerminalSource == Vodovoz.Domain.Client.PaymentByTerminalSource.ByCard)
+						.Sum(rla => rla.Order.OrderSum),
+					TerminalQRMoney = routeList.Addresses
+						.Where(rla => rla.Status == RouteListItemStatus.Completed
+							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Terminal
+							&& rla.Order.PaymentByTerminalSource == Vodovoz.Domain.Client.PaymentByTerminalSource.ByQR)
 						.Sum(rla => rla.Order.OrderSum),
 					TerminalOrdersCount = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed

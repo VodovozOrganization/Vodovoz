@@ -1,7 +1,11 @@
-﻿using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using IDeprecated2OrderModel = DriverAPI.Library.Deprecated2.Models.IOrderModel;
+using Deprecated2OrderModel = DriverAPI.Library.Deprecated2.Models.OrderModel;
+using IDeprecated2RouteListModel = DriverAPI.Library.Deprecated2.Models.IRouteListModel;
+using Deprecated2RouteListModel = DriverAPI.Library.Deprecated2.Models.RouteListModel;
 
 namespace DriverAPI.Library
 {
@@ -35,6 +39,9 @@ namespace DriverAPI.Library
 			services.AddScoped<IDriverComplaintModel, DriverComplaintModel>();
 			services.AddScoped<IFastPaymentModel, FastPaymentModel>();
 
+			// Deprecated2
+			services.AddScoped<IDeprecated2OrderModel, Deprecated2OrderModel>();
+			services.AddScoped<IDeprecated2RouteListModel, Deprecated2RouteListModel>();
 			return services;
 		}
 	}

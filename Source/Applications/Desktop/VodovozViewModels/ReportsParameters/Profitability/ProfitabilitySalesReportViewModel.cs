@@ -19,9 +19,9 @@ using Vodovoz.Controllers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
@@ -395,7 +395,40 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			_filter.CreateParameterSet(
 				"Тип оплаты",
 				"payment_type",
-				new ParametersEnumFactory<PaymentType>()
+				new RecursiveParametersFactory<CombinedPaymentNode>(
+					_uow,
+					(filters) =>
+					{
+						var paymentByTerminalSources = Enum.GetValues(typeof(PaymentByTerminalSource)).Cast<PaymentByTerminalSource>();
+						var paymentByTerminalSourceNodes = paymentByTerminalSources.Select(x =>
+							new CombinedPaymentNode
+							{
+								Id = (int)x,
+								Title = x.GetEnumTitle(),
+								PaymentType = PaymentType.Terminal,
+								PaymentSubType = x.ToString(),
+								TopLevelId = (int)PaymentType.Terminal
+							})
+						.ToList();
+
+						var paymentTypeList = Enum.GetValues(typeof(PaymentType)).Cast<PaymentType>();
+						var combinedNodesTypesWithChildFroms = paymentTypeList.Select(x =>
+							new CombinedPaymentNode
+							{
+								Id = (int)x,
+								Title = x.GetEnumTitle(),
+								PaymentType = x,
+								IsTopLevel = true
+							})
+						.ToList();
+
+						combinedNodesTypesWithChildFroms.Single(x => x.PaymentType == PaymentType.Terminal).Childs = paymentByTerminalSourceNodes;
+
+						return combinedNodesTypesWithChildFroms;
+					},
+					x => x.Title,
+					x => x.Childs,
+					true)
 			);
 
 			_filter.CreateParameterSet(
@@ -502,8 +535,68 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_parameters.Add(item.Key, item.Value);
 			}
 
+			UpdatePaymentTypeParameters(ref _parameters);
+
 			_source = GetReportSource();
 			LoadReport();
+		}
+
+		private void UpdatePaymentTypeParameters(ref Dictionary<string, object> parameters)
+		{
+			parameters.Add("payment_terminal_subtype_include", new string[] { "0" });
+			parameters.Add("payment_terminal_subtype_exclude", new string[] { "0" });
+
+			if(parameters["payment_type_include"] is IEnumerable<object> includedPaymentTypesObject)
+			{
+				var selectedPaymentTypes =
+					includedPaymentTypesObject
+					.Where(x => x is CombinedPaymentNode)
+					.Select(x => (CombinedPaymentNode)x)
+					.ToList();
+
+				if(selectedPaymentTypes.Count > 0)
+				{
+					var topLevelSelectedPaymmentTypes = CombinedPaymentNode.GetTopLevelPaymentTypesNames(selectedPaymentTypes);
+
+					parameters["payment_type_include"] =
+						(topLevelSelectedPaymmentTypes.Length > 0)
+						? topLevelSelectedPaymmentTypes
+						: new string[] { "0" };
+
+					var selectedTerminalSubtypes = CombinedPaymentNode.GetTerminalPaymentTypeSubtypesNames(selectedPaymentTypes);
+
+					if(selectedTerminalSubtypes.Length > 0)
+					{
+						parameters["payment_terminal_subtype_include"] = selectedTerminalSubtypes;
+					}
+				}
+			}
+
+			if(parameters["payment_type_exclude"] is IEnumerable<object> excludedPaymentTypesObject)
+			{
+				var selectedPaymentTypes =
+					excludedPaymentTypesObject
+					.Where(x => x is CombinedPaymentNode)
+					.Select(x => (CombinedPaymentNode)x)
+					.ToList();
+
+				if(selectedPaymentTypes.Count > 0)
+				{
+					var topLevelSelectedPaymmentTypes = CombinedPaymentNode.GetTopLevelPaymentTypesNames(selectedPaymentTypes);
+
+					parameters["payment_type_exclude"] =
+						(topLevelSelectedPaymmentTypes.Length > 0)
+						? topLevelSelectedPaymmentTypes
+						: new string[] { "0" };
+
+					var selectedTerminalSubtypes = CombinedPaymentNode.GetTerminalPaymentTypeSubtypesNames(selectedPaymentTypes);
+
+					if(selectedTerminalSubtypes.Length > 0)
+					{
+						parameters["payment_terminal_subtype_exclude"] = selectedTerminalSubtypes;
+					}
+				}
+			}
 		}
 
 		private string GetReportSource()

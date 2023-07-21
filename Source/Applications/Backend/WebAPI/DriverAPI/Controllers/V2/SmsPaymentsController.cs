@@ -11,6 +11,7 @@ using Vodovoz.Domain.Logistic.Drivers;
 using System.Threading.Tasks;
 using DriverAPI.DTOs.V2;
 using DriverAPI.Library.Helpers;
+using IOrderModel = DriverAPI.Library.Deprecated2.Models.IOrderModel;
 
 namespace DriverAPI.Controllers.V2
 {

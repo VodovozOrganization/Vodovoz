@@ -445,22 +445,35 @@ namespace Vodovoz.Domain.Orders
 		public virtual PaymentType PaymentType {
 			get => _paymentType;
 			set {
-				if(value != _paymentType && SetField(ref _paymentType, value)) {
-					switch(PaymentType) {
-						case PaymentType.Cash:
-						case PaymentType.Barter:
-						case PaymentType.Cashless:
-						case PaymentType.ContractDocumentation:
-						case PaymentType.Terminal:
-							PaymentByCardFrom = null;
-							break;
-						case PaymentType.PaidOnline:
-							break;
+				if(value != _paymentType && SetField(ref _paymentType, value)) 
+				{
+					if(PaymentType != PaymentType.PaidOnline)
+					{
+						PaymentByCardFrom = null;
+					}
+
+					if(PaymentType != PaymentType.Terminal)
+					{
+						PaymentByTerminalSource = null;
+					}
+
+					if(PaymentType == PaymentType.Terminal && PaymentByTerminalSource == null)
+					{
+						PaymentByTerminalSource = Domain.Client.PaymentByTerminalSource.ByCard;
 					}
 
 					UpdateContractOnPaymentTypeChanged();
 				}
 			}
+		}
+
+		private PaymentByTerminalSource? _paymentByTerminalSource;
+
+		[Display(Name = "Подтип оплаты по терминалу")]
+		public virtual PaymentByTerminalSource? PaymentByTerminalSource
+		{
+			get => _paymentByTerminalSource;
+			set => SetField(ref _paymentByTerminalSource, value);
 		}
 
 		CounterpartyContract contract;
