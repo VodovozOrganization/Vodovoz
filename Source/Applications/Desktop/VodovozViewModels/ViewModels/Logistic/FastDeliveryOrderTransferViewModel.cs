@@ -20,7 +20,7 @@ using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class FastDeliveryOrderTransferViewModel : WindowDialogViewModelBase, IDisposable
+	public partial class FastDeliveryOrderTransferViewModel : WindowDialogViewModelBase, IDisposable
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IRouteListRepository _routeListRepository;
@@ -341,17 +341,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public void Dispose()
 		{
 			_unitOfWork?.Dispose();
-		}
-
-		public class RouteListNode
-		{
-			public int RowNumber { get; set; }
-			public int RouteListId { get; set; }
-			public string CarRegistrationNumber { get; set; } = string.Empty;
-			public string Name { get; set; }
-			public string LastName { get; set; }
-			public string Patronymic { get; set; }
-			public string DriverFullName => LastName + " " + Name[0] + "." + (string.IsNullOrWhiteSpace(Patronymic) ? "" : " " + Patronymic[0] + ".");
 		}
 	}
 }
