@@ -6,8 +6,6 @@ namespace Vodovoz.ViewModels.Cash.Reports
 	{
 		public partial class CashFlowDdsReport
 		{
-			public Color AccentColor { get; set; }
-
 			public class FinancialExpenseCategoryLine
 			{
 				public FinancialExpenseCategoryLine(int id, int? parentId, string title)

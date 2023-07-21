@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 {
 	public partial class CashFlowAnalysisViewModel : DialogTabViewModelBase
 	{
-		private static readonly Color _accentColor = Color.FromArgb(249, 191, 143);
+		private readonly Color _accentColor = Color.FromArgb(249, 191, 143);
 
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICommonServices _commonServices;
@@ -91,6 +91,8 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 		public bool CanSaveReport => Report != null;
 
+		public Color AccentColor => _accentColor;
+
 		public void SaveReport()
 		{
 			var path = RunSaveAsDialog();
@@ -128,7 +130,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 		private void RenderCashFlowDdsReport(CashFlowDdsReport report, string path)
 		{
-			var rendered = _cashFlowDdsReportRenderer.Render(report);
+			var rendered = _cashFlowDdsReportRenderer.Render(report, _accentColor);
 			rendered.SaveAs(path);
 		}
 
@@ -136,7 +138,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		{
 			CanGenerateDdsReport = false;
 
-			Report = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate, _accentColor);
+			Report = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate);
 
 			CanGenerateDdsReport = true;
 		}

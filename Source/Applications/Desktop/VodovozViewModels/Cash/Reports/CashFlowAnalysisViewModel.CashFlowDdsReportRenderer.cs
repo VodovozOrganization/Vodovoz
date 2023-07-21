@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using System;
+using System.Drawing;
 using System.Linq;
 
 namespace Vodovoz.ViewModels.Cash.Reports
@@ -38,9 +39,9 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 			private const int _totalHeaderFontSize = 13;
 
-			public IXLWorkbook Render(CashFlowDdsReport cashFlowDdsReport)
+			public IXLWorkbook Render(CashFlowDdsReport cashFlowDdsReport, Color accentColot)
 			{
-				_subTotalsBGXLColor = XLColor.FromColor(cashFlowDdsReport.AccentColor);
+				_subTotalsBGXLColor = XLColor.FromColor(accentColot);
 
 				var result = new XLWorkbook();
 

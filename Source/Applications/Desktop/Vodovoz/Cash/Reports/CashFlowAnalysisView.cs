@@ -1,4 +1,5 @@
-﻿using Gamma.Binding;
+﻿using Vodovoz.Extensions;
+using Gamma.Binding;
 using Gamma.Binding.Core.RecursiveTreeConfig;
 using Gamma.GtkWidgets;
 using Gtk;
@@ -6,7 +7,6 @@ using NHibernate.Util;
 using QS.Views.GtkUI;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using Vodovoz.ViewModels.Cash.Reports;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
@@ -18,6 +18,7 @@ namespace Vodovoz.Cash.Reports
 	{
 		private List<ReportLine> _lines;
 		private readonly Gdk.Color _defaultTreeViewBackgroundColor;
+		private readonly Gdk.Color _defaultAccentColor;
 
 		public CashFlowAnalysisView(CashFlowAnalysisViewModel viewModel)
 			: base(viewModel)
@@ -25,6 +26,10 @@ namespace Vodovoz.Cash.Reports
 			Build();
 
 			Initialize();
+
+			_defaultAccentColor = Rc.GetStyle(this).IsDark()
+				? new Gdk.Color(233, 84, 32)
+				: ViewModel.AccentColor.ToGdkColor();
 
 			_defaultTreeViewBackgroundColor = Rc.GetStyle(ytreeReportIndicatorsRows).Background(StateType.Normal);
 		}
@@ -89,9 +94,9 @@ namespace Vodovoz.Cash.Reports
 					{
 						cell.Text = string.Empty;
 					}
-					if(node.BGColor.A != 0)
+					if(node.IsAccented)
 					{
-						cell.BackgroundGdk = new Gdk.Color(node.BGColor.R, node.BGColor.G, node.BGColor.B);
+						cell.BackgroundGdk = _defaultAccentColor;
 					}
 					else
 					{
@@ -110,9 +115,9 @@ namespace Vodovoz.Cash.Reports
 					{
 						cell.Text = string.Empty;
 					}
-					if(node.BGColor.A != 0)
+					if(node.IsAccented)
 					{
-						cell.BackgroundGdk = new Gdk.Color(node.BGColor.R, node.BGColor.G, node.BGColor.B);
+						cell.BackgroundGdk = _defaultAccentColor;
 					}
 					else
 					{
@@ -130,9 +135,9 @@ namespace Vodovoz.Cash.Reports
 					{
 						cell.Text = string.Empty;
 					}
-					if(node.BGColor.A != 0)
+					if(node.IsAccented)
 					{
-						cell.BackgroundGdk = new Gdk.Color(node.BGColor.R, node.BGColor.G, node.BGColor.B);
+						cell.BackgroundGdk = _defaultAccentColor;
 					}
 					else
 					{
@@ -180,7 +185,7 @@ namespace Vodovoz.Cash.Reports
 
 			public decimal ThirdColumn { get; set; }
 
-			public Color BGColor { get; set; } = Color.FromArgb(0, 0, 0, 0);
+			public bool IsAccented { get; set; } = false;
 
 			public bool Bold { get; set; }
 
@@ -192,30 +197,30 @@ namespace Vodovoz.Cash.Reports
 			{
 				var result = new List<ReportLine>
 				{
-					Map(report.IncomesGroupLines.First(), report.AccentColor),
+					Map(report.IncomesGroupLines.First()),
 					Separator,
-					Map(report.ExpensesGroupLines.First(), report.AccentColor),
+					Map(report.ExpensesGroupLines.First()),
 					Separator,
 					new ReportLine()
 					{
 						FirstColumn = "Прибыль",
 						ThirdColumn = report.IncomesGroupLines.Sum(x => x.Money) - report.ExpensesGroupLines.Sum(x => x.Money),
 						Bold = true,
-						BGColor = report.AccentColor
+						IsAccented = true
 					}
 				};
 
 				return result;
 			}
 
-			private static ReportLine Map(IncomesGroupLine incomesGroupLine, Color accentColor)
+			private static ReportLine Map(IncomesGroupLine incomesGroupLine)
 			{
 				var result = new ReportLine
 				{
 					FirstColumn = "Доходы",
 					ThirdColumn = incomesGroupLine.Money,
 					Bold = true,
-					BGColor = accentColor
+					IsAccented = true
 				};
 
 				result.ChildLines.AddRange(Map(
@@ -226,14 +231,14 @@ namespace Vodovoz.Cash.Reports
 				return result;
 			}
 
-			private static ReportLine Map(ExpensesGroupLine expensesGroupLine, Color accentColor)
+			private static ReportLine Map(ExpensesGroupLine expensesGroupLine)
 			{
 				var result = new ReportLine
 				{
 					FirstColumn = "Расходы",
 					ThirdColumn = expensesGroupLine.Money,
 					Bold = true,
-					BGColor = accentColor
+					IsAccented = true
 				};
 
 				result.ChildLines.AddRange(Map(

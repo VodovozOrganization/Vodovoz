@@ -18,14 +18,12 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				DateTime startDate,
 				DateTime endDate,
 				List<IncomesGroupLine> incomesGroupLines,
-				List<ExpensesGroupLine> expensesGroupLines,
-				Color accentColor)
+				List<ExpensesGroupLine> expensesGroupLines)
 			{
 				StartDate = startDate;
 				EndDate = endDate;
 				IncomesGroupLines = incomesGroupLines;
 				ExpensesGroupLines = expensesGroupLines;
-				AccentColor = accentColor;
 			}
 
 			public DateTime StartDate { get; }
@@ -38,7 +36,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 			public List<object> Rows => IncomesGroupLines.Cast<object>().Concat(ExpensesGroupLines).ToList();
 
-			public static CashFlowDdsReport GenerateReport(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate, Color accentColor)
+			public static CashFlowDdsReport GenerateReport(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate)
 			{
 				var incomesCategories = (from incomeCategory in unitOfWork.Session.Query<FinancialIncomeCategory>()
 										 where incomeCategory.GroupType == GroupType.Category
@@ -116,8 +114,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 					startDate,
 					endDate,
 					incomeGroupLines,
-					expenseGroupLines,
-					accentColor);
+					expenseGroupLines);
 			}
 
 			private static List<IncomesGroupLine> ProceedIncomeGroups(

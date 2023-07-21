@@ -415,6 +415,7 @@
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
     <Compile Include="Dialogs\CastomMessageDlg.cs" />
+    <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
     <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\DialogsFactory.cs" />
