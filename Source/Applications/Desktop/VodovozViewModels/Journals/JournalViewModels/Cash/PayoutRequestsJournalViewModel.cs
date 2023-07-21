@@ -16,6 +16,7 @@ using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Utilities;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -428,6 +429,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			Employee authorAlias = null;
 			CashRequestSumItem cashRequestSumItemAlias = null;
 			Employee accountableEmployeeAlias = null;
+			FinancialExpenseCategory financialExpenseCategoryAlias = null;
 
 			PayoutRequestJournalNode<CashRequest> resultAlias = null;
 
@@ -500,6 +502,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				.Where(Restrictions.IsNotNull(Projections.Property<CashRequestSumItem>(o => o.CashRequest)))
 				.Select(Projections.Sum(() => cashRequestSumItemAlias.Sum));
 
+			var expenseCategorySubquery = QueryOver.Of(() => financialExpenseCategoryAlias)
+				.Where(() => financialExpenseCategoryAlias.Id == cashRequestAlias.ExpenseCategoryId)
+				.Select(Projections.Property(() => financialExpenseCategoryAlias.Title))
+				.Take(1);
+
 			result.Where(GetSearchCriterion(
 				() => cashRequestAlias.Id,
 				() => authorAlias.Id,
@@ -519,6 +526,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(accauntableProjection).WithAlias(() => resultAlias.AccountablePerson)
 					.SelectSubQuery(cashReuestSumSubquery).WithAlias(() => resultAlias.Sum)
 					.Select(c => c.Basis).WithAlias(() => resultAlias.Basis)
+					.SelectSubQuery(expenseCategorySubquery).WithAlias(() => resultAlias.ExpenseCategory)
+					.Select(c => c.HaveReceipt).WithAlias(() => resultAlias.HaveReceipt)
 				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashRequest>>())
 				.OrderBy(x => x.Date).Desc();
 			return result;
@@ -554,6 +563,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			CashlessRequest cashlessRequestAlias = null;
 			Employee authorAlias = null;
 			Counterparty counterpartyAlias = null;
+			FinancialExpenseCategory financialExpenseCategoryAlias = null;
 
 			PayoutRequestJournalNode<CashlessRequest> resultAlias = null;
 
@@ -614,6 +624,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				Projections.Property(() => authorAlias.Patronymic)
 			);
 
+			var expenseCategorySubquery = QueryOver.Of(() => financialExpenseCategoryAlias)
+				.Where(() => financialExpenseCategoryAlias.Id == cashlessRequestAlias.ExpenseCategoryId)
+				.Select(Projections.Property(() => financialExpenseCategoryAlias.Title))
+				.Take(1);
+
 			result.Where(GetSearchCriterion(
 				() => cashlessRequestAlias.Id,
 				() => authorAlias.Id,
@@ -631,6 +646,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(clr => clr.Basis).WithAlias(() => resultAlias.Basis)
 					.Select(clr => clr.Sum).WithAlias(() => resultAlias.Sum)
+					.SelectSubQuery(expenseCategorySubquery).WithAlias(() => resultAlias.ExpenseCategory)
 				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashlessRequest>>())
 				.OrderBy(clr => clr.Date).Desc();
 			return result;
