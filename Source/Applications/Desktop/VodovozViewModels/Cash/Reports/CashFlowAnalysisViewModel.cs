@@ -9,12 +9,14 @@ using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Diagnostics;
-using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
+using System.Drawing;
 
 namespace Vodovoz.ViewModels.Cash.Reports
 {
 	public partial class CashFlowAnalysisViewModel : DialogTabViewModelBase
 	{
+		private static readonly Color _accentColor = Color.FromArgb(249, 191, 143);
+
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICommonServices _commonServices;
 		private readonly CashFlowDdsReportRenderer _cashFlowDdsReportRenderer;
@@ -134,7 +136,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		{
 			CanGenerateDdsReport = false;
 
-			Report = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate);
+			Report = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate, _accentColor);
 
 			CanGenerateDdsReport = true;
 		}

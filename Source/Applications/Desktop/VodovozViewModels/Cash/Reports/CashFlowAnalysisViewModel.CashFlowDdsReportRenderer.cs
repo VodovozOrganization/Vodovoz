@@ -1,6 +1,5 @@
 ﻿using ClosedXML.Excel;
 using System;
-using System.Drawing;
 using System.Linq;
 
 namespace Vodovoz.ViewModels.Cash.Reports
@@ -9,8 +8,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 	{
 		public class CashFlowDdsReportRenderer
 		{
-			private static readonly Color _subTotalsBGColor = Color.FromArgb(249, 191, 143);
-			private readonly XLColor _subTotalsBGXLColor = XLColor.FromColor(_subTotalsBGColor);
+			private XLColor _subTotalsBGXLColor;
 
 			private const int _splitterRowsCount = 1;
 
@@ -40,10 +38,10 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 			private const int _totalHeaderFontSize = 13;
 
-			public Color SubTotalsBGColor => _subTotalsBGColor;
-
 			public IXLWorkbook Render(CashFlowDdsReport cashFlowDdsReport)
 			{
+				_subTotalsBGXLColor = XLColor.FromColor(cashFlowDdsReport.AccentColor);
+
 				var result = new XLWorkbook();
 
 				result.AddWorksheet(_worksheetTitle);
