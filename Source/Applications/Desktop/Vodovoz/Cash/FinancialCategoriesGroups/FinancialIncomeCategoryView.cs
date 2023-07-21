@@ -41,6 +41,8 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			yenumTypeDocument.ItemsEnum = typeof(TargetDocument);
 			yenumTypeDocument.Binding.AddBinding(ViewModel.Entity, e => e.TargetDocument, w => w.SelectedItem).InitializeFromSource();
 
+			ycheckExcludeFromCashFlowDds.Binding.AddBinding(ViewModel.Entity, e => e.ExcludeFromCashFlowDds, w => w.Active).InitializeFromSource();
+
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 

@@ -20,6 +20,7 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		private TargetDocument _targetDocument;
 		private int? _subdivisionId;
 		private string _numbering;
+		private bool _excludeFromCashFlowDds;
 
 		[Display(Name = "Код")]
 		public virtual int Id { get; }
@@ -74,5 +75,12 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 
 		[Display(Name = "Приход/расход")]
 		public virtual FinancialSubType FinancialSubtype => FinancialSubType.Income;
+
+		[Display(Name = "Не включать в ДДС")]
+		public virtual bool ExcludeFromCashFlowDds
+		{
+			get => _excludeFromCashFlowDds;
+			set => SetField(ref _excludeFromCashFlowDds, value);
+		}
 	}
 }

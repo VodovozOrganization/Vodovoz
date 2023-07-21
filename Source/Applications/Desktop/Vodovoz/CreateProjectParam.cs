@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -229,6 +229,7 @@ using VodovozInfrastructure.Interfaces;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
 using Vodovoz.ViewModels.Widgets;
+using static Vodovoz.Reports.CashFlow;
 
 namespace Vodovoz
 {
@@ -1012,6 +1013,8 @@ namespace Vodovoz
 			builder.RegisterType<FuelCashOrganisationDistributor>().As<IFuelCashOrganisationDistributor>();
 
 			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
+
+			builder.RegisterType<CashFlowDdsReportRenderer>().AsSelf();
 
 			#endregion
 
