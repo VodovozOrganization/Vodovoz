@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels.Dialog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
@@ -21,7 +22,7 @@ using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
-	public class FastDeliveryOrderTransferViewModel : WindowDialogViewModelBase
+	public class FastDeliveryOrderTransferViewModel : WindowDialogViewModelBase, IDisposable
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IRouteListRepository _routeListRepository;
@@ -70,7 +71,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_routeListFrom = _routeListItemToTransfer.RouteList;
 		}
 
-		private void MakeAddressTransfer(RouteListItem address, RouteList routeListFrom, RouteList routeListTo)
+		private bool MakeAddressTransfer(RouteListItem address, RouteList routeListFrom, RouteList routeListTo)
 		{
 			_logger.LogDebug("Проверка адреса с номером {0}", address?.Id.ToString() ?? "Неправильный адрес");
 
@@ -80,20 +81,28 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				_logger.LogDebug("Недостаточно данных для выполнения переноса");
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Недостаточно данных для выполнения переноса");
-				return;
+				return false;
+			}
+
+			if(!address.Order.IsFastDelivery)
+			{
+				_logger.LogDebug("Выбран заказ с обычной доставкой. Перенести можно только заказы с быстрой доставкой");
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Выбран заказ с обычной доставкой. Перенести можно только заказы с быстрой доставкой");
+				return false;
 			}
 
 			if(address.Status == RouteListItemStatus.Transfered)
 			{
 				_logger.LogDebug("Данный заказ уже был перенесен");
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Данный заказ уже был перенесен");
-				return;
+				return false;
 			}
 
 			if(routeListTo.AdditionalLoadingDocument == null)
 			{
 				_logger.LogDebug("В выбранном маршрутном листе отсутствуют дополнительная загрузка");
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "В выбранном маршрутном листе отсутствуют дополнительная загрузка");
+				return false;
 			}
 
 			var hasBalanceForTransfer = _routeListRepository.HasFreeBalanceForOrder(_uow, address.Order, routeListTo);
@@ -102,14 +111,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				_logger.LogDebug("В маршрутном листе получателя недостаточно свободных остатков");
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "В маршрутном листе получателя недостаточно свободных остатков");
-				return;
+				return false;
 			}
 
 			if(HasAddressChanges(address))
 			{
 				_logger.LogDebug("Статус маршрутного листа был изменён другим пользователем.");
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Статус {address.Title} был изменён другим пользователем, для его переноса переоткройте диалог.");
-				return;
+				return false;
 			}
 
 			address.AddressTransferType = AddressTransferType.FromFreeBalance;
@@ -154,13 +163,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				newItem.FirstFillClosing(_wageParameterService);
 			}
 
-			UpdateTranferDocuments(address, newItem);
-
 			_uow.Save(address);
 			_uow.Save(newItem);
+
+			UpdateTranferDocuments(address, newItem);
+
 			_uow.Save(routeListTo);
 			_uow.Save(routeListFrom);
 			_uow.Commit();
+
+			return true;
 		}
 
 		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to)
@@ -250,6 +262,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				|| _routeListItemToTransfer == null
 				|| RouteListToSelectedNode == null)
 			{
+				_logger.LogDebug("Недостаточно данных для выполнения переноса");
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Недостаточно данных для выполнения переноса");
 				return;
 			}
 
@@ -257,8 +271,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			if(routeListTo != null)
 			{
-				MakeAddressTransfer(_routeListItemToTransfer, _routeListFrom, routeListTo);
-				Close(false, CloseSource.Cancel);
+				var isTransferSuccessful = MakeAddressTransfer(_routeListItemToTransfer, _routeListFrom, routeListTo);
+
+				if(isTransferSuccessful)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Заказ успешно перенесен!");
+					Close(false, CloseSource.Cancel);
+				}
 			}
 		}
 
@@ -287,6 +306,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		#endregion
 
 		#endregion
+
+		public void Dispose()
+		{
+			_uow?.Dispose();
+		}
 
 		public class RouteListNode
 		{

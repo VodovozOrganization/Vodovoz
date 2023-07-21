@@ -37,5 +37,11 @@ namespace Vodovoz.Views.Logistic
 			ybuttonTransfer.Clicked += (s, e) => ViewModel.TransferCommand.Execute();
 			ybuttonCancel.Clicked += (s, e) => ViewModel.CancelCommand.Execute();
 		}
+
+		public override void Destroy()
+		{
+			ytreeviewDriversList?.Destroy();
+			base.Destroy();
+		}
 	}
 }
