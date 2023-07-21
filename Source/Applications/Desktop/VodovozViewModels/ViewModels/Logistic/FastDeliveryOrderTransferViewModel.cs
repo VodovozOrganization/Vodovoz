@@ -19,6 +19,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly ILogger<FastDeliveryOrderTransferViewModel> _logger;
+		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
 		private readonly WageParameterService _wageParameterService =
 			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
 
@@ -46,6 +48,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			IRouteListItemRepository routeListItemRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			ILogger<FastDeliveryOrderTransferViewModel> logger,
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
 			int routeListAddressId) : base(navigationManager)
 		{
 			_routeListRepository = routeListRepository ?? throw new System.ArgumentNullException(nameof(routeListRepository));
@@ -53,7 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_routeListItemRepository = routeListItemRepository ?? throw new System.ArgumentNullException(nameof(routeListItemRepository));
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new System.ArgumentNullException(nameof(routeListProfitabilityController));
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_uow = UnitOfWorkFactory.CreateWithoutRoot();
 
 			GetRouteListFromInfo(routeListAddressId);
@@ -102,6 +105,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				_logger.LogDebug("В выбранном маршрутном листе отсутствуют дополнительная загрузка");
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "В выбранном маршрутном листе отсутствуют дополнительная загрузка");
+				return false;
+			}
+
+			var maxFastDeliveryOrdersCountInRouteList = _deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
+			if(GetFastDeliveryOrdersCountInRouteList(routeListTo) >= maxFastDeliveryOrdersCountInRouteList)
+			{
+				_logger.LogDebug("В выбранном маршрутном листе уже имеется максимально допустимое количество заказов с быстрой доставкой");
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "В выбранном маршрутном листе уже имеется максимально допустимое количество заказов с быстрой доставкой");
 				return false;
 			}
 
@@ -195,6 +206,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 
 			return true;
+		}
+
+		private int GetFastDeliveryOrdersCountInRouteList(RouteList routeList)
+		{
+			var fastDeliveryOrdersCount = 0;
+			{
+				foreach(var address in routeList.Addresses)
+				{
+					if(address.Order.IsFastDelivery && address.Status == RouteListItemStatus.EnRoute)
+					{
+						fastDeliveryOrdersCount++;
+					}
+				}
+			}
+
+			return fastDeliveryOrdersCount;
 		}
 
 		private List<RouteListNode> GetFastDeliveryRouteLists()
