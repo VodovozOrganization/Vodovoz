@@ -598,6 +598,7 @@
     <Compile Include="Representations\ProductGroups\ProductGroupVM.cs" />
     <Compile Include="Representations\ProductGroups\ProductGroupVMNode.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
+    <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="TempAdapters\AttachmentsViewModelFactory.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
@@ -1946,6 +1947,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryKindFilterView.cs" />
     <Compile Include="Filters\GtkViews\UndeliveryDetalizationFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryDetalizationFilterView.cs" />
+    <Compile Include="Views\Logistic\FastDeliveryOrderTransferView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryOrderTransferView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

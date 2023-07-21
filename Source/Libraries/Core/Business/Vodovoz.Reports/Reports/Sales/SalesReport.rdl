@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>296.926mm</PageHeight>
   <PageWidth>209.804mm</PageWidth>
   <Width>7.5in</Width>
@@ -24,8 +22,8 @@
         <Width>568.40pt</Width>
         <Value>='Отчет по продажам ' + Iif(Parameters!start_date = Parameters!end_date, 'за ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy"), 'с ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy") + ' по ' + Format(CDate(Parameters!end_date), "dd/MM/yyyy"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>21.9pt</Top>
+        <Left>0.00pt</Left>
+        <Top>21.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -142,7 +140,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >='N' + {digits}</Format>
+                        <Format>='N' + {digits}</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -620,12 +618,27 @@ FROM
               (IFNULL(gg.id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
              OR (0 IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
          )
-       AND (
-             ((orders.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
-                 OR
-              (orders.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include)))
-             OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
+       AND
+       (
+         (
+         	(
+         		(orders.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
+         		OR 
+         		(orders.payment_type = 'Terminal' AND orders.terminal_subtype IN (@payment_terminal_subtype_include) AND '0' IN (@payment_terminal_subtype_exclude))
+         	)
+            OR
+         	(
+          		(orders.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include) AND '0' IN (@payment_terminal_subtype_include))
+          		AND 
+          		(
+          			orders.payment_type &lt;&gt; 'Terminal'
+          			OR
+          			orders.payment_type = 'Terminal' AND orders.terminal_subtype NOT IN (@payment_terminal_subtype_exclude)
+          		)          		
+         	)
          )
+         OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude) AND '0' IN (@payment_terminal_subtype_include) AND '0' IN (@payment_terminal_subtype_exclude))
+       )
        AND (
              ((IFNULL(order_items.promotional_set_id, 0) IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
                  OR
@@ -715,6 +728,12 @@ GROUP BY nomenclature_id
           <QueryParameter Name="product_group_exclude">
             <Value>={?product_group_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_include">
+            <Value>={?payment_terminal_subtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_exclude">
+            <Value>={?payment_terminal_subtype_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
@@ -761,7 +780,7 @@ GROUP BY nomenclature_id
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -819,6 +838,12 @@ GROUP BY nomenclature_id
                 '')),
             (IF(excluded_payment_types!=0,
                 CONCAT('Искл.типов оплаты: ',excluded_payment_types,'\n'),
+                '')),
+            (IF(included_terminal_subtypes!=0,
+                CONCAT('Вкл.источников оплаты по терминалу: ',included_terminal_subtypes,'\n'),
+                '')),
+            (IF(excluded_terminal_subtypes!=0,
+                CONCAT('Искл.источников оплаты по терминалу: ',excluded_terminal_subtypes,'\n'),
                 '')),
             (IF(included_promo_sets!=0,
                 CONCAT('Вкл.промо-наборов: ',included_promo_sets,'\n'),
@@ -931,6 +956,16 @@ FROM
                      0
              ) AS excluded_payment_types,
          IF(
+                 '0' NOT IN (@payment_terminal_subtype_include),
+                 (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@payment_terminal_subtype_include) GROUP BY orders.terminal_subtype) AS q),
+                 0
+         ) AS included_terminal_subtypes,
+         IF(
+                     '0' NOT IN (@payment_terminal_subtype_exclude),
+                     (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@payment_terminal_subtype_exclude) GROUP BY orders.terminal_subtype) AS q),
+                     0
+             ) AS excluded_terminal_subtypes,
+         IF(
                      0 NOT IN (@promotional_set_include),
                      (SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@promotional_set_include)),
                      0
@@ -1025,9 +1060,15 @@ FROM
           <QueryParameter Name="product_group_exclude">
             <Value>={?product_group_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_include">
+            <Value>={?payment_terminal_subtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_exclude">
+            <Value>={?payment_terminal_subtype_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -1035,7 +1076,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="bottles">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -1125,12 +1166,27 @@ FROM
                  (IFNULL(gg.id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
                 OR (0 IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
             )
-          AND (
-                ((orders.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
-                    OR
-                 (orders.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include)))
-                OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
-            )
+          AND 
+			(
+	         (
+	         	(
+	         		(orders.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
+	         		OR 
+	         		(orders.payment_type = 'Terminal' AND orders.terminal_subtype IN (@payment_terminal_subtype_include) AND '0' IN (@payment_terminal_subtype_exclude))
+	         	)
+	            OR
+	         	(
+	          		(orders.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include) AND '0' IN (@payment_terminal_subtype_include))
+	          		AND 
+	          		(
+	          			orders.payment_type &lt;&gt; 'Terminal'
+	          			OR
+	          			orders.payment_type = 'Terminal' AND orders.terminal_subtype NOT IN (@payment_terminal_subtype_exclude)
+	          		)          		
+	         	)
+	         )
+	         OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude) AND '0' IN (@payment_terminal_subtype_include) AND '0' IN (@payment_terminal_subtype_exclude))
+	       )
           AND (
                 ((IF(order_items.promotional_set_id IS NULL, 0, order_items.promotional_set_id) IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude) )
                     OR
@@ -1206,9 +1262,15 @@ FROM
           <QueryParameter Name="product_group_exclude">
             <Value>={?product_group_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_include">
+            <Value>={?payment_terminal_subtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_exclude">
+            <Value>={?payment_terminal_subtype_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="plan">
           <DataField>plan</DataField>
         </Field>
@@ -1218,7 +1280,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="orders_count">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -1304,12 +1366,27 @@ WHERE
          (IFNULL(gg.id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
         OR (0 IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
     )
-  AND (
-        ((orders.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
-            OR
-         (orders.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include)))
-        OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
-    )
+  AND 
+	(
+     (
+     	(
+     		(orders.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
+     		OR 
+     		(orders.payment_type = 'Terminal' AND orders.terminal_subtype IN (@payment_terminal_subtype_include) AND '0' IN (@payment_terminal_subtype_exclude))
+     	)
+        OR
+     	(
+      		(orders.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include) AND '0' IN (@payment_terminal_subtype_include))
+      		AND 
+      		(
+      			orders.payment_type &lt;&gt; 'Terminal'
+      			OR
+      			orders.payment_type = 'Terminal' AND orders.terminal_subtype NOT IN (@payment_terminal_subtype_exclude)
+      		)          		
+     	)
+     )
+     OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude) AND '0' IN (@payment_terminal_subtype_include) AND '0' IN (@payment_terminal_subtype_exclude))
+   )
   AND (
         ((IFNULL(order_items.promotional_set_id, 0) IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
             OR
@@ -1395,9 +1472,15 @@ WHERE
           <QueryParameter Name="product_group_exclude">
             <Value>={?product_group_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_include">
+            <Value>={?payment_terminal_subtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_exclude">
+            <Value>={?payment_terminal_subtype_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="count">
           <DataField>count</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1411,212 +1494,200 @@ WHERE
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
+        <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_type_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_type_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="counterparty_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="counterparty_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organization_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="organization_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="discount_reason_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="discount_reason_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_author_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="order_author_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="subdivision_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="subdivision_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="geographic_group_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="geographic_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="payment_type_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="payment_type_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="promotional_set_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="promotional_set_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="creation_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="product_group_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="product_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="payment_terminal_subtype_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="payment_terminal_subtype_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -19,7 +20,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NHibernate.SqlCommand;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -27,6 +27,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Store;
@@ -500,11 +501,33 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					(filters) =>
 					{
 						var paymentFromList = _unitOfWork.Session.QueryOver<PaymentFrom>().List();
-						var paymentFromCombinedNodes = paymentFromList.Select(x => new CombinedPaymentNode { Id = x.Id, Title = x.Name }).ToList();
+						var paymentFromCombinedNodes = paymentFromList.Select(x => 
+							new CombinedPaymentNode { 
+								Id = x.Id, Title = x.Name, 
+								TopLevelId = (int)PaymentType.PaidOnline })
+						.ToList();
+
+						var paymentByTerminalSources = Enum.GetValues(typeof(PaymentByTerminalSource)).Cast<PaymentByTerminalSource>();
+						var paymentByTerminalSourceNodes = paymentByTerminalSources.Select(x => 
+							new CombinedPaymentNode 
+								{ 
+									Id = (int)x, 
+									Title = x.GetEnumTitle(), 
+									TopLevelId = (int)PaymentType.Terminal 
+								})
+						.ToList();
 
 						var paymentTypeList = Enum.GetValues(typeof(PaymentType)).Cast<PaymentType>();
-						var combinedNodesTypesWithChildFroms = paymentTypeList.Select(x => new CombinedPaymentNode { Title = x.GetEnumTitle(), PaymentType = x, IsTopLevel = true }).ToList();
-						combinedNodesTypesWithChildFroms.Single(x => x.PaymentType == PaymentType.PaidOnline).Childs = paymentFromCombinedNodes;
+						var combinedNodesTypesWithChildFroms = paymentTypeList.Select(x => 
+							new CombinedPaymentNode { 
+								Id = (int)x, 
+								Title = x.GetEnumTitle(), 
+								PaymentType = x, 
+								IsTopLevel = true })
+						.ToList();
+
+						combinedNodesTypesWithChildFroms.Single(x => x.PaymentType == PaymentType.PaidOnline).Childs = paymentFromCombinedNodes;						
+						combinedNodesTypesWithChildFroms.Single(x => x.PaymentType == PaymentType.Terminal).Childs = paymentByTerminalSourceNodes;
 
 						return combinedNodesTypesWithChildFroms;
 					},
@@ -947,12 +970,19 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				var paymentNodes = paymentNodesInclude.Cast<CombinedPaymentNode>().ToList();
 				var paymentTypes = paymentNodes.Where(x => x.IsTopLevel).Select(x => x.PaymentType).ToArray();
-				var paymentCardForms = paymentNodes.Where(x => !x.IsTopLevel).Select(x => x.Id).ToArray();
+				var paymentCardForms = paymentNodes.Where(x => !x.IsTopLevel && x.TopLevelId == (int)PaymentType.PaidOnline).Select(x => x.Id).ToArray();
+				var paymentTerminalForms = paymentNodes.Where(x => !x.IsTopLevel && x.TopLevelId == (int)PaymentType.Terminal).Select(x => x.Id).ToArray();
+
+				var paymentTerminalFormsRestriction =
+					Restrictions.Conjunction()
+						.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Terminal))
+						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentByTerminalSource), paymentTerminalForms));
 
 				query.Where(
 					Restrictions.Disjunction()
 						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), paymentTypes))
 						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentByCardFrom), paymentCardForms))
+						.Add(paymentTerminalFormsRestriction)
 					);
 			}
 
@@ -962,7 +992,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				var paymentNodes = paymentNodesExclude.Cast<CombinedPaymentNode>().ToList();
 				var paymentTypes = paymentNodes.Where(x => x.IsTopLevel).Select(x => x.PaymentType).ToArray();
-				var paymentCardForms = paymentNodes.Where(x => !x.IsTopLevel).Select(x => x.Id).ToArray();
+				var paymentCardForms = paymentNodes.Where(x => !x.IsTopLevel && x.TopLevelId == (int)PaymentType.PaidOnline).Select(x => x.Id).ToArray();
+				var paymentTerminalForms = paymentNodes.Where(x => !x.IsTopLevel && x.TopLevelId == (int)PaymentType.Terminal).Select(x => x.Id).ToArray();
+
+				var paymentTerminalFormsRestriction =
+					Restrictions.Conjunction()
+						.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Terminal))
+						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentByTerminalSource), paymentTerminalForms));
 
 				query.Where(
 					Restrictions.Not(
@@ -971,6 +1007,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 								.Add(Restrictions.IsNotNull(Projections.Property(() => orderAlias.PaymentByCardFrom)))
 								.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentByCardFrom), paymentCardForms)))
 							.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), paymentTypes))
+							.Add(paymentTerminalFormsRestriction)
 						)
 					);
 			}
@@ -1200,15 +1237,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				yield return "Для разреза месяц нельзя выбрать интервал более 60х месяцев";
 			}
-		}
-
-		public class CombinedPaymentNode : IDomainObject
-		{
-			public bool IsTopLevel { get; set; }
-			public PaymentType? PaymentType { get; set; }
-			public int Id { get; set; }
-			public string Title { get; set; }
-			public IList<CombinedPaymentNode> Childs { get; set; }
 		}
 
 		public override void Dispose()

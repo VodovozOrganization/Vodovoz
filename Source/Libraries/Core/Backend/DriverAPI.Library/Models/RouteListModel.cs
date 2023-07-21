@@ -1,5 +1,4 @@
 ﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.DTOs;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -8,6 +7,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using DriverAPI.Library.DTOs;
 
 namespace DriverAPI.Library.Models
 {

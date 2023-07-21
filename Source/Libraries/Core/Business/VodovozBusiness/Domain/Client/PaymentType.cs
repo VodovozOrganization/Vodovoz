@@ -6,7 +6,7 @@ namespace Vodovoz.Domain.Client
 	{
 		[Display(Name = "Наличная", ShortName = "нал.")]
 		Cash,
-		[Display(Name = "Терминал (QR-код терминал)", ShortName = "терм.")]
+		[Display(Name = "Терминал", ShortName = "терм.")]
 		Terminal,
 		[Display(Name = "МП водителя (QR-код)", ShortName = "МП вод.")]
 		DriverApplicationQR,

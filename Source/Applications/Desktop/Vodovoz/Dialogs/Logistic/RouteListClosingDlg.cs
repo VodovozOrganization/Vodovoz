@@ -593,6 +593,17 @@ namespace Vodovoz
 			return result;
 		}
 
+		private decimal GetTerminalSbpOrdersSum()
+		{
+			var result = Entity.Addresses.Where(x => 
+					x.Order.PaymentType == PaymentType.Terminal
+					&& x.Order.PaymentByTerminalSource == PaymentByTerminalSource.ByQR
+					&& x.Status != RouteListItemStatus.Transfered)
+				.Sum(x => x.Order.OrderSum);
+
+			return result;
+		}
+
 		void OnCalUnloadUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<CarUnloadDocument> e)
 		{
 			if(e.UpdatedSubjects.Any(x => x.RouteList.Id == Entity.Id))
@@ -868,6 +879,7 @@ namespace Vodovoz
 				totalCachAmount.ToShortCurrencyString()
 			);
 			labelTerminalSum.Text = $"По терминалу: {GetTerminalOrdersSum().ToShortCurrencyString()}";
+			labelTerminalIncludedSBP.Text = $"В том числе по СБП: {GetTerminalSbpOrdersSum().ToShortCurrencyString()}";
 			labelTotal.Markup = string.Format(
 				"Сдано выручка по МЛ: {0}",
 				routeListRevenue.ToShortCurrencyString()
