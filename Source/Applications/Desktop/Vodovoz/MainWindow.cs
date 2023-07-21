@@ -160,6 +160,7 @@ using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
+using Vodovoz.ViewModels.Cash.Reports;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -421,6 +422,8 @@ public partial class MainWindow : Gtk.Window
 
 		ActionGroupPricing.Activated += ActionGroupPricingActivated;
 		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
+
+		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
 	}
 
 	private void ActionProfitabilitySalesReportActivated(object sender, EventArgs e)
@@ -2708,5 +2711,10 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionActionWarehousesBalanceSummaryReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
+	}
+
+	protected void OnAction74Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CashFlowAnalysisViewModel>(null);
 	}
 }
