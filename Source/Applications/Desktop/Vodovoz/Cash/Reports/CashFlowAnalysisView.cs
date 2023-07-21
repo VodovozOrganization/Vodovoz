@@ -1,4 +1,5 @@
-﻿using QS.Views.GtkUI;
+﻿using Gtk;
+using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Cash.Reports;
 
 namespace Vodovoz.Cash.Reports
@@ -9,6 +10,13 @@ namespace Vodovoz.Cash.Reports
 			: base(viewModel)
 		{
 			Build();
+
+			Initialize();
+		}
+
+		private void Initialize()
+		{
+			UpdateSliderArrow();
 
 			dateStart.Binding
 				.AddBinding(ViewModel, vm => vm.StartDate, w => w.Date)
@@ -31,6 +39,19 @@ namespace Vodovoz.Cash.Reports
 			ybuttonSave.Clicked += (s, e) => ViewModel.SaveReportCommand.Execute();
 
 			buttonInfo.Clicked += (s, e) => ViewModel.ShowDdsReportInfoCommand.Execute();
+
+			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
+		}
+
+		private void UpdateSliderArrow()
+		{
+			arrowSlider.ArrowType = vboxParameters.Visible ? ArrowType.Left : ArrowType.Right;
+		}
+
+		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
+		{
+			vboxParameters.Visible = !vboxParameters.Visible;
+			UpdateSliderArrow();
 		}
 	}
 }
