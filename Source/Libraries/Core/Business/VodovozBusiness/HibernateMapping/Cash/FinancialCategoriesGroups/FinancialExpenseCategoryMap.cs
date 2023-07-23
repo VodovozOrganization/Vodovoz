@@ -21,6 +21,7 @@ namespace Vodovoz.HibernateMapping.Cash.FinancialCategoriesGroups
 			Map(x => x.SubdivisionId).Column("subdivision_id");
 			Map(x => x.Numbering).Column("numbering");
 			Map(x => x.ExcludeFromCashFlowDds).Column("exclude_from_cash_flow_dds");
+			Map(x => x.IsHiddenFromPublicAccess).Column("is_hidden_from_public_access");
 
 			Where("group_type = 'Category' AND financial_subtype = 'Expense'");
 		}
