@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private readonly HierarchicalChunkLinqLoader<FinancialCategoriesGroup, FinancialCategoriesJournalNode> _hierarchicalChunkLinqLoader;
 		private readonly Type[] _domainObjectsTypes;
 		private readonly Dictionary<Type, IPermissionResult> _domainObjectsPermissions;
-		private readonly bool _hasAccessToHiddenFinancislCategories;
+		private readonly bool _hasAccessToHiddenFinancialCategories;
 
 		public FinancialCategoriesGroupsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -103,7 +103,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			DataLoader.DynamicLoadingEnabled = false;
 
 			_domainObjectsPermissions = new Dictionary<Type, IPermissionResult>();
-			_hasAccessToHiddenFinancislCategories = commonServices.CurrentPermissionService.ValidatePresetPermission("has_access_to_hidden_financial_categories");
+			_hasAccessToHiddenFinancialCategories = commonServices.CurrentPermissionService.ValidatePresetPermission("has_access_to_hidden_financial_categories");
 
 			InitializePermissionsMatrix();
 			CreateNodeActions();
@@ -178,7 +178,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			from incomeCategory in unitOfWork.GetAll<FinancialIncomeCategory>()
 			where ((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || incomeCategory.ParentId == parentId)
 				&& (_filter.ShowArchive || !incomeCategory.IsArchive)
-				&& (!incomeCategory.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancislCategories  == incomeCategory.IsHiddenFromPublicAccess)
+				&& (!incomeCategory.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancialCategories  == incomeCategory.IsHiddenFromPublicAccess)
 				&& (string.IsNullOrWhiteSpace(searchString) || incomeCategory.Title.ToLower().Like(searchString)
 					|| incomeCategory.Id.ToString().Like(searchString))
 				&& (_filter.TargetDocument == null || _filter.TargetDocument == incomeCategory.TargetDocument)
@@ -198,7 +198,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			from expenseCategory in unitOfWork.GetAll<FinancialExpenseCategory>()
 			where ((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || expenseCategory.ParentId == parentId)
 				&& (_filter.ShowArchive || !expenseCategory.IsArchive)
-				&& (!expenseCategory.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancislCategories == expenseCategory.IsHiddenFromPublicAccess)
+				&& (!expenseCategory.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancialCategories == expenseCategory.IsHiddenFromPublicAccess)
 				&& (string.IsNullOrWhiteSpace(searchString) || expenseCategory.Title.ToLower().Like(searchString)
 					|| expenseCategory.Id.ToString().Like(searchString))
 				&& (_filter.TargetDocument == null || _filter.TargetDocument == expenseCategory.TargetDocument)
