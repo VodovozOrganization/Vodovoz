@@ -12,6 +12,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.DataLoader.Hierarchy;
 using QS.Project.Search;
+using QS.Project.Services;
 using QS.Services;
 using System;
 using System.Collections.Generic;
@@ -33,12 +34,14 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private readonly HierarchicalChunkLinqLoader<FinancialCategoriesGroup, FinancialCategoriesJournalNode> _hierarchicalChunkLinqLoader;
 		private readonly Type[] _domainObjectsTypes;
 		private readonly Dictionary<Type, IPermissionResult> _domainObjectsPermissions;
+		private readonly bool _hasAccessToHiddenFinancislCategories;
 
 		public FinancialCategoriesGroupsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			ICurrentPermissionService currentPermissionService,
 			INavigationManager navigation,
+			ICommonServices commonServices,
 			FinancialCategoriesJournalFilterViewModel filter,
 			Action<FinancialCategoriesJournalFilterViewModel> filterAction = null)
 			: base(unitOfWorkFactory, interactiveService, navigation)
@@ -56,6 +59,11 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			if(navigation is null)
 			{
 				throw new ArgumentNullException(nameof(navigation));
+			}
+
+			if(commonServices is null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
 			}
 
 			if(filterAction != null)
@@ -95,6 +103,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			DataLoader.DynamicLoadingEnabled = false;
 
 			_domainObjectsPermissions = new Dictionary<Type, IPermissionResult>();
+			_hasAccessToHiddenFinancislCategories = commonServices.CurrentPermissionService.ValidatePresetPermission("has_access_to_hidden_financial_categories");
 
 			InitializePermissionsMatrix();
 			CreateNodeActions();
@@ -169,6 +178,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			from incomeCategory in unitOfWork.GetAll<FinancialIncomeCategory>()
 			where ((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || incomeCategory.ParentId == parentId)
 				&& (_filter.ShowArchive || !incomeCategory.IsArchive)
+				&& (!incomeCategory.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancislCategories  == incomeCategory.IsHiddenFromPublicAccess)
 				&& (string.IsNullOrWhiteSpace(searchString) || incomeCategory.Title.ToLower().Like(searchString)
 					|| incomeCategory.Id.ToString().Like(searchString))
 				&& (_filter.TargetDocument == null || _filter.TargetDocument == incomeCategory.TargetDocument)
@@ -188,6 +198,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			from expenseCategory in unitOfWork.GetAll<FinancialExpenseCategory>()
 			where ((!string.IsNullOrWhiteSpace(searchString) && parentId == null) || expenseCategory.ParentId == parentId)
 				&& (_filter.ShowArchive || !expenseCategory.IsArchive)
+				&& (!expenseCategory.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancislCategories == expenseCategory.IsHiddenFromPublicAccess)
 				&& (string.IsNullOrWhiteSpace(searchString) || expenseCategory.Title.ToLower().Like(searchString)
 					|| expenseCategory.Id.ToString().Like(searchString))
 				&& (_filter.TargetDocument == null || _filter.TargetDocument == expenseCategory.TargetDocument)
