@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Tools;
 
@@ -147,6 +148,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 					   && !_filter.ExcludeFinancialGroupsIds.Contains(financialCategoriesGroup.Id)
 					   && (_filter.RestrictNodeTypes.IsEmpty() || _filter.RestrictNodeTypes.Contains(_financialCategoriesGroupType))
 					   && (_filter.ShowArchive || !financialCategoriesGroup.IsArchive)
+					   && (!financialCategoriesGroup.IsHiddenFromPublicAccess || _hasAccessToHiddenFinancialCategories == financialCategoriesGroup.IsHiddenFromPublicAccess)
 					   && (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == financialCategoriesGroup.FinancialSubtype)
 					   && (!_filter.RestrictNodeSelectTypes.Any() || string.IsNullOrWhiteSpace(searchString) || _filter.RestrictNodeSelectTypes.Contains(_financialCategoriesGroupType))
 				   let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
