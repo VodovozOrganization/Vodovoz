@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			private const int _categoryFontSize = 13;
 			private const int _moneyColumn = 3;
 
-			private const string _moneyNumericFormat = "# ### ### ##0.00;-# ### ### ##0.00";
+			private const string _moneyNumericFormat = "# ### ### ##0.00;-# ### ### ##0.00;-";
 
 			private const string _incomesHeaderTitle = "Доходы";
 			private const int _incomesHeaderFontSize = 13;
@@ -313,11 +313,13 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 			private void RenderGroupTitle(IXLWorksheet xLWorksheet, int row, string title, string numberPrefix, decimal money)
 			{
-				var leveledCell = xLWorksheet.Cell(row, _categoryTitleColumn);
-				leveledCell.Style.Font.Bold = true;
-				leveledCell.Value = $"{numberPrefix}{title}";
+				var groupTitleCell = xLWorksheet.Cell(row, _categoryTitleColumn);
+				groupTitleCell.Style.Font.Bold = true;
+				groupTitleCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
-				RenderMoney(xLWorksheet, row, money, _categoryFontSize, true);
+				groupTitleCell.Value = $"{numberPrefix}{title}";
+
+				RenderMoney(xLWorksheet, row, money, _categoryFontSize, true, true);
 			}
 
 			private void RenderCategoryRow(IXLWorksheet xLWorksheet, int row, string title, decimal money, bool right = false)
@@ -326,21 +328,28 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 				titleCell.Value = title;
 
+				titleCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
 				if(right)
 				{
 					titleCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 				}
 
-				RenderMoney(xLWorksheet, row, money, _categoryFontSize);
+				RenderMoney(xLWorksheet, row, money, _categoryFontSize, border: true);
 			}
 
-			private void RenderMoney(IXLWorksheet xLWorksheet, int row, decimal money, int fontSize, bool bold = false)
+			private void RenderMoney(IXLWorksheet xLWorksheet, int row, decimal money, int fontSize, bool bold = false, bool border = false)
 			{
 				var moneyCell = xLWorksheet.Cell(row, _moneyColumn);
 
 				if(bold)
 				{
 					moneyCell.Style.Font.Bold = true;
+				}
+
+				if(border)
+				{
+					moneyCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 				}
 
 				moneyCell.Style.NumberFormat.Format = _moneyNumericFormat;

@@ -131,6 +131,8 @@ namespace Vodovoz.Cash.Reports
 				.AddColumn("")
 				.AddNumericRenderer(x => x.ThirdColumn)
 				.AddSetter((cell, node) => {
+					var value = node.ThirdColumn == 0 ? "-" : node.ThirdColumn.ToString("# ### ### ##0.00");
+
 					if(node.IsSeparator)
 					{
 						cell.Text = string.Empty;
@@ -145,7 +147,11 @@ namespace Vodovoz.Cash.Reports
 					}
 					if(node.Bold)
 					{
-						cell.Markup = $"<b>{node.ThirdColumn}</b>";
+						cell.Markup = $"<b>{value}</b>";
+					}
+					else
+					{
+						cell.Markup = value;
 					}
 				})
 				.Finish();
