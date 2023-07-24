@@ -429,7 +429,9 @@ namespace Vodovoz.Representations
 
 			var resultQuery = ordersQuery
 				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(c => c.BottlesMovementOperation,
+					() => bottleMovementOperationAlias,
+					(FilterViewModel != null && FilterViewModel.HasFixedPrices) ? NHibernate.SqlCommand.JoinType.InnerJoin : NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList(list => list
 				   .Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.ClientId)
 				   .Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.AddressId)
