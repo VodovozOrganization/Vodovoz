@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
@@ -3589,6 +3589,28 @@ namespace Vodovoz
 			}
 		}
 
+		private void SetSecondOrderDiscount(OrderItem orderItem)
+		{
+			if(!Entity.IsSecondOrder())
+			{
+				return;
+			}
+
+			if(orderItem.DiscountReason != null)
+			{
+				return;
+			}
+
+			var discountReason = UoW.GetById<DiscountReason>(99);
+			_discountsController.SetDiscountFromDiscountReasonForOrderItem(discountReason, orderItem, true, out string message);
+
+			if(message != null)
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					$"Не удалось применить скидку для второго заказа клиента!");
+			}
+		}
+
 		void Entity_UpdateClientCanChange(object aList, int[] aIdx)
 		{
 			entityVMEntryClient.IsEditable = Entity.CanChangeContractor();
@@ -3718,6 +3740,8 @@ namespace Vodovoz
 					if(oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
 						ChangeEquipmentsCount(oItem, (int)oItem.Count);
 					}
+
+					SetSecondOrderDiscount(oItem);
 				}
 			}
 		}
