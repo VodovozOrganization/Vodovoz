@@ -853,6 +853,38 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _logisticsRequirements, value);
 		}
 
+		public virtual bool IsSecondOrder()
+		{
+			if(IsFirstOrder)
+			{
+				return false;
+			}
+
+			var firstOrderStatuses = new OrderStatus[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+
+			var firstOrder = UoW.GetAll<Order>()
+				.Where(o => 
+					o.Client == Client 
+					&& o.IsFirstOrder
+					&& firstOrderStatuses.Contains(o.OrderStatus));
+
+			if (firstOrder.Count() == 0)
+			{
+				return false;
+			}
+
+			var nextOrdersAvailableStatuses = new OrderStatus[] { OrderStatus.Canceled, OrderStatus.NotDelivered };
+
+			var nextOrders = UoW.GetAll<Order>()
+				.Where(o =>
+					!o.IsFirstOrder
+					&& !nextOrdersAvailableStatuses.Contains(o.OrderStatus));
+
+			var isSecondOrder = nextOrders.Count() == 0;
+
+			return isSecondOrder;
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()
