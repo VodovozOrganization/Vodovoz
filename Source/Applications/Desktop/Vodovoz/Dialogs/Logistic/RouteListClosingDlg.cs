@@ -51,8 +51,6 @@ using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Cash;
-using Vodovoz.Settings.Database;
-using Vodovoz.Settings.Database.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -155,7 +153,7 @@ namespace Vodovoz
 		public RouteListClosingDlg(int routeListId, bool isOpenFromCash = false)
 		{
 			_isOpenFromCash = isOpenFromCash;
-			this.Build();
+			Build();
 
 			PerformanceHelper.StartMeasurement();
 
@@ -196,7 +194,7 @@ namespace Vodovoz
 			};
 
 			canCloseRoutelist = new PermissionRepository()
-				.HasAccessToClosingRoutelist(UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService);
+				.HasAccessToClosingRoutelist(UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService) && _canEdit;
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
@@ -428,7 +426,6 @@ namespace Vodovoz
 				hbxStatistics2.Sensitive = false;
 				hbxStatistics3.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
-				toggleWageDetails.Sensitive = _canEdit;
 				permissioncommentview.Sensitive = _canEdit;
 				buttonSave.Sensitive = _canEdit;
 
@@ -459,7 +456,7 @@ namespace Vodovoz
 			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = _canEdit;
 			buttonCalculateCash.Sensitive = _canEdit;
 			labelWage1.Visible = _canEdit;
-			toggleWageDetails.Sensitive = _canEdit;
+			toggleWageDetails.Sensitive = true;
 			permissioncommentview.Sensitive = _canEdit;
 			buttonSave.Sensitive = _canEdit;
 			UpdateButtonState();
