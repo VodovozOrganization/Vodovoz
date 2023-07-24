@@ -15,6 +15,8 @@ namespace Vodovoz.Cash.Reports
 
 			}
 
+			public int LineNumber { get; set; } = default;
+
 			public ReportLine ParentLine { get; set; } = null;
 
 			public List<ReportLine> ChildLines { get; } = new List<ReportLine>();
@@ -33,12 +35,15 @@ namespace Vodovoz.Cash.Reports
 
 			public static List<ReportLine> Map(CashFlowDdsReport report)
 			{
+				int index = 1;
+
 				var result = new List<ReportLine>
 				{
-					Map(report.IncomesGroupLines.First()),
-					Map(report.ExpensesGroupLines.First()),
+					Map(report.IncomesGroupLines.First(), ref index),
+					Map(report.ExpensesGroupLines.First(), ref index),
 					new ReportLine()
 					{
+						LineNumber = index,
 						FirstColumn = "Прибыль",
 						ThirdColumn = report.IncomesGroupLines.Sum(x => x.Money) - report.ExpensesGroupLines.Sum(x => x.Money),
 						Bold = true,
@@ -49,10 +54,11 @@ namespace Vodovoz.Cash.Reports
 				return result;
 			}
 
-			private static ReportLine Map(IncomesGroupLine incomesGroupLine)
+			private static ReportLine Map(IncomesGroupLine incomesGroupLine, ref int index)
 			{
 				var result = new ReportLine
 				{
+					LineNumber = index++,
 					FirstColumn = "Доходы",
 					ThirdColumn = incomesGroupLine.Money,
 					Bold = true,
@@ -62,15 +68,17 @@ namespace Vodovoz.Cash.Reports
 				result.ChildLines.AddRange(Map(
 						result,
 						incomesGroupLine.Groups,
-						incomesGroupLine.IncomeCategories));
+						incomesGroupLine.IncomeCategories,
+						ref index));
 
 				return result;
 			}
 
-			private static ReportLine Map(ExpensesGroupLine expensesGroupLine)
+			private static ReportLine Map(ExpensesGroupLine expensesGroupLine, ref int index)
 			{
 				var result = new ReportLine
 				{
+					LineNumber = index++,
 					FirstColumn = "Расходы",
 					ThirdColumn = expensesGroupLine.Money,
 					Bold = true,
@@ -80,7 +88,8 @@ namespace Vodovoz.Cash.Reports
 				result.ChildLines.AddRange(Map(
 					result,
 					expensesGroupLine.Groups,
-					expensesGroupLine.ExpenseCategories));
+					expensesGroupLine.ExpenseCategories,
+					ref index));
 
 				return result;
 			}
@@ -88,18 +97,19 @@ namespace Vodovoz.Cash.Reports
 			private static IEnumerable<ReportLine> Map(
 				ReportLine parent,
 				List<ExpensesGroupLine> expensesGroupLines,
-				List<FinancialExpenseCategoryLine> expenseCategoryLines)
+				List<FinancialExpenseCategoryLine> expenseCategoryLines,
+				ref int index)
 			{
 				var result = new List<ReportLine>();
 
 				foreach(var expensesGroupLine in expensesGroupLines)
 				{
-					result.Add(Map(parent, expensesGroupLine));
+					result.Add(Map(parent, expensesGroupLine, ref index));
 				}
 
 				foreach(var expenseCategoryLine in expenseCategoryLines)
 				{
-					result.Add(Map(parent, expenseCategoryLine));
+					result.Add(Map(parent, expenseCategoryLine, ref index));
 				}
 
 				return result;
@@ -107,10 +117,12 @@ namespace Vodovoz.Cash.Reports
 
 			private static ReportLine Map(
 				ReportLine parent,
-				FinancialExpenseCategoryLine expenseCategoryLine)
+				FinancialExpenseCategoryLine expenseCategoryLine,
+				ref int index)
 			{
 				return new ReportLine()
 				{
+					LineNumber = index++,
 					ParentLine = parent,
 					SecondColumn = expenseCategoryLine.Title,
 					ThirdColumn = expenseCategoryLine.Money
@@ -119,10 +131,12 @@ namespace Vodovoz.Cash.Reports
 
 			private static ReportLine Map(
 				ReportLine parent,
-				ExpensesGroupLine expensesGroupLine)
+				ExpensesGroupLine expensesGroupLine,
+				ref int index)
 			{
 				var result = new ReportLine()
 				{
+					LineNumber = index++,
 					ParentLine = parent,
 					SecondColumn = expensesGroupLine.Title,
 					ThirdColumn = expensesGroupLine.Money
@@ -131,7 +145,8 @@ namespace Vodovoz.Cash.Reports
 				result.ChildLines.AddRange(Map(
 					result,
 					expensesGroupLine.Groups,
-					expensesGroupLine.ExpenseCategories));
+					expensesGroupLine.ExpenseCategories,
+					ref index));
 
 				return result;
 			}
@@ -139,18 +154,19 @@ namespace Vodovoz.Cash.Reports
 			private static List<ReportLine> Map(
 				ReportLine parent,
 				IEnumerable<IncomesGroupLine> incomesGroupLines,
-				IEnumerable<FinancialIncomeCategoryLine> incomeCategoryLines)
+				IEnumerable<FinancialIncomeCategoryLine> incomeCategoryLines,
+				ref int index)
 			{
 				var result = new List<ReportLine>();
 
 				foreach(var incomesGroupLine in incomesGroupLines)
 				{
-					result.Add(Map(parent, incomesGroupLine));
+					result.Add(Map(parent, incomesGroupLine, ref index));
 				}
 
 				foreach(var incomeCategoryLine in incomeCategoryLines)
 				{
-					result.Add(Map(parent, incomeCategoryLine));
+					result.Add(Map(parent, incomeCategoryLine, ref index));
 				}
 
 				return result;
@@ -158,10 +174,12 @@ namespace Vodovoz.Cash.Reports
 
 			private static ReportLine Map(
 				ReportLine parent,
-				FinancialIncomeCategoryLine incomeCategoryLine)
+				FinancialIncomeCategoryLine incomeCategoryLine,
+				ref int index)
 			{
 				return new ReportLine()
 				{
+					LineNumber = index++,
 					ParentLine = parent,
 					SecondColumn = incomeCategoryLine.Title,
 					ThirdColumn = incomeCategoryLine.Money
@@ -170,10 +188,12 @@ namespace Vodovoz.Cash.Reports
 
 			private static ReportLine Map(
 				ReportLine parent,
-				IncomesGroupLine incomesGroupLine)
+				IncomesGroupLine incomesGroupLine,
+				ref int index)
 			{
 				var result = new ReportLine()
 				{
+					LineNumber = index++,
 					ParentLine = parent,
 					SecondColumn = incomesGroupLine.Title,
 					ThirdColumn = incomesGroupLine.Money
@@ -182,7 +202,8 @@ namespace Vodovoz.Cash.Reports
 				result.ChildLines.AddRange(Map(
 					result,
 					incomesGroupLine.Groups,
-					incomesGroupLine.IncomeCategories));
+					incomesGroupLine.IncomeCategories,
+					ref index));
 
 				return result;
 			}

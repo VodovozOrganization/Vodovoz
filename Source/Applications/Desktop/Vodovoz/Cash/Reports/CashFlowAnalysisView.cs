@@ -83,6 +83,8 @@ namespace Vodovoz.Cash.Reports
 
 			ytreeReportIndicatorsRows.ColumnsConfig = ColumnsConfigFactory.Create<ReportLine>()
 				.AddColumn("")
+				.AddNumericRenderer(x => x.LineNumber)
+				.AddColumn("")
 				.AddTextRenderer(x => x.FirstColumn)
 				.AddSetter((cell, node) =>
 				{
