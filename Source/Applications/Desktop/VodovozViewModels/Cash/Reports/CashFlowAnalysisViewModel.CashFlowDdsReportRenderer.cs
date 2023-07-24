@@ -15,16 +15,18 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 			private const string _worksheetTitle = "Отчет";
 
-			private const string _headerTitle = "Отчет по бюджету";
+			private const string _headerTitle = "Анализ движения денежных средств";
 			private const int _headerRow = 1;
 			private const int _headerFontSize = 13;
 
 			private const int _subHeaderRow = 2;
 			private const int _subHeaderFontSize = 13;
 
+			private const int _groupTitleFontSize = 11;
+
 			private const int _mainCategoryColumn = 1;
 			private const int _categoryTitleColumn = 2;
-			private const int _categoryFontSize = 13;
+			private const int _categoryFontSize = 11;
 			private const int _moneyColumn = 3;
 
 			private const string _moneyNumericFormat = "# ### ### ##0.00;-# ### ### ##0.00;-";
@@ -36,7 +38,6 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			private const int _expensesHeaderFontSize = 13;
 
 			private const string _totalHeaderTitle = "Прибыль";
-
 			private const int _totalHeaderFontSize = 13;
 
 			public IXLWorkbook Render(CashFlowDdsReport cashFlowDdsReport, Color accentColot)
@@ -140,6 +141,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 					_subTotalsBGXLColor);
 
 				subheaderCell.Style.Font.Bold = bold;
+				subheaderCell.Style.Font.FontSize = fontSize;
 				subheaderCell.Value = title;
 
 				RenderMoney(xLWorksheet,
@@ -315,11 +317,12 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			{
 				var groupTitleCell = xLWorksheet.Cell(row, _categoryTitleColumn);
 				groupTitleCell.Style.Font.Bold = true;
+				groupTitleCell.Style.Font.FontSize = _groupTitleFontSize;
 				groupTitleCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
 				groupTitleCell.Value = $"{numberPrefix}{title}";
 
-				RenderMoney(xLWorksheet, row, money, _categoryFontSize, true, true);
+				RenderMoney(xLWorksheet, row, money, _groupTitleFontSize, true, true);
 			}
 
 			private void RenderCategoryRow(IXLWorksheet xLWorksheet, int row, string title, decimal money, bool right = false)
@@ -327,7 +330,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				var titleCell = xLWorksheet.Cell(row, _categoryTitleColumn);
 
 				titleCell.Value = title;
-
+				titleCell.Style.Font.FontSize = _categoryFontSize;
 				titleCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
 				if(right)
