@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -387,14 +387,14 @@ namespace Vodovoz.ViewModels.Widgets
 		public bool CanEdit => PermissionResult.CanUpdate;
 		public bool CanChangeDetalization => CanReadDetalization && _entityDetalizationJournalFilterViewModel.UndeliveryKind != null;
 		public IEntityAutocompleteSelectorFactory UndeliveryDetalizationSelectorFactory { get; }
-		public bool HasPermissionOrNew => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.UndeliveredOrder.CanEditUndeliveries) || Entity.Id == 0;
-		public bool CanCloseUndeliveries => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.UndeliveredOrder.CanCloseUndeliveries);
-		public bool CanEditUndeliveries => (CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.UndeliveredOrder.CanEditUndeliveries)
+		public bool HasPermissionOrNew => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.UndeliveredOrder.CanEditUndeliveries) || Entity.Id == 0;
+		public bool CanCloseUndeliveries => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.UndeliveredOrder.CanCloseUndeliveries);
+		public bool CanEditUndeliveries => (CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.UndeliveredOrder.CanEditUndeliveries)
 										   || Entity.Id == 0)
 										   && Entity.OldOrder != null
 										   && Entity.UndeliveryStatus != UndeliveryStatus.Closed;
 		public Action RemoveItemsFromStatusEnumAction { get; set; }
-		public bool CanChangeProblemSource => CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.UndeliveredOrder.CanChangeUndeliveryProblemSource, CommonServices.UserService.CurrentUserId);
+		public bool CanChangeProblemSource => CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Order.UndeliveredOrder.CanChangeUndeliveryProblemSource, CommonServices.UserService.CurrentUserId);
 		public IEntityAutocompleteSelectorFactory OrderSelector { get; set; }
 		public string Info => Entity.GetOldOrderInfo(_orderRepository);
 		public bool RouteListDoesNotExist => Entity.OldOrder != null && (Entity.OldOrderStatus == OrderStatus.NewOrder

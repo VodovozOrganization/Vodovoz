@@ -1435,18 +1435,4 @@ public partial class MainWindow : Gtk.Window
 	{
 		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
 	}
-
-	protected void OnUndeliveredOrdersActionActivated(object sender, EventArgs e)
-	{
-		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-			new DeliveryPointJournalFactory(), new SubdivisionJournalFactory())
-		{
-			HidenByDefault = true,
-			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
-			RestrictNotIsProblematicCases = true
-		};
-
-		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
-	}
 }
