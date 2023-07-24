@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -114,7 +114,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			{
 				Title = "Сохранить",
 				DefaultFileExtention = ".xlsx",
-				FileName = $"{TabName} от {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx",
+				FileName = GetReportFilename(),
 				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
 			};
 
@@ -171,5 +171,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				"Отчет может генерироваться только при уровне вложенности статей 7 (6 вложенных друг в друга групп и статья, из-за ограничения Excel)",
 				"Информация по отчету ДДС");
 		}
+
+		private string GetReportFilename() => $"{TabName} от {Report.CreatedAt:yyyy-MM-dd-HH-mm}.xlsx";
 	}
 }

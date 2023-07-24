@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		{
 			private XLColor _subTotalsBGXLColor;
 
-			private const int _splitterRowsCount = 1;
+			private const int _splitterRowsCount = 0;
 
 			private const string _worksheetTitle = "Отчет";
 

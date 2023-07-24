@@ -1,7 +1,6 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -24,11 +23,15 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				EndDate = endDate;
 				IncomesGroupLines = incomesGroupLines;
 				ExpensesGroupLines = expensesGroupLines;
+
+				CreatedAt = DateTime.Now;
 			}
 
 			public DateTime StartDate { get; }
 
 			public DateTime EndDate { get; }
+
+			public DateTime CreatedAt { get; }
 
 			public List<IncomesGroupLine> IncomesGroupLines { get; }
 
