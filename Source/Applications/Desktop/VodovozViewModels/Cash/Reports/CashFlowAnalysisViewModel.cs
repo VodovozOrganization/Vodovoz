@@ -44,12 +44,12 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			TabName = "Анализ движения денежных средств";
-
 			var now = DateTime.Now;
 
 			StartDate = now.Date;
 			EndDate = now.LatestDayTime();
+
+			TabName = "Анализ движения денежных средств";
 
 			GenerateDdsReportCommand = new DelegateCommand(GenerateCashFlowDdsReport, () => CanGenerateDdsReport);
 
@@ -139,6 +139,11 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			CanGenerateDdsReport = false;
 
 			Report = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate);
+
+			if(Report != null)
+			{
+				TabName = $"Анализ движения денежных средств c {Report.StartDate:dd.MM.yyyy} по {Report.EndDate:dd.MM.yyyy}";
+			}
 
 			CanGenerateDdsReport = true;
 		}
