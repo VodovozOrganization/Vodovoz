@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -58,8 +58,10 @@ namespace Vodovoz.ViewModels.Widgets
 		private DelegateCommand _beforeSaveCommand;
 		private DelegateCommand _addResultCommand;
 		private DelegateCommand _addCommentToTheFieldCommand;
+		private DelegateCommand _clearDetalizationCommand;
 		private readonly ITdiTab _tab;
 		private ITdiTab _newOrderDlg;
+		
 
 		public UndeliveredOrderViewModel(UndeliveredOrder entity, ICommonServices commonServices,
 			IUndeliveryDetalizationJournalFactory undeliveryDetalizationJournalFactory, IUnitOfWork uow, INavigationManager navigationManager, ILifetimeScope scope,
@@ -327,8 +329,11 @@ namespace Vodovoz.ViewModels.Widgets
 
 		private void RefreshParentUndeliveryDetalizationObjects()
 		{
-			UndeliveryObject = Entity.UndeliveryDetalization?.UndeliveryKind?.UndeliveryObject;
-			UndeliveryKind = Entity.UndeliveryDetalization?.UndeliveryKind;
+			if(Entity.UndeliveryDetalization != null)
+			{
+				UndeliveryObject = Entity.UndeliveryDetalization?.UndeliveryKind?.UndeliveryObject;
+				UndeliveryKind = Entity.UndeliveryDetalization?.UndeliveryKind;
+			}
 		}
 
 		[PropertyChangedAlso(nameof(CanChangeDetalization))]
@@ -591,6 +596,13 @@ namespace Vodovoz.ViewModels.Widgets
 
 					OnPropertyChanged(nameof(FineItems));
 				};
+			}
+		));
+
+		public DelegateCommand ClearDetalizationCommand => _clearDetalizationCommand ?? (_clearDetalizationCommand = new DelegateCommand(
+			() =>
+			{
+				Entity.UndeliveryDetalization = null;
 			}
 		));
 

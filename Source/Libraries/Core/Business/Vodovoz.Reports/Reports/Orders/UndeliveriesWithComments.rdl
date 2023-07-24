@@ -76,13 +76,13 @@
           <TableColumn>
             <Width>211.1pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>34.7pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>33.9pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>34.7pt</Width>
           </TableColumn>
           <TableColumn>
@@ -268,7 +268,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
                       <Value>Объект недовоза</Value>
@@ -286,7 +286,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
                       <Value>Вид недовоза</Value>
@@ -304,7 +304,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
                       <Value>Детализация недовоза</Value>
@@ -454,6 +454,7 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -493,6 +494,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -514,6 +516,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -606,7 +609,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
                       <Value>={undelivery_object}</Value>
@@ -624,10 +627,11 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
                       <Value>={undelivery_kind}</Value>
@@ -645,10 +649,11 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
                       <Value>={undelivery_detalization}</Value>
@@ -666,6 +671,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -743,6 +749,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -760,6 +767,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -904,7 +912,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="UndeliveriesAndComments">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
             SELECT
@@ -1099,7 +1107,7 @@ ORDER BY order_by_column ASC
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="N">
           <DataField>N</DataField>
           <TypeName>System.UInt32</TypeName>

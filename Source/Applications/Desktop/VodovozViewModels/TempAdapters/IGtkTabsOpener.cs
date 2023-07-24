@@ -13,7 +13,7 @@ namespace Vodovoz.TempAdapters
 	public interface IGtkTabsOpener
 	{
 		ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment);
-		ITdiTab CreateOrderDlg(int? orderId = null);
+		ITdiTab CreateOrderDlg(int? orderId);
 		void OpenOrderDlg(ITdiTab tab, int id);
 		void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId);
 		ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId);

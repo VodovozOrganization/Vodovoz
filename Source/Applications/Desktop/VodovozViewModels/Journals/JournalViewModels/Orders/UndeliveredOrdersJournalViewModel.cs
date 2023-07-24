@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Gamma.Utilities;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -6,11 +7,11 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
 using System.Collections;
 using System.Linq;
-using Gamma.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -18,7 +19,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
@@ -28,8 +28,6 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
-using Vodovoz.Journals.JournalNodes;
-using QS.Project.Services.FileDialog;
 using Vodovoz.ViewModels.ViewModels.Reports.UndeliveryJournalReport;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
@@ -41,7 +39,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly IEmployeeJournalFactory _driverEmployeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IEmployeeSettings _employeeSettings;
@@ -59,7 +56,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			_driverEmployeeJournalFactory = driverEmployeeJournalFactory ?? throw new ArgumentNullException(nameof(driverEmployeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
-			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));

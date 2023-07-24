@@ -6,7 +6,6 @@ using QS.Project.Services;
 using QS.Views.GtkUI;
 using System;
 using System.Text;
-using QS.Dialog.Gtk;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Widgets;
@@ -199,16 +198,22 @@ namespace Vodovoz.ViewWidgets
 				.AddBinding(vm => vm.UndeliveryObject, w => w.SelectedItem)
 				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+			cmbUndeliveryObject.Changed += OnDetalizationParentObjectChanged;
 
 			evmeUndeliveryDetalization.SetEntityAutocompleteSelectorFactory(ViewModel.UndeliveryDetalizationSelectorFactory);
 			evmeUndeliveryDetalization.Binding
-				.AddBinding(ViewModel.Entity, u => u.UndeliveryDetalization, w => w.Subject)
+				.AddBinding(ViewModel.Entity, e => e.UndeliveryDetalization, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanChangeDetalization, w => w.Sensitive)
 				.InitializeFromSource();
 
 			SetResultCommentsControlsSettings();
 
 			guiltyInUndeliveryView.ConfigureWidget(ViewModel.UoW, ViewModel.Entity, !ViewModel.RouteListDoesNotExist);
+		}
+
+		private void OnDetalizationParentObjectChanged(object sender, EventArgs e)
+		{
+			ViewModel.ClearDetalizationCommand.Execute();
 		}
 
 		private void OnYentInProcessAtDepartmentChangedByUser(object sender, EventArgs e)
@@ -329,6 +334,7 @@ namespace Vodovoz.ViewWidgets
 			yentInProcessAtDepartment.ChangedByUser -= OnYentInProcessAtDepartmentChangedByUser;
 			evmeOldUndeliveredOrder.Changed -= OnUndeliveredOrderChanged;
 			ytreeviewResult.ButtonReleaseEvent -= OnYtreeviewResultButtonReleaseEvent;
+			cmbUndeliveryObject.Changed -= OnDetalizationParentObjectChanged;
 			ytreeviewResult?.Destroy();
 			yTreeFines?.Destroy();
 

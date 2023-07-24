@@ -27,7 +27,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		public ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment) =>
 			new OrderDlg { IsForRetail = isForRetail, IsForSalesDepartment = isForSalesDepartment};
 		
-		public ITdiTab CreateOrderDlg(int? orderId = null) => orderId.HasValue ? new OrderDlg(orderId.Value) : new OrderDlg();
+		public ITdiTab CreateOrderDlg(int? orderId) => orderId.HasValue ? new OrderDlg(orderId.Value) : new OrderDlg();
 
 		public void OpenOrderDlg(ITdiTab tab, int id)
 		{
