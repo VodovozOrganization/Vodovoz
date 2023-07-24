@@ -750,35 +750,28 @@ namespace Vodovoz.Views.Logistic
 			string ttText = WordWrapText(order.DeliveryPointShortAddress, maxCharsInRow);
 			if(order.Total19LBottlesToDeliver > 0)
 			{
-				ttText += "\n";
 				ttText += WordWrapText($"Бутылей 19л: {order.Total19LBottlesToDeliver}", maxCharsInRow);
 			}
 
 			if(order.Total6LBottlesToDeliver > 0)
 			{
-				ttText += "\n";
 				ttText += WordWrapText($"Бутылей 6л: {order.Total6LBottlesToDeliver}", maxCharsInRow);
 			}
 
 			if(order.Total600mlBottlesToDeliver > 0)
 			{
-				ttText += "\n";
 				ttText += WordWrapText($"Бутылей 0,6л: {order.Total600mlBottlesToDeliver}", maxCharsInRow);
 			}
 
-			ttText += "\n";
 			ttText += WordWrapText($"Забор бутылей: {order.BottlesReturn}", maxCharsInRow);
 
 			var deliveryTime = order.DeliverySchedule?.Name ?? "Не назначено";
-			ttText += "\n";
 			ttText += WordWrapText($"Время доставки: {deliveryTime}", maxCharsInRow);
 
 			var districtName = ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.DistrictBorder.Contains(order.DeliveryPointNetTopologyPoint))?.DistrictName;
-			ttText += "\n";
 			ttText += WordWrapText($"Район: {districtName}", maxCharsInRow);
 
 			var comment = GetMarkerCommentValue(order);
-			ttText += "\n";
 			ttText += WordWrapText($"Комментарий: {comment}", maxCharsInRow);
 
 			var orderLat = (double)order.DeliveryPointLatitude;
@@ -808,6 +801,7 @@ namespace Vodovoz.Views.Logistic
 
 			foreach(var subRow in subRows)
 			{
+				result += "\n";
 				result += WordWrap(subRow, maxCharsInRow);
 			}
 			return result;

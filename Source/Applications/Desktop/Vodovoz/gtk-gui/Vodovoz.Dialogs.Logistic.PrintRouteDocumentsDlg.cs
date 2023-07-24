@@ -113,7 +113,7 @@ namespace Vodovoz.Dialogs.Logistic
 			this.ycheckOnlyNonPrinted.CanFocus = true;
 			this.ycheckOnlyNonPrinted.Name = "ycheckOnlyNonPrinted";
 			this.ycheckOnlyNonPrinted.Label = global::Mono.Unix.Catalog.GetString("Только не распечатанные");
-			this.ycheckOnlyNonPrinted.Active = true;
+			this.ycheckOnlyNonPrinted.Active = false;
 			this.ycheckOnlyNonPrinted.DrawIndicator = true;
 			this.ycheckOnlyNonPrinted.UseUnderline = true;
 			this.hbox2.Add(this.ycheckOnlyNonPrinted);
