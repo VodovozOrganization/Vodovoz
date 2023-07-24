@@ -27,22 +27,16 @@ namespace Vodovoz.ViewWidgets
 
 		public void ConfigureDlg()
 		{
-			if(ViewModel.UoW.IsNew)
-			{
-				Sensitive = false;
-			}
+			ViewModel.RemoveItemsFromStatusEnumAction = () => RemoveItemsFromEnums();
 
 			lblInfo.Binding.AddBinding(ViewModel, vm => vm.Info, w => w.LabelProp).InitializeFromSource();
 
-			ViewModel.RemoveItemsFromStatusEnumAction = () => RemoveItemsFromEnums();
-            ViewModel.CreateOrderAction = () => CreateNewOrder();
+			#region Has permission or new
 
-            #region HasPermissionOrNew
+			//основные поля доступны если есть разрешение или это новый недовоз,
+			//выбран старый заказ и статус недовоза не "Закрыт"
 
-            //основные поля доступны если есть разрешение или это новый недовоз,
-            //выбран старый заказ и статус недовоза не "Закрыт"
-
-            yEnumCMBDriverCallPlace.Binding.AddFuncBinding(ViewModel,
+			yEnumCMBDriverCallPlace.Binding.AddFuncBinding(ViewModel,
 					vm => vm.Entity.OldOrder != null
 					      && vm.HasPermissionOrNew
 					      && vm.Entity.UndeliveryStatus != UndeliveryStatus.Closed,
@@ -77,6 +71,11 @@ namespace Vodovoz.ViewWidgets
 					w => w.Sensitive)
 				.InitializeFromSource();
 
+			tblUndeliveryFields.Binding.AddFuncBinding(ViewModel, 
+				vm => vm.Entity.OldOrder != null 
+				      && vm.HasPermissionOrNew,
+				w => w.Sensitive).InitializeFromSource();
+
 			#endregion
 
 			//выбор старого заказа доступен, если есть разрешение или это новый недовоз и не выбран старый заказ
@@ -97,14 +96,15 @@ namespace Vodovoz.ViewWidgets
 			//кнопки для выбора/создания нового заказа и группа "В работе у отдела"
 			//доступны всегда, если статус недовоза не "Закрыт"
 			hbxInProcessAtDepartment.Binding.AddFuncBinding(ViewModel.Entity,
-				e => e.UndeliveryStatus != UndeliveryStatus.Closed,
+				e => e.UndeliveryStatus != UndeliveryStatus.Closed && e.OldOrder != null,
 				w => w.Sensitive).InitializeFromSource();
 
 			hbxForNewOrder.Binding.AddFuncBinding(ViewModel,
 				vm => vm.Entity.UndeliveryStatus != UndeliveryStatus.Closed,
 				w => w.Sensitive).InitializeFromSource();
 
-			#region Result Comments Controls Sensitive;
+
+			#region Result comments controls sensitive;
 
 			ytreeviewResult.Binding.AddBinding(ViewModel,
 				vm => vm.CanEditUndeliveries,
@@ -122,20 +122,16 @@ namespace Vodovoz.ViewWidgets
 
 			#endregion
 
-			#region Visibilites
+			#region Driver visibilites
 
 			lblDriverCallPlace.Binding.AddFuncBinding(ViewModel, vm => !vm.RouteListDoesNotExist, w => w.Visible).InitializeFromSource();
-			yEnumCMBDriverCallPlace.Binding.AddFuncBinding(ViewModel, vm => !vm.RouteListDoesNotExist, w => w.Visible)
-				.InitializeFromSource();
-			lblDriverCallTime.Binding.AddFuncBinding(ViewModel.Entity, vm => vm.DriverCallType != DriverCallType.NoCall, w => w.Visible)
-				.InitializeFromSource();
-			yDateDriverCallTime.Binding.AddFuncBinding(ViewModel.Entity, vm => vm.DriverCallType != DriverCallType.NoCall, w => w.Visible)
-				.InitializeFromSource();
+			yEnumCMBDriverCallPlace.Binding.AddFuncBinding(ViewModel, vm => !vm.RouteListDoesNotExist, w => w.Visible).InitializeFromSource();
+			lblDriverCallTime.Binding.AddFuncBinding(ViewModel.Entity, vm => vm.DriverCallType != DriverCallType.NoCall, w => w.Visible).InitializeFromSource();
+			yDateDriverCallTime.Binding.AddFuncBinding(ViewModel.Entity, vm => vm.DriverCallType != DriverCallType.NoCall, w => w.Visible).InitializeFromSource();
 			btnChooseOrder.Binding.AddFuncBinding(ViewModel.Entity, vm => vm.NewOrder == null, w => w.Visible).InitializeFromSource();
 			lblTransferDate.Binding.AddFuncBinding(ViewModel.Entity, vm => vm.NewOrder != null, w => w.Visible).InitializeFromSource();
 
 			#endregion
-
 
 			yTreeFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
@@ -152,13 +148,10 @@ namespace Vodovoz.ViewWidgets
 			yEnumCMBDriverCallPlace.ItemsEnum = typeof(DriverCallType);
 			yEnumCMBDriverCallPlace.Binding.AddBinding(ViewModel.Entity, p => p.DriverCallType, w => w.SelectedItem).InitializeFromSource();
 
-			yDateDispatcherCallTime.Binding.AddBinding(ViewModel.Entity, t => t.DispatcherCallTime, w => w.DateOrNull)
-				.InitializeFromSource();
+			yDateDispatcherCallTime.Binding.AddBinding(ViewModel.Entity, t => t.DispatcherCallTime, w => w.DateOrNull).InitializeFromSource();
 		
 			entryNewDeliverySchedule.SetEntityAutocompleteSelectorFactory(ViewModel.DeliveryScheduleJournalFactory);
-			entryNewDeliverySchedule.Binding
-				.AddBinding(ViewModel.Entity, s => s.NewDeliverySchedule, w => w.Subject)
-				.InitializeFromSource();
+			entryNewDeliverySchedule.Binding.AddBinding(ViewModel.Entity, s => s.NewDeliverySchedule, w => w.Subject).InitializeFromSource();
 			entryNewDeliverySchedule.Sensitive = false;
 
 			lblTransferDate.Binding.AddBinding(ViewModel, vm => vm.TransferText, w => w.Text).InitializeFromSource();
@@ -169,9 +162,8 @@ namespace Vodovoz.ViewWidgets
 			yEnumCMBStatus.Binding.AddBinding(ViewModel.Entity, e => e.UndeliveryStatus, w => w.SelectedItem).InitializeFromSource();
 
 			yentInProcessAtDepartment.SubjectType = typeof(Subdivision);
-			yentInProcessAtDepartment.Binding.AddBinding(ViewModel.Entity, d => d.InProcessAtDepartment, w => w.Subject)
-				.InitializeFromSource();
-			yentInProcessAtDepartment.ChangedByUser += (s, e) => { ViewModel.AddCommentToTheField(); };
+			yentInProcessAtDepartment.Binding.AddBinding(ViewModel.Entity, d => d.InProcessAtDepartment, w => w.Subject).InitializeFromSource();
+			yentInProcessAtDepartment.ChangedByUser += OnYentInProcessAtDepartmentChangedByUser;
 
 			evmeRegisteredBy.SetEntityAutocompleteSelectorFactory(ViewModel.WorkingEmployeeAutocompleteSelectorFactory);
 			evmeRegisteredBy.Binding.AddBinding(ViewModel.Entity, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
@@ -180,13 +172,12 @@ namespace Vodovoz.ViewWidgets
 
 			yenumcomboboxTransferType.ItemsEnum = typeof(TransferType);
 			yenumcomboboxTransferType.Binding.AddBinding(ViewModel.Entity, u => u.OrderTransferType, w => w.SelectedItemOrNull);
-			yenumcomboboxTransferType.Binding.AddFuncBinding(ViewModel.Entity, u => u.NewOrder != null, w => w.Visible)
-				.InitializeFromSource();
+			yenumcomboboxTransferType.Binding.AddFuncBinding(ViewModel.Entity, u => u.NewOrder != null, w => w.Visible).InitializeFromSource();
 
 			comboTransferAbsenceReason.SetRenderTextFunc<UndeliveryTransferAbsenceReason>(u => u.Name);
-			comboTransferAbsenceReason.Binding.AddBinding(ViewModel, vm => vm.UndeliveryTransferAbsenceReasonItems, w => w.ItemsList)
-				.InitializeFromSource();
-			comboTransferAbsenceReason.Binding.AddBinding(ViewModel.Entity, u => u.UndeliveryTransferAbsenceReason, w => w.SelectedItem)
+			comboTransferAbsenceReason.Binding
+				.AddBinding(ViewModel, vm => vm.UndeliveryTransferAbsenceReasonItems, w => w.ItemsList)
+				.AddBinding(ViewModel.Entity, u => u.UndeliveryTransferAbsenceReason, w => w.SelectedItem)
 				.InitializeFromSource();
 			comboTransferAbsenceReason.Sensitive = ViewModel.CanChangeProblemSource;
 
@@ -218,32 +209,18 @@ namespace Vodovoz.ViewWidgets
 			SetResultCommentsControlsSettings();
 
 			guiltyInUndeliveryView.ConfigureWidget(ViewModel.UoW, ViewModel.Entity, !ViewModel.RouteListDoesNotExist);
+		}
 
-			Application.Invoke((s, arg) =>
-			{
-				yDateDriverCallTime.Binding.RefreshFromSource();
-				yenumcomboboxTransferType.Binding.RefreshFromSource();
-				lblDriverCallTime.Binding.RefreshFromSource();
-				lblTransferDate.Binding.RefreshFromSource();
-				btnChooseOrder.Binding.RefreshFromSource();
-			});
+		private void OnYentInProcessAtDepartmentChangedByUser(object sender, EventArgs e)
+		{
+			ViewModel.AddCommentToTheFieldCommand.Execute();
 		}
 
 		private void SetResultCommentsControlsSettings()
 		{
 			_popupCopyCommentsMenu = new Menu();
 			MenuItem copyCommentsMenuEntry = new MenuItem("Копировать");
-			copyCommentsMenuEntry.ButtonPressEvent += (s, e) =>
-			{
-				StringBuilder stringBuilder = new StringBuilder();
-
-				foreach(UndeliveredOrderResultComment selected in ytreeviewResult.SelectedRows)
-				{
-					stringBuilder.AppendLine(selected.Comment);
-				}
-
-				GetClipboard(null).Text = stringBuilder.ToString();
-			};
+			copyCommentsMenuEntry.ButtonPressEvent += CopyCommentsMenuEntryOnButtonPressEvent;
 			copyCommentsMenuEntry.Visible = true;
 			_popupCopyCommentsMenu.Add(copyCommentsMenuEntry);
 
@@ -264,22 +241,7 @@ namespace Vodovoz.ViewWidgets
 				.Finish();
 
 			ytreeviewResult.ItemsDataSource = ViewModel.Entity.ObservableResultComments;
-			ytreeviewResult.ButtonReleaseEvent += (s, e) =>
-			{
-				if(e.Event.Button != (uint)GtkMouseButton.Right)
-				{
-					return;
-				}
-
-				_popupCopyCommentsMenu.Show();
-
-				if(_popupCopyCommentsMenu.Children.Length == 0)
-				{
-					return;
-				}
-
-				_popupCopyCommentsMenu.Popup();
-			};
+			ytreeviewResult.ButtonReleaseEvent += OnYtreeviewResultButtonReleaseEvent;
 
 			ybuttonAddResult.Clicked += OnButtonAddResultClicked;
 
@@ -288,9 +250,38 @@ namespace Vodovoz.ViewWidgets
 				.InitializeFromSource();
 		}
 
+		private void OnYtreeviewResultButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			_popupCopyCommentsMenu.Show();
+
+			if(_popupCopyCommentsMenu.Children.Length == 0)
+			{
+				return;
+			}
+
+			_popupCopyCommentsMenu.Popup();
+		}
+
+		private void CopyCommentsMenuEntryOnButtonPressEvent(object o, ButtonPressEventArgs args)
+		{
+			StringBuilder stringBuilder = new StringBuilder();
+
+			foreach(UndeliveredOrderResultComment selected in ytreeviewResult.SelectedRows)
+			{
+				stringBuilder.AppendLine(selected.Comment);
+			}
+
+			GetClipboard(null).Text = stringBuilder.ToString();
+		}
+
 		private void OnButtonAddResultClicked(object sender, EventArgs e)
 		{
-			ViewModel.OnAddResult();
+			ViewModel.AddResultCommand.Execute();
 		}
 
 		void RemoveItemsFromEnums()
@@ -305,55 +296,39 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnBtnNewOrderClicked(object sender, EventArgs e)
 		{
-			ViewModel.OnNewOrder();
+			ViewModel.NewOrderCommand.Execute();
 		}
 
 		protected void OnBtnChooseOrderClicked(object sender, EventArgs e)
 		{
-			ViewModel.OnChooseOrder();
+			ViewModel.ChooseOrderCommand.Execute();
 		}
 
 		protected void OnButtonAddFineClicked(object sender, EventArgs e)
 		{
-			ViewModel.OnAddFine();
+			ViewModel.AddFineCommand.Execute();
 		}
 
 		private void OnUndeliveredOrderChanged(object sender, EventArgs e)
 		{
-			Sensitive = true;
 			guiltyInUndeliveryView.ConfigureWidget(ViewModel.UoW, ViewModel.Entity, !ViewModel.RouteListDoesNotExist);
 		}
 
-		/// <summary>
-		/// Создаёт новый заказ, копируя поля существующего.
-		/// </summary>
-		/// <param name="order">Заказ, из которого копируются свойства.</param>
-		protected void CreateNewOrder()
+		protected override void OnShown()
 		{
-			var order = ViewModel.Entity.OldOrder;
-			var dlg = new OrderDlg();
-			dlg.CopyOrderFrom(order.Id);
-
-			ViewModel.Tab.TabParent.OpenTab(
-                DialogHelper.GenerateDialogHashName<Order>(dlg.Entity.Id),
-                () => dlg
-            );
-
-            dlg.TabClosed += (sender, e) => {
-				if(sender is OrderDlg)
-				{
-					Order o = (sender as OrderDlg).Entity;
-					if(o.Id > 0)
-					{
-						ViewModel.Entity.NewOrder = o;
-						ViewModel.Entity.NewDeliverySchedule = o.DeliverySchedule;
-					}
-				}
-			};
+			base.OnShown();
+			yDateDriverCallTime.Binding.RefreshFromSource();
+			yenumcomboboxTransferType.Binding.RefreshFromSource();
+			lblDriverCallTime.Binding.RefreshFromSource();
+			lblTransferDate.Binding.RefreshFromSource();
+			btnChooseOrder.Binding.RefreshFromSource();
 		}
 
-        public override void Dispose()
+		public override void Dispose()
 		{
+			yentInProcessAtDepartment.ChangedByUser -= OnYentInProcessAtDepartmentChangedByUser;
+			evmeOldUndeliveredOrder.Changed -= OnUndeliveredOrderChanged;
+			ytreeviewResult.ButtonReleaseEvent -= OnYtreeviewResultButtonReleaseEvent;
 			ytreeviewResult?.Destroy();
 			yTreeFines?.Destroy();
 

@@ -28,7 +28,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeOldUndeliveredOrder;
 
-		private global::Gtk.Table tblUndeliveryFields;
+		private global::Gamma.GtkWidgets.yTable tblUndeliveryFields;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox comboTransferAbsenceReason;
 
@@ -240,7 +240,7 @@ namespace Vodovoz.ViewWidgets
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child vbxWithControls.Gtk.Box+BoxChild
-			this.tblUndeliveryFields = new global::Gtk.Table(((uint)(9)), ((uint)(3)), false);
+			this.tblUndeliveryFields = new global::Gamma.GtkWidgets.yTable(((uint)(9)), ((uint)(3)), false);
 			this.tblUndeliveryFields.Name = "tblUndeliveryFields";
 			this.tblUndeliveryFields.RowSpacing = ((uint)(6));
 			this.tblUndeliveryFields.ColumnSpacing = ((uint)(6));

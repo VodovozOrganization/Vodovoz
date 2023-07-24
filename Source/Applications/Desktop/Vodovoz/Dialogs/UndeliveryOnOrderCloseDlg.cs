@@ -132,7 +132,7 @@ namespace Vodovoz.Dialogs
 				return false;
 			}
 
-			_undeliveredOrderViewModel.BeforeSave();
+			_undeliveredOrderViewModel.BeforeSaveCommand.Execute();
 
 			if(!CanCreateUndelivery())
 			{
@@ -172,6 +172,12 @@ namespace Vodovoz.Dialogs
 		protected void OnButtonCancelClicked(object sender, EventArgs e)
 		{
 			OnCloseTab(true);
+		}
+
+		public override void Destroy()
+		{
+			_undeliveredOrderViewModel.Dispose();
+			base.Destroy();
 		}
 	}
 

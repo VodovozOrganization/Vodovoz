@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Autofac;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -8,6 +6,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
 using QS.Validation;
+using System;
+using System.Linq;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
@@ -18,7 +18,6 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.Dialogs
@@ -88,7 +87,7 @@ namespace Vodovoz.Dialogs
 		//реализация метода интерфейса ITdiTabAddedNotifier
 		public void OnTabAdded()
 		{
-			_undeliveredOrderViewModel.OnTabAdded();
+			_undeliveredOrderViewModel.OldOrderSelectCommand.Execute();
 		}
 
 		public void ConfigureDlg(bool isForSalesDepartment = false)
@@ -106,7 +105,7 @@ namespace Vodovoz.Dialogs
 				new TypedParameter(typeof(ITdiTab), this as TdiTabBase));
 			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
 
-			_undeliveredOrderViewModel.IsSaved += () => Save(false);
+			_undeliveredOrderViewModel.IsSaved += IsSaved;
 
 			SetAccessibilities();
 			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
@@ -119,6 +118,8 @@ namespace Vodovoz.Dialogs
 				};
 			}
 		}
+
+		private bool IsSaved() => Save(false);
 
 		void SetAccessibilities(){
 			unOrderCmntView.Visible = UndeliveredOrder.Id > 0;
@@ -136,7 +137,9 @@ namespace Vodovoz.Dialogs
 			{
 				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, _baseParametersProvider, CallTaskWorker);
 			}
-			_undeliveredOrderViewModel.BeforeSave();
+
+			_undeliveredOrderViewModel.BeforeSaveCommand.Execute();
+
 			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ
 			if(!CanCreateUndelivery())
 			{
@@ -206,6 +209,8 @@ namespace Vodovoz.Dialogs
 
 		public override void Destroy()
 		{
+			_undeliveredOrderViewModel.IsSaved -= IsSaved;
+			_undeliveredOrderViewModel.Dispose();
 			UoW?.Dispose();
 			base.Destroy();
 		}

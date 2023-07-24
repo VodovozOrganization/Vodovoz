@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -30,7 +31,7 @@ using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.Widgets
 {
-	public class UndeliveredOrderViewModel : EntityWidgetViewModelBase<UndeliveredOrder>
+	public class UndeliveredOrderViewModel : EntityWidgetViewModelBase<UndeliveredOrder>, IDisposable
 	{
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
@@ -48,9 +49,17 @@ namespace Vodovoz.ViewModels.Widgets
 		private IList<GuiltyInUndelivery> _initialGuiltyList = new List<GuiltyInUndelivery>();
 		private readonly bool _canReadDetalization;
 		private string _newResultText;
-		private INavigationManager _navigationManager;
-		public ITdiTab Tab { get; set; }
-		private ILifetimeScope _scope;
+		private readonly INavigationManager _navigationManager;
+		private readonly ILifetimeScope _scope;
+		private DelegateCommand _addFineCommand;
+		private DelegateCommand _chooseOrderCommand;
+		private DelegateCommand _oldOrderSelectCommand;
+		private DelegateCommand _newOrderSelectCommand;
+		private DelegateCommand _beforeSaveCommand;
+		private DelegateCommand _addResultCommand;
+		private DelegateCommand _addCommentToTheFieldCommand;
+		private readonly ITdiTab _tab;
+		private ITdiTab _newOrderDlg;
 
 		public UndeliveredOrderViewModel(UndeliveredOrder entity, ICommonServices commonServices,
 			IUndeliveryDetalizationJournalFactory undeliveryDetalizationJournalFactory, IUnitOfWork uow, INavigationManager navigationManager, ILifetimeScope scope,
@@ -60,7 +69,7 @@ namespace Vodovoz.ViewModels.Widgets
 		{
 			_navigationManager = navigationManager ?? throw new ArgumentException(nameof(navigationManager));
 			_scope = scope ?? throw new ArgumentException(nameof(scope));
-			Tab = tab ?? throw new ArgumentException(nameof(tab));
+			_tab = tab ?? throw new ArgumentException(nameof(tab));
 			_orderRepository = orderRepository ?? throw new ArgumentException(nameof(orderRepository));
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentException(nameof(orderSelectorFactory));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentException(nameof(subdivisionRepository));
@@ -78,13 +87,12 @@ namespace Vodovoz.ViewModels.Widgets
 			UndeliveryDetalizationSelectorFactory = (undeliveryDetalizationJournalFactory ?? throw new ArgumentException(nameof(undeliveryDetalizationJournalFactory)))
 				.CreateUndeliveryDetalizationAutocompleteSelectorFactory(_entityDetalizationJournalFilterViewModel);
 
-			ConfigureDlg();
+			ConfigureView();
 		}
 
-		private void ConfigureDlg()
+		private void ConfigureView()
 		{
 			Entity.PropertyChanged += OnEntityPropertyChanged;
-
 
 			if(Entity.Id > 0 && Entity.InProcessAtDepartment != null)
 			{
@@ -288,17 +296,19 @@ namespace Vodovoz.ViewModels.Widgets
 		/// <param name="order">Заказ, из которого копируются свойства.</param>
 		private void CreateNewOrder(Order order)
 		{
-			var dlg = _gtkTabsOpener.OpenCopyOrderDlg(Tab, order.Id);
+			_newOrderDlg = _gtkTabsOpener.OpenCopyOrderDlg(_tab, order.Id);
+			_newOrderDlg.TabClosed -= OnNewOrderDlgClosed;
+			_newOrderDlg.TabClosed += OnNewOrderDlgClosed;
+		}
 
-			dlg.TabClosed += (sender, e) =>
+		private void OnNewOrderDlgClosed(object sender, EventArgs e)
+		{
+			var newOrder = (sender as IEntityDialog)?.EntityObject as Order;
+			if(newOrder?.Id > 0)
 			{
-				var newOrder = (sender as IEntityDialog)?.EntityObject as Order;
-				if(newOrder?.Id > 0)
-				{
-					Entity.NewOrder = newOrder;
-					Entity.NewDeliverySchedule = Entity.NewOrder.DeliverySchedule;
-				}
-			};
+				Entity.NewOrder = newOrder;
+				Entity.NewDeliverySchedule = Entity.NewOrder.DeliverySchedule;
+			}
 		}
 
 		/// <summary>
@@ -311,42 +321,14 @@ namespace Vodovoz.ViewModels.Widgets
 			{
 				UoW.Save();
 				UoW.Commit();
-				_gtkTabsOpener.OpenOrderDlg(Tab, order.Id);
+				_gtkTabsOpener.OpenOrderDlg(_tab, order.Id);
 			}
 		}
 
-		public void RefreshParentUndeliveryDetalizationObjects()
+		private void RefreshParentUndeliveryDetalizationObjects()
 		{
 			UndeliveryObject = Entity.UndeliveryDetalization?.UndeliveryKind?.UndeliveryObject;
 			UndeliveryKind = Entity.UndeliveryDetalization?.UndeliveryKind;
-		}
-
-		public void AddCommentToTheField()
-		{
-			Entity.AddCommentToTheField(
-				UoW,
-				CommentedFields.Reason,
-				String.Format(
-					"сменил(а) \"в работе у отдела\" \nс \"{0}\" на \"{1}\"",
-					_initialProcDepartmentName,
-					Entity.InProcessAtDepartment.Name
-				)
-			);
-		}
-
-		public void OnAddResult()
-		{
-			if(!string.IsNullOrWhiteSpace(NewResultText))
-			{
-				var newComment = new UndeliveredOrderResultComment();
-				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-				newComment.UndeliveredOrder = Entity;
-				newComment.Author = currentEmployee;
-				newComment.Comment = NewResultText;
-				newComment.CreationTime = DateTime.Now;
-				Entity.ObservableResultComments.Add(newComment);
-				NewResultText = string.Empty;
-			}
 		}
 
 		[PropertyChangedAlso(nameof(CanChangeDetalization))]
@@ -399,7 +381,7 @@ namespace Vodovoz.ViewModels.Widgets
 
 		public bool CanEdit => PermissionResult.CanUpdate;
 		public bool CanChangeDetalization => CanReadDetalization && _entityDetalizationJournalFilterViewModel.UndeliveryKind != null;
-		public IEntityAutocompleteSelectorFactory UndeliveryDetalizationSelectorFactory { get; set; }
+		public IEntityAutocompleteSelectorFactory UndeliveryDetalizationSelectorFactory { get; }
 		public bool HasPermissionOrNew => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_undeliveries") || Entity.Id == 0;
 		public bool CanCloseUndeliveries => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries");
 		public bool CanEditUndeliveries => (CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_undeliveries")
@@ -407,14 +389,12 @@ namespace Vodovoz.ViewModels.Widgets
 										   && Entity.OldOrder != null
 										   && Entity.UndeliveryStatus != UndeliveryStatus.Closed;
 		public Action RemoveItemsFromStatusEnumAction { get; set; }
-		public Action CreateOrderAction { get; set; }
 		public bool CanChangeProblemSource => CommonServices.PermissionService.ValidateUserPresetPermission("can_changeEntity_problem_source", CommonServices.UserService.CurrentUserId);
 		public IEntityAutocompleteSelectorFactory OrderSelector { get; set; }
-
 		public string Info => Entity.GetOldOrderInfo(_orderRepository);
 		public bool RouteListDoesNotExist => Entity.OldOrder != null && (Entity.OldOrderStatus == OrderStatus.NewOrder
-																			   || Entity.OldOrderStatus == OrderStatus.Accepted
-																			   || Entity.OldOrderStatus == OrderStatus.WaitForPayment);
+		                                                                 || Entity.OldOrderStatus == OrderStatus.Accepted
+		                                                                 || Entity.OldOrderStatus == OrderStatus.WaitForPayment);
 		public string NewResultText
 		{
 			get => _newResultText;
@@ -425,10 +405,10 @@ namespace Vodovoz.ViewModels.Widgets
 			}
 		}
 
-		public object CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
 		public Func<bool> IsSaved;
-		public IEntityAutocompleteSelectorFactory WorkingEmployeeAutocompleteSelectorFactory { get; set; }
+		public IEntityAutocompleteSelectorFactory WorkingEmployeeAutocompleteSelectorFactory { get; }
 		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems =>
 			_entityTransferAbsenceReasonItems ?? (_entityTransferAbsenceReasonItems =
 				UoW.GetAll<UndeliveryTransferAbsenceReason>().Where(u => !u.IsArchive).ToList());
@@ -438,140 +418,190 @@ namespace Vodovoz.ViewModels.Widgets
 			  string.Format(CurrencyWorks.GetShortCurrencyString(Entity.NewOrder.OrderSum));
 		public string NewOrderText => Entity.NewOrder == null ? "Создать новый заказ" : "Открыть заказ";
 
+		#region Commands
 
-	
-		public void BeforeSave()
-		{
-			AddAutocomment();
-			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
-			Entity.LastEditedTime = DateTime.Now;
+		public DelegateCommand AddCommentToTheFieldCommand => _addCommentToTheFieldCommand ?? (_addCommentToTheFieldCommand = new DelegateCommand(
+			() =>
+			{
+				Entity.AddCommentToTheField(
+					UoW,
+					CommentedFields.Reason,
+					String.Format(
+						"сменил(а) \"в работе у отдела\" \nс \"{0}\" на \"{1}\"",
+						_initialProcDepartmentName,
+						Entity.InProcessAtDepartment.Name
+					)
+				);
+			}));
 
-			if(Entity.DriverCallType == DriverCallType.NoCall)
+		public DelegateCommand AddResultCommand => _addResultCommand ?? (_addResultCommand = new DelegateCommand(
+			() =>
 			{
-				Entity.DriverCallTime = null;
-				Entity.DriverCallNr = null;
-			}
-		}
+				if(!string.IsNullOrWhiteSpace(NewResultText))
+				{
+					var newComment = new UndeliveredOrderResultComment();
+					var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+					newComment.UndeliveredOrder = Entity;
+					newComment.Author = currentEmployee;
+					newComment.Comment = NewResultText;
+					newComment.CreationTime = DateTime.Now;
+					Entity.ObservableResultComments.Add(newComment);
+					NewResultText = string.Empty;
+				}
+			}));
 
-		public void OnNewOrder()
-		{
-			if(Entity.NewOrder == null)
+		public DelegateCommand BeforeSaveCommand => _beforeSaveCommand ?? (_beforeSaveCommand = new DelegateCommand(
+			() =>
 			{
-				//CreateNewOrder(Entity.OldOrder);
-				CreateOrderAction?.Invoke();
-			}
-			else
-			{
-				OpenOrder(Entity.NewOrder);
-			}
-		}
+				AddAutocomment();
+				Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
+				Entity.LastEditedTime = DateTime.Now;
 
-		public void OnTabAdded()
-		{
-			//если новый недовоз без выбранного недовезённого заказа
-			if(UoW.IsNew && Entity.OldOrder == null)
+				if(Entity.DriverCallType == DriverCallType.NoCall)
+				{
+					Entity.DriverCallTime = null;
+					Entity.DriverCallNr = null;
+				}
+			}));
+
+		public DelegateCommand NewOrderCommand => _newOrderSelectCommand ?? (_newOrderSelectCommand = new DelegateCommand(
+			() =>
 			{
-				//открыть окно выбора недовезённого заказа
-				var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(CreateDefaultFilter());
+				if(Entity.NewOrder == null)
+				{
+					CreateNewOrder(Entity.OldOrder);
+				}
+				else
+				{
+					OpenOrder(Entity.NewOrder);
+				}
+			}));
+
+		public DelegateCommand OldOrderSelectCommand => _oldOrderSelectCommand ?? (_oldOrderSelectCommand = new DelegateCommand(
+			() =>
+			{
+				//если новый недовоз без выбранного недовезённого заказа
+				if(UoW.IsNew && Entity.OldOrder == null)
+				{
+					//открыть окно выбора недовезённого заказа
+					var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(CreateDefaultFilter());
+					orderJournal.SelectionMode = JournalSelectionMode.Single;
+
+					_tab.TabParent.AddTab(orderJournal, _tab, false);
+
+					orderJournal.OnEntitySelectedResult += (s, ea) =>
+					{
+						var selectedId = ea.SelectedNodes.FirstOrDefault()?.Id ?? 0;
+						if(selectedId == 0)
+						{
+							return;
+						}
+
+						Entity.OldOrder = UoW.GetById<Order>(selectedId);
+					};
+				}
+			}));
+
+
+
+		public DelegateCommand ChooseOrderCommand => _chooseOrderCommand ?? (_chooseOrderCommand = new DelegateCommand(
+			() =>
+			{
+				var
+					filter = _scope
+						.Resolve<OrderJournalFilterViewModel>(); // new OrderJournalFilterViewModel(new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), new EmployeeJournalFactory());
+				filter.SetAndRefilterAtOnce(
+					x => x.RestrictCounterparty = Entity.OldOrder?.Client,
+					x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
+				);
+
+				var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(filter);
 				orderJournal.SelectionMode = JournalSelectionMode.Single;
 
-				Tab.TabParent.AddTab(orderJournal, Tab, false);
+				_tab.TabParent.AddTab(orderJournal, _tab, false);
 
 				orderJournal.OnEntitySelectedResult += (s, ea) =>
 				{
 					var selectedId = ea.SelectedNodes.FirstOrDefault()?.Id ?? 0;
+
 					if(selectedId == 0)
 					{
 						return;
 					}
 
-					Entity.OldOrder = UoW.GetById<Order>(selectedId);
+					if(Entity.OldOrder.Id == selectedId)
+					{
+						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
+							"Перенесённый заказ не может совпадать с недовезённым!");
+						_chooseOrderCommand.Execute();
+						return;
+					}
+
+					Entity.NewOrder = UoW.GetById<Order>(selectedId);
+					Entity.NewOrder.Author = this.Entity.OldOrder.Author;
+					OnPropertyChanged(nameof(TransferText));
+					Entity.NewDeliverySchedule = Entity.NewOrder.DeliverySchedule;
+
+					if((Entity.OldOrder.PaymentType == Domain.Client.PaymentType.PaidOnline) &&
+					   (Entity.OldOrder.OrderSum == Entity.NewOrder.OrderSum) &&
+					   CommonServices.InteractiveService.Question("Перенести на выбранный заказ Оплату по Карте?"))
+					{
+						Entity.NewOrder.PaymentType = Entity.OldOrder.PaymentType;
+						Entity.NewOrder.OnlineOrder = Entity.OldOrder.OnlineOrder;
+						Entity.NewOrder.PaymentByCardFrom = Entity.OldOrder.PaymentByCardFrom;
+					}
+				};
+			}));
+
+		public DelegateCommand AddFineCommand => _addFineCommand ?? (_addFineCommand = new DelegateCommand(
+			() =>
+			{
+				if(Entity.Id == 0)
+				{
+					if(!CommonServices.InteractiveService.Question("Требуется сохранить недовоз. Сохранить?"))
+					{
+						return;
+					}
+
+					var saved = IsSaved?.Invoke();
+					if(!saved.HasValue || !saved.Value)
+					{
+						return;
+					}
+				}
+
+				var entityUoWBuilder = EntityUoWBuilder.ForCreate();
+				var fineViewModel = _navigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(null, entityUoWBuilder).ViewModel;
+
+				using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
+				{
+					fineViewModel.UndeliveredOrder = uow.GetById<UndeliveredOrder>(Entity.Id);
+				}
+
+				var address = new RouteListItemRepository().GetRouteListItemForOrder(UoW, Entity.OldOrder);
+
+				if(address != null)
+				{
+					fineViewModel.Entity.AddAddress(address);
+				}
+
+				fineViewModel.EntitySaved += (sender2, args) =>
+				{
+					Entity.Fines.Add(args.Entity as Fine);
+
+					OnPropertyChanged(nameof(FineItems));
 				};
 			}
-		}
+		));
 
-		public void OnChooseOrder()
+		#endregion
+
+		public void Dispose()
 		{
-			var filter = _scope.Resolve<OrderJournalFilterViewModel>();// new OrderJournalFilterViewModel(new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), new EmployeeJournalFactory());
-			filter.SetAndRefilterAtOnce(
-				x => x.RestrictCounterparty = Entity.OldOrder?.Client,
-				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
-			);
-
-			var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(filter);
-			orderJournal.SelectionMode = JournalSelectionMode.Single;
-
-			Tab.TabParent.AddTab(orderJournal, Tab, false);
-
-			orderJournal.OnEntitySelectedResult += (s, ea) =>
+			if(_newOrderDlg != null)
 			{
-				var selectedId = ea.SelectedNodes.FirstOrDefault()?.Id ?? 0;
-
-				if(selectedId == 0)
-				{
-					return;
-				}
-
-				if(Entity.OldOrder.Id == selectedId)
-				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, "Перенесённый заказ не может совпадать с недовезённым!");
-					OnChooseOrder();
-					return;
-				}
-
-				Entity.NewOrder = UoW.GetById<Order>(selectedId);
-				Entity.NewOrder.Author = this.Entity.OldOrder.Author;
-				OnPropertyChanged(nameof(TransferText));
-				Entity.NewDeliverySchedule = Entity.NewOrder.DeliverySchedule;
-				
-				if((Entity.OldOrder.PaymentType == Domain.Client.PaymentType.PaidOnline) &&
-				   (Entity.OldOrder.OrderSum == Entity.NewOrder.OrderSum) &&
-				   CommonServices.InteractiveService.Question("Перенести на выбранный заказ Оплату по Карте?"))
-				{
-					Entity.NewOrder.PaymentType = Entity.OldOrder.PaymentType;
-					Entity.NewOrder.OnlineOrder = Entity.OldOrder.OnlineOrder;
-					Entity.NewOrder.PaymentByCardFrom = Entity.OldOrder.PaymentByCardFrom;
-				}
-			};
-		}
-
-		public void OnAddFine()
-		{
-			if(Entity.Id == 0)
-			{
-				if(!CommonServices.InteractiveService.Question("Требуется сохранить недовоз. Сохранить?"))
-				{
-					return;
-				}
-
-				var saved = IsSaved?.Invoke();
-				if(!saved.HasValue || !saved.Value)
-				{
-					return;
-				}
+				_newOrderDlg.TabClosed -= OnNewOrderDlgClosed;
 			}
-
-			var entityUoWBuilder = EntityUoWBuilder.ForCreate();
-			var fineViewModel = _navigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(null, entityUoWBuilder).ViewModel;
-
-			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				fineViewModel.UndeliveredOrder = uow.GetById<UndeliveredOrder>(Entity.Id);
-			}
-
-			var address = new RouteListItemRepository().GetRouteListItemForOrder(UoW, Entity.OldOrder);
-
-			if(address != null)
-			{
-				fineViewModel.Entity.AddAddress(address);
-			}
-
-			fineViewModel.EntitySaved += (sender2, args) =>
-			{
-				Entity.Fines.Add(args.Entity as Fine);
-
-				OnPropertyChanged(nameof(FineItems));
-			};
 		}
 	}
 }
