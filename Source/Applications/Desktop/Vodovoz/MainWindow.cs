@@ -1436,21 +1436,6 @@ public partial class MainWindow : Gtk.Window
 		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
 	}
 
-	protected void OnActionUndeliveryObjectActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<UndeliveryObjectJournalViewModel>(null, OpenPageOptions.IgnoreHash);
-	}
-
-	protected void OnActionUndeliveryKindActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<UndeliveryKindJournalViewModel>(null, OpenPageOptions.IgnoreHash);
-	}
-
-	protected void OnActionUndeliveryDetalizationActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<UndeliveryDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
-	}
-
 	protected void OnUndeliveredOrdersActionActivated(object sender, EventArgs e)
 	{
 		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),

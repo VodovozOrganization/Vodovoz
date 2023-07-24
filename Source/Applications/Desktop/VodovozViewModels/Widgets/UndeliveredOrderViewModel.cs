@@ -387,14 +387,14 @@ namespace Vodovoz.ViewModels.Widgets
 		public bool CanEdit => PermissionResult.CanUpdate;
 		public bool CanChangeDetalization => CanReadDetalization && _entityDetalizationJournalFilterViewModel.UndeliveryKind != null;
 		public IEntityAutocompleteSelectorFactory UndeliveryDetalizationSelectorFactory { get; }
-		public bool HasPermissionOrNew => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_undeliveries") || Entity.Id == 0;
-		public bool CanCloseUndeliveries => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries");
-		public bool CanEditUndeliveries => (CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_undeliveries")
+		public bool HasPermissionOrNew => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.UndeliveredOrder.CanEditUndeliveries) || Entity.Id == 0;
+		public bool CanCloseUndeliveries => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.UndeliveredOrder.CanCloseUndeliveries);
+		public bool CanEditUndeliveries => (CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.UndeliveredOrder.CanEditUndeliveries)
 										   || Entity.Id == 0)
 										   && Entity.OldOrder != null
 										   && Entity.UndeliveryStatus != UndeliveryStatus.Closed;
 		public Action RemoveItemsFromStatusEnumAction { get; set; }
-		public bool CanChangeProblemSource => CommonServices.PermissionService.ValidateUserPresetPermission("can_changeEntity_problem_source", CommonServices.UserService.CurrentUserId);
+		public bool CanChangeProblemSource => CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.UndeliveredOrder.CanChangeUndeliveryProblemSource, CommonServices.UserService.CurrentUserId);
 		public IEntityAutocompleteSelectorFactory OrderSelector { get; set; }
 		public string Info => Entity.GetOldOrderInfo(_orderRepository);
 		public bool RouteListDoesNotExist => Entity.OldOrder != null && (Entity.OldOrderStatus == OrderStatus.NewOrder
@@ -410,7 +410,7 @@ namespace Vodovoz.ViewModels.Widgets
 			}
 		}
 
-		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
+		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanDelete);
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
 		public Func<bool> IsSaved;
 		public IEntityAutocompleteSelectorFactory WorkingEmployeeAutocompleteSelectorFactory { get; }
@@ -512,9 +512,7 @@ namespace Vodovoz.ViewModels.Widgets
 		public DelegateCommand ChooseOrderCommand => _chooseOrderCommand ?? (_chooseOrderCommand = new DelegateCommand(
 			() =>
 			{
-				var
-					filter = _scope
-						.Resolve<OrderJournalFilterViewModel>(); // new OrderJournalFilterViewModel(new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), new EmployeeJournalFactory());
+				var filter = _scope.Resolve<OrderJournalFilterViewModel>();
 				filter.SetAndRefilterAtOnce(
 					x => x.RestrictCounterparty = Entity.OldOrder?.Client,
 					x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
