@@ -176,7 +176,9 @@ namespace Vodovoz
 				RouteListStatus.OnClosing
 			};
 
-			_canEdit = _isRoleCashier && permissionResult.CanUpdate && !(Entity.WasAcceptedByCashier || !availableStatusesForAccepting.Contains(Entity.Status));
+			_canEdit = _isRoleCashier
+				&& permissionResult.CanUpdate
+				&& (!Entity.WasAcceptedByCashier || availableStatusesForAccepting.Contains(Entity.Status));
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(new PaymentItemsRepository(), new OrderRepository(), new PaymentsRepository());
 			if(Entity.AddressesOrderWasChangedAfterPrinted) {
