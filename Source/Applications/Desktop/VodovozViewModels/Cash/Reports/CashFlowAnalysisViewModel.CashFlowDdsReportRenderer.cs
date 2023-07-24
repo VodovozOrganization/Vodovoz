@@ -62,11 +62,11 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 				var expensesSum = cashFlowDdsReport.ExpensesGroupLines.Sum(x => x.Money);
 
-				int insertedExpensesLines = RenderExpensesLines(reportSheet, cashFlowDdsReport, incomesStartLine + insertedIncomesGroupRows + 1, expensesSum);
+				int insertedExpensesLines = RenderExpensesLines(reportSheet, cashFlowDdsReport, incomesStartLine + insertedIncomesGroupRows, expensesSum);
 
 				RenderSubSubheader(
 					reportSheet,
-					incomesStartLine + insertedIncomesGroupRows + insertedExpensesLines + 2 * _splitterRowsCount,
+					incomesStartLine + insertedIncomesGroupRows + insertedExpensesLines,
 					_totalHeaderTitle,
 					_totalHeaderFontSize,
 					incomesSum - expensesSum);

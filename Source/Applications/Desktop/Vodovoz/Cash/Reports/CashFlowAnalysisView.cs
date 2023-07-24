@@ -86,10 +86,6 @@ namespace Vodovoz.Cash.Reports
 				.AddTextRenderer(x => x.FirstColumn)
 				.AddSetter((cell, node) =>
 				{
-					if(node.IsSeparator)
-					{
-						cell.Text = string.Empty;
-					}
 					if(node.IsAccented)
 					{
 						cell.BackgroundGdk = _defaultAccentColor;
@@ -107,10 +103,6 @@ namespace Vodovoz.Cash.Reports
 				.AddTextRenderer(x => x.SecondColumn)
 				.AddSetter((cell, node) =>
 				{
-					if(node.IsSeparator)
-					{
-						cell.Text = string.Empty;
-					}
 					if(node.IsAccented)
 					{
 						cell.BackgroundGdk = _defaultAccentColor;
@@ -126,13 +118,10 @@ namespace Vodovoz.Cash.Reports
 				})
 				.AddColumn("")
 				.AddNumericRenderer(x => x.ThirdColumn)
-				.AddSetter((cell, node) => {
+				.AddSetter((cell, node) =>
+				{
 					var value = node.ThirdColumn == 0 ? "-" : node.ThirdColumn.ToString("# ### ### ##0.00");
 
-					if(node.IsSeparator)
-					{
-						cell.Text = string.Empty;
-					}
 					if(node.IsAccented)
 					{
 						cell.BackgroundGdk = _defaultAccentColor;

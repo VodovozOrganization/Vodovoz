@@ -31,16 +31,12 @@ namespace Vodovoz.Cash.Reports
 
 			public bool IsSeparator { get; private set; } = false;
 
-			public static ReportLine Separator => new ReportLine() { IsSeparator = true };
-
 			public static List<ReportLine> Map(CashFlowDdsReport report)
 			{
 				var result = new List<ReportLine>
 				{
 					Map(report.IncomesGroupLines.First()),
-					Separator,
 					Map(report.ExpensesGroupLines.First()),
-					Separator,
 					new ReportLine()
 					{
 						FirstColumn = "Прибыль",
