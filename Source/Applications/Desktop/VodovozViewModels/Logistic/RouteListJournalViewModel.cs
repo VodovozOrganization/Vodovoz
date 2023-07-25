@@ -15,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -67,6 +66,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly Employee _currentEmployee;
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
+		private bool _canReturnFromMileageCheckToOnClosing = false;
 
 		public RouteListJournalViewModel(
 			RouteListJournalFilterViewModel filterViewModel,
@@ -109,6 +109,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_warehousePermissionValidator =
 				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService))).GetValidator();
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_canReturnFromMileageCheckToOnClosing = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 
 			TabName = "Журнал МЛ";
 
@@ -527,9 +528,11 @@ namespace Vodovoz.ViewModels.Logistic
 			return new JournalAction(
 				"Вернуть в сдается",
 				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
-					&& _canReturnToOnClosing.Contains(node.StatusEnum),
+					&& _canReturnToOnClosing.Contains(node.StatusEnum)
+					&& _canReturnFromMileageCheckToOnClosing,
 				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
-					&& _canReturnToOnClosing.Contains(node.StatusEnum),
+					&& _canReturnToOnClosing.Contains(node.StatusEnum)
+					&& _canReturnFromMileageCheckToOnClosing,
 				selectedItems =>
 				{
 					var routeListIds = selectedItems.Cast<RouteListJournalNode>().Select(x => x.Id).ToArray();
