@@ -85,7 +85,7 @@ namespace Vodovoz.EntityRepositories.Complaints
 				.Left.JoinAlias(() => complaintDiscussionAlias.Complaint, () => complaintAlias)
 				.Left.JoinAlias(() => complaintDiscussionAlias.Comments, () => complaintDiscussionCommentAlias)
 				.Where(() => complaintAlias.Status != ComplaintStatuses.Closed)
-				.Where(() => complaintDiscussionAlias.Subdivision.Id == subdivisionId)
+				.Where(() => complaintDiscussionAlias.Subdivision.Id == subdivisionId && complaintDiscussionAlias.Status != ComplaintDiscussionStatuses.Closed)
 				.SelectList(list => list
 					.Select(Projections.Group(() => complaintAlias.Id)))
 				.Where(Restrictions.Eq(Projections.Count(() => complaintDiscussionCommentAlias.Id), 0))
