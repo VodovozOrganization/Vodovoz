@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -150,8 +150,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 		private void RunOpenDialog(string path)
 		{
-			if(
-				_commonServices.InteractiveService.Question(
+			if(_commonServices.InteractiveService.Question(
 				"Открыть отчет?",
 				"Отчет сохранен"))
 			{
