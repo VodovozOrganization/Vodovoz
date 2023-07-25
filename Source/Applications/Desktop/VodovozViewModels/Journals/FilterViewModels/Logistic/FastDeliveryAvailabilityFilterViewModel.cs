@@ -26,6 +26,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private bool? _isNomenclatureNotInStock;
 		private int _logisticianReactionTimeMinutes;
 		private DelegateCommand _infoCommand;
+		private string _failsReportName;
+		private DelegateCommand _failsReportCommand;
 
 		public FastDeliveryAvailabilityFilterViewModel(
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -111,6 +113,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			set => UpdateFilterField(ref _logisticianReactionTimeMinutes, value);
 		}
 
+		public string FailsReportName
+		{
+			get => _failsReportName;
+			set => SetField(ref _failsReportName, value);
+		}
+
+		public Action FailsReportAction;
+
 		public DelegateCommand InfoCommand => _infoCommand ?? (_infoCommand = new DelegateCommand(
 			() => ServicesConfig.InteractiveService.ShowMessage(
 				ImportanceLevel.Info,
@@ -119,5 +129,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				"Если в проверке не нашлось подходящих по расстоянию автомобилей, то в колонку \"Большое расстояние\" попадает 1, а в остальные колонки 0.\n" +
 				"В противном случае суммируются показатели проверки для автомобилей, подходящих по расстоянию, а в колонку с расстоянием попадает 0.")
 		));
+
+		public DelegateCommand FailsReportCommand => _failsReportCommand ?? (_failsReportCommand = new DelegateCommand(
+			() => FailsReportAction?.Invoke()
+		));
+
+		public void InitFailsReport() => OnPropertyChanged(nameof(IsNomenclatureNotInStock));
+		
 	}
 }

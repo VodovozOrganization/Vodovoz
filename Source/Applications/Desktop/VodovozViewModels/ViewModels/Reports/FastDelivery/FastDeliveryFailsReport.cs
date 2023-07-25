@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ClosedXML.Excel;
@@ -30,8 +30,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly IUnitOfWorkFactory _uowFactory;
 
-		public FastDeliveryFailsReport(IUnitOfWorkFactory uowFactory, FastDeliveryAvailabilityFilterViewModel filterViewModel, IJournalSearch journalSearch,
-			INomenclatureParametersProvider nomenclatureParametersProvider, IFileDialogService fileDialogService)
+		public FastDeliveryFailsReport(IUnitOfWorkFactory uowFactory, FastDeliveryAvailabilityFilterViewModel filterViewModel,
+			IJournalSearch journalSearch, INomenclatureParametersProvider nomenclatureParametersProvider, IFileDialogService fileDialogService)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
@@ -53,9 +53,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			var dialogSettings = new DialogSettings();
 			dialogSettings.Title = "Сохранить";
 			dialogSettings.DefaultFileExtention = ".xlsx";
-			dialogSettings.FileName = $"{"Заказы, не попавшие в доставку за час"} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+			dialogSettings.FileName = $"{GetReportFileName(_filterViewModel.IsNomenclatureNotInStock)} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
 
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
 			if(result.Successful)
 			{
 				SaveReport(result.Path, rows);
@@ -266,7 +267,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					foreach(var district in districtsRows)
 					{
 						rowIndex++;
-						GenerateRows(worksheet, rowIndex, district.Key, district.Select(x => x).ToArray());
+						GenerateRows(worksheet, rowIndex, district.Key, district.ToArray());
 					}
 
 					rowIndex += 2;
@@ -292,18 +293,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			worksheet.Cell(rowIndex, 1).Value = title;
 			worksheet.Cell(rowIndex, 2).Value = rows.GroupBy(x => x.DeliveryPointId).Count();
 
-			var groupedByFastDelivery = rows.GroupBy(x => x.Id);
+			var groupedByDeliveryPoint = rows.GroupBy(x => x.DeliveryPointId);
 
 			int goodsEnough = 0, unclosedFastDeliveries = 0, coordinates = 0, distances = 0;
 
-			foreach(var row in groupedByFastDelivery)
+			foreach(var row in groupedByDeliveryPoint)
 			{
 				var validByDistance = row.Where(x => x.IsValidDistanceByLine.HasValue && x.IsValidDistanceByLine.Value).ToArray();
 				if(validByDistance.Any())
 				{
-					goodsEnough += validByDistance.Count(x => x.IsValidIsGoodsEnough.HasValue && !x.IsValidIsGoodsEnough.Value);
-					unclosedFastDeliveries += validByDistance.Count(x => x.IsValidUnclosedFastDeliveries.HasValue && !x.IsValidUnclosedFastDeliveries.Value);
-					coordinates += validByDistance.Count(x => x.IsValidLastCoordinateTime.HasValue && !x.IsValidLastCoordinateTime.Value);
+					goodsEnough += validByDistance.Any(x => x.IsValidIsGoodsEnough.HasValue && !x.IsValidIsGoodsEnough.Value) ? 1 : 0;
+					unclosedFastDeliveries += validByDistance.Any(x => x.IsValidUnclosedFastDeliveries.HasValue && !x.IsValidUnclosedFastDeliveries.Value) ? 1 : 0;
+					coordinates += validByDistance.Any(x => x.IsValidLastCoordinateTime.HasValue && !x.IsValidLastCoordinateTime.Value) ? 1 : 0;
 				}
 				else
 				{
@@ -321,5 +322,19 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			DrawRowBording(worksheet, rowIndex);
 		}
+
+		public static string GetReportName(bool? isNomenclatureNotInStock) =>
+			isNomenclatureNotInStock == null
+				? "Отчёт по всем заказам"
+				: isNomenclatureNotInStock.Value
+					? "Анализ ассортимента не в запасе"
+					: "Отчет по заказам с ассортиментом из запаса";
+
+		private string GetReportFileName(bool? isNomenclatureNotInStock) =>
+			isNomenclatureNotInStock == null
+				? "Заказы, не попавшие в доставку за час"
+				: isNomenclatureNotInStock.Value
+					? "Анализ ассортимента не в запасе"
+					: "Отчет по заказам с ассортиментом из запаса";
 	}
 }
