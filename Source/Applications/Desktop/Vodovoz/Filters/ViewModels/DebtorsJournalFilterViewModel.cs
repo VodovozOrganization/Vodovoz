@@ -34,6 +34,7 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _deliveryPointsFrom;
 		private bool _hideActiveCounterparty;
 		private bool _hideWithoutEmail;
+		private bool _hideWithoutFixedPrices = false;
 		private bool _showSuspendedCounterparty;
 		private bool _showCancellationCounterparty;
 		private DebtorsTaskStatus? _debtorsTaskStatus;
@@ -44,7 +45,6 @@ namespace Vodovoz.Filters.ViewModels
 		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
-		private bool _hasFixedPrices = false;
 
 		public DebtorsJournalFilterViewModel()
 		{
@@ -126,16 +126,16 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _withOneOrder, value);
 		}
 
-		public bool HasFixedPrices
-		{
-			get => _hasFixedPrices;
-			set => UpdateFilterField(ref _hasFixedPrices, value);
-		}
-
 		public bool HideWithoutEmail
 		{
 			get => _hideWithoutEmail;
 			set => UpdateFilterField(ref _hideWithoutEmail, value);
+		}
+
+		public bool HideWithoutFixedPrices
+		{
+			get => _hideWithoutFixedPrices;
+			set => UpdateFilterField(ref _hideWithoutFixedPrices, value);
 		}
 
 		public int? DebtBottlesFrom
