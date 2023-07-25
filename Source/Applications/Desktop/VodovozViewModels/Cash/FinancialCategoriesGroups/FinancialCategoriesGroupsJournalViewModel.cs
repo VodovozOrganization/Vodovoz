@@ -141,10 +141,12 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 					   && (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == financialCategoriesGroup.FinancialSubtype)
 					   && (!_filter.RestrictNodeSelectTypes.Any() || string.IsNullOrWhiteSpace(searchString) || _filter.RestrictNodeSelectTypes.Contains(_financialCategoriesGroupType))
 				   let children = GetSubGroup(unitOfWork, financialCategoriesGroup.Id)
+				   orderby financialCategoriesGroup.Numbering, financialCategoriesGroup.Title
 				   select new FinancialCategoriesJournalNode
 				   {
 					   Id = financialCategoriesGroup.Id,
 					   ParentId = parentId,
+					   Numbering = financialCategoriesGroup.Numbering,
 					   Name = financialCategoriesGroup.Title,
 					   JournalNodeType = _financialCategoriesGroupType,
 					   FinancialSubType = financialCategoriesGroup.FinancialSubtype,
@@ -175,9 +177,11 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				&& (_filter.Subdivision == null || incomeCategory.SubdivisionId == subdivisionId)
 				&& (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == incomeCategory.FinancialSubtype)
 				&& (!_filter.RestrictNodeSelectTypes.Any() || _filter.RestrictNodeSelectTypes.Contains(_financialIncomeCategoryType))
+			orderby incomeCategory.Numbering, incomeCategory.Title
 			select new FinancialCategoriesJournalNode
 			{
 				Id = incomeCategory.Id,
+				Numbering = incomeCategory.Numbering,
 				Name = incomeCategory.Title,
 				JournalNodeType = _financialIncomeCategoryType,
 				FinancialSubType = incomeCategory.FinancialSubtype,
@@ -194,9 +198,11 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				&& (_filter.Subdivision == null || expenseCategory.SubdivisionId == subdivisionId)
 				&& (_filter.RestrictFinancialSubtype == null || _filter.RestrictFinancialSubtype == expenseCategory.FinancialSubtype)
 				&& (!_filter.RestrictNodeSelectTypes.Any() || _filter.RestrictNodeSelectTypes.Contains(_financialExpenseCategoryType))
+			orderby expenseCategory.Numbering, expenseCategory.Title
 			select new FinancialCategoriesJournalNode
 			{
 				Id = expenseCategory.Id,
+				Numbering = expenseCategory.Numbering,
 				Name = expenseCategory.Title,
 				JournalNodeType = _financialExpenseCategoryType,
 				FinancialSubType = expenseCategory.FinancialSubtype,

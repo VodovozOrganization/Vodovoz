@@ -17,6 +17,7 @@ namespace Vodovoz.HibernateMapping.Cash.FinancialCategoriesGroups
 			Map(x => x.ParentId).Column("parent_id");
 			Map(x => x.Title).Column("title");
 			Map(x => x.IsArchive).Column("is_archive");
+			Map(x => x.Numbering).Column("numbering");
 
 			Where("group_type = 'Group'");
 		}
