@@ -1,4 +1,11 @@
 ﻿using System;
+using QS.Navigation;
+using QS.Project.Services;
+using Vodovoz;
+using Vodovoz.Domain.Orders;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 
 public partial class MainWindow
 {
@@ -104,4 +111,27 @@ public partial class MainWindow
 	{
 		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
 	}
+
+	#region Заказы
+
+	/// <summary>
+	/// Журнал недовозов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnUndeliveredOrdersActionActivated(object sender, EventArgs e)
+	{
+		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
+			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
+			new DeliveryPointJournalFactory(), new SubdivisionJournalFactory())
+		{
+			HidenByDefault = true,
+			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
+			RestrictNotIsProblematicCases = true
+		};
+
+		NavigationManager.OpenViewModel<UndeliveredOrdersJournalViewModel, UndeliveredOrdersFilterViewModel>(null, undeliveredOrdersFilter, OpenPageOptions.IgnoreHash);
+	}
+
+	#endregion
 }

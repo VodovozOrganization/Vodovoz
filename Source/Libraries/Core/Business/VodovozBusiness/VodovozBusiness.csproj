@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -67,6 +67,9 @@
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\GroupType.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
     <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
+    <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
+    <Compile Include="Domain\Orders\UndeliveryKind.cs" />
+    <Compile Include="Domain\Orders\UndeliveryObject.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
     <Compile Include="EntityRepositories\Cash\FinancialIncomeCategoriesRepository.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\TargetDocument.cs" />
@@ -755,6 +758,9 @@
     <Compile Include="HibernateMapping\Operations\WarehouseBulkGoodsAccountingOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\WarehouseInstanceGoodsAccountingOperationMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderEdoTrueMarkDocumentsActionsMap.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveryDetalizationMap.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveryKindMap.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveryObjectMap.cs" />
     <Compile Include="HibernateMapping\Order\TrueMarkApiDocumentMap.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonNomenclatureCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\EdoContainerMap.cs" />
@@ -927,10 +933,12 @@
     <Compile Include="Parameters\RouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
+    <Compile Include="Permissions\Order.cs" />
     <Compile Include="Permissions\Cash.cs" />
     <Compile Include="Permissions\Cash.Income.cs" />
     <Compile Include="Permissions\Cash.Expense.cs" />
     <Compile Include="Permissions\Logistic.cs" />
+    <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
