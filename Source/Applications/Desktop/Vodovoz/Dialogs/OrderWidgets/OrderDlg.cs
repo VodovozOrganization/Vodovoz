@@ -211,6 +211,8 @@ namespace Vodovoz
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 		private EdoContainer _selectedEdoContainer;
+		private int _clientsSecondOrderDiscountReasonId;
+		private bool _isClientSecondOrder;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -559,6 +561,8 @@ namespace Vodovoz
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
 			_orderParametersProvider = new OrderParametersProvider(parametersProvider);
 			_dailyNumberController = new OrderDailyNumberController(_orderRepository, UnitOfWorkFactory.GetDefaultFactory);
+
+			_clientsSecondOrderDiscountReasonId = _orderParametersProvider.GetClientsSecondOrderDiscountReasonId;
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint, Phone>(OnDeliveryPointChanged);
@@ -3067,6 +3071,8 @@ namespace Vodovoz
 			UpdateProxyInfo();
 
 			SetSensitivityOfPaymentType();
+
+			UpdateClientSecondOrderDiscount();
 		}
 
 		private bool IsEnumTaxVisible() => Entity.Client != null &&
@@ -3589,9 +3595,58 @@ namespace Vodovoz
 			}
 		}
 
-		private void SetSecondOrderDiscount(OrderItem orderItem)
+		private void UpdateClientSecondOrderDiscount()
 		{
-			if(!Entity.IsSecondOrder())
+			if(Entity.Id > 0)
+			{
+				return;
+			}
+
+			_isClientSecondOrder = Entity.IsSecondOrder;
+
+			if(_isClientSecondOrder)
+			{
+				SetClientSecondOrderDiscount();
+				return;
+			}
+
+			ResetClientSecondOrderDiscount();
+		}
+
+		private void SetClientSecondOrderDiscount()
+		{
+			if(_isClientSecondOrder)
+			{
+				foreach(var item in Entity.ObservableOrderItems)
+				{
+					if(item.DiscountReason?.Id != _clientsSecondOrderDiscountReasonId)
+					{
+						SetClientSecondOrderDiscount(item);
+					}
+				}
+			}
+		}
+
+		private void ResetClientSecondOrderDiscount()
+		{
+			if(!_isClientSecondOrder)
+			{
+				var orderItemsHavingClientsSecondOrderDiscount = new List<OrderItem>();
+
+				foreach(var item in Entity.ObservableOrderItems)
+				{
+					if(item.DiscountReason?.Id == _clientsSecondOrderDiscountReasonId)
+					{
+						orderItemsHavingClientsSecondOrderDiscount.Add(item);
+					}
+				}
+				_discountsController.RemoveDiscountFromOrder(orderItemsHavingClientsSecondOrderDiscount);
+			}
+		}
+
+		private void SetClientSecondOrderDiscount(OrderItem orderItem)
+		{
+			if(!_isClientSecondOrder)
 			{
 				return;
 			}
@@ -3601,7 +3656,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var discountReason = UoW.GetById<DiscountReason>(99);
+			var discountReason = UoW.GetById<DiscountReason>(_clientsSecondOrderDiscountReasonId);
 			_discountsController.SetDiscountFromDiscountReasonForOrderItem(discountReason, orderItem, true, out string message);
 
 			if(message != null)
@@ -3741,7 +3796,7 @@ namespace Vodovoz
 						ChangeEquipmentsCount(oItem, (int)oItem.Count);
 					}
 
-					SetSecondOrderDiscount(oItem);
+					SetClientSecondOrderDiscount(oItem);
 				}
 			}
 		}
