@@ -1285,5 +1285,35 @@ public partial class MainWindow
 		tdiMain.AddTab(journal);
 	}
 
+	/// <summary>
+	/// Объекты недовозов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionUndeliveryObjectActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<UndeliveryObjectJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Виды недовозов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionUndeliveryKindActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<UndeliveryKindJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Детализация недовозов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionUndeliveryDetalizationActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<UndeliveryDetalizationJournalViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
 	#endregion Заказы
 }

@@ -1115,7 +1115,8 @@ namespace Vodovoz.JournalViewModels
 							_orderSelectorFactory,
 							_undeliveredOrdersRepository,
 							new EmployeeSettings(new ParametersProvider()),
-							_subdivisionParametersProvider
+							_subdivisionParametersProvider,
+							_fileDialogService
 						);
 
 						TabParent.AddTab(dlg, this, false);
@@ -1218,7 +1219,7 @@ namespace Vodovoz.JournalViewModels
 					{
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
-						_gtkDialogsOpener.OpenCopyOrderDlg(this, order.Id);
+						_gtkDialogsOpener.OpenCopyLesserOrderDlg(this, order.Id);
 					}
 				)
 			);

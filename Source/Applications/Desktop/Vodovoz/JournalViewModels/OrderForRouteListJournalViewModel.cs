@@ -20,6 +20,7 @@ using Vodovoz.JournalNodes;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Services.FileDialog;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
@@ -43,6 +44,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService _employeeService;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public OrderForRouteListJournalViewModel(
@@ -59,7 +61,8 @@ namespace Vodovoz.JournalViewModels
 			IEmployeeService employeeService,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
+			IFileDialogService fileDialogService) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
@@ -73,6 +76,7 @@ namespace Vodovoz.JournalViewModels
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_subdivisionParametersProvider = subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
 			_closingDocumentDeliveryScheduleId =
 				(deliveryScheduleParametersProvider ?? throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider)))
 				.ClosingDocumentDeliveryScheduleId;
@@ -345,8 +349,9 @@ namespace Vodovoz.JournalViewModels
 							_orderSelectorFactory,
 							_undeliveredOrdersRepository,
 							new EmployeeSettings(new ParametersProvider()),
-							_subdivisionParametersProvider
-							);
+							_subdivisionParametersProvider,
+							_fileDialogService
+						);
 
 						Startup.MainWin.TdiMain.AddTab(dlg);
 					}
