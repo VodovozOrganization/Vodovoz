@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Deletion;
@@ -318,6 +318,7 @@ namespace Vodovoz.ViewModels.Logistic
 			PopupActionsList.Add(CreateSendRouteListToLoadingAction());
 			PopupActionsList.Add(CreateOpenKeepingDialogAction());
 			PopupActionsList.Add(CreateReturnToEnRouteAction());
+			PopupActionsList.Add(CreateReturnToClosingAction());
 			PopupActionsList.Add(CreateOpenClosingDialogAction());
 			PopupActionsList.Add(CreateOpenAnalysisDialogAction());
 			PopupActionsList.Add(CreateOpenMileageCheckDialogAction());
@@ -507,6 +508,49 @@ namespace Vodovoz.ViewModels.Logistic
 								continue;
 							}
 							routeList.ChangeStatusAndCreateTask(RouteListStatus.EnRoute, _callTaskWorker);
+							uowLocal.Save(routeList);
+						}
+
+						if(isSlaveTabActive)
+						{
+							return;
+						}
+
+						uowLocal.Commit();
+					}
+				}
+			);
+		}
+
+		private IJournalAction CreateReturnToClosingAction()
+		{
+			return new JournalAction(
+				"Вернуть в сдается",
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& _canReturnToOnClosing.Contains(node.StatusEnum),
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& _canReturnToOnClosing.Contains(node.StatusEnum),
+				selectedItems =>
+				{
+					var routeListIds = selectedItems.Cast<RouteListJournalNode>().Select(x => x.Id).ToArray();
+					bool isSlaveTabActive = false;
+
+					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
+					{
+						var routeLists = uowLocal.Session.QueryOver<RouteList>()
+							.Where(x => x.Id.IsIn(routeListIds))
+							.List();
+
+						foreach(var routeList in routeLists.Where(arg => arg.Status == RouteListStatus.MileageCheck))
+						{
+							if(TabParent.FindTab(_gtkTabsOpener.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
+							{
+								commonServices.InteractiveService.ShowMessage(
+									ImportanceLevel.Info, "Требуется закрыть подчиненную вкладку");
+								isSlaveTabActive = true;
+								continue;
+							}
+							routeList.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, _callTaskWorker);
 							uowLocal.Save(routeList);
 						}
 
@@ -955,6 +999,11 @@ namespace Vodovoz.ViewModels.Logistic
 		private static readonly RouteListStatus[] _canReturnToEnRoute =
 		{
 			RouteListStatus.Delivered
+		};
+
+		private static readonly RouteListStatus[] _canReturnToOnClosing =
+		{
+			RouteListStatus.MileageCheck
 		};
 
 		private static readonly RouteListStatus[] _controlDlgStatuses =

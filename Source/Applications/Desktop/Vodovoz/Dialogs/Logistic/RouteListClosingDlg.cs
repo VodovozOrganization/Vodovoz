@@ -426,7 +426,7 @@ namespace Vodovoz
 				hbxStatistics2.Sensitive = false;
 				hbxStatistics3.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
-				permissioncommentview.Sensitive = _canEdit;
+				permissioncommentview.Sensitive = _isRoleCashier && permissionResult.CanUpdate;
 				buttonSave.Sensitive = _canEdit;
 
 				HasChanges = false;
@@ -457,7 +457,7 @@ namespace Vodovoz
 			buttonCalculateCash.Sensitive = _canEdit;
 			labelWage1.Visible = _canEdit;
 			toggleWageDetails.Sensitive = true;
-			permissioncommentview.Sensitive = _canEdit;
+			permissioncommentview.Sensitive = _isRoleCashier && permissionResult.CanUpdate;
 			buttonSave.Sensitive = _canEdit;
 			UpdateButtonState();
 		}
