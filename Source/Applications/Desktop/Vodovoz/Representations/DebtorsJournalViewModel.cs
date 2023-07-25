@@ -186,7 +186,7 @@ namespace Vodovoz.Representations
 
 			var countDeliveryPointFixedPricesSubQuery = QueryOver.Of(() => nomenclatureFixedPriceAlias)
 				.Where(() => nomenclatureFixedPriceAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-				.Select(Projections.Count(Projections.Id()));
+				.Select(Projections.Id());
 
 			#region Phones Subqueries
 
@@ -447,7 +447,7 @@ namespace Vodovoz.Representations
 
 				if(FilterViewModel.HideWithoutFixedPrices)
 				{
-					ordersQuery = ordersQuery.Where(Restrictions.Gt(Projections.SubQuery(countDeliveryPointFixedPricesSubQuery), 0));
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(countDeliveryPointFixedPricesSubQuery);
 				}
 
 				if(FilterViewModel.SelectedDeliveryPointCategory != null)
@@ -549,7 +549,7 @@ namespace Vodovoz.Representations
 
 			var countDeliveryPointFixedPricesSubQuery = QueryOver.Of(() => nomenclatureFixedPriceAlias)
 				.Where(() => nomenclatureFixedPriceAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-				.Select(Projections.Count(Projections.Id()));
+				.Select(Projections.Id());
 
 			#region LastOrder
 
@@ -769,7 +769,7 @@ namespace Vodovoz.Representations
 
 				if(FilterViewModel.HideWithoutFixedPrices)
 				{
-					ordersQuery = ordersQuery.Where(Restrictions.Gt(Projections.SubQuery(countDeliveryPointFixedPricesSubQuery), 0));
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(countDeliveryPointFixedPricesSubQuery);//.Where(Restrictions.Gt(Projections.SubQuery(countDeliveryPointFixedPricesSubQuery), 0));
 				}
 
 				if(FilterViewModel.SelectedDeliveryPointCategory != null)
