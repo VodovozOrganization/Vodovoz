@@ -36,7 +36,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private readonly IFileDialogService _fileDialogService;
 		private readonly bool _canResendDuplicateReceipts;
 
-
 		private CashReceiptJournalFilterViewModel _filter;
 		private Timer _autoRefreshTimer;
 		private int _autoRefreshInterval;
@@ -71,7 +70,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanResendDuplicateReceipts");
 
 			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
-			;
 
 			_autoRefreshInterval = 30;
 
@@ -166,6 +164,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			query.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias);
 			query.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias);
 			query.Where(() => !cashReceiptAlias.WithoutMarks);
+			
 			if(_filter.Status.HasValue)
 			{
 				query.Where(Restrictions.Eq(Projections.Property(() => cashReceiptAlias.Status), _filter.Status.Value));
@@ -200,6 +199,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			if(_filter.HasUnscannedReason)
 			{
 				query.Where(Restrictions.Eq(Projections.SqlFunction("IS_NULL_OR_WHITESPACE", NHibernateUtil.Boolean, Projections.Property(() => cashReceiptAlias.UnscannedCodesReason)), false));
+			}
+
+			if(_filter.AvailableReceiptStatuses == AvailableReceiptStatuses.CodeErrorAndReceiptSendError
+				&& !_filter.Status.HasValue)
+			{
+				query.WhereRestrictionOn(x => x.Status)
+					.IsInG(new[] { CashReceiptStatus.CodeError, CashReceiptStatus.ReceiptSendError });
 			}
 
 			query.Where(

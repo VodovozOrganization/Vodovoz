@@ -174,6 +174,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				query.Where(Restrictions.Eq(Projections.SqlFunction("IS_NULL_OR_WHITESPACE", NHibernateUtil.Boolean, Projections.Property(() => cashReceiptAlias.UnscannedCodesReason)), false));
 			}
 
+			if(_filter.AvailableReceiptStatuses == AvailableReceiptStatuses.CodeErrorAndReceiptSendError
+				&& !_filter.Status.HasValue)
+			{
+				query.WhereRestrictionOn(() => cashReceiptAlias.Status)
+					.IsInG(new[] { CashReceiptStatus.CodeError, CashReceiptStatus.ReceiptSendError });
+			}
+
 			query.Where(
 				GetSearchCriterion(
 					() => cashReceiptAlias.Id,
