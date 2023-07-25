@@ -853,22 +853,27 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _logisticsRequirements, value);
 		}
 
-		public virtual bool IsSecondOrder()
+		public virtual bool IsSecondOrder => IsSecondOrderCheck();
+
+		private bool IsSecondOrderCheck()
 		{
 			if(IsFirstOrder)
 			{
 				return false;
 			}
 
-			var firstOrderStatuses = new OrderStatus[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+			var firstOrderAvailableStatuses = new OrderStatus[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
 			var firstOrder = UoW.GetAll<Order>()
 				.Where(o => 
 					o.Client == Client 
 					&& o.IsFirstOrder
-					&& firstOrderStatuses.Contains(o.OrderStatus));
+					&& firstOrderAvailableStatuses.Contains(o.OrderStatus))
+				.ToList();
 
-			if (firstOrder.Count() == 0)
+			bool hasFirstOrder = firstOrder.Count() > 0;
+
+			if(!hasFirstOrder)
 			{
 				return false;
 			}
@@ -877,8 +882,11 @@ namespace Vodovoz.Domain.Orders
 
 			var nextOrders = UoW.GetAll<Order>()
 				.Where(o =>
-					!o.IsFirstOrder
-					&& !nextOrdersAvailableStatuses.Contains(o.OrderStatus));
+					o.Client == Client
+					&& !o.IsFirstOrder
+					&& o.Id != Id
+					&& !nextOrdersAvailableStatuses.Contains(o.OrderStatus))
+				.ToList();
 
 			var isSecondOrder = nextOrders.Count() == 0;
 
