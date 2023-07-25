@@ -3,7 +3,6 @@ using QS.Project.Journal;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 {
@@ -70,5 +69,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		}
 
 		public bool IsShow { get; set; }
+		public bool CanChangeFilter { get; set; } = true;
 	}
 }

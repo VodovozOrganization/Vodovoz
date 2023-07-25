@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -85,7 +85,11 @@ namespace Vodovoz.ViewModels.Widgets
 			DeliveryScheduleJournalFactory = deliveryScheduleJournalFactory;
 			WorkingEmployeeAutocompleteSelectorFactory = employeeJournalFactory.CreateWorkingEmployeeAutocompleteSelectorFactory();
 
-			_entityDetalizationJournalFilterViewModel = new UndeliveryDetalizationJournalFilterViewModel();
+			_entityDetalizationJournalFilterViewModel = new UndeliveryDetalizationJournalFilterViewModel
+			{
+				CanChangeFilter = false
+			};
+
 			UndeliveryDetalizationSelectorFactory = (undeliveryDetalizationJournalFactory ?? throw new ArgumentException(nameof(undeliveryDetalizationJournalFactory)))
 				.CreateUndeliveryDetalizationAutocompleteSelectorFactory(_entityDetalizationJournalFilterViewModel);
 
@@ -353,6 +357,7 @@ namespace Vodovoz.ViewModels.Widgets
 				{
 					UndeliveryKindSource = value == null ? _entityKinds : _entityKinds.Where(x => x.UndeliveryObject == value).ToList();
 					_entityDetalizationJournalFilterViewModel.UndeliveryObject = value;
+					OnPropertyChanged(nameof(CanChangeUndeliveryKind));
 				}
 			}
 		}
@@ -385,7 +390,9 @@ namespace Vodovoz.ViewModels.Widgets
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;
-		public bool CanChangeDetalization => CanReadDetalization && _entityDetalizationJournalFilterViewModel.UndeliveryKind != null;
+
+		public bool CanChangeUndeliveryKind => CanEdit && UndeliveryObject != null;
+		public bool CanChangeDetalization => CanReadDetalization && UndeliveryKind != null;
 		public IEntityAutocompleteSelectorFactory UndeliveryDetalizationSelectorFactory { get; }
 		public bool HasPermissionOrNew => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.UndeliveredOrder.CanEditUndeliveries) || Entity.Id == 0;
 		public bool CanCloseUndeliveries => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.UndeliveredOrder.CanCloseUndeliveries);
@@ -403,11 +410,7 @@ namespace Vodovoz.ViewModels.Widgets
 		public string NewResultText
 		{
 			get => _newResultText;
-			set
-			{
-				SetField(ref _newResultText, value);
-				OnPropertyChanged(nameof(CanEditUndeliveries));
-			}
+			set => SetField(ref _newResultText, value);
 		}
 
 		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Logistic.RouteList.CanDelete);

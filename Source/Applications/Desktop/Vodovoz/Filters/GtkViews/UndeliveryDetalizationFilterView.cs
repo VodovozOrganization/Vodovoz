@@ -17,6 +17,10 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
+			tableFilterParametersContainer.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeFilter, w=>w.Sensitive)
+				.InitializeFromSource();
+
 			var undeliveryObject = ViewModel.UndeliveryObject;
 			var undeliveryKind = ViewModel.UndeliveryKind;
 

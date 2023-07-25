@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Journal.GtkUI;
@@ -139,7 +139,6 @@ namespace Vodovoz.ViewWidgets
 				.AddBinding(ViewModel.Entity, e => e.OldOrder, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEditReference, w => w.CanEditReference)
 				.InitializeFromSource();
-
 			evmeOldUndeliveredOrder.Changed += OnUndeliveredOrderChanged;
 
 			yDateDriverCallTime.Binding.AddBinding(ViewModel.Entity, t => t.DriverCallTime, w => w.DateOrNull).InitializeFromSource();
@@ -189,7 +188,7 @@ namespace Vodovoz.ViewWidgets
 			cmbUndeliveryKind.SetRenderTextFunc<UndeliveryKind>(k => k.GetFullName);
 			cmbUndeliveryKind.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.UndeliveryKindSource, w => w.ItemsList)
-				.AddBinding(vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(vm => vm.CanChangeUndeliveryKind, w => w.Sensitive)
 				.AddBinding(vm => vm.UndeliveryKind, w => w.SelectedItem)
 				.InitializeFromSource();
 
