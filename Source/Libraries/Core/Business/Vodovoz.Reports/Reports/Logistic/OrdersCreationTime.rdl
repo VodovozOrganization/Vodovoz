@@ -902,7 +902,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString />
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

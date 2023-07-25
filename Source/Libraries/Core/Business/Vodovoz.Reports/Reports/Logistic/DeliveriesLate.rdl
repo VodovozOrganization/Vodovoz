@@ -1272,7 +1272,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_null;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

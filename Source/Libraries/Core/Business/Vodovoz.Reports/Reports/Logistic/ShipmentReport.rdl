@@ -393,7 +393,7 @@ order by if(@department = '-1', employees.last_name, 0) asc, docs.operation_date
   <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>
         </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>

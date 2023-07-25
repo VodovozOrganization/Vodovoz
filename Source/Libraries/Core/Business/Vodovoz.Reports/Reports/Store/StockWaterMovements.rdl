@@ -670,7 +670,7 @@ HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_temp;user=andrey;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

@@ -1133,7 +1133,7 @@ FROM
   <DataSources>
     <DataSource Name="DS">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString />
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

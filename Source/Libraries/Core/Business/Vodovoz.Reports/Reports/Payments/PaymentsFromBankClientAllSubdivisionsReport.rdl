@@ -681,7 +681,7 @@ ORDER BY IF (@sort_date, orderdate, 0) desc, IF(@sort_date, 0, payment_date) des
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>
         </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
