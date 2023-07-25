@@ -99,7 +99,7 @@ namespace Vodovoz
 				_nomenclatureRepository);
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly bool _isOpenFromCash;
-		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
