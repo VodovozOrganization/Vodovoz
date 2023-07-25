@@ -4,6 +4,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
+using System.Linq;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Client;
@@ -17,6 +18,9 @@ namespace Vodovoz.Dialogs.OrderWidgets
 {
 	public class GtkTabsOpener : IGtkTabsOpener
 	{
+		private ITdiTab FindTabByTag(string tag) =>
+			TDIMain.MainNotebook.Tabs.FirstOrDefault(x => x.TdiTab is TdiTabBase tab && tab.Tag?.ToString() == tag)?.TdiTab;
+
 		public string GenerateDialogHashName<T>(int id)
 			where T : IDomainObject => DialogHelper.GenerateDialogHashName<T>(id);
 
@@ -33,7 +37,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 		
-		public void OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
+		public void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId)
 		{
 			var dlg = new OrderDlg();
 			dlg.CopyLesserOrderFrom(copiedOrderId);
@@ -42,6 +46,27 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				DialogHelper.GenerateDialogHashName<Order>(65656),
 				() => dlg
 			);
+		}
+
+		public ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
+		{
+			var tag = $"NewCopyFromOrder_{copiedOrderId}_Dlg";
+
+			var existsTab = FindTabByTag(tag);
+
+			if(existsTab == null)
+			{
+				var dlg = new OrderDlg();
+				dlg.CopyOrderFrom(copiedOrderId);
+				dlg.Tag = tag;
+				tab.TabParent.OpenTab(() => dlg, tab);
+				return FindTabByTag(tag);
+			}
+			else
+			{
+				TDIMain.MainNotebook.CurrentPage = TDIMain.MainNotebook.PageNum(existsTab as OrderDlg);
+				return existsTab;
+			}
 		}
 
 		public ITdiTab OpenRouteListCreateDlg(ITdiTab tab) =>

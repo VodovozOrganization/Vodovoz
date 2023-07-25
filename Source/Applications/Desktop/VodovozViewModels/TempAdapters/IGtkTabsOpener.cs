@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
@@ -14,7 +15,8 @@ namespace Vodovoz.TempAdapters
 		ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment);
 		ITdiTab CreateOrderDlg(int? orderId);
 		void OpenOrderDlg(ITdiTab tab, int id);
-		void OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId);
+		void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId);
+		ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId);
 		ITdiTab OpenRouteListCreateDlg(ITdiTab tab, int id);
 		ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab, int id);
 		ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId);

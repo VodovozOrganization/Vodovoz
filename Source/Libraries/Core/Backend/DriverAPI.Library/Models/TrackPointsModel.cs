@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
+using DriverAPI.Library.Deprecated2.Models;
 
 namespace DriverAPI.Library.Models
 {

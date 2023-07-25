@@ -1,13 +1,17 @@
-﻿using System;
-using System.Linq;
 using FluentNHibernate.Data;
+using Autofac;
+using Gamma.Utilities;
 using Gtk;
-using QS.DomainModel.Entity;
+using QS.Dialog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using QS.Tdi;
 using QS.Validation;
+using System;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
 using Vodovoz.EntityRepositories.Employees;
@@ -15,6 +19,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.Dialogs
 {
@@ -32,6 +37,8 @@ namespace Vodovoz.Dialogs
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController =
 			new RouteListAddressKeepingDocumentController(new EmployeeRepository(),
 				new NomenclatureParametersProvider(new ParametersProvider()));
+
+		private UndeliveredOrderViewModel _undeliveredOrderViewModel;
 
 		public UndeliveryOnOrderCloseDlg()
 		{
@@ -57,13 +64,26 @@ namespace Vodovoz.Dialogs
 				TimeOfCreation = DateTime.Now,
 				OldOrder = order
 			};
-			undeliveryView.ConfigureDlg(UoW, undelivery);
+
+			_undeliveredOrderViewModel = Startup.AppDIContainer.BeginLifetimeScope().Resolve<UndeliveredOrderViewModel>(
+				new TypedParameter(typeof(UndeliveredOrder), undelivery),
+				new TypedParameter(typeof(IUnitOfWork), UoW),
+				new TypedParameter(typeof(ITdiTab), this as TdiTabBase));
+			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
+			
 		}
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
+			if(HasOrderStatusExternalChangesAndCancellationImpossible(undelivery.OldOrder, out OrderStatus actualOrderStatus))
+			{
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+					$"Статус заказа был кем-то изменён на статус \"{actualOrderStatus.GetEnumTitle()}\" с момента открытия диалога, теперь отмена невозможна.");
+
+				return;
+			}
 
 			UoW.Session.Refresh(undelivery.OldOrder);
 
@@ -89,6 +109,22 @@ namespace Vodovoz.Dialogs
 			DlgSaved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(undelivery));
 		}
 
+		private bool HasOrderStatusExternalChangesAndCancellationImpossible(Order order, out OrderStatus actualOrderStatus)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Проверка актуального статуа заказа"))
+			{
+				actualOrderStatus = uow.GetById<Order>(order.Id).OrderStatus;
+			}
+
+			var hasOrderStatusChanges = order.OrderStatus != actualOrderStatus;
+			var isOrderStatusForbiddenForCancellation = !_orderRepository.GetStatusesForOrderCancelation().Contains(actualOrderStatus);
+			var isSelfDeliveryOnLoadingOrder = order.SelfDelivery && actualOrderStatus == OrderStatus.OnLoading;
+
+			return hasOrderStatusChanges
+			       && isOrderStatusForbiddenForCancellation
+			       && !isSelfDeliveryOnLoadingOrder;
+		}
+
 		private bool Save()
 		{
 			var validator = new ObjectValidator(new GtkValidationViewFactory());
@@ -97,7 +133,8 @@ namespace Vodovoz.Dialogs
 				return false;
 			}
 
-			undeliveryView.BeforeSaving();
+			_undeliveredOrderViewModel.BeforeSaveCommand.Execute();
+
 			if(!CanCreateUndelivery())
 			{
 				OnCloseTab(false);
@@ -136,6 +173,12 @@ namespace Vodovoz.Dialogs
 		protected void OnButtonCancelClicked(object sender, EventArgs e)
 		{
 			OnCloseTab(true);
+		}
+
+		public override void Destroy()
+		{
+			_undeliveredOrderViewModel.Dispose();
+			base.Destroy();
 		}
 	}
 

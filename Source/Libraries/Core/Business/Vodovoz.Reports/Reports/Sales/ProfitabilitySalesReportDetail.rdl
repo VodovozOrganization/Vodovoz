@@ -3283,12 +3283,27 @@ WHERE
 	        (IFNULL(gg.id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
 	        OR (0 IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
 	    )
-	AND (
-	        ((o.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
-	            OR
-	        (o.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include)))
-	        OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
-	    )
+	AND 
+		(
+			(
+				(
+					(o.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
+					OR 
+					(o.payment_type = 'Terminal' AND o.terminal_subtype IN (@payment_terminal_subtype_include) AND '0' IN (@payment_terminal_subtype_exclude))
+				)
+				OR
+				(
+					(o.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include) AND '0' IN (@payment_terminal_subtype_include))
+					AND 
+					(
+						o.payment_type &lt;&gt; 'Terminal'
+						OR
+						o.payment_type = 'Terminal' AND o.terminal_subtype NOT IN (@payment_terminal_subtype_exclude)
+					)          		
+				)
+			)
+			OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude) AND '0' IN (@payment_terminal_subtype_include) AND '0' IN (@payment_terminal_subtype_exclude))
+		)
 	AND (
 	        ((IFNULL(oi.promotional_set_id, 0) IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
 	            OR
@@ -3417,6 +3432,12 @@ WHERE
           </QueryParameter>
           <QueryParameter Name="order_status_exclude">
             <Value>={?order_status_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_include">
+            <Value>={?payment_terminal_subtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_exclude">
+            <Value>={?payment_terminal_subtype_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -3643,6 +3664,12 @@ WHERE
 		(IF(excluded_payment_types!=0,
 		CONCAT('Искл.типов оплаты: ',excluded_payment_types,'\n'),
 		'')),
+        (IF(included_terminal_subtypes!=0,
+        CONCAT('Вкл.источников оплаты по терминалу: ',included_terminal_subtypes,'\n'),
+        '')),
+        (IF(excluded_terminal_subtypes!=0,
+        CONCAT('Искл.источников оплаты по терминалу: ',excluded_terminal_subtypes,'\n'),
+        '')),
 		(IF(included_promo_sets!=0,
 		CONCAT('Вкл.промо-наборов: ',included_promo_sets,'\n'),
 		'')),
@@ -3758,8 +3785,17 @@ FROM
 			'0' NOT IN (@payment_type_exclude),
 			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@payment_type_exclude) GROUP BY orders.payment_type) AS q),
 			0
-		) AS excluded_payment_types,
-		
+		) AS excluded_payment_types,		
+         IF(
+                 '0' NOT IN (@payment_terminal_subtype_include),
+                 (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@payment_terminal_subtype_include) GROUP BY orders.terminal_subtype) AS q),
+                 0
+         ) AS included_terminal_subtypes,
+         IF(
+                 '0' NOT IN (@payment_terminal_subtype_exclude),
+                 (SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.terminal_subtype) AS pay FROM orders WHERE orders.terminal_subtype IN(@payment_terminal_subtype_exclude) GROUP BY orders.terminal_subtype) AS q),
+                 0
+         ) AS excluded_terminal_subtypes,
 		IF(
 			0 NOT IN (@promotional_set_include),
 			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@promotional_set_include)),
@@ -3870,6 +3906,12 @@ FROM
           </QueryParameter>
           <QueryParameter Name="order_status_exclude">
             <Value>={?order_status_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_include">
+            <Value>={?payment_terminal_subtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_terminal_subtype_exclude">
+            <Value>={?payment_terminal_subtype_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -4109,6 +4151,20 @@ FROM
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="payment_terminal_subtype_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="payment_terminal_subtype_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

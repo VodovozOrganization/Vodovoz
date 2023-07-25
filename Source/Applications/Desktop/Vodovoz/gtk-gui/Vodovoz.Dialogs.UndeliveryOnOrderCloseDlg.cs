@@ -14,7 +14,7 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.Button buttonCancel;
 
-		private global::Vodovoz.ViewWidgets.UndeliveredOrderView undeliveryView;
+		private global::Vodovoz.Core.WidgetContainerView undeliveryView;
 
 		protected virtual void Build()
 		{
@@ -71,7 +71,7 @@ namespace Vodovoz.Dialogs
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child mainBox.Gtk.Box+BoxChild
-			this.undeliveryView = new global::Vodovoz.ViewWidgets.UndeliveredOrderView();
+			this.undeliveryView = new global::Vodovoz.Core.WidgetContainerView();
 			this.undeliveryView.Events = ((global::Gdk.EventMask)(256));
 			this.undeliveryView.Name = "undeliveryView";
 			this.mainBox.Add(this.undeliveryView);

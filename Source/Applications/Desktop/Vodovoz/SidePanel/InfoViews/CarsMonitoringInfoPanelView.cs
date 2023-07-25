@@ -1,7 +1,9 @@
-﻿using GLib;
+﻿using Autofac;
+using GLib;
 using Gtk;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using System;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
@@ -28,6 +30,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider;
+		private readonly INavigationManager _navigationManager;
 		private FilterOrdersEnum _filterOrders;
 		private FastDeliveryIntervalFromEnum _fastDeliveryIntervalFrom;
 		private bool _isFastDeliveryOnly;
@@ -39,7 +42,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public CarsMonitoringInfoPanelView(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IDeliveryRulesParametersProvider deliveryRulesParametersProvider)
+			IDeliveryRulesParametersProvider deliveryRulesParametersProvider,
+			INavigationManager navigationManager)
 			: base()
 		{
 			if(unitOfWorkFactory is null)
@@ -49,6 +53,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot("Панель мониторинга автомобилей");
 			_unitOfWork.Session.DefaultReadOnly = true;
+
+			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			Nodes = new GenericObservableList<FastDeliveryMonitoringNode>();
 
@@ -64,6 +71,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			ytvAddressesInProcess.HeadersVisible = false;
 			ytvAddressesInProcess.EnableGridLines = TreeViewGridLines.Both;
+			ytvAddressesInProcess.RowActivated += (s, e) => OpenFastDeliveryTransferDialog();
 
 			ytvAddressesInProcess.ItemsDataSource = Nodes;
 
@@ -104,10 +112,24 @@ namespace Vodovoz.SidePanel.InfoViews
 
 				button.Toggled += FastDeliveryIntervalFromSelectionChanged;
 			}
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider;
 
 			_timeoutTimerHandler = new TimeoutHandler(RefreshNodesTimerHandler);
 			StartTimer(_timeoutTimerHandler);
+		}
+
+		private void OpenFastDeliveryTransferDialog()
+		{
+			if(ytvAddressesInProcess.SelectedRow is FastDeliveryMonitoringNode selectedRow)
+			{
+				if(selectedRow.RouteListItemId == null 
+					|| selectedRow.IsFastDeliveryOrder == null
+					|| selectedRow.IsFastDeliveryOrder == false)
+				{
+					return;
+				}
+
+				_navigationManager.OpenViewModel<FastDeliveryOrderTransferViewModel, int>(null, selectedRow.RouteListItemId.Value);
+			}
 		}
 
 		private void OnYtbtnShowFiltersToggled(object sender, EventArgs e)
@@ -267,7 +289,9 @@ namespace Vodovoz.SidePanel.InfoViews
 								 CarNumber = car.RegistrationNumber,
 								 Address = address,
 								 DeliveryType = isFastDeliveryString,
-								 DeliveryBefore = deliveryBefore
+								 DeliveryBefore = deliveryBefore,
+								 RouteListItemId = rla.Id,
+								 IsFastDeliveryOrder = o.IsFastDelivery
 							 };
 
 			var nodesToAdd = nodesQuery
@@ -324,7 +348,9 @@ namespace Vodovoz.SidePanel.InfoViews
 					{
 						Column1 = node.Address.Length > 35 ? node.Address.Substring(0, 32) + "..." : node.Address,
 						Column2 = node.DeliveryType,
-						Column3 = timeElapsedString
+						Column3 = timeElapsedString,
+						RouteListItemId = node.RouteListItemId,
+						IsFastDeliveryOrder = node.IsFastDeliveryOrder
 					});
 				}
 			}
@@ -345,16 +371,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			base.Destroy();
 		}
 
-		internal class DataNode
-		{
-			public string DriverName { get; set; }
-			public int RouteListId { get; set; }
-			public string CarNumber { get; set; }
-			public string Address { get; set; }
-			public string DeliveryType { get; set; }
-			public DateTime DeliveryBefore { get; set; }
-		}
-
 		public class FastDeliveryMonitoringNode
 		{
 			public string Column1 { get; set; }
@@ -362,6 +378,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			public string Column2 { get; set; }
 
 			public string Column3 { get; set; }
+			public int? RouteListItemId { get; set; }
+			public bool? IsFastDeliveryOrder { get; set; }
 		}
 
 		public enum FilterOrdersEnum

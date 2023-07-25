@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -395,6 +395,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="icons\toolbar\car_service.png" />
     <EmbeddedResource Include="icons\toolbar\sales_department.png" />
+    <EmbeddedResource Include="icons\toolbar\undelivered_orders.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\Accounting\WayBillDocumentGenerator.cs" />
@@ -449,8 +450,11 @@
     <Compile Include="JournalColumnsConfigs\CarModelJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ClientCameFromJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ColumnsConfigRegistrarBase.cs" />
+    <Compile Include="JournalColumnsConfigs\UndeliveryDetalizationJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintDetalizationJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\UndeliveryKindJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintKindJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\UndeliveryObjectJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintObjectJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfCounterpartyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfEmployeesJournalRegistrar.cs" />
@@ -565,6 +569,7 @@
     <Compile Include="MainWindow.Navigation.cs" />
     <Compile Include="MainWindow.Navigation.Database.cs" />
     <Compile Include="MainWindow.Navigation.Journals.cs" />
+    <Compile Include="MainWindow.Navigation.Reports.cs" />
     <Compile Include="MainWindow.Navigation.Sections.cs" />
     <Compile Include="MainWindow.View.cs" />
     <Compile Include="Program.cs" />
@@ -580,6 +585,13 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.ExpensesGroupLine.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.FinancialExpenseCategoryLine.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.FinancialIncomeCategoryLine.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.IncomesGroupLine.cs" />
+    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReportRenderer.cs" />
+    <Compile Include="ReportsParameters\CashFlow.ReportParts.cs" />
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="Representations\ProductGroups\INameNode.cs" />
     <Compile Include="Representations\ProductGroups\NomenclatureGroupNode.cs" />
@@ -587,6 +599,7 @@
     <Compile Include="Representations\ProductGroups\ProductGroupVM.cs" />
     <Compile Include="Representations\ProductGroups\ProductGroupVMNode.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
+    <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="TempAdapters\AttachmentsViewModelFactory.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
@@ -1923,6 +1936,20 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CargoDailyNormView.cs" />
     <Compile Include="Views\Client\ResendCounterpartyEdoDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.ResendCounterpartyEdoDocumentsView.cs" />
+    <Compile Include="Views\Orders\UndeliveryObjectView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryObjectView.cs" />
+    <Compile Include="Views\Orders\UndeliveryKindView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryKindView.cs" />
+    <Compile Include="Views\Orders\UndeliveryDetalizationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.UndeliveryDetalizationView.cs" />
+    <Compile Include="Filters\GtkViews\UndeliveryObjectFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryObjectFilterView.cs" />
+    <Compile Include="Filters\GtkViews\UndeliveryKindFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryKindFilterView.cs" />
+    <Compile Include="Filters\GtkViews\UndeliveryDetalizationFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryDetalizationFilterView.cs" />
+    <Compile Include="Views\Logistic\FastDeliveryOrderTransferView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryOrderTransferView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

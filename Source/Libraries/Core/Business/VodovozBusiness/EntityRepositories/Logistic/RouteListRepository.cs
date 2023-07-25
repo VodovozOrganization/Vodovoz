@@ -82,19 +82,26 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Where(x => x.Date == date);
 		}
 
-		public QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds)
+		public QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds, bool onlyNonPrinted)
 		{
 			GeoGroup geographicGroupAlias = null;
+			RouteList routeListAlias = null;
+			DocumentPrintHistory printHistoryAlias = null;
 
-			var query = QueryOver.Of<RouteList>()
-								 .Where(x => x.Date == date)
-								 ;
+			var query = QueryOver.Of(() => routeListAlias)
+				.Where(x => x.Date == date);
+
+			if(onlyNonPrinted)
+			{
+				query.Left.JoinAlias(() => routeListAlias.PrintsHistory, () => printHistoryAlias)
+					.WhereRestrictionOn(() => printHistoryAlias.Id).IsNull();
+			}
 
 			if(geographicGroupsIds.Any()) {
 				var routeListsWithGeoGroupsSubquery = QueryOver.Of<RouteList>()
-															   .Left.JoinAlias(r => r.GeographicGroups, () => geographicGroupAlias)
-															   .Where(() => geographicGroupAlias.Id.IsIn(geographicGroupsIds))
-															   .Select(r => r.Id);
+					.Left.JoinAlias(r => r.GeographicGroups, () => geographicGroupAlias)
+					.Where(() => geographicGroupAlias.Id.IsIn(geographicGroupsIds))
+					.Select(r => r.Id);
 				query.WithSubquery.WhereProperty(r => r.Id).In(routeListsWithGeoGroupsSubquery);
 			}
 

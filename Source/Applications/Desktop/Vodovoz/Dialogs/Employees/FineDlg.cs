@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Dialogs;
@@ -344,7 +345,8 @@ namespace Vodovoz
 				new OrderSelectorFactory(),
 				new UndeliveredOrdersRepository(),
 				new EmployeeSettings(new ParametersProvider()),
-				new SubdivisionParametersProvider(new ParametersProvider())
+				new SubdivisionParametersProvider(new ParametersProvider()),
+				new FileDialogService()
 				);
 
 			TabParent.AddSlaveTab(this, dlg);

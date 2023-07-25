@@ -20,7 +20,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver, DateTime? date = null, RouteListStatus? status = null);
 		QueryOver<RouteList> GetRoutesAtDay(DateTime date);
-		QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds);
+		QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds, bool onlyNonPrinted);
 		IList<GoodsInRouteListResult> GetGoodsAndEquipsInRL(IUnitOfWork uow, RouteList routeList, ISubdivisionRepository subdivisionRepository = null, Warehouse warehouse = null);
 		IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments(IUnitOfWork uow, RouteList routeList);
 		bool HasRouteList(int driverId, DateTime date, int deliveryShiftId);

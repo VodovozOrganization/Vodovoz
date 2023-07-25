@@ -5,14 +5,18 @@ namespace DriverAPI.Library.Converters
 {
 	public class PaymentTypeConverter
 	{
-		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, bool paid)
+		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, bool paid, PaymentByTerminalSource? paymentByTerminalSource)
 		{
 			switch(paymentType)
 			{
 				case PaymentType.Cash:
 					return PaymentDtoType.Cash;
 				case PaymentType.Terminal:
-					return PaymentDtoType.Terminal;
+					if(paymentByTerminalSource != null && paymentByTerminalSource == PaymentByTerminalSource.ByQR)
+					{
+						return PaymentDtoType.TerminalQR;
+					}
+					return PaymentDtoType.TerminalCard;
 				case PaymentType.DriverApplicationQR:
 					return PaymentDtoType.DriverApplicationQR;
 				case PaymentType.SmsQR:

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -2434,7 +2434,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>WITH orders_route_list_ids as 
@@ -2518,6 +2518,7 @@ FROM
                     LEFT JOIN employees ON employees.id = cash_income.casher_employee_id
             WHERE 
             		route_list_id IN (SELECT DISTINCT route_list_id FROM orders_route_list_ids)
+            		AND NOT type_operation = 'Return'
             GROUP BY
                 route_list_id
         ) AS CashIncomeDocument ON CashIncomeDocument.route_list_id = route_lists.id
@@ -2630,7 +2631,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2692,7 +2693,7 @@ GROUP BY route_lists.id
       </Fields>
     </DataSet>
     <DataSet Name="IncomeAllStatus">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>WITH orders_route_list_ids as 
@@ -2868,7 +2869,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.Int32</TypeName>
