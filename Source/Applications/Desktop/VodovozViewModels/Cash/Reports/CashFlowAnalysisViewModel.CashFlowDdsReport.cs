@@ -45,12 +45,12 @@ namespace Vodovoz.ViewModels.Cash.Reports
 										 where incomeCategory.GroupType == GroupType.Category
 											&& incomeCategory.IsArchive == false
 											&& incomeCategory.ExcludeFromCashFlowDds == false
-										 let title = $"{incomeCategory.Numbering} {incomeCategory.Title}"
 										 orderby incomeCategory.Numbering, incomeCategory.Title
 										 select FinancialIncomeCategoryLine.Create(
 											  incomeCategory.Id,
 											  incomeCategory.ParentId,
-											  title))
+											  incomeCategory.Title,
+											  incomeCategory.Numbering))
 										.ToList();
 
 				foreach(var incomeCategory in incomesCategories)
@@ -69,12 +69,12 @@ namespace Vodovoz.ViewModels.Cash.Reports
 										  where expenseCategory.GroupType == GroupType.Category
 											 && expenseCategory.IsArchive == false
 											 && expenseCategory.ExcludeFromCashFlowDds == false
-										  let title = $"{expenseCategory.Numbering} {expenseCategory.Title}"
 										  orderby expenseCategory.Numbering, expenseCategory.Title
 										  select FinancialExpenseCategoryLine.Create(
 											  expenseCategory.Id,
 											  expenseCategory.ParentId,
-											  title))
+											  expenseCategory.Title,
+											  expenseCategory.Numbering))
 											 .ToList();
 
 				foreach(var expenseCategory in expensesCategories)
@@ -139,7 +139,8 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				{
 					result.Add(IncomesGroupLine.Create(
 						group.Id,
-						$"{group.Numbering} {group.Title}",
+						group.Title,
+						group.Numbering,
 						ProceedIncomeGroups(group.Id, groups, financialIncomeCategoryLines),
 						financialIncomeCategoryLines.Where(x => x.ParentId == group.Id).ToList()));
 				}
@@ -160,7 +161,8 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				{
 					result.Add(ExpensesGroupLine.Create(
 						group.Id,
-						$"{group.Numbering} {group.Title}",
+						group.Title,
+						group.Numbering,
 						ProceedExpenseGroups(group.Id, groups, financialExpenseCategoryLines),
 						financialExpenseCategoryLines.Where(x => x.ParentId == group.Id).ToList()));
 				}

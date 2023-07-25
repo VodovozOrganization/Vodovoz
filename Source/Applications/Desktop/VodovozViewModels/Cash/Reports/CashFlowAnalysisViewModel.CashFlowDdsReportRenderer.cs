@@ -11,8 +11,6 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		{
 			private XLColor _subTotalsBGXLColor;
 
-			private const int _splitterRowsCount = 0;
-
 			private const string _worksheetTitle = "Отчет";
 
 			private const string _headerTitle = "Анализ движения денежных средств";
@@ -27,6 +25,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			private const int _mainCategoryColumn = 1;
 			private const int _categoryTitleColumn = 2;
 			private const int _categoryFontSize = 11;
+			private const int _numberingColumn = 1;
 			private const int _moneyColumn = 3;
 
 			private const string _moneyNumericFormat = "# ### ### ##0.00;-# ### ### ##0.00;-";
@@ -188,7 +187,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 				if(groupLevel > 1)
 				{
-					RenderGroupTitle(xLWorksheet, startRow, incomeGroup.Title, numberPrefix, incomeGroup.Money);
+					RenderGroupTitle(xLWorksheet, startRow, incomeGroup.Title, incomeGroup.Numbering, numberPrefix, incomeGroup.Money);
 				}
 
 				inserted++;
@@ -248,7 +247,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 				if(groupLevel > 1)
 				{
-					RenderGroupTitle(xLWorksheet, startRow, expenseGroup.Title, numberPrefix, expenseGroup.Money);
+					RenderGroupTitle(xLWorksheet, startRow, expenseGroup.Title, expenseGroup.Numbering, numberPrefix, expenseGroup.Money);
 				}
 
 				inserted++;
@@ -302,7 +301,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				int row,
 				CashFlowDdsReport.FinancialIncomeCategoryLine category)
 			{
-				RenderCategoryRow(xLWorksheet, row, category.Title, category.Money);
+				RenderCategoryRow(xLWorksheet, row, category.Title, category.Numbering, category.Money);
 			}
 
 			private void RenderExpenseCategory(
@@ -310,23 +309,36 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				int row,
 				CashFlowDdsReport.FinancialExpenseCategoryLine category)
 			{
-				RenderCategoryRow(xLWorksheet, row, category.Title, category.Money);
+				RenderCategoryRow(xLWorksheet, row, category.Title, category.Numbering, category.Money);
 			}
 
-			private void RenderGroupTitle(IXLWorksheet xLWorksheet, int row, string title, string numberPrefix, decimal money)
+			private void RenderGroupTitle(IXLWorksheet xLWorksheet, int row, string title, string numbering, string numberPrefix, decimal money)
 			{
+				var numberingCell = xLWorksheet.Cell(row, _numberingColumn);
+
+				numberingCell.Value = numbering;
+				numberingCell.Style.Font.FontSize = _groupTitleFontSize;
+				numberingCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
 				var groupTitleCell = xLWorksheet.Cell(row, _categoryTitleColumn);
+
 				groupTitleCell.Style.Font.Bold = true;
 				groupTitleCell.Style.Font.FontSize = _groupTitleFontSize;
 				groupTitleCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
-				groupTitleCell.Value = $"{numberPrefix}{title}";
+				groupTitleCell.Value = title;
 
 				RenderMoney(xLWorksheet, row, money, _groupTitleFontSize, true, true);
 			}
 
-			private void RenderCategoryRow(IXLWorksheet xLWorksheet, int row, string title, decimal money, bool right = false)
+			private void RenderCategoryRow(IXLWorksheet xLWorksheet, int row, string title, string numbering, decimal money, bool right = false)
 			{
+				var numberingCell = xLWorksheet.Cell(row, _numberingColumn);
+
+				numberingCell.Value = numbering;
+				numberingCell.Style.Font.FontSize = _categoryFontSize;
+				numberingCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+
 				var titleCell = xLWorksheet.Cell(row, _categoryTitleColumn);
 
 				titleCell.Value = title;
@@ -336,6 +348,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				if(right)
 				{
 					titleCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+					numberingCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 				}
 
 				RenderMoney(xLWorksheet, row, money, _categoryFontSize, border: true);

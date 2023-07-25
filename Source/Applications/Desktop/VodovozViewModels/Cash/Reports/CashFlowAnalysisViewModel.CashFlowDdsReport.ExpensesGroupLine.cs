@@ -12,16 +12,20 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				private ExpensesGroupLine(
 					int id,
 					string title,
+					string numbering,
 					List<ExpensesGroupLine> groups,
 					List<FinancialExpenseCategoryLine> incomeCategories)
 				{
 					Id = id;
 					Title = title;
+					Numbering = numbering;
 					Groups = groups;
 					ExpenseCategories = incomeCategories;
 				}
 
 				public int Id { get; }
+
+				public string Numbering { get; }
 
 				public string Title { get; }
 
@@ -34,9 +38,10 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				public static ExpensesGroupLine Create(
 					int id,
 					string title,
+					string numbering,
 					List<ExpensesGroupLine> groups,
 					List<FinancialExpenseCategoryLine> incomeCategories)
-						=> new ExpensesGroupLine(id, title, groups, incomeCategories);
+						=> new ExpensesGroupLine(id, title, numbering, groups, incomeCategories);
 			}
 		}
 	}

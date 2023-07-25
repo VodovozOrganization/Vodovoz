@@ -123,6 +123,7 @@ namespace Vodovoz.Cash.Reports
 				.AddSetter((cell, node) =>
 				{
 					var value = node.ThirdColumn == 0 ? "-" : node.ThirdColumn.ToString("# ### ### ##0.00");
+					cell.Xalign = 1;
 
 					if(node.IsAccented)
 					{
@@ -141,6 +142,7 @@ namespace Vodovoz.Cash.Reports
 						cell.Markup = value;
 					}
 				})
+				.AddColumn("")
 				.Finish();
 
 			ytreeReportIndicatorsRows.HeadersVisible = false;

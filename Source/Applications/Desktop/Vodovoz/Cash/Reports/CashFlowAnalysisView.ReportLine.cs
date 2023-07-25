@@ -124,6 +124,7 @@ namespace Vodovoz.Cash.Reports
 				{
 					LineNumber = index++,
 					ParentLine = parent,
+					FirstColumn = expenseCategoryLine.Numbering,
 					SecondColumn = expenseCategoryLine.Title,
 					ThirdColumn = expenseCategoryLine.Money
 				};
@@ -138,6 +139,7 @@ namespace Vodovoz.Cash.Reports
 				{
 					LineNumber = index++,
 					ParentLine = parent,
+					FirstColumn = expensesGroupLine.Numbering,
 					SecondColumn = expensesGroupLine.Title,
 					ThirdColumn = expensesGroupLine.Money
 				};
@@ -181,6 +183,7 @@ namespace Vodovoz.Cash.Reports
 				{
 					LineNumber = index++,
 					ParentLine = parent,
+					FirstColumn = incomeCategoryLine.Numbering,
 					SecondColumn = incomeCategoryLine.Title,
 					ThirdColumn = incomeCategoryLine.Money
 				};
@@ -195,6 +198,7 @@ namespace Vodovoz.Cash.Reports
 				{
 					LineNumber = index++,
 					ParentLine = parent,
+					FirstColumn = incomesGroupLine.Numbering,
 					SecondColumn = incomesGroupLine.Title,
 					ThirdColumn = incomesGroupLine.Money
 				};
