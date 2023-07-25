@@ -106,7 +106,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			FinancialExpenseCategoryViewModel = expenseCategoryEntryViewModelBuilder
 				.ForProperty(x => x.FinancialExpenseCategory)
-				.UseViewModelDialog<FinancialCategoriesGroupViewModel>()
+				.UseViewModelDialog<FinancialExpenseCategoryViewModel>()
 				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
 					filter =>
 					{
