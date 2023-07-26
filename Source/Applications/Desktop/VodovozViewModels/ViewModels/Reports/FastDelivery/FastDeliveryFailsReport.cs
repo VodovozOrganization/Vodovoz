@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using ClosedXML.Excel;
@@ -145,7 +145,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				.Left.JoinAlias(() => fastDeliveryOrderItemHistoryAlias.Nomenclature, () => nomenclatureAlias);
 
 			// Отчёт "Анализ ассортимента не в запасе"
-			if(_filterViewModel.IsNomenclatureNotInStock.Value)
+			if(_filterViewModel.IsNomenclatureNotInStock != null && _filterViewModel.IsNomenclatureNotInStock.Value)
 			{
 				var distributionNomenclaturesSubquery = QueryOver.Of(() => fastDeliveryNomenclatureDistributionHistoryAlias)
 					.Where(() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id ==
