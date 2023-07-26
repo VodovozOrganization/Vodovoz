@@ -16,12 +16,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark
 		public CashReceiptJournalFilterViewModel(ICommonServices commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			var allReceiptStatusesAvailable =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("CashReceipt.AllReceiptStatusesAvailable");
 			var showOnlyCodeErrorStatusReceipts =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("CashReceipt.ShowOnlyCodeErrorStatusReceipts");
 			var showOnlyReceiptSendErrorStatusReceipts =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("CashReceipt.ShowOnlyReceiptSendErrorStatusReceipts");
 
-			SetAvailableReceiptStatuses(showOnlyCodeErrorStatusReceipts, showOnlyReceiptSendErrorStatusReceipts);
+			SetAvailableReceiptStatuses(allReceiptStatusesAvailable, showOnlyCodeErrorStatusReceipts, showOnlyReceiptSendErrorStatusReceipts);
 		}
 
 		public DateTime? StartDate
@@ -53,11 +55,14 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark
 		public AvailableReceiptStatuses AvailableReceiptStatuses { get; private set; }
 		
 		private void SetAvailableReceiptStatuses(
+			bool allReceiptStatusesAvailable,
 			bool showOnlyCodeErrorStatusReceipts,
 			bool showOnlyReceiptSendErrorStatusReceipts)
 		{
-			if(_commonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+			if(_commonServices.UserService.GetCurrentUser(UoW).IsAdmin
+				|| allReceiptStatusesAvailable)
 			{
+				AvailableReceiptStatuses = AvailableReceiptStatuses.All;
 				return;
 			}
 			

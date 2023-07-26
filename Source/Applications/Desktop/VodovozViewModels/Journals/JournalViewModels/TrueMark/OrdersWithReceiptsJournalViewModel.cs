@@ -51,7 +51,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
 
 			var permissionService = commonServices.CurrentPermissionService;
-			var canReadReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanReadReceipts");
+			var allReceiptStatusesAvailable = permissionService.ValidatePresetPermission("CashReceipt.AllReceiptStatusesAvailable");
+			var showOnlyCodeErrorStatusReceipts =
+				permissionService.ValidatePresetPermission("CashReceipt.ShowOnlyCodeErrorStatusReceipts");
+			var showOnlyReceiptSendErrorStatusReceipts =
+				permissionService.ValidatePresetPermission("CashReceipt.ShowOnlyReceiptSendErrorStatusReceipts");
+			
+			var canReadReceipts = allReceiptStatusesAvailable || showOnlyCodeErrorStatusReceipts || showOnlyReceiptSendErrorStatusReceipts;
 			if(!canReadReceipts)
 			{
 				AbortOpening("Нет прав просматривать кассовые чеки.");

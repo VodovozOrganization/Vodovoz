@@ -60,7 +60,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			var permissionService = _commonServices.CurrentPermissionService;
-			var canReadReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanReadReceipts");
+			
+			var allReceiptStatusesAvailable = permissionService.ValidatePresetPermission("CashReceipt.AllReceiptStatusesAvailable");
+			var showOnlyCodeErrorStatusReceipts =
+				permissionService.ValidatePresetPermission("CashReceipt.ShowOnlyCodeErrorStatusReceipts");
+			var showOnlyReceiptSendErrorStatusReceipts =
+				permissionService.ValidatePresetPermission("CashReceipt.ShowOnlyReceiptSendErrorStatusReceipts");
+			
+			var canReadReceipts = allReceiptStatusesAvailable || showOnlyCodeErrorStatusReceipts || showOnlyReceiptSendErrorStatusReceipts;
 			if(!canReadReceipts)
 			{
 				AbortOpening("Нет прав просматривать кассовые чеки.");
