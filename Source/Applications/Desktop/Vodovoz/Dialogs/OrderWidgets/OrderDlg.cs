@@ -3644,8 +3644,7 @@ namespace Vodovoz
 			}
 
 			if(orderItem.DiscountReason != null
-				|| orderItem.PromoSet != null
-				|| orderItem.OrderItemRentSubType == OrderItemRentSubType.RentDepositItem)
+				|| orderItem.PromoSet != null)
 			{
 				return;
 			}
