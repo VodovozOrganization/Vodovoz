@@ -131,6 +131,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isFirstOrder, value, () => IsFirstOrder);
 		}
 
+		bool _isSecondOrder;
+		[Display(Name = "Второй заказ клиента")]
+		public virtual bool IsSecondOrder
+		{
+			get => _isSecondOrder;
+			set => SetField(ref _isSecondOrder, value);
+		}
+
 		private bool _isFastDelivery;
 		[Display(Name = "Доставка за час")]
 		public virtual bool IsFastDelivery
@@ -207,6 +215,8 @@ namespace Vodovoz.Domain.Orders
 					}
 
 					RefreshContactPhone();
+
+					IsSecondOrderSetter();
 				}
 			}
 		}
@@ -853,13 +863,17 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _logisticsRequirements, value);
 		}
 
-		public virtual bool IsSecondOrder => IsSecondOrderCheck();
-
-		private bool IsSecondOrderCheck()
+		private void IsSecondOrderSetter()
 		{
 			if(IsFirstOrder)
 			{
-				return false;
+				IsSecondOrder = false;
+				return;
+			}
+
+			if(Id > 0 || IsSecondOrder)
+			{
+				return;
 			}
 
 			var firstOrderAvailableStatuses = new OrderStatus[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
@@ -875,7 +889,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(!hasFirstOrder)
 			{
-				return false;
+				return;
 			}
 
 			var nextOrdersAvailableStatuses = new OrderStatus[] { OrderStatus.Canceled, OrderStatus.NotDelivered };
@@ -888,9 +902,7 @@ namespace Vodovoz.Domain.Orders
 					&& !nextOrdersAvailableStatuses.Contains(o.OrderStatus))
 				.ToList();
 
-			var isSecondOrder = nextOrders.Count() == 0;
-
-			return isSecondOrder;
+			IsSecondOrder = nextOrders.Count() == 0;
 		}
 
 		#endregion
