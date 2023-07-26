@@ -1062,4 +1062,45 @@ public partial class MainWindow
 	}
 
 	#endregion Водители
+
+	#region Сервисный центр
+
+	/// <summary>
+	/// Отчёт по мастерам
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionMastersReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<MastersReport>(),
+			() => new QSReport.ReportViewDlg(new MastersReport()));
+	}
+
+	/// <summary>
+	/// Отчёт по оборудованию
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEquipmentReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EquipmentReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(ServicesConfig.InteractiveService)));
+	}
+
+	/// <summary>
+	/// Отчёт по выездам мастеров
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionMastersVisitReportActivated(object sender, EventArgs e)
+	{
+		var employeeFactory = new EmployeeJournalFactory();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
+			() => new QSReport.ReportViewDlg(new MastersVisitReport(employeeFactory)));
+	}
+
+	#endregion Сервисный центр
 }

@@ -495,14 +495,6 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionEquipmentReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EquipmentReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EquipmentReport(ServicesConfig.InteractiveService))
-		);
-	}
-
 	protected void OnActionForwarderWageReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -510,7 +502,6 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport())
 		);
 	}
-
 
 	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
 	{
@@ -578,14 +569,6 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionMastersReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<MastersReport>(),
-			() => new QSReport.ReportViewDlg(new MastersReport())
-		);
-	}
-
 	protected void OnActionDistanceFromCenterActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -607,15 +590,6 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ReplaceEntityLinksDlg>(),
 			() => new ReplaceEntityLinksDlg()
-		);
-	}
-
-	protected void OnActionMastersVisitReportActivated(object sender, EventArgs e)
-	{
-		var employeeFactory = new EmployeeJournalFactory();
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<MastersVisitReport>(),
-			() => new QSReport.ReportViewDlg(new MastersVisitReport(employeeFactory))
 		);
 	}
 
