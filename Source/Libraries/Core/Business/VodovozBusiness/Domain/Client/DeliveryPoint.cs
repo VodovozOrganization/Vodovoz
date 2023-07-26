@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using NetTopologySuite.Geometries;
-using NHibernate.Impl;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Osrm;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -27,13 +26,13 @@ namespace Vodovoz.Domain.Client
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "точки доставки",
 		Nominative = "точка доставки",
-		Accusative = "точки доставки"
-	)]
+		Accusative = "точки доставки")]
 	[HistoryTrace]
 	[EntityPermission]
 	public class DeliveryPoint : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
 		private readonly IGlobalSettings _globalSettings = new GlobalSettings(new ParametersProvider());
 
 		private TimeSpan? _lunchTimeFrom;
@@ -47,85 +46,173 @@ namespace Vodovoz.Domain.Client
 		private string _localityType;
 		private Guid? _buildingFiasGuid;
 		private ReasonForLeaving _reasonForLeaving;
+		private int _minutesToUnload;
+		private string _letter;
+		private string _placement;
+		private string _floor;
+		private EntranceType _entranceType;
+		private string _entrance;
+		private string _city;
+		private string _cityDistrict;
+		private string _street;
+		private string _streetType;
+		private string _building;
+		private RoomType _roomType;
+		private string _room;
+		private string _comment;
+		private decimal? _latitude;
+		private decimal? _longitude;
+		private bool _isActive = true;
+		private IList<DeliveryPointResponsiblePerson> _responsiblePersons = new List<DeliveryPointResponsiblePerson>();
+		private GenericObservableList<DeliveryPointResponsiblePerson> _observableResponsiblePersons;
+		private District _district;
+		private DeliverySchedule _deliverySchedule;
+		private bool _foundOnOsm;
+		private bool _manualCoordinates;
+		private bool _isFixedInOsm;
+		private Counterparty _counterparty;
+		private string _kpp;
+		private string _address1c;
+		private string _code1c;
+		private string _organization;
+		private int _bottleReserv;
+		private Nomenclature _defaultWaterNomenclature;
+		private bool _alwaysFreeDelivery;
+		private User _coordsLastChangeUser;
+		private int? _distanceFromBaseMeters;
+		private IList<Phone> _phones = new List<Phone>();
+		private GenericObservableList<Phone> _observablePhones;
+		private bool? _haveResidue;
+		private IList<NomenclatureFixedPrice> _nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
+		private GenericObservableList<NomenclatureFixedPrice> _observableNomenclatureFixedPrices;
+		private int _minimalOrderSumLimit;
+		private int _maximalOrderSumLimit;
+		private IList<DeliveryPointEstimatedCoordinate> _deliveryPointEstimatedCoordinates = new List<DeliveryPointEstimatedCoordinate>();
+		private GenericObservableList<DeliveryPointEstimatedCoordinate> _observableDeliveryPointEstimatedCoordinates;
+		private LogisticsRequirements _logisticsRequirements;
+		private decimal _fixPrice1;
+		private decimal _fixPrice2;
+		private decimal _fixPrice3;
+		private decimal _fixPrice4;
+		private decimal _fixPrice5;
+		private bool _addCertificatesAlways;
+		private DeliveryPointCategory _category;
+
+		//FIXME вынести зависимость
+		private readonly IDeliveryRepository _deliveryRepository = new DeliveryRepository();
+
+		public DeliveryPoint()
+		{
+			CompiledAddress = string.Empty;
+			City = "Санкт-Петербург";
+			LocalityTypeShort = "г";
+			Street = string.Empty;
+			Building = string.Empty;
+			Room = string.Empty;
+			Comment = string.Empty;
+		}
 
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
-		int minutesToUnload;
-
 		[Display(Name = "Время разгрузки")]
-		public virtual int MinutesToUnload {
-			get => minutesToUnload;
-			set => SetField(ref minutesToUnload, value, () => MinutesToUnload);
+		public virtual int MinutesToUnload
+		{
+			get => _minutesToUnload;
+			set => SetField(ref _minutesToUnload, value);
 		}
-
-		string letter;
 
 		[Display(Name = "Литера")]
-		public virtual string Letter {
-			get => letter;
-			set => SetField(ref letter, value, () => Letter);
+		public virtual string Letter
+		{
+			get => _letter;
+			set => SetField(ref _letter, value);
 		}
-		
-		string placement;
 
 		[Display(Name = "Помещение")]
-		public virtual string Placement {
-			get => placement;
-			set => SetField(ref placement, value, () => Placement);
+		public virtual string Placement
+		{
+			get => _placement;
+			set => SetField(ref _placement, value);
 		}
-
-		string floor;
 
 		[Display(Name = "Этаж")]
-		public virtual string Floor {
-			get => floor;
-			set => SetField(ref floor, value, () => Floor);
+		public virtual string Floor
+		{
+			get => _floor;
+			set => SetField(ref _floor, value);
 		}
-
-		EntranceType entranceType;
 
 		[Display(Name = "Тип входа")]
-		public virtual EntranceType EntranceType {
-			get => entranceType;
-			set => SetField(ref entranceType, value, () => EntranceType);
+		public virtual EntranceType EntranceType
+		{
+			get => _entranceType;
+			set => SetField(ref _entranceType, value);
 		}
-
-		string entrance;
 
 		[Display(Name = "Парадная")]
-		public virtual string Entrance {
-			get => entrance;
-			set => SetField(ref entrance, value, () => Entrance);
+		public virtual string Entrance
+		{
+			get => _entrance;
+			set => SetField(ref _entrance, value);
 		}
 
-		public virtual string Title => string.IsNullOrWhiteSpace(CompiledAddress) ? "АДРЕС ПУСТОЙ" : CompiledAddress;
-
 		[Display(Name = "Полный адрес")]
-		public virtual string CompiledAddress {
-			get {
+		public virtual string CompiledAddress
+		{
+			get
+			{
 				string address = string.Empty;
 				if(!string.IsNullOrWhiteSpace(LocalityTypeShort))
+				{
 					address += $"{LocalityTypeShort}. ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(City))
+				{
 					address += $"{City}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(StreetType))
+				{
 					address += $"{StreetType.ToLower()} ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Street))
+				{
 					address += $"{Street}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Building))
+				{
 					address += $"д.{Building}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Letter))
+				{
 					address += $"лит.{Letter}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += $"{entranceType.GetEnumShortTitle()} {Entrance}, ";
+				{
+					address += $"{_entranceType.GetEnumShortTitle()} {Entrance}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Floor))
+				{
 					address += $"эт.{Floor}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Room))
+				{
 					address += $"{RoomType.GetEnumShortTitle()} {Room}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Comment))
+				{
 					address += $"{Comment}, ";
+				}
 
 				return address.TrimEnd(',', ' ');
 			}
@@ -133,58 +220,114 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Адрес без дополнения")]
-		public virtual string CompiledAddressWOAddition {
-			get {
+		public virtual string CompiledAddressWOAddition
+		{
+			get
+			{
 				string address = string.Empty;
 				if(!string.IsNullOrWhiteSpace(LocalityTypeShort))
+				{
 					address += $"{LocalityTypeShort}. ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(City))
+				{
 					address += $"{City}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
+				{
 					address += GetStreetTypeShort();
+				}
+
 				if(!string.IsNullOrWhiteSpace(Street))
+				{
 					address += $"{Street}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Building))
+				{
 					address += $"д.{Building}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Letter))
+				{
 					address += $"лит.{Letter}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += $"{entranceType.GetEnumShortTitle()} {Entrance}, ";
+				{
+					address += $"{_entranceType.GetEnumShortTitle()} {Entrance}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Floor))
+				{
 					address += $"эт.{Floor}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Room))
+				{
 					address += $"{RoomType.GetEnumShortTitle()} {Room}, ";
+				}
 
 				return address.TrimEnd(',', ' ');
 			}
 		}
 
-		private string shortAddress;
 		[Display(Name = "Сокращенный адрес")]
-		public virtual string ShortAddress {
-			get {
+		public virtual string ShortAddress
+		{
+			get
+			{
 				string address = string.Empty;
 				if(!string.IsNullOrWhiteSpace(LocalityTypeShort) && City != "Санкт-Петербург")
+				{
 					address += $"{LocalityTypeShort}. ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(City) && City != "Санкт-Петербург")
+				{
 					address += $"{City}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(StreetTypeShort))
+				{
 					address += GetStreetTypeShort();
+				}
+
 				if(!string.IsNullOrWhiteSpace(Street))
+				{
 					address += $"{Street}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Building))
+				{
 					address += $"д.{Building}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Letter))
+				{
 					address += $"лит.{Letter}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += $"{entranceType.GetEnumShortTitle()} {Entrance}, ";
+				{
+					address += $"{_entranceType.GetEnumShortTitle()} {Entrance}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Floor))
+				{
 					address += $"эт.{Floor}, ";
+				}
+
 				if(!string.IsNullOrWhiteSpace(Room))
+				{
 					address += $"{RoomType.GetEnumShortTitle()} {Room}, ";
+				}
 
 				return address.TrimEnd(',', ' ');
 			}
+			set { }
 		}
 
 		public virtual Guid? CityFiasGuid
@@ -204,14 +347,12 @@ namespace Vodovoz.Domain.Client
 			get => _buildingFiasGuid;
 			set => SetField(ref _buildingFiasGuid, value);
 		}
-		
-		string city;
 
 		[Display(Name = "Город")]
 		public virtual string City
 		{
-			get => city;
-			set => SetField(ref city, value);
+			get => _city;
+			set => SetField(ref _city, value);
 		}
 
 		[Display(Name = "Тип населенного пункта")]
@@ -228,29 +369,25 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _localityTypeShort, value);
 		}
 
-		string cityDistrict;
-
 		[Display(Name = "Район области")]
-		public virtual string CityDistrict {
-			get => cityDistrict;
-			set => SetField(ref cityDistrict, value);
+		public virtual string CityDistrict
+		{
+			get => _cityDistrict;
+			set => SetField(ref _cityDistrict, value);
 		}
-
-		string street;
 
 		[Display(Name = "Улица")]
-		public virtual string Street {
-			get => street;
-			set => SetField(ref street, value);
+		public virtual string Street
+		{
+			get => _street;
+			set => SetField(ref _street, value);
 		}
-
-		string streetType;
 
 		[Display(Name = "Тип улицы")]
 		public virtual string StreetType
 		{
-			get => streetType;
-			set => SetField(ref streetType, value);
+			get => _streetType;
+			set => SetField(ref _streetType, value);
 		}
 
 		[Display(Name = "Тип улицы (сокр.)")]
@@ -261,294 +398,274 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Район города")]
-		public virtual string StreetDistrict {
+		public virtual string StreetDistrict
+		{
 			get => _streetDistrict;
 			set => SetField(ref _streetDistrict, value);
 		}
 
-
-		string building;
-
 		[Display(Name = "Номер дома")]
-		public virtual string Building {
-			get => building;
-			set => SetField(ref building, value, () => Building);
+		public virtual string Building
+		{
+			get => _building;
+			set => SetField(ref _building, value);
 		}
-
-		RoomType roomType;
 
 		[Display(Name = "Тип помещения")]
-		public virtual RoomType RoomType {
-			get => roomType;
-			set => SetField(ref roomType, value, () => RoomType);
+		public virtual RoomType RoomType
+		{
+			get => _roomType;
+			set => SetField(ref _roomType, value);
 		}
-
-		string room;
 
 		[Display(Name = "Офис/Квартира")]
-		public virtual string Room {
-			get => room;
-			set => SetField(ref room, value, () => Room);
+		public virtual string Room
+		{
+			get => _room;
+			set => SetField(ref _room, value);
 		}
-
-		string comment;
 
 		[Display(Name = "Комментарий")]
-		public virtual string Comment {
-			get => comment;
-			set => SetField(ref comment, value, () => Comment);
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
-
-		decimal? latitude;
 
 		/// <summary>
 		/// Широта. Для установки координат используйте метод SetСoordinates
 		/// </summary>
 		[Display(Name = "Широта")]
 		[PropertyChangedAlso("СoordinatesText")]
-		public virtual decimal? Latitude {
-			get => latitude;
-			protected set => SetField(ref latitude, value, () => Latitude);
+		public virtual decimal? Latitude
+		{
+			get => _latitude;
+			protected set => SetField(ref _latitude, value);
 		}
-
-		decimal? longitude;
 
 		/// <summary>
 		/// Долгота. Для установки координат используйте метод SetСoordinates
 		/// </summary>
 		[Display(Name = "Долгота")]
 		[PropertyChangedAlso("СoordinatesText")]
-		public virtual decimal? Longitude {
-			get => longitude;
-			protected set => SetField(ref longitude, value, () => Longitude);
+		public virtual decimal? Longitude
+		{
+			get => _longitude;
+			protected set => SetField(ref _longitude, value);
 		}
-
-		bool isActive = true;
 
 		[Display(Name = "Активный")]
-		public virtual bool IsActive {
-			get => isActive;
-			set => SetField(ref isActive, value, () => IsActive);
+		public virtual bool IsActive
+		{
+			get => _isActive;
+			set => SetField(ref _isActive, value);
 		}
-
-		private IList<DeliveryPointResponsiblePerson> responsiblePersons = new List<DeliveryPointResponsiblePerson>();
 
 		[Display(Name = "Ответственные лица")]
-		public virtual IList<DeliveryPointResponsiblePerson> ResponsiblePersons {
-			get => responsiblePersons;
-			set => SetField(ref responsiblePersons, value, () => ResponsiblePersons);
+		public virtual IList<DeliveryPointResponsiblePerson> ResponsiblePersons
+		{
+			get => _responsiblePersons;
+			set => SetField(ref _responsiblePersons, value);
 		}
 
-		GenericObservableList<DeliveryPointResponsiblePerson> observableResponsiblePersons;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<DeliveryPointResponsiblePerson> ObservableResponsiblePersons {
-			get {
-				if(observableResponsiblePersons == null)
-					observableResponsiblePersons = new GenericObservableList<DeliveryPointResponsiblePerson>(ResponsiblePersons);
-				return observableResponsiblePersons;
+		public virtual GenericObservableList<DeliveryPointResponsiblePerson> ObservableResponsiblePersons
+		{
+			get
+			{
+				if(_observableResponsiblePersons == null)
+				{
+					_observableResponsiblePersons = new GenericObservableList<DeliveryPointResponsiblePerson>(ResponsiblePersons);
+				}
+
+				return _observableResponsiblePersons;
 			}
 		}
 
-		District district;
 		[Display(Name = "Район доставки")]
-		public virtual District District {
-			get => district;
-			set => SetField(ref district, value, () => District);
+		public virtual District District
+		{
+			get => _district;
+			set => SetField(ref _district, value);
 		}
-
-		DeliverySchedule deliverySchedule;
 
 		[Display(Name = "График доставки")]
-		public virtual DeliverySchedule DeliverySchedule {
-			get => deliverySchedule;
-			set => SetField(ref deliverySchedule, value, () => DeliverySchedule);
+		public virtual DeliverySchedule DeliverySchedule
+		{
+			get => _deliverySchedule;
+			set => SetField(ref _deliverySchedule, value);
 		}
-
-		bool foundOnOsm;
 
 		[Display(Name = "Адрес найден на карте OSM")]
-		public virtual bool FoundOnOsm {
-			get => foundOnOsm;
-			set => SetField(ref foundOnOsm, value, () => FoundOnOsm);
+		public virtual bool FoundOnOsm
+		{
+			get => _foundOnOsm;
+			set => SetField(ref _foundOnOsm, value);
 		}
-
-		bool manualCoordinates;
 
 		[Display(Name = "Ручные координаты")]
-		public virtual bool ManualCoordinates {
-			get => manualCoordinates;
-			set => SetField(ref manualCoordinates, value, () => ManualCoordinates);
+		public virtual bool ManualCoordinates
+		{
+			get => _manualCoordinates;
+			set => SetField(ref _manualCoordinates, value);
 		}
-
-		bool isFixedInOsm;
 
 		[Display(Name = "Исправлен в OSM")]
-		public virtual bool IsFixedInOsm {
-			get => isFixedInOsm;
-			set => SetField(ref isFixedInOsm, value, () => IsFixedInOsm);
+		public virtual bool IsFixedInOsm
+		{
+			get => _isFixedInOsm;
+			set => SetField(ref _isFixedInOsm, value);
 		}
-
-		Counterparty counterparty;
 
 		[Display(Name = "Контрагент")]
-		public virtual Counterparty Counterparty {
-			get => counterparty;
-			set => SetField(ref counterparty, value, () => Counterparty);
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 
-		private string kpp;
 		[Display(Name = "КПП")]
-		public virtual string KPP {
-			get => kpp;
-			set => SetField(ref kpp, value);
+		public virtual string KPP
+		{
+			get => _kpp;
+			set => SetField(ref _kpp, value);
 		}
-
-		private string address1c;
 
 		[Display(Name = "Адрес 1С")]
-		public virtual string Address1c {
-			get => address1c;
-			set => SetField(ref address1c, value, () => Address1c);
+		public virtual string Address1c
+		{
+			get => _address1c;
+			set => SetField(ref _address1c, value);
 		}
 
-		string code1c;
-
-		[Display(Name = "Код в 1С")]
 		/// Код уникален только внутри контрагента
-		public virtual string Code1c {
-			get => code1c;
-			set => SetField(ref code1c, value, () => Code1c);
+		[Display(Name = "Код в 1С")]
+		public virtual string Code1c
+		{
+			get => _code1c;
+			set => SetField(ref _code1c, value);
 		}
 
-		string organization;
 		[Display(Name = "Организация")]
-		public virtual string Organization {
-			get => organization;
-			set => SetField(ref organization, value, () => Organization);
+		public virtual string Organization
+		{
+			get => _organization;
+			set => SetField(ref _organization, value);
 		}
-
-		int bottleReserv;
 
 		[Display(Name = "Резерв бутылей")]
-		public virtual int BottleReserv {
-			get => bottleReserv;
-			set => SetField(ref bottleReserv, value, () => BottleReserv);
+		public virtual int BottleReserv
+		{
+			get => _bottleReserv;
+			set => SetField(ref _bottleReserv, value);
 		}
-
-		Nomenclature defaultWaterNomenclature;
 
 		[Display(Name = "Вода по умолчанию")]
-		public virtual Nomenclature DefaultWaterNomenclature {
-			get => defaultWaterNomenclature;
-			set => SetField(ref defaultWaterNomenclature, value, () => DefaultWaterNomenclature);
+		public virtual Nomenclature DefaultWaterNomenclature
+		{
+			get => _defaultWaterNomenclature;
+			set => SetField(ref _defaultWaterNomenclature, value);
 		}
-
-		bool alwaysFreeDelivery;
 
 		[Display(Name = "Всегда бесплатная доставка")]
-		public virtual bool AlwaysFreeDelivery {
-			get => alwaysFreeDelivery;
-			set => SetField(ref alwaysFreeDelivery, value, () => AlwaysFreeDelivery);
+		public virtual bool AlwaysFreeDelivery
+		{
+			get => _alwaysFreeDelivery;
+			set => SetField(ref _alwaysFreeDelivery, value);
 		}
-
-		User coordsLastChangeUser;
 
 		[Display(Name = "Последнее изменение пользователем")]
-		public virtual User СoordsLastChangeUser {
-			get => coordsLastChangeUser;
-			set => SetField(ref coordsLastChangeUser, value, () => СoordsLastChangeUser);
+		public virtual User СoordsLastChangeUser
+		{
+			get => _coordsLastChangeUser;
+			set => SetField(ref _coordsLastChangeUser, value);
 		}
-
-		private int? distanceFromBaseMeters;
 
 		[Display(Name = "Расстояние от базы в метрах")]
-		public virtual int? DistanceFromBaseMeters {
-			get => distanceFromBaseMeters;
-			set => SetField(ref distanceFromBaseMeters, value, () => DistanceFromBaseMeters);
+		public virtual int? DistanceFromBaseMeters
+		{
+			get => _distanceFromBaseMeters;
+			set => SetField(ref _distanceFromBaseMeters, value);
 		}
-
-		IList<Phone> phones = new List<Phone>();
 
 		[Display(Name = "Телефоны")]
-		public virtual IList<Phone> Phones {
-			get => phones;
-			set => SetField(ref phones, value, () => Phones);
+		public virtual IList<Phone> Phones
+		{
+			get => _phones;
+			set => SetField(ref _phones, value);
 		}
 
-		GenericObservableList<Phone> observablePhones;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Phone> ObservablePhones {
-			get {
-				if(observablePhones == null)
-					observablePhones = new GenericObservableList<Phone>(Phones);
-				return observablePhones;
+		public virtual GenericObservableList<Phone> ObservablePhones
+		{
+			get
+			{
+				if(_observablePhones == null)
+				{
+					_observablePhones = new GenericObservableList<Phone>(Phones);
+				}
+
+				return _observablePhones;
 			}
 		}
-
-		private bool? haveResidue;
 
 		[Display(Name = "Посчитан ввод остатков")]
-		public virtual bool? HaveResidue {
-			get => haveResidue;
-			set => SetField(ref haveResidue, value, () => HaveResidue);
-		}
-		
-		private IList<NomenclatureFixedPrice> nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
-		[Display(Name = "Фиксированные цены")]
-		public virtual IList<NomenclatureFixedPrice> NomenclatureFixedPrices {
-			get => nomenclatureFixedPrices;
-			set => SetField(ref nomenclatureFixedPrices, value);
+		public virtual bool? HaveResidue
+		{
+			get => _haveResidue;
+			set => SetField(ref _haveResidue, value);
 		}
 
-		private GenericObservableList<NomenclatureFixedPrice> observableNomenclatureFixedPrices;
+		[Display(Name = "Фиксированные цены")]
+		public virtual IList<NomenclatureFixedPrice> NomenclatureFixedPrices
+		{
+			get => _nomenclatureFixedPrices;
+			set => SetField(ref _nomenclatureFixedPrices, value);
+		}
+
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<NomenclatureFixedPrice> ObservableNomenclatureFixedPrices {
-			get {
-				if (observableNomenclatureFixedPrices == null)
-					observableNomenclatureFixedPrices = new GenericObservableList<NomenclatureFixedPrice>(NomenclatureFixedPrices);
-				return observableNomenclatureFixedPrices;
+		public virtual GenericObservableList<NomenclatureFixedPrice> ObservableNomenclatureFixedPrices
+		{
+			get
+			{
+				if(_observableNomenclatureFixedPrices == null)
+				{
+					_observableNomenclatureFixedPrices = new GenericObservableList<NomenclatureFixedPrice>(NomenclatureFixedPrices);
+				}
+
+				return _observableNomenclatureFixedPrices;
 			}
 		}
 
-		private int minimalOrderSumLimit;
 		/// <summary>
 		/// Минимальный порог суммы заказа
 		/// </summary>
-		public virtual int MinimalOrderSumLimit {
-			get => minimalOrderSumLimit;
-			set {
-				SetField(ref minimalOrderSumLimit, value);
-			}
+		public virtual int MinimalOrderSumLimit
+		{
+			get => _minimalOrderSumLimit;
+			set => SetField(ref _minimalOrderSumLimit, value);
 		}
 
-		private int maximalOrderSumLimit;
 		/// <summary>
 		/// Максимальный порог суммы заказа
 		/// </summary>
-		public virtual int MaximalOrderSumLimit {
-			get => maximalOrderSumLimit;
-			set {
-				SetField(ref maximalOrderSumLimit, value);
-			}
+		public virtual int MaximalOrderSumLimit
+		{
+			get => _maximalOrderSumLimit;
+			set => SetField(ref _maximalOrderSumLimit, value);
 		}
 
-		private IList<DeliveryPointEstimatedCoordinate> deliveryPointEstimatedCoordinates = new List<DeliveryPointEstimatedCoordinate>();
 		[Display(Name = "Предполагаемые координаты доставки")]
 		public virtual IList<DeliveryPointEstimatedCoordinate> DeliveryPointEstimatedCoordinates
 		{
-			get => deliveryPointEstimatedCoordinates;
-			set => SetField(ref deliveryPointEstimatedCoordinates, value);
+			get => _deliveryPointEstimatedCoordinates;
+			set => SetField(ref _deliveryPointEstimatedCoordinates, value);
 		}
 
-		GenericObservableList<DeliveryPointEstimatedCoordinate> observableDeliveryPointEstimatedCoordinates;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<DeliveryPointEstimatedCoordinate> ObservableDeliveryPointEstimatedCoordinates
-		{
-			get => observableDeliveryPointEstimatedCoordinates
-					?? (observableDeliveryPointEstimatedCoordinates = new GenericObservableList<DeliveryPointEstimatedCoordinate>(DeliveryPointEstimatedCoordinates));
-		}
+		public virtual GenericObservableList<DeliveryPointEstimatedCoordinate> ObservableDeliveryPointEstimatedCoordinates => _observableDeliveryPointEstimatedCoordinates
+					?? (_observableDeliveryPointEstimatedCoordinates = new GenericObservableList<DeliveryPointEstimatedCoordinate>(DeliveryPointEstimatedCoordinates));
 
-		private LogisticsRequirements _logisticsRequirements;
 		[Display(Name = "Требования к логистике")]
 		public virtual LogisticsRequirements LogisticsRequirements
 		{
@@ -558,71 +675,75 @@ namespace Vodovoz.Domain.Client
 
 		#region Временные поля для хранения фиксированных цен из 1с
 
-		private decimal fixPrice1;
 		/// <summary>
 		/// Фикса Семиозерье из 1с
 		/// </summary>
 		[Display(Name = "Фикса Семиозерье из 1с")]
-		public virtual decimal FixPrice1 {
-			get => fixPrice1;
-			set => SetField(ref fixPrice1, value, () => FixPrice1);
+		public virtual decimal FixPrice1
+		{
+			get => _fixPrice1;
+			set => SetField(ref _fixPrice1, value);
 		}
 
-		private decimal fixPrice2;
 		/// <summary>
 		/// Фикса Кислородная из 1с
 		/// </summary>
 		[Display(Name = "Фикса Кислородная из 1с")]
-		public virtual decimal FixPrice2 {
-			get => fixPrice2;
-			set => SetField(ref fixPrice2, value, () => FixPrice2);
+		public virtual decimal FixPrice2
+		{
+			get => _fixPrice2;
+			set => SetField(ref _fixPrice2, value);
 		}
 
-		private decimal fixPrice3;
 		/// <summary>
 		/// Фикса Снятогорская из 1с
 		/// </summary>
 		[Display(Name = "Фикса Снятогорская из 1с")]
-		public virtual decimal FixPrice3 {
-			get => fixPrice3;
-			set => SetField(ref fixPrice3, value, () => FixPrice3);
+		public virtual decimal FixPrice3
+		{
+			get => _fixPrice3;
+			set => SetField(ref _fixPrice3, value);
 		}
 
-		private decimal fixPrice4;
 		/// <summary>
 		/// Фикса Стройка из 1с
 		/// </summary>
 		[Display(Name = "Фикса Стройка из 1с")]
-		public virtual decimal FixPrice4 {
-			get => fixPrice4;
-			set => SetField(ref fixPrice4, value, () => FixPrice4);
+		public virtual decimal FixPrice4
+		{
+			get => _fixPrice4;
+			set => SetField(ref _fixPrice4, value);
 		}
 
-		private decimal fixPrice5;
 		/// <summary>
 		/// Фикса С Ручками из 1с
 		/// </summary>
 		[Display(Name = "Фикса С Ручками из 1с")]
-		public virtual decimal FixPrice5 {
-			get => fixPrice5;
-			set => SetField(ref fixPrice5, value, () => FixPrice5);
+		public virtual decimal FixPrice5
+		{
+			get => _fixPrice5;
+			set => SetField(ref _fixPrice5, value);
 		}
 
-		bool addCertificatesAlways;
 		[Display(Name = "Всегда добавлять сертификаты")]
-		public virtual bool AddCertificatesAlways {
-			get => addCertificatesAlways;
-			set => SetField(ref addCertificatesAlways, value, () => AddCertificatesAlways);
+		public virtual bool AddCertificatesAlways
+		{
+			get => _addCertificatesAlways;
+			set => SetField(ref _addCertificatesAlways, value);
 		}
 
-		DeliveryPointCategory category;
 		[Display(Name = "Тип объекта")]
-		public virtual DeliveryPointCategory Category {
-			get => category;
-			set {
+		public virtual DeliveryPointCategory Category
+		{
+			get => _category;
+			set
+			{
 				if(value != null && value.IsArchive)
+				{
 					value = null;
-				SetField(ref category, value, () => Category);
+				}
+
+				SetField(ref _category, value);
 			}
 		}
 
@@ -640,20 +761,15 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _lunchTimeTo, value);
 		}
 
-		#endregion
+		#endregion Временные поля для хранения фиксированных цен из 1с
 
-
-		#endregion
+		#endregion Свойства
 
 		#region Расчетные
 
-		public virtual string CoordinatesText {
-			get {
-				if(Latitude == null || Longitude == null)
-					return string.Empty;
-				return string.Format("(ш. {0:F5}, д. {1:F5})", Latitude, Longitude);
-			}
-		}
+		public virtual string Title => string.IsNullOrWhiteSpace(CompiledAddress) ? "АДРЕС ПУСТОЙ" : CompiledAddress;
+
+		public virtual string CoordinatesText => Latitude == null || Longitude == null ? string.Empty : $"(ш. {Latitude:F5}, д. {Longitude:F5})";
 
 		public virtual bool CoordinatesExist => Latitude.HasValue && Longitude.HasValue;
 
@@ -665,10 +781,9 @@ namespace Vodovoz.Domain.Client
 
 		public virtual long СoordinatesHash => CachedDistance.GetHash(this);
 
-		#endregion
+		public virtual bool HasFixedPrices => NomenclatureFixedPrices.Any();
 
-		//FIXME вынести зависимость
-		IDeliveryRepository deliveryRepository = new DeliveryRepository();
+		#endregion Расчетные
 
 		/// <summary>
 		/// Возврат районов доставки, в которые попадает точка доставки
@@ -677,10 +792,7 @@ namespace Vodovoz.Domain.Client
 		/// среди которых будет производится поиск подходящего района</param>
 		public virtual IEnumerable<District> CalculateDistricts(IUnitOfWork uow)
 		{
-			if(!CoordinatesExist) {
-				return new List<District>();
-			}
-			return deliveryRepository.GetDistricts(uow, Latitude.Value, Longitude.Value);
+			return !CoordinatesExist ? new List<District>() : _deliveryRepository.GetDistricts(uow, Latitude.Value, Longitude.Value);
 		}
 
 		/// <summary>
@@ -691,27 +803,21 @@ namespace Vodovoz.Domain.Client
 		/// <param name="districtsSet">Версия районов, из которой будет ассоциироваться район. Если равно null, то будет браться активная версия</param>
 		public bool FindAndAssociateDistrict(IUnitOfWork uow, DistrictsSet districtsSet = null)
 		{
-			if(!CoordinatesExist) {
+			if(!CoordinatesExist)
+			{
 				return false;
 			}
 
-			District foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value, districtsSet);
-			if(foundDistrict == null) {
+			District foundDistrict = _deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value, districtsSet);
+
+			if(foundDistrict == null)
+			{
 				return false;
 			}
+
 			District = foundDistrict;
-			return true;
-		}
 
-		public DeliveryPoint()
-		{
-			CompiledAddress = string.Empty;
-			City = "Санкт-Петербург";
-			LocalityTypeShort = "г";
-			Street = string.Empty;
-			Building = string.Empty;
-			Room = string.Empty;
-			Comment = string.Empty;
+			return true;
 		}
 
 		/// <summary>
@@ -734,127 +840,181 @@ namespace Vodovoz.Domain.Client
 				return true;
 			}
 
-			var geoGroupVersion = District.GeographicGroup.GetActualVersionOrNull();
+			GeoGroupVersion geoGroupVersion = District.GeographicGroup.GetActualVersionOrNull();
+
 			if(geoGroupVersion == null)
 			{
 				throw new InvalidOperationException($"Не установлена активная версия данных в части города {District.GeographicGroup.Name}");
 			}
 
-			var route = new List<PointOnEarth>(2) {
+			List<PointOnEarth> route = new List<PointOnEarth>(2) {
 				new PointOnEarth(geoGroupVersion.BaseLatitude.Value, geoGroupVersion.BaseLongitude.Value),
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
-			
-			var result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
-			if(result == null) {
-				logger.Error("Сервер расчета расстояний не вернул ответа.");
+
+			RouteResponse result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
+
+			if(result == null)
+			{
+				_logger.Error("Сервер расчета расстояний не вернул ответа.");
 				return false;
 			}
-			if(result.Code != "Ok") {
-				logger.Error("Сервер расчета расстояний вернул следующее сообщение:\n" + result.StatusMessageRus);
+
+			if(result.Code != "Ok")
+			{
+				_logger.Error("Сервер расчета расстояний вернул следующее сообщение:\n" + result.StatusMessageRus);
 				return false;
 			}
+
 			DistanceFromBaseMeters = result.Routes[0].TotalDistance;
+
 			return true;
 		}
 
-		[Obsolete]
+		private string GetStreetTypeShort()
+		{
+			return string.Equals(_streetType, StreetTypeShort, StringComparison.CurrentCultureIgnoreCase)
+				? $"{StreetTypeShort} "
+				: $"{StreetTypeShort}. ";
+		}
+
+		#region Фабричные методы
+
 		public static IUnitOfWorkGeneric<DeliveryPoint> CreateUowForNew(Counterparty counterparty)
 		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<DeliveryPoint>();
+			IUnitOfWorkGeneric<DeliveryPoint> uow = UnitOfWorkFactory.CreateWithNewRoot<DeliveryPoint>();
+
 			uow.Root.Counterparty = counterparty;
+
 			return uow;
 		}
 
 		public static DeliveryPoint Create(Counterparty counterparty)
 		{
-			var point = new DeliveryPoint {
+			DeliveryPoint point = new DeliveryPoint
+			{
 				Counterparty = counterparty
 			};
+
 			counterparty.DeliveryPoints.Add(point);
+
 			return point;
 		}
+
+		#endregion Фабричные методы
 
 		#region IValidatableObject Implementation
 
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Category == null)
+			{
 				yield return new ValidationResult(
-					string.Format("Необходимо выбрать тип точки доставки"),
+					"Необходимо выбрать тип точки доставки",
 					new[] { this.GetPropertyName(o => o.Category) });
+			}
 
 			if(Counterparty == null)
+			{
 				yield return new ValidationResult(
-					string.Format("Необходимо выбрать клиента"),
+					"Необходимо выбрать клиента",
 					new[] { this.GetPropertyName(o => o.Counterparty) });
+			}
 
 			if(Building?.Length == 0)
+			{
 				yield return new ValidationResult(
-					string.Format("Заполните поле \"Дом\""),
+					"Заполните поле \"Дом\"",
 					new[] { this.GetPropertyName(o => o.Building) });
+			}
 
 			if(Building?.Length > 20)
+			{
 				yield return new ValidationResult(
-					string.Format("Длина строки \"Дом\" не должна превышать 20 символов"),
+					"Длина строки \"Дом\" не должна превышать 20 символов",
 					new[] { this.GetPropertyName(o => o.Building) });
+			}
 
 			if(City?.Length == 0)
+			{
 				yield return new ValidationResult(
-					string.Format("Заполните поле \"Город\""),
+					"Заполните поле \"Город\"",
 					new[] { this.GetPropertyName(o => o.City) });
+			}
 
 			if(City?.Length > 45)
+			{
 				yield return new ValidationResult(
-					string.Format("Длина строки \"Город\" не должна превышать 45 символов"),
+					"Длина строки \"Город\" не должна превышать 45 символов",
 					new[] { this.GetPropertyName(o => o.City) });
+			}
 
 			if(Street?.Length == 0)
+			{
 				yield return new ValidationResult(
-					string.Format("Заполните поле \"Улица\""),
+					"Заполните поле \"Улица\"",
 					new[] { this.GetPropertyName(o => o.Street) });
+			}
 
 			if(Street?.Length > 50)
+			{
 				yield return new ValidationResult(
-					string.Format("Длина строки \"Улица\" не должна превышать 50 символов"),
+					"Длина строки \"Улица\" не должна превышать 50 символов",
 					new[] { this.GetPropertyName(o => o.Street) });
+			}
 
 			if(Room?.Length > 20)
+			{
 				yield return new ValidationResult(
-					string.Format("Длина строки \"Офис/Квартира\" не должна превышать 20 символов"),
+					"Длина строки \"Офис/Квартира\" не должна превышать 20 символов",
 					new[] { this.GetPropertyName(o => o.Room) });
+			}
 
 			if(Entrance?.Length > 50)
+			{
 				yield return new ValidationResult(
-					string.Format("Длина строки \"Парадная\" не должна превышать 50 символов"),
+					"Длина строки \"Парадная\" не должна превышать 50 символов",
 					new[] { this.GetPropertyName(o => o.Entrance) });
+			}
 
 			if(Floor?.Length > 20)
+			{
 				yield return new ValidationResult(
-					string.Format("Длина строки \"Этаж\" не должна превышать 20 символов"),
+					"Длина строки \"Этаж\" не должна превышать 20 символов",
 					new[] { this.GetPropertyName(o => o.Floor) });
+			}
 
 			if(Code1c?.Length > 10)
+			{
 				yield return new ValidationResult(
-					string.Format("Длина строки \"Код 1С\" не должна превышать 10 символов"),
+					"Длина строки \"Код 1С\" не должна превышать 10 символов",
 					new[] { this.GetPropertyName(o => o.Code1c) });
+			}
 
 			if(KPP?.Length > 45)
+			{
 				yield return new ValidationResult(
-					string.Format("Длина строки \"КПП\" не должна превышать 45 символов"),
+					"Длина строки \"КПП\" не должна превышать 45 символов",
 					new[] { this.GetPropertyName(o => o.KPP) });
-					
-			var notNeedOrganizationRoomTypes = new RoomType[] { RoomType.Apartment, RoomType.Chamber };
-			if(Counterparty.PersonType == PersonType.natural && !notNeedOrganizationRoomTypes.Contains(RoomType)) {
-				if(String.IsNullOrWhiteSpace(Organization))
+			}
+
+			RoomType[] notNeedOrganizationRoomTypes = new RoomType[] { RoomType.Apartment, RoomType.Chamber };
+
+			if(Counterparty.PersonType == PersonType.natural && !notNeedOrganizationRoomTypes.Contains(RoomType))
+			{
+				if(string.IsNullOrWhiteSpace(Organization))
+				{
 					yield return new ValidationResult(
-						string.Format("Необходимо заполнить поле \"Организация\""),
+						"Необходимо заполнить поле \"Организация\"",
 						new[] { this.GetPropertyName(o => o.Organization) });
+				}
 
 				if(Organization?.Length > 45)
+				{
 					yield return new ValidationResult(
-						string.Format("Длина строки \"Организация\" не должна превышать 45 символов"),
+						"Длина строки \"Организация\" не должна превышать 45 символов",
 						new[] { this.GetPropertyName(o => o.Organization) });
+				}
 			}
 
 			var everyAddedMinCountValueCount = NomenclatureFixedPrices
@@ -871,9 +1031,12 @@ namespace Vodovoz.Domain.Client
 				}
 			}
 
-			foreach (var fixedPrice in NomenclatureFixedPrices) {
-				var fixedPriceValidationResults = fixedPrice.Validate(validationContext);
-				foreach (var fixedPriceValidationResult in fixedPriceValidationResults) {
+			foreach(NomenclatureFixedPrice fixedPrice in NomenclatureFixedPrices)
+			{
+				IEnumerable<ValidationResult> fixedPriceValidationResults = fixedPrice.Validate(validationContext);
+
+				foreach(ValidationResult fixedPriceValidationResult in fixedPriceValidationResults)
+				{
 					yield return fixedPriceValidationResult;
 				}
 			}
@@ -892,16 +1055,16 @@ namespace Vodovoz.Domain.Client
 
 			StringBuilder phonesValidationStringBuilder = new StringBuilder();
 
-			foreach(var phone in Phones)
+			foreach(Phone phone in Phones)
 			{
 				if(phone.RoboAtsCounterpartyName == null)
 				{
-					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано имя контрагента.");
+					phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано имя контрагента.");
 				}
 
 				if(phone.RoboAtsCounterpartyPatronymic == null)
 				{
-					phonesValidationStringBuilder.AppendLine($"Для телефона { phone.Number } не указано отчество контрагента.");
+					phonesValidationStringBuilder.AppendLine($"Для телефона {phone.Number} не указано отчество контрагента.");
 				}
 
 				if(!phone.IsValidPhoneNumber)
@@ -910,7 +1073,7 @@ namespace Vodovoz.Domain.Client
 				}
 			}
 
-			var phonesValidationMessage = phonesValidationStringBuilder.ToString();
+			string phonesValidationMessage = phonesValidationStringBuilder.ToString();
 
 			if(!string.IsNullOrEmpty(phonesValidationMessage))
 			{
@@ -923,35 +1086,6 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		#endregion
-
-		private string GetStreetTypeShort()
-		{
-			return string.Equals(streetType, StreetTypeShort, StringComparison.CurrentCultureIgnoreCase)
-				? $"{StreetTypeShort} "
-				: $"{StreetTypeShort}. ";
-		}
-	}
-
-	public enum EntranceType
-	{
-		[Display(Name = "Парадная", ShortName = "пар.")]
-		Entrance,
-		[Display(Name = "Торговый центр", ShortName = "ТЦ")]
-		TradeCenter,
-		[Display(Name = "Торговый комплекс", ShortName = "ТК")]
-		TradeComplex,
-		[Display(Name = "Бизнес-центр", ShortName = "БЦ")]
-		BusinessCenter,
-		[Display(Name = "Школа", ShortName = "шк.")]
-		School,
-		[Display(Name = "Общежитие", ShortName = "общ.")]
-		Hostel
-	}
-
-	public class EntranceTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public EntranceTypeStringType() : base(typeof(EntranceType)) { }
+		#endregion IValidatableObject Implementation
 	}
 }
-
