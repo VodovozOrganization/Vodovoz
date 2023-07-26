@@ -9,26 +9,36 @@ using QS.Report.ViewModels;
 using QSOrmProject;
 using System;
 using Vodovoz;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Parameters;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bottles;
+using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
@@ -661,4 +671,234 @@ public partial class MainWindow
 	}
 
 	#endregion Отчеты ОСК/ОКК
+
+	#region Логистика
+
+	/// <summary>
+	/// Заказы по районам и интервалам доставки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionOrdersByDistrictsAndDeliverySchedulesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<OrdersByDistrictsAndDeliverySchedulesReport>(),
+			() => new QSReport.ReportViewDlg(new OrdersByDistrictsAndDeliverySchedulesReport()));
+	}
+
+	/// <summary>
+	/// Отчет по выдаче топлива по МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFuelConsumptionReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
+			() => new QSReport.ReportViewDlg(new FuelConsumptionReport())
+		);
+	}
+
+	/// <summary>
+	/// Отчет по времени приема заказов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionOrdersCreationTimeReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<OrdersCreationTimeReport>(),
+			() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport()));
+	}
+
+	/// <summary>
+	/// Путевой лист
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionWayBillReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
+			() => new QSReport.ReportViewDlg(
+				new WayBillReportGroupPrint(
+					autofacScope.Resolve<IEmployeeJournalFactory>(),
+					autofacScope.Resolve<ICarJournalFactory>(),
+					autofacScope.Resolve<IOrganizationJournalFactory>(),
+					autofacScope.Resolve<IInteractiveService>(),
+					autofacScope.Resolve<ISubdivisionRepository>())));
+	}
+
+	/// <summary>
+	/// Отчет по незакрытым МЛ за период
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionNonClosedRLByPeriodReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<NonClosedRLByPeriodReport>(),
+			() => new QSReport.ReportViewDlg(new NonClosedRLByPeriodReport()));
+	}
+
+	/// <summary>
+	/// График выхода на линию за смену
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionScheduleOnLinePerShiftReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
+			() => new QSReport.ReportViewDlg(new ScheduleOnLinePerShiftReport()));
+	}
+
+	/// <summary>
+	/// Статистика по дням недели
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionOrderStatisticByWeekReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<OrderStatisticByWeekReport>(),
+			() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport()));
+	}
+
+	/// <summary>
+	/// Аналитика эксплуатации ТС
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCarsExploitationReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CarsExploitationReportViewModel>(null);
+	}
+
+	/// <summary>
+	/// Основная информация по ЗП
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
+	{
+		var filter = new EmployeeFilterViewModel
+		{
+			Category = EmployeeCategory.driver
+		};
+
+		var employeeJournalFactory = new EmployeeJournalFactory(filter);
+
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
+			() => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(employeeJournalFactory, ServicesConfig.InteractiveService)));
+	}
+
+	/// <summary>
+	/// Выгрузка по водителям
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
+	{
+		var wageParameterService =
+			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
+
+		tdiMain.AddTab(
+			new DriversInfoExportViewModel(
+				wageParameterService,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.InteractiveService,
+				null));
+	}
+
+	/// <summary>
+	/// Отчет по переплатам за адрес
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
+	{
+		var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
+		var employeeJournalFactory = new EmployeeJournalFactory(driverFilter);
+
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
+			() => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
+				employeeJournalFactory,
+				ServicesConfig.InteractiveService)));
+	}
+
+	/// <summary>
+	/// Аналитика объёмов доставки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
+	{
+		var districtJournalFactory = new DistrictJournalFactory();
+
+		tdiMain.AddTab(
+			new DeliveryAnalyticsViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.InteractiveService,
+				NavigationManager,
+				districtJournalFactory));
+	}
+
+	/// <summary>
+	/// Аналитика по недовозам
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionAnalyticsForUndeliveryActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<AnalyticsForUndeliveryReport>(),
+			() => new QSReport.ReportViewDlg(new AnalyticsForUndeliveryReport()));
+	}
+
+	/// <summary>
+	/// Отчёт по продажам с доставкой за час
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnFastDeliverySalesReportActionActivated(object sender, EventArgs e)
+	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		FastDeliverySalesReportViewModel viewModel = new FastDeliverySalesReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	/// <summary>
+	/// Отчёт по дозагрузке МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnFastDeliveryAdditionalLoadingReportActionActivated(object sender, EventArgs e)
+	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	/// <summary>
+	/// Доступность услуги "Доставка за час"
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFastDeliveryPercentCoverageReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FastDeliveryPercentCoverageReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	#endregion Логистика
+
+
 }

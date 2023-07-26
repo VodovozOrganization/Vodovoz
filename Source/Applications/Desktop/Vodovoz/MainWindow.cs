@@ -731,14 +731,6 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionOrderStatisticByWeekReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrderStatisticByWeekReport>(),
-			() => new QSReport.ReportViewDlg(new OrderStatisticByWeekReport())
-		);
-	}
-
 	protected void OnActionLoad1cCounterpartyAndDeliveryPointsActivated(object sender, EventArgs e)
 	{
 		var widget = new LoadFrom1cClientsAndDeliveryPoints();
@@ -758,14 +750,6 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			PermissionControlledRepresentationJournal.GenerateHashName<TraineeVM>(),
 			() => new PermissionControlledRepresentationJournal(new TraineeVM())
-		);
-	}
-
-	protected void OnActionOrdersByDistrictsAndDeliverySchedulesActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrdersByDistrictsAndDeliverySchedulesReport>(),
-			() => new QSReport.ReportViewDlg(new OrdersByDistrictsAndDeliverySchedulesReport())
 		);
 	}
 
@@ -793,14 +777,6 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			OrmReference.GenerateHashName<StoredResource>(),
 			() => new OrmReference(typeof(StoredResource))
-		);
-	}
-
-	protected void OnActionFuelConsumptionReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
-			() => new QSReport.ReportViewDlg(new FuelConsumptionReport())
 		);
 	}
 
@@ -835,30 +811,6 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab(widget);
 	}
 
-	protected void OnActionOrdersCreationTimeReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrdersCreationTimeReport>(),
-			() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport())
-		);
-	}
-
-	protected void OnActionWayBillReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
-			() => new QSReport.ReportViewDlg(
-				new WayBillReportGroupPrint(
-					autofacScope.Resolve<IEmployeeJournalFactory>(),
-					autofacScope.Resolve<ICarJournalFactory>(),
-					autofacScope.Resolve<IOrganizationJournalFactory>(),
-					autofacScope.Resolve<IInteractiveService>(),
-					autofacScope.Resolve<ISubdivisionRepository>()
-				)
-			)
-		);
-	}
-
 	protected void OnActionPaymentsFinDepartmentReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -875,22 +827,6 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
 			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport(employeeJournalFactory, lifetimeScope.Resolve<ICounterpartyJournalFactory>()))
-		);
-	}
-
-	protected void OnActionScheduleOnLinePerShiftReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
-			() => new QSReport.ReportViewDlg(new ScheduleOnLinePerShiftReport())
-		);
-	}
-
-	protected void OnActionNonClosedRLByPeriodReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<NonClosedRLByPeriodReport>(),
-			() => new QSReport.ReportViewDlg(new NonClosedRLByPeriodReport())
 		);
 	}
 
@@ -1014,30 +950,12 @@ public partial class MainWindow : Gtk.Window
 		NavigationManager.OpenViewModel<RetailOrderJournalViewModel, OrderJournalFilterViewModel>(null, orderJournalFilter);
 	}
 
-	protected void OnActionCarsExploitationReportActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<CarsExploitationReportViewModel>(null);
-	}
-
 	protected void OnActionRecalculateDriverWagesActivated(object sender, EventArgs e)
 	{
 		var dlg = new RecalculateDriverWageDlg();
 		tdiMain.AddTab(dlg);
 	}
 
-	protected void OnActionDriversInfoExportActivated(object sender, EventArgs e)
-	{
-		var wageParameterService =
-			new WageParameterService(new WageCalculationRepository(), new BaseParametersProvider(new ParametersProvider()));
-
-		tdiMain.AddTab(
-			new DriversInfoExportViewModel(
-				wageParameterService,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.InteractiveService,
-				null)
-		);
-	}
 
 	protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
 	{
@@ -1058,52 +976,11 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnLogisticsGeneralSalaryInfoActivated(object sender, EventArgs e)
-	{
-		var filter = new EmployeeFilterViewModel
-		{
-			Category = EmployeeCategory.driver
-		};
-
-		var employeeJournalFactory = new EmployeeJournalFactory(filter);
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<GeneralSalaryInfoReport>(),
-			() => new QSReport.ReportViewDlg(new GeneralSalaryInfoReport(employeeJournalFactory, ServicesConfig.InteractiveService))
-		);
-	}
-
 	protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
 			() => new QSReport.ReportViewDlg(new EmployeesReport(ServicesConfig.InteractiveService))
-		);
-	}
-
-	protected void OnActionAddressesOverpaymentsReportActivated(object sender, EventArgs e)
-	{
-		var driverFilter = new EmployeeFilterViewModel { RestrictCategory = EmployeeCategory.driver };
-		var employeeJournalFactory = new EmployeeJournalFactory(driverFilter);
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<AddressesOverpaymentsReport>(),
-			() => new QSReport.ReportViewDlg(new AddressesOverpaymentsReport(
-				employeeJournalFactory,
-				ServicesConfig.InteractiveService))
-		);
-	}
-
-	protected void OnActionDeliveryAnalyticsActivated(object sender, EventArgs e)
-	{
-		var districtJournalFactory = new DistrictJournalFactory();
-
-		tdiMain.AddTab(
-			new DeliveryAnalyticsViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.InteractiveService,
-				NavigationManager,
-				districtJournalFactory)
 		);
 	}
 
@@ -1135,14 +1012,6 @@ public partial class MainWindow : Gtk.Window
 			)));
 	}
 
-	protected void OnActionAnalyticsForUndeliveryActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<AnalyticsForUndeliveryReport>(),
-			() => new QSReport.ReportViewDlg(new AnalyticsForUndeliveryReport())
-		);
-	}
-
 	protected void OnActionCounterpartyCashlessDebtsReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1154,26 +1023,6 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CostCarExploitationReportViewModel>(null, OpenPageOptions.IgnoreHash);
-	}
-
-	protected void OnFastDeliverySalesReportActionActivated(object sender, EventArgs e)
-	{
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		FastDeliverySalesReportViewModel viewModel = new FastDeliverySalesReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
-
-		tdiMain.AddTab(viewModel);
-	}
-
-	protected void OnFastDeliveryAdditionalLoadingReportActionActivated(object sender, EventArgs e)
-	{
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		FastDeliveryAdditionalLoadingReportViewModel viewModel = new FastDeliveryAdditionalLoadingReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService);
-
-		tdiMain.AddTab(viewModel);
 	}
 
 	protected void OnActionEdoUpdReportActivated(object sender, EventArgs e)
@@ -1197,11 +1046,6 @@ public partial class MainWindow : Gtk.Window
 			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
 			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory))
 		);
-	}
-
-	protected void OnActionFastDeliveryPercentCoverageReportActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<FastDeliveryPercentCoverageReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	private DateTime GetDateTimeFGromVersion(Version version) =>
