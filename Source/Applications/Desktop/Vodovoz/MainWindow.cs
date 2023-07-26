@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
 using NLog;
@@ -74,6 +74,8 @@ using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Vodovoz.ViewModels.Cash.Reports;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -679,24 +681,9 @@ public partial class MainWindow : Gtk.Window
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
 
-	protected void OnInventoryInstanceMovementReportActionActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<InventoryInstanceMovementReportViewModel>(null);
-	}
-
-	protected void OnInventoryNomenclaturesActionActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<InventoryNomenclaturesJournalViewModel>(null);
-	}
-
 	protected void OnActionFinancialCategoriesGroupsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
-	}
-
-	protected void OnActionActionWarehousesBalanceSummaryReportActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
 	}
 
 	protected void OnAction74Activated(object sender, EventArgs e)
