@@ -59,7 +59,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			if(result.Successful)
 			{
-				SaveReport(result.Path, rows);
+				if(_filterViewModel.IsNomenclatureNotInStock == null || !_filterViewModel.IsNomenclatureNotInStock.Value)
+				{
+					SaveReport(result.Path, rows);
+				}
+				else
+				{
+					SaveAssortmentAnalysisReport(result.Path, rows);
+				}
 			}
 		}
 
@@ -97,6 +104,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				.And(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidToFastDelivery)
 				.Select(Projections.Property(() => fastDeliveryAvailabilityHistoryItemAlias.Id));
 
+			#region Ассортимент не в запасе
+
 			var nomenclatureDistributionSubquery = QueryOver.Of(() => fastDeliveryNomenclatureDistributionHistoryAlias)
 				.Where(() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id ==
 							 fastDeliveryAvailabilityHistoryAlias.Id)
@@ -115,6 +124,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					Projections.Constant(true),
 					Projections.Constant(false)));
 
+			#endregion
+
 			var orderSubquery = QueryOver.Of(() => orderAlias)
 				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 				.And(() => orderAlias.CreateDate.Value.Date == fastDeliveryAvailabilityHistoryAlias.VerificationDate.Date)
@@ -129,7 +140,20 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Logistician, () => logisticianAlias)
-				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Counterparty, () => counterpartyAlias);
+				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.Counterparty, () => counterpartyAlias)
+				.Left.JoinAlias(() => fastDeliveryAvailabilityHistoryAlias.OrderItemsHistory, () => fastDeliveryOrderItemHistoryAlias)
+				.Left.JoinAlias(() => fastDeliveryOrderItemHistoryAlias.Nomenclature, () => nomenclatureAlias);
+
+			// Отчёт "Анализ ассортимента не в запасе"
+			if(_filterViewModel.IsNomenclatureNotInStock.Value)
+			{
+				var distributionNomenclaturesSubquery = QueryOver.Of(() => fastDeliveryNomenclatureDistributionHistoryAlias)
+					.Where(() => fastDeliveryNomenclatureDistributionHistoryAlias.FastDeliveryAvailabilityHistory.Id ==
+					             fastDeliveryAvailabilityHistoryAlias.Id)
+					.Select(x => x.Nomenclature.Id);
+
+				itemsQuery.WithSubquery.WhereProperty(() => nomenclatureAlias.Id).NotIn(distributionNomenclaturesSubquery);
+			}
 
 			itemsQuery.WithSubquery.WhereExists(orderSubquery);
 
@@ -156,6 +180,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				itemsQuery.Where(() => fastDeliveryAvailabilityHistoryAlias.Logistician.Id == _filterViewModel.Logistician.Id);
 			}
 
+			// Истина, если есть хотя бы одна номенклатура, которая была в заказе с запросом на ДЗЧ, но при этом отутствовала в дополнительной погрузке (запасе)
 			if(_filterViewModel.IsNomenclatureNotInStock != null)
 			{
 				itemsQuery.Where(Restrictions.Eq(Projections.SubQuery(nomenclatureNotInStockSubquery),
@@ -197,6 +222,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					.Select(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidIsGoodsEnough).WithAlias(() => resultAlias.IsValidIsGoodsEnough)
 					.Select(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidLastCoordinateTime).WithAlias(() => resultAlias.IsValidLastCoordinateTime)
 					.Select(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidUnclosedFastDeliveries).WithAlias(() => resultAlias.IsValidUnclosedFastDeliveries)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Nomenclature)
 				)
 				.TransformUsing(Transformers.AliasToBean<FastDeliveryFailsReportRow>())
 				.List<FastDeliveryFailsReportRow>();
@@ -228,19 +254,17 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				worksheet.Cell(3, 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
 				worksheet.Cell(3, 5).Value = _filterViewModel.VerificationDateTo?.Date;
 
-				worksheet.Cell(5, 1).Value = "Суммарные значения за период отчета";
 				worksheet.Row(5).Style.Font.SetBold(true);
+				worksheet.Row(5).Style.Alignment.WrapText = true;
+				worksheet.Row(5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+				DrawRowBording(worksheet, 5, 6);
 
+				worksheet.Cell(5, 1).Value = "Суммарные значения за период отчета";
 				worksheet.Cell(5, 2).Value = "Не доставлено заказов (ТД)";
 				worksheet.Cell(5, 3).Value = "Не хватило остатков";
 				worksheet.Cell(5, 4).Value = "Много заказов в работе";
 				worksheet.Cell(5, 5).Value = "Не приходят координаты";
 				worksheet.Cell(5, 6).Value = "Большое расстояние";
-
-				worksheet.Row(5).Style.Alignment.WrapText = true;
-				worksheet.Row(5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-
-				DrawRowBording(worksheet, 5);
 
 				GenerateRows(worksheet, 6, "", rows);
 
@@ -277,9 +301,63 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			}
 		}
 
-		private void DrawRowBording(IXLWorksheet worksheet, int rowIndex)
+		private void SaveAssortmentAnalysisReport(string path, IList<FastDeliveryFailsReportRow> rows)
 		{
-			for(var col = 1; col <= 6; col++)
+			using(var workbook = new XLWorkbook())
+			{
+				var worksheet = workbook.Worksheets.Add("Ассортимент не в запасе");
+
+				worksheet.Cell(1, 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+				worksheet.Cell(1, 2).Value = "Анализ ассортимента не в запасе";
+				worksheet.Row(1).Style.Font.SetBold(true);
+
+				worksheet.Column(1).Width = 10;
+				worksheet.Column(2).Width = 50;
+				worksheet.Column(3).Width = 20;
+				worksheet.Column(4).Width = 10;
+
+				worksheet.Cell(2, 2).Value = $"период с {_filterViewModel.VerificationDateFrom:dd.MM.yyyy} по {_filterViewModel.VerificationDateTo?.Date:dd.MM.yyyy}";
+				worksheet.Cell(2, 2).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+
+				worksheet.Row(4).Style.Font.SetBold(true);
+				worksheet.Row(4).Style.Alignment.WrapText = true;
+				worksheet.Row(4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+				DrawRowBording(worksheet, 4, 3);
+
+				worksheet.Cell(4, 1).Value = "№";
+				worksheet.Cell(4, 2).Value = "Номенклатура";
+				worksheet.Cell(4, 3).Value = "Кол-во адресов";
+
+				var rowIndex = 5;
+				var startRowIndex = rowIndex;
+
+				var groupedByNomenclatureRows = rows.OrderBy(x => x.Nomenclature)
+					.GroupBy(x => x.Nomenclature)
+					.ToArray();
+
+				var assortmentDictionary = groupedByNomenclatureRows
+					.ToDictionary(
+						gr => gr.Key,
+						gr => gr.GroupBy(x => x.DeliveryPointId).Count());
+
+				foreach(var nomenclatureRow in assortmentDictionary.OrderByDescending(x=>x.Value))
+				{
+					worksheet.Cell(rowIndex, 1).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+					worksheet.Cell(rowIndex, 1).Value = rowIndex - startRowIndex + 1;
+					worksheet.Cell(rowIndex, 2).Value = nomenclatureRow.Key;
+					worksheet.Cell(rowIndex, 3).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+					worksheet.Cell(rowIndex, 3).Value = nomenclatureRow.Value;
+					DrawRowBording(worksheet, rowIndex, 3);
+					rowIndex += 1;
+				}
+
+				workbook.SaveAs(path);
+			}
+		}
+
+		private void DrawRowBording(IXLWorksheet worksheet, int rowIndex, int colCount)
+		{
+			for(var col = 1; col <= colCount; col++)
 			{
 				worksheet.Cell(rowIndex, col).Style.Border.SetTopBorder(XLBorderStyleValues.Thin);
 				worksheet.Cell(rowIndex, col).Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
@@ -320,7 +398,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			worksheet.Cell(rowIndex, 6).Value = distances;
 
-			DrawRowBording(worksheet, rowIndex);
+			DrawRowBording(worksheet, rowIndex, 6);
 		}
 
 		public static string GetReportName(bool? isNomenclatureNotInStock) =>
