@@ -5,7 +5,6 @@ using NLog;
 using QS.BaseParameters;
 using QS.BaseParameters.ViewModels;
 using QS.BaseParameters.Views;
-using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.Dialog.GtkUI.FileDialog;
@@ -39,18 +38,12 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure;
@@ -61,7 +54,6 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
-using Vodovoz.ReportsParameters.Bottles;
 using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
@@ -69,7 +61,6 @@ using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Production;
 using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
-using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
@@ -81,33 +72,22 @@ using Vodovoz.ViewModels.Accounting;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Dialogs.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 using Vodovoz.ViewModels.Reports;
-using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters.Cash;
-using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
-using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
-using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
-using Vodovoz.ViewModels.ViewModels.Reports.Sales;
-using Vodovoz.ViewModels.ViewModels.Suppliers;
-using Vodovoz.ViewModels.ViewModels.Warehouses;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
-using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -468,14 +448,6 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionEmployeeFinesActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EmployeesFines>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EmployeesFines())
-		);
-	}
-
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
@@ -723,14 +695,6 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnAction48Activated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<EmployeesPremiums>(),
-			() => new QSReport.ReportViewDlg(new EmployeesPremiums())
-		);
-	}
-
 	protected void OnActionLoad1cCounterpartyAndDeliveryPointsActivated(object sender, EventArgs e)
 	{
 		var widget = new LoadFrom1cClientsAndDeliveryPoints();
@@ -973,14 +937,6 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<DriversToDistrictsAssignmentReport>(),
 			() => new QSReport.ReportViewDlg(new DriversToDistrictsAssignmentReport())
-		);
-	}
-
-	protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesReport(ServicesConfig.InteractiveService))
 		);
 	}
 

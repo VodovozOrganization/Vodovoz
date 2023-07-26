@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Parameters;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bottles;
+using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.ReportsParameters.Payments;
@@ -900,5 +901,43 @@ public partial class MainWindow
 
 	#endregion Логистика
 
+	#region Сотрудники
 
+	/// <summary>
+	/// Штрафы сотрудников
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEmployeeFinesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.EmployeesFines>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.EmployeesFines()));
+	}
+
+	/// <summary>
+	/// Премии сотрудников
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnAction48Activated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<EmployeesPremiums>(),
+			() => new QSReport.ReportViewDlg(new EmployeesPremiums()));
+	}
+
+	/// <summary>
+	/// Отчет по сотрудникам
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEmployeesReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<EmployeesReport>(),
+			() => new QSReport.ReportViewDlg(new EmployeesReport(ServicesConfig.InteractiveService)));
+	}
+
+	#endregion Сотрудники
 }
