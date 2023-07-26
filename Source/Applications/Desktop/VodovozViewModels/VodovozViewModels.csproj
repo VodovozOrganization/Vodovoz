@@ -107,14 +107,20 @@
     <Compile Include="Journals\FilterViewModels\Counterparties\PhonesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Goods\InventoryInstancesJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\CarJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\UndeliveryDetalizationJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\UndeliveryKindJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Orders\UndeliveryObjectJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\OrderJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\TrueMark\AvailableReceiptStatuses.cs" />
     <Compile Include="Journals\FilterViewModels\TrueMark\CashReceiptJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\TargetSource.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsItemsJournalReport.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseAccountingCard.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsItemsJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalFactories\UndeliveryDetalizationlFactory.cs" />
     <Compile Include="Journals\JournalFactories\ICarEventJournalFactory.cs" />
+    <Compile Include="Journals\JournalFactories\IUndeliveryDetalizationlFactory.cs" />
     <Compile Include="Journals\JournalFactories\IGeoGroupJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IRouteListJournalFactory.cs" />
     <Compile Include="Journals\JournalFactories\IComplaintKindJournalFactory.cs" />
@@ -124,6 +130,9 @@
     <Compile Include="Journals\FilterViewModels\Organization\OrganizationOwnershipTypeJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\Client\ExternalCounterpartyMatchingJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Client\PhonesJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\UndeliveryDetalizationJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\UndeliveryKindJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Orders\UndeliveryObjectJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Organizations\OrganizationOwnershipTypeJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Complaints\ResponsibleJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Goods\InventoryInstancesJournalNode.cs" />
@@ -142,6 +151,9 @@
     <Compile Include="Journals\JournalViewModels\Complaints\ComplaintsWithDepartmentsReactionJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Complaints\ResponsibleJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveryDetalizationJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveryKindJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Orders\UndeliveryObjectJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Organizations\OrganizationOwnershipTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
@@ -188,6 +200,8 @@
     <Compile Include="ViewModels\Counterparty\EdoOperatorViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarsMonitoringViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferViewModel.RouteListNode.cs" />
     <Compile Include="ViewModels\Logistic\LogisticsRequirementsViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListFastDeliveryMaxDistanceViewModel.cs" />
     <Compile Include="ViewModels\Logistic\RouteListKeepingNode.cs" />
@@ -426,6 +440,9 @@
     <Compile Include="ViewModels\Logistic\CarEventTypeViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarEventViewModel.cs" />
     <Compile Include="ViewModels\Logistic\CarViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryDetalizationViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryKindViewModel.cs" />
+    <Compile Include="ViewModels\Orders\UndeliveryObjectViewModel.cs" />
     <Compile Include="ViewModels\Orders\DiscountReasonViewModel.cs" />
     <Compile Include="ViewModels\Orders\NomenclaturePlanViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\NomenclaturesPlanJournalViewModel.cs" />
@@ -576,6 +593,7 @@
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.Report.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.DynamicsInEnum.cs" />
     <Compile Include="ViewModels\Reports\SelectableParameterReportFilterSelectionChangedArgs.cs" />
+    <Compile Include="ViewModels\Reports\UndeliveredOrdersJournalReport\UndeliveredOrdersClassificationSummaryReport.cs" />
     <Compile Include="ViewModels\Sale\DeliveryPriceRuleViewModel.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />
@@ -645,6 +663,7 @@
     <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
     <Compile Include="TempAdapters\SearchHelper.cs" />
     <Compile Include="TempAdapters\SearchParameter.cs" />
+    <Compile Include="Widgets\UndeliveredOrderViewModel.cs" />
     <Compile Include="Widgets\DeliveryFreeBalanceViewModel.cs" />
     <Compile Include="Widgets\AdditionalLoadingItemsViewModel.cs" />
     <Compile Include="Widgets\Cars\OdometerReadingViewModel.cs" />

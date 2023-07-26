@@ -38,9 +38,13 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 
 		private global::Gamma.GtkWidgets.yLabel lblExcludeFromCashFlowDds;
 
+		private global::Gamma.GtkWidgets.yLabel lblHideFromPublicAccess;
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckArchived;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckExcludeFromCashFlowDds;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckHideFromPublicAccess;
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
@@ -57,7 +61,7 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			// Container child Vodovoz.Cash.FinancialCategoriesGroups.FinancialExpenseCategoryView.Gtk.Container+ContainerChild
 			this.tableMain = new global::Gamma.GtkWidgets.yTable();
 			this.tableMain.Name = "tableMain";
-			this.tableMain.NRows = ((uint)(9));
+			this.tableMain.NRows = ((uint)(10));
 			this.tableMain.NColumns = ((uint)(2));
 			this.tableMain.RowSpacing = ((uint)(6));
 			this.tableMain.ColumnSpacing = ((uint)(6));
@@ -245,6 +249,17 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
+			this.lblHideFromPublicAccess = new global::Gamma.GtkWidgets.yLabel();
+			this.lblHideFromPublicAccess.Name = "lblHideFromPublicAccess";
+			this.lblHideFromPublicAccess.Xalign = 0F;
+			this.lblHideFromPublicAccess.LabelProp = global::Mono.Unix.Catalog.GetString("Скрыть статью\nиз общего доступа:");
+			this.tableMain.Add(this.lblHideFromPublicAccess);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblHideFromPublicAccess]));
+			w20.TopAttach = ((uint)(9));
+			w20.BottomAttach = ((uint)(10));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
 			this.ycheckArchived = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckArchived.CanFocus = true;
 			this.ycheckArchived.Name = "ycheckArchived";
@@ -252,13 +267,13 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.ycheckArchived.DrawIndicator = true;
 			this.ycheckArchived.UseUnderline = true;
 			this.tableMain.Add(this.ycheckArchived);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ycheckArchived]));
-			w20.TopAttach = ((uint)(5));
-			w20.BottomAttach = ((uint)(6));
-			w20.LeftAttach = ((uint)(1));
-			w20.RightAttach = ((uint)(2));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ycheckArchived]));
+			w21.TopAttach = ((uint)(5));
+			w21.BottomAttach = ((uint)(6));
+			w21.LeftAttach = ((uint)(1));
+			w21.RightAttach = ((uint)(2));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.ycheckExcludeFromCashFlowDds = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckExcludeFromCashFlowDds.CanFocus = true;
@@ -267,13 +282,28 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.ycheckExcludeFromCashFlowDds.DrawIndicator = true;
 			this.ycheckExcludeFromCashFlowDds.UseUnderline = true;
 			this.tableMain.Add(this.ycheckExcludeFromCashFlowDds);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ycheckExcludeFromCashFlowDds]));
-			w21.TopAttach = ((uint)(6));
-			w21.BottomAttach = ((uint)(7));
-			w21.LeftAttach = ((uint)(1));
-			w21.RightAttach = ((uint)(2));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ycheckExcludeFromCashFlowDds]));
+			w22.TopAttach = ((uint)(6));
+			w22.BottomAttach = ((uint)(7));
+			w22.LeftAttach = ((uint)(1));
+			w22.RightAttach = ((uint)(2));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.ycheckHideFromPublicAccess = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckHideFromPublicAccess.CanFocus = true;
+			this.ycheckHideFromPublicAccess.Name = "ycheckHideFromPublicAccess";
+			this.ycheckHideFromPublicAccess.Label = "";
+			this.ycheckHideFromPublicAccess.DrawIndicator = true;
+			this.ycheckHideFromPublicAccess.UseUnderline = true;
+			this.tableMain.Add(this.ycheckHideFromPublicAccess);
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ycheckHideFromPublicAccess]));
+			w23.TopAttach = ((uint)(9));
+			w23.BottomAttach = ((uint)(10));
+			w23.LeftAttach = ((uint)(1));
+			w23.RightAttach = ((uint)(2));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
@@ -281,13 +311,13 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.yentryName.IsEditable = true;
 			this.yentryName.InvisibleChar = '•';
 			this.tableMain.Add(this.yentryName);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yentryName]));
-			w22.TopAttach = ((uint)(3));
-			w22.BottomAttach = ((uint)(4));
-			w22.LeftAttach = ((uint)(1));
-			w22.RightAttach = ((uint)(2));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yentryName]));
+			w24.TopAttach = ((uint)(3));
+			w24.BottomAttach = ((uint)(4));
+			w24.LeftAttach = ((uint)(1));
+			w24.RightAttach = ((uint)(2));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.yentryNumbering = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryNumbering.CanFocus = true;
@@ -295,13 +325,13 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.yentryNumbering.IsEditable = true;
 			this.yentryNumbering.InvisibleChar = '•';
 			this.tableMain.Add(this.yentryNumbering);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yentryNumbering]));
-			w23.TopAttach = ((uint)(8));
-			w23.BottomAttach = ((uint)(9));
-			w23.LeftAttach = ((uint)(1));
-			w23.RightAttach = ((uint)(2));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yentryNumbering]));
+			w25.TopAttach = ((uint)(8));
+			w25.BottomAttach = ((uint)(9));
+			w25.LeftAttach = ((uint)(1));
+			w25.RightAttach = ((uint)(2));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
+			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.yenumTypeDocument = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumTypeDocument.Name = "yenumTypeDocument";
@@ -310,13 +340,13 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.yenumTypeDocument.UseShortTitle = false;
 			this.yenumTypeDocument.DefaultFirst = false;
 			this.tableMain.Add(this.yenumTypeDocument);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yenumTypeDocument]));
-			w24.TopAttach = ((uint)(4));
-			w24.BottomAttach = ((uint)(5));
-			w24.LeftAttach = ((uint)(1));
-			w24.RightAttach = ((uint)(2));
-			w24.XOptions = ((global::Gtk.AttachOptions)(4));
-			w24.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yenumTypeDocument]));
+			w26.TopAttach = ((uint)(4));
+			w26.BottomAttach = ((uint)(5));
+			w26.LeftAttach = ((uint)(1));
+			w26.RightAttach = ((uint)(2));
+			w26.XOptions = ((global::Gtk.AttachOptions)(4));
+			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.tableMain);
 			if ((this.Child != null))
 			{

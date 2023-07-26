@@ -45,6 +45,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddTextRenderer(n => n.Basis)
 					.WrapWidth(1000)
 					.WrapMode(WrapMode.WordChar)
+				.AddColumn("Статья")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(n => n.ExpenseCategory)
+					.WrapWidth(300)
+					.WrapMode(WrapMode.WordChar)
+				.AddColumn("Наличие чека")
+				.AddToggleRenderer(n => n.HaveReceipt)
+					.Editing(false)
+					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 	}

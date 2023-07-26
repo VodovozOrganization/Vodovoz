@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Dialogs;
@@ -319,7 +320,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices,
 				new OrderSelectorFactory(),
 				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
+				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
 				new SubdivisionJournalFactory())
 			{
@@ -341,7 +342,8 @@ namespace Vodovoz
 				new OrderSelectorFactory(),
 				new UndeliveredOrdersRepository(),
 				new EmployeeSettings(new ParametersProvider()),
-				new SubdivisionParametersProvider(new ParametersProvider())
+				new SubdivisionParametersProvider(new ParametersProvider()),
+				new FileDialogService()
 				);
 
 			TabParent.AddSlaveTab(this, dlg);

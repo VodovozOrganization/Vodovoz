@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.FastPayments;
+﻿using System;
+using Vodovoz.Domain.FastPayments;
 
 namespace DriverAPI.Library.DTOs
 {

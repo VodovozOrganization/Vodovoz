@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -96,10 +96,18 @@ using Vodovoz.Models.TrueMark;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Reports;
+using Vodovoz.Reports.Logistic;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
+using Vodovoz.ReportsParameters.Bottles;
+using Vodovoz.ReportsParameters.Employees;
+using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
+using Vodovoz.ReportsParameters.Payments;
+using Vodovoz.ReportsParameters.Production;
+using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
+using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
 using Vodovoz.Services.Permissions;
 using Vodovoz.Settings.Database;
@@ -184,6 +192,7 @@ using Vodovoz.ViewModels.ViewModels.Warehouses;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 using Vodovoz.ViewModels.Warehouses;
+using Vodovoz.ViewModels.Widgets;
 using Vodovoz.Views;
 using Vodovoz.Views.BusinessTasks;
 using Vodovoz.Views.Cash;
@@ -216,6 +225,7 @@ using Vodovoz.Views.WageCalculation;
 using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewWidgets;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
+using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using VodovozInfrastructure.Endpoints;
@@ -223,10 +233,12 @@ using VodovozInfrastructure.Interfaces;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
+using Vodovoz.ViewModels.Widgets;
+using static Vodovoz.Reports.CashFlow;
 
 namespace Vodovoz
 {
-	partial class MainClass
+	partial class Startup
 	{
 		internal static IDataBaseInfo DataBaseInfo;
 
@@ -362,6 +374,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
+				.RegisterWidgetForTabViewModel<FastDeliveryOrderTransferViewModel, FastDeliveryOrderTransferView>()
 				.RegisterWidgetForTabViewModel<RdlViewerViewModel, RdlViewerView>()
 				.RegisterWidgetForTabViewModel<ResponsibleViewModel, ResponsibleView>()
 				.RegisterWidgetForTabViewModel<EdoOperatorViewModel, EdoOperatorView>()
@@ -375,6 +388,9 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, Vodovoz.Views.Warehouse.InventoryDocumentView>()
 				.RegisterWidgetForTabViewModel<ShiftChangeResidueDocumentViewModel, ShiftChangeResidueDocumentView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceMovementReportViewModel, InventoryInstanceMovementReportView>()
+				.RegisterWidgetForTabViewModel<UndeliveryObjectViewModel, UndeliveryObjectView>()
+				.RegisterWidgetForTabViewModel<UndeliveryKindViewModel, UndeliveryKindView>()
+				.RegisterWidgetForTabViewModel<UndeliveryDetalizationViewModel, UndeliveryDetalizationView>()
 				;
 
 			//Регистрация виджетов
@@ -483,6 +499,10 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<TransferExpenseViewModel, TransferExpenseView>()
 				.RegisterWidgetForWidgetViewModel<TransferIncomeViewModel, TransferIncomeView>()
 				.RegisterWidgetForWidgetViewModel<CashFlowAnalysisViewModel, CashFlowAnalysisView>()
+				.RegisterWidgetForWidgetViewModel<UndeliveryObjectJournalFilterViewModel, UndeliveryObjectFilterView>()
+				.RegisterWidgetForWidgetViewModel<UndeliveryKindJournalFilterViewModel, UndeliveryKindFilterView>()
+				.RegisterWidgetForWidgetViewModel<UndeliveryDetalizationJournalFilterViewModel, UndeliveryDetalizationFilterView>()
+				.RegisterWidgetForWidgetViewModel<UndeliveredOrderViewModel, UndeliveredOrderView>()
 				;
 			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -801,6 +821,89 @@ namespace Vodovoz
 			builder.RegisterType<CounterpartyCashlessDebtsReport>().AsSelf();
 			builder.RegisterType<OrderChangesReport>().AsSelf();
 			builder.RegisterType<CashFlow>().AsSelf();
+			builder.RegisterType<WayBillReportGroupPrint>().AsSelf();
+			builder.RegisterType<StockMovements>().AsSelf();
+			builder.RegisterType<SalaryRatesReport>().AsSelf();
+			builder.RegisterType<AnalyticsForUndeliveryReport>().AsSelf();
+			builder.RegisterType<PaymentsFromAvangardReport>().AsSelf();
+			builder.RegisterType<EmployeesTaxesSumReport>().AsSelf();
+			builder.RegisterType<EmployeesFines>().AsSelf();
+			builder.RegisterType<SalesReport>().AsSelf();
+			builder.RegisterType<SalesByDiscountReport>().AsSelf();
+			builder.RegisterType<DriverWagesReport>().AsSelf();
+			builder.RegisterType<FuelReport>().AsSelf();
+			builder.RegisterType<ShortfallBattlesReport>().AsSelf();
+			builder.RegisterType<WagesOperationsReport>().AsSelf();
+			builder.RegisterType<EquipmentReport>().AsSelf();
+			builder.RegisterType<ForwarderWageReport>().AsSelf();
+			builder.RegisterType<CashierCommentsReport>().AsSelf();
+			builder.RegisterType<OnecCommentsReport>().AsSelf();
+			builder.RegisterType<DriversWageBalanceReport>().AsSelf();
+			builder.RegisterType<DeliveriesLateReport>().AsSelf();
+			builder.RegisterType<QualityReport>().AsSelf();
+			builder.RegisterType<ProducedProductionReport>().AsSelf();
+			builder.RegisterType<DriverRoutesListRegisterReport>().AsSelf();
+			builder.RegisterType<RoutesListRegisterReport>().AsSelf();
+			builder.RegisterType<DeliveryTimeReport>().AsSelf();
+			builder.RegisterType<OrdersByDistrictReport>().AsSelf();
+			builder.RegisterType<CompanyTrucksReport>().AsSelf();
+			builder.RegisterType<LastOrderByDeliveryPointReport>().AsSelf();
+			builder.RegisterType<OrderIncorrectPrices>().AsSelf();
+			builder.RegisterType<OrdersWithMinPriceLessThan>().AsSelf();
+			builder.RegisterType<RouteListsOnClosingReport>().AsSelf();
+			builder.RegisterType<OnLoadTimeAtDayReport>().AsSelf();
+			builder.RegisterType<SelfDeliveryReport>().AsSelf();
+			builder.RegisterType<ShipmentReport>().AsSelf();
+			builder.RegisterType<BottlesMovementReport>().AsSelf();
+			builder.RegisterType<MileageReport>().AsSelf();
+			builder.RegisterType<MastersReport>().AsSelf();
+			builder.RegisterType<SuburbWaterPriceReport>().AsSelf();
+			builder.RegisterType<BottlesMovementSummaryReport>().AsSelf();
+			builder.RegisterType<DrivingCallReport>().AsSelf();
+			builder.RegisterType<MastersVisitReport>().AsSelf();
+			builder.RegisterType<NotDeliveredOrdersReport>().AsSelf();
+			builder.RegisterType<EmployeesPremiums>().AsSelf();
+			builder.RegisterType<OrderStatisticByWeekReport>().AsSelf();
+			builder.RegisterType<ReportForBigClient>().AsSelf();
+			builder.RegisterType<OrderRegistryReport>().AsSelf();
+			builder.RegisterType<EquipmentBalance>().AsSelf();
+			builder.RegisterType<CardPaymentsOrdersReport>().AsSelf();
+			builder.RegisterType<DefectiveItemsReport>().AsSelf();
+			builder.RegisterType<PaymentsFromTinkoffReport>().AsSelf();
+			builder.RegisterType<OrdersByDistrictsAndDeliverySchedulesReport>().AsSelf();
+			builder.RegisterType<OrdersByCreationDateReport>().AsSelf();
+			builder.RegisterType<NomenclatureForShipment>().AsSelf();
+			builder.RegisterType<OrderCreationDateReport>().AsSelf();
+			builder.RegisterType<NotFullyLoadedRouteListsReport>().AsSelf();
+			builder.RegisterType<FirstClientsReport>().AsSelf();
+			builder.RegisterType<TariffZoneDebts>().AsSelf();
+			builder.RegisterType<ClientsByDeliveryPointCategoryAndActivityKindsReport>().AsSelf();
+			builder.RegisterType<ExtraBottleReport>().AsSelf();
+			builder.RegisterType<FirstSecondClientReport>().AsSelf();
+			builder.RegisterType<FuelConsumptionReport>().AsSelf();
+			builder.RegisterType<CounterpartyCloseDeliveryReport>().AsSelf();
+			builder.RegisterType<IncomeBalanceReport>().AsSelf();
+			builder.RegisterType<CashBookReport>().AsSelf();
+			builder.RegisterType<ProfitabilityBottlesByStockReport>().AsSelf();
+			builder.RegisterType<PlanImplementationReport>().AsSelf();
+			builder.RegisterType<ZeroDebtClientReport>().AsSelf();
+			builder.RegisterType<SetBillsReport>().AsSelf();
+			builder.RegisterType<OrdersCreationTimeReport>().AsSelf();
+			builder.RegisterType<PotentialFreePromosetsReport>().AsSelf();
+			builder.RegisterType<PaymentsFromBankClientReport>().AsSelf();
+			builder.RegisterType<PaymentsFromBankClientFinDepartmentReport>().AsSelf();
+			builder.RegisterType<ChainStoreDelayReport>().AsSelf();
+			builder.RegisterType<ReturnedTareReport>().AsSelf();
+			builder.RegisterType<ProductionRequestReport>().AsSelf();
+			builder.RegisterType<FuelConsumptionReport>().AsSelf();
+			builder.RegisterType<NonClosedRLByPeriodReport>().AsSelf();
+			builder.RegisterType<EShopSalesReport>().AsSelf();
+			builder.RegisterType<CounterpartyReport>().AsSelf();
+			builder.RegisterType<DriversToDistrictsAssignmentReport>().AsSelf();
+			builder.RegisterType<GeneralSalaryInfoReport>().AsSelf();
+			builder.RegisterType<EmployeesReport>().AsSelf();
+			builder.RegisterType<AddressesOverpaymentsReport>().AsSelf();
+			builder.RegisterType<StockMovementsAdvancedReport>().AsSelf();
 
 			#endregion
 

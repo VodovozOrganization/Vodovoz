@@ -21,6 +21,7 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		private int? _subdivisionId;
 		private string _numbering;
 		private bool _excludeFromCashFlowDds;
+		private bool _isHiddenFromPublicAccess;
 
 		[Display(Name = "Код")]
 		public virtual int Id { get; }
@@ -82,5 +83,13 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 			get => _excludeFromCashFlowDds;
 			set => SetField(ref _excludeFromCashFlowDds, value);
 		}
+
+		[Display(Name = "Скрыта из общего доступа")]
+		public virtual bool IsHiddenFromPublicAccess
+		{
+			get { return _isHiddenFromPublicAccess; }
+			set { _isHiddenFromPublicAccess = value; }
+		}
+
 	}
 }

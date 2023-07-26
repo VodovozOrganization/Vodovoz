@@ -36,7 +36,7 @@ namespace Vodovoz.Views.Logistic
 			
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true, QS.Navigation.CloseSource.Cancel);
 
-			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityVMEntryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityVMEntryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityVMEntryCar.CompletionPopupSetWidth(false);
 
@@ -88,7 +88,7 @@ namespace Vodovoz.Views.Logistic
 		private void ConfigureTreeViewAddresses()
 		{
 			//Заполняем иконки
-			var assembly = Assembly.GetAssembly(typeof(MainClass));
+			var assembly = Assembly.GetAssembly(typeof(Startup));
 			statusIcons.Add(RouteListItemStatus.EnRoute, new Pixbuf(assembly, "Vodovoz.icons.status.car.png"));
 			statusIcons.Add(RouteListItemStatus.Completed, new Pixbuf(assembly, "Vodovoz.icons.status.face-smile-grin.png"));
 			statusIcons.Add(RouteListItemStatus.Overdue, new Pixbuf(assembly, "Vodovoz.icons.status.face-angry.png"));
