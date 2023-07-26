@@ -48,6 +48,8 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 
 			btnCopyEntityId1.Sensitive = ViewModel.Entity.Id > 0;
 			btnCopyEntityId1.Clicked += OnBtnCopyEntityIdClicked;
+
+			ycheckHideFromPublicAccess.Binding.AddBinding(ViewModel.Entity, e => e.IsHiddenFromPublicAccess, w => w.Active).InitializeFromSource();
 		}
 
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
