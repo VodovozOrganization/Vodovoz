@@ -11,7 +11,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id,
@@ -88,7 +88,7 @@ HAVING delay &gt; 0;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -173,14 +173,110 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="LatenessSummary">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	Sum(Delays.delay &lt; '00:05:00') AS LessThan5Minutes,
+	Sum(Delays.delay &lt; '00:30:00' AND Delays.delay &gt;= '00:05:00') AS LessThan30Minutes,
+	Sum(Delays.delay &gt;= '00:30:00') AS MoreThan30Minutes,
+	Sum((TIME(delivered_time) &gt;= '07:00:00') AND (TIME(delivered_time) &lt;= '18:00:00')) AS AtDay,
+	SUM((TIME(delivered_time) &lt; '07:00:00' OR TIME(delivered_time) &gt; '18:00:00')) AS AtEvening
+	FROM (
+	SELECT
+		route_lists.id AS routeList_id,
+	    delivery_schedule.name AS delivery_schedule,
+	    IFNULL(orders.time_delivered,
+	           route_list_addresses.status_last_update) AS delivered_time,
+		IF(is_fast_delivery,
+			TIMEDIFF(IFNULL(orders.time_delivered, route_list_addresses.status_last_update),
+				(IF(@interval_select_mode = 'Transfer',
+					route_list_addresses.creation_date,
+					IF(@interval_select_mode = 'FirstAddress',
+						(SELECT rla.creation_date FROM route_list_addresses rla WHERE rla.order_id = orders.id ORDER BY creation_date LIMIT 1),
+						orders.create_date
+						)
+					)
+					+ INTERVAL (SELECT str_value FROM base_parameters WHERE base_parameters.name = 'fast_delivery_time') HOUR )),
+			TIMEDIFF(TIME(IFNULL(orders.time_delivered, route_list_addresses.status_last_update)), delivery_schedule.to_time)) AS delay
+	FROM route_lists
+	        INNER JOIN employees driver
+		 			ON driver.id = route_lists.driver_id
+					AND driver.visiting_master = 0
+					AND ((@exclude_truck_drivers_office_employees = 1
+	                	AND driver.category != 'office'
+	                    AND driver.driver_of_car_type_of_use != 'Truck')
+	        				OR @exclude_truck_drivers_office_employees = 0)
+	        LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+	        LEFT JOIN orders ON orders.id = route_list_addresses.order_id
+	        LEFT JOIN counterparty ON counterparty.id = orders.client_id
+	        LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+	        LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+	        LEFT JOIN late_arrival_reasons lar on route_list_addresses.late_arrival_reason_id = lar.id
+	        LEFT JOIN employees lo_comment_author ON lo_comment_author.id = route_list_addresses.comment_for_fine_author_id
+	        LEFT OUTER JOIN fines_to_route_list_addresses fine_route_list_adrs on route_list_addresses.id = fine_route_list_adrs.route_list_address_id
+	        LEFT OUTER JOIN fines fine on fine_route_list_adrs.fine_id = fine.id
+	        LEFT JOIN districts ON delivery_points.district_id = districts.id
+	WHERE route_lists.`date` BETWEEN @start_date AND @end_date
+	  AND (@order_select_mode = 'All'
+	  	OR ((@order_select_mode = 'WithoutDeliveryInAnHour' AND is_fast_delivery = 0)
+		OR (@order_select_mode = 'DeliveryInAnHour' AND is_fast_delivery = 1)))
+	  AND route_list_addresses.status = 'Completed'
+	  AND (@geographic_group_id = 0 OR districts.geo_group_id = @geographic_group_id)
+	GROUP BY route_list_addresses.id
+	HAVING delay &gt; 0) AS Delays;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="geographic_group_id">
+            <Value>={?geographic_group_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="exclude_truck_drivers_office_employees">
+            <Value>={?exclude_truck_drivers_office_employees}</Value>
+          </QueryParameter>
+          <QueryParameter Name="order_select_mode">
+            <Value>={?order_select_mode}</Value>
+          </QueryParameter>
+          <QueryParameter Name="interval_select_mode">
+            <Value>={?interval_select_mode}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="LessThan5Minutes">
+          <DataField>LessThan5Minutes</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="LessThan30Minutes">
+          <DataField>LessThan30Minutes</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="MoreThan30Minutes">
+          <DataField>MoreThan30Minutes</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="AtDay">
+          <DataField>AtDay</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="AtEvening">
+          <DataField>AtEvening</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>38.5pt</Height>
+    <Height>30.9pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Top>7.23pt</Top>
         <Left>7.23pt</Left>
-        <Width>800pt</Width>
+        <Width>800.00pt</Width>
         <Height>18.07pt</Height>
         <Value>="Отчет по опозданиям за период с " +  Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " +   Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy" + " (часть города: " + {?geographic_group_name} + ")")</Value>
         <Style>
@@ -1243,9 +1339,203 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
             </TableRow>
           </TableRows>
         </Footer>
+        <Left>0.0pt</Left>
+        <Top>45.6pt</Top>
+      </Table>
+      <Table Name="Table2">
+        <DataSetName>LatenessSummary</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>До 5 минут</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>До 30 мин</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>Более 30 мин</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>День</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>Вечер</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value>=Fields!LessThan5Minutes.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value>=Fields!LessThan30Minutes.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Value>=Fields!MoreThan30Minutes.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>=Fields!AtDay.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value>=Fields!AtEvening.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>261.1pt</Left>
+        <Top>9.1pt</Top>
       </Table>
     </ReportItems>
-    <Height>148.2pt</Height>
+    <Height>161.2pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
