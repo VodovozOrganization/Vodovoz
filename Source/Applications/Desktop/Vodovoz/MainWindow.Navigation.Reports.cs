@@ -940,4 +940,126 @@ public partial class MainWindow
 	}
 
 	#endregion Сотрудники
+
+	#region Водители
+
+	/// <summary>
+	/// Отчет по опозданиям
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDeliveriesLateActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.DeliveriesLateReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.DeliveriesLateReport()));
+	}
+
+	/// <summary>
+	/// Отчет по незакрытым МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionRouteListsOnClosingActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<RouteListsOnClosingReport>(),
+			() => new QSReport.ReportViewDlg(new RouteListsOnClosingReport()));
+	}
+
+	/// <summary>
+	/// Реестр маршрутных листов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenDriverRoutesListRegisterReport();
+
+	/// <summary>
+	/// Время погрузки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionOnLoadTimeActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<OnLoadTimeAtDayReport>(),
+			() => new QSReport.ReportViewDlg(new OnLoadTimeAtDayReport()));
+	}
+
+	/// <summary>
+	/// Время доставки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDeliveryTimeReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(QSReport.ReportViewDlg.GenerateHashName<DeliveryTimeReport>(),
+			() => new QSReport.ReportViewDlg(
+				new DeliveryTimeReport(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService)));
+	}
+
+	/// <summary>
+	/// Загрузка наших автомобилей
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCompanyTrucksActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<CompanyTrucksReport>(),
+			() => new QSReport.ReportViewDlg(new CompanyTrucksReport()));
+	}
+
+	/// <summary>
+	/// Отчёт по отгрузке автомобилей
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionShipmentReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ShipmentReport>(),
+			() => new QSReport.ReportViewDlg(new ShipmentReport()));
+	}
+
+	/// <summary>
+	/// Отчёт по километражу
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionMileageReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<MileageReport>(),
+			() => new QSReport.ReportViewDlg(
+				new MileageReport(
+					autofacScope.Resolve<IEmployeeJournalFactory>(),
+					autofacScope.Resolve<ICarJournalFactory>())));
+	}
+
+	/// <summary>
+	/// Отчёт по водительскому телефону
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDriveingCallsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<DrivingCallReport>(),
+			() => new QSReport.ReportViewDlg(new DrivingCallReport()));
+	}
+
+	/// <summary>
+	/// Отчет по распределению водителей на районы
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnDriversToDistrictsAssignmentReportActionActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<DriversToDistrictsAssignmentReport>(),
+			() => new QSReport.ReportViewDlg(new DriversToDistrictsAssignmentReport()));
+	}
+
+	#endregion Водители
 }
