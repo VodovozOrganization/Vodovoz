@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Order = Vodovoz.Permissions.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
@@ -61,11 +62,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			var permissionService = _commonServices.CurrentPermissionService;
 			
-			var allReceiptStatusesAvailable = permissionService.ValidatePresetPermission("CashReceipt.AllReceiptStatusesAvailable");
+			var allReceiptStatusesAvailable =
+				permissionService.ValidatePresetPermission(Order.CashReceiptPermissions.AllReceiptStatusesAvailable);
 			var showOnlyCodeErrorStatusReceipts =
-				permissionService.ValidatePresetPermission("CashReceipt.ShowOnlyCodeErrorStatusReceipts");
+				permissionService.ValidatePresetPermission(Order.CashReceiptPermissions.ShowOnlyCodeErrorStatusReceipts);
 			var showOnlyReceiptSendErrorStatusReceipts =
-				permissionService.ValidatePresetPermission("CashReceipt.ShowOnlyReceiptSendErrorStatusReceipts");
+				permissionService.ValidatePresetPermission(Order.CashReceiptPermissions.ShowOnlyReceiptSendErrorStatusReceipts);
 			
 			var canReadReceipts = allReceiptStatusesAvailable || showOnlyCodeErrorStatusReceipts || showOnlyReceiptSendErrorStatusReceipts;
 			if(!canReadReceipts)
@@ -74,7 +76,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				return;
 			}
 
-			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanResendDuplicateReceipts");
+			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission(Order.CashReceiptPermissions.CanResendDuplicateReceipts);
 
 			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
 

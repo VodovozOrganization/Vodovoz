@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using Order = Vodovoz.Permissions.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
@@ -51,11 +52,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
 
 			var permissionService = commonServices.CurrentPermissionService;
-			var allReceiptStatusesAvailable = permissionService.ValidatePresetPermission("CashReceipt.AllReceiptStatusesAvailable");
+			var allReceiptStatusesAvailable =
+				permissionService.ValidatePresetPermission(Order.CashReceiptPermissions.AllReceiptStatusesAvailable);
 			var showOnlyCodeErrorStatusReceipts =
-				permissionService.ValidatePresetPermission("CashReceipt.ShowOnlyCodeErrorStatusReceipts");
+				permissionService.ValidatePresetPermission(Order.CashReceiptPermissions.ShowOnlyCodeErrorStatusReceipts);
 			var showOnlyReceiptSendErrorStatusReceipts =
-				permissionService.ValidatePresetPermission("CashReceipt.ShowOnlyReceiptSendErrorStatusReceipts");
+				permissionService.ValidatePresetPermission(Order.CashReceiptPermissions.ShowOnlyReceiptSendErrorStatusReceipts);
 			
 			var canReadReceipts = allReceiptStatusesAvailable || showOnlyCodeErrorStatusReceipts || showOnlyReceiptSendErrorStatusReceipts;
 			if(!canReadReceipts)
