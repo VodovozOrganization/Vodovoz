@@ -212,7 +212,6 @@ namespace Vodovoz
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 		private EdoContainer _selectedEdoContainer;
 		private int _clientsSecondOrderDiscountReasonId;
-		private bool _isClientSecondOrder;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -3597,14 +3596,7 @@ namespace Vodovoz
 
 		private void UpdateClientSecondOrderDiscount()
 		{
-			if(Entity.Id > 0)
-			{
-				return;
-			}
-
-			_isClientSecondOrder = Entity.IsSecondOrder;
-
-			if(_isClientSecondOrder)
+			if(Entity.IsSecondOrder)
 			{
 				SetClientSecondOrderDiscount();
 				return;
@@ -3615,7 +3607,7 @@ namespace Vodovoz
 
 		private void SetClientSecondOrderDiscount()
 		{
-			if(_isClientSecondOrder)
+			if(Entity.IsSecondOrder)
 			{
 				foreach(var item in Entity.ObservableOrderItems)
 				{
@@ -3629,7 +3621,7 @@ namespace Vodovoz
 
 		private void ResetClientSecondOrderDiscount()
 		{
-			if(!_isClientSecondOrder)
+			if(!Entity.IsSecondOrder)
 			{
 				var orderItemsHavingClientsSecondOrderDiscount = new List<OrderItem>();
 
@@ -3646,12 +3638,14 @@ namespace Vodovoz
 
 		private void SetClientSecondOrderDiscount(OrderItem orderItem)
 		{
-			if(!_isClientSecondOrder)
+			if(!Entity.IsSecondOrder)
 			{
 				return;
 			}
 
-			if(orderItem.DiscountReason != null)
+			if(orderItem.DiscountReason != null
+				|| orderItem.PromoSet != null
+				|| orderItem.OrderItemRentSubType == OrderItemRentSubType.RentDepositItem)
 			{
 				return;
 			}
@@ -3681,6 +3675,8 @@ namespace Vodovoz
 			}
 			_treeItemsNomenclatureColumnWidth = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width;
 			treeItems.ExposeEvent += TreeItemsOnExposeEvent;
+
+			UpdateClientSecondOrderDiscount();
 		}
 
 		private void TreeItemsOnExposeEvent(object o, ExposeEventArgs args)
@@ -3708,6 +3704,8 @@ namespace Vodovoz
 			}
 
 			Entity.AddFastDeliveryNomenclatureIfNeeded();
+
+			UpdateClientSecondOrderDiscount();
 		}
 
 		void ObservableOrderDocuments_ListChanged(object aList)
@@ -3796,7 +3794,7 @@ namespace Vodovoz
 						ChangeEquipmentsCount(oItem, (int)oItem.Count);
 					}
 
-					SetClientSecondOrderDiscount(oItem);
+					UpdateClientSecondOrderDiscount();
 				}
 			}
 		}
