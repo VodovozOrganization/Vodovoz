@@ -2,7 +2,7 @@
 using System;
 using QS.Services;
 using Vodovoz.Domain.TrueMark;
-using Vodovoz.Permissions;
+using CashReceiptPermissions = Vodovoz.Permissions.Order.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark
 {
@@ -18,11 +18,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			var allReceiptStatusesAvailable =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Order.CashReceipt.AllReceiptStatusesAvailable);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(CashReceiptPermissions.AllReceiptStatusesAvailable);
 			var showOnlyCodeErrorStatusReceipts =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Order.CashReceipt.ShowOnlyCodeErrorStatusReceipts);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyCodeErrorStatusReceipts);
 			var showOnlyReceiptSendErrorStatusReceipts =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Order.CashReceipt.ShowOnlyReceiptSendErrorStatusReceipts);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyReceiptSendErrorStatusReceipts);
 
 			SetAvailableReceiptStatuses(allReceiptStatusesAvailable, showOnlyCodeErrorStatusReceipts, showOnlyReceiptSendErrorStatusReceipts);
 		}
