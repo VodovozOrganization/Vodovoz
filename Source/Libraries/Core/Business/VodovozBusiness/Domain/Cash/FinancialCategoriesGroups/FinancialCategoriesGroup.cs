@@ -18,6 +18,7 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		private string _title;
 		private bool _isArchive;
 		private FinancialSubType _financialSubtype;
+		private string _numbering;
 
 		[Display(Name = "Код")]
 		public virtual int Id { get; }
@@ -42,6 +43,14 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
+		}
+
+		[Display(Name = "Нумерация")]
+		[MaxLength(150)]
+		public virtual string Numbering
+		{
+			get => _numbering;
+			set => SetField(ref _numbering, value);
 		}
 
 		[Display(Name = "Приход/расход")]

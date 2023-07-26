@@ -407,6 +407,7 @@
     <Compile Include="Additions\Logistic\TrackPointsExtensions.cs" />
     <Compile Include="Additions\Printing\EntityDocumentsPrinterFactory.cs" />
     <Compile Include="Additions\SmsPaymentSender.cs" />
+    <Compile Include="Cash\Reports\CashFlowAnalysisView.ReportLine.cs" />
     <Compile Include="Cash\TransferDocumentsJournal\TransferDocumentsJournalRegistrar.cs" />
     <Compile Include="Commons\FileChooser.cs" />
     <Compile Include="Commons\HotkeyHandler.cs" />
@@ -415,6 +416,7 @@
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
     <Compile Include="Dialogs\CastomMessageDlg.cs" />
+    <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
     <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />
     <Compile Include="Factories\DialogsFactory.cs" />
@@ -574,12 +576,6 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
-    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.cs" />
-    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.ExpensesGroupLine.cs" />
-    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.FinancialExpenseCategoryLine.cs" />
-    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.FinancialIncomeCategoryLine.cs" />
-    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReport.IncomesGroupLine.cs" />
-    <Compile Include="ReportsParameters\CashFlow.CashFlowDdsReportRenderer.cs" />
     <Compile Include="ReportsParameters\CashFlow.ReportParts.cs" />
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="Representations\ProductGroups\INameNode.cs" />
@@ -1923,6 +1919,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CargoDailyNormView.cs" />
     <Compile Include="Views\Client\ResendCounterpartyEdoDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.ResendCounterpartyEdoDocumentsView.cs" />
+    <Compile Include="Cash\Reports\CashFlowAnalysisView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Cash.Reports.CashFlowAnalysisView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
