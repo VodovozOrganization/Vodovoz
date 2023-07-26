@@ -417,6 +417,8 @@
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
     <Compile Include="Dialogs\CastomMessageDlg.cs" />
+    <Compile Include="Dialogs\Logistic\RouteListClosingDlg.RouteListActions.cs" />
+    <Compile Include="Dialogs\Logistic\RouteListClosingDlg.RouteListPrintDocuments.cs" />
     <Compile Include="Extensions\ColorExtensions.cs" />
     <Compile Include="Factories\AuthorizationServiceFactory.cs" />
     <Compile Include="Factories\DeliveryPointViewModelFactory.cs" />

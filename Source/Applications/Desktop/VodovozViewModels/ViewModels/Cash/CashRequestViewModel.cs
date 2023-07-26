@@ -504,7 +504,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				roles.Add(PayoutRequestUserRole.Coordinator);
 			}
 
-			if(CheckRole("role_сashier", userId))
+			if(CheckRole(Vodovoz.Permissions.Cash.RoleCashier, userId))
 			{
 				roles.Add(PayoutRequestUserRole.Cashier);
 			}
