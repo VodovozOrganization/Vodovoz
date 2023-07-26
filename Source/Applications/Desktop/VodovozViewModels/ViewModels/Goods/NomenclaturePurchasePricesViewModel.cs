@@ -1,12 +1,10 @@
-﻿using FluentNHibernate.Data;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Models;
-using VodovozInfrastructure.Observable;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
@@ -26,22 +24,21 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			_entity = entity ?? throw new ArgumentNullException(nameof(entity));
 			_nomenclaturePurchasePriceModel = nomenclaturePurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePriceModel));
 
-			entity.ObservablePurchasePrices.ElementAdded += ObservablePurchasePrices_ElementAdded;
+			entity.ObservablePurchasePrices.ElementAdded += OnObservablePurchasePricesElementAdded;
 
 			if(entity.ObservablePurchasePrices.Any())
 			{
 				var sortedList = entity.ObservablePurchasePrices.OrderByDescending(x => x.StartDate);
 				foreach(var item in sortedList)
 				{
-					PriceViewModels.Add(new NomenclaturePurchasePriceViewModel(item));
+					PriceViewModels.Add(CreatePriceViewModel(item));
 				}
 			}
-
 		}
 
-		private void ObservablePurchasePrices_ElementAdded(object aList, int[] aIdx)
+		private void OnObservablePurchasePricesElementAdded(object aList, int[] aIdx)
 		{
-			PriceViewModels.Insert(0, new NomenclaturePurchasePriceViewModel(_entity.ObservablePurchasePrices.Last()));
+			PriceViewModels.Insert(0, CreatePriceViewModel(_entity.ObservablePurchasePrices.Last()));
 		}
 
 		private NomenclaturePurchasePriceViewModel CreatePriceViewModel(NomenclaturePurchasePrice price)
