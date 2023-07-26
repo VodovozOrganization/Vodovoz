@@ -36,6 +36,11 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 				.AddBinding(fcg => fcg.IsArchive, checkbox => checkbox.Active)
 				.InitializeFromSource();
 
+			yentryNumbering.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(fcg => fcg.Numbering, entry => entry.Text)
+				.InitializeFromSource();
+
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, CloseSource.Cancel); };
 

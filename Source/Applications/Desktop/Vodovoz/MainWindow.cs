@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
 using NLog;
@@ -70,6 +70,10 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
+using UserRepository = Vodovoz.EntityRepositories.UserRepository;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
+using Vodovoz.ViewModels.ViewModels.Suppliers;
+using Vodovoz.ViewModels.Cash.Reports;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -331,6 +335,8 @@ public partial class MainWindow : Gtk.Window
 
 		ActionGroupPricing.Activated += ActionGroupPricingActivated;
 		ActionProfitabilitySalesReport.Activated += ActionProfitabilitySalesReportActivated;
+
+		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
 	}
 
 	#region Уведомления об отправленных перемещениях и о наличии рекламаций
@@ -672,4 +678,29 @@ public partial class MainWindow : Gtk.Window
 		new DateTime(2000, 1, 1)
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
+
+	protected void OnInventoryInstanceMovementReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InventoryInstanceMovementReportViewModel>(null);
+	}
+
+	protected void OnInventoryNomenclaturesActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InventoryNomenclaturesJournalViewModel>(null);
+	}
+
+	protected void OnActionFinancialCategoriesGroupsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
+	}
+
+	protected void OnActionActionWarehousesBalanceSummaryReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
+	}
+
+	protected void OnAction74Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CashFlowAnalysisViewModel>(null);
+	}
 }
