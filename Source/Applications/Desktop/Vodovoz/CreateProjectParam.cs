@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -49,11 +49,12 @@ using Vodovoz.CachingRepositories.Common;
 using Vodovoz.Cash;
 using Vodovoz.Cash.DocumentsJournal;
 using Vodovoz.Cash.FinancialCategoriesGroups;
+using Vodovoz.Cash.Reports;
+using Vodovoz.Cash.Transfer;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs.Cash;
-using Vodovoz.Cash.Transfer;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Dialogs.Fuel;
@@ -120,6 +121,7 @@ using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
+using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Cash.Transfer;
 using Vodovoz.ViewModels.Cash.Transfer.Journal;
 using Vodovoz.ViewModels.Complaints;
@@ -228,6 +230,7 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
+using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
 using Vodovoz.ViewModels.Widgets;
@@ -495,6 +498,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CargoDailyNormViewModel, CargoDailyNormView>()
 				.RegisterWidgetForWidgetViewModel<TransferExpenseViewModel, TransferExpenseView>()
 				.RegisterWidgetForWidgetViewModel<TransferIncomeViewModel, TransferIncomeView>()
+				.RegisterWidgetForWidgetViewModel<CashFlowAnalysisViewModel, CashFlowAnalysisView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryObjectJournalFilterViewModel, UndeliveryObjectFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryKindJournalFilterViewModel, UndeliveryKindFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryDetalizationJournalFilterViewModel, UndeliveryDetalizationFilterView>()
