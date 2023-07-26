@@ -317,6 +317,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				var numberingCell = xLWorksheet.Cell(row, _numberingColumn);
 
 				numberingCell.Value = $"'{numbering}";
+				numberingCell.Style.Font.Bold = true;
 				numberingCell.Style.Font.FontSize = _groupTitleFontSize;
 				numberingCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 				numberingCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
