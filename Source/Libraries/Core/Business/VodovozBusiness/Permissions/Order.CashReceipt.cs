@@ -5,7 +5,7 @@
 		/// <summary>
 		/// Права чеки
 		/// </summary>
-		public static class CashReceiptPermissions
+		public static class CashReceipt
 		{
 			public static string AllReceiptStatusesAvailable => "CashReceipt.AllReceiptStatusesAvailable";
 			public static string ShowOnlyCodeErrorStatusReceipts => "CashReceipt.ShowOnlyCodeErrorStatusReceipts";

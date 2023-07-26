@@ -933,7 +933,7 @@
     <Compile Include="Parameters\RouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
-    <Compile Include="Permissions\Order.CashReceiptPermissions.cs" />
+    <Compile Include="Permissions\Order.CashReceipt.cs" />
     <Compile Include="Permissions\Order.cs" />
     <Compile Include="Permissions\Cash.cs" />
     <Compile Include="Permissions\Cash.Income.cs" />

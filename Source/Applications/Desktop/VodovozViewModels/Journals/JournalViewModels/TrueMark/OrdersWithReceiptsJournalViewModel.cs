@@ -53,11 +53,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			var permissionService = commonServices.CurrentPermissionService;
 			var allReceiptStatusesAvailable =
-				permissionService.ValidatePresetPermission(Order.CashReceiptPermissions.AllReceiptStatusesAvailable);
+				permissionService.ValidatePresetPermission(Order.CashReceipt.AllReceiptStatusesAvailable);
 			var showOnlyCodeErrorStatusReceipts =
-				permissionService.ValidatePresetPermission(Order.CashReceiptPermissions.ShowOnlyCodeErrorStatusReceipts);
+				permissionService.ValidatePresetPermission(Order.CashReceipt.ShowOnlyCodeErrorStatusReceipts);
 			var showOnlyReceiptSendErrorStatusReceipts =
-				permissionService.ValidatePresetPermission(Order.CashReceiptPermissions.ShowOnlyReceiptSendErrorStatusReceipts);
+				permissionService.ValidatePresetPermission(Order.CashReceipt.ShowOnlyReceiptSendErrorStatusReceipts);
 			
 			var canReadReceipts = allReceiptStatusesAvailable || showOnlyCodeErrorStatusReceipts || showOnlyReceiptSendErrorStatusReceipts;
 			if(!canReadReceipts)

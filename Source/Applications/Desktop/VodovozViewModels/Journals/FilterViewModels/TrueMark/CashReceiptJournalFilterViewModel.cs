@@ -18,13 +18,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			var allReceiptStatusesAvailable =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Order.CashReceiptPermissions.AllReceiptStatusesAvailable);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Order.CashReceipt.AllReceiptStatusesAvailable);
 			var showOnlyCodeErrorStatusReceipts =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(
-					Order.CashReceiptPermissions.ShowOnlyCodeErrorStatusReceipts);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Order.CashReceipt.ShowOnlyCodeErrorStatusReceipts);
 			var showOnlyReceiptSendErrorStatusReceipts =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(
-					Order.CashReceiptPermissions.ShowOnlyReceiptSendErrorStatusReceipts);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Order.CashReceipt.ShowOnlyReceiptSendErrorStatusReceipts);
 
 			SetAvailableReceiptStatuses(allReceiptStatusesAvailable, showOnlyCodeErrorStatusReceipts, showOnlyReceiptSendErrorStatusReceipts);
 		}
