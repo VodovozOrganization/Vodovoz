@@ -461,27 +461,6 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionQualityRetailReport(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
-			() => new QSReport.ReportViewDlg(new QualityReport(
-				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
-				new EmployeeJournalFactory(),
-				new SalesChannelJournalFactory(),
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.InteractiveService)));
-	}
-
-	protected void OnActionProducedProductionReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ProducedProductionReport>(),
-			() => new QSReport.ReportViewDlg(
-				new ProducedProductionReport(new NomenclatureJournalFactory()))
-		);
-	}
-
 	protected void OpenRoutesListRegisterReport()
 	{
 		tdiMain.OpenTab(
@@ -700,22 +679,6 @@ public partial class MainWindow : Gtk.Window
 	{
 		var dlg = new RecalculateDriverWageDlg();
 		tdiMain.AddTab(dlg);
-	}
-
-	protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
-			() => new QSReport.ReportViewDlg(new CounterpartyReport(
-				new SalesChannelJournalFactory(),
-				new DistrictJournalFactory(),
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.InteractiveService)));
-	}
-
-	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<CostCarExploitationReportViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	protected void OnUsersRolesActionActivated(object sender, EventArgs e)

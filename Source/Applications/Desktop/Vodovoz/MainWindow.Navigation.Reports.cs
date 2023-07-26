@@ -27,6 +27,8 @@ using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.ReportsParameters.Payments;
+using Vodovoz.ReportsParameters.Production;
+using Vodovoz.ReportsParameters.Retail;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
@@ -1355,4 +1357,72 @@ public partial class MainWindow
 	}
 
 	#endregion Касса
+
+	#region Производство
+
+	/// <summary>
+	/// Отчет по произведенной продукции
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionProducedProductionReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ProducedProductionReport>(),
+			() => new QSReport.ReportViewDlg(
+				new ProducedProductionReport(new NomenclatureJournalFactory())));
+	}
+
+	#endregion Производство
+
+	#region Розница
+
+	/// <summary>
+	/// Качественный отчет
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionQualityRetailReport(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<QualityReport>(),
+			() => new QSReport.ReportViewDlg(new QualityReport(
+				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
+				new EmployeeJournalFactory(),
+				new SalesChannelJournalFactory(),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.InteractiveService)));
+	}
+
+	/// <summary>
+	/// Отчет по контрагентам
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCounterpartyRetailReport(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<CounterpartyReport>(),
+			() => new QSReport.ReportViewDlg(new CounterpartyReport(
+				new SalesChannelJournalFactory(),
+				new DistrictJournalFactory(),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.InteractiveService)));
+	}
+
+	#endregion Розница
+
+	#region Транспорт
+
+	/// <summary>
+	/// Затраты при эксплуатации ТС
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CostCarExploitationReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	#endregion Транспорт
 }
