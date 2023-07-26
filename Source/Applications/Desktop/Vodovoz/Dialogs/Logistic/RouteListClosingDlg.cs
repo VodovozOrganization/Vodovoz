@@ -51,8 +51,6 @@ using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Cash;
-using Vodovoz.Settings.Database;
-using Vodovoz.Settings.Database.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -101,7 +99,7 @@ namespace Vodovoz
 				_nomenclatureRepository);
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly bool _isOpenFromCash;
-		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -146,31 +144,6 @@ namespace Vodovoz
 			set { callTaskWorker = value; }
 		}
 
-		enum RouteListActions
-		{
-			[Display(Name = "Новый штраф")]
-			CreateNewFine,
-			[Display(Name = "Перенести разгрузку в другой МЛ")]
-			TransferReceptionToAnotherRL,
-			[Display(Name = "Перенести разгрузку в этот МЛ")]
-			TransferReceptionToThisRL,
-			[Display(Name = "Перенести адреса в этот МЛ")]
-			TransferAddressesToThisRL,
-			[Display(Name = "Перенести адреса из этого МЛ")]
-			TransferAddressesToAnotherRL
-
-		}
-
-		public enum RouteListPrintDocuments
-		{
-			[Display(Name = "Все")]
-			All,
-			[Display(Name = "Маршрутный лист")]
-			RouteList,
-			[Display(Name = "Штрафы")]
-			Fines
-		}
-
 		#endregion
 
 		#region Конструкторы и конфигурирование диалога
@@ -180,7 +153,7 @@ namespace Vodovoz
 		public RouteListClosingDlg(int routeListId, bool isOpenFromCash = false)
 		{
 			_isOpenFromCash = isOpenFromCash;
-			this.Build();
+			Build();
 
 			PerformanceHelper.StartMeasurement();
 
@@ -195,7 +168,15 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			_canEdit = _isRoleCashier && permissionResult.CanUpdate;
+			var availableStatusesForAccepting = new RouteListStatus[]
+			{
+				RouteListStatus.Delivered,
+				RouteListStatus.OnClosing
+			};
+
+			_canEdit = _isRoleCashier
+				&& permissionResult.CanUpdate
+				&& (!Entity.WasAcceptedByCashier || availableStatusesForAccepting.Contains(Entity.Status));
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(new PaymentItemsRepository(), new OrderRepository(), new PaymentsRepository());
 			if(Entity.AddressesOrderWasChangedAfterPrinted) {
@@ -213,7 +194,7 @@ namespace Vodovoz
 			};
 
 			canCloseRoutelist = new PermissionRepository()
-				.HasAccessToClosingRoutelist(UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService);
+				.HasAccessToClosingRoutelist(UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService) && _canEdit;
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
@@ -445,8 +426,7 @@ namespace Vodovoz
 				hbxStatistics2.Sensitive = false;
 				hbxStatistics3.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
-				toggleWageDetails.Sensitive = _canEdit;
-				permissioncommentview.Sensitive = _canEdit;
+				permissioncommentview.Sensitive = _isRoleCashier && permissionResult.CanUpdate;
 				buttonSave.Sensitive = _canEdit;
 
 				HasChanges = false;
@@ -476,8 +456,8 @@ namespace Vodovoz
 			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = _canEdit;
 			buttonCalculateCash.Sensitive = _canEdit;
 			labelWage1.Visible = _canEdit;
-			toggleWageDetails.Sensitive = _canEdit;
-			permissioncommentview.Sensitive = _canEdit;
+			toggleWageDetails.Sensitive = true;
+			permissioncommentview.Sensitive = _isRoleCashier && permissionResult.CanUpdate;
 			buttonSave.Sensitive = _canEdit;
 			UpdateButtonState();
 		}

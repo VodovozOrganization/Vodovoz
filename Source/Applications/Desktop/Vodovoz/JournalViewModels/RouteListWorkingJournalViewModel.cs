@@ -317,6 +317,7 @@ namespace Vodovoz.JournalViewModels
 
 		private readonly RouteListStatus[] _canReturnToOnClosing = new[]
 		{
+			RouteListStatus.MileageCheck,
 			RouteListStatus.Closed
 		};
 

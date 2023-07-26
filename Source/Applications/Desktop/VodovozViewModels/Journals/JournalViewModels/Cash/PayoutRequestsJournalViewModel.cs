@@ -154,7 +154,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_financier_cash_request", userId);
 			_cashRequestCoordinator =
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_coordinator_cash_request", userId);
-			_roleCashier = _commonServices.PermissionService.ValidateUserPresetPermission("role_сashier", userId);
+			_roleCashier = _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Permissions.Cash.RoleCashier, userId);
 			_roleSecurityService =
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_security_service_cash_request", userId);
 			_canSeeCurrentSubdivisonRequests =
