@@ -35,6 +35,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Reports.Sales;
+using Vodovoz.ViewModels.ReportsParameters.Cash;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
@@ -1193,4 +1194,165 @@ public partial class MainWindow
 	}
 
 	#endregion Бухгалтерия
+
+	#region Касса
+
+	/// <summary>
+	/// По приходу наличных денежных средств
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnIncomeBalanceReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
+			() => new QSReport.ReportViewDlg(new IncomeBalanceReport()));
+	}
+
+	/// <summary>
+	/// Зарплаты водителей
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDriverWagesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.DriverWagesReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport()));
+	}
+
+	/// <summary>
+	/// Баланс водителей
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDriversWageBalanceActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<DriversWageBalanceReport>(),
+			() => new QSReport.ReportViewDlg(new DriversWageBalanceReport()));
+	}
+
+	/// <summary>
+	/// Отчет по выдаче бензина
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFuelReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.FuelReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.FuelReport()));
+	}
+
+	/// <summary>
+	/// Зарплаты экспедиторов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionForwarderWageReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.ForwarderWageReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport()));
+	}
+
+	/// <summary>
+	/// Зарплаты сотрудников
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionWagesOperationsActivated(object sender, EventArgs e)
+	{
+		EmployeeFilterViewModel employeeFilter;
+
+		if(_hasAccessToSalariesForLogistics)
+		{
+			employeeFilter = new EmployeeFilterViewModel(EmployeeCategory.office);
+			employeeFilter.SetAndRefilterAtOnce(
+				x => x.Category = EmployeeCategory.driver,
+				x => x.Status = EmployeeStatus.IsWorking);
+		}
+		else
+		{
+			employeeFilter = new EmployeeFilterViewModel();
+			employeeFilter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
+		}
+
+		employeeFilter.HidenByDefault = true;
+		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
+
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.WagesOperationsReport(employeeJournalFactory)));
+	}
+
+	/// <summary>
+	/// Кассовая книга
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnCashBoolReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
+			() => new QSReport.ReportViewDlg(new CashBookReport(
+				new SubdivisionRepository(new ParametersProvider()), ServicesConfig.CommonServices)));
+	}
+
+	/// <summary>
+	/// Дата ЗП у водителей/экспедиторов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDayOfSalaryGiveoutReport_Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DayOfSalaryGiveoutReportViewModel));
+	}
+
+	/// <summary>
+	/// Отчет по перемещениям с производств
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnProductionWarehouseMovementReportActivated(object sender, EventArgs e)
+	{
+		IFileDialogService fileDialogService = new FileDialogService();
+		IParametersProvider parametersProvider = new ParametersProvider();
+		IProductionWarehouseMovementReportProvider productionWarehouseMovementReportProvider = new ProductionWarehouseMovementReportProvider(parametersProvider);
+
+		ProductionWarehouseMovementReportViewModel viewModel = new ProductionWarehouseMovementReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, productionWarehouseMovementReportProvider);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	/// <summary>
+	/// Ставки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionSalaryRatesReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
+			() => new QSReport.ReportViewDlg(new SalaryRatesReport(
+				UnitOfWorkFactory.GetDefaultFactory,
+				new BaseParametersProvider(new ParametersProvider()),
+				ServicesConfig.CommonServices)));
+	}
+
+	/// <summary>
+	/// Налоги сотрудников
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnEmployeesTaxesActionActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
+			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory)));
+	}
+
+	#endregion Касса
 }

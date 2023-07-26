@@ -453,69 +453,11 @@ public partial class MainWindow : Gtk.Window
 		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
-	protected void OnActionDriverWagesActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.DriverWagesReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport())
-		);
-	}
-
-	protected void OnActionFuelReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.FuelReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.FuelReport())
-		);
-	}
-
-
-	protected void OnActionWagesOperationsActivated(object sender, EventArgs e)
-	{
-		EmployeeFilterViewModel employeeFilter;
-		if(_hasAccessToSalariesForLogistics)
-		{
-			employeeFilter = new EmployeeFilterViewModel(EmployeeCategory.office);
-			employeeFilter.SetAndRefilterAtOnce(
-				x => x.Category = EmployeeCategory.driver,
-				x => x.Status = EmployeeStatus.IsWorking);
-		}
-		else
-		{
-			employeeFilter = new EmployeeFilterViewModel();
-			employeeFilter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
-		}
-
-		employeeFilter.HidenByDefault = true;
-		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.WagesOperationsReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.WagesOperationsReport(employeeJournalFactory))
-		);
-	}
-
-	protected void OnActionForwarderWageReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.ForwarderWageReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.ForwarderWageReport())
-		);
-	}
-
 	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OnecCommentsReport>(),
 			() => new QSReport.ReportViewDlg(new OnecCommentsReport())
-		);
-	}
-
-	protected void OnActionDriversWageBalanceActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DriversWageBalanceReport>(),
-			() => new QSReport.ReportViewDlg(new DriversWageBalanceReport())
 		);
 	}
 
@@ -639,23 +581,6 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			OrmReference.GenerateHashName<StoredResource>(),
 			() => new OrmReference(typeof(StoredResource))
-		);
-	}
-
-	protected void OnIncomeBalanceReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
-			() => new QSReport.ReportViewDlg(new IncomeBalanceReport())
-		);
-	}
-
-	protected void OnCashBoolReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CashBookReport>(),
-			() => new QSReport.ReportViewDlg(new CashBookReport(
-				new SubdivisionRepository(new ParametersProvider()), ServicesConfig.CommonServices))
 		);
 	}
 
@@ -788,34 +713,6 @@ public partial class MainWindow : Gtk.Window
 				ServicesConfig.InteractiveService)));
 	}
 
-	protected void OnActionDayOfSalaryGiveoutReport_Activated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DayOfSalaryGiveoutReportViewModel));
-	}
-
-	protected void OnProductionWarehouseMovementReportActivated(object sender, EventArgs e)
-	{
-		IFileDialogService fileDialogService = new FileDialogService();
-		IParametersProvider parametersProvider = new ParametersProvider();
-		IProductionWarehouseMovementReportProvider productionWarehouseMovementReportProvider = new ProductionWarehouseMovementReportProvider(parametersProvider);
-
-		ProductionWarehouseMovementReportViewModel viewModel = new ProductionWarehouseMovementReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, productionWarehouseMovementReportProvider);
-
-		tdiMain.AddTab(viewModel);
-	}
-
-	protected void OnActionSalaryRatesReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<SalaryRatesReport>(),
-			() => new QSReport.ReportViewDlg(new SalaryRatesReport(
-				UnitOfWorkFactory.GetDefaultFactory,
-				new BaseParametersProvider(new ParametersProvider()),
-				ServicesConfig.CommonServices
-			)));
-	}
-
 	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CostCarExploitationReportViewModel>(null, OpenPageOptions.IgnoreHash);
@@ -824,14 +721,6 @@ public partial class MainWindow : Gtk.Window
 	protected void OnUsersRolesActionActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<UserRolesJournalViewModel>(null);
-	}
-
-	protected void OnEmployeesTaxesActionActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory))
-		);
 	}
 
 	private DateTime GetDateTimeFGromVersion(Version version) =>
