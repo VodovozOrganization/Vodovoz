@@ -681,11 +681,6 @@ public partial class MainWindow : Gtk.Window
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
 
-	protected void OnActionFinancialCategoriesGroupsActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<FinancialCategoriesGroupsJournalViewModel>(null);
-	}
-
 	protected void OnAction74Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CashFlowAnalysisViewModel>(null);
