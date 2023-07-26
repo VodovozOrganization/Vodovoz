@@ -21,6 +21,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Parameters;
 using Vodovoz.ReportsParameters;
+using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
 using Vodovoz.ReportsParameters.Employees;
 using Vodovoz.ReportsParameters.Logistic;
@@ -39,6 +40,7 @@ using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
@@ -1103,4 +1105,92 @@ public partial class MainWindow
 	}
 
 	#endregion Сервисный центр
+
+	#region Бухгалтерия
+
+	/// <summary>
+	/// Отчет закрытых отгрузок
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCloseDeliveryReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCloseDeliveryReport>(),
+			() => new QSReport.ReportViewDlg(new CounterpartyCloseDeliveryReport()));
+	}
+
+	/// <summary>
+	/// Отчет по оплатам (ФО)
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionPaymentsFinDepartmentReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientFinDepartmentReport>(),
+			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientFinDepartmentReport()));
+	}
+
+	/// <summary>
+	/// Отсрочка сети
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
+	{
+		ILifetimeScope lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		var employeeJournalFactory = new EmployeeJournalFactory();
+
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
+			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport(employeeJournalFactory, lifetimeScope.Resolve<ICounterpartyJournalFactory>())));
+	}
+
+	/// <summary>
+	/// Отчет по изменениям заказа при доставке
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionOrderChangesReportActivated(object sender, EventArgs e)
+	{
+		var paramProvider = new ParametersProvider();
+
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
+			() => new QSReport.ReportViewDlg(
+				new OrderChangesReport(
+					new ReportDefaultsProvider(paramProvider),
+					ServicesConfig.InteractiveService,
+					new ArchiveDataSettings(paramProvider))));
+	}
+
+	/// <summary>
+	/// Долги по безналу
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCounterpartyCashlessDebtsReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
+			() => new QSReport.ReportViewDlg(autofacScope.Resolve<CounterpartyCashlessDebtsReport>()));
+	}
+
+	/// <summary>
+	/// Отчет по УПД в ЧЗ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEdoUpdReportActivated(object sender, EventArgs e)
+	{
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		var edoUpdReportViewModel = new EdoUpdReportViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService, NavigationManager,
+			fileDialogService);
+
+		tdiMain.AddTab(edoUpdReportViewModel);
+	}
+
+	#endregion Бухгалтерия
 }

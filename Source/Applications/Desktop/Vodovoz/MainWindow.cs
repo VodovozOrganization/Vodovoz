@@ -642,14 +642,6 @@ public partial class MainWindow : Gtk.Window
 		);
 	}
 
-	protected void OnActionCloseDeliveryReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCloseDeliveryReport>(),
-			() => new QSReport.ReportViewDlg(new CounterpartyCloseDeliveryReport())
-		);
-	}
-
 	protected void OnIncomeBalanceReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -671,25 +663,6 @@ public partial class MainWindow : Gtk.Window
 	{
 		var widget = new ResendEmailsDialog();
 		tdiMain.AddTab(widget);
-	}
-
-	protected void OnActionPaymentsFinDepartmentReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientFinDepartmentReport>(),
-			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientFinDepartmentReport())
-		);
-	}
-
-	protected void OnActionNetworkDelayReportActivated(object sender, EventArgs e)
-	{
-		ILifetimeScope lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ChainStoreDelayReport>(),
-			() => new QSReport.ReportViewDlg(new ChainStoreDelayReport(employeeJournalFactory, lifetimeScope.Resolve<ICounterpartyJournalFactory>()))
-		);
 	}
 
 	protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
@@ -744,20 +717,6 @@ public partial class MainWindow : Gtk.Window
 				docTemplateRepository,
 				fileChooser
 			));
-	}
-
-	protected void OnActionOrderChangesReportActivated(object sender, EventArgs e)
-	{
-		var paramProvider = new ParametersProvider();
-
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OrderChangesReport>(),
-			() => new QSReport.ReportViewDlg(
-				new OrderChangesReport(
-					new ReportDefaultsProvider(paramProvider),
-					ServicesConfig.InteractiveService,
-					new ArchiveDataSettings(paramProvider)))
-		);
 	}
 
 	protected void OnRegisteredRMActionActivated(object sender, EventArgs e)
@@ -857,27 +816,9 @@ public partial class MainWindow : Gtk.Window
 			)));
 	}
 
-	protected void OnActionCounterpartyCashlessDebtsReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
-			() => new QSReport.ReportViewDlg(autofacScope.Resolve<CounterpartyCashlessDebtsReport>())
-		);
-	}
-
 	protected void OnActionCostCarExploitationReportActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<CostCarExploitationReportViewModel>(null, OpenPageOptions.IgnoreHash);
-	}
-
-	protected void OnActionEdoUpdReportActivated(object sender, EventArgs e)
-	{
-		IFileDialogService fileDialogService = new FileDialogService();
-
-		var edoUpdReportViewModel = new EdoUpdReportViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.InteractiveService, NavigationManager,
-			fileDialogService);
-
-		tdiMain.AddTab(edoUpdReportViewModel);
 	}
 
 	protected void OnUsersRolesActionActivated(object sender, EventArgs e)
