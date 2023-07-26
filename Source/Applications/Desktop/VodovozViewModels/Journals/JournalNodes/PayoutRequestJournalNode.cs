@@ -23,6 +23,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string AccountablePerson { get; set; }
 		public decimal Sum { get; set; }
 		public string Basis { get; set; }
+		public string ExpenseCategory { get; set; } = string.Empty;
+		public bool HaveReceipt { get; set; } = false;
 		public PayoutRequestDocumentType PayoutRequestDocumentType { get; set; }
 		public string CounterpartyName { get; set; }
 
