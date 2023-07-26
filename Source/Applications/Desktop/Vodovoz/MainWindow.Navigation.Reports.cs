@@ -5,23 +5,33 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
+using QS.Report.ViewModels;
 using QSOrmProject;
 using System;
 using Vodovoz;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Parameters;
 using Vodovoz.ReportsParameters;
+using Vodovoz.ReportsParameters.Bottles;
 using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.ReportsParameters.Payments;
 using Vodovoz.ReportsParameters.Sales;
+using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Reports;
+using Vodovoz.ViewModels.Reports.Sales;
+using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.ViewModels.Reports;
+using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
+using Vodovoz.ViewModels.ViewModels.Reports.Sales;
+using Vodovoz.ViewModels.ViewModels.Suppliers;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 
 public partial class MainWindow
 {
@@ -283,4 +293,372 @@ public partial class MainWindow
 	}
 
 	#endregion Заказы
+
+	#region Продажи
+
+	/// <summary>
+	/// Отчет по продажам
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionSalesReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.SalesReport>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport(new EmployeeRepository(), ServicesConfig.InteractiveService)));
+	}
+
+	/// <summary>
+	/// Отчет по дате создания заказа
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionOrderCreationDateReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<OrderCreationDateReport>(),
+			() => new QSReport.ReportViewDlg(new OrderCreationDateReport()));
+	}
+
+	/// <summary>
+	/// Отчёт о выполнении плана
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionPlanImplementationReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PlanImplementationReport>(),
+			() => new QSReport.ReportViewDlg(new PlanImplementationReport()));
+	}
+
+	/// <summary>
+	/// Отчет по выставленным счетам
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionSetBillsReportActivated(object sender, EventArgs e)
+	{
+		var subdivisionJournalFactory = new SubdivisionJournalFactory();
+
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<SetBillsReport>(),
+			() => new QSReport.ReportViewDlg(new SetBillsReport(
+				UnitOfWorkFactory.GetDefaultFactory,
+				subdivisionJournalFactory)));
+	}
+
+	/// <summary>
+	/// Отчет по продажам с рентабельностью
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void ActionProfitabilitySalesReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(ProfitabilitySalesReportViewModel));
+	}
+
+	/// <summary>
+	/// Отчет по оборачиваемости с динамикой
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionTurnoverWithDynamicsReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<TurnoverWithDynamicsReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	/// <summary>
+	/// Аналитика продаж КБ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnSalesBySubdivisionsAnalitycsActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<SalesBySubdivisionsAnalitycsReportViewModel>(null, OpenPageOptions.IgnoreHash);
+	}
+
+	#endregion Продажи
+
+	#region Склад
+
+	/// <summary>
+	/// Остатки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionActionWarehousesBalanceSummaryReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<WarehousesBalanceSummaryViewModel>(null);
+	}
+
+	/// <summary>
+	/// Складские движения
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionStockMovementsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.StockMovements>(),
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.StockMovements()));
+	}
+
+	/// <summary>
+	/// ТМЦ на остатках
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionEquipmentBalanceActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<EquipmentBalance>(),
+			() => new QSReport.ReportViewDlg(new EquipmentBalance()));
+	}
+
+	/// <summary>
+	/// Отчёт по браку
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionDefectiveItemsReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<DefectiveItemsReport>(),
+			() => new QSReport.ReportViewDlg(new DefectiveItemsReport()));
+	}
+
+	/// <summary>
+	/// Недопогруженные МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionNotFullyLoadedRouteListsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<NotFullyLoadedRouteListsReport>(),
+			() => new QSReport.ReportViewDlg(new NotFullyLoadedRouteListsReport()));
+	}
+
+	/// <summary>
+	/// Товары для отгрузки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnForShipmentReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<NomenclatureForShipment>(),
+			() => new QSReport.ReportViewDlg(new NomenclatureForShipment()));
+	}
+
+	/// <summary>
+	/// Развернутые движения ТМЦ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionStockMovementsAdvancedReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<StockMovementsAdvancedReport>(),
+			() => new QSReport.ReportViewDlg(new StockMovementsAdvancedReport()));
+	}
+
+	/// <summary>
+	/// Заявка на производство
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionProductionRequestReportActivated(object sender, EventArgs e)
+	{
+		var employeeRepository = new EmployeeRepository();
+
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ProductionRequestReport>(),
+			() => new QSReport.ReportViewDlg(new ProductionRequestReport(employeeRepository)));
+	}
+
+	/// <summary>
+	/// Движение по инвентарному номеру
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnInventoryInstanceMovementReportActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<InventoryInstanceMovementReportViewModel>(null);
+	}
+
+	#endregion Склад
+
+	#region Отчеты ОСК/ОКК
+
+	/// <summary>
+	/// Отчет по движению бутылей
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionBottlesMovementSummaryReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<BottlesMovementSummaryReport>(),
+			() => new QSReport.ReportViewDlg(new BottlesMovementSummaryReport()));
+	}
+
+	/// <summary>
+	/// Отчет по движению бутылей (по МЛ)
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionBottlesMovementReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<BottlesMovementReport>(),
+			() => new QSReport.ReportViewDlg(new BottlesMovementReport()));
+	}
+
+	/// <summary>
+	/// Отчет о несданных бутылях
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionShortfallBattlesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ShortfallBattlesReport>(),
+			() => new QSReport.ReportViewDlg(new ShortfallBattlesReport()));
+	}
+
+	/// <summary>
+	/// Отчёт "Куньголово"
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnReportKungolovoActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ReportForBigClient>(),
+			() => new QSReport.ReportViewDlg(new ReportForBigClient()));
+	}
+
+	/// <summary>
+	/// Отчет по дате создания заказа
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionOrdersByCreationDate(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<OrdersByCreationDateReport>(),
+			() => new QSReport.ReportViewDlg(new OrdersByCreationDateReport()));
+	}
+
+	/// <summary>
+	/// Отчет по тарифным зонам
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionTariffZoneDebtsReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<TariffZoneDebts>(),
+			() => new QSReport.ReportViewDlg(new TariffZoneDebts()));
+	}
+
+	/// <summary>
+	/// Реестр МЛ
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionOrderedByIdRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport();
+
+	/// <summary>
+	/// Клиенты по типам объектов и видам деятельности
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionCounterpartyActivityKindActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ClientsByDeliveryPointCategoryAndActivityKindsReport>(),
+			() => new QSReport.ReportViewDlg(new ClientsByDeliveryPointCategoryAndActivityKindsReport()));
+	}
+
+	/// <summary>
+	/// Отчет по пересданной таре водителями
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionExtraBottlesReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ExtraBottleReport>(),
+			() => new QSReport.ReportViewDlg(new ExtraBottleReport()));
+	}
+
+	/// <summary>
+	/// Отчет по первичным/вторичным заказам
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionFirstSecondReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
+			() => new QSReport.ReportViewDlg(new FirstSecondClientReport(new DiscountReasonRepository())));
+	}
+
+	/// <summary>
+	/// Рентабельность акции "Бутыль"
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionProfitabilityBottlesByStockActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ProfitabilityBottlesByStockReport>(),
+			() => new QSReport.ReportViewDlg(new ProfitabilityBottlesByStockReport()));
+	}
+
+	/// <summary>
+	/// Отчет по нулевому долгу клиента
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionZeroDebtClientReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ZeroDebtClientReport>(),
+			() => new QSReport.ReportViewDlg(new ZeroDebtClientReport()));
+	}
+
+	/// <summary>
+	/// Отчет по забору тары
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
+			() => new QSReport.ReportViewDlg(new ReturnedTareReport(ServicesConfig.InteractiveService)));
+	}
+
+	/// <summary>
+	/// Отчет о событиях рассылки
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionBulkEmailEventsReportActivated(object sender, EventArgs e)
+	{
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
+		IBulkEmailEventReasonJournalFactory bulkEmailEventReasonJournalFactory = new BulkEmailEventReasonJournalFactory();
+		IFileDialogService fileDialogService = new FileDialogService();
+
+		BulkEmailEventReportViewModel viewModel = new BulkEmailEventReportViewModel(UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.InteractiveService, NavigationManager, fileDialogService, bulkEmailEventReasonJournalFactory, counterpartyJournalFactory);
+
+		tdiMain.AddTab(viewModel);
+	}
+
+	#endregion Отчеты ОСК/ОКК
 }
