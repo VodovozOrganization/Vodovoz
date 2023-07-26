@@ -83,8 +83,6 @@ namespace Vodovoz.Cash.Reports
 
 			ytreeReportIndicatorsRows.ColumnsConfig = ColumnsConfigFactory.Create<ReportLine>()
 				.AddColumn("")
-				.AddNumericRenderer(x => x.LineNumber)
-				.AddColumn("")
 				.AddTextRenderer(x => x.FirstColumn)
 				.AddSetter((cell, node) =>
 				{
@@ -95,6 +93,7 @@ namespace Vodovoz.Cash.Reports
 					else
 					{
 						cell.BackgroundGdk = _defaultTreeViewBackgroundColor;
+						cell.Xalign = 1;
 					}
 					if(node.Bold)
 					{

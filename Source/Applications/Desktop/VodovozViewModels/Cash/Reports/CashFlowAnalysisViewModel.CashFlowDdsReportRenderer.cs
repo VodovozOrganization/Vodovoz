@@ -316,8 +316,9 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			{
 				var numberingCell = xLWorksheet.Cell(row, _numberingColumn);
 
-				numberingCell.Value = numbering;
+				numberingCell.Value = $"'{numbering}";
 				numberingCell.Style.Font.FontSize = _groupTitleFontSize;
+				numberingCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 				numberingCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
 				var groupTitleCell = xLWorksheet.Cell(row, _categoryTitleColumn);
@@ -335,8 +336,9 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			{
 				var numberingCell = xLWorksheet.Cell(row, _numberingColumn);
 
-				numberingCell.Value = numbering;
+				numberingCell.Value = $"'{numbering}";
 				numberingCell.Style.Font.FontSize = _categoryFontSize;
+				numberingCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
 				numberingCell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 
 				var titleCell = xLWorksheet.Cell(row, _categoryTitleColumn);
