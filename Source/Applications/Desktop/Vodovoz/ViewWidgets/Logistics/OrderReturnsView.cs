@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog;
@@ -388,6 +388,13 @@ namespace Vodovoz
 			
 			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.PaidOnline, w => w.Visible)
+				.InitializeFromSource();
+
+			yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);
+			yenumcomboboxTerminalSubtype.Binding
+				.AddSource(_routeListItem.Order)
+				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItemOrNull)
+				.AddFuncBinding(s => s.PaymentType == PaymentType.Terminal, w => w.Visible)
 				.InitializeFromSource();
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
