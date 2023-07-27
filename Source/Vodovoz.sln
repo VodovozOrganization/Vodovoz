@@ -327,7 +327,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Presentation.Gtk", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EarchiveApi", "Applications\Backend\WebAPI\EarchiveApi\EarchiveApi.csproj", "{B3C9F199-7CAE-4D5A-91AE-5FFD3F318592}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastPaymentsNotificationWorker", "Applications\Backend\Workers\IIS\FastPaymentsNotificationWorker\FastPaymentsNotificationWorker.csproj", "{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastPaymentsNotificationWorker", "Applications\Backend\Workers\FastPaymentsNotificationWorker\FastPaymentsNotificationWorker.csproj", "{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -4017,7 +4017,7 @@ Global
 		{396CC0BB-294B-44E0-8428-31677419B8BE} = {46A793AD-2BAC-4F9D-A7B0-1C4DDD0B6107}
 		{491CE880-2151-406B-9095-1CEAA0CB7AA7} = {46A793AD-2BAC-4F9D-A7B0-1C4DDD0B6107}
 		{B3C9F199-7CAE-4D5A-91AE-5FFD3F318592} = {9A64FD38-1065-4C74-A62A-666EA82BECF9}
-		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E} = {AA384BE0-D7B1-4A95-BFB4-6B4B5ACD452E}
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E} = {938BE8F2-8595-4C90-A08D-8FE55F0C5328}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
