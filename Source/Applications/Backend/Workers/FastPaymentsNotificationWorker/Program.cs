@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
+using NLog.Extensions.Logging;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
@@ -41,6 +42,7 @@ namespace FastPaymentsNotificationWorker
 					logging =>
 					{
 						logging.ClearProviders();
+						logging.AddNLog();
 						logging.AddConfiguration(context.Configuration.GetSection(_nLogSectionName));
 					});
 
