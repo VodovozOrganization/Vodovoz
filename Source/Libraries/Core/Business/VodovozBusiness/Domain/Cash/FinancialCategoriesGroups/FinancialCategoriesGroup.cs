@@ -1,7 +1,11 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 {
@@ -70,5 +74,40 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 			get => _isHiddenFromPublicAccess;
 			set => SetField(ref _isHiddenFromPublicAccess, value);
 		}
+
+		public virtual IEnumerable<FinancialCategoriesGroup> GetAllLevelsSubGroups(IUnitOfWork unitOfWork, int parentId)
+		{
+			foreach(var childGroup in GetSubGroupsByParentId(unitOfWork, parentId))
+			{
+				yield return childGroup;
+
+				foreach(var nextLevelChildGroup in GetAllLevelsSubGroups(unitOfWork, childGroup.Id))
+				{
+					yield return nextLevelChildGroup;
+				}
+			}
+		}
+
+		private IQueryable<FinancialCategoriesGroup> GetSubGroupsByParentId(IUnitOfWork unitOfWork, int parentId) => 
+			unitOfWork.GetAll<FinancialCategoriesGroup>().Where(g => g.ParentId == parentId);
+
+		public virtual List<FinancialIncomeCategory> GetFinancialIncomeSubCategories(IUnitOfWork unitOfWork, IEnumerable<int> parentIds)
+		{
+			var categories = unitOfWork.GetAll<FinancialIncomeCategory>()
+				.Where(g => g.ParentId != null && parentIds.Contains(g.ParentId.Value))
+				.ToList();
+
+			return categories;
+		}
+
+		public virtual List<FinancialExpenseCategory> GetFinancialExpenseSubCategories(IUnitOfWork unitOfWork, IEnumerable<int> parentIds)
+		{
+			var categories = unitOfWork.GetAll<FinancialExpenseCategory>()
+				.Where(g => g.ParentId != null && parentIds.Contains(g.ParentId.Value))
+				.ToList();
+
+			return categories;
+		}
+
 	}
 }
