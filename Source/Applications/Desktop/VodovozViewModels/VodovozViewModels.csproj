@@ -56,6 +56,13 @@
     <Compile Include="Cash\IncomeViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialExpenseCategoryViewModel.cs" />
     <Compile Include="Cash\FinancialCategoriesGroups\FinancialIncomeCategoryViewModel.cs" />
+    <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.cs" />
+    <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.ExpensesGroupLine.cs" />
+    <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.FinancialExpenseCategoryLine.cs" />
+    <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.FinancialIncomeCategoryLine.cs" />
+    <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.IncomesGroupLine.cs" />
+    <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReportRenderer.cs" />
+    <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.cs" />
     <Compile Include="Cash\Transfer\CommonCashTransferDocumentViewModel.cs" />
     <Compile Include="Cash\Transfer\IncomeCashTransferDocumentViewModel.cs" />
     <Compile Include="Cash\Transfer\Journal\DocumentNode.cs" />
@@ -105,6 +112,7 @@
     <Compile Include="Journals\FilterViewModels\Orders\UndeliveryObjectJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Orders\OrderJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\TrueMark\AvailableReceiptStatuses.cs" />
     <Compile Include="Journals\FilterViewModels\TrueMark\CashReceiptJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Store\TargetSource.cs" />
     <Compile Include="Journals\FilterViewModels\Store\WarehouseDocumentsItemsJournalReport.cs" />

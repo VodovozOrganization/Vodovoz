@@ -41,6 +41,9 @@ namespace Vodovoz.Filters.GtkViews
 			nullablecheckVerificatinFromSite.Binding.AddBinding(ViewModel, vm => vm.IsVerificationFromSite, w => w.Active).InitializeFromSource();
 
 			ybuttonInfo.Clicked += (sender, args) => ViewModel.InfoCommand.Execute();
+
+			ybtnFailsReport.Binding.AddBinding(ViewModel, vm => vm.FailsReportName, w => w.Label).InitializeFromSource();
+			ybtnFailsReport.Clicked += (sender, args) => ViewModel.FailsReportCommand.Execute();
 		}
 	}
 }

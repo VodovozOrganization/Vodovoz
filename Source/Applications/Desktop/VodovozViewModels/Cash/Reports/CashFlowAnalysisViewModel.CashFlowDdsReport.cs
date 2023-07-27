@@ -1,18 +1,17 @@
-﻿using Gamma.Utilities;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 
-namespace Vodovoz.Reports
+namespace Vodovoz.ViewModels.Cash.Reports
 {
-	public partial class CashFlow
+	public partial class CashFlowAnalysisViewModel
 	{
 		public partial class CashFlowDdsReport
 		{
-			public string Title => "Отчет ДДС";
+			public string Title => "Анализ движения денежных средств";
 
 			private CashFlowDdsReport(
 				DateTime startDate,
@@ -24,15 +23,21 @@ namespace Vodovoz.Reports
 				EndDate = endDate;
 				IncomesGroupLines = incomesGroupLines;
 				ExpensesGroupLines = expensesGroupLines;
+
+				CreatedAt = DateTime.Now;
 			}
 
 			public DateTime StartDate { get; }
 
 			public DateTime EndDate { get; }
 
+			public DateTime CreatedAt { get; }
+
 			public List<IncomesGroupLine> IncomesGroupLines { get; }
 
 			public List<ExpensesGroupLine> ExpensesGroupLines { get; }
+
+			public List<object> Rows => IncomesGroupLines.Cast<object>().Concat(ExpensesGroupLines).ToList();
 
 			public static CashFlowDdsReport GenerateReport(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate)
 			{
@@ -40,93 +45,67 @@ namespace Vodovoz.Reports
 										 where incomeCategory.GroupType == GroupType.Category
 											&& incomeCategory.IsArchive == false
 											&& incomeCategory.ExcludeFromCashFlowDds == false
+										 orderby incomeCategory.Numbering, incomeCategory.Title
 										 select FinancialIncomeCategoryLine.Create(
 											  incomeCategory.Id,
 											  incomeCategory.ParentId,
-											  incomeCategory.Title))
+											  incomeCategory.Title,
+											  incomeCategory.Numbering))
 										.ToList();
 
 				foreach(var incomeCategory in incomesCategories)
 				{
-					var invoices = (from cashIncome in unitOfWork.Session.Query<Income>()
-													  where cashIncome.IncomeCategoryId == incomeCategory.Id
-														 && cashIncome.Date >= startDate
-														 && cashIncome.Date <= endDate
-														 && cashIncome.TypeOperation != IncomeType.Return
-													  select cashIncome)
-													.GroupBy(x => x.TypeOperation)
-													.ToDictionary(x => x.Key, x => x.Sum(y => y.Money));
-
-					var operationsDictionary = new Dictionary<string, decimal>();
-
-					foreach(var operation in Enum.GetValues(typeof(IncomeType)))
-					{
-						var operationType = ((IncomeType)operation);
-
-						if(operationType == IncomeType.Return)
-						{
-							continue;
-						}
-
-						var operationTitle = operationType.GetEnumTitle();
-
-						operationsDictionary.Add(operationTitle, invoices.Where(x => x.Key == operationType).Sum(x => x.Value));
-					}
-
-					incomeCategory.OperationsMoney = operationsDictionary;
+					incomeCategory.Money = (from cashIncome in unitOfWork.Session.Query<Income>()
+											where cashIncome.IncomeCategoryId == incomeCategory.Id
+											   && cashIncome.Date >= startDate
+											   && cashIncome.Date <= endDate
+											   && cashIncome.TypeOperation != IncomeType.Return
+											select cashIncome.Money)
+											.ToArray()
+											.Sum();
 				}
 
 				var expensesCategories = (from expenseCategory in unitOfWork.Session.Query<FinancialExpenseCategory>()
 										  where expenseCategory.GroupType == GroupType.Category
 											 && expenseCategory.IsArchive == false
 											 && expenseCategory.ExcludeFromCashFlowDds == false
+										  orderby expenseCategory.Numbering, expenseCategory.Title
 										  select FinancialExpenseCategoryLine.Create(
 											  expenseCategory.Id,
 											  expenseCategory.ParentId,
-											  expenseCategory.Title))
+											  expenseCategory.Title,
+											  expenseCategory.Numbering))
 											 .ToList();
 
 				foreach(var expenseCategory in expensesCategories)
 				{
-					var expenses = (from cashExpense in unitOfWork.Session.Query<Expense>()
-													   where cashExpense.ExpenseCategoryId == expenseCategory.Id
-														  && cashExpense.Date >= startDate
-														  && cashExpense.Date <= endDate
-													   select cashExpense)
-													.GroupBy(x => x.TypeOperation)
-													.ToDictionary(x => x.Key, x => x.Sum(y => y.Money));
+					var expensesSum = (from cashExpense in unitOfWork.Session.Query<Expense>()
+									   where cashExpense.ExpenseCategoryId == expenseCategory.Id
+										  && cashExpense.Date >= startDate
+										  && cashExpense.Date <= endDate
+									   select cashExpense.Money)
+									   .ToArray()
+									   .Sum();
 
-					var operationsDictionary = new Dictionary<string, decimal>();
+					expensesSum -= (from cashIncome in unitOfWork.Session.Query<Income>()
+									where cashIncome.ExpenseCategoryId == expenseCategory.Id
+									   && cashIncome.Date >= startDate
+									   && cashIncome.Date <= endDate
+									   && cashIncome.TypeOperation == IncomeType.Return
+									select cashIncome.Money)
+									.ToArray()
+									.Sum();
 
-					foreach(var operation in Enum.GetValues(typeof(ExpenseType)))
-					{
-						var operationType = ((ExpenseType)operation);
-
-						var operationTitle = operationType.GetEnumTitle();
-
-						operationsDictionary.Add(operationTitle, expenses.Where(x => x.Key == operationType).Sum(x => x.Value));
-					}
-
-					var money = -(from cashIncome in unitOfWork.Session.Query<Income>()
-								  where cashIncome.ExpenseCategoryId == expenseCategory.Id
-									 && cashIncome.Date >= startDate
-									 && cashIncome.Date <= endDate
-									 && cashIncome.TypeOperation == IncomeType.Return
-								  select cashIncome.Money)
-								.ToArray()
-								.Sum();
-
-					operationsDictionary.Add(IncomeType.Return.GetEnumTitle(), money);
-
-					expenseCategory.OperationsMoney = operationsDictionary;
+					expenseCategory.Money = expensesSum;
 				}
 
 				var incomeGroups = (from incomeGroup in unitOfWork.Session.Query<FinancialCategoriesGroup>()
 									where incomeGroup.FinancialSubtype == FinancialSubType.Income
 									   && incomeGroup.GroupType == GroupType.Group
 									   && incomeGroup.IsArchive == false
+									orderby incomeGroup.Numbering, incomeGroup.Title
 									select incomeGroup)
-										  .ToList();
+									.ToList();
 
 				var incomeGroupLines = ProceedIncomeGroups(null, incomeGroups, incomesCategories);
 
@@ -134,8 +113,9 @@ namespace Vodovoz.Reports
 									 where expenseGroup.FinancialSubtype == FinancialSubType.Expense
 										&& expenseGroup.GroupType == GroupType.Group
 										&& expenseGroup.IsArchive == false
+									 orderby expenseGroup.Numbering, expenseGroup.Title
 									 select expenseGroup)
-										  .ToList();
+									.ToList();
 
 				var expenseGroupLines = ProceedExpenseGroups(null, expenseGroups, expensesCategories);
 
@@ -160,6 +140,7 @@ namespace Vodovoz.Reports
 					result.Add(IncomesGroupLine.Create(
 						group.Id,
 						group.Title,
+						group.Numbering,
 						ProceedIncomeGroups(group.Id, groups, financialIncomeCategoryLines),
 						financialIncomeCategoryLines.Where(x => x.ParentId == group.Id).ToList()));
 				}
@@ -181,6 +162,7 @@ namespace Vodovoz.Reports
 					result.Add(ExpensesGroupLine.Create(
 						group.Id,
 						group.Title,
+						group.Numbering,
 						ProceedExpenseGroups(group.Id, groups, financialExpenseCategoryLines),
 						financialExpenseCategoryLines.Where(x => x.ParentId == group.Id).ToList()));
 				}

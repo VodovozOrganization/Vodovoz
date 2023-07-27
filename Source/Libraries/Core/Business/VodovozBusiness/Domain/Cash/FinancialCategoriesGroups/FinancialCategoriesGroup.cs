@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
@@ -18,6 +18,8 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		private string _title;
 		private bool _isArchive;
 		private FinancialSubType _financialSubtype;
+		private string _numbering;
+		private bool _isHiddenFromPublicAccess;
 
 		[Display(Name = "Код")]
 		public virtual int Id { get; }
@@ -44,6 +46,14 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 			set => SetField(ref _isArchive, value);
 		}
 
+		[Display(Name = "Нумерация")]
+		[MaxLength(150)]
+		public virtual string Numbering
+		{
+			get => _numbering;
+			set => SetField(ref _numbering, value);
+		}
+
 		[Display(Name = "Приход/расход")]
 		public virtual FinancialSubType FinancialSubtype
 		{
@@ -53,5 +63,12 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 
 		[Display(Name = "Тип группы")]
 		public virtual GroupType GroupType => GroupType.Group;
+
+		[Display(Name = "Скрыта из общего доступа")]
+		public virtual bool IsHiddenFromPublicAccess
+		{
+			get { return _isHiddenFromPublicAccess; }
+			set { _isHiddenFromPublicAccess = value; }
+		}
 	}
 }

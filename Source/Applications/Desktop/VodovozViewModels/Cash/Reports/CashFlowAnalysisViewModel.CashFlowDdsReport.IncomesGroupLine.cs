@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Vodovoz.Reports
+namespace Vodovoz.ViewModels.Cash.Reports
 {
-	public partial class CashFlow
+	public partial class CashFlowAnalysisViewModel
 	{
 		public partial class CashFlowDdsReport
 		{
@@ -12,16 +12,20 @@ namespace Vodovoz.Reports
 				private IncomesGroupLine(
 					int id,
 					string title,
+					string numbering,
 					List<IncomesGroupLine> groups,
 					List<FinancialIncomeCategoryLine> incomeCategories)
 				{
 					Id = id;
 					Title = title;
+					Numbering = numbering;
 					Groups = groups;
 					IncomeCategories = incomeCategories;
 				}
 
 				public int Id { get; }
+
+				public string Numbering { get; }
 
 				public string Title { get; }
 
@@ -34,9 +38,10 @@ namespace Vodovoz.Reports
 				public static IncomesGroupLine Create(
 					int id,
 					string title,
+					string numbering,
 					List<IncomesGroupLine> groups,
 					List<FinancialIncomeCategoryLine> incomeCategories)
-						=> new IncomesGroupLine(id, title, groups, incomeCategories);
+						=> new IncomesGroupLine(id, title, numbering, groups, incomeCategories);
 			}
 		}
 	}

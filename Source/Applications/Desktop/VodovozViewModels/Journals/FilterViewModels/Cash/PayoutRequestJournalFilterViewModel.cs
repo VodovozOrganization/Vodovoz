@@ -138,7 +138,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 				return PayoutRequestUserRole.Coordinator;
 			}
 
-			if(CheckRole("role_сashier", userId))
+			if(CheckRole(Vodovoz.Permissions.Cash.RoleCashier, userId))
 			{
 				return PayoutRequestUserRole.Cashier;
 			}

@@ -276,7 +276,7 @@ namespace Vodovoz
 			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 
-			var hasAccessToDriverTerminal = _isLogistican || currentPermissionService.ValidatePresetPermission("role_сashier");
+			var hasAccessToDriverTerminal = _isLogistican || currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
 			labelTerminalCondition.Visible = hasAccessToDriverTerminal &&
 											 baseDoc is DriverAttachedTerminalGiveoutDocument &&

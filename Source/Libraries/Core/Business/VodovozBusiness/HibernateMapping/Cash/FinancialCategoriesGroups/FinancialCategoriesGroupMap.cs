@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 
 namespace Vodovoz.HibernateMapping.Cash.FinancialCategoriesGroups
@@ -17,6 +17,8 @@ namespace Vodovoz.HibernateMapping.Cash.FinancialCategoriesGroups
 			Map(x => x.ParentId).Column("parent_id");
 			Map(x => x.Title).Column("title");
 			Map(x => x.IsArchive).Column("is_archive");
+			Map(x => x.Numbering).Column("numbering");
+			Map(x => x.IsHiddenFromPublicAccess).Column("is_hidden_from_public_access");
 
 			Where("group_type = 'Group'");
 		}
