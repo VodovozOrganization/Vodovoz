@@ -87,9 +87,8 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		[Display(Name = "Скрыта из общего доступа")]
 		public virtual bool IsHiddenFromPublicAccess
 		{
-			get { return _isHiddenFromPublicAccess; }
-			set { _isHiddenFromPublicAccess = value; }
+			get => _isHiddenFromPublicAccess;
+			set => SetField(ref _isHiddenFromPublicAccess, value);
 		}
-
 	}
 }

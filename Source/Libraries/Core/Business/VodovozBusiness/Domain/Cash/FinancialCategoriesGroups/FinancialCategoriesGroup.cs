@@ -1,4 +1,4 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
@@ -67,8 +67,8 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		[Display(Name = "Скрыта из общего доступа")]
 		public virtual bool IsHiddenFromPublicAccess
 		{
-			get { return _isHiddenFromPublicAccess; }
-			set { _isHiddenFromPublicAccess = value; }
+			get => _isHiddenFromPublicAccess;
+			set => SetField(ref _isHiddenFromPublicAccess, value);
 		}
 	}
 }
