@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
@@ -19,6 +19,7 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		private bool _isArchive;
 		private FinancialSubType _financialSubtype;
 		private string _numbering;
+		private bool _isHiddenFromPublicAccess;
 
 		[Display(Name = "Код")]
 		public virtual int Id { get; }
@@ -62,5 +63,12 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 
 		[Display(Name = "Тип группы")]
 		public virtual GroupType GroupType => GroupType.Group;
+
+		[Display(Name = "Скрыта из общего доступа")]
+		public virtual bool IsHiddenFromPublicAccess
+		{
+			get { return _isHiddenFromPublicAccess; }
+			set { _isHiddenFromPublicAccess = value; }
+		}
 	}
 }

@@ -510,7 +510,7 @@ public partial class MainWindow : Window
 	{
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
@@ -532,7 +532,7 @@ public partial class MainWindow : Window
 	{
 		var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 		var userRepository = new UserRepository();
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory =
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
@@ -588,7 +588,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListAddressesTransferring_Activated(object sender, System.EventArgs e)
 	{
-		var scope = MainClass.AppDIContainer.BeginLifetimeScope();
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
 		var parametersProvider = new ParametersProvider();
 		var employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
 		var terminalNomenclatureProvider = new BaseParametersProvider(parametersProvider);
@@ -633,7 +633,7 @@ public partial class MainWindow : Window
 	void ActionRevisionBottlesAndDeposits_Activated(object sender, System.EventArgs e)
 	{
 		var reportViewDlg = new QSReport.ReportViewDlg(new Vodovoz.Reports.RevisionBottlesAndDeposits(
-				new OrderRepository(), new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory()));
+				new OrderRepository(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory()));
 
 		tdiMain.AddTab(reportViewDlg);
 	}
@@ -740,7 +740,7 @@ public partial class MainWindow : Window
 
 	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{
-		var scope = MainClass.AppDIContainer.BeginLifetimeScope();
+		var scope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		var report = scope.Resolve<Vodovoz.Reports.CashFlow>();
 
@@ -751,7 +751,7 @@ public partial class MainWindow : Window
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var parametersProvider = new ParametersProvider();
 		var employeeJournalFactory = new EmployeeJournalFactory();
@@ -1044,7 +1044,7 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var employeeJournalFactory = new EmployeeJournalFactory();
 
@@ -1061,7 +1061,7 @@ public partial class MainWindow : Window
 		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 
 		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
+			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
 		{
 			HidenByDefault = true,
 			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
@@ -1073,7 +1073,7 @@ public partial class MainWindow : Window
 
 	void ActionResidueActivated(object sender, System.EventArgs e)
 	{
-		ILifetimeScope scope = MainClass.AppDIContainer.BeginLifetimeScope();
+		ILifetimeScope scope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		IMoneyRepository moneyRepository = new MoneyRepository();
 		IDepositRepository depositRepository = new DepositRepository();
@@ -1154,7 +1154,7 @@ public partial class MainWindow : Window
 	{
 		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
 		IDistrictJournalFactory districtJournalFactory = new DistrictJournalFactory();
-		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		IFileDialogService fileDialogService = new FileDialogService();
 		IFastDeliveryAvailabilityHistoryParameterProvider fastDeliveryAvailabilityHistoryParameterProvider =
 			new FastDeliveryAvailabilityHistoryParameterProvider(new ParametersProvider());
@@ -1162,7 +1162,6 @@ public partial class MainWindow : Window
 
 		var filter = new FastDeliveryAvailabilityFilterViewModel(counterpartyJournalFactory, employeeJournalFactory, districtJournalFactory)
 		{
-			HidenByDefault = true,
 			VerificationDateFrom = DateTime.Now.Date,
 			VerificationDateTo = DateTime.Now.Date.Add(new TimeSpan(23, 59, 59))
 		};
@@ -1180,7 +1179,7 @@ public partial class MainWindow : Window
 
 	void OnActionSalesOrdersJournalActivated(object sender, EventArgs e)
 	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 		var employeeJournalFactory = new EmployeeJournalFactory();
 
@@ -1206,7 +1205,7 @@ public partial class MainWindow : Window
 	{
 		ISubdivisionJournalFactory subdivisionJournalFactory = new SubdivisionJournalFactory();
 		var undeliveredOrdersFilter = new UndeliveredOrdersFilterViewModel(ServicesConfig.CommonServices, new OrderSelectorFactory(),
-			new EmployeeJournalFactory(), new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
+			new EmployeeJournalFactory(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()), new DeliveryPointJournalFactory(), subdivisionJournalFactory)
 		{
 			RestrictUndeliveryStatus = UndeliveryStatus.InProcess,
 			RestrictNotIsProblematicCases = true,

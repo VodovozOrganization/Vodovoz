@@ -1,5 +1,6 @@
 ﻿using DriverAPI.Library.DTOs;
 using System;
+using PaymentDtoType = DriverAPI.Library.Deprecated2.DTOs.PaymentDtoType;
 
 namespace DriverAPI.DTOs.V2
 {

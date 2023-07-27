@@ -165,7 +165,7 @@ namespace Vodovoz.Dialogs.Employees
 				}
 			}
 
-			var employeeViewModel = MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
+			var employeeViewModel = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
 				this, EntityUoWBuilder.ForCreate()).ViewModel;
 
 			Personnel.ChangeTraineeToEmployee(employeeViewModel.Entity, Entity);

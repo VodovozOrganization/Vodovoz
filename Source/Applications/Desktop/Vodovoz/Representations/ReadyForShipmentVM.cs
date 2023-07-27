@@ -153,7 +153,7 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<ReadyForShipmentVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && selectedNode.Status == RouteListStatus.InLoading)
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListControlDlg(selectedNode.Id)
 							);

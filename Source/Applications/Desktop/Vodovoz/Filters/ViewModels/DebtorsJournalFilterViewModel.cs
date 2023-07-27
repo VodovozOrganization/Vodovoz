@@ -1,22 +1,20 @@
-﻿using System;
+﻿using Autofac;
+using QS.DomainModel.Entity;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using QS.DomainModel.Entity;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.JournalSelector;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Autofac;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -36,6 +34,7 @@ namespace Vodovoz.Filters.ViewModels
 		private int? _deliveryPointsFrom;
 		private bool _hideActiveCounterparty;
 		private bool _hideWithoutEmail;
+		private bool _hideWithoutFixedPrices = false;
 		private bool _showSuspendedCounterparty;
 		private bool _showCancellationCounterparty;
 		private DebtorsTaskStatus? _debtorsTaskStatus;
@@ -46,7 +45,6 @@ namespace Vodovoz.Filters.ViewModels
 		private IEntityAutocompleteSelectorFactory _counterpartySelectorFactory;
 		private IEntityAutocompleteSelectorFactory _nomenclatureSelectorFactory;
 		private IEntityAutocompleteSelectorFactory _deliveryPointSelectorFactory;
-
 
 		public DebtorsJournalFilterViewModel()
 		{
@@ -69,52 +67,61 @@ namespace Vodovoz.Filters.ViewModels
 			);
 		}
 
-		public Counterparty Client {
+		public Counterparty Client
+		{
 			get => _client;
-			set => SetField(ref _client, value, () => Client);
+			set => SetField(ref _client, value);
 		}
 
-		public DeliveryPoint Address {
+		public DeliveryPoint Address
+		{
 			get => _address;
-			set => SetField(ref _address, value, () => Address);
+			set => SetField(ref _address, value);
 		}
 
-		public PersonType? OPF {
+		public PersonType? OPF
+		{
 			get => _opf;
-			set => SetField(ref _opf, value, () => OPF);
+			set => SetField(ref _opf, value);
 		}
 
-		public DateTime? StartDate {
+		public DateTime? StartDate
+		{
 			get => _startDate;
-			set => SetField(ref _startDate, value, () => StartDate);
+			set => SetField(ref _startDate, value);
 		}
 
 		[PropertyChangedAlso(nameof(ShowHideActiveCheck))]
-		public DateTime? EndDate {
+		public DateTime? EndDate
+		{
 			get => _endDate;
-			set => SetField(ref _endDate, value, () => EndDate);
+			set => SetField(ref _endDate, value);
 		}
 
 		public bool ShowHideActiveCheck => EndDate != null;
 
-		public bool HideActiveCounterparty {
+		public bool HideActiveCounterparty
+		{
 			get => _hideActiveCounterparty;
-			set => SetField(ref _hideActiveCounterparty, value, () => HideActiveCounterparty);
+			set => SetField(ref _hideActiveCounterparty, value);
 		}
-		
+
 		[PropertyChangedAlso(nameof(ShowCancellationCounterparty))]
-		public bool ShowSuspendedCounterparty {
+		public bool ShowSuspendedCounterparty
+		{
 			get => _showSuspendedCounterparty;
 			set => SetField(ref _showSuspendedCounterparty, value);
 		}
-		
+
 		[PropertyChangedAlso(nameof(ShowSuspendedCounterparty))]
-		public bool ShowCancellationCounterparty {
+		public bool ShowCancellationCounterparty
+		{
 			get => _showCancellationCounterparty;
 			set => SetField(ref _showCancellationCounterparty, value);
 		}
 
-		public bool? WithOneOrder {
+		public bool? WithOneOrder
+		{
 			get => _withOneOrder;
 			set => UpdateFilterField(ref _withOneOrder, value);
 		}
@@ -125,24 +132,34 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _hideWithoutEmail, value);
 		}
 
-		public int? DebtBottlesFrom {
+		public bool HideWithoutFixedPrices
+		{
+			get => _hideWithoutFixedPrices;
+			set => UpdateFilterField(ref _hideWithoutFixedPrices, value);
+		}
+
+		public int? DebtBottlesFrom
+		{
 			get => _debtBottlesFrom;
-			set => SetField(ref _debtBottlesFrom, value, () => DebtBottlesFrom);
+			set => SetField(ref _debtBottlesFrom, value);
 		}
 
-		public int? DebtBottlesTo {
+		public int? DebtBottlesTo
+		{
 			get => _debtBottlesTo;
-			set => SetField(ref _debtBottlesTo, value, () => DebtBottlesTo);
+			set => SetField(ref _debtBottlesTo, value);
 		}
 
-		public int? LastOrderBottlesFrom {
+		public int? LastOrderBottlesFrom
+		{
 			get => _lastOrderBottlesFrom;
-			set => SetField(ref _lastOrderBottlesFrom, value, () => LastOrderBottlesFrom);
+			set => SetField(ref _lastOrderBottlesFrom, value);
 		}
 
-		public int? LastOrderBottlesTo {
+		public int? LastOrderBottlesTo
+		{
 			get => _lastOrderBottlesTo;
-			set => SetField(ref _lastOrderBottlesTo, value, () => LastOrderBottlesTo);
+			set => SetField(ref _lastOrderBottlesTo, value);
 		}
 
 		public int? DeliveryPointsFrom
@@ -157,14 +174,16 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _deliveryPointsTo, value);
 		}
 
-		public Nomenclature LastOrderNomenclature {
+		public Nomenclature LastOrderNomenclature
+		{
 			get => _lastOrderNomenclature;
-			set => SetField(ref _lastOrderNomenclature, value, () => LastOrderNomenclature);
+			set => SetField(ref _lastOrderNomenclature, value);
 		}
 
-		public DiscountReason DiscountReason {
+		public DiscountReason DiscountReason
+		{
 			get => _discountReason;
-			set => SetField(ref _discountReason, value, () => DiscountReason);
+			set => SetField(ref _discountReason, value);
 		}
 
 		public DeliveryPointCategory SelectedDeliveryPointCategory
@@ -182,7 +201,7 @@ namespace Vodovoz.Filters.ViewModels
 		public IEnumerable<DeliveryPointCategory> DeliveryPointCategories =>
 		 _deliveryPointCategories ?? (_deliveryPointCategories = UoW.GetAll<DeliveryPointCategory>());
 
-		public DeliveryPointJournalFilterViewModel DeliveryPointJournalFilterViewModel { get; set; } 
+		public DeliveryPointJournalFilterViewModel DeliveryPointJournalFilterViewModel { get; set; }
 			= new DeliveryPointJournalFilterViewModel();
 
 		public virtual IEntityAutocompleteSelectorFactory DeliveryPointSelectorFactory =>
@@ -192,20 +211,12 @@ namespace Vodovoz.Filters.ViewModels
 
 		public virtual IEntityAutocompleteSelectorFactory CounterpartySelectorFactory =>
 			_counterpartySelectorFactory ?? (_counterpartySelectorFactory =
-				MainClass.AppDIContainer.BeginLifetimeScope().Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory());
+				Startup.AppDIContainer.BeginLifetimeScope().Resolve<ICounterpartyJournalFactory>().CreateCounterpartyAutocompleteSelectorFactory());
 
 		public virtual IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory =>
 			_nomenclatureSelectorFactory ?? (_nomenclatureSelectorFactory =
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
-					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope()),
+					ServicesConfig.CommonServices, new NomenclatureFilterViewModel(), new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 					new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider())), new UserRepository()));
-	}
-
-	public enum DebtorsTaskStatus
-	{
-		[Display(Name = "Да")]
-		HasTask,
-		[Display(Name = "Нет")]
-		WithoutTask
 	}
 }

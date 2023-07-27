@@ -28,7 +28,7 @@ namespace Vodovoz
 
 		protected override void ConfigureWithUow()
 		{
-			ILifetimeScope lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
+			ILifetimeScope lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 			nomenclatureEntry.SetEntityAutocompleteSelectorFactory(
 			new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(

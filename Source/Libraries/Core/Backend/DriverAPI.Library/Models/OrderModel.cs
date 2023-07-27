@@ -1,6 +1,6 @@
-﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Converters;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -146,21 +146,32 @@ namespace DriverAPI.Library.Models
 
 			if(order.PaymentType == PaymentType.Cash)
 			{
-				availablePaymentTypes.Add(PaymentDtoType.Terminal);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalCard);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
 				availablePaymentTypes.Add(PaymentDtoType.DriverApplicationQR);
 			}
 
 			if(order.PaymentType == PaymentType.Terminal)
 			{
+				if(order.PaymentByTerminalSource == PaymentByTerminalSource.ByQR)
+				{
+					availablePaymentTypes.Add(PaymentDtoType.TerminalCard);
+				}
+				else
+				{
+					availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
+				}
+
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
 				availablePaymentTypes.Add(PaymentDtoType.DriverApplicationQR);
 			}
 
 			if(order.PaymentType == PaymentType.DriverApplicationQR
-				|| (order.PaymentType == PaymentType.SmsQR && !paid))
+				|| order.PaymentType == PaymentType.SmsQR && !paid)
 			{
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
-				availablePaymentTypes.Add(PaymentDtoType.Terminal);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalCard);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
 			}
 
 			return availablePaymentTypes;
@@ -215,7 +226,7 @@ namespace DriverAPI.Library.Models
 			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
 
-		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver)
+		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver, PaymentByTerminalSource? paymentByTerminalSource)
 		{
 			if(driver is null)
 			{
@@ -242,6 +253,7 @@ namespace DriverAPI.Library.Models
 			}
 
 			vodovozOrder.PaymentType = paymentType;
+			vodovozOrder.PaymentByTerminalSource = paymentByTerminalSource;
 			_uow.Save(vodovozOrder);
 			_uow.Commit();
 		}

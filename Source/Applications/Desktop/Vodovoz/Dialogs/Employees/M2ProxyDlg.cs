@@ -88,7 +88,7 @@ namespace Vodovoz.Dialogs.Employees
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Binding.AddBinding(Entity, x => x.Employee, x => x.Subject).InitializeFromSource();
 
-			var supplierFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+			var supplierFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			evmeSupplier.SetEntityAutocompleteSelectorFactory(supplierFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			evmeSupplier.Binding.AddBinding(Entity, x => x.Supplier, x => x.Subject).InitializeFromSource();
 

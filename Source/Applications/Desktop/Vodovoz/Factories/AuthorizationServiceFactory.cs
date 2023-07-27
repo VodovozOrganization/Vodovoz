@@ -5,6 +5,6 @@ namespace Vodovoz.Factories
 {
 	public class AuthorizationServiceFactory : IAuthorizationServiceFactory
 	{
-		public IAuthorizationService CreateNewAuthorizationService() => MainClass.AppDIContainer.Resolve<IAuthorizationService>();
+		public IAuthorizationService CreateNewAuthorizationService() => Startup.AppDIContainer.Resolve<IAuthorizationService>();
 	}
 }

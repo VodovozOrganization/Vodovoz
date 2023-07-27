@@ -24,7 +24,7 @@ namespace Vodovoz
 			{
 				_journalTab = value;
 
-				entryExpenseFinancialCategory.ViewModel = new LegacyEEVMBuilderFactory(value, UoW, MainClass.MainWin.NavigationManager, MainClass.AppDIContainer.BeginLifetimeScope())
+				entryExpenseFinancialCategory.ViewModel = new LegacyEEVMBuilderFactory(value, UoW, Startup.MainWin.NavigationManager, Startup.AppDIContainer.BeginLifetimeScope())
 					.ForEntity<FinancialExpenseCategory>()
 					.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(filter =>
 					{

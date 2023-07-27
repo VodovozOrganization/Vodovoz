@@ -1,8 +1,11 @@
+﻿using Autofac;
 using Gamma.Utilities;
 using Gtk;
 using QS.Dialog;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using QS.Tdi;
 using QS.Validation;
 using System;
 using System.Linq;
@@ -15,6 +18,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.Dialogs
 {
@@ -32,6 +36,8 @@ namespace Vodovoz.Dialogs
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController =
 			new RouteListAddressKeepingDocumentController(new EmployeeRepository(),
 				new NomenclatureParametersProvider(new ParametersProvider()));
+
+		private UndeliveredOrderViewModel _undeliveredOrderViewModel;
 
 		public UndeliveryOnOrderCloseDlg()
 		{
@@ -57,7 +63,13 @@ namespace Vodovoz.Dialogs
 				TimeOfCreation = DateTime.Now,
 				OldOrder = order
 			};
-			undeliveryView.ConfigureDlg(UoW, undelivery);
+
+			_undeliveredOrderViewModel = Startup.AppDIContainer.BeginLifetimeScope().Resolve<UndeliveredOrderViewModel>(
+				new TypedParameter(typeof(UndeliveredOrder), undelivery),
+				new TypedParameter(typeof(IUnitOfWork), UoW),
+				new TypedParameter(typeof(ITdiTab), this as TdiTabBase));
+			undeliveryView.WidgetViewModel = _undeliveredOrderViewModel;
+			
 		}
 
 		public event EventHandler<UndeliveryOnOrderCloseEventArgs> DlgSaved;
@@ -120,7 +132,8 @@ namespace Vodovoz.Dialogs
 				return false;
 			}
 
-			undeliveryView.BeforeSaving();
+			_undeliveredOrderViewModel.BeforeSaveCommand.Execute();
+
 			if(!CanCreateUndelivery())
 			{
 				OnCloseTab(false);
@@ -159,6 +172,12 @@ namespace Vodovoz.Dialogs
 		protected void OnButtonCancelClicked(object sender, EventArgs e)
 		{
 			OnCloseTab(true);
+		}
+
+		public override void Destroy()
+		{
+			_undeliveredOrderViewModel.Dispose();
+			base.Destroy();
 		}
 	}
 

@@ -57,7 +57,7 @@ namespace Vodovoz.ViewModel
 	{
 		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private bool _userHasOnlyAccessToWarehouseAndComplaints;
-		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings = MainClass.AppDIContainer.Resolve<IFinancialCategoriesGroupsSettings>();
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings = Startup.AppDIContainer.Resolve<IFinancialCategoriesGroupsSettings>();
 
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
@@ -401,7 +401,7 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null)
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListCreateDlg(selectedNode.Id)
 							);
@@ -413,7 +413,7 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && ControlDlgStatuses.Contains(selectedNode.StatusEnum))
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListControlDlg(selectedNode.Id)
 							);
@@ -541,7 +541,7 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && KeepingDlgStatuses.Contains(selectedNode.StatusEnum))
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListKeepingDlg(selectedNode.Id)
 							);
@@ -585,7 +585,7 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && ClosingDlgStatuses.Contains(selectedNode.StatusEnum))
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListClosingDlg(selectedNode.Id)
 							);
@@ -599,7 +599,7 @@ namespace Vodovoz.ViewModel
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && AnalysisViewModelStatuses.Contains(selectedNode.StatusEnum))
 						{
-							MainClass.MainWin.NavigationManager.OpenViewModel<RouteListAnalysisViewModel, IEntityUoWBuilder>(
+							Startup.MainWin.NavigationManager.OpenViewModel<RouteListAnalysisViewModel, IEntityUoWBuilder>(
 								null, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.IgnoreHash);
 						}
 					},
@@ -614,7 +614,7 @@ namespace Vodovoz.ViewModel
 							&& MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum)
 							&& selectedNode.CarTypeOfUse != CarTypeOfUse.Truck)
 						{
-							MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(
+							Startup.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(
 								null, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 						}
 					},
@@ -668,7 +668,7 @@ namespace Vodovoz.ViewModel
 						if(selectedNode != null) {
 							var routeListId = selectedNode.Id;
 							var RouteList = UoW.GetById<RouteList>(routeListId);
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 									DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
 									() => new FuelDocumentViewModel(
 														RouteList, 
@@ -680,7 +680,7 @@ namespace Vodovoz.ViewModel
 														new TrackRepository(),
 														new EmployeeJournalFactory(),
 														_financialCategoriesGroupsSettings,
-														new CarJournalFactory(MainClass.MainWin.NavigationManager)
+														new CarJournalFactory(Startup.MainWin.NavigationManager)
 									)
 								);
 						}

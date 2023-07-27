@@ -351,7 +351,7 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			var result = CarModel.CarFuelVersions.OrderByDescending(x => x.StartDate)?.FirstOrDefault()?.FuelConsumption;
 
-			return result.Value;
+			return result.HasValue ? result.Value : 0;
 		}
 	}
 

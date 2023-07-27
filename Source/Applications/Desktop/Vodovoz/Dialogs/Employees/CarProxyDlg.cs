@@ -62,7 +62,7 @@ namespace Vodovoz.Dialogs.Employees
 			evmeDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
 			evmeDriver.Changed += (sender, e) => UpdateStates();
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Changed += (sender, e) => UpdateStates();
