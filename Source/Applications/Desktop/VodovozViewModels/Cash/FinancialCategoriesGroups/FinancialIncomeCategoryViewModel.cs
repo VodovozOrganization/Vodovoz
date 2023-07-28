@@ -18,6 +18,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 {
 	public class FinancialIncomeCategoryViewModel : EntityTabViewModelBase<FinancialIncomeCategory>
 	{
+		private readonly ICommonServices _commonServices;
 		private readonly ILifetimeScope _scope;
 		private FinancialCategoriesGroup _parentFinancialCategoriesGroup;
 		private Subdivision _subdivision;
@@ -34,7 +35,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			{
 				throw new ArgumentNullException(nameof(navigation));
 			}
-
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
 			UpdateParentFinancialCategoriesGroup();
@@ -106,6 +107,17 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			if(e.PropertyName == nameof(FinancialIncomeCategory.ParentId))
 			{
 				UpdateParentFinancialCategoriesGroup();
+				UpdateInheritedFromParentPropertiesValues();
+				return;
+			}
+			if(e.PropertyName == nameof(FinancialCategoriesGroup.IsArchive))
+			{
+				UpdateIsArchivePropertyValue(true);
+				return;
+			}
+			if(e.PropertyName == nameof(FinancialCategoriesGroup.IsHiddenFromPublicAccess))
+			{
+				UpdateIsHiddenPropertyValue(true);
 				return;
 			}
 		}
@@ -163,7 +175,46 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				return false;
 			}
 
+			UpdateInheritedFromParentPropertiesValues(true);
 			return result;
+		}
+
+		private void UpdateInheritedFromParentPropertiesValues(bool showMessage = false)
+		{
+			UpdateIsArchivePropertyValue(showMessage);
+			UpdateIsHiddenPropertyValue(showMessage);
+		}
+
+		private void UpdateIsArchivePropertyValue(bool showMessage = false)
+		{
+			var parentIsArchive = Entity.IsParentCategoryIsArchive(UoW);
+
+			if(parentIsArchive && !Entity.IsArchive)
+			{
+				Entity.IsArchive = true;
+				if(showMessage)
+				{
+					_commonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						"Родительская категория статьи является архивной. Чтобы изменить параметр, сделайте не архивной родительскую категорию, либо перенесите в не архивную.");
+				}
+			}
+		}
+
+		private void UpdateIsHiddenPropertyValue(bool showMessage = false)
+		{
+			var parentIsHidden = Entity.IsParentCategoryIsHidden(UoW);
+
+			if(parentIsHidden && !Entity.IsHiddenFromPublicAccess)
+			{
+				Entity.IsHiddenFromPublicAccess = true;
+				if(showMessage)
+				{
+					_commonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						"Родительская категория статьи является скрытой. Чтобы изменить параметр, сделайте не скрытой родительскую категорию, либо перенесите в не скрытую.");
+				}
+			}
 		}
 	}
 }
