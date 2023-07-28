@@ -131,16 +131,16 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				return false;
 			}
 
-			UpdateInheritedFromParentPropertiesValues();
+			UpdateInheritedFromParentPropertiesValues(true);
 			UpdateChildCategoriesAndSubtypes();
 
 			return result;
 		}
 
-		private void UpdateInheritedFromParentPropertiesValues()
+		private void UpdateInheritedFromParentPropertiesValues(bool showMessage = false)
 		{
-			UpdateIsArchivePropertyValue();
-			UpdateIsHiddenPropertyValue();
+			UpdateIsArchivePropertyValue(showMessage);
+			UpdateIsHiddenPropertyValue(showMessage);
 		}
 
 		private void UpdateIsArchivePropertyValue(bool showMessage = false)
