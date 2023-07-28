@@ -1866,7 +1866,6 @@ namespace Vodovoz
 			// Container child vbox8.Gtk.Box+BoxChild
 			this.frameOrderItems = new global::Gtk.Frame();
 			this.frameOrderItems.Name = "frameOrderItems";
-			this.frameOrderItems.ShadowType = ((global::Gtk.ShadowType)(1));
 			this.frameOrderItems.LabelYalign = 0F;
 			this.frameOrderItems.BorderWidth = ((uint)(1));
 			// Container child frameOrderItems.Gtk.Container+ContainerChild
