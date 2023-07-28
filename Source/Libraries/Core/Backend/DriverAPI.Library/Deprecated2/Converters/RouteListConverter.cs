@@ -37,7 +37,7 @@ namespace DriverAPI.Library.Deprecated2.Converters
 			var result = new RouteListDto()
 			{
 				ForwarderFullName = routeList.Forwarder?.FullName ?? "Нет",
-				CompletionStatus = _routeListCompletionStatusConverter.convertToAPIRouteListCompletionStatus(routeList.Status)
+				CompletionStatus = _routeListCompletionStatusConverter.ConvertToAPIRouteListCompletionStatus(routeList.Status)
 			};
 
 			if(result.CompletionStatus == RouteListDtoCompletionStatus.Completed)
@@ -49,7 +49,7 @@ namespace DriverAPI.Library.Deprecated2.Converters
 				result.CompletedRouteList = new CompletedRouteListDto()
 				{
 					RouteListId = routeList.Id,
-					RouteListStatus = _routeListStatusConverter.convertToAPIRouteListStatus(routeList.Status),
+					RouteListStatus = _routeListStatusConverter.ConvertToAPIRouteListStatus(routeList.Status),
 					CashMoney = routeList.Addresses
 						.Where(rla => rla.Status == RouteListItemStatus.Completed
 							&& rla.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cash)
@@ -83,7 +83,7 @@ namespace DriverAPI.Library.Deprecated2.Converters
 					result.IncompletedRouteList = new IncompletedRouteListDto()
 					{
 						RouteListId = routeList.Id,
-						RouteListStatus = _routeListStatusConverter.convertToAPIRouteListStatus(routeList.Status),
+						RouteListStatus = _routeListStatusConverter.ConvertToAPIRouteListStatus(routeList.Status),
 						RouteListAddresses = routelistAddresses
 					};
 				}
@@ -97,7 +97,7 @@ namespace DriverAPI.Library.Deprecated2.Converters
 			return new RouteListAddressDto()
 			{
 				Id = routeListAddress.Id,
-				Status = _routeListAddressStatusConverter.convertToAPIRouteListAddressStatus(routeListAddress.Status),
+				Status = _routeListAddressStatusConverter.ConvertToAPIRouteListAddressStatus(routeListAddress.Status),
 				DeliveryIntervalStart = routeListAddress.Order.DeliveryDate + routeListAddress.Order.DeliverySchedule.From ?? DateTime.MinValue,
 				DeliveryIntervalEnd = routeListAddress.Order.DeliveryDate + routeListAddress.Order.DeliverySchedule.To ?? DateTime.MinValue,
 				OrderId = routeListAddress.Order.Id,

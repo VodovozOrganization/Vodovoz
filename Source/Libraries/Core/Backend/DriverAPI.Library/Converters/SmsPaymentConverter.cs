@@ -3,9 +3,18 @@ using Vodovoz.Domain;
 
 namespace DriverAPI.Library.Converters
 {
+	/// <summary>
+	/// Конвертер статуса оплаты по смс
+	/// </summary>
 	public class SmsPaymentStatusConverter
 	{
-		public SmsPaymentDtoStatus? convertToAPIPaymentStatus(SmsPaymentStatus? smsPaymentStatus)
+		/// <summary>
+		/// Метод конвертации в DTO
+		/// </summary>
+		/// <param name="smsPaymentStatus">Статус оплаты по смс ДВ</param>
+		/// <returns></returns>
+		/// <exception cref="ConverterException"></exception>
+		public SmsPaymentDtoStatus? ConvertToAPIPaymentStatus(SmsPaymentStatus? smsPaymentStatus)
 		{
 			if (smsPaymentStatus == null)
 			{
