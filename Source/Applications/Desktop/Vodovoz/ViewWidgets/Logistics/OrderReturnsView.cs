@@ -314,7 +314,6 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.ActualCount, false)
 						.AddSetter((cell, node) => cell.Editable = node.Nomenclature.Category != NomenclatureCategory.deposit)
 						.Adjustment(new Adjustment(0, 0, 9999, 1, 1, 0))
-						.AddSetter((cell, node) => cell.Adjustment = new Adjustment(0, 0, GetMaxCount(node), 1, 1, 0))
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
@@ -483,14 +482,6 @@ namespace Vodovoz
 				if(item.ActualCount == null)
 					item.ActualCount = 0;
 			}
-		}
-
-		int GetMaxCount(OrderItemReturnsNode node)
-		{
-			var count = node.Nomenclature.Category == NomenclatureCategory.deposit
-				? 1
-				: 9999;
-			return count;
 		}
 
 		private void ConfigureDeliveryPointRefference(Counterparty client = null)
