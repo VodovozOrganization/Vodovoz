@@ -161,7 +161,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_canSeeCurrentSubdivisonRequests =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests");
 			_hasAccessToHiddenFinancialCategories = 
-				_commonServices.CurrentPermissionService.ValidatePresetPermission("has_access_to_hidden_financial_categories");
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories");
 		}
 
 		#region JournalActions

@@ -64,11 +64,13 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				UpdateInheritedFromParentPropertiesValues();
 				return;
 			}
+
 			if(e.PropertyName == nameof(FinancialCategoriesGroup.IsArchive))
 			{
 				UpdateIsArchivePropertyValue(true);
 				return;
 			}
+
 			if(e.PropertyName == nameof(FinancialCategoriesGroup.IsHiddenFromPublicAccess))
 			{
 				UpdateIsHiddenPropertyValue(true);
