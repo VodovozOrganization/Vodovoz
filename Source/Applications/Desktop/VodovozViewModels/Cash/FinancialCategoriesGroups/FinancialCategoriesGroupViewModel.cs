@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using FluentNHibernate.Testing.Values;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -8,9 +7,7 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Tools;
 
@@ -64,6 +61,17 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			if(e.PropertyName == nameof(FinancialCategoriesGroup.ParentId))
 			{
 				UpdateParentFinancialCategoriesGroup();
+				UpdateInheritedFromParentPropertiesValues();
+				return;
+			}
+			if(e.PropertyName == nameof(FinancialCategoriesGroup.IsArchive))
+			{
+				UpdateIsArchivePropertyValue(true);
+				return;
+			}
+			if(e.PropertyName == nameof(FinancialCategoriesGroup.IsHiddenFromPublicAccess))
+			{
+				UpdateIsHiddenPropertyValue(true);
 				return;
 			}
 		}
@@ -123,9 +131,48 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				return false;
 			}
 
+			UpdateInheritedFromParentPropertiesValues();
 			UpdateChildCategoriesAndSubtypes();
 
 			return result;
+		}
+
+		private void UpdateInheritedFromParentPropertiesValues()
+		{
+			UpdateIsArchivePropertyValue();
+			UpdateIsHiddenPropertyValue();
+		}
+
+		private void UpdateIsArchivePropertyValue(bool showMessage = false)
+		{
+			var parentIsArchive = Entity.IsParentCategoryIsArchive(UoW);
+
+			if(parentIsArchive && !Entity.IsArchive)
+			{
+				Entity.IsArchive = true;
+				if(showMessage)
+				{
+					_commonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						"Родительская категория папки является архивной. Чтобы изменить параметр, сделайте не архивной родительскую категорию, либо перенесите в не архивную.");
+				}
+			}
+		}
+
+		private void UpdateIsHiddenPropertyValue(bool showMessage = false)
+		{
+			var parentIsHidden = Entity.IsParentCategoryIsHidden(UoW);
+
+			if(parentIsHidden && !Entity.IsHiddenFromPublicAccess)
+			{
+				Entity.IsHiddenFromPublicAccess = true;
+				if(showMessage)
+				{
+					_commonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						"Родительская категория папки является скрытой. Чтобы изменить параметр, сделайте не скрытой родительскую категорию, либо перенесите в не скрытую.");
+				}
+			}
 		}
 
 		private void UpdateChildCategoriesAndSubtypes()
@@ -139,72 +186,23 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 				return;
 			}
 
-			var childGroups = GetChildCategoryGroups();
-
-			var parentGroupWithChildGroups = new List<FinancialCategoriesGroup>() { Entity };
-			parentGroupWithChildGroups.AddRange(childGroups);
-
-			if(Entity.FinancialSubtype == FinancialSubType.Income)
+			if(isArchivePropertyChanged)
 			{
-				var childCategories = GetChildIncomeCategories(parentGroupWithChildGroups);
-
-				if(isArchivePropertyChanged)
+				if(Entity.IsArchive
+					|| _commonServices.InteractiveService.Question("Снять статус \"В архиве\" у всех вложенных групп и статей?"))
 				{
-					if(Entity.IsArchive
-						|| _commonServices.InteractiveService.Question("Снять статус \"В архиве\" у всех вложенных групп и статей?"))
-					{
-						childGroups.ForEach(g => g.IsArchive = Entity.IsArchive);
-						childCategories.ForEach(c => c.IsArchive = Entity.IsArchive);
-					}
-				}
-
-				if(isHiddenFromPublicAccessPropertyChanged)
-				{
-					if(Entity.IsHiddenFromPublicAccess
-						|| _commonServices.InteractiveService.Question("Снять статус \"Скрыть статью из общего доступа\" у всех вложенных групп и статей?"))
-					{
-						childGroups.ForEach(g => g.IsHiddenFromPublicAccess = Entity.IsHiddenFromPublicAccess);
-						childCategories.ForEach(c => c.IsHiddenFromPublicAccess = Entity.IsHiddenFromPublicAccess);
-					}
+					Entity.SetIsArchivePropertyValueForAllChildItems(UoW, Entity.IsArchive);
 				}
 			}
-			else if(Entity.FinancialSubtype == FinancialSubType.Expense)
-			{
-				var childCategories = GetChildExpenseCategories(parentGroupWithChildGroups);
 
-				if(isArchivePropertyChanged)
-				{
-					if(Entity.IsArchive
-						|| _commonServices.InteractiveService.Question("Снять статус \"В архиве\" у всех вложенных групп и статей?"))
-					{
-						childGroups.ForEach(g => g.IsArchive = Entity.IsArchive);
-						childCategories.ForEach(c => c.IsArchive = Entity.IsArchive);
-					}
-				}
-
-				if(isHiddenFromPublicAccessPropertyChanged)
-				{
-					if(Entity.IsHiddenFromPublicAccess
-						|| _commonServices.InteractiveService.Question("Снять статус \"Скрыть статью из общего доступа\" у всех вложенных групп и статей?"))
-					{
-						childGroups.ForEach(g => g.IsHiddenFromPublicAccess = Entity.IsHiddenFromPublicAccess);
-						childCategories.ForEach(c => c.IsHiddenFromPublicAccess = Entity.IsHiddenFromPublicAccess);
-					}
-				}
-			}
-			else
+			if(isHiddenFromPublicAccessPropertyChanged)
 			{
-				throw new NotSupportedException("Тип не поддерживается");
+				if(Entity.IsHiddenFromPublicAccess
+					|| _commonServices.InteractiveService.Question("Снять статус \"Скрыть статью из общего доступа\" у всех вложенных групп и статей?"))
+				{
+					Entity.SetIsHiddenPropertyValueForAllChildItems(UoW, Entity.IsHiddenFromPublicAccess);
+				}
 			}
 		}
-
-		private List<FinancialCategoriesGroup> GetChildCategoryGroups() =>
-			Entity.GetAllLevelsSubGroups(UoW, Entity.Id).ToList();
-
-		private List<FinancialIncomeCategory> GetChildIncomeCategories(List<FinancialCategoriesGroup> parentGroups) =>
-			Entity.GetFinancialIncomeSubCategories(UoW, parentGroups.Select(g => g.Id)).ToList();
-
-		private List<FinancialExpenseCategory> GetChildExpenseCategories(List<FinancialCategoriesGroup> parentGroups) =>
-			Entity.GetFinancialExpenseSubCategories(UoW, parentGroups.Select(g => g.Id)).ToList();
 	}
 }

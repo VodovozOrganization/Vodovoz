@@ -75,7 +75,85 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 			set => SetField(ref _isHiddenFromPublicAccess, value);
 		}
 
-		public virtual IEnumerable<FinancialCategoriesGroup> GetAllLevelsSubGroups(IUnitOfWork unitOfWork, int parentId)
+		public virtual bool IsParentCategoryIsArchive(IUnitOfWork unitOfWork)
+		{
+			if(ParentId == null)
+			{
+				return false;
+			}
+
+			var parentCategory = unitOfWork.GetById<FinancialCategoriesGroup>(ParentId.Value);
+
+			return parentCategory != null && parentCategory.IsArchive;
+		}
+
+		public virtual bool IsParentCategoryIsHidden(IUnitOfWork unitOfWork)
+		{
+			if(ParentId == null)
+			{
+				return false;
+			}
+
+			var parentCategory = unitOfWork.GetById<FinancialCategoriesGroup>(ParentId.Value);
+
+			return parentCategory != null && parentCategory.IsHiddenFromPublicAccess;
+		}
+
+		public virtual void SetIsArchivePropertyValueForAllChildItems(IUnitOfWork unitOfWork, bool isArchiveNewValue)
+		{
+			var childGroups = GetAllLevelsSubGroups(unitOfWork, Id).ToList();
+
+			var rootWithChildGroups = new List<FinancialCategoriesGroup>() { this };
+			rootWithChildGroups.AddRange(childGroups);
+
+			if(FinancialSubtype == FinancialSubType.Income)
+			{
+				var childCategories = GetFinancialIncomeSubCategories(unitOfWork, rootWithChildGroups.Select(g => g.Id));
+
+				childGroups.ForEach(g => g.IsArchive = isArchiveNewValue);
+				childCategories.ForEach(c => c.IsArchive = isArchiveNewValue);
+			}
+			else if(FinancialSubtype == FinancialSubType.Expense)
+			{
+				var childCategories = GetFinancialExpenseSubCategories(unitOfWork, rootWithChildGroups.Select(g => g.Id));
+
+				childGroups.ForEach(g => g.IsArchive = isArchiveNewValue);
+				childCategories.ForEach(c => c.IsArchive = isArchiveNewValue);
+			}
+			else
+			{
+				throw new NotSupportedException("Тип не поддерживается");
+			}
+		}
+
+		public virtual void SetIsHiddenPropertyValueForAllChildItems(IUnitOfWork unitOfWork, bool isHiddenNewValue)
+		{
+			var childGroups = GetAllLevelsSubGroups(unitOfWork, Id).ToList();
+
+			var rootWithChildGroups = new List<FinancialCategoriesGroup>() { this };
+			rootWithChildGroups.AddRange(childGroups);
+
+			if(FinancialSubtype == FinancialSubType.Income)
+			{
+				var childCategories = GetFinancialIncomeSubCategories(unitOfWork, rootWithChildGroups.Select(g => g.Id));
+
+				childGroups.ForEach(g => g.IsHiddenFromPublicAccess = isHiddenNewValue);
+				childCategories.ForEach(c => c.IsHiddenFromPublicAccess = isHiddenNewValue);
+			}
+			else if(FinancialSubtype == FinancialSubType.Expense)
+			{
+				var childCategories = GetFinancialExpenseSubCategories(unitOfWork, rootWithChildGroups.Select(g => g.Id));
+
+				childGroups.ForEach(g => g.IsHiddenFromPublicAccess = isHiddenNewValue);
+				childCategories.ForEach(c => c.IsHiddenFromPublicAccess = isHiddenNewValue);
+			}
+			else
+			{
+				throw new NotSupportedException("Тип не поддерживается");
+			}
+		}
+
+		private IEnumerable<FinancialCategoriesGroup> GetAllLevelsSubGroups(IUnitOfWork unitOfWork, int parentId)
 		{
 			foreach(var childGroup in GetSubGroupsByParentId(unitOfWork, parentId))
 			{
@@ -108,6 +186,5 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 
 			return categories;
 		}
-
 	}
 }
