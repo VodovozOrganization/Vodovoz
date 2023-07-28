@@ -134,7 +134,11 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			}
 
 			UpdateInheritedFromParentPropertiesValues(true);
-			UpdateChildCategoriesAndSubtypes();
+			
+			if(!UpdateChildCategoriesAndSubtypes())
+			{
+				return false;
+			}
 
 			return result;
 		}
@@ -177,7 +181,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			}
 		}
 
-		private void UpdateChildCategoriesAndSubtypes()
+		private bool UpdateChildCategoriesAndSubtypes()
 		{
 			bool isArchivePropertyChanged = _initialIsArchivePropertyValue != Entity.IsArchive;
 			bool isHiddenFromPublicAccessPropertyChanged = _initialIsHiddenFromPublicAccessPropertyValue != Entity.IsHiddenFromPublicAccess;
@@ -185,26 +189,54 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			if(Entity.Id == 0
 				|| (!isArchivePropertyChanged && !isHiddenFromPublicAccessPropertyChanged))
 			{
-				return;
+				return true;
 			}
 
 			if(isArchivePropertyChanged)
 			{
-				if(Entity.IsArchive
-					|| _commonServices.InteractiveService.Question("Снять статус \"В архиве\" у всех вложенных групп и статей?"))
+				if(!Entity.IsArchive
+					&& _commonServices.InteractiveService.Question("Снять статус \"В архиве\" у всех вложенных групп и статей?"))
 				{
 					Entity.SetIsArchivePropertyValueForAllChildItems(UoW, Entity.IsArchive);
+				}
+
+				if(Entity.IsArchive)
+				{
+					if(_commonServices.InteractiveService.Question("Cтатус \"В архиве\" будет установлен у всех вложенных групп и статей.\r\nПродолжить?"))
+					{
+						Entity.SetIsArchivePropertyValueForAllChildItems(UoW, Entity.IsArchive);
+					}
+					else
+					{
+						Entity.IsArchive = false;
+						return false;
+					}
 				}
 			}
 
 			if(isHiddenFromPublicAccessPropertyChanged)
 			{
-				if(Entity.IsHiddenFromPublicAccess
-					|| _commonServices.InteractiveService.Question("Снять статус \"Скрыть статью из общего доступа\" у всех вложенных групп и статей?"))
+				if(!Entity.IsHiddenFromPublicAccess
+					&& _commonServices.InteractiveService.Question("Снять статус \"Скрыть статью из общего доступа\" у всех вложенных групп и статей?"))
 				{
 					Entity.SetIsHiddenPropertyValueForAllChildItems(UoW, Entity.IsHiddenFromPublicAccess);
 				}
+
+				if(Entity.IsHiddenFromPublicAccess)
+				{
+					if(_commonServices.InteractiveService.Question("Статус \"Скрыть статью из общего доступа\" будет установлен у всех вложенных групп и статей.\r\nПродолжить?"))
+					{
+						Entity.SetIsHiddenPropertyValueForAllChildItems(UoW, Entity.IsHiddenFromPublicAccess);
+					}
+					else
+					{
+						Entity.IsHiddenFromPublicAccess = false;
+						return false;
+					}
+				}
 			}
+
+			return true;
 		}
 	}
 }
