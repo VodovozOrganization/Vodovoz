@@ -11,7 +11,7 @@ using DriverAPI.Library.DTOs;
 
 namespace DriverAPI.Library.Models
 {
-	public class RouteListModel : IRouteListModel
+	internal class RouteListModel : IRouteListModel
 	{
 		private readonly ILogger<RouteListModel> _logger;
 		private readonly IRouteListRepository _routeListRepository;
@@ -45,7 +45,7 @@ namespace DriverAPI.Library.Models
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
 				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист { routeListId } не найден");
 
-			return _routeListConverter.convertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId));
+			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId));
 		}
 
 		/// <summary>
@@ -62,7 +62,7 @@ namespace DriverAPI.Library.Models
 			{
 				try
 				{
-					routeLists.Add(_routeListConverter.convertToAPIRouteList(routelist, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routelist.Id)));
+					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routelist, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routelist.Id)));
 				}
 				catch (ConverterException e)
 				{

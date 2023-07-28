@@ -10,7 +10,7 @@ using DriverAPI.Library.Deprecated2.Models;
 
 namespace DriverAPI.Library.Models
 {
-	public class TrackPointsModel : ITrackPointsModel
+	internal class TrackPointsModel : ITrackPointsModel
 	{
 		private readonly ILogger<TrackPointsModel> _logger;
 		private readonly ITrackRepository _trackRepository;
