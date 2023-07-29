@@ -36,15 +36,16 @@ namespace FastPaymentsNotificationWorker
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory(ConfigureContainer))
+				.UseWindowsService()
 				.ConfigureServices((context, services) =>
 				{
 					services.AddLogging(
-					logging =>
-					{
-						logging.ClearProviders();
-						logging.AddNLog();
-						logging.AddConfiguration(context.Configuration.GetSection(_nLogSectionName));
-					});
+						logging =>
+						{
+							logging.ClearProviders();
+							logging.AddNLog();
+							logging.AddConfiguration(context.Configuration.GetSection(_nLogSectionName));
+						});
 
 					services.AddHostedService<PaymentsNotificationWorker>();
 
