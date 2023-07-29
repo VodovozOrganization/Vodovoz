@@ -515,7 +515,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			var moneyTransferDateSubquery = QueryOver.Of(() => cashRequestSumItemAlias)
 				.Where(() => cashRequestSumItemAlias.CashRequest.Id == cashRequestAlias.Id)
-				.Select(Projections.Max(() => cashRequestSumItemAlias.Date));
+				.Select(Projections.Max(() => cashRequestSumItemAlias.Date.Date));
 
 			result.Where(GetSearchCriterion(
 				() => cashRequestAlias.Id,
@@ -540,8 +540,18 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.ExpenseCategory)
 					.Select(c => c.HaveReceipt).WithAlias(() => resultAlias.HaveReceipt)
 					.SelectSubQuery(moneyTransferDateSubquery).WithAlias(() => resultAlias.MoneyTransferDate)
-				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashRequest>>())
-				.OrderBy(x => x.Date).Desc();
+				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashRequest>>());
+
+			if(FilterViewModel.IsSortByMoneyTransferDateSelected)
+			{
+				result.OrderBy(Projections.Property(nameof(PayoutRequestJournalNode.MoneyTransferDate))).Desc()
+					.ThenBy(Projections.Property(nameof(PayoutRequestJournalNode.Id))).Desc();
+			}
+			else
+			{
+				result.OrderBy(x => x.Date).Desc();
+			}
+
 			return result;
 		}
 
@@ -663,9 +673,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(clr => clr.Basis).WithAlias(() => resultAlias.Basis)
 					.Select(clr => clr.Sum).WithAlias(() => resultAlias.Sum)
 					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.ExpenseCategory)
-					.Select(clr => clr.Date).WithAlias(() => resultAlias.MoneyTransferDate)
-				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashlessRequest>>())
-				.OrderBy(clr => clr.Date).Desc();
+					.Select(clr => clr.Date.Date).WithAlias(() => resultAlias.MoneyTransferDate)
+				)
+				.TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashlessRequest>>());
+
+			if(FilterViewModel.IsSortByMoneyTransferDateSelected)
+			{
+				result.OrderBy(Projections.Property(nameof(PayoutRequestJournalNode.MoneyTransferDate))).Desc()
+					.ThenBy(Projections.Property(nameof(PayoutRequestJournalNode.Id))).Desc();
+			}
+			else
+			{
+				result.OrderBy(x => x.Date).Desc();
+			}
+
 			return result;
 		}
 
