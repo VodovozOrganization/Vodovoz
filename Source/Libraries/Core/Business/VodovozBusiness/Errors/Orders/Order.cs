@@ -6,7 +6,7 @@
 			new Error(
 				typeof(Order),
 				nameof(CantEdit),
-				"Заказ находится в статусе, при котором редактирование заприщено.");
+				"Заказ находится в статусе, при котором редактирование запрещено.");
 
 		public static Error Validation =>
 			new Error(
