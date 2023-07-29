@@ -28,6 +28,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
+using static Vodovoz.ViewModels.Journals.FilterViewModels.PayoutRequestJournalFilterViewModel;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
@@ -542,7 +543,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.SelectSubQuery(moneyTransferDateSubquery).WithAlias(() => resultAlias.MoneyTransferDate)
 				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashRequest>>());
 
-			if(FilterViewModel.IsSortByMoneyTransferDateSelected)
+			if(FilterViewModel.DocumentsSortOrder == PayoutDocumentsSortOrder.ByMoneyTransferDate)
 			{
 				result.OrderBy(Projections.Property(nameof(PayoutRequestJournalNode.MoneyTransferDate))).Desc()
 					.ThenBy(Projections.Property(nameof(PayoutRequestJournalNode.Id))).Desc();
@@ -677,7 +678,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				)
 				.TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashlessRequest>>());
 
-			if(FilterViewModel.IsSortByMoneyTransferDateSelected)
+			if(FilterViewModel.DocumentsSortOrder == PayoutDocumentsSortOrder.ByMoneyTransferDate)
 			{
 				result.OrderBy(Projections.Property(nameof(PayoutRequestJournalNode.MoneyTransferDate))).Desc()
 					.ThenBy(Projections.Property(nameof(PayoutRequestJournalNode.Id))).Desc();
