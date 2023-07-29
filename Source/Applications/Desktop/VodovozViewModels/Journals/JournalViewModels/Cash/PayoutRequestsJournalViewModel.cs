@@ -160,7 +160,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_security_service_cash_request", userId);
 			_canSeeCurrentSubdivisonRequests =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests");
-			_hasAccessToHiddenFinancialCategories = 
+			_hasAccessToHiddenFinancialCategories =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("has_access_to_hidden_financial_categories");
 		}
 
@@ -239,7 +239,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 						if(selectedNode.EntityType == typeof(CashRequest))
 						{
 							var cashRequestVM = CreateCashRequestViewModelForOpen(selectedNode);
-							if (cashRequestVM.CanConveyForResults)
+							if(cashRequestVM.CanConveyForResults)
 							{
 								cashRequestVM.ConveyForResultsCommand.Execute();
 							}
@@ -248,7 +248,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 						else if(selectedNode.EntityType == typeof(CashlessRequest))
 						{
 							var cashlessRequestVM = CreateCashlessRequestViewModelForOpen(selectedNode);
-							if (cashlessRequestVM.CanConveyForPayout)
+							if(cashlessRequestVM.CanConveyForPayout)
 							{
 								cashlessRequestVM.ConveyForPayout();
 							}
@@ -491,7 +491,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			if(!_hasAccessToHiddenFinancialCategories)
 			{
 				result.Where(() =>
-					cashRequestAlias.ExpenseCategoryId == null 
+					cashRequestAlias.ExpenseCategoryId == null
 					|| (cashRequestAlias.ExpenseCategoryId != null && !financialExpenseCategoryAlias.IsHiddenFromPublicAccess)
 					);
 			}
@@ -513,6 +513,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				.Where(Restrictions.IsNotNull(Projections.Property<CashRequestSumItem>(o => o.CashRequest)))
 				.Select(Projections.Sum(() => cashRequestSumItemAlias.Sum));
 
+			var moneyTransferDateSubquery = QueryOver.Of(() => cashRequestSumItemAlias)
+				.Where(() => cashRequestSumItemAlias.CashRequest.Id == cashRequestAlias.Id)
+				.Select(Projections.Max(() => cashRequestSumItemAlias.Date));
+
 			result.Where(GetSearchCriterion(
 				() => cashRequestAlias.Id,
 				() => authorAlias.Id,
@@ -531,9 +535,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(authorProjection).WithAlias(() => resultAlias.Author)
 					.Select(accauntableProjection).WithAlias(() => resultAlias.AccountablePerson)
 					.SelectSubQuery(cashReuestSumSubquery).WithAlias(() => resultAlias.Sum)
+					.SelectSubQuery(moneyTransferDateSubquery).WithAlias(() => resultAlias.MoneyTransferDate)
 					.Select(c => c.Basis).WithAlias(() => resultAlias.Basis)
 					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.ExpenseCategory)
 					.Select(c => c.HaveReceipt).WithAlias(() => resultAlias.HaveReceipt)
+					.SelectSubQuery(moneyTransferDateSubquery).WithAlias(() => resultAlias.MoneyTransferDate)
 				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashRequest>>())
 				.OrderBy(x => x.Date).Desc();
 			return result;
@@ -628,7 +634,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			if(!_hasAccessToHiddenFinancialCategories)
 			{
 				result.Where(() =>
-					cashlessRequestAlias.ExpenseCategoryId == null 
+					cashlessRequestAlias.ExpenseCategoryId == null
 					|| (cashlessRequestAlias.ExpenseCategoryId != null && !financialExpenseCategoryAlias.IsHiddenFromPublicAccess)
 					);
 			}
@@ -657,6 +663,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(clr => clr.Basis).WithAlias(() => resultAlias.Basis)
 					.Select(clr => clr.Sum).WithAlias(() => resultAlias.Sum)
 					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.ExpenseCategory)
+					.Select(clr => clr.Date).WithAlias(() => resultAlias.MoneyTransferDate)
 				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashlessRequest>>())
 				.OrderBy(clr => clr.Date).Desc();
 			return result;

@@ -1,6 +1,6 @@
-﻿using System;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.Project.Journal;
+using System;
 using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes
@@ -27,6 +27,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public bool HaveReceipt { get; set; } = false;
 		public PayoutRequestDocumentType PayoutRequestDocumentType { get; set; }
 		public string CounterpartyName { get; set; }
+		public DateTime MoneyTransferDate { get; set; }
 
 		protected PayoutRequestJournalNode(Type entityType) : base(entityType)
 		{

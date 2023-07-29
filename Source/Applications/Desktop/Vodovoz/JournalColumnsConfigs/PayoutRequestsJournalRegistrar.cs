@@ -54,6 +54,10 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddToggleRenderer(n => n.HaveReceipt)
 					.Editing(false)
 					.XAlign(0.5f)
+				.AddColumn("Дата выдачи")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(n => n.MoneyTransferDate.ToShortDateString())
+					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
 	}
