@@ -15,6 +15,8 @@ using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Domain;
+using System.IO;
+using System;
 using System.Reflection;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.NhibernateExtensions;
@@ -30,6 +32,21 @@ namespace FastPaymentsNotificationWorker
 
 		public static void Main(string[] args)
 		{
+			#region Override working directory
+
+			var strExeFilePath = Assembly.GetExecutingAssembly().Location;
+
+			var executableDirectory = Path.GetDirectoryName(strExeFilePath);
+
+			if(executableDirectory is null)
+			{
+				throw new InvalidOperationException("Executable dirtectory can't be null");
+			}
+
+			Directory.SetCurrentDirectory(executableDirectory);
+
+			#endregion Override working directory
+
 			CreateHostBuilder(args).Build().Run();
 		}
 
@@ -50,7 +67,8 @@ namespace FastPaymentsNotificationWorker
 					services.AddHostedService<PaymentsNotificationWorker>();
 
 					CreateBaseConfig(context.Configuration);
-				});
+				})
+				.UseWindowsService();
 
 		public static void ConfigureContainer(ContainerBuilder builder)
 		{
