@@ -202,7 +202,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 
 				if(Entity.IsArchive)
 				{
-					if(_commonServices.InteractiveService.Question("Cтатус \"В архиве\" будет установлен у всех вложенных групп и статей.\r\nПродолжить?"))
+					if(_commonServices.InteractiveService.Question("Внимание!\r\nCтатус \"В архиве\" будет установлен у всех вложенных групп и статей.\r\nПродолжить?"))
 					{
 						Entity.SetIsArchivePropertyValueForAllChildItems(UoW, Entity.IsArchive);
 					}
@@ -224,7 +224,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 
 				if(Entity.IsHiddenFromPublicAccess)
 				{
-					if(_commonServices.InteractiveService.Question("Статус \"Скрыть статью из общего доступа\" будет установлен у всех вложенных групп и статей.\r\nПродолжить?"))
+					if(_commonServices.InteractiveService.Question("Внимание!\r\nСтатус \"Скрыть статью из общего доступа\" будет установлен у всех вложенных групп и статей.\r\nПродолжить?"))
 					{
 						Entity.SetIsHiddenPropertyValueForAllChildItems(UoW, Entity.IsHiddenFromPublicAccess);
 					}
