@@ -1,4 +1,5 @@
-﻿using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Conventions.Instances;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.HibernateMapping
@@ -8,7 +9,8 @@ namespace Vodovoz.HibernateMapping
 		public OrderItemMap()
 		{
 			Table("order_items");
-			Not.LazyLoad();
+
+			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 

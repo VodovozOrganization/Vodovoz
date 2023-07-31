@@ -17,6 +17,35 @@ namespace Vodovoz.Domain.Orders
 	[HistoryTrace]
 	public class OrderItem : PropertyChangedBase, IDomainObject, IOrderItemWageCalculationSource, IDiscount
 	{
+		private int _id;
+		private Order _order;
+		private Nomenclature _nomenclature;
+		private Equipment _equipment;
+		private decimal _price;
+		private bool _isUserPrice;
+		private decimal _count = -1;
+		private decimal? _actualCount;
+		private decimal? _includeNDS;
+		private bool _isDiscountInMoney;
+		private decimal _discount;
+		private decimal? _originalDiscount;
+		private decimal _discountMoney;
+		private decimal? _originalDiscountMoney;
+		private decimal _discountByStock;
+		private decimal? _valueAddedTax;
+		private DiscountReason _discountReason;
+		private DiscountReason _originalDiscountReason;
+		private CounterpartyMovementOperation _counterpartyMovementOperation;
+		private PromotionalSet _promoSet;
+		private bool _isAlternativePrice;
+		private bool _isFixedPrice;
+		private OrderRentType _rentType;
+		private OrderItemRentSubType _orderItemRentSubType;
+		private int _rentCount;
+		private int _rentEquipmentCount;
+		private PaidRentPackage _paidRentPackage;
+		private FreeRentPackage _freeRentPackage;
+
 		private NomenclatureParametersProvider _nomenclatureParameterProvider = new NomenclatureParametersProvider(new ParametersProvider());
 
 		private int? paidDeliveryNomenclatureId;
@@ -29,80 +58,81 @@ namespace Vodovoz.Domain.Orders
 
 		private OrderItem _copiedFromUndelivery;
 
-		private bool _isAlternativePrice;
-
-		private bool _isFixedPrice;
-
 		#region Свойства
 
-		public virtual int Id { get; set; }
-
-		Order order;
+		public virtual int Id
+		{
+			get => _id;
+			set => _id = value;
+		}
 
 		[Display(Name = "Заказ")]
-		public virtual Order Order {
-			get => order;
-			set {
-				if(SetField(ref order, value, () => Order))
+		public virtual Order Order
+		{
+			get => _order;
+			set
+			{
+				if(SetField(ref _order, value, () => Order))
 					RecalculateVAT();
 			}
 		}
 
-		Nomenclature nomenclature;
-
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get => nomenclature;
-			set {
-				if(SetField(ref nomenclature, value, () => Nomenclature)) {
+		public virtual Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set
+			{
+				if(SetField(ref _nomenclature, value, () => Nomenclature))
+				{
 					CalculateVATType();
 				}
 			}
 		}
 
-		Equipment equipment;
-
 		[Display(Name = "Оборудование")]
-		public virtual Equipment Equipment {
-			get => equipment;
-			set => SetField(ref equipment, value, () => Equipment);
+		public virtual Equipment Equipment
+		{
+			get => _equipment;
+			set => SetField(ref _equipment, value, () => Equipment);
 		}
 
-		decimal price;
-
 		[Display(Name = "Цена")]
-		public virtual decimal Price {
-			get => price;
-			set {
+		public virtual decimal Price
+		{
+			get => _price;
+			set
+			{
 				//Если цена не отличается от той которая должна быть по прайсам в 
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
 				IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
 				if(IsUserPrice)
 					IsUserPrice = (value != GetPriceByTotalCount() && value != 0 && !IsFixedPrice) || CopiedFromUndelivery != null;
 
-				if(SetField(ref price, value, () => Price)) {
+				if(SetField(ref _price, value, () => Price))
+				{
 					RecalculateDiscount();
 					RecalculateVAT();
 				}
 			}
 		}
 
-		bool isUserPrice;
-
 		[Display(Name = "Цена установлена пользователем")]
-		public virtual bool IsUserPrice {
-			get => isUserPrice;
-			set => SetField(ref isUserPrice, value, () => IsUserPrice);
+		public virtual bool IsUserPrice
+		{
+			get => _isUserPrice;
+			set => SetField(ref _isUserPrice, value, () => IsUserPrice);
 		}
-		
-		decimal count = -1;
+
 		[Display(Name = "Количество")]
-		public virtual decimal Count {
-			get => count;
-			set {
+		public virtual decimal Count
+		{
+			get => _count;
+			set
+			{
 				if(Nomenclature?.Unit?.Digits == 0 && value % 1 != 0)
 					value = Math.Truncate(value);
-				if(SetField(ref count, value)) 
+				if(SetField(ref _count, value))
 				{
 					Order?.RecalculateItemsPrice();
 					RecalculateDiscount();
@@ -112,122 +142,123 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		decimal? actualCount;
-		public virtual decimal? ActualCount {
-			get => actualCount;
-			set {
-				if(SetField(ref actualCount, value)) {
+		public virtual decimal? ActualCount
+		{
+			get => _actualCount;
+			set
+			{
+				if(SetField(ref _actualCount, value))
+				{
 					RecalculateDiscount();
 					RecalculateVAT();
 				}
 			}
 		}
 
-		decimal? includeNDS;
-
 		[Display(Name = "Включая НДС")]
-		public virtual decimal? IncludeNDS {
-			get => includeNDS;
-			set => SetField(ref includeNDS, value, () => IncludeNDS);
+		public virtual decimal? IncludeNDS
+		{
+			get => _includeNDS;
+			set => SetField(ref _includeNDS, value, () => IncludeNDS);
 		}
-
-		private bool isDiscountInMoney;
 
 		[Display(Name = "Скидка деньгами?")]
-		public virtual bool IsDiscountInMoney {
-			get => isDiscountInMoney;
-			set {
-				if(SetField(ref isDiscountInMoney, value, () => IsDiscountInMoney))
+		public virtual bool IsDiscountInMoney
+		{
+			get => _isDiscountInMoney;
+			set
+			{
+				if(SetField(ref _isDiscountInMoney, value, () => IsDiscountInMoney))
 					RecalculateVAT();
 			}
 		}
-
-		private decimal discount;
 
 		[Display(Name = "Процент скидки на товар")]
-		public virtual decimal Discount {
-			get => discount;
-			set {
-				if(value != discount && value == 0) {
+		public virtual decimal Discount
+		{
+			get => _discount;
+			set
+			{
+				if(value != _discount && value == 0)
+				{
 					DiscountReason = null;
 				}
-				if(SetField(ref discount, value, () => Discount)) {
+				if(SetField(ref _discount, value, () => Discount))
+				{
 					RecalculateVAT();
 				}
 			}
 		}
-
-		private decimal? originalDiscount;
 
 		[Display(Name = "Процент скидки на товар которая была установлена до отмены заказа")]
-		public virtual decimal? OriginalDiscount {
-			get => originalDiscount;
-			set { SetField(ref originalDiscount, value, () => OriginalDiscount); } 
+		public virtual decimal? OriginalDiscount
+		{
+			get => _originalDiscount;
+			set { SetField(ref _originalDiscount, value, () => OriginalDiscount); }
 		}
 
-		private decimal discountMoney;
-
 		[Display(Name = "Скидка на товар в деньгах")]
-		public virtual decimal DiscountMoney {
-			get => discountMoney;
-			set {
-				if(value != discountMoney && value == 0) {
+		public virtual decimal DiscountMoney
+		{
+			get => _discountMoney;
+			set
+			{
+				if(value != _discountMoney && value == 0)
+				{
 					DiscountReason = null;
 				}
-				if(SetField(ref discountMoney, value, () => DiscountMoney))
+				if(SetField(ref _discountMoney, value, () => DiscountMoney))
 					RecalculateVAT();
 			}
 		}
 
-		private decimal? originalDiscountMoney;
 		[Display(Name = "Скидки на товар которая была установлена до отмены заказа")]
-		public virtual decimal? OriginalDiscountMoney {
-			get => originalDiscountMoney;
-			set => SetField(ref originalDiscountMoney, value, () => OriginalDiscountMoney);
+		public virtual decimal? OriginalDiscountMoney
+		{
+			get => _originalDiscountMoney;
+			set => SetField(ref _originalDiscountMoney, value, () => OriginalDiscountMoney);
 		}
 
-		private decimal discountByStock;
 		[Display(Name = "Скидка по акции")]
-		public virtual decimal DiscountByStock {
-			get => discountByStock;
-			set => SetField(ref discountByStock, value, () => DiscountByStock);
+		public virtual decimal DiscountByStock
+		{
+			get => _discountByStock;
+			set => SetField(ref _discountByStock, value, () => DiscountByStock);
 		}
 
-		decimal? valueAddedTax;
 		[Display(Name = "НДС на момент создания заказа")]
-		public virtual decimal? ValueAddedTax {
-			get => valueAddedTax;
-			set => SetField(ref valueAddedTax, value, () => ValueAddedTax);
+		public virtual decimal? ValueAddedTax
+		{
+			get => _valueAddedTax;
+			set => SetField(ref _valueAddedTax, value, () => ValueAddedTax);
 		}
 
-		private DiscountReason discountReason;
 
 		[Display(Name = "Основание скидки на товар")]
-		public virtual DiscountReason DiscountReason {
-			get => discountReason;
-			set => SetField(ref discountReason, value, () => DiscountReason);
+		public virtual DiscountReason DiscountReason
+		{
+			get => _discountReason;
+			set => SetField(ref _discountReason, value, () => DiscountReason);
 		}
 
-		private DiscountReason originalDiscountReason;
 		[Display(Name = "Основание скидки на товар до отмены заказа")]
-		public virtual DiscountReason OriginalDiscountReason {
-			get => originalDiscountReason;
-			set => SetField(ref originalDiscountReason, value, () => OriginalDiscountReason);
+		public virtual DiscountReason OriginalDiscountReason
+		{
+			get => _originalDiscountReason;
+			set => SetField(ref _originalDiscountReason, value, () => OriginalDiscountReason);
 		}
 
-
-		CounterpartyMovementOperation counterpartyMovementOperation;
-
-		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
-			get => counterpartyMovementOperation;
-			set => SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation);
+		public virtual CounterpartyMovementOperation CounterpartyMovementOperation
+		{
+			get => _counterpartyMovementOperation;
+			set => SetField(ref _counterpartyMovementOperation, value, () => CounterpartyMovementOperation);
 		}
 
-		PromotionalSet promoSet;
 		[Display(Name = "Добавлено из промо-набора")]
-		public virtual PromotionalSet PromoSet {
-			get => promoSet;
-			set => SetField(ref promoSet, value, () => PromoSet);
+		public virtual PromotionalSet PromoSet
+		{
+			get => _promoSet;
+			set => SetField(ref _promoSet, value, () => PromoSet);
 		}
 
 		[Display(Name = "Альтернативная цена?")]
@@ -246,56 +277,60 @@ namespace Vodovoz.Domain.Orders
 
 		#region Аренда
 
-		OrderRentType rentType;
 		[Display(Name = "Тип аренды")]
-		public virtual OrderRentType RentType {
-			get => rentType;
-			set => SetField(ref rentType, value);
-		}
-		
-		OrderItemRentSubType orderItemRentSubType;
-		[Display(Name = "Подтип позиции аренды")]
-		public virtual OrderItemRentSubType OrderItemRentSubType {
-			get => orderItemRentSubType;
-			set => SetField(ref orderItemRentSubType, value);
+		public virtual OrderRentType RentType
+		{
+			get => _rentType;
+			set => SetField(ref _rentType, value);
 		}
 
-		int rentCount;
+		[Display(Name = "Подтип позиции аренды")]
+		public virtual OrderItemRentSubType OrderItemRentSubType
+		{
+			get => _orderItemRentSubType;
+			set => SetField(ref _orderItemRentSubType, value);
+		}
+
 		[Display(Name = "Количество аренды (дни/месяцы)")]
-		public virtual int RentCount {
-			get => rentCount;
-			set {
-				if (SetField(ref rentCount, value)) {
+		public virtual int RentCount
+		{
+			get => _rentCount;
+			set
+			{
+				if(SetField(ref _rentCount, value))
+				{
 					Order?.UpdateRentsCount();
 				}
 			}
 		}
 
-		int rentEquipmentCount;
 		[Display(Name = "Количество оборудования для аренды")]
-		public virtual int RentEquipmentCount {
-			get => rentEquipmentCount;
-			set => SetField(ref rentEquipmentCount, value);
+		public virtual int RentEquipmentCount
+		{
+			get => _rentEquipmentCount;
+			set => SetField(ref _rentEquipmentCount, value);
 		}
-		
-		PaidRentPackage paidRentPackage;
+
 		[Display(Name = "Пакет платной аренды")]
-		public virtual PaidRentPackage PaidRentPackage {
-			get => paidRentPackage;
-			set => SetField(ref paidRentPackage, value);
+		public virtual PaidRentPackage PaidRentPackage
+		{
+			get => _paidRentPackage;
+			set => SetField(ref _paidRentPackage, value);
 		}
-		
-		FreeRentPackage freeRentPackage;
+
+
 		[Display(Name = "Пакет бесплатной аренды")]
-		public virtual FreeRentPackage FreeRentPackage {
-			get => freeRentPackage;
-			set => SetField(ref freeRentPackage, value);
+		public virtual FreeRentPackage FreeRentPackage
+		{
+			get => _freeRentPackage;
+			set => SetField(ref _freeRentPackage, value);
 		}
-		
+
 		public virtual void SetRentEquipmentCount(int equipmentCount)
 		{
 			RentEquipmentCount = equipmentCount;
-			switch (OrderItemRentSubType) {
+			switch(OrderItemRentSubType)
+			{
 				case OrderItemRentSubType.RentServiceItem:
 					Count = RentCount * RentEquipmentCount;
 					break;
@@ -307,12 +342,12 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion Аренда
 
-		public OrderItem CopiedFromUndelivery
+		public virtual OrderItem CopiedFromUndelivery
 		{
 			get => _copiedFromUndelivery;
 			set => SetField(ref _copiedFromUndelivery, value);
 		}
-		
+
 		#endregion
 
 		#region Вычисляемые
@@ -326,22 +361,27 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsDelivered => ReturnedCount == 0;
 
-		public virtual decimal ManualChangingDiscount {
+		public virtual decimal ManualChangingDiscount
+		{
 			get => IsDiscountInMoney ? DiscountMoney : Discount;
-			set {
+			set
+			{
 				CalculateAndSetDiscount(value);
-				if(DiscountByStock != 0) {
+				if(DiscountByStock != 0)
+				{
 					DiscountByStock = 0;
 					DiscountReason = null;
 				}
 			}
 		}
 
-		public virtual decimal ManualChangingOriginalDiscount {
-			get	=> IsDiscountInMoney ? (OriginalDiscountMoney ?? 0) : (OriginalDiscount ?? 0);
+		public virtual decimal ManualChangingOriginalDiscount
+		{
+			get => IsDiscountInMoney ? (OriginalDiscountMoney ?? 0) : (OriginalDiscount ?? 0);
 		}
 
-		public virtual decimal DiscountSetter {
+		public virtual decimal DiscountSetter
+		{
 			get => IsDiscountInMoney ? DiscountMoney : Discount;
 			set => CalculateAndSetDiscount(value);
 		}
@@ -351,7 +391,8 @@ namespace Vodovoz.Domain.Orders
 			if(!NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
 			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Discount))
 			   || !NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(Price))
-			   || (Order == null || !NHibernate.NHibernateUtil.IsInitialized(Order.OrderItems))) {
+			   || (Order == null || !NHibernate.NHibernateUtil.IsInitialized(Order.OrderItems)))
+			{
 				return;
 			}
 
@@ -361,9 +402,10 @@ namespace Vodovoz.Domain.Orders
 				CalculateAndSetDiscount(DiscountSetter);
 		}
 
-		void RemoveDiscount()
+		private void RemoveDiscount()
 		{
-			if(DiscountMoney > 0) {
+			if(DiscountMoney > 0)
+			{
 				OriginalDiscountMoney = DiscountMoney;
 				OriginalDiscountReason = DiscountReason;
 				OriginalDiscount = Discount;
@@ -375,15 +417,19 @@ namespace Vodovoz.Domain.Orders
 
 		private void CalculateAndSetDiscount(decimal value)
 		{
-			if((Price * CurrentCount) == 0) {
+			if((Price * CurrentCount) == 0)
+			{
 				DiscountMoney = 0;
 				Discount = 0;
 				return;
 			}
-			if(IsDiscountInMoney) {
+			if(IsDiscountInMoney)
+			{
 				DiscountMoney = value > Price * CurrentCount ? Price * CurrentCount : (value < 0 ? 0 : value);
 				Discount = (100 * DiscountMoney) / (Price * CurrentCount);
-			} else {
+			}
+			else
+			{
 				Discount = value > 100 ? 100 : (value < 0 ? 0 : value);
 				DiscountMoney = Price * CurrentCount * Discount / 100;
 			}
@@ -391,7 +437,7 @@ namespace Vodovoz.Domain.Orders
 
 		private decimal GetPercentDiscount() => IsDiscountInMoney ? (100 * DiscountMoney) / (Price * CurrentCount) : Discount;
 
-		public void SetDiscountByStock(DiscountReason discountReasonForStockBottle, decimal discountPercent)
+		public virtual void SetDiscountByStock(DiscountReason discountReasonForStockBottle, decimal discountPercent)
 		{
 			//ограничение на значения только от 0 до 100
 			discountPercent = discountPercent > 100 ? 100 : discountPercent < 0 ? 0 : discountPercent;
@@ -424,19 +470,22 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal SumWithoutVat =>
 			Math.Round(Price * CurrentCount - (IncludeNDS ?? 0 * (1 - Discount / 100)) - DiscountMoney, 2);
 
-		public decimal CurrentCount => ActualCount ?? Count;
-		
+		public virtual decimal CurrentCount => ActualCount ?? Count;
+
 		public virtual decimal Sum => Math.Round(Price * Count - DiscountMoney, 2);
 
 		public virtual decimal ActualSum => Math.Round(Price * CurrentCount - DiscountMoney, 2);
 
 		public virtual decimal OriginalSum => Math.Round(Price * Count - (OriginalDiscountMoney ?? 0), 2);
 
-		public virtual bool CanEditAmount {
-			get {
+		public virtual bool CanEditAmount
+		{
+			get
+			{
 				bool result = true;
 
-				if(RentType != OrderRentType.None) {
+				if(RentType != OrderRentType.None)
+				{
 					result = false;
 				}
 
@@ -455,13 +504,17 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool CanEditPrice {
-			get {
-				if(PromoSet != null) {
+		public virtual bool CanEditPrice
+		{
+			get
+			{
+				if(PromoSet != null)
+				{
 					return false;
 				}
-				
-				if(RentType != OrderRentType.None) {
+
+				if(RentType != OrderRentType.None)
+				{
 					return false;
 				}
 
@@ -497,10 +550,10 @@ namespace Vodovoz.Domain.Orders
 				return result;
 
 			//влияющая номенклатура
-			if(Nomenclature.Category == NomenclatureCategory.water) 
+			if(Nomenclature.Category == NomenclatureCategory.water)
 			{
-				var fixedPrice = order.GetFixedPriceOrNull(Nomenclature, TotalCountInOrder);
-				if (fixedPrice != null) 
+				var fixedPrice = _order.GetFixedPriceOrNull(Nomenclature, TotalCountInOrder);
+				if(fixedPrice != null)
 				{
 					return fixedPrice.Price;
 				}
@@ -508,16 +561,16 @@ namespace Vodovoz.Domain.Orders
 			return result;
 		}
 
-		public decimal TotalCountInOrder => 
-			Nomenclature.IsWater19L 
-			? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) 
+		public virtual decimal TotalCountInOrder =>
+			Nomenclature.IsWater19L
+			? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true)
 			: Count;
 
 		public virtual void RecalculatePrice()
 		{
 			var fixedPrice = Order.GetFixedPriceOrNull(Nomenclature, TotalCountInOrder);
 
-			if (fixedPrice != null && CopiedFromUndelivery == null)
+			if(fixedPrice != null && CopiedFromUndelivery == null)
 			{
 				if(Price != fixedPrice.Price)
 				{
@@ -552,7 +605,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation(IUnitOfWork uow)
 		{
-			if(!ActualCount.HasValue || ActualCount.Value == 0) {
+			if(!ActualCount.HasValue || ActualCount.Value == 0)
+			{
 				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Id > 0)
 					uow.Delete(CounterpartyMovementOperation);
 
@@ -563,8 +617,10 @@ namespace Vodovoz.Domain.Orders
 			if(Nomenclature == null)
 				throw new InvalidOperationException("Номенклатура не может быть null");
 
-			if(CounterpartyMovementOperation == null) {
-				CounterpartyMovementOperation = new CounterpartyMovementOperation {
+			if(CounterpartyMovementOperation == null)
+			{
+				CounterpartyMovementOperation = new CounterpartyMovementOperation
+				{
 					Nomenclature = Nomenclature,
 					OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 					Amount = ActualCount.Value,//не могу представить ситуацию с null - пусть будет exception если что
@@ -583,21 +639,25 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void CalculateVATType()
 		{
-			if(!NHibernateUtil.IsInitialized(Nomenclature)) {
+			if(!NHibernateUtil.IsInitialized(Nomenclature))
+			{
 				NHibernateUtil.Initialize(Nomenclature);
 			}
-			
-			if(!NHibernateUtil.IsInitialized(Order)) {
+
+			if(!NHibernateUtil.IsInitialized(Order))
+			{
 				NHibernateUtil.Initialize(Order);
 			}
-			
-			if(Order == null || Nomenclature == null) {
+
+			if(Order == null || Nomenclature == null)
+			{
 				return;
 			}
-			
+
 			VAT vat = CanUseVAT() ? Nomenclature.VAT : VAT.No;
-			
-			switch(vat) {
+
+			switch(vat)
+			{
 				case VAT.No:
 					ValueAddedTax = 0m;
 					break;
@@ -617,30 +677,35 @@ namespace Vodovoz.Domain.Orders
 
 			RecalculateVAT();
 		}
-		
+
 		private void RecalculateVAT()
 		{
-			if(Order == null) {
+			if(Order == null)
+			{
 				return;
 			}
-			if(!CanUseVAT()) {
+			if(!CanUseVAT())
+			{
 				IncludeNDS = null;
 				return;
 			}
-			
-			if(CanUseVAT() && ValueAddedTax.HasValue) {
+
+			if(CanUseVAT() && ValueAddedTax.HasValue)
+			{
 				IncludeNDS = Math.Round(ActualSum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
 			}
 		}
 
 		private bool CanUseVAT()
 		{
-			if(!NHibernateUtil.IsInitialized(Order)) {
+			if(!NHibernateUtil.IsInitialized(Order))
+			{
 				NHibernateUtil.Initialize(Order);
 			}
 
 			bool canUseVAT = true;
-			if(Order.Contract?.Organization != null) {
+			if(Order.Contract?.Organization != null)
+			{
 				canUseVAT = !Order.Contract.Organization.WithoutVAT;
 			}
 
@@ -654,39 +719,39 @@ namespace Vodovoz.Domain.Orders
 	{
 		[Display(Name = "Нет аренды")]
 		None,
-		
+
 		[Display(Name = "Долгосрочная аренда")]
 		NonFreeRent,
-		
+
 		[Display(Name = "Бесплатная аренда")]
 		FreeRent,
-		
+
 		[Display(Name = "Посуточная аренда")]
 		DailyRent
 	}
-	
+
 	public class OrderRentTypeStringType : NHibernate.Type.EnumStringType
 	{
-		public OrderRentTypeStringType () : base (typeof(OrderRentType))
+		public OrderRentTypeStringType() : base(typeof(OrderRentType))
 		{
 		}
 	}
-	
+
 	public enum OrderItemRentSubType
 	{
 		[Display(Name = "Нет аренды")]
 		None,
-		
+
 		[Display(Name = "Услуга аренды")]
 		RentServiceItem,
-		
+
 		[Display(Name = "Залог за аренду")]
 		RentDepositItem
 	}
-	
+
 	public class OrderItemRentSubTypeStringType : NHibernate.Type.EnumStringType
 	{
-		public OrderItemRentSubTypeStringType () : base (typeof(OrderItemRentSubType))
+		public OrderItemRentSubTypeStringType() : base(typeof(OrderItemRentSubType))
 		{
 		}
 	}
