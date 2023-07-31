@@ -755,6 +755,7 @@ namespace Vodovoz
 			entryDeliverySchedule.SetEntityAutocompleteSelectorFactory(deliveryScheduleJournalFactory);
 			entryDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			entryDeliverySchedule.CanEditReference = true;
+			entryDeliverySchedule.Changed += (s, e) => UpdateClientSecondOrderDiscount();
 
 			ybuttonFastDeliveryCheck.Clicked += OnButtonFastDeliveryCheckClicked;
 

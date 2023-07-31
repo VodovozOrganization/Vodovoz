@@ -75,6 +75,9 @@ namespace Vodovoz.Domain.Orders
 		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
 			new GeneralSettingsParametersProvider(new ParametersProvider());
 
+		private static readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider =
+			new DeliveryScheduleParametersProvider(new ParametersProvider());
+
 		private readonly OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery =
 			new OrderItemComparerForCopyingFromUndelivery();
 		private readonly double _futureDeliveryDaysLimit = 30;
@@ -297,7 +300,15 @@ namespace Vodovoz.Domain.Orders
 		public virtual DeliverySchedule DeliverySchedule
 		{
 			get => _deliverySchedule;
-			set => SetField(ref _deliverySchedule, value);
+			set 
+			{
+				SetField(ref _deliverySchedule, value);
+
+				if(_deliverySchedule != null)
+				{
+					IsSecondOrderSetter();
+				}
+			}
 		}
 
 		private string deliverySchedule1c;
@@ -865,7 +876,9 @@ namespace Vodovoz.Domain.Orders
 
 		private void IsSecondOrderSetter()
 		{
-			if(IsFirstOrder)
+			var closingDocumentDeliveryScheduleId = _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId;
+
+			if(IsFirstOrder || DeliverySchedule?.Id == closingDocumentDeliveryScheduleId)
 			{
 				IsSecondOrder = false;
 				return;
@@ -892,6 +905,13 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
+			bool isFirstOrderIsClosingDocuments = false;
+
+			if(firstOrder[0].DeliverySchedule?.Id == closingDocumentDeliveryScheduleId)
+			{
+				isFirstOrderIsClosingDocuments = true;
+			}
+
 			var nextOrdersAvailableStatuses = new OrderStatus[] { OrderStatus.Canceled, OrderStatus.NotDelivered };
 
 			var nextOrders = UoW.GetAll<Order>()
@@ -899,10 +919,14 @@ namespace Vodovoz.Domain.Orders
 					o.Client == Client
 					&& !o.IsFirstOrder
 					&& o.Id != Id
+					&& o.DeliverySchedule.Id != closingDocumentDeliveryScheduleId
 					&& !nextOrdersAvailableStatuses.Contains(o.OrderStatus))
 				.ToList();
 
-			IsSecondOrder = nextOrders.Count() == 0;
+			IsSecondOrder =
+				isFirstOrderIsClosingDocuments
+				? nextOrders.Count() == 1
+				: nextOrders.Count() == 0;
 		}
 
 		#endregion
