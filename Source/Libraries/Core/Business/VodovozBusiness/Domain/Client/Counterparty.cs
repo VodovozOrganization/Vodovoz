@@ -875,7 +875,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Подтип контрагента")]
-		private CounterpartySubtype CounterpartySubtype
+		public virtual CounterpartySubtype CounterpartySubtype
 		{
 			get => _counterpartySubtype;
 			set => SetField(ref _counterpartySubtype, value);
