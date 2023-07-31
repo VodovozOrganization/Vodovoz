@@ -77,7 +77,7 @@ namespace Vodovoz.Domain.Client
 		public virtual IList<CounterpartyContract> CounterpartyContracts
 		{
 			get => counterpartyContracts;
-			set => SetField(ref counterpartyContracts, value, () => CounterpartyContracts);
+			set => SetField(ref counterpartyContracts, value);
 		}
 
 		private IList<DeliveryPoint> deliveryPoints = new List<DeliveryPoint>();
@@ -86,7 +86,7 @@ namespace Vodovoz.Domain.Client
 		public virtual IList<DeliveryPoint> DeliveryPoints
 		{
 			get => deliveryPoints;
-			set => SetField(ref deliveryPoints, value, () => DeliveryPoints);
+			set => SetField(ref deliveryPoints, value);
 		}
 
 		GenericObservableList<DeliveryPoint> observableDeliveryPoints;
@@ -107,7 +107,7 @@ namespace Vodovoz.Domain.Client
 		public virtual IList<Tag> Tags
 		{
 			get => tags;
-			set => SetField(ref tags, value, () => Tags);
+			set => SetField(ref tags, value);
 		}
 
 		GenericObservableList<Tag> observableTags;
@@ -128,7 +128,7 @@ namespace Vodovoz.Domain.Client
 		public virtual IList<Contact> Contacts
 		{
 			get => contact;
-			set => SetField(ref contact, value, () => Contacts);
+			set => SetField(ref contact, value);
 		}
 
 		#region CloseDelivery
@@ -139,7 +139,7 @@ namespace Vodovoz.Domain.Client
 		public virtual bool IsDeliveriesClosed
 		{
 			get => isDeliveriesClosed;
-			protected set => SetField(ref isDeliveriesClosed, value, () => IsDeliveriesClosed);
+			protected set => SetField(ref isDeliveriesClosed, value);
 		}
 
 		private string closeDeliveryComment;
@@ -148,7 +148,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string CloseDeliveryComment
 		{
 			get => closeDeliveryComment;
-			set => SetField(ref closeDeliveryComment, value, () => CloseDeliveryComment);
+			set => SetField(ref closeDeliveryComment, value);
 		}
 
 		private DateTime? closeDeliveryDate;
@@ -157,7 +157,7 @@ namespace Vodovoz.Domain.Client
 		public virtual DateTime? CloseDeliveryDate
 		{
 			get => closeDeliveryDate;
-			protected set => SetField(ref closeDeliveryDate, value, () => CloseDeliveryDate);
+			protected set => SetField(ref closeDeliveryDate, value);
 		}
 
 		private Employee closeDeliveryPerson;
@@ -166,7 +166,7 @@ namespace Vodovoz.Domain.Client
 		public virtual Employee CloseDeliveryPerson
 		{
 			get => closeDeliveryPerson;
-			protected set => SetField(ref closeDeliveryPerson, value, () => CloseDeliveryPerson);
+			protected set => SetField(ref closeDeliveryPerson, value);
 		}
 
 		#endregion CloseDelivery
@@ -177,7 +177,7 @@ namespace Vodovoz.Domain.Client
 		public virtual IList<Proxy> Proxies
 		{
 			get => proxies;
-			set => SetField(ref proxies, value, () => Proxies);
+			set => SetField(ref proxies, value);
 		}
 
 		public virtual int Id { get; set; }
@@ -188,7 +188,7 @@ namespace Vodovoz.Domain.Client
 		public virtual decimal MaxCredit
 		{
 			get => maxCredit;
-			set => SetField(ref maxCredit, value, () => MaxCredit);
+			set => SetField(ref maxCredit, value);
 		}
 
 		string name;
@@ -200,7 +200,7 @@ namespace Vodovoz.Domain.Client
 			get => name;
 			set
 			{
-				if(SetField(ref name, value, () => Name) && PersonType == PersonType.natural)
+				if(SetField(ref name, value) && PersonType == PersonType.natural)
 					FullName = Name;
 			}
 		}
@@ -221,7 +221,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string FullName
 		{
 			get => fullName;
-			set => SetField(ref fullName, value, () => FullName);
+			set => SetField(ref fullName, value);
 		}
 
 		/// <summary>
@@ -232,7 +232,7 @@ namespace Vodovoz.Domain.Client
 		public virtual int VodovozInternalId
 		{
 			get => vodovozInternalId;
-			set => SetField(ref vodovozInternalId, value, () => VodovozInternalId);
+			set => SetField(ref vodovozInternalId, value);
 		}
 
 		string code1c;
@@ -240,7 +240,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string Code1c
 		{
 			get => code1c;
-			set => SetField(ref code1c, value, () => Code1c);
+			set => SetField(ref code1c, value);
 		}
 
 		string comment;
@@ -249,7 +249,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string Comment
 		{
 			get => comment;
-			set => SetField(ref comment, value, () => Comment);
+			set => SetField(ref comment, value);
 		}
 
 		string iNN;
@@ -258,7 +258,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string INN
 		{
 			get => iNN;
-			set => SetField(ref iNN, value, () => INN);
+			set => SetField(ref iNN, value);
 		}
 
 		string kPP;
@@ -267,7 +267,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string KPP
 		{
 			get => kPP;
-			set => SetField(ref kPP, value, () => KPP);
+			set => SetField(ref kPP, value);
 		}
 
 		string oGRN;
@@ -276,7 +276,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string OGRN
 		{
 			get => oGRN;
-			set => SetField(ref oGRN, value, () => OGRN);
+			set => SetField(ref oGRN, value);
 		}
 
 		string jurAddress;
@@ -285,7 +285,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string JurAddress
 		{
 			get => jurAddress;
-			set => SetField(ref jurAddress, value, () => JurAddress);
+			set => SetField(ref jurAddress, value);
 		}
 
 		string address;
@@ -294,7 +294,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string Address
 		{
 			get => address;
-			set => SetField(ref address, value, () => Address);
+			set => SetField(ref address, value);
 		}
 
 		PaymentType paymentMethod;
@@ -314,7 +314,7 @@ namespace Vodovoz.Domain.Client
 			get => personType;
 			set
 			{
-				SetField(ref personType, value, () => PersonType);
+				SetField(ref personType, value);
 
 				if(value == PersonType.natural)
 				{
@@ -339,7 +339,7 @@ namespace Vodovoz.Domain.Client
 		public virtual Counterparty MainCounterparty
 		{
 			get => mainCounterparty;
-			set => SetField(ref mainCounterparty, value, () => MainCounterparty);
+			set => SetField(ref mainCounterparty, value);
 		}
 
 		Counterparty previousCounterparty;
@@ -348,7 +348,7 @@ namespace Vodovoz.Domain.Client
 		public virtual Counterparty PreviousCounterparty
 		{
 			get => previousCounterparty;
-			set => SetField(ref previousCounterparty, value, () => PreviousCounterparty);
+			set => SetField(ref previousCounterparty, value);
 		}
 
 		bool isArchive;
@@ -357,7 +357,7 @@ namespace Vodovoz.Domain.Client
 		public virtual bool IsArchive
 		{
 			get => isArchive;
-			set => SetField(ref isArchive, value, () => IsArchive);
+			set => SetField(ref isArchive, value);
 		}
 
 		IList<Phone> phones = new List<Phone>();
@@ -366,7 +366,7 @@ namespace Vodovoz.Domain.Client
 		public virtual IList<Phone> Phones
 		{
 			get => phones;
-			set => SetField(ref phones, value, () => Phones);
+			set => SetField(ref phones, value);
 		}
 
 		GenericObservableList<Phone> observablePhones;
@@ -387,7 +387,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string RingUpPhone
 		{
 			get => ringUpPhone;
-			set => SetField(ref ringUpPhone, value, () => RingUpPhone);
+			set => SetField(ref ringUpPhone, value);
 		}
 
 
@@ -397,7 +397,7 @@ namespace Vodovoz.Domain.Client
 		public virtual IList<Email> Emails
 		{
 			get => emails;
-			set => SetField(ref emails, value, () => Emails);
+			set => SetField(ref emails, value);
 		}
 
 		[Display(Name = "Все операторы ЭДО контрагента")]
@@ -418,7 +418,7 @@ namespace Vodovoz.Domain.Client
 		public virtual Employee Accountant
 		{
 			get => accountant;
-			set => SetField(ref accountant, value, () => Accountant);
+			set => SetField(ref accountant, value);
 		}
 
 		Employee salesManager;
@@ -427,7 +427,7 @@ namespace Vodovoz.Domain.Client
 		public virtual Employee SalesManager
 		{
 			get => salesManager;
-			set => SetField(ref salesManager, value, () => SalesManager);
+			set => SetField(ref salesManager, value);
 		}
 
 		Employee bottlesManager;
@@ -436,7 +436,7 @@ namespace Vodovoz.Domain.Client
 		public virtual Employee BottlesManager
 		{
 			get => bottlesManager;
-			set => SetField(ref bottlesManager, value, () => BottlesManager);
+			set => SetField(ref bottlesManager, value);
 		}
 
 		Contact mainContact;
@@ -445,7 +445,7 @@ namespace Vodovoz.Domain.Client
 		public virtual Contact MainContact
 		{
 			get => mainContact;
-			set => SetField(ref mainContact, value, () => MainContact);
+			set => SetField(ref mainContact, value);
 		}
 
 		Contact financialContact;
@@ -454,7 +454,7 @@ namespace Vodovoz.Domain.Client
 		public virtual Contact FinancialContact
 		{
 			get => financialContact;
-			set => SetField(ref financialContact, value, () => FinancialContact);
+			set => SetField(ref financialContact, value);
 		}
 
 		DefaultDocumentType? defaultDocumentType;
@@ -463,7 +463,7 @@ namespace Vodovoz.Domain.Client
 		public virtual DefaultDocumentType? DefaultDocumentType
 		{
 			get => defaultDocumentType;
-			set => SetField(ref defaultDocumentType, value, () => DefaultDocumentType);
+			set => SetField(ref defaultDocumentType, value);
 		}
 
 		private bool newBottlesNeeded;
@@ -472,7 +472,7 @@ namespace Vodovoz.Domain.Client
 		public virtual bool NewBottlesNeeded
 		{
 			get => newBottlesNeeded;
-			set => SetField(ref newBottlesNeeded, value, () => NewBottlesNeeded);
+			set => SetField(ref newBottlesNeeded, value);
 		}
 
 		string signatoryFIO;
@@ -481,7 +481,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string SignatoryFIO
 		{
 			get => signatoryFIO;
-			set => SetField(ref signatoryFIO, value, () => SignatoryFIO);
+			set => SetField(ref signatoryFIO, value);
 		}
 
 		string signatoryPost;
@@ -490,7 +490,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string SignatoryPost
 		{
 			get => signatoryPost;
-			set => SetField(ref signatoryPost, value, () => SignatoryPost);
+			set => SetField(ref signatoryPost, value);
 		}
 
 		string signatoryBaseOf;
@@ -499,7 +499,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string SignatoryBaseOf
 		{
 			get => signatoryBaseOf;
-			set => SetField(ref signatoryBaseOf, value, () => SignatoryBaseOf);
+			set => SetField(ref signatoryBaseOf, value);
 		}
 
 		string phoneFrom1c;
@@ -508,7 +508,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string PhoneFrom1c
 		{
 			get => phoneFrom1c;
-			set => SetField(ref phoneFrom1c, value, () => PhoneFrom1c);
+			set => SetField(ref phoneFrom1c, value);
 		}
 
 		ClientCameFrom cameFrom;
@@ -517,7 +517,7 @@ namespace Vodovoz.Domain.Client
 		public virtual ClientCameFrom CameFrom
 		{
 			get => cameFrom;
-			set => SetField(ref cameFrom, value, () => CameFrom);
+			set => SetField(ref cameFrom, value);
 		}
 
 		Order firstOrder;
@@ -525,7 +525,7 @@ namespace Vodovoz.Domain.Client
 		public virtual Order FirstOrder
 		{
 			get => firstOrder;
-			set => SetField(ref firstOrder, value, () => FirstOrder);
+			set => SetField(ref firstOrder, value);
 		}
 
 		TaxType taxType;
@@ -558,7 +558,7 @@ namespace Vodovoz.Domain.Client
 		public virtual bool UseSpecialDocFields
 		{
 			get => useSpecialDocFields;
-			set => SetField(ref useSpecialDocFields, value, () => UseSpecialDocFields);
+			set => SetField(ref useSpecialDocFields, value);
 		}
 
 		bool alwaysPrintInvoice;
@@ -574,7 +574,7 @@ namespace Vodovoz.Domain.Client
 		public virtual bool SpecialExpireDatePercentCheck
 		{
 			get => specialExpireDatePercentCheck;
-			set => SetField(ref specialExpireDatePercentCheck, value, () => SpecialExpireDatePercentCheck);
+			set => SetField(ref specialExpireDatePercentCheck, value);
 		}
 
 		decimal specialExpireDatePercent;
@@ -582,7 +582,7 @@ namespace Vodovoz.Domain.Client
 		public virtual decimal SpecialExpireDatePercent
 		{
 			get => specialExpireDatePercent;
-			set => SetField(ref specialExpireDatePercent, value, () => SpecialExpireDatePercent);
+			set => SetField(ref specialExpireDatePercent, value);
 		}
 
 		#endregion Особое требование срок годности
@@ -613,7 +613,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string PayerSpecialKPP
 		{
 			get => payerSpecialKPP;
-			set => SetField(ref payerSpecialKPP, value, () => PayerSpecialKPP);
+			set => SetField(ref payerSpecialKPP, value);
 		}
 
 		string cargoReceiver;
@@ -621,7 +621,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string CargoReceiver
 		{
 			get => cargoReceiver;
-			set => SetField(ref cargoReceiver, value, () => CargoReceiver);
+			set => SetField(ref cargoReceiver, value);
 		}
 
 		string customer;
@@ -629,7 +629,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string SpecialCustomer
 		{
 			get => customer;
-			set => SetField(ref customer, value, () => SpecialCustomer);
+			set => SetField(ref customer, value);
 		}
 
 		string govContract;
@@ -637,7 +637,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string GovContract
 		{
 			get => govContract;
-			set => SetField(ref govContract, value, () => GovContract);
+			set => SetField(ref govContract, value);
 		}
 
 		string deliveryAddress;
@@ -645,7 +645,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string SpecialDeliveryAddress
 		{
 			get => deliveryAddress;
-			set => SetField(ref deliveryAddress, value, () => SpecialDeliveryAddress);
+			set => SetField(ref deliveryAddress, value);
 		}
 
 		int? ttnCount;
@@ -653,7 +653,7 @@ namespace Vodovoz.Domain.Client
 		public virtual int? TTNCount
 		{
 			get => ttnCount;
-			set => SetField(ref ttnCount, value, () => TTNCount);
+			set => SetField(ref ttnCount, value);
 		}
 
 		int? torg2Count;
@@ -661,7 +661,7 @@ namespace Vodovoz.Domain.Client
 		public virtual int? Torg2Count
 		{
 			get => torg2Count;
-			set => SetField(ref torg2Count, value, () => Torg2Count);
+			set => SetField(ref torg2Count, value);
 		}
 
 		int? updCount;
@@ -709,7 +709,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string OKPO
 		{
 			get => okpo;
-			set => SetField(ref okpo, value, () => OKPO);
+			set => SetField(ref okpo, value);
 		}
 
 		string okdp;
@@ -717,7 +717,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string OKDP
 		{
 			get => okdp;
-			set => SetField(ref okdp, value, () => OKDP);
+			set => SetField(ref okdp, value);
 		}
 
 		CargoReceiverSource cargoReceiverSource;
@@ -725,7 +725,7 @@ namespace Vodovoz.Domain.Client
 		public virtual CargoReceiverSource CargoReceiverSource
 		{
 			get => cargoReceiverSource;
-			set => SetField(ref cargoReceiverSource, value, () => CargoReceiverSource);
+			set => SetField(ref cargoReceiverSource, value);
 		}
 
 
