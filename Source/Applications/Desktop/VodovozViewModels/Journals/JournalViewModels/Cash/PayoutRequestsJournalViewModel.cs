@@ -15,6 +15,7 @@ using QS.Services;
 using QS.Utilities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -114,8 +115,34 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			threadLoader?.MergeInOrderBy(x => x.Date, @descending: true);
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 
+			FilterViewModel.PropertyChanged += UpdateDataLoader;
+
 			FinishJournalConfiguration();
 			AccessRequest();
+		}
+
+		private void UpdateDataLoader(object s, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(FilterViewModel.DocumentsSortOrder))
+			{
+				var threadLoader = DataLoader as ThreadDataLoader<PayoutRequestJournalNode>;
+				threadLoader.OrderRules.Clear();
+
+				if(FilterViewModel.DocumentsSortOrder == PayoutDocumentsSortOrder.ByCreationDate)
+				{
+					threadLoader?.MergeInOrderBy(x => x.Date, @descending: true);
+					return;
+				}
+
+				if(FilterViewModel.DocumentsSortOrder == PayoutDocumentsSortOrder.ByMoneyTransferDate)
+				{
+					threadLoader?.MergeInOrderBy(x => x.MoneyTransferDate, @descending: true);
+					threadLoader?.MergeInOrderBy(x => x.Date, @descending: true);
+					return;
+				}
+
+				throw new NotSupportedException("Сортировка по выбранному параметру не поддерживается");
+			}
 		}
 
 		private IDictionary<Type, IPermissionResult> InitializePermissionsMatrix(IEnumerable<Type> types)
