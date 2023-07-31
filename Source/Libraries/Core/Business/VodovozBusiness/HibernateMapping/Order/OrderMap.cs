@@ -1,5 +1,4 @@
-﻿using FluentNHibernate;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -75,8 +74,7 @@ namespace Vodovoz.HibernateMapping
 				.CustomType<PaymentTypeStringType>()
 				.Access.CamelCaseField(Prefix.Underscore);
 			Map(x => x.PaymentByTerminalSource).Column("terminal_subtype");
-			Map(x => x.DocumentType).Column("document_type")
-				.CustomType<DefaultDocumentTypeStringType>();
+			Map(x => x.DocumentType).Column("document_type");
 			Map(x => x.DriverCallType).Column("driver_call_type")
 				.CustomType<DriverCallTypeStringType>();
 			Map(x => x.OrderSource).Column("order_source")

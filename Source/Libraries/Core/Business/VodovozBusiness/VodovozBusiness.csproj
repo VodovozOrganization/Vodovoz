@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -65,7 +65,19 @@
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialIncomeCategory.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialSubType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\GroupType.cs" />
+    <Compile Include="Domain\Client\CargoReceiverSource.cs" />
+    <Compile Include="Domain\Client\ConsentForEdoStatus.cs" />
+    <Compile Include="Domain\Client\CounterpartySubtype.cs" />
+    <Compile Include="Domain\Client\CounterpartyType.cs" />
+    <Compile Include="Domain\Client\DefaultDocumentType.cs" />
     <Compile Include="Domain\Client\EntranceType.cs" />
+    <Compile Include="Domain\Client\ISupplierPriceNode.cs" />
+    <Compile Include="Domain\Client\OrderStatusForSendingUpd.cs" />
+    <Compile Include="Domain\Client\PersonType.cs" />
+    <Compile Include="Domain\Client\ReasonForLeaving.cs" />
+    <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
+    <Compile Include="Domain\Client\SellingNomenclature.cs" />
+    <Compile Include="Domain\Client\TaxType.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
     <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
     <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
@@ -933,6 +945,7 @@
     <Compile Include="Parameters\RouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
+    <Compile Include="Permissions\Cash.FinancialCategory.cs" />
     <Compile Include="Permissions\Email.cs" />
     <Compile Include="Permissions\Order.CashReceipt.cs" />
     <Compile Include="Permissions\Order.cs" />
