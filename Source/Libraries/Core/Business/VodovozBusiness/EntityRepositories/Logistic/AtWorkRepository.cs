@@ -1,12 +1,11 @@
-﻿using System;
+﻿using NHibernate;
+using NHibernate.Criterion;
+using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories.Sale;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -16,17 +15,22 @@ namespace Vodovoz.EntityRepositories.Logistic
 			 IEnumerable<CarOwnType> carOwnTypes = null, int[] geoGroupIds = null)
 		{
 			AtWorkDriver atWorkDriverAlias = null;
-			var querry = uow.Session.QueryOver(()=> atWorkDriverAlias)
+			Car carAlias = null;
+			CarVersion carVersionAlias = null;
+
+			var query = QueryOver.Of(()=> atWorkDriverAlias)
+				.Left.JoinAlias(() => atWorkDriverAlias.Car, () => carAlias)
+				.Left.JoinAlias(() => carAlias.CarVersions, () => carVersionAlias)
 				.Where(x => x.Date == date);
 
 			if (driverStatuses != null)
 			{
-				querry = querry.WhereRestrictionOn(awd => awd.Status).IsIn(driverStatuses.ToArray());
+				query.WhereRestrictionOn(awd => awd.Status).IsIn(driverStatuses.ToArray());
 			}
 
 			if(carTypesOfUse != null)
 			{
-				querry
+				query
 					.JoinQueryOver(awd => awd.Car)
 					.JoinQueryOver(c => c.CarModel)
 					.WhereRestrictionOn(cm => cm.CarTypeOfUse).IsIn(carTypesOfUse.ToArray());
@@ -34,25 +38,33 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 			if(carOwnTypes != null)
 			{
-				Car carAlias = null;
-				CarVersion carVersionAlias = null;
-
-				querry
-					.JoinAlias(() => atWorkDriverAlias.Car, () => carAlias)
-					.JoinEntityAlias(() => carVersionAlias,
-						() => carVersionAlias.Car.Id == carAlias.Id
-							  && carVersionAlias.StartDate <= date
-							  && (carVersionAlias.EndDate == null || carVersionAlias.EndDate >= date))
+				query
+					.Where(() => carVersionAlias.StartDate <= date)
+					.Where(Restrictions.Or(
+						Restrictions.Where(() => carVersionAlias.EndDate == null), 
+						Restrictions.Where(() => carVersionAlias.EndDate >= date)
+						)
+					)
 					.WhereRestrictionOn(() => carVersionAlias.CarOwnType).IsIn(carOwnTypes.ToArray());
 			}
 
 			if(geoGroupIds != null)
 			{
-				querry.WhereRestrictionOn(awd => awd.GeographicGroup.Id).IsIn(geoGroupIds);
+				query.WhereRestrictionOn(awd => awd.GeographicGroup.Id).IsIn(geoGroupIds);
 			}
 
-			querry = querry.Fetch(SelectMode.Fetch, x => x.Employee);
-			return querry.List();
+			query.Select(Projections.Id());
+
+
+			AtWorkDriver atWorkDriverAlias2 = null;
+
+			var resultQuery = uow.Session.QueryOver(() => atWorkDriverAlias2)
+				.WithSubquery.WhereProperty(() => atWorkDriverAlias2.Id).In(query)
+				.Fetch(SelectMode.Fetch, () => atWorkDriverAlias2.Employee)
+				.Fetch(SelectMode.Fetch, () => atWorkDriverAlias2.Car)
+				.Fetch(SelectMode.Fetch, () => atWorkDriverAlias2.Car.CarVersions);
+
+			return resultQuery.List();
 		}
 
 		public IList<AtWorkForwarder> GetForwardersAtDay(IUnitOfWork uow, DateTime date)
