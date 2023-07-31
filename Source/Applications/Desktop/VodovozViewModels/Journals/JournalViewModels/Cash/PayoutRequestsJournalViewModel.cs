@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -188,8 +188,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				_commonServices.PermissionService.ValidateUserPresetPermission("role_security_service_cash_request", userId);
 			_canSeeCurrentSubdivisonRequests =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests");
-			_hasAccessToHiddenFinancialCategories =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission("has_access_to_hidden_financial_categories");
+			_hasAccessToHiddenFinancialCategories = 
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories");
 		}
 
 		#region JournalActions
@@ -560,8 +560,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(c => c.Date).WithAlias(() => resultAlias.Date)
 					.Select(c => c.PayoutRequestState).WithAlias(() => resultAlias.PayoutRequestState)
 					.Select(c => c.PayoutRequestDocumentType).WithAlias(() => resultAlias.PayoutRequestDocumentType)
-					.Select(authorProjection).WithAlias(() => resultAlias.Author)
-					.Select(accauntableProjection).WithAlias(() => resultAlias.AccountablePerson)
+					.Select(authorProjection).WithAlias(() => resultAlias.AuthorFullName)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(accauntableProjection).WithAlias(() => resultAlias.AccountablePersonFullName)
+					.Select(() => accountableEmployeeAlias.Name).WithAlias(() => resultAlias.AccountablePersonName)
+					.Select(() => accountableEmployeeAlias.LastName).WithAlias(() => resultAlias.AccountablePersonLastName)
+					.Select(() => accountableEmployeeAlias.Patronymic).WithAlias(() => resultAlias.AccountablePersonPatronymic)
 					.SelectSubQuery(cashReuestSumSubquery).WithAlias(() => resultAlias.Sum)
 					.SelectSubQuery(moneyTransferDateSubquery).WithAlias(() => resultAlias.MoneyTransferDate)
 					.Select(c => c.Basis).WithAlias(() => resultAlias.Basis)
@@ -696,7 +702,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(clr => clr.Date).WithAlias(() => resultAlias.Date)
 					.Select(clr => clr.PayoutRequestState).WithAlias(() => resultAlias.PayoutRequestState)
 					.Select(clr => clr.PayoutRequestDocumentType).WithAlias(() => resultAlias.PayoutRequestDocumentType)
-					.Select(authorProjection).WithAlias(() => resultAlias.Author)
+					.Select(authorProjection).WithAlias(() => resultAlias.AuthorFullName)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(clr => clr.Basis).WithAlias(() => resultAlias.Basis)
 					.Select(clr => clr.Sum).WithAlias(() => resultAlias.Sum)
