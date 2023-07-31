@@ -131,7 +131,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			public override double ActualServiceRadius => _rows.Sum(x => x.ActualServiceRadius) / _rows.Count();
 			public override double PercentCoverage => _rows.Sum(x => x.PercentCoverage) / _rows.Count();
 			public override double ActualPercentCoverage => _rows.Sum(x => x.ActualPercentCoverage) / _rows.Count();
-			public override int NotDeliveredAddresses => _rows.Sum(x => x.NotDeliveredAddresses) / _rows.Count();
+			public override int NotDeliveredAddresses => _rows.Sum(x => x.NotDeliveredAddresses);
 
 			#region IGrouping<bool, DayGrouping>
 			public IEnumerator<DayGrouping> GetEnumerator()
@@ -166,7 +166,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			public override double ActualServiceRadius => _rows.Sum(x => x.ActualServiceRadius) / _rows.Count();
 			public override double PercentCoverage => _rows.Sum(x => x.PercentCoverage) / _rows.Count();
 			public override double ActualPercentCoverage => _rows.Sum(x => x.ActualPercentCoverage) / _rows.Count();
-			public override int NotDeliveredAddresses => _rows.Sum(x => x.NotDeliveredAddresses) / _rows.Count();
+			public override int NotDeliveredAddresses => _rows.Sum(x => x.NotDeliveredAddresses);
 
 			#region IGrouping<DateTime, FastDeliveryPercentCoverageReportValueRow>
 			public IEnumerator<ValueRow> GetEnumerator()

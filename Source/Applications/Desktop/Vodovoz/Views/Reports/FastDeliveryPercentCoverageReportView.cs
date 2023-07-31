@@ -157,7 +157,7 @@ namespace Vodovoz.Views.Reports
 					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? ""
 						: x.ActualPercentCoverage.ToString("P"))
 				.XAlign(0.5f)
-				.AddColumn("Не доставлено адресов")
+				.AddColumn("Суммарно не\nдоставлено адресов")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? ""
 						: x.NotDeliveredAddresses.ToString())

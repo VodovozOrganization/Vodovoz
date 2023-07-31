@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.EntityRepositories.Logistic;
@@ -317,6 +318,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 				FastDeliveryAvailabilityHistoryItem fastDeliveryAvailabilityHistoryItemAlias = null;
 				FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistoryAlias = null;
+				DeliveryPoint deliveryPointAlias = null;
+				
+				var orderSubQuery = QueryOver.Of(() => orderAlias)
+					.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+					.And(() => orderAlias.CreateDate.Value.Date == fastDeliveryAvailabilityHistoryAlias.VerificationDate.Date)
+					.And(() => orderAlias.IsFastDelivery == false)
+					.Select(Projections.Property(() => orderAlias.Id));
+				
+				var isValidSubQuery = QueryOver.Of(() => fastDeliveryAvailabilityHistoryItemAlias)
+					.Where(() => fastDeliveryAvailabilityHistoryItemAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
+					.And(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidToFastDelivery)
+					.Select(Projections.Property(() => fastDeliveryAvailabilityHistoryItemAlias.Id));
 				
 				var deliveryPointIdsInFutureChecks = QueryOver.Of(() => fastDeliveryAvailabilityHistoryAlias)
 					.Where(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint.Id != null)
@@ -325,22 +338,20 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					.SelectList(list => list
 						.SelectGroup(x => x.DeliveryPoint.Id));
 
-				var isValidToFastDeliveryProjection = Projections.Sum(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidToFastDelivery);
-
 				var notDeliveredAddresses =
 					UoW.Session.QueryOver(() => fastDeliveryAvailabilityHistoryAlias)
-						.JoinAlias(x => x.Items, () => fastDeliveryAvailabilityHistoryItemAlias)
+						.JoinAlias(fh => fh.DeliveryPoint, () => deliveryPointAlias)
+						.JoinAlias(fh => fh.Items, () => fastDeliveryAvailabilityHistoryItemAlias)
 						.SelectList(list => list
-							.Select(Projections.Distinct(Projections.Property(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint.Id)))
-							.SelectGroup(x => x.Id)
-							.Select(isValidToFastDeliveryProjection)
+							.Select(Projections.Distinct(Projections.Property(() => deliveryPointAlias.Id)))
+							.SelectGroup(fh => fh.Id)
 						)
-						.Where(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint.Id != null)
-						.And(Restrictions.Eq(isValidToFastDeliveryProjection, 0))
 						.And(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate >= date)
 						.And(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate < date.AddHours(1))
 						.AndRestrictionOn(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint.Id)
 							.Not.IsInG(deliveryPointIdsInFutureChecks.GetExecutableQueryOver(UoW.Session).List<int>())
+						.WithSubquery.WhereExists(orderSubQuery)
+						.WithSubquery.WhereNotExists(isValidSubQuery)
 						.List<object[]>()
 						.Select(x => x[0])
 						.Distinct();
