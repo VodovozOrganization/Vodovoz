@@ -789,8 +789,6 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
-		#endregion
-
 		int delayDaysForProviders;
 		[Display(Name = "Отсрочка дней")]
 		public virtual int DelayDaysForProviders {
@@ -810,6 +808,13 @@ namespace Vodovoz.Domain.Client
 		public virtual CounterpartyType CounterpartyType {
 			get => counterpartyType;
 			set => SetField(ref counterpartyType, value);
+		}
+
+		[Display(Name = "Подтип контрагента")]
+		CounterpartySubtype CounterpartySubtype
+		{
+			get => _counterpartySubtype;
+			set => SetField(ref _counterpartySubtype, value);
 		}
 
 		private bool isChainStore;
@@ -947,6 +952,8 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _worksThroughOrganization, value);
 		}
 
+		#endregion Свойства
+
 		#region Calculated Properties
 
 		public virtual string RawJurAddress {
@@ -957,12 +964,6 @@ namespace Vodovoz.Domain.Client
 				JurAddress = sb.ToString();
 				OnPropertyChanged(nameof(RawJurAddress));
 			}
-		}
-
-		private void CheckSpecialField(ref bool result, string fieldValue)
-		{
-			if(!string.IsNullOrWhiteSpace(fieldValue))
-				result = true;
 		}
 
 		public virtual bool IsNotEmpty {
@@ -985,6 +986,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		GenericObservableList<ISupplierPriceNode> observablePriceNodes;
+		private CounterpartySubtype _counterpartySubtype;
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<ISupplierPriceNode> ObservablePriceNodes {
@@ -1127,6 +1129,12 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion цены поставщика
+
+		private void CheckSpecialField(ref bool result, string fieldValue)
+		{
+			if(!string.IsNullOrWhiteSpace(fieldValue))
+				result = true;
+		}
 
 		public virtual string GetSpecialContractString()
 		{
@@ -1460,7 +1468,19 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Поставщик")]
 		Supplier,
 		[Display(Name = "Дилер")]
-		Dealer
+		Dealer,
+		[Display(Name = "Клиент РО")]
+		AdvertisingDepartmentClient
+	}
+
+	public enum CounterpartySubtype
+	{
+		[Display(Name = "Бартер")]
+		Barter,
+		[Display(Name = "Благотворительность")]
+		Charity,
+		[Display(Name = "Мероприятия")]
+		Events
 	}
 
 	public class CounterpartyTypeStringType : NHibernate.Type.EnumStringType
