@@ -151,6 +151,11 @@ namespace Vodovoz.Domain.Cash
 			{
 				yield return new ValidationResult("Длина пояснения не должна превышать 200 символов", new[] { nameof(Explanation) });
 			}
+
+			if(ExpenseCategoryId == null)
+			{
+				yield return new ValidationResult("Необходимо выбрать статью расхода", new[] { nameof(ExpenseCategoryId) });
+			}
 		}
 
 		public abstract void ChangeState(PayoutRequestState newState);
