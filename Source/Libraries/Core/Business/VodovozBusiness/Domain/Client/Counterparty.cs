@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -13,7 +6,13 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities;
-using Vodovoz.Domain.Cash;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -44,8 +43,8 @@ namespace Vodovoz.Domain.Client
 	{
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
 		private const int _specialContractNameLimit = 800;
-		public virtual IUnitOfWork UoW { get; set; }
 		private const int _cargoReceiverLimitSymbols = 500;
+
 		private bool _roboatsExclude;
 		private bool _isForSalesDepartment;
 		private ReasonForLeaving _reasonForLeaving;
@@ -65,256 +64,308 @@ namespace Vodovoz.Domain.Client
 		private string _firstName;
 		private string _surname;
 		private bool _needSendBillByEdo;
-
 		private IList<CounterpartyEdoOperator> _counterpartyEdoOperators = new List<CounterpartyEdoOperator>();
-		GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
+		private GenericObservableList<CounterpartyEdoOperator> _observableCounterpartyEdoOperators;
+		private IList<CounterpartyContract> _counterpartyContracts;
+		private IList<DeliveryPoint> _deliveryPoints = new List<DeliveryPoint>();
+		private GenericObservableList<DeliveryPoint> _observableDeliveryPoints;
+		private IList<Tag> _tags = new List<Tag>();
+		private GenericObservableList<Tag> _observableTags;
+		private IList<Contact> _contact = new List<Contact>();
+		private bool _isDeliveriesClosed;
+		private string _closeDeliveryComment;
+		private DateTime? _closeDeliveryDate;
+		private Employee _closeDeliveryPerson;
+		private IList<Proxy> _proxies;
+		private decimal _maxCredit;
+		private string _name;
+		private string _typeOfOwnership;
+		private string _fullName;
+		private int _vodovozInternalId;
+		private string _code1c;
+		private string _comment;
+		private string _iNN;
+		private string _kPP;
+		private string _oGRN;
+		private string _jurAddress;
+		private string _address;
+		private PaymentType _paymentMethod;
+		private PersonType _personType;
+		private int? _defaultExpenseCategoryId;
+		private Counterparty _mainCounterparty;
+		private Counterparty _previousCounterparty;
+		private bool _isArchive;
+		private IList<Phone> _phones = new List<Phone>();
+		private GenericObservableList<Phone> _observablePhones;
+		private string _ringUpPhone;
+		private IList<Email> _emails;
+		private Employee _accountant;
+		private Employee _salesManager;
+		private Employee _bottlesManager;
+		private Contact _mainContact;
+		private Contact _financialContact;
+		private DefaultDocumentType? _defaultDocumentType;
+		private bool _newBottlesNeeded;
+		private string _signatoryFIO;
+		private string _signatoryPost;
+		private string _signatoryBaseOf;
+		private string _phoneFrom1c;
+		private ClientCameFrom _cameFrom;
+		private Order _firstOrder;
+		private TaxType _taxType;
+		private DateTime? _createDate = DateTime.Now;
+		private LogisticsRequirements _logisticsRequirements;
+		private bool _useSpecialDocFields;
+		private bool _alwaysPrintInvoice;
+		private bool _specialExpireDatePercentCheck;
+		private decimal _specialExpireDatePercent;
+		private string _payerSpecialKPP;
+		private string _cargoReceiver;
+		private string _customer;
+		private string _govContract;
+		private string _deliveryAddress;
+		private int? _ttnCount;
+		private int? _torg2Count;
+		private int? _updCount;
+		private int? _updAllCount;
+		private int? _torg12Count;
+		private int? _shetFacturaCount;
+		private int? _carProxyCount;
+		private string _okpo;
+		private string _okdp;
+		private CargoReceiverSource _cargoReceiverSource;
+		private IList<SpecialNomenclature> _specialNomenclatures = new List<SpecialNomenclature>();
+		private GenericObservableList<SpecialNomenclature> _observableSpecialNomenclatures;
+		private int _delayDaysForProviders;
+		private int _delayDaysForBuyers;
+		private CounterpartyType _counterpartyType;
+		private bool _isChainStore;
+		private bool _isForRetail;
+		private bool _noPhoneCall;
+		private IList<SalesChannel> _salesChannels = new List<SalesChannel>();
+		private GenericObservableList<SalesChannel> _observableSalesChannels;
+		private int _technicalProcessingDelay;
+		private IList<SupplierPriceItem> _suplierPriceItems = new List<SupplierPriceItem>();
+		private GenericObservableList<SupplierPriceItem> _observableSuplierPriceItems;
+		private bool _alwaysSendReceipts;
+		private IList<NomenclatureFixedPrice> _nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
+		private GenericObservableList<NomenclatureFixedPrice> _observableNomenclatureFixedPrices;
+		private IList<CounterpartyFile> _files = new List<CounterpartyFile>();
+		private GenericObservableList<CounterpartyFile> _observableFiles;
+		private Organization _worksThroughOrganization;
+		private IList<ISupplierPriceNode> _priceNodes = new List<ISupplierPriceNode>();
+		private GenericObservableList<ISupplierPriceNode> _observablePriceNodes;
+		private CounterpartySubtype _counterpartySubtype;
 
 		#region Свойства
 
-		private IList<CounterpartyContract> counterpartyContracts;
+		public virtual IUnitOfWork UoW { get; set; }
 
 		[Display(Name = "Договоры")]
 		public virtual IList<CounterpartyContract> CounterpartyContracts
 		{
-			get => counterpartyContracts;
-			set => SetField(ref counterpartyContracts, value);
+			get => _counterpartyContracts;
+			set => SetField(ref _counterpartyContracts, value);
 		}
-
-		private IList<DeliveryPoint> deliveryPoints = new List<DeliveryPoint>();
 
 		[Display(Name = "Точки доставки")]
 		public virtual IList<DeliveryPoint> DeliveryPoints
 		{
-			get => deliveryPoints;
-			set => SetField(ref deliveryPoints, value);
+			get => _deliveryPoints;
+			set => SetField(ref _deliveryPoints, value);
 		}
 
-		GenericObservableList<DeliveryPoint> observableDeliveryPoints;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<DeliveryPoint> ObservableDeliveryPoints
 		{
 			get
 			{
-				if(observableDeliveryPoints == null)
-					observableDeliveryPoints = new GenericObservableList<DeliveryPoint>(DeliveryPoints);
-				return observableDeliveryPoints;
+				if(_observableDeliveryPoints == null)
+				{
+					_observableDeliveryPoints = new GenericObservableList<DeliveryPoint>(DeliveryPoints);
+				}
+
+				return _observableDeliveryPoints;
 			}
 		}
-
-		private IList<Tag> tags = new List<Tag>();
 
 		[Display(Name = "Теги")]
 		public virtual IList<Tag> Tags
 		{
-			get => tags;
-			set => SetField(ref tags, value);
+			get => _tags;
+			set => SetField(ref _tags, value);
 		}
 
-		GenericObservableList<Tag> observableTags;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Tag> ObservableTags
 		{
 			get
 			{
-				if(observableTags == null)
-					observableTags = new GenericObservableList<Tag>(Tags);
-				return observableTags;
+				if(_observableTags == null)
+				{
+					_observableTags = new GenericObservableList<Tag>(Tags);
+				}
+
+				return _observableTags;
 			}
 		}
-
-		private IList<Contact> contact = new List<Contact>();
 
 		[Display(Name = "Контактные лица")]
 		public virtual IList<Contact> Contacts
 		{
-			get => contact;
-			set => SetField(ref contact, value);
+			get => _contact;
+			set => SetField(ref _contact, value);
 		}
 
 		#region CloseDelivery
 
-		private bool isDeliveriesClosed;
-
 		[Display(Name = "Поставки закрыты?")]
 		public virtual bool IsDeliveriesClosed
 		{
-			get => isDeliveriesClosed;
-			protected set => SetField(ref isDeliveriesClosed, value);
+			get => _isDeliveriesClosed;
+			protected set => SetField(ref _isDeliveriesClosed, value);
 		}
-
-		private string closeDeliveryComment;
 
 		[Display(Name = "Комментарий по закрытию поставок")]
 		public virtual string CloseDeliveryComment
 		{
-			get => closeDeliveryComment;
-			set => SetField(ref closeDeliveryComment, value);
+			get => _closeDeliveryComment;
+			set => SetField(ref _closeDeliveryComment, value);
 		}
-
-		private DateTime? closeDeliveryDate;
 
 		[Display(Name = "Дата закрытия поставок")]
 		public virtual DateTime? CloseDeliveryDate
 		{
-			get => closeDeliveryDate;
-			protected set => SetField(ref closeDeliveryDate, value);
+			get => _closeDeliveryDate;
+			protected set => SetField(ref _closeDeliveryDate, value);
 		}
-
-		private Employee closeDeliveryPerson;
 
 		[Display(Name = "Сотрудник закрывший поставки")]
 		public virtual Employee CloseDeliveryPerson
 		{
-			get => closeDeliveryPerson;
-			protected set => SetField(ref closeDeliveryPerson, value);
+			get => _closeDeliveryPerson;
+			protected set => SetField(ref _closeDeliveryPerson, value);
 		}
 
 		#endregion CloseDelivery
 
-		private IList<Proxy> proxies;
-
 		[Display(Name = "Доверенности")]
 		public virtual IList<Proxy> Proxies
 		{
-			get => proxies;
-			set => SetField(ref proxies, value);
+			get => _proxies;
+			set => SetField(ref _proxies, value);
 		}
 
 		public virtual int Id { get; set; }
 
-		decimal maxCredit;
-
 		[Display(Name = "Максимальный кредит")]
 		public virtual decimal MaxCredit
 		{
-			get => maxCredit;
-			set => SetField(ref maxCredit, value);
+			get => _maxCredit;
+			set => SetField(ref _maxCredit, value);
 		}
-
-		string name;
 
 		[Required(ErrorMessage = "Название контрагента должно быть заполнено.")]
 		[Display(Name = "Название")]
 		public virtual string Name
 		{
-			get => name;
+			get => _name;
 			set
 			{
-				if(SetField(ref name, value) && PersonType == PersonType.natural)
+				if(SetField(ref _name, value) && PersonType == PersonType.natural)
+				{
 					FullName = Name;
+				}
 			}
 		}
-
-		string typeOfOwnership;
 
 		[Display(Name = "Форма собственности")]
 		[StringLength(10)]
 		public virtual string TypeOfOwnership
 		{
-			get => typeOfOwnership;
-			set => SetField(ref typeOfOwnership, value);
+			get => _typeOfOwnership;
+			set => SetField(ref _typeOfOwnership, value);
 		}
-
-		string fullName;
 
 		[Display(Name = "Полное название")]
 		public virtual string FullName
 		{
-			get => fullName;
-			set => SetField(ref fullName, value);
+			get => _fullName;
+			set => SetField(ref _fullName, value);
 		}
 
 		/// <summary>
 		/// Генерируется триггером на строне БД.
 		/// </summary>
-		int vodovozInternalId;
 		[Display(Name = "Внутренний номер контрагента")]
 		public virtual int VodovozInternalId
 		{
-			get => vodovozInternalId;
-			set => SetField(ref vodovozInternalId, value);
+			get => _vodovozInternalId;
+			set => SetField(ref _vodovozInternalId, value);
 		}
-
-		string code1c;
 
 		public virtual string Code1c
 		{
-			get => code1c;
-			set => SetField(ref code1c, value);
+			get => _code1c;
+			set => SetField(ref _code1c, value);
 		}
-
-		string comment;
 
 		[Display(Name = "Комментарий")]
 		public virtual string Comment
 		{
-			get => comment;
-			set => SetField(ref comment, value);
+			get => _comment;
+			set => SetField(ref _comment, value);
 		}
-
-		string iNN;
 
 		[Display(Name = "ИНН")]
 		public virtual string INN
 		{
-			get => iNN;
-			set => SetField(ref iNN, value);
+			get => _iNN;
+			set => SetField(ref _iNN, value);
 		}
-
-		string kPP;
 
 		[Display(Name = "КПП")]
 		public virtual string KPP
 		{
-			get => kPP;
-			set => SetField(ref kPP, value);
+			get => _kPP;
+			set => SetField(ref _kPP, value);
 		}
-
-		string oGRN;
 
 		[Display(Name = "ОГРН")]
 		public virtual string OGRN
 		{
-			get => oGRN;
-			set => SetField(ref oGRN, value);
+			get => _oGRN;
+			set => SetField(ref _oGRN, value);
 		}
-
-		string jurAddress;
 
 		[Display(Name = "Юридический адрес")]
 		public virtual string JurAddress
 		{
-			get => jurAddress;
-			set => SetField(ref jurAddress, value);
+			get => _jurAddress;
+			set => SetField(ref _jurAddress, value);
 		}
-
-		string address;
 
 		[Display(Name = "Фактический адрес")]
 		public virtual string Address
 		{
-			get => address;
-			set => SetField(ref address, value);
+			get => _address;
+			set => SetField(ref _address, value);
 		}
-
-		PaymentType paymentMethod;
 
 		[Display(Name = "Вид оплаты")]
 		public virtual PaymentType PaymentMethod
 		{
-			get => paymentMethod;
-			set => SetField(ref paymentMethod, value);
+			get => _paymentMethod;
+			set => SetField(ref _paymentMethod, value);
 		}
-
-		PersonType personType;
 
 		[Display(Name = "Форма контрагента")]
 		public virtual PersonType PersonType
 		{
-			get => personType;
+			get => _personType;
 			set
 			{
-				SetField(ref personType, value);
+				SetField(ref _personType, value);
 
 				if(value == PersonType.natural)
 				{
@@ -322,8 +373,6 @@ namespace Vodovoz.Domain.Client
 				}
 			}
 		}
-
-		private int? _defaultExpenseCategoryId;
 
 		[Display(Name = "Расход по-умолчанию")]
 		[HistoryIdentifier(TargetType = typeof(FinancialExpenseCategory))]
@@ -333,71 +382,60 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _defaultExpenseCategoryId, value);
 		}
 
-		Counterparty mainCounterparty;
-
 		[Display(Name = "Головная организация")]
 		public virtual Counterparty MainCounterparty
 		{
-			get => mainCounterparty;
-			set => SetField(ref mainCounterparty, value);
+			get => _mainCounterparty;
+			set => SetField(ref _mainCounterparty, value);
 		}
-
-		Counterparty previousCounterparty;
 
 		[Display(Name = "Предыдущий контрагент")]
 		public virtual Counterparty PreviousCounterparty
 		{
-			get => previousCounterparty;
-			set => SetField(ref previousCounterparty, value);
+			get => _previousCounterparty;
+			set => SetField(ref _previousCounterparty, value);
 		}
-
-		bool isArchive;
 
 		[Display(Name = "Архивный")]
 		public virtual bool IsArchive
 		{
-			get => isArchive;
-			set => SetField(ref isArchive, value);
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
-
-		IList<Phone> phones = new List<Phone>();
 
 		[Display(Name = "Телефоны")]
 		public virtual IList<Phone> Phones
 		{
-			get => phones;
-			set => SetField(ref phones, value);
+			get => _phones;
+			set => SetField(ref _phones, value);
 		}
 
-		GenericObservableList<Phone> observablePhones;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<Phone> ObservablePhones
 		{
 			get
 			{
-				if(observablePhones == null)
-					observablePhones = new GenericObservableList<Phone>(Phones);
-				return observablePhones;
+				if(_observablePhones == null)
+				{
+					_observablePhones = new GenericObservableList<Phone>(Phones);
+				}
+
+				return _observablePhones;
 			}
 		}
-
-		string ringUpPhone;
 
 		[Display(Name = "Телефон для обзвона")]
 		public virtual string RingUpPhone
 		{
-			get => ringUpPhone;
-			set => SetField(ref ringUpPhone, value);
+			get => _ringUpPhone;
+			set => SetField(ref _ringUpPhone, value);
 		}
-
-
-		IList<Email> emails;
 
 		[Display(Name = "E-mail адреса")]
 		public virtual IList<Email> Emails
 		{
-			get => emails;
-			set => SetField(ref emails, value);
+			get => _emails;
+			set => SetField(ref _emails, value);
 		}
 
 		[Display(Name = "Все операторы ЭДО контрагента")]
@@ -411,140 +449,111 @@ namespace Vodovoz.Domain.Client
 		public virtual GenericObservableList<CounterpartyEdoOperator> ObservableCounterpartyEdoOperators =>
 				_observableCounterpartyEdoOperators ?? (_observableCounterpartyEdoOperators = new GenericObservableList<CounterpartyEdoOperator>(CounterpartyEdoOperators));
 
-
-		Employee accountant;
-
 		[Display(Name = "Бухгалтер")]
 		public virtual Employee Accountant
 		{
-			get => accountant;
-			set => SetField(ref accountant, value);
+			get => _accountant;
+			set => SetField(ref _accountant, value);
 		}
-
-		Employee salesManager;
 
 		[Display(Name = "Менеджер по продажам")]
 		public virtual Employee SalesManager
 		{
-			get => salesManager;
-			set => SetField(ref salesManager, value);
+			get => _salesManager;
+			set => SetField(ref _salesManager, value);
 		}
-
-		Employee bottlesManager;
 
 		[Display(Name = "Менеджер по бутылям")]
 		public virtual Employee BottlesManager
 		{
-			get => bottlesManager;
-			set => SetField(ref bottlesManager, value);
+			get => _bottlesManager;
+			set => SetField(ref _bottlesManager, value);
 		}
-
-		Contact mainContact;
 
 		[Display(Name = "Главное контактное лицо")]
 		public virtual Contact MainContact
 		{
-			get => mainContact;
-			set => SetField(ref mainContact, value);
+			get => _mainContact;
+			set => SetField(ref _mainContact, value);
 		}
-
-		Contact financialContact;
 
 		[Display(Name = "Контакт по финансовым вопросам")]
 		public virtual Contact FinancialContact
 		{
-			get => financialContact;
-			set => SetField(ref financialContact, value);
+			get => _financialContact;
+			set => SetField(ref _financialContact, value);
 		}
-
-		DefaultDocumentType? defaultDocumentType;
 
 		[Display(Name = "Тип безналичных документов по-умолчанию")]
 		public virtual DefaultDocumentType? DefaultDocumentType
 		{
-			get => defaultDocumentType;
-			set => SetField(ref defaultDocumentType, value);
+			get => _defaultDocumentType;
+			set => SetField(ref _defaultDocumentType, value);
 		}
-
-		private bool newBottlesNeeded;
 
 		[Display(Name = "Новая необоротная тара")]
 		public virtual bool NewBottlesNeeded
 		{
-			get => newBottlesNeeded;
-			set => SetField(ref newBottlesNeeded, value);
+			get => _newBottlesNeeded;
+			set => SetField(ref _newBottlesNeeded, value);
 		}
-
-		string signatoryFIO;
 
 		[Display(Name = "ФИО подписанта")]
 		public virtual string SignatoryFIO
 		{
-			get => signatoryFIO;
-			set => SetField(ref signatoryFIO, value);
+			get => _signatoryFIO;
+			set => SetField(ref _signatoryFIO, value);
 		}
-
-		string signatoryPost;
 
 		[Display(Name = "Должность подписанта")]
 		public virtual string SignatoryPost
 		{
-			get => signatoryPost;
-			set => SetField(ref signatoryPost, value);
+			get => _signatoryPost;
+			set => SetField(ref _signatoryPost, value);
 		}
-
-		string signatoryBaseOf;
 
 		[Display(Name = "На основании")]
 		public virtual string SignatoryBaseOf
 		{
-			get => signatoryBaseOf;
-			set => SetField(ref signatoryBaseOf, value);
+			get => _signatoryBaseOf;
+			set => SetField(ref _signatoryBaseOf, value);
 		}
-
-		string phoneFrom1c;
 
 		[Display(Name = "Телефон")]
 		public virtual string PhoneFrom1c
 		{
-			get => phoneFrom1c;
-			set => SetField(ref phoneFrom1c, value);
+			get => _phoneFrom1c;
+			set => SetField(ref _phoneFrom1c, value);
 		}
-
-		ClientCameFrom cameFrom;
 
 		[Display(Name = "Откуда клиент")]
 		public virtual ClientCameFrom CameFrom
 		{
-			get => cameFrom;
-			set => SetField(ref cameFrom, value);
+			get => _cameFrom;
+			set => SetField(ref _cameFrom, value);
 		}
-
-		Order firstOrder;
+		
 		[Display(Name = "Первый заказ")]
 		public virtual Order FirstOrder
 		{
-			get => firstOrder;
-			set => SetField(ref firstOrder, value);
+			get => _firstOrder;
+			set => SetField(ref _firstOrder, value);
 		}
-
-		TaxType taxType;
+		
 		[Display(Name = "Налогобложение")]
 		public virtual TaxType TaxType
 		{
-			get => taxType;
-			set => SetField(ref taxType, value);
+			get => _taxType;
+			set => SetField(ref _taxType, value);
 		}
 
-		private DateTime? createDate = DateTime.Now;
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate
 		{
-			get => createDate;
-			set => SetField(ref createDate, value);
+			get => _createDate;
+			set => SetField(ref _createDate, value);
 		}
 
-		private LogisticsRequirements _logisticsRequirements;
 		[Display(Name = "Требования к логистике")]
 		public virtual LogisticsRequirements LogisticsRequirements
 		{
@@ -553,36 +562,35 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#region ОсобаяПечать
-		bool useSpecialDocFields;
+		
 		[Display(Name = "Особая печать документов")]
 		public virtual bool UseSpecialDocFields
 		{
-			get => useSpecialDocFields;
-			set => SetField(ref useSpecialDocFields, value);
+			get => _useSpecialDocFields;
+			set => SetField(ref _useSpecialDocFields, value);
 		}
 
-		bool alwaysPrintInvoice;
 		[Display(Name = "Всегда печатать накладную")]
 		public virtual bool AlwaysPrintInvoice
 		{
-			get => alwaysPrintInvoice;
-			set => SetField(ref alwaysPrintInvoice, value);
-		}
-		#region Особое требование срок годности
-		[Display(Name = "Особое требование: требуется срок годности")]
-		bool specialExpireDatePercentCheck;
-		public virtual bool SpecialExpireDatePercentCheck
-		{
-			get => specialExpireDatePercentCheck;
-			set => SetField(ref specialExpireDatePercentCheck, value);
+			get => _alwaysPrintInvoice;
+			set => SetField(ref _alwaysPrintInvoice, value);
 		}
 
-		decimal specialExpireDatePercent;
+		#region Особое требование срок годности
+
+		[Display(Name = "Особое требование: требуется срок годности")]
+		public virtual bool SpecialExpireDatePercentCheck
+		{
+			get => _specialExpireDatePercentCheck;
+			set => SetField(ref _specialExpireDatePercentCheck, value);
+		}
+
 		[Display(Name = "Особое требование: срок годности %")]
 		public virtual decimal SpecialExpireDatePercent
 		{
-			get => specialExpireDatePercent;
-			set => SetField(ref specialExpireDatePercent, value);
+			get => _specialExpireDatePercent;
+			set => SetField(ref _specialExpireDatePercent, value);
 		}
 
 		#endregion Особое требование срок годности
@@ -608,144 +616,129 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _specialContractDate, value);
 		}
 
-		string payerSpecialKPP;
 		[Display(Name = "Особый КПП плательщика")]
 		public virtual string PayerSpecialKPP
 		{
-			get => payerSpecialKPP;
-			set => SetField(ref payerSpecialKPP, value);
+			get => _payerSpecialKPP;
+			set => SetField(ref _payerSpecialKPP, value);
 		}
 
-		string cargoReceiver;
 		[Display(Name = "Грузополучатель")]
 		public virtual string CargoReceiver
 		{
-			get => cargoReceiver;
-			set => SetField(ref cargoReceiver, value);
+			get => _cargoReceiver;
+			set => SetField(ref _cargoReceiver, value);
 		}
 
-		string customer;
 		[Display(Name = "Особый покупатель")]
 		public virtual string SpecialCustomer
 		{
-			get => customer;
-			set => SetField(ref customer, value);
+			get => _customer;
+			set => SetField(ref _customer, value);
 		}
 
-		string govContract;
 		[Display(Name = "Идентификатор государственного контракта")]
 		public virtual string GovContract
 		{
-			get => govContract;
-			set => SetField(ref govContract, value);
+			get => _govContract;
+			set => SetField(ref _govContract, value);
 		}
 
-		string deliveryAddress;
 		[Display(Name = "Особый адрес доставки")]
 		public virtual string SpecialDeliveryAddress
 		{
-			get => deliveryAddress;
-			set => SetField(ref deliveryAddress, value);
+			get => _deliveryAddress;
+			set => SetField(ref _deliveryAddress, value);
 		}
 
-		int? ttnCount;
 		[Display(Name = "Кол-во ТТН")]
 		public virtual int? TTNCount
 		{
-			get => ttnCount;
-			set => SetField(ref ttnCount, value);
+			get => _ttnCount;
+			set => SetField(ref _ttnCount, value);
 		}
 
-		int? torg2Count;
 		[Display(Name = "Кол-во Торг-2")]
 		public virtual int? Torg2Count
 		{
-			get => torg2Count;
-			set => SetField(ref torg2Count, value);
+			get => _torg2Count;
+			set => SetField(ref _torg2Count, value);
 		}
 
-		int? updCount;
 		[Display(Name = "Кол-во УПД(не для безнала)")]
 		public virtual int? UPDCount
 		{
-			get => updCount;
-			set => SetField(ref updCount, value);
+			get => _updCount;
+			set => SetField(ref _updCount, value);
 		}
 
-		int? updAllCount;
 		[Display(Name = "Кол-во УПД")]
 		public virtual int? AllUPDCount
 		{
-			get => updAllCount;
-			set => SetField(ref updAllCount, value);
+			get => _updAllCount;
+			set => SetField(ref _updAllCount, value);
 		}
 
-		int? torg12Count;
 		[Display(Name = "Кол-во Торг-12")]
 		public virtual int? Torg12Count
 		{
-			get => torg12Count;
-			set => SetField(ref torg12Count, value);
+			get => _torg12Count;
+			set => SetField(ref _torg12Count, value);
 		}
 
-		int? shetFacturaCount;
 		[Display(Name = "Кол-во отчет-фактур")]
 		public virtual int? ShetFacturaCount
 		{
-			get => shetFacturaCount;
-			set => SetField(ref shetFacturaCount, value);
+			get => _shetFacturaCount;
+			set => SetField(ref _shetFacturaCount, value);
 		}
 
-		int? carProxyCount;
 		[Display(Name = "Кол-во доверенностей вод-ль")]
 		public virtual int? CarProxyCount
 		{
-			get => carProxyCount;
-			set => SetField(ref carProxyCount, value);
+			get => _carProxyCount;
+			set => SetField(ref _carProxyCount, value);
 		}
 
-		string okpo;
 		[Display(Name = "ОКПО")]
 		public virtual string OKPO
 		{
-			get => okpo;
-			set => SetField(ref okpo, value);
+			get => _okpo;
+			set => SetField(ref _okpo, value);
 		}
 
-		string okdp;
 		[Display(Name = "ОКДП")]
 		public virtual string OKDP
 		{
-			get => okdp;
-			set => SetField(ref okdp, value);
+			get => _okdp;
+			set => SetField(ref _okdp, value);
 		}
 
-		CargoReceiverSource cargoReceiverSource;
 		[Display(Name = "Источник грузополучателя")]
 		public virtual CargoReceiverSource CargoReceiverSource
 		{
-			get => cargoReceiverSource;
-			set => SetField(ref cargoReceiverSource, value);
+			get => _cargoReceiverSource;
+			set => SetField(ref _cargoReceiverSource, value);
 		}
 
-
-		IList<SpecialNomenclature> specialNomenclatures = new List<SpecialNomenclature>();
 		[Display(Name = "Особенный номер ТМЦ")]
 		public virtual IList<SpecialNomenclature> SpecialNomenclatures
 		{
-			get => specialNomenclatures;
-			set => SetField(ref specialNomenclatures, value);
+			get => _specialNomenclatures;
+			set => SetField(ref _specialNomenclatures, value);
 		}
 
-		GenericObservableList<SpecialNomenclature> observableSpecialNomenclatures;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<SpecialNomenclature> ObservableSpecialNomenclatures
 		{
 			get
 			{
-				if(observableSpecialNomenclatures == null)
-					observableSpecialNomenclatures = new GenericObservableList<SpecialNomenclature>(SpecialNomenclatures);
-				return observableSpecialNomenclatures;
+				if(_observableSpecialNomenclatures == null)
+				{
+					_observableSpecialNomenclatures = new GenericObservableList<SpecialNomenclature>(SpecialNomenclatures);
+				}
+
+				return _observableSpecialNomenclatures;
 			}
 		}
 
@@ -860,51 +853,46 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
-		int delayDaysForProviders;
 		[Display(Name = "Отсрочка дней")]
 		public virtual int DelayDaysForProviders
 		{
-			get => delayDaysForProviders;
-			set => SetField(ref delayDaysForProviders, value);
+			get => _delayDaysForProviders;
+			set => SetField(ref _delayDaysForProviders, value);
 		}
 
-		int delayDaysForBuyers;
 		[Display(Name = "Отсрочка дней покупателям")]
 		public virtual int DelayDaysForBuyers
 		{
-			get => delayDaysForBuyers;
-			set => SetField(ref delayDaysForBuyers, value);
+			get => _delayDaysForBuyers;
+			set => SetField(ref _delayDaysForBuyers, value);
 		}
 
-		CounterpartyType counterpartyType;
 		[Display(Name = "Тип контрагента")]
 		public virtual CounterpartyType CounterpartyType
 		{
-			get => counterpartyType;
-			set => SetField(ref counterpartyType, value);
+			get => _counterpartyType;
+			set => SetField(ref _counterpartyType, value);
 		}
 
 		[Display(Name = "Подтип контрагента")]
-		CounterpartySubtype CounterpartySubtype
+		private CounterpartySubtype CounterpartySubtype
 		{
 			get => _counterpartySubtype;
 			set => SetField(ref _counterpartySubtype, value);
 		}
 
-		private bool isChainStore;
 		[Display(Name = "Сетевой магазин")]
 		public virtual bool IsChainStore
 		{
-			get => isChainStore;
-			set => SetField(ref isChainStore, value);
+			get => _isChainStore;
+			set => SetField(ref _isChainStore, value);
 		}
 
-		private bool isForRetail;
 		[Display(Name = "Для розницы")]
 		public virtual bool IsForRetail
 		{
-			get => isForRetail;
-			set => SetField(ref isForRetail, value);
+			get => _isForRetail;
+			set => SetField(ref _isForRetail, value);
 		}
 
 		[Display(Name = "Для отдела продаж")]
@@ -914,12 +902,11 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _isForSalesDepartment, value);
 		}
 
-		private bool noPhoneCall;
 		[Display(Name = "Без прозвона")]
 		public virtual bool NoPhoneCall
 		{
-			get => noPhoneCall;
-			set => SetField(ref noPhoneCall, value);
+			get => _noPhoneCall;
+			set => SetField(ref _noPhoneCall, value);
 		}
 
 		[Display(Name = "Исключение из Roboats звонков")]
@@ -929,57 +916,57 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _roboatsExclude, value);
 		}
 
-		IList<SalesChannel> salesChannels = new List<SalesChannel>();
 		[PropertyChangedAlso(nameof(ObservableSalesChannels))]
 		[Display(Name = "Каналы сбыта")]
 		public virtual IList<SalesChannel> SalesChannels
 		{
-			get => salesChannels;
-			set => SetField(ref salesChannels, value);
+			get => _salesChannels;
+			set => SetField(ref _salesChannels, value);
 		}
 
-		GenericObservableList<SalesChannel> observableSalesChannels;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<SalesChannel> ObservableSalesChannels
 		{
 			get
 			{
-				if(observableSalesChannels == null)
-					observableSalesChannels = new GenericObservableList<SalesChannel>(SalesChannels);
-				return observableSalesChannels;
+				if(_observableSalesChannels == null)
+				{
+					_observableSalesChannels = new GenericObservableList<SalesChannel>(SalesChannels);
+				}
+
+				return _observableSalesChannels;
 			}
 		}
 
-		private int technicalProcessingDelay;
 		[Display(Name = "Отсрочка технической обработки")]
 		public virtual int TechnicalProcessingDelay
 		{
-			get => technicalProcessingDelay;
-			set => SetField(ref technicalProcessingDelay, value);
+			get => _technicalProcessingDelay;
+			set => SetField(ref _technicalProcessingDelay, value);
 		}
 
-		IList<SupplierPriceItem> suplierPriceItems = new List<SupplierPriceItem>();
 		[PropertyChangedAlso(nameof(ObservablePriceNodes))]
 		[Display(Name = "Цены на ТМЦ")]
 		public virtual IList<SupplierPriceItem> SuplierPriceItems
 		{
-			get => suplierPriceItems;
-			set => SetField(ref suplierPriceItems, value);
+			get => _suplierPriceItems;
+			set => SetField(ref _suplierPriceItems, value);
 		}
 
-		GenericObservableList<SupplierPriceItem> observableSuplierPriceItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<SupplierPriceItem> ObservableSuplierPriceItems
 		{
 			get
 			{
-				if(observableSuplierPriceItems == null)
-					observableSuplierPriceItems = new GenericObservableList<SupplierPriceItem>(SuplierPriceItems);
-				return observableSuplierPriceItems;
+				if(_observableSuplierPriceItems == null)
+				{
+					_observableSuplierPriceItems = new GenericObservableList<SupplierPriceItem>(SuplierPriceItems);
+				}
+
+				return _observableSuplierPriceItems;
 			}
 		}
 
-		private bool _alwaysSendReceipts;
 		[RestrictedHistoryProperty]
 		[IgnoreHistoryTrace]
 		[Display(Name = "Всегда отправлять чеки")]
@@ -989,43 +976,41 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _alwaysSendReceipts, value);
 		}
 
-		private IList<NomenclatureFixedPrice> nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
 		[Display(Name = "Фиксированные цены")]
 		public virtual IList<NomenclatureFixedPrice> NomenclatureFixedPrices
 		{
-			get => nomenclatureFixedPrices;
-			set => SetField(ref nomenclatureFixedPrices, value);
+			get => _nomenclatureFixedPrices;
+			set => SetField(ref _nomenclatureFixedPrices, value);
 		}
 
-		private GenericObservableList<NomenclatureFixedPrice> observableNomenclatureFixedPrices;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<NomenclatureFixedPrice> ObservableNomenclatureFixedPrices
 		{
-			get => observableNomenclatureFixedPrices ?? (observableNomenclatureFixedPrices =
+			get => _observableNomenclatureFixedPrices ?? (_observableNomenclatureFixedPrices =
 				new GenericObservableList<NomenclatureFixedPrice>(NomenclatureFixedPrices));
 		}
 
-		IList<CounterpartyFile> files = new List<CounterpartyFile>();
 		[Display(Name = "Документы")]
 		public virtual IList<CounterpartyFile> Files
 		{
-			get => files;
-			set => SetField(ref files, value);
+			get => _files;
+			set => SetField(ref _files, value);
 		}
 
-		GenericObservableList<CounterpartyFile> observableFiles;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<CounterpartyFile> ObservableFiles
 		{
 			get
 			{
-				if(observableFiles == null)
-					observableFiles = new GenericObservableList<CounterpartyFile>(Files);
-				return observableFiles;
+				if(_observableFiles == null)
+				{
+					_observableFiles = new GenericObservableList<CounterpartyFile>(Files);
+				}
+
+				return _observableFiles;
 			}
 		}
 
-		private Organization _worksThroughOrganization;
 		[Display(Name = "Работает через организацию")]
 		public virtual Organization WorksThroughOrganization
 		{
@@ -1064,24 +1049,23 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		IList<ISupplierPriceNode> priceNodes = new List<ISupplierPriceNode>();
 		public virtual IList<ISupplierPriceNode> PriceNodes
 		{
-			get => priceNodes;
-			set => SetField(ref priceNodes, value);
+			get => _priceNodes;
+			set => SetField(ref _priceNodes, value);
 		}
-
-		GenericObservableList<ISupplierPriceNode> observablePriceNodes;
-		private CounterpartySubtype _counterpartySubtype;
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<ISupplierPriceNode> ObservablePriceNodes
 		{
 			get
 			{
-				if(observablePriceNodes == null)
-					observablePriceNodes = new GenericObservableList<ISupplierPriceNode>(PriceNodes);
-				return observablePriceNodes;
+				if(_observablePriceNodes == null)
+				{
+					_observablePriceNodes = new GenericObservableList<ISupplierPriceNode>(PriceNodes);
+				}
+
+				return _observablePriceNodes;
 			}
 		}
 
@@ -1142,14 +1126,20 @@ namespace Vodovoz.Domain.Client
 			bool ShortOrFullNameContainsSearchValues(Nomenclature nom)
 			{
 				if(searchValues == null)
+				{
 					return true;
+				}
 
 				var shortOrFullName = nom.ShortOrFullName.ToLower();
+
 				foreach(var val in searchValues)
 				{
 					if(!shortOrFullName.Contains(val.ToLower()))
+					{
 						return false;
+					}
 				}
+
 				return true;
 			}
 
@@ -1158,8 +1148,8 @@ namespace Vodovoz.Domain.Client
 			var pItems = SuplierPriceItems.Select(i => i.NomenclatureToBuy)
 										  .Distinct()
 										  .Where(i => ShortOrFullNameContainsSearchValues(i)
-												   || searchValues.Contains(i.Id.ToString()))
-										  ;
+												|| searchValues.Contains(i.Id.ToString()));
+
 			foreach(var nom in pItems)
 			{
 				var sNom = new SellingNomenclature
@@ -1170,8 +1160,12 @@ namespace Vodovoz.Domain.Client
 				};
 
 				var children = SuplierPriceItems.Cast<ISupplierPriceNode>().Where(i => i.NomenclatureToBuy == nom).ToList();
+
 				foreach(var i in children)
+				{
 					i.Parent = sNom;
+				}
+
 				sNom.Children = children;
 				ObservablePriceNodes.Add(sNom);
 			}
@@ -1198,6 +1192,7 @@ namespace Vodovoz.Domain.Client
 			{
 				return;
 			}
+
 			file.Counterparty = this;
 			ObservableFiles.Add(file);
 		}
@@ -1213,8 +1208,7 @@ namespace Vodovoz.Domain.Client
 		public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
 		{
 			var removableItems = new List<SupplierPriceItem>(
-				ObservableSuplierPriceItems.Where(i => i.NomenclatureToBuy.Id == nomenclatureId).ToList()
-			);
+				ObservableSuplierPriceItems.Where(i => i.NomenclatureToBuy.Id == nomenclatureId).ToList());
 
 			foreach(var item in removableItems)
 			{
@@ -1227,7 +1221,9 @@ namespace Vodovoz.Domain.Client
 		private void CheckSpecialField(ref bool result, string fieldValue)
 		{
 			if(!string.IsNullOrWhiteSpace(fieldValue))
+			{
 				result = true;
+			}
 		}
 
 		public virtual string GetSpecialContractString()
@@ -1267,10 +1263,17 @@ namespace Vodovoz.Domain.Client
 		public virtual bool CheckForINNDuplicate(ICounterpartyRepository counterpartyRepository, IUnitOfWork uow)
 		{
 			IList<Counterparty> counterarties = counterpartyRepository.GetCounterpartiesByINN(uow, INN);
+
 			if(counterarties == null)
+			{
 				return false;
+			}
+
 			if(counterarties.Any(x => x.Id != Id))
+			{
 				return true;
+			}
+
 			return false;
 		}
 
@@ -1322,14 +1325,17 @@ namespace Vodovoz.Domain.Client
 
 			if(CheckForINNDuplicate(counterpartyRepository, UoW))
 			{
-				yield return new ValidationResult("Контрагент с данным ИНН уже существует.",
-												  new[] { this.GetPropertyName(o => o.INN) });
+				yield return new ValidationResult(
+					"Контрагент с данным ИНН уже существует.",
+					new[] { this.GetPropertyName(o => o.INN) });
 			}
+
 			if(UseSpecialDocFields && PayerSpecialKPP != null && PayerSpecialKPP.Length != 9)
 			{
 				yield return new ValidationResult("Длина КПП для документов должна равнятся 9-ти.",
-						new[] { this.GetPropertyName(o => o.KPP) });
+					new[] { this.GetPropertyName(o => o.KPP) });
 			}
+
 			if(PersonType == PersonType.legal)
 			{
 				if(TypeOfOwnership == null || TypeOfOwnership.Length == 0)
@@ -1337,32 +1343,55 @@ namespace Vodovoz.Domain.Client
 					yield return new ValidationResult("Не заполнена Форма собственности.",
 						new[] { nameof(TypeOfOwnership) });
 				}
+
 				if(KPP?.Length != 9 && KPP?.Length != 0 && TypeOfOwnership != "ИП")
+				{
 					yield return new ValidationResult("Длина КПП должна равнятся 9-ти.",
 						new[] { this.GetPropertyName(o => o.KPP) });
+				}
+
 				if(INN.Length != 10 && INN.Length != 0 && TypeOfOwnership != "ИП")
+				{
 					yield return new ValidationResult("Длина ИНН должна равнятся 10-ти.",
 						new[] { this.GetPropertyName(o => o.INN) });
+				}
+
 				if(INN.Length != 12 && INN.Length != 0 && TypeOfOwnership == "ИП")
+				{
 					yield return new ValidationResult("Длина ИНН для ИП должна равнятся 12-ти.",
 						new[] { this.GetPropertyName(o => o.INN) });
+				}
+
 				if(string.IsNullOrWhiteSpace(KPP) && TypeOfOwnership != "ИП")
+				{
 					yield return new ValidationResult("Для организации необходимо заполнить КПП.",
 						new[] { this.GetPropertyName(o => o.KPP) });
+				}
+
 				if(string.IsNullOrWhiteSpace(INN))
+				{
 					yield return new ValidationResult("Для организации необходимо заполнить ИНН.",
 						new[] { this.GetPropertyName(o => o.INN) });
+				}
+
 				if(KPP != null && !Regex.IsMatch(KPP, "^[0-9]*$") && TypeOfOwnership != "ИП")
+				{
 					yield return new ValidationResult("КПП может содержать только цифры.",
 						new[] { this.GetPropertyName(o => o.KPP) });
+				}
+
 				if(!Regex.IsMatch(INN, "^[0-9]*$"))
+				{
 					yield return new ValidationResult("ИНН может содержать только цифры.",
 						new[] { this.GetPropertyName(o => o.INN) });
+				}
 			}
 
-			if(IsDeliveriesClosed && String.IsNullOrWhiteSpace(CloseDeliveryComment))
+			if(IsDeliveriesClosed && string.IsNullOrWhiteSpace(CloseDeliveryComment))
+			{
 				yield return new ValidationResult("Необходимо заполнить комментарий по закрытию поставок",
-						new[] { this.GetPropertyName(o => o.CloseDeliveryComment) });
+					new[] { this.GetPropertyName(o => o.CloseDeliveryComment) });
+			}
 
 			if(IsArchive)
 			{
@@ -1421,7 +1450,9 @@ namespace Vodovoz.Domain.Client
 			}
 
 			if(Id == 0 && PersonType == PersonType.legal && TaxType == TaxType.None)
+			{
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Налогообложение\"");
+			}
 
 			var everyAddedMinCountValueCount = NomenclatureFixedPrices
 				.GroupBy(p => new { p.Nomenclature, p.MinCount })
@@ -1477,15 +1508,19 @@ namespace Vodovoz.Domain.Client
 			}
 
 			if(TechnicalProcessingDelay > 0 && Files.Count == 0)
+			{
 				yield return new ValidationResult("Для установки дней отсрочки тех обработки необходимо загрузить документ");
+			}
 
-			StringBuilder phonesValidationStringBuilder = new StringBuilder();
-			List<string> phoneNumberDuplicatesIsChecked = new List<string>();
+			var phonesValidationStringBuilder = new StringBuilder();
+			var phoneNumberDuplicatesIsChecked = new List<string>();
 
-			var phonesDuplicates = counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(UoW, Phones.ToList(), this.Id);
+			var phonesDuplicates = counterpartyRepository.GetNotArchivedCounterpartiesAndDeliveryPointsDescriptionsByPhoneNumber(UoW, Phones.ToList(), Id);
+
 			foreach(var phone in phonesDuplicates)
 			{
 				phonesValidationStringBuilder.AppendLine($"Телефон {phone.Key} уже указан у контрагентов:");
+
 				foreach(var message in phone.Value)
 				{
 					phonesValidationStringBuilder.AppendLine($"\t{message}");
@@ -1508,6 +1543,7 @@ namespace Vodovoz.Domain.Client
 				{
 					phonesValidationStringBuilder.AppendLine($"Номер {phone.Number} имеет неправильный формат.");
 				}
+
 				#region Проверка дубликатов номера телефона
 
 				if(!phoneNumberDuplicatesIsChecked.Contains(phone.Number))
@@ -1519,8 +1555,10 @@ namespace Vodovoz.Domain.Client
 
 					phoneNumberDuplicatesIsChecked.Add(phone.Number);
 				}
+
 				#endregion
 			}
+
 			var phonesValidationMessage = phonesValidationStringBuilder.ToString();
 
 			if(!string.IsNullOrEmpty(phonesValidationMessage))
