@@ -2157,9 +2157,7 @@ namespace Vodovoz
 				{
 					return Result.Failure(Errors.Orders.Order.Save);
 				}
-			}
-			finally
-			{
+
 				if(fastDeliveryAddress != null)
 				{
 					_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
@@ -2167,6 +2165,12 @@ namespace Vodovoz
 
 					UoW.Commit();
 				}
+			}
+			catch(Exception e)
+			{
+				logger.Log(LogLevel.Error, e.Message);
+
+				return Result.Failure(Errors.Orders.Order.Save);
 			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
@@ -2220,13 +2224,19 @@ namespace Vodovoz
 							OnCloseTab(false, CloseSource.Save);
 						}
 					},
-					ShowErrorsWindow);
+					ReturnToNew);
 
 		private void OnButtonAcceptAndReturnToOrderClicked(object sender, EventArgs e) =>
 			AcceptOrder()
 				.Match(
 					ReturnToEditTab,
-					ShowErrorsWindow);
+					ReturnToNew);
+
+		private void ReturnToNew(IEnumerable<Error> errors)
+		{
+			EditOrder();
+			ShowErrorsWindow(errors);
+		}
 
 		private void ShowErrorsWindow(IEnumerable<Error> errors)
 		{

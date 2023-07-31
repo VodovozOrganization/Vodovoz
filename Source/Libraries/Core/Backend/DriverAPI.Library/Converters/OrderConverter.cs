@@ -9,6 +9,9 @@ using Vodovoz.Domain.Orders;
 
 namespace DriverAPI.Library.Converters
 {
+	/// <summary>
+	/// Конвертер заказа
+	/// </summary>
 	public class OrderConverter
 	{
 		private readonly DeliveryPointConverter _deliveryPointConverter;
@@ -17,6 +20,15 @@ namespace DriverAPI.Library.Converters
 		private readonly SignatureTypeConverter _signatureTypeConverter;
 		private readonly QRPaymentConverter _qrPaymentConverter;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="deliveryPointConverter"></param>
+		/// <param name="smsPaymentConverter"></param>
+		/// <param name="paymentTypeConverter"></param>
+		/// <param name="signatureTypeConverter"></param>
+		/// <param name="qrPaymentConverter"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public OrderConverter(
 			DeliveryPointConverter deliveryPointConverter,
 			SmsPaymentStatusConverter smsPaymentConverter,
@@ -31,6 +43,14 @@ namespace DriverAPI.Library.Converters
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 		}
 
+		/// <summary>
+		/// Метод конвертации в DTO
+		/// </summary>
+		/// <param name="vodovozOrder">Заказ ДВ</param>
+		/// <param name="addedToRouteListTime">Время добавления в маршрутный лист</param>
+		/// <param name="smsPaymentStatus">Статус оплаты по смс</param>
+		/// <param name="qrPaymentDtoStatus">Статус оплаты по QR-коду</param>
+		/// <returns></returns>
 		public OrderDto ConvertToAPIOrder(
 			Order vodovozOrder,
 			DateTime addedToRouteListTime,
@@ -42,7 +62,7 @@ namespace DriverAPI.Library.Converters
 			var apiOrder = new OrderDto
 			{
 				OrderId = vodovozOrder.Id,
-				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(smsPaymentStatus),
+				SmsPaymentStatus = _smsPaymentConverter.ConvertToAPIPaymentStatus(smsPaymentStatus),
 				QRPaymentStatus = _qrPaymentConverter.ConvertToAPIPaymentStatus(qrPaymentDtoStatus),
 				DeliveryTime = vodovozOrder.TimeDelivered?.ToString("HH:mm:ss"),
 				FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,

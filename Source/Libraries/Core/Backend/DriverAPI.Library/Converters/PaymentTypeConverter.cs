@@ -1,10 +1,20 @@
-﻿using DriverAPI.Library.DTOs;
+using DriverAPI.Library.DTOs;
 using Vodovoz.Domain.Client;
 
 namespace DriverAPI.Library.Converters
 {
+	/// <summary>
+	/// Конвертер типов оплаты
+	/// </summary>
 	public class PaymentTypeConverter
 	{
+		/// <summary>
+		/// Метод конвертации в DTO
+		/// </summary>
+		/// <param name="paymentType">Тип оплаты</param>
+		/// <param name="paid">Оплачен ли</param>
+		/// <returns></returns>
+		/// <exception cref="ConverterException"></exception>
 		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, bool paid, PaymentByTerminalSource? paymentByTerminalSource)
 		{
 			switch(paymentType)

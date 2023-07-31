@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 	{
 		private readonly IDictionary<Type, IPermissionResult> _domainObjectsPermissions;
 		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly bool _hasAccessToHiddenFinancialCategories;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -61,6 +62,9 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 
 			_domainObjectsPermissions = InitializePermissionsMatrix(DomainObjectsTypes);
+
+			_hasAccessToHiddenFinancialCategories =
+				_currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
 
 			FilterViewModel.JournalViewModel = this;
 
@@ -457,8 +461,18 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 				.JoinEntityAlias(
 					() => financialExpenseCategoryAlias,
 					() => incomeAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.SelectList(list => list
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+			if(!_hasAccessToHiddenFinancialCategories)
+			{
+				query.Where(() =>
+					(incomeAlias.IncomeCategoryId == null 
+					|| (incomeAlias.IncomeCategoryId != null && !financialIncomeCategoryAlias.IsHiddenFromPublicAccess)
+					|| (incomeAlias.IncomeCategoryId != null && !financialExpenseCategoryAlias.IsHiddenFromPublicAccess)
+					));
+			}
+
+			query.SelectList(list => list
 					.Select(() => incomeAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(IncomeProjections.GetTitleProjection()).WithAlias(() => resultAlias.Name)
 					.Select(() => incomeAlias.Date).WithAlias(() => resultAlias.Date)
@@ -589,8 +603,17 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 				.JoinEntityAlias(
 					() => financialExpenseCategoryAlias,
 					() => expenseAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.SelectList(list => list
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+			if(!_hasAccessToHiddenFinancialCategories)
+			{
+				query.Where(() =>
+					(expenseAlias.ExpenseCategoryId == null
+					|| (expenseAlias.ExpenseCategoryId != null && !financialExpenseCategoryAlias.IsHiddenFromPublicAccess)
+					));
+			}
+			
+			query.SelectList(list => list
 					.Select(() => expenseAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(ExpenseProjections.GetTitleProjection()).WithAlias(() => resultAlias.Name)
 					.Select(() => expenseAlias.Date).WithAlias(() => resultAlias.Date)
@@ -689,8 +712,17 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 				.JoinEntityAlias(
 					() => financialExpenseCategoryAlias,
 					() => advanceReportAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.SelectList(list => list
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+			if(!_hasAccessToHiddenFinancialCategories)
+			{
+				query.Where(() =>
+					(advanceReportAlias.ExpenseCategoryId == null
+					|| (advanceReportAlias.ExpenseCategoryId != null && !financialExpenseCategoryAlias.IsHiddenFromPublicAccess)
+					));
+			}
+			
+			query.SelectList(list => list
 					.Select(() => advanceReportAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(AdvanceReportProjections.GetTitleProjection()).WithAlias(() => resultAlias.Name)
 					.Select(() => typeof(AdvanceReport)).WithAlias(() => resultAlias.EntityType)

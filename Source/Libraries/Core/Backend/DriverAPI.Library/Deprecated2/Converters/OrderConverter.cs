@@ -47,7 +47,7 @@ namespace DriverAPI.Library.Deprecated2.Converters
 			var apiOrder = new OrderDto
 			{
 				OrderId = vodovozOrder.Id,
-				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(smsPaymentStatus),
+				SmsPaymentStatus = _smsPaymentConverter.ConvertToAPIPaymentStatus(smsPaymentStatus),
 				QRPaymentStatus = _qrPaymentConverter.ConvertToAPIPaymentStatus(qrPaymentDtoStatus),
 				DeliveryTime = vodovozOrder.TimeDelivered?.ToString("HH:mm:ss"),
 				FullBottleCount = vodovozOrder.Total19LBottlesToDeliver,
