@@ -45,7 +45,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Основание")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.Basis)
-					.WrapWidth(800)
+					.WrapWidth(700)
 					.WrapMode(WrapMode.WordChar)
 				.AddColumn("Статья")
 					.HeaderAlignment(0.5f)
