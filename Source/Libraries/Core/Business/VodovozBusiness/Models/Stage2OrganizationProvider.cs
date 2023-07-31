@@ -130,8 +130,10 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.Cash:
-				case PaymentType.Terminal:
 					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
+					break;
+				case PaymentType.Terminal:
+					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
 				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:
@@ -158,7 +160,7 @@ namespace Vodovoz.Models
 
 		private Organization GetOrganizationForOnlineStore(IUnitOfWork uow)
 		{
-			return uow.GetById<Organization>(_organizationParametersProvider.VodovozSouthOrganizationId);
+			return uow.GetById<Organization>(_organizationParametersProvider.VodovozNorthOrganizationId);
 		}
 
 		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
@@ -174,8 +176,10 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.Cash:
-				case PaymentType.Terminal:
 					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
+					break;
+				case PaymentType.Terminal:
+					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
 				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:
