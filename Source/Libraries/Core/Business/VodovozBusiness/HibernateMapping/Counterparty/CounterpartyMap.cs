@@ -55,6 +55,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.ShetFacturaCount).Column("shet_factura_count");
 			Map(x => x.CarProxyCount).Column("car_proxy_count");
 			Map(x => x.CounterpartyType).Column("counterparty_type");
+			Map(x => x.CounterpartySubtype).Column("counterparty_subtype");
 			Map(x => x.IsChainStore).Column("is_chain_store");
 			Map(x => x.IsForRetail).Column("is_for_retail");
 			Map(x => x.IsForSalesDepartment).Column("is_for_sales_department");
