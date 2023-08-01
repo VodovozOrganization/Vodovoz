@@ -226,7 +226,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			};
 
 			var rawRows = new List<ValueRow>();
-			var lastDate = requestedDateTimes.Last();
 
 			foreach(var date in requestedDateTimes)
 			{
