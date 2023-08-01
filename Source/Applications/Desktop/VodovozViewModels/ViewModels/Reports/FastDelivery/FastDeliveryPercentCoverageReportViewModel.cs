@@ -316,45 +316,49 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 				#region notDeliveredAddressesQuery
 
-				FastDeliveryAvailabilityHistoryItem fastDeliveryAvailabilityHistoryItemAlias = null;
 				FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistoryAlias = null;
 				DeliveryPoint deliveryPointAlias = null;
 				
 				var orderSubQuery = QueryOver.Of(() => orderAlias)
-					.Where(() => orderAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-					.And(() => orderAlias.CreateDate.Value.Date == fastDeliveryAvailabilityHistoryAlias.VerificationDate.Date)
-					.And(() => orderAlias.IsFastDelivery == false)
-					.Select(Projections.Property(() => orderAlias.Id));
+					.Where(o => o.DeliveryPoint.Id == deliveryPointAlias.Id)
+					.And(o => o.CreateDate.Value.Date == fastDeliveryAvailabilityHistoryAlias.VerificationDate.Date)
+					.And(o => o.IsFastDelivery == false)
+					.Select(o => o.Id);
 				
-				var isValidSubQuery = QueryOver.Of(() => fastDeliveryAvailabilityHistoryItemAlias)
-					.Where(() => fastDeliveryAvailabilityHistoryItemAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
-					.And(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidToFastDelivery)
-					.Select(Projections.Property(() => fastDeliveryAvailabilityHistoryItemAlias.Id));
-				
-				var deliveryPointIdsInFutureChecks = QueryOver.Of(() => fastDeliveryAvailabilityHistoryAlias)
-					.Where(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint.Id != null)
-					.And(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate >= date.AddHours(1))
-					.And(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate < lastDate.AddHours(1))
+				var validLastFastDeliveryCheckingSubQuery = QueryOver.Of<FastDeliveryAvailabilityHistoryItem>()
+					.Where(fhi => fhi.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
+					.And(fhi => fhi.IsValidToFastDelivery)
+					.Select(fhi => fhi.Id);
+
+				var deliveryPointIdsInFutureChecks = QueryOver.Of<FastDeliveryAvailabilityHistory>()
+					.Where(fh => fh.DeliveryPoint.Id != null)
+					.And(fh => fh.VerificationDate >= date.AddHours(1))
+					.And(fh => fh.VerificationDate < date.Date.AddDays(1).AddMilliseconds(-1))
 					.SelectList(list => list
-						.SelectGroup(x => x.DeliveryPoint.Id));
+						.SelectGroup(fh => fh.DeliveryPoint.Id));
+
+				var lastFastDeliveryCheckingIds =
+					UoW.Session.QueryOver(() => fastDeliveryAvailabilityHistoryAlias)
+						.JoinAlias(fh => fh.DeliveryPoint, () => deliveryPointAlias)
+						.SelectList(list => list
+							.Select(Projections.Max(() => fastDeliveryAvailabilityHistoryAlias.Id))
+							.SelectGroup(() => deliveryPointAlias.Id)
+						)
+						.And(fh => fh.VerificationDate >= date)
+						.And(fh => fh.VerificationDate < date.AddHours(1))
+						.WithSubquery.WhereProperty(() => deliveryPointAlias.Id).NotIn(deliveryPointIdsInFutureChecks)
+						.List<object[]>()
+						.Select(x => x[0]);
 
 				var notDeliveredAddresses =
 					UoW.Session.QueryOver(() => fastDeliveryAvailabilityHistoryAlias)
 						.JoinAlias(fh => fh.DeliveryPoint, () => deliveryPointAlias)
-						.JoinAlias(fh => fh.Items, () => fastDeliveryAvailabilityHistoryItemAlias)
-						.SelectList(list => list
-							.Select(Projections.Distinct(Projections.Property(() => deliveryPointAlias.Id)))
-							.SelectGroup(fh => fh.Id)
-						)
-						.And(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate >= date)
-						.And(() => fastDeliveryAvailabilityHistoryAlias.VerificationDate < date.AddHours(1))
-						.AndRestrictionOn(() => fastDeliveryAvailabilityHistoryAlias.DeliveryPoint.Id)
-							.Not.IsInG(deliveryPointIdsInFutureChecks.GetExecutableQueryOver(UoW.Session).List<int>())
+						.WhereRestrictionOn(fh => fh.Id).IsInG(lastFastDeliveryCheckingIds)
 						.WithSubquery.WhereExists(orderSubQuery)
-						.WithSubquery.WhereNotExists(isValidSubQuery)
-						.List<object[]>()
-						.Select(x => x[0])
-						.Distinct();
+						.WithSubquery.WhereNotExists(validLastFastDeliveryCheckingSubQuery)
+						.SelectList(list => list
+							.Select(() => deliveryPointAlias.Id))
+						.List<int>();
 
 				#endregion
 				
@@ -366,7 +370,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 						actualServiceRadiusAtDateTime,
 						percentCoverage,
 						actualPercentCoverage,
-						notDeliveredAddresses.Count()));
+						notDeliveredAddresses.Count));
 			}
 
 			var groupingDate = startDate.Date;

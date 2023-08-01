@@ -220,7 +220,10 @@ namespace Vodovoz.Views.Reports
 				{
 					try
 					{
-						ybuttonSave.Label = "Отчет сохраняется...";
+						Application.Invoke((s, eventArgs) =>
+						{
+							ybuttonSave.Label = "Отчет сохраняется...";
+						});
 						ViewModel.ExportReport(path);
 					}
 					finally
