@@ -14,7 +14,7 @@ namespace Vodovoz.HibernateMapping
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.ToolbarStyle).Column("toolbar_style").CustomType<ToolbarStyleStringType>();
 			Map(x => x.ToolBarIconsSize).Column("toolbar_icons_size").CustomType<ToolBarIconsSizeStringType>();
-			Map(x => x.DefaultSaleCategory).Column("default_sale_category").CustomType<NomenclatureCategoryStringType>();
+			Map(x => x.DefaultSaleCategory).Column("default_sale_category");
 			Map(x => x.LogisticDeliveryOrders).Column("logistic_delivery_orders");
 			Map(x => x.LogisticServiceOrders).Column("logistic_service_orders");
 			Map(x => x.LogisticChainStoreOrders).Column("logistic_chainstore_orders");

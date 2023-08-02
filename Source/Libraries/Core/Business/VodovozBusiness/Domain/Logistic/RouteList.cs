@@ -109,17 +109,17 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref version, value, () => Version);
 		}
 
-		Employee driver;
+		Employee _driver;
 
 		[Display(Name = "Водитель")]
 		public virtual Employee Driver {
-			get => driver;
+			get => _driver;
 			set {
-				Employee oldDriver = driver;
-				if(SetField(ref driver, value, () => Driver)) {
+				Employee oldDriver = _driver;
+				if(SetField(ref _driver, value, () => Driver)) {
 					ChangeFuelDocumentsOnChangeDriver(oldDriver);
-					if(Id == 0 || oldDriver != driver)
-						Forwarder = GetDefaultForwarder(driver);
+					if(Id == 0 || oldDriver != _driver)
+						Forwarder = GetDefaultForwarder(_driver);
 				}
 			}
 		}
