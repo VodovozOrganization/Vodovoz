@@ -33,7 +33,6 @@ namespace Vodovoz
 		public UserSettings Settings => CurrentUserSettings.Settings;
 	}
 
-
 	public class UserSettingsManager<TUserSettings> where TUserSettings : IDomainObject
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

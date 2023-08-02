@@ -32,6 +32,8 @@ using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using System.Text;
+using static Vodovoz.EntityRepositories.Orders.OrderRepository;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -300,15 +302,15 @@ namespace Vodovoz.Views.Logistic
 					foreach(var marker in addressesOverlay.Markers) {
 						if(marker.IsMouseOver) {
 							var markerUnderMouse = selectedMarkers
-													.Where(m => m.Tag is OrderNode)
-													.FirstOrDefault(x => (x.Tag as OrderNode).OrderId == (marker.Tag as OrderNode)?.OrderId);
+													.Where(m => m.Tag is OrderOnDayNode)
+													.FirstOrDefault(x => (x.Tag as OrderOnDayNode).OrderId == (marker.Tag as OrderOnDayNode)?.OrderId);
 
 							if(markerUnderMouse == null) {
 								selectedMarkers.Add(marker);
-								logger.Debug("Маркер с заказом №{0} добавлен в список выделенных", (marker.Tag as OrderNode)?.OrderId);
+								logger.Debug("Маркер с заказом №{0} добавлен в список выделенных", (marker.Tag as OrderOnDayNode)?.OrderId);
 							} else {
 								selectedMarkers.Remove(markerUnderMouse);
-								logger.Debug("Маркер с заказом №{0} исключен из списка выделенных", (marker.Tag as OrderNode)?.OrderId);
+								logger.Debug("Маркер с заказом №{0} исключен из списка выделенных", (marker.Tag as OrderOnDayNode)?.OrderId);
 							}
 							markerIsSelect = true;
 						}
@@ -357,7 +359,7 @@ namespace Vodovoz.Views.Logistic
 				}
 			}
 
-			if(args.Event.Button == 3 && addressesOverlay.Markers.FirstOrDefault(m => m.IsMouseOver)?.Tag is OrderNode orderNode) {
+			if(args.Event.Button == 3 && addressesOverlay.Markers.FirstOrDefault(m => m.IsMouseOver)?.Tag is OrderOnDayNode orderNode) {
 				Menu popupMenu = new Menu();
 				var item = new MenuItem($"Открыть закзаз №{orderNode.OrderId}");
 				item.Activated += (sender, e) => {
@@ -437,7 +439,7 @@ namespace Vodovoz.Views.Logistic
 
 		void UpdateSelectedInfo(List<GMapMarker> selected)
 		{
-			var orderIds = selected.Select(x => x.Tag).OfType<OrderNode>()
+			var orderIds = selected.Select(x => x.Tag).OfType<OrderOnDayNode>()
 				.Select(o => o.OrderId)
 				.ToList();
 			var orders = ViewModel.UoW.GetAll<Order>().Where(o => orderIds.Contains(o.Id)).ToList();
@@ -550,7 +552,7 @@ namespace Vodovoz.Views.Logistic
 
 					FillTypeAndShapeMarker(order, route, orderRls, out PointMarkerShape shape, out PointMarkerType type, overdueOrder);
 
-					if(selectedMarkers.FirstOrDefault(m => (m.Tag as OrderNode)?.OrderId == order.OrderId) != null)
+					if(selectedMarkers.FirstOrDefault(m => (m.Tag as OrderOnDayNode)?.OrderId == order.OrderId) != null)
 					{
 						type = PointMarkerType.white;
 					}
@@ -582,7 +584,7 @@ namespace Vodovoz.Views.Logistic
 			var pushApartPrecision = 0.0001d;
 
 			var addressMarkers = addressOverlay.Markers
-				.Where(x => x.Tag is OrderNode)
+				.Where(x => x.Tag is OrderOnDayNode)
 				.OrderBy(x => x.Position.Lat)
 				.ThenBy(x => x.Position.Lng)
 				.ToArray();
@@ -636,7 +638,7 @@ namespace Vodovoz.Views.Logistic
 			}
 		}
 
-		private void FillTypeAndShapeMarker(OrderNode order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type, bool overdueOrder = false)
+		private void FillTypeAndShapeMarker(OrderOnDayNode order, RouteList route, IEnumerable<int> orderRlsIds, out PointMarkerShape shape, out PointMarkerType type, bool overdueOrder = false)
 		{
 			shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver, overdueOrder);
 			type = PointMarkerType.black;
@@ -676,7 +678,7 @@ namespace Vodovoz.Views.Logistic
 			}
 		}
 
-		private void FillTypeAndShapeLogisticsRequrementsMarker(OrderNode order, out PointMarkerShape shape, out PointMarkerType type)
+		private void FillTypeAndShapeLogisticsRequrementsMarker(OrderOnDayNode order, out PointMarkerShape shape, out PointMarkerType type)
 		{
 			shape = PointMarkerShape.none;
 			type = PointMarkerType.none;
@@ -744,7 +746,7 @@ namespace Vodovoz.Views.Logistic
 			return addressMarker;
 		}
 
-		private PointMarker FillAddressMarker(OrderNode order, PointMarkerType type, PointMarkerShape shape, GMapOverlay overlay, RouteList route)
+		private PointMarker FillAddressMarker(OrderOnDayNode order, PointMarkerType type, PointMarkerShape shape, GMapOverlay overlay, RouteList route)
 		{
 			int maxCharsInRow = 60;
 			string ttText = WordWrapText(order.DeliveryPointShortAddress, maxCharsInRow);
@@ -847,7 +849,7 @@ namespace Vodovoz.Views.Logistic
 			return source.ToString();
 		}
 
-		private string GetMarkerCommentValue(OrderNode order)
+		private string GetMarkerCommentValue(OrderOnDayNode order)
 		{
 			if(order.OrderComment?.Length > 0)
 			{
@@ -982,18 +984,18 @@ namespace Vodovoz.Views.Logistic
 			routeOverlay.Clear();
 		}
 
-		private IList<OrderNode> GetSelectedOrders()
+		private IList<OrderOnDayNode> GetSelectedOrders()
 		{
-			var orders = new List<OrderNode>();
+			var orders = new List<OrderOnDayNode>();
 			//Добавление заказов из кликов по маркеру
 			var selectedOrderMarkers = selectedMarkers
-				.Select(m => m.Tag).OfType<OrderNode>()
+				.Select(m => m.Tag).OfType<OrderOnDayNode>()
 				.ToList();
 			orders.AddRange(selectedOrderMarkers);
 			//Добавление заказов из квадратного выделения
 			var squareSelectionOrdersIds = addressesOverlay.Markers
 				.Where(m => gmapWidget.SelectedArea.Contains(m.Position))
-				.Select(x => x.Tag).OfType<OrderNode>()
+				.Select(x => x.Tag).OfType<OrderOnDayNode>()
 				.ToList();
 			orders.AddRange(squareSelectionOrdersIds);
 			//Добавление закзаов через непрямоугольную область
@@ -1003,7 +1005,7 @@ namespace Vodovoz.Views.Logistic
 			{
 				var rectangleSelectionOrdersIds = addressesOverlay.Markers
 					.Where(m => polygons.IsInside(m.Position))
-					.Select(x => x.Tag).OfType<OrderNode>()
+					.Select(x => x.Tag).OfType<OrderOnDayNode>()
 					.ToList();
 				orders.AddRange(rectangleSelectionOrdersIds);
 			}
@@ -1100,7 +1102,7 @@ namespace Vodovoz.Views.Logistic
 				.Where(r => r.Driver.Id == driver.Id)
 				.SelectMany(x => x.Addresses)
 				.Select(a => new { 
-							Order = new OrderNode
+							Order = new OrderOnDayNode
 							{
 								OrderId = a.Order.Id,
 								OrderStatus = a.Order.OrderStatus,

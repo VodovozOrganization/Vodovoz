@@ -289,11 +289,11 @@ namespace Vodovoz.Domain.Logistic.Cars
 		{
 			if(dateTime.HasValue)
 			{
-				return ObservableCarVersions.SingleOrDefault(x =>
+				return ObservableCarVersions.FirstOrDefault(x =>
 					x.StartDate <= dateTime && (x.EndDate == null || x.EndDate >= dateTime));
 			}
 			var currentDateTime = DateTime.Now;
-			return ObservableCarVersions.SingleOrDefault(x =>
+			return ObservableCarVersions.FirstOrDefault(x =>
 				x.StartDate <= currentDateTime && (x.EndDate == null || x.EndDate >= currentDateTime));
 		}
 

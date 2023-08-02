@@ -1341,7 +1341,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.MovementDocumentView.cs" />
     <Compile Include="Core\BasedOnNameViewModelWidgetResolver.cs" />
     <Compile Include="Core\RdlPreviewOpener.cs" />
-    <Compile Include="ViewModels\Logistic\DeliveryScheduleFilterType.cs" />
     <Compile Include="ReportsParameters\ZeroDebtClientReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ZeroDebtClientReport.cs" />
     <Compile Include="Filters\GtkViews\NomenclatureStockFilterView.cs" />
