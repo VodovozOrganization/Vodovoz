@@ -246,7 +246,13 @@ WHERE cash_expense.id=@id</CommandText>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
-          <BorderStyle />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
           <BorderColor />
           <BorderWidth />
         </Style>
@@ -512,9 +518,15 @@ WHERE cash_expense.id=@id</CommandText>
         <Left>295.40pt</Left>
         <Top>0.00pt</Top>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
       </List>
     </ReportItems>

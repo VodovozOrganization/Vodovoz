@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -132,6 +132,17 @@ WHERE credit_slips.id = @id</CommandText>
         <Width>278.55pt</Width>
         <Left>314.1pt</Left>
         <Top>0.0pt</Top>
+        <Style>
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
+        </Style>
         <ReportItems>
           <Textbox Name="Textbox13">
             <Height>12.73pt</Height>
@@ -259,6 +270,17 @@ WHERE credit_slips.id = @id</CommandText>
         <Width>278.55pt</Width>
         <Left>5.9pt</Left>
         <Top>0.0pt</Top>
+        <Style>
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
+        </Style>
         <ReportItems>
           <Textbox Name="Textbox5">
             <Height>12.73pt</Height>

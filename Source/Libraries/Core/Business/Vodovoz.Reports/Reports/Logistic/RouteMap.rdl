@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -121,6 +121,17 @@ WHERE route_lists.id = @route_id;</CommandText>
         <Width>560.12pt</Width>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
+        <Style>
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
+        </Style>
       </List>
       <Image Name="ImageMap">
         <Height>558.00pt</Height>

@@ -4292,13 +4292,15 @@ WHERE o.id = @order_id
           </Image>
         </ReportItems>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <BackgroundGradientEndColor>
-          </BackgroundGradientEndColor>
-          <BackgroundColor>
-          </BackgroundColor>
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
