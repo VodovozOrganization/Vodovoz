@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -16,26 +16,8 @@
         <CommandText>SELECT
     ci.id as id,
     ocmo.operation_time as Date,
-    IF(cat1.parent_id IS NULL,
-       cat1.name,
-       CONCAT((SELECT
-                   IF(cat2.parent_id IS NULL,
-                      cat2.name,
-                      CONCAT((SELECT
-                                  CONCAT(IF(parent_id IS NULL, '', '... '), name)
-                              FROM
-                                  cash_expense_category AS cat3
-                              WHERE
-                                      id = cat2.parent_id),
-                             ' - ',
-                             cat2.name))
-               FROM
-                   cash_expense_category AS cat2
-               WHERE
-                       id = cat1.parent_id),
-              ' - ',
-              cat1.name)) AS Category,
-    ci.cash_expense_category_id as CategoryId,
+    category.title AS Category,
+    ci.financial_expense_category_id as CategoryId,
     ocmo.amount as sum,
     ci.description,
     CONCAT_WS('',
@@ -51,7 +33,7 @@ FROM
         LEFT JOIN 
     cash_income ci ON codd.cash_income_id = ci.id
         LEFT JOIN
-    cash_expense_category AS cat1 ON cat1.id = ci.cash_expense_category_id
+    financial_categories_groups AS category ON category.id = ci.financial_expense_category_id
         LEFT JOIN
     employees ON employees.id = codd.employee_id
         LEFT JOIN
@@ -59,7 +41,7 @@ FROM
 WHERE
         ci.type_operation = 'Return'
   AND ocmo.operation_time BETWEEN @startDate AND @endDate
-  AND IF(@expenseCategoryUsed, ci.cash_expense_category_id IN (@expenseCategory), 1)
+  AND IF(@expenseCategoryUsed, ci.financial_expense_category_id IN (@expenseCategory), 1)
   AND (@Casher = -1 OR codd.author_id = @Casher)
   AND (@Employee = -1 OR codd.employee_id = @Employee)
   AND codd.organisation_id in (@organisations)

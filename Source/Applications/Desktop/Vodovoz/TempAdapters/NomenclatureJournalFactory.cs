@@ -25,7 +25,7 @@ namespace Vodovoz.TempAdapters
 		{
 			var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
 			var userRepository = new UserRepository();
-			var counterpartyJournalFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 			var vm = new NomenclaturesJournalViewModel(
 				filter ?? new NomenclatureFilterViewModel(),
@@ -137,7 +137,7 @@ namespace Vodovoz.TempAdapters
 
 			IUserRepository userRepository = new UserRepository();
 
-			var counterpartySelectorFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+			var counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 			return new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices,
 				filter, counterpartySelectorFactory, nomenclatureRepository, userRepository);

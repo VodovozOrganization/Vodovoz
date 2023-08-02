@@ -1,4 +1,4 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Logistic;
@@ -32,6 +32,16 @@ namespace Vodovoz.Views.Logistic
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.Entity.Id.ToString();
+			}
 		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Data;
-using fyiReporting.RDL;
+﻿using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -446,22 +445,35 @@ namespace Vodovoz.Domain.Orders
 		public virtual PaymentType PaymentType {
 			get => _paymentType;
 			set {
-				if(value != _paymentType && SetField(ref _paymentType, value)) {
-					switch(PaymentType) {
-						case PaymentType.Cash:
-						case PaymentType.Barter:
-						case PaymentType.Cashless:
-						case PaymentType.ContractDocumentation:
-						case PaymentType.Terminal:
-							PaymentByCardFrom = null;
-							break;
-						case PaymentType.PaidOnline:
-							break;
+				if(value != _paymentType && SetField(ref _paymentType, value)) 
+				{
+					if(PaymentType != PaymentType.PaidOnline)
+					{
+						PaymentByCardFrom = null;
+					}
+
+					if(PaymentType != PaymentType.Terminal)
+					{
+						PaymentByTerminalSource = null;
+					}
+
+					if(PaymentType == PaymentType.Terminal && PaymentByTerminalSource == null)
+					{
+						PaymentByTerminalSource = Domain.Client.PaymentByTerminalSource.ByCard;
 					}
 
 					UpdateContractOnPaymentTypeChanged();
 				}
 			}
+		}
+
+		private PaymentByTerminalSource? _paymentByTerminalSource;
+
+		[Display(Name = "Подтип оплаты по терминалу")]
+		public virtual PaymentByTerminalSource? PaymentByTerminalSource
+		{
+			get => _paymentByTerminalSource;
+			set => SetField(ref _paymentByTerminalSource, value);
 		}
 
 		CounterpartyContract contract;
@@ -3026,21 +3038,21 @@ namespace Vodovoz.Domain.Orders
 		/// Проверяется соответствие суммы заказа с суммой оплаченной в кассе.
 		/// Если проверка пройдена заказ закрывается или переводится на погрузку.
 		/// </summary>
-		public virtual void SelfDeliveryAcceptCashPaid(CallTaskWorker callTaskWorker)
+		public virtual void SelfDeliveryAcceptCashPaid(ICallTaskWorker callTaskWorker)
 		{
 			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
 			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
 			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn, callTaskWorker);
 		}
 
-		public virtual void AcceptSelfDeliveryIncomeCash(decimal incomeCash, CallTaskWorker callTaskWorker, int? incomeExcludedDoc = null)
+		public virtual void AcceptSelfDeliveryIncomeCash(decimal incomeCash, ICallTaskWorker callTaskWorker, int? incomeExcludedDoc = null)
 		{
 			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id, incomeExcludedDoc) + incomeCash;
 			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
 			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn, callTaskWorker);
 		}
 
-		public virtual void AcceptSelfDeliveryExpenseCash(decimal expenseCash, CallTaskWorker callTaskWorker, int? expenseExcludedDoc = null)
+		public virtual void AcceptSelfDeliveryExpenseCash(decimal expenseCash, ICallTaskWorker callTaskWorker, int? expenseExcludedDoc = null)
 		{
 			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
 			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id, expenseExcludedDoc) + expenseCash;
@@ -3054,7 +3066,7 @@ namespace Vodovoz.Domain.Orders
 		/// <paramref name="expenseCash">Сумма по открытому расходному ордеру, добавляемая к ранее сохранным расходным ордерам</paramref>
 		/// <paramref name="incomeCash">Сумма по открытому приходному ордеру, добавляемая к ранее сохранным приходным ордерам</paramref>
 		/// </summary>
-		private void SelfDeliveryAcceptCashPaid(decimal incomeCash, decimal expenseCash, CallTaskWorker callTaskWorker)
+		private void SelfDeliveryAcceptCashPaid(decimal incomeCash, decimal expenseCash, ICallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery)
 				return;
@@ -3401,6 +3413,7 @@ namespace Vodovoz.Domain.Orders
 				case PaymentType.Cashless:
 				case PaymentType.PaidOnline:
 				case PaymentType.Terminal:
+				case PaymentType.SmsQR:
 					ChangeStatusAndCreateTasks(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
 					break;
 				case PaymentType.Barter:
@@ -4033,6 +4046,51 @@ namespace Vodovoz.Domain.Orders
 			return result;
 		}
 
+		public virtual void SetNeedToRecendEdoUpd()
+		{
+			var userCanResendUpd = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			if(!userCanResendUpd)
+			{
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "Текущий пользователь не имеет права повторной отправки УПД");
+				return;
+			}
+
+			if(OrderPaymentStatus == OrderPaymentStatus.Paid)
+			{
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Заказ №{Id} уже оплачен. Повторная отправка УПД недоступна");
+				return;
+			}
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var edoDocumentsActions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+					.Where(x => x.Order.Id == Id)
+					.FirstOrDefault();
+
+				if(edoDocumentsActions == null)
+				{
+					edoDocumentsActions = new OrderEdoTrueMarkDocumentsActions();
+					edoDocumentsActions.Order = this;
+				}
+
+				edoDocumentsActions.IsNeedToResendEdoUpd = true;
+
+				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkApiDocument>()
+					.Where(x => x.Order.Id == Id)
+					.OrderByDescending(x => x.CreationDate)
+					.FirstOrDefault();
+
+				if(orderLastTrueMarkDocument != null 
+					&& orderLastTrueMarkDocument.Type != TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
+				{
+					edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
+				}
+
+				uow.Save(edoDocumentsActions);
+				uow.Commit();
+			}				
+		}
+
 		#endregion
 
 		#region Аренда
@@ -4412,6 +4470,12 @@ namespace Vodovoz.Domain.Orders
 			if(includeEquipment)
 				weight += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Weight * x.Count);
+			return weight;
+		}
+
+		public virtual decimal GetSalesItemsWeight(bool includeGoods = true, bool includeEquipment = true)
+		{
+			decimal weight = OrderItems.Sum(x => x.Nomenclature.Weight * (x.ActualCount ?? x.Count));
 			return weight;
 		}
 

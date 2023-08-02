@@ -2,10 +2,12 @@
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using NHibernate.Util;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
@@ -28,9 +30,11 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -43,7 +47,8 @@ namespace Vodovoz.JournalViewModels
 		private readonly IFuelRepository _fuelRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
-		private readonly IExpenseParametersProvider _expenseParametersProvider;
+		private readonly IExpenseSettings _expenseSettings;
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
@@ -57,7 +62,8 @@ namespace Vodovoz.JournalViewModels
 			IFuelRepository fuelRepository,
 			ICallTaskRepository callTaskRepository,
 			BaseParametersProvider baseParametersProvider,
-			IExpenseParametersProvider expenseParametersProvider,
+			IExpenseSettings expenseSettings,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			ISubdivisionRepository subdivisionRepository,
 			IAccountableDebtsRepository accountableDebtsRepository,
 			IGtkTabsOpener gtkTabsOpener,
@@ -70,7 +76,8 @@ namespace Vodovoz.JournalViewModels
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
-			_expenseParametersProvider = expenseParametersProvider ?? throw new ArgumentNullException(nameof(expenseParametersProvider));
+			_expenseSettings = expenseSettings ?? throw new ArgumentNullException(nameof(expenseSettings));
+			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -79,7 +86,7 @@ namespace Vodovoz.JournalViewModels
 				.GetRouteListProfitabilityIndicatorInPercents;
 			UseSlider = false;
 
-			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability));
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(RouteListDebt));
 			InitPopupActions();
 		}
 
@@ -102,6 +109,7 @@ namespace Vodovoz.JournalViewModels
 			GeoGroup geoGroupAlias = null;
 			GeoGroupVersion geoGroupVersionAlias = null;
 			RouteListProfitability routeListProfitabilityAlias = null;
+			RouteListDebt routeListDebtAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
@@ -239,6 +247,11 @@ namespace Vodovoz.JournalViewModels
 				.And(() => geoGroupVersionAlias.ClosingDate == null || geoGroupVersionAlias.ClosingDate >= routeListAlias.Date)
 				.Select(s => s.Name);
 
+			var routeListDebtSubquery = QueryOver.Of(() => routeListDebtAlias)
+				.Where(() => routeListAlias.Id == routeListDebtAlias.RouteList.Id)
+				.Select(r => r.Debt)
+				.Take(1);
+
 			var result = query
 				.SelectList(list => list
 					.SelectGroup(() => routeListAlias.Id).WithAlias(() => routeListJournalNodeAlias.Id)
@@ -251,6 +264,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => driverAlias.Name).WithAlias(() => routeListJournalNodeAlias.DriverName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => routeListJournalNodeAlias.DriverPatronymic)
 					.Select(() => driverAlias.Comment).WithAlias(() => routeListJournalNodeAlias.DriverComment)
+					.SelectSubQuery(routeListDebtSubquery).WithAlias(() => routeListJournalNodeAlias.RouteListDebt)
 					.Select(() => routeListAlias.LogisticiansComment).WithAlias(() => routeListJournalNodeAlias.LogisticiansComment)
 					.Select(() => routeListAlias.ClosingComment).WithAlias(() => routeListJournalNodeAlias.ClosinComments)
 					.SelectSubQuery(closingSubdivision).WithAlias(() => routeListJournalNodeAlias.ClosingSubdivision)
@@ -303,6 +317,7 @@ namespace Vodovoz.JournalViewModels
 
 		private readonly RouteListStatus[] _canReturnToOnClosing = new[]
 		{
+			RouteListStatus.MileageCheck,
 			RouteListStatus.Closed
 		};
 
@@ -310,6 +325,13 @@ namespace Vodovoz.JournalViewModels
 {
 			RouteListStatus.InLoading,
 			RouteListStatus.EnRoute
+		};
+
+		private readonly RouteListStatus[] _canReturnChangeFromRL = new[]
+{
+			RouteListStatus.Delivered,
+			RouteListStatus.OnClosing,
+			RouteListStatus.MileageCheck
 		};
 
 		#endregion
@@ -415,8 +437,8 @@ namespace Vodovoz.JournalViewModels
 								_fuelRepository,
 								NavigationManagerProvider.NavigationManager,
 								new TrackRepository(),
-								new CategoryRepository(new ParametersProvider()),
 								new EmployeeJournalFactory(),
+								_financialCategoriesGroupsSettings,
 								new CarJournalFactory(NavigationManager)
 							)
 						);
@@ -476,10 +498,10 @@ namespace Vodovoz.JournalViewModels
 						var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 						var driverId = routeList.Driver.Id;
 
-						if(_accountableDebtsRepository.UnclosedAdvance(localUow,
+						if(_accountableDebtsRepository.GetUnclosedAdvances(localUow,
 							   routeList.Driver,
-							   localUow.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId),
-							   null).Count > 0)
+							   _financialCategoriesGroupsSettings.ChangeFinancialExpenseCategoryId,
+							   null).Count() > 0)
 						{
 							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
 								"Закройте сначала прошлые авансовые со статусом \"Сдача клиенту\"", "Нельзя выдать сдачу");
@@ -495,13 +517,29 @@ namespace Vodovoz.JournalViewModels
 							return;
 						}
 
-						_gtkTabsOpener.OpenRouteListChangeGiveoutExpenceDlg(this,
+						var page = NavigationManager.OpenViewModel<ExpenseViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+
+						page.ViewModel.ConfigureForRouteListChangeGiveout(
 							driverId,
-							changesToOrders.Sum(item => item.Value),
-							$"Сдача по МЛ №{routeList.Id}" +
-							$"\n-----" +
-							"\n" + string.Join("\n", changesToOrders.Select(pair => $"Заказ №{pair.Key} - {pair.Value}руб.")));
+							routeList.Id);
 					}
+				}
+			));
+
+			PopupActionsList.Add(new JournalAction(
+				"Возврат сдачи",
+				(selectedItems) => selectedItems.Any(x => _canReturnChangeFromRL.Contains((x as RouteListJournalNode).StatusEnum)),
+				(selectedItems) => selectedItems.Any(x => _canReturnChangeFromRL.Contains((x as RouteListJournalNode).StatusEnum)),
+				(selectedItems) =>
+				{
+					if(!(selectedItems.FirstOrDefault() is RouteListJournalNode selectedNode))
+					{
+						return;
+					}
+
+					var page = NavigationManager.OpenViewModel<IncomeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+
+					page.ViewModel.ConFigureForReturnChange(selectedNode.Id);
 				}
 			));
 

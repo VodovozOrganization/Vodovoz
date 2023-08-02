@@ -106,7 +106,7 @@ namespace Vodovoz.Domain.Orders
 		ServiceMan,
 		[Display(Name = "Форс-мажор")]
 		ForceMajor,
-		[Display(Name = "Директор ЛО (Доставка за час)")]
+		[Display(Name = "Доставка за час")]
 		DirectorLO,
 		[Display(Name = "Директор ЛО (Доставка в тот же день)")]
 		DirectorLOCurrentDayDelivery,

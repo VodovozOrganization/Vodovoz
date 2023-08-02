@@ -46,7 +46,7 @@ using Vodovoz.Tools;
 
 namespace DriverAPI
 {
-	public class Startup
+	internal class Startup
 	{
 		private const string _nLogSectionName = nameof(NLog);
 		private ILogger<Startup> _logger;

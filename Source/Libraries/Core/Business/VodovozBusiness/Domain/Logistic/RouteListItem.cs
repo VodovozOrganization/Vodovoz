@@ -456,14 +456,14 @@ namespace Vodovoz.Domain.Logistic
 								Environment.NewLine,
 								Order.OrderEquipments
 									.Where(x => x.Direction == Direction.Deliver)
-								    .Select(x => $"{x.NameString}: {x.Count:N0}")
+									.Select(x => $"{x.NameString}: {x.Count:N0}")
 				);
 
 				var orderItemEquipment = string.Join(
 								Environment.NewLine,
 								Order.OrderItems
 									.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
-							  		.Select(x => $"{x.Nomenclature.Name}: {x.Count:N0}")
+									.Select(x => $"{x.Nomenclature.Name}: {x.Count:N0}")
 				);
 
 				if(String.IsNullOrWhiteSpace(orderItemEquipment))
@@ -546,6 +546,17 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			uow.Save(Order);
+
+			UpdateRouteListDebt();
+		}
+
+		private void UpdateRouteListDebt()
+		{
+			if(Order.PaymentType == PaymentType.Cash)
+			{
+				RecalculateTotalCash();
+				RouteList.UpdateRouteListDebt();
+			}
 		}
 
 		protected internal virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status)
@@ -584,6 +595,8 @@ namespace Vodovoz.Domain.Logistic
 			uow.Save(Order);
 
 			CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
+
+			UpdateRouteListDebt();
 		}
 
 		public virtual void SetTransferTo(RouteListItem targetAddress)
@@ -614,7 +627,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal CalculateTotalCash() => IsDelivered() ? AddressCashSum : 0;
 
 		public virtual bool RouteListIsUnloaded() =>
-			new[] { RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(RouteList.Status);
+			new[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(RouteList.Status);
 		
 		public virtual bool IsDelivered()
 		{
@@ -857,27 +870,27 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public static RouteListItemStatus[] GetUndeliveryStatuses()
-        {
-        	return new RouteListItemStatus[]
-        		{
-        			RouteListItemStatus.Canceled,
-        			RouteListItemStatus.Overdue
-        		};
-        }
+		{
+			return new RouteListItemStatus[]
+				{
+					RouteListItemStatus.Canceled,
+					RouteListItemStatus.Overdue
+				};
+		}
 
-        /// <summary>
-        /// Возвращает все возможные конечные статусы <see cref="RouteListItem"/>, при которых <see cref="RouteListItem"/> не был довезён
-        /// </summary>
-        /// <returns></returns>
-        public static RouteListItemStatus[] GetNotDeliveredStatuses()
-        {
-        	return new RouteListItemStatus[]
-        	{
-        		RouteListItemStatus.Canceled,
-        		RouteListItemStatus.Overdue,
-        		RouteListItemStatus.Transfered
-        	};
-        }
+		/// <summary>
+		/// Возвращает все возможные конечные статусы <see cref="RouteListItem"/>, при которых <see cref="RouteListItem"/> не был довезён
+		/// </summary>
+		/// <returns></returns>
+		public static RouteListItemStatus[] GetNotDeliveredStatuses()
+		{
+			return new RouteListItemStatus[]
+			{
+				RouteListItemStatus.Canceled,
+				RouteListItemStatus.Overdue,
+				RouteListItemStatus.Transfered
+			};
+		}
 	}
 
 	public enum RouteListItemStatus

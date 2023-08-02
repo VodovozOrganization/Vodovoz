@@ -4,9 +4,9 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
+using System.Linq;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
@@ -18,6 +18,9 @@ namespace Vodovoz.Dialogs.OrderWidgets
 {
 	public class GtkTabsOpener : IGtkTabsOpener
 	{
+		private ITdiTab FindTabByTag(string tag) =>
+			TDIMain.MainNotebook.Tabs.FirstOrDefault(x => x.TdiTab is TdiTabBase tab && tab.Tag?.ToString() == tag)?.TdiTab;
+
 		public string GenerateDialogHashName<T>(int id)
 			where T : IDomainObject => DialogHelper.GenerateDialogHashName<T>(id);
 
@@ -34,7 +37,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 		
-		public void OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
+		public void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId)
 		{
 			var dlg = new OrderDlg();
 			dlg.CopyLesserOrderFrom(copiedOrderId);
@@ -43,6 +46,27 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				DialogHelper.GenerateDialogHashName<Order>(65656),
 				() => dlg
 			);
+		}
+
+		public ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
+		{
+			var tag = $"NewCopyFromOrder_{copiedOrderId}_Dlg";
+
+			var existsTab = FindTabByTag(tag);
+
+			if(existsTab == null)
+			{
+				var dlg = new OrderDlg();
+				dlg.CopyOrderFrom(copiedOrderId);
+				dlg.Tag = tag;
+				tab.TabParent.OpenTab(() => dlg, tab);
+				return FindTabByTag(tag);
+			}
+			else
+			{
+				TDIMain.MainNotebook.CurrentPage = TDIMain.MainNotebook.PageNum(existsTab as OrderDlg);
+				return existsTab;
+			}
 		}
 
 		public ITdiTab OpenRouteListCreateDlg(ITdiTab tab) =>
@@ -108,30 +132,6 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			return master.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Counterparty>(counterpartyId),
 				() => new CounterpartyDlg(counterpartyId));
-		}
-
-		public void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType)
-		{
-			var dlg = new CashExpenseDlg();
-			if(dlg.FailInitialize)
-			{
-				return;
-			}
-
-			dlg.ConfigureForSalaryGiveout(employeeId, balance, canChangeEmployee, expenseType);
-			master.TabParent.AddTab(dlg, master);
-		}
-
-		public void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description)
-		{
-			var dlg = new CashExpenseDlg();
-			if(dlg.FailInitialize)
-			{
-				return;
-			}
-
-			dlg.ConfigureForRouteListChangeGiveout(employeeId, balance, description);
-			master.TabParent.AddTab(dlg, master);
 		}
 
 		public void OpenTrackOnMapWnd(int routeListId)

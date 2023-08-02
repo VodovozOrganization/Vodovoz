@@ -15,7 +15,7 @@ namespace Vodovoz.Factories
 {
 	public class PhonesViewModelFactory : IPhonesViewModelFactory
 	{
-		private readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IPhoneRepository _phoneRepository;
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
 

@@ -1,4 +1,4 @@
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
@@ -21,8 +21,8 @@ namespace Vodovoz.JournalColumnsConfigs
 {
 	public static class JournalsColumnsConfigs
 	{
-		private static Pixbuf _folderImg = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.folder16.png");
-		private static Pixbuf _emptyImg = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.empty16.png");
+		private static Pixbuf _folderImg = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.folder16.png");
+		private static Pixbuf _emptyImg = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.empty16.png");
 
 		public static void RegisterColumns()
 		{
@@ -46,6 +46,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Код")
 						.AddNumericRenderer(node => node.Id)
 						.AddPixbufRenderer(node => node.JournalNodeType == typeof(FinancialCategoriesGroup) ? _folderImg : _emptyImg)
+					.AddColumn("Нумерация").AddTextRenderer(node => node.Numbering)
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
 					.Finish()
 				);

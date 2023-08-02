@@ -12,6 +12,8 @@ namespace Vodovoz.Parameters
 		private const string _orderAutoComment = "OrderAutoComment";
 		private const string _subdivisionsToInformComplaintHasNoDriverParameterName = "SubdivisionsToInformComplaintHasNoDriver";
 		private const string _subdivisionsForAlternativePricesName = "SubdivisionsForAlternativePricesName";
+		private const string _driversUnclosedRouteListsHavingDebtMaxCount = "drivers_stop_list_unclosed_route_lists_max_count";
+		private const string _driversRouteListsMaxDebtSum = "drivers_stop_list_route_lists_max_debt_sum";
 
 		public GeneralSettingsParametersProvider(IParametersProvider parametersProvider)
 		{
@@ -84,5 +86,15 @@ namespace Vodovoz.Parameters
 		public string SubdivisionsToInformComplaintHasNoDriverParameterName => _subdivisionsToInformComplaintHasNoDriverParameterName;
 
 		public string SubdivisionsAlternativePricesName => _subdivisionsForAlternativePricesName;
+
+		public int DriversUnclosedRouteListsHavingDebtMaxCount => _parametersProvider.GetValue<int>(_driversUnclosedRouteListsHavingDebtMaxCount);
+
+		public void UpdateDriversUnclosedRouteListsHavingDebtMaxCount(int value) =>
+			_parametersProvider.CreateOrUpdateParameter(_driversUnclosedRouteListsHavingDebtMaxCount, value.ToString());
+
+		public int DriversRouteListsMaxDebtSum => _parametersProvider.GetValue<int>(_driversRouteListsMaxDebtSum);
+
+		public void UpdateDriversRouteListsMaxDebtSum(decimal value) =>
+			_parametersProvider.CreateOrUpdateParameter(_driversRouteListsMaxDebtSum, value.ToString());
 	}
 }

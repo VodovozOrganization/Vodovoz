@@ -9,7 +9,7 @@ namespace Vodovoz
         private static Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
         public static void HandleKeyPressEvent(object o, KeyPressEventArgs args)
         {
-            TdiNotebook mainNotebook = MainClass.MainWin.TdiMain;
+            TdiNotebook mainNotebook = Startup.MainWin.TdiMain;
             if (mainNotebook == null)
                 throw new InvalidOperationException(
                     "Вызвано событие TDIHandleKeyPressEvent, но для его корректной работы необходимо заполнить TDIMain.MainNotebook.");

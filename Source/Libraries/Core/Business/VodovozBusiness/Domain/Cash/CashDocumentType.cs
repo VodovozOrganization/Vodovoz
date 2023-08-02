@@ -16,4 +16,3 @@ namespace Vodovoz.Domain.Cash
 		AdvanceReport
 	}
 }
-

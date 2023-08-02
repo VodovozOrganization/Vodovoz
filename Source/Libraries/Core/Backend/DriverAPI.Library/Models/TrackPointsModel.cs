@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
+using DriverAPI.Library.Deprecated2.Models;
 
 namespace DriverAPI.Library.Models
 {
-	public class TrackPointsModel : ITrackPointsModel
+	internal class TrackPointsModel : ITrackPointsModel
 	{
 		private readonly ILogger<TrackPointsModel> _logger;
 		private readonly ITrackRepository _trackRepository;
@@ -94,7 +95,7 @@ namespace DriverAPI.Library.Models
 						Track = track,
 						Latitude = decimal.ToDouble(group.Key.Latitude),
 						Longitude = decimal.ToDouble(group.Key.Longitude),
-						TimeStamp = group.Key.ActionTimeUtc
+						TimeStamp = group.Key.ActionTimeUtc.ToLocalTime()
 					});
 
 			foreach(var trackPoint in trackPoints)

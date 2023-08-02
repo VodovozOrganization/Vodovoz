@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 
@@ -20,11 +21,14 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		private TargetDocument _targetDocument;
 		private int? _subdivisionId;
 		private string _numbering;
+		private bool _excludeFromCashFlowDds;
+		private bool _isHiddenFromPublicAccess;
 
 		[Display(Name = "Код")]
 		public virtual int Id { get; }
 
-		[Display(Name = "Код родительской группы")]
+		[Display(Name = "Родительская группа")]
+		[HistoryIdentifier(TargetType = typeof(FinancialCategoriesGroup))]
 		public virtual int? ParentId
 		{
 			get => _parentId;
@@ -52,7 +56,8 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 			set => SetField(ref _targetDocument, value);
 		}
 
-		[Display(Name = "Код подразделения")]
+		[Display(Name = "Подразделение")]
+		[HistoryIdentifier(TargetType = typeof(Subdivision))]
 		public virtual int? SubdivisionId
 		{
 			get => _subdivisionId;
@@ -72,5 +77,43 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 
 		[Display(Name = "Приход/расход")]
 		public virtual FinancialSubType FinancialSubtype => FinancialSubType.Expense;
+
+		[Display(Name = "Не включать в ДДС")]
+		public virtual bool ExcludeFromCashFlowDds
+		{
+			get => _excludeFromCashFlowDds;
+			set => SetField(ref _excludeFromCashFlowDds, value);
+		}
+
+		[Display(Name = "Скрыта из общего доступа")]
+		public virtual bool IsHiddenFromPublicAccess
+		{
+			get => _isHiddenFromPublicAccess;
+			set => SetField(ref _isHiddenFromPublicAccess, value);
+		}
+
+		public virtual bool IsParentCategoryIsArchive(IUnitOfWork unitOfWork)
+		{
+			if(ParentId == null)
+			{
+				return false;
+			}
+
+			var parentCategory = unitOfWork.GetById<FinancialCategoriesGroup>(ParentId.Value);
+
+			return parentCategory != null && parentCategory.IsArchive;
+		}
+
+		public virtual bool IsParentCategoryIsHidden(IUnitOfWork unitOfWork)
+		{
+			if(ParentId == null)
+			{
+				return false;
+			}
+
+			var parentCategory = unitOfWork.GetById<FinancialCategoriesGroup>(ParentId.Value);
+
+			return parentCategory != null && parentCategory.IsHiddenFromPublicAccess;
+		}
 	}
 }

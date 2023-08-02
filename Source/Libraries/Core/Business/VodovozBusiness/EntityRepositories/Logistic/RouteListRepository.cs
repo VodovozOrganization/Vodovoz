@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -22,7 +21,6 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.NHibernateProjections.Orders;
@@ -84,19 +82,26 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.Where(x => x.Date == date);
 		}
 
-		public QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds)
+		public QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds, bool onlyNonPrinted)
 		{
 			GeoGroup geographicGroupAlias = null;
+			RouteList routeListAlias = null;
+			DocumentPrintHistory printHistoryAlias = null;
 
-			var query = QueryOver.Of<RouteList>()
-								 .Where(x => x.Date == date)
-								 ;
+			var query = QueryOver.Of(() => routeListAlias)
+				.Where(x => x.Date == date);
+
+			if(onlyNonPrinted)
+			{
+				query.Left.JoinAlias(() => routeListAlias.PrintsHistory, () => printHistoryAlias)
+					.WhereRestrictionOn(() => printHistoryAlias.Id).IsNull();
+			}
 
 			if(geographicGroupsIds.Any()) {
 				var routeListsWithGeoGroupsSubquery = QueryOver.Of<RouteList>()
-															   .Left.JoinAlias(r => r.GeographicGroups, () => geographicGroupAlias)
-															   .Where(() => geographicGroupAlias.Id.IsIn(geographicGroupsIds))
-															   .Select(r => r.Id);
+					.Left.JoinAlias(r => r.GeographicGroups, () => geographicGroupAlias)
+					.Where(() => geographicGroupAlias.Id.IsIn(geographicGroupsIds))
+					.Select(r => r.Id);
 				query.WithSubquery.WhereProperty(r => r.Id).In(routeListsWithGeoGroupsSubquery);
 			}
 
@@ -1204,15 +1209,20 @@ namespace Vodovoz.EntityRepositories.Logistic
 			}
 		}
 		
-		public decimal GetRouteListTotalWeight(IUnitOfWork uow, int routeListId)
+		public decimal GetRouteListTotalSalesGoodsWeight(IUnitOfWork uow, int routeListId)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
-			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			RouteList rlAlias = null;
-			AdditionalLoadingDocument additionalLoadingDocumentAlias = null;
-			AdditionalLoadingDocumentItem additionalLoadingDocumentItemAlias = null;
+
+			var weightProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2) * ?3"),
+				NHibernateUtil.Decimal,
+				Projections.Property(() => orderItemAlias.ActualCount),
+				Projections.Property(() => orderItemAlias.Count),
+				Projections.Property(() => nomenclatureAlias.Weight)
+			);
 
 			var weightOrderItems = QueryOver.Of<RouteListItem>()
 				.Where(rla => rla.Status != RouteListItemStatus.Transfered)
@@ -1220,30 +1230,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(rla => rla.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Select(Projections.Sum(() => orderItemAlias.Count * nomenclatureAlias.Weight));
+				.Select(Projections.Sum(weightProjection));
 			
-			var weightEquipments = QueryOver.Of<RouteListItem>()
-				.Where(rla => rla.Status != RouteListItemStatus.Transfered)
-				.And(rla => rla.RouteList.Id == rlAlias.Id)
-				.JoinAlias(rla => rla.Order, () => orderAlias)
-				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias, JoinType.InnerJoin,
-					Restrictions.Where(() => orderEquipmentAlias.Direction == Direction.Deliver))
-				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Select(Projections.Sum(() => orderEquipmentAlias.Count * nomenclatureAlias.Weight));
-			
-			var weightAdditional = QueryOver.Of<RouteList>()
-				.Where(rl => rl.Id == rlAlias.Id)
-				.JoinAlias(rl => rl.AdditionalLoadingDocument, () => additionalLoadingDocumentAlias)
-				.JoinAlias(() => additionalLoadingDocumentAlias.Items, () => additionalLoadingDocumentItemAlias)
-				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Select(Projections.Sum(() => additionalLoadingDocumentItemAlias.Amount * nomenclatureAlias.Weight));
-
 			var total = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?4) + IFNULL(?2, ?4) + IFNULL(?3, ?4)"),
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, ?2)"),
 				NHibernateUtil.Decimal,
 				Projections.SubQuery(weightOrderItems),
-				Projections.SubQuery(weightEquipments),
-				Projections.SubQuery(weightAdditional),
 				Projections.Constant(0));
 
 			var result = uow.Session.QueryOver(() => rlAlias)
@@ -1269,6 +1261,148 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.SingleOrDefault<decimal>();
 		}
 
+		public class RouteListProfitabilitySpendings
+		{
+			public decimal TotalSales { get; set; }
+			public decimal TotalPurchaseSpending { get; set; }
+			public decimal TotalInnerDeliverySpending { get; set; }
+			public decimal TotalAddressDeliverySpending { get; set; }
+			public decimal TotalWarehouseSpending { get; set; }
+			public decimal TotalAdministrativeSpending { get; set; }
+
+			public decimal GetTotalSpending()
+			{
+				return
+				TotalPurchaseSpending +
+				TotalInnerDeliverySpending +
+				TotalAddressDeliverySpending +
+				TotalWarehouseSpending +
+				TotalAdministrativeSpending;
+			}
+		}
+
+		public RouteListProfitabilitySpendings GetRouteListSpendings(IUnitOfWork uow, int routeListId, decimal routeListExpensesPerKg)
+		{
+			var sql = $@"
+# При изменении этого запроса, необходимо внести соответствующие изменения в отчет по рентабельности
+SELECT
+	ROUND(SUM(prof.total_price), 2) as {nameof(RouteListProfitabilitySpendings.TotalSales)},
+	ROUND(SUM(prof.total_purchase_price), 2) as {nameof(RouteListProfitabilitySpendings.TotalPurchaseSpending)},
+	ROUND(SUM(prof.total_inner_delivery_price), 2) as {nameof(RouteListProfitabilitySpendings.TotalInnerDeliverySpending)},
+	ROUND(SUM(prof.total_delivery_spending), 2) as {nameof(RouteListProfitabilitySpendings.TotalAddressDeliverySpending)},
+	ROUND(SUM(prof.total_warehouse_spending), 2) as {nameof(RouteListProfitabilitySpendings.TotalWarehouseSpending)},
+	ROUND(SUM(prof.total_administrative_spending), 2) as {nameof(RouteListProfitabilitySpendings.TotalAdministrativeSpending)}
+FROM
+	(SELECT
+		IFNULL(oi.actual_count, oi.count) AS items_count,
+		(SELECT ((items_count * oi.price) - oi.discount_money)) AS total_price, 
+		#Пр-во/закупка - если групповая себестоимость то себестоимость, иначе цена закупки
+		(
+			IF(n.using_in_group_price_set,
+				(
+					SELECT ncp.cost_price
+					FROM nomenclature_cost_prices ncp 
+					WHERE ncp.nomenclature_id = n.id 
+					AND ncp.start_date <= o.delivery_date 
+					AND (ncp.end_date IS NULL OR ncp.end_date > o.delivery_date)
+				),
+				(
+					SELECT npp.purchase_price
+					FROM nomenclature_purchase_prices npp 
+					WHERE npp.nomenclature_id = n.id 
+					AND npp.start_date <= o.delivery_date 
+					AND (npp.end_date IS NULL OR npp.end_date > o.delivery_date)
+				)
+			)
+		) AS cost_purchase_price,
+		(SELECT CAST((cost_purchase_price * items_count) AS DECIMAL(12,2))) AS total_purchase_price,
+		#Фура - стоимость доставки до склада
+		(
+			SELECT 
+				IFNULL(nidp.price, '-')
+			FROM nomenclature_inner_delivery_prices nidp  
+			WHERE nidp.nomenclature_id = n.id 
+			AND nidp.start_date <= o.delivery_date 
+			AND (nidp.end_date IS NULL OR nidp.end_date > o.delivery_date)
+		) AS inner_delivery_price_source,
+		(SELECT IF(w.type_of_use = 'Production', 0, inner_delivery_price_source)) AS inner_delivery_price,
+		(SELECT CAST((inner_delivery_price * items_count) AS DECIMAL(12,2))) AS total_inner_delivery_price,
+		#затраты на адресную доставку на килограмм
+		(SELECT IF(o.self_delivery, 0, :route_list_expenses_per_kg)) AS route_list_expenses_per_kg,
+		(SELECT CAST(weight * route_list_expenses_per_kg AS DECIMAL(12,2))) AS delivery_spending,
+		(SELECT CAST((delivery_spending * items_count) AS DECIMAL(12,2))) AS total_delivery_spending,
+		#складские расходы на килограмм
+		(
+			SELECT		
+				pc.warehouse_expenses_per_kg
+			FROM 
+				profitability_constants pc
+			WHERE
+				YEAR(pc.calculated_month) = YEAR(o.delivery_date) 
+				AND MONTH(pc.calculated_month) = MONTH(o.delivery_date)
+		) AS warehouse_expenses_per_kg_source,	
+		(
+			SELECT 
+				IFNULL(warehouse_expenses_per_kg_source, 
+				(
+					SELECT pc.warehouse_expenses_per_kg
+					FROM profitability_constants pc
+					ORDER BY pc.calculated_month DESC
+					LIMIT 1
+				)
+			)
+		) AS warehouse_expenses_per_kg_last_calc,
+		(SELECT IF(w.type_of_use = 'Production', 0, warehouse_expenses_per_kg_last_calc)) AS warehouse_expenses_per_kg,
+		(SELECT CAST(weight * warehouse_expenses_per_kg AS DECIMAL(12,2))) AS warehouse_spending,
+		(SELECT CAST((warehouse_spending * items_count) AS DECIMAL(12,2))) AS total_warehouse_spending,
+		#административные расходы на килограмм
+		(
+			SELECT		
+				pc.administrative_expenses_per_kg
+			FROM 
+				profitability_constants pc
+			WHERE
+				YEAR(pc.calculated_month) = YEAR(o.delivery_date) 
+				AND MONTH(pc.calculated_month) = MONTH(o.delivery_date)
+		) AS administrative_expenses_per_kg_source,	
+		(
+			SELECT 
+				IFNULL(administrative_expenses_per_kg_source, 
+				(
+					SELECT pc.administrative_expenses_per_kg
+					FROM profitability_constants pc
+					ORDER BY pc.calculated_month DESC
+					LIMIT 1
+				)
+			)
+		) AS administrative_expenses_per_kg,
+		(SELECT CAST(weight * administrative_expenses_per_kg AS DECIMAL(12,2))) AS administrative_spending,
+		(SELECT CAST((administrative_spending * items_count) AS DECIMAL(12,2))) AS total_administrative_spending
+	FROM
+		order_items oi
+		LEFT JOIN
+		orders o ON order_id = o.id
+		LEFT JOIN
+		route_list_addresses rla ON rla.order_id = o.id AND rla.status  not in ('Transfered', 'Canceled', 'Overdue')
+		LEFT JOIN
+		nomenclature n ON oi.nomenclature_id = n.id
+		LEFT JOIN
+		store_car_load_documents scld ON scld.route_list_id = rla.route_list_id
+		LEFT JOIN
+		warehouses w ON w.id = scld.warehouse_id
+	WHERE rla.route_list_id = :route_list_id
+		AND n.category != 'deposit'
+	GROUP BY oi.id
+	) prof
+;";
+			var query = uow.Session.CreateSQLQuery(sql)
+				.SetParameter("route_list_id", routeListId)
+				.SetParameter("route_list_expenses_per_kg", routeListExpensesPerKg)
+				.SetResultTransformer(Transformers.AliasToBean(typeof(RouteListProfitabilitySpendings)));
+			var result = query.UniqueResult<RouteListProfitabilitySpendings>();
+			return result;
+		}
+
 		public decimal GetRouteListSalesSum(IUnitOfWork uow, int routeListId)
 		{
 			OrderItem orderItemAlias = null;
@@ -1290,6 +1424,41 @@ namespace Vodovoz.EntityRepositories.Logistic
 				AddressTransferType.FromFreeBalance
 			};
 
+		public int GetUnclosedRouteListsCountHavingDebtByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0)
+		{
+			RouteList routeListAlias = null;
+			RouteListDebt routeListDebtAlias = null;
+
+			var routeListsCount = uow.Session.QueryOver(() => routeListDebtAlias)
+				.JoinAlias(() => routeListDebtAlias.RouteList, () => routeListAlias)
+				.Where(() =>
+					routeListAlias.Driver.Id == driverId
+					&& routeListAlias.Status != RouteListStatus.Closed
+					&& routeListAlias.Id != excludeRouteListId
+					&& routeListDebtAlias.Debt > 0)
+				.Select(Projections.Count(() => routeListDebtAlias.RouteList))
+				.SingleOrDefault<int>();
+
+			return routeListsCount;
+		}
+
+		public decimal GetUnclosedRouteListsDebtsSumByDriver(IUnitOfWork uow, int driverId, int excludeRouteListId = 0)
+		{
+			RouteList routeListAlias = null;
+			RouteListDebt routeListDebtAlias = null;
+
+			var routeListsDebtsSum = uow.Session.QueryOver(() => routeListDebtAlias)
+				.JoinAlias(() => routeListDebtAlias.RouteList, () => routeListAlias)
+				.Where(() =>
+					routeListAlias.Driver.Id == driverId
+					&& routeListAlias.Status != RouteListStatus.Closed
+					&& routeListAlias.Id != excludeRouteListId
+					&& routeListDebtAlias.Debt > 0)
+				.Select(Projections.Sum(() => routeListDebtAlias.Debt))
+				.SingleOrDefault<decimal>();
+
+			return routeListsDebtsSum;
+		}
 	}
 
 	#region DTO

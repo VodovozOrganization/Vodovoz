@@ -47,6 +47,23 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.OrderAutoComment, w => w.Text)
 				.AddBinding(vm => vm.CanEditOrderAutoComment, w => w.IsEditable)
 				.InitializeFromSource();
+
+			yspinbuttonRouteListsCount.Binding
+				.AddBinding(ViewModel, vm => vm.DriversUnclosedRouteListsHavingDebtCount, w => w.ValueAsInt)
+				.InitializeFromSource();
+
+			yspinbuttonRouteListsDebt.Binding
+				.AddBinding(ViewModel, vm => vm.DriversRouteListsDebtMaxSum, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+
+			ybuttonSaveDriversStopListSettings.Clicked += (sender, args) => ViewModel.SaveDriversStopListPropertiesCommand.Execute();
+			ybuttonSaveDriversStopListSettings.Binding
+				.AddBinding(ViewModel, vm => vm.CanSaveDriversStopListProperties, b => b.Sensitive)
+				.InitializeFromSource();
+
+			ytableStopListProp.Binding
+				.AddBinding(ViewModel, vm => vm.CanSaveDriversStopListProperties, t => t.Sensitive)
+				.InitializeFromSource();
 		}
 	}
 }

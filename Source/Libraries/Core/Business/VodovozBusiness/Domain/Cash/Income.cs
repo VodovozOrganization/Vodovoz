@@ -1,13 +1,15 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Cash.CashTransfer;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -36,8 +38,8 @@ namespace Vodovoz.Domain.Cash
 		private Employee _employee;
 		private Counterparty _customer;
 		private Order _order;
-		private IncomeCategory _incomeCategory;
-		private ExpenseCategory _expenseCategory;
+		private int? _incomeCategoryId;
+		private int? _expenseCategoryId;
 		private string _description;
 		private decimal _money;
 		private RouteList _routeListClosing;
@@ -45,6 +47,9 @@ namespace Vodovoz.Domain.Cash
 		private CashTransferDocumentBase _cashTransferDocument;
 		private string _cashierReviewComment;
 		private Organization _organisation;
+		private bool _noFullCloseMode;
+
+		public Income() { }
 
 		public virtual int Id { get; set; }
 
@@ -80,15 +85,15 @@ namespace Vodovoz.Domain.Cash
 					switch(TypeOperation)
 					{
 						case IncomeType.Return:
-							IncomeCategory = null;
+							IncomeCategoryId = null;
 							Customer = null;
 							break;
 						case IncomeType.Common:
-							ExpenseCategory = null;
+							IncomeCategoryId = null;
 							Customer = null;
 							break;
 						case IncomeType.Payment:
-							ExpenseCategory = null;
+							IncomeCategoryId = null;
 							break;
 					}
 				}
@@ -124,20 +129,22 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		[Display(Name = "Статья дохода")]
-		public virtual IncomeCategory IncomeCategory
+		[HistoryIdentifier(TargetType = typeof(FinancialIncomeCategory))]
+		public virtual int? IncomeCategoryId
 		{
-			get => _incomeCategory;
-			set => SetField(ref _incomeCategory, value);
+			get => _incomeCategoryId;
+			set => SetField(ref _incomeCategoryId, value);
 		}
 
 		/// <summary>
 		/// Используется только для отслеживания возвратных возвратных денег с типом операции Return
 		/// </summary>
 		[Display(Name = "Статья расхода")]
-		public virtual ExpenseCategory ExpenseCategory
+		[HistoryIdentifier(TargetType = typeof(FinancialExpenseCategory))]
+		public virtual int? ExpenseCategoryId
 		{
-			get => _expenseCategory;
-			set => SetField(ref _expenseCategory, value);
+			get => _expenseCategoryId;
+			set => SetField(ref _expenseCategoryId, value);
 		}
 
 		[Display(Name = "Основание")]
@@ -155,6 +162,9 @@ namespace Vodovoz.Domain.Cash
 			=> SetField(ref _money, value);
 		}
 
+		[PropertyChangedAlso(
+			nameof(Employee),
+			nameof(Description))]
 		public virtual RouteList RouteListClosing
 		{
 			get => _routeListClosing;
@@ -195,15 +205,17 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual List<Expense> AdvanceForClosing { get; protected set; }
 
-		public virtual bool NoFullCloseMode { get; set; }
+		public virtual bool NoFullCloseMode
+		{
+			get => _noFullCloseMode;
+			set => SetField(ref _noFullCloseMode, value);
+		}
 
 		#endregion
 
-		public Income() { }
-
 		#region Функции
 
-		public virtual void AcceptSelfDeliveryPaid(CallTaskWorker callTaskWorker)
+		public virtual void AcceptSelfDeliveryPaid(ICallTaskWorker callTaskWorker)
 		{
 			if(Id == 0)
 			{
@@ -287,10 +299,16 @@ namespace Vodovoz.Domain.Cash
 					new[] { this.GetPropertyName(o => o.TypeOperation) });
 				}
 
-				if(IncomeCategory == null || IncomeCategory.IncomeDocumentType != IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery)
+				var financialCategoriesRepository = validationContext.GetService<IFinancialIncomeCategoriesRepository>();
+
+				var unitOfWork = validationContext.GetService<IUnitOfWork>();
+
+				var targetDocument = financialCategoriesRepository.GetIncomeCategoryTargetDocument(unitOfWork, IncomeCategoryId);
+
+				if(IncomeCategoryId == null || targetDocument != TargetDocument.SelfDelivery)
 				{
 					yield return new ValidationResult("Должна быть выбрана статья дохода для самовывоза.",
-					new[] { this.GetPropertyName(o => o.IncomeCategory) });
+					new[] { this.GetPropertyName(o => o.IncomeCategoryId) });
 				}
 
 				if(Order == null)
@@ -326,10 +344,10 @@ namespace Vodovoz.Domain.Cash
 							new[] { this.GetPropertyName(o => o.Employee) });
 					}
 
-					if(ExpenseCategory == null)
+					if(ExpenseCategoryId == null)
 					{
 						yield return new ValidationResult("Статья по которой брались деньги должна быть указана.",
-							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+							new[] { this.GetPropertyName(o => o.ExpenseCategoryId) });
 					}
 
 					if(Id == 0)
@@ -372,10 +390,10 @@ namespace Vodovoz.Domain.Cash
 
 				if(TypeOperation != IncomeType.Return)
 				{
-					if(IncomeCategory == null)
+					if(IncomeCategoryId == null)
 					{
 						yield return new ValidationResult("Статья дохода должна быть указана.",
-							new[] { this.GetPropertyName(o => o.IncomeCategory) });
+							new[] { this.GetPropertyName(o => o.IncomeCategoryId) });
 					}
 				}
 
@@ -410,5 +428,4 @@ namespace Vodovoz.Domain.Cash
 
 		#endregion
 	}
-
 }

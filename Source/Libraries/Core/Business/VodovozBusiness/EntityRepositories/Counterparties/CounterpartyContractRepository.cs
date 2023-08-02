@@ -163,6 +163,8 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			switch(paymentType)
 			{
 				case PaymentType.Cash:
+				case PaymentType.DriverApplicationQR:
+				case PaymentType.SmsQR:
 				case PaymentType.PaidOnline:
 				case PaymentType.Terminal:
 					if(clientType == PersonType.legal)
