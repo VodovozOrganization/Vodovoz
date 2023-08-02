@@ -53,7 +53,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				query.WhereRestrictionOn(awd => awd.GeographicGroup.Id).IsIn(geoGroupIds);
 			}
 
-			query.Select(Projections.Id());
+			query.Select(Projections.Distinct(Projections.Id()));
 
 
 			AtWorkDriver atWorkDriverAlias2 = null;

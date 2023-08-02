@@ -730,13 +730,6 @@ namespace Vodovoz.Domain.Orders
 		DailyRent
 	}
 
-	public class OrderRentTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public OrderRentTypeStringType() : base(typeof(OrderRentType))
-		{
-		}
-	}
-
 	public enum OrderItemRentSubType
 	{
 		[Display(Name = "Нет аренды")]
@@ -747,13 +740,6 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Залог за аренду")]
 		RentDepositItem
-	}
-
-	public class OrderItemRentSubTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public OrderItemRentSubTypeStringType() : base(typeof(OrderItemRentSubType))
-		{
-		}
 	}
 }
 

@@ -26,8 +26,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Price).Column("price");
 			Map(x => x.IsUserPrice).Column("is_user_price");
 			Map(x => x.ValueAddedTax).Column("value_added_tax");
-			Map(x => x.RentType).Column("rent_type").CustomType<OrderRentTypeStringType>();
-			Map(x => x.OrderItemRentSubType).Column("rent_sub_type").CustomType<OrderItemRentSubTypeStringType>();
+			Map(x => x.RentType).Column("rent_type");
+			Map(x => x.OrderItemRentSubType).Column("rent_sub_type");
 			Map(x => x.RentCount).Column("rent_count");
 			Map(x => x.RentEquipmentCount).Column("rent_equipment_count");
 			Map(x => x.IsAlternativePrice).Column("is_alternative_price");
