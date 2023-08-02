@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -94,7 +94,7 @@ namespace Vodovoz.Domain
                 && Order.OrderStatus == OrderStatus.WaitForPayment
                 && Order.PayAfterShipment)
             {
-                Order.TryCloseSelfDeliveryOrder(
+                Order.TryCloseSelfDeliveryPayAfterShipmentOrder(
                     uow,
                     new BaseParametersProvider(new ParametersProvider()),
                     new RouteListItemRepository(),

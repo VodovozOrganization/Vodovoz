@@ -3413,8 +3413,16 @@ namespace Vodovoz.Domain.Orders
 				case PaymentType.Cashless:
 				case PaymentType.PaidOnline:
 				case PaymentType.Terminal:
-				case PaymentType.SmsQR:
 					ChangeStatusAndCreateTasks(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
+					break;
+				case PaymentType.SmsQR:
+					ChangeStatusAndCreateTasks(
+						PayAfterShipment 
+						? OnlineOrder != null 
+							? OrderStatus.Closed 
+							: OrderStatus.WaitForPayment
+						: OrderStatus.Closed, 
+						callTaskWorker);
 					break;
 				case PaymentType.Barter:
 				case PaymentType.ContractDocumentation:
@@ -3431,7 +3439,7 @@ namespace Vodovoz.Domain.Orders
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
 		/// склада все отгружено, и произведена оплата
 		/// </summary>
-		public virtual bool TryCloseSelfDeliveryOrder(
+		public virtual bool TryCloseSelfDeliveryPayAfterShipmentOrder(
 			IUnitOfWork uow,
 			IStandartNomenclatures standartNomenclatures,
 			IRouteListItemRepository routeListItemRepository,
@@ -3453,29 +3461,35 @@ namespace Vodovoz.Domain.Orders
 			else
 				return false;
 
-			if(OrderStatus != OrderStatus.OnLoading)
-				return false;
-
-			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
-
-			switch(PaymentType)
+			if(OrderStatus == OrderStatus.WaitForPayment && PayAfterShipment)
 			{
-				case PaymentType.Cash:
-					ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
-					break;
-				case PaymentType.Cashless:
-				case PaymentType.PaidOnline:
-					ChangeStatus(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed);
-					break;
-				case PaymentType.Barter:
-				case PaymentType.ContractDocumentation:
-					ChangeStatus(OrderStatus.Closed);
-					break;
+				bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
+
+				switch(PaymentType)
+				{
+					case PaymentType.Cash:
+						ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
+						break;
+					case PaymentType.Cashless:
+					case PaymentType.PaidOnline:
+						ChangeStatus(OrderStatus.Closed);
+						break;
+					case PaymentType.SmsQR:
+						ChangeStatus(OrderStatus.Closed);
+						break;
+					case PaymentType.Barter:
+					case PaymentType.ContractDocumentation:
+						ChangeStatus(OrderStatus.Closed);
+						break;
+				}
+				//обновление актуальных кол-в из документов самовывоза, включая не сохранённый
+				//документ, откуда был вызов метода
+				UpdateSelfDeliveryActualCounts(closingDocument);
+				return true;
+
 			}
-			//обновление актуальных кол-в из документов самовывоза, включая не сохранённый
-			//документ, откуда был вызов метода
-			UpdateSelfDeliveryActualCounts(closingDocument);
-			return true;
+
+			return false;
 		}
 
 
