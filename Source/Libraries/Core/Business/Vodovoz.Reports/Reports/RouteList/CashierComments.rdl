@@ -32,7 +32,7 @@
         <Height>18.02pt</Height>
         <Width>816.08pt</Width>
         <Value>="Отчет по комментариям кассиров с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>5.6pt</Top>
         <Style>

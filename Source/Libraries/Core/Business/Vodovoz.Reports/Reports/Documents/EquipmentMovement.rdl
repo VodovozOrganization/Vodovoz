@@ -169,7 +169,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>18.78pt</Height>
             <Width>550.36pt</Width>
             <Value>= "Акт движения оборудования № " + {id} + " по договору № " + {contract_number}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>5.00pt</Left>
             <Top>5.20pt</Top>
             <Style>
@@ -184,7 +184,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>12.75pt</Height>
             <Width>47.44pt</Width>
             <Value>Клиент:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>5.10pt</Left>
             <Top>30.70pt</Top>
             <Style>
@@ -197,7 +197,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>13.50pt</Height>
             <Width>46.74pt</Width>
             <Value>Адрес:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>6.10pt</Left>
             <Top>46.70pt</Top>
             <Style>
@@ -210,7 +210,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>12.75pt</Height>
             <Width>48.98pt</Width>
             <Value>Телефон:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>3.90pt</Left>
             <Top>62.90pt</Top>
             <Style>
@@ -223,7 +223,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>27.81pt</Height>
             <Width>552.62pt</Width>
             <Value>= {organization} + " с одной стороны и Клиент с другой стороны составили настоящий акт о нижеследующем:"</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.20pt</Left>
             <Top>83.60pt</Top>
             <Style>
@@ -249,7 +249,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>12.00pt</Height>
             <Width>73.03pt</Width>
             <Value>Направление:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.5pt</Left>
             <Top>10.5pt</Top>
             <Style>
@@ -262,7 +262,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>12.76pt</Height>
             <Width>417.08pt</Width>
             <Value>= Switch({direction} = 'Deliver', "Доставлено клиенту", {direction} = 'PickUp', "Забрано у клиента")</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>80.9pt</Left>
             <Top>9.5pt</Top>
             <Style>
@@ -276,7 +276,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>Тип:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>5.0pt</Left>
             <Top>25.3pt</Top>
             <Style>
@@ -289,7 +289,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>13.48pt</Height>
             <Width>449.37pt</Width>
             <Value>=Fields!name.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>81.7pt</Left>
             <Top>26.4pt</Top>
             <Style>
@@ -303,7 +303,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>12.00pt</Height>
             <Width>90.27pt</Width>
             <Value>Принадлежность:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.30pt</Left>
             <Top>42.80pt</Top>
             <Style>
@@ -316,7 +316,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>12.00pt</Height>
             <Width>245.52pt</Width>
             <Value>=Switch({own_type} = 'Client',"Собственность клиента", {own_type} = 'Duty', "Дежурный", {own_type} = 'Rent', "Аренда")</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>90.40pt</Left>
             <Top>42.80pt</Top>
             <Style>
@@ -330,7 +330,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>12.00pt</Height>
             <Width>51.24pt</Width>
             <Value>Причина:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>339.70pt</Left>
             <Top>42.50pt</Top>
             <Style>
@@ -343,7 +343,7 @@ WHERE order_equipment.order_id = @order_id</CommandText>
             <Height>12.75pt</Height>
             <Width>169.77pt</Width>
             <Value>=Switch({direction_reason} = 'Unknown', "Неизвестна", {direction_reason} = 'Service', "Сервис", {direction_reason} = 'Rent', "Аренда",  {direction_reason} = 'Cancellation', "Расторжение", {direction_reason} = 'Sale', "Продажа")</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>387.50pt</Left>
             <Top>43.00pt</Top>
             <Style>

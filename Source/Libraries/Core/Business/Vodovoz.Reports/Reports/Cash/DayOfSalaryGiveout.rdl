@@ -63,7 +63,7 @@ order by
         <Height>35.00pt</Height>
         <Width>565pt</Width>
         <Value>='Дата З/П у водителей и экспедиторов на ' + Format(CDate({?start_date}), "dd-MM-yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -80,7 +80,7 @@ order by
         <Height>15pt</Height>
         <Width>565pt</Width>
         <Value>="Сформирован " + Format({?creation_date}, "dd-MM-yyyy в HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>40.00pt</Top>
         <Style>

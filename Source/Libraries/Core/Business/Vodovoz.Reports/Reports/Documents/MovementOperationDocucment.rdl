@@ -25,7 +25,7 @@
         <Width>341.62pt</Width>
         <Value>="ДОКУМЕНТ ПЕРЕМЕЩЕНИЯ ТОВАРОВ
 №" + {?documentId}  +  " от "  + {?date}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>119.3pt</Left>
         <Top>6.4pt</Top>
         <Style>

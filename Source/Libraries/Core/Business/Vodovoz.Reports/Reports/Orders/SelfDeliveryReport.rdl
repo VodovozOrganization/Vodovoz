@@ -18,7 +18,7 @@
         <Height>23.34pt</Height>
         <Width>577.50pt</Width>
         <Value>= "Отчёт по самовывозам за "  + (Format(Cdate(Parameters!startDate), "dd/MM/yyyy")) + Iif(Parameters!isOneDayReport = true, "", " - " + (Format(Cdate(Parameters!endDate), "dd/MM/yyyy")))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.8pt</Left>
         <Top>7.4pt</Top>
         <Style>

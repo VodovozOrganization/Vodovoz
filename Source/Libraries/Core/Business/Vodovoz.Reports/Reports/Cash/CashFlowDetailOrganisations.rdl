@@ -653,7 +653,7 @@ ORDER BY Category;</CommandText>
         <Height>18.03pt</Height>
         <Width>560.17pt</Width>
         <Value>="Доходы и расходы за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
         <Style>
@@ -668,7 +668,7 @@ ORDER BY Category;</CommandText>
         <Height>16.52pt</Height>
         <Width>558.58pt</Width>
         <Value>="Выбранные фильтры:"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.7pt</Left>
         <Top>28.1pt</Top>
         <Style>
@@ -683,7 +683,7 @@ ORDER BY Category;</CommandText>
         <Height>14.29pt</Height>
         <Width>548.87pt</Width>
         <Value>={?organisation_name}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>45.20pt</Top>
         <Style>
@@ -697,7 +697,7 @@ ORDER BY Category;</CommandText>
         <Height>14.99pt</Height>
         <Width>555.56pt</Width>
         <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.4pt</Left>
         <Top>60.3pt</Top>
         <Style>
@@ -715,7 +715,7 @@ ORDER BY Category;</CommandText>
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Приход (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>6.60pt</Top>
         <Style>
@@ -1222,7 +1222,7 @@ ORDER BY Category;</CommandText>
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Сдача (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>142.5pt</Top>
         <Style>
@@ -1627,7 +1627,7 @@ ORDER BY Category;</CommandText>
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Расход (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>236.4pt</Top>
         <Style>
@@ -2033,7 +2033,7 @@ ORDER BY Category;</CommandText>
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Выданные авансы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>325.5pt</Top>
         <Style>
@@ -2437,7 +2437,7 @@ ORDER BY Category;</CommandText>
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Авансовые отчеты</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>417.0pt</Top>
         <Style>
@@ -2950,7 +2950,7 @@ ORDER BY Category;</CommandText>
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Незакрытые авансы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>521.7pt</Top>
         <Style>

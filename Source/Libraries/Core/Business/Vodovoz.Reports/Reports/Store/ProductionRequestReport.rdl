@@ -294,7 +294,7 @@ WHERE
         <Height>12.00pt</Height>
         <Width>340.91pt</Width>
         <Value>="Сформировано:" + Format( {?creation_date}, "dd.MM.yyyy HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>462.2pt</Left>
         <Top>98.0pt</Top>
         <Style>
@@ -794,7 +794,7 @@ WHERE
 - выбираются максимальные отгрузки за день из соответствующего периода;
 Сортировка по объему тары, от большей к меньшей
 </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.5pt</Left>
         <Top>38.2pt</Top>
         <Style>

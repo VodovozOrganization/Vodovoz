@@ -20,7 +20,7 @@
         <Height>23.34pt</Height>
         <Width>581.25pt</Width>
         <Value>= "Отчет по оплатам " + (Format(Convert.ToDateTime({?date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>102.3pt</Left>
         <Top>6.4pt</Top>
         <Style>
@@ -36,7 +36,7 @@
         <Width>801.63pt</Width>
         <Value>В отчет попадают заказы в статусе "Ожидание оплаты" и со статусом оплаты "Оплачен", "Частично оплачен"
 Сортировка: по дате оплаты, затем по дате счета и наконец по номеру заказа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.6pt</Left>
         <Top>32.4pt</Top>
         <Style>

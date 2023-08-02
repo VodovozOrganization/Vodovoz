@@ -324,7 +324,7 @@ WHERE orders.id = @order_id</CommandText>
         <Height>16.58pt</Height>
         <Width>558.69pt</Width>
         <Value>Акт</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.30pt</Top>
         <Style>
@@ -339,7 +339,7 @@ WHERE orders.id = @order_id</CommandText>
         <Height>12.82pt</Height>
         <Width>559.39pt</Width>
         <Value>возврата оборудования из аренды</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>18.70pt</Top>
         <Style>
@@ -355,7 +355,7 @@ WHERE orders.id = @order_id</CommandText>
         <Height>13.53pt</Height>
         <Width>266.95pt</Width>
         <Value>=Iif(String.IsNullOrWhiteSpace(First({special_contract_number}, "Order")) = false,First({special_contract_number}, "Order"), "по договору № " +  First({contract_number}, "Order"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.50pt</Left>
         <Top>35.10pt</Top>
         <Style>
@@ -369,7 +369,7 @@ WHERE orders.id = @order_id</CommandText>
         <Height>33.05pt</Height>
         <Width>113.67pt</Width>
         <Value>="г. Санкт-Петербург\n" + Format(First({delivery_date}, "Order"), "d")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>444.8pt</Left>
         <Top>35.0pt</Top>
         <Style>
@@ -384,7 +384,7 @@ WHERE orders.id = @order_id</CommandText>
         <Height>51.83pt</Height>
         <Width>547.31pt</Width>
         <Value>=First({organization}, "Order") + ", именуемый в дальнейшем «Фирма», в лице Сосновцева С.С., с одной стороны, и " + First({client}, "Order") + ", именуемый(ая) в дальнейшем «Клиент», с другой стороны,  на основании вышеуказанного договора, составили настоящий акт о нижеследующем:"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>11.29pt</Left>
         <Top>73.07pt</Top>
         <Style>
@@ -398,7 +398,7 @@ WHERE orders.id = @order_id</CommandText>
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>={?order_id}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>487.5pt</Left>
         <Top>4.7pt</Top>
         <Style>
@@ -413,7 +413,7 @@ WHERE orders.id = @order_id</CommandText>
         <Height>15.81pt</Height>
         <Width>546.58pt</Width>
         <Value>Клиент вернул, а Фирма приняла ниже перечисленные ценности.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.2pt</Left>
         <Top>131.1pt</Top>
         <Style>
@@ -427,7 +427,7 @@ WHERE orders.id = @order_id</CommandText>
         <Height>24.08pt</Height>
         <Width>559.48pt</Width>
         <Value>Настоящий акт составлен в двух экземплярах, один из которых находится у Фирмы, другой – у Клиента.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.4pt</Left>
         <Top>623.9pt</Top>
         <Style>
@@ -446,7 +446,7 @@ WHERE orders.id = @order_id</CommandText>
 ______________ /" + First({leader_last_name}, "Order") + " " + First({leader_name}, "Order") + "." + First({leader_patronymic}, "Order") + "./
 
 М.П."</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.60pt</Left>
         <Top>652.90pt</Top>
         <Style>
@@ -466,7 +466,7 @@ ______________ /" + First({leader_last_name}, "Order") + " " + First({leader_nam
 ______________ /                                    /
 
 М.П.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>279.4pt</Left>
         <Top>652.7pt</Top>
         <Style>
@@ -481,7 +481,7 @@ ______________ /                                    /
         <Height>14.31pt</Height>
         <Width>509.99pt</Width>
         <Value>Поля необходимые для заполнения</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.41pt</Left>
         <Top>207.35pt</Top>
         <Style>
@@ -499,7 +499,7 @@ ______________ /                                    /
         <Height>14.25pt</Height>
         <Width>140pt</Width>
         <Value>Итого сдано в ремонт</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.71pt</Left>
         <Top>230.55pt</Top>
         <Style>
@@ -513,7 +513,7 @@ ______________ /                                    /
         <Height>14.25pt</Height>
         <Width>100.02pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>134.91pt</Left>
         <Top>230.65pt</Top>
         <Style>
@@ -530,7 +530,7 @@ ______________ /                                    /
         <Height>14.25pt</Height>
         <Width>46.02pt</Width>
         <Value>единиц</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>239.01pt</Left>
         <Top>230.95pt</Top>
         <Style>
@@ -542,7 +542,7 @@ ______________ /                                    /
         <Height>14.25pt</Height>
         <Width>450pt</Width>
         <Value>Клиент принял временный кулер (нужное подчеркнуть)      Да,      Нет</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.01pt</Left>
         <Top>250.15pt</Top>
         <Style>
@@ -555,7 +555,7 @@ ______________ /                                    /
         <Height>14.31pt</Height>
         <Width>509.99pt</Width>
         <Value>Заполняется клиентом</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>6.3pt</Left>
         <Top>277.1pt</Top>
         <Style>
@@ -717,7 +717,7 @@ ______________ /                                    /
         <Height>14.31pt</Height>
         <Width>509.99pt</Width>
         <Value>Заполняется водителем-экспедитором</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.9pt</Left>
         <Top>334.9pt</Top>
         <Style>
@@ -1092,7 +1092,7 @@ ______________ /                                    /
         <Height>76.05pt</Height>
         <Width>510.55pt</Width>
         <Value>Оборудование с согласия Клиента, принято без разборки и проверки неисправностей, без проверки внутренних повреждений. Клиент согласен, что все неисправности и внутренние повреждения, которые могут быть обнаружены в оборудовании при его техническом обслуживании, возникли до приема оборудования по этому акту. В случае отказа Клиента от ремонта после проведения диагностических работ и установления причины неисправности сданного оборудования по вине Клиента, Клиент обязуется оплатить диагностику. Гарантия распространяется ТОЛЬКО на выполненные работы и замененные запчасти. Гарантия не распространяется на оборудование, которое подвергалось механическому воздействию, а также в случае неквалифицированного ремонта сторонними ремонтными организациями.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.27pt</Left>
         <Top>455.78pt</Top>
         <Style>
@@ -1109,7 +1109,7 @@ ______________ /                                    /
         <Height>16.50pt</Height>
         <Width>255.27pt</Width>
         <Value>Оборудование принято, претензий не имею</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>17.8pt</Left>
         <Top>554.7pt</Top>
         <Style>
@@ -1124,7 +1124,7 @@ ______________ /                                    /
         <Height>15.75pt</Height>
         <Width>229.77pt</Width>
         <Value>Оборудование передано клиенту</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>17.8pt</Left>
         <Top>585.9pt</Top>
         <Style>
@@ -1139,7 +1139,7 @@ ______________ /                                    /
         <Height>12.00pt</Height>
         <Width>126.27pt</Width>
         <Value>/                                      /</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>350.8pt</Left>
         <Top>554.7pt</Top>
         <Style>
@@ -1156,7 +1156,7 @@ ______________ /                                    /
         <Height>12.00pt</Height>
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>355.6pt</Left>
         <Top>566.5pt</Top>
         <Style>
@@ -1172,7 +1172,7 @@ ______________ /                                    /
         <Height>12.00pt</Height>
         <Width>126.27pt</Width>
         <Value>/                                      /</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>350.8pt</Left>
         <Top>585.9pt</Top>
         <Style>
@@ -1189,7 +1189,7 @@ ______________ /                                    /
         <Height>12.00pt</Height>
         <Width>115.02pt</Width>
         <Value>Подпись водителя</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>355.6pt</Left>
         <Top>597.7pt</Top>
         <Style>

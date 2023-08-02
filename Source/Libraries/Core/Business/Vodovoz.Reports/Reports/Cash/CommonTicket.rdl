@@ -137,7 +137,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>12.73pt</Height>
             <Width>258.33pt</Width>
             <Value>=Fields!date.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>11.7pt</Left>
             <Top>0.7pt</Top>
             <Style>
@@ -152,7 +152,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>14.25pt</Height>
             <Width>158.82pt</Width>
             <Value>="По договору №" + Fields!contract.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>6.4pt</Left>
             <Top>17.4pt</Top>
             <Style>
@@ -165,7 +165,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>29.24pt</Height>
             <Width>246.82pt</Width>
             <Value>="Арендатор: " + Fields!lessee.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>5.40pt</Left>
             <Top>35.10pt</Top>
             <Style>
@@ -178,7 +178,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>13.49pt</Height>
             <Width>244.66pt</Width>
             <Value>="Оплата услуг за " + MonthName(Fields!month.Value) + "  " + Fields!year.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>5.9pt</Left>
             <Top>64.6pt</Top>
             <Style>
@@ -194,7 +194,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>23.99pt</Height>
             <Width>253.51pt</Width>
             <Value>="Получено: " + Format(Fields!sum.Value, "C") + "  " + SummaString_Val(Convert.ToString(Fields!sum.Value))</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>7.1pt</Left>
             <Top>145.4pt</Top>
             <Style>
@@ -208,7 +208,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>14.25pt</Height>
             <Width>249.89pt</Width>
             <Value>="Кассир: " + Fields!user.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>8.1pt</Left>
             <Top>181.3pt</Top>
             <Style>
@@ -221,7 +221,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>11.99pt</Height>
             <Width>64.02pt</Width>
             <Value>Основание:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>5.40pt</Left>
             <Top>82.10pt</Top>
             <Style>
@@ -235,7 +235,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>56.35pt</Height>
             <Width>184.39pt</Width>
             <Value>={details}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>67.00pt</Left>
             <Top>82.80pt</Top>
             <Style>
@@ -264,7 +264,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>12.73pt</Height>
             <Width>258.33pt</Width>
             <Value>=Fields!date.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>11.7pt</Left>
             <Top>0.7pt</Top>
             <Style>
@@ -279,7 +279,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>14.25pt</Height>
             <Width>158.82pt</Width>
             <Value>="По договору №" + Fields!contract.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>6.4pt</Left>
             <Top>17.4pt</Top>
             <Style>
@@ -292,7 +292,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>29.24pt</Height>
             <Width>246.82pt</Width>
             <Value>="Арендатор: " + Fields!lessee.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>5.40pt</Left>
             <Top>35.10pt</Top>
             <Style>
@@ -305,7 +305,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>13.49pt</Height>
             <Width>244.66pt</Width>
             <Value>="Оплата услуг за " + MonthName(Fields!month.Value) + "  " + Fields!year.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>5.9pt</Left>
             <Top>64.6pt</Top>
             <Style>
@@ -321,7 +321,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>23.99pt</Height>
             <Width>253.51pt</Width>
             <Value>="Получено: " + Format(Fields!sum.Value, "C") + "  " + SummaString_Val(Convert.ToString(Fields!sum.Value))</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>7.1pt</Left>
             <Top>145.4pt</Top>
             <Style>
@@ -335,7 +335,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>14.25pt</Height>
             <Width>249.89pt</Width>
             <Value>="Кассир: " + Fields!user.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>8.1pt</Left>
             <Top>181.3pt</Top>
             <Style>
@@ -348,7 +348,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>11.99pt</Height>
             <Width>64.02pt</Width>
             <Value>Основание:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>5.40pt</Left>
             <Top>82.10pt</Top>
             <Style>
@@ -362,7 +362,7 @@ WHERE credit_slips.id = @id</CommandText>
             <Height>56.35pt</Height>
             <Width>184.39pt</Width>
             <Value>={details}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>67.00pt</Left>
             <Top>82.80pt</Top>
             <Style>

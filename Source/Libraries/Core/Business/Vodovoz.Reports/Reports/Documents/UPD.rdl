@@ -485,7 +485,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>84.27pt</Width>
             <Value>Счет-фактура №</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.8pt</Left>
             <Top>2.3pt</Top>
             <Style>
@@ -499,7 +499,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>81.27pt</Width>
             <Value>Исправление №</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.8pt</Left>
             <Top>13.8pt</Top>
             <Style>
@@ -513,7 +513,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>72.27pt</Width>
             <Value>Продавец:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>25.2pt</Top>
             <Style>
@@ -528,7 +528,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>72.27pt</Width>
             <Value>Адрес:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>36.0pt</Top>
             <Style>
@@ -542,7 +542,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>106.02pt</Width>
             <Value>ИНН/КПП продавца:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>48.4pt</Top>
             <Style>
@@ -556,7 +556,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>151.77pt</Width>
             <Value>Грузоотправитель и его адрес:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>60.0pt</Top>
             <Style>
@@ -570,7 +570,7 @@ WHERE o.id = @order_id
             <Height>12pt</Height>
             <Width>168.08pt</Width>
             <Value>К платежно-расчетному документу №</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>95.30pt</Top>
             <Style>
@@ -584,7 +584,7 @@ WHERE o.id = @order_id
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>Покупатель:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>119.0pt</Top>
             <Style>
@@ -599,7 +599,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>111.27pt</Width>
             <Value>ИНН/КПП покупателя:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.8pt</Left>
             <Top>148.6pt</Top>
             <Style>
@@ -613,7 +613,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>140.52pt</Width>
             <Value>Валюта: наименование, код</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.8pt</Left>
             <Top>161.6pt</Top>
             <Style>
@@ -627,7 +627,7 @@ WHERE o.id = @order_id
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>Адрес:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.8pt</Left>
             <Top>133.0pt</Top>
             <Style>
@@ -641,7 +641,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>148.02pt</Width>
             <Value>Грузополучатель и его адрес:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>72.4pt</Top>
             <Style>
@@ -655,7 +655,7 @@ WHERE o.id = @order_id
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>=Fields!order_id.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>97.1pt</Left>
             <Top>0.7pt</Top>
             <Style>
@@ -672,7 +672,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>18.27pt</Width>
             <Value>от</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>176.5pt</Left>
             <Top>3.1pt</Top>
             <Style>
@@ -686,7 +686,7 @@ WHERE o.id = @order_id
             <Height>11.20pt</Height>
             <Width>102.40pt</Width>
             <Value>=Fields!order_date.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>196.9pt</Left>
             <Top>1.4pt</Top>
             <Style>
@@ -704,7 +704,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>16.02pt</Width>
             <Value>(1)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>300.1pt</Left>
             <Top>3.1pt</Top>
             <Style>
@@ -718,7 +718,7 @@ WHERE o.id = @order_id
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>--</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>97.1pt</Left>
             <Top>11.4pt</Top>
             <Style>
@@ -735,7 +735,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>18.27pt</Width>
             <Value>от</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>176.5pt</Left>
             <Top>15.6pt</Top>
             <Style>
@@ -749,7 +749,7 @@ WHERE o.id = @order_id
             <Height>12.75pt</Height>
             <Width>103.14pt</Width>
             <Value>--</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>196.9pt</Left>
             <Top>10.6pt</Top>
             <Style>
@@ -766,7 +766,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>22.77pt</Width>
             <Value>(1а)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>300.1pt</Left>
             <Top>13.8pt</Top>
             <Style>
@@ -780,7 +780,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
             <Value>=Fields!org_name.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>152.50pt</Left>
             <Top>25.20pt</Top>
             <Style>
@@ -798,7 +798,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
             <Value>=Fields!org_address.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>152.5pt</Left>
             <Top>36.0pt</Top>
             <Style>
@@ -815,7 +815,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
             <Value>=Fields!org_inn.Value + '\\' + Fields!org_kpp.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>152.5pt</Left>
             <Top>48.4pt</Top>
             <Style>
@@ -832,7 +832,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
             <Value>он же</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>152.5pt</Left>
             <Top>60.0pt</Top>
             <Style>
@@ -849,7 +849,7 @@ WHERE o.id = @order_id
             <Height>24.00pt</Height>
             <Width>419.90pt</Width>
             <Value>={cargo_receiver}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>153.10pt</Left>
             <Top>72.40pt</Top>
             <Style>
@@ -866,7 +866,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>419.75pt</Width>
             <Value>='№п/п 1-' + {order_items_count} + ' №' + {order_id} + ' от ' + Format({order_date}, 'dd.MM.yyyy') + ' г.'</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>152.5pt</Left>
             <Top>107.4pt</Top>
             <Style>
@@ -883,7 +883,7 @@ WHERE o.id = @order_id
             <Height>14.23pt</Height>
             <Width>420.50pt</Width>
             <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_customer}) = false, {special_customer}, {client_name})</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>152.50pt</Left>
             <Top>119.00pt</Top>
             <Style>
@@ -900,7 +900,7 @@ WHERE o.id = @order_id
             <Height>12.75pt</Height>
             <Width>493.25pt</Width>
             <Value>={client_address}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>152.5pt</Left>
             <Top>134.5pt</Top>
             <Style>
@@ -920,7 +920,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>493.25pt</Width>
             <Value>={inn_kpp}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>153.3pt</Left>
             <Top>148.6pt</Top>
             <Style>
@@ -937,7 +937,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>493.25pt</Width>
             <Value>Российский рубль, 643</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>153.3pt</Left>
             <Top>160.6pt</Top>
             <Style>
@@ -954,7 +954,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>21.27pt</Width>
             <Value>(2)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.1pt</Left>
             <Top>25.2pt</Top>
             <Style>
@@ -968,7 +968,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>23.52pt</Width>
             <Value>(2а)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.1pt</Left>
             <Top>36.0pt</Top>
             <Style>
@@ -982,7 +982,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>23.52pt</Width>
             <Value>(2б)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.1pt</Left>
             <Top>48.4pt</Top>
             <Style>
@@ -996,7 +996,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>23.52pt</Width>
             <Value>(3)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.1pt</Left>
             <Top>60.0pt</Top>
             <Style>
@@ -1010,7 +1010,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>23.52pt</Width>
             <Value>(4)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.1pt</Left>
             <Top>71.2pt</Top>
             <Style>
@@ -1024,7 +1024,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>23.52pt</Width>
             <Value>(5)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.1pt</Left>
             <Top>95.3pt</Top>
             <Style>
@@ -1038,7 +1038,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>23.52pt</Width>
             <Value>(6)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.1pt</Left>
             <Top>119.0pt</Top>
             <Style>
@@ -1052,7 +1052,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>23.52pt</Width>
             <Value>(6а)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.1pt</Left>
             <Top>133.0pt</Top>
             <Style>
@@ -1066,7 +1066,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>23.52pt</Width>
             <Value>(6б)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.9pt</Left>
             <Top>148.6pt</Top>
             <Style>
@@ -1080,7 +1080,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>23.52pt</Width>
             <Value>(7)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.9pt</Left>
             <Top>160.6pt</Top>
             <Style>
@@ -1094,7 +1094,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>345.14pt</Width>
             <Value>Идентификатор государственного контракта, договора (соглашения) (при наличии)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.8pt</Left>
             <Top>173.8pt</Top>
             <Style>
@@ -1108,7 +1108,7 @@ WHERE o.id = @order_id
             <Height>11.25pt</Height>
             <Width>23.52pt</Width>
             <Value>(8)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.9pt</Left>
             <Top>173.8pt</Top>
             <Style>
@@ -1122,7 +1122,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>303.00pt</Width>
             <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_gov_contract}) = false, {special_gov_contract}, "")</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>343.3pt</Left>
             <Top>173.8pt</Top>
             <Style>
@@ -1169,7 +1169,7 @@ WHERE o.id = @order_id
             <Height>11.99pt</Height>
             <Width>144.54pt</Width>
             <Value>Документ об отгрузке</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>107.40pt</Top>
             <Style>
@@ -1184,7 +1184,7 @@ WHERE o.id = @order_id
             <Width>419.75pt</Width>
             <Value>
             </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>152.5pt</Left>
             <Top>95.3pt</Top>
             <Style>
@@ -1201,7 +1201,7 @@ WHERE o.id = @order_id
             <Height>12pt</Height>
             <Width>20pt</Width>
             <Value>(5а)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>673.1pt</Left>
             <Top>107.4pt</Top>
             <Style>
@@ -1229,7 +1229,7 @@ WHERE o.id = @order_id
         <Height>21.72pt</Height>
         <Width>220.21pt</Width>
         <Value>Приложение №1 к постановлению Правительства Российской Федерации от 26 декабря 2011 г. № 1137 (в редакции постановления Правительства Российской Федерации от 2 апреля 2021 г. № 534)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>582.89pt</Left>
         <Top>3.00pt</Top>
         <Style>
@@ -3005,7 +3005,7 @@ WHERE o.id = @order_id
             <Height>12.78pt</Height>
             <Width>204.89pt</Width>
             <Value>Основание передачи (сдачи) / получения (приемки)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>6.90pt</Left>
             <Top>45.70pt</Top>
             <Style>
@@ -3019,7 +3019,7 @@ WHERE o.id = @order_id
             <Height>12.79pt</Height>
             <Width>238.60pt</Width>
             <Value>Данные о транспортировке и грузе</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>7.2pt</Left>
             <Top>62.7pt</Top>
             <Style>
@@ -3033,7 +3033,7 @@ WHERE o.id = @order_id
             <Height>9.03pt</Height>
             <Width>563.06pt</Width>
             <Value>(договор; доверенность и др.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>214.33pt</Left>
             <Top>56.70pt</Top>
             <Style>
@@ -3050,7 +3050,7 @@ WHERE o.id = @order_id
             <Height>15.77pt</Height>
             <Width>248.40pt</Width>
             <Value>Товар (груз) передал / услуги, результаты работ, права сдал</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>7.70pt</Left>
             <Top>102.20pt</Top>
             <Style>
@@ -3064,7 +3064,7 @@ WHERE o.id = @order_id
             <Height>14.30pt</Height>
             <Width>15.87pt</Width>
             <Value>[8]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>776.30pt</Left>
             <Top>44.80pt</Top>
             <Style>
@@ -3077,7 +3077,7 @@ WHERE o.id = @order_id
             <Height>12.79pt</Height>
             <Width>203.96pt</Width>
             <Value>Иные сведения об отгрузке, передаче</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>7.2pt</Left>
             <Top>142.2pt</Top>
             <Style>
@@ -3091,7 +3091,7 @@ WHERE o.id = @order_id
             <Height>16.51pt</Height>
             <Width>17.30pt</Width>
             <Value>[9]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>775.7pt</Left>
             <Top>60.3pt</Top>
             <Style>
@@ -3104,7 +3104,7 @@ WHERE o.id = @order_id
             <Height>9.78pt</Height>
             <Width>603.77pt</Width>
             <Value>(транспортная накладная, поручение экспедитору, экспедиторская / складская расписка и др. / масса нетто / брутто груза, если не приведены ссылки на транспортные документы, содержащие эти сведения)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>173.30pt</Left>
             <Top>72.50pt</Top>
             <Style>
@@ -3136,7 +3136,7 @@ WHERE o.id = @order_id
             <Height>13.49pt</Height>
             <Width>21.82pt</Width>
             <Value>[10]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>379.1pt</Left>
             <Top>110.9pt</Top>
             <Style>
@@ -3149,7 +3149,7 @@ WHERE o.id = @order_id
             <Height>10.62pt</Height>
             <Width>97.06pt</Width>
             <Value>(должность)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>9.1pt</Left>
             <Top>122.2pt</Top>
             <Style>
@@ -3166,7 +3166,7 @@ WHERE o.id = @order_id
             <Height>11.25pt</Height>
             <Width>151.35pt</Width>
             <Value>=Fields!order_date.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>180.7pt</Left>
             <Top>130.8pt</Top>
             <Style>
@@ -3185,7 +3185,7 @@ WHERE o.id = @order_id
             <Height>14.26pt</Height>
             <Width>21.82pt</Width>
             <Value>[11]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>379.1pt</Left>
             <Top>130.7pt</Top>
             <Style>
@@ -3198,7 +3198,7 @@ WHERE o.id = @order_id
             <Height>11.25pt</Height>
             <Width>184.47pt</Width>
             <Value>Дата отгрузки, передачи (сдачи)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>6.90pt</Left>
             <Top>131.00pt</Top>
             <Style>
@@ -3212,7 +3212,7 @@ WHERE o.id = @order_id
             <Height>8.25pt</Height>
             <Width>365.16pt</Width>
             <Value>(ссылки на неотъемлемые приложения, сопутствующие документы, иные документы и т.п.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>9.10pt</Left>
             <Top>159.80pt</Top>
             <Style>
@@ -3229,7 +3229,7 @@ WHERE o.id = @order_id
             <Height>12.75pt</Height>
             <Width>21.82pt</Width>
             <Value>[12]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>379.1pt</Left>
             <Top>148.3pt</Top>
             <Style>
@@ -3242,7 +3242,7 @@ WHERE o.id = @order_id
             <Height>16.51pt</Height>
             <Width>21.82pt</Width>
             <Value>[13]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>379.1pt</Left>
             <Top>178.0pt</Top>
             <Style>
@@ -3255,7 +3255,7 @@ WHERE o.id = @order_id
             <Height>15.00pt</Height>
             <Width>21.82pt</Width>
             <Value>[14]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>379.1pt</Left>
             <Top>209.2pt</Top>
             <Style>
@@ -3268,7 +3268,7 @@ WHERE o.id = @order_id
             <Height>11.26pt</Height>
             <Width>393.00pt</Width>
             <Value>Наименование экономического субъекта - составителя документа (в т.ч. комиссионера / агента)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.00pt</Left>
             <Top>197.20pt</Top>
             <Style>
@@ -3283,7 +3283,7 @@ WHERE o.id = @order_id
             <Height>11.27pt</Height>
             <Width>367.44pt</Width>
             <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>7.3pt</Left>
             <Top>151.0pt</Top>
             <Style>
@@ -3297,7 +3297,7 @@ WHERE o.id = @order_id
             <Height>12.01pt</Height>
             <Width>143.05pt</Width>
             <Value>(ф.и.о.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>230.4pt</Left>
             <Top>122.0pt</Top>
             <Style>
@@ -3314,7 +3314,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>72.27pt</Width>
             <Value>М.П.</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>25.90pt</Left>
             <Top>224.80pt</Top>
             <Style>
@@ -3328,7 +3328,7 @@ WHERE o.id = @order_id
             <Height>9.90pt</Height>
             <Width>364.37pt</Width>
             <Value>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>9.70pt</Left>
             <Top>216.20pt</Top>
             <Style>
@@ -3345,7 +3345,7 @@ WHERE o.id = @order_id
             <Height>13.54pt</Height>
             <Width>185.19pt</Width>
             <Value>Количество сданной пустой тары</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>7.20pt</Left>
             <Top>80.30pt</Top>
             <Style>
@@ -3360,7 +3360,7 @@ WHERE o.id = @order_id
             <Height>13.50pt</Height>
             <Width>143.08pt</Width>
             <Value>='(   ' + {bottles_in_fact} + '   )'</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>174.7pt</Left>
             <Top>80.3pt</Top>
             <Style>
@@ -3375,7 +3375,7 @@ WHERE o.id = @order_id
             <Height>9.76pt</Height>
             <Width>143.05pt</Width>
             <Value>(ф.и.о.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>231.1pt</Left>
             <Top>189.7pt</Top>
             <Style>
@@ -3392,7 +3392,7 @@ WHERE o.id = @order_id
             <Height>11.25pt</Height>
             <Width>109.16pt</Width>
             <Value>(подпись)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>114.1pt</Left>
             <Top>121.9pt</Top>
             <Style>
@@ -3409,7 +3409,7 @@ WHERE o.id = @order_id
             <Height>9.00pt</Height>
             <Width>109.16pt</Width>
             <Value>(подпись)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>114.80pt</Left>
             <Top>189.30pt</Top>
             <Style>
@@ -3426,7 +3426,7 @@ WHERE o.id = @order_id
             <Height>8.37pt</Height>
             <Width>97.06pt</Width>
             <Value>(должность)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>10.00pt</Left>
             <Top>189.40pt</Top>
             <Style>
@@ -3443,7 +3443,7 @@ WHERE o.id = @order_id
             <Height>13.53pt</Height>
             <Width>338.00pt</Width>
             <Value>Товар (груз) получил / услуги, результаты работ, права принял</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>404.20pt</Left>
             <Top>101.90pt</Top>
             <Style>
@@ -3457,7 +3457,7 @@ WHERE o.id = @order_id
             <Height>12.79pt</Height>
             <Width>203.96pt</Width>
             <Value>Иные сведения о получении, приемке</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>403.7pt</Left>
             <Top>141.9pt</Top>
             <Style>
@@ -3471,7 +3471,7 @@ WHERE o.id = @order_id
             <Height>13.49pt</Height>
             <Width>21.07pt</Width>
             <Value>[15]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>771.6pt</Left>
             <Top>108.2pt</Top>
             <Style>
@@ -3484,7 +3484,7 @@ WHERE o.id = @order_id
             <Height>10.62pt</Height>
             <Width>97.06pt</Width>
             <Value>(должность)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>405.6pt</Left>
             <Top>121.9pt</Top>
             <Style>
@@ -3501,7 +3501,7 @@ WHERE o.id = @order_id
             <Height>11.25pt</Height>
             <Width>151.35pt</Width>
             <Value>«     »                                  года</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>562.8pt</Left>
             <Top>130.5pt</Top>
             <Style>
@@ -3517,7 +3517,7 @@ WHERE o.id = @order_id
             <Height>14.26pt</Height>
             <Width>21.07pt</Width>
             <Value>[16]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>771.6pt</Left>
             <Top>128.0pt</Top>
             <Style>
@@ -3530,7 +3530,7 @@ WHERE o.id = @order_id
             <Height>13.50pt</Height>
             <Width>163.39pt</Width>
             <Value>Дата получения (приемки)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>403.4pt</Left>
             <Top>130.7pt</Top>
             <Style>
@@ -3544,7 +3544,7 @@ WHERE o.id = @order_id
             <Height>10.50pt</Height>
             <Width>365.16pt</Width>
             <Value>(информация о наличии/отсутствии претензии; ссылки на неотъемлимые приложения, и другие документы и т.п.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>405.60pt</Left>
             <Top>159.50pt</Top>
             <Style>
@@ -3561,7 +3561,7 @@ WHERE o.id = @order_id
             <Height>12.75pt</Height>
             <Width>21.07pt</Width>
             <Value>[17]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>771.6pt</Left>
             <Top>144.8pt</Top>
             <Style>
@@ -3574,7 +3574,7 @@ WHERE o.id = @order_id
             <Height>16.51pt</Height>
             <Width>21.07pt</Width>
             <Value>[18]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>771.6pt</Left>
             <Top>175.3pt</Top>
             <Style>
@@ -3587,7 +3587,7 @@ WHERE o.id = @order_id
             <Height>16.52pt</Height>
             <Width>21.07pt</Width>
             <Value>[19]</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>771.6pt</Left>
             <Top>201.7pt</Top>
             <Style>
@@ -3601,7 +3601,7 @@ WHERE o.id = @order_id
             <Height>13.51pt</Height>
             <Width>366.75pt</Width>
             <Value>Наименование экономического субъекта - составителя документа</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>403.70pt</Left>
             <Top>197.70pt</Top>
             <Style>
@@ -3616,7 +3616,7 @@ WHERE o.id = @order_id
             <Height>11.27pt</Height>
             <Width>364.44pt</Width>
             <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>403.80pt</Left>
             <Top>168.00pt</Top>
             <Style>
@@ -3630,7 +3630,7 @@ WHERE o.id = @order_id
             <Height>12.01pt</Height>
             <Width>143.05pt</Width>
             <Value>(ф.и.о.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>626.9pt</Left>
             <Top>121.8pt</Top>
             <Style>
@@ -3647,7 +3647,7 @@ WHERE o.id = @order_id
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>М.П.</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>424.0pt</Left>
             <Top>224.5pt</Top>
             <Style>
@@ -3661,7 +3661,7 @@ WHERE o.id = @order_id
             <Height>9.15pt</Height>
             <Width>363.62pt</Width>
             <Value>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>406.20pt</Left>
             <Top>215.90pt</Top>
             <Style>
@@ -3678,7 +3678,7 @@ WHERE o.id = @order_id
             <Height>12.01pt</Height>
             <Width>140.80pt</Width>
             <Value>(ф.и.о.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>627.60pt</Left>
             <Top>188.60pt</Top>
             <Style>
@@ -3695,7 +3695,7 @@ WHERE o.id = @order_id
             <Height>11.25pt</Height>
             <Width>109.16pt</Width>
             <Value>(подпись)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>510.6pt</Left>
             <Top>121.6pt</Top>
             <Style>
@@ -3712,7 +3712,7 @@ WHERE o.id = @order_id
             <Height>11.25pt</Height>
             <Width>109.16pt</Width>
             <Value>(подпись)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>511.3pt</Left>
             <Top>189.0pt</Top>
             <Style>
@@ -3729,7 +3729,7 @@ WHERE o.id = @order_id
             <Height>10.62pt</Height>
             <Width>97.06pt</Width>
             <Value>(должность)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>406.5pt</Left>
             <Top>189.1pt</Top>
             <Style>
@@ -3747,7 +3747,7 @@ WHERE o.id = @order_id
             <Width>157.25pt</Width>
             <Value>Руководитель организации 
 или иное уполномоченное лицо</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>123.9pt</Left>
             <Top>1.6pt</Top>
             <Style>
@@ -3762,7 +3762,7 @@ WHERE o.id = @order_id
             <Width>178.38pt</Width>
             <Value>Индивидуальный предприниматель
 или иное уполномоченное лицо</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>123.90pt</Left>
             <Top>20.00pt</Top>
             <Style>
@@ -3776,7 +3776,7 @@ WHERE o.id = @order_id
             <Height>12.78pt</Height>
             <Width>110.65pt</Width>
             <Value>=Fields!leader_last_name.Value + ' ' + Fields!leader_name + '.' + Fields!leader_patronymic + '.'</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>353.8pt</Left>
             <Top>2.4pt</Top>
             <Style>
@@ -3794,7 +3794,7 @@ WHERE o.id = @order_id
             <Width>140.02pt</Width>
             <Value>Главный бухгалтер или
 иное уполномоченное лицо</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>465.4pt</Left>
             <Top>1.6pt</Top>
             <Style>
@@ -3808,7 +3808,7 @@ WHERE o.id = @order_id
             <Height>14.25pt</Height>
             <Width>82.83pt</Width>
             <Value>=Fields!buh_last_name.Value + ' ' + Fields!buh_name + '.' + Fields!buh_patronymic + '.'</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>678.2pt</Left>
             <Top>1.6pt</Top>
             <Style>
@@ -3825,7 +3825,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>79.04pt</Width>
             <Value>(подпись)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>268.7pt</Left>
             <Top>14.7pt</Top>
             <Style>
@@ -3842,7 +3842,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>72.27pt</Width>
             <Value>(ф.и.о.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>384.2pt</Left>
             <Top>14.0pt</Top>
             <Style>
@@ -3856,7 +3856,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>79.04pt</Width>
             <Value>(подпись)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>284.70pt</Left>
             <Top>32.90pt</Top>
             <Style>
@@ -3873,7 +3873,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>79.04pt</Width>
             <Value>(подпись)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>590.60pt</Left>
             <Top>15.20pt</Top>
             <Style>
@@ -3890,7 +3890,7 @@ WHERE o.id = @order_id
             <Height>11.26pt</Height>
             <Width>122.04pt</Width>
             <Value>(ф.и.о.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>373.20pt</Left>
             <Top>32.90pt</Top>
             <Style>
@@ -3907,7 +3907,7 @@ WHERE o.id = @order_id
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>(ф.и.о.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>709.5pt</Left>
             <Top>16.0pt</Top>
             <Style>
@@ -3921,7 +3921,7 @@ WHERE o.id = @order_id
             <Height>9.00pt</Height>
             <Width>290.55pt</Width>
             <Value>(реквизиты свидетельства о государственной регистрации индивидуального предпринимателя)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>500.60pt</Left>
             <Top>32.90pt</Top>
             <Style>
@@ -3968,7 +3968,7 @@ WHERE o.id = @order_id
             <Height>9.75pt</Height>
             <Width>562.15pt</Width>
             <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_contract_number}) = false,{special_contract_number},Fields!contract_number.Value + ' от ' + Fields!contract_date.Value)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>213.59pt</Left>
             <Top>45.70pt</Top>
             <Style>
@@ -3983,7 +3983,7 @@ WHERE o.id = @order_id
             <Height>42.10pt</Height>
             <Width>70.77pt</Width>
             <Value>="Документ составлен на " + {@PageNumber} + Iif({@PageNumber} = 1, " листе", " листах")</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>3.20pt</Left>
             <Top>3.50pt</Top>
             <Style>
@@ -3997,7 +3997,7 @@ WHERE o.id = @order_id
             <Height>10.50pt</Height>
             <Width>79.06pt</Width>
             <Value>(подпись клиента)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>327.4pt</Left>
             <Top>92.7pt</Top>
             <Style>
@@ -4014,7 +4014,7 @@ WHERE o.id = @order_id
             <Height>10.50pt</Height>
             <Width>104.59pt</Width>
             <Value>(расшифровка подписи)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>415.4pt</Left>
             <Top>93.1pt</Top>
             <Style>
@@ -4031,7 +4031,7 @@ WHERE o.id = @order_id
             <Height>10.50pt</Height>
             <Width>79.06pt</Width>
             <Value>="(подпись " + Iif({is_self_delivery},"кладовщика","курьера") + ")"</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>551.5pt</Left>
             <Top>92.0pt</Top>
             <Style>
@@ -4048,7 +4048,7 @@ WHERE o.id = @order_id
             <Height>10.50pt</Height>
             <Width>109.09pt</Width>
             <Value>(расшифровка подписи)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>640.3pt</Left>
             <Top>92.4pt</Top>
             <Style>
@@ -4065,7 +4065,7 @@ WHERE o.id = @order_id
             <Height>11.26pt</Height>
             <Width>137.03pt</Width>
             <Value>={leader_name}+'.'+{leader_patronymic}+'.'+{leader_last_name}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>232.30pt</Left>
             <Top>110.59pt</Top>
             <Style>
@@ -4080,7 +4080,7 @@ WHERE o.id = @order_id
             <Height>8.25pt</Height>
             <Width>140.77pt</Width>
             <Value>={leader_name}+'.'+{leader_patronymic}+'.'+{leader_last_name}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>234.2pt</Left>
             <Top>180.1pt</Top>
             <Style>
@@ -4095,7 +4095,7 @@ WHERE o.id = @order_id
             <Height>10.50pt</Height>
             <Width>97.09pt</Width>
             <Value>Генеральный директор</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>9.0pt</Left>
             <Top>112.4pt</Top>
             <Style>
@@ -4111,7 +4111,7 @@ WHERE o.id = @order_id
             <Height>8.25pt</Height>
             <Width>96.32pt</Width>
             <Value>Генеральный директор</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>10.0pt</Left>
             <Top>180.1pt</Top>
             <Style>
@@ -4127,7 +4127,7 @@ WHERE o.id = @order_id
             <Height>8.25pt</Height>
             <Width>791.97pt</Width>
             <Value>="* Обращаем Ваше внимание, что количество возвратной тары не является действительной без подписи " + Iif({is_self_delivery}, "кладовщика", "курьера") + "."</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>234.00pt</Top>
             <Style>
@@ -4141,7 +4141,7 @@ WHERE o.id = @order_id
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>=Fields!order_id.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>629.5pt</Left>
             <Top>238.1pt</Top>
             <Style>
@@ -4159,7 +4159,7 @@ WHERE o.id = @order_id
             <Height>12.00pt</Height>
             <Width>15.07pt</Width>
             <Value>от</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>705.1pt</Left>
             <Top>240.0pt</Top>
             <Style>
@@ -4170,7 +4170,7 @@ WHERE o.id = @order_id
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>=Fields!order_date.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>718.7pt</Left>
             <Top>237.9pt</Top>
             <Style>
@@ -4188,7 +4188,7 @@ WHERE o.id = @order_id
             <Height>11.25pt</Height>
             <Width>12.09pt</Width>
             <Value>№</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>613.8pt</Left>
             <Top>237.9pt</Top>
             <Style>
@@ -4288,7 +4288,7 @@ WHERE o.id = @order_id
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
-            <ZIndex>20</ZIndex>
+            <ZIndex>0</ZIndex>
           </Image>
         </ReportItems>
         <Style>
@@ -4306,7 +4306,7 @@ WHERE o.id = @order_id
         <Height>34.22pt</Height>
         <Width>67.15pt</Width>
         <Value>Универсальный передаточный документ</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>11.70pt</Left>
         <Top>17.10pt</Top>
         <Style>
@@ -4321,7 +4321,7 @@ WHERE o.id = @order_id
         <Height>12.00pt</Height>
         <Width>39.27pt</Width>
         <Value>Статус:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>11.70pt</Left>
         <Top>63.10pt</Top>
         <Style>
@@ -4335,7 +4335,7 @@ WHERE o.id = @order_id
         <Height>13pt</Height>
         <Width>13pt</Width>
         <Value>1</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>42.1pt</Left>
         <Top>62.7pt</Top>
         <Style>
@@ -4364,7 +4364,7 @@ WHERE o.id = @order_id
         <Width>70.73pt</Width>
         <Value>1 - счет-фактура и передаточный документ (акт)
 2 - передаточный документ (акт)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>11.7pt</Left>
         <Top>94.0pt</Top>
         <Style>

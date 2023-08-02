@@ -21,7 +21,7 @@
         <Height>15.01pt</Height>
         <Width>303.36pt</Width>
         <Value>ПУТЕВОЙ ЛИСТ АВТОМОБИЛЯ №</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>92.7pt</Left>
         <Top>18.6pt</Top>
         <Style>
@@ -37,7 +37,7 @@
         <Width>252.89pt</Width>
         <Value>Типовая межотраслевая форма №3
 Утверждена приказом Минтранса №17 от 18.01.2017 года</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>151.5pt</Left>
         <Top>0.2pt</Top>
         <Style>
@@ -52,7 +52,7 @@
         <Height>12.00pt</Height>
         <Width>33.18pt</Width>
         <Value>= Iif({?need_date}, '« ' + Format(CDate({?date}), "dd") + ' »', ' ')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>126.9pt</Left>
         <Top>33.6pt</Top>
         <Style>
@@ -65,7 +65,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>= Iif({?need_date}, Format(CDate({?date}), "yyyy") + ' г.', ' ') </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>230.0pt</Left>
         <Top>33.6pt</Top>
         <Style>
@@ -78,7 +78,7 @@
         <Height>12.00pt</Height>
         <Width>128.06pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>126.4pt</Left>
         <Top>46.2pt</Top>
         <Style>
@@ -93,7 +93,7 @@
         <Height>13.51pt</Height>
         <Width>69.27pt</Width>
         <Value>Организация</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>56.9pt</Top>
         <Style>
@@ -106,7 +106,7 @@
         <Height>14.96pt</Height>
         <Width>181.44pt</Width>
         <Value>ООО "Веселый Водовоз"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>75.0pt</Left>
         <Top>54.6pt</Top>
         <Style>
@@ -121,7 +121,7 @@
         <Height>12.00pt</Height>
         <Width>180.65pt</Width>
         <Value>наименование, адрес, номер телефона</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>74.1pt</Left>
         <Top>68.5pt</Top>
         <Style>
@@ -138,7 +138,7 @@
         <Height>14.00pt</Height>
         <Width>98.53pt</Width>
         <Value>Марка автомобиля</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>78.6pt</Top>
         <Style>
@@ -152,7 +152,7 @@
         <Height>12.00pt</Height>
         <Width>230.33pt</Width>
         <Value>=First({car_model}, "Car")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>98.7pt</Left>
         <Top>78.6pt</Top>
         <Style>
@@ -171,7 +171,7 @@
         <Height>14pt</Height>
         <Width>151.25pt</Width>
         <Value>Государственный номерной знак</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>92.6pt</Top>
         <Style>
@@ -186,7 +186,7 @@
         <Height>12.75pt</Height>
         <Width>92.60pt</Width>
         <Value>=First({reg_number}, "Car")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>153.3pt</Left>
         <Top>92.6pt</Top>
         <Style>
@@ -204,7 +204,7 @@
         <Height>14pt</Height>
         <Width>1in</Width>
         <Value>Водитель</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>106.6pt</Top>
         <Style>
@@ -218,7 +218,7 @@
         <Height>14pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>332.7pt</Left>
         <Top>60.0pt</Top>
         <Style>
@@ -242,7 +242,7 @@
         <Height>14.00pt</Height>
         <Width>72.27pt</Width>
         <Value>Коды</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>332.7pt</Left>
         <Top>32.0pt</Top>
         <Style>
@@ -263,7 +263,7 @@
         <Height>14pt</Height>
         <Width>1in</Width>
         <Value>0345001</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>332.7pt</Left>
         <Top>46.0pt</Top>
         <Style>
@@ -289,7 +289,7 @@
         <Height>14pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>332.5pt</Left>
         <Top>104.5pt</Top>
         <Style>
@@ -313,7 +313,7 @@
         <Height>14.00pt</Height>
         <Width>72.27pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>332.5pt</Left>
         <Top>76.5pt</Top>
         <Style>
@@ -338,7 +338,7 @@
         <Height>14pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>332.5pt</Left>
         <Top>90.5pt</Top>
         <Style>
@@ -364,7 +364,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Форма по ОКУД</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>258.7pt</Left>
         <Top>47.8pt</Top>
         <Style>
@@ -379,7 +379,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>по ОКПО</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>259.5pt</Left>
         <Top>59.6pt</Top>
         <Style>
@@ -394,7 +394,7 @@
         <Height>11.25pt</Height>
         <Width>77.52pt</Width>
         <Value>Гаражный номер</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>253.3pt</Left>
         <Top>94.0pt</Top>
         <Style>
@@ -409,7 +409,7 @@
         <Height>11.25pt</Height>
         <Width>81.27pt</Width>
         <Value>Табельный номер</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>250.2pt</Left>
         <Top>107.4pt</Top>
         <Style>
@@ -424,7 +424,7 @@
         <Height>13.50pt</Height>
         <Width>186.72pt</Width>
         <Value>=First({driver}, "Driver")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>58.1pt</Left>
         <Top>106.6pt</Top>
         <Style>
@@ -455,7 +455,7 @@ Month(CDate({?date})) = 11, 'ноября',
 Month(CDate({?date})) = 12, 'декабря'
 ), ' ')
 </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>154.5pt</Left>
         <Top>33.5pt</Top>
         <Style>
@@ -469,7 +469,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>171.81pt</Width>
         <Value>Водительское удостоверение</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>120.6pt</Top>
         <Style>
@@ -483,7 +483,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.50pt</Height>
         <Width>140.26pt</Width>
         <Value>=First({driving_number}, "Driver")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>150.0pt</Left>
         <Top>120.6pt</Top>
         <Style>
@@ -500,7 +500,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>35pt</Width>
         <Value>Класс</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>294.9pt</Left>
         <Top>120.6pt</Top>
         <Style>
@@ -514,7 +514,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>78.46pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>326.6pt</Left>
         <Top>120.6pt</Top>
         <Style>
@@ -529,7 +529,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>71.05pt</Width>
         <Value>Разрешение</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>134.6pt</Top>
         <Style>
@@ -543,7 +543,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>107.99pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>64.7pt</Left>
         <Top>134.6pt</Top>
         <Style>
@@ -558,7 +558,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>18.49pt</Width>
         <Value>№</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>296.1pt</Left>
         <Top>134.6pt</Top>
         <Style>
@@ -572,7 +572,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>91.22pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>313.4pt</Left>
         <Top>134.6pt</Top>
         <Style>
@@ -587,7 +587,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>серия/номер</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>85.0pt</Left>
         <Top>148.2pt</Top>
         <Style>
@@ -601,7 +601,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>62.03pt</Width>
         <Value>ПТС Серии</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>173.6pt</Left>
         <Top>134.6pt</Top>
         <Style>
@@ -615,7 +615,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>64.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>227.4pt</Left>
         <Top>134.6pt</Top>
         <Style>
@@ -630,7 +630,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>105.34pt</Width>
         <Value>Задание водителю</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>59.1pt</Left>
         <Top>160.9pt</Top>
         <Style>
@@ -644,7 +644,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>22.29pt</Height>
         <Width>206.91pt</Width>
         <Value>Предрейсовый контроль технического состояния транспортного средства провел</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>206.0pt</Left>
         <Top>152.3pt</Top>
         <Style>
@@ -660,7 +660,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.51pt</Height>
         <Width>80.55pt</Width>
         <Value>В распоряжение</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>178.9pt</Top>
         <Style>
@@ -674,7 +674,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.96pt</Height>
         <Width>128.77pt</Width>
         <Value>Отдела логистики</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>84.6pt</Left>
         <Top>175.8pt</Top>
         <Style>
@@ -689,7 +689,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>11.25pt</Height>
         <Width>120.39pt</Width>
         <Value>наименование</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>85.3pt</Left>
         <Top>188.9pt</Top>
         <Style>
@@ -706,7 +706,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>98.53pt</Width>
         <Value>Адрес первой подачи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>221.6pt</Top>
         <Style>
@@ -721,7 +721,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.75pt</Height>
         <Width>109.83pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>100.8pt</Left>
         <Top>221.6pt</Top>
         <Style>
@@ -741,7 +741,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.25pt</Height>
         <Width>110.53pt</Width>
         <Value>организации</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>213.5pt</Top>
         <Style>
@@ -758,7 +758,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.25pt</Height>
         <Width>89.57pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>120.5pt</Left>
         <Top>199.7pt</Top>
         <Style>
@@ -777,7 +777,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>26.76pt</Height>
         <Width>193.42pt</Width>
         <Value>С-Пб, ул. Софийская, д 62 к.6 стр. 1, офис 9</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.40pt</Left>
         <Top>237.00pt</Top>
         <Style>
@@ -797,7 +797,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>5.75pt</Height>
         <Width>204.73pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.20pt</Left>
         <Top>244.85pt</Top>
         <Style>
@@ -812,7 +812,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>121.90pt</Width>
         <Value>Выезд из гаража (дата, время)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>266.6pt</Top>
         <Style>
@@ -828,7 +828,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.25pt</Height>
         <Width>82.07pt</Width>
         <Value>=  Iif({?need_date}, ' ' + Format(CDate({?date}), "dd.MM.yy") + ', ' + {?time}, ' ')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>127.5pt</Left>
         <Top>266.7pt</Top>
         <Style>
@@ -849,7 +849,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.51pt</Height>
         <Width>80.55pt</Width>
         <Value>Диспетчер/Механик</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>283.0pt</Top>
         <Style>
@@ -864,7 +864,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>10.00pt</Height>
         <Width>37.00pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>85.9pt</Left>
         <Top>291.4pt</Top>
         <Style>
@@ -881,7 +881,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>9.00pt</Height>
         <Width>79.68pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>129.0pt</Left>
         <Top>291.4pt</Top>
         <Style>
@@ -898,7 +898,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>121.90pt</Width>
         <Value>Возврат в гараж(дата, время)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>303.1pt</Top>
         <Style>
@@ -914,7 +914,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.50pt</Height>
         <Width>82.07pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>127.6pt</Left>
         <Top>303.2pt</Top>
         <Style>
@@ -933,7 +933,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.51pt</Height>
         <Width>80.55pt</Width>
         <Value>Диспетчер/Механик</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>319.7pt</Top>
         <Style>
@@ -948,7 +948,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>10.00pt</Height>
         <Width>37.00pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>85.5pt</Left>
         <Top>328.1pt</Top>
         <Style>
@@ -965,7 +965,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>9.00pt</Height>
         <Width>79.68pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>128.6pt</Left>
         <Top>328.1pt</Top>
         <Style>
@@ -982,7 +982,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.75pt</Height>
         <Width>201.03pt</Width>
         <Value>Комплектация, ДТП, опоздания, ожидания,</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>345.8pt</Top>
         <Style>
@@ -996,7 +996,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.75pt</Height>
         <Width>201.03pt</Width>
         <Value>простои в пути, заезды в гараж и прочие отметки</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.0pt</Left>
         <Top>356.7pt</Top>
         <Style>
@@ -1010,7 +1010,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>203.98pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.7pt</Left>
         <Top>373.2pt</Top>
         <Style>
@@ -1025,7 +1025,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>203.98pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.7pt</Left>
         <Top>361.6pt</Top>
         <Style>
@@ -1040,7 +1040,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>203.98pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.7pt</Left>
         <Top>384.8pt</Top>
         <Style>
@@ -1055,7 +1055,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>203.98pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.9pt</Left>
         <Top>396.4pt</Top>
         <Style>
@@ -1070,7 +1070,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.76pt</Height>
         <Width>49.72pt</Width>
         <Value>Водитель</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.4pt</Left>
         <Top>418.0pt</Top>
         <Style>
@@ -1086,7 +1086,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>10.00pt</Height>
         <Width>37.00pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>59.9pt</Left>
         <Top>427.5pt</Top>
         <Style>
@@ -1103,7 +1103,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>8.25pt</Height>
         <Width>92.44pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>113.1pt</Left>
         <Top>427.5pt</Top>
         <Style>
@@ -1120,7 +1120,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.76pt</Height>
         <Width>91.06pt</Width>
         <Value>М.П. Организации</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.8pt</Left>
         <Top>442.9pt</Top>
         <Style>
@@ -1152,7 +1152,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>203.98pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.2pt</Left>
         <Top>533.2pt</Top>
         <Style>
@@ -1171,7 +1171,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>203.98pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.2pt</Left>
         <Top>519.2pt</Top>
         <Style>
@@ -1190,7 +1190,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>30.06pt</Width>
         <Value>Адрес</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>168.6pt</Top>
         <Style>
@@ -1205,7 +1205,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.00pt</Height>
         <Width>159.47pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>245.8pt</Left>
         <Top>169.9pt</Top>
         <Style>
@@ -1225,7 +1225,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>30pt</Width>
         <Value>Дата</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>180.2pt</Top>
         <Style>
@@ -1240,7 +1240,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>54.38pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>240.0pt</Left>
         <Top>180.2pt</Top>
         <Style>
@@ -1255,7 +1255,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>35pt</Width>
         <Value>Время</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>298.3pt</Left>
         <Top>180.2pt</Top>
         <Style>
@@ -1270,7 +1270,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.75pt</Height>
         <Width>71.68pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>333.2pt</Left>
         <Top>180.2pt</Top>
         <Style>
@@ -1285,7 +1285,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>47.28pt</Width>
         <Value>Подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>192.6pt</Top>
         <Style>
@@ -1300,7 +1300,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>42.35pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>256.0pt</Left>
         <Top>192.6pt</Top>
         <Style>
@@ -1315,7 +1315,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>35pt</Width>
         <Value>Ф.И.О.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>301.7pt</Left>
         <Top>194.2pt</Top>
         <Style>
@@ -1330,7 +1330,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.75pt</Height>
         <Width>71.68pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>333.4pt</Left>
         <Top>191.8pt</Top>
         <Style>
@@ -1345,7 +1345,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>11.03pt</Height>
         <Width>187.39pt</Width>
         <Value>Автомобиль технически исправен</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>217.6pt</Left>
         <Top>210.7pt</Top>
         <Style>
@@ -1361,7 +1361,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>121.90pt</Width>
         <Value>Показание одометра, км</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>222.3pt</Top>
         <Style>
@@ -1377,7 +1377,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.25pt</Height>
         <Width>82.07pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>324.8pt</Left>
         <Top>222.6pt</Top>
         <Style>
@@ -1396,7 +1396,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.25pt</Height>
         <Width>81.32pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>325.0pt</Left>
         <Top>235.8pt</Top>
         <Style>
@@ -1415,7 +1415,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>121.90pt</Width>
         <Value>Выезд разрешен</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>235.2pt</Top>
         <Style>
@@ -1431,7 +1431,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.51pt</Height>
         <Width>51.95pt</Width>
         <Value>Механик</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>248.4pt</Top>
         <Style>
@@ -1446,7 +1446,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>10.00pt</Height>
         <Width>45.25pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>256.4pt</Left>
         <Top>256.8pt</Top>
         <Style>
@@ -1463,7 +1463,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>9.00pt</Height>
         <Width>96.19pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>309.4pt</Left>
         <Top>256.8pt</Top>
         <Style>
@@ -1481,7 +1481,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Width>204.66pt</Width>
         <Value>Автомобиль в технически исправном 
 состоянии принял</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>208.7pt</Left>
         <Top>266.4pt</Top>
         <Style>
@@ -1497,7 +1497,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.51pt</Height>
         <Width>80.55pt</Width>
         <Value>Водитель</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>285.2pt</Top>
         <Style>
@@ -1512,7 +1512,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>10.00pt</Height>
         <Width>45.25pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>257.1pt</Left>
         <Top>293.6pt</Top>
         <Style>
@@ -1529,7 +1529,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>9.00pt</Height>
         <Width>96.19pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>310.1pt</Left>
         <Top>293.6pt</Top>
         <Style>
@@ -1546,7 +1546,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.00pt</Height>
         <Width>54.22pt</Width>
         <Value>Горючее</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>311.6pt</Top>
         <Style>
@@ -1559,7 +1559,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>1in</Width>
         <Value>=First({fuel_type}, "Car")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>261.7pt</Left>
         <Top>316.0pt</Top>
         <Style>
@@ -1586,7 +1586,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>марка</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>261.7pt</Left>
         <Top>304.0pt</Top>
         <Style>
@@ -1612,7 +1612,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>72.27pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.3pt</Left>
         <Top>316.0pt</Top>
         <Style>
@@ -1637,7 +1637,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>код</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.3pt</Left>
         <Top>304.0pt</Top>
         <Style>
@@ -1663,7 +1663,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>11.78pt</Height>
         <Width>203.91pt</Width>
         <Value>Движение горючего</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.4pt</Left>
         <Top>330.1pt</Top>
         <Style>
@@ -1679,7 +1679,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.0pt</Left>
         <Top>368.4pt</Top>
         <Style>
@@ -1703,7 +1703,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.0pt</Left>
         <Top>381.4pt</Top>
         <Style>
@@ -1727,7 +1727,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.0pt</Left>
         <Top>420.4pt</Top>
         <Style>
@@ -1751,7 +1751,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.0pt</Left>
         <Top>433.4pt</Top>
         <Style>
@@ -1775,7 +1775,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13pt</Height>
         <Width>1in</Width>
         <Value>количество</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.0pt</Left>
         <Top>342.4pt</Top>
         <Style>
@@ -1801,7 +1801,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.0pt</Left>
         <Top>394.4pt</Top>
         <Style>
@@ -1825,7 +1825,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.0pt</Left>
         <Top>407.4pt</Top>
         <Style>
@@ -1849,7 +1849,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.0pt</Left>
         <Top>355.4pt</Top>
         <Style>
@@ -1873,7 +1873,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.25pt</Height>
         <Width>128.51pt</Width>
         <Value>Выдано по заправочному</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>343.3pt</Top>
         <Style>
@@ -1888,7 +1888,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.25pt</Height>
         <Width>42.02pt</Width>
         <Value>листу №</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.4pt</Left>
         <Top>355.5pt</Top>
         <Style>
@@ -1903,7 +1903,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>256.5pt</Left>
         <Top>356.6pt</Top>
         <Style>
@@ -1918,7 +1918,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.50pt</Height>
         <Width>123.38pt</Width>
         <Value>Остаток при выезде</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.1pt</Left>
         <Top>370.2pt</Top>
         <Style>
@@ -1932,7 +1932,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.50pt</Height>
         <Width>177.51pt</Width>
         <Value>Остаток при возвращении</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>381.7pt</Top>
         <Style>
@@ -1946,7 +1946,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.75pt</Height>
         <Width>93.29pt</Width>
         <Value>Расход      по норме</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.8pt</Left>
         <Top>397.3pt</Top>
         <Style>
@@ -1960,7 +1960,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.00pt</Height>
         <Width>66.96pt</Width>
         <Value>фактический</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>258.3pt</Left>
         <Top>409.6pt</Top>
         <Style>
@@ -1974,7 +1974,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.00pt</Height>
         <Width>66.96pt</Width>
         <Value>Экономия</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>424.1pt</Top>
         <Style>
@@ -1988,7 +1988,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.00pt</Height>
         <Width>66.96pt</Width>
         <Value>Перерасход</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>436.7pt</Top>
         <Style>
@@ -2002,7 +2002,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.53pt</Height>
         <Width>200.16pt</Width>
         <Value>Автомобиль принял. Показания одометра при</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>210.7pt</Left>
         <Top>451.9pt</Top>
         <Style>
@@ -2018,7 +2018,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>11.79pt</Height>
         <Width>127.19pt</Width>
         <Value>возвращении в гараж, км</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>214.2pt</Left>
         <Top>464.0pt</Top>
         <Style>
@@ -2034,7 +2034,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>333.8pt</Left>
         <Top>462.8pt</Top>
         <Style>
@@ -2060,7 +2060,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.51pt</Height>
         <Width>51.95pt</Width>
         <Value>Механик</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>216.6pt</Left>
         <Top>477.8pt</Top>
         <Style>
@@ -2075,7 +2075,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>10.00pt</Height>
         <Width>45.25pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>256.9pt</Left>
         <Top>486.4pt</Top>
         <Style>
@@ -2092,7 +2092,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>9.00pt</Height>
         <Width>96.19pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>309.9pt</Left>
         <Top>486.4pt</Top>
         <Style>
@@ -2109,7 +2109,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>20.78pt</Height>
         <Width>189.60pt</Width>
         <Value>Послерейсовый контроль технического состояния транспортного средства провел</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>217.2pt</Left>
         <Top>496.5pt</Top>
         <Style>
@@ -2125,7 +2125,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>30.06pt</Width>
         <Value>Адрес</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>216.0pt</Left>
         <Top>512.9pt</Top>
         <Style>
@@ -2140,7 +2140,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>12.00pt</Height>
         <Width>159.47pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>246.8pt</Left>
         <Top>514.2pt</Top>
         <Style>
@@ -2160,7 +2160,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>30pt</Width>
         <Value>Дата</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>526.0pt</Top>
         <Style>
@@ -2175,7 +2175,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>54.38pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>242.5pt</Left>
         <Top>526.0pt</Top>
         <Style>
@@ -2190,7 +2190,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>35pt</Width>
         <Value>Время</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>300.8pt</Left>
         <Top>526.0pt</Top>
         <Style>
@@ -2205,7 +2205,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.75pt</Height>
         <Width>71.68pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.1pt</Left>
         <Top>526.0pt</Top>
         <Style>
@@ -2220,7 +2220,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>47.28pt</Width>
         <Value>Подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>215.0pt</Left>
         <Top>538.4pt</Top>
         <Style>
@@ -2235,7 +2235,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.00pt</Height>
         <Width>42.35pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>256.9pt</Left>
         <Top>536.8pt</Top>
         <Style>
@@ -2250,7 +2250,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>35pt</Width>
         <Value>Ф.И.О.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>301.8pt</Left>
         <Top>538.4pt</Top>
         <Style>
@@ -2265,7 +2265,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14.75pt</Height>
         <Width>71.68pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>335.1pt</Left>
         <Top>536.8pt</Top>
         <Style>
@@ -7657,7 +7657,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>11.03pt</Height>
         <Width>196.40pt</Width>
         <Value>Результат работы автомобиля за смену:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>423.9pt</Left>
         <Top>386.8pt</Top>
         <Style>
@@ -7673,7 +7673,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.29pt</Height>
         <Width>103.82pt</Width>
         <Value>Расчет оплаты:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>635.5pt</Left>
         <Top>387.3pt</Top>
         <Style>
@@ -7689,7 +7689,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>121.90pt</Width>
         <Value>всего в наряде, ч.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>429.4pt</Left>
         <Top>404.8pt</Top>
         <Style>
@@ -7705,7 +7705,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.25pt</Height>
         <Width>73.06pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>534.4pt</Left>
         <Top>402.0pt</Top>
         <Style>
@@ -7724,7 +7724,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>121.90pt</Width>
         <Value>пройдено, км</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>430.1pt</Left>
         <Top>423.9pt</Top>
         <Style>
@@ -7740,7 +7740,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.25pt</Height>
         <Width>73.80pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>534.2pt</Left>
         <Top>423.3pt</Top>
         <Style>
@@ -7759,7 +7759,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>121.90pt</Width>
         <Value>за километраж, руб. коп.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>626.7pt</Left>
         <Top>402.5pt</Top>
         <Style>
@@ -7775,7 +7775,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.25pt</Height>
         <Width>70.02pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>741.3pt</Left>
         <Top>398.1pt</Top>
         <Style>
@@ -7794,7 +7794,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>121.90pt</Width>
         <Value>за часы, руб. коп.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>627.3pt</Left>
         <Top>421.6pt</Top>
         <Style>
@@ -7810,7 +7810,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.25pt</Height>
         <Width>70.05pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>741.1pt</Left>
         <Top>419.4pt</Top>
         <Style>
@@ -7842,7 +7842,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>14pt</Height>
         <Width>121.90pt</Width>
         <Value>Итого, руб. коп.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>626.6pt</Left>
         <Top>450.4pt</Top>
         <Style>
@@ -7858,7 +7858,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>13.25pt</Height>
         <Width>70.05pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>741.2pt</Left>
         <Top>447.4pt</Top>
         <Style>
@@ -7877,7 +7877,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>15.01pt</Height>
         <Width>82.79pt</Width>
         <Value>Расчет произвел</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>426.4pt</Left>
         <Top>454.8pt</Top>
         <Style>
@@ -7892,7 +7892,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>10.00pt</Height>
         <Width>79.87pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>617.3pt</Left>
         <Top>465.5pt</Top>
         <Style>
@@ -7909,7 +7909,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>9.00pt</Height>
         <Width>96.19pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>714.3pt</Left>
         <Top>464.7pt</Top>
         <Style>
@@ -7926,7 +7926,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>10.00pt</Height>
         <Width>79.87pt</Width>
         <Value>должность</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>523.0pt</Left>
         <Top>465.4pt</Top>
         <Style>
@@ -7943,7 +7943,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>38.37pt</Height>
         <Width>359.76pt</Width>
         <Value>Согласно Маршрутного Листа</Value>
-        <ZIndex>2</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>454.10pt</Left>
         <Top>86.30pt</Top>
         <Style>
@@ -7958,7 +7958,7 @@ Month(CDate({?date})) = 12, 'декабря'
         <Height>11.26pt</Height>
         <Width>59.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>308.10pt</Left>
         <Top>18.50pt</Top>
         <Style>

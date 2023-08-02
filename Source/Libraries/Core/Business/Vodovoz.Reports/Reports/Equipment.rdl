@@ -69,7 +69,7 @@ ORDER BY id;</CommandText>
             <Height>12pt</Height>
             <Width>168pt</Width>
             <Value>="С/Н: " + Fields!id.Value </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>3.5pt</Left>
             <Top>74.1pt</Top>
             <Style>
@@ -82,7 +82,7 @@ ORDER BY id;</CommandText>
             <Height>12pt</Height>
             <Width>168pt</Width>
             <Value>="Модель: " + Fields!name.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>3.5pt</Left>
             <Top>60.5pt</Top>
             <Style>
@@ -142,7 +142,7 @@ ORDER BY id;</CommandText>
             <Height>13.49pt</Height>
             <Width>78.29pt</Width>
             <Value>493-50-93</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>84.9pt</Left>
             <Top>23.6pt</Top>
             <Style>

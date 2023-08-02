@@ -21,7 +21,7 @@
         <Height>21.79pt</Height>
         <Width>799.54pt</Width>
         <Value>='Детальный отчет по продажам с рентабельностью ' + Iif({?start_date} = {?end_date}, 'за ' + Format(CDate({?start_date}), "dd/MM/yyyy"), 'с ' + Format(CDate({?start_date}), "dd/MM/yyyy") + ' по ' + Format(CDate({?end_date}), "dd/MM/yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>11.90pt</Top>
         <Style>
@@ -2704,7 +2704,7 @@
         <Height>12.00pt</Height>
         <Width>72.27pt</Width>
         <Value>Фильтры:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>724.0pt</Left>
         <Top>51.5pt</Top>
         <Style>
@@ -2717,7 +2717,7 @@
         <Height>26.27pt</Height>
         <Width>260.85pt</Width>
         <Value>=Iif(First({criterions}, "Criterions") = '', 'Не выбраны', First({criterions}, "Criterions"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>536.10pt</Left>
         <Top>64.30pt</Top>
         <Style>
@@ -2973,7 +2973,7 @@ Iif(First({missing_inner_delivery_price} = True , 'Sales'), 'Не по всем 
 Iif((First({missing_warehouse_expenses_per_kg_on_date} , 'Sales') = True) or (First({missing_administrative_expenses_per_kg_on_date} , 'Sales') = True), 'Не внесены константы ОХР и склада за выбранный период отчета \n', '')
 +
 Iif(First({missing_route_list_expenses_per_kg} = True, 'Sales'), 'Не по всем МЛ внесена стоимость доставки', '')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>271.20pt</Left>
         <Top>44.60pt</Top>
         <Style>
@@ -3006,7 +3006,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
         <Height>12.00pt</Height>
         <Width>786.81pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.8pt</Left>
         <Top>0.0pt</Top>
         <Style>

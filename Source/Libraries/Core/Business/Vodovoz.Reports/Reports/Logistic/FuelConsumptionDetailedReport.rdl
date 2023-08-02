@@ -28,7 +28,7 @@
 ((!String.IsNullOrWhiteSpace({?start_date})) AND String.IsNullOrWhiteSpace({?end_date})), "с " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy"),
 (String.IsNullOrWhiteSpace({?start_date}) AND (!String.IsNullOrWhiteSpace({?end_date}))), "по " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"),
 ((!String.IsNullOrWhiteSpace({?start_date})) AND (!String.IsNullOrWhiteSpace({?end_date}))),  "с " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -668,7 +668,7 @@
         <Height>12.05pt</Height>
         <Width>565.41pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>

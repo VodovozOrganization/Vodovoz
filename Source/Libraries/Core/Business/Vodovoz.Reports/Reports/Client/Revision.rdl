@@ -180,7 +180,7 @@ and operation_time &lt; @date_start
         <Height>22.13pt</Height>
         <Width>808.57pt</Width>
         <Value>Акт сверки</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>2.4pt</Top>
         <Style>
@@ -199,7 +199,7 @@ and operation_time &lt; @date_start
 +"между " + First(Fields!org_name,'Organization') +"\n"
 +"и " + First(Fields!counterparty_name,'Counterparty')  +"\n"
 +"по договору №"+First(Fields!contract_id,'Counterparty')+" от "+ Format(First(Fields!issue_date,'Counterparty'),"dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>31.40pt</Top>
         <Style>
@@ -216,7 +216,7 @@ and operation_time &lt; @date_start
         <Value>="Мы, нижеподписавшиеся, "
 +First(Fields!org_name,'Organization')+", с одной стороны, и "
 +First(Fields!counterparty_name,'Counterparty')+", с другой стороны, составили настоящий акт сверки в том, что состояние взаимных расчетов по данным учета следующее:"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>87.60pt</Top>
         <Style>
@@ -1027,7 +1027,7 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
         <Height>14.28pt</Height>
         <Width>671.55pt</Width>
         <Value>="По данным "+ First(Fields!org_name,'Organization')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>250.90pt</Top>
       </Textbox>
@@ -1053,7 +1053,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
 +" )"
 + "\n" +
 "в том числе "+ Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit),'Operations') + " руб. залогов."</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>267.20pt</Top>
         <Style>
@@ -1067,7 +1067,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Height>15.02pt</Height>
         <Width>370.43pt</Width>
         <Value>="От "+ First(Fields!org_name, 'Organization')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>325.10pt</Top>
         <Style>
@@ -1102,7 +1102,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Height>13.52pt</Height>
         <Width>177.68pt</Width>
         <Value>(____________________________)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>206.7pt</Left>
         <Top>372.5pt</Top>
         <Style>
@@ -1115,7 +1115,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>М.П.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>390.0pt</Top>
       </Textbox>
@@ -1147,7 +1147,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Height>13.52pt</Height>
         <Width>177.68pt</Width>
         <Value>(____________________________)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>601.6pt</Left>
         <Top>373.6pt</Top>
         <Style>
@@ -1160,7 +1160,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>М.П.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>394.9pt</Left>
         <Top>391.1pt</Top>
         <Style />
@@ -1169,7 +1169,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Height>15.02pt</Height>
         <Width>370.43pt</Width>
         <Value>="От "+ First(Fields!counterparty_name,'Counterparty')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>390.70pt</Left>
         <Top>325.70pt</Top>
         <Style>

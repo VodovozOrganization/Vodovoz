@@ -22,7 +22,7 @@
         <Height>15.89pt</Height>
         <Width>812.72pt</Width>
         <Value>Отчет по сотрудникам</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -37,7 +37,7 @@
         <Height>15.03pt</Height>
         <Width>397.84pt</Width>
         <Value>={?selected_filters}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>16.60pt</Top>
         <Style>
@@ -52,7 +52,7 @@
         <Height>15.78pt</Height>
         <Width>417.76pt</Width>
         <Value>="Сформирован " + Format( {?report_date}, "dd-MM-yyyy в HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>395.9pt</Left>
         <Top>18.2pt</Top>
         <Style>

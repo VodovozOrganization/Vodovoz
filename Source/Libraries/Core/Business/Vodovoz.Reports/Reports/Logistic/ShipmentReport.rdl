@@ -20,7 +20,7 @@
         <Height>25.54pt</Height>
         <Width>577.41pt</Width>
         <Value>Отчёт по отгрузке автомобилей</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>4.90pt</Top>
         <Style>
@@ -240,7 +240,7 @@
         <Height>14.25pt</Height>
         <Width>219.02pt</Width>
         <Value>="Выбранная дата: " + Format(Convert.ToDateTime({?start_date}), "dd.MM")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>2.3pt</Top>
         <Style>

@@ -399,7 +399,7 @@ ORDER BY driver_name, max_time
         <Height>12.00pt</Height>
         <Width>265.00pt</Width>
         <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>543.7pt</Left>
         <Top>25.0pt</Top>
         <Style>
@@ -430,7 +430,7 @@ ORDER BY driver_name, max_time
         <Height>11.40pt</Height>
         <Width>310.00pt</Width>
         <Value>={?filters_text}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.80pt</Left>
         <Top>25.00pt</Top>
         <Style>

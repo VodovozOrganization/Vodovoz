@@ -18,7 +18,7 @@
         <Height>18.03pt</Height>
         <Width>757.30pt</Width>
         <Value>="Недовозы и комментарии " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + Iif({?start_date}={?end_date}, "", " – " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>10.60pt</Top>
         <Style>

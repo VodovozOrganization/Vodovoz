@@ -558,7 +558,7 @@
         <Height>15.77pt</Height>
         <Width>545.79pt</Width>
         <Value>=First({category_name}, "Nomenclatures")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>7.5pt</Top>
         <Style>

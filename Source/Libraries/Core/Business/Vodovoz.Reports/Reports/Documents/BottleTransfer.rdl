@@ -38,7 +38,7 @@
         <Height>15.76pt</Height>
         <Width>262.37pt</Width>
         <Value>От Фирмы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>401.7pt</Top>
         <Style>
@@ -52,7 +52,7 @@
         <Height>15.76pt</Height>
         <Width>263.12pt</Width>
         <Value>От Клиента</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>262.9pt</Left>
         <Top>401.7pt</Top>
         <Style>
@@ -67,7 +67,7 @@
         <Width>105.73pt</Width>
         <Value>
         </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>35.4pt</Left>
         <Top>419.8pt</Top>
         <Style>
@@ -85,7 +85,7 @@
         <Height>13.53pt</Height>
         <Width>90.52pt</Width>
         <Value>Сосновцев С.С.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>147.9pt</Left>
         <Top>419.7pt</Top>
         <Style>
@@ -103,7 +103,7 @@
         <Height>13.52pt</Height>
         <Width>7.52pt</Width>
         <Value>/</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>143.0pt</Left>
         <Top>420.4pt</Top>
         <Style>
@@ -115,7 +115,7 @@
         <Height>13.52pt</Height>
         <Width>7.52pt</Width>
         <Value>/</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>237.7pt</Left>
         <Top>420.5pt</Top>
         <Style>
@@ -128,7 +128,7 @@
         <Width>105.73pt</Width>
         <Value>
         </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>292.8pt</Left>
         <Top>419.8pt</Top>
         <Style>
@@ -147,7 +147,7 @@
         <Width>86.02pt</Width>
         <Value>
         </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>405.3pt</Left>
         <Top>419.7pt</Top>
         <Style>
@@ -165,7 +165,7 @@
         <Height>13.52pt</Height>
         <Width>7.52pt</Width>
         <Value>/</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>400.4pt</Left>
         <Top>420.4pt</Top>
         <Style>
@@ -177,7 +177,7 @@
         <Height>13.52pt</Height>
         <Width>7.52pt</Width>
         <Value>/</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>491.9pt</Left>
         <Top>420.5pt</Top>
         <Style>
@@ -189,7 +189,7 @@
         <Height>13.50pt</Height>
         <Width>31.02pt</Width>
         <Value>М.П.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>76.6pt</Left>
         <Top>440.4pt</Top>
         <Style>
@@ -201,7 +201,7 @@
         <Height>12.75pt</Height>
         <Width>30.27pt</Width>
         <Value>М.П.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>334.8pt</Left>
         <Top>440.8pt</Top>
         <Style>
@@ -221,7 +221,7 @@
             <Value>="АКТ
 передачи-возврата бутылей №"+{?order_id}+" 
 по договору №" + {contract}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.91pt</Left>
             <Top>32.85pt</Top>
             <Style>
@@ -238,7 +238,7 @@
             <Height>13.53pt</Height>
             <Width>118.27pt</Width>
             <Value>=Format({date}, "dd/MM/yyyy")</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>406.8pt</Left>
             <Top>108.3pt</Top>
             <Style>
@@ -254,7 +254,7 @@
             <Height>13.53pt</Height>
             <Width>118.27pt</Width>
             <Value>г. Санкт-Петербург</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>406.7pt</Left>
             <Top>93.2pt</Top>
             <Style>
@@ -276,7 +276,7 @@
 2. Отсутствие запаха
 3. Отсутствие трещин и деформаций
 4. Отсутствие загрязнений</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>291.5pt</Top>
             <CanGrow>true</CanGrow>
@@ -289,7 +289,7 @@
             <Height>33.10pt</Height>
             <Width>525.51pt</Width>
             <Value>="           Общество   с   ограниченной    ответственностью  \"Веселый водовоз\"   (ИНН 7816453294),  именуемое  в дальнейшем  Фирма,   в  лице  Генерального директора Сосновцева С.С.,  действующего на основании Устава, с одной стороны, и "+{client}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>126.9pt</Top>
             <Style>
@@ -309,7 +309,7 @@
             <Width>524.01pt</Width>
             <Value>
             </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>147.7pt</Top>
             <Style>
@@ -329,7 +329,7 @@
             <Width>524.01pt</Width>
             <Value>
             </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>159.20pt</Top>
             <Style>
@@ -349,7 +349,7 @@
             <Width>524.01pt</Width>
             <Value>
             </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>170.90pt</Top>
             <Style>
@@ -368,7 +368,7 @@
             <Height>16.60pt</Height>
             <Width>524.76pt</Width>
             <Value>="именуемое в дальнейшем Клиент, в лице"+{clientPost}+", "+{clientFIO}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>190.80pt</Top>
             <Style>
@@ -385,7 +385,7 @@
             <Height>12.76pt</Height>
             <Width>524.33pt</Width>
             <Value>Наименование организации</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>181.70pt</Top>
             <Style>
@@ -400,7 +400,7 @@
             <Width>303.26pt</Width>
             <Value>
             </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>220.7pt</Left>
             <Top>189.2pt</Top>
             <Style>
@@ -420,7 +420,7 @@
             <Width>524.01pt</Width>
             <Value>
             </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>201.60pt</Top>
             <Style>
@@ -439,7 +439,7 @@
             <Height>12.76pt</Height>
             <Width>524.33pt</Width>
             <Value>наименование должности руководителя, Ф.И.О.</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>212.10pt</Top>
             <Style>
@@ -453,7 +453,7 @@
             <Height>16.60pt</Height>
             <Width>524.01pt</Width>
             <Value>="действующего на основании "+{clientBaseOf}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>222.70pt</Top>
             <Style>
@@ -471,7 +471,7 @@
             <Width>368.01pt</Width>
             <Value>
             </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>155.9pt</Left>
             <Top>222.1pt</Top>
             <Style>
@@ -491,7 +491,7 @@
             <Width>518.01pt</Width>
             <Value>
             </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>233.8pt</Top>
             <Style>
@@ -510,7 +510,7 @@
             <Height>12.82pt</Height>
             <Width>6.34pt</Width>
             <Value>,</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>519.1pt</Left>
             <Top>235.0pt</Top>
             <Style>
@@ -528,7 +528,7 @@
             <Width>524.01pt</Width>
             <Value>="с другой стороны, а вместе именуемые Стороны, заключили настоящий договор о нижеследующем:
 Клиент вернул, а Фирма приняла бутыли многоразового использования емкостью 19 литров в количестве: "+{bottleCount}+" штук."</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>245.50pt</Top>
             <Style>

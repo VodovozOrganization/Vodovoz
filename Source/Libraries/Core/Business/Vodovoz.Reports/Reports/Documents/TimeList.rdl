@@ -30,7 +30,7 @@
         <Height>26.70pt</Height>
         <Width>563.18pt</Width>
         <Value>="Лист времени для МЛ №" + {?route_list_id}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.00pt</Left>
         <Top>7.00pt</Top>
         <Style>
@@ -219,7 +219,7 @@
         <Height>18.79pt</Height>
         <Width>329.65pt</Width>
         <Value>="Водитель: " + First(Fields!driver_name, "RouteList")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.3pt</Left>
         <Top>38.5pt</Top>
         <Style>
@@ -233,7 +233,7 @@
         <Height>19.53pt</Height>
         <Width>201.00pt</Width>
         <Value>="Дата: " + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>366.8pt</Left>
         <Top>37.1pt</Top>
         <Style>

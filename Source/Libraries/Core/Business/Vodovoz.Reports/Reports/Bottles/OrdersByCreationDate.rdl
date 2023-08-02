@@ -118,7 +118,7 @@ GROUP BY orders.id</CommandText>
         <Height>23.31pt</Height>
         <Width>499.12pt</Width>
         <Value>="Отчет по дате создания заказа на "  +  Format(Convert.ToDateTime({?date}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>97.7pt</Left>
         <Top>3.3pt</Top>
         <Style>

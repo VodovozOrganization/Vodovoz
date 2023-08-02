@@ -23,7 +23,7 @@
         <Height>24.05pt</Height>
         <Width>568.40pt</Width>
         <Value>="Отчет по необходимым товарам для отгрузки на " + Format({?date}, "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>24.8pt</Top>
         <Style>
@@ -522,7 +522,7 @@
         <Height>12pt</Height>
         <Width>210pt</Width>
         <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>350pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -544,7 +544,7 @@
         <Height>12.05pt</Height>
         <Width>565.41pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>

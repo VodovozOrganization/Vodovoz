@@ -20,7 +20,7 @@
         <Height>23.82pt</Height>
         <Width>815.99pt</Width>
         <Value>="Отчет по приходу по кассе  с " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " по " +  Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>2.30pt</Top>
         <Style>
@@ -684,7 +684,7 @@
         <Height>12.00pt</Height>
         <Width>91.80pt</Width>
         <Value>Прочие статусы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.8pt</Left>
         <Top>151.1pt</Top>
         <Style>
@@ -696,7 +696,7 @@
         <Height>12.00pt</Height>
         <Width>63.24pt</Width>
         <Value>Закрытые</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>4.60pt</Top>
         <Style>

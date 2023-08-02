@@ -20,7 +20,7 @@
         <Height>23.34pt</Height>
         <Width>577.50pt</Width>
         <Value>= "Отсрочка сети " + (Format(Cdate(Parameters!date), "dd/MM/yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>5.90pt</Top>
         <Style>

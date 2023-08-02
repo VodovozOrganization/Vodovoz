@@ -20,7 +20,7 @@
         <Height>19.57pt</Height>
         <Width>560.84pt</Width>
         <Value>Отчет по нулевому долгу клиента</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>13.4pt</Top>
         <Style>
@@ -43,7 +43,7 @@
 2. По каждому адресу есть или не требуется ввод остатков;
 3. В последнем заказе у которых:
 ТОЛЬКО забор бутылей И (больше ничего ИЛИ в продаже только Неустойка ИЛИ только Возврат залогов)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.75pt</Left>
         <Top>35.20pt</Top>
         <Style>

@@ -18,7 +18,7 @@
         <Height>21.80pt</Height>
         <Width>476.16pt</Width>
         <Value>="Аналитика недовозов на " + {?title_date}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>60.4pt</Left>
         <Top>22.9pt</Top>
         <Style>

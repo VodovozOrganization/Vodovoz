@@ -24,7 +24,7 @@
         <Height>17.36pt</Height>
         <Width>787.45pt</Width>
         <Value>='Отчет по времени приема заказов за ' + Format(CDate({?date}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.40pt</Top>
         <Style>
@@ -36,7 +36,7 @@
         <Height>12.00pt</Height>
         <Width>49.77pt</Width>
         <Value>Фильтры:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>55.6pt</Left>
         <Top>21.3pt</Top>
         <Style>
@@ -47,7 +47,7 @@
         <Height>26.25pt</Height>
         <Width>587.80pt</Width>
         <Value>В расчет попадают заказы: не самовывоз, не закрывашка по контракту, не выезд мастера, не в статусах (Отменен, Новый, Ожидание оплаты)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>108.70pt</Left>
         <Top>21.60pt</Top>
         <Style>

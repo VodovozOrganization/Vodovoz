@@ -689,7 +689,7 @@
         <Height>22.59pt</Height>
         <Width>815.89pt</Width>
         <Value>="Отчет по бензину с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") +Iif({?car_id} &lt;&gt; -1, " на машину " + First({reg_number}, "Fuel"), " водителю " + First({driver}, "Fuel"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>12.00pt</Top>
         <Style>
@@ -704,7 +704,7 @@
         <Height>12.76pt</Height>
         <Width>560.97pt</Width>
         <Value>="Баланс до " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + ": " + First({balance}, "StartBalance")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>37.20pt</Top>
         <Style>

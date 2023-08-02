@@ -20,7 +20,7 @@
         <Height>17.28pt</Height>
         <Width>575.89pt</Width>
         <Value>Отчёт по заказам с минимальной ценой менее 100 р.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>8.00pt</Top>
         <Style>

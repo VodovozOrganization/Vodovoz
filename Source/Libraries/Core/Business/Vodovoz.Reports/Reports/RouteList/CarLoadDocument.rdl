@@ -889,7 +889,7 @@ GROUP BY order_id</CommandText>
         <Height>14.99pt</Height>
         <Width>142.70pt</Width>
         <Value>= "Водитель_____________"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>148.1pt</Left>
         <Top>137.1pt</Top>
         <Style>
@@ -903,7 +903,7 @@ GROUP BY order_id</CommandText>
         <Height>14.24pt</Height>
         <Width>134pt</Width>
         <Value>Кладовщик_____________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.7pt</Left>
         <Top>137.3pt</Top>
         <Style>
@@ -1035,7 +1035,7 @@ GROUP BY order_id</CommandText>
         </Details>
         <Left>311.0pt</Left>
         <Top>72.2pt</Top>
-        <ZIndex>2</ZIndex>
+        <ZIndex>0</ZIndex>
         <NoRows>Нет отгрузки со склада воды</NoRows>
       </Table>
       <Line Name="Line2">
@@ -1469,7 +1469,7 @@ GROUP BY order_id</CommandText>
         <Height>14.24pt</Height>
         <Width>134pt</Width>
         <Value>Кладовщик_____________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>27.8pt</Left>
         <Top>259.7pt</Top>
         <Style>
@@ -1483,7 +1483,7 @@ GROUP BY order_id</CommandText>
         <Height>14.99pt</Height>
         <Width>142.70pt</Width>
         <Value>= "Водитель_____________"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>296.2pt</Left>
         <Top>258.7pt</Top>
         <Style>
@@ -1512,7 +1512,7 @@ GROUP BY order_id</CommandText>
         <Height>14.24pt</Height>
         <Width>134pt</Width>
         <Value>Кладовщик_____________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>29.0pt</Left>
         <Top>375.5pt</Top>
         <Style>
@@ -1526,7 +1526,7 @@ GROUP BY order_id</CommandText>
         <Height>14.99pt</Height>
         <Width>142.70pt</Width>
         <Value>= "Водитель_____________"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>271.0pt</Left>
         <Top>375.3pt</Top>
         <Style>
@@ -1962,7 +1962,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Details>
         <Left>8.9pt</Left>
         <Top>334.1pt</Top>
-        <ZIndex>2</ZIndex>
+        <ZIndex>0</ZIndex>
       </Table>
       <Table Name="Table15">
         <DataSetName>EquipmentOnlineStore</DataSetName>
@@ -2162,7 +2162,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Height>15.02pt</Height>
         <Width>392.11pt</Width>
         <Value>Товар мной проверен. По количеству и качеству товара претензий не имею.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>160.9pt</Left>
         <Top>388.5pt</Top>
         <Style>
@@ -2175,7 +2175,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Height>12.77pt</Height>
         <Width>396.60pt</Width>
         <Value>Товар мной проверен. По количеству и качеству товара претензий не имею.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>125.3pt</Left>
         <Top>148.2pt</Top>
         <Style>

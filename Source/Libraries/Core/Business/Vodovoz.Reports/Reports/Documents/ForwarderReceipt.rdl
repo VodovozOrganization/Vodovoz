@@ -21,7 +21,7 @@
         <Height>15.72pt</Height>
         <Width>571.65pt</Width>
         <Value>="Отгрузочный лист / Экспедиторская расписка №" + {?routeListId} + " от " + Format({?routeListDate}, "dd.MM.yyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>34.8pt</Top>
         <Style>
@@ -38,7 +38,7 @@
         <Height>15.72pt</Height>
         <Width>625.03pt</Width>
         <Value>="Водитель: " + First({driver_name}, "DriverInfo") + "     " + First({driver_phone}, "DriverInfo")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>52.05pt</Top>
         <Style>
@@ -55,7 +55,7 @@
         <Height>50pt</Height>
         <Width>35pt</Width>
         <Value>№</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>90pt</Top>
         <Style>
@@ -77,7 +77,7 @@
         <Height>50pt</Height>
         <Width>35pt</Width>
         <Value>Обра зец</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>140pt</Top>
         <Style>
@@ -99,7 +99,7 @@
         <Height>50pt</Height>
         <Width>35pt</Width>
         <Value>1</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>190pt</Top>
         <Style>
@@ -121,7 +121,7 @@
         <Height>50pt</Height>
         <Width>35pt</Width>
         <Value>2</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>240pt</Top>
         <Style>
@@ -143,7 +143,7 @@
         <Height>50pt</Height>
         <Width>35pt</Width>
         <Value>3</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>290pt</Top>
         <Style>
@@ -165,7 +165,7 @@
         <Height>50pt</Height>
         <Width>35pt</Width>
         <Value>4</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>340pt</Top>
         <Style>
@@ -187,7 +187,7 @@
         <Height>50pt</Height>
         <Width>35pt</Width>
         <Value>5</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>390pt</Top>
         <Style>
@@ -209,7 +209,7 @@
         <Height>50pt</Height>
         <Width>110pt</Width>
         <Value>УПД</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>35.0pt</Left>
         <Top>90pt</Top>
         <Style>
@@ -231,7 +231,7 @@
         <Height>50pt</Height>
         <Width>160pt</Width>
         <Value>Товар</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145.0pt</Left>
         <Top>90pt</Top>
         <Style>
@@ -253,7 +253,7 @@
         <Height>50pt</Height>
         <Width>120pt</Width>
         <Value>Наименование контрагента</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>305.0pt</Left>
         <Top>90pt</Top>
         <Style>
@@ -275,7 +275,7 @@
         <Height>50pt</Height>
         <Width>160pt</Width>
         <Value>Адрес</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>425.0pt</Left>
         <Top>90pt</Top>
         <Style>
@@ -297,7 +297,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value>Количество сданной тары</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>585.0pt</Left>
         <Top>90pt</Top>
         <Style>
@@ -319,7 +319,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value>Подпись и печать клиента</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>660.0pt</Left>
         <Top>90pt</Top>
         <Style>
@@ -341,7 +341,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value>Примечание</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>735.0pt</Left>
         <Top>90pt</Top>
         <Style>
@@ -363,7 +363,7 @@
         <Height>50pt</Height>
         <Width>110pt</Width>
         <Value>2835501</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>35pt</Left>
         <Top>140pt</Top>
         <Style>
@@ -385,7 +385,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>вода</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>140pt</Top>
         <Style>
@@ -407,7 +407,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>помпа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>157pt</Top>
         <Style>
@@ -429,7 +429,7 @@
         <Height>16pt</Height>
         <Width>90pt</Width>
         <Value>стаканы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145.0pt</Left>
         <Top>174pt</Top>
         <Style>
@@ -451,7 +451,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value>4</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>140pt</Top>
         <Style>
@@ -473,7 +473,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value>1</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>157pt</Top>
         <Style>
@@ -495,7 +495,7 @@
         <Height>16pt</Height>
         <Width>70pt</Width>
         <Value>3</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>174pt</Top>
         <Style>
@@ -517,7 +517,7 @@
         <Height>50pt</Height>
         <Width>120pt</Width>
         <Value>ООО "Северная столица"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>305pt</Left>
         <Top>140pt</Top>
         <Style>
@@ -539,7 +539,7 @@
         <Height>50pt</Height>
         <Width>160pt</Width>
         <Value>г. Санкт-Петербург, ул. Моисеенко, д. 24, оф. 32</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>425pt</Left>
         <Top>140pt</Top>
         <Style>
@@ -561,7 +561,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value>3</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>585pt</Left>
         <Top>140pt</Top>
         <Style>
@@ -583,7 +583,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value>---</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>660pt</Left>
         <Top>140pt</Top>
         <Style>
@@ -605,7 +605,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value>По доверенности</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>735pt</Left>
         <Top>140pt</Top>
         <Style>
@@ -627,7 +627,7 @@
         <Height>50pt</Height>
         <Width>110pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>35pt</Left>
         <Top>190pt</Top>
         <Style>
@@ -649,7 +649,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>вода</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>190pt</Top>
         <Style>
@@ -671,7 +671,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>помпа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>207pt</Top>
         <Style>
@@ -693,7 +693,7 @@
         <Height>16pt</Height>
         <Width>90pt</Width>
         <Value>стаканы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>224pt</Top>
         <Style>
@@ -715,7 +715,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>190pt</Top>
         <Style>
@@ -737,7 +737,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>207pt</Top>
         <Style>
@@ -759,7 +759,7 @@
         <Height>16pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>224pt</Top>
         <Style>
@@ -781,7 +781,7 @@
         <Height>50pt</Height>
         <Width>120pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>305pt</Left>
         <Top>190pt</Top>
         <Style>
@@ -803,7 +803,7 @@
         <Height>50pt</Height>
         <Width>160pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>425pt</Left>
         <Top>190pt</Top>
         <Style>
@@ -825,7 +825,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>585pt</Left>
         <Top>190pt</Top>
         <Style>
@@ -847,7 +847,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>660pt</Left>
         <Top>190pt</Top>
         <Style>
@@ -869,7 +869,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>735pt</Left>
         <Top>190pt</Top>
         <Style>
@@ -891,7 +891,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>735pt</Left>
         <Top>240.0pt</Top>
         <Style>
@@ -913,7 +913,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>660pt</Left>
         <Top>240.0pt</Top>
         <Style>
@@ -935,7 +935,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>585pt</Left>
         <Top>240.0pt</Top>
         <Style>
@@ -957,7 +957,7 @@
         <Height>50pt</Height>
         <Width>160pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>425pt</Left>
         <Top>240.0pt</Top>
         <Style>
@@ -979,7 +979,7 @@
         <Height>50pt</Height>
         <Width>120pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>305pt</Left>
         <Top>240.0pt</Top>
         <Style>
@@ -1001,7 +1001,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>240.0pt</Top>
         <Style>
@@ -1023,7 +1023,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>вода</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>240.0pt</Top>
         <Style>
@@ -1045,7 +1045,7 @@
         <Height>50pt</Height>
         <Width>110pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>35pt</Left>
         <Top>240.0pt</Top>
         <Style>
@@ -1067,7 +1067,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>помпа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>257pt</Top>
         <Style>
@@ -1089,7 +1089,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>257pt</Top>
         <Style>
@@ -1111,7 +1111,7 @@
         <Height>16pt</Height>
         <Width>90pt</Width>
         <Value>стаканы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>274pt</Top>
         <Style>
@@ -1133,7 +1133,7 @@
         <Height>16pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>274pt</Top>
         <Style>
@@ -1155,7 +1155,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>735pt</Left>
         <Top>290pt</Top>
         <Style>
@@ -1177,7 +1177,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>660pt</Left>
         <Top>290pt</Top>
         <Style>
@@ -1199,7 +1199,7 @@
         <Height>50pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>585pt</Left>
         <Top>290pt</Top>
         <Style>
@@ -1221,7 +1221,7 @@
         <Height>50pt</Height>
         <Width>160pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>425pt</Left>
         <Top>290pt</Top>
         <Style>
@@ -1243,7 +1243,7 @@
         <Height>50pt</Height>
         <Width>120pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>305pt</Left>
         <Top>290pt</Top>
         <Style>
@@ -1265,7 +1265,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>290pt</Top>
         <Style>
@@ -1287,7 +1287,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>вода</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>290pt</Top>
         <Style>
@@ -1309,7 +1309,7 @@
         <Height>50pt</Height>
         <Width>110pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>35pt</Left>
         <Top>290pt</Top>
         <Style>
@@ -1331,7 +1331,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>помпа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>307pt</Top>
         <Style>
@@ -1353,7 +1353,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>307pt</Top>
         <Style>
@@ -1375,7 +1375,7 @@
         <Height>16pt</Height>
         <Width>90pt</Width>
         <Value>стаканы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>324pt</Top>
         <Style>
@@ -1397,7 +1397,7 @@
         <Height>16pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>324pt</Top>
         <Style>
@@ -1419,7 +1419,7 @@
         <Height>50pt</Height>
         <Width>110pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>35.0pt</Left>
         <Top>340.0pt</Top>
         <Style>
@@ -1441,7 +1441,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>вода</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145.0pt</Left>
         <Top>340.0pt</Top>
         <Style>
@@ -1463,7 +1463,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235.0pt</Left>
         <Top>340.0pt</Top>
         <Style>
@@ -1485,7 +1485,7 @@
         <Height>50pt</Height>
         <Width>120pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>305.0pt</Left>
         <Top>340.0pt</Top>
         <Style>
@@ -1507,7 +1507,7 @@
         <Height>50pt</Height>
         <Width>160pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>425.0pt</Left>
         <Top>340.0pt</Top>
         <Style>
@@ -1529,7 +1529,7 @@
         <Height>50.00pt</Height>
         <Width>75.00pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>585.00pt</Left>
         <Top>340.00pt</Top>
         <Style>
@@ -1551,7 +1551,7 @@
         <Height>50.00pt</Height>
         <Width>75.00pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>660.00pt</Left>
         <Top>340.00pt</Top>
         <Style>
@@ -1573,7 +1573,7 @@
         <Height>50.00pt</Height>
         <Width>75.00pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>735.00pt</Left>
         <Top>340.00pt</Top>
         <Style>
@@ -1595,7 +1595,7 @@
         <Height>50pt</Height>
         <Width>110pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>35pt</Left>
         <Top>390pt</Top>
         <Style>
@@ -1617,7 +1617,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>вода</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>390pt</Top>
         <Style>
@@ -1639,7 +1639,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>390pt</Top>
         <Style>
@@ -1661,7 +1661,7 @@
         <Height>50pt</Height>
         <Width>120pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>305pt</Left>
         <Top>390pt</Top>
         <Style>
@@ -1683,7 +1683,7 @@
         <Height>50pt</Height>
         <Width>160pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>425pt</Left>
         <Top>390pt</Top>
         <Style>
@@ -1705,7 +1705,7 @@
         <Height>50.00pt</Height>
         <Width>75.00pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>585pt</Left>
         <Top>390pt</Top>
         <Style>
@@ -1727,7 +1727,7 @@
         <Height>50.00pt</Height>
         <Width>75.00pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>660pt</Left>
         <Top>390pt</Top>
         <Style>
@@ -1749,7 +1749,7 @@
         <Height>50.00pt</Height>
         <Width>75.00pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>735pt</Left>
         <Top>390pt</Top>
         <Style>
@@ -1771,7 +1771,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>помпа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>357pt</Top>
         <Style>
@@ -1793,7 +1793,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>357pt</Top>
         <Style>
@@ -1815,7 +1815,7 @@
         <Height>16pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>374pt</Top>
         <Style>
@@ -1837,7 +1837,7 @@
         <Height>16pt</Height>
         <Width>90pt</Width>
         <Value>стаканы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>374pt</Top>
         <Style>
@@ -1859,7 +1859,7 @@
         <Height>17pt</Height>
         <Width>90pt</Width>
         <Value>помпа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>407pt</Top>
         <Style>
@@ -1881,7 +1881,7 @@
         <Height>17pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>407pt</Top>
         <Style>
@@ -1903,7 +1903,7 @@
         <Height>16pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>424pt</Top>
         <Style>
@@ -1925,7 +1925,7 @@
         <Height>16pt</Height>
         <Width>90pt</Width>
         <Value>стаканы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>424pt</Top>
         <Style>
@@ -1947,7 +1947,7 @@
         <Height>20pt</Height>
         <Width>90pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145pt</Left>
         <Top>440pt</Top>
         <Style>
@@ -1969,7 +1969,7 @@
         <Height>20pt</Height>
         <Width>70pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>235pt</Left>
         <Top>440pt</Top>
         <Style>
@@ -1991,7 +1991,7 @@
         <Height>20pt</Height>
         <Width>35pt</Width>
         <Value>Итого</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0pt</Left>
         <Top>440pt</Top>
         <Style>
@@ -2013,7 +2013,7 @@
         <Height>20pt</Height>
         <Width>110pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>35pt</Left>
         <Top>440pt</Top>
         <Style>
@@ -2035,7 +2035,7 @@
         <Height>20pt</Height>
         <Width>120pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>305pt</Left>
         <Top>440pt</Top>
         <Style>
@@ -2057,7 +2057,7 @@
         <Height>20pt</Height>
         <Width>160pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>425pt</Left>
         <Top>440pt</Top>
         <Style>
@@ -2079,7 +2079,7 @@
         <Height>20pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>585pt</Left>
         <Top>440pt</Top>
         <Style>
@@ -2101,7 +2101,7 @@
         <Height>20pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>660pt</Left>
         <Top>440pt</Top>
         <Style>
@@ -2123,7 +2123,7 @@
         <Height>20pt</Height>
         <Width>75pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>735pt</Left>
         <Top>440pt</Top>
         <Style>
@@ -2145,7 +2145,7 @@
         <Height>15.72pt</Height>
         <Width>571.65pt</Width>
         <Value>Сдал: Дата _______________________ Время _______________________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0pt</Left>
         <Top>485pt</Top>
         <Style>

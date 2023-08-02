@@ -50,7 +50,7 @@
         <Height>20.00pt</Height>
         <Width>117.24pt</Width>
         <Value>={?order_id}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>467.60pt</Left>
         <Top>15.00pt</Top>
         <Style>
@@ -63,7 +63,7 @@
         <Height>20.00pt</Height>
         <Width>129.27pt</Width>
         <Value>К заказу №</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>339.0pt</Left>
         <Top>15.0pt</Top>
         <Style>

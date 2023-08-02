@@ -18,7 +18,7 @@
         <Height>27.05pt</Height>
         <Width>553.91pt</Width>
         <Value>="Отчет по балансу водителей до " +  Format(CDate({?date}), "d") </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>3.24pt</Top>
         <Style>

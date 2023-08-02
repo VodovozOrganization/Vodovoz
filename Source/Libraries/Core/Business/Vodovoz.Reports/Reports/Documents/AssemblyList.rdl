@@ -735,7 +735,7 @@ WHERE orders.id = @order_id
         <Height>23.35pt</Height>
         <Width>98.61pt</Width>
         <Value>Лист сборки</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>238.7pt</Left>
         <Top>39.8pt</Top>
         <Style>

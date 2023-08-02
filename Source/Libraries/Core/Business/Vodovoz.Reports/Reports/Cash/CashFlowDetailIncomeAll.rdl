@@ -243,7 +243,7 @@ ORDER BY Category;</CommandText>
         <Height>18.03pt</Height>
         <Width>560.17pt</Width>
         <Value>="Доходы и расходы за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
         <Style>
@@ -258,7 +258,7 @@ ORDER BY Category;</CommandText>
         <Height>16.52pt</Height>
         <Width>558.58pt</Width>
         <Value>="Выбранные фильтры:"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.3pt</Left>
         <Top>24.1pt</Top>
         <Style>
@@ -273,7 +273,7 @@ ORDER BY Category;</CommandText>
         <Height>14.29pt</Height>
         <Width>548.87pt</Width>
         <Value>= {?cash_subdivisions_name}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.0pt</Left>
         <Top>41.2pt</Top>
         <Style>
@@ -287,7 +287,7 @@ ORDER BY Category;</CommandText>
         <Height>14.99pt</Height>
         <Width>555.56pt</Width>
         <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.4pt</Left>
         <Top>57.1pt</Top>
         <Style>
@@ -305,7 +305,7 @@ ORDER BY Category;</CommandText>
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Приход (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>6.7pt</Top>
         <Style>
@@ -320,7 +320,7 @@ ORDER BY Category;</CommandText>
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Сдача (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>170.2pt</Top>
         <Style>

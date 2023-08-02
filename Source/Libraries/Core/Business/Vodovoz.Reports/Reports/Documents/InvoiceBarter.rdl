@@ -979,7 +979,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>308.52pt</Width>
             <Value>="Отпуск разрешил:__________________/"+{leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "./"</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>90.0pt</Left>
             <Top>29.9pt</Top>
             <Style>
@@ -993,7 +993,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>28.02pt</Width>
             <Value>М.П.</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.8pt</Left>
             <Top>29.9pt</Top>
             <Style>
@@ -1007,7 +1007,7 @@ payment_type='ToClient'</CommandText>
             <Height>13.50pt</Height>
             <Width>518.44pt</Width>
             <Value>Товар получен в полном объеме. К продавцу претензий не имею.     /                                      /</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.8pt</Left>
             <Top>52.4pt</Top>
             <Style>
@@ -1021,7 +1021,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>101.52pt</Width>
             <Value>Покупатель сдал</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.8pt</Left>
             <Top>83.7pt</Top>
             <Style>
@@ -1035,7 +1035,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>385.02pt</Width>
             <Value>*             (                                    ) бутылей            /                                       /</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>111.0pt</Left>
             <Top>84.4pt</Top>
             <Style>
@@ -1049,7 +1049,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>157.77pt</Width>
             <Value>(кол. бутылей)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>111.0pt</Left>
             <Top>97.7pt</Top>
             <Style>
@@ -1069,7 +1069,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.03pt</Height>
             <Width>121.17pt</Width>
             <Value>(Подпись покупателя)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>342.7pt</Left>
             <Top>65.6pt</Top>
             <Style>
@@ -1088,7 +1088,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.03pt</Height>
             <Width>121.17pt</Width>
             <Value>(Подпись покупателя)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>342.4pt</Left>
             <Top>97.8pt</Top>
             <Style>
@@ -1107,7 +1107,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>243.42pt</Width>
             <Value>Предполагаемое количетво возвратной тары:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.8pt</Left>
             <Top>116.7pt</Top>
             <Style>
@@ -1136,7 +1136,7 @@ payment_type='ToClient'</CommandText>
             <Height>13.50pt</Height>
             <Width>146.52pt</Width>
             <Value>Залог за пустую тару</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>20.2pt</Left>
             <Top>143.8pt</Top>
             <Style>
@@ -1151,7 +1151,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>415.02pt</Width>
             <Value>             (                                    ) бутылей в размере                                   рублей</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>123.3pt</Left>
             <Top>180.0pt</Top>
             <Style>
@@ -1165,7 +1165,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>145.77pt</Width>
             <Value>Покупатель внес залог за</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.8pt</Left>
             <Top>179.8pt</Top>
             <Style>
@@ -1179,7 +1179,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>142.02pt</Width>
             <Value>(кол. бутылей)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>134.0pt</Left>
             <Top>194.6pt</Top>
             <Style>
@@ -1199,7 +1199,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>100.77pt</Width>
             <Value>(сумма)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>374.8pt</Left>
             <Top>194.0pt</Top>
             <Style>
@@ -1219,7 +1219,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.03pt</Height>
             <Width>121.17pt</Width>
             <Value>(Подпись покупателя)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>374.6pt</Left>
             <Top>223.7pt</Top>
             <Style>
@@ -1238,7 +1238,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>126.27pt</Width>
             <Value>/                                       /</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>375.5pt</Left>
             <Top>210.5pt</Top>
             <Style>
@@ -1252,7 +1252,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>406.02pt</Width>
             <Value>Экспедитор принял:                                        /                                        /</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.8pt</Left>
             <Top>264.0pt</Top>
             <Style>
@@ -1266,7 +1266,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>239.52pt</Width>
             <Value>(подпись)                   (расшифровка)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>105.9pt</Left>
             <Top>275.3pt</Top>
             <Style>
@@ -1284,7 +1284,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>197.52pt</Width>
             <Value>* Поля обязательные к заполнению</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.8pt</Left>
             <Top>295.5pt</Top>
             <Style>
@@ -1326,7 +1326,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>45.97pt</Width>
             <Value>={bottles_return}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>250.9pt</Left>
             <Top>116.1pt</Top>
             <Style>
@@ -1343,7 +1343,7 @@ payment_type='ToClient'</CommandText>
             <Height>12.00pt</Height>
             <Width>72.27pt</Width>
             <Value>бутылей.</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>316.5pt</Left>
             <Top>116.0pt</Top>
             <Style>
@@ -1421,7 +1421,7 @@ payment_type='ToClient'</CommandText>
         <Height>12.00pt</Height>
         <Width>80.00pt</Width>
         <Value>Поставщик:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>38.9pt</Left>
         <Top>113.3pt</Top>
         <Style>
@@ -1435,7 +1435,7 @@ payment_type='ToClient'</CommandText>
         <Height>15.00pt</Height>
         <Width>80.00pt</Width>
         <Value>Адрес:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>38.9pt</Left>
         <Top>159.2pt</Top>
         <Style>
@@ -1453,7 +1453,7 @@ payment_type='ToClient'</CommandText>
         <Height>12.75pt</Height>
         <Width>80pt</Width>
         <Value>Покупатель:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>38.9pt</Left>
         <Top>129.2pt</Top>
         <Style>
@@ -1467,7 +1467,7 @@ payment_type='ToClient'</CommandText>
         <Height>15.00pt</Height>
         <Width>80.00pt</Width>
         <Value>Телефон:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>38.9pt</Left>
         <Top>174.2pt</Top>
         <Style>
@@ -1485,7 +1485,7 @@ payment_type='ToClient'</CommandText>
         <Height>15.00pt</Height>
         <Width>343.62pt</Width>
         <Value>=Max({org_name}, "Order") + ' ' + Max({org_address}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>119.2pt</Left>
         <Top>113.9pt</Top>
         <Style>
@@ -1501,7 +1501,7 @@ payment_type='ToClient'</CommandText>
         <Height>25.50pt</Height>
         <Width>343.62pt</Width>
         <Value>=Max({client_name}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>119.20pt</Left>
         <Top>128.90pt</Top>
         <Style>
@@ -1517,7 +1517,7 @@ payment_type='ToClient'</CommandText>
         <Height>15.00pt</Height>
         <Width>433.62pt</Width>
         <Value>=Max({del_point_address}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>119.20pt</Left>
         <Top>158.90pt</Top>
         <Style>
@@ -1542,7 +1542,7 @@ payment_type='ToClient'</CommandText>
         <Height>15.00pt</Height>
         <Width>433.62pt</Width>
         <Value>=Iif(Max({delivery_point_contact}, "Order") = null, Max({client_contact}, "Order"), Max({delivery_point_contact}, "Order"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>119.2pt</Left>
         <Top>173.9pt</Top>
         <Style>
@@ -1566,7 +1566,7 @@ payment_type='ToClient'</CommandText>
         <Height>12.00pt</Height>
         <Width>57.00pt</Width>
         <Value>=Max({delivery_schedule}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>93.0pt</Left>
         <Top>190.5pt</Top>
         <Style>
@@ -1583,7 +1583,7 @@ payment_type='ToClient'</CommandText>
         <Height>12.00pt</Height>
         <Width>65.51pt</Width>
         <Value>Время дост.:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>28.0pt</Left>
         <Top>190.5pt</Top>
         <Style>
@@ -1599,7 +1599,7 @@ payment_type='ToClient'</CommandText>
         <Height>12pt</Height>
         <Width>49pt</Width>
         <Value>Договор:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>144.0pt</Left>
         <Top>190.5pt</Top>
         <Style>
@@ -1615,7 +1615,7 @@ payment_type='ToClient'</CommandText>
         <Height>17.25pt</Height>
         <Width>335.29pt</Width>
         <Value>='Заказ № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>121.60pt</Left>
         <Top>35.70pt</Top>
         <Style>
@@ -1630,7 +1630,7 @@ payment_type='ToClient'</CommandText>
         <Height>17.25pt</Height>
         <Width>324.79pt</Width>
         <Value>Безденежно</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>129.90pt</Left>
         <Top>55.40pt</Top>
         <Style>
@@ -1645,7 +1645,7 @@ payment_type='ToClient'</CommandText>
         <Height>13.50pt</Height>
         <Width>36.28pt</Width>
         <Value>=Max({daily_number}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>384.5pt</Left>
         <Top>17.6pt</Top>
         <Style>
@@ -1841,7 +1841,7 @@ payment_type='ToClient'</CommandText>
         <Height>12pt</Height>
         <Width>36.39pt</Width>
         <Value>=Iif(Len(Max({lunch_time}, "Order")) &gt; 0, "Обед:", "")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>290.8pt</Left>
         <Top>190.5pt</Top>
         <Style>
@@ -1857,7 +1857,7 @@ payment_type='ToClient'</CommandText>
         <Height>12.00pt</Height>
         <Width>81.28pt</Width>
         <Value>=Max({lunch_time}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>329.2pt</Left>
         <Top>190.5pt</Top>
         <Style>
@@ -1874,7 +1874,7 @@ payment_type='ToClient'</CommandText>
         <Height>12pt</Height>
         <Width>108pt</Width>
         <Value>= Max({contract_number}, "Order") + ' от ' + Max({contract_date}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>191.0pt</Left>
         <Top>190.5pt</Top>
         <Style>
@@ -1890,7 +1890,7 @@ payment_type='ToClient'</CommandText>
         <Height>28.51pt</Height>
         <Width>124.98pt</Width>
         <Value>Оплачено</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>295.0pt</Left>
         <Top>77.7pt</Top>
         <Style>

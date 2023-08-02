@@ -117,7 +117,7 @@ GROUP BY fuel_transfer_documents.id</CommandText>
         <Height>12.00pt</Height>
         <Width>150.27pt</Width>
         <Value>Итого к перемещению:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>47.2pt</Left>
         <Top>180.5pt</Top>
         <Style>

@@ -20,7 +20,7 @@
         <Height>19.57pt</Height>
         <Width>814.05pt</Width>
         <Value>='Отчет по оплатам Авангарда c '+Format(CDATE({?startDate}), "dd.MM.yyyy") + ' по ' + Format(CDATE({?endDate}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.8pt</Left>
         <Top>0.6pt</Top>
         <Style>
@@ -989,7 +989,7 @@
         <Height>21.06pt</Height>
         <Width>816.10pt</Width>
         <Value>Оплаты без заказов</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>108.96pt</Top>
         <Style>

@@ -20,7 +20,7 @@
         <Height>21.04pt</Height>
         <Width>758.81pt</Width>
         <Value>Отчёт по выездному мастеру</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>4.40pt</Top>
         <Style>
@@ -1330,7 +1330,7 @@
  + Iif({?start_date} = {?end_date},
 	" за " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy"),
 	" с " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>7.50pt</Top>
         <Style>

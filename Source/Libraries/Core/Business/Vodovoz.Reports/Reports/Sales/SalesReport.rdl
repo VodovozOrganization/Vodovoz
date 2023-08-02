@@ -21,7 +21,7 @@
         <Height>24.05pt</Height>
         <Width>568.40pt</Width>
         <Value>='Отчет по продажам ' + Iif(Parameters!start_date = Parameters!end_date, 'за ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy"), 'с ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy") + ' по ' + Format(CDate(Parameters!end_date), "dd/MM/yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>21.90pt</Top>
         <Style>
@@ -340,7 +340,7 @@
         <Height>13.51pt</Height>
         <Width>223.58pt</Width>
         <Value>=First({criterions}, "Criterions")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>335.60pt</Left>
         <Top>119.10pt</Top>
         <Style>
@@ -452,7 +452,7 @@
         <Height>12pt</Height>
         <Width>265pt</Width>
         <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>300pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -466,7 +466,7 @@
         <Height>13.51pt</Height>
         <Width>223.58pt</Width>
         <Value>="Количество заказов: " + First({count}, "orders_count")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>335.5pt</Left>
         <Top>135.7pt</Top>
         <Style>
@@ -490,7 +490,7 @@
         <Height>12.05pt</Height>
         <Width>565.41pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>

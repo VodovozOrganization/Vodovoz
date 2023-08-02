@@ -356,7 +356,7 @@
         <Height>23.30pt</Height>
         <Width>567.71pt</Width>
         <Value>=First(Fields!name, "ForwarderName") + " " + First(Fields!last_name, "ForwarderName") + " " + CDate({?start_date}) + " по " + CDate({?end_date})</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -511,7 +511,7 @@
         <Height>19.52pt</Height>
         <Width>69.94pt</Width>
         <Value>Итого:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>374.41pt</Top>
         <Style>
@@ -1102,7 +1102,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Штрафы:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>101.6pt</Top>
       </Textbox>
@@ -1110,7 +1110,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Премии:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>159.5pt</Top>
       </Textbox>
@@ -1118,7 +1118,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Авансы:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>220.1pt</Top>
       </Textbox>
@@ -1126,7 +1126,7 @@
         <Height>21.05pt</Height>
         <Width>566.96pt</Width>
         <Value>=First({comment}, "ForwarderName")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>26.4pt</Top>
         <Style>
@@ -1393,7 +1393,7 @@
         <Height>12.74pt</Height>
         <Width>176.09pt</Width>
         <Value>Штрафы за границами периода:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>275.5pt</Top>
         <Style>
@@ -1407,7 +1407,7 @@
         <Width>292.84pt</Width>
         <Value>=Sum(Fields!wage.Value, "ForwarderWage") + Sum(Fields!money.Value, "ForwarderPremiums") - Sum(Fields!advance.Value, "Advances")
 - Sum(Fields!money.Value, "ForwarderFines")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>47.0pt</Left>
         <Top>375.3pt</Top>
         <Style>

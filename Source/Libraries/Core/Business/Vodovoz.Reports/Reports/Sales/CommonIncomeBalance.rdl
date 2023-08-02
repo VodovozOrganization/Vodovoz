@@ -20,7 +20,7 @@
         <Height>23.80pt</Height>
         <Width>561.49pt</Width>
         <Value>="Отчет по приходу по кассе  с " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " по " +  Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>2.30pt</Top>
         <Style>

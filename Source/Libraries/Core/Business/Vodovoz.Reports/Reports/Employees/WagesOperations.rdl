@@ -35,7 +35,7 @@
         <Height>22.55pt</Height>
         <Width>568.36pt</Width>
         <Value>="Отчет по изменению зарплатного баланса с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>8.60pt</Top>
         <Style>

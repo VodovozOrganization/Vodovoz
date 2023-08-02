@@ -540,7 +540,7 @@ WHERE
         <Height>13.49pt</Height>
         <Width>342.67pt</Width>
         <Value>Образец заполнения платежного поручения</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>174.20pt</Left>
         <Top>79.41pt</Top>
         <Style>
@@ -555,7 +555,7 @@ WHERE
         <Height>37.62pt</Height>
         <Width>333.36pt</Width>
         <Value>Внимание! Оплата данного счета означает согласие с условиями поставки товара. Уведомление об оплате обязательно, в противном случае не гарантируется наличие товара на складе. Товар отпускается по факту прихода денег на р/с Поставщика.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>208.7pt</Left>
         <Top>24.2pt</Top>
         <Style>
@@ -577,7 +577,7 @@ WHERE
             <Height>30pt</Height>
             <Width>280pt</Width>
             <Value>={name} + ' г.' + {city}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>40pt</Left>
             <Top>0.1pt</Top>
             <Style>
@@ -602,7 +602,7 @@ WHERE
             <Height>15.00pt</Height>
             <Width>140pt</Width>
             <Value>='ИНН ' + {INN}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>40pt</Left>
             <Top>45.1pt</Top>
             <Style>
@@ -624,7 +624,7 @@ WHERE
             <Height>15pt</Height>
             <Width>40pt</Width>
             <Value>БИК</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>320pt</Left>
             <Top>0.1pt</Top>
             <Style>
@@ -645,7 +645,7 @@ WHERE
             <Height>30pt</Height>
             <Width>40pt</Width>
             <Value>Сч. №</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>320pt</Left>
             <Top>15.1pt</Top>
             <Style>
@@ -666,7 +666,7 @@ WHERE
             <Height>30pt</Height>
             <Width>180pt</Width>
             <Value>={cor_account}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>360pt</Left>
             <Top>15.1pt</Top>
             <Style>
@@ -687,7 +687,7 @@ WHERE
             <Height>60.00pt</Height>
             <Width>40.00pt</Width>
             <Value>Сч. №</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>320pt</Left>
             <Top>45.1pt</Top>
             <Style>
@@ -708,7 +708,7 @@ WHERE
             <Height>30pt</Height>
             <Width>280pt</Width>
             <Value>={full_name}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>40pt</Left>
             <Top>60.1pt</Top>
             <Style>
@@ -732,7 +732,7 @@ WHERE
             <Height>15pt</Height>
             <Width>180pt</Width>
             <Value>={bik}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>360pt</Left>
             <Top>0.6pt</Top>
             <Style>
@@ -753,7 +753,7 @@ WHERE
             <Height>15.00pt</Height>
             <Width>140pt</Width>
             <Value>='КПП ' + {KPP} </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>180pt</Left>
             <Top>45.1pt</Top>
             <Style>
@@ -776,7 +776,7 @@ WHERE
             <Height>60pt</Height>
             <Width>180pt</Width>
             <Value>={number}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>360pt</Left>
             <Top>45.1pt</Top>
             <Style>
@@ -797,7 +797,7 @@ WHERE
             <Height>15pt</Height>
             <Width>280pt</Width>
             <Value>Получатель</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>40pt</Left>
             <Top>90.1pt</Top>
             <Style>
@@ -818,7 +818,7 @@ WHERE
             <Height>15pt</Height>
             <Width>280pt</Width>
             <Value>Банк получателя</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>40pt</Left>
             <Top>30.1pt</Top>
             <Style>
@@ -897,7 +897,7 @@ WHERE
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -916,7 +916,7 @@ WHERE
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -935,7 +935,7 @@ WHERE
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -954,7 +954,7 @@ WHERE
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -973,7 +973,7 @@ WHERE
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1030,7 +1030,7 @@ WHERE
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1059,7 +1059,7 @@ WHERE
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1081,7 +1081,7 @@ WHERE
                         <PaddingTop>1pt</PaddingTop>
                         <PaddingBottom>1pt</PaddingBottom>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1101,7 +1101,7 @@ WHERE
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>="N" + {digits}</Format>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1120,7 +1120,7 @@ WHERE
                         <FontFamily>Calibri</FontFamily>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1140,7 +1140,7 @@ WHERE
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1196,7 +1196,7 @@ WHERE
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1229,7 +1229,7 @@ WHERE
                         <VerticalAlign>Bottom</VerticalAlign>
                         <FontFamily>Calibri</FontFamily>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>7</ColSpan>
@@ -1253,7 +1253,7 @@ WHERE
                         <Format>N2</Format>
                         <FontFamily>Calibri</FontFamily>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1280,7 +1280,7 @@ WHERE
                         <TextAlign>Right</TextAlign>
                         <FontFamily>Calibri</FontFamily>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>7</ColSpan>
@@ -1301,7 +1301,7 @@ WHERE
                         <BorderWidth />
                         <FontFamily>Calibri</FontFamily>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1328,7 +1328,7 @@ WHERE
                         <TextAlign>Left</TextAlign>
                         <FontFamily>Calibri</FontFamily>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>8</ColSpan>
@@ -1358,7 +1358,7 @@ WHERE
                         <TextAlign>Left</TextAlign>
                         <FontFamily>Calibri</FontFamily>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>8</ColSpan>
@@ -1369,7 +1369,7 @@ WHERE
         </Footer>
         <Left>31.0pt</Left>
         <Top>317.7pt</Top>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
       </Table>
       <List Name="List3">
         <Height>122.72pt</Height>
@@ -1381,7 +1381,7 @@ WHERE
             <Height>16.50pt</Height>
             <Width>173.52pt</Width>
             <Value>Руководитель________________</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>42.9pt</Top>
             <Style>
@@ -1401,7 +1401,7 @@ WHERE
 + '.'
 + Left({leader_patronymic},1)
 + '.)'</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>156.8pt</Left>
             <Top>42.9pt</Top>
             <Style>
@@ -1422,7 +1422,7 @@ WHERE
 + '.'
 + Left({buh_patronymic},1)
 + '.)'</Value>
-            <ZIndex>2</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>407.8pt</Left>
             <Top>43.7pt</Top>
             <Style>
@@ -1438,7 +1438,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>154.77pt</Width>
             <Value>Бухгалтер______________</Value>
-            <ZIndex>2</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>283.4pt</Left>
             <Top>42.2pt</Top>
             <Style>
@@ -1484,7 +1484,7 @@ WHERE
             <Source>Database</Source>
             <Value>=First( {image} , "Stamp" )</Value>
             <Sizing>FitProportional</Sizing>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
@@ -1523,7 +1523,7 @@ WHERE
         <Width>326.52pt</Width>
         <Value>В назначении платежа ОБЯЗАТЕЛЬНО указывайте
 номер и дату составления счета. СПАСИБО.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>136.1pt</Left>
         <Top>692.7pt</Top>
         <Style>
@@ -1559,7 +1559,7 @@ WHERE
             <Height>12.73pt</Height>
             <Width>420.89pt</Width>
             <Value>="Автор: " + {author}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>1.6pt</Top>
             <Style>
@@ -1574,7 +1574,7 @@ WHERE
         <Height>18.02pt</Height>
         <Width>499.29pt</Width>
         <Value>='Счет № Ф-' + First({bwsfp_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' +{?special_contract_number}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>39.20pt</Left>
         <Top>216.10pt</Top>
         <Style>
@@ -1745,7 +1745,7 @@ Iif(
         <Source>Database</Source>
         <Value>=First( {IM1} , "Images" )</Value>
         <Sizing>FitProportional</Sizing>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Visibility>
         </Visibility>
         <MIMEType>image/jpeg</MIMEType>

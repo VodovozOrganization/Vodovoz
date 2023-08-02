@@ -1427,7 +1427,7 @@ ORDER BY
         <Height>18.05pt</Height>
         <Width>563.10pt</Width>
         <Value>Фуры</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.4pt</Left>
         <Top>89.2pt</Top>
         <Style>
@@ -1457,7 +1457,7 @@ ORDER BY
         <Height>13.49pt</Height>
         <Width>203.80pt</Width>
         <Value>="Сформировано: " + Format( {?creationDate}, "dd-MM-yyyy HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>599.60pt</Left>
         <Top>0.00pt</Top>
         <Style>

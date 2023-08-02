@@ -24,7 +24,7 @@
         <Height>17.25pt</Height>
         <Width>816.34pt</Width>
         <Value>Отчет по изменениям заказа при доставке</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.60pt</Top>
         <Style>
@@ -40,7 +40,7 @@
         <Height>17.25pt</Height>
         <Width>816.34pt</Width>
         <Value>='с ' + Format(Convert.ToDateTime({?start_date}), "yyyy-MM-dd") + ' по ' + Format(Convert.ToDateTime({?end_date}), "yyyy-MM-dd")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>20.80pt</Top>
         <Style>
@@ -56,7 +56,7 @@
         <Height>18.04pt</Height>
         <Width>274.40pt</Width>
         <Value>='Сформировано ' + Format(Convert.ToDateTime(First({cur_time}, 'Date')), "yyyy-MM-dd HH:mm:ss")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>530.9pt</Left>
         <Top>40.9pt</Top>
         <Style>
@@ -72,7 +72,7 @@
         <Height>15.04pt</Height>
         <Width>298.90pt</Width>
         <Value>Фильтры:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>13.6pt</Left>
         <Top>40.9pt</Top>
         <Style>
@@ -86,7 +86,7 @@
         <Height>15.04pt</Height>
         <Width>409.15pt</Width>
         <Value>='Организация: ' + First({full_name}, 'Organization') </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>13.6pt</Left>
         <Top>57.6pt</Top>
         <Style>
@@ -99,7 +99,7 @@
         <Height>15.04pt</Height>
         <Width>409.15pt</Width>
         <Value>='Типы изменений: ' + {?change_types_rus}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>13.60pt</Left>
         <Top>72.80pt</Top>
         <CanGrow>true</CanGrow>
@@ -679,7 +679,7 @@
         <Height>15.04pt</Height>
         <Width>409.15pt</Width>
         <Value>='Типы проблем: ' + {?issue_types_rus}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>13.6pt</Left>
         <Top>88.8pt</Top>
         <CanGrow>true</CanGrow>

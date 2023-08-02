@@ -20,7 +20,7 @@
         <Height>24.09pt</Height>
         <Width>539.27pt</Width>
         <Value>= "Реестр заказов от " + (Format(Convert.ToDateTime({?date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>

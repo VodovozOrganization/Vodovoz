@@ -110,7 +110,7 @@ GROUP BY cash_transfer_documents.id</CommandText>
         <Height>12.00pt</Height>
         <Width>150.27pt</Width>
         <Value>='Итого к перемещению: ' + First({transfered_sum}, "CashTransferDocument") + 'руб.'</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>63.2pt</Left>
         <Top>172.5pt</Top>
         <Style>

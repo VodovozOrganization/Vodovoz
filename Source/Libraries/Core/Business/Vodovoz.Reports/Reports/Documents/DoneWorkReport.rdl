@@ -215,7 +215,7 @@ WHERE stored_resource.id = @id1
         <Width>288.76pt</Width>
         <Value>="АКТ
 выполненных работ №"+{?order_id}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>98.00pt</Left>
         <Top>40.40pt</Top>
         <Style>
@@ -232,7 +232,7 @@ WHERE stored_resource.id = @id1
         <Height>12.00pt</Height>
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>383.1pt</Left>
         <Top>537.4pt</Top>
         <Style>
@@ -249,7 +249,7 @@ WHERE stored_resource.id = @id1
         <Height>12.00pt</Height>
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>387.9pt</Left>
         <Top>549.2pt</Top>
         <Style>
@@ -265,7 +265,7 @@ WHERE stored_resource.id = @id1
         <Height>12.00pt</Height>
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>380.0pt</Left>
         <Top>569.3pt</Top>
         <Style>
@@ -282,7 +282,7 @@ WHERE stored_resource.id = @id1
         <Height>12.00pt</Height>
         <Width>115.02pt</Width>
         <Value>= Iif(First({is_service}, "Order"), "Подпись исполнителя", "Подпись водителя")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>384.8pt</Left>
         <Top>581.1pt</Top>
         <Style>
@@ -298,7 +298,7 @@ WHERE stored_resource.id = @id1
         <Height>13.50pt</Height>
         <Width>40.02pt</Width>
         <Value>Итого:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>13.0pt</Left>
         <Top>530.2pt</Top>
         <Style>
@@ -310,7 +310,7 @@ WHERE stored_resource.id = @id1
         <Height>12.00pt</Height>
         <Width>72.27pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>52.3pt</Left>
         <Top>528.9pt</Top>
         <Style>
@@ -749,7 +749,7 @@ WHERE stored_resource.id = @id1
         <Width>153.38pt</Width>
         <Value>="г.Санкт-Петербург
 "+Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>357.2pt</Left>
         <Top>103.4pt</Top>
         <Style>
@@ -944,7 +944,7 @@ WHERE stored_resource.id = @id1
         <Height>15.76pt</Height>
         <Width>504.37pt</Width>
         <Value>Оцените работу мастера по пятибальной системе</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.6pt</Left>
         <Top>635.4pt</Top>
         <Style>
@@ -960,7 +960,7 @@ WHERE stored_resource.id = @id1
         <Height>12.00pt</Height>
         <Width>126.27pt</Width>
         <Value>/                                     /</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>372.2pt</Left>
         <Top>663.4pt</Top>
         <Style>
@@ -977,7 +977,7 @@ WHERE stored_resource.id = @id1
         <Height>12.00pt</Height>
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>377.0pt</Left>
         <Top>675.2pt</Top>
         <Style>
@@ -993,7 +993,7 @@ WHERE stored_resource.id = @id1
         <Height>12.80pt</Height>
         <Width>472.74pt</Width>
         <Value>Вы можете оставить свои отзывы, пожелания, рекомендации в книге отзывов и предложений.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.6pt</Left>
         <Top>702.2pt</Top>
         <Style>
@@ -1005,7 +1005,7 @@ WHERE stored_resource.id = @id1
         <Height>39.14pt</Height>
         <Width>143.78pt</Width>
         <Value>Результат диагностики</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>250.4pt</Top>
         <Style>
@@ -1031,7 +1031,7 @@ WHERE stored_resource.id = @id1
         <Height>39.14pt</Height>
         <Width>360.62pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>148.5pt</Left>
         <Top>250.5pt</Top>
         <Style>
@@ -1698,7 +1698,7 @@ WHERE stored_resource.id = @id1
         <Height>11.99pt</Height>
         <Width>115.85pt</Width>
         <Value>Заполняется клиентом:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2pt</Left>
         <Top>580.8pt</Top>
         <Style>
@@ -1709,7 +1709,7 @@ WHERE stored_resource.id = @id1
         <Height>12.00pt</Height>
         <Width>87.27pt</Width>
         <Value>Время прибытия:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>121.6pt</Left>
         <Top>572.9pt</Top>
       </Textbox>
@@ -1717,7 +1717,7 @@ WHERE stored_resource.id = @id1
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>206.0pt</Left>
         <Top>572.6pt</Top>
         <Style>
@@ -1732,7 +1732,7 @@ WHERE stored_resource.id = @id1
         <Height>12.00pt</Height>
         <Width>87.27pt</Width>
         <Value>Время убытия:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>121.6pt</Left>
         <Top>586.7pt</Top>
       </Textbox>
@@ -1740,7 +1740,7 @@ WHERE stored_resource.id = @id1
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>206.0pt</Left>
         <Top>586.4pt</Top>
         <Style>
@@ -1755,7 +1755,7 @@ WHERE stored_resource.id = @id1
         <Height>18.31pt</Height>
         <Width>294.80pt</Width>
         <Value>=Iif(String.IsNullOrWhiteSpace(First({special_contract_number}, "Order")) = false,First({special_contract_number}, "Order"), "по договору № " +  Max({contract}, "Order"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>99.1pt</Left>
         <Top>72.3pt</Top>
         <Style>

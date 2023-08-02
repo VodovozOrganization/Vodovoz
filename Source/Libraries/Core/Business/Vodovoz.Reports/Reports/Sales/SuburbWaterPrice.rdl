@@ -587,7 +587,7 @@ ORDER BY orders.id</CommandText>
         <Height>20.98pt</Height>
         <Width>801.08pt</Width>
         <Value>Заказы без координат</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.9pt</Left>
         <Top>60.7pt</Top>
         <Style>
