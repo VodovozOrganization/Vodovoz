@@ -22,7 +22,7 @@ using Vodovoz.Services;
 
 namespace DriverAPI.Library.Models
 {
-	public class OrderModel : IOrderModel
+	internal class OrderModel : IOrderModel
 	{
 		private readonly ILogger<OrderModel> _logger;
 		private readonly IOrderRepository _orderRepository;
@@ -79,7 +79,7 @@ namespace DriverAPI.Library.Models
 		/// <summary>
 		/// Получение заказа в требуемом формате из заказа программы ДВ (использует функцию ниже)
 		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		/// <returns>APIOrder</returns>
 		public OrderDto Get(int orderId)
 		{
@@ -123,7 +123,7 @@ namespace DriverAPI.Library.Models
 		/// <summary>
 		/// Получение типов оплаты на которые можно изменить тип оплаты заказа переданного в аргументе
 		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		/// <returns>IEnumerable APIPaymentType</returns>
 		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId)
 		{
@@ -180,7 +180,7 @@ namespace DriverAPI.Library.Models
 		/// <summary>
 		/// Получение дополнительной информации для заказа по идентификатору
 		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
 		public OrderAdditionalInfoDto GetAdditionalInfo(int orderId)
 		{

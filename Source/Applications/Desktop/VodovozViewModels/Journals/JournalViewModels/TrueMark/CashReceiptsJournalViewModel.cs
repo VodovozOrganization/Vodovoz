@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
+using CashReceiptPermissions = Vodovoz.Permissions.Order.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
@@ -35,7 +36,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		private readonly TrueMarkCodePoolLoader _codePoolLoader;
 		private readonly IFileDialogService _fileDialogService;
 		private readonly bool _canResendDuplicateReceipts;
-
 
 		private CashReceiptJournalFilterViewModel _filter;
 		private Timer _autoRefreshTimer;
@@ -61,17 +61,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			var permissionService = _commonServices.CurrentPermissionService;
-			var canReadReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanReadReceipts");
+			
+			var allReceiptStatusesAvailable =
+				permissionService.ValidatePresetPermission(CashReceiptPermissions.AllReceiptStatusesAvailable);
+			var showOnlyCodeErrorStatusReceipts =
+				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyCodeErrorStatusReceipts);
+			var showOnlyReceiptSendErrorStatusReceipts =
+				permissionService.ValidatePresetPermission(CashReceiptPermissions.ShowOnlyReceiptSendErrorStatusReceipts);
+			
+			var canReadReceipts = allReceiptStatusesAvailable || showOnlyCodeErrorStatusReceipts || showOnlyReceiptSendErrorStatusReceipts;
 			if(!canReadReceipts)
 			{
 				AbortOpening("Нет прав просматривать кассовые чеки.");
 				return;
 			}
 
-			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission("CashReceipt.CanResendDuplicateReceipts");
+			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission(CashReceiptPermissions.CanResendDuplicateReceipts);
 
 			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
-			;
 
 			_autoRefreshInterval = 30;
 
@@ -166,6 +173,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			query.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias);
 			query.Left.JoinAlias(() => routeListAlias.Driver, () => driverAlias);
 			query.Where(() => !cashReceiptAlias.WithoutMarks);
+			
 			if(_filter.Status.HasValue)
 			{
 				query.Where(Restrictions.Eq(Projections.Property(() => cashReceiptAlias.Status), _filter.Status.Value));
@@ -200,6 +208,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			if(_filter.HasUnscannedReason)
 			{
 				query.Where(Restrictions.Eq(Projections.SqlFunction("IS_NULL_OR_WHITESPACE", NHibernateUtil.Boolean, Projections.Property(() => cashReceiptAlias.UnscannedCodesReason)), false));
+			}
+
+			if(_filter.AvailableReceiptStatuses == AvailableReceiptStatuses.CodeErrorAndReceiptSendError
+				&& !_filter.Status.HasValue)
+			{
+				query.WhereRestrictionOn(x => x.Status)
+					.IsInG(new[] { CashReceiptStatus.CodeError, CashReceiptStatus.ReceiptSendError });
 			}
 
 			query.Where(

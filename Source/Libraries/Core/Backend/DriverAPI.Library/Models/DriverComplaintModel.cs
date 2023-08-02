@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Complaints;
 
 namespace DriverAPI.Library.Models
 {
-	public class DriverComplaintModel : IDriverComplaintModel
+	internal class DriverComplaintModel : IDriverComplaintModel
 	{
 		private readonly IComplaintsRepository _complaintsRepository;
 		private readonly DriverComplaintReasonConverter _driverComplaintReasonConverter;

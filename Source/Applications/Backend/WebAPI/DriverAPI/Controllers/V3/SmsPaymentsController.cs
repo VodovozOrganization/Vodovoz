@@ -93,7 +93,7 @@ namespace DriverAPI.Controllers.V3
 			{
 				AvailablePaymentTypes = additionalInfo.AvailablePaymentTypes,
 				CanSendSms = additionalInfo.CanSendSms,
-				SmsPaymentStatus = _smsPaymentConverter.convertToAPIPaymentStatus(
+				SmsPaymentStatus = _smsPaymentConverter.ConvertToAPIPaymentStatus(
 					_aPISmsPaymentData.GetOrderSmsPaymentStatus(orderId)
 				)
 			};

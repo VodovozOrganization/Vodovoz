@@ -17,7 +17,7 @@ namespace Vodovoz.Settings.Database
 		public SettingsController(IUnitOfWorkFactory uowFactory, ILogger<SettingsController> logger)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_logger = logger;
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
 		public bool ContainsSetting(string settingName)
@@ -27,7 +27,7 @@ namespace Vodovoz.Settings.Database
 				return true;
 			}
 
-			RefreshSetting(settingName);
+			RefreshSettings();
 			return _settings.ContainsKey(settingName);
 		}
 
@@ -45,7 +45,7 @@ namespace Vodovoz.Settings.Database
 			{
 				isInsert = true;
 			}
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var settingPersister = (AbstractEntityPersister)uow.Session.SessionFactory.GetClassMetadata(typeof(Setting));
 				var tableName = settingPersister.TableName;
@@ -64,60 +64,24 @@ namespace Vodovoz.Settings.Database
 					_logger.LogDebug("Изменяем настройку в базе {Name}='{Value}'", name, value);
 				}
 				uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
-				RefreshSetting(name);
+				RefreshSettings();
 			}
 
 			_logger.LogDebug("Ок");
-		}
-
-		private void RefreshSetting(string settingName)
-		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				var settings = uow.Session.QueryOver<Setting>()
-					.Where(x => x.Name == settingName)
-					.List<Setting>();
-
-				if(settings == null || !settings.Any())
-				{
-					return;
-				}
-
-				if(settings.Count > 1)
-				{
-					throw new InvalidOperationException($"Установлено более 2-х настроек для {settingName}");
-				}
-
-				Setting setting = settings.First();
-				if(setting == null)
-				{
-					return;
-				}
-
-				setting.CachedTime = DateTime.Now;
-
-				if(_settings.ContainsKey(settingName))
-				{
-					_settings[settingName] = setting;
-					return;
-				}
-
-				_settings.TryAdd(setting.Name, setting);
-			}
 		}
 
 		public bool GetBoolValue(string settingName)
 		{
 			if(!ContainsSetting(settingName))
 			{
-				throw new InvalidProgramException(GetSettingNotFoundMessage(settingName));
+				throw new SettingException(GetSettingNotFoundMessage(settingName));
 			}
 
 			string value = GetStringValue(settingName);
 
 			if(string.IsNullOrWhiteSpace(value) || !bool.TryParse(value, out bool result))
 			{
-				throw new InvalidProgramException(GetIncorrectSettingMessage(settingName));
+				throw new SettingException(GetIncorrectSettingMessage(settingName));
 			}
 
 			return result;
@@ -127,14 +91,14 @@ namespace Vodovoz.Settings.Database
 		{
 			if(!ContainsSetting(settingName))
 			{
-				throw new InvalidProgramException(GetSettingNotFoundMessage(settingName));
+				throw new SettingException(GetSettingNotFoundMessage(settingName));
 			}
 
-			string value = GetParameterValue(settingName);
+			string value = GetSettingValue(settingName);
 
 			if(string.IsNullOrWhiteSpace(value) || !char.TryParse(value, out char result))
 			{
-				throw new InvalidProgramException(GetIncorrectSettingMessage(settingName));
+				throw new SettingException(GetIncorrectSettingMessage(settingName));
 			}
 
 			return result;
@@ -144,14 +108,14 @@ namespace Vodovoz.Settings.Database
 		{
 			if(!ContainsSetting(settingName))
 			{
-				throw new InvalidProgramException(GetSettingNotFoundMessage(settingName));
+				throw new SettingException(GetSettingNotFoundMessage(settingName));
 			}
 
-			string value = GetParameterValue(settingName);
+			string value = GetSettingValue(settingName);
 
 			if(string.IsNullOrWhiteSpace(value) || !decimal.TryParse(value, out decimal result))
 			{
-				throw new InvalidProgramException(GetIncorrectSettingMessage(settingName));
+				throw new SettingException(GetIncorrectSettingMessage(settingName));
 			}
 
 			return result;
@@ -161,14 +125,14 @@ namespace Vodovoz.Settings.Database
 		{
 			if(!ContainsSetting(settingName))
 			{
-				throw new InvalidProgramException(GetSettingNotFoundMessage(settingName));
+				throw new SettingException(GetSettingNotFoundMessage(settingName));
 			}
 
-			string value = GetParameterValue(settingName);
+			string value = GetSettingValue(settingName);
 
 			if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result))
 			{
-				throw new InvalidProgramException(GetIncorrectSettingMessage(settingName));
+				throw new SettingException(GetIncorrectSettingMessage(settingName));
 			}
 
 			return result;
@@ -178,14 +142,14 @@ namespace Vodovoz.Settings.Database
 		{
 			if(!ContainsSetting(settingName))
 			{
-				throw new InvalidProgramException(GetSettingNotFoundMessage(settingName));
+				throw new SettingException(GetSettingNotFoundMessage(settingName));
 			}
 
-			string value = GetParameterValue(settingName);
+			string value = GetSettingValue(settingName);
 
 			if(string.IsNullOrWhiteSpace(value))
 			{
-				throw new InvalidProgramException(GetIncorrectSettingMessage(settingName));
+				throw new SettingException(GetIncorrectSettingMessage(settingName));
 			}
 
 			return value;
@@ -195,13 +159,13 @@ namespace Vodovoz.Settings.Database
 		{
 			if(!ContainsSetting(settingName))
 			{
-				throw new InvalidProgramException(GetSettingNotFoundMessage(settingName));
+				throw new SettingException(GetSettingNotFoundMessage(settingName));
 			}
 
-			string value = GetParameterValue(settingName);
+			string value = GetSettingValue(settingName);
 			if(string.IsNullOrWhiteSpace(value))
 			{
-				throw new InvalidProgramException(GetIncorrectSettingMessage(settingName));
+				throw new SettingException(GetIncorrectSettingMessage(settingName));
 			}
 
 			T result;
@@ -210,19 +174,19 @@ namespace Vodovoz.Settings.Database
 				var resultAsObject = TypeDescriptor.GetConverter(typeof(T)).ConvertFromString(value);
 				if(resultAsObject == null)
 				{
-					throw new InvalidOperationException("Ошибка при приведении типа");
+					throw new InvalidCastException($"Ошибка при приведении {value} к типу {typeof(T).Name}");
 				}
 				result = (T)resultAsObject;
 			}
 			catch(Exception e)
 			{
-				throw new InvalidProgramException(GetIncorrectSettingMessage(settingName), e);
+				throw new SettingException(GetIncorrectSettingMessage(settingName), e);
 			}
 
 			return result;
 		}
 
-		private string GetParameterValue(string settingName)
+		private string GetSettingValue(string settingName)
 		{
 			if(string.IsNullOrWhiteSpace(settingName))
 			{
@@ -231,40 +195,46 @@ namespace Vodovoz.Settings.Database
 
 			if(!ContainsSetting(settingName))
 			{
-				throw new InvalidProgramException(GetSettingNotFoundMessage(settingName));
+				RefreshSettings();
+
+				if(!ContainsSetting(settingName))
+				{
+					throw new SettingException(GetSettingNotFoundMessage(settingName));
+				}
 			}
 
-			var parameter = _settings[settingName];
-			if(parameter.IsExpired)
+			var setting = _settings[settingName];
+			if(setting.IsExpired)
 			{
-				RefreshSetting(settingName);
-				parameter = _settings[settingName];
+				RefreshSettings();
+				setting = _settings[settingName];
 			}
 
-			if(string.IsNullOrWhiteSpace(parameter.StrValue))
+			if(string.IsNullOrWhiteSpace(setting.StrValue))
 			{
-				throw new InvalidProgramException(GetIncorrectSettingMessage(settingName));
+				throw new SettingException(GetIncorrectSettingMessage(settingName));
 			}
 
-			return parameter.StrValue;
+			return setting.StrValue;
 		}
 
 		public void RefreshSettings()
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var allParameters = uow.Session.QueryOver<Setting>().List();
+				_logger.LogDebug("Обновляем все настройки");
+				var settings = uow.Session.QueryOver<Setting>().List();
 				_settings.Clear();
 
-				foreach(var parameter in allParameters)
+				foreach(var setting in settings)
 				{
-					if(_settings.ContainsKey(parameter.Name))
+					if(_settings.ContainsKey(setting.Name))
 					{
 						continue;
 					}
 
-					parameter.CachedTime = DateTime.Now;
-					_settings.TryAdd(parameter.Name, parameter);
+					setting.CachedTime = DateTime.Now;
+					_settings.TryAdd(setting.Name, setting);
 				}
 			}
 		}

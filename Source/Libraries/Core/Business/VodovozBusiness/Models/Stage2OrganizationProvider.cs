@@ -50,7 +50,7 @@ namespace Vodovoz.Models
 			}
 
 			var organizationId = IsOnlineStoreOrderWithoutShipment(order)
-				? _organizationParametersProvider.VodovozSouthOrganizationId
+				? _organizationParametersProvider.VodovozNorthOrganizationId
 				: _organizationParametersProvider.VodovozOrganizationId;
 
 			return uow.GetById<Organization>(organizationId);
@@ -130,6 +130,8 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.Cash:
+					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
+					break;
 				case PaymentType.Terminal:
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
@@ -158,7 +160,7 @@ namespace Vodovoz.Models
 
 		private Organization GetOrganizationForOnlineStore(IUnitOfWork uow)
 		{
-			return uow.GetById<Organization>(_organizationParametersProvider.VodovozSouthOrganizationId);
+			return uow.GetById<Organization>(_organizationParametersProvider.VodovozNorthOrganizationId);
 		}
 
 		private Organization GetOrganizationForOtherOptions(IUnitOfWork uow, PaymentType paymentType, DateTime? orderCreateDate,
@@ -174,6 +176,8 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozOrganizationId;
 					break;
 				case PaymentType.Cash:
+					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
+					break;
 				case PaymentType.Terminal:
 					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
 					break;
@@ -232,6 +236,6 @@ namespace Vodovoz.Models
 		}
 
 		private int GetPaymentFromOrganisationIdOrDefault(PaymentFrom paymentFrom) =>
-			paymentFrom.OrganizationForOnlinePayments?.Id ?? _organizationParametersProvider.VodovozSouthOrganizationId;
+			paymentFrom.OrganizationForOnlinePayments?.Id ?? _organizationParametersProvider.VodovozNorthOrganizationId;
 	}
 }

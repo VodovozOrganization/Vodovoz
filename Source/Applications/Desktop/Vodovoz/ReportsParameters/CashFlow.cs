@@ -1,7 +1,5 @@
 ﻿using Autofac;
 using DateTimeHelpers;
-using Gtk;
-using QS.Commands;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -16,7 +14,6 @@ using QSReport;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
@@ -36,15 +33,11 @@ namespace Vodovoz.Reports
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IFileDialogService _fileDialogService;
 
-		private readonly CashFlowDdsReportRenderer _cashFlowDdsReportRenderer;
-
 		private bool _canGenerateCashReportsForOrganisations;
-		private bool _canGenerateCashFlowDdsReport;
 
 		private FinancialExpenseCategory _financialExpenseCategory;
 		private FinancialIncomeCategory _financialIncomeCategory;
 		private ITdiTab _parentTab;
-		private bool _canGenerateDdsReport;
 
 		private DateTime _startDate;
 		private DateTime _endDate;
@@ -55,15 +48,13 @@ namespace Vodovoz.Reports
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
-			IFileDialogService fileDialogService,
-			CashFlowDdsReportRenderer cashFlowDdsReportRenderer)
+			IFileDialogService fileDialogService)
 		{
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
-			_cashFlowDdsReportRenderer = cashFlowDdsReportRenderer ?? throw new ArgumentNullException(nameof(cashFlowDdsReportRenderer));
 			Build();
 
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
@@ -107,27 +98,11 @@ namespace Vodovoz.Reports
 			_canGenerateCashReportsForOrganisations =
 				commonServices.PermissionService.ValidateUserPresetPermission(Permissions.Cash.CanGenerateCashReportsForOrganizations, currentUserId);
 
-			_canGenerateCashFlowDdsReport = commonServices.PermissionService.ValidateUserPresetPermission(Permissions.Cash.CanGenerateCashFlowDdsReport, currentUserId);
-
 			checkOrganisations.Visible = _canGenerateCashReportsForOrganisations;
 			checkOrganisations.Toggled += CheckOrganisationsToggled;
 
 			entryExpenseFinancialCategory.Sensitive = false;
 			entryIncomeFinancialCategory.Sensitive = false;
-
-			CanGenerateDdsReport = _canGenerateCashFlowDdsReport;
-
-			GenerateDdsReportCommand = new DelegateCommand(GenerateCashFlowDdsReport, () => CanGenerateDdsReport);
-
-			ShowDdsReportInfoCommand = new DelegateCommand(ShowCashFlowDdsReportInfo);
-
-			buttonGenerateDDS.Binding
-				.AddBinding(this, dlg => dlg.CanGenerateDdsReport, w => w.Sensitive)
-				.InitializeFromSource();
-
-			buttonGenerateDDS.Clicked += (s, e) => GenerateDdsReportCommand.Execute();
-
-			buttonInfo.Clicked += (s, e) => ShowDdsReportInfoCommand.Execute();
 		}
 
 		public ITdiTab ParentTab
@@ -196,83 +171,6 @@ namespace Vodovoz.Reports
 			return viewModel;
 		}
 
-		public DelegateCommand GenerateDdsReportCommand { get; }
-
-		public DelegateCommand ShowDdsReportInfoCommand { get; }
-
-		private void ShowCashFlowDdsReportInfo()
-		{
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-				"Отчет ДДС генерируется только при наличии права \"Доступен отчет ДДС\"\n" +
-				"В отчет не входят статьи, в которых установлена галочка \"Не включать в ДДС\"\n" +
-				"В отчет не входят архивные статьи\n" +
-				"Отчет генерируется в зависимости от указанного интервала дат, другие параметры на отчет не влияют\n" +
-				"Генерация отчета может бликировать работу программы ДВ на время генерации\n" +
-				"Отчет разбит по группам статей, затем на типы операций по статьям\n" +
-				"Отчет может генерироваться только при уровне вложенности статей 7 (6 вложенных друг в друга групп и статья, из-за ограничения Excel)",
-				"Информация по отчету ДДС");
-		}
-
-		private void GenerateCashFlowDdsReport()
-		{
-			CanGenerateDdsReport = false;
-
-			var path = RunSaveAsDialog();
-
-			if(string.IsNullOrWhiteSpace(path))
-			{
-				CanGenerateDdsReport = true;
-				return;
-			}
-
-			var cashFlowDdsReport = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate);
-
-			RenderCashFlowDdsReport(cashFlowDdsReport, path);
-
-			CanGenerateDdsReport = true;
-
-			RunOpenDialog(path);
-		}
-
-		private void RunOpenDialog(string path)
-		{
-			Application.Invoke((s, e) =>
-			{
-				if(_commonServices.InteractiveService.Question(
-				"Открыть отчет?",
-				"Отчет сохранен"))
-				{
-					Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
-				}
-			});
-		}
-
-		private string RunSaveAsDialog()
-		{
-			var dialogSettings = new DialogSettings
-			{
-				Title = "Сохранить",
-				DefaultFileExtention = ".xlsx",
-				FileName = $"Отчет ДДС от {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx",
-				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
-			};
-
-			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
-
-			if(result.Successful)
-			{
-				return result.Path;
-			}
-
-			return null;
-		}
-
-		private void RenderCashFlowDdsReport(CashFlowDdsReport report, string path)
-		{
-			var rendered = _cashFlowDdsReportRenderer.Render(report);
-			rendered.SaveAs(path);
-		}
-
 		private void CheckOrganisationsToggled(object sender, EventArgs e)
 		{
 			if(checkOrganisations.Active)
@@ -295,19 +193,6 @@ namespace Vodovoz.Reports
 		public string Title => "Доходы и расходы";
 
 		public INavigationManager NavigationManager { get; }
-
-		public bool CanGenerateDdsReport
-		{
-			get => _canGenerateDdsReport;
-			private set
-			{
-				if(_canGenerateDdsReport != value)
-				{
-					_canGenerateDdsReport = value;
-					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CanGenerateDdsReport)));
-				}
-			}
-		}
 
 		public DateTime StartDate
 		{

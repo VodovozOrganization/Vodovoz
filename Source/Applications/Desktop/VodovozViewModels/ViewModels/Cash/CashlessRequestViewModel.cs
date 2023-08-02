@@ -153,8 +153,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		                                 || Entity.PayoutRequestState == PayoutRequestState.Agreed
 		                                 || Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
 
-		public bool CanSeeExpenseCategory => UserRole == PayoutRequestUserRole.Accountant
-		                                     || UserRole == PayoutRequestUserRole.Financier;
+		public bool CanSeeExpenseCategory => true;
 
 		public bool CanSetExpenseCategory => Entity.PayoutRequestState == PayoutRequestState.New
 		                                     || Entity.PayoutRequestState == PayoutRequestState.Agreed

@@ -413,11 +413,9 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 										   || Entity.PayoutRequestState == PayoutRequestState.Agreed
 										   || Entity.PayoutRequestState == PayoutRequestState.GivenForTake);
 
-		public bool ExpenseCategorySensitive => (UserRole == PayoutRequestUserRole.Financier
-											  || UserRole == PayoutRequestUserRole.Cashier)
-											 && (Entity.PayoutRequestState == PayoutRequestState.New
+		public bool ExpenseCategorySensitive => Entity.PayoutRequestState == PayoutRequestState.New
 											  || Entity.PayoutRequestState == PayoutRequestState.Agreed
-											  || Entity.PayoutRequestState == PayoutRequestState.GivenForTake);
+											  || Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
 
 		//редактировать можно только не выданные
 		public bool CanEditSumSensitive => SelectedItem != null
@@ -430,8 +428,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public bool VisibleOnlyForFinancer => UserRole == PayoutRequestUserRole.Financier;
 		public bool VisibleOnlyForStatusUpperThanCreated => Entity.PayoutRequestState != PayoutRequestState.New;
 
-		public bool ExpenseCategoryVisibility => UserRole == PayoutRequestUserRole.Cashier
-											  || UserRole == PayoutRequestUserRole.Financier;
+		public bool ExpenseCategoryVisibility => true;
 
 		public bool CanConfirmPossibilityNotToReconcilePayments => Entity.ObservableSums.Count > 1
 																&& Entity.PayoutRequestState == PayoutRequestState.Submited
@@ -504,7 +501,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				roles.Add(PayoutRequestUserRole.Coordinator);
 			}
 
-			if(CheckRole("role_сashier", userId))
+			if(CheckRole(Vodovoz.Permissions.Cash.RoleCashier, userId))
 			{
 				roles.Add(PayoutRequestUserRole.Cashier);
 			}

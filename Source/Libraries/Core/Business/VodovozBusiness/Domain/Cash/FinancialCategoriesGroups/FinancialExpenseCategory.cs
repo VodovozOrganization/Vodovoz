@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 
@@ -21,6 +22,7 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		private int? _subdivisionId;
 		private string _numbering;
 		private bool _excludeFromCashFlowDds;
+		private bool _isHiddenFromPublicAccess;
 
 		[Display(Name = "Код")]
 		public virtual int Id { get; }
@@ -81,6 +83,37 @@ namespace Vodovoz.Domain.Cash.FinancialCategoriesGroups
 		{
 			get => _excludeFromCashFlowDds;
 			set => SetField(ref _excludeFromCashFlowDds, value);
+		}
+
+		[Display(Name = "Скрыта из общего доступа")]
+		public virtual bool IsHiddenFromPublicAccess
+		{
+			get => _isHiddenFromPublicAccess;
+			set => SetField(ref _isHiddenFromPublicAccess, value);
+		}
+
+		public virtual bool IsParentCategoryIsArchive(IUnitOfWork unitOfWork)
+		{
+			if(ParentId == null)
+			{
+				return false;
+			}
+
+			var parentCategory = unitOfWork.GetById<FinancialCategoriesGroup>(ParentId.Value);
+
+			return parentCategory != null && parentCategory.IsArchive;
+		}
+
+		public virtual bool IsParentCategoryIsHidden(IUnitOfWork unitOfWork)
+		{
+			if(ParentId == null)
+			{
+				return false;
+			}
+
+			var parentCategory = unitOfWork.GetById<FinancialCategoriesGroup>(ParentId.Value);
+
+			return parentCategory != null && parentCategory.IsHiddenFromPublicAccess;
 		}
 	}
 }
