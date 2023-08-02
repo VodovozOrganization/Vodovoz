@@ -3661,12 +3661,16 @@ namespace Vodovoz
 			}
 
 			var discountReason = UoW.GetById<DiscountReason>(_clientsSecondOrderDiscountReasonId);
-			_discountsController.SetDiscountFromDiscountReasonForOrderItem(discountReason, orderItem, true, out string message);
 
-			if(message != null)
+			if(discountReason != null)
 			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-					$"Не удалось применить скидку для второго заказа клиента!");
+				_discountsController.SetDiscountFromDiscountReasonForOrderItem(discountReason, orderItem, true, out string message);
+
+				if(message != null)
+				{
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						$"Не удалось применить скидку для второго заказа клиента!");
+				}
 			}
 		}
 
