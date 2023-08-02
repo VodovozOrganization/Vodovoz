@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -2892,15 +2892,17 @@ GROUP BY orders.id</CommandText>
           </Textbox>
         </ReportItems>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>Dotted</Default>
+            <Left>Dotted</Left>
+            <Right>Dotted</Right>
+            <Top>Dotted</Top>
+            <Bottom>Dotted</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <BackgroundGradientEndColor></BackgroundGradientEndColor>
+          <BackgroundColor></BackgroundColor>
         </Style>
         <DataSetName>Order</DataSetName>
         <ZIndex>0</ZIndex>
