@@ -21,15 +21,17 @@ namespace FastPaymentsAPI.Library.Notifications
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var notification = _repository.GetNotificationsForPayment(uow, type, payment.Id);
-				if(notification == null)
+				var now = DateTime.Now;
+				
+				notification ??= new FastPaymentNotification
 				{
-					notification = new FastPaymentNotification();
-					notification.Payment = payment;
-					notification.Type = type;
-				}
+					Time = now,
+					Payment = payment,
+					Type = type
+				};
 
 				notification.SuccessfullyNotified = notified;
-				notification.LastTryTime = DateTime.Now;
+				notification.LastTryTime = now;
 				uow.Save(notification);
 				uow.Commit();
 			}
