@@ -12,13 +12,13 @@ using Vodovoz.Domain.Organizations;
 
 namespace FastPaymentsAPI.Library.Factories
 {
-	public class FastPaymentAPIFactory : IFastPaymentAPIFactory
+	public class FastPaymentFactory : IFastPaymentFactory
 	{
 		private const string _signature = "Signature";
 		private readonly IOrderSumConverter _orderSumConverter;
 		private readonly IConfiguration _configuration;
 
-		public FastPaymentAPIFactory(
+		public FastPaymentFactory(
 			IConfiguration configuration,
 			IOrderSumConverter orderSumConverter)
 		{
@@ -166,27 +166,52 @@ namespace FastPaymentsAPI.Library.Factories
 			};
 		}
 
-		public FastPaymentStatusChangeNotificationDto GetFastPaymentStatusChangeNotificationDto(
-			int onlineOrderId, decimal amount, bool paymentSucceeded)
+		public FastPaymentStatusChangeNotificationDto GetFastPaymentStatusChangeNotificationDto(FastPayment payment)
 		{
-			return new FastPaymentStatusChangeNotificationDto
+			if(payment.OnlineOrderId == null)
 			{
-				PaymentDetails = GetNewOnlinePaymentDetailsDto(onlineOrderId, amount),
-				PaymentStatus = paymentSucceeded ? PaymentStatusNotification.succeeded : PaymentStatusNotification.canceled
+				throw new InvalidOperationException($"Номер онлайн заказа {nameof(payment.OnlineOrderId)} должен быть заполнен");
+			}
+			var paymentDetails = GetNewOnlinePaymentDetailsDto(payment.OnlineOrderId.Value, payment.Amount);
+
+			PaymentStatusNotification paymentStatus;
+			switch(payment.FastPaymentStatus)
+			{
+				case FastPaymentStatus.Rejected:
+					paymentStatus = PaymentStatusNotification.canceled;
+					break;
+				case FastPaymentStatus.Performed:
+					paymentStatus = PaymentStatusNotification.succeeded;
+					break;
+				case FastPaymentStatus.Processing:
+				default:
+					throw new InvalidOperationException($"Платеж находится в обработке или имеет неизвестный статус");
+			}
+
+			var result = new FastPaymentStatusChangeNotificationDto
+			{
+				PaymentDetails = paymentDetails,
+				PaymentStatus = paymentStatus
 			};
+
+			return result;
 		}
 
-		private OnlinePaymentDetailsDto GetNewOnlinePaymentDetailsDto(int onlineOrderId, decimal amount) =>
-			new OnlinePaymentDetailsDto
+		public OnlinePaymentDetailsDto GetNewOnlinePaymentDetailsDto(int onlineOrderId, decimal amount)
+		{
+			return new OnlinePaymentDetailsDto
 			{
 				OnlineOrderId = onlineOrderId,
 				PaymentSumDetails = GetNewOnlinePaymentSumDetailsDto(amount)
 			};
+		}
 
-		private OnlinePaymentSumDetailsDto GetNewOnlinePaymentSumDetailsDto(decimal amount) =>
-			new OnlinePaymentSumDetailsDto
+		private OnlinePaymentSumDetailsDto GetNewOnlinePaymentSumDetailsDto(decimal amount)
+		{
+			return new OnlinePaymentSumDetailsDto
 			{
 				PaymentSum = amount
 			};
+		}
 	}
 }
