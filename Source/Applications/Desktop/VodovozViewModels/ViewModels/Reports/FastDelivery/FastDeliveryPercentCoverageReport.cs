@@ -7,8 +7,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 {
 	public class FastDeliveryPercentCoverageReport
 	{
-		private readonly TotalsRow _grouping;
-
 		private FastDeliveryPercentCoverageReport(
 			DateTime startDate,
 			DateTime endDate,
@@ -22,7 +20,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			StartHour = startHour;
 			EndHour = endHour;
 
-			_grouping = grouping;
+			Grouping = grouping;
 
 			CreatedAt = DateTime.Now;
 
@@ -39,7 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 		public DateTime EndDate { get; }
 
-		public TotalsRow Grouping => _grouping;
+		public TotalsRow Grouping { get; }
 
 		public IList<Row> Rows { get; }
 
@@ -83,29 +81,43 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 		public abstract class Row
 		{
+			protected Row() {}
+			
+			protected Row(
+				double carsCount,
+				double serviceRadius,
+				double actualServiceRadius,
+				double percentCoverage,
+				double actualPercentCoverage,
+				int notDeliveredAddresses)
+			{
+				CarsCount = carsCount;
+				ServiceRadius = serviceRadius;
+				ActualServiceRadius = actualServiceRadius;
+				PercentCoverage = percentCoverage;
+				ActualPercentCoverage = actualPercentCoverage;
+				NotDeliveredAddresses = notDeliveredAddresses;
+			}
+			
 			public virtual string SubHeader { get; }
-
 			public virtual double CarsCount { get; }
-
 			public virtual double ServiceRadius { get; }
-
 			public virtual double ActualServiceRadius { get; }
-
 			public virtual double PercentCoverage { get; }
-
 			public virtual double ActualPercentCoverage { get; }
+			public virtual int NotDeliveredAddresses { get; }
 		}
 
 		public class Subheader : Row
 		{
-			override public string SubHeader => "Детальная информация";
+			public override string SubHeader => "Детальная информация";
 		}
 
 		public class EmptyRow : Row {}
 
 		public class TotalsRow : Row, IGrouping<bool, DayGrouping>
 		{
-			IEnumerable<DayGrouping> _rows;
+			private readonly IEnumerable<DayGrouping> _rows;
 
 			public TotalsRow(IEnumerable<DayGrouping> rows)
 			{
@@ -113,18 +125,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			}
 
 			public bool Key => true;
-
 			public override string SubHeader => string.Empty;
-
 			public override double CarsCount => _rows.Sum(x => x.CarsCount) / _rows.Count();
-
 			public override double ServiceRadius => _rows.Sum(x => x.ServiceRadius) / _rows.Count();
-			
 			public override double ActualServiceRadius => _rows.Sum(x => x.ActualServiceRadius) / _rows.Count();
-
 			public override double PercentCoverage => _rows.Sum(x => x.PercentCoverage) / _rows.Count();
-
 			public override double ActualPercentCoverage => _rows.Sum(x => x.ActualPercentCoverage) / _rows.Count();
+			public override int NotDeliveredAddresses => _rows.Sum(x => x.NotDeliveredAddresses);
 
 			#region IGrouping<bool, DayGrouping>
 			public IEnumerator<DayGrouping> GetEnumerator()
@@ -141,7 +148,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 		public class DayGrouping : Row, IGrouping<DateTime, ValueRow>
 		{
-			private IEnumerable<ValueRow> _rows;
+			private readonly IEnumerable<ValueRow> _rows;
 
 			public DayGrouping(DateTime dateTime, IEnumerable<ValueRow> rows)
 			{
@@ -154,16 +161,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			public IEnumerable<ValueRow> Rows => _rows;
 
 			public override string SubHeader => Key.ToString("dd.MM.yy");
-
 			public override double CarsCount => _rows.Sum(x => x.CarsCount) / _rows.Count();
-
 			public override double ServiceRadius => _rows.Sum(x => x.ServiceRadius) / _rows.Count();
-
 			public override double ActualServiceRadius => _rows.Sum(x => x.ActualServiceRadius) / _rows.Count();
-
 			public override double PercentCoverage => _rows.Sum(x => x.PercentCoverage) / _rows.Count();
-
 			public override double ActualPercentCoverage => _rows.Sum(x => x.ActualPercentCoverage) / _rows.Count();
+			public override int NotDeliveredAddresses => _rows.Sum(x => x.NotDeliveredAddresses);
 
 			#region IGrouping<DateTime, FastDeliveryPercentCoverageReportValueRow>
 			public IEnumerator<ValueRow> GetEnumerator()
@@ -182,31 +185,24 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		{
 			private DateTime _dateTime;
 
-			private TimeSpan _hourSpan => _dateTime - _dateTime.Date;
-
-			public ValueRow(DateTime dateTime, double carsCount, double serviceRadius, double actualServiceRadius, double percentCoverage, double actualPercentCoverage)
+			public ValueRow(
+				DateTime dateTime,
+				double carsCount,
+				double serviceRadius,
+				double actualServiceRadius,
+				double percentCoverage,
+				double actualPercentCoverage,
+				int notDeliveredAddresses)
+				: base(carsCount, serviceRadius, actualServiceRadius, percentCoverage, actualPercentCoverage, notDeliveredAddresses)
 			{
 				_dateTime = dateTime;
-				CarsCount = carsCount;
-				ServiceRadius = serviceRadius;
-				ActualServiceRadius = actualServiceRadius;
-				PercentCoverage = percentCoverage;
-				ActualPercentCoverage = actualPercentCoverage;
 			}
 
 			public DateTime Date => _dateTime;
 
-			public override string SubHeader => $"{_hourSpan:hh}-00";
+			public override string SubHeader => $"{HourSpan:hh}-00";
 
-			public override double CarsCount { get; }
-
-			public override double ServiceRadius { get; }
-
-			public override double ActualPercentCoverage { get; }
-
-			public override double PercentCoverage { get; }
-
-			public override double ActualServiceRadius { get; }
+			private TimeSpan HourSpan => _dateTime - _dateTime.Date;
 		}
 	}
 }

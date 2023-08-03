@@ -76,7 +76,7 @@ namespace Vodovoz.Views.Reports
 
 		private async void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
-			ViewModel.ReportGenerationCancelationTokenSource = new CancellationTokenSource();
+			ViewModel.ReportGenerationCancellationTokenSource = new CancellationTokenSource();
 
 			ViewModel.IsGenerating = true;
 
@@ -84,14 +84,14 @@ namespace Vodovoz.Views.Reports
 			{
 				try
 				{
-					var report = await ViewModel.GenerateReport(ViewModel.ReportGenerationCancelationTokenSource.Token);
+					var report = await ViewModel.GenerateReport(ViewModel.ReportGenerationCancellationTokenSource.Token);
 
 					Application.Invoke((s, eventArgs) => { ViewModel.Report = report; });
 				}
 				catch(OperationCanceledException)
 				{
 					Application.Invoke((s, eventArgs) => {
-						if(ViewModel.LastGenerationErrors.Any())
+						if(ViewModel.LastGenerationErrors != null && ViewModel.LastGenerationErrors.Any())
 						{
 							ViewModel.ShowWarning(string.Join("\n", ViewModel.LastGenerationErrors));
 							ViewModel.LastGenerationErrors = Enumerable.Empty<string>();
@@ -110,7 +110,7 @@ namespace Vodovoz.Views.Reports
 				{
 					Application.Invoke((s, eventArgs) => { ViewModel.IsGenerating = false; });
 				}
-			}, ViewModel.ReportGenerationCancelationTokenSource.Token);
+			}, ViewModel.ReportGenerationCancellationTokenSource.Token);
 
 			await _generationTask;
 		}
@@ -156,6 +156,11 @@ namespace Vodovoz.Views.Reports
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? ""
 						: x.ActualPercentCoverage.ToString("P"))
+				.XAlign(0.5f)
+				.AddColumn("Суммарно не\nдоставлено адресов")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => (x is EmptyRow || x is Subheader) ? ""
+						: x.NotDeliveredAddresses.ToString())
 				.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
@@ -215,7 +220,10 @@ namespace Vodovoz.Views.Reports
 				{
 					try
 					{
-						ybuttonSave.Label = "Отчет сохраняется...";
+						Application.Invoke((s, eventArgs) =>
+						{
+							ybuttonSave.Label = "Отчет сохраняется...";
+						});
 						ViewModel.ExportReport(path);
 					}
 					finally
@@ -234,7 +242,7 @@ namespace Vodovoz.Views.Reports
 
 		private void OnButtonAbortCreateReportClicked(object sender, EventArgs e)
 		{
-			ViewModel.ReportGenerationCancelationTokenSource.Cancel();
+			ViewModel.ReportGenerationCancellationTokenSource.Cancel();
 		}
 
 		public override void Dispose()

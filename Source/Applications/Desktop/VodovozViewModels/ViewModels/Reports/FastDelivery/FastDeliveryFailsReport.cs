@@ -99,8 +99,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				Projections.Property(() => logisticianAlias.Patronymic)
 			);
 
-			var isValidSubquery = QueryOver.Of(() => fastDeliveryAvailabilityHistoryItemAlias)
-				.Where(() => fastDeliveryAvailabilityHistoryItemAlias.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
+			var validFastDeliveryCheckingSubQuery = QueryOver.Of<FastDeliveryAvailabilityHistoryItem>()
+				.Where(fhi => fhi.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
+				.And(fhi => fhi.IsValidToFastDelivery)
+				.Select(fhi => fhi.Id);
+			
+			var lastFastDeliveryCheckingId = QueryOver.Of<FastDeliveryAvailabilityHistory>()
+				.Where(fh => fh.DeliveryPoint.Id == fastDeliveryAvailabilityHistoryAlias.DeliveryPoint.Id)
+				.And(fh => fh.VerificationDate.Date == fastDeliveryAvailabilityHistoryAlias.VerificationDate.Date)
+				.Select(Projections.Id())
+				.OrderBy(fh => fh.Id).Desc
+				.Take(1);
+				
+			var validLastFastDeliveryCheckingSubQuery = QueryOver.Of(() => fastDeliveryAvailabilityHistoryItemAlias)
+				.WithSubquery.WhereProperty(() => fastDeliveryAvailabilityHistoryItemAlias.FastDeliveryAvailabilityHistory.Id)
+					.Eq(lastFastDeliveryCheckingId)
 				.And(() => fastDeliveryAvailabilityHistoryItemAlias.IsValidToFastDelivery)
 				.Select(Projections.Property(() => fastDeliveryAvailabilityHistoryItemAlias.Id));
 
@@ -157,7 +170,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			itemsQuery.WithSubquery.WhereExists(orderSubquery);
 
-			itemsQuery.WithSubquery.WhereNotExists(isValidSubquery);
+			itemsQuery.WithSubquery.WhereNotExists(validFastDeliveryCheckingSubQuery);
+			
+			itemsQuery.WithSubquery.WhereNotExists(validLastFastDeliveryCheckingSubQuery);
 
 			if(_filterViewModel.VerificationDateFrom != null && _filterViewModel.VerificationDateTo != null)
 			{
