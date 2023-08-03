@@ -78,6 +78,7 @@
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
     <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
     <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
