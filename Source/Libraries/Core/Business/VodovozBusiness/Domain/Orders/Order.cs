@@ -4056,8 +4056,12 @@ namespace Vodovoz.Domain.Orders
 
 			if(OrderPaymentStatus == OrderPaymentStatus.Paid)
 			{
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Заказ №{Id} уже оплачен. Повторная отправка УПД недоступна");
-				return;
+				if(!ServicesConfig.InteractiveService.Question(
+					$"Счет по заказу №{Id} оплачен.\r\nПроверьте, пожалуйста, статус УПД в ЭДО перед повторной отправкой на предмет аннулирован/не аннулирован, подписан/не подписан.\r\n\r\n" +
+					$"Вы уверены, что хотите отправить повторно?"))
+				{
+					return;
+				}
 			}
 
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())

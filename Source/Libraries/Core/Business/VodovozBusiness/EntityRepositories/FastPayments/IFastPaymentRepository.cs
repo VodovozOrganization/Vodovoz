@@ -16,5 +16,8 @@ namespace Vodovoz.EntityRepositories.FastPayments
 		IEnumerable<FastPayment> GetAllProcessingFastPayments(IUnitOfWork uow);
 		FastPayment GetProcessingPaymentForOrder(IUnitOfWork uow, int orderId);
 		FastPayment GetPerformedFastPaymentByExternalId(IUnitOfWork uow, int externalId);
+		IList<FastPayment> GetAllPaymentsByOnlineOrder(IUnitOfWork uow, int orderId);
+		FastPaymentNotification GetNotificationsForPayment(IUnitOfWork uow, FastPaymentNotificationType notificationType, int orderId);
+		IEnumerable<FastPaymentNotification> GetActiveNotifications(IUnitOfWork uow);
 	}
 }

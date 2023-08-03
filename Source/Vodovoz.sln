@@ -327,6 +327,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.ErrorReporting", "Librar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QS.Configuration", "Libraries\External\QSProjects\QS.Configuration\QS.Configuration.csproj", "{5D124360-C8FB-4779-958B-0DA5D6B90C29}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastPaymentsNotificationWorker", "Applications\Backend\Workers\FastPaymentsNotificationWorker\FastPaymentsNotificationWorker.csproj", "{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{18104221-2774-43d3-b6c1-986af5ea15d5}*SharedItemsImports = 5
@@ -3853,6 +3855,34 @@ Global
 		{5D124360-C8FB-4779-958B-0DA5D6B90C29}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{5D124360-C8FB-4779-958B-0DA5D6B90C29}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{5D124360-C8FB-4779-958B-0DA5D6B90C29}.WinDesktop|x86.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Debug|x86.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Docker|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Release|x86.ActiveCfg = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Release|x86.Build.0 = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.ReleaseWin|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.ReleaseWin|Any CPU.Build.0 = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.ReleaseWin|x86.Build.0 = Release|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WCF|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Web|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Web|Any CPU.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Web|x86.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.Web|x86.Build.0 = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -4006,6 +4036,7 @@ Global
 		{E95BE5DC-A197-4657-87DC-A2D677EADB76} = {37EEE929-A322-4756-80DB-DBD4398BC75E}
 		{7BAFF136-4379-4D1D-A554-7DC340CAF7A2} = {37EEE929-A322-4756-80DB-DBD4398BC75E}
 		{5D124360-C8FB-4779-958B-0DA5D6B90C29} = {37EEE929-A322-4756-80DB-DBD4398BC75E}
+		{C9C83ECE-C001-4EF2-BBD4-456957B12C0E} = {938BE8F2-8595-4C90-A08D-8FE55F0C5328}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}

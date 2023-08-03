@@ -1074,12 +1074,6 @@ namespace Vodovoz
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderPaymentStatus == OrderPaymentStatus.Paid)
-			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заказ уже оплачен. Повторная отправка УПД недоступна");
-				return;
-			}
-
 			if(IsOrderHasUpdStatus(EdoDocFlowStatus.Succeed))
 			{
 				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"Документооборот завершен успешно\".\nВы уверены, что хотите отправить дубль?"))
