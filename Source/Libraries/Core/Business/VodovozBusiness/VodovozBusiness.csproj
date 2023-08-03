@@ -738,6 +738,7 @@
     <Compile Include="HibernateMapping\Goods\NomenclatureInnerDeliveryPriceMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverStopListRemovalMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FastDeliveryMaxDistanceParameterVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelPriceVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventMap.cs" />
