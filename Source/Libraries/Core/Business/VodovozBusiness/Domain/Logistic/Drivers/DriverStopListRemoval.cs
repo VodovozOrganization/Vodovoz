@@ -74,14 +74,14 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult("Не указан водитель, которому снимается стоп-лист", new[] { nameof(Driver) });
 			}
 
+			if(Driver != null && Driver.Category != EmployeeCategory.driver)
+			{
+				yield return new ValidationResult("Сотрудник, которому снимается стоп-лист не является водителем", new[] { nameof(Driver) });
+			}
+
 			if(Author == null)
 			{
 				yield return new ValidationResult("Не указан сотрудник, снимающий стоп-лист", new[] { nameof(Author) });
-			}
-
-			if(Driver.Category != EmployeeCategory.driver)
-			{
-				yield return new ValidationResult("Сотрудник, которому снимается стоп-лист не является водителем", new[] { nameof(Driver) });
 			}
 
 			if(DateFrom == default(DateTime))
@@ -97,6 +97,11 @@ namespace Vodovoz.Domain.Logistic
 			if(string.IsNullOrEmpty(Comment))
 			{
 				yield return new ValidationResult("Не добавлен комментарий по снятию стоп-листа", new[] { nameof(Comment) });
+			}
+
+			if(!string.IsNullOrEmpty(Comment) && Comment.Length > 800)
+			{
+				yield return new ValidationResult("Длина комментария не должна превышать 800 символов", new[] { nameof(Comment) });
 			}
 		}
 		#endregion
