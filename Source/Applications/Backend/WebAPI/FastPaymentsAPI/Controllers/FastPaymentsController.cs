@@ -482,7 +482,7 @@ namespace FastPaymentsAPI.Controllers
 		[HttpPost]
 		[Route("/api/ReceivePayment")]
 		[Consumes("application/x-www-form-urlencoded")]
-		public IActionResult ReceivePayment([FromForm] PaidOrderDTO paidOrderDto)
+		public async Task<IActionResult> ReceivePayment([FromForm] PaidOrderDTO paidOrderDto)
 		{
 			_logger.LogInformation("Пришел ответ об успешной оплате");
 			PaidOrderInfoDTO paidOrderInfoDto = null;
@@ -546,8 +546,8 @@ namespace FastPaymentsAPI.Controllers
 			
 			if(fastPaymentUpdated)
 			{
-				_siteNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
-				_mobileAppNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
+				await _siteNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
+				await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
 			}
 			
 			return new AcceptedResult();
