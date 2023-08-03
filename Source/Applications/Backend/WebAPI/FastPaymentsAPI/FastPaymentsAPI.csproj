@@ -7,10 +7,25 @@
         <LangVersion>9</LangVersion>
     </PropertyGroup>
 
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="appsettings.Development.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Include="appsettings.Production.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
     <ItemGroup>
       <PackageReference Include="FluentNHibernate" Version="3.1.0" />
       <PackageReference Include="Google.Protobuf" Version="3.21.7" />
       <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
+      <PackageReference Include="NLog.Targets.Seq" Version="3.0.0" />
       <PackageReference Include="NLog.Web.AspNetCore" Version="5.1.0" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
       <PackageReference Include="System.ServiceModel.Http" Version="4.9.0" />
