@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -15,6 +15,7 @@ using QS.Services;
 using QS.Utilities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -28,6 +29,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.ViewModels.Cash;
+using static Vodovoz.ViewModels.Journals.FilterViewModels.PayoutRequestJournalFilterViewModel;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 {
@@ -113,8 +115,34 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			threadLoader?.MergeInOrderBy(x => x.Date, @descending: true);
 			DataLoader.ItemsListUpdated += OnDataLoaderItemsListUpdated;
 
+			FilterViewModel.PropertyChanged += UpdateDataLoader;
+
 			FinishJournalConfiguration();
 			AccessRequest();
+		}
+
+		private void UpdateDataLoader(object s, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(FilterViewModel.DocumentsSortOrder))
+			{
+				var threadLoader = DataLoader as ThreadDataLoader<PayoutRequestJournalNode>;
+				threadLoader.OrderRules.Clear();
+
+				if(FilterViewModel.DocumentsSortOrder == PayoutDocumentsSortOrder.ByCreationDate)
+				{
+					threadLoader?.MergeInOrderBy(x => x.Date, @descending: true);
+					return;
+				}
+
+				if(FilterViewModel.DocumentsSortOrder == PayoutDocumentsSortOrder.ByMoneyTransferDate)
+				{
+					threadLoader?.MergeInOrderBy(x => x.MoneyTransferDate, @descending: true);
+					threadLoader?.MergeInOrderBy(x => x.Date, @descending: true);
+					return;
+				}
+
+				throw new NotSupportedException("Сортировка по выбранному параметру не поддерживается");
+			}
 		}
 
 		private IDictionary<Type, IPermissionResult> InitializePermissionsMatrix(IEnumerable<Type> types)
@@ -239,7 +267,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 						if(selectedNode.EntityType == typeof(CashRequest))
 						{
 							var cashRequestVM = CreateCashRequestViewModelForOpen(selectedNode);
-							if (cashRequestVM.CanConveyForResults)
+							if(cashRequestVM.CanConveyForResults)
 							{
 								cashRequestVM.ConveyForResultsCommand.Execute();
 							}
@@ -248,7 +276,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 						else if(selectedNode.EntityType == typeof(CashlessRequest))
 						{
 							var cashlessRequestVM = CreateCashlessRequestViewModelForOpen(selectedNode);
-							if (cashlessRequestVM.CanConveyForPayout)
+							if(cashlessRequestVM.CanConveyForPayout)
 							{
 								cashlessRequestVM.ConveyForPayout();
 							}
@@ -491,7 +519,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			if(!_hasAccessToHiddenFinancialCategories)
 			{
 				result.Where(() =>
-					cashRequestAlias.ExpenseCategoryId == null 
+					cashRequestAlias.ExpenseCategoryId == null
 					|| (cashRequestAlias.ExpenseCategoryId != null && !financialExpenseCategoryAlias.IsHiddenFromPublicAccess)
 					);
 			}
@@ -512,6 +540,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 				.Where(() => cashRequestSumItemAlias.CashRequest.Id == cashRequestAlias.Id)
 				.Where(Restrictions.IsNotNull(Projections.Property<CashRequestSumItem>(o => o.CashRequest)))
 				.Select(Projections.Sum(() => cashRequestSumItemAlias.Sum));
+
+			var moneyTransferDateSubquery = QueryOver.Of(() => cashRequestSumItemAlias)
+				.Where(() => cashRequestSumItemAlias.CashRequest.Id == cashRequestAlias.Id)
+				.Select(Projections.Max(() => cashRequestSumItemAlias.Date.Date));
 
 			result.Where(GetSearchCriterion(
 				() => cashRequestAlias.Id,
@@ -537,11 +569,23 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => accountableEmployeeAlias.LastName).WithAlias(() => resultAlias.AccountablePersonLastName)
 					.Select(() => accountableEmployeeAlias.Patronymic).WithAlias(() => resultAlias.AccountablePersonPatronymic)
 					.SelectSubQuery(cashReuestSumSubquery).WithAlias(() => resultAlias.Sum)
+					.SelectSubQuery(moneyTransferDateSubquery).WithAlias(() => resultAlias.MoneyTransferDate)
 					.Select(c => c.Basis).WithAlias(() => resultAlias.Basis)
 					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.ExpenseCategory)
 					.Select(c => c.HaveReceipt).WithAlias(() => resultAlias.HaveReceipt)
-				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashRequest>>())
-				.OrderBy(x => x.Date).Desc();
+					.SelectSubQuery(moneyTransferDateSubquery).WithAlias(() => resultAlias.MoneyTransferDate)
+				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashRequest>>());
+
+			if(FilterViewModel.DocumentsSortOrder == PayoutDocumentsSortOrder.ByMoneyTransferDate)
+			{
+				result.OrderBy(Projections.Property(nameof(PayoutRequestJournalNode.MoneyTransferDate))).Desc()
+					.ThenBy(Projections.Property(nameof(PayoutRequestJournalNode.Id))).Desc();
+			}
+			else
+			{
+				result.OrderBy(x => x.Date).Desc();
+			}
+
 			return result;
 		}
 
@@ -634,7 +678,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			if(!_hasAccessToHiddenFinancialCategories)
 			{
 				result.Where(() =>
-					cashlessRequestAlias.ExpenseCategoryId == null 
+					cashlessRequestAlias.ExpenseCategoryId == null
 					|| (cashlessRequestAlias.ExpenseCategoryId != null && !financialExpenseCategoryAlias.IsHiddenFromPublicAccess)
 					);
 			}
@@ -666,8 +710,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(clr => clr.Basis).WithAlias(() => resultAlias.Basis)
 					.Select(clr => clr.Sum).WithAlias(() => resultAlias.Sum)
 					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.ExpenseCategory)
-				).TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashlessRequest>>())
-				.OrderBy(clr => clr.Date).Desc();
+					.Select(clr => clr.Date.Date).WithAlias(() => resultAlias.MoneyTransferDate)
+				)
+				.TransformUsing(Transformers.AliasToBean<PayoutRequestJournalNode<CashlessRequest>>());
+
+			if(FilterViewModel.DocumentsSortOrder == PayoutDocumentsSortOrder.ByMoneyTransferDate)
+			{
+				result.OrderBy(Projections.Property(nameof(PayoutRequestJournalNode.MoneyTransferDate))).Desc()
+					.ThenBy(Projections.Property(nameof(PayoutRequestJournalNode.Id))).Desc();
+			}
+			else
+			{
+				result.OrderBy(x => x.Date).Desc();
+			}
+
 			return result;
 		}
 
