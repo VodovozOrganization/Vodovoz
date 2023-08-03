@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DateTimeHelpers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
@@ -332,7 +333,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				var deliveryPointIdsInFutureChecks = QueryOver.Of<FastDeliveryAvailabilityHistory>()
 					.Where(fh => fh.DeliveryPoint.Id != null)
 					.And(fh => fh.VerificationDate >= date.AddHours(1))
-					.And(fh => fh.VerificationDate < date.Date.AddDays(1).AddMilliseconds(-1))
+					.And(fh => fh.VerificationDate < date.LatestDayTime())
 					.SelectList(list => list
 						.SelectGroup(fh => fh.DeliveryPoint.Id));
 
