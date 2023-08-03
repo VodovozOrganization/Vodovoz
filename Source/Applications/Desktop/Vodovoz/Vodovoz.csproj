@@ -1949,6 +1949,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.UndeliveryDetalizationFilterView.cs" />
     <Compile Include="Views\Logistic\FastDeliveryOrderTransferView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.FastDeliveryOrderTransferView.cs" />
+    <Compile Include="Views\Logistic\DriversStopListsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversStopListsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
