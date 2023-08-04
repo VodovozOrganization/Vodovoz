@@ -103,6 +103,8 @@ namespace FastPaymentsNotificationWorker
 				_logger.LogWarning("Невозможно обработать уведомление. Дата последней попытки уведомления больше текущей даты.");
 			}
 
+			var needStopNotifications = _repeatsTimeline.Last() <= timeFromLastTry.TotalMinutes;
+
 			foreach(var plannedRepeatTime in _repeatsTimeline)
 			{
 				var alreadyHasAttempt = plannedRepeatTime < timeFromLastTry.TotalMinutes;
@@ -116,7 +118,11 @@ namespace FastPaymentsNotificationWorker
 				}
 			}
 
-			StopNotifications(notification.Id);
+			if(needStopNotifications)
+			{
+				StopNotifications(notification.Id);
+			}
+			
 			return false;
 		}
 
