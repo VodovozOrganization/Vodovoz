@@ -59,7 +59,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual string Title =>
-			$"Снятие стоп-листа №{Id} водителя {Driver?.FullName} c {DateFrom:dd.mm.yyyy HH:mm} по {DateTo:dd.mm.yyyy HH:mm}";
+			$"Снятие стоп-листа №{Id} водителя {Driver?.FullName} c {DateFrom:dd.MM.yyyy HH:mm} по {DateTo:dd.MM.yyyy HH:mm}";
 
 		#region IValidatableObject implementation
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
