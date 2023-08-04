@@ -3,7 +3,7 @@ using QS.Project.Journal;
 
 namespace Vodovoz.FilterViewModels.Organization
 {
-	public class SubdivisionFilterViewModel : FilterViewModelBase<SubdivisionFilterViewModel>, IJournalFilterViewModel
+	public class SubdivisionFilterViewModel : FilterViewModelBase<SubdivisionFilterViewModel>
 	{
 		private int[] _excludedSubdivisions;
 		private SubdivisionType? _subdivisionType;
@@ -28,6 +28,6 @@ namespace Vodovoz.FilterViewModels.Organization
 			set => UpdateFilterField(ref _onlyCashSubdivisions, value);
 		}
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 	}
 }
