@@ -1,7 +1,7 @@
-﻿using System;
 using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
+using System;
 using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes
@@ -36,6 +36,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string CounterpartyName { get; set; }
 		public string AuthorWithInitials => PersonHelper.PersonNameWithInitials(AuthorLastName, AuthorName, AuthorPatronymic);
 		public string AccountablePersonWithInitials => PersonHelper.PersonNameWithInitials(AccountablePersonLastName, AccountablePersonName, AccountablePersonPatronymic);
+		public DateTime MoneyTransferDate { get; set; }
 
 		protected PayoutRequestJournalNode(Type entityType) : base(entityType)
 		{
