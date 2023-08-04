@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -379,7 +379,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<BulkEmailEventReasonViewModel, BulkEmailEventReasonView>()
 				.RegisterWidgetForTabViewModel<GeoGroupViewModel, GeoGroupView>()
 				.RegisterWidgetForTabViewModel<NomenclatureGroupPricingViewModel, NomenclatureGroupPricingView>()
-				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, RouteListMileageCheckView>()
+				.RegisterWidgetForTabViewModel<RouteListMileageCheckViewModel, Vodovoz.Views.Logistic.RouteListMileageCheckView>()
 				.RegisterWidgetForTabViewModel<RouteListMileageDistributionViewModel, RouteListMileageDistributionView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationDetailsView>()
 				.RegisterWidgetForTabViewModel<FastDeliveryOrderTransferViewModel, FastDeliveryOrderTransferView>()
