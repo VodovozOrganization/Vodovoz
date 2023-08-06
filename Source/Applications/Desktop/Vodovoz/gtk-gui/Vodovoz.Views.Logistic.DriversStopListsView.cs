@@ -211,7 +211,8 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelCurrent = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCurrent.Name = "ylabelCurrent";
 			this.ylabelCurrent.Xalign = 0F;
-			this.ylabelCurrent.LabelProp = global::Mono.Unix.Catalog.GetString("Текущее состояние");
+			this.ylabelCurrent.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Текущее состояние</b>");
+			this.ylabelCurrent.UseMarkup = true;
 			this.ytableContainers.Add(this.ylabelCurrent);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.ylabelCurrent]));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -220,7 +221,8 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelHystory = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelHystory.Name = "ylabelHystory";
 			this.ylabelHystory.Xalign = 0F;
-			this.ylabelHystory.LabelProp = global::Mono.Unix.Catalog.GetString("История снятия стоп-листа");
+			this.ylabelHystory.LabelProp = global::Mono.Unix.Catalog.GetString("<b>История снятия стоп-листов</b>");
+			this.ylabelHystory.UseMarkup = true;
 			this.ytableContainers.Add(this.ylabelHystory);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.ylabelHystory]));
 			w18.LeftAttach = ((uint)(2));
