@@ -66,6 +66,8 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewHystory.Binding.AddBinding(ViewModel, vm => vm.StopListsRemovalHistory, w => w.ItemsDataSource).InitializeFromSource();
 
 			ybuttonFilter.Clicked += (s, e) => ViewModel.CloseFilterCommand?.Execute();
+			ybuttonRemoveStopList.Clicked += (s, e) => ViewModel.RemoveStopListCommand?.Execute();
+			ybuttonRefresh.Clicked += (s, e) => ViewModel.UpdateCommand?.Execute();
 		}
 
 		public override void Destroy()
