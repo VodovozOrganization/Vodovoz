@@ -1,9 +1,10 @@
 ﻿using GMap.NET.MapProviders;
 using Gtk;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog;
 using QS.BaseParameters;
 using QS.ChangePassword.Views;
+using QS.Configuration;
 using QS.Dialog;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -13,7 +14,7 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Project.Versioning;
-using QS.Tools;
+using QS.Utilities.Debug;
 using QS.Utilities.Text;
 using QS.Validation;
 using QS.ViewModels;
@@ -22,6 +23,7 @@ using QSProjectsLib;
 using SmsPaymentService;
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -46,6 +48,7 @@ namespace Vodovoz
 	public partial class Startup
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private static IErrorReportingSettings _errorReportingSettings;
 		private static IApplicationInfo applicationInfo;
 		private static IPasswordValidator passwordValidator;
 
@@ -57,6 +60,8 @@ namespace Vodovoz
 			Application.Init();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			applicationInfo = new ApplicationVersionInfo();
+
+			_errorReportingSettings = new ErrorReportingSettings(false, false, true, 100);
 
 			#region Первоначальная настройка обработки ошибок
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
@@ -79,13 +84,13 @@ namespace Vodovoz
 			QS.Project.Search.GtkUI.SearchView.QueryDelay = 1500;
 			QS.Views.Control.EntityEntry.QueryDelay = 250;
 
+			var configurationFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Vodovoz.ini");
+
+			var configuration = new IniFileConfiguration(configurationFile);
 			Gtk.Settings.Default.SetLongProperty("gtk-button-images", 1, "");
 			// Создаем окно входа
-			Login LoginDialog = new Login();
+			Login LoginDialog = new Login(configuration);
 			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.logo.png");
-			LoginDialog.SetDefaultNames("Vodovoz");
-			LoginDialog.DefaultLogin = "user";
-			LoginDialog.DefaultServer = "sql.vod.qsolution.ru";
 			LoginDialog.UpdateFromGConf();
 
 			ResponseType LoginResult;
@@ -122,13 +127,11 @@ namespace Vodovoz
 			exceptionHandler.InteractiveService = ServicesConfig.InteractiveService;
 			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactoryWithUserService;
 			//Настройка обычных обработчиков ошибок.
-			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
-			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
-			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.NHibernateStaleObjectStateExceptionHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionConnectionTimeoutHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MySqlExceptionAuthHandler);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.SocketTimeoutException);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.MysqlCommandTimeoutException);
 			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.GeoGroupVersionNotFoundException);
 
 			#endregion
@@ -191,6 +194,14 @@ namespace Vodovoz
 
 			AutofacClassConfig();
 			PerformanceHelper.AddTimePoint("Закончена настройка AutoFac.");
+
+			UnhandledExceptionHandler unhandledExceptionHandler = new UnhandledExceptionHandler();
+			//Передаем в настройки GUI поток, чтобы обработчик мог отличать вызовы исключений из других потоков и не падал при этом в момент попытки отобразить диалог пользователю.
+			GtkGuiDispatcher.GuiThread = System.Threading.Thread.CurrentThread;
+			//Получаем все необходимые зависимости из контейнера.
+			unhandledExceptionHandler.UpdateDependencies(AppDIContainer);
+			//Подписываемся на необработанные исключения текущего приложения.
+			unhandledExceptionHandler.SubscribeToUnhandledExceptions();
 
 			if(QSMain.User.Login == "root")
 			{
@@ -330,7 +341,7 @@ namespace Vodovoz
 		{
 			using(var uow = UnitOfWorkFactory.GetDefaultFactory.CreateWithoutRoot())
 			{
-				var dBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser(uow).Login;
+				var dBLogin = ServicesConfig.CommonServices.UserService.GetCurrentUser().Login;
 
 				string sid = "";
 				// Получение данных пользователя системы

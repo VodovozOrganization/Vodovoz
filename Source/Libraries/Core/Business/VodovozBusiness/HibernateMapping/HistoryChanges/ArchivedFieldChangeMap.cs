@@ -13,7 +13,7 @@ namespace Vodovoz.HibernateMapping.HistoryChanges
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.Type).Column("type").CustomType<FieldChangeTypeStringType>();
+			Map(x => x.Type).Column("type");
 			Map(x => x.Path).Column("field_name");
 			Map(x => x.OldValue).Column("old_value");
 			Map(x => x.OldId).Column("old_id");

@@ -21,7 +21,7 @@
         <Height>22.59pt</Height>
         <Width>815.89pt</Width>
         <Value>="Отчет по топливу с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") + Iif({?author} = -1, "", ", сотрудник: " + First({author_name}, "FuelOther"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>12.00pt</Top>
         <Style>
@@ -36,7 +36,7 @@
         <Height>13.51pt</Height>
         <Width>153.49pt</Width>
         <Value>ТС водителей:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>37.40pt</Top>
         <Style>
@@ -50,7 +50,7 @@
         <Height>12.00pt</Height>
         <Width>110.61pt</Width>
         <Value>Фуры компании:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>127.40pt</Top>
         <Style>
@@ -64,7 +64,7 @@
         <Height>13.51pt</Height>
         <Width>118.11pt</Width>
         <Value>Фургоны (Ларгусы) компании:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>213.9pt</Top>
         <Style>
@@ -870,7 +870,7 @@
         <Height>12.00pt</Height>
         <Width>105.34pt</Width>
         <Value>Грузовые (ГАЗели) компании:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>302.1pt</Top>
         <Style>
@@ -1807,7 +1807,7 @@
         <Height>12.00pt</Height>
         <Width>105.34pt</Width>
         <Value>ТС в раскате:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.8pt</Left>
         <Top>388.9pt</Top>
         <Style>
@@ -6280,7 +6280,7 @@ WHERE cv.car_own_type = 'Raskat'
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

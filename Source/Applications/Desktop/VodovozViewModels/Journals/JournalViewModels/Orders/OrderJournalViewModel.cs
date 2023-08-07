@@ -126,7 +126,7 @@ namespace Vodovoz.JournalViewModels
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			_userHasOnlyAccessToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !commonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 
 			SearchEnabled = false;
 

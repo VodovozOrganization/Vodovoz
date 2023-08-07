@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Validation;
 using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Dialogs.Cash
@@ -37,9 +38,11 @@ namespace Vodovoz.Dialogs.Cash
 
 		public override bool Save()
 		{
-			var valid = new QS.Validation.QSValidator<IncomeCategory>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			logger.Info("Сохраняем статью дохода...");
 			UoWGeneric.Save();

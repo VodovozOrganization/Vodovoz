@@ -18,7 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
@@ -269,7 +269,7 @@ namespace DriverAPI
 
 			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
 
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 
 		private void RegisterDependencies(ref IServiceCollection services)

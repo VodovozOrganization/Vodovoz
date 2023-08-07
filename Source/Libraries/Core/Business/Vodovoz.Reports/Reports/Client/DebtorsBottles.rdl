@@ -523,7 +523,7 @@ ORDER BY
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Итого:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>326.3pt</Left>
         <Top>24.4pt</Top>
         <Style>
@@ -537,7 +537,7 @@ ORDER BY
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>=Sum(Fields!debt.Value, "BottleDebt")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>399.8pt</Left>
         <Top>24.4pt</Top>
         <Visibility>
@@ -607,7 +607,7 @@ ORDER BY
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

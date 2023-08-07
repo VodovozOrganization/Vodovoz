@@ -20,7 +20,7 @@
         <Height>23.34pt</Height>
         <Width>581.25pt</Width>
         <Value>= "Качественный отчет по рознице с " + (Format(Convert.ToDateTime(IIF({?create_date} = '', {?shipping_start_date}, {?create_date})), "dd.MM.yyyy")) + " по " + (Format(Convert.ToDateTime(IIF({?end_date} = '', {?shipping_end_date}, {?end_date})), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>102.30pt</Left>
         <Top>5.60pt</Top>
         <Style>
@@ -36,7 +36,7 @@
         <Width>801.63pt</Width>
         <Value>В отчет попадают заказы для "Розницы"
 Сортировка: по дате заказа и по номеру заказа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.40pt</Left>
         <Top>33.34pt</Top>
         <Style>
@@ -939,7 +939,7 @@ ORDER BY orderdate DESC, orders.id DESC;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>
         </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>

@@ -15,7 +15,7 @@ using QS.Project.Journal;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class OrderJournalFilterViewModel : FilterViewModelBase<OrderJournalFilterViewModel>, IJournalFilterViewModel
+	public class OrderJournalFilterViewModel : FilterViewModelBase<OrderJournalFilterViewModel>
 	{
 		#region Поля
 		
@@ -479,7 +479,7 @@ namespace Vodovoz.Filters.ViewModels
 			get => _excludeClosingDocumentDeliverySchedule;
 			set => UpdateFilterField(ref _excludeClosingDocumentDeliverySchedule, value);
 		}
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 	}
 
 	public enum PaymentOrder

@@ -57,7 +57,7 @@ namespace Vodovoz.Tools
 			try {
 				if(userService != null && unitOfWorkFactory != null) {
 					using(IUnitOfWork uow = unitOfWorkFactory.CreateWithoutRoot()) {
-						user = userService.GetCurrentUser(uow);
+						user = userService.GetCurrentUser();
 					}
 				}
 			} catch(Exception ex) { 

@@ -6,8 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-    <PackageReference Include="NHibernate" Version="5.3.11" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="NHibernate" Version="5.4.1" />
   </ItemGroup>
 
   <ItemGroup>
