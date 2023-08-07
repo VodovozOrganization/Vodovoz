@@ -61,10 +61,10 @@ namespace Vodovoz.Domain.Payments
 				case _shopVodovozUberserverString:
 					paymentByCardFrom = PaymentByCardOnlineFrom.FromSMS;
 					break;
-				case _shopVodovozString:
 				case _shopKulerSale:
 					paymentByCardFrom = PaymentByCardOnlineFrom.FromEShop;
 					break;
+				case _shopVodovozString:
 				case _vodovozString3:
 					paymentByCardFrom = PaymentByCardOnlineFrom.FromMobileApp;
 					break;
