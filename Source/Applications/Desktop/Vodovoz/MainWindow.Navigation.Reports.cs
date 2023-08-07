@@ -33,6 +33,7 @@ using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.ReportsParameters.Store;
 using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Cash.Reports;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Reports;
@@ -1354,6 +1355,16 @@ public partial class MainWindow
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
 			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory)));
+	}
+
+	/// <summary>
+	/// Анализ движения денежных средств
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnAction74Activated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<CashFlowAnalysisViewModel>(null);
 	}
 
 	#endregion Касса
