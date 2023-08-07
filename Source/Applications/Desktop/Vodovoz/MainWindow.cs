@@ -29,12 +29,12 @@ using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 
 public partial class MainWindow : Gtk.Window
 {
-	private static Logger logger = LogManager.GetCurrentClassLogger();
-	private uint lastUiId;
-	private readonly ILifetimeScope autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
-	private readonly IApplicationInfo applicationInfo;
-	private readonly IPasswordValidator passwordValidator;
-	private readonly IApplicationConfigurator applicationConfigurator;
+	private static Logger _logger = LogManager.GetCurrentClassLogger();
+	private uint _lastUiId;
+	private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
+	private readonly IApplicationInfo _applicationInfo;
+	private readonly IPasswordValidator _passwordValidator;
+	private readonly IApplicationConfigurator _applicationConfigurator;
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 	private readonly IComplaintNotificationController _complaintNotificationController;
 	private readonly bool _hasAccessToSalariesForLogistics;
@@ -51,12 +51,16 @@ public partial class MainWindow : Gtk.Window
 
 	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
 	{
-		this.passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
-		this.applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
+		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
+		_applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
+
 		Build();
+
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
-		applicationInfo = new ApplicationVersionInfo();
+		_applicationInfo = new ApplicationVersionInfo();
+
 		BuildToolbarActions();
+
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
 		var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
@@ -66,18 +70,31 @@ public partial class MainWindow : Gtk.Window
 		var tabsParametersProvider = new TabsParametersProvider(new ParametersProvider());
 		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
 		TDIMain.SetTabsReordering(reorderTabs);
+
 		if(reorderTabs)
+		{
 			ReorderTabs.Activate();
+		}
+
 		if(highlightWColor)
+		{
 			HighlightTabsWithColor.Activate();
+		}
+
 		if(keepTabColor)
+		{
 			KeepTabColor.Activate();
+		}
 
 		bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-		if(isWindows)
-			KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
 
-		Title = $"{applicationInfo.ProductTitle} v{applicationInfo.Version.Major}.{applicationInfo.Version.Minor} от {GetDateTimeFGromVersion(applicationInfo.Version):dd.MM.yyyy HH:mm}";
+		if(isWindows)
+		{
+			KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
+		}
+
+		Title = $"{_applicationInfo.ProductTitle} v{_applicationInfo.Version.Major}.{_applicationInfo.Version.Minor} от {GetDateTimeFGromVersion(_applicationInfo.Version):dd.MM.yyyy HH:mm}";
+
 		//Настраиваем модули
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
@@ -161,8 +178,8 @@ public partial class MainWindow : Gtk.Window
 				break;
 		}
 
-		NavigationManager = autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-		MangoManager = autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+		NavigationManager = _autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
 		MangoManager.Connect();
 
 		// Отдел продаж
@@ -190,7 +207,7 @@ public partial class MainWindow : Gtk.Window
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
-			_movementsNotificationsController = autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
+			_movementsNotificationsController = _autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
@@ -208,7 +225,7 @@ public partial class MainWindow : Gtk.Window
 
 		#region Уведомление о наличии незакрытых рекламаций без комментариев в добавленной дискуссии для отдела
 
-		_complaintNotificationController = autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
+		_complaintNotificationController = _autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
 
 		if(!_hideComplaintsNotifications)
 		{

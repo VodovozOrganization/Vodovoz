@@ -850,7 +850,7 @@ public partial class MainWindow : Window
 					employeeJournalFactory,
 					new SalesPlanJournalFactory(),
 					new NomenclatureJournalFactory(),
-					autofacScope.BeginLifetimeScope()
+					_autofacScope.BeginLifetimeScope()
 				);
 			});
 
@@ -1219,7 +1219,7 @@ public partial class MainWindow : Window
 	{
 		Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.IsForSalesDepartment = true;
 
-		var filter = autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
+		var filter = _autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
 
 		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
 			   null,

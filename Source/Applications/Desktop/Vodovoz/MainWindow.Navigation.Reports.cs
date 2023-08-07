@@ -271,8 +271,8 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionOrderAnalyticsReportActivated(object sender, EventArgs e)
 	{
-		var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
-		var interactiveService = autofacScope.Resolve<IInteractiveService>();
+		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
+		var interactiveService = _autofacScope.Resolve<IInteractiveService>();
 
 		NavigationManager.OpenViewModel<OrderAnalyticsReportViewModel, INavigationManager, IUnitOfWorkFactory, IInteractiveService>(
 			null, NavigationManager, uowFactory, interactiveService);
@@ -729,11 +729,11 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
 			() => new QSReport.ReportViewDlg(
 				new WayBillReportGroupPrint(
-					autofacScope.Resolve<IEmployeeJournalFactory>(),
-					autofacScope.Resolve<ICarJournalFactory>(),
-					autofacScope.Resolve<IOrganizationJournalFactory>(),
-					autofacScope.Resolve<IInteractiveService>(),
-					autofacScope.Resolve<ISubdivisionRepository>())));
+					_autofacScope.Resolve<IEmployeeJournalFactory>(),
+					_autofacScope.Resolve<ICarJournalFactory>(),
+					_autofacScope.Resolve<IOrganizationJournalFactory>(),
+					_autofacScope.Resolve<IInteractiveService>(),
+					_autofacScope.Resolve<ISubdivisionRepository>())));
 	}
 
 	/// <summary>
@@ -1039,8 +1039,8 @@ public partial class MainWindow
 			QSReport.ReportViewDlg.GenerateHashName<MileageReport>(),
 			() => new QSReport.ReportViewDlg(
 				new MileageReport(
-					autofacScope.Resolve<IEmployeeJournalFactory>(),
-					autofacScope.Resolve<ICarJournalFactory>())));
+					_autofacScope.Resolve<IEmployeeJournalFactory>(),
+					_autofacScope.Resolve<ICarJournalFactory>())));
 	}
 
 	/// <summary>
@@ -1178,7 +1178,7 @@ public partial class MainWindow
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCashlessDebtsReport>(),
-			() => new QSReport.ReportViewDlg(autofacScope.Resolve<CounterpartyCashlessDebtsReport>()));
+			() => new QSReport.ReportViewDlg(_autofacScope.Resolve<CounterpartyCashlessDebtsReport>()));
 	}
 
 	/// <summary>

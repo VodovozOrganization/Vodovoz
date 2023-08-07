@@ -32,12 +32,12 @@ public partial class MainWindow
 {
 	private void SwitchToUI(string uiResource)
 	{
-		if(lastUiId > 0)
+		if(_lastUiId > 0)
 		{
-			UIManager.RemoveUi(lastUiId);
-			lastUiId = 0;
+			UIManager.RemoveUi(_lastUiId);
+			_lastUiId = 0;
 		}
-		lastUiId = UIManager.AddUiFromResource(uiResource);
+		_lastUiId = UIManager.AddUiFromResource(uiResource);
 		UIManager.EnsureUpdate();
 	}
 
@@ -213,7 +213,7 @@ public partial class MainWindow
 	{
 		Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.IsForRetail = true;
 
-		var filter = autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
+		var filter = _autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
 
 		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
 			   null,
