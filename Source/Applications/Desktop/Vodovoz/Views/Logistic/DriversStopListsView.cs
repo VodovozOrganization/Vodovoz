@@ -20,6 +20,11 @@ namespace Vodovoz.Views.Logistic
 
 		private void ConfigureDlg()
 		{
+			if(ViewModel == null)
+			{
+				return;
+			}
+
 			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
 			yenumcomboStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.FilterEmployeeStatus, w => w.SelectedItemOrNull)
@@ -35,6 +40,8 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(vm => vm.FilterCarOwnType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
+			yhboxFilter.Binding.AddBinding(ViewModel, wm => wm.FilterVisibility, w => w.Visible).InitializeFromSource();
+
 			ytreeviewCurrent.ColumnsConfig = FluentColumnsConfig<DriverNode>
 				.Create()
 					.AddColumn("Водитель").AddTextRenderer(x => x.DriverFullName)
@@ -42,6 +49,7 @@ namespace Vodovoz.Views.Logistic
 					.AddColumn("Общийд долг по МЛ").AddTextRenderer(x => x.RouteListsDebtsSum.ToShortCurrencyString())
 					.AddColumn("Кол-во незакрытых МЛ").AddTextRenderer(x => x.UnclosedRouteListsWithDebtCount.ToString())
 					.AddColumn("Стоп-лист").AddToggleRenderer(d => d.IsDriverInStopList).Editing(false)
+					.AddColumn("")
 				.Finish();
 
 			ytreeviewCurrent.Binding.AddBinding(ViewModel, vm => vm.CurrentDriversList, w => w.ItemsDataSource).InitializeFromSource();
@@ -56,6 +64,8 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 
 			ytreeviewHystory.Binding.AddBinding(ViewModel, vm => vm.StopListsRemovalHistory, w => w.ItemsDataSource).InitializeFromSource();
+
+			ybuttonFilter.Clicked += (s, e) => ViewModel.CloseFilterCommand?.Execute();
 		}
 	}
 }

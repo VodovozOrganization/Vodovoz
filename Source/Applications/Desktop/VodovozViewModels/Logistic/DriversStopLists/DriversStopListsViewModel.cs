@@ -3,6 +3,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -25,8 +26,9 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		private CarTypeOfUse? _filterCarTypeOfUse;
 		private CarOwnType? _filterCarOwnType;
 
-		int _driversUnclosedRouteListsMaxCountParameter;
-		int _driversRouteListsDebtsMaxSumParameter;
+		private int _driversUnclosedRouteListsMaxCountParameter;
+		private int _driversRouteListsDebtsMaxSumParameter;
+		private bool _filterVisibility = true;
 
 		public DriversStopListsViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -67,6 +69,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		{
 			get => _filterCarOwnType;
 			set => SetField(ref _filterCarOwnType, value);
+		}
+
+		public bool FilterVisibility 
+		{ 
+			get => _filterVisibility;
+			set => SetField(ref _filterVisibility, value);
 		}
 
 		#endregion
@@ -163,6 +171,79 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 				.ThenBy(d => d.DriverLastName)
 				.ToList();
 		}
+
+		#region Команды
+
+		#region RemoveStopList
+		private DelegateCommand _removeStopListCommand;
+		public DelegateCommand RemoveStopListCommand
+		{
+			get
+			{
+				if(_removeStopListCommand == null)
+				{
+					_removeStopListCommand = new DelegateCommand(RemoveStopList, () => CanRemoveStopList);
+					_removeStopListCommand.CanExecuteChangedWith(this, x => x.CanRemoveStopList);
+				}
+				return _removeStopListCommand;
+			}
+		}
+
+		public bool CanRemoveStopList => true;
+
+		private void RemoveStopList()
+		{
+
+		}
+		#endregion
+
+		#region Update
+		private DelegateCommand _updateCommand;
+		public DelegateCommand UpdateCommand
+		{
+			get
+			{
+				if(_updateCommand == null)
+				{
+					_updateCommand = new DelegateCommand(Update, () => CanUpdate);
+					_updateCommand.CanExecuteChangedWith(this, x => x.CanUpdate);
+				}
+				return _updateCommand;
+			}
+		}
+
+		public bool CanUpdate => true;
+
+		private void Update()
+		{
+
+		}
+		#endregion#
+
+		#region CloseFilter
+		private DelegateCommand _closeFilterCommand;
+		public DelegateCommand CloseFilterCommand
+		{
+			get
+			{
+				if(_closeFilterCommand == null)
+				{
+					_closeFilterCommand = new DelegateCommand(CloseFilter, () => CanCloseFilter);
+					_closeFilterCommand.CanExecuteChangedWith(this, x => x.CanCloseFilter);
+				}
+				return _closeFilterCommand;
+			}
+		}
+
+		public bool CanCloseFilter => true;
+
+		private void CloseFilter()
+		{
+			FilterVisibility = !FilterVisibility;
+		}
+		#endregion
+
+		#endregion
 
 		public sealed class DriverNode
 		{
