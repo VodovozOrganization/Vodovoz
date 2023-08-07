@@ -1,4 +1,5 @@
 ﻿using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services;
@@ -8,6 +9,7 @@ using System;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Services;
+using Vodovoz.Tools;
 
 namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 {
@@ -137,6 +139,17 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			_driverStopListRemoval.DateFrom = DateTime.Now;
 			_driverStopListRemoval.DateTo = DateTime.Now.AddHours(_selectedPeriodInHours);
+
+			var validationResult = _driverStopListRemoval.RaiseValidationAndGetResult();
+
+			if(!string.IsNullOrWhiteSpace(validationResult))
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"{validationResult}");
+
+				return;
+			}
 
 			_unitOfWork.Save(_driverStopListRemoval);
 			_unitOfWork.Commit();
