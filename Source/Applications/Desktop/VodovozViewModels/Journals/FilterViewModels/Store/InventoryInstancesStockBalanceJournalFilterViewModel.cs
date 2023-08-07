@@ -24,7 +24,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {
 	public class InventoryInstancesStockBalanceJournalFilterViewModel :
-		FilterViewModelBase<InventoryInstancesStockBalanceJournalFilterViewModel>, IJournalFilterViewModel
+		FilterViewModelBase<InventoryInstancesStockBalanceJournalFilterViewModel>
 	{
 		private readonly ILifetimeScope _scope;
 		private readonly DialogViewModelBase _journalViewModel;
@@ -205,7 +205,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 		public IEntityEntryViewModel EmployeeStorageEntryViewModel { get; private set; }
 		public IEntityEntryViewModel CarStorageEntryViewModel { get; private set; }
 		public IEntityEntryViewModel NomenclatureEntryViewModel { get; private set; }
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 
 		private void ResolveInnerDependencies()
 		{

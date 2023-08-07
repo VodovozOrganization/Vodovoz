@@ -1,5 +1,5 @@
 ﻿using Gtk;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using QS.ChangePassword.Views;
 using QS.DomainModel.UoW;
 using QS.Project.DB;

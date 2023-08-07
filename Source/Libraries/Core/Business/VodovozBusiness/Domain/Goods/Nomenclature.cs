@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Goods
 		Nominative = "номенклатура")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
+	public class Nomenclature : BusinessObjectBase<Nomenclature>, INamedDomainObject, INamed, IArchivable, IValidatableObject
 	{
 		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
 		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
@@ -1254,52 +1254,6 @@ namespace Vodovoz.Domain.Goods
 		};
 
 		#endregion
-	}
-
-	public enum NomenclatureCategory
-	{
-		[Display(Name = "Вода")]
-		water,
-		[Display(Name = "Залог")]
-		deposit,
-		[Display(Name = "Запчасти")]
-		spare_parts,
-		[Display(Name = "Оборудование")]
-		equipment,
-		[Display(Name = "Товары")]
-		additional,
-		[Display(Name = "Услуга")]
-		service,
-		[Display(Name = "Тара")]
-		bottle,
-		[Display(Name = "Сырьё")]
-		material,
-		[Display(Name = "Выезд мастера")]
-		master,
-		[Display(Name = "Топливо")]
-		fuel,
-		[Display(Name = "Кассовое оборудование")]
-		CashEquipment,
-		[Display(Name = "Автомобильные запчасти")]
-		CarParts,
-		[Display(Name = "Инструменты")]
-		Tools,
-		[Display(Name = "Канцелярия")]
-		Stationery,
-		[Display(Name = "Оборудование для внутреннего использования")]
-		EquipmentForIndoorUse,
-		[Display(Name = "Орг.техника")]
-		OfficeEquipment,
-		[Display(Name = "Производственное оборудование")]
-		ProductionEquipment,
-		[Display(Name = "Рекламная продукция")]
-		PromotionalProducts,
-		[Display(Name = "Спецодежда")]
-		Overalls,
-		[Display(Name = "Транспортное средство")]
-		Vehicle,
-		[Display(Name = "Хоз.инвентарь")]
-		HouseholdInventory
 	}
 
 	public enum TareVolume

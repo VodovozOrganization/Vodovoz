@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Fias.Client;
 using Fias.Client.Cache;
+using Gtk;
 using NLog;
 using QS.BaseParameters;
 using QS.BaseParameters.ViewModels;
@@ -18,7 +19,7 @@ using QS.Project.ViewModels;
 using QS.Project.Views;
 using QS.Tdi;
 using QS.Tdi.Gtk;
-using QS.Tools;
+using QS.Utilities.Debug;
 using QS.Validation;
 using QSBanks;
 using QSOrmProject;
@@ -68,6 +69,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 using VodovozInfrastructure.Configuration;
+using FileChooser = Vodovoz.FileChooser;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using UserRepository = Vodovoz.EntityRepositories.UserRepository;
@@ -225,7 +227,7 @@ public partial class MainWindow : Gtk.Window
 		{
 			_accessOnlyToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !commonServices.UserService.GetCurrentUser(uow).IsAdmin;
+				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 
 		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
@@ -286,7 +288,7 @@ public partial class MainWindow : Gtk.Window
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
-				&& !commonServices.UserService.GetCurrentUser(uow).IsAdmin;
+				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 
 		// Основные разделы отчетов

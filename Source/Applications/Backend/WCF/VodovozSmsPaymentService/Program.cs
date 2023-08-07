@@ -9,7 +9,7 @@ using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog;
 using QS.Project.DB;
 using SmsPaymentService;
@@ -104,7 +104,7 @@ namespace VodovozSmsPaymentService
 						Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 					});
 
-				QS.HistoryLog.HistoryMain.Enable();
+				QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 
 				var driverApiSection = configuration.GetSection("DriverAPI");
 

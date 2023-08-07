@@ -20,7 +20,7 @@
         <Height>24.04pt</Height>
         <Width>814.59pt</Width>
         <Value>='Отчет по первичным/вторичным заказам ' + Iif({?start_date} = {?end_date}, 'за ' + Format(CDate({?start_date}), "dd.MM.yy"), 'с ' + Format(CDate({?start_date}), "dd.MM.yy") + ' по ' + Format(CDate({?end_date}), "dd.MM.yy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>1.4pt</Top>
         <Style>
@@ -38,7 +38,7 @@
 - находятся в статусах:  Не Новый, Ожидание оплаты, Отменен, Недовоз, Доставка Отменена
 - находятся между выбранными датами
 - были созданы выбранным сотрудником</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>11.30pt</Left>
         <Top>29.70pt</Top>
         <Style>
@@ -713,7 +713,7 @@
         <Height>11.38pt</Height>
         <Width>816.84pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -938,7 +938,7 @@ GROUP BY
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

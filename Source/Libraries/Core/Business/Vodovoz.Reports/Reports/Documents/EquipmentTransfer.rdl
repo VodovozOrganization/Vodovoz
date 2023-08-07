@@ -131,7 +131,7 @@ WHERE
         <Height>19.49pt</Height>
         <Width>307.44pt</Width>
         <Value>=Iif(String.IsNullOrWhiteSpace(First({special_contract_number}, "Order")) = false,First({special_contract_number}, "Order"), "по договору № " +  Max({contract}, "Order"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>87.7pt</Left>
         <Top>114.4pt</Top>
         <Style>
@@ -148,7 +148,7 @@ WHERE
         <Height>93.30pt</Height>
         <Width>510.55pt</Width>
         <Value>Оборудование с согласия Клиента, принято без разборки и проверки неисправностей, без проверки внутренних повреждений. Клиент согласен, что все неисправности и внутренние повреждения, которые могут быть обнаружены в оборудовании при его техническом обслуживании, возникли до приема оборудования по этому акту. В случае отказа Клиента от ремонта после проведения диагностических работ и установления причины неисправности сданного оборудования по вине Клиента, Клиент обязуется оплатить диагностику. Гарантия распространяется ТОЛЬКО на выполненные работы и замененные запчасти. Гарантия не распространяется на оборудование, которое подвергалось механическому воздействию, а также в случае неквалифицированного ремонта сторонними ремонтными организациями.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>494.90pt</Top>
         <Style>
@@ -166,7 +166,7 @@ WHERE
         <Width>511.25pt</Width>
         <Value>Клиент несет полную ответственность за оборудование, принятое
 у фирмы во временное пользование.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>672.3pt</Top>
         <Style>
@@ -199,7 +199,7 @@ WHERE
         <Width>152.63pt</Width>
         <Value>="г.Санкт-Петербург
 "+Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>357.2pt</Left>
         <Top>140.7pt</Top>
         <Style>
@@ -215,7 +215,7 @@ WHERE
         <Height>14.31pt</Height>
         <Width>509.99pt</Width>
         <Value>Поля необходимые для заполнения</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.40pt</Left>
         <Top>229.50pt</Top>
         <Style>
@@ -377,7 +377,7 @@ WHERE
         <Height>14.25pt</Height>
         <Width>140pt</Width>
         <Value>Итого сдано в ремонт</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.7pt</Left>
         <Top>252.7pt</Top>
         <Style>
@@ -391,7 +391,7 @@ WHERE
         <Height>14.25pt</Height>
         <Width>100.02pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>131.9pt</Left>
         <Top>252.8pt</Top>
         <Style>
@@ -408,7 +408,7 @@ WHERE
         <Height>14.25pt</Height>
         <Width>46.02pt</Width>
         <Value>единиц</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>236.0pt</Left>
         <Top>253.1pt</Top>
         <Style>
@@ -420,7 +420,7 @@ WHERE
         <Height>14.25pt</Height>
         <Width>450pt</Width>
         <Value>Клиент принял временный кулер (нужное подчеркнуть)      Да,      Нет</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>272.3pt</Top>
         <Style>
@@ -433,7 +433,7 @@ WHERE
         <Height>14.31pt</Height>
         <Width>509.99pt</Width>
         <Value>Заполняется клиентом</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>303.6pt</Top>
         <Style>
@@ -451,7 +451,7 @@ WHERE
         <Height>14.31pt</Height>
         <Width>509.99pt</Width>
         <Value>Заполняется водителем-экспедитором</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>377.9pt</Top>
         <Style>
@@ -826,7 +826,7 @@ WHERE
         <Height>16.50pt</Height>
         <Width>255.27pt</Width>
         <Value>Оборудование принято, претензий не имею</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>12.5pt</Left>
         <Top>608.2pt</Top>
         <Style>
@@ -841,7 +841,7 @@ WHERE
         <Height>15.75pt</Height>
         <Width>229.77pt</Width>
         <Value>Оборудование передано клиенту</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>12.5pt</Left>
         <Top>641.0pt</Top>
         <Style>
@@ -856,7 +856,7 @@ WHERE
         <Height>12.00pt</Height>
         <Width>126.27pt</Width>
         <Value>/                                      /</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>345.5pt</Left>
         <Top>608.2pt</Top>
         <Style>
@@ -873,7 +873,7 @@ WHERE
         <Height>12.00pt</Height>
         <Width>113.52pt</Width>
         <Value>Подпись клиента</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>350.3pt</Left>
         <Top>620.0pt</Top>
         <Style>
@@ -889,7 +889,7 @@ WHERE
         <Height>12.00pt</Height>
         <Width>126.27pt</Width>
         <Value>/                                      /</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>345.5pt</Left>
         <Top>641.0pt</Top>
         <Style>
@@ -906,7 +906,7 @@ WHERE
         <Height>12.00pt</Height>
         <Width>115.02pt</Width>
         <Value>Подпись водителя</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>350.3pt</Left>
         <Top>652.8pt</Top>
         <Style>
@@ -1108,7 +1108,7 @@ WHERE
         <Value>="АКТ
 приема-передачи оборудования 
 №"+{?order_id}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>88.5pt</Left>
         <Top>72.0pt</Top>
         <Style>
@@ -1563,7 +1563,7 @@ WHERE
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_orders;user=andrey;password=123;port=3306;server=192.168.0.7</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

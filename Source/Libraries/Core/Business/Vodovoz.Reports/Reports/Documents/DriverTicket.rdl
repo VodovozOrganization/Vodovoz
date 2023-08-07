@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -1023,7 +1023,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>67.02pt</Width>
         <Value>=Format(Sum({total}, 'Goods'), "N2")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>485.0pt</Left>
         <Top>203.6pt</Top>
         <Style>
@@ -1057,7 +1057,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>66.27pt</Width>
         <Value>=Format(Sum(Iif({count}&gt;0,{include_nds},0), 'Goods'), "N2")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>484.8pt</Left>
         <Top>217.3pt</Top>
         <Style>
@@ -1074,13 +1074,24 @@ WHERE stored_resource.id = @id1</CommandText>
         <Width>540.51pt</Width>
         <Left>27.3pt</Left>
         <Top>321.4pt</Top>
+        <Style>
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
+        </Style>
         <ReportItems>
           <Textbox Name="Textbox11">
             <Height>27.80pt</Height>
             <Width>77.70pt</Width>
             <Value>Оборудование
 к клиенту: </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>1.6pt</Left>
             <Top>14.8pt</Top>
             <Style>
@@ -1097,7 +1108,7 @@ WHERE stored_resource.id = @id1</CommandText>
             <Height>27.80pt</Height>
             <Width>180.23pt</Width>
             <Value>=Fields!equipment_to.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>80.2pt</Left>
             <Top>15.3pt</Top>
             <CanGrow>true</CanGrow>
@@ -1116,7 +1127,7 @@ WHERE stored_resource.id = @id1</CommandText>
             <Width>75.27pt</Width>
             <Value>Оборудование
  от клиента:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>261.6pt</Left>
             <Top>15.1pt</Top>
             <Style>
@@ -1133,7 +1144,7 @@ WHERE stored_resource.id = @id1</CommandText>
             <Height>27.80pt</Height>
             <Width>187.47pt</Width>
             <Value>=Fields!equipment_from.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>336.2pt</Left>
             <Top>15.2pt</Top>
             <Style>
@@ -1163,7 +1174,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>53.52pt</Width>
         <Value>Итого:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>429.8pt</Left>
         <Top>202.8pt</Top>
         <Style>
@@ -1174,7 +1185,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>93.27pt</Width>
         <Value>В том числе НДС:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>389.9pt</Left>
         <Top>216.6pt</Top>
         <Style>
@@ -1190,7 +1201,7 @@ WHERE stored_resource.id = @id1</CommandText>
     '\n' + First({comment_for_logist}, "Order"),
     ''
 )</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>30.7pt</Left>
         <Top>294.5pt</Top>
         <CanGrow>true</CanGrow>
@@ -1206,7 +1217,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>13.50pt</Height>
         <Width>533.24pt</Width>
         <Value>='Предполагаемое количеcтво возвратной тары: ' + Iif(First({bottles_return}, "Order")&gt;0,First({bottles_return}, "Order"),0) + ' бутылей'</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>30.5pt</Left>
         <Top>271.9pt</Top>
         <Style>
@@ -1221,7 +1232,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>347.52pt</Width>
         <Value>=Code.SummaString_Val(Convert.ToString(First({total}, "Order")))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>31.4pt</Left>
         <Top>251.9pt</Top>
         <Style>
@@ -1235,7 +1246,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>145.77pt</Width>
         <Value>='Всего: ' + First({total}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>383.3pt</Left>
         <Top>251.9pt</Top>
         <Style>
@@ -1250,7 +1261,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>13.57pt</Height>
         <Width>77.15pt</Width>
         <Value>Доверенности:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>30.8pt</Left>
         <Top>315.7pt</Top>
         <Style>
@@ -2588,7 +2599,7 @@ Iif({self_delivery}, "САМОВЫВОЗ",
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

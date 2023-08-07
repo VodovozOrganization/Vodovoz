@@ -17,7 +17,7 @@ namespace VodovozBusinessTests.ErrorReporting
 			var interactive = Substitute.For<IInteractiveMessage>();
 			interactive.ShowMessage(Arg.Any<ImportanceLevel>(), Arg.Any<string>());
 
-			var reporter = Substitute.For<IErrorReporter>();
+			var reporter = Substitute.For<Vodovoz.Tools.IErrorReporter>();
 			reporter.AutomaticallySendEnabled.Returns(true);
 			reporter.AutomaticSendErrorReport(
 				Arg.Any<string>(), Arg.Any<string>(), Arg.Any<UserBase>(), Arg.Any<Exception[]>())
