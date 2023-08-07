@@ -272,7 +272,8 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		private void Update()
 		{
-
+			OnPropertyChanged(nameof(CurrentDriversList));
+			OnPropertyChanged(nameof(StopListsRemovalHistory));
 		}
 		#endregion#
 
