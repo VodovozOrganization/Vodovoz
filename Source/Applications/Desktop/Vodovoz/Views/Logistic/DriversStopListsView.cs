@@ -25,6 +25,8 @@ namespace Vodovoz.Views.Logistic
 				return;
 			}
 
+			yvboxMain.Visible = ViewModel.DialogVisibility;
+
 			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
 			yenumcomboStatus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.FilterEmployeeStatus, w => w.SelectedItemOrNull)
@@ -53,6 +55,8 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 
 			ytreeviewCurrent.Binding.AddBinding(ViewModel, vm => vm.CurrentDriversList, w => w.ItemsDataSource).InitializeFromSource();
+			ytreeviewCurrent.Binding.AddBinding(ViewModel, vm => vm.SelectedDriverNode, w => w.SelectedRow).InitializeFromSource();
+			ytreeviewCurrent.RowActivated += (sender, e) => ViewModel.RemoveStopListCommand?.Execute();
 
 			ytreeviewHystory.ColumnsConfig = FluentColumnsConfig<DriverStopListRemoval>
 				.Create()
@@ -65,8 +69,12 @@ namespace Vodovoz.Views.Logistic
 
 			ytreeviewHystory.Binding.AddBinding(ViewModel, vm => vm.StopListsRemovalHistory, w => w.ItemsDataSource).InitializeFromSource();
 
-			ybuttonFilter.Clicked += (s, e) => ViewModel.CloseFilterCommand?.Execute();
+			ybuttonRemoveStopList.Binding
+				.AddBinding(ViewModel, vm => ViewModel.CanCreateStopListRemoval, v => v.Sensitive)
+				.InitializeFromSource();
+
 			ybuttonRemoveStopList.Clicked += (s, e) => ViewModel.RemoveStopListCommand?.Execute();
+			ybuttonFilter.Clicked += (s, e) => ViewModel.CloseFilterCommand?.Execute();
 			ybuttonRefresh.Clicked += (s, e) => ViewModel.UpdateCommand?.Execute();
 		}
 

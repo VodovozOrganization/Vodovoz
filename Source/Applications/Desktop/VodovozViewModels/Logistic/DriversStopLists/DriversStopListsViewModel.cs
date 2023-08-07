@@ -7,6 +7,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Services;
 using QS.Utilities.Text;
 using QS.ViewModels;
 using System;
@@ -21,21 +22,27 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 {
 	public class DriversStopListsViewModel : DialogTabViewModelBase
 	{
+		private readonly IPermissionResult _currentUserRouteListRemovalPermissions;
+		private readonly int _driversUnclosedRouteListsMaxCountParameter;
+		private readonly int _driversRouteListsDebtsMaxSumParameter;
+
 		private EmployeeStatus? _filterEmployeeStatus = EmployeeStatus.IsWorking;
 		private CarTypeOfUse? _filterCarTypeOfUse;
 		private CarOwnType? _filterCarOwnType;
 
-		private int _driversUnclosedRouteListsMaxCountParameter;
-		private int _driversRouteListsDebtsMaxSumParameter;
 		private bool _filterVisibility = true;
+		private DriverNode _selectedDriverNode;
 
 		public DriversStopListsViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
+			ICommonServices commonServices,
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
 			if(generalSettingsParametersProvider is null)
 			{
 				throw new ArgumentNullException(nameof(generalSettingsParametersProvider));
@@ -43,8 +50,14 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			Title = "Снятие стоп-листов";
 
-			_driversUnclosedRouteListsMaxCountParameter = generalSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
-			_driversRouteListsDebtsMaxSumParameter = generalSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+			_currentUserRouteListRemovalPermissions = 
+				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval));
+
+			_driversUnclosedRouteListsMaxCountParameter = 
+				generalSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
+
+			_driversRouteListsDebtsMaxSumParameter = 
+				generalSettingsParametersProvider.DriversRouteListsMaxDebtSum;
 		}
 
 		#region Свойства
@@ -71,10 +84,26 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		}
 
 		public bool FilterVisibility 
-		{ 
+		{
 			get => _filterVisibility;
 			set => SetField(ref _filterVisibility, value);
 		}
+
+		[PropertyChangedAlso(nameof(CanCreateStopListRemoval))]
+		public DriverNode SelectedDriverNode
+		{
+			get => _selectedDriverNode;
+			set => SetField(ref _selectedDriverNode, value);
+		}
+
+		public bool CanCreateStopListRemoval =>
+			_currentUserRouteListRemovalPermissions.CanCreate
+			&& SelectedDriverNode != null
+			&& !SelectedDriverNode.IsStopListRemoved;
+
+		public bool DialogVisibility =>
+			_currentUserRouteListRemovalPermissions.CanRead
+			|| _currentUserRouteListRemovalPermissions.CanCreate;
 
 		#endregion
 
@@ -106,8 +135,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.Left.JoinAlias(() => carAlias.CarVersions, () => carVersionAlias)
-				.Where(() =>
-					carVersionAlias.StartDate <= DateTime.Now
+				.Where(() => carVersionAlias.StartDate <= DateTime.Now
 					&& (carVersionAlias.EndDate == null || carVersionAlias.EndDate > DateTime.Now));
 
 			if(FilterEmployeeStatus != null)
@@ -193,7 +221,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		private void RemoveStopList()
 		{
-			NavigationManager.OpenViewModel<DriverStopListRemovalViewModel, int>(null, 68);
+			if(!CanCreateStopListRemoval)
+			{
+				return;
+			}
+
+			NavigationManager.OpenViewModel<DriverStopListRemovalViewModel, int>(null, SelectedDriverNode.DriverId);
 		}
 		#endregion
 
@@ -222,6 +255,8 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		#region CloseFilter
 		private DelegateCommand _closeFilterCommand;
+		private readonly ICommonServices _commonServices;
+
 		public DelegateCommand CloseFilterCommand
 		{
 			get
