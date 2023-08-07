@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class PromotionalSet : BusinessObjectBase<PromotionalSet>, IDomainObject, IValidatableObject
+	public class PromotionalSet : BusinessObjectBase<PromotionalSet>, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
 		#region Cвойства
 

@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Goods
 		Nominative = "номенклатура")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
+	public class Nomenclature : BusinessObjectBase<Nomenclature>, INamedDomainObject, INamed, IArchivable, IValidatableObject
 	{
 		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
 		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
