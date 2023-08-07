@@ -3,7 +3,7 @@ using Vodovoz.ViewModels.Logistic.DriversStopLists;
 
 namespace Vodovoz.Views.Logistic
 {
-	[WindowSize(400, 600)]
+	[WindowSize(400, 400)]
 	public partial class DriverStopListRemovalView : DialogViewBase<DriverStopListRemovalViewModel>
 	{
 		public DriverStopListRemovalView(DriverStopListRemovalViewModel viewModel) : base(viewModel)

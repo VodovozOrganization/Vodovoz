@@ -16,6 +16,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ICommonServices _commonServices;
 		private readonly IEmployeeService _employeeService;
+		private readonly IPermissionResult _currentUserPermissions;
 
 		private DriverStopListRemoval _driverStopListRemoval = new DriverStopListRemoval();
 		private int _selectedPeriodInHours = 1;
@@ -44,8 +45,10 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 
+			_currentUserPermissions = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval));
+
 			_driverStopListRemoval.Driver = GetDriverById(driverId);
-			_driverStopListRemoval.Author = GetCurrentuser();
+			_driverStopListRemoval.Author = GetCurrentUser();
 
 			Title = "Снять стоп-лист";
 		}
@@ -55,7 +58,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			return _unitOfWork.GetById<Employee>(id);
 		}
 
-		private Employee GetCurrentuser()
+		private Employee GetCurrentUser()
 		{
 			return  _employeeService.GetEmployeeForUser(_unitOfWork, ServicesConfig.UserService.CurrentUserId);
 		}
@@ -97,6 +100,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		private void Create()
 		{
+			if(_currentUserPermissions?.CanCreate != true)
+			{
+				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "У Вас нет прав для создания снятия стоп-листа");
+				return;
+			}
+
 			if(_driverStopListRemoval?.Driver == null)
 			{
 				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "Водитель не найден");
