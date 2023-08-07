@@ -67,5 +67,13 @@ namespace Vodovoz.Views.Logistic
 
 			ybuttonFilter.Clicked += (s, e) => ViewModel.CloseFilterCommand?.Execute();
 		}
+
+		public override void Destroy()
+		{
+			ytreeviewCurrent?.Destroy();
+			ytreeviewHystory?.Destroy();
+
+			base.Destroy();
+		}
 	}
 }
