@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -22,7 +22,7 @@ namespace Vodovoz
 		Nominative = "подразделение")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject, INamed
 	{
 		private SalesPlan _defaultSalesPlan;
 
