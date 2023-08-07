@@ -502,6 +502,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UndeliveryKindJournalFilterViewModel, UndeliveryKindFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryDetalizationJournalFilterViewModel, UndeliveryDetalizationFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrderViewModel, UndeliveredOrderView>()
+				.RegisterWidgetForWidgetViewModel<DriverStopListRemovalViewModel, DriverStopListRemovalView>()
 				;
 			
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

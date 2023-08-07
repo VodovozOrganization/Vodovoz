@@ -11,12 +11,14 @@ using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 {
-	public class DriverStopListRemovalViewModel : UowDialogViewModelBase
+	public class DriverStopListRemovalViewModel : WindowDialogViewModelBase, IDisposable
 	{
-		DriverStopListRemoval _driverStopListRemoval = new DriverStopListRemoval();
-		private readonly CommonServices _commonServices;
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly ICommonServices _commonServices;
 		private readonly IEmployeeService _employeeService;
-		private int _selectedPeriodInHours;
+
+		private DriverStopListRemoval _driverStopListRemoval = new DriverStopListRemoval();
+		private int _selectedPeriodInHours = 1;
 
 		private DelegateCommand _createCommand;
 		private DelegateCommand _cancelCommand;
@@ -27,34 +29,53 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		public DriverStopListRemovalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigation,
-			CommonServices commonServices,
+			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			int driverId
-			) : base(unitOfWorkFactory, navigation)
+			) : base(navigation)
 		{
+			if(unitOfWorkFactory is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+
 			_commonServices = commonServices ?? throw new System.ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new System.ArgumentNullException(nameof(employeeService));
 
+			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
+
 			_driverStopListRemoval.Driver = GetDriverById(driverId);
 			_driverStopListRemoval.Author = GetCurrentuser();
+
+			Title = "Снять стоп-лист";
 		}
 
 		private Employee GetDriverById(int id)
 		{
-			return UoW.GetById<Employee>(id);
+			return _unitOfWork.GetById<Employee>(id);
 		}
 
 		private Employee GetCurrentuser()
 		{
-			return  _employeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
+			return  _employeeService.GetEmployeeForUser(_unitOfWork, ServicesConfig.UserService.CurrentUserId);
 		}
 
-		public DriverStopListRemoval DriverStopListRemoval => _driverStopListRemoval;
+		private string _comment;
+
+		public string Comment
+		{
+			get => _comment;
+			set
+			{
+				SetField(ref _comment, value);
+				_driverStopListRemoval.Comment = _comment;
+			}
+		}
 
 		public string DriverInfo => $"Вы хотите снять стоп-лист с " +
-			$"{DriverStopListRemoval.Driver?.LastName} " +
-			$"{DriverStopListRemoval.Driver?.Name} " +
-			$"{DriverStopListRemoval.Driver?.Patronymic}";
+			$"{_driverStopListRemoval.Driver?.LastName} " +
+			$"{_driverStopListRemoval.Driver?.Name} " +
+			$"{_driverStopListRemoval.Driver?.Patronymic}";
 
 		#region Commands
 
@@ -76,35 +97,40 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		private void Create()
 		{
-			if(DriverStopListRemoval?.Driver == null)
+			if(_driverStopListRemoval?.Driver == null)
 			{
 				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "Водитель не найден");
+				return;
 			}
 
-			if(DriverStopListRemoval?.Author == null)
+			if(_driverStopListRemoval?.Author == null)
 			{
 				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "Текущий пользователь не найден");
+				return;
 			}
 
-			if(string.IsNullOrWhiteSpace(DriverStopListRemoval?.Comment))
+			if(string.IsNullOrWhiteSpace(_driverStopListRemoval?.Comment))
 			{
 				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "Не добавлен комментарий");
+				return;
 			}
 
 			if(_selectedPeriodInHours == 0)
 			{
 				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "Не выбран период снятия стоп-листа");
+				return;
 			}
 
-			if(DriverStopListRemoval.Driver.IsDriverHasActiveStopListRemoval(UoW))
+			if(_driverStopListRemoval.Driver.IsDriverHasActiveStopListRemoval(_unitOfWork))
 			{
 				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "У данного водителя уже снят стоп-лист");
+				return;
 			}
 
-			DriverStopListRemoval.DateFrom = DateTime.Now;
-			DriverStopListRemoval.DateTo = DateTime.Now.AddHours(_selectedPeriodInHours);
+			_driverStopListRemoval.DateFrom = DateTime.Now;
+			_driverStopListRemoval.DateTo = DateTime.Now.AddHours(_selectedPeriodInHours);
 
-			UoW.Save(DriverStopListRemoval);
+			_unitOfWork.Save(_driverStopListRemoval);
 
 			Close(false, CloseSource.Cancel);
 		}
@@ -175,7 +201,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		private void SetSelectedPeriod3Hour()
 		{
-
+			_selectedPeriodInHours = 3;
 		}
 
 		#endregion
@@ -199,6 +225,11 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		private void SetSelectedPeriod24Hours()
 		{
 			_selectedPeriodInHours = 24;
+		}
+
+		public void Dispose()
+		{
+			_unitOfWork?.Dispose();
 		}
 
 		#endregion

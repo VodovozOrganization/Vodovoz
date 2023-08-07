@@ -24,7 +24,7 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ytextviewComment.Binding
-				.AddBinding(ViewModel, vm => vm.DriverStopListRemoval.Comment, v => v.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.Comment, v => v.Buffer.Text)
 				.InitializeFromSource();
 
 			ybuttonOk.Clicked += (s, e) => ViewModel.CreateCommand?.Execute();
