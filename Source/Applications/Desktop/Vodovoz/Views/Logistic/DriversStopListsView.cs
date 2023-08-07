@@ -1,4 +1,5 @@
 ﻿using Gamma.ColumnConfig;
+using Pango;
 using QS.Views.GtkUI;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
@@ -63,7 +64,10 @@ namespace Vodovoz.Views.Logistic
 					.AddColumn("Водитель").AddTextRenderer(x => x.Driver.FullName)
 					.AddColumn("Снят с").AddTextRenderer(x => x.DateFrom.ToString("dd.MM.yyyy HH:mm"))
 					.AddColumn("Снят по").AddTextRenderer(x => x.DateTo.ToString("dd.MM.yyyy HH:mm"))
-					.AddColumn("Комментарий").AddTextRenderer(x => x.Comment)
+					.AddColumn("Комментарий")
+						.AddTextRenderer(x => x.Comment)
+						.WrapWidth(330)
+						.WrapMode(WrapMode.WordChar)
 					.AddColumn("ФИО снявшего").AddTextRenderer(x => x.Author.FullName)
 				.Finish();
 
