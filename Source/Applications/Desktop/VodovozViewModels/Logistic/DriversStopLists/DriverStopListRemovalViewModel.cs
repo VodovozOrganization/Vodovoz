@@ -139,6 +139,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			_driverStopListRemoval.DateTo = DateTime.Now.AddHours(_selectedPeriodInHours);
 
 			_unitOfWork.Save(_driverStopListRemoval);
+			_unitOfWork.Commit();
 
 			Close(false, CloseSource.Cancel);
 		}
