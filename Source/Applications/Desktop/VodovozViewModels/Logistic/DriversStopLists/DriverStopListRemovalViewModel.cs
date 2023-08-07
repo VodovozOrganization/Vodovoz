@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		public DriverStopListRemoval DriverStopListRemoval => _driverStopListRemoval;
 
-		public string DriverInfo => $"Вы хотете снять стоп-лист с " +
+		public string DriverInfo => $"Вы хотите снять стоп-лист с " +
 			$"{DriverStopListRemoval.Driver?.LastName} " +
 			$"{DriverStopListRemoval.Driver?.Name} " +
 			$"{DriverStopListRemoval.Driver?.Patronymic}";
@@ -94,6 +94,11 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			if(_selectedPeriodInHours == 0)
 			{
 				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "Не выбран период снятия стоп-листа");
+			}
+
+			if(DriverStopListRemoval.Driver.IsDriverHasActiveStopListRemoval(UoW))
+			{
+				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "У данного водителя уже снят стоп-лист");
 			}
 
 			DriverStopListRemoval.DateFrom = DateTime.Now;
