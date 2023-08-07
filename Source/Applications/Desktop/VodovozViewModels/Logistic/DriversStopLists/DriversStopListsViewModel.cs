@@ -152,6 +152,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 					));
 
 			var drivers = query.SelectList(list => list
+					.Select(() => driverAlias.Id).WithAlias(() => driverNodeAlias.DriverId)
 					.Select(() => driverAlias.Name).WithAlias(() => driverNodeAlias.DriverName)
 					.Select(() => driverAlias.LastName).WithAlias(() => driverNodeAlias.DriverLastName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => driverNodeAlias.DriverPatronymic)
@@ -192,7 +193,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		private void RemoveStopList()
 		{
-
+			NavigationManager.OpenViewModel<DriverStopListRemovalViewModel, int>(null, 68);
 		}
 		#endregion
 
@@ -246,6 +247,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		public sealed class DriverNode
 		{
+			public int DriverId { get; set; }
 			public string DriverName { get; set; }
 			public string DriverLastName { get; set; }
 			public string DriverPatronymic { get; set; }
