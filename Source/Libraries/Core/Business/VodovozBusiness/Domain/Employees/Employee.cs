@@ -729,7 +729,7 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		public bool IsDriverHasActiveStopListRemoval(IUnitOfWork unitOfWork)
+		public virtual bool IsDriverHasActiveStopListRemoval(IUnitOfWork unitOfWork)
 		{
 			return unitOfWork.GetAll<DriverStopListRemoval>()
 				.Where(r =>
