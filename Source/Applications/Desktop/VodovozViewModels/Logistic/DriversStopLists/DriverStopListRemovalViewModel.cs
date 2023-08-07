@@ -16,10 +16,11 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ICommonServices _commonServices;
 		private readonly IEmployeeService _employeeService;
-		private readonly IPermissionResult _currentUserPermissions;
+		private readonly IPermissionResult _currentUserRouteListRemovalPermissions;
 
 		private DriverStopListRemoval _driverStopListRemoval = new DriverStopListRemoval();
 		private int _selectedPeriodInHours = 1;
+		private string _comment;
 
 		private DelegateCommand _createCommand;
 		private DelegateCommand _cancelCommand;
@@ -45,7 +46,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 
-			_currentUserPermissions = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval));
+			_currentUserRouteListRemovalPermissions = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval));
 
 			_driverStopListRemoval.Driver = GetDriverById(driverId);
 			_driverStopListRemoval.Author = GetCurrentUser();
@@ -62,8 +63,6 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		{
 			return  _employeeService.GetEmployeeForUser(_unitOfWork, ServicesConfig.UserService.CurrentUserId);
 		}
-
-		private string _comment;
 
 		public string Comment
 		{
@@ -100,7 +99,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		private void Create()
 		{
-			if(_currentUserPermissions?.CanCreate != true)
+			if(_currentUserRouteListRemovalPermissions?.CanCreate != true)
 			{
 				_commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Warning, "У Вас нет прав для создания снятия стоп-листа");
 				return;
