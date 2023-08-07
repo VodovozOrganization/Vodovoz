@@ -5,6 +5,7 @@ using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
@@ -58,6 +59,8 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			_driversRouteListsDebtsMaxSumParameter = 
 				generalSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DriverStopListRemoval>((s) => UpdateCommand?.Execute());
 		}
 
 		#region Свойства
@@ -183,12 +186,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 					.Select(Projections.Constant(_driversUnclosedRouteListsMaxCountParameter).WithAlias(() => driverNodeAlias.DriversUnclosedRouteListsMaxCount))
 					)
 				.TransformUsing(Transformers.AliasToBean<DriverNode>())
-				.List<DriverNode>();
-
-			return  drivers
+				.List<DriverNode>()
 				.OrderByDescending(d => d.IsDriverInStopList)
 				.ThenBy(d => d.DriverLastName)
 				.ToList();
+
+			return drivers;
 		}
 
 		private List<DriverStopListRemoval> GetStopListsRemovalHistory()
@@ -303,6 +306,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		#endregion
 
 		#endregion
+
+		public override void Dispose()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			base.Dispose();
+		}
 
 		public sealed class DriverNode
 		{
