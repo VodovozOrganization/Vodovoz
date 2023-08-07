@@ -107,11 +107,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 		#endregion
 
-		public List<DriverStopListRemoval> StopListsRemovalHistory => 
-			UoW.GetAll<DriverStopListRemoval>()
-			.OrderByDescending(x => x.Id)
-			.Take(100)
-			.ToList();
+		public List<DriverStopListRemoval> StopListsRemovalHistory => GetStopListsRemovalHistory();
 
 		public List<DriverNode> CurrentDriversList => GetCurrentDriversList();
 
@@ -120,7 +116,6 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			Employee driverAlias = null;
 			Car carAlias = null;
 			CarModel carModelAlias = null;
-			CarVersion carVersionAlias = null;
 			DriverNode driverNodeAlias = null;
 			RouteList routeListAlias = null;
 			RouteListDebt routeListDebtAlias = null;
@@ -129,14 +124,10 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			var query = UoW.Session.QueryOver(() => driverAlias)
 				.JoinEntityAlias(
 					() => carAlias, 
-					() => carAlias.Driver.Id == driverAlias.Id 
-						&& driverAlias.Category == EmployeeCategory.driver
-						&& !carAlias.IsArchive, 
+					() => carAlias.Driver.Id == driverAlias.Id, 
 					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.Left.JoinAlias(() => carAlias.CarVersions, () => carVersionAlias)
-				.Where(() => carVersionAlias.StartDate <= DateTime.Now
-					&& (carVersionAlias.EndDate == null || carVersionAlias.EndDate > DateTime.Now));
+				.Where(() => driverAlias.Category == EmployeeCategory.driver);
 
 			if(FilterEmployeeStatus != null)
 			{
@@ -145,12 +136,12 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			if(FilterCarTypeOfUse != null)
 			{
-				query.Where(() => carModelAlias.CarTypeOfUse == FilterCarTypeOfUse);
+				query.Where(() => driverAlias.DriverOfCarTypeOfUse == FilterCarTypeOfUse);
 			}
 
 			if(FilterCarOwnType != null)
 			{
-				query.Where(() => carVersionAlias.CarOwnType == FilterCarOwnType);
+				query.Where(() => driverAlias.DriverOfCarOwnType == FilterCarOwnType);
 			}
 
 			var unclosedRouteListsDebtsSumSubquery = QueryOver.Of(() => routeListDebtAlias)
@@ -198,6 +189,38 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 				.OrderByDescending(d => d.IsDriverInStopList)
 				.ThenBy(d => d.DriverLastName)
 				.ToList();
+		}
+
+		private List<DriverStopListRemoval> GetStopListsRemovalHistory()
+		{
+			DriverStopListRemoval driverStopListRemovalAlias = null;
+			Employee driverAlias = null;
+
+			var query = UoW.Session.QueryOver(() => driverStopListRemovalAlias)
+				.Left.JoinAlias(() => driverStopListRemovalAlias.Driver, () => driverAlias);
+
+			if(FilterEmployeeStatus != null)
+			{
+				query.Where(() => driverAlias.Status == FilterEmployeeStatus);
+			}
+
+			if(FilterCarTypeOfUse != null)
+			{
+				query.Where(() => driverAlias.DriverOfCarTypeOfUse == FilterCarTypeOfUse);
+			}
+
+			if(FilterCarOwnType != null)
+			{
+				query.Where(() => driverAlias.DriverOfCarOwnType == FilterCarOwnType);
+			}
+
+			var driversStopListsRemovals = query
+				.OrderBy(() => driverStopListRemovalAlias.Id).Desc()
+				.Take(100)
+				.List<DriverStopListRemoval>()
+				.ToList();
+
+			return driversStopListsRemovals;
 		}
 
 		#region Команды
