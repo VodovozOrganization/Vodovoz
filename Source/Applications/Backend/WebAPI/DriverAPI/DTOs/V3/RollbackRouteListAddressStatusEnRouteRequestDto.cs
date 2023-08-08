@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DriverAPI.DTOs.V3
 {
+	/// <summary>
+	/// Запрос на возвращение маршрутного листа в статус В пути
+	/// </summary>
 	public class RollbackRouteListAddressStatusEnRouteRequestDto
 	{
 		/// <summary>
