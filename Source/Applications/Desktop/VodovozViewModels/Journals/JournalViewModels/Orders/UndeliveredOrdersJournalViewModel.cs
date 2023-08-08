@@ -436,7 +436,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(addressProjection).WithAlias(() => resultAlias.Address)
 					.SelectSubQuery(subqueryLastResultCommentAuthor).WithAlias(() => resultAlias.LastResultCommentAuthor)
 				).OrderBy(() => oldOrderAlias.DeliveryDate).Asc
-				.TransformUsing(Transformers.AliasToBean<UndeliveredOrderJournalNode>());
+				.TransformUsing(Transformers.AliasToBean<UndeliveredOrderJournalNode>())
+				.SetTimeout(60);
 
 			return itemsQuery;
 		}
