@@ -8,7 +8,6 @@ namespace Vodovoz.HibernateMapping.Logistic.Drivers
 		public DriverStopListRemovalMap()
 		{
 			Table("driver_stop_list_removal");
-			Not.LazyLoad();
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 

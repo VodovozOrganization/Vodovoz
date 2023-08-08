@@ -62,7 +62,7 @@ namespace Vodovoz.Domain.Logistic
 			$"Снятие стоп-листа №{Id} водителя {Driver?.FullName} c {DateFrom:dd.MM.yyyy HH:mm} по {DateTo:dd.MM.yyyy HH:mm}";
 
 		#region IValidatableObject implementation
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Id != 0)
 			{
