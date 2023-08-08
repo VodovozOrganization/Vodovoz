@@ -60,9 +60,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly string _templateByCounterpartyFinancePath = @".\Reports\Sales\TurnoverByCounterpartyFinanceReport.xlsx";
 		private readonly string _templateByCounterpartyWithDynamicsFinancePath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsFinanceReport.xlsx";
 		private readonly string _templateByCounterpartyWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsReport.xlsx";
-		private readonly string _templateByCounterpartyWithDynamicsWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsWithContactsReport.xlsx";
-		private readonly string _templateByCounterpartyFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyFinanceWithContactsReport.xlsx";
-		private readonly string _templateByCounterpartyWithDynamicsFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsFinanceWithContactsReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsWithDynamicsReport.xlsx";
+		private readonly string _templateByCounterpartyFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsFinanceReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsWithDynamicsFinanceReport.xlsx";
 
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
