@@ -5,7 +5,7 @@ using PaymentDtoType = DriverAPI.Library.Deprecated2.DTOs.PaymentDtoType;
 namespace DriverAPI.DTOs.V2
 {
 	/// <summary>
-	/// Львеь сервера о статусе оплаты по смс
+	/// Ответ сервера о статусе оплаты по смс
 	/// </summary>
 	public class OrderSmsPaymentStatusResponseDto
 	{

@@ -7,6 +7,9 @@ using System.Collections.Generic;
 
 namespace DriverAPI.Controllers.V3
 {
+	/// <summary>
+	/// Контроллер рекламаций водителей
+	/// </summary>
 	[ApiVersion("3.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -15,6 +18,11 @@ namespace DriverAPI.Controllers.V3
 	{
 		private readonly IDriverComplaintModel _iAPIDriverComplaintData;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="iAPIDriverComplaintData"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public DriverComplaintsController(IDriverComplaintModel iAPIDriverComplaintData)
 		{
 			_iAPIDriverComplaintData = iAPIDriverComplaintData ?? throw new ArgumentNullException(nameof(iAPIDriverComplaintData));

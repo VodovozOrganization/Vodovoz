@@ -22,7 +22,6 @@ namespace DriverAPI.Controllers.V3
 		/// </summary>
 		/// <param name="webApiParametersProvider"></param>
 		/// <exception cref="ArgumentNullException"></exception>
-
 		public ValuesController(IDriverApiParametersProvider webApiParametersProvider)
 		{
 			_webApiParametersProvider = webApiParametersProvider ?? throw new ArgumentNullException(nameof(webApiParametersProvider));

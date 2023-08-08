@@ -15,6 +15,9 @@ using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers.V3
 {
+	/// <summary>
+	/// Контроллер регистраций событий
+	/// </summary>
 	[ApiVersion("3.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -29,6 +32,17 @@ namespace DriverAPI.Controllers.V3
 		private readonly ITrackPointsModel _trackPointsData;
 		private readonly IActionTimeHelper _actionTimeHelper;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="userManager"></param>
+		/// <param name="employeeData"></param>
+		/// <param name="driverMobileAppActionRecordModel"></param>
+		/// <param name="aPIRouteListData"></param>
+		/// <param name="trackPointsData"></param>
+		/// <param name="actionTimeHelper"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public RegistrationsController(
 			ILogger<RegistrationsController> logger,
 			UserManager<IdentityUser> userManager,
