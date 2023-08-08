@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Report;
-using NetTopologySuite.Geometries;
 using NHibernate.Criterion;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -10,10 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DateTimeHelpers;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Sale;
-using Vodovoz.Extensions;
 using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 using static Vodovoz.ViewModels.ViewModels.Reports.FastDelivery.FastDeliveryPercentCoverageReport;
@@ -52,35 +53,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			IScheduleRestrictionRepository scheduleRestrictionRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			_deliveryRulesParametersProvider = deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
+			_deliveryRulesParametersProvider =
+				deliveryRulesParametersProvider ?? throw new ArgumentNullException(nameof(deliveryRulesParametersProvider));
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
-			_scheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+			_scheduleRestrictionRepository =
+				scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			_interactiveService = interactiveService;
 
 			Title = "Отчет о доступности услуги \"Доставка за час\"";
 
-			var hours = new List<TimeSpan>();
-
-			for(TimeSpan span = TimeSpan.Zero;
-				span < TimeSpan.FromHours(24);
-				span = span.Add(TimeSpan.FromHours(1)))
-			{
-				hours.Add(span);
-			}
-
-			Hours = hours.AsEnumerable();
-
-			StartDate = EndDate = DateTime.Today.AddDays(-1);
-
-			DriverDisconnectedTimespan = TimeSpan.FromMinutes(-(int)_deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint.TotalMinutes);
-
-			StartHour = TimeSpan.FromHours(_defaultStartHour);
-			EndHour = TimeSpan.FromHours(_defaultEndHour);
+			Initialize();
 		}
 
-		public TimeSpan DriverDisconnectedTimespan { get; }
+		public TimeSpan DriverDisconnectedTimespan { get; private set; }
 
-		public IEnumerable<TimeSpan> Hours { get; }
+		public IEnumerable<TimeSpan> Hours { get; private set; }
 
 		public FastDeliveryPercentCoverageReport Report
 		{
@@ -157,13 +144,74 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			set => SetField(ref _lastGenerationErrors, value);
 		}
 
-		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
+		public CancellationTokenSource ReportGenerationCancellationTokenSource { get; set; }
 
+		public async Task<FastDeliveryPercentCoverageReport> GenerateReport(CancellationToken cancellationToken)
+		{
+			try
+			{
+				var report = FastDeliveryPercentCoverageReport.Create(
+					StartDate,
+					EndDate,
+					StartHour,
+					EndHour,
+					await GetData(StartDate,
+						EndDate,
+						StartHour,
+						EndHour,
+						cancellationToken));
+
+				return report;
+			}
+			finally
+			{
+				UoW.Session.Clear();
+			}
+		}
+
+		public void ExportReport(string path)
+		{
+			string templatePath = _templatePath;
+
+			var template = new XLTemplate(templatePath);
+
+			template.AddVariable(Report);
+			template.Generate();
+
+			template.SaveAs(path);
+		}
+
+		public void ShowWarning(string message)
+		{
+			_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
+		}
+		
+		private void Initialize()
+		{
+			var hours = new List<TimeSpan>();
+
+			for(var span = TimeSpan.Zero; span < TimeSpan.FromHours(24); span = span.Add(TimeSpan.FromHours(1)))
+			{
+				hours.Add(span);
+			}
+
+			Hours = hours.AsEnumerable();
+
+			StartDate = EndDate = DateTime.Today.AddDays(-1);
+
+			DriverDisconnectedTimespan =
+				TimeSpan.FromMinutes(-(int)_deliveryRulesParametersProvider.MaxTimeOffsetForLatestTrackPoint.TotalMinutes);
+
+			StartHour = TimeSpan.FromHours(_defaultStartHour);
+			EndHour = TimeSpan.FromHours(_defaultEndHour);
+		}
+		
 		private async Task<TotalsRow> GetData(
 			DateTime startDate,
 			DateTime endDate,
 			TimeSpan startHour,
-			TimeSpan endHour)
+			TimeSpan endHour,
+			CancellationToken cancellationToken)
 		{
 			UoW.Session.DefaultReadOnly = true;
 
@@ -182,6 +230,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			foreach(var date in requestedDateTimes)
 			{
+				if(cancellationToken.IsCancellationRequested)
+				{
+					cancellationToken.ThrowIfCancellationRequested();
+				}
+				
 				RouteList routeListAlias = null;
 
 				var additionalLoadingRestriction = Restrictions.Where(() => routeListAlias.AdditionalLoadingDocument != null);
@@ -250,7 +303,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 						? actualLastDriversCoordinates.Average(d => d.FastDeliveryRadius)
 						: _deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date);
 
-				var activeDistrictsAtDateTime = _scheduleRestrictionRepository.GetDistrictsWithBorderForFastDeliveryAtDateTime(UoW, date).Select(d => d.DistrictBorder);
+				var activeDistrictsAtDateTime =
+					_scheduleRestrictionRepository.GetDistrictsWithBorderForFastDeliveryAtDateTime(UoW, date).Select(d => d.DistrictBorder);
 
 				var percentCoverage = DistanceCalculator.CalculateCoveragePercent(
 					activeDistrictsAtDateTime.ToList(),
@@ -260,7 +314,63 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					activeDistrictsAtDateTime.ToList(),
 					actualLastDriversCoordinates);
 
-				rawRows.Add(new ValueRow(date, carsCount, serviceRadiusAtDateTime, actualServiceRadiusAtDateTime, percentCoverage, actualPercentCoverage));
+				#region notDeliveredAddressesQuery
+
+				FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistoryAlias = null;
+				DeliveryPoint deliveryPointAlias = null;
+				
+				var orderSubQuery = QueryOver.Of(() => orderAlias)
+					.Where(o => o.DeliveryPoint.Id == deliveryPointAlias.Id)
+					.And(o => o.CreateDate.Value.Date == fastDeliveryAvailabilityHistoryAlias.VerificationDate.Date)
+					.And(o => o.IsFastDelivery == false)
+					.Select(o => o.Id);
+				
+				var validLastFastDeliveryCheckingSubQuery = QueryOver.Of<FastDeliveryAvailabilityHistoryItem>()
+					.Where(fhi => fhi.FastDeliveryAvailabilityHistory.Id == fastDeliveryAvailabilityHistoryAlias.Id)
+					.And(fhi => fhi.IsValidToFastDelivery)
+					.Select(fhi => fhi.Id);
+
+				var deliveryPointIdsInFutureChecks = QueryOver.Of<FastDeliveryAvailabilityHistory>()
+					.Where(fh => fh.DeliveryPoint.Id != null)
+					.And(fh => fh.VerificationDate >= date.AddHours(1))
+					.And(fh => fh.VerificationDate < date.LatestDayTime())
+					.SelectList(list => list
+						.SelectGroup(fh => fh.DeliveryPoint.Id));
+
+				var lastFastDeliveryCheckingIds =
+					UoW.Session.QueryOver(() => fastDeliveryAvailabilityHistoryAlias)
+						.JoinAlias(fh => fh.DeliveryPoint, () => deliveryPointAlias)
+						.SelectList(list => list
+							.Select(Projections.Max(() => fastDeliveryAvailabilityHistoryAlias.Id))
+							.SelectGroup(() => deliveryPointAlias.Id)
+						)
+						.And(fh => fh.VerificationDate >= date)
+						.And(fh => fh.VerificationDate < date.AddHours(1))
+						.WithSubquery.WhereProperty(() => deliveryPointAlias.Id).NotIn(deliveryPointIdsInFutureChecks)
+						.List<object[]>()
+						.Select(x => x[0]);
+
+				var notDeliveredAddresses =
+					UoW.Session.QueryOver(() => fastDeliveryAvailabilityHistoryAlias)
+						.JoinAlias(fh => fh.DeliveryPoint, () => deliveryPointAlias)
+						.WhereRestrictionOn(fh => fh.Id).IsInG(lastFastDeliveryCheckingIds)
+						.WithSubquery.WhereExists(orderSubQuery)
+						.WithSubquery.WhereNotExists(validLastFastDeliveryCheckingSubQuery)
+						.SelectList(list => list
+							.Select(() => deliveryPointAlias.Id))
+						.List<int>();
+
+				#endregion
+				
+				rawRows.Add(
+					new ValueRow(
+						date,
+						carsCount,
+						serviceRadiusAtDateTime,
+						actualServiceRadiusAtDateTime,
+						percentCoverage,
+						actualPercentCoverage,
+						notDeliveredAddresses.Count));
 			}
 
 			var groupingDate = startDate.Date;
@@ -284,7 +394,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			return await Task.FromResult(new TotalsRow(dayGroupings));
 		}
-
+		
 		private static IList<DateTime> GenerateDateTimes(DateTime startDate, DateTime endDate, TimeSpan startHour, TimeSpan endHour)
 		{
 			var result = new List<DateTime>();
@@ -302,9 +412,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			if(startHour <= endHour)
 			{
-				for(TimeSpan span = startHour;
-				span <= endHour;
-				span = span.Add(hourTimespan))
+				for(var span = startHour; span <= endHour; span = span.Add(hourTimespan))
 				{
 					requestedHours.Add(span);
 				}
@@ -312,16 +420,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			else
 			{
 				var midnightTimespan = TimeSpan.FromHours(24);
-				for(TimeSpan span = startHour;
-					span < midnightTimespan;
-					span = span.Add(hourTimespan))
+				
+				for(var span = startHour; span < midnightTimespan; span = span.Add(hourTimespan))
 				{
 					requestedHours.Add(span);
 				}
 
-				for(TimeSpan span = TimeSpan.Zero;
-					span <= endHour;
-					span = span.Add(hourTimespan))
+				for(var span = TimeSpan.Zero; span <= endHour; span = span.Add(hourTimespan))
 				{
 					requestedHours.Add(span);
 				}
@@ -343,45 +448,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			result.Sort();
 
 			return result;
-		}
-
-		public async Task<FastDeliveryPercentCoverageReport> GenerateReport(CancellationToken cancelationToken)
-		{
-			try
-			{
-				var report = FastDeliveryPercentCoverageReport.Create(
-					StartDate,
-					EndDate,
-					StartHour,
-					EndHour,
-					await GetData(StartDate,
-						EndDate,
-						StartHour,
-						EndHour));
-
-				return report;
-			}
-			finally
-			{
-				UoW.Session.Clear();
-			}
-		}
-
-		public void ExportReport(string path)
-		{
-			string templatePath = _templatePath;
-
-			var template = new XLTemplate(templatePath);
-
-			template.AddVariable(Report);
-			template.Generate();
-
-			template.SaveAs(path);
-		}
-
-		public void ShowWarning(string message)
-		{
-			_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
 		}
 	}
 }
