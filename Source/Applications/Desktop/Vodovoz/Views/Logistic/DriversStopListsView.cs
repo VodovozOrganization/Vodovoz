@@ -49,7 +49,7 @@ namespace Vodovoz.Views.Logistic
 				.Create()
 					.AddColumn("Водитель").AddTextRenderer(x => x.DriverFullName)
 					.AddColumn("Автомобиль").AddTextRenderer(x => x.CarRegistrationNumber)
-					.AddColumn("Общийд долг по МЛ").AddTextRenderer(x => x.RouteListsDebtsSum.ToShortCurrencyString())
+					.AddColumn("Общий долг по МЛ").AddTextRenderer(x => x.RouteListsDebtsSum.ToShortCurrencyString())
 					.AddColumn("Кол-во незакрытых МЛ").AddTextRenderer(x => x.UnclosedRouteListsWithDebtCount.ToString())
 					.AddColumn("Стоп-лист").AddToggleRenderer(d => d.IsDriverInStopList).Editing(false)
 					.AddColumn("")
