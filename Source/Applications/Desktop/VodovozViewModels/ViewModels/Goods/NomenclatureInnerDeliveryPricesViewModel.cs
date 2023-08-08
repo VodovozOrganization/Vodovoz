@@ -26,7 +26,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			_entity = entity ?? throw new ArgumentNullException(nameof(entity));
 			_nomenclatureInnerDeliveryPriceModel = nomenclatureInnerDeliveryPriceModel ?? throw new ArgumentNullException(nameof(nomenclatureInnerDeliveryPriceModel));
 
-			_pricesBinding = ObservableListBinder.Bind(entity.ObservableInnerDeliveryPrices).To(PriceViewModels, CreatePriceViewModel);
+			_pricesBinding = ObservableListBinder.Bind(entity.InnerDeliveryPrices).To(PriceViewModels, CreatePriceViewModel);
 			PriceViewModels.ListContentChanged += PriceViewModels_ListContentChanged;
 		}
 
