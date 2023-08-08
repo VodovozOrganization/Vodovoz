@@ -571,11 +571,15 @@
     <Compile Include="JournalViewModels\WaterJournalViewModel.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
+    <Compile Include="MainWindow.Navigation.Administration.cs" />
     <Compile Include="MainWindow.Navigation.cs" />
     <Compile Include="MainWindow.Navigation.Database.cs" />
+    <Compile Include="MainWindow.Navigation.Help.cs" />
     <Compile Include="MainWindow.Navigation.Journals.cs" />
     <Compile Include="MainWindow.Navigation.Reports.cs" />
     <Compile Include="MainWindow.Navigation.Sections.cs" />
+    <Compile Include="MainWindow.Navigation.Suggestions.cs" />
+    <Compile Include="MainWindow.Notifications.cs" />
     <Compile Include="MainWindow.View.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
