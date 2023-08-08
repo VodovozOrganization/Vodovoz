@@ -13,6 +13,9 @@ using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Controllers.V3
 {
+	/// <summary>
+	/// Контроллер оплат СБП
+	/// </summary>
 	[ApiVersion("3.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -28,6 +31,18 @@ namespace DriverAPI.Controllers.V3
 		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordModel;
 		private readonly UserManager<IdentityUser> _userManager;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="actionTimeHelper"></param>
+		/// <param name="fastPaymentModel"></param>
+		/// <param name="qrPaymentConverter"></param>
+		/// <param name="aPIOrderData"></param>
+		/// <param name="employeeData"></param>
+		/// <param name="driverMobileAppActionRecordModel"></param>
+		/// <param name="userManager"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public FastPaymentsController(ILogger<SmsPaymentsController> logger,
 			IActionTimeHelper actionTimeHelper,
 			IFastPaymentModel fastPaymentModel,

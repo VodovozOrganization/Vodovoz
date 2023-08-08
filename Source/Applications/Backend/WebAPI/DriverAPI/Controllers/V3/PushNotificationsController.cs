@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace DriverAPI.Controllers.V3
 {
+	/// <summary>
+	/// Контроллер PUSH-сообщений
+	/// </summary>
 	[ApiVersion("3.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -25,6 +28,16 @@ namespace DriverAPI.Controllers.V3
 		private readonly IEmployeeModel _employeeData;
 		private readonly IWakeUpDriverClientService _wakeUpDriverClientService;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="userManager"></param>
+		/// <param name="aPIRouteListData"></param>
+		/// <param name="iFCMAPIHelper"></param>
+		/// <param name="employeeData"></param>
+		/// <param name="wakeUpDriverClientService"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public PushNotificationsController(
 			ILogger<PushNotificationsController> logger,
 			UserManager<IdentityUser> userManager,

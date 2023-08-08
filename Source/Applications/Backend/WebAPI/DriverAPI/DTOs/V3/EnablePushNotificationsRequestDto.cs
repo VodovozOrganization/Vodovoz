@@ -2,6 +2,9 @@
 
 namespace DriverAPI.DTOs.V3
 {
+	/// <summary>
+	/// Запрос на подписку на PUSH-сообщения
+	/// </summary>
 	public class EnablePushNotificationsRequestDto
 	{
 		/// <summary>

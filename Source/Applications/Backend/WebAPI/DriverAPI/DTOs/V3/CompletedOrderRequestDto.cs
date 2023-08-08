@@ -6,6 +6,9 @@ using Vodovoz.Models.TrueMark;
 
 namespace DriverAPI.DTOs.V3
 {
+	/// <summary>
+	/// Запрос на завершение заказа
+	/// </summary>
 	public class CompletedOrderRequestDto : IDriverCompleteOrderInfo
 	{
 		/// <summary>
@@ -14,6 +17,9 @@ namespace DriverAPI.DTOs.V3
 		[Required]
 		public int OrderId { get; set; }
 
+		/// <summary>
+		/// Количество возвращаемых бутылей
+		/// </summary>
 		[Required]
 		public int BottlesReturnCount { get; set; }
 
@@ -32,8 +38,20 @@ namespace DriverAPI.DTOs.V3
 		/// Комментарий низкого рейтинга адреса
 		/// </summary>
 		public string OtherDriverComplaintReasonComment { get; set; }
+
+		/// <summary>
+		/// Комментарий в случае меньшего количества бутылей на возврат
+		/// </summary>
 		public string DriverComment { get; set; }
+
+		/// <summary>
+		/// Отсканированные бутыли
+		/// </summary>
 		public IEnumerable<OrderScannedItemDto> ScannedBottles { get; set; }
+
+		/// <summary>
+		/// Причина не отсканированности бутылей
+		/// </summary>
 		public string UnscannedBottlesReason { get; set; }
 
 		/// <summary>
@@ -41,7 +59,9 @@ namespace DriverAPI.DTOs.V3
 		/// </summary>
 		[Required]
 		public DateTime ActionTimeUtc { get; set; }
+
 		IEnumerable<ITrueMarkOrderItemScannedInfo> ITrueMarkOrderScannedInfo.ScannedItems => ScannedBottles;
+
 		string ITrueMarkOrderScannedInfo.UnscannedCodesReason => UnscannedBottlesReason;
 	}
 }

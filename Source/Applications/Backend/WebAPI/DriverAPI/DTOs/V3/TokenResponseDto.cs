@@ -1,5 +1,8 @@
 ﻿namespace DriverAPI.DTOs.V3
 {
+	/// <summary>
+	/// Ответ сервера при успешной аутентификации
+	/// </summary>
 	public class TokenResponseDto
 	{
 		/// <summary>
