@@ -14,6 +14,8 @@ using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QSReport;
 using System;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
@@ -62,6 +64,7 @@ using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.Services;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -575,7 +578,10 @@ public partial class MainWindow : Window
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
 		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel();
-		IEmailParametersProvider emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
+		var loggerFactory = new NLogLoggerFactory();
+		var settingsController =
+			new SettingsController(UnitOfWorkFactory.GetDefaultFactory, new Logger<SettingsController>(loggerFactory));
+		IEmailParametersProvider emailParametersProvider = new EmailParametersProvider(settingsController);
 		IAttachmentsViewModelFactory attachmentsViewModelFactory = new AttachmentsViewModelFactory();
 		IEmailRepository emailRepository = new EmailRepository();
 		IFileDialogService fileDialogService = new FileDialogService();

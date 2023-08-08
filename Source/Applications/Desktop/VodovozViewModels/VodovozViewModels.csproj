@@ -162,6 +162,7 @@
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="Logistic\RouteListJournalViewModel.cs" />
+    <Compile Include="ViewModels\Contacts\EmailsViewModel.cs" />
     <Compile Include="ViewModels\Counterparty\CounterpartyMatchingNode.cs" />
     <Compile Include="ViewModels\Counterparty\DeliveryPointMatchingNode.cs" />
     <Compile Include="ViewModels\Counterparty\ExistingExternalCounterpartyNode.cs" />
@@ -770,6 +771,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Editing\Vodovoz.Reports.Editing.csproj">
       <Project>{EC80100E-0125-48C6-8D66-50EEBF26E320}</Project>
       <Name>Vodovoz.Reports.Editing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj">
+      <Project>{e79b382d-7e61-42d7-b14d-cd1247e586c2}</Project>
+      <Name>Vodovoz.Settings.Database</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Settings\Vodovoz.Settings.csproj">
       <Project>{445C399F-F7F9-43FF-8278-E0392A792F03}</Project>
