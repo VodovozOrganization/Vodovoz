@@ -1,10 +1,10 @@
 ﻿using Gamma.Binding;
 using Gamma.Utilities;
 using MySqlConnector;
-using NHibernate.AdoNet;
 using NLog;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using QS.Print;
 using QS.Project.DB;
@@ -19,8 +19,8 @@ using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Vodovoz.Dialogs;
 using Vodovoz.Cash.Transfer;
+using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
@@ -87,8 +87,10 @@ namespace Vodovoz.Configuration
                 .AdoNetBatchSize(100)
                 .Driver<LoggedMySqlClientDriver>();
 
-            // Настройка ORM
-            OrmConfig.ConfigureOrm(
+			OrmConfig.Conventions = new[] { new ObservableListConvention() };
+
+			// Настройка ORM
+			OrmConfig.ConfigureOrm(
                 dbConfig,
                 new[] {
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
