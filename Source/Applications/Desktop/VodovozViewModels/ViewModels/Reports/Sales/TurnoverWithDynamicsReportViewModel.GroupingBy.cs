@@ -9,7 +9,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			[Display(Name = "Номенклатура")]
 			Nomenclature,
 			[Display(Name = "Контрагент")]
-			Counterparty
+			Counterparty,
+			[Display(Name = "Контрагент, показать контакты")]
+			CounterpartyShowContacts
 		}
 	}
 }

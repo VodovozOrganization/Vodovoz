@@ -200,14 +200,17 @@ namespace Vodovoz.ReportsParameters.Sales
 			columnsConfig.AddColumn("")
 				.AddTextRenderer(row => row.IsSubheaderRow ? "<b>№</b>" : row.Index, useMarkup: true);
 
-			var firstColumnTitle = ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty ? "Контрагент" : "Периоды продаж";
+			var firstColumnTitle = 
+				(ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty || ViewModel.Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts) 
+				? "Контрагент" 
+				: "Периоды продаж";
 
 			columnsConfig.AddColumn(firstColumnTitle).AddTextRenderer(row =>
 				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true)
 				.WrapWidth(350)
 				.WrapMode(Pango.WrapMode.Word);
 
-			if(ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty)
+			if(ViewModel.Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts)
 			{
 				columnsConfig.AddColumn("Телефоны").AddTextRenderer(row => row.Phones);
 				columnsConfig.AddColumn("E-mail").AddTextRenderer(row => row.Emails);

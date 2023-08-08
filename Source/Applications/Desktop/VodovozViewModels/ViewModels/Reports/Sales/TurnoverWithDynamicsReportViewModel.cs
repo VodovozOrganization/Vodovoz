@@ -59,7 +59,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly string _templateByCounterpartyWithDynamicsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsReport.xlsx";
 		private readonly string _templateByCounterpartyFinancePath = @".\Reports\Sales\TurnoverByCounterpartyFinanceReport.xlsx";
 		private readonly string _templateByCounterpartyWithDynamicsFinancePath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsFinanceReport.xlsx";
-		
+		private readonly string _templateByCounterpartyWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsWithContactsReport.xlsx";
+		private readonly string _templateByCounterpartyFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyFinanceWithContactsReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsFinanceWithContactsReport.xlsx";
+
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
@@ -143,7 +147,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			set
 			{
 				if(SetField(ref _groupingBy, value)
-					&& value == GroupingByEnum.Counterparty)
+					&& (value == GroupingByEnum.Counterparty || value == GroupingByEnum.CounterpartyShowContacts))
 				{
 					ShowResidueForNomenclaturesWithoutSales = false;
 				}
@@ -728,6 +732,31 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					else
 					{
 						return _templateByCounterpartyFinancePath;
+					}
+				}
+			}
+			else if(Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts)
+			{
+				if(Report.ShowDynamics)
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyWithDynamicsWithContactsPath;
+					}
+					else
+					{
+						return _templateByCounterpartyWithDynamicsFinanceWithContactsPath;
+					}
+				}
+				else
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyWithContactsPath;
+					}
+					else
+					{
+						return _templateByCounterpartyFinanceWithContactsPath;
 					}
 				}
 			}
