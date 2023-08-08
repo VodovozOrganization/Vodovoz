@@ -25,6 +25,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Factories;
 using QS.Validation;
+using System.Collections.Specialized;
 
 namespace Vodovoz
 {
@@ -160,13 +161,21 @@ namespace Vodovoz
 			yentryreferenceRouteList.CanEditReference =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
-			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
+			Entity.Items.CollectionChanged += Items_CollectionChanged;
 			
             UpdateControlsState();
 			ShowLiters();
 
 			ylabelDate.Visible = !UoW.IsNew;
 			UpdateDateEditable();
+		}
+
+		private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			if(e.Action == NotifyCollectionChangedAction.Reset)
+			{
+				enumFineType.Sensitive = !(Entity.Items.Count() > 1) && CanEdit;
+			}
 		}
 
 		private void UpdateDateEditable()
@@ -178,7 +187,6 @@ namespace Vodovoz
 
 		void ObservableItems_ListChanged(object aList)
 		{
-			enumFineType.Sensitive = !(Entity.ObservableItems.Count() > 1) && CanEdit;
 		}
 
 		public override bool Save ()
@@ -266,20 +274,20 @@ namespace Vodovoz
 
 		private void ShowLiters()
 		{
-			if(Entity.FineType == FineTypes.FuelOverspending && Entity.ObservableItems.Count() > 0){
-				Entity.LitersOverspending = Entity.ObservableItems[0].LitersOverspending;
+			if(Entity.FineType == FineTypes.FuelOverspending && Entity.Items.Count() > 0){
+				Entity.LitersOverspending = Entity.Items[0].LitersOverspending;
 			}
 		}
 
 		private void CalculateMoneyFromLiters()
 		{
-			if(Entity.ObservableItems.Count() > 1) {
+			if(Entity.Items.Count() > 1) {
 				throw new Exception("При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
 			}
 			if(yentryreferenceRouteList.Subject != null) {
 				decimal fuelCost = (yentryreferenceRouteList.Subject as RouteList).Car.FuelType.Cost;
 				Entity.TotalMoney = Math.Round(Entity.LitersOverspending * fuelCost, 0, MidpointRounding.ToEven);
-				var item = Entity.ObservableItems.FirstOrDefault();
+				var item = Entity.Items.FirstOrDefault();
 				if(item != null) {
 					item.Money = Entity.TotalMoney;
 					item.LitersOverspending = Entity.LitersOverspending;
@@ -297,12 +305,12 @@ namespace Vodovoz
 		{
 			FineItem item = null;
 			if(driver != null) {
-				item = Entity.ObservableItems.Where(x => x.Employee == driver).FirstOrDefault();
+				item = Entity.Items.Where(x => x.Employee == driver).FirstOrDefault();
 			}
-			Entity.ObservableItems.Clear();
+			Entity.Items.Clear();
 			if(driver != null) {
 				if(item != null) {
-					Entity.ObservableItems.Add(item);
+					Entity.Items.Add(item);
 				}else {
 					Entity.AddItem(driver);
 				}

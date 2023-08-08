@@ -7,6 +7,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities;
@@ -103,24 +104,13 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref author, value, () => Author);
 		}
 
-		IList<FineItem> items = new List<FineItem>();
+		IObservableList<FineItem> items = new ObservableList<FineItem>();
 
 		[Display(Name = "Строки")]
-		public virtual IList<FineItem> Items {
+		public virtual IObservableList<FineItem> Items {
 			get => items;
 			set {
 				SetField(ref items, value, () => Items);
-				observableItems = null;
-			}
-		}
-
-		GenericObservableList<FineItem> observableItems;
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<FineItem> ObservableItems {
-			get {
-				if(observableItems == null)
-					observableItems = new GenericObservableList<FineItem>(Items);
-				return observableItems;
 			}
 		}
 
@@ -151,8 +141,8 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual void UpdateFuelOperations(IUnitOfWork uow)
 		{
-			if(FineType == FineTypes.FuelOverspending && ObservableItems.Any()) {
-				var item = ObservableItems.FirstOrDefault();
+			if(FineType == FineTypes.FuelOverspending && Items.Any()) {
+				var item = Items.FirstOrDefault();
 				if(item.FuelOutlayedOperation == null) {
 					item.FuelOutlayedOperation = new FuelOperation() {
 						Car = item.Fine.RouteList.Car,
@@ -207,11 +197,11 @@ namespace Vodovoz.Domain.Employees
 		{
 			Employee driver = RouteList?.Driver;
 			FineItem item = null;
-			ObservableItems.Clear();
+			Items.Clear();
 			if(driver != null) {
-				item = ObservableItems.FirstOrDefault(x => x.Employee == driver);
+				item = Items.FirstOrDefault(x => x.Employee == driver);
 				if(item != null) {
-					ObservableItems.Add(item);
+					Items.Add(item);
 				} else {
 					AddItem(driver);
 				}
@@ -220,7 +210,7 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual void AddItem(Employee employee)
 		{
-			ObservableItems.Add(
+			Items.Add(
 				new FineItem {
 					Employee = employee,
 					Fine = this
@@ -230,8 +220,8 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual void RemoveItem(FineItem item)
 		{
-			if(ObservableItems.Contains(item))
-				ObservableItems.Remove(item);
+			if(Items.Contains(item))
+				Items.Remove(item);
 		}
 		
 		public virtual void AddAddress(RouteListItem address)

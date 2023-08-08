@@ -8,6 +8,8 @@ using QSProjectsLib;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using Vodovoz.TempAdapters;
+using System.Collections.Specialized;
+using QS.Extensions.Observable.Collections.List;
 
 namespace Vodovoz
 {
@@ -70,16 +72,26 @@ namespace Vodovoz
 					return;
 				fineUoW = value;
 				if (FineUoW.Root.Items == null)
-					FineUoW.Root.Items = new List<FineItem> ();
+					FineUoW.Root.Items = new ObservableList<FineItem> ();
 
-				ytreeviewItems.ItemsDataSource = FineUoW.Root.ObservableItems;
-				FineUoW.Root.ObservableItems.ListContentChanged += OnFineItemsListContentChanged;
+				ytreeviewItems.ItemsDataSource = FineUoW.Root.Items;
+				FineUoW.Root.Items.CollectionChanged += Items_CollectionChanged;
 			}
 		}
 
-		private void OnFineItemsListContentChanged (object sender, EventArgs e)
+		private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
-			CalculateTotal();
+			switch(e.Action)
+			{
+				case NotifyCollectionChangedAction.Add:
+				case NotifyCollectionChangedAction.Remove:
+				case NotifyCollectionChangedAction.Replace:
+				case NotifyCollectionChangedAction.Reset:
+					CalculateTotal();
+					break;
+				case NotifyCollectionChangedAction.Move:
+					throw new NotSupportedException();
+			}	
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
@@ -128,7 +140,7 @@ namespace Vodovoz
 					FineUoW.Delete(row.WageOperation);
 				}
 			}
-			FineUoW.Root.ObservableItems.Remove(row);
+			FineUoW.Root.Items.Remove(row);
 		}
 	}
 }

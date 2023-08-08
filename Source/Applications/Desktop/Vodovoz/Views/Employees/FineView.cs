@@ -103,7 +103,7 @@ namespace Vodovoz.Views.Employees
 				.AddColumn("Причина штрафа").AddTextRenderer(x => x.Fine.FineReasonString)
 				.Finish();
 			ytreeviewItems.Binding
-				.AddBinding(ViewModel.Entity, e => e.ObservableItems, w => w.ItemsDataSource)
+				.AddBinding(ViewModel.Entity, e => e.Items, w => w.ItemsDataSource)
 				.InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
