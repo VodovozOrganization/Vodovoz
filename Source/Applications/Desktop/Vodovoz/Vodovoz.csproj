@@ -606,11 +606,14 @@
     <Compile Include="Startup.cs" />
     <Compile Include="TempAdapters\AttachmentsViewModelFactory.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
+    <Compile Include="TempAdapters\TreeModels\CombinedTreeModelProvider.cs" />
     <Compile Include="TempAdapters\ComplaintsJournalFactory.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
     <Compile Include="TempAdapters\NomenclatureJournalFactory.cs" />
     <Compile Include="TempAdapters\SubdivisionJournalFactory.cs" />
+    <Compile Include="TempAdapters\TreeModels\ObservableListReorderableTreeModel.cs" />
+    <Compile Include="TempAdapters\TreeModels\ObservableListTreeModel.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
     <Compile Include="TreeModels\ModelConfig.cs" />
     <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />
