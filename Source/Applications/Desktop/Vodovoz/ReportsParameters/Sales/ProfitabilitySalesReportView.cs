@@ -1,23 +1,18 @@
-﻿using QS.Dialog;
-using QS.Views;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.ReportsParameters;
+﻿using QS.Views;
+using Vodovoz.Presentation.Gtk.Common;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 
 namespace Vodovoz.Reports
 {
 	public partial class ProfitabilitySalesReportView : ViewBase<ProfitabilitySalesReportViewModel>
 	{
-		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IInteractiveService _interactiveService;
-		private SelectableParameterReportFilterView _filterView;
+		private IncludeExludeFiltersView _filterView;
 
 		public ProfitabilitySalesReportView(ProfitabilitySalesReportViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 
 			ConfigureDlg();
-			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}
 
 		private void ConfigureDlg()
@@ -40,6 +35,8 @@ namespace Vodovoz.Reports
 			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
 
 			ShowFilter();
+
+			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}
 
 		private void ViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -57,7 +54,7 @@ namespace Vodovoz.Reports
 		private void ShowFilter()
 		{
 			_filterView?.Destroy();
-			_filterView = new SelectableParameterReportFilterView(ViewModel.FilterViewModel);
+			_filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);
 			vboxParameters.Add(_filterView);
 			_filterView.Show();
 		}
