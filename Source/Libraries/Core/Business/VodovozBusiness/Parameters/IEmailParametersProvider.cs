@@ -10,5 +10,6 @@
 		string UnsubscribeUrl { get; }
 		int BulkEmailEventOtherReasonId { get; }
 		int BulkEmailEventOperatorReasonId { get; }
+		int EmailTypeForReceiptsId { get; }
 	}
 }

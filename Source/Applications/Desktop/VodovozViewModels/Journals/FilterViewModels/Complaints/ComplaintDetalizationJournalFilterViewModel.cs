@@ -8,7 +8,7 @@ using Vodovoz.Domain.Complaints;
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 {
 	public class ComplaintDetalizationJournalFilterViewModel
-		: FilterViewModelBase<ComplaintDetalizationJournalFilterViewModel>, IJournalFilterViewModel
+		: FilterViewModelBase<ComplaintDetalizationJournalFilterViewModel>
 	{
 		private ComplaintObject _complaintObject;
 		private ComplaintKind _complaintOKind;
@@ -112,6 +112,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Complaints
 			private set => UpdateFilterField(ref _visibleComplaintKinds, value);
 		}
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 	}
 }

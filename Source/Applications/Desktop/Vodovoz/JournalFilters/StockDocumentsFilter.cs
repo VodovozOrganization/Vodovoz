@@ -26,7 +26,7 @@ namespace Vodovoz
 			evmeWarehouse.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory());
 
 			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin)
 			{
 				evmeWarehouse.Sensitive = evmeWarehouse.CanEditReference = false;
 			}

@@ -4,7 +4,7 @@ using Vodovoz.Domain.Cash.CashTransfer;
 
 namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 {
-	public class TransferDocumentsJournalFilterViewModel : FilterViewModelBase<TransferDocumentsJournalFilterViewModel>, IJournalFilterViewModel
+	public class TransferDocumentsJournalFilterViewModel : FilterViewModelBase<TransferDocumentsJournalFilterViewModel>
 	{
 		private CashTransferDocumentStatuses? _cashTransferDocumentStatus;
 
@@ -14,6 +14,6 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 			set => UpdateFilterField(ref _cashTransferDocumentStatus, value);
 		}
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 	}
 }

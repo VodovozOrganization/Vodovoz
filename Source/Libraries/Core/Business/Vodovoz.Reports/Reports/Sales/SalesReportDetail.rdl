@@ -21,7 +21,7 @@
         <Height>20.29pt</Height>
         <Width>816.07pt</Width>
         <Value>='Отчет по продажам ' + Iif(Parameters!start_date = Parameters!end_date, 'за ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy"), 'с ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy") + ' по ' + Format(CDate(Parameters!end_date), "dd/MM/yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>22.2pt</Top>
         <Style>
@@ -881,7 +881,7 @@
         <Height>13.51pt</Height>
         <Width>223.58pt</Width>
         <Value>=First({criterions}, "Criterions")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>586.5pt</Left>
         <Top>139.1pt</Top>
         <Style>
@@ -993,7 +993,7 @@
         <Height>12.00pt</Height>
         <Width>270pt</Width>
         <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>540pt</Left>
         <Top>0pt</Top>
         <Style>
@@ -1007,7 +1007,7 @@
         <Height>14.25pt</Height>
         <Width>182.66pt</Width>
         <Value>="Количество заказов: " + Countdistinct({order_id}, "Sales")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>628.74pt</Left>
         <Top>153.20pt</Top>
         <Style>
@@ -1029,7 +1029,7 @@
         <Height>12.00pt</Height>
         <Width>815.31pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>0.0pt</Top>
         <Style>
@@ -1861,7 +1861,7 @@ FROM
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

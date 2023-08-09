@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -61,9 +62,16 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<RouteList>(UoWGeneric.Root, new Dictionary<object, object>(){ { nameof(IRouteListItemRepository), new RouteListItemRepository() } });
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var contextItems = new Dictionary<object, object>
+				{
+					{nameof(IRouteListItemRepository), new RouteListItemRepository()}
+				};
+			var context = new ValidationContext(Entity, null, contextItems);
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity, context))
+			{
 				return false;
+			}
 
 			logger.Info("Сохраняем маршрутный лист...");
 			UoWGeneric.Save();

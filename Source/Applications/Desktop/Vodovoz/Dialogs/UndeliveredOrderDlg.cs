@@ -1,3 +1,4 @@
+using FluentNHibernate.Data;
 using Autofac;
 using Gtk;
 using QS.Dialog.Gtk;
@@ -127,8 +128,8 @@ namespace Vodovoz.Dialogs
 
 		private bool Save(bool needClose = true)
 		{
-			var valid = new QSValidator<UndeliveredOrder>(UndeliveredOrder);
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(UndeliveredOrder))
 			{
 				return false;
 			}

@@ -7,12 +7,14 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using System;
+using Microsoft.Extensions.Logging;
 using QS.Dialog;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.TempAdapters;
 
@@ -73,10 +75,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на долг";
 			EntityUoWBuilder = uowBuilder;
 
+			var loggerFactory = new LoggerFactory();
+			var settingsController = new SettingsController(UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
 			SendDocViewModel =
 				new SendDocumentByEmailViewModel(
 					new EmailRepository(),
-					new EmailParametersProvider(new ParametersProvider()),
+					new EmailParametersProvider(settingsController),
 					currentEmployee,
 					commonServices.InteractiveService,
 					UoW);

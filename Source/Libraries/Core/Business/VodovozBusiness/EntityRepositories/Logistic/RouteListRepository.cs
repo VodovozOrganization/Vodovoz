@@ -1,6 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -76,10 +77,81 @@ namespace Vodovoz.EntityRepositories.Logistic
 			return query.Select(x => x.Id).List<int>();
 		}
 
-		public QueryOver<RouteList> GetRoutesAtDay(DateTime date)
+		public IList<RouteList> GetRoutesAtDay(IUnitOfWork uow, DateTime dateForRouting, bool showCompleted, int[] onlyInGeographicGroup, int[] onlyWithDeliveryShifts)
 		{
-			return QueryOver.Of<RouteList>()
-				.Where(x => x.Date == date);
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			GeoGroup routeGeographicGroupAlias = null;
+
+			var routeListIdsQuery = QueryOver.Of(() => routeListAlias)
+				.Where(() => routeListAlias.Date == dateForRouting)
+				.Select(Projections.Id());
+
+			if(!showCompleted)
+			{
+				routeListIdsQuery.Where(() => routeListAlias.Status == RouteListStatus.New);
+			}
+
+			if(onlyInGeographicGroup.Any())
+			{
+				routeListIdsQuery
+					.Left.JoinAlias(() => routeListAlias.GeographicGroups, () => routeGeographicGroupAlias)
+					.WhereRestrictionOn(() => routeGeographicGroupAlias.Id).IsIn(onlyInGeographicGroup);
+			}
+
+			if(onlyWithDeliveryShifts.Any())
+			{
+				routeListIdsQuery.WhereRestrictionOn(() => routeListAlias.Shift).IsIn(onlyWithDeliveryShifts);
+			}
+
+			var mainQuery = uow.Session.QueryOver(() => routeListAlias)
+				.Where(Subqueries.WhereProperty(() => routeListAlias.Id).In(routeListIdsQuery))
+				.Fetch(SelectMode.Fetch, () => routeListAlias.Driver)
+				.Fetch(SelectMode.Fetch, () => routeListAlias.Car)
+				.Fetch(SelectMode.Fetch, () => routeListAlias.Car.CarModel)
+				.Future();
+
+			uow.Session.QueryOver(() => routeListAlias)
+				.Where(Subqueries.WhereProperty(() => routeListAlias.Id).In(routeListIdsQuery))
+				.Fetch(SelectMode.ChildFetch, () => routeListAlias)
+				.Fetch(SelectMode.Fetch, () => routeListAlias.Addresses)
+				.Future();
+
+			uow.Session.QueryOver(() => routeListAlias)
+				.Where(Subqueries.WhereProperty(() => routeListAlias.Id).In(routeListIdsQuery))
+				.Fetch(SelectMode.ChildFetch, () => routeListAlias)
+				.Fetch(SelectMode.Fetch, () => routeListAlias.GeographicGroups)
+				.Future();
+
+			uow.Session.QueryOver(() => routeListItemAlias)
+				.Where(Subqueries.WhereProperty(() => routeListItemAlias.RouteList.Id).In(routeListIdsQuery))
+				.Fetch(SelectMode.ChildFetch, () => routeListItemAlias)
+				.Fetch(SelectMode.Fetch, () => routeListItemAlias.Order)
+				.Fetch(SelectMode.Fetch, () => routeListItemAlias.Order.Contract)
+				.Fetch(SelectMode.Fetch, () => routeListItemAlias.Order.DeliveryPoint)
+				.Future();
+
+			uow.Session.QueryOver(() => orderAlias)
+				.JoinEntityAlias(() => routeListItemAlias, () => orderAlias.Id == routeListItemAlias.Order.Id, JoinType.LeftOuterJoin)
+				.Where(Subqueries.WhereProperty(() => routeListItemAlias.RouteList.Id).In(routeListIdsQuery))
+				.Fetch(SelectMode.ChildFetch, () => orderAlias)
+				.Fetch(SelectMode.Fetch, () => orderAlias.OrderItems)
+				.Future();
+
+			uow.Session.QueryOver(() => orderItemAlias)
+				.Left.JoinAlias(() => orderItemAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => routeListItemAlias, () => orderAlias.Id == routeListItemAlias.Order.Id, JoinType.LeftOuterJoin)
+				.Where(Subqueries.WhereProperty(() => routeListItemAlias.RouteList.Id).In(routeListIdsQuery))
+				.Fetch(SelectMode.ChildFetch, () => orderItemAlias)
+				.Fetch(SelectMode.Fetch, () => orderItemAlias.Nomenclature)
+				.Future();
+
+			
+			var routeLists = mainQuery.ToList();
+
+			return routeLists;
 		}
 
 		public QueryOver<RouteList> GetRoutesAtDay(DateTime date, List<int> geographicGroupsIds, bool onlyNonPrinted)

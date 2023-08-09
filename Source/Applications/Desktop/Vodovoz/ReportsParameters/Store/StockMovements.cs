@@ -40,7 +40,7 @@ namespace Vodovoz.Reports
 			}
 			
 			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin)
+			   && !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin)
 			{
 				yentryrefWarehouse.Sensitive = false;
 			}

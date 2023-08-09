@@ -17,7 +17,7 @@ using QS.Project.Journal;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 {
-	public class RouteListJournalFilterViewModel : FilterViewModelBase<RouteListJournalFilterViewModel>, IJournalFilterViewModel
+	public class RouteListJournalFilterViewModel : FilterViewModelBase<RouteListJournalFilterViewModel>
 	{
 		private bool _showDriversWithTerminal;
 		private bool _hasAccessToDriverTerminal;
@@ -247,7 +247,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 				"В остальных случаях используется стандартная расцветка")
 		));
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 
 		private void SubscribeOnCheckChanged()
 		{

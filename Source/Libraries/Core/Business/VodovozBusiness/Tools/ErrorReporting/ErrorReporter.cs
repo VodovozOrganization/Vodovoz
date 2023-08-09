@@ -90,7 +90,6 @@ namespace Vodovoz.Tools
 				App = new AppInfo
 				{
 					Modification = Edition,
-					ProductName = ProductName,
 					Version = Version,
 					ProductCode = 3
 				},

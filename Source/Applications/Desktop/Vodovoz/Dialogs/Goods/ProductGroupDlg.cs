@@ -6,6 +6,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Services;
+using QS.Validation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Representations.ProductGroups;
@@ -68,9 +69,11 @@ namespace Vodovoz.Dialogs.Goods
 
 		public override bool Save()
 		{
-			var valid = new QS.Validation.QSValidator<ProductGroup>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			logger.Info("Сохранение...");
 			UoWGeneric.Save();

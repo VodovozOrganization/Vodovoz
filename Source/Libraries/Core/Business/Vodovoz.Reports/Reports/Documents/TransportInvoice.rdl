@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -21,7 +21,7 @@
         <Height>8.30pt</Height>
         <Width>363.89pt</Width>
         <Value>Типовая межотраслевая форма № 1-Т Утверждена постановлением Госкомстата России от 28.11.97 №78</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>209.20pt</Left>
         <Top>3.30pt</Top>
         <Style>
@@ -37,7 +37,7 @@
         <Height>12.05pt</Height>
         <Width>177.76pt</Width>
         <Value>ТОВАРНО-ТРАНСПОРТНАЯ НАКЛАДНАЯ №</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>98.50pt</Left>
         <Top>12.90pt</Top>
         <Style>
@@ -53,7 +53,7 @@
         <Height>12.05pt</Height>
         <Width>186.69pt</Width>
         <Value>=First({order_id}, "Order") + " от " + First({order_date}, "Order") + "г."</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>276.80pt</Left>
         <Top>12.90pt</Top>
         <Style>
@@ -1371,7 +1371,7 @@
         <Height>9.74pt</Height>
         <Width>365.24pt</Width>
         <Value>I ТОВАРНЫЙ РАЗДЕЛ (заполняется грузоотправителем)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>98.50pt</Left>
         <Top>63.70pt</Top>
         <Style>
@@ -1522,7 +1522,7 @@
         <Height>9.04pt</Height>
         <Width>407.89pt</Width>
         <Value>Товарная накладная имеет продолжение на __ л. на бланках за № __ и содержит __ порядковых номеров записей</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.2pt</Left>
         <Top>149.2pt</Top>
         <Style>
@@ -1539,7 +1539,7 @@
         <Height>8.29pt</Height>
         <Width>73.03pt</Width>
         <Value>Всего наименований</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>161.2pt</Top>
         <Style>
@@ -1555,7 +1555,7 @@
         <Height>8.29pt</Height>
         <Width>40.72pt</Width>
         <Value>Всего мест</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>173.4pt</Top>
         <Style>
@@ -1571,7 +1571,7 @@
         <Height>9.04pt</Height>
         <Width>158.89pt</Width>
         <Value>Приложение (паспорта, сертификаты и т.п.) на</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>183.6pt</Top>
         <Style>
@@ -1587,7 +1587,7 @@
         <Height>8.29pt</Height>
         <Width>68.63pt</Width>
         <Value>Масса груза (нетто)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>195.2pt</Left>
         <Top>161.2pt</Top>
         <Style>
@@ -1603,7 +1603,7 @@
         <Height>8.29pt</Height>
         <Width>73.79pt</Width>
         <Value>Масса груза (брутто)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>195.2pt</Left>
         <Top>173.4pt</Top>
         <Style>
@@ -1619,7 +1619,7 @@
         <Height>6.01pt</Height>
         <Width>45.98pt</Width>
         <Value>должность</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>158.6pt</Left>
         <Top>214.7pt</Top>
         <Style>
@@ -1636,7 +1636,7 @@
         <Height>8.29pt</Height>
         <Width>109.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>83.4pt</Left>
         <Top>161.2pt</Top>
         <Style>
@@ -1655,7 +1655,7 @@
         <Height>8.29pt</Height>
         <Width>141.69pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>51.2pt</Left>
         <Top>173.4pt</Top>
         <Style>
@@ -1674,7 +1674,7 @@
         <Height>8.29pt</Height>
         <Width>100.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>265.1pt</Left>
         <Top>161.2pt</Top>
         <Style>
@@ -1693,7 +1693,7 @@
         <Height>10.50pt</Height>
         <Width>37.65pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>369.2pt</Left>
         <Top>159.3pt</Top>
         <Style>
@@ -1720,7 +1720,7 @@
         <Height>8.29pt</Height>
         <Width>95.19pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>270.3pt</Left>
         <Top>173.4pt</Top>
         <Style>
@@ -1739,7 +1739,7 @@
         <Height>10.50pt</Height>
         <Width>37.65pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>369.3pt</Left>
         <Top>172.0pt</Top>
         <Style>
@@ -1766,7 +1766,7 @@
         <Height>9.04pt</Height>
         <Width>40.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>169.4pt</Left>
         <Top>183.6pt</Top>
         <Style>
@@ -1785,7 +1785,7 @@
         <Height>9.04pt</Height>
         <Width>26.89pt</Width>
         <Value>листах</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>211.6pt</Left>
         <Top>183.6pt</Top>
         <Style>
@@ -1801,7 +1801,7 @@
         <Height>9.77pt</Height>
         <Width>317.25pt</Width>
         <Value>='Всего отпущено ' + SummaOnlyString(Format(Count({official_name}, "Items"), "F0")) + ' наименований на сумму ' + SummaString_Val(Format(Sum({item_sum}, "Items"), "F2"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>194.0pt</Top>
         <Style>
@@ -1818,7 +1818,7 @@
         <Height>8.31pt</Height>
         <Width>148.77pt</Width>
         <Value>Отпуск разрешил</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>204.9pt</Top>
         <Style>
@@ -1834,7 +1834,7 @@
         <Height>8.31pt</Height>
         <Width>45.98pt</Width>
         <Value>Ген. директор</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>158.6pt</Left>
         <Top>204.9pt</Top>
         <Style>
@@ -1853,7 +1853,7 @@
         <Height>6.01pt</Height>
         <Width>43.73pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>208.0pt</Left>
         <Top>214.7pt</Top>
         <Style>
@@ -1870,7 +1870,7 @@
         <Height>8.31pt</Height>
         <Width>43.73pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>208.0pt</Left>
         <Top>204.9pt</Top>
         <Style>
@@ -1889,7 +1889,7 @@
         <Height>6.01pt</Height>
         <Width>70.73pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>254.70pt</Left>
         <Top>214.70pt</Top>
         <Style>
@@ -1906,7 +1906,7 @@
         <Height>8.31pt</Height>
         <Width>70.73pt</Width>
         <Value>=First({leader}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>254.7pt</Left>
         <Top>204.9pt</Top>
         <Style>
@@ -1925,7 +1925,7 @@
         <Height>6.01pt</Height>
         <Width>45.98pt</Width>
         <Value>должность</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>158.6pt</Left>
         <Top>231.9pt</Top>
         <Style>
@@ -1942,7 +1942,7 @@
         <Height>9.06pt</Height>
         <Width>148.77pt</Width>
         <Value>Главный (старший) бухгалтер</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>222.5pt</Top>
         <Style>
@@ -1958,7 +1958,7 @@
         <Height>8.31pt</Height>
         <Width>45.98pt</Width>
         <Value>Гл. бухгалтер</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>158.6pt</Left>
         <Top>222.5pt</Top>
         <Style>
@@ -1977,7 +1977,7 @@
         <Height>6.01pt</Height>
         <Width>43.73pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>208.0pt</Left>
         <Top>231.9pt</Top>
         <Style>
@@ -1994,7 +1994,7 @@
         <Height>8.31pt</Height>
         <Width>43.73pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>208.0pt</Left>
         <Top>222.5pt</Top>
         <Style>
@@ -2013,7 +2013,7 @@
         <Height>6.01pt</Height>
         <Width>70.73pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>254.7pt</Left>
         <Top>231.9pt</Top>
         <Style>
@@ -2030,7 +2030,7 @@
         <Height>8.31pt</Height>
         <Width>70.73pt</Width>
         <Value>=First({buhgalter}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>254.7pt</Left>
         <Top>222.5pt</Top>
         <Style>
@@ -2049,7 +2049,7 @@
         <Height>6.01pt</Height>
         <Width>45.98pt</Width>
         <Value>должность</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>158.6pt</Left>
         <Top>249.7pt</Top>
         <Style>
@@ -2066,7 +2066,7 @@
         <Height>8.31pt</Height>
         <Width>148.77pt</Width>
         <Value>Отпуск груза произвел</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>240.3pt</Top>
         <Style>
@@ -2082,7 +2082,7 @@
         <Height>8.31pt</Height>
         <Width>45.98pt</Width>
         <Value>Ген. директор</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>158.6pt</Left>
         <Top>240.3pt</Top>
         <Style>
@@ -2101,7 +2101,7 @@
         <Height>6.01pt</Height>
         <Width>43.73pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>208.0pt</Left>
         <Top>249.7pt</Top>
         <Style>
@@ -2118,7 +2118,7 @@
         <Height>8.31pt</Height>
         <Width>43.73pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>208.0pt</Left>
         <Top>240.3pt</Top>
         <Style>
@@ -2137,7 +2137,7 @@
         <Height>6.01pt</Height>
         <Width>70.73pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>254.7pt</Left>
         <Top>249.7pt</Top>
         <Style>
@@ -2154,7 +2154,7 @@
         <Height>8.31pt</Height>
         <Width>70.73pt</Width>
         <Value>=First({leader}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>254.7pt</Left>
         <Top>240.3pt</Top>
         <Style>
@@ -2173,7 +2173,7 @@
         <Height>6.01pt</Height>
         <Width>59.48pt</Width>
         <Value>должность</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>395.1pt</Left>
         <Top>231.6pt</Top>
         <Style>
@@ -2190,7 +2190,7 @@
         <Height>15.06pt</Height>
         <Width>61.77pt</Width>
         <Value>Груз к перевозке принял</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>331.5pt</Left>
         <Top>222.6pt</Top>
         <Style>
@@ -2206,7 +2206,7 @@
         <Height>8.25pt</Height>
         <Width>59.48pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>395.1pt</Left>
         <Top>222.6pt</Top>
         <Style>
@@ -2225,7 +2225,7 @@
         <Height>6.01pt</Height>
         <Width>42.98pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>456.5pt</Left>
         <Top>231.6pt</Top>
         <Style>
@@ -2242,7 +2242,7 @@
         <Height>8.25pt</Height>
         <Width>42.98pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>456.5pt</Left>
         <Top>222.6pt</Top>
         <Style>
@@ -2261,7 +2261,7 @@
         <Height>6.01pt</Height>
         <Width>71.48pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>500.0pt</Left>
         <Top>231.6pt</Top>
         <Style>
@@ -2278,7 +2278,7 @@
         <Height>8.25pt</Height>
         <Width>71.48pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>500.0pt</Left>
         <Top>222.6pt</Top>
         <Style>
@@ -2297,7 +2297,7 @@
         <Height>7.57pt</Height>
         <Width>26.38pt</Width>
         <Value>М.П.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>250.0pt</Top>
         <Style>
@@ -2313,7 +2313,7 @@
         <Height>7.57pt</Height>
         <Width>17.94pt</Width>
         <Value>"      "</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>36.8pt</Left>
         <Top>250.0pt</Top>
         <Style>
@@ -2336,7 +2336,7 @@
         <Height>7.57pt</Height>
         <Width>46.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>56.6pt</Left>
         <Top>250.0pt</Top>
         <Style>
@@ -2355,7 +2355,7 @@
         <Height>7.57pt</Height>
         <Width>44.19pt</Width>
         <Value>20      года</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>104.9pt</Left>
         <Top>250.0pt</Top>
         <Style>
@@ -2378,7 +2378,7 @@
         <Height>8.25pt</Height>
         <Width>61.44pt</Width>
         <Value>По доверенности №</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>331.5pt</Left>
         <Top>195.7pt</Top>
         <Style>
@@ -2401,7 +2401,7 @@
         <Height>8.25pt</Height>
         <Width>46.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>395.0pt</Left>
         <Top>195.7pt</Top>
         <Style>
@@ -2434,7 +2434,7 @@
         <Height>8.25pt</Height>
         <Width>14.94pt</Width>
         <Value>от</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>443.3pt</Left>
         <Top>195.7pt</Top>
         <Style>
@@ -2457,7 +2457,7 @@
         <Height>8.25pt</Height>
         <Width>17.94pt</Width>
         <Value>"      "</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>458.8pt</Left>
         <Top>195.7pt</Top>
         <Style>
@@ -2480,7 +2480,7 @@
         <Height>8.25pt</Height>
         <Width>46.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>477.8pt</Left>
         <Top>195.7pt</Top>
         <Style>
@@ -2499,7 +2499,7 @@
         <Height>8.25pt</Height>
         <Width>45.69pt</Width>
         <Value>20      года</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>525.7pt</Left>
         <Top>195.7pt</Top>
         <Style>
@@ -2522,7 +2522,7 @@
         <Height>8.25pt</Height>
         <Width>31.44pt</Width>
         <Value>выданной</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>331.5pt</Left>
         <Top>206.7pt</Top>
         <Style>
@@ -2545,7 +2545,7 @@
         <Height>8.25pt</Height>
         <Width>206.19pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>365.2pt</Left>
         <Top>206.7pt</Top>
         <Style>
@@ -2564,7 +2564,7 @@
         <Height>6.01pt</Height>
         <Width>59.48pt</Width>
         <Value>должность</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>395.1pt</Left>
         <Top>251.1pt</Top>
         <Style>
@@ -2581,7 +2581,7 @@
         <Height>15.06pt</Height>
         <Width>61.77pt</Width>
         <Value>Груз к получил</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>331.5pt</Left>
         <Top>242.1pt</Top>
         <Style>
@@ -2597,7 +2597,7 @@
         <Height>8.25pt</Height>
         <Width>59.48pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>395.1pt</Left>
         <Top>242.1pt</Top>
         <Style>
@@ -2616,7 +2616,7 @@
         <Height>6.01pt</Height>
         <Width>42.98pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>456.5pt</Left>
         <Top>251.1pt</Top>
         <Style>
@@ -2633,7 +2633,7 @@
         <Height>8.25pt</Height>
         <Width>42.98pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>456.5pt</Left>
         <Top>242.1pt</Top>
         <Style>
@@ -2652,7 +2652,7 @@
         <Height>6.01pt</Height>
         <Width>71.48pt</Width>
         <Value>расшифровка подписи</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>500.0pt</Left>
         <Top>251.1pt</Top>
         <Style>
@@ -2669,7 +2669,7 @@
         <Height>8.25pt</Height>
         <Width>71.48pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>500.0pt</Left>
         <Top>242.1pt</Top>
         <Style>
@@ -2688,7 +2688,7 @@
         <Height>9.74pt</Height>
         <Width>384.74pt</Width>
         <Value>II ТРАНСПОРТНЫЙ РАЗДЕЛ</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>98.5pt</Left>
         <Top>259.9pt</Top>
         <Style>
@@ -2703,7 +2703,7 @@
         <Height>8.29pt</Height>
         <Width>70.78pt</Width>
         <Value>Срок доставки груза</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>271.4pt</Top>
         <Style>
@@ -2719,7 +2719,7 @@
         <Height>8.29pt</Height>
         <Width>143.19pt</Width>
         <Value>=Format(First({delivery_date}, "Order"), "dd.MM.yyyy") + ' г.'</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>81.3pt</Left>
         <Top>271.4pt</Top>
         <Style>
@@ -2738,7 +2738,7 @@
         <Height>8.29pt</Height>
         <Width>46.78pt</Width>
         <Value>Организация</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>281.5pt</Top>
         <Style>
@@ -2754,7 +2754,7 @@
         <Height>8.29pt</Height>
         <Width>425.94pt</Width>
         <Value>=First({organization_fullname}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>57.30pt</Left>
         <Top>281.5pt</Top>
         <Style>
@@ -2774,7 +2774,7 @@
         <Height>8.29pt</Height>
         <Width>44.53pt</Width>
         <Value>Автомобиль</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>226.0pt</Left>
         <Top>271.4pt</Top>
         <Style>
@@ -2790,7 +2790,7 @@
         <Height>8.29pt</Height>
         <Width>48.69pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>271.5pt</Left>
         <Top>271.4pt</Top>
         <Style>
@@ -2809,7 +2809,7 @@
         <Height>8.29pt</Height>
         <Width>119.53pt</Width>
         <Value>Государственный номерной знак</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>321.80pt</Left>
         <Top>271.40pt</Top>
         <Style>
@@ -2825,7 +2825,7 @@
         <Height>8.29pt</Height>
         <Width>40.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>442.80pt</Left>
         <Top>271.4pt</Top>
         <Style>
@@ -2844,7 +2844,7 @@
         <Height>8.29pt</Height>
         <Width>80.53pt</Width>
         <Value>Заказчик (плательщик)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>299.2pt</Top>
         <Style>
@@ -2860,7 +2860,7 @@
         <Height>6.01pt</Height>
         <Width>425.94pt</Width>
         <Value>наименование, адрес, номер телефона</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>57.30pt</Left>
         <Top>290.7pt</Top>
         <Style>
@@ -2877,7 +2877,7 @@
         <Height>8.25pt</Height>
         <Width>392.19pt</Width>
         <Value>=First({payer}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>91.05pt</Left>
         <Top>299.2pt</Top>
         <Style>
@@ -2896,7 +2896,7 @@
         <Height>6.01pt</Height>
         <Width>392.19pt</Width>
         <Value>наименование, адрес, номер телефона</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>91.05pt</Left>
         <Top>308.7pt</Top>
         <Style>
@@ -2913,7 +2913,7 @@
         <Height>8.29pt</Height>
         <Width>35.53pt</Width>
         <Value>Водитель</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>316.9pt</Top>
         <Style>
@@ -2929,7 +2929,7 @@
         <Height>8.29pt</Height>
         <Width>137.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>46.8pt</Left>
         <Top>316.9pt</Top>
         <Style>
@@ -2948,7 +2948,7 @@
         <Height>8.29pt</Height>
         <Width>64.03pt</Width>
         <Value>Удостоверение №</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>187.2pt</Left>
         <Top>316.9pt</Top>
         <Style>
@@ -2964,7 +2964,7 @@
         <Height>8.29pt</Height>
         <Width>230.19pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>253.05pt</Left>
         <Top>316.9pt</Top>
         <Style>
@@ -2983,7 +2983,7 @@
         <Height>8.29pt</Height>
         <Width>82.78pt</Width>
         <Value>Лицензионная карточка</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>328.4pt</Top>
         <Style>
@@ -2999,7 +2999,7 @@
         <Height>8.29pt</Height>
         <Width>90.69pt</Width>
         <Value>стандартная, ограниченная</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>94.1pt</Left>
         <Top>328.4pt</Top>
         <Style>
@@ -3018,7 +3018,7 @@
         <Height>8.29pt</Height>
         <Width>52.78pt</Width>
         <Value>Вид перевозки</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>187.2pt</Left>
         <Top>328.4pt</Top>
         <Style>
@@ -3034,7 +3034,7 @@
         <Height>8.29pt</Height>
         <Width>241.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>241.80pt</Left>
         <Top>328.4pt</Top>
         <Style>
@@ -3053,7 +3053,7 @@
         <Height>6.01pt</Height>
         <Width>90.69pt</Width>
         <Value>ненужное зачеркнуть</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>94.1pt</Left>
         <Top>337.4pt</Top>
         <Style>
@@ -3070,7 +3070,7 @@
         <Height>8.29pt</Height>
         <Width>73.03pt</Width>
         <Value>Регистрационный №</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>345.5pt</Top>
         <Style>
@@ -3086,7 +3086,7 @@
         <Height>8.29pt</Height>
         <Width>100.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>84.3pt</Left>
         <Top>345.5pt</Top>
         <Style>
@@ -3105,7 +3105,7 @@
         <Height>8.29pt</Height>
         <Width>25.03pt</Width>
         <Value>Серия</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>187.2pt</Left>
         <Top>345.5pt</Top>
         <Style>
@@ -3121,7 +3121,7 @@
         <Height>8.29pt</Height>
         <Width>54.69pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>214.4pt</Left>
         <Top>345.5pt</Top>
         <Style>
@@ -3140,7 +3140,7 @@
         <Height>8.29pt</Height>
         <Width>12.28pt</Width>
         <Value>№</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>271.1pt</Left>
         <Top>345.5pt</Top>
         <Style>
@@ -3156,7 +3156,7 @@
         <Height>8.29pt</Height>
         <Width>197.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>285.30pt</Left>
         <Top>345.5pt</Top>
         <Style>
@@ -3175,7 +3175,7 @@
         <Height>8.29pt</Height>
         <Width>54.28pt</Width>
         <Value>Пункт погрузки</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>356.9pt</Top>
         <Style>
@@ -3191,7 +3191,7 @@
         <Height>8.29pt</Height>
         <Width>176.94pt</Width>
         <Value>=First({organization_address}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>70.70pt</Left>
         <Top>356.90pt</Top>
         <Style>
@@ -3210,7 +3210,7 @@
         <Height>8.29pt</Height>
         <Width>58.78pt</Width>
         <Value>Пункт разгрузки</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>250.3pt</Left>
         <Top>356.9pt</Top>
         <Style>
@@ -3226,7 +3226,7 @@
         <Height>8.29pt</Height>
         <Width>171.69pt</Width>
         <Value>=First({counterparty_address}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>311.55pt</Left>
         <Top>356.9pt</Top>
         <Style>
@@ -3245,7 +3245,7 @@
         <Height>6.01pt</Height>
         <Width>177.23pt</Width>
         <Value>адрес, номер телефона</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>70.8pt</Left>
         <Top>366.7pt</Top>
         <Style>
@@ -3262,7 +3262,7 @@
         <Height>6.01pt</Height>
         <Width>171.69pt</Width>
         <Value>адрес, номер телефона</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>311.55pt</Left>
         <Top>366.3pt</Top>
         <Style>
@@ -3279,7 +3279,7 @@
         <Height>8.29pt</Height>
         <Width>55.03pt</Width>
         <Value>Переадресовка</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>375.2pt</Top>
         <Style>
@@ -3295,7 +3295,7 @@
         <Height>8.25pt</Height>
         <Width>220.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>69.3pt</Left>
         <Top>375.1pt</Top>
         <Style>
@@ -3314,7 +3314,7 @@
         <Height>6.01pt</Height>
         <Width>220.73pt</Width>
         <Value>адрес, номер телефона</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>69.4pt</Left>
         <Top>384.2pt</Top>
         <Style>
@@ -3331,7 +3331,7 @@
         <Height>8.29pt</Height>
         <Width>35.53pt</Width>
         <Value>1. прицеп</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>291.8pt</Left>
         <Top>375.0pt</Top>
         <Style>
@@ -3347,7 +3347,7 @@
         <Height>8.25pt</Height>
         <Width>28.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>329.2pt</Left>
         <Top>375.0pt</Top>
         <Style>
@@ -3366,7 +3366,7 @@
         <Height>8.29pt</Height>
         <Width>74.53pt</Width>
         <Value>Государственный №</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>358.7pt</Left>
         <Top>375.0pt</Top>
         <Style>
@@ -3382,7 +3382,7 @@
         <Height>8.25pt</Height>
         <Width>47.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>435.30pt</Left>
         <Top>375.0pt</Top>
         <Style>
@@ -3401,7 +3401,7 @@
         <Height>8.29pt</Height>
         <Width>35.53pt</Width>
         <Value>2. прицеп</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>292.0pt</Left>
         <Top>391.4pt</Top>
         <Style>
@@ -3417,7 +3417,7 @@
         <Height>8.25pt</Height>
         <Width>28.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>329.4pt</Left>
         <Top>391.4pt</Top>
         <Style>
@@ -3436,7 +3436,7 @@
         <Height>8.29pt</Height>
         <Width>74.53pt</Width>
         <Value>Государственный №</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>358.9pt</Left>
         <Top>391.4pt</Top>
         <Style>
@@ -3452,7 +3452,7 @@
         <Height>8.25pt</Height>
         <Width>47.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>435.30pt</Left>
         <Top>391.4pt</Top>
         <Style>
@@ -3471,7 +3471,7 @@
         <Height>8.25pt</Height>
         <Width>62.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>69.6pt</Left>
         <Top>391.0pt</Top>
         <Style>
@@ -3490,7 +3490,7 @@
         <Height>6.01pt</Height>
         <Width>62.48pt</Width>
         <Value>номер распоряжения</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>69.6pt</Left>
         <Top>400.6pt</Top>
         <Style>
@@ -3507,7 +3507,7 @@
         <Height>8.25pt</Height>
         <Width>155.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>134.2pt</Left>
         <Top>391.0pt</Top>
         <Style>
@@ -3526,7 +3526,7 @@
         <Height>6.01pt</Height>
         <Width>155.48pt</Width>
         <Value>адрес, номер телефона</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>134.2pt</Left>
         <Top>400.1pt</Top>
         <Style>
@@ -3543,7 +3543,7 @@
         <Height>9.74pt</Height>
         <Width>385.49pt</Width>
         <Value>СВЕДЕНИЯ О ГРУЗЕ</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>97.75pt</Left>
         <Top>407.4pt</Top>
         <Style>
@@ -4608,7 +4608,7 @@
         <Height>15.79pt</Height>
         <Width>103.03pt</Width>
         <Value>Указанный груз с исправной пломбой, тарой и упаковкой</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.30pt</Left>
         <Top>464.80pt</Top>
         <Style>
@@ -4624,7 +4624,7 @@
         <Height>8.25pt</Height>
         <Width>29.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>166.7pt</Left>
         <Top>464.8pt</Top>
         <Style>
@@ -4643,7 +4643,7 @@
         <Height>15.79pt</Height>
         <Width>26.53pt</Width>
         <Value>Кол-во мест</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>138.9pt</Left>
         <Top>464.8pt</Top>
         <Style>
@@ -4659,7 +4659,7 @@
         <Height>6.76pt</Height>
         <Width>29.48pt</Width>
         <Value>прописью</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>167.2pt</Left>
         <Top>474.0pt</Top>
         <Style>
@@ -4676,7 +4676,7 @@
         <Height>8.25pt</Height>
         <Width>23.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>113.3pt</Left>
         <Top>464.8pt</Top>
         <Style>
@@ -4695,7 +4695,7 @@
         <Height>6.76pt</Height>
         <Width>23.48pt</Width>
         <Value>оттиск</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>113.7pt</Left>
         <Top>474.0pt</Top>
         <Style>
@@ -4712,7 +4712,7 @@
         <Height>8.29pt</Height>
         <Width>52.78pt</Width>
         <Value>Массой брутто</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>482.4pt</Top>
         <Style>
@@ -4728,7 +4728,7 @@
         <Height>8.25pt</Height>
         <Width>29.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>63.3pt</Left>
         <Top>482.2pt</Top>
         <Style>
@@ -4747,7 +4747,7 @@
         <Height>8.29pt</Height>
         <Width>49.78pt</Width>
         <Value>т. к перевозке</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>95.0pt</Left>
         <Top>482.3pt</Top>
         <Style>
@@ -4763,7 +4763,7 @@
         <Height>8.29pt</Height>
         <Width>19.03pt</Width>
         <Value>сдал</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>492.2pt</Top>
         <Style>
@@ -4779,7 +4779,7 @@
         <Height>6.01pt</Height>
         <Width>36.23pt</Width>
         <Value>должность</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>28.3pt</Left>
         <Top>501.7pt</Top>
         <Style>
@@ -4796,7 +4796,7 @@
         <Height>8.25pt</Height>
         <Width>36.23pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>28.3pt</Left>
         <Top>492.3pt</Top>
         <Style>
@@ -4815,7 +4815,7 @@
         <Height>6.01pt</Height>
         <Width>46.73pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>65.7pt</Left>
         <Top>501.7pt</Top>
         <Style>
@@ -4832,7 +4832,7 @@
         <Height>8.25pt</Height>
         <Width>46.73pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>65.7pt</Left>
         <Top>492.3pt</Top>
         <Style>
@@ -4851,7 +4851,7 @@
         <Height>6.01pt</Height>
         <Width>82.73pt</Width>
         <Value>расшифровка</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>113.9pt</Left>
         <Top>501.9pt</Top>
         <Style>
@@ -4868,7 +4868,7 @@
         <Height>8.25pt</Height>
         <Width>82.73pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>113.9pt</Left>
         <Top>492.3pt</Top>
         <Style>
@@ -4888,7 +4888,7 @@
         <Width>60.28pt</Width>
         <Value>принял водитель
 -экспедитор</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>510.2pt</Top>
         <Style>
@@ -4904,7 +4904,7 @@
         <Height>6.01pt</Height>
         <Width>33.23pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>69.7pt</Left>
         <Top>519.7pt</Top>
         <Style>
@@ -4921,7 +4921,7 @@
         <Height>8.25pt</Height>
         <Width>33.23pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>69.7pt</Left>
         <Top>510.3pt</Top>
         <Style>
@@ -4940,7 +4940,7 @@
         <Height>6.01pt</Height>
         <Width>47.48pt</Width>
         <Value>расшифровка</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>104.40pt</Left>
         <Top>519.90pt</Top>
         <Style>
@@ -4957,7 +4957,7 @@
         <Height>8.25pt</Height>
         <Width>47.48pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>104.40pt</Left>
         <Top>510.30pt</Top>
         <Style>
@@ -4976,7 +4976,7 @@
         <Height>15.79pt</Height>
         <Width>43.78pt</Width>
         <Value>место для штампа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>154.10pt</Left>
         <Top>510.20pt</Top>
         <Style>
@@ -4992,7 +4992,7 @@
         <Height>15.79pt</Height>
         <Width>103.03pt</Width>
         <Value>Указанный груз с исправной пломбой, тарой и упаковкой</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>205.60pt</Left>
         <Top>465.20pt</Top>
         <Style>
@@ -5008,7 +5008,7 @@
         <Height>8.25pt</Height>
         <Width>29.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>364.0pt</Left>
         <Top>465.2pt</Top>
         <Style>
@@ -5027,7 +5027,7 @@
         <Height>15.79pt</Height>
         <Width>26.53pt</Width>
         <Value>Кол-во мест</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>336.2pt</Left>
         <Top>465.2pt</Top>
         <Style>
@@ -5043,7 +5043,7 @@
         <Height>6.76pt</Height>
         <Width>29.48pt</Width>
         <Value>прописью</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>364.5pt</Left>
         <Top>474.4pt</Top>
         <Style>
@@ -5060,7 +5060,7 @@
         <Height>8.25pt</Height>
         <Width>23.19pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>311.4pt</Left>
         <Top>465.2pt</Top>
         <Style>
@@ -5079,7 +5079,7 @@
         <Height>6.76pt</Height>
         <Width>22.73pt</Width>
         <Value>оттиск</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>311.8pt</Left>
         <Top>474.4pt</Top>
         <Style>
@@ -5096,7 +5096,7 @@
         <Height>8.29pt</Height>
         <Width>52.78pt</Width>
         <Value>Массой брутто</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>205.6pt</Left>
         <Top>482.8pt</Top>
         <Style>
@@ -5112,7 +5112,7 @@
         <Height>8.25pt</Height>
         <Width>29.94pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>260.6pt</Left>
         <Top>482.6pt</Top>
         <Style>
@@ -5131,7 +5131,7 @@
         <Height>8.29pt</Height>
         <Width>49.78pt</Width>
         <Value>т. к перевозке</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>292.3pt</Left>
         <Top>482.7pt</Top>
         <Style>
@@ -5147,7 +5147,7 @@
         <Height>8.29pt</Height>
         <Width>19.03pt</Width>
         <Value>сдал</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>205.6pt</Left>
         <Top>492.6pt</Top>
         <Style>
@@ -5163,7 +5163,7 @@
         <Height>6.01pt</Height>
         <Width>36.23pt</Width>
         <Value>должность</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>225.6pt</Left>
         <Top>502.1pt</Top>
         <Style>
@@ -5180,7 +5180,7 @@
         <Height>8.25pt</Height>
         <Width>36.23pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>225.6pt</Left>
         <Top>492.7pt</Top>
         <Style>
@@ -5199,7 +5199,7 @@
         <Height>6.01pt</Height>
         <Width>46.73pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>263.0pt</Left>
         <Top>502.1pt</Top>
         <Style>
@@ -5216,7 +5216,7 @@
         <Height>8.25pt</Height>
         <Width>46.73pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>263.0pt</Left>
         <Top>492.7pt</Top>
         <Style>
@@ -5235,7 +5235,7 @@
         <Height>6.01pt</Height>
         <Width>82.73pt</Width>
         <Value>расшифровка</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>311.2pt</Left>
         <Top>502.3pt</Top>
         <Style>
@@ -5252,7 +5252,7 @@
         <Height>8.25pt</Height>
         <Width>82.73pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>311.2pt</Left>
         <Top>492.7pt</Top>
         <Style>
@@ -5271,7 +5271,7 @@
         <Height>14.28pt</Height>
         <Width>36.20pt</Width>
         <Value>ПРИНЯЛ</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>205.60pt</Left>
         <Top>509.80pt</Top>
         <Style>
@@ -5287,7 +5287,7 @@
         <Height>6.01pt</Height>
         <Width>33.23pt</Width>
         <Value>подпись</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>257.4pt</Left>
         <Top>519.3pt</Top>
         <Style>
@@ -5304,7 +5304,7 @@
         <Height>9.76pt</Height>
         <Width>57.32pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>242.91pt</Left>
         <Top>508.39pt</Top>
         <Style>
@@ -5323,7 +5323,7 @@
         <Height>6.01pt</Height>
         <Width>44.48pt</Width>
         <Value>расшифровка</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>301.70pt</Left>
         <Top>519.50pt</Top>
         <Style>
@@ -5340,7 +5340,7 @@
         <Height>8.25pt</Height>
         <Width>44.48pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>301.70pt</Left>
         <Top>509.90pt</Top>
         <Style>
@@ -5359,7 +5359,7 @@
         <Height>15.79pt</Height>
         <Width>44.53pt</Width>
         <Value>место для штампа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>349.00pt</Left>
         <Top>509.80pt</Top>
         <Style>
@@ -5375,7 +5375,7 @@
         <Height>8.25pt</Height>
         <Width>64.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>507.4pt</Left>
         <Top>470.9pt</Top>
         <Style>
@@ -5394,7 +5394,7 @@
         <Height>8.29pt</Height>
         <Width>106.78pt</Width>
         <Value>Отметки о составленных актах</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>399.5pt</Left>
         <Top>470.8pt</Top>
         <Style>
@@ -5410,7 +5410,7 @@
         <Height>8.25pt</Height>
         <Width>97.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>474.3pt</Left>
         <Top>485.4pt</Top>
         <Style>
@@ -5429,7 +5429,7 @@
         <Height>8.29pt</Height>
         <Width>74.53pt</Width>
         <Value>Транспортные услуги</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>399.2pt</Left>
         <Top>485.3pt</Top>
         <Style>
@@ -5445,7 +5445,7 @@
         <Height>8.25pt</Height>
         <Width>172.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>399.1pt</Left>
         <Top>496.7pt</Top>
         <Style>
@@ -5464,7 +5464,7 @@
         <Height>8.25pt</Height>
         <Width>172.44pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>399.7pt</Left>
         <Top>508.4pt</Top>
         <Style>
@@ -5484,12 +5484,23 @@
         <Width>580.94pt</Width>
         <Left>0.0pt</Left>
         <Top>527.5pt</Top>
+        <Style>
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
+        </Style>
         <ReportItems>
           <Textbox Name="Textbox17" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>9.74pt</Height>
             <Width>385.49pt</Width>
             <Value>ПОГРУЗОЧНО-РАЗГРУЗОЧНЫЕ ОПЕРАЦИИ</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>98.5pt</Left>
             <Top>0.4pt</Top>
             <Style>
@@ -8922,7 +8933,7 @@
             <Height>9.74pt</Height>
             <Width>385.49pt</Width>
             <Value>ПРОЧИЕ СВЕДЕНИЯ (заполняется организацией - владельцем автотранспорта)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>99.8pt</Left>
             <Top>69.0pt</Top>
             <Style>
@@ -8937,7 +8948,7 @@
             <Height>6.01pt</Height>
             <Width>39.98pt</Width>
             <Value>подпись</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>472.7pt</Left>
             <Top>191.4pt</Top>
             <Style>
@@ -8954,7 +8965,7 @@
             <Height>8.25pt</Height>
             <Width>39.98pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>472.7pt</Left>
             <Top>182.0pt</Top>
             <Style>
@@ -8973,7 +8984,7 @@
             <Height>6.01pt</Height>
             <Width>57.98pt</Width>
             <Value>расшифровка</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>514.6pt</Left>
             <Top>191.6pt</Top>
             <Style>
@@ -8990,7 +9001,7 @@
             <Height>8.25pt</Height>
             <Width>57.98pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>514.6pt</Left>
             <Top>182.0pt</Top>
             <Style>
@@ -9009,7 +9020,7 @@
             <Height>11.29pt</Height>
             <Width>60.28pt</Width>
             <Value>Таксировщик</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>472.5pt</Left>
             <Top>169.2pt</Top>
             <Style>
@@ -9025,7 +9036,7 @@
             <Height>11.29pt</Height>
             <Width>60.28pt</Width>
             <Value>Таксировка</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>472.9pt</Left>
             <Top>83.7pt</Top>
             <Style>
@@ -9041,7 +9052,7 @@
             <Height>8.25pt</Height>
             <Width>99.23pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>472.8pt</Left>
             <Top>97.6pt</Top>
             <Style>
@@ -9060,7 +9071,7 @@
             <Height>8.25pt</Height>
             <Width>99.23pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>472.8pt</Left>
             <Top>108.7pt</Top>
             <Style>
@@ -9079,7 +9090,7 @@
             <Height>8.25pt</Height>
             <Width>99.23pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>472.8pt</Left>
             <Top>119.9pt</Top>
             <Style>
@@ -9098,7 +9109,7 @@
             <Height>8.25pt</Height>
             <Width>99.23pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>472.8pt</Left>
             <Top>131.0pt</Top>
             <Style>
@@ -11914,7 +11925,7 @@ Public Function SummaOnlyString(ByVal Summa As String) As String
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

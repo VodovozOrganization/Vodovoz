@@ -1,27 +1,14 @@
 ﻿using Autofac;
-using Fias.Client;
-using Fias.Client.Cache;
 using NLog;
-using QS.BaseParameters;
-using QS.BaseParameters.ViewModels;
-using QS.BaseParameters.Views;
-using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Project.Dialogs.GtkUI;
-using QS.Project.Domain;
-using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Project.Versioning;
-using QS.Project.ViewModels;
-using QS.Project.Views;
 using QS.Tdi;
 using QS.Tdi.Gtk;
-using QS.Tools;
+using QS.Utilities.Debug;
 using QS.Validation;
 using QSBanks;
-using QSOrmProject;
 using QSProjectsLib;
 using System;
 using System.Linq;
@@ -29,62 +16,25 @@ using System.Runtime.InteropServices;
 using Vodovoz;
 using Vodovoz.Controllers;
 using Vodovoz.Core;
-using Vodovoz.Dialogs.OnlineStore;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions.Warehouses;
-using Vodovoz.Domain.StoredResources;
-using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.FilterViewModels;
-using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Mango;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
-using Vodovoz.ReportsParameters;
-using Vodovoz.ReportsParameters.Logistic;
-using Vodovoz.Representations;
-using Vodovoz.ServiceDialogs;
-using Vodovoz.ServiceDialogs.Database;
-using Vodovoz.Services;
 using Vodovoz.SidePanel;
-using Vodovoz.TempAdapters;
-using Vodovoz.Tools.Logistic;
-using Vodovoz.ViewModels.Accounting;
-using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.Dialogs.Complaints;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Proposal;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Proposal;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 using VodovozInfrastructure.Configuration;
 using Order = Vodovoz.Domain.Orders.Order;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
-using UserRepository = Vodovoz.EntityRepositories.UserRepository;
-using Vodovoz.ViewModels.ViewModels.Warehouses;
-using Vodovoz.ViewModels.ViewModels.Suppliers;
-using Vodovoz.ViewModels.Cash.Reports;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
-using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 
 public partial class MainWindow : Gtk.Window
 {
-	private static Logger logger = LogManager.GetCurrentClassLogger();
-	private uint lastUiId;
-	private readonly ILifetimeScope autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
-	private readonly IApplicationInfo applicationInfo;
-	private readonly IPasswordValidator passwordValidator;
-	private readonly IApplicationConfigurator applicationConfigurator;
+	private static Logger _logger = LogManager.GetCurrentClassLogger();
+	private uint _lastUiId;
+	private readonly ILifetimeScope _autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
+	private readonly IApplicationInfo _applicationInfo;
+	private readonly IPasswordValidator _passwordValidator;
+	private readonly IApplicationConfigurator _applicationConfigurator;
 	private readonly IMovementDocumentsNotificationsController _movementsNotificationsController;
 	private readonly IComplaintNotificationController _complaintNotificationController;
 	private readonly bool _hasAccessToSalariesForLogistics;
@@ -101,12 +51,16 @@ public partial class MainWindow : Gtk.Window
 
 	public MainWindow(IPasswordValidator passwordValidator, IApplicationConfigurator applicationConfigurator) : base(Gtk.WindowType.Toplevel)
 	{
-		this.passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
-		this.applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
+		_passwordValidator = passwordValidator ?? throw new ArgumentNullException(nameof(passwordValidator));
+		_applicationConfigurator = applicationConfigurator ?? throw new ArgumentNullException(nameof(applicationConfigurator));
+
 		Build();
+
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
-		applicationInfo = new ApplicationVersionInfo();
+		_applicationInfo = new ApplicationVersionInfo();
+
 		BuildToolbarActions();
+
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
 		var highlightWColor = CurrentUserSettings.Settings.HighlightTabsWithColor;
@@ -116,18 +70,31 @@ public partial class MainWindow : Gtk.Window
 		var tabsParametersProvider = new TabsParametersProvider(new ParametersProvider());
 		TDIMain.SetTabsColorHighlighting(highlightWColor, keepTabColor, GetTabsColors(), tabsParametersProvider.TabsPrefix);
 		TDIMain.SetTabsReordering(reorderTabs);
+
 		if(reorderTabs)
+		{
 			ReorderTabs.Activate();
+		}
+
 		if(highlightWColor)
+		{
 			HighlightTabsWithColor.Activate();
+		}
+
 		if(keepTabColor)
+		{
 			KeepTabColor.Activate();
+		}
 
 		bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-		if(isWindows)
-			KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
 
-		Title = $"{applicationInfo.ProductTitle} v{applicationInfo.Version.Major}.{applicationInfo.Version.Minor} от {GetDateTimeFGromVersion(applicationInfo.Version):dd.MM.yyyy HH:mm}";
+		if(isWindows)
+		{
+			KeyPressEvent += HotKeyHandler.HandleKeyPressEvent;
+		}
+
+		Title = $"{_applicationInfo.ProductTitle} v{_applicationInfo.Version.Major}.{_applicationInfo.Version.Minor} от {GetDateTimeFGromVersion(_applicationInfo.Version):dd.MM.yyyy HH:mm}";
+
 		//Настраиваем модули
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
@@ -180,6 +147,7 @@ public partial class MainWindow : Gtk.Window
 		ActionExportImportNomenclatureCatalog.Sensitive =
 			commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
 		ActionDistricts.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
+		ActionDriversStopLists.Sensitive = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval)).CanRead;
 
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle)
@@ -211,8 +179,8 @@ public partial class MainWindow : Gtk.Window
 				break;
 		}
 
-		NavigationManager = autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-		MangoManager = autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+		NavigationManager = _autofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
+		MangoManager = _autofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
 		MangoManager.Connect();
 
 		// Отдел продаж
@@ -225,7 +193,7 @@ public partial class MainWindow : Gtk.Window
 		{
 			_accessOnlyToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !commonServices.UserService.GetCurrentUser(uow).IsAdmin;
+				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 
 		menubarMain.Visible = ActionOrders.Visible = ActionServices.Visible = ActionLogistics.Visible = ActionCash.Visible =
@@ -240,7 +208,7 @@ public partial class MainWindow : Gtk.Window
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			_currentUserSubdivisionId = GetEmployeeSubdivisionId(uow);
-			_movementsNotificationsController = autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
+			_movementsNotificationsController = _autofacScope.Resolve<IMovementDocumentsNotificationsController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
 
 			var notificationDetails = _movementsNotificationsController.GetNotificationDetails(uow);
 			hboxMovementsNotification.Visible = notificationDetails.NeedNotify;
@@ -258,7 +226,7 @@ public partial class MainWindow : Gtk.Window
 
 		#region Уведомление о наличии незакрытых рекламаций без комментариев в добавленной дискуссии для отдела
 
-		_complaintNotificationController = autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
+		_complaintNotificationController = _autofacScope.Resolve<IComplaintNotificationController>(new TypedParameter(typeof(int), _currentUserSubdivisionId));
 
 		if(!_hideComplaintsNotifications)
 		{
@@ -286,7 +254,7 @@ public partial class MainWindow : Gtk.Window
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
 			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
-				&& !commonServices.UserService.GetCurrentUser(uow).IsAdmin;
+				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 
 		// Основные разделы отчетов
@@ -341,348 +309,8 @@ public partial class MainWindow : Gtk.Window
 		Action74.Sensitive = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.CanGenerateCashFlowDdsReport);
 	}
 
-	#region Уведомления об отправленных перемещениях и о наличии рекламаций
-	private int GetEmployeeSubdivisionId(IUnitOfWork uow)
-	{
-		var currentEmployee =
-			VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(uow, ServicesConfig.UserService.CurrentUserId);
-
-		return currentEmployee?.Subdivision.Id ?? 0;
-	}
-
-	#region Методы для уведомления об отправленных перемещениях для подразделения
-	private void OnBtnUpdateNotificationClicked(object sender, EventArgs e)
-	{
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			var movementsNotification = _movementsNotificationsController.GetNotificationMessageBySubdivision(uow);
-			UpdateSendedMovementsNotification(movementsNotification);
-		}
-
-		if(!_hideComplaintsNotifications)
-		{
-			var complaintsNotifications = GetComplaintNotificationDetails();
-			UpdateSendedComplaintsNotification(complaintsNotifications);
-		}
-	}
-
-	private void UpdateSendedMovementsNotification(string notification)
-	{
-		lblMovementsNotification.Markup = notification;
-	}
-	#endregion
-
-	#region Методы для уведомления о наличии незакрытых рекламаций без комментариев для подразделения
-	private void UpdateSendedComplaintsNotification(SendedComplaintNotificationDetails notificationDetails)
-	{
-		lblComplaintsNotification.Markup = notificationDetails.NotificationMessage;
-		hboxComplaintsNotification.Visible = notificationDetails.NeedNotify;
-	}
-
-	private SendedComplaintNotificationDetails GetComplaintNotificationDetails()
-	{
-		SendedComplaintNotificationDetails notificationDetails;
-
-		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			notificationDetails = _complaintNotificationController.GetNotificationDetails(uow);
-		}
-
-		return notificationDetails;
-	}
-
-	private void OnBtnOpenComplaintClicked(object sender, EventArgs e)
-	{
-		var notificationDetails = GetComplaintNotificationDetails();
-
-		UpdateSendedComplaintsNotification(notificationDetails);
-
-		if(notificationDetails.SendedComplaintsCount > 0)
-		{
-			NavigationManager.OpenViewModel<ComplaintViewModel, IEntityUoWBuilder>(
-				null,
-				EntityUoWBuilder.ForOpen(notificationDetails.SendedComplaintsIds.Min()),
-				OpenPageOptions.None
-				);
-		}
-	}
-	#endregion
-
-	#endregion
-
-	protected void OnAboutActionActivated(object sender, EventArgs e)
-	{
-		var aboutViewModel = new AboutViewModel(applicationInfo);
-		var aboutView = new AboutView(aboutViewModel);
-		aboutView.ShowAll();
-		aboutView.Run();
-		aboutView.Destroy();
-	}
-
-	protected void OnActionParametersActivated(object sender, EventArgs e)
-	{
-		var baseParametersViewModel = new BaseParametersViewModel(
-			NavigationManager,
-			new ParametersService(QS.Project.DB.Connection.ConnectionDB));
-		var baseParametersView = new BaseParametersView(baseParametersViewModel);
-		baseParametersView.ShowAll();
-		baseParametersView.Run();
-		baseParametersView.Destroy();
-	}
-
-	protected void OnActionDocTemplatesActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<DocTemplate>(),
-			() => new OrmReference(typeof(DocTemplate))
-		);
-	}
-
-	protected void OnActionComplaintsActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<ComplaintsJournalsViewModel>(null, OpenPageOptions.IgnoreHash);
-	}
-
-	protected void OnActionCommentsForLogistsActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<OnecCommentsReport>(),
-			() => new QSReport.ReportViewDlg(new OnecCommentsReport())
-		);
-	}
-
-	protected void OpenRoutesListRegisterReport()
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.RoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.RoutesListRegisterReport())
-		);
-	}
-
-	protected void OpenDriverRoutesListRegisterReport()
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<DriverRoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new DriverRoutesListRegisterReport())
-		);
-	}
-
-	protected void OnActionAddressDuplicetesActivated(object sender, EventArgs e)
-	{
-		IParametersProvider parametersProvider = new ParametersProvider();
-		IFiasApiParametersProvider fiasApiParametersProvider = new FiasApiParametersProvider(parametersProvider);
-		var geoCoderCache = new GeocoderCache(UnitOfWorkFactory.GetDefaultFactory);
-		IFiasApiClient fiasApiClient = new FiasApiClient(fiasApiParametersProvider.FiasApiBaseUrl, fiasApiParametersProvider.FiasApiToken, geoCoderCache);
-
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<MergeAddressesDlg>(),
-			() => new MergeAddressesDlg(fiasApiClient)
-		);
-	}
-
-	protected void OnActionDistanceFromCenterActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<CalculateDistanceToPointsDlg>(),
-			() => new CalculateDistanceToPointsDlg()
-		);
-	}
-
-	protected void OnActionOrdersWithoutBottlesOperationActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<OrdersWithoutBottlesOperationDlg>(),
-			() => new OrdersWithoutBottlesOperationDlg()
-		);
-	}
-
-	protected void OnAction45Activated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<ReplaceEntityLinksDlg>(),
-			() => new ReplaceEntityLinksDlg()
-		);
-	}
-
-	protected void OnActionLoad1cCounterpartyAndDeliveryPointsActivated(object sender, EventArgs e)
-	{
-		var widget = new LoadFrom1cClientsAndDeliveryPoints();
-		tdiMain.AddTab(widget);
-	}
-
-	protected void OnActionToOnlineStoreActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<ExportToSiteDlg>(),
-			() => new ExportToSiteDlg()
-		);
-	}
-
-	protected void OnActionTraineeActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<TraineeVM>(),
-			() => new PermissionControlledRepresentationJournal(new TraineeVM())
-		);
-	}
-
-	protected void OnActionTypesOfEntitiesActivated(object sender, EventArgs e)
-	{
-		if(QSMain.User.Admin)
-			tdiMain.OpenTab(
-				OrmReference.GenerateHashName<TypeOfEntity>(),
-				() => new OrmReference(typeof(TypeOfEntity))
-			);
-	}
-
-	protected void OnActionUsersActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<UsersJournalViewModel>(null);
-	}
-
-	protected void OnActionGeographicGroupsActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<GeoGroupJournalViewModel>(null);
-	}
-
-	protected void OnImageListOpenActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<StoredResource>(),
-			() => new OrmReference(typeof(StoredResource))
-		);
-	}
-
-	protected void OnAction62Activated(object sender, EventArgs e)
-	{
-		var widget = new ResendEmailsDialog();
-		tdiMain.AddTab(widget);
-	}
-
-	protected void OnActionCashRequestReportActivated(object sender, EventArgs e)
-	{
-		var employeeFilter = new EmployeeFilterViewModel
-		{
-			Status = EmployeeStatus.IsWorking,
-		};
-
-		var employeeJournalFactory = new EmployeeJournalFactory(employeeFilter);
-
-		var page = NavigationManager.OpenViewModel<PayoutRequestsJournalViewModel, IEmployeeJournalFactory, bool, bool>
-			(null, employeeJournalFactory, false, false, OpenPageOptions.IgnoreHash);
-		page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
-	}
-
-	protected void OnActionOpenProposalsJournalActivated(object sender, EventArgs e)
-	{
-		var filter = new ApplicationDevelopmentProposalsJournalFilterViewModel { HidenByDefault = true };
-
-		tdiMain.AddTab(
-			new ApplicationDevelopmentProposalsJournalViewModel(
-				filter,
-				new EmployeeService(),
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			)
-			{ SelectionMode = JournalSelectionMode.Multiple }
-		);
-	}
-
-	protected void OnActionWayBillJournalActivated(object sender, EventArgs e)
-	{
-		var employeeFilter = new EmployeeFilterViewModel
-		{
-			Status = EmployeeStatus.IsWorking
-		};
-
-		var employeesJournalFactory = new EmployeeJournalFactory(employeeFilter);
-		var docTemplateRepository = new DocTemplateRepository();
-		var fileChooser = new FileChooser();
-
-		tdiMain.OpenTab(
-			() => new WayBillGeneratorViewModel
-			(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices.InteractiveService,
-				NavigationManagerProvider.NavigationManager,
-				new WayBillDocumentRepository(),
-				new RouteGeometryCalculator(),
-				employeesJournalFactory,
-				docTemplateRepository,
-				fileChooser
-			));
-	}
-
-	protected void OnRegisteredRMActionActivated(object sender, EventArgs e)
-	{
-		tdiMain.AddTab(
-			new RegisteredRMJournalViewModel(
-				new RegisteredRMJournalFilterViewModel(),
-				UnitOfWorkFactory.GetDefaultFactory,
-				new PermissionRepository(),
-				ServicesConfig.CommonServices
-			)
-		);
-	}
-
-	protected void OnActionRetailComplaintsJournalActivated(object sender, EventArgs e)
-	{
-		Action<ComplaintFilterViewModel> action = (filterConfig) => filterConfig.IsForRetail = true;
-
-		var filter = autofacScope.BeginLifetimeScope().Resolve<ComplaintFilterViewModel>(new TypedParameter(typeof(Action<ComplaintFilterViewModel>), action));
-
-		NavigationManager.OpenViewModel<ComplaintsJournalViewModel, ComplaintFilterViewModel>(
-			   null,
-			   filter,
-			   OpenPageOptions.IgnoreHash);
-	}
-
-	protected void OnActionRetailUndeliveredOrdersJournalActivated(object sender, EventArgs e)
-	{
-		MessageDialogHelper.RunInfoDialog("Журнал недовозов");
-	}
-
-	protected void OnActionRetailCounterpartyJournalActivated(object sender, EventArgs e)
-	{
-		CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel() { IsForRetail = true };
-		var counterpartyJournal = new RetailCounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-
-		tdiMain.OpenTab(
-			() => counterpartyJournal
-		);
-	}
-
-	protected void OnActionRetailOrdersJournalActivated(object sender, EventArgs e)
-	{
-		var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
-		var deliveryPointJournalFactory = new DeliveryPointJournalFactory();
-		var employeeJournalFactory = new EmployeeJournalFactory();
-
-		var orderJournalFilter = new OrderJournalFilterViewModel(counterpartyJournalFactory, deliveryPointJournalFactory, employeeJournalFactory)
-		{
-			IsForRetail = true
-		};
-		NavigationManager.OpenViewModel<RetailOrderJournalViewModel, OrderJournalFilterViewModel>(null, orderJournalFilter);
-	}
-
-	protected void OnActionRecalculateDriverWagesActivated(object sender, EventArgs e)
-	{
-		var dlg = new RecalculateDriverWageDlg();
-		tdiMain.AddTab(dlg);
-	}
-
-	protected void OnUsersRolesActionActivated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<UserRolesJournalViewModel>(null);
-	}
-
 	private DateTime GetDateTimeFGromVersion(Version version) =>
 		new DateTime(2000, 1, 1)
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
-
-	protected void OnAction74Activated(object sender, EventArgs e)
-	{
-		NavigationManager.OpenViewModel<CashFlowAnalysisViewModel>(null);
-	}
 }

@@ -157,7 +157,7 @@ GROUP BY rl.date</CommandText>
         <Height>18.03pt</Height>
         <Width>558.67pt</Width>
         <Value>="Приход по юр лицам за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
         <Style>
@@ -172,7 +172,7 @@ GROUP BY rl.date</CommandText>
         <Height>16.52pt</Height>
         <Width>558.58pt</Width>
         <Value>="Выбранные фильтры:"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>24.2pt</Top>
         <Style>
@@ -187,7 +187,7 @@ GROUP BY rl.date</CommandText>
         <Height>14.29pt</Height>
         <Width>548.87pt</Width>
         <Value>={?organisation_name}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>41.3pt</Top>
         <Style>
@@ -201,7 +201,7 @@ GROUP BY rl.date</CommandText>
         <Height>14.99pt</Height>
         <Width>555.56pt</Width>
         <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.4pt</Left>
         <Top>57.2pt</Top>
         <Style>
@@ -737,7 +737,7 @@ GROUP BY rl.date</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

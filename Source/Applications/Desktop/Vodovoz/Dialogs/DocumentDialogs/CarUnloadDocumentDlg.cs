@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -31,6 +31,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.Parameters;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Tools.Store;
+using QS.Validation;
 
 namespace Vodovoz
 {
@@ -201,9 +202,11 @@ namespace Vodovoz
 			if(!UpdateReceivedItemsOnEntity(_baseParametersProvider.GetNomenclatureIdForTerminal))
 				return false;
 
-			var valid = new QS.Validation.QSValidator<CarUnloadDocument>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			if(!_carUnloadRepository.IsUniqueDocumentAtDay(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
 				MessageDialogHelper.RunWarningDialog("Документ по данному МЛ и складу уже сформирован");

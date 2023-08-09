@@ -82,7 +82,7 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ClientEquipmentBalanceVMNode>.Create ()
-			.AddColumn ("Номенклатура").SetDataProperty (node => node.NomenclatureName)
+			.AddColumn ("Номенклатура").AddTextRenderer(node => node.NomenclatureName)
 			.AddColumn("Серийный номер").AddTextRenderer(node => node.SerialNumber)
 			.AddColumn ("Наше").AddToggleRenderer(node => node.IsOur)
 			.AddColumn("Клиент").AddTextRenderer(node => node.Client)

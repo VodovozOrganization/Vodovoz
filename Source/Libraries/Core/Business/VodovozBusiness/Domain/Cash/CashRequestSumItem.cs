@@ -116,6 +116,13 @@ namespace Vodovoz.Domain.Cash
 					"Сумма должна быть > 0",
 					new[] { nameof(Sum) });
 			}
+
+			if(Date == default(DateTime))
+			{
+				yield return new ValidationResult(
+					"Необходимо выбрать дату",
+					new[] { nameof(Date) });
+			}
 		}
 
 		#endregion

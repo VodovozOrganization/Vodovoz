@@ -5,7 +5,7 @@ using Vodovoz.Domain.Roboats;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Roboats
 {
-	public class RoboatsCallsFilterViewModel : FilterViewModelBase<RoboatsCallsFilterViewModel>, IJournalFilterViewModel
+	public class RoboatsCallsFilterViewModel : FilterViewModelBase<RoboatsCallsFilterViewModel>
 	{
 		private RoboatsCallStatus? _status;
 		private DateTime? _endDate;
@@ -73,7 +73,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Roboats
 			}
 		}
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 
 		#endregion Date
 	}

@@ -1,4 +1,5 @@
-﻿using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Conventions.Instances;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.HibernateMapping
@@ -8,7 +9,8 @@ namespace Vodovoz.HibernateMapping
 		public OrderItemMap()
 		{
 			Table("order_items");
-			Not.LazyLoad();
+
+			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
@@ -24,8 +26,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Price).Column("price");
 			Map(x => x.IsUserPrice).Column("is_user_price");
 			Map(x => x.ValueAddedTax).Column("value_added_tax");
-			Map(x => x.RentType).Column("rent_type").CustomType<OrderRentTypeStringType>();
-			Map(x => x.OrderItemRentSubType).Column("rent_sub_type").CustomType<OrderItemRentSubTypeStringType>();
+			Map(x => x.RentType).Column("rent_type");
+			Map(x => x.OrderItemRentSubType).Column("rent_sub_type");
 			Map(x => x.RentCount).Column("rent_count");
 			Map(x => x.RentEquipmentCount).Column("rent_equipment_count");
 			Map(x => x.IsAlternativePrice).Column("is_alternative_price");
