@@ -253,7 +253,7 @@ public partial class MainWindow : Gtk.Window
 
 		using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
+			userIsSalesRepresentative = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 		}
 

@@ -104,7 +104,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			_filter = new SelectableParametersReportFilter(_unitOfWork);
 
 			_userIsSalesRepresentative =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
 				&& !_commonServices.UserService.GetCurrentUser().IsAdmin;
 
 			_userCanGetContactsInSalesReports = 

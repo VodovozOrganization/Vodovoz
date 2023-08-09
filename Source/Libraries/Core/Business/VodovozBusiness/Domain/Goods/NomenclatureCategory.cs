@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Goods
 {
+	/// <summary>
+	/// Типы номенклатур
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "Типы номенклатур",
 		Nominative = "Тип номенклатур")]

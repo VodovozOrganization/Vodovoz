@@ -244,6 +244,10 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 using Vodovoz.ViewModels.Widgets;
 using static Vodovoz.Reports.CashFlow;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Domain.Client;
+using Vodovoz.CachingRepositories.Counterparty;
 using Vodovoz.ViewModels.BaseParameters;
 using Vodovoz.Views.BaseParameters;
 using Vodovoz.ViewModels.QualityControl.Reports;
@@ -822,6 +826,8 @@ namespace Vodovoz
 
 			#region Репозитории
 
+			builder.RegisterGeneric(typeof(GenericRepository<>)).As(typeof(IGenericRepository<>)).InstancePerLifetimeScope();
+
 			builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(CounterpartyContractRepository)))
 				.Where(t => t.Name.EndsWith("Repository")
 					&& t.GetInterfaces()
@@ -842,6 +848,9 @@ namespace Vodovoz
 
 			builder.RegisterType<FinancialIncomeCategoriesNodesInMemoryCacheRepository>()
 				.As<IDomainEntityNodeInMemoryCacheRepository<FinancialIncomeCategory>>();
+
+			builder.RegisterType<CounterpartyInMemoryTitlesCacheRepository>()
+				.As<IDomainEntityNodeInMemoryCacheRepository<Counterparty>>();
 
 			#endregion Кэширующие репозитории
 
@@ -1005,9 +1014,11 @@ namespace Vodovoz
 			builder.RegisterType<UnallocatedBalancesJournalFilterViewModel>().AsSelf();
 			builder.RegisterType<SelectableParametersReportFilter>().AsSelf();
 
-		#endregion
+			#endregion
 
 			#region Классы
+
+			builder.RegisterType<IncludeExludeFiltersViewModel>().AsSelf();
 
 			builder.RegisterType<User>().AsSelf();
 			builder.RegisterType<EntitySubdivisionForUserPermission>().AsSelf();
