@@ -1,15 +1,19 @@
 ﻿using System.Collections.Generic;
+using Autofac;
 using NLog;
 using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
 using QS.Validation;
 using Vodovoz.Domain.Client;
+using Vodovoz.Parameters;
+using Vodovoz.ViewModels.ViewModels.Contacts;
 
 namespace Vodovoz
 {
 	public partial class ContactDlg : QS.Dialog.Gtk.EntityDialogBase<Contact>
 	{
-		protected static Logger logger = LogManager.GetCurrentClassLogger ();
+		protected static Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 
 		public ContactDlg (Counterparty counterparty)
 		{
@@ -43,10 +47,13 @@ namespace Vodovoz
 
 			dataComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
-			emailsView.UoW = UoWGeneric;
-			if (UoWGeneric.Root.Emails == null)
-				UoWGeneric.Root.Emails = new List<Email> ();
-			emailsView.Emails = UoWGeneric.Root.Emails;
+			var emailsViewModel =
+				new EmailsViewModel(
+					UoWGeneric,
+					Entity.Emails,
+					_lifetimeScope.Resolve<IEmailParametersProvider>(),
+					Entity.Counterparty.PersonType);
+			emailsView.ViewModel = emailsViewModel;
 			phonesView.UoW = UoWGeneric;
 			if (UoWGeneric.Root.Phones == null)
 				UoWGeneric.Root.Phones = new List<Phone> ();
@@ -63,10 +70,16 @@ namespace Vodovoz
 
 			logger.Info ("Сохраняем  контактное лицо...");
 			phonesView.RemoveEmpty();
-			emailsView.RemoveEmpty();
+			emailsView.ViewModel.RemoveEmpty();
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
 			return true;
+		}
+
+		public override void Destroy()
+		{
+			_lifetimeScope?.Dispose();
+			base.Destroy();
 		}
 	}
 }

@@ -11,6 +11,7 @@ using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using QS.Dialog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -24,6 +25,7 @@ using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Email;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 using QS.DomainModel.Entity;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
@@ -95,12 +97,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			
 			TabName = "Счет без отгрузки на постоплату";
 			
-			SendDocViewModel = new SendDocumentByEmailViewModel(
-				new EmailRepository(),
-				new EmailParametersProvider(parametersProvider),
-				currentEmployee,
-				commonServices.InteractiveService,
-				UoW);
+			var loggerFactory = new LoggerFactory();
+			var settingsController = new SettingsController(UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
+			SendDocViewModel =
+				new SendDocumentByEmailViewModel(
+					new EmailRepository(),
+					new EmailParametersProvider(settingsController),
+					currentEmployee,
+					commonServices.InteractiveService,
+					UoW);
 			
 			ObservableAvailableOrders = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
 		}

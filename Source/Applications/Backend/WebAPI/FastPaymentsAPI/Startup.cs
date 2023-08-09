@@ -33,6 +33,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.FastPayments;
 using VodovozInfrastructure.Cryptography;
@@ -122,6 +123,7 @@ namespace FastPaymentsAPI
 
 			//providers
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
+			services.AddSingleton<ISettingsController, SettingsController>();
 			services.AddSingleton<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
 			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();

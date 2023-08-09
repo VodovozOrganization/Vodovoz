@@ -1828,7 +1828,11 @@ namespace Vodovoz
 		private void ConfigureSendDocumentByEmailWidget()
 		{
 			SendDocumentByEmailViewModel =
-				new SendDocumentByEmailViewModel(_emailRepository, new EmailParametersProvider(new ParametersProvider()), _currentEmployee, ServicesConfig.InteractiveService);
+				new SendDocumentByEmailViewModel(
+					_emailRepository,
+					_lifetimeScope.Resolve<IEmailParametersProvider>(),
+					_currentEmployee,
+					ServicesConfig.InteractiveService);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
 			hbox20.Add(sendEmailView);
 			sendEmailView.Show();
