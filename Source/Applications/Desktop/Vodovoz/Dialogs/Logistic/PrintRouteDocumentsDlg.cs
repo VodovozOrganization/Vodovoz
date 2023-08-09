@@ -173,6 +173,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void UpdateRouteList()
 		{
+			checkSelectAll.Active = false;
 			gtkScrollWndWarnings.Visible = false;
 			var ggIds = _geographicGroups.Select(x => x.Id).ToList();
 			var routeQuery = _routeListRepository.GetRoutesAtDay(ydatePrint.Date, ggIds, ycheckOnlyNonPrinted.Active).GetExecutableQueryOver(_uow.Session);

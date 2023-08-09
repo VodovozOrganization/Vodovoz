@@ -9,6 +9,7 @@
 		<toolitem name='ActionRouteListAddressesTransferring' action='ActionRouteListAddressesTransferring'/>
 		<toolitem name='ActionDistricts' action='ActionDistricts'/>
 		<toolitem name='ActionFastDeliveryAvailabilityJournal' action='ActionFastDeliveryAvailabilityJournal'/>
-		<toolitem name='ActionLogisticAreas' action='ActionLogisticAreas'/>
+		<!-- <toolitem name='ActionLogisticAreas' action='ActionLogisticAreas'/> -->
+		<toolitem name='ActionDriversStopLists' action='ActionDriversStopLists'/>
 	</toolbar>
 </ui>

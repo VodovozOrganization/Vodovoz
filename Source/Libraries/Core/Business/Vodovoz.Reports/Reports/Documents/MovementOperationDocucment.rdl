@@ -25,7 +25,7 @@
         <Width>341.62pt</Width>
         <Value>="ДОКУМЕНТ ПЕРЕМЕЩЕНИЯ ТОВАРОВ
 №" + {?documentId}  +  " от "  + {?date}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>119.3pt</Left>
         <Top>6.4pt</Top>
         <Style>
@@ -1493,7 +1493,7 @@ GROUP BY store_movement_document_items.id</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

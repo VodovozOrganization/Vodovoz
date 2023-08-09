@@ -578,7 +578,7 @@
         <Height>32.00pt</Height>
         <Width>816pt</Width>
         <Value>='Отчет по переплатам за адрес\n с ' +Format(CDate({?start_date}), 'dd.MM.yy') +' по '+ Format(CDate({?end_date}),'dd.MM.yy')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>0.0pt</Top>
         <Style>
@@ -594,7 +594,7 @@
         <Height>14.50pt</Height>
         <Width>426.98pt</Width>
         <Value>={?filters}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>28.00pt</Top>
         <Style>
@@ -611,7 +611,7 @@
         <Height>15.25pt</Height>
         <Width>381.50pt</Width>
         <Value>="Сформирован " + Format( {?creation_date}, "dd-MM-yyyy в HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>432.30pt</Left>
         <Top>28.80pt</Top>
         <Style>
@@ -646,7 +646,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

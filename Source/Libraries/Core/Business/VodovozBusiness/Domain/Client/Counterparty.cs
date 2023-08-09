@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -39,7 +39,7 @@ namespace Vodovoz.Domain.Client
 	]
 	[HistoryTrace]
 	[EntityPermission]
-	public class Counterparty : AccountOwnerBase, IDomainObject, IValidatableObject
+	public class Counterparty : AccountOwnerBase, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
 		private const int _specialContractNameLimit = 800;
@@ -98,7 +98,7 @@ namespace Vodovoz.Domain.Client
 		private IList<Phone> _phones = new List<Phone>();
 		private GenericObservableList<Phone> _observablePhones;
 		private string _ringUpPhone;
-		private IList<Email> _emails;
+		private IList<Email> _emails = new List<Email>();
 		private Employee _accountant;
 		private Employee _salesManager;
 		private Employee _bottlesManager;

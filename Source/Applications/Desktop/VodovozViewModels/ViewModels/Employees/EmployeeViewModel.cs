@@ -764,7 +764,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		private void UpdateDocumentsPermissions()
 		{
-			var isAdmin = _commonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+			var isAdmin = _commonServices.UserService.GetCurrentUser().IsAdmin;
 			var canWorkWithOnlyDriverDocuments = _commonServices.CurrentPermissionService.ValidatePresetPermission("work_with_only_driver_documents");
 			var canWorkWithDocuments = ((Entity.Category == EmployeeCategory.driver || Entity.Category == EmployeeCategory.forwarder) && canWorkWithOnlyDriverDocuments) || !canWorkWithOnlyDriverDocuments || isAdmin;
 			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead && canWorkWithDocuments;

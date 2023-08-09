@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
@@ -33,6 +33,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.FastPayments;
 using VodovozInfrastructure.Cryptography;
@@ -122,6 +123,7 @@ namespace FastPaymentsAPI
 
 			//providers
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
+			services.AddSingleton<ISettingsController, SettingsController>();
 			services.AddSingleton<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
 			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
@@ -227,7 +229,7 @@ namespace FastPaymentsAPI
 			}
 
 			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

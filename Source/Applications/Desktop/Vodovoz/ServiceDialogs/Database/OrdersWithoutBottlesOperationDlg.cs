@@ -38,7 +38,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			ytreeviewOrders.ColumnsConfig = FluentColumnsConfig<Order>.Create()
 				.AddColumn("№ заказа").AddNumericRenderer(x => x.Id)
 				.AddColumn("Клиент").AddNumericRenderer(x => x.Client.Name)
-				.AddColumn("Дата").SetDataProperty(x => x.DeliveryDate.HasValue 
+				.AddColumn("Дата").AddTextRenderer(x => x.DeliveryDate.HasValue 
 				                                   ? x.DeliveryDate.Value.ToShortDateString() 
 				                                   : "")
 				.AddColumn("Кол-во бутылей").AddNumericRenderer(x => x.OrderItems.Sum(item => item.Count))

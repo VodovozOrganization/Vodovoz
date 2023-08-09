@@ -20,7 +20,7 @@
         <Height>19.57pt</Height>
         <Width>814.05pt</Width>
         <Value>='Отчет по оплатам Авангарда c '+Format(CDATE({?startDate}), "dd.MM.yyyy") + ' по ' + Format(CDATE({?endDate}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.8pt</Left>
         <Top>0.6pt</Top>
         <Style>
@@ -989,7 +989,7 @@
         <Height>21.06pt</Height>
         <Width>816.10pt</Width>
         <Value>Оплаты без заказов</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>108.96pt</Top>
         <Style>
@@ -1305,7 +1305,7 @@ ORDER BY pfa.paid_date DESC;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

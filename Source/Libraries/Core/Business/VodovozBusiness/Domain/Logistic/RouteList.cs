@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using NHibernate.Criterion;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -7,7 +8,7 @@ using QS.HistoryLog;
 using QS.Osrm;
 using QS.Project.Services;
 using QS.Report;
-using QS.Tools;
+using QS.Utilities.Debug;
 using QS.Utilities.Extensions;
 using QS.Validation;
 using System;
@@ -15,7 +16,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
@@ -109,17 +109,17 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref version, value, () => Version);
 		}
 
-		Employee driver;
+		Employee _driver;
 
 		[Display(Name = "Водитель")]
 		public virtual Employee Driver {
-			get => driver;
+			get => _driver;
 			set {
-				Employee oldDriver = driver;
-				if(SetField(ref driver, value, () => Driver)) {
+				Employee oldDriver = _driver;
+				if(SetField(ref _driver, value, () => Driver)) {
 					ChangeFuelDocumentsOnChangeDriver(oldDriver);
-					if(Id == 0 || oldDriver != driver)
-						Forwarder = GetDefaultForwarder(driver);
+					if(Id == 0 || oldDriver != _driver)
+						Forwarder = GetDefaultForwarder(_driver);
 				}
 			}
 		}
@@ -1767,6 +1767,13 @@ namespace Vodovoz.Domain.Logistic
 			{
 				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
 				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+
+				var isDriverHasActiveStopListRemoval = Driver.IsDriverHasActiveStopListRemoval(UoW);
+
+				if(isDriverHasActiveStopListRemoval)
+				{
+					return true;
+				}
 
 				var unclosedRouteListsHavingDebtsCount = _routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
 				var unclosedRouteListsDebtsSum = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);

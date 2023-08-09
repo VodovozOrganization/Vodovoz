@@ -106,7 +106,7 @@ ORDER BY Category;</CommandText>
         <Height>18.03pt</Height>
         <Width>559.42pt</Width>
         <Value>="Расход за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
         <Style>
@@ -121,7 +121,7 @@ ORDER BY Category;</CommandText>
         <Height>16.52pt</Height>
         <Width>558.58pt</Width>
         <Value>="Выбранные фильтры:"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.9pt</Left>
         <Top>21.3pt</Top>
         <Style>
@@ -136,7 +136,7 @@ ORDER BY Category;</CommandText>
         <Height>14.29pt</Height>
         <Width>548.87pt</Width>
         <Value>= {?cash_subdivisions_name}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.6pt</Left>
         <Top>38.4pt</Top>
         <Style>
@@ -150,7 +150,7 @@ ORDER BY Category;</CommandText>
         <Height>14.99pt</Height>
         <Width>555.56pt</Width>
         <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.0pt</Left>
         <Top>54.3pt</Top>
         <Style>
@@ -585,7 +585,7 @@ ORDER BY Category;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

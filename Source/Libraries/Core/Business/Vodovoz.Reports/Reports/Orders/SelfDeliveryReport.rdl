@@ -18,7 +18,7 @@
         <Height>23.34pt</Height>
         <Width>577.50pt</Width>
         <Value>= "Отчёт по самовывозам за "  + (Format(Cdate(Parameters!startDate), "dd/MM/yyyy")) + Iif(Parameters!isOneDayReport = true, "", " - " + (Format(Cdate(Parameters!endDate), "dd/MM/yyyy")))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.8pt</Left>
         <Top>7.4pt</Top>
         <Style>
@@ -1041,7 +1041,7 @@ GROUP BY orders.id
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_honeybee;user= ;password= ;port=3306;server=vod-srv.qsolution.ru;Allow User Variables=True</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

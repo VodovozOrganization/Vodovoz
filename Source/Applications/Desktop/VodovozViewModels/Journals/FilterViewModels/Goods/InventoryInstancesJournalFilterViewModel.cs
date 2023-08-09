@@ -12,7 +12,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 {
-	public class InventoryInstancesJournalFilterViewModel : FilterViewModelBase<InventoryInstancesJournalFilterViewModel>, IJournalFilterViewModel
+	public class InventoryInstancesJournalFilterViewModel : FilterViewModelBase<InventoryInstancesJournalFilterViewModel>
 	{
 		private Nomenclature _nomenclature;
 		private bool? _restrictShowArchive;
@@ -74,7 +74,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 
 		public string InventoryNumber { get; set; }
 		public bool CanChangeNomenclature { get; set; } = true;
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 
 		private void Initialize()
 		{

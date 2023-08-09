@@ -1662,7 +1662,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>19.50pt</Height>
         <Width>345.87pt</Width>
         <Value>='Заказ № ' + Max({order_id}, "Order") + iif(First({e_shop_order}, "Order") != "", "/" + First({e_shop_order}, "Order"), "") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy") + " " + First({pay_type}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>111.10pt</Left>
         <Top>35.80pt</Top>
         <Style>
@@ -1678,7 +1678,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>15.00pt</Height>
         <Width>92.59pt</Width>
         <Value>=First({daily_number}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>369.7pt</Left>
         <Top>16.6pt</Top>
         <Style>
@@ -1977,9 +1977,15 @@ WHERE stored_resource.id = @id1</CommandText>
           </Image>
         </ReportItems>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
@@ -3268,9 +3274,15 @@ WHERE stored_resource.id = @id1</CommandText>
           </Image>
         </ReportItems>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <DataSetName>Image</DataSetName>
       </List>
@@ -3278,7 +3290,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>55.00pt</Width>
         <Value>=Max({delivery_schedule}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>82.3pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3294,7 +3306,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>65.51pt</Width>
         <Value>Время дост.:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>17.0pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3309,7 +3321,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12pt</Height>
         <Width>49.28pt</Width>
         <Value>Договор:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>136.6pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3324,7 +3336,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12pt</Height>
         <Width>36.39pt</Width>
         <Value>=Iif(Len(Max({lunch_time}, "Order")) &gt; 0, "Обед:", "")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>277.4pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3339,7 +3351,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>81.28pt</Width>
         <Value>=Max({lunch_time}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>315.8pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3355,7 +3367,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12pt</Height>
         <Width>104.58pt</Width>
         <Value>= Max({contract_number}, "Order") + ' от ' + Max({contract_date}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>180.9pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3864,7 +3876,7 @@ WHERE stored_resource.id = @id1</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

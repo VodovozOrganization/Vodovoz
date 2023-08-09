@@ -16,7 +16,7 @@ using Vodovoz.ViewModels.ViewModels.Organizations;
 namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 {
 	public partial class FinancialCategoriesJournalFilterViewModel
-		: FilterViewModelBase<FinancialCategoriesJournalFilterViewModel>, IJournalFilterViewModel
+		: FilterViewModelBase<FinancialCategoriesJournalFilterViewModel>
 	{
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _scope;
@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			_scope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 
 		public ObservableCollection<Type> RestrictNodeTypes { get; } = new ObservableCollection<Type>();
 

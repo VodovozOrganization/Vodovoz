@@ -22,7 +22,7 @@
 	({?start_date} = {?end_date}), (" за " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")),
 	(Iif({?start_date} = -1, "", " с " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")) + Iif({?end_date} = -1, "", " до " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy")))
 )</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>5.30pt</Top>
         <Style>
@@ -43,7 +43,7 @@
 "\r\n- попадают в выбранный период
 - имеют расхождение км &gt; или = указанной
 - принадлежат компании (стоит галочка)"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>34.90pt</Top>
         <Style>
@@ -791,7 +791,7 @@ ORDER BY route_lists.id
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

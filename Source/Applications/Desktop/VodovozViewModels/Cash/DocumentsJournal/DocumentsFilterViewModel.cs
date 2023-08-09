@@ -16,7 +16,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 {
-	public class DocumentsFilterViewModel : FilterViewModelBase<DocumentsFilterViewModel>, IJournalFilterViewModel
+	public class DocumentsFilterViewModel : FilterViewModelBase<DocumentsFilterViewModel>
 	{
 		private readonly TimeSpan _defaultStartDateTimespan = TimeSpan.FromDays(-30);
 
@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.Cash.DocumentsJournal
 			set => UpdateFilterField(ref _endDate, value);
 		}
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 
 		public CashDocumentType? CashDocumentType
 		{

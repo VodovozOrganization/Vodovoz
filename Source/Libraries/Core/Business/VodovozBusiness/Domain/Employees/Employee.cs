@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -10,6 +10,7 @@ using NHibernate;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities.Text;
@@ -30,7 +31,7 @@ namespace Vodovoz.Domain.Employees
 		Nominative = "сотрудник")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Employee : Personnel, IEmployee
+	public class Employee : Personnel, IEmployee, INamed
 	{
 		private const int _commentLimit = 255;
 		private string _comment;
@@ -323,14 +324,14 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref organisationForSalary, value);
 		}
 
-        private string email;
+		private string email;
 
 		[Display(Name = "Электронная почта пользователя")]
-        public virtual string Email
-        {
-            get => email;
-            set => SetField(ref email, value);
-        }
+		public virtual string Email
+		{
+			get => email;
+			set => SetField(ref email, value);
+		}
 		
 		[Display(Name = "Комментарий по сотруднику")]
 		public virtual string Comment {
@@ -350,9 +351,9 @@ namespace Vodovoz.Domain.Employees
 			_observableEmployeeRegistrationVersions ?? (_observableEmployeeRegistrationVersions =
 				new GenericObservableList<EmployeeRegistrationVersion>(EmployeeRegistrationVersions));
 
-        #endregion
+		#endregion
 
-        public Employee()
+		public Employee()
 		{
 			Name = String.Empty;
 			LastName = String.Empty;
@@ -726,6 +727,16 @@ namespace Vodovoz.Domain.Employees
 			else {
 				ObservableDriverWorkScheduleSets.Add(activeDriverWorkScheduleSet);
 			}
+		}
+
+		public virtual bool IsDriverHasActiveStopListRemoval(IUnitOfWork unitOfWork)
+		{
+			return unitOfWork.GetAll<DriverStopListRemoval>()
+				.Where(r =>
+					r.Driver.Id == Id
+					&& r.DateFrom <= DateTime.Now
+					&& r.DateTo > DateTime.Now)
+				.Any();
 		}
 
 		#endregion

@@ -499,7 +499,7 @@
         <Height>25.60pt</Height>
         <Width>756.66pt</Width>
         <Value>= "Отчет по продажам ИМ " + "(c " + (Format(Cdate(Parameters!start_date), "dd/MM/yyyy")) + " по " + (Format(Cdate(Parameters!end_date), "dd/MM/yyyy")) + ")"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -514,7 +514,7 @@
         <Height>12.72pt</Height>
         <Width>48.93pt</Width>
         <Value>Фильтры: </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.4pt</Left>
         <Top>27pt</Top>
       </Textbox>
@@ -522,7 +522,7 @@
         <Height>11.98pt</Height>
         <Width>203.99pt</Width>
         <Value>= "Сформирован: " + Format({?creation_timestamp}, 'dd.MM.yyyy HH:MM')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>554.2pt</Left>
         <Top>25.1pt</Top>
         <Style>
@@ -537,7 +537,7 @@
         <Width>301.94pt</Width>
         <Value>= "Интернет магазин: " + First({online_store_name}, 'EShopName') + '\n' +
 "Статусы заказа: " + {?order_statuses_rus}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>60.50pt</Left>
         <Top>27.00pt</Top>
         <Style>
@@ -686,7 +686,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
