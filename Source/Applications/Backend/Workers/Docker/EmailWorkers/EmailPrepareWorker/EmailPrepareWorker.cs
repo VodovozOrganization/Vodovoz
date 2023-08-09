@@ -47,8 +47,12 @@ namespace EmailPrepareWorker
 		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
 		private readonly int _instanceId;
 
-		public EmailPrepareWorker(ILogger<EmailPrepareWorker> logger, IConfiguration configuration, IModel channel, IEmailRepository emailRepository,
-				IEmailParametersProvider emailParametersProvider)
+		public EmailPrepareWorker(
+			ILogger<EmailPrepareWorker> logger,
+			IConfiguration configuration,
+			IModel channel,
+			IEmailRepository emailRepository,
+			IEmailParametersProvider emailParametersProvider)
 		{
 			if(configuration is null)
 			{

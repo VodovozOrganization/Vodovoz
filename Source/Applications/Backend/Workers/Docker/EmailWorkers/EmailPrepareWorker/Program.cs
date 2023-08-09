@@ -3,10 +3,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using QS.DomainModel.UoW;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
+using Vodovoz.Settings;
+using Vodovoz.Settings.Database;
 
 namespace EmailPrepareWorker
 {
@@ -40,9 +43,10 @@ namespace EmailPrepareWorker
 						return channel;
 					});
 
-					services.AddTransient<IParametersProvider, ParametersProvider>((sp) => new ParametersProvider());
-					services.AddTransient<IEmailParametersProvider, EmailParametersProvider>();
-					services.AddTransient<IEmailRepository, EmailRepository>();
+					services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
+					services.AddSingleton<ISettingsController, SettingsController>();
+					services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
+					services.AddSingleton<IEmailRepository, EmailRepository>();
 
 					services.AddHostedService<EmailPrepareWorker>();
 				});

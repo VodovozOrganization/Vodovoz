@@ -13,6 +13,7 @@ using QS.HistoryLog;
 using QS.Project.DB;
 using System;
 using System.Reflection;
+using QS.DomainModel.UoW;
 using Vodovoz;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
@@ -52,6 +53,12 @@ namespace UnsubscribePage
 
 		public void ConfigureContainer(ContainerBuilder builder)
 		{
+			builder.RegisterModule<DatabaseSettingsModule>();
+			
+			builder.RegisterType<DefaultUnitOfWorkFactory>()
+				.As<IUnitOfWorkFactory>()
+				.SingleInstance();
+			
 			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly)
 				.Where(t => t.Name.EndsWith("Provider"))
 				.AsSelf()
