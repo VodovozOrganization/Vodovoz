@@ -379,7 +379,6 @@ namespace Vodovoz
 
 			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 
-			UpdateCargoReceiver();
 			Entity.PropertyChanged += (sender, args) =>
 			{
 				if(args.PropertyName == nameof(Entity.SalesManager)
@@ -850,6 +849,7 @@ namespace Vodovoz
 			enumcomboCargoReceiverSource.Sensitive = CanEdit;
 
 			yentryCargoReceiver.Binding
+				.AddFuncBinding(Entity, e => e.CargoReceiverSource == CargoReceiverSource.Special, w => w.Visible)
 				.AddBinding(Entity, e => e.CargoReceiver, w => w.Text)
 				.InitializeFromSource();
 			yentryCargoReceiver.IsEditable = CanEdit;
@@ -1906,8 +1906,6 @@ namespace Vodovoz
 			{
 				Entity.CargoReceiver = _cargoReceiverBackupBuffer;
 			}
-
-			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
 		}
 
 		protected void OnButtonUnsubscribeClicked(object sender, EventArgs e)
