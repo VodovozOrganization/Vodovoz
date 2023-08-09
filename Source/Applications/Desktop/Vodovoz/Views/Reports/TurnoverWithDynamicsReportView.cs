@@ -60,6 +60,10 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
+			yrbtnGroupingCounterpartyShowContacts.Binding
+				.AddBinding(ViewModel, vm => vm.UserCanGetContactsInSalesReports, v => v.Sensitive)
+				.InitializeFromSource();
+
 			foreach(RadioButton radioButton in yrbtnGroupingCounterparty.Group)
 			{
 				if(radioButton.Active)

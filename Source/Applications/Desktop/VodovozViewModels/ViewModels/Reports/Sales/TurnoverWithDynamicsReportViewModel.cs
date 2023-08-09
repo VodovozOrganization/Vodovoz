@@ -66,6 +66,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
+		private readonly bool _userCanGetContactsInSalesReports;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
@@ -106,6 +107,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
 				&& !_commonServices.UserService.GetCurrentUser().IsAdmin;
 
+			_userCanGetContactsInSalesReports = 
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Sales.CanGetContactsInSalesReports);
+
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
 
@@ -115,6 +119,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		}
 
 		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
+
+		public bool UserCanGetContactsInSalesReports => _userCanGetContactsInSalesReports;
 
 		public virtual SelectableParameterReportFilterViewModel FilterViewModel
 		{
