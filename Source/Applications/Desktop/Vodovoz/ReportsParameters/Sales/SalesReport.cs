@@ -25,7 +25,7 @@ namespace Vodovoz.Reports
 {
 	public partial class SalesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		private readonly IncludeExludeFiltersView _filter;
+		private readonly IncludeExludeFiltersViewModel _filterViewModel;
 		private readonly bool _userIsSalesRepresentative;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IInteractiveService _interactiveService;
@@ -43,6 +43,8 @@ namespace Vodovoz.Reports
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 		public string Title => "Отчет по продажам";
+
+		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
 
 		public SalesReport(
 			IEmployeeRepository employeeRepository,
@@ -74,7 +76,7 @@ namespace Vodovoz.Reports
 			Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			UoW.Session.DefaultReadOnly = true;
-			_filter = new IncludeExludeFiltersView(includeExludeFiltersViewModel);
+			_filterViewModel = includeExludeFiltersViewModel ?? throw new ArgumentNullException(nameof(includeExludeFiltersViewModel));
 
 			_userIsSalesRepresentative =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.IsSalesRepresentative)
@@ -132,7 +134,7 @@ namespace Vodovoz.Reports
 
 		private ReportInfo GetReportInfo()
 		{
-			var parameters = _filter.ViewModel.GetReportParametersSet();
+			var parameters = FilterViewModel.GetReportParametersSet();
 
 			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
 			parameters.Add("end_date", dateperiodpicker.EndDateOrNull);
@@ -143,8 +145,8 @@ namespace Vodovoz.Reports
 			{
 				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
-				parameters.Add("order_author_include", new[] { currentEmployee.Id.ToString() });
-				parameters.Add("order_author_exclude", new[] { "0" });
+				parameters["Employee_include"] = new[] { currentEmployee.Id.ToString() };
+				parameters["Employee_Exclude"] = new[] { "0" };
 			}
 
 			return new ReportInfo
@@ -173,28 +175,31 @@ namespace Vodovoz.Reports
 
 		private void SetupFilter()
 		{
-			_filter.ViewModel.AddFilter<NomenclatureCategory>();
+			FilterViewModel.AddFilter<NomenclatureCategory>();
 
-			_filter.ViewModel.AddFilter(UoW, _nomenclatureRepository);
+			FilterViewModel.AddFilter(UoW, _nomenclatureRepository);
 
-			_filter.ViewModel.AddFilter(UoW, _productGroupRepository, x => x.Parent?.Id, x => x.Id);
+			FilterViewModel.AddFilter(UoW, _productGroupRepository, x => x.Parent?.Id, x => x.Id);
 
-			_filter.ViewModel.AddFilter(UoW, _counterpartyRepository);
+			FilterViewModel.AddFilter(UoW, _counterpartyRepository);
 
-			_filter.ViewModel.AddFilter(UoW, _organizationRepository);
+			FilterViewModel.AddFilter(UoW, _organizationRepository);
 
-			_filter.ViewModel.AddFilter(UoW, _discountReasonRepository);
+			FilterViewModel.AddFilter(UoW, _discountReasonRepository);
 
-			_filter.ViewModel.AddFilter(UoW, _subdivisionRepository);
+			FilterViewModel.AddFilter(UoW, _subdivisionRepository);
 
-			_filter.ViewModel.AddFilter(UoW, _employeeGenericRepository, config =>
+			if(!_userIsSalesRepresentative)
 			{
-				config.Title = "Авторы заказов";
-			});
+				FilterViewModel.AddFilter(UoW, _employeeGenericRepository, config =>
+				{
+					config.Title = "Авторы заказов";
+				});
+			}
 
-			_filter.ViewModel.AddFilter(UoW, _geographicalGroupRepository);
+			FilterViewModel.AddFilter(UoW, _geographicalGroupRepository);
 
-			_filter.ViewModel.AddFilter<PaymentType>(filterConfig =>
+			FilterViewModel.AddFilter<PaymentType>(filterConfig =>
 			{
 				filterConfig.RefreshFunc = (filter) =>
 				{
@@ -204,13 +209,13 @@ namespace Vodovoz.Reports
 
 					var terminalValues = Enum.GetValues(typeof(PaymentByTerminalSource))
 						.Cast<PaymentByTerminalSource>()
-						.Where(x => string.IsNullOrWhiteSpace(_filter.ViewModel.CurrentSearchString)
-							|| x.GetEnumTitle().ToLower().Contains(_filter.ViewModel.CurrentSearchString.ToLower()));
+						.Where(x => string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString)
+							|| x.GetEnumTitle().ToLower().Contains(FilterViewModel.CurrentSearchString.ToLower()));
 
 					var paymentValues = _paymentFromRepository.Get(UoW, paymentFrom =>
-						(_filter.ViewModel.ShowArchived || !paymentFrom.IsArchive)
-						&& (string.IsNullOrWhiteSpace(_filter.ViewModel.CurrentSearchString))
-							|| paymentFrom.Name.ToLower().Like($"%{_filter.ViewModel.CurrentSearchString.ToLower()}%"));
+						(FilterViewModel.ShowArchived || !paymentFrom.IsArchive)
+						&& (string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString))
+							|| paymentFrom.Name.ToLower().Like($"%{FilterViewModel.CurrentSearchString.ToLower()}%"));
 
 					// Заполнение начального списка
 
@@ -218,8 +223,8 @@ namespace Vodovoz.Reports
 					{
 						if(value is PaymentType enumElement
 							&& !filter.HideElements.Contains(enumElement)
-							&& (string.IsNullOrWhiteSpace(_filter.ViewModel.CurrentSearchString)
-								|| enumElement.GetEnumTitle().ToLower().Contains(_filter.ViewModel.CurrentSearchString.ToLower())
+							&& (string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString)
+								|| enumElement.GetEnumTitle().ToLower().Contains(FilterViewModel.CurrentSearchString.ToLower())
 								|| (enumElement == PaymentType.Terminal && terminalValues.Any())
 								|| (enumElement == PaymentType.PaidOnline && paymentValues.Any())))
 						{
@@ -374,10 +379,12 @@ namespace Vodovoz.Reports
 				};
 			});
 
-			_filter.ViewModel.AddFilter(UoW, _promotionalSetRepository);
+			FilterViewModel.AddFilter(UoW, _promotionalSetRepository);
 
-			vboxParameters.Add(_filter);
-			_filter.Show();
+			var filterView = new IncludeExludeFiltersView(FilterViewModel);
+
+			vboxParameters.Add(filterView);
+			filterView.Show();
 		}
 	}
 }
