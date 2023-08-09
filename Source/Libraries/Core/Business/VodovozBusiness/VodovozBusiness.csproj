@@ -79,6 +79,7 @@
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
     <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
     <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
     <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
@@ -738,6 +739,7 @@
     <Compile Include="HibernateMapping\Goods\NomenclatureInnerDeliveryPriceMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverStopListRemovalMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FastDeliveryMaxDistanceParameterVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelPriceVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventMap.cs" />

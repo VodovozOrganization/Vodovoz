@@ -86,6 +86,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.TempAdapters;
@@ -126,6 +127,7 @@ public partial class MainWindow : Window
 	Action ActionRouteListMileageCheck;
 	Action ActionRouteListTracking;
 	Action ActionFastDeliveryAvailabilityJournal;
+	Action ActionDriversStopLists;
 
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
@@ -222,6 +224,7 @@ public partial class MainWindow : Window
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражем", null, "table");
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
 		ActionFastDeliveryAvailabilityJournal = new Action("ActionFastDeliveryAvailabilityJournal", "Доставка за час", null, "table");
+		ActionDriversStopLists = new Action("ActionDriversStopLists", "Стоп-лист", null, "table");
 		//Касса
 		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action("ActionAccountableDebt", "Долги сотрудников", null, "table");
@@ -319,6 +322,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionRevisionBottlesAndDeposits, null);
 		w1.Add(ActionReportDebtorsBottles, null);
 		w1.Add(ActionFastDeliveryAvailabilityJournal, null);
+		w1.Add(ActionDriversStopLists, null);
 
 		//Бухгалтерия
 		w1.Add(ActionTransferBankDocs, null);
@@ -409,6 +413,7 @@ public partial class MainWindow : Window
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
 		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
 		ActionFastDeliveryAvailabilityJournal.Activated += ActionFastDeliveryAvailabilityJournal_Activated;
+		ActionDriversStopLists.Activated += OnActionDriversStopListsActivated;
 
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
@@ -462,6 +467,11 @@ public partial class MainWindow : Window
 		ActionSalesComplaintsJournal.Activated += OnActionSalesComplaintsJournalActivated;
 
 		#endregion
+	}
+
+	private void OnActionDriversStopListsActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DriversStopListsViewModel>(null);
 	}
 
 	private void ActionWarehouseDocumentsItemsJournal_Activated(object sender, EventArgs e)
