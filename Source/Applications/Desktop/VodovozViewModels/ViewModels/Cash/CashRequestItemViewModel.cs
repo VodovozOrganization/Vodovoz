@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Employees;
@@ -23,6 +24,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		private DateTime _date;
 		private decimal _sum;
 		private string _comment;
+		private readonly IInteractiveService _interactiveService;
 		private readonly ILifetimeScope _scope;
 
 		public CashRequestItemViewModel(
@@ -33,6 +35,8 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			ILifetimeScope scope)
 			: base(interactiveService, navigation)
 		{
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+
 			_scope = scope;
 			UoW = uow;
 			UserRole = userRole;
@@ -55,6 +59,18 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				Entity.AccountableEmployee = _accountableEmployee;
 				Entity.Sum = Sum;
 				Entity.Comment = Comment;
+
+				var validationResult = Entity.RaiseValidationAndGetResult();
+
+				if(!string.IsNullOrWhiteSpace(validationResult))
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"{validationResult}");
+
+					return;
+				}
+
 				Close(true, CloseSource.Self);
 				EntityAccepted?.Invoke(this, new CashRequestSumItemAcceptedEventArgs(Entity));
 			},

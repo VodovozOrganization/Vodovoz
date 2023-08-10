@@ -98,7 +98,7 @@ namespace Vodovoz.Domain.Client
 		private IList<Phone> _phones = new List<Phone>();
 		private GenericObservableList<Phone> _observablePhones;
 		private string _ringUpPhone;
-		private IList<Email> _emails;
+		private IList<Email> _emails = new List<Email>();
 		private Employee _accountant;
 		private Employee _salesManager;
 		private Employee _bottlesManager;

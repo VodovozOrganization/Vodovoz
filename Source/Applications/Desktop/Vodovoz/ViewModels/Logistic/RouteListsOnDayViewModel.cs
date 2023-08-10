@@ -1253,35 +1253,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 
 			RoutesOnDay = _routeListRepository.GetRoutesAtDay(UoW, DateForRouting, ShowCompleted, selectedGeographicGroupIds, selectedDeliveryShiftIds);
-			/*
-			var routesQuery1 = routeListRepository.GetRoutesAtDay(DateForRouting)
-				.GetExecutableQueryOver(UoW.Session);
-			if(!ShowCompleted)
-			{
-				routesQuery1.Where(x => x.Status == RouteListStatus.New);
-			}
-
-			GeoGroup routeGeographicGroupAlias = null;
-			if(selectedGeographicGroup.Any())
-			{
-				routesQuery1
-					.Left.JoinAlias(x => x.GeographicGroups, () => routeGeographicGroupAlias)
-					.Where(Restrictions.In(Projections.Property(() => routeGeographicGroupAlias.Id),
-						selectedGeographicGroup.Select(x => x.Id).ToArray()));
-			}
-
-
-			if(selectedDeliveryShifts.Any())
-			{
-				routesQuery1.WhereRestrictionOn(rl => rl.Shift).IsIn(selectedDeliveryShifts);
-			}
-
-			var routesQuery = routesQuery1
-				.Fetch(SelectMode.Undefined, x => x.Addresses)
-				.Future();
-
-			RoutesOnDay = routesQuery.ToList();
-			*/
 
 			GetWorkDriversInfo();
 			CalculateOnDeliverySum();

@@ -86,8 +86,8 @@ namespace Vodovoz.Domain.Client
 		[Display (Name = "Телефоны")]
 		public virtual IList<Phone> Phones { get; set; }
 
-		[Display (Name = "E-mail адреса")]
-		public virtual IList<Email> Emails { get; set; }
+		[Display(Name = "E-mail адреса")]
+		public virtual IList<Email> Emails { get; set; } = new List<Email>();
 
 		[Display (Name = "Точки доставки")]
 		public virtual IList<DeliveryPoint> DeliveryPoints { get; set; }

@@ -29,6 +29,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Settings.Database;
 
 namespace DeliveryRulesService
 {
@@ -165,6 +166,7 @@ namespace DeliveryRulesService
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder)),
 					Assembly.GetAssembly(typeof(Attachment))
 				}
 			);
