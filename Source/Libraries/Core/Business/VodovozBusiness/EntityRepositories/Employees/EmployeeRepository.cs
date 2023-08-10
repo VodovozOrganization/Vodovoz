@@ -17,9 +17,11 @@ namespace Vodovoz.EntityRepositories.Employees
 		{
 			User userAlias = null;
 
+			var userId = ServicesConfig.UserService.CurrentUserId;
+
 			return uow.Session.QueryOver<Employee>()
 				.JoinAlias(e => e.User, () => userAlias)
-				.Where(() => userAlias.Id == ServicesConfig.UserService.CurrentUserId)
+				.Where(() => userAlias.Id == userId)
 				.SingleOrDefault();
 		}
 
