@@ -59,9 +59,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly string _templateByCounterpartyWithDynamicsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsReport.xlsx";
 		private readonly string _templateByCounterpartyFinancePath = @".\Reports\Sales\TurnoverByCounterpartyFinanceReport.xlsx";
 		private readonly string _templateByCounterpartyWithDynamicsFinancePath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsFinanceReport.xlsx";
-		
+		private readonly string _templateByCounterpartyWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsWithDynamicsReport.xlsx";
+		private readonly string _templateByCounterpartyFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsFinanceReport.xlsx";
+		private readonly string _templateByCounterpartyWithDynamicsFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsWithDynamicsFinanceReport.xlsx";
+
 		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
+		private readonly bool _userCanGetContactsInSalesReports;
 		private SelectableParameterReportFilterViewModel _filterViewModel;
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
@@ -102,6 +107,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
 				&& !_commonServices.UserService.GetCurrentUser().IsAdmin;
 
+			_userCanGetContactsInSalesReports = 
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Sales.CanGetContactsInSalesReports);
+
 			StartDate = DateTime.Now.Date.AddDays(-6);
 			EndDate = DateTime.Now.Date;
 
@@ -111,6 +119,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		}
 
 		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
+
+		public bool UserCanGetContactsInSalesReports => _userCanGetContactsInSalesReports;
 
 		public virtual SelectableParameterReportFilterViewModel FilterViewModel
 		{
@@ -143,7 +153,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			set
 			{
 				if(SetField(ref _groupingBy, value)
-					&& value == GroupingByEnum.Counterparty)
+					&& (value == GroupingByEnum.Counterparty || value == GroupingByEnum.CounterpartyShowContacts))
 				{
 					ShowResidueForNomenclaturesWithoutSales = false;
 				}
@@ -728,6 +738,31 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					else
 					{
 						return _templateByCounterpartyFinancePath;
+					}
+				}
+			}
+			else if(Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts)
+			{
+				if(Report.ShowDynamics)
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyWithDynamicsWithContactsPath;
+					}
+					else
+					{
+						return _templateByCounterpartyWithDynamicsFinanceWithContactsPath;
+					}
+				}
+				else
+				{
+					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					{
+						return _templateByCounterpartyWithContactsPath;
+					}
+					else
+					{
+						return _templateByCounterpartyFinanceWithContactsPath;
 					}
 				}
 			}

@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						}
 					}.Union(Rows).ToList();
 				}
-				if(GroupingBy == GroupingByEnum.Counterparty)
+				if(GroupingBy == GroupingByEnum.Counterparty || GroupingBy == GroupingByEnum.CounterpartyShowContacts)
 				{
 					return Rows;
 				}
@@ -130,7 +130,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					rows = ProcessGroups(productGroups);
 				}
-				else if(GroupingBy == GroupingByEnum.Counterparty)
+				else if(GroupingBy == GroupingByEnum.Counterparty || GroupingBy == GroupingByEnum.CounterpartyShowContacts)
 				{
 					var counterpartyGroups = ordersItemslist
 						.GroupBy(oi => oi.CounterpartyId);
