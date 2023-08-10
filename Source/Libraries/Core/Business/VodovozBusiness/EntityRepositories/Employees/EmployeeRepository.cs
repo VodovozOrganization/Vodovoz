@@ -13,13 +13,18 @@ namespace Vodovoz.EntityRepositories.Employees
 {
 	public class EmployeeRepository : IEmployeeRepository
 	{
-		public Employee GetEmployeeForCurrentUser(IUnitOfWork uow)
+		public Employee GetEmployeeForCurrentUser(IUnitOfWork unitOfWork)
 		{
+			if(unitOfWork is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWork));
+			}
+
 			User userAlias = null;
 
 			var userId = ServicesConfig.UserService.CurrentUserId;
 
-			return uow.Session.QueryOver<Employee>()
+			return unitOfWork.Session.QueryOver<Employee>()
 				.JoinAlias(e => e.User, () => userAlias)
 				.Where(() => userAlias.Id == userId)
 				.SingleOrDefault();

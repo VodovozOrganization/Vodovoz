@@ -22,15 +22,19 @@ using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
+using QS.Project.Services;
+using QS.Services;
 using System;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using Vodovoz.Core.DataService;
+using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.FastPayments;
@@ -267,10 +271,13 @@ namespace DriverAPI
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+				var serviceUser = unitOfWork.Session.Query<User>()
 					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
-					.Select(u => u.Id)
 					.FirstOrDefault();
+
+				serviceUserId = serviceUser.Id;
+
+				ServicesConfig.UserService = new UserService(serviceUser);
 			}
 
 			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
