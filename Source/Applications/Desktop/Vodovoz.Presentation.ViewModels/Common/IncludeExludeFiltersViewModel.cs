@@ -89,28 +89,6 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public DelegateCommand UnselectAllCommand { get; }
 
-		private void ClearSearchString()
-		{
-			SearchString = string.Empty;
-			CurrentSearchString = string.Empty;
-		}
-
-		private void SelectAll()
-		{
-			foreach(var filter in Filters)
-			{
-				filter.SelectAllCommand.Execute();
-			}
-		}
-
-		private void UnselectAll()
-		{
-			foreach(var filter in Filters)
-			{
-				filter.UnselectAllCommand.Execute();
-			}
-		}
-
 		public Dictionary<string, object> GetReportParametersSet()
 		{
 			var result = new Dictionary<string, object>();
@@ -126,16 +104,17 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			return result;
 		}
 
-		private void UpdateFilteredElements()
+		public IEnumerable<IncludeExcludeElement> GetIncludedElements<T>()
 		{
-			if(ActiveFilter != null
-				&& ActiveFilter is IncludeExcludeFilter filter)
-			{
-				filter.RefreshFilteredElements();
-			}
-
-			FilteredElementsChanged?.Invoke(this, EventArgs.Empty);
+			return Filters.FirstOrDefault(x => x.Type == typeof(T))?.IncludedElements ?? Enumerable.Empty<IncludeExcludeElement>();
 		}
+
+		public IEnumerable<IncludeExcludeElement> GetExcludedElements<T>()
+		{
+			return Filters.FirstOrDefault(x => x.Type == typeof(T))?.ExcludedElements ?? Enumerable.Empty<IncludeExcludeElement>();
+		}
+
+		#region Добавление фильтров
 
 		public void AddFilter<TEntity>(
 			IUnitOfWork unitOfWork,
@@ -210,11 +189,6 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			includeExcludeFilter?.Invoke(newFilter);
 
 			Filters.Add(newFilter);
-		}
-
-		public void AddFilter(IncludeExcludeFilter filter)
-		{
-			Filters.Add(filter);
 		}
 
 		public void AddFilter<TEnum>(Action<IncludeExcludeEnumFilter<TEnum>> includeExcludeFilter = null)
@@ -331,6 +305,30 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			Filters.Add(newFilter);
 		}
 
+		#endregion Добавление фильтров
+
+		private void ClearSearchString()
+		{
+			SearchString = string.Empty;
+			CurrentSearchString = string.Empty;
+		}
+
+		private void SelectAll()
+		{
+			foreach(var filter in Filters)
+			{
+				filter.SelectAllCommand.Execute();
+			}
+		}
+
+		private void UnselectAll()
+		{
+			foreach(var filter in Filters)
+			{
+				filter.UnselectAllCommand.Execute();
+			}
+		}
+
 		private void LoadParents<TEntity, TId>(
 			IUnitOfWork unitOfWork,
 			IGenericRepository<TEntity> repository,
@@ -397,6 +395,17 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			}
 
 			return result;
+		}
+
+		private void UpdateFilteredElements()
+		{
+			if(ActiveFilter != null
+				&& ActiveFilter is IncludeExcludeFilter filter)
+			{
+				filter.RefreshFilteredElements();
+			}
+
+			FilteredElementsChanged?.Invoke(this, EventArgs.Empty);
 		}
 	}
 }

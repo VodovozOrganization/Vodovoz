@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Commands;
@@ -27,17 +28,17 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
+using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Tools;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
 using Order = Vodovoz.Domain.Orders.Order;
-using VodovozCounterparty = Vodovoz.Domain.Client.Counterparty;
 
 namespace Vodovoz.ViewModels.Reports.Sales
 {
@@ -50,6 +51,19 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
+
+		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
+		private readonly IGenericRepository<ProductGroup> _productGroupRepository;
+		private readonly IGenericRepository<PaymentFrom> _paymentFromRepository;
+		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
+		private readonly IGenericRepository<Organization> _organizationRepository;
+		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
+		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
+		private readonly IGenericRepository<Employee> _employeeGenericRepository;
+		private readonly IGenericRepository<GeoGroup> _geographicalGroupRepository;
+		private readonly IGenericRepository<PromotionalSet> _promotionalSetRepository;
+
+		private readonly IncludeExludeFiltersViewModel _filterViewModel;
 
 		private readonly string _templatePath = @".\Reports\Sales\TurnoverReport.xlsx";
 		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
@@ -64,10 +78,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly string _templateByCounterpartyFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsFinanceReport.xlsx";
 		private readonly string _templateByCounterpartyWithDynamicsFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsWithDynamicsFinanceReport.xlsx";
 
-		private readonly SelectableParametersReportFilter _filter;
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _userCanGetContactsInSalesReports;
-		private SelectableParameterReportFilterViewModel _filterViewModel;
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -90,18 +102,38 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			IInteractiveService interactiveService,
 			ICommonServices commonServices,
 			INavigationManager navigation,
-			IEmployeeRepository employeeRepository)
+			IEmployeeRepository employeeRepository,
+			IncludeExludeFiltersViewModel filterViewModel,
+			IGenericRepository<Nomenclature> nomenclatureRepository,
+			IGenericRepository<ProductGroup> productGroupRepository,
+			IGenericRepository<PaymentFrom> paymentFromRepository,
+			IGenericRepository<Counterparty> counterpartyRepository,
+			IGenericRepository<Organization> organizationRepository,
+			IGenericRepository<DiscountReason> discountReasonRepository,
+			IGenericRepository<Subdivision> subdivisionRepository,
+			IGenericRepository<Employee> employeeGenericRepository,
+			IGenericRepository<GeoGroup> geographicalGroupRepository,
+			IGenericRepository<PromotionalSet> promotionalSetRepository)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_interactiveService = commonServices.InteractiveService;
+			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
+			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_productGroupRepository = productGroupRepository ?? throw new ArgumentNullException(nameof(productGroupRepository));
+			_paymentFromRepository = paymentFromRepository ?? throw new ArgumentNullException(nameof(paymentFromRepository));
+			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_employeeGenericRepository = employeeGenericRepository ?? throw new ArgumentNullException(nameof(employeeGenericRepository));
+			_geographicalGroupRepository = geographicalGroupRepository ?? throw new ArgumentNullException(nameof(geographicalGroupRepository));
+			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
 
 			Title = "Отчет по оборачиваемости с динамикой";
 
 			_unitOfWork = UnitOfWorkFactory.CreateWithoutRoot();
-
-			_filter = new SelectableParametersReportFilter(_unitOfWork);
 
 			_userIsSalesRepresentative =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
@@ -121,12 +153,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
 
 		public bool UserCanGetContactsInSalesReports => _userCanGetContactsInSalesReports;
-
-		public virtual SelectableParameterReportFilterViewModel FilterViewModel
-		{
-			get => _filterViewModel;
-			set => SetField(ref _filterViewModel, value);
-		}
 
 		public virtual DateTime? StartDate
 		{
@@ -263,6 +289,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 		}
 
+		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
+
 		public async Task<TurnoverWithDynamicsReport> ActionGenerateReport(CancellationToken cancellationToken)
 		{
 			try
@@ -278,298 +306,205 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void ConfigureFilter()
 		{
-			var nomenclatureTypeParam = _filter.CreateParameterSet(
-				"Типы номенклатур",
-				nameof(NomenclatureCategory),
-				new ParametersEnumFactory<NomenclatureCategory>());
+			FilterViewModel.AddFilter<NomenclatureCategory>();
 
-			var nomenclatureParam = _filter.CreateParameterSet(
-				"Номенклатуры",
-				nameof(Nomenclature),
-				new ParametersFactory(_unitOfWork, (filters) =>
-				{
-					SelectableEntityParameter<Nomenclature> resultAlias = null;
-					var query = _unitOfWork.Session.QueryOver<Nomenclature>()
-						.Where(x => !x.IsArchive);
-					if(filters != null && filters.Any())
-					{
-						foreach(var f in filters)
-						{
-							var filterCriterion = f();
-							if(filterCriterion != null)
-							{
-								query.Where(filterCriterion);
-							}
-						}
-					}
+			FilterViewModel.AddFilter(UoW, _nomenclatureRepository);
 
-					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(x => x.OfficialName).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Nomenclature>>());
-					return query.List<SelectableParameter>();
-				}));
+			FilterViewModel.AddFilter(UoW, _productGroupRepository);
 
-			nomenclatureParam.AddFilterOnSourceSelectionChanged(nomenclatureTypeParam,
-				() =>
-				{
-					var selectedValues = nomenclatureTypeParam.GetSelectedValues().ToArray();
-					return !selectedValues.Any()
-						? null
-						: nomenclatureTypeParam.FilterType == SelectableFilterType.Include
-							? Restrictions.On<Nomenclature>(x => x.Category).IsIn(selectedValues)
-							: Restrictions.On<Nomenclature>(x => x.Category).Not.IsIn(selectedValues);
-				});
+			FilterViewModel.AddFilter(UoW, _counterpartyRepository);
 
-			//Предзагрузка. Для избежания ленивой загрузки
-			_unitOfWork.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
+			FilterViewModel.AddFilter(UoW, _organizationRepository);
 
-			_filter.CreateParameterSet(
-				"Группы товаров",
-				nameof(ProductGroup),
-				new RecursiveParametersFactory<ProductGroup>(
-					_unitOfWork,
-					(filters) =>
-					{
-						var query = _unitOfWork.Session.QueryOver<ProductGroup>()
-							.Where(p => p.Parent == null)
-							.And(p => !p.IsArchive);
+			FilterViewModel.AddFilter(UoW, _discountReasonRepository);
 
-						if(filters != null && filters.Any())
-						{
-							foreach(var f in filters)
-							{
-								query.Where(f());
-							}
-						}
+			FilterViewModel.AddFilter(UoW, _subdivisionRepository);
+			
+			FilterViewModel.AddFilter(UoW, _employeeGenericRepository);
 
-						return query.List();
-					},
-					x => x.Name,
-					x => x.Childs));
+			FilterViewModel.AddFilter(UoW, _geographicalGroupRepository);
 
-			_filter.CreateParameterSet(
-				"Контрагенты",
-				nameof(VodovozCounterparty),
-				new ParametersFactory(_unitOfWork, (filters) =>
-				{
-					SelectableEntityParameter<VodovozCounterparty> resultAlias = null;
-					var query = _unitOfWork.Session.QueryOver<VodovozCounterparty>()
-						.Where(x => !x.IsArchive);
-					if(filters != null && filters.Any())
-					{
-						foreach(var f in filters)
-						{
-							query.Where(f());
-						}
-					}
-
-					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(x => x.FullName).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<VodovozCounterparty>>());
-					return query.List<SelectableParameter>();
-				}));
-
-			_filter.CreateParameterSet(
-				"Организации",
-				nameof(Organization),
-				new ParametersFactory(_unitOfWork, (filters) =>
-				{
-					SelectableEntityParameter<Organization> resultAlias = null;
-					var query = _unitOfWork.Session.QueryOver<Organization>();
-					if(filters != null && filters.Any())
-					{
-						foreach(var f in filters)
-						{
-							query.Where(f());
-						}
-					}
-
-					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(x => x.FullName).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Organization>>());
-					return query.List<SelectableParameter>();
-				}));
-
-			_filter.CreateParameterSet(
-				"Основания скидок",
-				nameof(DiscountReason),
-				new ParametersFactory(_unitOfWork, (filters) =>
-				{
-					SelectableEntityParameter<DiscountReason> resultAlias = null;
-					var query = _unitOfWork.Session.QueryOver<DiscountReason>();
-					if(filters != null && filters.Any())
-					{
-						foreach(var f in filters)
-						{
-							query.Where(f());
-						}
-					}
-
-					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<DiscountReason>>());
-					return query.List<SelectableParameter>();
-				}));
-
-			_filter.CreateParameterSet(
-				"Подразделения",
-				nameof(Subdivision),
-				new ParametersFactory(_unitOfWork, (filters) =>
-				{
-					SelectableEntityParameter<Subdivision> resultAlias = null;
-					var query = _unitOfWork.Session.QueryOver<Subdivision>();
-					if(filters != null && filters.Any())
-					{
-						foreach(var f in filters)
-						{
-							query.Where(f());
-						}
-					}
-
-					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Subdivision>>());
-					return query.List<SelectableParameter>();
-				}));
-
-			if(!_userIsSalesRepresentative)
+			FilterViewModel.AddFilter<PaymentType>(filterConfig =>
 			{
-				_filter.CreateParameterSet(
-					"Авторы заказов",
-					nameof(Employee),
-					new ParametersFactory(_unitOfWork, (filters) =>
-					{
-						SelectableEntityParameter<Employee> resultAlias = null;
-						var query = _unitOfWork.Session.QueryOver<Employee>();
+				filterConfig.RefreshFunc = (filter) =>
+				{
+					var values = Enum.GetValues(typeof(PaymentType));
 
-						if(filters != null && filters.Any())
+					filter.FilteredElements.Clear();
+
+					var terminalValues = Enum.GetValues(typeof(PaymentByTerminalSource))
+						.Cast<PaymentByTerminalSource>()
+						.Where(x => string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString)
+							|| x.GetEnumTitle().ToLower().Contains(FilterViewModel.CurrentSearchString.ToLower()));
+
+					var paymentValues = _paymentFromRepository.Get(UoW, paymentFrom =>
+						(FilterViewModel.ShowArchived || !paymentFrom.IsArchive)
+						&& (string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString))
+							|| paymentFrom.Name.ToLower().Like($"%{FilterViewModel.CurrentSearchString.ToLower()}%"));
+
+					// Заполнение начального списка
+
+					foreach(var value in values)
+					{
+						if(value is PaymentType enumElement
+							&& !filter.HideElements.Contains(enumElement)
+							&& (string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString)
+								|| enumElement.GetEnumTitle().ToLower().Contains(FilterViewModel.CurrentSearchString.ToLower())
+								|| (enumElement == PaymentType.Terminal && terminalValues.Any())
+								|| (enumElement == PaymentType.PaidOnline && paymentValues.Any())))
 						{
-							foreach(var f in filters)
+							filter.FilteredElements.Add(new IncludeExcludeElement<PaymentType, PaymentType>()
 							{
-								query.Where(f());
+								Id = enumElement,
+								Title = enumElement.GetEnumTitle(),
+							});
+						}
+					}
+
+					// Заполнение группы Терминал
+
+					var terminalNode = filter.FilteredElements
+						.Where(x => x.Number == nameof(PaymentType.Terminal))
+						.FirstOrDefault();
+
+					if(terminalValues.Any())
+					{
+						foreach(var value in terminalValues)
+						{
+							if(value is PaymentByTerminalSource enumElement)
+							{
+								terminalNode.Children.Add(new IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>()
+								{
+									Id = enumElement,
+									Parent = terminalNode,
+									Title = enumElement.GetEnumTitle(),
+								});
 							}
 						}
-
-						var authorProjection = CustomProjections.Concat_WS(
-							" ",
-							Projections.Property<Employee>(x => x.LastName),
-							Projections.Property<Employee>(x => x.Name),
-							Projections.Property<Employee>(x => x.Patronymic)
-						);
-
-						query.SelectList(list => list
-							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-							.Select(authorProjection).WithAlias(() => resultAlias.EntityTitle)
-						);
-						query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
-						var paremetersSet = query.List<SelectableParameter>();
-
-						return paremetersSet;
-					}));
-			}
-
-			_filter.CreateParameterSet(
-				"Части города",
-				nameof(GeoGroup),
-				new ParametersFactory(_unitOfWork, (filters) =>
-				{
-					SelectableEntityParameter<GeoGroup> resultAlias = null;
-					var query = _unitOfWork.Session.QueryOver<GeoGroup>();
-
-					if(filters != null && filters.Any())
-					{
-						foreach(var f in filters)
-						{
-							query.Where(f());
-						}
 					}
 
-					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<GeoGroup>>());
-					return query.List<SelectableParameter>();
-				}));
+					// Заполнение подгруппы Оплачено онлайн
 
+					var paidOnlineNode = filter.FilteredElements
+						.Where(x => x.Number == nameof(PaymentType.PaidOnline))
+						.FirstOrDefault();
 
-			_filter.CreateParameterSet(
-				"Тип оплаты",
-				nameof(CombinedPaymentNode),
-				new RecursiveParametersFactory<CombinedPaymentNode>(
-					_unitOfWork,
-					(filters) =>
+					if(paymentValues.Any())
 					{
-						var paymentFromList = _unitOfWork.Session.QueryOver<PaymentFrom>().List();
-						var paymentFromCombinedNodes = paymentFromList.Select(x => 
-							new CombinedPaymentNode { 
-								Id = x.Id, Title = x.Name, 
-								TopLevelId = (int)PaymentType.PaidOnline })
-						.ToList();
+						var paymentFromValues = paymentValues
+							.Select(x => new IncludeExcludeElement<int, PaymentFrom>
+							{
+								Id = x.Id,
+								Parent = paidOnlineNode,
+								Title = x.Name,
+							});
 
-						var paymentByTerminalSources = Enum.GetValues(typeof(PaymentByTerminalSource)).Cast<PaymentByTerminalSource>();
-						var paymentByTerminalSourceNodes = paymentByTerminalSources.Select(x => 
-							new CombinedPaymentNode 
-								{ 
-									Id = (int)x, 
-									Title = x.GetEnumTitle(), 
-									TopLevelId = (int)PaymentType.Terminal 
-								})
-						.ToList();
-
-						var paymentTypeList = Enum.GetValues(typeof(PaymentType)).Cast<PaymentType>();
-						var combinedNodesTypesWithChildFroms = paymentTypeList.Select(x => 
-							new CombinedPaymentNode { 
-								Id = (int)x, 
-								Title = x.GetEnumTitle(), 
-								PaymentType = x, 
-								IsTopLevel = true })
-						.ToList();
-
-						combinedNodesTypesWithChildFroms.Single(x => x.PaymentType == PaymentType.PaidOnline).Childs = paymentFromCombinedNodes;						
-						combinedNodesTypesWithChildFroms.Single(x => x.PaymentType == PaymentType.Terminal).Childs = paymentByTerminalSourceNodes;
-
-						return combinedNodesTypesWithChildFroms;
-					},
-					x => x.Title,
-					x => x.Childs,
-					true));
-
-			_filter.CreateParameterSet(
-				"Промонаборы",
-				nameof(PromotionalSet),
-				new ParametersFactory(_unitOfWork, (filters) =>
-				{
-					SelectableEntityParameter<PromotionalSet> resultAlias = null;
-					var query = _unitOfWork.Session.QueryOver<PromotionalSet>()
-						.Where(x => !x.IsArchive);
-					if(filters != null && filters.Any())
-					{
-						foreach(var f in filters)
+						foreach(var element in paymentFromValues)
 						{
-							query.Where(f());
+							paidOnlineNode.Children.Add(element);
 						}
 					}
+				};
 
-					query.SelectList(list => list
-						.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-						.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
-					);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<PromotionalSet>>());
-					return query.List<SelectableParameter>();
-				}));
+				filterConfig.GetReportParametersFunc = (filter) =>
+				{
+					var result = new Dictionary<string, object>();
 
-			FilterViewModel = new SelectableParameterReportFilterViewModel(_filter);
+					// Тип оплаты
+
+					var includePaymentTypeValues = filter.IncludedElements
+						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
+						.Select(x => x.Number)
+						.ToArray();
+
+					if(includePaymentTypeValues.Length > 0)
+					{
+						result.Add(typeof(PaymentType).Name + "_include", includePaymentTypeValues);
+					}
+					else
+					{
+						result.Add(typeof(PaymentType).Name + "_include", new object[] { "0" });
+					}
+
+					var excludePaymentTypeValues = filter.ExcludedElements
+						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
+						.Select(x => x.Number)
+						.ToArray();
+
+					if(excludePaymentTypeValues.Length > 0)
+					{
+						result.Add(typeof(PaymentType).Name + "_exclude", excludePaymentTypeValues);
+					}
+					else
+					{
+						result.Add(typeof(PaymentType).Name + "_exclude", new object[] { "0" });
+					}
+
+					// Оплата по термииналу
+
+					var includePaymentByTerminalSourceValues = filter.IncludedElements
+						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
+						.Select(x => x.Number)
+						.ToArray();
+
+					if(includePaymentByTerminalSourceValues.Length > 0)
+					{
+						result.Add(typeof(PaymentByTerminalSource).Name + "_include", includePaymentByTerminalSourceValues);
+					}
+					else
+					{
+						result.Add(typeof(PaymentByTerminalSource).Name + "_include", new object[] { "0" });
+					}
+
+					var excludePaymentByTerminalSourceValues = filter.ExcludedElements
+						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
+						.Select(x => x.Number)
+						.ToArray();
+
+					if(excludePaymentByTerminalSourceValues.Length > 0)
+					{
+						result.Add(typeof(PaymentByTerminalSource).Name + "_exclude", excludePaymentByTerminalSourceValues);
+					}
+					else
+					{
+						result.Add(typeof(PaymentByTerminalSource).Name + "_exclude", new object[] { "0" });
+					}
+
+					// Оплачено онлайн
+
+					var includePaymentFromValues = filter.IncludedElements
+						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
+						.Select(x => x.Number)
+						.ToArray();
+
+					if(includePaymentFromValues.Length > 0)
+					{
+						result.Add(typeof(PaymentFrom).Name + "_include", includePaymentFromValues);
+					}
+					else
+					{
+						result.Add(typeof(PaymentFrom).Name + "_include", new object[] { "0" });
+					}
+
+					var excludePaymentFromValues = filter.ExcludedElements
+						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
+						.Select(x => x.Number)
+						.ToArray();
+
+					if(excludePaymentFromValues.Length > 0)
+					{
+						result.Add(typeof(PaymentFrom).Name + "_exclude", excludePaymentFromValues);
+					}
+					else
+					{
+						result.Add(typeof(PaymentFrom).Name + "_exclude", new object[] { "0" });
+					}
+
+					return result;
+				};
+			});
+
+			FilterViewModel.AddFilter(UoW, _promotionalSetRepository);
 		}
 
 		private void ShowInfo()
@@ -606,27 +541,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
 		}
 
-		private string GetSelectedParametersTitles(IDictionary<string, string> selectedParametersTitles, StringBuilder sb)
+		public void GetParameterValues<T>(StringBuilder stringBuilder)
 		{
-			sb.Clear();
+			var title = typeof(T).GetClassUserFriendlyName().NominativePlural.CapitalizeSentence();
 
-			var notSetValues = new string[]{
-				"Все",
-				"Нет"
-			};
-
-			if(selectedParametersTitles.Any())
-			{
-				foreach(var item in selectedParametersTitles)
-				{
-					if(!notSetValues.Contains(item.Value))
-					{
-						sb.AppendLine($"{item.Key}{item.Value.Trim('\n', '\r')}");
-					}
-				}
-			}
-
-			return sb.ToString().TrimEnd('\n');
+			stringBuilder.Append(title + " включены " +
+				string.Join("\n\t", FilterViewModel.GetIncludedElements<T>().Select(x => x.Title.Trim('\n'))));
+			stringBuilder.Append(title + " исключены " +
+				string.Join("\n\t", FilterViewModel.GetExcludedElements<T>().Select(x => x.Title.Trim('\n'))));
 		}
 
 		public async Task<TurnoverWithDynamicsReport> Generate(CancellationToken cancellationToken)
@@ -645,17 +567,17 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			var sb = new StringBuilder();
 
-			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(NomenclatureCategory)), sb));
-			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Nomenclature)), sb));
-			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(ProductGroup)), sb));
-			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(VodovozCounterparty)), sb));
-			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Organization)), sb));
-			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(DiscountReason)), sb));
-			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Subdivision)), sb));
-			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(Employee)), sb));
-			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(GeoGroup)), sb));
-			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(PaymentType)), sb));
-			sb2.Append(GetSelectedParametersTitles(_filter.GetSelectedParametersTitlesFromParameterSet(nameof(PromotionalSet)), sb));
+			GetParameterValues<NomenclatureCategory>(sb2);
+			GetParameterValues<Nomenclature>(sb2);
+			GetParameterValues<ProductGroup>(sb2);
+			GetParameterValues<Counterparty>(sb2);
+			GetParameterValues<Organization>(sb2);
+			GetParameterValues<DiscountReason>(sb2);
+			GetParameterValues<Subdivision>(sb2);
+			GetParameterValues<Employee>(sb2);
+			GetParameterValues<GeoGroup>(sb2);
+			GetParameterValues<PaymentType>(sb2);
+			GetParameterValues<PromotionalSet>(sb2);
 
 			filters = sb2.ToString().Trim('\n');
 
@@ -812,6 +734,44 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				OrderStatus.Closed
 			};
 
+			#region Сбор параметров
+
+			var includedNomenclatureCategories = FilterViewModel.GetIncludedElements<NomenclatureCategory>().Select(x => x.Number).ToArray();
+			var excludedNomenclatureCategories = FilterViewModel.GetExcludedElements<NomenclatureCategory>().Select(x => x.Number).ToArray();
+			var includedNomenclatures = FilterViewModel.GetIncludedElements<Nomenclature>().Select(x => x.Number).ToArray();
+			var excludedNomenclatures = FilterViewModel.GetExcludedElements<Nomenclature>().Select(x => x.Number).ToArray();
+			var includedProductGroups = FilterViewModel.GetIncludedElements<ProductGroup>().Select(x => x.Number).ToArray();
+			var excludedProductGroups = FilterViewModel.GetExcludedElements<ProductGroup>().Select(x => x.Number).ToArray();
+			var includedCounterparties = FilterViewModel.GetIncludedElements<Counterparty>().Select(x => x.Number).ToArray();
+			var excludedCounterparties = FilterViewModel.GetExcludedElements<Counterparty>().Select(x => x.Number).ToArray();
+			var includedOrganizations = FilterViewModel.GetIncludedElements<Organization>().Select(x => x.Number).ToArray();
+			var excludedOrganizations = FilterViewModel.GetExcludedElements<Organization>().Select(x => x.Number).ToArray();
+			var includedDiscountReasons = FilterViewModel.GetIncludedElements<DiscountReason>().Select(x => x.Number).ToArray();
+			var excludedDiscountReasons = FilterViewModel.GetExcludedElements<DiscountReason>().Select(x => x.Number).ToArray();
+			var includedSubdivisions = FilterViewModel.GetIncludedElements<Subdivision>().Select(x => x.Number).ToArray();
+			var excludedSubdivisions = FilterViewModel.GetExcludedElements<Subdivision>().Select(x => x.Number).ToArray();
+			var includedEmployees = FilterViewModel.GetIncludedElements<Employee>().Select(x => x.Number).ToArray();
+			var excludedEmployees = FilterViewModel.GetExcludedElements<Employee>().Select(x => x.Number).ToArray();
+			var includedGeoGroups = FilterViewModel.GetIncludedElements<GeoGroup>().Select(x => x.Number).ToArray();
+			var excludedGeoGroups = FilterViewModel.GetExcludedElements<GeoGroup>().Select(x => x.Number).ToArray();
+
+			var includedPaymentTypeElements = FilterViewModel.GetIncludedElements<PaymentType>();
+			var excludedPaymentTypeElements = FilterViewModel.GetExcludedElements<PaymentType>();
+
+			var includedPaymentTypes = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>).Select(x => x.Number).ToArray();
+			var excludedPaymentTypes = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>).Select(x => x.Number).ToArray();
+
+			var includedPaymentFroms = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<int, PaymentFrom>).Select(x => x.Number).ToArray();
+			var excludedPaymentFroms = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<int, PaymentFrom>).Select(x => x.Number).ToArray();
+
+			var includedPaymentByTerminalSources = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>).Select(x => x.Number).ToArray();
+			var excludedPaymentByTerminalSources = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>).Select(x => x.Number).ToArray();
+
+			var includedPromotionalSets = FilterViewModel.GetIncludedElements<PromotionalSet>().Select(x => x.Number).ToArray();
+			var excludedPromotionalSets = FilterViewModel.GetExcludedElements<PromotionalSet>().Select(x => x.Number).ToArray();
+
+			#endregion Сбор параметров
+
 			Order orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -821,15 +781,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			PromotionalSet promotionalSetAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
-			VodovozCounterparty counterpartyAlias = null;
+			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 			Phone phoneAlias = null;
 			Phone orderContactPhoneAlias = null;
 			Email emailAlias = null;
+			PaymentFrom paymentFromAlias = null;
 
 			OrderItemNode resultNodeAlias = null;
-
-			var parameters = _filter.GetParameters();
 
 			IList<OrderItemNode> nomenclaturesEmptyNodes = new List<OrderItemNode>();
 
@@ -837,64 +796,52 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				var nomenclaturesEmptyQuery = _unitOfWork.Session.QueryOver(() => nomenclatureAlias)
 					.Left.JoinAlias(() => nomenclatureAlias.ProductGroup, () => productGroupAlias)
-					.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Nomenclature.Id == nomenclatureAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.Where(() => !nomenclatureAlias.IsArchive)
+					.JoinEntityAlias(() => orderItemAlias, () => orderItemAlias.Nomenclature.Id == nomenclatureAlias.Id, JoinType.LeftOuterJoin)
+					.JoinEntityAlias(() => orderAlias, () => orderItemAlias.Order.Id == orderAlias.Id, JoinType.LeftOuterJoin)
+					.Where(() => FilterViewModel.ShowArchived || !nomenclatureAlias.IsArchive)
 					.And(Restrictions.Le(Projections.Property(() => orderAlias.DeliveryDate), EndDate));
 
-				if(parameters.ContainsKey(nameof(NomenclatureCategory) + _includeSuffix)
-				&& parameters[nameof(NomenclatureCategory) + _includeSuffix] is object[] nomenclatureTypesInclude2
-				&& nomenclatureTypesInclude2[0] != "0")
+				if(includedNomenclatureCategories.Any())
 				{
 					nomenclaturesEmptyQuery.Where(Restrictions.In(
 						Projections.Property(() => nomenclatureAlias.Category),
-						nomenclatureTypesInclude2));
+						includedNomenclatureCategories));
 				}
 
-				if(parameters.ContainsKey(nameof(NomenclatureCategory) + _excludeSuffix)
-					&& parameters[nameof(NomenclatureCategory) + _excludeSuffix] is object[] nomenclatureTypesExclude2
-					&& nomenclatureTypesExclude2[0] != "0")
+				if(excludedNomenclatureCategories.Any())
 				{
 					nomenclaturesEmptyQuery.Where(Restrictions.Not(Restrictions.In(
 						Projections.Property(() => nomenclatureAlias.Category),
-						nomenclatureTypesExclude2)));
+						excludedNomenclatureCategories)));
 				}
 
-				if(parameters.ContainsKey(nameof(Nomenclature) + _includeSuffix)
-					&& parameters[nameof(Nomenclature) + _includeSuffix] is object[] nomenclaturesInclude2
-					&& nomenclaturesInclude2[0] != "0")
+				if(includedNomenclatures.Any())
 				{
 					nomenclaturesEmptyQuery.Where(Restrictions.In(
 						Projections.Property(() => nomenclatureAlias.Id),
-						nomenclaturesInclude2));
+						includedNomenclatures));
 				}
 
-				if(parameters.ContainsKey(nameof(Nomenclature) + _excludeSuffix)
-					&& parameters[nameof(Nomenclature) + _excludeSuffix] is object[] nomenclaturesExclude2
-					&& nomenclaturesExclude2[0] != "0")
+				if(excludedNomenclatures.Any())
 				{
 					nomenclaturesEmptyQuery.Where(Restrictions.Not(Restrictions.In(
 						Projections.Property(() => nomenclatureAlias.Id),
-						nomenclaturesExclude2)));
+						excludedNomenclatures)));
 				}
 
-				if(parameters.ContainsKey(nameof(ProductGroup) + _includeSuffix)
-					&& parameters[nameof(ProductGroup) + _includeSuffix] is object[] productGroupsInclude2
-					&& productGroupsInclude2[0] != "0")
+				if(includedProductGroups.Any())
 				{
 					nomenclaturesEmptyQuery.Where(Restrictions.In(
 						Projections.Property(() => productGroupAlias.Id),
-						productGroupsInclude2));
+						includedProductGroups));
 				}
 
-				if(parameters.ContainsKey(nameof(ProductGroup) + _excludeSuffix)
-					&& parameters[nameof(ProductGroup) + _excludeSuffix] is object[] productGroupsExclude2
-					&& productGroupsExclude2[0] != "0")
+				if(excludedProductGroups.Any())
 				{
 					nomenclaturesEmptyQuery.Where(Restrictions.Disjunction()
 						.Add(Restrictions.Not(Restrictions.In(
 							Projections.Property(() => productGroupAlias.Id),
-							productGroupsExclude2)))
+								excludedProductGroups)))
 						.Add(Restrictions.IsNull(Projections.Property(() => productGroupAlias.Id))));
 				}
 
@@ -922,6 +869,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Left.JoinAlias(() => orderAlias.Contract, () => counterpartyContractAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => orderAlias.PaymentByCardFrom, () => paymentFromAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
 				.Inner.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -943,258 +891,192 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						separator: ",\n"));
 
 			#region filter parameters
-			if(parameters.ContainsKey(nameof(NomenclatureCategory) + _includeSuffix)
-				&& parameters[nameof(NomenclatureCategory) + _includeSuffix] is object[] nomenclatureTypesInclude
-				&& nomenclatureTypesInclude[0] != "0")
+
+			if(includedNomenclatureCategories.Any())
 			{
 				query.Where(Restrictions.In(
 					Projections.Property(() => nomenclatureAlias.Category),
-					nomenclatureTypesInclude));
+					includedNomenclatureCategories));
 			}
 
-			if(parameters.ContainsKey(nameof(NomenclatureCategory) + _excludeSuffix)
-				&& parameters[nameof(NomenclatureCategory) + _excludeSuffix] is object[] nomenclatureTypesExclude
-				&& nomenclatureTypesExclude[0] != "0")
+			if(excludedNomenclatureCategories.Any())
 			{
 				query.Where(Restrictions.Not(Restrictions.In(
 					Projections.Property(() => nomenclatureAlias.Category),
-					nomenclatureTypesExclude)));
+					excludedNomenclatureCategories)));
 			}
 
-			if(parameters.ContainsKey(nameof(Nomenclature) + _includeSuffix)
-				&& parameters[nameof(Nomenclature) + _includeSuffix] is object[] nomenclaturesInclude
-				&& nomenclaturesInclude[0] != "0")
+			if(includedNomenclatures.Any())
 			{
 				query.Where(Restrictions.In(
 					Projections.Property(() => nomenclatureAlias.Id),
-					nomenclaturesInclude));
+					includedNomenclatures));
 			}
 
-			if(parameters.ContainsKey(nameof(Nomenclature) + _excludeSuffix)
-				&& parameters[nameof(Nomenclature) + _excludeSuffix] is object[] nomenclaturesExclude
-				&& nomenclaturesExclude[0] != "0")
+			if(excludedNomenclatures.Any())
 			{
 				query.Where(Restrictions.Not(Restrictions.In(
 					Projections.Property(() => nomenclatureAlias.Id),
-					nomenclaturesExclude)));
+					excludedNomenclatures)));
 			}
 
-			if(parameters.ContainsKey(nameof(ProductGroup) + _includeSuffix)
-				&& parameters[nameof(ProductGroup) + _includeSuffix] is object[] productGroupsInclude
-				&& productGroupsInclude[0] != "0")
+			if(includedProductGroups.Any())
 			{
 				query.Where(Restrictions.In(
 					Projections.Property(() => productGroupAlias.Id),
-					productGroupsInclude));
+					includedProductGroups));
 			}
 
-			if(parameters.ContainsKey(nameof(ProductGroup) + _excludeSuffix)
-				&& parameters[nameof(ProductGroup) + _excludeSuffix] is object[] productGroupsExclude
-				&& productGroupsExclude[0] != "0")
+			if(excludedProductGroups.Any())
 			{
 				query.Where(Restrictions.Disjunction()
 					.Add(Restrictions.Not(Restrictions.In(
 						Projections.Property(() => productGroupAlias.Id),
-						productGroupsExclude)))
+						excludedProductGroups)))
 					.Add(Restrictions.IsNull(Projections.Property(() => productGroupAlias.Id))));
 			}
 
-			if(parameters.ContainsKey(nameof(CombinedPaymentNode) + _includeSuffix) 
-			   && parameters[nameof(CombinedPaymentNode) + _includeSuffix] is object[] paymentNodesInclude
-			   && paymentNodesInclude[0] != "0")
+			if(includedPaymentTypeElements.Any())
 			{
-				var paymentNodes = paymentNodesInclude.Cast<CombinedPaymentNode>().ToList();
-				var paymentTypes = paymentNodes.Where(x => x.IsTopLevel).Select(x => x.PaymentType).ToArray();
-				var paymentCardForms = paymentNodes.Where(x => !x.IsTopLevel && x.TopLevelId == (int)PaymentType.PaidOnline).Select(x => x.Id).ToArray();
-				var paymentTerminalForms = paymentNodes.Where(x => !x.IsTopLevel && x.TopLevelId == (int)PaymentType.Terminal).Select(x => x.Id).ToArray();
-
 				var paymentTerminalFormsRestriction =
-					Restrictions.Conjunction()
-						.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Terminal))
-						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentByTerminalSource), paymentTerminalForms));
+					Restrictions.And(
+						Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Terminal),
+						Restrictions.In(Projections.Property(() => orderAlias.PaymentByTerminalSource), includedPaymentByTerminalSources));
+
+				var paymentFromRestriction =
+					Restrictions.And(
+						Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.PaidOnline),
+						Restrictions.In(Projections.Property(() => paymentFromAlias.Id), includedPaymentFroms));
 
 				query.Where(
 					Restrictions.Disjunction()
-						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), paymentTypes))
-						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentByCardFrom), paymentCardForms))
+						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), includedPaymentTypes))
 						.Add(paymentTerminalFormsRestriction)
-					);
+						.Add(paymentFromRestriction));
 			}
 
-			if(parameters.ContainsKey(nameof(CombinedPaymentNode) + _excludeSuffix) 
-			   && parameters[nameof(CombinedPaymentNode) + _excludeSuffix] is object[] paymentNodesExclude
-			   && paymentNodesExclude[0] != "0")
+			if(excludedPaymentTypeElements.Any())
 			{
-				var paymentNodes = paymentNodesExclude.Cast<CombinedPaymentNode>().ToList();
-				var paymentTypes = paymentNodes.Where(x => x.IsTopLevel).Select(x => x.PaymentType).ToArray();
-				var paymentCardForms = paymentNodes.Where(x => !x.IsTopLevel && x.TopLevelId == (int)PaymentType.PaidOnline).Select(x => x.Id).ToArray();
-				var paymentTerminalForms = paymentNodes.Where(x => !x.IsTopLevel && x.TopLevelId == (int)PaymentType.Terminal).Select(x => x.Id).ToArray();
-
 				var paymentTerminalFormsRestriction =
-					Restrictions.Conjunction()
-						.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Terminal))
-						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentByTerminalSource), paymentTerminalForms));
+					Restrictions.And(
+						Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Terminal),
+						Restrictions.In(Projections.Property(() => orderAlias.PaymentByTerminalSource), excludedPaymentByTerminalSources));
+
+				var paymentFromRestriction =
+					Restrictions.And(
+						Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.PaidOnline),
+						Restrictions.In(Projections.Property(() => paymentFromAlias.Id), excludedPaymentFroms));
 
 				query.Where(
 					Restrictions.Not(
 						Restrictions.Disjunction()
-							.Add(Restrictions.Conjunction()
-								.Add(Restrictions.IsNotNull(Projections.Property(() => orderAlias.PaymentByCardFrom)))
-								.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentByCardFrom), paymentCardForms)))
-							.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), paymentTypes))
-							.Add(paymentTerminalFormsRestriction)
-						)
-					);
+							.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), excludedPaymentTypes))
+							.Add(paymentFromRestriction)
+							.Add(paymentTerminalFormsRestriction)));
 			}
 
-			if(parameters.ContainsKey(nameof(VodovozCounterparty) + _includeSuffix)
-				&& parameters[nameof(VodovozCounterparty) + _includeSuffix] is object[] counterpartiesInclude
-				&& counterpartiesInclude[0] != "0")
+			if(includedCounterparties.Any())
 			{
 				query.Where(Restrictions.In(
 					Projections.Property(() => orderAlias.Client.Id),
-					counterpartiesInclude));
+					includedCounterparties));
 			}
 
-			if(parameters.ContainsKey(nameof(VodovozCounterparty) + _excludeSuffix)
-				&& parameters[nameof(VodovozCounterparty) + _excludeSuffix] is object[] counterpartiesExclude
-				&& counterpartiesExclude[0] != "0")
+			if(excludedCounterparties.Any())
 			{
 				query.Where(Restrictions.Not(Restrictions.In(
 					Projections.Property(() => orderAlias.Client.Id),
-					counterpartiesExclude)));
+					excludedCounterparties)));
 			}
 
-			if(parameters.ContainsKey(nameof(Organization) + _includeSuffix)
-				&& parameters[nameof(Organization) + _includeSuffix] is object[] organizationsInclude
-				&& organizationsInclude[0] != "0")
+			if(includedOrganizations.Any())
 			{
 				query.Where(Restrictions.In(
 					Projections.Property(() => counterpartyContractAlias.Organization.Id),
-					organizationsInclude));
+					includedOrganizations));
 			}
 
-			if(parameters.ContainsKey(nameof(Organization) + _excludeSuffix)
-				&& parameters[nameof(Organization) + _excludeSuffix] is object[] organizationsExclude
-				&& organizationsExclude[0] != "0")
+			if(excludedOrganizations.Any())
 			{
 				query.Where(Restrictions.Not(Restrictions.In(
 					Projections.Property(() => counterpartyContractAlias.Organization.Id),
-					organizationsExclude)));
+					excludedOrganizations)));
 			}
 
-			if(parameters.ContainsKey(nameof(DiscountReason) + _includeSuffix)
-				&& parameters[nameof(DiscountReason) + _includeSuffix] is object[] discountReasonsInclude
-				&& discountReasonsInclude[0] != "0")
+			if(includedDiscountReasons.Any())
 			{
 				query.Where(Restrictions.In(
 					Projections.Property(() => orderItemAlias.DiscountReason.Id),
-					discountReasonsInclude));
+					includedDiscountReasons));
 			}
 
-			if(parameters.ContainsKey(nameof(DiscountReason) + _excludeSuffix)
-				&& parameters[nameof(DiscountReason) + _excludeSuffix] is object[] discountReasonsExclude
-				&& discountReasonsExclude[0] != "0")
+			if(excludedDiscountReasons.Any())
 			{
 				query.Where(Restrictions.Not(Restrictions.In(
 					Projections.Property(() => orderItemAlias.DiscountReason.Id),
-					discountReasonsExclude)));
+					excludedDiscountReasons)));
 			}
 
-			if(parameters.ContainsKey(nameof(Subdivision) + _includeSuffix)
-				&& parameters[nameof(Subdivision) + _includeSuffix] is object[] subdivisionsInclude
-				&& subdivisionsInclude[0] != "0")
+			if(includedSubdivisions.Any())
 			{
 				query.Where(Restrictions.In(
 					Projections.Property(() => authorAlias.Subdivision.Id),
-					subdivisionsInclude));
+					includedSubdivisions));
 			}
 
-			if(parameters.ContainsKey(nameof(Subdivision) + _excludeSuffix)
-				&& parameters[nameof(Subdivision) + _excludeSuffix] is object[] subdivisionsExclude
-				&& subdivisionsExclude[0] != "0")
+			if(excludedSubdivisions.Any())
 			{
 				query.Where(Restrictions.Not(Restrictions.In(
 					Projections.Property(() => authorAlias.Subdivision.Id),
-					subdivisionsExclude)));
+					excludedSubdivisions)));
 			}
 
-			if(parameters.ContainsKey(nameof(Employee) + _includeSuffix)
-				&& parameters[nameof(Employee) + _includeSuffix] is object[] authorsInclude
-				&& authorsInclude[0] != "0")
+			if(includedEmployees.Any())
 			{
 				query.Where(Restrictions.In(
 					Projections.Property(() => authorAlias.Id),
-					authorsInclude));
+					includedEmployees));
 			}
 
-			if(parameters.ContainsKey(nameof(Employee) + _excludeSuffix)
-				&& parameters[nameof(Employee) + _excludeSuffix] is object[] authorsExclude
-				&& authorsExclude[0] != "0")
+			if(excludedEmployees.Any())
 			{
 				query.Where(Restrictions.Not(Restrictions.In(
 					Projections.Property(() => authorAlias.Id),
-					authorsExclude)));
+					excludedEmployees)));
 			}
 
-			if(parameters.ContainsKey(nameof(GeoGroup) + _includeSuffix)
-				&& parameters[nameof(GeoGroup) + _includeSuffix] is object[] geographicGroupsInclude
-				&& geographicGroupsInclude[0] != "0")
+			if(includedGeoGroups.Any())
 			{
 				query.Where(Restrictions.In(
 					Projections.Property(() => geographicGroupAlias.Id),
-					geographicGroupsInclude));
+					includedGeoGroups));
 			}
 
-			if(parameters.ContainsKey(nameof(GeoGroup) + _excludeSuffix)
-				&& parameters[nameof(GeoGroup) + _excludeSuffix] is object[] geographicGroupsExclude
-				&& geographicGroupsExclude[0] != "0")
+			if(excludedGeoGroups.Any())
 			{
 				query.Where(Restrictions.Disjunction()
 					.Add(Restrictions.Not(Restrictions.In(
 						Projections.Property(() => geographicGroupAlias.Id),
-						geographicGroupsExclude)))
+						excludedGeoGroups)))
 					.Add(Restrictions.IsNull(Projections.Property(() => geographicGroupAlias.Id))));
 			}
 
-			if(parameters.ContainsKey(nameof(PaymentType) + _includeSuffix)
-				&& parameters[nameof(PaymentType) + _includeSuffix] is object[] paymentTypesInclude
-				&& paymentTypesInclude[0] != "0")
-			{
-				query.Where(Restrictions.In(
-					Projections.Property(() => orderAlias.PaymentType),
-					paymentTypesInclude));
-			}
-
-			if(parameters.ContainsKey(nameof(PaymentType) + _excludeSuffix)
-				&& parameters[nameof(PaymentType) + _excludeSuffix] is object[] paymentTypesExclude
-				&& paymentTypesExclude[0] != "0")
-			{
-				query.Where(Restrictions.Not(Restrictions.In(
-					Projections.Property(() => orderAlias.PaymentType),
-					paymentTypesExclude)));
-			}
-
-			if(parameters.ContainsKey(nameof(PromotionalSet) + _includeSuffix)
-				&& parameters[nameof(PromotionalSet) + _includeSuffix] is object[] promotionalSetsInclude
-				&& promotionalSetsInclude[0] != "0")
+			if(includedPromotionalSets.Any())
 			{
 				query.Where(Restrictions.In(
 					Projections.Property(() => promotionalSetAlias.Id),
-					promotionalSetsInclude));
+					includedPromotionalSets));
 			}
 
-			if(parameters.ContainsKey(nameof(PromotionalSet) + _excludeSuffix)
-				&& parameters[nameof(PromotionalSet) + _excludeSuffix] is object[] promotionalSetsExclude
-				&& promotionalSetsExclude[0] != "0")
+			if(excludedPromotionalSets.Any())
 			{
-
 				query.Where(Restrictions.Disjunction()
 					.Add(Restrictions.Not(Restrictions.In(
 						Projections.Property(() => promotionalSetAlias.Id),
-						promotionalSetsExclude)))
+						excludedPromotionalSets)))
 					.Add(Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id))));
 			}
+
 			#endregion
 
 			var result = query.Where(GetOrderCriterion(filterOrderStatusInclude, orderAlias))
@@ -1242,8 +1124,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private IEnumerable<string> ValidateParameters()
 		{
-			if(StartDate == null || StartDate == default(DateTime)
-			|| EndDate == null || EndDate == default(DateTime))
+			if(StartDate == null
+				|| StartDate == default(DateTime)
+				|| EndDate == null
+				|| EndDate == default(DateTime))
 			{
 				yield return "Заполните дату.";
 			}
@@ -1256,19 +1140,20 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			}
 
 			if((SlicingType == DateTimeSliceType.Week)
-			&& (StartDate?.DayOfWeek == DayOfWeek.Monday ? deltaTime?.TotalDays / 7 >= 54 : deltaTime?.TotalDays / 7 > 54))
+				&& (StartDate?.DayOfWeek == DayOfWeek.Monday ? deltaTime?.TotalDays / 7 >= 54 : deltaTime?.TotalDays / 7 > 54))
 			{
 				yield return "Для разреза неделя нельзя выбрать интервал более 54х недель";
 			}
 
 			var monthBetweenDates = 0;
+
 			for(DateTime monthDate = StartDate.Value; monthDate < EndDate; monthDate = monthDate.AddMonths(1))
 			{
 				monthBetweenDates++;
 			}
 
 			if((SlicingType == DateTimeSliceType.Month)
-			&& (StartDate?.Day == 1 ? monthBetweenDates >= 60 : monthBetweenDates > 60))
+				&& (StartDate?.Day == 1 ? monthBetweenDates >= 60 : monthBetweenDates > 60))
 			{
 				yield return "Для разреза месяц нельзя выбрать интервал более 60х месяцев";
 			}

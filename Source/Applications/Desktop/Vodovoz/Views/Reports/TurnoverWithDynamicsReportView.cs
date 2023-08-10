@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Presentation.Gtk.Common;
 using Vodovoz.ViewModels.Reports.Sales;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
@@ -15,7 +16,7 @@ namespace Vodovoz.ReportsParameters.Sales
 {
 	public partial class TurnoverWithDynamicsReportView : TabViewBase<TurnoverWithDynamicsReportViewModel>
 	{
-		private SelectableParameterReportFilterView _filterView;
+		private IncludeExludeFiltersView _filterView;
 		private const string _radioButtonPrefix = "yrbtn";
 		private const string _sliceRadioButtonGroupPrefix = "Slice";
 		private const string _measurementUnitRadioButtonGroupPrefix = "MeasurementUnit";
@@ -305,7 +306,7 @@ namespace Vodovoz.ReportsParameters.Sales
 		private void ShowFilter()
 		{
 			_filterView?.Destroy();
-			_filterView = new SelectableParameterReportFilterView(ViewModel.FilterViewModel);
+			_filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);
 			vboxParameters.Add(_filterView);
 			_filterView.Show();
 		}

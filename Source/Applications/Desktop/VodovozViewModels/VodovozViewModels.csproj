@@ -610,6 +610,9 @@
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.MeasurementUnit.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.Report.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.DynamicsInEnum.cs" />
+    <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.OrderItemNode.cs" />
+    <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportLastSaleDetails.cs" />
+    <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportRow.cs" />
     <Compile Include="ViewModels\Reports\SelectableParameterReportFilterSelectionChangedArgs.cs" />
     <Compile Include="ViewModels\Reports\UndeliveredOrdersJournalReport\UndeliveredOrdersClassificationSummaryReport.cs" />
     <Compile Include="ViewModels\Sale\DeliveryPriceRuleViewModel.cs" />
