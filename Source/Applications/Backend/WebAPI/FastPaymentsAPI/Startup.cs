@@ -125,11 +125,11 @@ namespace FastPaymentsAPI
 
 			//providers
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
-			services.AddSingleton<ISettingsController, SettingsController>();
+			services.AddScoped<ISettingsController, SettingsController>();
 			services.AddSingleton<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
 			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
-			services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
+			services.AddScoped<IEmailParametersProvider, EmailParametersProvider>();
 
 			//factories
 			services.AddSingleton<IFastPaymentFactory, FastPaymentFactory>();
