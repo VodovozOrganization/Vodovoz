@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MySql.EntityFrameworkCore.Metadata;
 using System;
 
 namespace DriverAPI.Data
@@ -45,8 +44,7 @@ namespace DriverAPI.Data
 			{
 				b.Property<int>("Id")
 					.ValueGeneratedOnAdd()
-					.HasColumnType("int")
-					.HasAnnotation("SqlServer:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn);
+					.HasColumnType("int");
 
 				b.Property<string>("ClaimType")
 					.HasColumnType("varchar(2000)");
@@ -138,8 +136,7 @@ namespace DriverAPI.Data
 			{
 				b.Property<int>("Id")
 					.ValueGeneratedOnAdd()
-					.HasColumnType("int")
-					.HasAnnotation("SqlServer:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn);
+					.HasColumnType("int");
 
 				b.Property<string>("ClaimType")
 					.HasColumnType("varchar(2000)");

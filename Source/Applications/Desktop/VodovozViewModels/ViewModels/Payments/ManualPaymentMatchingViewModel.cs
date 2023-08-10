@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text.RegularExpressions;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Banks.Domain;
@@ -15,9 +9,16 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.Search;
 using QS.Project.Search;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
@@ -27,8 +28,6 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
-using VodovozInfrastructure;
-using SearchHelper = QS.Project.Journal.Search.SearchHelper;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
@@ -48,7 +47,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private decimal _sumToAllocate;
 		private decimal _lastBalance;
 
-		private readonly SearchHelper _searchHelper;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
@@ -95,7 +93,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			//Поиск
 			Search = new SearchViewModel();
-			_searchHelper = new SearchHelper(Search);
 			Search.OnSearch += (sender, args) => UpdateNodes();
 
 			CanRevertPayFromOrderPermission = CommonServices.CurrentPermissionService.ValidatePresetPermission("can_revert_pay_from_order");
@@ -780,11 +777,19 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			uow.Commit();
 		}
 
-		private ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) =>
-			_searchHelper.GetSearchCriterion(aliasPropertiesExpr);
+		private ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
+		{
+			var searchCriterion = new SearchCriterion(Search);
+			var result = searchCriterion.By(aliasPropertiesExpr).Finish();
+			return result;
+		}
 
-		private ICriterion GetSearchCriterion<TRootEntity>(params Expression<Func<TRootEntity, object>>[] propertiesExpr) =>
-			_searchHelper.GetSearchCriterion(propertiesExpr);
+		private ICriterion GetSearchCriterion<TRootEntity>(params Expression<Func<TRootEntity, object>>[] propertiesExpr)
+		{
+			var searchCriterion = new SearchCriterionGeneric<TRootEntity>(Search);
+			var result = searchCriterion.By(propertiesExpr).Finish();
+			return result;
+		}
 
 		public override bool Save(bool close)
 		{

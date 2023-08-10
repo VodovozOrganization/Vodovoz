@@ -44,9 +44,11 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var valid = new QSValidator<ProductSpecification> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			UoWGeneric.Save ();
 			return true;

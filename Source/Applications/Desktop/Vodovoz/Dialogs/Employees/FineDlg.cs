@@ -24,6 +24,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Factories;
+using QS.Validation;
 
 namespace Vodovoz
 {
@@ -182,9 +183,11 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var valid = new QS.Validation.QSValidator<Fine> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);

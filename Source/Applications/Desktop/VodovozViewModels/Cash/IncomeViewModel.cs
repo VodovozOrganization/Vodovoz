@@ -416,7 +416,7 @@ namespace Vodovoz.ViewModels.Cash
 
 		private Subdivision GetSubdivision(RouteList routeList)
 		{
-			var user = _userService.GetCurrentUser(UoW);
+			var user = _userService.GetCurrentUser();
 			var employee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			var subdivisions = _subdivisionsRepository
 				.GetCashSubdivisionsAvailableForUser(UoW, user).ToList();

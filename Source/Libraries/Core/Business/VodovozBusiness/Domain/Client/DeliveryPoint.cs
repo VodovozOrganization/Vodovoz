@@ -801,7 +801,7 @@ namespace Vodovoz.Domain.Client
 		/// <returns><c>true</c>, если район города найден</returns>
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города</param>
 		/// <param name="districtsSet">Версия районов, из которой будет ассоциироваться район. Если равно null, то будет браться активная версия</param>
-		public bool FindAndAssociateDistrict(IUnitOfWork uow, DistrictsSet districtsSet = null)
+		public virtual bool FindAndAssociateDistrict(IUnitOfWork uow, DistrictsSet districtsSet = null)
 		{
 			if(!CoordinatesExist)
 			{
@@ -905,7 +905,7 @@ namespace Vodovoz.Domain.Client
 
 		#region IValidatableObject Implementation
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Category == null)
 			{

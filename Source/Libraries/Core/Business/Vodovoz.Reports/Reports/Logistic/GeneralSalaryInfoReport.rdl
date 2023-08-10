@@ -442,7 +442,7 @@ ORDER BY T.empl_name;</CommandText>
           Year(CDate({?start_date})) + 'г.\n с ' +Format(CDate({?start_date}), 'dd.MM.yy') +' по '+
           Format(CDate({?end_date}),'dd.MM.yy')
         </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -459,7 +459,7 @@ ORDER BY T.empl_name;</CommandText>
         <Height>13.57pt</Height>
         <Width>419.31pt</Width>
         <Value>="Сформирован " + Format( {?creation_date}, "dd-MM-yyyy в HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>395.12pt</Left>
         <Top>40.00pt</Top>
         <Style>
@@ -1417,7 +1417,7 @@ ORDER BY T.empl_name;</CommandText>
         <Height>14.30pt</Height>
         <Width>453.14pt</Width>
         <Value>=(Parameters!filters)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>40.00pt</Top>
         <Style>
@@ -1457,7 +1457,7 @@ ORDER BY T.empl_name;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

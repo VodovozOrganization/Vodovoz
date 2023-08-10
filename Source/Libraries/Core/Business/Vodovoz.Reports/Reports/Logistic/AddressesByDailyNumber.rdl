@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -9,7 +9,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
       </ConnectionProperties>
     </DataSource>
@@ -316,12 +316,23 @@ WHERE
         <Width>558.72pt</Width>
         <Left>0.00pt</Left>
         <Top>3.30pt</Top>
+        <Style>
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
+        </Style>
         <ReportItems>
           <Textbox Name="Textbox7">
             <Height>17.34pt</Height>
             <Width>158.90pt</Width>
             <Value>= "Дата МЛ: " + Format ({date}, "d")</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>1.80pt</Left>
             <Top>1.80pt</Top>
             <Style>
@@ -335,7 +346,7 @@ WHERE
             <Height>15.75pt</Height>
             <Width>199.55pt</Width>
             <Value>= "Водитель: " + {driver_name}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>164.9pt</Left>
             <Top>1.8pt</Top>
             <Style>
@@ -349,7 +360,7 @@ WHERE
             <Height>14.26pt</Height>
             <Width>183.71pt</Width>
             <Value>="Логист: " + {logistican_name}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>369.50pt</Left>
             <Top>1.80pt</Top>
             <Style>

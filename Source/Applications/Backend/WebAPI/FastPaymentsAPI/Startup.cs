@@ -16,13 +16,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
+using QS.Project.Services;
+using QS.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
@@ -33,6 +35,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.FastPayments;
 using VodovozInfrastructure.Cryptography;
@@ -122,10 +125,11 @@ namespace FastPaymentsAPI
 
 			//providers
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
+			services.AddScoped<ISettingsController, SettingsController>();
 			services.AddSingleton<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
 			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
-			services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
+			services.AddScoped<IEmailParametersProvider, EmailParametersProvider>();
 
 			//factories
 			services.AddSingleton<IFastPaymentFactory, FastPaymentFactory>();
@@ -199,7 +203,8 @@ namespace FastPaymentsAPI
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString);
+				.ConnectionString(connectionString)
+				.Driver<LoggedMySqlClientDriver>();
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
@@ -220,14 +225,17 @@ namespace FastPaymentsAPI
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+				var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
 					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
-					.Select(u => u.Id)
 					.FirstOrDefault();
+
+				serviceUserId = serviceUser.Id;
+
+				ServicesConfig.UserService = new UserService(serviceUser);
 			}
 
 			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

@@ -19,7 +19,7 @@
         <Width>493.12pt</Width>
         <Value>="Маршрутный лист №" + {?RouteListId}
 + " от " + Format({?RouteListDate}, "dd.MM.yy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>127.7pt</Left>
         <Top>0.0pt</Top>
         <Style>
@@ -60,7 +60,7 @@
           <BorderWidth />
           <TextAlign>Left</TextAlign>
         </Style>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
       </Textbox>
     </ReportItems>
   </PageHeader>
@@ -1479,7 +1479,7 @@ Switch(
         </Footer>
         <Left>0.0pt</Left>
         <Top>76.4pt</Top>
-        <ZIndex>20</ZIndex>
+        <ZIndex>0</ZIndex>
       </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
@@ -2105,9 +2105,15 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
           </Image>
         </ReportItems>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <DataSetName>Images</DataSetName>
       </List>
@@ -2565,7 +2571,7 @@ WHERE stored_resource.id = @id1</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>часть заполняется из C#</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -2097,7 +2097,7 @@ WHERE
             <Height>25.50pt</Height>
             <Width>158.52pt</Width>
             <Value>Руководитель организации или иное уполномоченное лицо</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>0.0pt</Top>
             <Style>
@@ -2110,7 +2110,7 @@ WHERE
             <Height>25.50pt</Height>
             <Width>142.02pt</Width>
             <Value>Главный бухгалтер или иное уполномоченное лицо</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>408.10pt</Left>
             <Top>0.00pt</Top>
             <Style>
@@ -2124,7 +2124,7 @@ WHERE
             <Height>15.03pt</Height>
             <Width>106.07pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>154.4pt</Left>
             <Top>10.3pt</Top>
             <Style>
@@ -2140,7 +2140,7 @@ WHERE
             <Height>11.25pt</Height>
             <Width>108.65pt</Width>
             <Value>(подпись)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>153.9pt</Left>
             <Top>25.3pt</Top>
             <Style>
@@ -2157,7 +2157,7 @@ WHERE
             <Height>15.03pt</Height>
             <Width>106.07pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>550.4pt</Left>
             <Top>7.6pt</Top>
             <Style>
@@ -2173,7 +2173,7 @@ WHERE
             <Height>11.25pt</Height>
             <Width>108.65pt</Width>
             <Value>(подпись)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>547.5pt</Left>
             <Top>22.4pt</Top>
             <Style>
@@ -2190,7 +2190,7 @@ WHERE
             <Height>15.03pt</Height>
             <Width>121.07pt</Width>
             <Value>={leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "."</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>268.6pt</Left>
             <Top>10.3pt</Top>
             <Style>
@@ -2207,7 +2207,7 @@ WHERE
             <Height>11.25pt</Height>
             <Width>123.65pt</Width>
             <Value>(ф.и.о.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>268.1pt</Left>
             <Top>25.8pt</Top>
             <Style>
@@ -2224,7 +2224,7 @@ WHERE
             <Height>15.03pt</Height>
             <Width>112.82pt</Width>
             <Value>={buh_last_name} + " " + {buh_name} + "." + {buh_patronymic}+ "."</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>662.2pt</Left>
             <Top>8.1pt</Top>
             <Style>
@@ -2241,7 +2241,7 @@ WHERE
             <Height>11.25pt</Height>
             <Width>115.40pt</Width>
             <Value>(ф.и.о.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>660.5pt</Left>
             <Top>23.7pt</Top>
             <Style>
@@ -2260,7 +2260,7 @@ WHERE
             <Value>Индивидуальный
 предприниматель или
 иное уполномоченное лицо</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>38.80pt</Top>
             <Style>
@@ -2273,7 +2273,7 @@ WHERE
             <Height>15.03pt</Height>
             <Width>106.07pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>152.7pt</Left>
             <Top>47.7pt</Top>
             <Style>
@@ -2289,7 +2289,7 @@ WHERE
             <Height>11.25pt</Height>
             <Width>108.65pt</Width>
             <Value>(подпись)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>152.2pt</Left>
             <Top>62.7pt</Top>
             <Style>
@@ -2306,7 +2306,7 @@ WHERE
             <Height>11.25pt</Height>
             <Width>123.65pt</Width>
             <Value>(ф.и.о.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>267.6pt</Left>
             <Top>62.4pt</Top>
             <Style>
@@ -2324,7 +2324,7 @@ WHERE
             <Height>22.34pt</Height>
             <Width>374.73pt</Width>
             <Value>(реквизиты свидетельства о государственной регистрации индивидуального предпренимателя)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>400.00pt</Left>
             <Top>62.10pt</Top>
             <Style>
@@ -2343,7 +2343,7 @@ WHERE
             <Width>775.94pt</Width>
             <Value>Примечание 1. Первый экземпляр счета-фактуры, составленного на бумажном носителе - покупателю, второй экземпляр - продавцу.
 Примечание 2. При составлении организацией счета-фактуры в электронном виде показатель "Главный бухгалтер (подпись) (Ф.И.О.)" не формируется.</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>85.4pt</Top>
             <Style>
@@ -2354,20 +2354,18 @@ WHERE
           </Textbox>
         </ReportItems>
         <Style>
-          <BorderStyle>
-            <Default>Dotted</Default>
-            <Left>Dotted</Left>
-            <Right>Dotted</Right>
-            <Top>Dotted</Top>
-            <Bottom>Dotted</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-          <BackgroundGradientEndColor></BackgroundGradientEndColor>
-          <BackgroundColor></BackgroundColor>
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
-        <ZIndex>3</ZIndex>
+        <ZIndex>0</ZIndex>
       </List>
       <List Name="List1">
         <Height>224.29pt</Height>
@@ -2375,22 +2373,22 @@ WHERE
         <Left>12.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
-          <BorderStyle>
-            <Default>None</Default>
-            <Left>None</Left>
-            <Right>None</Right>
-            <Top>None</Top>
-            <Bottom>None</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <ReportItems>
           <Textbox Name="Textbox1">
             <Height>12pt</Height>
             <Width>650.00pt</Width>
             <Value>="Продавец: " + {org_name}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>38.4pt</Top>
             <Style>
@@ -2410,7 +2408,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>650pt</Width>
             <Value>="Адрес: " + {org_address}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>50.4pt</Top>
             <Style>
@@ -2423,7 +2421,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>650pt</Width>
             <Value>="ИНН/КПП продавца: " + {org_inn} + "/" + {org_kpp}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>62.4pt</Top>
             <Style>
@@ -2436,7 +2434,7 @@ WHERE
             <Height>12pt</Height>
             <Width>650.00pt</Width>
             <Value>Грузоотправитель и его адрес: он же</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>74.4pt</Top>
             <Style>
@@ -2456,7 +2454,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>650pt</Width>
             <Value>="Грузополучатель и его адрес: " + {cargo_receiver}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>86.4pt</Top>
             <Style>
@@ -2470,7 +2468,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>650pt</Width>
             <Value>="К платежно-расчетному документу №       от"</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>112.0pt</Top>
             <Style>
@@ -2483,7 +2481,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>650.00pt</Width>
             <Value>="Покупатель: " + {client_name}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>136.6pt</Top>
             <Style>
@@ -2503,7 +2501,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>650pt</Width>
             <Value>="Адрес: " + {client_address}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>148.6pt</Top>
             <Style>
@@ -2516,7 +2514,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>650pt</Width>
             <Value>="ИНН/КПП покупателя: " + {client_inn} + "/" + {client_kpp}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>160.6pt</Top>
             <Style>
@@ -2529,7 +2527,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>650.00pt</Width>
             <Value>Валюта: наименование, код Российский рубль, 643</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>197.0pt</Top>
             <Style>
@@ -2542,7 +2540,7 @@ WHERE
             <Height>16.50pt</Height>
             <Width>371.52pt</Width>
             <Value>="Счет-фактура №" + {order_id} + " от " + {order_date} + "г."</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>8.20pt</Top>
             <Style>
@@ -2557,7 +2555,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>254.52pt</Width>
             <Value>Исправление № -- от --</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>24.0pt</Top>
             <Style>
@@ -2572,7 +2570,7 @@ WHERE
             <Height>12pt</Height>
             <Width>644.70pt</Width>
             <Value>Идентификатор государственного контракта, договора (соглашения) (при наличии) - </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>209.2pt</Top>
             <Style>
@@ -2588,7 +2586,7 @@ WHERE
  + Iif(First({client_bank_name}, "Order") != null and First({client_bank_name}, "Order")  != "", ", в банке " + First({client_bank_name}, "Order"), "") 
  + Iif(First({client_bank_bik}, "Order") != null and First({client_bank_bik}, "Order") != "", ", БИК " + First({client_bank_bik}, "Order"), "") 
  + Iif(First({client_bank_cor_account}, "Order") != null and First({client_bank_cor_account}, "Order") != "", ", к/с " + First({client_bank_cor_account}, "Order"), "")</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>172.20pt</Top>
             <Style>
@@ -2603,7 +2601,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>650pt</Width>
             <Value>="ИНН/КПП грузополучателя: " + {client_inn} + "/" + {cargo_receiver_kpp}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>99.8pt</Top>
             <Style>
@@ -2616,7 +2614,7 @@ WHERE
             <Height>12.00pt</Height>
             <Width>535.06pt</Width>
             <Value>='Документ об отгрузке: ' + '№п/п 1-' + {order_items_count} + ' №' + {order_id} + ' от ' + Format({order_date}, 'dd.MM.yyyy') + ' г.'</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>124.40pt</Top>
             <Style>
@@ -2633,7 +2631,7 @@ WHERE
         <Width>401.02pt</Width>
         <Value>Приложение №1 к постановлению Правительства Российской Федерации от 26 декабря 2011 г. № 1137
 (в редакции постановления Правительства Российской Федерации от 2 апреля 2021 г. № 534)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>389.4pt</Left>
         <Top>3.0pt</Top>
         <Style>
@@ -2656,7 +2654,7 @@ WHERE
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

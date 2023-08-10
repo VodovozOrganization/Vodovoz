@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog;
 using Polly;
 using System;
@@ -35,7 +34,7 @@ namespace VodovozMangoService.Services
 			connectionStringBuilder.Password = configuration["Mysql:mysql_password"]; ;
 			connectionStringBuilder.SslMode = MySqlSslMode.Disabled;
 			connectionStringBuilder.DefaultCommandTimeout = 5;
-			_connectionString = connectionStringBuilder.GetConnectionString(true);
+			_connectionString = connectionStringBuilder.ConnectionString;
 		}
 
 		public Task RemoveOutDated()

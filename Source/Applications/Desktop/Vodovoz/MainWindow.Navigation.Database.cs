@@ -1,5 +1,5 @@
 ﻿using Gtk;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using QS.ChangePassword.Views;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
@@ -34,8 +34,8 @@ public partial class MainWindow
 			throw new InvalidOperationException($"Текущее подключение не является {nameof(MySqlConnection)}");
 		}
 		var mySqlPasswordRepository = new MySqlPasswordRepository();
-		var changePasswordModel = new MysqlChangePasswordModelExtended(applicationConfigurator, mySqlConnection, mySqlPasswordRepository);
-		var changePasswordViewModel = new ChangePasswordViewModel(changePasswordModel, passwordValidator, null);
+		var changePasswordModel = new MysqlChangePasswordModelExtended(_applicationConfigurator, mySqlConnection, mySqlPasswordRepository);
+		var changePasswordViewModel = new ChangePasswordViewModel(changePasswordModel, _passwordValidator, null);
 		var changePasswordView = new ChangePasswordView(changePasswordViewModel);
 
 		changePasswordView.ShowAll();
@@ -97,7 +97,7 @@ public partial class MainWindow
 	{
 		if(tdiMain.CloseAllTabs())
 		{
-			autofacScope.Dispose();
+			_autofacScope.Dispose();
 			Application.Quit();
 		}
 	}

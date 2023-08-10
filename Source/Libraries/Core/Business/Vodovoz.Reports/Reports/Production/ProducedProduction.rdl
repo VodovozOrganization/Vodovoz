@@ -880,7 +880,7 @@ GROUP BY nomenclature.id;
         <Height>12.75pt</Height>
         <Width>266.97pt</Width>
         <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>540.80pt</Left>
         <Top>2.00pt</Top>
         <Style>
@@ -920,7 +920,7 @@ GROUP BY nomenclature.id;
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

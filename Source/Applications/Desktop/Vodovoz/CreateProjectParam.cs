@@ -16,14 +16,21 @@ using QS.Dialog.ViewModels;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.ErrorReporting;
+using QS.ErrorReporting.Handlers;
+using QS.Journal.GtkUI;
 using QS.Navigation;
 using QS.Permissions;
 using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Search;
+using QS.Project.Search.GtkUI;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Project.Services.GtkUI;
+using QS.Project.Versioning;
 using QS.Report;
 using QS.Report.Repository;
 using QS.Report.ViewModels;
@@ -68,7 +75,6 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
@@ -155,6 +161,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Users;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.ViewModels.Logistic.DriversStopLists;
 using Vodovoz.ViewModels.Mango.Talks;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
@@ -225,14 +232,15 @@ using Vodovoz.Views.WageCalculation;
 using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewWidgets;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
-using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using VodovozInfrastructure.Endpoints;
 using VodovozInfrastructure.Interfaces;
+using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using ProductGroupView = Vodovoz.Views.Goods.ProductGroupView;
 using UserView = Vodovoz.Views.Users.UserView;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.ViewModels.Widgets;
 using static Vodovoz.Reports.CashFlow;
 
@@ -299,6 +307,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
 				.RegisterWidgetForTabViewModel<RouteListFastDeliveryMaxDistanceViewModel, RouteListFastDeliveryMaxDistanceView>()
+				.RegisterWidgetForTabViewModel<DriversStopListsViewModel, DriversStopListsView>()
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
 				.RegisterWidgetForTabViewModel<DriverWorkScheduleSetViewModel, DriverWorkScheduleSetView>()
 				.RegisterWidgetForTabViewModel<DriverDistrictPrioritySetViewModel, DriverDistrictPrioritySetView>()
@@ -385,7 +394,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ExternalCounterpartyMatchingViewModel, ExternalCounterpartyMatchingView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceViewModel, InventoryInstanceView>()
 				.RegisterWidgetForTabViewModel<WriteOffDocumentViewModel, WriteoffDocumentView>()
-				.RegisterWidgetForTabViewModel<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, Vodovoz.Views.Warehouse.InventoryDocumentView>()
+				.RegisterWidgetForTabViewModel<InventoryDocumentViewModel, InventoryDocumentView>()
 				.RegisterWidgetForTabViewModel<ShiftChangeResidueDocumentViewModel, ShiftChangeResidueDocumentView>()
 				.RegisterWidgetForTabViewModel<InventoryInstanceMovementReportViewModel, InventoryInstanceMovementReportView>()
 				.RegisterWidgetForTabViewModel<UndeliveryObjectViewModel, UndeliveryObjectView>()
@@ -498,13 +507,15 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CargoDailyNormViewModel, CargoDailyNormView>()
 				.RegisterWidgetForWidgetViewModel<TransferExpenseViewModel, TransferExpenseView>()
 				.RegisterWidgetForWidgetViewModel<TransferIncomeViewModel, TransferIncomeView>()
+				.RegisterWidgetForWidgetViewModel<SearchViewModel, SearchView>()
 				.RegisterWidgetForWidgetViewModel<CashFlowAnalysisViewModel, CashFlowAnalysisView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryObjectJournalFilterViewModel, UndeliveryObjectFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryKindJournalFilterViewModel, UndeliveryKindFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveryDetalizationJournalFilterViewModel, UndeliveryDetalizationFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrderViewModel, UndeliveredOrderView>()
+				.RegisterWidgetForWidgetViewModel<DriverStopListRemovalViewModel, DriverStopListRemovalView>()
 				;
-			
+
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
@@ -577,6 +588,11 @@ namespace Vodovoz
 
 			var builder = new ContainerBuilder();
 
+			
+			builder.RegisterInstance(applicationInfo).As<IApplicationInfo>().SingleInstance();
+			builder.RegisterInstance(_errorReportingSettings).As<IErrorReportingSettings>().SingleInstance();
+			builder.RegisterType<LogService>().As<ILogService>().SingleInstance();
+
 			builder.RegisterInstance(loggerFactory).As<ILoggerFactory>().SingleInstance();
 
 			builder.RegisterGeneric(typeof(Logger<>)).As(typeof(ILogger<>)).SingleInstance();
@@ -603,7 +619,7 @@ namespace Vodovoz
 			builder.RegisterType<GtkInteractiveService>().As<IInteractiveService>();
 
 			builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
-			builder.RegisterType<UserService>().As<IUserService>();
+			builder.RegisterInstance(ServicesConfig.UserService).As<IUserService>();
 			builder.RegisterType<DeleteEntityGUIService>().As<IDeleteEntityService>();
 			builder.Register(c => DeleteConfig.Main).As<DeleteConfiguration>();
 			builder.Register(c => PermissionsSettings.CurrentPermissionService).As<ICurrentPermissionService>();
@@ -628,7 +644,7 @@ namespace Vodovoz
 			builder.Register((ctx) => new AutofacViewModelsGtkPageFactory(AppDIContainer)).AsSelf();
 			builder.RegisterType<TdiNavigationManager>().AsSelf().As<INavigationManager>().As<ITdiCompatibilityNavigation>()
 				.SingleInstance();
-			builder.Register(cc => new ClassNamesBaseGtkViewResolver(
+			builder.Register(cc => new ClassNamesBaseGtkViewResolver(cc.Resolve<IGtkViewFactory>(),
 				typeof(InternalTalkView),
 				typeof(DeletionView),
 				typeof(RdlViewerView))
@@ -652,6 +668,14 @@ namespace Vodovoz
 			builder.RegisterType<ProgressWindowViewModel>().AsSelf();
 
 			#endregion
+
+			#region Обработчики ошибок
+
+			builder.RegisterType<MySqlException1055OnlyFullGroupBy>().AsSelf();
+			builder.RegisterType<MySqlException1366IncorrectStringValue>().AsSelf();
+			builder.RegisterType<NHibernateFlushAfterException>().AsSelf();
+
+			#endregion Обработчики ошибок
 
 			RegisterVodovozClassConfig(builder);
 

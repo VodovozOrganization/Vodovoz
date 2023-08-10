@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Reflection;
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.Utilities;
+using MySqlConnector;
 using NHibernate.AdoNet;
 using NLog;
 using QS.Banks.Domain;
@@ -19,6 +16,9 @@ using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Vodovoz.Dialogs;
 using Vodovoz.Cash.Transfer;
 using Vodovoz.Dialogs.Client;
@@ -57,7 +57,7 @@ using InventoryDocumentViewModel = Vodovoz.ViewModels.ViewModels.Warehouses.Inve
 
 namespace Vodovoz.Configuration
 {
-    public class ApplicationConfigurator : IApplicationConfigurator
+	public class ApplicationConfigurator : IApplicationConfigurator
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private const int connectionTimeoutSeconds = 120;
@@ -67,7 +67,7 @@ namespace Vodovoz.Configuration
             logger.Debug("Конфигурация ORM...");
 
             //Увеличиваем таймаут если нужно
-            var dbConnectionStringBuilder = new DbConnectionStringBuilder { ConnectionString = QSMain.ConnectionString };
+            var dbConnectionStringBuilder = new MySqlConnectionStringBuilder { ConnectionString = QSMain.ConnectionString };
             if(dbConnectionStringBuilder.TryGetValue("ConnectionTimeout", out var timeoutAsObject)
                 && timeoutAsObject is string timeoutAsString
             ) {
@@ -104,13 +104,15 @@ namespace Vodovoz.Configuration
                     cnf.DataBaseIntegration(
                         dbi => {
                             dbi.BatchSize = 100;
-                            dbi.Batcher<MySqlClientBatchingBatcherFactory>();
-                        }
+							dbi.Timeout = 120;
+						}
                     );
                 }
             );
 
-            logger.Debug("OK");
+			HistoryMain.Enable(dbConnectionStringBuilder);
+
+			logger.Debug("OK");
         }
 
         public void CreateApplicationConfig()
@@ -312,7 +314,6 @@ namespace Vodovoz.Configuration
 
             #endregion
 
-            HistoryMain.Enable();
             TemplatePrinter.InitPrinter();
             ImagePrinter.InitPrinter();
 

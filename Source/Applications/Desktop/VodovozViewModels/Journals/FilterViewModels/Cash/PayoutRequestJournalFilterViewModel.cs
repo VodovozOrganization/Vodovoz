@@ -1,15 +1,14 @@
-using System;
-using QS.Project.Filter;
+﻿using QS.Project.Filter;
 using QS.Project.Services;
+using System;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels
 {
-	public class PayoutRequestJournalFilterViewModel : FilterViewModelBase<PayoutRequestJournalFilterViewModel>
+	public partial class PayoutRequestJournalFilterViewModel : FilterViewModelBase<PayoutRequestJournalFilterViewModel>
 	{
 		private Employee _author;
 		private Employee _accountableEmployee;
@@ -20,6 +19,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 		private Counterparty _counterparty;
 		private bool _canSetAccountable = true;
 		private bool _canSetCounterparty = true;
+		private PayoutDocumentsSortOrder _documentsSortOrder = PayoutDocumentsSortOrder.ByCreationDate;
 
 		public virtual Employee Author
 		{
@@ -108,6 +108,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels
 		{
 			get => _canSetCounterparty;
 			set => UpdateFilterField(ref _canSetCounterparty, value);
+		}
+
+		public virtual PayoutDocumentsSortOrder DocumentsSortOrder
+		{
+			get => _documentsSortOrder;
+			set => UpdateFilterField(ref _documentsSortOrder, value);
 		}
 
 		public PayoutRequestJournalFilterViewModel(

@@ -211,9 +211,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				itemsQuery.Where(Restrictions.Ge(timestampProjection, _filterViewModel.LogisticianReactionTimeMinutes));
 			}
 
-			var searchHelper = new SearchHelper(_journalSearch);
+			var searchCriterion = new SearchCriterion(_journalSearch);
 
-			itemsQuery.Where(searchHelper.GetSearchCriterion(
+			itemsQuery.Where(searchCriterion.By(
 					() => fastDeliveryAvailabilityHistoryAlias.Id,
 					() => fastDeliveryAvailabilityHistoryAlias.Order.Id,
 					() => authorProjection,
@@ -224,7 +224,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					() => fastDeliveryAvailabilityHistoryAlias.LogisticianComment,
 					() => fastDeliveryAvailabilityHistoryAlias.VerificationDate,
 					() => fastDeliveryAvailabilityHistoryAlias.LogisticianCommentVersion
-				)
+				).Finish()
 			);
 
 			return itemsQuery
