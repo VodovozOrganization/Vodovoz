@@ -23,6 +23,8 @@ using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
+using QS.Project.Services;
+using QS.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
@@ -223,10 +225,13 @@ namespace FastPaymentsAPI
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+				var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
 					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
-					.Select(u => u.Id)
 					.FirstOrDefault();
+
+				serviceUserId = serviceUser.Id;
+
+				ServicesConfig.UserService = new UserService(serviceUser);
 			}
 
 			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
