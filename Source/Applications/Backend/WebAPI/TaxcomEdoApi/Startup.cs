@@ -31,6 +31,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Tools.Orders;
 using QS.Services;
 using QS.Project.Services;
+using Vodovoz.Settings.Database;
 
 namespace TaxcomEdoApi
 {
@@ -142,7 +143,7 @@ namespace TaxcomEdoApi
 					.Driver<LoggedMySqlClientDriver>();
 
 			// Настройка ORM
-            OrmConfig.ConfigureOrm(
+			OrmConfig.ConfigureOrm(
 				dbConfig,
 				new[]
 				{
@@ -151,7 +152,8 @@ namespace TaxcomEdoApi
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);
 
