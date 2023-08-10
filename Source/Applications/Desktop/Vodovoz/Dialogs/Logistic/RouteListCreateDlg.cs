@@ -849,7 +849,7 @@ namespace Vodovoz
 									return;
 								}
 
-								Entity.ChangeStatusAndCreateTask(isValid ? RouteListStatus.New : RouteListStatus.EnRoute, callTaskWorker);
+								Entity.ChangeStatusAndCreateTask(isValid ? RouteListStatus.EnRoute : RouteListStatus.New, callTaskWorker);
 							}
 							else
 							{
