@@ -90,6 +90,8 @@ namespace DriverAPI
 				throw;
 			}
 
+			var sdsf = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder();
+
 			RegisterDependencies(ref services);
 
 			// Аутентификация
@@ -240,6 +242,7 @@ namespace DriverAPI
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(connectionString)
+				.Driver<LoggedMySqlClientDriver>()
 				.AdoNetBatchSize(100);
 
 			// Настройка ORM

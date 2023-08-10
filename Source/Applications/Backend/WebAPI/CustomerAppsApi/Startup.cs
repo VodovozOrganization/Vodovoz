@@ -124,6 +124,7 @@ namespace CustomerAppsApi
 			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(connectionString)
+				.Driver<LoggedMySqlClientDriver>()
 				.AdoNetBatchSize(100);
 
 			// Настройка ORM

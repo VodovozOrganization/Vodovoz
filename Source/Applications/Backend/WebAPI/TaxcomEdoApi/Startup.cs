@@ -136,7 +136,8 @@ namespace TaxcomEdoApi
 
 			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 					.Dialect<MySQL57SpatialExtendedDialect>()
-					.ConnectionString(connectionString);
+					.ConnectionString(connectionString)
+					.Driver<LoggedMySqlClientDriver>();
 
 			// Настройка ORM
             OrmConfig.ConfigureOrm(
