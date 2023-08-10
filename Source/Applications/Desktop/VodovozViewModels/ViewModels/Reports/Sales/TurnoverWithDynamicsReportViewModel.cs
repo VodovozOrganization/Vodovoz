@@ -419,11 +419,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					if(includePaymentTypeValues.Length > 0)
 					{
-						result.Add(typeof(PaymentType).Name + "_include", includePaymentTypeValues);
+						result.Add(typeof(PaymentType).Name + _includeSuffix, includePaymentTypeValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentType).Name + "_include", new object[] { "0" });
+						result.Add(typeof(PaymentType).Name + _includeSuffix, new object[] { "0" });
 					}
 
 					var excludePaymentTypeValues = filter.ExcludedElements
@@ -433,11 +433,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					if(excludePaymentTypeValues.Length > 0)
 					{
-						result.Add(typeof(PaymentType).Name + "_exclude", excludePaymentTypeValues);
+						result.Add(typeof(PaymentType).Name + _excludeSuffix, excludePaymentTypeValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentType).Name + "_exclude", new object[] { "0" });
+						result.Add(typeof(PaymentType).Name + _excludeSuffix, new object[] { "0" });
 					}
 
 					// Оплата по термииналу
@@ -449,11 +449,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					if(includePaymentByTerminalSourceValues.Length > 0)
 					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_include", includePaymentByTerminalSourceValues);
+						result.Add(typeof(PaymentByTerminalSource).Name + _includeSuffix, includePaymentByTerminalSourceValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_include", new object[] { "0" });
+						result.Add(typeof(PaymentByTerminalSource).Name + _includeSuffix, new object[] { "0" });
 					}
 
 					var excludePaymentByTerminalSourceValues = filter.ExcludedElements
@@ -463,11 +463,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					if(excludePaymentByTerminalSourceValues.Length > 0)
 					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_exclude", excludePaymentByTerminalSourceValues);
+						result.Add(typeof(PaymentByTerminalSource).Name + _excludeSuffix, excludePaymentByTerminalSourceValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_exclude", new object[] { "0" });
+						result.Add(typeof(PaymentByTerminalSource).Name + _excludeSuffix, new object[] { "0" });
 					}
 
 					// Оплачено онлайн
@@ -479,11 +479,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					if(includePaymentFromValues.Length > 0)
 					{
-						result.Add(typeof(PaymentFrom).Name + "_include", includePaymentFromValues);
+						result.Add(typeof(PaymentFrom).Name + _includeSuffix, includePaymentFromValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentFrom).Name + "_include", new object[] { "0" });
+						result.Add(typeof(PaymentFrom).Name + _includeSuffix, new object[] { "0" });
 					}
 
 					var excludePaymentFromValues = filter.ExcludedElements
@@ -493,11 +493,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					if(excludePaymentFromValues.Length > 0)
 					{
-						result.Add(typeof(PaymentFrom).Name + "_exclude", excludePaymentFromValues);
+						result.Add(typeof(PaymentFrom).Name + _excludeSuffix, excludePaymentFromValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentFrom).Name + "_exclude", new object[] { "0" });
+						result.Add(typeof(PaymentFrom).Name + _excludeSuffix, new object[] { "0" });
 					}
 
 					return result;
