@@ -37,7 +37,7 @@ namespace Vodovoz.JournalViewers
 
 			datatreeviewOrderDocuments.ColumnsConfig = FluentColumnsConfig<SelectedOrdersDocumentVMNode>
 				.Create()
-				.AddColumn("Выбрать").AddToggleRenderer(node => node.Selected).Editing(false)
+				.AddColumn("Выбрать").AddToggleRenderer(node => node.Selected).Editing()
 				.AddColumn("Заказ").AddNumericRenderer(node => node.OrderId).Editing(false)
 				.AddColumn("Дата").AddTextRenderer(node => node.OrderDate.ToString("d"))
 				.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
