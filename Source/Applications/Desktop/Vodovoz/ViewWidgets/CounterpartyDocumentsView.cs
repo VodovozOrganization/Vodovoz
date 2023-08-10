@@ -41,7 +41,7 @@ namespace Vodovoz.ViewWidgets
 			var columnConfig = FluentColumnsConfig<CounterpartyDocumentNode>.Create();
 
 			if(selectable) {
-				columnConfig.AddColumn("Выбрать").AddToggleRenderer(x => x.Selected).Editing(false);
+				columnConfig.AddColumn("Выбрать").AddToggleRenderer(x => x.Selected).Editing();
 			}
 
 			ytreeDocuments.ColumnsConfig = columnConfig
