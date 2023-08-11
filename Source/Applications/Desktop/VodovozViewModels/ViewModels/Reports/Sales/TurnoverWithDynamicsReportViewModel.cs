@@ -38,6 +38,7 @@ using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Tools;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
+using Enum = System.Enum;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -414,7 +415,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					var includePaymentTypeValues = filter.IncludedElements
 						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
-						.Select(x => x.Number)
+						.Select(x => int.Parse(x.Number))
 						.ToArray();
 
 					if(includePaymentTypeValues.Length > 0)
@@ -428,7 +429,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					var excludePaymentTypeValues = filter.ExcludedElements
 						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
-						.Select(x => x.Number)
+						.Select(x => int.Parse(x.Number))
 						.ToArray();
 
 					if(excludePaymentTypeValues.Length > 0)
@@ -444,7 +445,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					var includePaymentByTerminalSourceValues = filter.IncludedElements
 						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
-						.Select(x => x.Number)
+						.Select(x => int.Parse(x.Number))
 						.ToArray();
 
 					if(includePaymentByTerminalSourceValues.Length > 0)
@@ -458,7 +459,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					var excludePaymentByTerminalSourceValues = filter.ExcludedElements
 						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
-						.Select(x => x.Number)
+						.Select(x => int.Parse(x.Number))
 						.ToArray();
 
 					if(excludePaymentByTerminalSourceValues.Length > 0)
@@ -474,7 +475,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					var includePaymentFromValues = filter.IncludedElements
 						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
-						.Select(x => x.Number)
+						.Select(x => int.Parse(x.Number))
 						.ToArray();
 
 					if(includePaymentFromValues.Length > 0)
@@ -488,7 +489,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					var excludePaymentFromValues = filter.ExcludedElements
 						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
-						.Select(x => x.Number)
+						.Select(x => int.Parse(x.Number))
 						.ToArray();
 
 					if(excludePaymentFromValues.Length > 0)
@@ -736,39 +737,48 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			#region Сбор параметров
 
-			var includedNomenclatureCategories = FilterViewModel.GetIncludedElements<NomenclatureCategory>().Select(x => x.Number).ToArray();
-			var excludedNomenclatureCategories = FilterViewModel.GetExcludedElements<NomenclatureCategory>().Select(x => x.Number).ToArray();
-			var includedNomenclatures = FilterViewModel.GetIncludedElements<Nomenclature>().Select(x => x.Number).ToArray();
-			var excludedNomenclatures = FilterViewModel.GetExcludedElements<Nomenclature>().Select(x => x.Number).ToArray();
-			var includedProductGroups = FilterViewModel.GetIncludedElements<ProductGroup>().Select(x => x.Number).ToArray();
-			var excludedProductGroups = FilterViewModel.GetExcludedElements<ProductGroup>().Select(x => x.Number).ToArray();
-			var includedCounterparties = FilterViewModel.GetIncludedElements<Counterparty>().Select(x => x.Number).ToArray();
-			var excludedCounterparties = FilterViewModel.GetExcludedElements<Counterparty>().Select(x => x.Number).ToArray();
-			var includedOrganizations = FilterViewModel.GetIncludedElements<Organization>().Select(x => x.Number).ToArray();
-			var excludedOrganizations = FilterViewModel.GetExcludedElements<Organization>().Select(x => x.Number).ToArray();
-			var includedDiscountReasons = FilterViewModel.GetIncludedElements<DiscountReason>().Select(x => x.Number).ToArray();
-			var excludedDiscountReasons = FilterViewModel.GetExcludedElements<DiscountReason>().Select(x => x.Number).ToArray();
-			var includedSubdivisions = FilterViewModel.GetIncludedElements<Subdivision>().Select(x => x.Number).ToArray();
-			var excludedSubdivisions = FilterViewModel.GetExcludedElements<Subdivision>().Select(x => x.Number).ToArray();
-			var includedEmployees = FilterViewModel.GetIncludedElements<Employee>().Select(x => x.Number).ToArray();
-			var excludedEmployees = FilterViewModel.GetExcludedElements<Employee>().Select(x => x.Number).ToArray();
-			var includedGeoGroups = FilterViewModel.GetIncludedElements<GeoGroup>().Select(x => x.Number).ToArray();
-			var excludedGeoGroups = FilterViewModel.GetExcludedElements<GeoGroup>().Select(x => x.Number).ToArray();
+			var includedNomenclatureCategories = FilterViewModel.GetIncludedElements<NomenclatureCategory>().Select(x => Enum.Parse(typeof(NomenclatureCategory), x.Number)).Cast<NomenclatureCategory>().ToArray();
+			var excludedNomenclatureCategories = FilterViewModel.GetExcludedElements<NomenclatureCategory>().Select(x => Enum.Parse(typeof(NomenclatureCategory), x.Number)).Cast<NomenclatureCategory>().ToArray();
+			var includedNomenclatures = FilterViewModel.GetIncludedElements<Nomenclature>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedNomenclatures = FilterViewModel.GetExcludedElements<Nomenclature>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedProductGroups = FilterViewModel.GetIncludedElements<ProductGroup>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedProductGroups = FilterViewModel.GetExcludedElements<ProductGroup>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedCounterparties = FilterViewModel.GetIncludedElements<Counterparty>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedCounterparties = FilterViewModel.GetExcludedElements<Counterparty>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedOrganizations = FilterViewModel.GetIncludedElements<Organization>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedOrganizations = FilterViewModel.GetExcludedElements<Organization>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedDiscountReasons = FilterViewModel.GetIncludedElements<DiscountReason>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedDiscountReasons = FilterViewModel.GetExcludedElements<DiscountReason>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedSubdivisions = FilterViewModel.GetIncludedElements<Subdivision>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedSubdivisions = FilterViewModel.GetExcludedElements<Subdivision>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedEmployees = FilterViewModel.GetIncludedElements<Employee>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedEmployees = FilterViewModel.GetExcludedElements<Employee>().Select(x => int.Parse(x.Number)).ToArray();
+			var includedGeoGroups = FilterViewModel.GetIncludedElements<GeoGroup>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedGeoGroups = FilterViewModel.GetExcludedElements<GeoGroup>().Select(x => int.Parse(x.Number)).ToArray();
 
 			var includedPaymentTypeElements = FilterViewModel.GetIncludedElements<PaymentType>();
 			var excludedPaymentTypeElements = FilterViewModel.GetExcludedElements<PaymentType>();
 
-			var includedPaymentTypes = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>).Select(x => x.Number).ToArray();
-			var excludedPaymentTypes = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>).Select(x => x.Number).ToArray();
+			var includedPaymentTypes = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>).Select(x => Enum.Parse(typeof(PaymentType), x.Number)).Cast<PaymentType>().ToArray();
+			var excludedPaymentTypes = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>).Select(x => Enum.Parse(typeof(PaymentType), x.Number)).Cast<PaymentType>().ToArray();
 
-			var includedPaymentFroms = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<int, PaymentFrom>).Select(x => x.Number).ToArray();
-			var excludedPaymentFroms = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<int, PaymentFrom>).Select(x => x.Number).ToArray();
+			var includedPaymentFroms = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<int, PaymentFrom>).Select(x => int.Parse(x.Number)).ToArray();
+			var excludedPaymentFroms = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<int, PaymentFrom>).Select(x => int.Parse(x.Number)).ToArray();
 
-			var includedPaymentByTerminalSources = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>).Select(x => x.Number).ToArray();
-			var excludedPaymentByTerminalSources = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>).Select(x => x.Number).ToArray();
+			var includedPaymentByTerminalSources = includedPaymentTypeElements
+				.Where(x => x is IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>)
+				.Select(x => Enum.Parse(typeof(PaymentByTerminalSource), x.Number))
+				.Cast<PaymentByTerminalSource>()
+				.ToArray();
 
-			var includedPromotionalSets = FilterViewModel.GetIncludedElements<PromotionalSet>().Select(x => x.Number).ToArray();
-			var excludedPromotionalSets = FilterViewModel.GetExcludedElements<PromotionalSet>().Select(x => x.Number).ToArray();
+			var excludedPaymentByTerminalSources = excludedPaymentTypeElements
+				.Where(x => x is IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>)
+				.Select(x => Enum.Parse(typeof(PaymentByTerminalSource), x.Number))
+				.Cast<PaymentByTerminalSource>()
+				.ToArray();
+
+			var includedPromotionalSets = FilterViewModel.GetIncludedElements<PromotionalSet>().Select(x => int.Parse(x.Number)).ToArray();
+			var excludedPromotionalSets = FilterViewModel.GetExcludedElements<PromotionalSet>().Select(x => int.Parse(x.Number)).ToArray();
 
 			#endregion Сбор параметров
 
