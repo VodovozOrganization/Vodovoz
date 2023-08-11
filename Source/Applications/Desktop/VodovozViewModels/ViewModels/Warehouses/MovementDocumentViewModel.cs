@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using QS.Commands;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
@@ -11,6 +8,9 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
 using Vodovoz.Domain.Employees;
@@ -57,7 +57,8 @@ namespace Vodovoz.ViewModels.Warehouses
 		private bool _canEditRectroactively;
 		private bool _canChangeAcceptedMovementDoc;
 		private bool _canAcceptMovementDocumentDiscrepancy;
-		
+		private IEntityEntryViewModel _transporterCounterpartyEntryViewModel;
+
 		private IEnumerable<Warehouse> _allowedWarehousesFrom;
 		private IEnumerable<Warehouse> _allowedWarehousesTo;
 
@@ -117,6 +118,20 @@ namespace Vodovoz.ViewModels.Warehouses
 		public IEntityEntryViewModel ToEmployeeStorageEntryViewModel { get; private set; }
 		public IEntityEntryViewModel FromCarStorageEntryViewModel { get; private set; }
 		public IEntityEntryViewModel ToCarStorageEntryViewModel { get; private set; }
+
+		public IEntityEntryViewModel TransporterCounterpartyEntryViewModel
+		{ 
+			get => _transporterCounterpartyEntryViewModel; 
+			set
+			{
+				if(_transporterCounterpartyEntryViewModel is null)
+				{
+					_transporterCounterpartyEntryViewModel = value;
+				}
+			}
+		}
+
+		public ILifetimeScope Scope => _scope;
 
 		public bool CanEdit => 
 			(UoW.IsNew && PermissionResult.CanCreate)
@@ -360,7 +375,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			ToCarStorageEntryViewModel = builder.ForProperty(x => x.ToCar)
 				.UseViewModelDialog<CarViewModel>()
 				.UseViewModelJournalAndAutocompleter<CarJournalViewModel>()
-				.Finish();
+			.Finish();
 		}
 
 		private void ReloadAllowedWarehousesFrom()

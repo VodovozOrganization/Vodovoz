@@ -1,12 +1,12 @@
-﻿using System;
-using QS.Views.GtkUI;
-using Vodovoz.ViewModels.Warehouses;
-using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Domain.Documents;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using QS.ViewModels.Control.EEVM;
+using QS.Views.GtkUI;
+using System;
 using Vodovoz.Domain.Documents.MovementDocuments;
-using Vodovoz.ViewModelBased;
+using Vodovoz.Infrastructure.Converters;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Warehouses;
 
 namespace Vodovoz.Views.Warehouse
 {
@@ -49,6 +49,22 @@ namespace Vodovoz.Views.Warehouse
 
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Editable).InitializeFromSource();
+
+			#region Данные перевозчика
+
+			var builder = new LegacyEEVMBuilderFactory<MovementDocument>(
+				Tab,
+				ViewModel.Entity,
+				ViewModel.UoW,
+				ViewModel.NavigationManager,
+				ViewModel.Scope);
+
+			ViewModel.TransporterCounterpartyEntryViewModel = builder.ForProperty(x => x.TransporterCounterparty)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+
+			#endregion
 
 			#region Отправитель
 
