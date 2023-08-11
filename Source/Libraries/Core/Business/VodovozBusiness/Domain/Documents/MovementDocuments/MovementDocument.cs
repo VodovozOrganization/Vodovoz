@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.MovementDocuments.BulkAccounting;
 using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
 using Vodovoz.Domain.Employees;
@@ -47,6 +48,9 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		private StorageType _storageFrom;
 		private IList<MovementDocumentItem> _items = new List<MovementDocumentItem>();
 		private GenericObservableList<MovementDocumentItem> _observableItems;
+		private string _transporterBill;
+		private decimal _tranporterSum;
+		private Counterparty _transporterCounterparty;
 		
 		public MovementDocument()
 		{
@@ -93,6 +97,27 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		{
 			get => _comment;
 			set => SetField(ref _comment, value);
+		}
+
+		[Display(Name = "Счет перевозчика")]
+		public virtual string TransporterBill
+		{
+			get => _transporterBill;
+			set => SetField(ref _transporterBill, value);
+		}
+
+		[Display(Name = "Сумма стоимости перевозки")]
+		public virtual decimal TranporterSum
+		{
+			get => _tranporterSum;
+			set => SetField(ref _tranporterSum, value);
+		}
+
+		[Display(Name = "Контрагент-перевозчик")]
+		public virtual Counterparty TransporterCounterparty
+		{
+			get => _transporterCounterparty;
+			set => SetField(ref _transporterCounterparty, value);
 		}
 
 		#region Send
