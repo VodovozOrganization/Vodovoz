@@ -47,23 +47,27 @@ namespace Vodovoz.Settings.Database
 			}
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var settingPersister = (AbstractEntityPersister)uow.Session.SessionFactory.GetClassMetadata(typeof(Setting));
-				var tableName = settingPersister.TableName;
-				var nameColumnName = settingPersister.GetPropertyColumnNames(nameof(Setting.Name)).First();
-				var strValueColumnName = settingPersister.GetPropertyColumnNames(nameof(Setting.StrValue)).First();
-
-				string sql;
 				if(isInsert)
 				{
-					sql = $"INSERT INTO {tableName} ({nameColumnName}, {strValueColumnName}) VALUES ('{name}', '{value}')";
+					var newSetting = new Setting() { Name = name, StrValue = value };
+
+					uow.Save(newSetting);
+
 					_logger.LogDebug("Добавляем новую настройку в базу {Name}='{Value}'", name, value);
 				}
 				else
 				{
-					sql = $"UPDATE {tableName} SET {strValueColumnName} = '{value}' WHERE {nameColumnName} = '{name}'";
+					uow.Session.Refresh(oldSetting);
+
+					oldSetting.StrValue = value;
+
+					uow.Save(oldSetting);
+
 					_logger.LogDebug("Изменяем настройку в базе {Name}='{Value}'", name, value);
 				}
-				uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
+
+				uow.Commit();
+
 				RefreshSettings();
 			}
 
