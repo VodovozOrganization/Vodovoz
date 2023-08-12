@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Gamma.Utilities;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NHibernate;
 using QS.Dialog;
 using QS.DomainModel.Entity;
