@@ -17,7 +17,7 @@ public partial class MainWindow
 	private void OpenDialog<TDlg>()
 	where TDlg : TdiTabBase
 	{
-		var localScope = autofacScope.BeginLifetimeScope();
+		var localScope = _autofacScope.BeginLifetimeScope();
 
 		var tab = tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<TDlg>(),
@@ -96,7 +96,7 @@ public partial class MainWindow
 		if(tdiMain.CloseAllTabs())
 		{
 			a.RetVal = false;
-			autofacScope.Dispose();
+			_autofacScope.Dispose();
 			Application.Quit();
 		}
 		else

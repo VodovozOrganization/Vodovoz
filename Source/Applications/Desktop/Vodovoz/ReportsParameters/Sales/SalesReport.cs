@@ -49,7 +49,7 @@ namespace Vodovoz.Reports
 
 			_userIsSalesRepresentative =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			_canSeePhones = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("phones_in_detailed_sales_report");
 

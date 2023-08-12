@@ -164,7 +164,14 @@ namespace Vodovoz.Domain.Cash
 			{
 				yield return new ValidationResult("Необходимо заполнить организацию", new[] { nameof(Organization) });
 			}
+
+			if(DatesInSumItems.Count > 1)
+			{
+				yield return new ValidationResult("Нельзя в одной заявке указывать разные даты выдачи. Создайте отдельную заявку на другую дату", new[] { nameof(Sums) });
+			}
 		}
+
+		private List<DateTime> DatesInSumItems => Sums.Select(s => s.Date.Date).Distinct().ToList();
 
 		public virtual void AddItem(CashRequestSumItem sumItem)
 		{

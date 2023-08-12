@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using MailjetEventsDistributorAPI.DTO;
 using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System.Data;
 using System.Linq;
 

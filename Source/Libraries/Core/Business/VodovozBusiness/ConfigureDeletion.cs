@@ -182,6 +182,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<Certificate>()
 				.AddDeleteDependence<NomenclatureCertificateDocument>(x => x.Certificate)
 				;
+
+			DeleteConfig.AddHibernateDeleteInfo<DriverStopListRemoval>();
 			#endregion
 
 			#region Rent
@@ -293,6 +295,8 @@ namespace Vodovoz
 				.AddDeleteDependence<DriverDistrictPrioritySet>(x => x.Driver)
 				.AddDeleteDependence<DriverWorkScheduleSet>(x => x.Driver)
 				.AddDeleteDependence<EmployeeContract>(x => x.Employee)
+				.AddDeleteDependence<DriverStopListRemoval>(x => x.Driver)
+				.AddDeleteDependence<DriverStopListRemoval>(x => x.Author)
 				.AddClearDependence<DriverDistrictPrioritySet>(x => x.Author)
 				.AddClearDependence<DriverDistrictPrioritySet>(x => x.LastEditor)
 				.AddClearDependence<DriverWorkScheduleSet>(x => x.Author)

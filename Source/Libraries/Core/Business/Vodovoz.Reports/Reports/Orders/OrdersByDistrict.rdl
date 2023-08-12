@@ -37,7 +37,7 @@
         <Height>18.02pt</Height>
         <Width>816.08pt</Width>
         <Value>="Отчет по району"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.8pt</Left>
         <Top>0.0pt</Top>
         <Style>
@@ -934,7 +934,7 @@ ORDER BY bottles , last_name</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_honeybee;user=root;password=qsolution;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

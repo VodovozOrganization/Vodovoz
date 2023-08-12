@@ -7,7 +7,7 @@ using Vodovoz.Domain.Orders;
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 {
 	public class UndeliveryDetalizationJournalFilterViewModel
-		: FilterViewModelBase<UndeliveryDetalizationJournalFilterViewModel> , IJournalFilterViewModel
+		: FilterViewModelBase<UndeliveryDetalizationJournalFilterViewModel>
 	{
 		private UndeliveryObject _undeliveryObject;
 		private UndeliveryKind _undeliveryKind;
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			set => UpdateFilterField(ref _hideArchive, value);
 		}
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 		public bool CanChangeFilter { get; set; } = true;
 	}
 }

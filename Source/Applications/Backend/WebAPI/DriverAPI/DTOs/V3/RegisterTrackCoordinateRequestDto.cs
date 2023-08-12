@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DriverAPI.DTOs.V3
 {
+	/// <summary>
+	/// Запрос на регистрацию координат трека
+	/// </summary>
 	public class RegisterTrackCoordinateRequestDto
 	{
 		/// <summary>

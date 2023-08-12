@@ -117,11 +117,11 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig treeViewConfig = ColumnsConfigFactory.Create<AccountableSlipsVMNode> ()
-			.AddColumn("Документ").SetDataProperty (node => node.DocTitle)
-			.AddColumn ("Дата").SetDataProperty (node => node.DateText)
-			.AddColumn ("Получено").SetDataProperty (node => node.AppendText)
-			.AddColumn ("Закрыто").SetDataProperty (node => node.RemovedText)
-			.AddColumn ("Основание").SetDataProperty (node => node.Description)
+			.AddColumn("Документ").AddTextRenderer(node => node.DocTitle)
+			.AddColumn ("Дата").AddTextRenderer(node => node.DateText)
+			.AddColumn ("Получено").AddTextRenderer(node => node.AppendText)
+			.AddColumn ("Закрыто").AddTextRenderer(node => node.RemovedText)
+			.AddColumn ("Основание").AddTextRenderer(node => node.Description)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {

@@ -1,27 +1,21 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Autofac;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
+using QS.Attachments.Domain;
 using QS.Banks.Domain;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using System;
 using System.Reflection;
-using Autofac;
-using Newtonsoft.Json;
-using QS.Attachments.Domain;
-using UnsubscribePage.Controllers;
-using UnsubscribePage.Models;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.NhibernateExtensions;
-using Vodovoz.Parameters;
+using QS.DomainModel.UoW;
 using Vodovoz;
+using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 
 namespace UnsubscribePage
@@ -59,6 +53,12 @@ namespace UnsubscribePage
 
 		public void ConfigureContainer(ContainerBuilder builder)
 		{
+			builder.RegisterModule<DatabaseSettingsModule>();
+			
+			builder.RegisterType<DefaultUnitOfWorkFactory>()
+				.As<IUnitOfWorkFactory>()
+				.SingleInstance();
+			
 			builder.RegisterAssemblyTypes(typeof(VodovozBusinessAssemblyFinder).Assembly)
 				.Where(t => t.Name.EndsWith("Provider"))
 				.AsSelf()
@@ -137,7 +137,7 @@ namespace UnsubscribePage
 				}
 			);
 
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

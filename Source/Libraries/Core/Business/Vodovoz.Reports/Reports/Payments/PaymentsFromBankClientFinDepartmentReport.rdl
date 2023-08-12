@@ -20,7 +20,7 @@
         <Height>23.34pt</Height>
         <Width>581.25pt</Width>
         <Value>= "Отчет по оплатам (ФО) " + Iif({?start_date} = {?end_date}, 'за ' + Format(CDate({?start_date}), "dd.MM.yy"), 'с ' + Format(CDate({?start_date}), "dd.MM.yy") + ' по ' + Format(CDate({?end_date}), "dd.MM.yy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>102.3pt</Left>
         <Top>5.6pt</Top>
         <Style>
@@ -38,7 +38,7 @@
 - распределены на заказы с залогами
 - распределены на заказы, выставленные на контрагента отличного от контрагента-плательщика
 Сортировка: сначала идут заказы с залогами, затем заказы, выставленные на контрагента отличного от контрагента-плательщика</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.2pt</Left>
         <Top>36.8pt</Top>
         <Style>
@@ -684,7 +684,7 @@ ORDER BY ordering_col, payment_date DESC, orderdate DESC, orders.id DESC;</Comma
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>
         </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>

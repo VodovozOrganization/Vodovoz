@@ -1078,12 +1078,6 @@ namespace Vodovoz
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderPaymentStatus == OrderPaymentStatus.Paid)
-			{
-				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Заказ уже оплачен. Повторная отправка УПД недоступна");
-				return;
-			}
-
 			if(IsOrderHasUpdStatus(EdoDocFlowStatus.Succeed))
 			{
 				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"Документооборот завершен успешно\".\nВы уверены, что хотите отправить дубль?"))
@@ -1725,10 +1719,10 @@ namespace Vodovoz
 			treeViewEdoContainers.ItemsDataSource = _edoContainers;
 
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
-				.AddColumn("Статус заявки").SetDataProperty(node => node.Status.GetEnumTitle())
-				.AddColumn("Номенклатура оборудования").SetDataProperty(node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
-				.AddColumn("Серийный номер").SetDataProperty(node => node.Equipment != null && node.Equipment.Nomenclature.IsSerial ? node.Equipment.Serial : "-")
-				.AddColumn("Причина").SetDataProperty(node => node.Reason)
+				.AddColumn("Статус заявки").AddTextRenderer(node => node.Status.GetEnumTitle())
+				.AddColumn("Номенклатура оборудования").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
+				.AddColumn("Серийный номер").AddTextRenderer(node => node.Equipment != null && node.Equipment.Nomenclature.IsSerial ? node.Equipment.Serial : "-")
+				.AddColumn("Причина").AddTextRenderer(node => node.Reason)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 				.Finish();
 
@@ -1838,7 +1832,11 @@ namespace Vodovoz
 		private void ConfigureSendDocumentByEmailWidget()
 		{
 			SendDocumentByEmailViewModel =
-				new SendDocumentByEmailViewModel(_emailRepository, new EmailParametersProvider(new ParametersProvider()), _currentEmployee, ServicesConfig.InteractiveService);
+				new SendDocumentByEmailViewModel(
+					_emailRepository,
+					_lifetimeScope.Resolve<IEmailParametersProvider>(),
+					_currentEmployee,
+					ServicesConfig.InteractiveService);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
 			hbox20.Add(sendEmailView);
 			sendEmailView.Show();

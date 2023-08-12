@@ -1,4 +1,5 @@
-﻿using Autofac;
+using FluentNHibernate.Data;
+using Autofac;
 using Gamma.Utilities;
 using Gtk;
 using QS.Dialog;
@@ -126,8 +127,8 @@ namespace Vodovoz.Dialogs
 
 		private bool Save()
 		{
-			var valid = new QSValidator<UndeliveredOrder>(undelivery);
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(undelivery))
 			{
 				return false;
 			}

@@ -300,7 +300,7 @@ public partial class MainWindow
 			employeeJournalFactory,
 			salesPlanJournalFactory,
 			nomenclatureSelectorFactory,
-			autofacScope.BeginLifetimeScope())
+			_autofacScope.BeginLifetimeScope())
 		);
 	}
 
@@ -1031,7 +1031,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionDeliveryScheduleActivated(object sender, EventArgs e)
 	{
-		var journal = autofacScope.Resolve<DeliveryScheduleJournalViewModel>();
+		var journal = _autofacScope.Resolve<DeliveryScheduleJournalViewModel>();
 
 		journal.SelectionMode = JournalSelectionMode.None;
 		tdiMain.AddTab(journal);

@@ -1,13 +1,12 @@
-﻿using System;
-using System.Linq;
-using MySql.Data.MySqlClient;
+﻿using MySqlConnector;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.ErrorReporting;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Versioning;
-using QS.Services;
+using System;
+using System.Linq;
 using Vodovoz.Tools;
 
 namespace Vodovoz
@@ -46,8 +45,8 @@ namespace Vodovoz
 		public static bool MySqlExceptionConnectionTimeoutHandler(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
 		{
 			var mysqlEx = ExceptionHelper.FindExceptionTypeInInner<MySqlException>(exception);
-			var exceptions = new[] { 1159, 1161 };
-			if(mysqlEx != null && exceptions.Contains(mysqlEx.Number)) {
+			var exceptions = new[] { MySqlErrorCode.NetReadInterrupted, MySqlErrorCode.NetWriteInterrupted };
+			if(mysqlEx != null && exceptions.Contains(mysqlEx.ErrorCode)) {
 				interactiveMessage.ShowMessage(ImportanceLevel.Error, "Возникла проблема с подключением к серверу, попробуйте снова.");
 				return true;
 			}
@@ -78,6 +77,18 @@ namespace Vodovoz
             }
 			return false;
         }
+
+		public static bool MysqlCommandTimeoutException(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveService)
+		{
+			var mysqlException = ExceptionHelper.FindExceptionTypeInInner<MySqlException>(exception);
+
+			if(mysqlException != null && mysqlException.ErrorCode == MySqlErrorCode.CommandTimeoutExpired)
+			{
+				interactiveService.ShowMessage(ImportanceLevel.Warning, "Программа не смогла обработать запрос вовремя, повторите попытку, если ошибка сохраняется, тогда переоткройте вкладку");
+				return true;
+			}
+			return false;
+		}
 
 		public static bool GeoGroupVersionNotFoundException(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveService)
 		{

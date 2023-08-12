@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -60,16 +60,22 @@ ORDER BY id;</CommandText>
         <Left>0.0pt</Left>
         <Top>0.0pt</Top>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <ReportItems>
           <Textbox Name="Textbox3">
             <Height>12pt</Height>
             <Width>168pt</Width>
             <Value>="С/Н: " + Fields!id.Value </Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>3.5pt</Left>
             <Top>74.1pt</Top>
             <Style>
@@ -82,7 +88,7 @@ ORDER BY id;</CommandText>
             <Height>12pt</Height>
             <Width>168pt</Width>
             <Value>="Модель: " + Fields!name.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>3.5pt</Left>
             <Top>60.5pt</Top>
             <Style>
@@ -142,7 +148,7 @@ ORDER BY id;</CommandText>
             <Height>13.49pt</Height>
             <Width>78.29pt</Width>
             <Value>493-50-93</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>84.9pt</Left>
             <Top>23.6pt</Top>
             <Style>
@@ -173,7 +179,7 @@ ORDER BY id;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=vad;password=123;port=3306;server=192.168.1.5</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

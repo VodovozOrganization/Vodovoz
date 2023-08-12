@@ -8,7 +8,7 @@ namespace Vodovoz.Settings.Database
 
 		public virtual string Name { get; set; }
 		public virtual string StrValue { get; set; }
-		public virtual TimeSpan? CacheTimeout { get; set; }
+		public virtual TimeSpan CacheTimeout { get; set; }
 
 		#endregion
 
@@ -18,10 +18,6 @@ namespace Vodovoz.Settings.Database
 		{
 			get
 			{
-				if(CacheTimeout == null)
-				{
-					return true;
-				}
 				if(CachedTime == null)
 				{
 					return false;

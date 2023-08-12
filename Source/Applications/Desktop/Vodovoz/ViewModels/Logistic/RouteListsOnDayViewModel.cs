@@ -38,19 +38,20 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
+using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic
 {
 	public class RouteListsOnDayViewModel : TabViewModelBase
 	{
-		private readonly IRouteListRepository routeListRepository;
-		private readonly ISubdivisionRepository subdivisionRepository;
-		private readonly IAtWorkRepository atWorkRepository;
-		private readonly IGtkTabsOpener gtkTabsOpener;
-		private readonly IUserRepository userRepository;
-		private readonly DeliveryDaySchedule defaultDeliveryDaySchedule;
-		private readonly int closingDocumentDeliveryScheduleId;
+		private readonly IRouteListRepository _routeListRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IAtWorkRepository _atWorkRepository;
+		private readonly IGtkTabsOpener _gtkTabsOpener;
+		private readonly IUserRepository _userRepository;
+		private readonly DeliveryDaySchedule _defaultDeliveryDaySchedule;
+		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 
 		public IUnitOfWork UoW;
@@ -83,18 +84,17 @@ namespace Vodovoz.ViewModels.Logistic
 
 			CommonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			CarRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
-			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			ScheduleRestrictionRepository =
-				scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
+			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			CarModelJournalFactory = carModelJournalFactory;
-			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
-			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
-			this.OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
+			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			
-			closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
+			_closingDocumentDeliveryScheduleId = deliveryScheduleParametersProvider?.ClosingDocumentDeliveryScheduleId ??
 			                                    throw new ArgumentNullException(nameof(deliveryScheduleParametersProvider));
 
 			CanСreateRoutelistInPastPeriod = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_routelist_in_past_period");
@@ -133,10 +133,10 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 			Optimizer = new RouteOptimizer(commonServices.InteractiveService, new GeographicGroupRepository());
 
-			defaultDeliveryDaySchedule =
+			_defaultDeliveryDaySchedule =
 				UoW.GetById<DeliveryDaySchedule>(defaultDeliveryDayScheduleSettings.GetDefaultDeliveryDayScheduleId());
 			//Необходимо сразу проинициализировать, т.к вызывается Session.Clear() в методе InitializeData()
-			NHibernateUtil.Initialize(defaultDeliveryDaySchedule.Shifts);
+			NHibernateUtil.Initialize(_defaultDeliveryDaySchedule.Shifts);
 
 			var deliveryShifts = UoW.GetAll<DeliveryShift>();
 			DeliveryShiftNodes = deliveryShifts.Select(ds => new DeliveryShiftNode(ds)).ToList();
@@ -248,7 +248,7 @@ namespace Vodovoz.ViewModels.Logistic
 				obj => {
 					//Открываем заказ
 					if(obj is RouteListItem rli)
-						gtkTabsOpener.OpenOrderDlg(this, rli.Order.Id);
+						_gtkTabsOpener.OpenOrderDlg(this, rli.Order.Id);
 
 					//Открываем МЛ
 					if(obj is RouteList rl) {
@@ -259,7 +259,7 @@ namespace Vodovoz.ViewModels.Logistic
 							} else
 								return;
 						}
-						gtkTabsOpener.OpenRouteListCreateDlg(this, rl.Id);
+						_gtkTabsOpener.OpenRouteListCreateDlg(this, rl.Id);
 					}
 				},
 				i => true
@@ -448,7 +448,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public IList<UndeliveryOrderNode> UndeliveredOrdersOnDay { get; set; }
 
-		public IList<OrderNode> OrdersOnDay { get; set; }
+		public IList<OrderOnDayNode> OrdersOnDay { get; set; }
 
 		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; private set; }
 
@@ -641,7 +641,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void LoadAddressesTypesDefaults()
 		{
-			var currentUserSettings = userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId);
+			var currentUserSettings = _userRepository.GetUserSettings(UoW, CommonServices.UserService.CurrentUserId);
 			foreach(var addressTypeNode in OrderAddressTypes) {
 				switch(addressTypeNode.OrderAddressType) {
 					case OrderAddressType.Delivery:
@@ -1027,10 +1027,12 @@ namespace Vodovoz.ViewModels.Logistic
 
 			var drivers = new EmployeeRepository().GetWorkingDriversAtDay(UoW, DateForRouting);
 
+			var cars = CarRepository.GetCarsByDrivers(UoW, drivers.Select(x => x.Id).ToArray());
+
+
 			if(drivers.Count > 0) {
 				foreach(var driver in drivers) {
-					var car = CarRepository.GetCarByDriver(UoW, driver);
-
+					var car = cars.SingleOrDefault(x => x.Driver.Id == driver.Id);
 					if(car != null)
 						totalBottles += car.MaxBottles;
 
@@ -1043,9 +1045,9 @@ namespace Vodovoz.ViewModels.Logistic
 			CanTake = string.Join("\n", text);
 		}
 
-		public bool CheckAlreadyAddedAddress(OrderNode order)
+		public bool CheckAlreadyAddedAddress(OrderOnDayNode order)
 		{
-			var routeList = routeListRepository.GetActualRouteListByOrder(UoW, order.OrderId);
+			var routeList = _routeListRepository.GetActualRouteListByOrder(UoW, order.OrderId);
 			if(routeList != null)
 				ShowWarningMessage($"Адрес ({order.DeliveryPointCompiledAddress}) уже был кем-то добавлен в МЛ ({routeList.Id}). Обновите данные.");
 			return routeList == null;
@@ -1053,7 +1055,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool CheckRouteListWasChanged(RouteList routeList)
 		{
-			if(!routeListRepository.RouteListWasChanged(routeList))
+			if(!_routeListRepository.RouteListWasChanged(routeList))
 				return true;
 			ShowWarningMessage($"МЛ ({routeList.Id}) уже был кем-то изменен. Обновите данные.");
 			return false;
@@ -1065,7 +1067,7 @@ namespace Vodovoz.ViewModels.Logistic
 			RouteList.RecalculateOnLoadTime(RoutesOnDay, DistanceCalculator);
 		}
 
-		public bool AddOrdersToRouteList(IList<OrderNode> selectedOrderNodes, RouteList routeList)
+		public bool AddOrdersToRouteList(IList<OrderOnDayNode> selectedOrderNodes, RouteList routeList)
 		{
 			if(!routeList.IsDriversDebtInPermittedRangeVerification())
 			{
@@ -1182,12 +1184,37 @@ namespace Vodovoz.ViewModels.Logistic
 
 			if(OrdersOnDay == null)
 			{
-				OrdersOnDay = new List<OrderNode>();
+				OrdersOnDay = new List<OrderOnDayNode>();
 			}
 			else
 			{
 				OrdersOnDay.Clear();
 			}
+
+			var selectedDeliveryShiftIds = DeliveryShiftNodes
+				.Where(x => x.Selected)
+				.Select(x => x.DeliveryShift.Id)
+				.ToArray();
+			var selectedGeographicGroupIds = GeographicGroupNodes
+				.Where(x => x.Selected)
+				.Select(x => x.GeographicGroup.Id)
+				.ToArray();
+
+			var orderOnDayFilter = new OrderOnDayFilters
+			{
+				DateForRouting = DateForRouting,
+				GeographicGroupIds = selectedGeographicGroupIds,
+				DeliveryScheduleType = DeliveryScheduleType,
+				DeliveryFromTime = DeliveryFromTime,
+				DeliveryToTime = DeliveryToTime,
+				ShowCompleted = ShowCompleted,
+				MinBottles19L = MinBottles19L,
+				FastDeliveryEnabled = OrderAddressTypes.Any(x => x.IsFastDelivery && x.Selected),
+				OrderAddressTypes = OrderAddressTypes.Where(x => !x.IsFastDelivery).Select(x => x.OrderAddressType),
+				ClosingDocumentDeliveryScheduleId = _closingDocumentDeliveryScheduleId
+			};
+
+			OrdersOnDay = OrderRepository.GetOrdersOnDay(UoW, orderOnDayFilter);
 
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
@@ -1195,108 +1222,9 @@ namespace Vodovoz.ViewModels.Logistic
 			Counterparty counterpartyAlias = null;
 			Order orderBaseAlias = null;
 
-			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 
 			if(OrderAddressTypes.Any(x => x.Selected))
 			{
-				var query = QueryOver.Of(() => orderBaseAlias)
-					.Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
-					.Where(o => o.DeliverySchedule != null)
-					.Where(x => x.DeliveryPoint != null)
-					.And(x => x.DeliverySchedule.Id != closingDocumentDeliveryScheduleId);
-
-				if(!ShowCompleted)
-					query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
-				else
-					query.Where(order =>
-						order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder &&
-						order.OrderStatus != OrderStatus.WaitForPayment);
-
-				var baseOrderQuery = query.GetExecutableQueryOver(UoW.Session);
-
-				AddAddressTypeFilter(baseOrderQuery);
-
-				if(selectedGeographicGroup.Any())
-				{
-					baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-						.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
-						.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id),
-							selectedGeographicGroup.Select(x => x.Id).ToArray()));
-				}
-
-				var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future()
-					.Where(x => x.IsContractCloser == false)
-					.Where(x => !OrderRepository.IsOrderCloseWithoutDelivery(UoW, x));
-
-				baseOrderQuery.Fetch(SelectMode.Fetch, x => x.OrderItems).Future();
-
-				var resultOrdersQuery = ordersQuery;
-
-				switch(DeliveryScheduleType)
-				{
-					case DeliveryScheduleFilterType.DeliveryStart:
-						resultOrdersQuery = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-							.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
-							.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
-							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-							;
-
-						break;
-					case DeliveryScheduleFilterType.DeliveryEnd:
-						resultOrdersQuery = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-							.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
-							.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
-							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-							;
-						break;
-					case DeliveryScheduleFilterType.DeliveryStartAndEnd:
-						resultOrdersQuery = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-							.Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
-							.Where(x => x.DeliverySchedule.To <= DeliveryToTime)
-							.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
-							.Where(x => x.DeliverySchedule.From <= DeliveryToTime)
-							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-							;
-						break;
-					case DeliveryScheduleFilterType.OrderCreateDate:
-						resultOrdersQuery = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-							.Where(x => x.CreateDate.Value.TimeOfDay >= DeliveryFromTime)
-							.Where(x => x.CreateDate.Value.TimeOfDay <= DeliveryToTime)
-							.Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-							;
-						break;
-				}
-
-				OrdersOnDay = resultOrdersQuery
-						.Distinct()
-						.Select(o => new OrderNode
-						{
-							OrderId = o.Id,
-							OrderStatus = o.OrderStatus,
-							DeliveryPointLatitude = o.DeliveryPoint.Latitude,
-							DeliveryPointLongitude = o.DeliveryPoint.Longitude,
-							DeliveryPointShortAddress = o.DeliveryPoint.ShortAddress,
-							DeliveryPointCompiledAddress = o.DeliveryPoint.CompiledAddress,
-							DeliveryPointNetTopologyPoint = o.DeliveryPoint.NetTopologyPoint,
-							DeliveryPointDistrictId = o.DeliveryPoint.District.Id,
-							LogisticsRequirements = o.LogisticsRequirements,
-							OrderAddressType = o.OrderAddressType,
-							DeliverySchedule = o.DeliverySchedule,
-							Total19LBottlesToDeliver = o.Total19LBottlesToDeliver,
-							Total6LBottlesToDeliver = o.Total6LBottlesToDeliver,
-							Total600mlBottlesToDeliver = o.Total600mlBottlesToDeliver,
-							BottlesReturn = o.BottlesReturn,
-							OrderComment = o.Comment,
-							DeliveryPointComment = o.DeliveryPoint.Comment,
-							CommentManager = o.CommentManager,
-							ODZComment = o.ODZComment,
-							OPComment = o.OPComment,
-							DriverMobileAppComment = o.DriverMobileAppComment
-						})
-						.ToList();
-
-
 				UndeliveredOrder undeliveredOrderAlias = null;
 				Order orderAlias = null;
 				Order orderAlias2 = null;
@@ -1309,7 +1237,7 @@ namespace Vodovoz.ViewModels.Logistic
 					.Where(() => orderAlias2.DeliveryDate == DateForRouting.Date && !orderAlias2.SelfDelivery)
 					.Where(() => orderAlias2.DeliverySchedule != null)
 					.Where(() => orderAlias2.DeliveryPoint != null)
-					.And(() => orderAlias2.DeliverySchedule.Id != closingDocumentDeliveryScheduleId)
+					.And(() => orderAlias2.DeliverySchedule.Id != _closingDocumentDeliveryScheduleId)
 					.GetExecutableQueryOver(UoW.Session)
 					.SelectList(list => list
 						.Select(x=>x.GuiltySide).WithAlias(() => resultAlias.GuiltySide)
@@ -1322,43 +1250,22 @@ namespace Vodovoz.ViewModels.Logistic
 
 			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
 
-			var routesQuery1 = routeListRepository.GetRoutesAtDay(DateForRouting)
-				.GetExecutableQueryOver(UoW.Session);
-			if(!ShowCompleted)
-				routesQuery1.Where(x => x.Status == RouteListStatus.New);
-			GeoGroup routeGeographicGroupAlias = null;
-			if(selectedGeographicGroup.Any())
-			{
-				routesQuery1
-					.Left.JoinAlias(x => x.GeographicGroups, () => routeGeographicGroupAlias)
-					.Where(Restrictions.In(Projections.Property(() => routeGeographicGroupAlias.Id),
-						selectedGeographicGroup.Select(x => x.Id).ToArray()));
-			}
 
-			var selectedDeliveryShifts = DeliveryShiftNodes.Where(x => x.Selected).Select(x => x.DeliveryShift).ToArray();
 
-			if(selectedDeliveryShifts.Any())
-			{
-				routesQuery1.WhereRestrictionOn(rl => rl.Shift).IsIn(selectedDeliveryShifts);
-			}
-
-			var routesQuery = routesQuery1
-				.Fetch(SelectMode.Undefined, x => x.Addresses)
-				.Future();
+			RoutesOnDay = _routeListRepository.GetRoutesAtDay(UoW, DateForRouting, ShowCompleted, selectedGeographicGroupIds, selectedDeliveryShiftIds);
 
 			GetWorkDriversInfo();
 			CalculateOnDeliverySum();
-			RoutesOnDay = routesQuery.ToList();
 			RoutesOnDay.ToList().ForEach(rl => rl.UoW = UoW);
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
 			RoutesOnDay.ToList().ForEach(rl => rl.CheckAddressOrder());
 
 			logger.Info("Загружаем водителей на {0:d}...", DateForRouting);
 			ObservableDriversOnDay.Clear();
-			atWorkRepository.GetDriversAtDay(UoW, DateForRouting, driverStatuses: new [] { AtWorkDriver.DriverStatus.IsWorking }).ToList().ForEach(x => ObservableDriversOnDay.Add(x));
+			_atWorkRepository.GetDriversAtDay(UoW, DateForRouting, driverStatuses: new [] { AtWorkDriver.DriverStatus.IsWorking }).ToList().ForEach(x => ObservableDriversOnDay.Add(x));
 			logger.Info("Загружаем экспедиторов на {0:d}...", DateForRouting);
 			ObservableForwardersOnDay.Clear();
-			atWorkRepository.GetForwardersAtDay(UoW, DateForRouting).ToList().ForEach(x => ObservableForwardersOnDay.Add(x));
+			_atWorkRepository.GetForwardersAtDay(UoW, DateForRouting).ToList().ForEach(x => ObservableForwardersOnDay.Add(x));
 		}
 
 		public string GetOrdersInfo(int addressesWithoutCoordinats, int addressesWithoutRoutes, int totalBottlesCountAtDay, int bottlesWithoutRL)
@@ -1464,7 +1371,7 @@ namespace Vodovoz.ViewModels.Logistic
 				?.ObservableDriverWorkSchedules.SingleOrDefault(x => (int)x.WeekDay == (int)DateForRouting.DayOfWeek);
 
 			return driverWorkSchedule == null 
-				? defaultDeliveryDaySchedule
+				? _defaultDeliveryDaySchedule
 				: driverWorkSchedule.DaySchedule;
 		}
 
@@ -1613,30 +1520,5 @@ namespace Vodovoz.ViewModels.Logistic
 
 			base.Dispose();
 		}
-	}
-
-	public class OrderNode
-	{
-		public int OrderId { get; set; }
-		public OrderStatus OrderStatus { get; set; }
-		public decimal? DeliveryPointLatitude { get; set; }
-		public decimal? DeliveryPointLongitude { get; set; }
-		public string DeliveryPointShortAddress { get; set; }
-		public string DeliveryPointCompiledAddress { get; set; }
-		public Point DeliveryPointNetTopologyPoint { get; set; }
-		public int DeliveryPointDistrictId { get; set; }
-		public LogisticsRequirements LogisticsRequirements { get; set; }
-		public OrderAddressType OrderAddressType { get; set; }
-		public DeliverySchedule DeliverySchedule { get; set; }
-		public int Total19LBottlesToDeliver { get; set; }
-		public int Total6LBottlesToDeliver { get; set; }
-		public int Total600mlBottlesToDeliver { get; set; }
-		public int? BottlesReturn { get; set; }
-		public string OrderComment { get; set; }
-		public string DeliveryPointComment { get; set; }
-		public string CommentManager { get; set; }
-		public string ODZComment { get; set; }
-		public string OPComment { get; set; }
-		public string DriverMobileAppComment { get; set; }
 	}
 }

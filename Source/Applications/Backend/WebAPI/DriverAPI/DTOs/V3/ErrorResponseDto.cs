@@ -10,6 +10,10 @@
 		/// </summary>
 		public string Error { get; set; }
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="message">Сообщение об ошибке</param>
 		public ErrorResponseDto(string message)
 		{
 			Error = message;

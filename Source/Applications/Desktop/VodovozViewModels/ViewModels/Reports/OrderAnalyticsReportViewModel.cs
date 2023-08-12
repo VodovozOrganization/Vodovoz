@@ -78,7 +78,6 @@ namespace Vodovoz.ViewModels.Reports
             }
 
             Title = "Отчет аналитика заказов";
-            UoW = unitOfWorkFactory.CreateWithoutRoot();
         }
         
         public DateTime? StartDeliveryDate

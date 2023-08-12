@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 			_userIsSalesRepresentative =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("user_is_sales_representative")
-				&& !_commonServices.UserService.GetCurrentUser(_uow).IsAdmin;
+				&& !_commonServices.UserService.GetCurrentUser().IsAdmin;
 
 			StartDate = DateTime.Today;
 			EndDate = DateTime.Today;

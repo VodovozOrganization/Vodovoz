@@ -255,9 +255,13 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual void UpdateNomenclature(Dictionary<Nomenclature, decimal> nomenclatureAmounts)
 		{
-			foreach(var nom in Nomenclatures) {
-				if(nomenclatureAmounts.All(x => x.Key.Id != nom.Nomenclature.Id))
-					Nomenclatures.Remove(nom);
+			var nomenclaturesToRemove =
+				Nomenclatures.Where(nom =>
+					nomenclatureAmounts.All(x => x.Key.Id != nom.Nomenclature.Id));
+			
+			foreach(var nom in nomenclaturesToRemove)
+			{
+				Nomenclatures.Remove(nom);
 			}
 
 			foreach(var nom in nomenclatureAmounts) {

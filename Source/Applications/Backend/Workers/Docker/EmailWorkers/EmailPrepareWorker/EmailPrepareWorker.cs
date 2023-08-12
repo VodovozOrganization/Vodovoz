@@ -3,7 +3,7 @@ using Mailjet.Api.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Report;
@@ -47,8 +47,12 @@ namespace EmailPrepareWorker
 		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
 		private readonly int _instanceId;
 
-		public EmailPrepareWorker(ILogger<EmailPrepareWorker> logger, IConfiguration configuration, IModel channel, IEmailRepository emailRepository,
-				IEmailParametersProvider emailParametersProvider)
+		public EmailPrepareWorker(
+			ILogger<EmailPrepareWorker> logger,
+			IConfiguration configuration,
+			IModel channel,
+			IEmailRepository emailRepository,
+			IEmailParametersProvider emailParametersProvider)
 		{
 			if(configuration is null)
 			{
@@ -97,7 +101,7 @@ namespace EmailPrepareWorker
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 			});
 
-			QS.HistoryLog.HistoryMain.Enable();
+			QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Email prepare worker"))
 			{

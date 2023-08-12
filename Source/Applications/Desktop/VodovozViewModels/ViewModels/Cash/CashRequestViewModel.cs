@@ -21,6 +21,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
@@ -121,15 +122,13 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 			ApproveCommand = new DelegateCommand(() =>
 				{
-					Entity.ChangeState(PayoutRequestState.Agreed);
-					AfterSaveCommand.Execute();
+					ChangeStateAndSave(PayoutRequestState.Agreed);
 				},
 				() => true);
 
 			AcceptCommand = new DelegateCommand(() =>
 				{
-					Entity.ChangeState(PayoutRequestState.Submited);
-					AfterSaveCommand.Execute();
+					ChangeStateAndSave(PayoutRequestState.Submited);
 				},
 				() => true);
 
@@ -143,8 +142,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					}
 					else
 					{
-						Entity.ChangeState(PayoutRequestState.Canceled);
-						AfterSaveCommand.Execute();
+						ChangeStateAndSave(PayoutRequestState.Canceled);
 					}
 				},
 				() => true);
@@ -160,8 +158,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 					}
 					else
 					{
-						Entity.ChangeState(PayoutRequestState.GivenForTake);
-						AfterSaveCommand.Execute();
+						ChangeStateAndSave(PayoutRequestState.GivenForTake);
 					}
 				},
 				() => true);
@@ -177,8 +174,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 						}
 						else
 						{
-							Entity.ChangeState(PayoutRequestState.OnClarification);
-							AfterSaveCommand.Execute();
+							ChangeStateAndSave(PayoutRequestState.OnClarification);
 						}
 					},
 					() => true);
@@ -228,8 +224,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			AfterSaveCommand = new DelegateCommand(
 				() =>
 				{
-					if(Entity.ExpenseCategoryId == null
-						&& UserRole == PayoutRequestUserRole.Cashier)
+					if(Entity.ExpenseCategoryId == null)
 					{
 						CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
 							"Необходимо заполнить статью расхода");
@@ -352,14 +347,12 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			&& alreadyGiven + decimalSumToGive == cashRequestSumItem.Sum
 			&& Entity.ObservableSums.Count(x => x.Expenses.Sum(e => e.Money) != x.Sum) > 0)
 			{
-				Entity.ChangeState(PayoutRequestState.OnClarification);
+				ChangeStateAndSave(PayoutRequestState.OnClarification);
 			}
 			else
 			{
-				Entity.ChangeState(PayoutRequestState.Closed);
+				ChangeStateAndSave(PayoutRequestState.Closed);
 			}
-
-			AfterSaveCommand.Execute();
 		}
 
 		#endregion Commands
@@ -553,6 +546,24 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			}
 
 			return builder.ToString();
+		}
+
+		private void ChangeStateAndSave(PayoutRequestState newState)
+		{
+			var validationResult = Entity.RaiseValidationAndGetResult();
+
+			if(!string.IsNullOrWhiteSpace(validationResult))
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"{validationResult}");
+
+				return;
+			}
+
+			Entity.ChangeState(newState);
+
+			AfterSaveCommand.Execute();
 		}
 
 		private bool AfterSave(out string messageText)

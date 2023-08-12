@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Organizations
 		Nominative = "организация")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Organization : AccountOwnerBase, IDomainObject
+	public class Organization : AccountOwnerBase, IDomainObject, INamed
 	{
 		private int? _avangardShopId;
 		private string _taxcomEdoAccountId;

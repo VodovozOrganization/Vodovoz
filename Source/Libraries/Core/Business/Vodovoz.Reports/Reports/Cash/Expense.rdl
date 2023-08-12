@@ -9,7 +9,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>server=192.168.1.34;user=admin;database=bazar;port=3306;password=;</ConnectString>
       </ConnectionProperties>
     </DataSource>
@@ -192,7 +192,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>16.51pt</Height>
             <Width>150.58pt</Width>
             <Value>Подпись  ________________</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>7.00pt</Left>
             <Top>168.30pt</Top>
             <Style>
@@ -205,7 +205,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>24.80pt</Height>
             <Width>268.76pt</Width>
             <Value>=SummaString_Val(Convert.ToString(Fields!sum.Value))</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>6.10pt</Left>
             <Top>133.20pt</Top>
             <Style>
@@ -218,7 +218,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>12.00pt</Height>
             <Width>196.37pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>79.9pt</Left>
             <Top>33.1pt</Top>
             <Style>
@@ -231,7 +231,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>Контрагент:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>5.3pt</Left>
             <Top>33.1pt</Top>
             <Style>
@@ -246,7 +246,13 @@ WHERE cash_expense.id=@id</CommandText>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
-          <BorderStyle />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
           <BorderColor />
           <BorderWidth />
         </Style>
@@ -255,7 +261,7 @@ WHERE cash_expense.id=@id</CommandText>
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Дата:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.7pt</Left>
         <Top>5.4pt</Top>
         <Style>
@@ -269,7 +275,7 @@ WHERE cash_expense.id=@id</CommandText>
         <Height>12.00pt</Height>
         <Width>72.27pt</Width>
         <Value>Расход:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.9pt</Left>
         <Top>18.8pt</Top>
         <Style>
@@ -283,7 +289,7 @@ WHERE cash_expense.id=@id</CommandText>
         <Height>12.00pt</Height>
         <Width>72.27pt</Width>
         <Value>Основание:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.5pt</Left>
         <Top>48.0pt</Top>
         <Style>
@@ -297,7 +303,7 @@ WHERE cash_expense.id=@id</CommandText>
         <Height>11.24pt</Height>
         <Width>55.73pt</Width>
         <Value>Получено:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>27.6pt</Left>
         <Top>119.7pt</Top>
         <Style>
@@ -403,7 +409,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>16.51pt</Height>
             <Width>150.58pt</Width>
             <Value>Подпись  ________________</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>7.00pt</Left>
             <Top>168.30pt</Top>
             <Style>
@@ -416,7 +422,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>24.80pt</Height>
             <Width>268.76pt</Width>
             <Value>=SummaString_Val(Convert.ToString(Fields!sum.Value))</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>6.10pt</Left>
             <Top>133.20pt</Top>
             <Style>
@@ -429,7 +435,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>Дата:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>3.8pt</Left>
             <Top>5.7pt</Top>
             <Style>
@@ -443,7 +449,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>12.00pt</Height>
             <Width>72.27pt</Width>
             <Value>Расход:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.4pt</Left>
             <Top>18.1pt</Top>
             <Style>
@@ -457,7 +463,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>Основание:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>3.3pt</Left>
             <Top>48.1pt</Top>
             <Style>
@@ -471,7 +477,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>11.24pt</Height>
             <Width>55.73pt</Width>
             <Value>Получено:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>27.1pt</Left>
             <Top>120.4pt</Top>
             <Style>
@@ -484,7 +490,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>Контрагент:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.8pt</Left>
             <Top>31.6pt</Top>
             <Style>
@@ -498,7 +504,7 @@ WHERE cash_expense.id=@id</CommandText>
             <Height>12.00pt</Height>
             <Width>196.37pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>79.70pt</Left>
             <Top>31.80pt</Top>
             <Style>
@@ -512,9 +518,15 @@ WHERE cash_expense.id=@id</CommandText>
         <Left>295.40pt</Left>
         <Top>0.00pt</Top>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
       </List>
     </ReportItems>

@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark
 			bool showOnlyCodeErrorStatusReceipts,
 			bool showOnlyReceiptSendErrorStatusReceipts)
 		{
-			if(_commonServices.UserService.GetCurrentUser(UoW).IsAdmin
+			if(_commonServices.UserService.GetCurrentUser().IsAdmin
 				|| allReceiptStatusesAvailable)
 			{
 				AvailableReceiptStatuses = AvailableReceiptStatuses.All;

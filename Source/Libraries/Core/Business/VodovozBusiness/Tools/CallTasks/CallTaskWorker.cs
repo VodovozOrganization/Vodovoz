@@ -78,7 +78,7 @@ namespace Vodovoz.Tools.CallTasks
 					}
 					catch(Exception ex)
 					{
-						var currUser = userService?.GetCurrentUser(uow);
+						var currUser = userService?.GetCurrentUser();
 						errorReporter?.AutomaticSendErrorReport($"Ошибка в {nameof(CallTaskWorker)}", currUser, ex);
 					}
 				}
