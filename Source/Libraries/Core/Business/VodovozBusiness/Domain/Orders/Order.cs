@@ -873,6 +873,9 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _logisticsRequirements, value);
 		}
 
+		#endregion
+
+		#region SecondOrderDiscount
 		private void IsSecondOrderSetter()
 		{
 			var closingDocumentDeliveryScheduleId = _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId;
@@ -891,8 +894,8 @@ namespace Vodovoz.Domain.Orders
 			var firstOrderAvailableStatuses = new OrderStatus[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
 			var firstOrder = UoW.GetAll<Order>()
-				.Where(o => 
-					o.Client == Client 
+				.Where(o =>
+					o.Client == Client
 					&& o.IsFirstOrder
 					&& firstOrderAvailableStatuses.Contains(o.OrderStatus))
 				.ToList();
@@ -928,6 +931,74 @@ namespace Vodovoz.Domain.Orders
 				: nextOrders.Count() == 0;
 		}
 
+		public virtual void UpdateClientSecondOrderDiscount(IOrderDiscountsController discountsController, int discountReasonId)
+		{
+			if(IsSecondOrder)
+			{
+				SetClientSecondOrderDiscount(discountsController, discountReasonId);
+				return;
+			}
+
+			ResetClientSecondOrderDiscount(discountsController, discountReasonId);
+		}
+
+		private void SetClientSecondOrderDiscount(IOrderDiscountsController discountsController, int discountReasonId)
+		{
+			if(IsSecondOrder)
+			{
+				foreach(var item in ObservableOrderItems)
+				{
+					if(item.DiscountReason?.Id != discountReasonId)
+					{
+						SetClientSecondOrderDiscount(discountsController, item, discountReasonId);
+					}
+				}
+			}
+		}
+
+		private void ResetClientSecondOrderDiscount(IOrderDiscountsController discountsController, int discountReasonId)
+		{
+			if(!IsSecondOrder)
+			{
+				var orderItemsHavingClientsSecondOrderDiscount = new List<OrderItem>();
+
+				foreach(var item in ObservableOrderItems)
+				{
+					if(item.DiscountReason?.Id == discountReasonId)
+					{
+						orderItemsHavingClientsSecondOrderDiscount.Add(item);
+					}
+				}
+				discountsController.RemoveDiscountFromOrder(orderItemsHavingClientsSecondOrderDiscount);
+			}
+		}
+
+		private void SetClientSecondOrderDiscount(IOrderDiscountsController discountsController, OrderItem orderItem, int discountReasonId)
+		{
+			if(!IsSecondOrder)
+			{
+				return;
+			}
+
+			if(orderItem.DiscountReason != null
+				|| orderItem.PromoSet != null)
+			{
+				return;
+			}
+
+			var discountReason = UoW.GetById<DiscountReason>(discountReasonId);
+
+			if(discountReason != null)
+			{
+				discountsController.SetDiscountFromDiscountReasonForOrderItem(discountReason, orderItem, true, out string message);
+
+				if(message != null)
+				{
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						$"Не удалось применить скидку для второго заказа клиента!");
+				}
+			}
+		}
 		#endregion
 
 		public virtual bool CanChangeContractor()
