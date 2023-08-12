@@ -36,6 +36,8 @@ namespace Vodovoz.Parameters
 			_parametersProvider.GetIntValue("discount_reason_stock_bottle_20_percents");
 		public int GetClientsSecondOrderDiscountReasonId => 
 			_parametersProvider.GetIntValue("clients_second_order_discount_reason_id");
+		public bool GetIsAddSecondOrderDiscountAvailable =>
+			_parametersProvider.GetValue<bool>("is_add_client_second_order_discount_available");
 
 		public int[] PaymentsByCardFromAvangard =>
 			new[]
