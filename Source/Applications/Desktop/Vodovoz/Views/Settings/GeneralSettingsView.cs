@@ -64,6 +64,14 @@ namespace Vodovoz.Views.Settings
 			ytableStopListProp.Binding
 				.AddBinding(ViewModel, vm => vm.CanSaveDriversStopListProperties, t => t.Sensitive)
 				.InitializeFromSource();
+
+			frameSecondOrderDiscount.Sensitive = ViewModel.CanSaveSecondOrderDiscountAvailability;
+
+			ycheckIsSecondOrderDiscountAvailable.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientsSecondOrderDiscountActive, v => v.Active)
+				.InitializeFromSource();
+
+			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
 		}
 	}
 }
