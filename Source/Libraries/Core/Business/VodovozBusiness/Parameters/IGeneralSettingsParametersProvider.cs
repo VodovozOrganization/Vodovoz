@@ -26,5 +26,7 @@ namespace Vodovoz.Parameters
 		int DriversRouteListsMaxDebtSum { get; }
 
 		void UpdateDriversRouteListsMaxDebtSum(decimal value);
+		bool GetIsClientsSecondOrderDiscountActive { get; }
+		void UpdateIsClientsSecondOrderDiscountActive(bool value);
 	}
 }

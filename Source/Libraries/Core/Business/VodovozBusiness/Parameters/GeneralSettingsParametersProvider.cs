@@ -14,6 +14,7 @@ namespace Vodovoz.Parameters
 		private const string _subdivisionsForAlternativePricesName = "SubdivisionsForAlternativePricesName";
 		private const string _driversUnclosedRouteListsHavingDebtMaxCount = "drivers_stop_list_unclosed_route_lists_max_count";
 		private const string _driversRouteListsMaxDebtSum = "drivers_stop_list_route_lists_max_debt_sum";
+		private const string _isClientsSecondOrderDiscountActive = "is_client_second_order_discount_active";
 
 		public GeneralSettingsParametersProvider(IParametersProvider parametersProvider)
 		{
@@ -96,5 +97,9 @@ namespace Vodovoz.Parameters
 
 		public void UpdateDriversRouteListsMaxDebtSum(decimal value) =>
 			_parametersProvider.CreateOrUpdateParameter(_driversRouteListsMaxDebtSum, value.ToString());
+		public bool GetIsClientsSecondOrderDiscountActive => _parametersProvider.GetValue<bool>(_isClientsSecondOrderDiscountActive);
+
+		public void UpdateIsClientsSecondOrderDiscountActive(bool value) =>
+			_parametersProvider.CreateOrUpdateParameter(_isClientsSecondOrderDiscountActive, value.ToString());
 	}
 }
