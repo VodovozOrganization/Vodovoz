@@ -80,6 +80,18 @@ namespace Vodovoz.Views.Settings
 
 		private global::Gtk.Label frameOrderAutoCommentLabel;
 
+		private global::Gtk.Frame frameSecondOrderDiscount;
+
+		private global::Gtk.Alignment GtkAlignment12;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox1;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonSaveIsSecondOrderDiscountAvailable;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckIsSecondOrderDiscountAvailable;
+
+		private global::Gtk.Label GtkLabelSecondOrderDiscount;
+
 		private global::Gtk.VBox vbox1;
 
 		private global::Vodovoz.Views.Settings.SubdivisionsSettingsView alternativePriceSubdivisionsView;
@@ -421,12 +433,59 @@ namespace Vodovoz.Views.Settings
 			w34.Position = 3;
 			w34.Expand = false;
 			w34.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.frameSecondOrderDiscount = new global::Gtk.Frame();
+			this.frameSecondOrderDiscount.Name = "frameSecondOrderDiscount";
+			this.frameSecondOrderDiscount.BorderWidth = ((uint)(1));
+			// Container child frameSecondOrderDiscount.Gtk.Container+ContainerChild
+			this.GtkAlignment12 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment12.Name = "GtkAlignment12";
+			this.GtkAlignment12.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment12.Gtk.Container+ContainerChild
+			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox1.Name = "yhbox1";
+			this.yhbox1.Spacing = 6;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.ybuttonSaveIsSecondOrderDiscountAvailable = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonSaveIsSecondOrderDiscountAvailable.CanFocus = true;
+			this.ybuttonSaveIsSecondOrderDiscountAvailable.Name = "ybuttonSaveIsSecondOrderDiscountAvailable";
+			this.ybuttonSaveIsSecondOrderDiscountAvailable.UseUnderline = true;
+			this.ybuttonSaveIsSecondOrderDiscountAvailable.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.yhbox1.Add(this.ybuttonSaveIsSecondOrderDiscountAvailable);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ybuttonSaveIsSecondOrderDiscountAvailable]));
+			w35.Position = 0;
+			w35.Expand = false;
+			w35.Fill = false;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.ycheckIsSecondOrderDiscountAvailable = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckIsSecondOrderDiscountAvailable.CanFocus = true;
+			this.ycheckIsSecondOrderDiscountAvailable.Name = "ycheckIsSecondOrderDiscountAvailable";
+			this.ycheckIsSecondOrderDiscountAvailable.Label = global::Mono.Unix.Catalog.GetString("Скидка на второй заказ включена");
+			this.ycheckIsSecondOrderDiscountAvailable.DrawIndicator = true;
+			this.ycheckIsSecondOrderDiscountAvailable.UseUnderline = true;
+			this.yhbox1.Add(this.ycheckIsSecondOrderDiscountAvailable);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.ycheckIsSecondOrderDiscountAvailable]));
+			w36.Position = 1;
+			w36.Expand = false;
+			w36.Fill = false;
+			this.GtkAlignment12.Add(this.yhbox1);
+			this.frameSecondOrderDiscount.Add(this.GtkAlignment12);
+			this.GtkLabelSecondOrderDiscount = new global::Gtk.Label();
+			this.GtkLabelSecondOrderDiscount.Name = "GtkLabelSecondOrderDiscount";
+			this.GtkLabelSecondOrderDiscount.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Настройка скидки на второй заказ</b>");
+			this.GtkLabelSecondOrderDiscount.UseMarkup = true;
+			this.frameSecondOrderDiscount.LabelWidget = this.GtkLabelSecondOrderDiscount;
+			this.vboxMain.Add(this.frameSecondOrderDiscount);
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.frameSecondOrderDiscount]));
+			w39.Position = 4;
+			w39.Expand = false;
+			w39.Fill = false;
 			w1.Add(this.vboxMain);
 			this.GtkScrolledWindow.Add(w1);
 			this.hboxMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.GtkScrolledWindow]));
-			w37.Position = 0;
-			w37.Expand = false;
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.GtkScrolledWindow]));
+			w42.Position = 0;
+			w42.Expand = false;
 			// Container child hboxMain.Gtk.Box+BoxChild
 			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
@@ -437,15 +496,15 @@ namespace Vodovoz.Views.Settings
 			this.alternativePriceSubdivisionsView.Events = ((global::Gdk.EventMask)(256));
 			this.alternativePriceSubdivisionsView.Name = "alternativePriceSubdivisionsView";
 			this.vbox1.Add(this.alternativePriceSubdivisionsView);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.alternativePriceSubdivisionsView]));
-			w38.Position = 0;
-			w38.Expand = false;
-			w38.Fill = false;
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.alternativePriceSubdivisionsView]));
+			w43.Position = 0;
+			w43.Expand = false;
+			w43.Fill = false;
 			this.hboxMain.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
-			w39.Position = 1;
-			w39.Expand = false;
-			w39.Fill = false;
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
+			w44.Position = 1;
+			w44.Expand = false;
+			w44.Fill = false;
 			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{
