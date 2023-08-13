@@ -21,7 +21,6 @@
 		int GetDiscountReasonStockBottle10PercentsId { get; }
 		int GetDiscountReasonStockBottle20PercentsId { get; }
 		int GetClientsSecondOrderDiscountReasonId { get; }
-		bool GetIsAddSecondOrderDiscountAvailable { get; }
 
 	}
 }
