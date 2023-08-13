@@ -75,6 +75,9 @@ namespace Vodovoz.Domain.Orders
 		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
 			new GeneralSettingsParametersProvider(new ParametersProvider());
 
+		private static readonly IOrderParametersProvider _orderParametersProvider =
+			new OrderParametersProvider(new ParametersProvider());
+
 		private static readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider =
 			new DeliveryScheduleParametersProvider(new ParametersProvider());
 
@@ -878,6 +881,11 @@ namespace Vodovoz.Domain.Orders
 		#region SecondOrderDiscount
 		private void IsSecondOrderSetter()
 		{
+			if(!_generalSettingsParameters.GetIsClientsSecondOrderDiscountActive)
+			{
+				return;
+			}
+
 			var closingDocumentDeliveryScheduleId = _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId;
 
 			if(IsFirstOrder || DeliverySchedule?.Id == closingDocumentDeliveryScheduleId)
@@ -931,8 +939,15 @@ namespace Vodovoz.Domain.Orders
 				: nextOrders.Count() == 0;
 		}
 
-		public virtual void UpdateClientSecondOrderDiscount(IOrderDiscountsController discountsController, int discountReasonId)
+		public virtual void UpdateClientSecondOrderDiscount(IOrderDiscountsController discountsController)
 		{
+			if(!_generalSettingsParameters.GetIsClientsSecondOrderDiscountActive)
+			{
+				return;
+			}
+
+			int discountReasonId = _orderParametersProvider.GetClientsSecondOrderDiscountReasonId;
+
 			if(IsSecondOrder)
 			{
 				SetClientSecondOrderDiscount(discountsController, discountReasonId);

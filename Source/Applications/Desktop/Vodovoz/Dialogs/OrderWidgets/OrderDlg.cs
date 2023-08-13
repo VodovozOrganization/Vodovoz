@@ -211,8 +211,6 @@ namespace Vodovoz
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 		private EdoContainer _selectedEdoContainer;
-		private int _clientsSecondOrderDiscountReasonId;
-		private bool _isAddSecondOrderDiscountAvailable;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -561,9 +559,6 @@ namespace Vodovoz
 			counterpartyContractFactory = new CounterpartyContractFactory(organizationProvider, counterpartyContractRepository);
 			_orderParametersProvider = new OrderParametersProvider(parametersProvider);
 			_dailyNumberController = new OrderDailyNumberController(_orderRepository, UnitOfWorkFactory.GetDefaultFactory);
-
-			_clientsSecondOrderDiscountReasonId = _orderParametersProvider.GetClientsSecondOrderDiscountReasonId;
-			_isAddSecondOrderDiscountAvailable = _orderParametersProvider.GetIsAddSecondOrderDiscountAvailable;
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclatureFixedPrice>(OnNomenclatureFixedPriceChanged);
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DeliveryPoint, Phone>(OnDeliveryPointChanged);
@@ -3607,79 +3602,8 @@ namespace Vodovoz
 
 		private void UpdateClientSecondOrderDiscount()
 		{
-			if(!_isAddSecondOrderDiscountAvailable)
-			{
-				return;
-			}
-
-			Entity.UpdateClientSecondOrderDiscount(_discountsController, _clientsSecondOrderDiscountReasonId);
-
-			//if(Entity.IsSecondOrder)
-			//{
-			//	SetClientSecondOrderDiscount();
-			//	return;
-			//}
-
-			//ResetClientSecondOrderDiscount();
+			Entity.UpdateClientSecondOrderDiscount(_discountsController);
 		}
-
-		//private void SetClientSecondOrderDiscount()
-		//{
-		//	if(Entity.IsSecondOrder)
-		//	{
-		//		foreach(var item in Entity.ObservableOrderItems)
-		//		{
-		//			if(item.DiscountReason?.Id != _clientsSecondOrderDiscountReasonId)
-		//			{
-		//				SetClientSecondOrderDiscount(item);
-		//			}
-		//		}
-		//	}
-		//}
-
-		//private void ResetClientSecondOrderDiscount()
-		//{
-		//	if(!Entity.IsSecondOrder)
-		//	{
-		//		var orderItemsHavingClientsSecondOrderDiscount = new List<OrderItem>();
-
-		//		foreach(var item in Entity.ObservableOrderItems)
-		//		{
-		//			if(item.DiscountReason?.Id == _clientsSecondOrderDiscountReasonId)
-		//			{
-		//				orderItemsHavingClientsSecondOrderDiscount.Add(item);
-		//			}
-		//		}
-		//		_discountsController.RemoveDiscountFromOrder(orderItemsHavingClientsSecondOrderDiscount);
-		//	}
-		//}
-
-		//private void SetClientSecondOrderDiscount(OrderItem orderItem)
-		//{
-		//	if(!Entity.IsSecondOrder)
-		//	{
-		//		return;
-		//	}
-
-		//	if(orderItem.DiscountReason != null
-		//		|| orderItem.PromoSet != null)
-		//	{
-		//		return;
-		//	}
-
-		//	var discountReason = UoW.GetById<DiscountReason>(_clientsSecondOrderDiscountReasonId);
-
-		//	if(discountReason != null)
-		//	{
-		//		_discountsController.SetDiscountFromDiscountReasonForOrderItem(discountReason, orderItem, true, out string message);
-
-		//		if(message != null)
-		//		{
-		//			ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-		//				$"Не удалось применить скидку для второго заказа клиента!");
-		//		}
-		//	}
-		//}
 
 		void Entity_UpdateClientCanChange(object aList, int[] aIdx)
 		{
