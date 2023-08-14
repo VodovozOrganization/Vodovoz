@@ -31,9 +31,9 @@ namespace Vodovoz.Views.BaseParameters
 				.AddBinding(vm => vm.SelectedSetting, v => v.SelectedRow)
 				.InitializeFromSource();
 
-			treeParameters.Selection.Changed += (s, e) => {
-				buttonDelete.Sensitive = (treeParameters.Selection.CountSelectedRows() > 0);
-			};
+			buttonDelete.Binding
+				.AddFuncBinding(ViewModel, vm => vm.SelectedSetting != null, v => v.Sensitive)
+				.InitializeFromSource();
 
 			buttonAdd.Clicked += (s, e) => ViewModel.AddParameterCommand?.Execute();
 			buttonDelete.Clicked += (s, e) => ViewModel.RemoveParameterCommand?.Execute();
