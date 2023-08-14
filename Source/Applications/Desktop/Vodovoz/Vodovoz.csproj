@@ -872,6 +872,7 @@
     <Compile Include="gtk-gui\Vodovoz.CarUnloadDocumentDlg.cs" />
     <Compile Include="Representations\WorkingDriversVM.cs" />
     <Compile Include="Representations\DriverRouteListAddressesVM.cs" />
+    <Compile Include="ViewWidgets\Reports\IncludeExludeFiltersView.cs" />
     <Compile Include="ViewWidgets\Store\ReturnsReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReturnsReceptionView.cs" />
     <Compile Include="Additions\Logistic\CarMarker.cs" />
@@ -2485,10 +2486,6 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QSWidgetLib\QSWidgetLib.csproj">
       <Project>{5a2bb01e-e124-432e-8099-d1343d3897b9}</Project>
       <Name>QSWidgetLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Vodovoz.Presentation.Gtk\Vodovoz.Presentation.Gtk.csproj">
-      <Project>{99311656-1c98-4633-9f98-a61a357c2b27}</Project>
-      <Name>Vodovoz.Presentation.Gtk</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj">
       <Project>{0107f13c-46e0-4008-8302-0b5cd71df14c}</Project>

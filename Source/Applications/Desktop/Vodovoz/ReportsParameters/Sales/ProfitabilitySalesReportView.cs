@@ -1,6 +1,6 @@
 ﻿using QS.Views;
-using Vodovoz.Presentation.Gtk.Common;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.ViewWidgets.Reports;
 
 namespace Vodovoz.Reports
 {

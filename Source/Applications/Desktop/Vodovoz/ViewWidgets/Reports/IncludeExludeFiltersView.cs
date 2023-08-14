@@ -3,7 +3,7 @@ using QS.Views.GtkUI;
 using System.ComponentModel;
 using Vodovoz.Presentation.ViewModels.Common;
 
-namespace Vodovoz.Presentation.Gtk.Common
+namespace Vodovoz.ViewWidgets.Reports
 {
 	[ToolboxItem(true)]
 	public partial class IncludeExludeFiltersView : WidgetViewBase<IncludeExludeFiltersViewModel>
@@ -53,7 +53,7 @@ namespace Vodovoz.Presentation.Gtk.Common
 
 			ViewModel.Filters.CollectionChanged += (s, e) => ytreeviewFilters.YTreeModel?.EmitModelChanged();
 
-			ytreeviewFilters.Selection.Mode = global::Gtk.SelectionMode.Single;
+			ytreeviewFilters.Selection.Mode = Gtk.SelectionMode.Single;
 
 			ytreeviewFilters.Binding
 				.AddBinding(ViewModel, vm => vm.ActiveFilter, w => w.SelectedRow)

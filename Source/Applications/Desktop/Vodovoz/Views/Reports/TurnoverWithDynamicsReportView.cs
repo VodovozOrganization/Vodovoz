@@ -7,8 +7,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Presentation.Gtk.Common;
 using Vodovoz.ViewModels.Reports.Sales;
+using Vodovoz.ViewWidgets.Reports;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
 
