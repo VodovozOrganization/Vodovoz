@@ -1,6 +1,7 @@
 ﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Services;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace Vodovoz.ViewModels.BaseParameters
 	public class BaseParametersViewModel : WindowDialogViewModelBase, IDisposable
 	{
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly ICommonServices _commonServices;
 		private readonly ISettingsController _settingsController;
 		public GenericObservableList<Setting> _settings;
 		private List<Setting> _settingsToDelete = new List<Setting>();
@@ -21,13 +23,14 @@ namespace Vodovoz.ViewModels.BaseParameters
 		public BaseParametersViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			INavigationManager navigation,
+			ICommonServices commonServices,
 			ISettingsController settingsController) : base(navigation)
 		{
 			if(unitOfWorkFactory is null)
 			{
 				throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			}
-
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
@@ -44,6 +47,30 @@ namespace Vodovoz.ViewModels.BaseParameters
 		{
 			get => _selectedSetting;
 			set => SetField(ref _selectedSetting, value);
+		}
+
+		private bool HasDuplicatedSettingsInList()
+		{
+			var duplicatedSettingNames = _settings
+				.GroupBy(s => s.Name)
+				.Where(sg => sg.Count() > 1)
+				.Select(sg => sg.Key)
+				.ToList();
+
+			if(duplicatedSettingNames.Count != 0)
+			{
+				foreach(var settingName in duplicatedSettingNames)
+				{
+					_commonServices.InteractiveService.ShowMessage(
+						QS.Dialog.ImportanceLevel.Warning,
+						$"Параметр \"{settingName}\" добавлен несколько раз"
+						);
+
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		#region Commands
@@ -120,10 +147,16 @@ namespace Vodovoz.ViewModels.BaseParameters
 
 		private void SaveParameters()
 		{
+			if(HasDuplicatedSettingsInList())
+			{
+				return;
+			}
+
 			foreach(var setting in _settings)
 			{
 				_unitOfWork.Save(setting);
 			}
+
 			foreach(var setting in _settingsToDelete)
 			{
 				_unitOfWork.Delete(setting);
