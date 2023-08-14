@@ -99,7 +99,7 @@ namespace Vodovoz.ViewWidgets.Reports
 			this.ycheckbuttonShowArchive = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonShowArchive.CanFocus = true;
 			this.ycheckbuttonShowArchive.Name = "ycheckbuttonShowArchive";
-			this.ycheckbuttonShowArchive.Label = global::Mono.Unix.Catalog.GetString("Показать\r\nАрхивные");
+			this.ycheckbuttonShowArchive.Label = global::Mono.Unix.Catalog.GetString("Показать\r\nархивные");
 			this.ycheckbuttonShowArchive.DrawIndicator = true;
 			this.ycheckbuttonShowArchive.UseUnderline = true;
 			this.hboxButtons.Add(this.ycheckbuttonShowArchive);
