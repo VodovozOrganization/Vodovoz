@@ -4,6 +4,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Domain.Documents.MovementDocuments;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Warehouses;
@@ -52,6 +53,10 @@ namespace Vodovoz.Views.Warehouse
 
 			#region Данные перевозчика
 
+			ytextviewTransporterBill.Binding.AddBinding(ViewModel.Entity, e => e.TransporterBill, v => v.Buffer.Text).InitializeFromSource();
+
+			yspinbuttonTransporterSum.Binding.AddBinding(ViewModel.Entity, e => e.TranporterSum, v => v.ValueAsDecimal).InitializeFromSource();
+
 			var builder = new LegacyEEVMBuilderFactory<MovementDocument>(
 				Tab,
 				ViewModel.Entity,
@@ -59,10 +64,16 @@ namespace Vodovoz.Views.Warehouse
 				ViewModel.NavigationManager,
 				ViewModel.Scope);
 
-			ViewModel.TransporterCounterpartyEntryViewModel = builder.ForProperty(x => x.TransporterCounterparty)
+			ViewModel.TransporterCounterpartyEntryViewModel = builder
+				.ForProperty(x => x.TransporterCounterparty)
 				.UseTdiEntityDialog()
-				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(filter =>
+				{
+					filter.CounterpartyType = Domain.Client.CounterpartyType.Supplier;
+				})
 				.Finish();
+
+			entityentryTransporterCounterparty.ViewModel = ViewModel.TransporterCounterpartyEntryViewModel;
 
 			#endregion
 
