@@ -1,28 +1,26 @@
-﻿using QS.BaseParameters.ViewModels;
-using QS.BaseParameters.Views;
-using QS.BaseParameters;
+﻿using Fias.Client;
+using Fias.Client.Cache;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QSOrmProject;
 using QSProjectsLib;
 using System;
-using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
-using Vodovoz.ServiceDialogs.Database;
-using QS.Dialog.Gtk;
-using Fias.Client.Cache;
-using Fias.Client;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
-using Vodovoz.ServiceDialogs;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain.Client;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
+using Vodovoz.ServiceDialogs;
+using Vodovoz.ServiceDialogs.Database;
+using Vodovoz.Services;
+using Vodovoz.ViewModels.BaseParameters;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Security;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Sale;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Security;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Users;
 
 public partial class MainWindow
 {
@@ -84,13 +82,7 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionParametersActivated(object sender, EventArgs e)
 	{
-		var baseParametersViewModel = new BaseParametersViewModel(
-			NavigationManager,
-			new ParametersService(QS.Project.DB.Connection.ConnectionDB));
-		var baseParametersView = new BaseParametersView(baseParametersViewModel);
-		baseParametersView.ShowAll();
-		baseParametersView.Run();
-		baseParametersView.Destroy();
+		NavigationManager.OpenViewModel<BaseParametersViewModel>(null);
 	}
 
 	#region Обслуживание
