@@ -504,6 +504,18 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
 					new[] { nameof(Comment) });
 			}
+
+			if(FirstWorkDay == null)
+			{
+				yield return new ValidationResult($"Не указана дата первого рабочего дня сотрудника",
+					new[] { nameof(FirstWorkDay) });
+			}
+
+			if(DateHired == null)
+			{
+				yield return new ValidationResult($"Не указана дата приема сотрудника",
+					new[] { nameof(DateHired) });
+			}
 		}
 
 		#endregion
