@@ -4,6 +4,7 @@ using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
@@ -14,7 +15,7 @@ namespace Vodovoz.ViewModels.BaseParameters
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ISettingsController _settingsController;
-		private List<Setting> _settings = new List<Setting>();
+		public GenericObservableList<Setting> _settings;
 		private List<Setting> _settingsToDelete = new List<Setting>();
 
 		public BaseParametersViewModel(
@@ -30,19 +31,19 @@ namespace Vodovoz.ViewModels.BaseParameters
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
-			_settings = _unitOfWork.GetAll<Setting>().ToList();
+			_settings = new GenericObservableList<Setting>(_unitOfWork.GetAll<Setting>().ToList());
 
 			Title = "Парметры приложения";
 		}
 
-		public List<Setting> Settings => _settings;
+		public GenericObservableList<Setting> Settings => _settings;
 
 		private Setting _selectedSetting;
 
 		public Setting SelectedSetting
 		{
-			get { return _selectedSetting; }
-			set { _selectedSetting = value; }
+			get => _selectedSetting;
+			set => SetField(ref _selectedSetting, value);
 		}
 
 		#region Commands
@@ -68,7 +69,6 @@ namespace Vodovoz.ViewModels.BaseParameters
 		private void AddParameter()
 		{
 			_settings.Add(new Setting { Name = "Новый параметр", StrValue = "Значение" });
-			OnPropertyChanged(nameof(Settings));
 		}
 		#endregion
 
@@ -98,7 +98,6 @@ namespace Vodovoz.ViewModels.BaseParameters
 
 			_settingsToDelete.Add(SelectedSetting);
 			_settings.Remove(SelectedSetting);
-			OnPropertyChanged(nameof(Settings));
 		}
 		#endregion
 
@@ -132,8 +131,34 @@ namespace Vodovoz.ViewModels.BaseParameters
 
 			_unitOfWork.Commit();
 
+			_settingsController.RefreshSettings();
+
 			Close(false, CloseSource.Save);
 		}
+		#endregion
+
+		#region CancelCommand
+		private DelegateCommand _cancelCommand;
+		public DelegateCommand CancelCommand
+		{
+			get
+			{
+				if(_cancelCommand == null)
+				{
+					_cancelCommand = new DelegateCommand(Cancel, () => CanCancel);
+					_cancelCommand.CanExecuteChangedWith(this, x => x.CanCancel);
+				}
+				return _cancelCommand;
+			}
+		}
+
+		public bool CanCancel => true;
+
+		private void Cancel()
+		{
+			Close(false, CloseSource.Cancel);
+		}
+
 		#endregion
 
 		#endregion
