@@ -1,11 +1,13 @@
 ﻿using Autofac;
 using DeliveryRulesService.Cache;
+using Fias.Client;
+using Fias.Client.Cache;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
@@ -13,23 +15,15 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
-using QS.Project.Repositories;
 using QS.Services;
-using System;
 using System.Linq;
 using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Fias.Client;
-using Fias.Client.Cache;
 using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.NhibernateExtensions;
-using Vodovoz.Parameters;
-using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.Settings.Database;
 
 namespace DeliveryRulesService
 {

@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Gamma.Utilities;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NHibernate;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -503,6 +503,18 @@ namespace Vodovoz.Domain.Employees
 			{
 				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
 					new[] { nameof(Comment) });
+			}
+
+			if(FirstWorkDay == null)
+			{
+				yield return new ValidationResult($"Не указана дата первого рабочего дня сотрудника",
+					new[] { nameof(FirstWorkDay) });
+			}
+
+			if(DateHired == null)
+			{
+				yield return new ValidationResult($"Не указана дата приема сотрудника",
+					new[] { nameof(DateHired) });
 			}
 		}
 

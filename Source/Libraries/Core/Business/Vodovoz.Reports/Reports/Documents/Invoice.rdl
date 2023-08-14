@@ -22,7 +22,8 @@
     (SELECT count(*) > 0
      FROM fast_payments fp
      WHERE (fp.order_id = orders.id
-         OR fp.external_id = orders.id)
+         OR fp.external_id = orders.id
+         OR fp.external_id = orders.online_order)
      AND fp.payment_status = 'Performed') AS fast_payment_paid,
 	IF(is_bottle_stock, 
 		orders.bottles_by_stock_count,
@@ -59,7 +60,8 @@
         (SELECT count(*) &gt; 0
          FROM fast_payments fp
          WHERE (fp.order_id = orders.id
-             OR fp.external_id = orders.id)
+             OR fp.external_id = orders.id
+             OR fp.external_id = orders.online_order)
          AND fp.payment_status = 'Performed'), 'СМС (QR-код)', 'По QR-коду (приложение водителя)')
 		WHEN 'PaidOnline' THEN 'Оплачено онлайн'
 		WHEN 'Barter' THEN 'Безденежно'
