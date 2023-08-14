@@ -132,10 +132,10 @@ namespace Vodovoz.ViewModel
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ReadyForShipmentVMNode>
 			.Create()
-			.AddColumn("Тип").SetDataProperty(node => node.TypeString)
+			.AddColumn("Тип").AddTextRenderer(node => node.TypeString)
 			.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
-			.AddColumn("Водитель").SetDataProperty(node => node.Driver)
-			.AddColumn("Машина").SetDataProperty(node => node.Car)
+			.AddColumn("Водитель").AddTextRenderer(node => node.Driver)
+			.AddColumn("Машина").AddTextRenderer(node => node.Car)
 			.AddColumn("Дата").AddTextRenderer(node => node.Date.ToShortDateString())
 			.AddColumn("Смена").AddTextRenderer(node => node.Shift)
 			.Finish();
@@ -153,7 +153,7 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<ReadyForShipmentVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && selectedNode.Status == RouteListStatus.InLoading)
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListControlDlg(selectedNode.Id)
 							);

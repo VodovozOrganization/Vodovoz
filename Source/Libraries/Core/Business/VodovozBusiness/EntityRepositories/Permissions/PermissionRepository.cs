@@ -113,7 +113,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 
 		public bool HasAccessToClosingRoutelist(IUnitOfWork uow, ISubdivisionRepository subdivisionRepository , IEmployeeRepository employeeRepository, IUserService userService)
 		{
-			return userService.GetCurrentUser(uow).IsAdmin
+			return userService.GetCurrentUser().IsAdmin
 				|| subdivisionRepository.GetCashSubdivisions(uow).Contains(employeeRepository.GetEmployeeForCurrentUser(uow).Subdivision);
 		}
 

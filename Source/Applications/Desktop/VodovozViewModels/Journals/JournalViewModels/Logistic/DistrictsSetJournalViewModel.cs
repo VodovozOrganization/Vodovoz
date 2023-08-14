@@ -131,7 +131,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			CreateStartOnlineDeliveriesTodayAction();
 			CreateStopOnlineDeliveriesTodayAction();
 			
-			if(commonServices.UserService.GetCurrentUser(UoW).IsAdmin) {
+			if(commonServices.UserService.GetCurrentUser().IsAdmin) {
 				CreateDefaultDeleteAction();
 			}
 		}

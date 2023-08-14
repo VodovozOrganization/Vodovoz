@@ -12,9 +12,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using IRouteListModel = DriverAPI.Library.Deprecated2.Models.IRouteListModel;
 
 namespace DriverAPI.Controllers.V2
 {
+	/// <summary>
+	/// Контроллер регистраций событий
+	/// </summary>
 	[ApiVersion("2.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -29,6 +33,17 @@ namespace DriverAPI.Controllers.V2
 		private readonly ITrackPointsModel _trackPointsData;
 		private readonly IActionTimeHelper _actionTimeHelper;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="userManager"></param>
+		/// <param name="employeeData"></param>
+		/// <param name="driverMobileAppActionRecordModel"></param>
+		/// <param name="aPIRouteListData"></param>
+		/// <param name="trackPointsData"></param>
+		/// <param name="actionTimeHelper"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public RegistrationsController(
 			ILogger<RegistrationsController> logger,
 			UserManager<IdentityUser> userManager,
@@ -49,7 +64,8 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт записи логов действий в БД
+		/// Регистрация действий произведенных в мобильном приложении водителей
+		/// Отключено
 		/// </summary>
 		/// <param name="driverActionModels">Список действий из лога для регистрации</param>
 		/// <returns></returns>
@@ -60,7 +76,11 @@ namespace DriverAPI.Controllers.V2
 			await Task.CompletedTask;
 		}
 
-		// POST: RegisterRouteListAddressCoordinates
+		/// <summary>
+		/// Регистрация предположительных координат адреса
+		/// </summary>
+		/// <param name="routeListAddressCoordinate"></param>
+		/// <returns></returns>
 		[HttpPost]
 		[Route("RegisterRouteListAddressCoordinates")]
 		public async Task RegisterRouteListAddressCoordinateAsync([FromBody] RouteListAddressCoordinateDto routeListAddressCoordinate)
@@ -102,7 +122,7 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт регистрации координат трека
+		/// Регистрация координат трека
 		/// </summary>
 		/// <param name="registerTrackCoordinateRequestModel"></param>
 		/// <returns></returns>

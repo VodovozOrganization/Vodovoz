@@ -31,7 +31,8 @@ namespace Vodovoz
 
 			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
 				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress).WrapMode(Pango.WrapMode.WordChar).WrapWidth(1000)
-				.AddColumn("Номер").AddTextRenderer(x => x.Id.ToString())
+				.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+				.AddColumn("Фикс. цены").AddToggleRenderer(node => node.HasFixedPrices).Editing(false)
 				.AddColumn("")
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.IsActive ? "black" : "red")
 				.Finish();

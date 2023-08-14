@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -317,7 +317,7 @@ GROUP BY orders.id</CommandText>
         <Width>238.85pt</Width>
         <Value>Унифицированная форма № ТОРГ-12
 Утверждена постановлением Госкомстата России от 25.12.98 № 132</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>545.1pt</Left>
         <Top>7.4pt</Top>
         <Style>
@@ -1628,7 +1628,7 @@ GROUP BY orders.id</CommandText>
             <Height>10.53pt</Height>
             <Width>173.43pt</Width>
             <Value>Товарная накладная имеет приложение на</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>129.2pt</Left>
             <Top>12.8pt</Top>
             <Style>
@@ -1642,7 +1642,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.79pt</Height>
             <Width>52.60pt</Width>
             <Value>и содержит</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>130.8pt</Left>
             <Top>25.9pt</Top>
             <Style>
@@ -1656,7 +1656,7 @@ GROUP BY orders.id</CommandText>
             <Height>15.03pt</Height>
             <Width>96.32pt</Width>
             <Value>Масса груза (нетто)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>304.6pt</Left>
             <Top>40.9pt</Top>
             <Style>
@@ -1670,7 +1670,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>223.40pt</Width>
             <Value>={@PageNumber} + " листах"</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>306.7pt</Left>
             <Top>12.1pt</Top>
             <Style>
@@ -1686,7 +1686,7 @@ GROUP BY orders.id</CommandText>
             <Height>15.03pt</Height>
             <Width>96.32pt</Width>
             <Value>Масса груза (брутто)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>305.1pt</Left>
             <Top>53.7pt</Top>
             <Style>
@@ -1700,7 +1700,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.28pt</Height>
             <Width>52.82pt</Width>
             <Value>Всего мест</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>129.9pt</Left>
             <Top>39.7pt</Top>
             <Style>
@@ -1714,7 +1714,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>116.15pt</Width>
             <Value>прописью</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>178.0pt</Left>
             <Top>49.2pt</Top>
             <Style>
@@ -1732,7 +1732,7 @@ GROUP BY orders.id</CommandText>
             <Height>9.00pt</Height>
             <Width>235.40pt</Width>
             <Value>прописью</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>389.0pt</Left>
             <Top>49.3pt</Top>
             <Style>
@@ -1750,7 +1750,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>235.40pt</Width>
             <Value>прописью</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>389.3pt</Left>
             <Top>62.8pt</Top>
             <Style>
@@ -1768,7 +1768,7 @@ GROUP BY orders.id</CommandText>
             <Height>15.03pt</Height>
             <Width>205.68pt</Width>
             <Value>Приложения (паспорта, сертификаты и т.п.) на</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>62.2pt</Top>
             <Style>
@@ -1782,7 +1782,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>111.65pt</Width>
             <Value>прописью</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>186.4pt</Left>
             <Top>71.2pt</Top>
             <Style>
@@ -1800,7 +1800,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>36.27pt</Width>
             <Value>листах</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>299.3pt</Left>
             <Top>62.9pt</Top>
             <Style>
@@ -1814,7 +1814,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>99.27pt</Width>
             <Value>Отпуск груза разрешил</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>111.3pt</Top>
             <Style>
@@ -1828,7 +1828,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>130.02pt</Width>
             <Value>Главный (старший) бухгалтер</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>130.7pt</Top>
             <Style>
@@ -1843,7 +1843,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>97.77pt</Width>
             <Value>Отпуск груза произвел</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>149.6pt</Top>
             <Style>
@@ -1857,7 +1857,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.03pt</Height>
             <Width>118.82pt</Width>
             <Value>Генеральный директор</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>98.1pt</Left>
             <Top>104.6pt</Top>
             <Style>
@@ -1874,7 +1874,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>116.15pt</Width>
             <Value>должность</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>98.4pt</Left>
             <Top>117.0pt</Top>
             <Style>
@@ -1891,7 +1891,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>119.15pt</Width>
             <Value>должность</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>98.6pt</Left>
             <Top>159.8pt</Top>
             <Style>
@@ -1909,7 +1909,7 @@ GROUP BY orders.id</CommandText>
             <Height>9.00pt</Height>
             <Width>108.65pt</Width>
             <Value>подпись</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>225.9pt</Left>
             <Top>116.6pt</Top>
             <Style>
@@ -1927,7 +1927,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>108.65pt</Width>
             <Value>подпись</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>227.1pt</Left>
             <Top>159.8pt</Top>
             <Style>
@@ -1945,7 +1945,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>108.65pt</Width>
             <Value>подпись</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>226.7pt</Left>
             <Top>139.9pt</Top>
             <Style>
@@ -1963,7 +1963,7 @@ GROUP BY orders.id</CommandText>
             <Height>15.03pt</Height>
             <Width>106.07pt</Width>
             <Value>={leader_last_name} + " " + {leader_name} + "." + {leader_patronymic}+ "."</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>345.0pt</Left>
             <Top>102.2pt</Top>
             <Style>
@@ -1980,7 +1980,7 @@ GROUP BY orders.id</CommandText>
             <Height>9.00pt</Height>
             <Width>108.65pt</Width>
             <Value>расшифровка подписи</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>345.3pt</Left>
             <Top>117.0pt</Top>
             <Style>
@@ -1997,7 +1997,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>108.65pt</Width>
             <Value>расшифровка подписи</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>345.3pt</Left>
             <Top>159.8pt</Top>
             <Style>
@@ -2015,7 +2015,7 @@ GROUP BY orders.id</CommandText>
             <Height>15.03pt</Height>
             <Width>107.57pt</Width>
             <Value>={buh_last_name} + " " + {buh_name} + "." + {buh_patronymic}+ "."</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>344.5pt</Left>
             <Top>125.5pt</Top>
             <Style>
@@ -2032,7 +2032,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>108.65pt</Width>
             <Value>расшифровка подписи</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>345.6pt</Left>
             <Top>140.3pt</Top>
             <Style>
@@ -2060,7 +2060,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.40pt</Height>
             <Width>82.14pt</Width>
             <Value>По доверенности №</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>460.10pt</Left>
             <Top>73.40pt</Top>
             <Style>
@@ -2074,7 +2074,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.28pt</Height>
             <Width>100.57pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>545.0pt</Left>
             <Top>71.5pt</Top>
             <Style>
@@ -2090,7 +2090,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.03pt</Height>
             <Width>106.07pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>667.0pt</Left>
             <Top>70.4pt</Top>
             <Style>
@@ -2106,7 +2106,7 @@ GROUP BY orders.id</CommandText>
             <Height>10.50pt</Height>
             <Width>13.77pt</Width>
             <Value>от</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>650.50pt</Left>
             <Top>72.80pt</Top>
             <Style>
@@ -2120,7 +2120,7 @@ GROUP BY orders.id</CommandText>
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>выданной</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>459.8pt</Left>
             <Top>89.4pt</Top>
             <Style>
@@ -2134,7 +2134,7 @@ GROUP BY orders.id</CommandText>
             <Height>9.00pt</Height>
             <Width>279.65pt</Width>
             <Value>кем, кому (организация, должность, фамилия, и.о.)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>505.5pt</Left>
             <Top>97.1pt</Top>
             <Style>
@@ -2152,7 +2152,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>279.65pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>505.6pt</Left>
             <Top>104.9pt</Top>
             <Style>
@@ -2168,7 +2168,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>279.65pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>505.5pt</Left>
             <Top>117.3pt</Top>
             <Style>
@@ -2184,7 +2184,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>61.77pt</Width>
             <Value>Груз принял</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>458.5pt</Left>
             <Top>132.0pt</Top>
             <Style>
@@ -2198,7 +2198,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>77.90pt</Width>
             <Value>должность</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>515.3pt</Left>
             <Top>144.1pt</Top>
             <Style>
@@ -2216,7 +2216,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>67.40pt</Width>
             <Value>подпись</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>604.0pt</Left>
             <Top>144.4pt</Top>
             <Style>
@@ -2234,7 +2234,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>104.15pt</Width>
             <Value>расшифровка подписи</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>681.4pt</Left>
             <Top>144.1pt</Top>
             <Style>
@@ -2253,7 +2253,7 @@ GROUP BY orders.id</CommandText>
             <Width>85.02pt</Width>
             <Value>Груз получил
 грузополучатель</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>459.4pt</Left>
             <Top>148.0pt</Top>
             <Style>
@@ -2267,7 +2267,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>77.90pt</Width>
             <Value>должность</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>531.4pt</Left>
             <Top>168.1pt</Top>
             <Style>
@@ -2285,7 +2285,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>67.40pt</Width>
             <Value>подпись</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>616.1pt</Left>
             <Top>168.4pt</Top>
             <Style>
@@ -2303,7 +2303,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>95.15pt</Width>
             <Value>расшифровка подписи</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>690.3pt</Left>
             <Top>168.1pt</Top>
             <Style>
@@ -2321,7 +2321,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>26.52pt</Width>
             <Value>М.П.</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>78.4pt</Left>
             <Top>172.7pt</Top>
             <Style>
@@ -2334,7 +2334,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>27.27pt</Width>
             <Value>={order_date}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>140.9pt</Left>
             <Top>173.4pt</Top>
             <Style>
@@ -2349,7 +2349,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>88.02pt</Width>
             <Value>={order_date}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>166.5pt</Left>
             <Top>174.0pt</Top>
             <Style>
@@ -2366,7 +2366,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>28.02pt</Width>
             <Value>={order_date}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>257.0pt</Left>
             <Top>174.1pt</Top>
             <Style>
@@ -2381,7 +2381,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>26.52pt</Width>
             <Value>М.П.</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>474.4pt</Left>
             <Top>182.1pt</Top>
             <Style>
@@ -2394,7 +2394,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>27.27pt</Width>
             <Value>"    "</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>512.1pt</Left>
             <Top>179.7pt</Top>
             <Style>
@@ -2407,7 +2407,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>94.77pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>540.7pt</Left>
             <Top>180.5pt</Top>
             <Style>
@@ -2422,7 +2422,7 @@ GROUP BY orders.id</CommandText>
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>20     года</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>642.6pt</Left>
             <Top>181.6pt</Top>
             <Style>
@@ -2436,7 +2436,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>72.27pt</Width>
             <Value>года</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>283.6pt</Left>
             <Top>174.3pt</Top>
             <Style>
@@ -2451,7 +2451,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>389.15pt</Width>
             <Value>=SummaString_Val(Convert.ToString(Sum(Round(Fields!item_price.Value * Fields!count.Value - {item_discount_money}, 2), "Goods")))</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>85.1pt</Top>
             <Style>
@@ -2468,7 +2468,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.28pt</Height>
             <Width>123.18pt</Width>
             <Value>Всего отпущено на сумму</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>74.8pt</Top>
             <Style>
@@ -2483,7 +2483,7 @@ GROUP BY orders.id</CommandText>
             <Height>9.00pt</Height>
             <Width>387.65pt</Width>
             <Value>прописью</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>97.2pt</Top>
             <Style>
@@ -2500,7 +2500,7 @@ GROUP BY orders.id</CommandText>
             <Height>10pt</Height>
             <Width>101.52pt</Width>
             <Value>Всего по накладной</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>290.00pt</Left>
             <Top>0.00pt</Top>
             <Style>
@@ -2515,7 +2515,7 @@ GROUP BY orders.id</CommandText>
             <Height>10.00pt</Height>
             <Width>26.52pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>392.60pt</Left>
             <Top>0.00pt</Top>
             <Style>
@@ -2534,7 +2534,7 @@ GROUP BY orders.id</CommandText>
             <Height>10.00pt</Height>
             <Width>47.52pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>419.60pt</Left>
             <Top>0.00pt</Top>
             <Style>
@@ -2553,7 +2553,7 @@ GROUP BY orders.id</CommandText>
             <Height>10.00pt</Height>
             <Width>52.77pt</Width>
             <Value>=Sum({count}, "Goods")</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>467.50pt</Left>
             <Top>0.00pt</Top>
             <Style>
@@ -2577,7 +2577,7 @@ GROUP BY orders.id</CommandText>
             <Height>10.00pt</Height>
             <Width>52.77pt</Width>
             <Value>X</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>520.5pt</Left>
             <Top>0.0pt</Top>
             <Style>
@@ -2598,7 +2598,7 @@ GROUP BY orders.id</CommandText>
             <Height>10.00pt</Height>
             <Width>66.27pt</Width>
             <Value>=Sum({item_price} * {count} - {include_nds} *(1 - {item_discount} / 100) - {item_discount_money}, "Goods")</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>573.0pt</Left>
             <Top>0.0pt</Top>
             <Style>
@@ -2622,7 +2622,7 @@ GROUP BY orders.id</CommandText>
             <Height>10.00pt</Height>
             <Width>40.77pt</Width>
             <Value>X</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>639.00pt</Left>
             <Top>0.00pt</Top>
             <Style>
@@ -2643,7 +2643,7 @@ GROUP BY orders.id</CommandText>
             <Height>10.00pt</Height>
             <Width>38.52pt</Width>
             <Value>=Iif({?without_vat}, "", Sum({include_nds}, "Goods"))</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>679.30pt</Left>
             <Top>0.00pt</Top>
             <Style>
@@ -2667,7 +2667,7 @@ GROUP BY orders.id</CommandText>
             <Height>10.00pt</Height>
             <Width>52.77pt</Width>
             <Value>=Sum({item_price} * {count} - {item_discount_money}, "Goods")</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>717.50pt</Left>
             <Top>0.00pt</Top>
             <Style>
@@ -2691,7 +2691,7 @@ GROUP BY orders.id</CommandText>
             <Height>9.00pt</Height>
             <Width>359.15pt</Width>
             <Value>прописью</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>214.30pt</Left>
             <Top>34.80pt</Top>
             <Style>
@@ -2708,7 +2708,7 @@ GROUP BY orders.id</CommandText>
             <Height>10.54pt</Height>
             <Width>120.85pt</Width>
             <Value>порядковых номеров записей</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>534.6pt</Left>
             <Top>24.0pt</Top>
             <Style>
@@ -2722,7 +2722,7 @@ GROUP BY orders.id</CommandText>
             <Height>11.25pt</Height>
             <Width>350.15pt</Width>
             <Value>=String_Val(Convert.ToString(Count({id}, "Goods")))</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>179.5pt</Left>
             <Top>23.5pt</Top>
             <Style>
@@ -2740,7 +2740,7 @@ GROUP BY orders.id</CommandText>
             <Height>14.25pt</Height>
             <Width>142.77pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>632.8pt</Left>
             <Top>34.2pt</Top>
             <Style>
@@ -2765,7 +2765,7 @@ GROUP BY orders.id</CommandText>
             <Height>13.50pt</Height>
             <Width>142.77pt</Width>
             <Value></Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>632.8pt</Left>
             <Top>48.0pt</Top>
             <Style>
@@ -2818,7 +2818,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>78.27pt</Width>
             <Value>подпись клиента</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>397.7pt</Left>
             <Top>208.3pt</Top>
             <Style>
@@ -2837,7 +2837,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>85.02pt</Width>
             <Value>расшифровка подписи</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>483.3pt</Left>
             <Top>208.0pt</Top>
             <Style>
@@ -2856,7 +2856,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>78.27pt</Width>
             <Value>подпись водителя</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>579.3pt</Left>
             <Top>207.6pt</Top>
             <Style>
@@ -2875,7 +2875,7 @@ GROUP BY orders.id</CommandText>
             <Height>12.00pt</Height>
             <Width>85.02pt</Width>
             <Value>расшифровка подписи</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>667.2pt</Left>
             <Top>207.7pt</Top>
             <Style>
@@ -2892,26 +2892,24 @@ GROUP BY orders.id</CommandText>
           </Textbox>
         </ReportItems>
         <Style>
-          <BorderStyle>
-            <Default>Dotted</Default>
-            <Left>Dotted</Left>
-            <Right>Dotted</Right>
-            <Top>Dotted</Top>
-            <Bottom>Dotted</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-          <BackgroundGradientEndColor></BackgroundGradientEndColor>
-          <BackgroundColor></BackgroundColor>
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
-        <ZIndex>3</ZIndex>
+        <ZIndex>0</ZIndex>
       </List>
       <Textbox Name="Textbox37">
         <Height>12pt</Height>
         <Width>92pt</Width>
         <Value>Вид операции</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>620.3pt</Left>
         <Top>192.1pt</Top>
         <Style>
@@ -2925,7 +2923,7 @@ GROUP BY orders.id</CommandText>
         <Height>12.01pt</Height>
         <Width>130.25pt</Width>
         <Value>ТОВАРНАЯ НАКЛАДНАЯ</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>214.9pt</Left>
         <Top>190.6pt</Top>
         <Style>
@@ -3054,7 +3052,7 @@ GROUP BY orders.id</CommandText>
         <Height>12.75pt</Height>
         <Width>125.10pt</Width>
         <Value>Транспортная накладная</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>536.5pt</Left>
         <Top>171.0pt</Top>
         <Style>
@@ -3068,7 +3066,7 @@ GROUP BY orders.id</CommandText>
         <Height>11.25pt</Height>
         <Width>65.46pt</Width>
         <Value>="Страница " + {@PageNumber}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>718.1pt</Left>
         <Top>205.8pt</Top>
         <Style>
@@ -3082,7 +3080,7 @@ GROUP BY orders.id</CommandText>
         <Height>22pt</Height>
         <Width>650pt</Width>
         <Value>=First({org_name},"Order") + Iif(First({org_inn},"Order") != null and First({org_inn},"Order") != "", ", ИНН " + First({org_inn},"Order"), "") + Iif(First({org_address},"Order") != null and First({org_address},"Order") != "", ", " + First({org_address},"Order"), "") + Iif(First({org_phone_number},"Order") != null and First({org_phone_number},"Order") != "", ", тел: " + First({org_phone_number},"Order"), "") + Iif(First({org_acc_number},"Order") != null and First({org_acc_number},"Order") != "", ", р/с " + First({org_acc_number},"Order"), "") + Iif(First({org_bank_name},"Order") != null and First({org_bank_name},"Order") != "", ", в банке " + First({org_bank_name},"Order"), "") + Iif(First({org_bank_bik},"Order") != null and First({org_bank_bik},"Order") != "", ", БИК " + First({org_bank_bik},"Order"), "") + Iif(First({org_bank_cor_account},"Order") != null and First({org_bank_cor_account},"Order") != "", ", к/с " + First({org_bank_cor_account},"Order"), "")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.6pt</Left>
         <Top>30.1pt</Top>
         <Style>
@@ -3098,7 +3096,7 @@ GROUP BY orders.id</CommandText>
         <Height>9.76pt</Height>
         <Width>650pt</Width>
         <Value>грузоотправитель, адрес, номер телефона, банковские реквизиты</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.6pt</Left>
         <Top>52.1pt</Top>
         <Style>
@@ -3113,7 +3111,7 @@ GROUP BY orders.id</CommandText>
         <Height>11pt</Height>
         <Width>650pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.6pt</Left>
         <Top>59.9pt</Top>
         <Style>
@@ -3129,7 +3127,7 @@ GROUP BY orders.id</CommandText>
         <Height>9.76pt</Height>
         <Width>650pt</Width>
         <Value>структурное подразделение</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.6pt</Left>
         <Top>70.6pt</Top>
         <Style>
@@ -3145,7 +3143,7 @@ GROUP BY orders.id</CommandText>
         <Width>555.75pt</Width>
         <Value>=
 First({cargo_receiver}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>105.4pt</Left>
         <Top>83.3pt</Top>
         <Style>
@@ -3169,7 +3167,7 @@ Iif(First({org_acc_number}, "Order") != null and First({org_acc_number}, "Order"
 Iif(First({org_bank_name}, "Order") != null and First({org_bank_name}, "Order") != "", ", в банке " + First({org_bank_name}, "Order"), "") + 
 Iif(First({org_bank_bik}, "Order") != null and First({org_bank_bik}, "Order") != "", ", БИК " + First({org_bank_bik}, "Order"), "") + 
 Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_account}, "Order") != "", ", к/с " + First({org_bank_cor_account}, "Order"), "")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>105.4pt</Left>
         <Top>103.3pt</Top>
         <Style>
@@ -3186,7 +3184,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>20.00pt</Height>
         <Width>94.50pt</Width>
         <Value>Грузополучатель</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.6pt</Left>
         <Top>83.3pt</Top>
         <Style>
@@ -3203,7 +3201,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>20.00pt</Height>
         <Width>94.50pt</Width>
         <Value>Поставщик</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.6pt</Left>
         <Top>103.3pt</Top>
         <Style>
@@ -3220,7 +3218,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>20.00pt</Height>
         <Width>94.50pt</Width>
         <Value>Плательщик</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.6pt</Left>
         <Top>123.3pt</Top>
         <Style>
@@ -3245,7 +3243,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
  + Iif(First({client_bank_name}, "Order") != null and First({client_bank_name}, "Order")  != "", ", в банке " + First({client_bank_name}, "Order"), "") 
  + Iif(First({client_bank_bik}, "Order") != null and First({client_bank_bik}, "Order") != "", ", БИК " + First({client_bank_bik}, "Order"), "") 
  + Iif(First({client_bank_cor_account}, "Order") != null and First({client_bank_cor_account}, "Order") != "", ", к/с " + First({client_bank_cor_account}, "Order"), "")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>105.4pt</Left>
         <Top>123.1pt</Top>
         <Style>
@@ -3262,7 +3260,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>13.25pt</Height>
         <Width>94.50pt</Width>
         <Value>Основание</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.6pt</Left>
         <Top>145.7pt</Top>
         <Style>
@@ -3279,7 +3277,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.00pt</Height>
         <Width>555.75pt</Width>
         <Value>="по договору " + First({contract_number}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>105.40pt</Left>
         <Top>146.50pt</Top>
         <Style>
@@ -3296,7 +3294,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>9.01pt</Height>
         <Width>555.75pt</Width>
         <Value>договор, заказ-наряд</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>105.40pt</Left>
         <Top>160.10pt</Top>
         <Style>
@@ -3311,7 +3309,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>21.50pt</Height>
         <Width>42.90pt</Width>
         <Value>0330212</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>40.50pt</Top>
         <Style>
@@ -3340,7 +3338,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
         <Value>Коды</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>28.00pt</Top>
         <Style>
@@ -3363,7 +3361,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>23.00pt</Height>
         <Width>42.90pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>62.00pt</Top>
         <Style>
@@ -3392,7 +3390,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>85.00pt</Top>
         <Style>
@@ -3421,7 +3419,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>97.50pt</Top>
         <Style>
@@ -3450,7 +3448,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>110.00pt</Top>
         <Style>
@@ -3479,7 +3477,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>21.50pt</Height>
         <Width>58.65pt</Width>
         <Value>Форма по ОКУД</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>671.6pt</Left>
         <Top>40.5pt</Top>
         <Style>
@@ -3509,7 +3507,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Width>61.65pt</Width>
         <Value>Вид деятель-
 ности по ОКДП</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>668.4pt</Left>
         <Top>62.0pt</Top>
         <Style>
@@ -3538,7 +3536,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>58.65pt</Width>
         <Value>по ОКПО</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>671.6pt</Left>
         <Top>85.0pt</Top>
         <Style>
@@ -3567,7 +3565,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>58.65pt</Width>
         <Value>по ОКПО</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>671.6pt</Left>
         <Top>97.5pt</Top>
         <Style>
@@ -3596,7 +3594,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>58.65pt</Width>
         <Value>по ОКПО</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>671.6pt</Left>
         <Top>110.0pt</Top>
         <Style>
@@ -3625,7 +3623,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>122.50pt</Top>
         <Style>
@@ -3654,7 +3652,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>58.65pt</Width>
         <Value>по ОКПО</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>671.6pt</Left>
         <Top>122.5pt</Top>
         <Style>
@@ -3683,7 +3681,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>135.00pt</Top>
         <Style>
@@ -3712,7 +3710,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>160.00pt</Top>
         <Style>
@@ -3741,7 +3739,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>58.65pt</Width>
         <Value>Номер</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>671.6pt</Left>
         <Top>135.0pt</Top>
         <Style>
@@ -3770,7 +3768,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>58.65pt</Width>
         <Value>Дата</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>671.6pt</Left>
         <Top>147.5pt</Top>
         <Style>
@@ -3799,7 +3797,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>147.50pt</Top>
         <Style>
@@ -3828,7 +3826,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>42.90pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>172.50pt</Top>
         <Style>
@@ -3857,7 +3855,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>58.65pt</Width>
         <Value>Номер</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>671.6pt</Left>
         <Top>160.0pt</Top>
         <Style>
@@ -3886,7 +3884,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>12.50pt</Height>
         <Width>58.65pt</Width>
         <Value>Дата</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>671.6pt</Left>
         <Top>172.5pt</Top>
         <Style>
@@ -3915,7 +3913,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Height>8.75pt</Height>
         <Width>42.90pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>730.30pt</Left>
         <Top>185.00pt</Top>
         <Style>
@@ -4666,7 +4664,7 @@ Public Function SummaString_Val(ByVal Summa As String) As String
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

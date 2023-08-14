@@ -10,6 +10,8 @@ namespace Vodovoz.Infrastructure.Database
 
 		public Guid? BaseGuid { get; }
 
+		public Version Version { get; }
+
 		public DatabaseInfo(string name, bool isDemo = false)
 		{
 			Name = name;

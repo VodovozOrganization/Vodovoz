@@ -15,12 +15,4 @@ namespace Vodovoz.Domain.Goods
 		[Display(Name = "Товары.Аксессуары")]
 		Goods_Accessory
 	}
-
-	public class MobileCatalogStringType : NHibernate.Type.EnumStringType
-	{
-		public MobileCatalogStringType() : base(typeof(MobileCatalog))
-		{
-		}
-	}
-
 }

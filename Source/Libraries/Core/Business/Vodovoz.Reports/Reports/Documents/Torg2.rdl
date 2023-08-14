@@ -24,7 +24,7 @@
         <Value>Унифицированная форма № ТОРГ- 2
 Утверждена постановлением Госкомстата
 России от 25.12.98 г. № 132</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>363.4pt</Left>
         <Top>4.7pt</Top>
         <Style>
@@ -1093,7 +1093,7 @@
                   <ReportItems>
                     <Textbox Name="Textbox60">
                       <Value>=Format(First({order_date}, "OrderDocument"), "dd.MM.yy")</Value>
-                      <ZIndex>1</ZIndex>
+                      <ZIndex>0</ZIndex>
                       <Style>
                         <BorderStyle>
                           <Left>Solid</Left>
@@ -1412,7 +1412,7 @@
         <Value>АКТ
 ОБ УСТАНОВЛЕННОМ РАСХОЖДЕНИИ ПО КОЛИЧЕСТВУ
 И КАЧЕСТВУ ПРИ ПРИЕМКЕ ТОВАРНО-МАТЕРИАЛЬНЫХ ЦЕННОСТЕЙ</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>59.2pt</Left>
         <Top>310.8pt</Top>
         <Style>
@@ -3155,7 +3155,7 @@
         <Height>49.71pt</Height>
         <Width>544.27pt</Width>
         <Value>    Сведения о состоянии вагонов, автофургонов и т.д. Наличие, описание установленных ярлыков, пломб транспорта на отдельных местах (сертификатов, спецификации в вагоне, контейнере) фактически ____________________________________________________________________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>21.6pt</Left>
         <Top>1205.6pt</Top>
         <Style>
@@ -5555,7 +5555,7 @@
         <Height>24.00pt</Height>
         <Width>432.87pt</Width>
         <Value>Условия хранения товара (продукции) до его вскрытия на складе получателя:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.5pt</Left>
         <Top>1655.8pt</Top>
         <Style>
@@ -5612,7 +5612,7 @@
         <Height>22.54pt</Height>
         <Width>575.17pt</Width>
         <Value>Сведения о температуре при разгрузке в вагоне (рефрижераторе и т.д.) в товаре, 0С ___________________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>6.3pt</Left>
         <Top>1737.0pt</Top>
         <Style>
@@ -5627,7 +5627,7 @@
         <Height>33.80pt</Height>
         <Width>577.39pt</Width>
         <Value>        Состояние тары и упаковки, маркировка мест, товара и тары в момент внешнего осмотра товара                  (продукции)          ________________________________________________________________________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>6.10pt</Left>
         <Top>1763.40pt</Top>
         <Style>
@@ -5684,7 +5684,7 @@
         <Height>32.42pt</Height>
         <Width>567.59pt</Width>
         <Value>Содержание наружной маркировки тары и другие данные, на основании которых можно сделать выводы о том, в чьей упаковке предъявлен товар (производителя или отправителя) _________________________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.5pt</Left>
         <Top>1862.2pt</Top>
         <Style>
@@ -5741,7 +5741,7 @@
         <Height>21.80pt</Height>
         <Width>282.31pt</Width>
         <Value> Дата вскрытия тары  "    " ____________  ______ г.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.0pt</Left>
         <Top>1953.8pt</Top>
         <Style>
@@ -5756,7 +5756,7 @@
         <Height>36.85pt</Height>
         <Width>563.10pt</Width>
         <Value>Организация, которая взвесила и опломбировала отгруженный товар, исправность пломб и содержание оттисков, соответствие пломб товаросопроводительным документам ______________________________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>11.6pt</Left>
         <Top>1982.4pt</Top>
         <Style>
@@ -5785,7 +5785,7 @@
         <Height>31.58pt</Height>
         <Width>554.86pt</Width>
         <Value>        Порядок отбора товара (продукции) для выборочной проверки с указанием ГОСТ, особых условий  поставки по договору (контракту), основание выборочной проверки:  _____________________________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>11.7pt</Left>
         <Top>2041.1pt</Top>
         <Style>
@@ -9717,7 +9717,7 @@
         <Height>21.79pt</Height>
         <Width>323.77pt</Width>
         <Value>Определение количества товара (продукции) проводилось</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>7.00pt</Left>
         <Top>2510.80pt</Top>
         <Style>
@@ -9732,7 +9732,7 @@
         <Height>11.26pt</Height>
         <Width>201.73pt</Width>
         <Value>(взвешиванием, счетом мест, обмером и т. п.,</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>360.00pt</Left>
         <Top>2526.50pt</Top>
         <Style>
@@ -9775,7 +9775,7 @@
         <Height>14.99pt</Height>
         <Width>221.33pt</Width>
         <Value>(место определения количества товара (продукции))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>192.70pt</Left>
         <Top>2563.80pt</Top>
         <Style>
@@ -9804,7 +9804,7 @@
         <Height>35.31pt</Height>
         <Width>571.40pt</Width>
         <Value>        Взвешивание товаров (продукции) проводилось на исправных весах, проверенных в установленном порядке. Сведение об исправности весоизмерительных приборов (тип весов, год клеймения)  _________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>9.4pt</Left>
         <Top>2603.1pt</Top>
         <Style>
@@ -9847,7 +9847,7 @@
         <Height>20.29pt</Height>
         <Width>86.62pt</Width>
         <Value>Другие данные </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>22.8pt</Left>
         <Top>2679.0pt</Top>
         <Style>
@@ -9904,7 +9904,7 @@
         <Height>27.85pt</Height>
         <Width>557.90pt</Width>
         <Value>    По остальным товарно-материальным ценностям, перечисленным в сопроводительных документах поставщика, расхождений в количестве и качестве нет.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>13.7pt</Left>
         <Top>2740.2pt</Top>
         <Style>
@@ -9919,7 +9919,7 @@
         <Height>33.73pt</Height>
         <Width>567.59pt</Width>
         <Value>        Подробное описание дефектов (характер недостачи, излишков, ненадлежащего качества, брака, боя) и мнение комиссии о причинах их образования _____________________________________________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>9.1pt</Left>
         <Top>2776.7pt</Top>
         <Style>
@@ -9990,7 +9990,7 @@
         <Height>20.30pt</Height>
         <Width>125.03pt</Width>
         <Value>Заключение комиссии</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>60.20pt</Left>
         <Top>2893.70pt</Top>
         <Style>
@@ -10089,7 +10089,7 @@
         <Height>30.11pt</Height>
         <Width>565.32pt</Width>
         <Value>            Члены комиссии предупреждены об ответственности за подписание акта, содержащего данные, не соответствующие действительности.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>14.8pt</Left>
         <Top>3028.4pt</Top>
         <Style>
@@ -10104,7 +10104,7 @@
         <Height>19.53pt</Height>
         <Width>155.88pt</Width>
         <Value>Председатель комиссии</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>7.4pt</Left>
         <Top>3066.1pt</Top>
         <Style>
@@ -10133,7 +10133,7 @@
         <Height>13.51pt</Height>
         <Width>118.19pt</Width>
         <Value>(место работы, должность)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>191.0pt</Left>
         <Top>3079.8pt</Top>
         <Style>
@@ -10162,7 +10162,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>(подпись)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>357.9pt</Left>
         <Top>3079.8pt</Top>
         <Style>
@@ -10177,7 +10177,7 @@
         <Height>12.02pt</Height>
         <Width>97.13pt</Width>
         <Value>(расшифровка подписи)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>453.8pt</Left>
         <Top>3079.8pt</Top>
         <Style>
@@ -10220,7 +10220,7 @@
         <Height>13.51pt</Height>
         <Width>118.19pt</Width>
         <Value>(место работы, должность)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>191.9pt</Left>
         <Top>3108.7pt</Top>
         <Style>
@@ -10249,7 +10249,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>(подпись)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>359.6pt</Left>
         <Top>3108.7pt</Top>
         <Style>
@@ -10264,7 +10264,7 @@
         <Height>12.02pt</Height>
         <Width>97.13pt</Width>
         <Value>(расшифровка подписи)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>454.7pt</Left>
         <Top>3108.7pt</Top>
         <Style>
@@ -10307,7 +10307,7 @@
         <Height>13.51pt</Height>
         <Width>118.19pt</Width>
         <Value>(место работы, должность)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>190.6pt</Left>
         <Top>3140.1pt</Top>
         <Style>
@@ -10336,7 +10336,7 @@
         <Height>12.00pt</Height>
         <Width>72.27pt</Width>
         <Value>(подпись)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>358.3pt</Left>
         <Top>3140.1pt</Top>
         <Style>
@@ -10351,7 +10351,7 @@
         <Height>12.02pt</Height>
         <Width>97.13pt</Width>
         <Value>(расшифровка подписи)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>453.4pt</Left>
         <Top>3140.1pt</Top>
         <Style>
@@ -10394,7 +10394,7 @@
         <Height>13.51pt</Height>
         <Width>118.19pt</Width>
         <Value>(место работы, должность)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>189.3pt</Left>
         <Top>3169.6pt</Top>
         <Style>
@@ -10423,7 +10423,7 @@
         <Height>12.00pt</Height>
         <Width>72.27pt</Width>
         <Value>(подпись)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>357.0pt</Left>
         <Top>3169.6pt</Top>
         <Style>
@@ -10438,7 +10438,7 @@
         <Height>12.02pt</Height>
         <Width>97.13pt</Width>
         <Value>(расшифровка подписи)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>452.1pt</Left>
         <Top>3169.6pt</Top>
         <Style>
@@ -10467,7 +10467,7 @@
         <Height>18.75pt</Height>
         <Width>99.38pt</Width>
         <Value>Члены комиссии:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.3pt</Left>
         <Top>3094.1pt</Top>
         <Style>
@@ -10482,7 +10482,7 @@
         <Height>17.24pt</Height>
         <Width>352.33pt</Width>
         <Value>Представитель грузоотправителя (поставщика, производителя)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>7.2pt</Left>
         <Top>3199.9pt</Top>
         <Style>
@@ -10511,7 +10511,7 @@
         <Height>13.51pt</Height>
         <Width>118.19pt</Width>
         <Value>(место работы, должность)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>104.4pt</Left>
         <Top>3234.6pt</Top>
         <Style>
@@ -10540,7 +10540,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>(подпись)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>345.7pt</Left>
         <Top>3234.6pt</Top>
         <Style>
@@ -10555,7 +10555,7 @@
         <Height>12.02pt</Height>
         <Width>97.13pt</Width>
         <Value>(расшифровка подписи)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>440.0pt</Left>
         <Top>3234.6pt</Top>
         <Style>
@@ -10584,7 +10584,7 @@
         <Height>18.76pt</Height>
         <Width>292.09pt</Width>
         <Value>№ _________ от "___" _______________  ______ г.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.9pt</Left>
         <Top>3278.4pt</Top>
         <Style>
@@ -10600,7 +10600,7 @@
         <Width>325.98pt</Width>
         <Value>Акт с приложением на _____ листах получил
 </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>7.1pt</Left>
         <Top>3303.4pt</Top>
         <Style>
@@ -10615,7 +10615,7 @@
         <Height>23.30pt</Height>
         <Width>170.91pt</Width>
         <Value>Главный (старший) бухгалтер</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.8pt</Left>
         <Top>3325.9pt</Top>
         <Style>
@@ -10630,7 +10630,7 @@
         <Height>12.73pt</Height>
         <Width>95.60pt</Width>
         <Value>(расшифровка подписи)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>301.3pt</Left>
         <Top>3339.2pt</Top>
         <Style>
@@ -10673,7 +10673,7 @@
         <Height>14.26pt</Height>
         <Width>43.68pt</Width>
         <Value>(подпись)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>195.1pt</Left>
         <Top>3339.7pt</Top>
         <Style>
@@ -10688,7 +10688,7 @@
         <Height>18.77pt</Height>
         <Width>155.88pt</Width>
         <Value>Решение руководителя </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.7pt</Left>
         <Top>3359.0pt</Top>
         <Style>
@@ -12418,7 +12418,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

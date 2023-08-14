@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using QS.Project.Services.FileDialog;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -34,6 +35,7 @@ namespace Vodovoz.ViewModels.Logistic
 	public class RouteListAnalysisViewModel : EntityTabViewModelBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
@@ -69,7 +71,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListItemRepository routeListItemRepository,
 			IWageParameterService wageParameterService,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
-			IUndeliveredOrdersJournalOpener undeliveryViewOpener)
+			IUndeliveredOrdersJournalOpener undeliveryViewOpener,
+			IFileDialogService fileDialogService)
 			: base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
@@ -88,6 +91,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_subdivisionParametersProvider =
 				subdivisionParametersProvider ?? throw new ArgumentNullException(nameof(subdivisionParametersProvider));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
 			UndeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -188,7 +192,8 @@ namespace Vodovoz.ViewModels.Logistic
 						_orderSelectorFactory,
 						UndeliveredOrdersRepository,
 						_employeeSettings,
-						_subdivisionParametersProvider
+						_subdivisionParametersProvider,
+						_fileDialogService
 					);
 
 					dlg.TabClosed += (s,e) => UpdateTreeAddresses?.Invoke();

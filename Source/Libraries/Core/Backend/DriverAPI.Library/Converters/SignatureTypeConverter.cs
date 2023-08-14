@@ -3,8 +3,17 @@ using Vodovoz.Domain.Orders;
 
 namespace DriverAPI.Library.Converters
 {
+	/// <summary>
+	/// Конвертер типа подписания заказа
+	/// </summary>
 	public class SignatureTypeConverter
 	{
+		/// <summary>
+		/// Метод конвертации в DTO
+		/// </summary>
+		/// <param name="signatureType">Подписание документов</param>
+		/// <returns></returns>
+		/// <exception cref="ConverterException"></exception>
 		public SignatureDtoType? ConvertToApiSignatureType(OrderSignatureType? signatureType)
 		{
 			if (signatureType == null)

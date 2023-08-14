@@ -17,11 +17,4 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Секция", ShortName = "сек.")]
 		Section
 	}
-
-	public class RoomTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public RoomTypeStringType() : base(typeof(RoomType))
-		{
-		}
-	}
 }

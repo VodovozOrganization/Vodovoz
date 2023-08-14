@@ -9,7 +9,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
       </ConnectionProperties>
     </DataSource>
@@ -1092,7 +1092,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         <Height>18.02pt</Height>
         <Width>93.30pt</Width>
         <Value>СЕВЕР:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.4pt</Left>
         <Top>206.1pt</Top>
         <Style>
@@ -1110,7 +1110,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         <Height>18.02pt</Height>
         <Width>93.30pt</Width>
         <Value>ЮГ:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>13.6pt</Left>
         <Top>31.8pt</Top>
         <Style>
@@ -1128,7 +1128,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         <Height>21.04pt</Height>
         <Width>463.01pt</Width>
         <Value>="Отчет по необходимым товарам для отгрузки на " +  Format(Convert.ToDateTime({?date}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>108.0pt</Left>
         <Top>6.7pt</Top>
         <Style>

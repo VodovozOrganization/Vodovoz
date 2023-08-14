@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
@@ -79,11 +79,6 @@ namespace Vodovoz.EntityRepositories.Goods
 		/// </summary>
 		int GetIdentifierOfOnlineShopGroup();
 		decimal GetWaterPriceIncrement { get; }
-		decimal GetPurchasePrice(IUnitOfWork uow, int routeListId, DateTime date);
-		decimal GetInnerDeliveryPrice(IUnitOfWork uow, int routeListId, DateTime date);
-		RouteExpensesNode GetOtherRouteExpenses(
-			IUnitOfWork uow, int routeListId, decimal administrativeExpenses, decimal routeExpenses);
-		decimal GetWarehouseExpensesForRoute(IUnitOfWork uow, int routeListId, decimal warehouseExpenses);
 		Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId);
 		bool Has19LWater(IUnitOfWork uow, int[] nomenclaturesIds);
 		IList<NomenclatureOnlineParametersNode> GetNomenclaturesOnlineParametersForSend(

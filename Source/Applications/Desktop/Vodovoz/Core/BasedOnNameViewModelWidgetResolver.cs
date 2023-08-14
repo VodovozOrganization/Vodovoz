@@ -4,17 +4,17 @@ using QS.Tdi;
 using System.Reflection;
 using QS.HistoryLog;
 using QS.Banks.Domain;
+using QS.Views.Resolve;
 
 namespace Vodovoz.Core
 {
 	public class BasedOnNameViewModelWidgetResolver : ViewModelWidgetResolver
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private Assembly[] usedAssemblies;
+		private readonly Assembly[] _usedAssemblies;
 
 		public BasedOnNameViewModelWidgetResolver()
 		{
-			usedAssemblies = new Assembly[] {
+			_usedAssemblies = new Assembly[] {
 				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
 				Assembly.GetAssembly(typeof(Bank)),
@@ -30,7 +30,7 @@ namespace Vodovoz.Core
 				return base.Resolve(tab);
 			} catch(WidgetResolveException ex) {
 				try {
-					var baseOnNameResolver = new BasedOnNameTDIResolver(usedAssemblies);
+					var baseOnNameResolver = new BasedOnNameTDIResolver(new ClassNamesBaseGtkViewResolver(new ViewFactory(), _usedAssemblies));
 					return baseOnNameResolver.Resolve(tab);
 				} catch(Exception e) {
 					throw new InvalidProgramException($"Невозможно найти View для ViewModel вкладки: {tab.TabName}. Имя класса ViewModel: {tab.GetType()} не соответствует шаблону именования или не настроено правильное сопоставление");

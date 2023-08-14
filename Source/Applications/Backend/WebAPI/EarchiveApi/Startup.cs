@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace EarchiveApi
 {
@@ -27,7 +27,7 @@ namespace EarchiveApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddSingleton(x =>
-				new MySqlConnection(GetCOnnectionString()));
+				new MySqlConnection(GetConnectionString()));
 
 			services.AddGrpc();
 
@@ -60,7 +60,7 @@ namespace EarchiveApi
 			});
 		}
 
-		private string GetCOnnectionString()
+		private string GetConnectionString()
 		{
 			var connectionStringBuilder = new MySqlConnectionStringBuilder();
 			var domainDbConfig = Configuration.GetSection("DomainDB");
@@ -72,7 +72,7 @@ namespace EarchiveApi
 			connectionStringBuilder.SslMode = MySqlSslMode.Disabled;
 			connectionStringBuilder.DefaultCommandTimeout = domainDbConfig.GetValue<uint>("DefaultTimeout");
 
-			return connectionStringBuilder.GetConnectionString(true);
+			return connectionStringBuilder.ConnectionString;
 		}
 	}
 }

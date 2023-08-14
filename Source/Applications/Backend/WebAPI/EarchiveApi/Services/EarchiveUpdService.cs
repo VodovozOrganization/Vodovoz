@@ -1,12 +1,12 @@
-﻿using Grpc.Core;
-using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
-using System;
-using System.Threading.Tasks;
-using Polly;
-using EarchiveApi.Extensions;
-using System.Linq;
+﻿using EarchiveApi.Extensions;
+using Grpc.Core;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using MySqlConnector;
+using Polly;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EarchiveApi.Services
 {

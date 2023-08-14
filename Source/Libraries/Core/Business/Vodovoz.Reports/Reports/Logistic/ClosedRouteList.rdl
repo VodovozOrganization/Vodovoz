@@ -18,7 +18,7 @@
         <Height>16pt</Height>
         <Width>559.42pt</Width>
         <Value>="Маршрутный лист №" + {?RouteListId}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>100.0pt</Left>
         <Top>0.0pt</Top>
         <Style>
@@ -58,7 +58,7 @@
           <BorderWidth />
           <TextAlign>Left</TextAlign>
         </Style>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
       </Textbox>
     </ReportItems>
   </PageHeader>
@@ -70,7 +70,7 @@
         <Height>10pt</Height>
         <Width>807.54pt</Width>
         <Value>="Логист: " + First({LogisticanLastname}, 'RouteList') + " " + First({LogisticanName}, 'RouteList')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.75pt</Top>
         <Style>
@@ -1523,9 +1523,15 @@
         <Left>0.00pt</Left>
         <Top>145.90pt</Top>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <DataSetName>TotalInfo</DataSetName>
         <ReportItems>
@@ -1533,7 +1539,7 @@
             <Height>10.00pt</Height>
             <Width>296.62pt</Width>
             <Value>="Зарплата водителя: " + {driver_wage}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.8pt</Left>
             <Top>4.00pt</Top>
             <Style>
@@ -1550,7 +1556,7 @@
             <Height>10.00pt</Height>
             <Width>183.63pt</Width>
             <Value>="Зарплата экспедитора :" + {forwarder_wage}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.8pt</Left>
             <Top>28.3pt</Top>
             <Style>
@@ -1564,7 +1570,7 @@
             <Height>18pt</Height>
             <Width>117.43pt</Width>
             <Value>="Итог:" + {cash}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>547.9pt</Left>
             <Top>4.6pt</Top>
             <Style>
@@ -1578,7 +1584,7 @@
             <Height>10pt</Height>
             <Width>164.85pt</Width>
             <Value>="Всего бутылей:" + {full_bottles}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>313.0pt</Left>
             <Top>4.0pt</Top>
             <Style>
@@ -1592,7 +1598,7 @@
             <Height>10.00pt</Height>
             <Width>183.65pt</Width>
             <Value>="Пустых бутылей:" + {empty_bottles}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>313.0pt</Left>
             <Top>14.2pt</Top>
             <Style>
@@ -1606,7 +1612,7 @@
             <Height>10.00pt</Height>
             <Width>296.62pt</Width>
             <Value>="Из них доплата: " + {driver_wage_surcharge}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.80pt</Left>
             <Top>13.70pt</Top>
             <Style>
@@ -2010,7 +2016,7 @@ WHERE
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

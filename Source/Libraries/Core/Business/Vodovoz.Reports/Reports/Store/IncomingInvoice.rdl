@@ -1289,7 +1289,7 @@ WHERE i.incoming_invoice_id = @document_id</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

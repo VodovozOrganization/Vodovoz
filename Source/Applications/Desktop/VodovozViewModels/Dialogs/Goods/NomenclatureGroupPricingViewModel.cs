@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Models;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {

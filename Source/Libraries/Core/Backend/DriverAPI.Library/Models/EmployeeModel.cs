@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.Employees;
 
 namespace DriverAPI.Library.Models
 {
-	public class EmployeeModel : IEmployeeModel
+	internal class EmployeeModel : IEmployeeModel
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IEmployeeRepository _employeeRepository;

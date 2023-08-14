@@ -9,6 +9,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Services;
 using Vodovoz.Settings;
+using static Vodovoz.EntityRepositories.Orders.OrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
@@ -119,8 +120,6 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		OrderStatus[] GetUndeliveryStatuses();
 
-		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Order order);
-
 		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);
 
 		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId);
@@ -143,7 +142,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<NotFullyPaidOrderNode> GetAllNotFullyPaidOrdersByClientAndOrg(
 			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId);
 		PaymentType GetCurrentOrderPaymentTypeInDB(IUnitOfWork uow, int orderId);
-		IList<Order> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime? startDate, int organizationId);
+		IList<Order> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime startDate, int organizationId);
 		IList<EdoContainer> GetPreparingToSendEdoContainers(IUnitOfWork uow, DateTime startDate, int organizationId);
 		EdoContainer GetEdoContainerByMainDocumentId(IUnitOfWork uow, string mainDocId);
 		EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId);
@@ -152,6 +151,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<Order> GetOrdersWithSendErrorsForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId);
 		decimal GetIsAccountableInTrueMarkOrderItemsCount(IUnitOfWork uow, int orderId);
 		IList<TrueMarkApiDocument> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId);
+		IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters);
 	}
 
 	public class ClientEquipmentNode

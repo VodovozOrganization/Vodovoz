@@ -5,7 +5,7 @@
 		<toolitem name='ActionImportPaymentsByCard' action='ActionImportPaymentsByCard'/>
 		<toolitem name='ActionImportPaymentsFromAvangard' action='ActionImportPaymentsFromAvangard'/>
 		<toolitem name='ActionUnallocatedBalancesJournal' action='ActionUnallocatedBalancesJournal'/>
-		<toolitem name='ActionAccountingTable' action='ActionAccountingTable'/>
+		<!-- <toolitem name='ActionAccountingTable' action='ActionAccountingTable'/> -->
 		<!-- <toolitem name='ActionAccountFlow' action='ActionAccountFlow'/> -->
 		<toolitem name='ActionRevision' action='ActionRevision'/>
         <toolitem name='ActionExportTo1c' action='ActionExportTo1c'/>

@@ -14,7 +14,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class UnallocatedBalancesJournalFilterViewModel : FilterViewModelBase<UnallocatedBalancesJournalFilterViewModel>, IJournalFilterViewModel
+	public class UnallocatedBalancesJournalFilterViewModel : FilterViewModelBase<UnallocatedBalancesJournalFilterViewModel>
 	{
 		private readonly IInteractiveMessage _interactiveMessage;
 		private Counterparty _counterparty;
@@ -39,7 +39,7 @@ namespace Vodovoz.Filters.ViewModels
 		public INavigationManager NavigationManager { get; }
 		public ITdiTab JournalTab { get; }
 
-		public bool IsShow { get; set; } = true;
+		public override bool IsShow { get; set; } = true;
 
 		public Counterparty Counterparty
 		{

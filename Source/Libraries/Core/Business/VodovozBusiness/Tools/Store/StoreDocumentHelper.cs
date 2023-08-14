@@ -65,11 +65,12 @@ namespace Vodovoz.Tools.Store
 			}
 
 			var permission =
-				WarehousePermissions.WarehousePermissions.Where(x =>
-					x.WarehousePermissionType == WarehousePermissionsType.WarehouseView);
+				WarehousePermissions.WarehousePermissions.Where(x => x.WarehousePermissionType == WarehousePermissionsType.WarehouseView);
 			var permissionEdit = WarehousePermissions.WarehousePermissions.Where(x => x.WarehousePermissionType == edit);
-			if(warehouses.Any(x => permission.SingleOrDefault(y => y.Warehouse.Id == x.Id).PermissionValue.Value
-								   || permissionEdit.SingleOrDefault(y => y.Warehouse.Id == x.Id).PermissionValue.Value))
+
+			if(warehouses.Any(warehouse =>
+				permission.Any(x => x.Warehouse.Id == warehouse.Id && x.PermissionValue.HasValue && x.PermissionValue.Value)
+					|| permissionEdit.Any(x => x.Warehouse.Id == warehouse.Id && x.PermissionValue.HasValue && x.PermissionValue.Value)))
 			{
 				return false;
 			}
@@ -90,8 +91,11 @@ namespace Vodovoz.Tools.Store
 			if(warehouses.Any())
 			{
 				if(warehouses.Any(
-						x => WarehousePermissions.WarehousePermissions.SingleOrDefault(
-							y => y.WarehousePermissionType == edit && y.Warehouse.Id == x.Id).PermissionValue.Value))
+					warehouse => WarehousePermissions.WarehousePermissions.FirstOrDefault(
+						x => x.WarehousePermissionType == edit
+							&& x.Warehouse.Id == warehouse.Id
+							&& x.PermissionValue.HasValue
+							&& x.PermissionValue.Value) != null))
 				{
 					return false;
 				}

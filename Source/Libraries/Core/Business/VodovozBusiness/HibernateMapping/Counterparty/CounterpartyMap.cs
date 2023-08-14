@@ -3,7 +3,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HibernateMapping
 {
-	public class CounterpartyMap : ClassMap<Vodovoz.Domain.Client.Counterparty>
+	public class CounterpartyMap : ClassMap<Domain.Client.Counterparty>
 	{
 		public CounterpartyMap()
 		{
@@ -30,9 +30,9 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.SignatoryBaseOf).Column("signatory_base_of");
 			Map(x => x.PhoneFrom1c).Column("phone_from_1c");
 			Map(x => x.PaymentMethod).Column("payment_method").CustomType<PaymentTypeStringType>();
-			Map(x => x.PersonType).Column("person_type").CustomType<PersonTypeStringType>();
+			Map(x => x.PersonType).Column("person_type");
 			Map(x => x.NewBottlesNeeded).Column("need_new_bottles");
-			Map(x => x.DefaultDocumentType).Column("default_document_type").CustomType<DefaultDocumentTypeStringType>();
+			Map(x => x.DefaultDocumentType).Column("default_document_type");
 			Map(x => x.VodovozInternalId).Column("vod_internal_id").ReadOnly();
 			Map(x => x.UseSpecialDocFields).Column("use_special_doc_fields");
 			Map(x => x.AlwaysPrintInvoice).Column("always_print_invoice");
@@ -54,23 +54,24 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Torg12Count).Column("torg12_count");
 			Map(x => x.ShetFacturaCount).Column("shet_factura_count");
 			Map(x => x.CarProxyCount).Column("car_proxy_count");
-			Map(x => x.CounterpartyType).Column("counterparty_type").CustomType<CounterpartyTypeStringType>();
+			Map(x => x.CounterpartyType).Column("counterparty_type");
+			Map(x => x.CounterpartySubtype).Column("counterparty_subtype");
 			Map(x => x.IsChainStore).Column("is_chain_store");
-            Map(x => x.IsForRetail).Column("is_for_retail");
-            Map(x => x.IsForSalesDepartment).Column("is_for_sales_department");
+			Map(x => x.IsForRetail).Column("is_for_retail");
+			Map(x => x.IsForSalesDepartment).Column("is_for_sales_department");
 			Map(x => x.NoPhoneCall).Column("no_phone_call");
-            Map(x => x.CargoReceiverSource).Column("cargo_receiver_source").CustomType<CargoReceiverTypeStringType>();
+			Map(x => x.CargoReceiverSource).Column("cargo_receiver_source");
 			Map(x => x.DelayDaysForProviders).Column("delay_days");
 			Map(x => x.DelayDaysForBuyers).Column("delay_days_for_buyers");
 			Map(x => x.TechnicalProcessingDelay).Column("delay_days_for_technical_processing");
-			Map(x => x.TaxType).Column("tax_type").CustomType<TaxTypeStringType>();
+			Map(x => x.TaxType).Column("tax_type");
 			Map(x => x.CreateDate).Column("create_date");
 			Map(x => x.AlwaysSendReceipts).Column("always_send_receipts");
 			Map(x => x.RoboatsExclude).Column("roboats_exclude");
-			Map(x => x.ReasonForLeaving).Column("reason_for_leaving").CustomType<ReasonForLeavingStringType>();
-			Map(x => x.RegistrationInChestnyZnakStatus).Column("registration_in_chestny_znak_status").CustomType<RegistrationInChestnyZnakStatusStringType>();
-			Map(x => x.OrderStatusForSendingUpd).Column("order_status_for_sending_upd").CustomType<OrderStatusForSendingUpdStringType>();
-			Map(x => x.ConsentForEdoStatus).Column("consent_for_edo_status").CustomType<ConsentForEdoStatusStringType>();
+			Map(x => x.ReasonForLeaving).Column("reason_for_leaving");
+			Map(x => x.RegistrationInChestnyZnakStatus).Column("registration_in_chestny_znak_status");
+			Map(x => x.OrderStatusForSendingUpd).Column("order_status_for_sending_upd");
+			Map(x => x.ConsentForEdoStatus).Column("consent_for_edo_status");
 			Map(x => x.IsPaperlessWorkflow).Column("is_paperless_workflow");
 			Map(x => x.IsNotSendDocumentsByEdo).Column("is_not_send_documents_by_edo");
 			Map(x => x.CanSendUpdInAdvance).Column("can_send_upd_in_advance");
@@ -82,6 +83,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.FirstName).Column("first_name");
 			Map(x => x.Patronymic).Column("patronymic");
 			Map(x => x.NeedSendBillByEdo).Column("need_send_bill_by_edo");
+			Map(x => x.DefaultExpenseCategoryId).Column("default_financial_expense_category_id");
 
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
@@ -90,7 +92,6 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.BottlesManager).Column("bottles_manager_id");
 			References(x => x.MainContact).Column("main_contact_id");
 			References(x => x.FinancialContact).Column("financial_contact_id");
-			References(x => x.DefaultExpenseCategory).Column("default_cash_expense_category_id");
 			References(x => x.CameFrom).Column("counterparty_camefrom_id");
 			References(x => x.FirstOrder).Column("first_order_id");
 			References(x => x.CloseDeliveryPerson).Column("close_delivery_employee_id");

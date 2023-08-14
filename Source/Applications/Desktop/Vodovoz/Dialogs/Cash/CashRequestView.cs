@@ -1,11 +1,10 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Gtk;
 using QS.Utilities;
 using QS.Utilities.Text;
 using QS.Views.GtkUI;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModels.ViewModels.Cash;
@@ -22,44 +21,18 @@ namespace Vodovoz.Dialogs.Cash
 
 		private void ConfigureDlg()
 		{
-			#region EntityViewModelEntry
-
-			ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
-
 			//Автор
-			var currentEmployee = ViewModel.CurrentEmployee;
-			AuthorEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory());
-			AuthorEntityviewmodelentry.Binding
-				.AddBinding(ViewModel.Entity, x => x.Author, w => w.Subject)
-				.InitializeFromSource();
-
-			if(ViewModel.IsNewEntity)
-			{
-				ViewModel.Entity.Author = currentEmployee;
-			}
-
-			AuthorEntityviewmodelentry.Sensitive = false;
+			entryAuthor.ViewModel = ViewModel.AuthorViewModel;
+			entryAuthor.Sensitive = false;
 
 			//Подразделение
-			SubdivisionEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(
-				ViewModel.SubdivisionJournalFactory.CreateDefaultSubdivisionAutocompleteSelectorFactory(
-					ViewModel.EmployeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory()));
-			SubdivisionEntityviewmodelentry.Binding
-				.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.Subject)
-				.InitializeFromSource();
-			SubdivisionEntityviewmodelentry.Sensitive = false;
-			ViewModel.Entity.Subdivision = currentEmployee.Subdivision;
+
+			entrySubdivision.ViewModel = ViewModel.SubdivisionViewModel;
+			entrySubdivision.Sensitive = false;
 
 			//Причина расхода
 
-			ExpenseCategoryEntityviewmodelentry.Binding
-				.AddBinding(ViewModel.Entity, s => s.ExpenseCategory, w => w.Subject)
-				.InitializeFromSource();
-
-			ExpenseCategoryEntityviewmodelentry.CanEditReference = true;
-
-			#endregion EntityViewModelEntry
+			entryFinancialExpenceCategory.ViewModel = ViewModel.FinancialExpenseCategoryViewModel;
 
 			#region Combo
 
@@ -187,8 +160,12 @@ namespace Vodovoz.Dialogs.Cash
 			yentryCancelReason.Binding
 				.AddBinding(ViewModel, vm => vm.CanEditOnlyCoordinator, w => w.Sensitive)
 				.InitializeFromSource();
-			ExpenseCategoryEntityviewmodelentry.Binding
+
+			entryFinancialExpenceCategory.ViewModel = ViewModel.FinancialExpenseCategoryViewModel;
+
+			entryFinancialExpenceCategory.Binding
 				.AddBinding(ViewModel, vm => vm.ExpenseCategorySensitive, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible)
 				.InitializeFromSource();
 
 			speccomboOrganization.Binding
@@ -214,9 +191,6 @@ namespace Vodovoz.Dialogs.Cash
 				.InitializeFromSource();
 
 			labelCategoryEntityviewmodelentry.Binding
-				.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible)
-				.InitializeFromSource();
-			ExpenseCategoryEntityviewmodelentry.Binding
 				.AddBinding(ViewModel, vm => vm.ExpenseCategoryVisibility, w => w.Visible)
 				.InitializeFromSource();
 
@@ -263,15 +237,6 @@ namespace Vodovoz.Dialogs.Cash
 				yentryGround.Sensitive = false;
 				yentryCancelReason.Sensitive = false;
 				yentryReasonForSendToReapproval.Sensitive = false;
-			}
-		}
-
-		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(ViewModel.ExpenseCategoryVisibility) && ViewModel.ExpenseCategoryVisibility)
-			{
-				ExpenseCategoryEntityviewmodelentry
-					.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseCategoryAutocompleteSelectorFactory);
 			}
 		}
 

@@ -3,8 +3,17 @@ using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Library.Converters
 {
+	/// <summary>
+	/// Конвертер типа действия в приложении
+	/// </summary>
 	public class ActionTypeConverter
 	{
+		/// <summary>
+		/// Метод конвертации в DTO
+		/// </summary>
+		/// <param name="driverMobileAppActionType">Действия в мобильном приложении водителя из ДВ</param>
+		/// <returns></returns>
+		/// <exception cref="ConverterException"></exception>
 		public ActionDtoType ConvertToAPIActionType(DriverMobileAppActionType driverMobileAppActionType)
 		{
 			ActionDtoType result;
@@ -30,6 +39,12 @@ namespace DriverAPI.Library.Converters
 			return result;
 		}
 
+		/// <summary>
+		/// Метод конвертации типа действия в мобильном приложении водителей в тип действий ДВ
+		/// </summary>
+		/// <param name="aPIActionType">Тип действия в Api</param>
+		/// <returns></returns>
+		/// <exception cref="ConverterException"></exception>
 		public DriverMobileAppActionType ConvertToDriverMobileAppActionType(ActionDtoType aPIActionType)
 		{
 			DriverMobileAppActionType result;

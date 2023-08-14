@@ -11,10 +11,4 @@ namespace FastPaymentsAPI.Library.DTO_s.Requests
 		[JsonPropertyName("object")]
 		public OnlinePaymentDetailsDto PaymentDetails { get; set; }
 	}
-
-	public enum PaymentStatusNotification
-	{
-		canceled,
-		succeeded
-	}
 }

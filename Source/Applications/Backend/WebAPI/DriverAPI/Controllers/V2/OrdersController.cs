@@ -1,8 +1,8 @@
 ﻿using DriverAPI.DTOs.V2;
-using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,9 +12,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.Drivers;
+using IOrderModel = DriverAPI.Library.Deprecated2.Models.IOrderModel;
+using OrderDto = DriverAPI.Library.Deprecated2.DTOs.OrderDto;
+using PaymentDtoType = DriverAPI.Library.Deprecated2.DTOs.PaymentDtoType;
 
 namespace DriverAPI.Controllers.V2
 {
+	/// <summary>
+	/// Контроллер заказов
+	/// </summary>
 	[ApiVersion("2.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -28,6 +34,16 @@ namespace DriverAPI.Controllers.V2
 		private readonly IDriverMobileAppActionRecordModel _driverMobileAppActionRecordModel;
 		private readonly IActionTimeHelper _actionTimeHelper;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="employeeData"></param>
+		/// <param name="userManager"></param>
+		/// <param name="aPIOrderData"></param>
+		/// <param name="driverMobileAppActionRecordModel"></param>
+		/// <param name="actionTimeHelper"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			IEmployeeModel employeeData,
@@ -45,11 +61,11 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт получения информации о заказе
-		/// В ответе сервера будет JSON объект с полями соответствующими APIOrder
+		/// Получение информации о заказе
 		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		[HttpGet]
+		[Produces("application/json")]
 		[Route("GetOrder")]
 		public OrderDto Get(int orderId)
 		{
@@ -60,9 +76,14 @@ namespace DriverAPI.Controllers.V2
 			return _aPIOrderData.Get(orderId);
 		}
 
-		// POST: CompleteOrderDelivery / CompleteRouteListAddress
+		/// <summary>
+		/// Завершение доставки заказа
+		/// </summary>
+		/// <param name="completedOrderRequestModel"><see cref="CompletedOrderRequestDto"/></param>
+		/// <returns></returns>
 		[HttpPost]
 		[Route("CompleteOrderDelivery")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task CompleteOrderDeliveryAsync([FromBody] CompletedOrderRequestDto completedOrderRequestModel)
 		{
 			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
@@ -101,11 +122,12 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт смены типа оплаты заказа
+		/// Смены типа оплаты заказа
 		/// </summary>
 		/// <param name="changeOrderPaymentTypeRequestModel">Модель данных входящего запроса</param>
 		[HttpPost]
 		[Route("ChangeOrderPaymentType")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task ChangeOrderPaymentTypeAsync(ChangeOrderPaymentTypeRequestDto changeOrderPaymentTypeRequestModel)
 		{
 			var recievedTime = DateTime.Now;
@@ -137,10 +159,10 @@ namespace DriverAPI.Controllers.V2
 
 				if(!availableTypesToChange.Contains(newPaymentType))
 				{
-					var errorFormat = "Попытка сменить тип оплаты у заказа {OrderId} на недоступный для этого заказа тип оплаты {PaymentType}";
-					_logger.LogWarning(errorFormat, orderId, newPaymentType);
-					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
-						string.Format(errorFormat, orderId, newPaymentType));
+					_logger.LogWarning("Попытка сменить тип оплаты у заказа {OrderId} на недоступный для этого заказа тип оплаты {PaymentType}", orderId, newPaymentType);
+					throw new ArgumentOutOfRangeException(
+						nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
+						$"Попытка сменить тип оплаты у заказа {orderId} на недоступный для этого заказа тип оплаты {newPaymentType}");
 				}
 
 				Vodovoz.Domain.Client.PaymentType newVodovozPaymentType;
@@ -159,10 +181,11 @@ namespace DriverAPI.Controllers.V2
 				}
 				else
 				{
-					var errorFormat = "Попытка сменить тип оплаты у заказа {OrderId} на не поддерживаемый для смены тип оплаты {PaymentType}";
-					_logger.LogWarning(errorFormat, orderId, newPaymentType);
-					throw new ArgumentOutOfRangeException(nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
-						string.Format(errorFormat, orderId, newPaymentType));
+					_logger.LogWarning("Попытка сменить тип оплаты у заказа {OrderId} на не поддерживаемый для смены тип оплаты {PaymentType}", orderId, newPaymentType);
+
+					throw new ArgumentOutOfRangeException(
+						nameof(changeOrderPaymentTypeRequestModel.NewPaymentType),
+						$"Попытка сменить тип оплаты у заказа {orderId} на не поддерживаемый для смены тип оплаты {newPaymentType}");
 				}
 
 				_aPIOrderData.ChangeOrderPaymentType(orderId, newVodovozPaymentType, driver);

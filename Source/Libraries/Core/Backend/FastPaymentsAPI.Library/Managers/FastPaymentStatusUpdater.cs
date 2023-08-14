@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using FastPaymentsAPI.Library.DTO_s;
+﻿using FastPaymentsAPI.Library.DTO_s;
+using FastPaymentsAPI.Library.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.EntityRepositories.FastPayments;
 
@@ -18,6 +19,8 @@ namespace FastPaymentsAPI.Library.Managers
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IFastPaymentManager _fastPaymentManager;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly SiteNotifier _siteNotifier;
+		private readonly MobileAppNotifier _mobileAppNotifier;
 		private readonly IErrorHandler _errorHandler;
 		private bool _isFirstLaunch = true;
 		private int _updatedCount;
@@ -27,12 +30,16 @@ namespace FastPaymentsAPI.Library.Managers
 			IFastPaymentRepository fastPaymentRepository,
 			IFastPaymentManager fastPaymentManager,
 			IServiceScopeFactory serviceScopeFactory,
+			SiteNotifier siteNotifier,
+			MobileAppNotifier mobileAppNotifier,
 			IErrorHandler errorHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_fastPaymentManager = fastPaymentManager ?? throw new ArgumentNullException(nameof(fastPaymentManager));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+			_siteNotifier = siteNotifier;
+			_mobileAppNotifier = mobileAppNotifier;
 			_errorHandler = errorHandler ?? throw new ArgumentNullException(nameof(errorHandler));
 		}
 
@@ -84,7 +91,6 @@ namespace FastPaymentsAPI.Library.Managers
 			IUnitOfWork uow)
 		{
 			var orderRequestManager = scope.ServiceProvider.GetRequiredService<IOrderRequestManager>();
-			var fastPaymentStatusChangeNotifier = scope.ServiceProvider.GetRequiredService<IFastPaymentStatusChangeNotifier>();
 
 			foreach(var payment in processingFastPayments)
 			{
@@ -128,7 +134,9 @@ namespace FastPaymentsAPI.Library.Managers
 				uow.Save(payment);
 				uow.Commit();
 				_updatedCount++;
-				NotifyFastPaymentStatusChange(fastPaymentStatusChangeNotifier, payment);
+
+				await _siteNotifier.NotifyPaymentStatusChangeAsync(payment);
+				await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(payment);
 			}
 		}
 
@@ -143,23 +151,6 @@ namespace FastPaymentsAPI.Library.Managers
 			{
 				_logger.LogInformation("Ждем 25сек");
 				await Task.Delay(25000, stoppingToken);
-			}
-		}
-
-		private void NotifyFastPaymentStatusChange(IFastPaymentStatusChangeNotifier notifier, FastPayment payment)
-		{
-			switch(payment.FastPaymentStatus)
-			{
-				case FastPaymentStatus.Rejected:
-					notifier.NotifyVodovozSite(payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, false);
-					notifier.NotifyMobileApp(
-						payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, false, payment.CallbackUrlForMobileApp);
-					break;
-				case FastPaymentStatus.Performed:
-					notifier.NotifyVodovozSite(payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, true);
-					notifier.NotifyMobileApp(
-						payment.OnlineOrderId, payment.PaymentByCardFrom.Id, payment.Amount, true, payment.CallbackUrlForMobileApp);
-					break;
 			}
 		}
 	}

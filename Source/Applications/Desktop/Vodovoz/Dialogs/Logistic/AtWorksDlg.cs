@@ -454,7 +454,7 @@ namespace Vodovoz.Dialogs.Logistic
 				filter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				MainClass.AppDIContainer.BeginLifetimeScope());
+				Startup.AppDIContainer.BeginLifetimeScope());
 			journal.SelectionMode = JournalSelectionMode.Single;
 			journal.OnEntitySelectedResult += (o, args) =>
 			{
@@ -553,7 +553,7 @@ namespace Vodovoz.Dialogs.Logistic
 					new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
 						new BaseParametersProvider(new ParametersProvider()))),
 					geoGroupJournalFactory,
-					MainClass.MainWin.NavigationManager
+					Startup.MainWin.NavigationManager
 				)
 			);
 		}
@@ -569,7 +569,7 @@ namespace Vodovoz.Dialogs.Logistic
 			
 			foreach(var one in selected) 
 			{
-				MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
+				Startup.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
 					this, EntityUoWBuilder.ForOpen(one.Employee.Id));
 			}
 		}

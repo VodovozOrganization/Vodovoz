@@ -18,14 +18,14 @@ namespace FastPaymentsAPI.Library.Managers
 		private readonly FastPaymentFileCache _fastPaymentFileCache;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IOrderRepository _orderRepository;
-		private readonly IFastPaymentAPIFactory _fastPaymentApiFactory;
+		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 
 		public CachePaymentManager(
 			ILogger<CachePaymentManager> logger,
 			FastPaymentFileCache fastPaymentFileCache,
 			IFastPaymentRepository fastPaymentRepository,
 			IOrderRepository orderRepository,
-			IFastPaymentAPIFactory fastPaymentApiFactory)
+			IFastPaymentFactory fastPaymentApiFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fastPaymentFileCache = fastPaymentFileCache ?? throw new ArgumentNullException(nameof(fastPaymentFileCache));

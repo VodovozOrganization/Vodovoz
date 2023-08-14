@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
@@ -108,10 +108,12 @@ namespace Vodovoz.Dialogs.Employees
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<Trainee>(Entity);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel)) {
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
 			}
+
 			phonesView.RemoveEmpty();
 			logger.Info("Сохраняем стажера...");
 			try
@@ -165,7 +167,7 @@ namespace Vodovoz.Dialogs.Employees
 				}
 			}
 
-			var employeeViewModel = MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
+			var employeeViewModel = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
 				this, EntityUoWBuilder.ForCreate()).ViewModel;
 
 			Personnel.ChangeTraineeToEmployee(employeeViewModel.Entity, Entity);

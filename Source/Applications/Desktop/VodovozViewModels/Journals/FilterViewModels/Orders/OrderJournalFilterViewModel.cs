@@ -11,6 +11,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
+using QS.Project.Journal;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -478,6 +479,7 @@ namespace Vodovoz.Filters.ViewModels
 			get => _excludeClosingDocumentDeliverySchedule;
 			set => UpdateFilterField(ref _excludeClosingDocumentDeliverySchedule, value);
 		}
+		public override bool IsShow { get; set; } = true;
 	}
 
 	public enum PaymentOrder

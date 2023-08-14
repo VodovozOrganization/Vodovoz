@@ -27,6 +27,7 @@ namespace Vodovoz.Views.Logistic
 
 			evmeDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			evmeDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, widget => widget.Subject).InitializeFromSource();
+			evmeDriver.Changed += (s, e) => ViewModel.CheckDriversRouteListsDebtCommand.Execute();
 
 			evmeForwarder.SetEntityAutocompleteSelectorFactory(ViewModel.ForwarderSelectorFactory);
 			evmeForwarder.Binding.AddSource(ViewModel.Entity)
@@ -67,7 +68,7 @@ namespace Vodovoz.Views.Logistic
 
 			ytextviewMileageComment.Binding.AddBinding(ViewModel.Entity, e => e.MileageComment, w => w.Buffer.Text).InitializeFromSource();
 
-			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;
+			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = Startup.MainWin.MangoManager;
 			phoneLogistican.Binding.AddBinding(ViewModel.Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
 			phoneDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(ViewModel.Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
@@ -96,6 +97,16 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 			deliveryfreebalanceview.ShowAll();
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(ViewModel.Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.Entity.Id.ToString();
+			}
 		}
 
 		private Gdk.Color GetRowColorByStatus(RouteListItemStatus routeListItemStatus)

@@ -18,11 +18,11 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.GtkWidgets.yEntry entryName;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryOrganizationForAvangardPayments;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryOrganizationForOnlinePayments;
 
 		private global::Gamma.GtkWidgets.yLabel lblName;
 
-		private global::Gamma.GtkWidgets.yLabel lblOrganizationForAvangardPayments;
+		private global::Gamma.GtkWidgets.yLabel lblOrganizationForOnlinePayments;
 
 		private global::Gamma.GtkWidgets.yCheckButton yChkIsArchive;
 
@@ -95,13 +95,13 @@ namespace Vodovoz.Views.Orders
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.entryOrganizationForAvangardPayments = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryOrganizationForAvangardPayments.Events = ((global::Gdk.EventMask)(256));
-			this.entryOrganizationForAvangardPayments.Name = "entryOrganizationForAvangardPayments";
-			this.entryOrganizationForAvangardPayments.CanEditReference = false;
-			this.entryOrganizationForAvangardPayments.CanOpenWithoutTabParent = false;
-			this.tableMain.Add(this.entryOrganizationForAvangardPayments);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableMain[this.entryOrganizationForAvangardPayments]));
+			this.entryOrganizationForOnlinePayments = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entryOrganizationForOnlinePayments.Events = ((global::Gdk.EventMask)(256));
+			this.entryOrganizationForOnlinePayments.Name = "entryOrganizationForOnlinePayments";
+			this.entryOrganizationForOnlinePayments.CanEditReference = false;
+			this.entryOrganizationForOnlinePayments.CanOpenWithoutTabParent = false;
+			this.tableMain.Add(this.entryOrganizationForOnlinePayments);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableMain[this.entryOrganizationForOnlinePayments]));
 			w6.TopAttach = ((uint)(1));
 			w6.BottomAttach = ((uint)(2));
 			w6.LeftAttach = ((uint)(1));
@@ -118,12 +118,12 @@ namespace Vodovoz.Views.Orders
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.lblOrganizationForAvangardPayments = new global::Gamma.GtkWidgets.yLabel();
-			this.lblOrganizationForAvangardPayments.Name = "lblOrganizationForAvangardPayments";
-			this.lblOrganizationForAvangardPayments.Xalign = 1F;
-			this.lblOrganizationForAvangardPayments.LabelProp = global::Mono.Unix.Catalog.GetString("Организация для оплат через Авангард:");
-			this.tableMain.Add(this.lblOrganizationForAvangardPayments);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrganizationForAvangardPayments]));
+			this.lblOrganizationForOnlinePayments = new global::Gamma.GtkWidgets.yLabel();
+			this.lblOrganizationForOnlinePayments.Name = "lblOrganizationForOnlinePayments";
+			this.lblOrganizationForOnlinePayments.Xalign = 1F;
+			this.lblOrganizationForOnlinePayments.LabelProp = global::Mono.Unix.Catalog.GetString("Организация для онлайн оплат:");
+			this.tableMain.Add(this.lblOrganizationForOnlinePayments);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblOrganizationForOnlinePayments]));
 			w8.TopAttach = ((uint)(1));
 			w8.BottomAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));

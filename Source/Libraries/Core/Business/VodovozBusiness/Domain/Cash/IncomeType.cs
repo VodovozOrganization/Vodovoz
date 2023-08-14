@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -13,6 +13,4 @@ namespace Vodovoz.Domain.Cash
 		[Display (Name = "Возврат от подотчетного лица")]
 		Return,
 	}
-
 }
-

@@ -138,6 +138,13 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddSetter<CellRendererText>((c,n)=>c.Foreground = "red")
 				.Finish();
 			yTreeViewWarnings.SetItemsSource(_warnings);
+
+			ycheckOnlyNonPrinted.Clicked += YcheckOnlyNonPrinted_Clicked;
+		}
+
+		private void YcheckOnlyNonPrinted_Clicked(object sender, EventArgs e)
+		{
+			UpdateRouteList();
 		}
 
 		class OrderDocTypeNode : PropertyChangedBase
@@ -166,9 +173,10 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private void UpdateRouteList()
 		{
+			checkSelectAll.Active = false;
 			gtkScrollWndWarnings.Visible = false;
 			var ggIds = _geographicGroups.Select(x => x.Id).ToList();
-			var routeQuery = _routeListRepository.GetRoutesAtDay(ydatePrint.Date, ggIds).GetExecutableQueryOver(_uow.Session);
+			var routeQuery = _routeListRepository.GetRoutesAtDay(ydatePrint.Date, ggIds, ycheckOnlyNonPrinted.Active).GetExecutableQueryOver(_uow.Session);
 			_routes = routeQuery.Fetch(SelectMode.Fetch, x => x.Driver)
 							   .Fetch(SelectMode.Fetch, x => x.Car)
 							   .List()

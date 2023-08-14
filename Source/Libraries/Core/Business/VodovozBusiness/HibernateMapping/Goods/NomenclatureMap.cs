@@ -1,5 +1,4 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.HibernateMapping
@@ -9,7 +8,6 @@ namespace Vodovoz.HibernateMapping
 		public NomenclatureMap()
 		{
 			Table("nomenclature");
-			Not.LazyLoad();
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
@@ -23,13 +21,13 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Length).Column("length");
 			Map(x => x.Width).Column("width");
 			Map(x => x.Height).Column("height");
-			Map(x => x.VAT).Column("vat").CustomType<VATStringType>();
+			Map(x => x.VAT).Column("vat");
 			Map(x => x.DoNotReserve).Column("reserve");
 			Map(x => x.RentPriority).Column("rent_priority");
 			Map(x => x.IsDuty).Column("is_duty");
 			Map(x => x.IsSerial).Column("serial");
-			Map(x => x.Category).Column("category").CustomType<NomenclatureCategoryStringType>();
-			Map(x => x.TareVolume).Column("tare_volume").CustomType<TareVolumeStringType>();
+			Map(x => x.Category).Column("category");
+			Map(x => x.TareVolume).Column("tare_volume");
 			Map(x => x.IsDisposableTare).Column("is_disposable_tare");
 			Map(x => x.Code1c).Column("code_1c");
 			Map(x => x.SumOfDamage).Column("sum_of_damage");
@@ -41,11 +39,11 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.IsShabbyBottle).Column("is_shabby_bottle");
 			Map(x => x.IsDiler).Column("is_diler");
 			Map(x => x.PercentForMaster).Column("percent_for_master");
-			Map(x => x.TypeOfDepositCategory).Column("type_of_deposit").CustomType<TypeOfDepositCategoryStringType>();
-			Map(x => x.SaleCategory).Column("subtype_of_equipment").CustomType<SaleCategoryStringType>();
+			Map(x => x.TypeOfDepositCategory).Column("type_of_deposit");
+			Map(x => x.SaleCategory).Column("subtype_of_equipment");
 			Map(x => x.OnlineStoreGuid).Column("online_store_guid");
 			Map(x => x.MinStockCount).Column("min_stock_count");
-			Map(x => x.MobileCatalog).Column("mobile_catalog").CustomType<MobileCatalogStringType>();
+			Map(x => x.MobileCatalog).Column("mobile_catalog");
 			Map(x => x.Description).Column("description");
 			Map(x => x.BottleCapColor).Column("bottle_cap_color");
 			Map(x => x.OnlineStoreExternalId).Column("online_store_external_id");
@@ -85,7 +83,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.ShipperCounterparty).Column("shipper_counterparty_id");
 			References(x => x.CreatedBy).Column("created_by");
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
-			References(x => x.Unit).Column("unit_id").Not.LazyLoad();
+			References(x => x.Unit).Column("unit_id").Fetch.Join().Not.LazyLoad();
 			References(x => x.EquipmentColor).Column("color_id");
 			References(x => x.Kind).Column("kind_id");
 			References(x => x.Manufacturer).Column("manufacturer_id");

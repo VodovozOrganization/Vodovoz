@@ -329,7 +329,7 @@ WHERE cash_expense_transfered_items.cash_transfered_document_id = @transfer_docu
         <Height>12.00pt</Height>
         <Width>150.27pt</Width>
         <Value>='Итого к перемещению: ' + First({transfered_sum}, "CashTransferDocument") + 'руб.'</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>20.0pt</Left>
         <Top>233.3pt</Top>
         <Style>
@@ -1542,7 +1542,7 @@ WHERE cash_expense_transfered_items.cash_transfered_document_id = @transfer_docu
         <Height>12.00pt</Height>
         <Width>347.52pt</Width>
         <Value>Рассчитан по ордерам:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>18.7pt</Left>
         <Top>173.2pt</Top>
         <Style>
@@ -1962,7 +1962,7 @@ WHERE cash_expense_transfered_items.cash_transfered_document_id = @transfer_docu
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

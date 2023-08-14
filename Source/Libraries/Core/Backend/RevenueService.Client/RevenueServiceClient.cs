@@ -71,6 +71,18 @@ namespace RevenueService.Client
 					State = suggestion.data.state.status.ToString()
 				};
 
+				var postalCode = suggestion.data.address?.data.postal_code;
+
+				if(!string.IsNullOrEmpty(postalCode) && dto.Address.Length >= postalCode.Length)
+				{
+					var leftAddressSubstring = dto.Address.Substring(0, postalCode.Length);
+
+					if(!int.TryParse(leftAddressSubstring, out _))
+					{
+						dto.Address = $"{postalCode}, {dto.Address}";
+					}
+				}
+
 				suggestionList.Add(dto);
 			}
 

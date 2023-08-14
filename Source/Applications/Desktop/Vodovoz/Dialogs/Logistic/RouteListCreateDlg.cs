@@ -54,6 +54,7 @@ using System.Data.Bindings.Collections.Generic;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Factories;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
@@ -96,7 +97,8 @@ namespace Vodovoz
 		private DateTime _previousSelectedDate;
 		private bool _isLogistican;
 		private bool _canСreateRoutelistInPastPeriod;
-		private GenericObservableList<RouteListProfitability> _routeListProfitabilities; 
+		private GenericObservableList<RouteListProfitability> _routeListProfitabilities;
+		private bool _driversDebtIsConfirmed = false;
 
 		public RouteListCreateDlg()
 		{
@@ -144,7 +146,7 @@ namespace Vodovoz
 			_previousSelectedDate = Entity.Date;
 			datepickerDate.DateChangedByUser += OnDatepickerDateDateChangedByUser;
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.ChangedByUser += (sender, e) =>
@@ -270,12 +272,12 @@ namespace Vodovoz
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments)e.ItemEnum);
 
 			//Телефон
-			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = MainClass.MainWin.MangoManager;
+			phoneLogistican.MangoManager = phoneDriver.MangoManager = phoneForwarder.MangoManager = Startup.MainWin.MangoManager;
 			phoneLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Employee).InitializeFromSource();
 			phoneDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Employee).InitializeFromSource();
 			phoneForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Employee).InitializeFromSource();
 
-			var hasAccessToDriverTerminal = _isLogistican || currentPermissionService.ValidatePresetPermission("role_сashier");
+			var hasAccessToDriverTerminal = _isLogistican || currentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 			var baseDoc = _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, Entity.Driver);
 			labelTerminalCondition.Visible = hasAccessToDriverTerminal &&
 											 baseDoc is DriverAttachedTerminalGiveoutDocument &&
@@ -312,6 +314,17 @@ namespace Vodovoz
 			ConfigureTreeRouteListProfitability();
 
 			#endregion
+
+			btnCopyEntityId.Sensitive = Entity.Id > 0;
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
+			}
 		}
 
 		private void OnInformationToggled(object sender, EventArgs e)
@@ -511,7 +524,7 @@ namespace Vodovoz
 		private DocumentsPrinterViewModel CreateDocumentsPrinterDlg(RouteListPrintableDocuments choise)
 		{
 			var dlg = new DocumentsPrinterViewModel(
-				UoW, _entityDocumentsPrinterFactory, MainClass.MainWin.NavigationManager, Entity, choise, ServicesConfig.InteractiveService);
+				UoW, _entityDocumentsPrinterFactory, Startup.MainWin.NavigationManager, Entity, choise, ServicesConfig.InteractiveService);
 			dlg.DocumentsPrinted += Dlg_DocumentsPrinted;
 			return dlg;
 		}
@@ -532,8 +545,18 @@ namespace Vodovoz
 		{
 			_logger.Info("Вызван метод сохранения МЛ {EntityId}...", Entity.Id);
 
-			var valid = new QSValidator<RouteList>(Entity, new Dictionary<object, object>() { { nameof(IRouteListItemRepository), new RouteListItemRepository() } });
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			if(!_driversDebtIsConfirmed && !Entity.IsDriversDebtInPermittedRangeVerification())
+			{
+				return false;
+			}
+
+			var contextItems = new Dictionary<object, object>
+				{
+					{nameof(IRouteListItemRepository), new RouteListItemRepository()}
+				};
+			var context = new ValidationContext(Entity, null, contextItems);
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity, context))
 			{
 				return false;
 			}
@@ -671,6 +694,12 @@ namespace Vodovoz
 		{
 			try
 			{
+				_driversDebtIsConfirmed = Entity.IsDriversDebtInPermittedRangeVerification();
+				if(!_driversDebtIsConfirmed)
+				{
+					return;
+				}
+
 				SetSensetivity(false);
 				var callTaskWorker = new CallTaskWorker(
 					CallTaskSingletonFactory.GetInstance(),
@@ -722,12 +751,14 @@ namespace Vodovoz
 
 				if(Entity.Status == RouteListStatus.New)
 				{
-					var valid = new QSValidator<RouteList>(Entity,
-									new Dictionary<object, object> {
-						{ "NewStatus", RouteListStatus.Confirmed },
-						{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
-						});
-					if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+					var contextItems = new Dictionary<object, object>
+						{
+							{ "NewStatus", RouteListStatus.Confirmed },
+							{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
+						};
+					var context = new ValidationContext(Entity, null, contextItems);
+					var validator = new ObjectValidator(new GtkValidationViewFactory());
+					if(!validator.Validate(Entity, context))
 					{
 						return;
 					}
@@ -775,11 +806,12 @@ namespace Vodovoz
 							if(address.TransferedTo == null &&
 							   (!address.WasTransfered || address.AddressTransferType != AddressTransferType.FromHandToHand))
 							{
-								routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, address, DeliveryFreeBalanceType.Decrease, true);
+								routeListKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
+									UoW, address, DeliveryFreeBalanceType.Decrease, isFullRecreation: true, needRouteListUpdate: true);
 							}
 							else
 							{
-								routeListKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address);
+								routeListKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address, true);
 							}
 						}
 
@@ -804,19 +836,20 @@ namespace Vodovoz
 						{
 							if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести маршрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle()))
 							{
-								valid = new QSValidator<RouteList>(
-									Entity,
-									new Dictionary<object, object>
+								var contextItemsEnroute = new Dictionary<object, object>
 									{
 										{ "NewStatus", RouteListStatus.EnRoute },
 										{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
-									});
-								if(!valid.IsValid)
+									};
+								var contextEnroute = new ValidationContext(Entity, null, contextItemsEnroute);
+								var validatorEnroute = new ObjectValidator(new GtkValidationViewFactory());
+								var isValid = validatorEnroute.Validate(Entity, contextEnroute);
+								if(!isValid)
 								{
 									return;
 								}
 
-								Entity.ChangeStatusAndCreateTask(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute, callTaskWorker);
+								Entity.ChangeStatusAndCreateTask(isValid ? RouteListStatus.EnRoute : RouteListStatus.New, callTaskWorker);
 							}
 							else
 							{

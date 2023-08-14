@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NHibernate;
 using QS.DomainModel.UoW;
 using QS.ErrorReporting;

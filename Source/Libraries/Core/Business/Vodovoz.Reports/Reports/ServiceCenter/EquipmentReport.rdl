@@ -23,7 +23,7 @@ Iif(
     'за ' + Format(CDate({?start_date}), "dd.MM.yyyy"),
     'с ' + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy")
 )</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -700,7 +700,7 @@ GROUP BY orders.id
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

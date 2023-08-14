@@ -78,7 +78,7 @@ namespace Vodovoz.ReportsParameters
 		private List<Subdivision> GetSubdivisionsForUser()
 		{
 			var availableSubdivisionsForUser = subdivisionRepository.GetCashSubdivisionsAvailableForUser
-				(UoW, commonServices.UserService.GetCurrentUser(UoW));
+				(UoW, commonServices.UserService.GetCurrentUser());
 			return new List<Subdivision>(availableSubdivisionsForUser);
 		}
 		

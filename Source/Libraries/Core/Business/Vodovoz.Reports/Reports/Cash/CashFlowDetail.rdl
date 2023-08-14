@@ -15,13 +15,13 @@
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT 
-    if(cash_income.cash_income_category_id,
+    if(cash_income.financial_income_category_id,
         1,
         0) as CategoryType,
     cash_income.id as id,
     cash_income.date as Date,
-    cash_income_category.name as Category,
-    cash_income.cash_income_category_id as CategoryId,
+    financial_categories_groups.title as Category,
+    cash_income.financial_income_category_id as CategoryId,
     cash_income.money as sum,
     cash_income.description,
     CONCAT_WS('',
@@ -35,13 +35,13 @@
 FROM
     cash_income
         LEFT JOIN
-    cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
+    financial_categories_groups ON financial_categories_groups.id = cash_income.financial_income_category_id
         LEFT JOIN
     employees ON employees.id = cash_income.employee_id
 WHERE
 cash_income.type_operation &lt;&gt; 'Return' AND 
 cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
- AND (@incomeCategory = -1 OR cash_income_category.id = @incomeCategory)
+ AND (@incomeCategory = -1 OR financial_categories_groups.id = @incomeCategory)
 AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_income.employee_id = @Employee)
 AND cash_income.related_to_subdivision_id in (@cash_subdivisions)
@@ -153,26 +153,8 @@ GROUP BY route_lists.date</CommandText>
         <CommandText>SELECT 
     cash_income.id as id,
     cash_income.date as Date,
-        IF(cat1.parent_id IS NULL,
-        cat1.name,
-        CONCAT((SELECT 
-                        IF(cat2.parent_id IS NULL,
-                                cat2.name,
-                                CONCAT((SELECT 
-                                                CONCAT(IF(parent_id IS NULL, '', '... '), name)
-                                            FROM
-                                                cash_expense_category AS cat3
-                                            WHERE
-                                                id = cat2.parent_id),
-                                        ' - ',
-                                        cat2.name))
-                    FROM
-                        cash_expense_category AS cat2
-                    WHERE
-                        id = cat1.parent_id),
-                ' - ',
-                cat1.name)) AS Category,
-    cash_income.cash_expense_category_id as CategoryId,
+    category.title AS Category,
+    cash_income.financial_expense_category_id as CategoryId,
     cash_income.money as sum,
     cash_income.description,
     CONCAT_WS('',
@@ -186,12 +168,12 @@ GROUP BY route_lists.date</CommandText>
 FROM
     cash_income
         LEFT JOIN
-    cash_expense_category AS cat1 ON cat1.id = cash_income.cash_expense_category_id
+    financial_categories_groups AS category ON category.id = cash_income.financial_expense_category_id
         LEFT JOIN
     employees ON employees.id = cash_income.employee_id
 WHERE
     cash_income.type_operation = 'Return' AND cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
-AND IF(@expenseCategoryUsed, cash_income.cash_expense_category_id IN (@expenseCategory), 1)
+AND IF(@expenseCategoryUsed, cash_income.financial_expense_category_id IN (@expenseCategory), 1)
 AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_income.employee_id = @Employee)
 AND cash_income.related_to_subdivision_id in (@cash_subdivisions)
@@ -256,26 +238,8 @@ ORDER BY Category;</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense.id AS id,
-    cash_expense.cash_expense_category_id AS CategoryId,
-    IF(cat1.parent_id IS NULL,
-        cat1.name,
-        CONCAT((SELECT 
-                        IF(cat2.parent_id IS NULL,
-                                cat2.name,
-                                CONCAT((SELECT 
-                                                CONCAT(IF(parent_id IS NULL, '', '... '), name)
-                                            FROM
-                                                cash_expense_category AS cat3
-                                            WHERE
-                                                id = cat2.parent_id),
-                                        ' - ',
-                                        cat2.name))
-                    FROM
-                        cash_expense_category AS cat2
-                    WHERE
-                        id = cat1.parent_id),
-                ' - ',
-                cat1.name)) AS Category,
+    cash_expense.financial_expense_category_id AS CategoryId,
+    category.title AS Category,
     cash_expense.money AS Sum,
     cash_expense.description,
     cash_expense.date AS date,
@@ -290,12 +254,12 @@ ORDER BY Category;</CommandText>
 FROM
     cash_expense
         LEFT JOIN
-    cash_expense_category AS cat1 ON cat1.id = cash_expense.cash_expense_category_id
+    financial_categories_groups AS category ON category.id = cash_expense.financial_expense_category_id
         LEFT JOIN
     employees ON employees.id = cash_expense.employee_id
 WHERE cash_expense.type_operation &lt;&gt; 'Advance' AND
     cash_expense.date &gt;= @startDate AND cash_expense.date &lt; @endDate
- AND IF(@expenseCategoryUsed, cash_expense.cash_expense_category_id IN (@expenseCategory), 1)
+ AND IF(@expenseCategoryUsed, cash_expense.financial_expense_category_id IN (@expenseCategory), 1)
 AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_expense.employee_id = @Employee)
 AND cash_expense.related_to_subdivision_id in (@cash_subdivisions)
@@ -360,27 +324,8 @@ ORDER BY Category;</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense.id as id,
-	cash_expense.cash_expense_category_id as CategoryId,
-	IF(cat1.parent_id IS NULL,
-		cat1.name,
-		CONCAT((SELECT 
-						IF(cat2.parent_id IS NULL,
-								cat2.name,
-								CONCAT((SELECT 
-												CONCAT(IF(parent_id IS NULL, '', '... '), name)
-											FROM
-												cash_expense_category AS cat3
-											WHERE
-												id = cat2.parent_id),
-										' - ',
-										cat2.name))
-					FROM
-						cash_expense_category AS cat2
-					WHERE
-						id = cat1.parent_id),
-				' - ',
-				cat1.name)) AS Category,
-
+	cash_expense.financial_expense_category_id as CategoryId,
+	category.title AS Category,
 	cash_expense.money as Sum,
 	cash_expense.description,
 	cash_expense.date as date,
@@ -395,12 +340,12 @@ ORDER BY Category;</CommandText>
 FROM
 	cash_expense
 		LEFT JOIN
-	cash_expense_category AS cat1 ON cat1.id = cash_expense.cash_expense_category_id
+	financial_categories_groups AS category ON category.id = cash_expense.financial_expense_category_id
 		LEFT JOIN
 	employees ON employees.id = cash_expense.employee_id
 WHERE cash_expense.type_operation = 'Advance' AND
 	cash_expense.date &gt;= @startDate AND cash_expense.date &lt; @endDate
-AND IF(@expenseCategoryUsed, cash_expense.cash_expense_category_id IN (@expenseCategory), 1)
+AND IF(@expenseCategoryUsed, cash_expense.financial_expense_category_id IN (@expenseCategory), 1)
 AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_expense.employee_id = @Employee)
 AND cash_expense.related_to_subdivision_id in (@cash_subdivisions)
@@ -465,26 +410,8 @@ ORDER BY Category;</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_advance_report.id AS report_id,
-	cash_advance_report.cash_expense_category_id AS CategoryId,
-		IF(cat1.parent_id IS NULL,
-		cat1.name,
-		CONCAT((SELECT 
-						IF(cat2.parent_id IS NULL,
-								cat2.name,
-								CONCAT((SELECT 
-												CONCAT(IF(parent_id IS NULL, '', '... '), name)
-											FROM
-												cash_expense_category AS cat3
-											WHERE
-												id = cat2.parent_id),
-										' - ',
-										cat2.name))
-					FROM
-						cash_expense_category AS cat2
-					WHERE
-						id = cat1.parent_id),
-				' - ',
-				cat1.name)) AS Category,
+	cash_advance_report.financial_expense_category_id AS CategoryId,
+	category.title AS Category,
 	cash_advance_report.money AS Sum,
 	cash_advance_report.description,
 	cash_advance_report.date AS date,
@@ -502,7 +429,7 @@ ORDER BY Category;</CommandText>
 FROM
 	cash_advance_report
 		LEFT JOIN
-	cash_expense_category AS cat1 ON cat1.id = cash_advance_report.cash_expense_category_id
+	financial_categories_groups AS category ON category.id = cash_advance_report.financial_expense_category_id
 		LEFT JOIN
 	employees ON employees.id = cash_advance_report.employee_id
 		LEFT JOIN
@@ -512,7 +439,7 @@ FROM
 WHERE
 	cash_advance_report.date &gt;= @startDate
 		AND cash_advance_report.date &lt; @endDate
-		AND IF(@expenseCategoryUsed, cash_advance_report.cash_expense_category_id IN (@expenseCategory), 1)
+		AND IF(@expenseCategoryUsed, cash_advance_report.financial_expense_category_id IN (@expenseCategory), 1)
 AND (@Casher = -1 OR cash_advance_report.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_advance_report.employee_id = @Employee)
 AND cash_advance_report.related_to_subdivision_id in (@cash_subdivisions)
@@ -589,26 +516,8 @@ ORDER BY Category;</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense.id as expense_id,
-    cash_expense.cash_expense_category_id AS CategoryId,
-    IF(cat1.parent_id IS NULL,
-        cat1.name,
-        CONCAT((SELECT 
-                        IF(cat2.parent_id IS NULL,
-                                cat2.name,
-                                CONCAT((SELECT 
-                                                CONCAT(IF(parent_id IS NULL, '', '... '), name)
-                                            FROM
-                                                cash_expense_category AS cat3
-                                            WHERE
-                                                id = cat2.parent_id),
-                                        ' - ',
-                                        cat2.name))
-                    FROM
-                        cash_expense_category AS cat2
-                    WHERE
-                        id = cat1.parent_id),
-                ' - ',
-                cat1.name)) AS Category,
+    cash_expense.financial_expense_category_id AS CategoryId,
+    category.title AS Category,
     cash_expense.money AS Sum,
     cash_expense.description,
     cash_expense.date AS date,
@@ -626,7 +535,7 @@ ORDER BY Category;</CommandText>
 FROM
     cash_expense
         LEFT JOIN
-    cash_expense_category AS cat1 ON cat1.id = cash_expense.cash_expense_category_id
+    financial_categories_groups AS category ON category.id = cash_expense.financial_expense_category_id
         LEFT JOIN
     employees ON employees.id = cash_expense.employee_id
         LEFT JOIN
@@ -638,7 +547,7 @@ WHERE
         AND cash_expense.advance_closed = 0
         AND cash_expense.date &lt; @endDate
         AND IF(@expenseCategoryUsed,
-        cash_expense.cash_expense_category_id IN (@expenseCategory),
+        cash_expense.financial_expense_category_id IN (@expenseCategory),
         1)
         AND (@Casher = - 1
         OR cash_expense.casher_employee_id = @Casher)
@@ -722,7 +631,7 @@ SELECT
 FROM
     cash_expense
         LEFT JOIN
-    cash_expense_category AS cat1 ON cat1.id = cash_expense.cash_expense_category_id
+    financial_categories_groups AS category ON category.id = cash_expense.financial_expense_category_id
         LEFT JOIN
     employees ON employees.id = cash_expense.employee_id
         LEFT JOIN
@@ -734,7 +643,7 @@ WHERE
         AND cash_expense.advance_closed = 0
         AND cash_expense.date &lt; @endDate
         AND IF(@expenseCategoryUsed,
-        cash_expense.cash_expense_category_id IN (@expenseCategory),
+        cash_expense.financial_expense_category_id IN (@expenseCategory),
         1)
         AND (@Casher = - 1
         OR cash_expense.casher_employee_id = @Casher)
@@ -785,7 +694,7 @@ ORDER BY Category
         <Height>18.03pt</Height>
         <Width>560.17pt</Width>
         <Value>="Доходы и расходы за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
         <Style>
@@ -800,7 +709,7 @@ ORDER BY Category
         <Height>16.52pt</Height>
         <Width>558.58pt</Width>
         <Value>="Выбранные фильтры:"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.7pt</Left>
         <Top>28.1pt</Top>
         <Style>
@@ -815,7 +724,7 @@ ORDER BY Category
         <Height>14.29pt</Height>
         <Width>548.87pt</Width>
         <Value>= {?cash_subdivisions_name}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.8pt</Left>
         <Top>45.2pt</Top>
         <Style>
@@ -829,7 +738,7 @@ ORDER BY Category
         <Height>14.99pt</Height>
         <Width>555.56pt</Width>
         <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.4pt</Left>
         <Top>60.3pt</Top>
         <Style>
@@ -847,7 +756,7 @@ ORDER BY Category
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Приход (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>4.8pt</Top>
         <Style>
@@ -862,7 +771,7 @@ ORDER BY Category
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Расход (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>235.7pt</Top>
         <Style>
@@ -877,7 +786,7 @@ ORDER BY Category
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Выданные авансы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>327.1pt</Top>
         <Style>
@@ -3638,7 +3547,7 @@ ORDER BY Category
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Авансовые отчеты</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.8pt</Left>
         <Top>420.8pt</Top>
         <Style>
@@ -3653,7 +3562,7 @@ ORDER BY Category
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Сдача (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.8pt</Left>
         <Top>142.9pt</Top>
         <Style>
@@ -3668,7 +3577,7 @@ ORDER BY Category
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Незакрытые авансы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>525.5pt</Top>
         <Style>
@@ -3707,7 +3616,7 @@ ORDER BY Category
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

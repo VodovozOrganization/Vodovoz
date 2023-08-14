@@ -10,7 +10,7 @@ using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class PaymentsJournalFilterViewModel : FilterViewModelBase<PaymentsJournalFilterViewModel>, IJournalFilterViewModel
+	public class PaymentsJournalFilterViewModel : FilterViewModelBase<PaymentsJournalFilterViewModel>
 	{
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -93,7 +93,7 @@ namespace Vodovoz.Filters.ViewModels
 			set => UpdateFilterField(ref _isSortingDescByUnAllocatedSum, value);
 		}
 		
-		public bool IsShow { get; set; } = true;
+		public override bool IsShow { get; set; } = true;
 		
 		private void Refilter(Action<PaymentsJournalFilterViewModel>[] filterParams)
 		{

@@ -118,7 +118,7 @@ GROUP BY orders.id</CommandText>
         <Height>23.31pt</Height>
         <Width>499.12pt</Width>
         <Value>="Отчет по дате создания заказа на "  +  Format(Convert.ToDateTime({?date}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>97.7pt</Left>
         <Top>3.3pt</Top>
         <Style>
@@ -489,7 +489,7 @@ GROUP BY orders.id</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

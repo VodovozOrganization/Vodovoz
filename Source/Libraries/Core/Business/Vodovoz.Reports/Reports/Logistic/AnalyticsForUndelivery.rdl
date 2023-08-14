@@ -18,7 +18,7 @@
         <Height>21.80pt</Height>
         <Width>476.16pt</Width>
         <Value>="Аналитика недовозов на " + {?title_date}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>60.4pt</Left>
         <Top>22.9pt</Top>
         <Style>
@@ -2427,7 +2427,7 @@ group by a.geo_group_id</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_test;user=enzogord;password=qwerty;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

@@ -291,18 +291,12 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.OrderBy(x => isGetClosestByRoute ? x.DistanceByRoadToClient.ParameterValue : x.DistanceByLineToClient.ParameterValue)
 				.ToList();
 
-			//Не более определённого кол-ва заказов с быстрой доставкой в определённый промежуток времени
+			//Не более определённого кол-ва заказов с быстрой доставкой
 			var addressCountSubquery = QueryOver.Of(() => rla)
 				.Inner.JoinAlias(() => rla.Order, () => o)
 				.Where(() => rla.RouteList.Id == rl.Id)
 				.And(() => rla.Status == RouteListItemStatus.EnRoute)
 				.And(() => o.IsFastDelivery)
-				.And(Restrictions.GtProperty(
-					Projections.Property(() => rla.CreationDate),
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.DateTime,
-							$"TIMESTAMPADD(MINUTE, -{specificTimeForFastOrdersCount}, CURRENT_TIMESTAMP)"),
-						NHibernateUtil.DateTime)))
 				.Select(Projections.Count(() => rla.Id));
 
 			var routeListsWithCountUnclosedFastDeliveries = uow.Session.QueryOver(() => rl)

@@ -29,7 +29,7 @@
 (String.IsNullOrWhiteSpace({?start_date}) AND (!String.IsNullOrWhiteSpace({?end_date}))), "по " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"),
 
 ((!String.IsNullOrWhiteSpace({?start_date})) AND (!String.IsNullOrWhiteSpace({?end_date}))),  "с " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -440,7 +440,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>='Создано: ' +  Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>33.7pt</Top>
         <Style>
@@ -454,7 +454,7 @@
         <Height>12.76pt</Height>
         <Width>122.65pt</Width>
         <Value>="Всего работает: " +  First({countWorks}, "CountWorks")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>432.2pt</Left>
         <Top>27.4pt</Top>
         <Style>
@@ -468,7 +468,7 @@
         <Height>13.50pt</Height>
         <Width>135.36pt</Width>
         <Value>="Всего не работает: " +  First({countNotWorks}, "NotWorks")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>432.3pt</Left>
         <Top>40.6pt</Top>
         <Style>
@@ -490,7 +490,7 @@
         <Height>12.05pt</Height>
         <Width>565.41pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -667,7 +667,7 @@ where
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

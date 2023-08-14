@@ -13,7 +13,7 @@ namespace DriverAPI.Library.Models
 		OrderDto Get(int orderId);
 		IEnumerable<OrderDto> Get(int[] orderIds);
 		OrderAdditionalInfoDto GetAdditionalInfo(int orderId);
-		void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver);
+		void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver, PaymentByTerminalSource? paymentByTerminalSource);
 		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Order order);
 		IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId);
 		void CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverCompleteOrderInfo completeOrderInfo);

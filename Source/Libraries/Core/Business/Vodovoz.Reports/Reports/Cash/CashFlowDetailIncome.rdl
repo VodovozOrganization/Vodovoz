@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -14,13 +14,13 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    if(cash_income.cash_income_category_id,
+    if(cash_income.financial_expense_category_id,
         1,
         0) as CategoryType,
     cash_income.id as id,
     cash_income.date as Date,
-    cash_income_category.name as Category,
-    cash_income.cash_income_category_id as CategoryId,
+    financial_categories_groups.title as Category,
+    cash_income.financial_expense_category_id as CategoryId,
     cash_income.money as sum,
     cash_income.description,
     CONCAT_WS('',
@@ -34,13 +34,13 @@
 FROM
     cash_income
         LEFT JOIN
-    cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
+    financial_categories_groups ON financial_categories_groups.id = cash_income.financial_income_category_id
         LEFT JOIN
     employees ON employees.id = cash_income.employee_id
 WHERE
 cash_income.type_operation &lt;&gt; 'Return' AND 
 cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
- AND (@incomeCategory = -1 OR cash_income_category.id = @incomeCategory)
+ AND (@incomeCategory = -1 OR financial_categories_groups.id = @incomeCategory)
 AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_income.employee_id = @Employee)
 AND cash_income.related_to_subdivision_id in (@cash_subdivisions)
@@ -156,7 +156,7 @@ GROUP BY route_lists.date</CommandText>
         <Height>18.03pt</Height>
         <Width>558.67pt</Width>
         <Value>="Приход за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
         <Style>
@@ -171,7 +171,7 @@ GROUP BY route_lists.date</CommandText>
         <Height>16.52pt</Height>
         <Width>558.58pt</Width>
         <Value>="Выбранные фильтры:"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>24.2pt</Top>
         <Style>
@@ -186,7 +186,7 @@ GROUP BY route_lists.date</CommandText>
         <Height>14.29pt</Height>
         <Width>548.87pt</Width>
         <Value>= {?cash_subdivisions_name}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>41.3pt</Top>
         <Style>
@@ -200,7 +200,7 @@ GROUP BY route_lists.date</CommandText>
         <Height>14.99pt</Height>
         <Width>555.56pt</Width>
         <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.4pt</Left>
         <Top>57.2pt</Top>
         <Style>
@@ -736,7 +736,7 @@ GROUP BY route_lists.date</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

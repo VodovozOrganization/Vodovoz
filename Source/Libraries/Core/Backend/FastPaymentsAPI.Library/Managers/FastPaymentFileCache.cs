@@ -16,6 +16,12 @@ namespace FastPaymentsAPI.Library.Managers
 		{
 			_filePath = string.IsNullOrWhiteSpace(filePath) ? throw new ArgumentNullException(nameof(filePath)) : filePath;
 
+			var diretoryPath = Path.GetDirectoryName(_filePath);
+			if(!Directory.Exists(diretoryPath))
+			{
+				Directory.CreateDirectory(diretoryPath);
+			}
+
 			if(!File.Exists(filePath))
 			{
 				var file = File.Create(filePath);

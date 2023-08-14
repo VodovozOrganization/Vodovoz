@@ -18,7 +18,7 @@
         <Height>23.34pt</Height>
         <Width>581.25pt</Width>
         <Value>= "Отчет по оплатам по картам с " + (Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")) + " по " + (Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>102.3pt</Left>
         <Top>6.4pt</Top>
         <Style>
@@ -790,7 +790,7 @@ GROUP BY o.id;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

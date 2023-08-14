@@ -57,7 +57,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					query.Left.JoinAlias(c => c.SalesChannels, () => salesChannelAlias);
 					query.Where(() => salesChannelAlias.Id.IsIn(FilterViewModel.SalesChannels.Where(x => x.Selected).Select(x => x.Id).ToArray()));
-                }
+				}
 			}
 
 			if (FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive)
@@ -73,6 +73,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel?.ReasonForLeaving != null)
 			{
 				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
+			}
+
+			if(FilterViewModel.IsNeedToSendBillByEdo)
+			{
+				query.Where(c => c.NeedSendBillByEdo);
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
@@ -201,7 +206,7 @@ namespace Vodovoz.JournalViewModels
 				{
 					query.Left.JoinAlias(c => c.SalesChannels, () => salesChannelAlias);
 					query.Where(() => salesChannelAlias.Id.IsIn(FilterViewModel.SalesChannels.Where(x => x.Selected).Select(x => x.Id).ToArray()));
-                }
+				}
 			}
 
 			if(FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive)
@@ -217,6 +222,11 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel?.ReasonForLeaving != null)
 			{
 				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
+			}
+
+			if(FilterViewModel.IsNeedToSendBillByEdo)
+			{
+				query.Where(c => c.NeedSendBillByEdo);
 			}
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyName))
@@ -398,7 +408,7 @@ namespace Vodovoz.JournalViewModels
 					var config = EntityConfigs[selectedNode.EntityType];
 					var foundDocumentConfig = config.EntityDocumentConfigurations.FirstOrDefault(x => x.IsIdentified(selectedNode));
 
-					var openClosePage = MainClass.MainWin.NavigationManager.OpenViewModel<CloseSupplyToCounterpartyViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id));
+					var openClosePage = Startup.MainWin.NavigationManager.OpenViewModel<CloseSupplyToCounterpartyViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForOpen(selectedNode.Id));
 				}
 			);
 			NodeActionsList.Add(openCloseSupplyAction);

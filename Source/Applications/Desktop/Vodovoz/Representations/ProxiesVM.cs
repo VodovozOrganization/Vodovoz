@@ -55,10 +55,10 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig <ProxiesVMNode>.Create ()
-			.AddColumn("Номер").SetDataProperty (node => node.Title)
-			.AddColumn ("Начало действия").SetDataProperty (node => node.Start)
-			.AddColumn ("Окончание действия").SetDataProperty (node => node.End)
-			.AddColumn ("Кол-во лиц").SetDataProperty (node => node.PeopleCount)
+			.AddColumn("Номер").AddTextRenderer(node => node.Title)
+			.AddColumn ("Начало действия").AddTextRenderer(node => node.Start)
+			.AddColumn ("Окончание действия").AddTextRenderer(node => node.End)
+			.AddColumn ("Кол-во лиц").AddNumericRenderer(node => node.PeopleCount)
 			.AddColumn ("Точки доставки").AddTextRenderer(node => node.DeliveryPoints)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();

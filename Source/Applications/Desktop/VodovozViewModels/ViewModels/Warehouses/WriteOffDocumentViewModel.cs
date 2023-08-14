@@ -339,7 +339,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		{
 			UserHasOnlyAccessToWarehouseAndComplaints =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+				&& !CommonServices.UserService.GetCurrentUser().IsAdmin;
 			HasAccessToEmployeeStorages =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_employee_storage_in_warehouse_documents");
 			HasAccessToCarStorages =

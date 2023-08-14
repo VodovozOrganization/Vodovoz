@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -55,7 +55,7 @@ namespace TaxcomEdoApi.Services
 			EdoBillFactory edoBillFactory,
 			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,
 			X509Certificate2 certificate,
-            PrintableDocumentSaver printableDocumentSaver)
+			PrintableDocumentSaver printableDocumentSaver)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
@@ -158,6 +158,15 @@ namespace TaxcomEdoApi.Services
 							MainDocumentId = $"{upd.FileIdentifier}.xml",
 							EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
 						};
+
+						var actions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+							.Where(x => x.Order.Id == edoContainer.Order.Id)
+							.FirstOrDefault();
+
+						if(actions != null && actions.IsNeedToResendEdoUpd)
+						{
+							actions.IsNeedToResendEdoUpd = false;
+						}
 
 						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
 						uow.Save(edoContainer);

@@ -73,8 +73,8 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig <ContractsVMNode>.Create ()
-			.AddColumn("Номер").SetDataProperty (node => node.Title)
-			.AddColumn ("Организация").SetDataProperty (node => node.Organization)
+			.AddColumn("Номер").AddTextRenderer(node => node.Title)
+			.AddColumn ("Организация").AddTextRenderer(node => node.Organization)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 

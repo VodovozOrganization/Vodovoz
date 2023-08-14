@@ -22,7 +22,7 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryEmployee;
 
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryExpenseCategory;
+		private global::QS.Views.Control.EntityEntry entryExpenseFinancialCategory;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -134,6 +134,7 @@ namespace Vodovoz.Dialogs.Fuel
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(7)), ((uint)(4)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -141,6 +142,7 @@ namespace Vodovoz.Dialogs.Fuel
 			this.entryEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.entryEmployee.Name = "entryEmployee";
 			this.entryEmployee.CanEditReference = false;
+			this.entryEmployee.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entryEmployee);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.entryEmployee]));
 			w9.TopAttach = ((uint)(2));
@@ -150,12 +152,11 @@ namespace Vodovoz.Dialogs.Fuel
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryExpenseCategory = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.entryExpenseCategory.Events = ((global::Gdk.EventMask)(256));
-			this.entryExpenseCategory.Name = "entryExpenseCategory";
-			this.entryExpenseCategory.CanEditReference = false;
-			this.table1.Add(this.entryExpenseCategory);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.entryExpenseCategory]));
+			this.entryExpenseFinancialCategory = new global::QS.Views.Control.EntityEntry();
+			this.entryExpenseFinancialCategory.Events = ((global::Gdk.EventMask)(256));
+			this.entryExpenseFinancialCategory.Name = "entryExpenseFinancialCategory";
+			this.table1.Add(this.entryExpenseFinancialCategory);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.entryExpenseFinancialCategory]));
 			w10.TopAttach = ((uint)(1));
 			w10.BottomAttach = ((uint)(2));
 			w10.LeftAttach = ((uint)(1));

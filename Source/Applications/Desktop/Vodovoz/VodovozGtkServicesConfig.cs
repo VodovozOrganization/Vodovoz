@@ -9,6 +9,10 @@ using Vodovoz.EntityRepositories.Permissions;
 using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Services;
+using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories;
+using QS.DomainModel.UoW;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -21,6 +25,7 @@ namespace Vodovoz
 		{
 			ServicesConfig.InteractiveService = new GtkInteractiveService();
 			ServicesConfig.ValidationService = new ObjectValidator(new GtkValidationViewFactory());
+			ServicesConfig.UserService = new UserService(LoadCurrentUser());
 			EmployeeService = new EmployeeService();
 
 			IRepresentationJournalFactory journalFactory = new PermissionControlledRepresentationJournalFactory();
@@ -36,6 +41,14 @@ namespace Vodovoz
 			var permissionService = new PermissionService(entityPermissionValidator, presetPermissionValidator);
 			PermissionsSettings.PermissionService = permissionService;
 			PermissionsSettings.CurrentPermissionService = new CurrentPermissionServiceAdapter(permissionService, ServicesConfig.UserService);
+		}
+
+		private static User LoadCurrentUser()
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				return uow.GetById<User>(QSMain.User.Id);
+			}
 		}
 	}
 }

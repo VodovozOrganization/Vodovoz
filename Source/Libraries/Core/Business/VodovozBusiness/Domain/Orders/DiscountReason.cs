@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Orders
 		Nominative = "основание скидки")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class DiscountReason : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class DiscountReason : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
 		private const int _percentsLimit = 100;
 		private const int _nameLimit = 45;

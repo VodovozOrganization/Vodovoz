@@ -25,7 +25,7 @@ namespace Vodovoz.Factories
 {
 	public class DeliveryPointViewModelFactory : IDeliveryPointViewModelFactory
 	{
-		private readonly ILifetimeScope _lifetimeScope = MainClass.AppDIContainer.BeginLifetimeScope();
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IFiasApiClient _fiasApiClient;
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleSelectorFactory;

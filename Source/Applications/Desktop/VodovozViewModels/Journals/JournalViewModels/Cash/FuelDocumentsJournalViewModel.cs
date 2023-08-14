@@ -1,14 +1,17 @@
 ﻿using System;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
@@ -34,10 +37,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	    private readonly ISubdivisionJournalFactory _subdivisionJournalFactory;
 	    private readonly ICarJournalFactory _carJournalFactory;
 	    private readonly IReportViewOpener _reportViewOpener;
-	    private readonly IExpenseCategorySelectorFactory _expenseCategorySelectorFactory;
 	    private readonly IRouteListProfitabilityController _routeListProfitabilityController;
+		private readonly ILifetimeScope _lifetimeScope;
 
-	    public FuelDocumentsJournalViewModel(
+		public FuelDocumentsJournalViewModel(
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IEmployeeService employeeService,
@@ -49,8 +52,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
             ISubdivisionJournalFactory subdivisionJournalFactory,
             ICarJournalFactory carJournalFactory,
             IReportViewOpener reportViewOpener,
-            IExpenseCategorySelectorFactory expenseCategorySelectorFactory,
-            IRouteListProfitabilityController routeListProfitabilityController) : base(unitOfWorkFactory, commonServices)
+            IRouteListProfitabilityController routeListProfitabilityController,
+			INavigationManager navigationManager,
+			ILifetimeScope lifetimeScope) : base(unitOfWorkFactory, commonServices)
         {
 	        _commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 	        _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -63,12 +67,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 	        _subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 	        _carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
 	        _reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
-	        _expenseCategorySelectorFactory =
-		        expenseCategorySelectorFactory ?? throw new ArgumentNullException(nameof(expenseCategorySelectorFactory));
 	        _routeListProfitabilityController =
 		        routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
-
-	        TabName = "Журнал учета топлива";
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			TabName = "Журнал учета топлива";
 
 			var loader = new ThreadDataLoader<FuelDocumentJournalNode>(unitOfWorkFactory);
 			loader.MergeInOrderBy(x => x.CreationDate, true);
@@ -100,10 +103,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			    return result;
 		    }
 	    }
-	    
-	    #region IncomeInvoice
 
-	    private IQueryOver<FuelIncomeInvoice> GetFuelIncomeQuery(IUnitOfWork uow)
+		public INavigationManager NavigationManager { get; }
+
+		#region IncomeInvoice
+
+		private IQueryOver<FuelIncomeInvoice> GetFuelIncomeQuery(IUnitOfWork uow)
 	    {
 		    FuelDocumentJournalNode resultAlias = null;
 		    FuelIncomeInvoice fuelIncomeInvoiceAlias = null;
@@ -271,14 +276,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			Employee cashierAlias = null;
 			Employee employeeAlias = null;
 			Subdivision subdivisionAlias = null;
-			ExpenseCategory expenseCategoryAlias = null;
+			FinancialExpenseCategory financialExpenseCategoryAlias = null;
 			FuelWriteoffDocumentItem fuelWriteoffItemAlias = null;
 			var fuelWriteoffQuery = uow.Session.QueryOver<FuelWriteoffDocument>(() => fuelWriteoffAlias)
-				.Left.JoinQueryOver(() => fuelWriteoffAlias.Cashier, () => cashierAlias)
-				.Left.JoinQueryOver(() => fuelWriteoffAlias.Employee, () => employeeAlias)
-				.Left.JoinQueryOver(() => fuelWriteoffAlias.CashSubdivision, () => subdivisionAlias)
-				.Left.JoinQueryOver(() => fuelWriteoffAlias.ExpenseCategory, () => expenseCategoryAlias)
-				.Left.JoinQueryOver(() => fuelWriteoffAlias.FuelWriteoffDocumentItems, () => fuelWriteoffItemAlias)
+				.Left.JoinAlias(() => fuelWriteoffAlias.Cashier, () => cashierAlias)
+				.Left.JoinAlias(() => fuelWriteoffAlias.Employee, () => employeeAlias)
+				.Left.JoinAlias(() => fuelWriteoffAlias.CashSubdivision, () => subdivisionAlias)
+				.JoinEntityAlias(
+						() => financialExpenseCategoryAlias,
+						() => fuelWriteoffAlias.ExpenseCategoryId == financialExpenseCategoryAlias.Id,
+						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Left.JoinAlias(() => fuelWriteoffAlias.FuelWriteoffDocumentItems, () => fuelWriteoffItemAlias)
 				.SelectList(list => list
 					.SelectGroup(() => fuelWriteoffAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => fuelWriteoffAlias.Date).WithAlias(() => resultAlias.CreationDate)
@@ -292,7 +300,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmployeeSurname)
 					.Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmployeePatronymic)
 
-					.Select(() => expenseCategoryAlias.Name).WithAlias(() => resultAlias.ExpenseCategory)
+					.Select(() => financialExpenseCategoryAlias.Title).WithAlias(() => resultAlias.ExpenseCategory)
 					.Select(Projections.Sum(Projections.Property(() => fuelWriteoffItemAlias.Liters))).WithAlias(() => resultAlias.Liters)
 
 					.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionFrom)
@@ -328,8 +336,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _employeeJournalFactory,
 					    _reportViewOpener,
 					    _subdivisionJournalFactory,
-					    _expenseCategorySelectorFactory,
-					    _routeListProfitabilityController),
+					    _routeListProfitabilityController,
+						NavigationManager,
+						_lifetimeScope),
 				    //функция диалога открытия документа
 				    (FuelDocumentJournalNode node) => new FuelWriteoffDocumentViewModel(
 					    EntityUoWBuilder.ForOpen(node.Id),
@@ -341,8 +350,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 					    _employeeJournalFactory,
 					    _reportViewOpener,
 					    _subdivisionJournalFactory,
-					    _expenseCategorySelectorFactory,
-					    _routeListProfitabilityController),
+					    _routeListProfitabilityController,
+						NavigationManager,
+						_lifetimeScope),
 				    //функция идентификации документа 
 				    (FuelDocumentJournalNode node) => {
 					    return node.EntityType == typeof(FuelWriteoffDocument);

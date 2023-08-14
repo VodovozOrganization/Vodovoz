@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Extensions.Logging;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
@@ -74,6 +74,7 @@ namespace MonitoringArchivingWorker
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
+				.Driver<LoggedMySqlClientDriver>()
 				.ConnectionString(connectionString);
 
 			// Настройка ORM

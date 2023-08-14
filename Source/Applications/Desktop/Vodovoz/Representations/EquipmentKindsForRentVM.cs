@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig <EquipmentKindsForRentVMNode>.Create ()
-			.AddColumn ("Вид оборудования").SetDataProperty (node => node.Name)
+			.AddColumn ("Вид оборудования").AddTextRenderer(node => node.Name)
 			.AddColumn ("На складе").AddTextRenderer (node => node.InStockText)
 			.AddColumn ("Зарезервировано").AddTextRenderer (node => node.ReservedText)
 			.AddColumn ("Доступно").AddTextRenderer (node => node.AvailableText)

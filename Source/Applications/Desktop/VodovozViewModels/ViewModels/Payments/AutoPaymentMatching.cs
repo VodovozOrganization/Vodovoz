@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 							&& !_orderUndeliveredStatuses.Contains(order.OrderStatus)
 							&& order.Client.Id == payment.Counterparty.Id
 							&& order.PaymentType == PaymentType.Cashless
-							&& order.OrderPaymentStatus == OrderPaymentStatus.UnPaid
+							&& (order.OrderPaymentStatus == OrderPaymentStatus.UnPaid || order.OrderPaymentStatus == OrderPaymentStatus.None)
 							&& order.OrderSum > 0));
 
 				if(!orders.Any())

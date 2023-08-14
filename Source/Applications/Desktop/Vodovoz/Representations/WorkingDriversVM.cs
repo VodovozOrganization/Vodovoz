@@ -128,7 +128,7 @@ namespace Vodovoz.ViewModel
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<WorkingDriverVMNode>.Create()
 			.AddColumn("№").AddNumericRenderer(node => node.RowNumber)
-			.AddColumn("Имя").SetDataProperty(node => node.ShortName)
+			.AddColumn("Имя").AddTextRenderer(node => node.ShortName)
 			.AddColumn("Машина").AddTextRenderer().AddSetter((c, node) => c.Markup = node.CarText)
 			.AddColumn("МЛ").AddTextRenderer().AddSetter((c, node) => c.Markup = node.RouteListsText)
 			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)

@@ -5,9 +5,9 @@ using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Cash;
 
 namespace Vodovoz.Models
 {
@@ -48,11 +48,11 @@ namespace Vodovoz.Models
 			return needNewDriverAdvance;
 		}
 
-		public void CreateNewDriverAdvance(IUnitOfWork uow, ICategoryRepository categoryRepository, decimal cashInput)
+		public void CreateNewDriverAdvance(IUnitOfWork uow, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings, decimal cashInput)
 		{
 			Expense cashExpense = null;
 
-			_routeList.EmployeeAdvanceOperation(ref cashExpense, cashInput, categoryRepository);
+			_routeList.EmployeeAdvanceOperation(ref cashExpense, cashInput, financialCategoriesGroupsSettings);
 
 			if(cashExpense != null)
 			{

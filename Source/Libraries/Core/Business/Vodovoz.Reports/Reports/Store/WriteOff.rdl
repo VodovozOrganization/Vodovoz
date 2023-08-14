@@ -9,7 +9,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
       </ConnectionProperties>
     </DataSource>
@@ -750,7 +750,7 @@ WHERE stored_resource.id = @id1
         <Height>30.83pt</Height>
         <Width>552.34pt</Width>
         <Value>ООО «Веселый Водовоз»</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>167.10pt</Left>
         <Top>72.80pt</Top>
         <Style>
@@ -779,7 +779,7 @@ WHERE stored_resource.id = @id1
         <Height>13.50pt</Height>
         <Width>196.48pt</Width>
         <Value>=First({time_stamp}, 'Doc')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>530.7pt</Left>
         <Top>119.2pt</Top>
         <Style>
@@ -794,7 +794,7 @@ WHERE stored_resource.id = @id1
         <Height>17.28pt</Height>
         <Width>365.96pt</Width>
         <Value>Ответственное лицо ______________ (_______________________)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>389.7pt</Left>
         <Top>234.6pt</Top>
         <Style>
@@ -810,7 +810,7 @@ WHERE stored_resource.id = @id1
         <Height>13.50pt</Height>
         <Width>305.61pt</Width>
         <Value>=First({storage_name}, 'Doc')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>420.80pt</Left>
         <Top>133.60pt</Top>
         <Style>

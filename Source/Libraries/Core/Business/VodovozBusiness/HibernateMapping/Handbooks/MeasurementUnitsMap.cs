@@ -8,7 +8,6 @@ namespace Vodovoz.HibernateMapping
 		public MeasurementUnitsMap ()
 		{
 			Table("measurement_units");
-			Not.LazyLoad ();
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.Name).Column ("name");

@@ -20,7 +20,7 @@
         <Height>24.06pt</Height>
         <Width>578.14pt</Width>
         <Value>="Отчёт по выездам мастера за " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + Iif({?start_date} = {?end_date}, "", " - " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>5.80pt</Top>
         <Style>
@@ -357,7 +357,7 @@
         <Height>12.75pt</Height>
         <Width>221.33pt</Width>
         <Value>="Мастер: " + First(Fields!employee_name, "route_lists")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>6.70pt</Top>
         <Style>
@@ -534,7 +534,7 @@ where
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>
         </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>

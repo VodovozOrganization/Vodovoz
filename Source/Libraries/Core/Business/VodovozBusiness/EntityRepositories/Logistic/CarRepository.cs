@@ -69,8 +69,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.WhereRestrictionOn(() => carVersionAlias.CarOwnType).IsInG(selectedCarOwnTypes)
 				.And(() => car == null || car == carEventAlias.Car)
 				.And(() => carEventAlias.EndDate >= startDate)		// Ориентируемся только на дату окончания события
-				.And(() => carEventAlias.EndDate <= endDate)		
-				.And(() => !carEventAlias.DoNotShowInOperation)
+				.And(() => carEventAlias.EndDate <= endDate)
 				.OrderByAlias(() => carEventAlias.EndDate).Desc()
 				.List<CarEvent>();
 		}

@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Водитель").AddTextRenderer(node => node.Driver)
 			.AddColumn("Машина").AddTextRenderer(node => node.Car)
 			.AddColumn("Дата").AddTextRenderer(node => node.Date.ToShortDateString())
-			.AddColumn("Статус МЛ").SetDataProperty(node => node.Status.GetEnumTitle())
+			.AddColumn("Статус МЛ").AddTextRenderer(node => node.Status.GetEnumTitle())
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig => columnsConfig;

@@ -18,7 +18,7 @@
         <Height>15.01pt</Height>
         <Width>575.96pt</Width>
         <Value>="ДОГОВОР №" + {?contract_id}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>93.4pt</Top>
         <Style>
@@ -1354,7 +1354,7 @@
         <Height>15.04pt</Height>
         <Width>576.77pt</Width>
         <Value>8. ЮРИДИЧЕСКИЕ АДРЕСА И РЕКВИЗИТЫ СТОРОН</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>988.7pt</Top>
         <Style>
@@ -1823,7 +1823,7 @@ limit 1</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

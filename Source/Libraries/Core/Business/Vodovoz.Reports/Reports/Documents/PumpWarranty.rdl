@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -281,7 +281,7 @@ WHERE organizations.id = @organization_id;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -298,7 +298,7 @@ WHERE organizations.id = @organization_id;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -315,7 +315,7 @@ WHERE organizations.id = @organization_id;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -332,7 +332,7 @@ WHERE organizations.id = @organization_id;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -359,7 +359,7 @@ WHERE organizations.id = @organization_id;</CommandText>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -375,7 +375,7 @@ WHERE organizations.id = @organization_id;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -392,7 +392,7 @@ WHERE organizations.id = @organization_id;</CommandText>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -409,7 +409,7 @@ WHERE organizations.id = @organization_id;</CommandText>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <ZIndex>2</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -419,14 +419,14 @@ WHERE organizations.id = @organization_id;</CommandText>
         </Details>
         <Left>21.1pt</Left>
         <Top>156.1pt</Top>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
       </Table>
       <Textbox Name="Textbox15">
         <Height>24.07pt</Height>
         <Width>560.00pt</Width>
         <Value>Переданное оборудование: комплектно и находится в технически исправном состоянии.
 Настоящий акт составлен в двух экземплярах, один из которых находится у Фирмы, другой – у Клиента.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>20.60pt</Left>
         <Top>212.30pt</Top>
         <Style>
@@ -440,7 +440,7 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Height>21.10pt</Height>
         <Width>560.00pt</Width>
         <Value>Правила гарантийного обслуживания  аппаратов.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>15.0pt</Left>
         <Top>239.7pt</Top>
         <Style>
@@ -456,7 +456,7 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Height>49.69pt</Height>
         <Width>558.50pt</Width>
         <Value>При обнаружении заводского брака, Товар в течение 14 дней с момента его отгрузки Покупателю, возможно, заменить, при условии наличия данной продукции на складе Поставщика. Устранение недостатков оборудования, возникших по вине Фирмы или изготовителя оборудования, производится в течение 3 месяцев с момента передачи оборудования Клиенту. В этом случае претензии принимаются только при наличии следующих документов:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>15.0pt</Left>
         <Top>262.0pt</Top>
         <Style>
@@ -470,7 +470,7 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Height>13.58pt</Height>
         <Width>465.31pt</Width>
         <Value>1.           документ, подтверждающий приобретение Товара</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>18.3pt</Left>
         <Top>301.4pt</Top>
         <Style>
@@ -481,7 +481,7 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Height>34.61pt</Height>
         <Width>560.00pt</Width>
         <Value>Товар принимается в оригинальной заводской упаковке (коробка, полный набор пенопластовых уплотнителей, наличие пластиковых крышек), в полной комплектности и в товарном виде (отсутствие следов использования- капли, брызги, царапины, следы упаковочного скотча, отсутствие воды в системе аппарата, без признаков самостоятельного ремонта).									</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>15.0pt</Left>
         <Top>311.9pt</Top>
         <Style>
@@ -492,7 +492,7 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Height>10.50pt</Height>
         <Width>560.00pt</Width>
         <Value>Решение о замене может быть принято только после осмотра Товара специалистом сервисного центра.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>15.0pt</Left>
         <Top>340.3pt</Top>
         <Style>
@@ -507,7 +507,7 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Height>38.42pt</Height>
         <Width>560.00pt</Width>
         <Value>При наступлении гарантийного случая в течение всего гарантийного срока поставщик обязуется произвести бесплатный ремонт Товара или обеспечить необходимыми запасными частями безвозмездно при наличии претензии в письменном виде и при условии, что не были нарушены правила и условия эксплуатации Товара, изложенные в Инструкции по эксплуатации, а так же отсутствуют следы попыток неквалифицированного ремонта со стороны Покупателя.									</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>15.0pt</Left>
         <Top>350.5pt</Top>
         <Style>
@@ -518,7 +518,7 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Height>18.73pt</Height>
         <Width>560.00pt</Width>
         <Value>Доставка товара до склада или сервисного центра Поставщика для обмена или гарантийного ремонта и обратно производится силами и за счет Покупателя.									</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>15.0pt</Left>
         <Top>388.5pt</Top>
         <Style>
@@ -533,7 +533,7 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Height>20.99pt</Height>
         <Width>560.00pt</Width>
         <Value>В случае если не указывается характер поломки, сервисный центр, вправе взять плату за диагностику аппарата. Стоимость диагностики определяется в соответствии с действующим прайс-листом сервисного центра.									</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>15.0pt</Left>
         <Top>409.1pt</Top>
         <Style>
@@ -552,7 +552,7 @@ WHERE organizations.id = @organization_id;</CommandText>
 -         при повреждении аппарата вследствие обстоятельств непреодолимой силы (пожар, стихия, молния и тд.)
 -         при повреждениях аппарата вызванных попаданием внутрь аппарата посторонних предметов, жидкостей, насекомых, животных, в т.ч. излишнего количества пыли.
 -         при использовании небутилированной воды.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>15.0pt</Left>
         <Top>447.7pt</Top>
         <Style>
@@ -568,15 +568,15 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Left>20.00pt</Left>
         <Top>79.90pt</Top>
         <Style>
-          <BorderStyle>
-            <Default>Dotted</Default>
-            <Left>Dotted</Left>
-            <Right>Dotted</Right>
-            <Top>Dotted</Top>
-            <Bottom>Dotted</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <ReportItems>
           <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -585,7 +585,7 @@ WHERE organizations.id = @organization_id;</CommandText>
             <Value>='ФИРМА: '+{full_name} + '; ИНН: ' + {INN} + '; КПП: ' + {KPP} + ';\nЮр. адрес:' + {address} + 
 +'; Р/С '+{number}+' в '+{bank}+';  К/С ' + {cor_account}+'; БИК '+{bik}
 +'; в лице Генерального директора Сосновцева С.С., действующего на основании Устава, передал в собственность клиенту:'</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.00pt</Left>
             <Top>0.00pt</Top>
             <Style>
@@ -605,22 +605,22 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Left>20.5pt</Left>
         <Top>122.6pt</Top>
         <Style>
-          <BorderStyle>
-            <Default>Dotted</Default>
-            <Left>Dotted</Left>
-            <Right>Dotted</Right>
-            <Top>Dotted</Top>
-            <Bottom>Dotted</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <ReportItems>
           <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>16.12pt</Height>
             <Width>507.30pt</Width>
             <Value>=First({client_name}, 'Order')</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>4.70pt</Left>
             <Top>0.80pt</Top>
             <Style>
@@ -638,7 +638,7 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Height>34.60pt</Height>
         <Width>260pt</Width>
         <Value>='Гарантийный талон на помпы №' + Parameters!warranty_full_number.Value</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>146.4pt</Left>
         <Top>10.6pt</Top>
         <Style>
@@ -654,7 +654,7 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Width>560.00pt</Width>
         <Value>Сильно загрязненные аппараты на бесплатный гарантийный ремонт не принимаются!
 Товар снимается с гарантийного обслуживания в следующих случаях:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>15.0pt</Left>
         <Top>428.8pt</Top>
         <Style>
@@ -670,7 +670,7 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Width>563.88pt</Width>
         <Value>Генеральный директор_____________        От Клиента________________________   
 </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>21.4pt</Left>
         <Top>533.6pt</Top>
       </Textbox>
@@ -680,22 +680,22 @@ WHERE organizations.id = @organization_id;</CommandText>
         <Left>479pt</Left>
         <Top>6pt</Top>
         <Style>
-          <BorderStyle>
-            <Default>Dotted</Default>
-            <Left>Dotted</Left>
-            <Right>Dotted</Right>
-            <Top>Dotted</Top>
-            <Bottom>Dotted</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <ReportItems>
           <Textbox Name="Textbox5">
             <Height>11.24pt</Height>
             <Width>122.70pt</Width>
             <Value>=Fields!order_date.Value</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>12.5pt</Top>
           </Textbox>
@@ -703,7 +703,7 @@ WHERE organizations.id = @organization_id;</CommandText>
             <Height>13.51pt</Height>
             <Width>122.70pt</Width>
             <Value>г. Санкт-Петербург</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>0.0pt</Top>
             <Style>
@@ -1125,7 +1125,7 @@ WHERE organizations.id = @organization_id;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=vad;password=123;port=3306;server=192.168.1.5</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

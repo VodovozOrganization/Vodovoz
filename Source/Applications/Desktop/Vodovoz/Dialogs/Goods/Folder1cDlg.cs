@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QS.Validation;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 
@@ -42,9 +43,11 @@ namespace Vodovoz.Dialogs.Goods
 
 		public override bool Save()
 		{
-			var valid = new QS.Validation.QSValidator<Folder1c>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			UoWGeneric.Save();
 			return true;

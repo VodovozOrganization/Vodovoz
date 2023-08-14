@@ -4,13 +4,17 @@ using NLog;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Profitability;
+using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Factories;
+using Vodovoz.Models;
 using Vodovoz.Services;
 
 namespace Vodovoz.Controllers
@@ -146,7 +150,7 @@ namespace Vodovoz.Controllers
 				: default(decimal);
 			
 			_logger.Debug("Рассчитываем валовую маржу...");
-			CalculateRouteListProfitabilityGrossMargin(uow, routeList, routeListProfitability, nearestProfitabilityConstants);
+			CalculateRouteListProfitabilityGrossMargin(uow, routeList, routeListProfitability);
 		}
 
 		
@@ -163,12 +167,11 @@ namespace Vodovoz.Controllers
 		private void CalculateRouteListProfitabilityGrossMargin(
 			IUnitOfWork uow,
 			RouteList routeList,
-			RouteListProfitability routeListProfitability,
-			ProfitabilityConstants nearestProfitabilityConstants)
+			RouteListProfitability routeListProfitability)
 		{
-			routeListProfitability.SalesSum = _routeListRepository.GetRouteListSalesSum(uow, routeList.Id);
-			routeListProfitability.ExpensesSum =
-				CalculateExpenses(uow, routeList, routeListProfitability, nearestProfitabilityConstants);
+			var routeListProfitabilitySpendings = _routeListRepository.GetRouteListSpendings(uow, routeList.Id, routeListProfitability.RouteListExpensesPerKg);
+			routeListProfitability.SalesSum = routeListProfitabilitySpendings.TotalSales;
+			routeListProfitability.ExpensesSum = routeListProfitabilitySpendings.GetTotalSpending();
 			routeListProfitability.GrossMarginSum = routeListProfitability.SalesSum - routeListProfitability.ExpensesSum;
 			routeListProfitability.GrossMarginPercents = routeListProfitability.SalesSum != 0
 				? Math.Round(routeListProfitability.GrossMarginSum.Value / routeListProfitability.SalesSum.Value * 100, 2)
@@ -186,27 +189,8 @@ namespace Vodovoz.Controllers
 			routeListProfitability.Mileage = GetMileageFromRouteList(routeList);
 			routeListProfitability.PaidDelivery = paidDelivery;
 			routeListProfitability.TotalGoodsWeight = useDataFromDataBase
-				? Math.Round(_routeListRepository.GetRouteListTotalWeight(uow, routeList.Id), 2)
-				: routeList.GetTotalWeight();
-		}
-		
-		private decimal CalculateExpenses(
-			IUnitOfWork uow,
-			RouteList routeList,
-			RouteListProfitability routeListProfitability,
-			ProfitabilityConstants nearestProfitabilityConstants)
-		{
-			var purchasePrice = _nomenclatureRepository.GetPurchasePrice(uow, routeList.Id, routeList.Date);
-			var innerDeliveryPrice = _nomenclatureRepository.GetInnerDeliveryPrice(uow, routeList.Id, routeList.Date);
-
-			var warehouseExpenses =
-				_nomenclatureRepository.GetWarehouseExpensesForRoute(uow, routeList.Id, nearestProfitabilityConstants.WarehouseExpensesPerKg);
-			
-			var otherExpenses = _nomenclatureRepository.GetOtherRouteExpenses(uow, routeList.Id,
-				nearestProfitabilityConstants.AdministrativeExpensesPerKg, routeListProfitability.RouteListExpensesPerKg);
-
-			return purchasePrice + innerDeliveryPrice + otherExpenses.AdministrativeExpenses + warehouseExpenses
-				+ otherExpenses.RouteListExpenses;
+				? Math.Round(_routeListRepository.GetRouteListTotalSalesGoodsWeight(uow, routeList.Id), 2)
+				: routeList.GetTotalSalesGoodsWeight();
 		}
 
 		private void CalculateRouteListProfitabilityWithFixedShippingPrice(

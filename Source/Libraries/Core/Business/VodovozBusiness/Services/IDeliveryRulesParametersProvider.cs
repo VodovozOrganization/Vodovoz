@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Vodovoz.Services
 {
@@ -31,6 +31,8 @@ namespace Vodovoz.Services
 		void UpdateFastDeliveryMaxDistanceParameter(double value);
 		void UpdateFlyerForNewCounterpartyBottlesCountParameter(string value);
 		void UpdateFlyerForNewCounterpartyEnabledParameter(string value);
+		void UpdateMaxFastOrdersPerSpecificTimeParameter(string toString);
+
 		double GetMaxDistanceToLatestTrackPointKmFor(DateTime dateTime);
 
 		#endregion

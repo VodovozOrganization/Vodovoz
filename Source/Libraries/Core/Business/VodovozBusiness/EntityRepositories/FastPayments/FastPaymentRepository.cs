@@ -90,7 +90,16 @@ namespace Vodovoz.EntityRepositories.FastPayments
 				.And(fp => fp.ExternalId == externalId)
 				.SingleOrDefault();
 		}
-		
+
+		public IList<FastPayment> GetAllPaymentsByOnlineOrder(IUnitOfWork uow, int orderId)
+		{
+			var result = uow.Session.QueryOver<FastPayment>()
+				.Where(fp => fp.OnlineOrderId == orderId)
+				.OrderBy(fp => fp.FastPaymentStatus).Desc
+				.List();
+			return result;
+		}
+
 		private IList<FastPayment> GetAllFastPaymentsByOrderOrderByStatusDesc(IUnitOfWork uow, int orderId)
 		{
 			return uow.Session.QueryOver<FastPayment>()
@@ -103,6 +112,24 @@ namespace Vodovoz.EntityRepositories.FastPayments
 		{
 			return QueryOver.Of<FastPayment>()
 				.Where(fp => fp.Ticket == ticket);
+		}
+
+		public FastPaymentNotification GetNotificationsForPayment(IUnitOfWork uow, FastPaymentNotificationType notificationType, int paymentId)
+		{
+			var result = uow.Session.QueryOver<FastPaymentNotification>()
+				.Where(x => x.Payment.Id == paymentId)
+				.Where(x => x.Type == notificationType)
+				.SingleOrDefault();
+			return result;
+		}
+
+		public IEnumerable<FastPaymentNotification> GetActiveNotifications(IUnitOfWork uow)
+		{
+			var result = uow.Session.QueryOver<FastPaymentNotification>()
+				.Where(x => !x.SuccessfullyNotified)
+				.Where(x => !x.StopNotifications)
+				.List();
+			return result;
 		}
 	}
 }

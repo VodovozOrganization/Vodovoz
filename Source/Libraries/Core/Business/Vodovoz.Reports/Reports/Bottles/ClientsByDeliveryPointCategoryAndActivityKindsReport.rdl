@@ -128,7 +128,7 @@ AND (
         <Height>17.31pt</Height>
         <Width>806.79pt</Width>
         <Value>="Клиенты по типам объектов и видам деятельности " + Iif({?start_date} = {?end_date}, 'за ' + Format(CDate({?start_date}), "dd.MM.yyyy"), 'с ' + Format(CDate({?start_date}), "dd.MM.yyyy") + ' по ' + Format(CDate({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -697,7 +697,7 @@ AND (
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

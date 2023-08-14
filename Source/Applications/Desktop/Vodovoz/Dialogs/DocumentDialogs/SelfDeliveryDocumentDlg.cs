@@ -31,6 +31,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Factories;
+using QS.Validation;
 
 namespace Vodovoz
 {
@@ -254,9 +255,11 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 
-			var valid = new QS.Validation.QSValidator<SelfDeliveryDocument>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;

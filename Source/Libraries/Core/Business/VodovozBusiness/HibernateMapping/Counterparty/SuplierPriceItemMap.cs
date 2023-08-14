@@ -14,7 +14,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
 
 			Map(x => x.PaymentType).Column("payment_type").CustomType<SupplierPaymentTypeStringType>();
 			Map(x => x.Price).Column("price");
-			Map(x => x.VAT).Column("vat").CustomType<VATStringType>();
+			Map(x => x.VAT).Column("vat");
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.PaymentCondition).Column("payment_condition").CustomType<PaymentConditionStringType>();
 			Map(x => x.DeliveryType).Column("delivery_type").CustomType<DeliveryTypeStringType>();

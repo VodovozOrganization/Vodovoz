@@ -1,13 +1,12 @@
-﻿using System;
-using System.Linq;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
+using System;
+using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 
@@ -46,11 +45,11 @@ namespace Vodovoz.ViewModel
 				.Where(() => operationRemoveAlias.Accountable.Id == employeeAlias.Id)
 				.Select (Projections.Sum<AdvanceReport> (o => o.Money));
 
-			if(Filter.RestrictExpenseCategory != null)
+			if(Filter.FinancialExpenseCategory != null)
 			{
-				subqueryAdd.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
-				subqueryReturn.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
-				subqueryRemove.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
+				subqueryAdd.Where (e => e.ExpenseCategoryId == Filter.FinancialExpenseCategory.Id);
+				subqueryReturn.Where (e => e.ExpenseCategoryId == Filter.FinancialExpenseCategory.Id);
+				subqueryRemove.Where (e => e.ExpenseCategoryId == Filter.FinancialExpenseCategory.Id);
 			}
 
 			var stocklist = UoW.Session.QueryOver<Employee> (() => employeeAlias)
@@ -70,8 +69,8 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig treeViewConfig = ColumnsConfigFactory.Create<AccountableDebtsVMNode> ()
-			.AddColumn("Имя сотрудника").SetDataProperty (node => node.AccountableName)
-			.AddColumn ("Задолжность").SetDataProperty (node => node.DebtText)
+			.AddColumn("Имя сотрудника").AddTextRenderer (node => node.AccountableName)
+			.AddColumn ("Задолжность").AddTextRenderer(node => node.DebtText)
 			.RowCells ().AddSetter<Gtk.CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 

@@ -1,29 +1,23 @@
-﻿using Gamma.Widgets;
+﻿using QS.Views.GtkUI;
 using QSOrmProject;
-using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash.CashTransfer;
+using Vodovoz.ViewModels.Cash.Transfer.Journal;
 
 namespace Vodovoz.JournalFilters.Cash
 {
-    [OrmDefaultIsFiltered(true)]
-    public partial class CashTransferDocumentsFilter : RepresentationFilterBase<CashTransferDocumentsFilter>
-    {
-        public CashTransferDocumentsFilter()
-        {
-            this.Build();
+	[OrmDefaultIsFiltered(true)]
+	public partial class CashTransferDocumentsFilter : FilterViewBase<TransferDocumentsJournalFilterViewModel>
+	{
+		public CashTransferDocumentsFilter(TransferDocumentsJournalFilterViewModel filterViewModel)
+			: base(filterViewModel)
+		{
+			Build();
 
-            yenumCashTransferDocumentStatus.ItemsEnum = typeof(CashTransferDocumentStatuses);
+			yenumCashTransferDocumentStatus.ItemsEnum = typeof(CashTransferDocumentStatuses);
 
-            yenumCashTransferDocumentStatus.EnumItemSelected += (sender, e) => OnRefiltered();
-        }
-
-        public CashTransferDocumentStatuses? CashTransferDocumentStatus
-        {
-            get { return yenumCashTransferDocumentStatus.SelectedItem as CashTransferDocumentStatuses?; }
-            set { 
-                yenumCashTransferDocumentStatus.SelectedItem = value; 
-                yenumCashTransferDocumentStatus.Sensitive = false;
-            }
-        }
-    }
+			yenumCashTransferDocumentStatus.Binding
+				.AddBinding(ViewModel, vm => vm.CashTransferDocumentStatus, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+		}
+	}
 }

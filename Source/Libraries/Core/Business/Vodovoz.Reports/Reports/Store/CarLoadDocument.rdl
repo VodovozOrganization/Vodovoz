@@ -805,7 +805,7 @@ GROUP BY o2.e_shop_order;</CommandText>
         <Height>14.99pt</Height>
         <Width>142.70pt</Width>
         <Value>= "Водитель_____________"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>141.7pt</Left>
         <Top>126.0pt</Top>
         <Style>
@@ -819,7 +819,7 @@ GROUP BY o2.e_shop_order;</CommandText>
         <Height>14.24pt</Height>
         <Width>134pt</Width>
         <Value>Кладовщик_____________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.7pt</Left>
         <Top>126.2pt</Top>
         <Style>
@@ -1248,7 +1248,7 @@ GROUP BY o2.e_shop_order;</CommandText>
         <Height>14.24pt</Height>
         <Width>134pt</Width>
         <Value>Кладовщик_____________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>40.9pt</Left>
         <Top>347.2pt</Top>
         <Style>
@@ -1262,7 +1262,7 @@ GROUP BY o2.e_shop_order;</CommandText>
         <Height>14.99pt</Height>
         <Width>142.70pt</Width>
         <Value>= "Водитель_____________"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>282.9pt</Left>
         <Top>347.0pt</Top>
         <Style>
@@ -1791,7 +1791,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Details>
         <Left>20.8pt</Left>
         <Top>305.8pt</Top>
-        <ZIndex>2</ZIndex>
+        <ZIndex>0</ZIndex>
       </Table>
       <Table Name="Table16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>EquipmentOnlineStore</DataSetName>
@@ -2464,7 +2464,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Height>14.99pt</Height>
         <Width>142.70pt</Width>
         <Value>= "Водитель_____________"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>282.9pt</Left>
         <Top>241.9pt</Top>
         <Style>
@@ -2478,7 +2478,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Height>14.24pt</Height>
         <Width>134pt</Width>
         <Value>Кладовщик_____________</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>40.9pt</Left>
         <Top>241.9pt</Top>
         <Style>
@@ -2492,7 +2492,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Height>13.52pt</Height>
         <Width>389.09pt</Width>
         <Value>Товар мной проверен. По количеству и качеству товара претензий не имею.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>173.1pt</Left>
         <Top>360.9pt</Top>
         <Style>
@@ -2505,7 +2505,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Height>15.02pt</Height>
         <Width>397.30pt</Width>
         <Value>Товар мной проверен. По количеству и качеству товара претензий не имею.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>134.5pt</Left>
         <Top>138.8pt</Top>
         <Style>
@@ -2578,7 +2578,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

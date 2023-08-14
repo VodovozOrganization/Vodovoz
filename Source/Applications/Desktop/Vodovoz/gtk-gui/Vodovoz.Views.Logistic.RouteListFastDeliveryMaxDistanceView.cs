@@ -12,6 +12,8 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
+		private global::Gtk.Button btnCopyEntityId;
+
 		private global::Gamma.GtkWidgets.yHBox yhboxSettings;
 
 		private global::Gtk.Label lblDistance;
@@ -68,11 +70,26 @@ namespace Vodovoz.Views.Logistic
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
+			// Container child yhboxButtons.Gtk.Box+BoxChild
+			this.btnCopyEntityId = new global::Gtk.Button();
+			this.btnCopyEntityId.CanFocus = true;
+			this.btnCopyEntityId.Name = "btnCopyEntityId";
+			this.btnCopyEntityId.UseUnderline = true;
+			this.btnCopyEntityId.Label = global::Mono.Unix.Catalog.GetString("Копировать №");
+			global::Gtk.Image w5 = new global::Gtk.Image();
+			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-copy", global::Gtk.IconSize.Menu);
+			this.btnCopyEntityId.Image = w5;
+			this.yhboxButtons.Add(this.btnCopyEntityId);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.btnCopyEntityId]));
+			w6.PackType = ((global::Gtk.PackType)(1));
+			w6.Position = 3;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.yvboxMain.Add(this.yhboxButtons);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yhboxSettings = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxSettings.Name = "yhboxSettings";
@@ -83,10 +100,10 @@ namespace Vodovoz.Views.Logistic
 			this.lblDistance.Xalign = 1F;
 			this.lblDistance.LabelProp = global::Mono.Unix.Catalog.GetString("Радиус для быстрой доставки:");
 			this.yhboxSettings.Add(this.lblDistance);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxSettings[this.lblDistance]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhboxSettings[this.lblDistance]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child yhboxSettings.Gtk.Box+BoxChild
 			this.yspinbuttonDistance = new global::Gamma.GtkWidgets.ySpinButton(0D, 99.9D, 1D);
 			this.yspinbuttonDistance.CanFocus = true;
@@ -98,15 +115,15 @@ namespace Vodovoz.Views.Logistic
 			this.yspinbuttonDistance.ValueAsDecimal = 0m;
 			this.yspinbuttonDistance.ValueAsInt = 0;
 			this.yhboxSettings.Add(this.yspinbuttonDistance);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxSettings[this.yspinbuttonDistance]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhboxSettings[this.yspinbuttonDistance]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.yvboxMain.Add(this.yhboxSettings);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxSettings]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxSettings]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.yvboxValuesHistory = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxValuesHistory.Name = "yvboxValuesHistory";
@@ -116,10 +133,10 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelHistory.Name = "ylabelHistory";
 			this.ylabelHistory.LabelProp = global::Mono.Unix.Catalog.GetString("История изменения значения радиуса");
 			this.yvboxValuesHistory.Add(this.ylabelHistory);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvboxValuesHistory[this.ylabelHistory]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxValuesHistory[this.ylabelHistory]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child yvboxValuesHistory.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -131,11 +148,11 @@ namespace Vodovoz.Views.Logistic
 			this.yTreeViewDistanceHistory.Name = "yTreeViewDistanceHistory";
 			this.GtkScrolledWindow.Add(this.yTreeViewDistanceHistory);
 			this.yvboxValuesHistory.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yvboxValuesHistory[this.GtkScrolledWindow]));
-			w11.Position = 1;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxValuesHistory[this.GtkScrolledWindow]));
+			w13.Position = 1;
 			this.yvboxMain.Add(this.yvboxValuesHistory);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxValuesHistory]));
-			w12.Position = 2;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yvboxValuesHistory]));
+			w14.Position = 2;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

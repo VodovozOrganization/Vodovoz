@@ -36,11 +36,21 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 				.AddBinding(fcg => fcg.IsArchive, checkbox => checkbox.Active)
 				.InitializeFromSource();
 
+			yentryNumbering.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(fcg => fcg.Numbering, entry => entry.Text)
+				.InitializeFromSource();
+
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, CloseSource.Cancel); };
 
 			btnCopyEntityId.Sensitive = ViewModel.Entity.Id > 0;
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+
+			chkIsHideFromPublicAccess.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(fcg => fcg.IsHiddenFromPublicAccess, checkbox => checkbox.Active)
+				.InitializeFromSource();
 		}
 
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)

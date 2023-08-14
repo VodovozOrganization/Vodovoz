@@ -20,7 +20,7 @@
         <Height>23.34pt</Height>
         <Width>581.25pt</Width>
         <Value>= "Отчет по клиентам розницы"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>102.3pt</Left>
         <Top>5.6pt</Top>
         <Style>
@@ -36,7 +36,7 @@
         <Width>801.63pt</Width>
         <Value>В отчет попадают клиенты "Розницы" 
 Сортировка: по дате первого заказа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.40pt</Left>
         <Top>33.34pt</Top>
         <Style>
@@ -561,7 +561,7 @@ ORDER BY counter_id, first_order DESC, orders.create_date DESC;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>
         </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>

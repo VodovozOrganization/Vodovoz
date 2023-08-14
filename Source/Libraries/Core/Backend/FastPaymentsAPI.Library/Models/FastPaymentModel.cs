@@ -27,7 +27,7 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IOrderRepository _orderRepository;
 		private readonly ISignatureManager _signatureManager;
 		private readonly FastPaymentFileCache _fastPaymentFileCache;
-		private readonly IFastPaymentAPIFactory _fastPaymentApiFactory;
+		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 		private readonly IFastPaymentManager _fastPaymentManager;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationParametersProvider _organizationParametersProvider;
@@ -40,7 +40,7 @@ namespace FastPaymentsAPI.Library.Models
 			IOrderRepository orderRepository,
 			ISignatureManager signatureManager,
 			FastPaymentFileCache fastPaymentFileCache,
-			IFastPaymentAPIFactory fastPaymentApiFactory,
+			IFastPaymentFactory fastPaymentApiFactory,
 			IFastPaymentManager fastPaymentManager,
 			IOrganizationRepository organizationRepository,
 			IOrganizationParametersProvider organizationParametersProvider,

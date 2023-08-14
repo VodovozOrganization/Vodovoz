@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -35,7 +35,7 @@
         <Height>22.55pt</Height>
         <Width>568.36pt</Width>
         <Value>="Отчет по изменению зарплатного баланса с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>8.60pt</Top>
         <Style>
@@ -102,10 +102,16 @@
         </ReportItems>
         <DataSetName>Employee_info</DataSetName>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <PaddingBottom>6pt</PaddingBottom>
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
+            <PaddingBottom>6pt</PaddingBottom>
         </Style>
       </List>
       <Table Name="Table1">
@@ -340,7 +346,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

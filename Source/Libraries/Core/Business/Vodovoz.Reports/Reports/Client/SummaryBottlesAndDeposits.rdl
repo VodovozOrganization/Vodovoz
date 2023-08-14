@@ -2182,7 +2182,7 @@ Iif({returned} = null and {forfeitCount} = null, "", Iif( Fields!returned.IsMiss
         <Height>14.99pt</Height>
         <Width>513.51pt</Width>
         <Value>="Реестр документов с " + Format(CDate({?startDate}), "d") + " по "+ Format(CDate({?endDate}), "d")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.5pt</Left>
         <Top>44.0pt</Top>
         <Style>
@@ -2198,7 +2198,7 @@ Iif({returned} = null and {forfeitCount} = null, "", Iif( Fields!returned.IsMiss
 
 ____________(                        )
      м.п.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>26.4pt</Left>
         <Top>311.6pt</Top>
         <Style>
@@ -2216,7 +2216,7 @@ ____________(                        )
 
 ___________(                   )
       м.п.'</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>301pt</Left>
         <Top>300pt</Top>
         <Style>
@@ -2230,7 +2230,7 @@ ___________(                   )
         <Height>14pt</Height>
         <Width>210pt</Width>
         <Value>Забрать бутылей:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0pt</Left>
         <Top>148pt</Top>
         <Style>
@@ -2246,7 +2246,7 @@ ___________(                   )
         <Height>14.00pt</Height>
         <Width>118.00pt</Width>
         <Value>=First({bottle_balance}, 'Bottles')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>210.00pt</Left>
         <Top>148.00pt</Top>
         <Style>
@@ -2264,7 +2264,7 @@ ___________(                   )
         <Height>14pt</Height>
         <Width>210pt</Width>
         <Value>Вернуть залогов за бутыли:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0pt</Left>
         <Top>162.0pt</Top>
         <Style>
@@ -2280,7 +2280,7 @@ ___________(                   )
         <Height>14pt</Height>
         <Width>130pt</Width>
         <Value>=Sum({bottles_deposit}, 'Data')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>210pt</Left>
         <Top>162pt</Top>
         <Style>
@@ -2297,7 +2297,7 @@ ___________(                   )
         <Height>14pt</Height>
         <Width>210pt</Width>
         <Value>Вернуть залогов за оборудование:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0pt</Left>
         <Top>176pt</Top>
         <Style>
@@ -2313,7 +2313,7 @@ ___________(                   )
         <Height>14pt</Height>
         <Width>130pt</Width>
         <Value>=Sum({equipment_deposit}, 'Data')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>210pt</Left>
         <Top>176pt</Top>
         <Style>
@@ -2330,7 +2330,7 @@ ___________(                   )
         <Height>14pt</Height>
         <Width>210pt</Width>
         <Value>Оборудование клиента у нас:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>215pt</Top>
         <Style>
@@ -2345,7 +2345,7 @@ ___________(                   )
         <Height>14pt</Height>
         <Width>210pt</Width>
         <Value>Наше оборудование у клиента:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>250pt</Top>
         <Style>
@@ -2360,7 +2360,7 @@ ___________(                   )
         <Height>28pt</Height>
         <Width>595pt</Width>
         <Value>=First({we_have_clients_equip}, 'StoredEquipments')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>210pt</Left>
         <Top>215pt</Top>
         <Style>
@@ -2378,7 +2378,7 @@ ___________(                   )
         <Height>28pt</Height>
         <Width>595pt</Width>
         <Value>=First({client_have_ours_equip}, 'StoredEquipments')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>210.00pt</Left>
         <Top>250.00pt</Top>
         <Style>
@@ -2397,7 +2397,7 @@ ___________(                   )
         <Height>14pt</Height>
         <Width>210pt</Width>
         <Value>Бутылей по акции "Бутыль" получено:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0pt</Left>
         <Top>190pt</Top>
         <Style>
@@ -2416,7 +2416,7 @@ ___________(                   )
         <Height>14pt</Height>
         <Width>130pt</Width>
         <Value>=First({bottle_by_stock}, 'BottleStock')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>210pt</Left>
         <Top>190pt</Top>
         <Style>
@@ -2492,7 +2492,7 @@ ___________(                   )
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

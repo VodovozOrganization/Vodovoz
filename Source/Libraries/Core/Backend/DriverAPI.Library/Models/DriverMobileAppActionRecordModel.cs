@@ -8,7 +8,7 @@ using Vodovoz.Domain.Logistic.Drivers;
 
 namespace DriverAPI.Library.Models
 {
-	public class DriverMobileAppActionRecordModel : IDriverMobileAppActionRecordModel
+	internal class DriverMobileAppActionRecordModel : IDriverMobileAppActionRecordModel
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ActionTypeConverter _actionTypeConverter;

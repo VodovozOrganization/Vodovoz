@@ -12,6 +12,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		public string Name { get; set; }
 		public int Id { get; set; }
 		public int? ParentId { get; set; }
+		public string Numbering { get; set; }
 		public Type JournalNodeType { get; set; }
 		public FinancialSubType FinancialSubType { get; set; }
 		public FinancialCategoriesJournalNode Parent { get; set; }

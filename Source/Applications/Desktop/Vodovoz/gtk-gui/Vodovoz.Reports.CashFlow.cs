@@ -12,11 +12,11 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.CheckButton checkOrganisations;
 
-		private global::Gtk.ComboBox comboExpenseCategory;
-
-		private global::Gamma.Widgets.ySpecComboBox comboIncomeCategory;
-
 		private global::Gamma.Widgets.yEnumComboBox comboPart;
+
+		private global::QS.Views.Control.EntityEntry entryExpenseFinancialCategory;
+
+		private global::QS.Views.Control.EntityEntry entryIncomeFinancialCategory;
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeCashier;
 
@@ -108,32 +108,6 @@ namespace Vodovoz.Reports
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.comboExpenseCategory = new global::Gtk.ComboBox();
-			this.comboExpenseCategory.Name = "comboExpenseCategory";
-			this.table1.Add(this.comboExpenseCategory);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.comboExpenseCategory]));
-			w4.TopAttach = ((uint)(9));
-			w4.BottomAttach = ((uint)(10));
-			w4.LeftAttach = ((uint)(1));
-			w4.RightAttach = ((uint)(2));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.comboIncomeCategory = new global::Gamma.Widgets.ySpecComboBox();
-			this.comboIncomeCategory.Name = "comboIncomeCategory";
-			this.comboIncomeCategory.AddIfNotExist = false;
-			this.comboIncomeCategory.DefaultFirst = false;
-			this.comboIncomeCategory.ShowSpecialStateAll = true;
-			this.comboIncomeCategory.ShowSpecialStateNot = false;
-			this.table1.Add(this.comboIncomeCategory);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.comboIncomeCategory]));
-			w5.TopAttach = ((uint)(8));
-			w5.BottomAttach = ((uint)(9));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.comboPart = new global::Gamma.Widgets.yEnumComboBox();
 			this.comboPart.Sensitive = false;
 			this.comboPart.Name = "comboPart";
@@ -142,9 +116,33 @@ namespace Vodovoz.Reports
 			this.comboPart.UseShortTitle = false;
 			this.comboPart.DefaultFirst = false;
 			this.table1.Add(this.comboPart);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.comboPart]));
-			w6.TopAttach = ((uint)(7));
-			w6.BottomAttach = ((uint)(8));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.comboPart]));
+			w4.TopAttach = ((uint)(7));
+			w4.BottomAttach = ((uint)(8));
+			w4.LeftAttach = ((uint)(1));
+			w4.RightAttach = ((uint)(2));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.entryExpenseFinancialCategory = new global::QS.Views.Control.EntityEntry();
+			this.entryExpenseFinancialCategory.Events = ((global::Gdk.EventMask)(256));
+			this.entryExpenseFinancialCategory.Name = "entryExpenseFinancialCategory";
+			this.table1.Add(this.entryExpenseFinancialCategory);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.entryExpenseFinancialCategory]));
+			w5.TopAttach = ((uint)(9));
+			w5.BottomAttach = ((uint)(10));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.entryIncomeFinancialCategory = new global::QS.Views.Control.EntityEntry();
+			this.entryIncomeFinancialCategory.Events = ((global::Gdk.EventMask)(256));
+			this.entryIncomeFinancialCategory.Name = "entryIncomeFinancialCategory";
+			this.table1.Add(this.entryIncomeFinancialCategory);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.entryIncomeFinancialCategory]));
+			w6.TopAttach = ((uint)(8));
+			w6.BottomAttach = ((uint)(9));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -154,6 +152,7 @@ namespace Vodovoz.Reports
 			this.evmeCashier.Events = ((global::Gdk.EventMask)(256));
 			this.evmeCashier.Name = "evmeCashier";
 			this.evmeCashier.CanEditReference = true;
+			this.evmeCashier.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeCashier);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeCashier]));
 			w7.TopAttach = ((uint)(1));
@@ -167,6 +166,7 @@ namespace Vodovoz.Reports
 			this.evmeEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.evmeEmployee.Name = "evmeEmployee";
 			this.evmeEmployee.CanEditReference = true;
+			this.evmeEmployee.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.evmeEmployee);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.evmeEmployee]));
 			w8.TopAttach = ((uint)(2));

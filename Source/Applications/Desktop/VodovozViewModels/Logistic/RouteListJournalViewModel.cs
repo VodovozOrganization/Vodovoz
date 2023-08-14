@@ -15,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -67,6 +66,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly Employee _currentEmployee;
 		private bool? _userHasOnlyAccessToWarehouseAndComplaints;
 		private bool? _canCreateSelfDriverTerminalTransferDocument;
+		private bool _canReturnFromMileageCheckToOnClosing = false;
 
 		public RouteListJournalViewModel(
 			RouteListJournalFilterViewModel filterViewModel,
@@ -109,10 +109,11 @@ namespace Vodovoz.ViewModels.Logistic
 			_warehousePermissionValidator =
 				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService))).GetValidator();
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_canReturnFromMileageCheckToOnClosing = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 
 			TabName = "Журнал МЛ";
 
-			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(Expense), typeof(Income), typeof(AdvanceReport), typeof(RouteListItem));
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(RouteListDebt));
 			InitPopupActions();
 		}
 
@@ -318,6 +319,7 @@ namespace Vodovoz.ViewModels.Logistic
 			PopupActionsList.Add(CreateSendRouteListToLoadingAction());
 			PopupActionsList.Add(CreateOpenKeepingDialogAction());
 			PopupActionsList.Add(CreateReturnToEnRouteAction());
+			PopupActionsList.Add(CreateReturnToClosingAction());
 			PopupActionsList.Add(CreateOpenClosingDialogAction());
 			PopupActionsList.Add(CreateOpenAnalysisDialogAction());
 			PopupActionsList.Add(CreateOpenMileageCheckDialogAction());
@@ -521,6 +523,51 @@ namespace Vodovoz.ViewModels.Logistic
 			);
 		}
 
+		private IJournalAction CreateReturnToClosingAction()
+		{
+			return new JournalAction(
+				"Вернуть в сдается",
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& _canReturnToOnClosing.Contains(node.StatusEnum)
+					&& _canReturnFromMileageCheckToOnClosing,
+				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& _canReturnToOnClosing.Contains(node.StatusEnum)
+					&& _canReturnFromMileageCheckToOnClosing,
+				selectedItems =>
+				{
+					var routeListIds = selectedItems.Cast<RouteListJournalNode>().Select(x => x.Id).ToArray();
+					bool isSlaveTabActive = false;
+
+					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
+					{
+						var routeLists = uowLocal.Session.QueryOver<RouteList>()
+							.Where(x => x.Id.IsIn(routeListIds))
+							.List();
+
+						foreach(var routeList in routeLists.Where(arg => arg.Status == RouteListStatus.MileageCheck))
+						{
+							if(TabParent.FindTab(_gtkTabsOpener.GenerateDialogHashName<RouteList>(routeList.Id)) != null)
+							{
+								commonServices.InteractiveService.ShowMessage(
+									ImportanceLevel.Info, "Требуется закрыть подчиненную вкладку");
+								isSlaveTabActive = true;
+								continue;
+							}
+							routeList.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, _callTaskWorker);
+							uowLocal.Save(routeList);
+						}
+
+						if(isSlaveTabActive)
+						{
+							return;
+						}
+
+						uowLocal.Commit();
+					}
+				}
+			);
+		}
+
 		private IJournalAction CreateOpenClosingDialogAction()
 		{
 			return new JournalAction(
@@ -667,13 +714,19 @@ namespace Vodovoz.ViewModels.Logistic
 		private bool UserHasOnlyAccessToWarehouseAndComplaints => _userHasOnlyAccessToWarehouseAndComplaints
 			?? (_userHasOnlyAccessToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !commonServices.UserService.GetCurrentUser(UoW).IsAdmin).Value;
+				&& !commonServices.UserService.GetCurrentUser().IsAdmin).Value;
 
 		private void SendToLoadingAndPrint(RouteListJournalNode selectedNode, Warehouse warehouse)
 		{
 			using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var routeList = localUow.GetById<RouteList>(selectedNode.Id);
+
+				if(!routeList.IsDriversDebtInPermittedRangeVerification())
+				{
+					return;
+				}
+
 				routeList.ChangeStatusAndCreateTask(RouteListStatus.InLoading, _callTaskWorker);
 
 				var carLoadDocument = new CarLoadDocument();
@@ -769,6 +822,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 				foreach(var routeList in routeLists)
 				{
+					if(!routeList.IsDriversDebtInPermittedRangeVerification())
+					{
+						return;
+					}
+
 					int warehouseId = 0;
 
 					var geoGroup = routeList.GeographicGroups.FirstOrDefault();
@@ -944,6 +1002,11 @@ namespace Vodovoz.ViewModels.Logistic
 		private static readonly RouteListStatus[] _canReturnToEnRoute =
 		{
 			RouteListStatus.Delivered
+		};
+
+		private static readonly RouteListStatus[] _canReturnToOnClosing =
+		{
+			RouteListStatus.MileageCheck
 		};
 
 		private static readonly RouteListStatus[] _controlDlgStatuses =

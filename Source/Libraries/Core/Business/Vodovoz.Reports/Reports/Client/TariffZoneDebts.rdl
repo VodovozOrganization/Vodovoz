@@ -399,7 +399,7 @@ ORDER BY counterparty.full_name</CommandText>
         <Height>14.30pt</Height>
         <Width>557.09pt</Width>
         <Value>='Период по последнему заказу: с ' + Format({?date_from}, "dd.MM.yyyy") + ' по ' + Format({?date_to}, "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>6.50pt</Left>
         <Top>11.20pt</Top>
         <CanGrow>true</CanGrow>
@@ -408,7 +408,7 @@ ORDER BY counterparty.full_name</CommandText>
         <Height>14.30pt</Height>
         <Width>557.09pt</Width>
         <Value>='Долг с ' + {?debt_from} + ' по ' + {?debt_to} + ' бутылей'</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>6.4pt</Left>
         <Top>26.7pt</Top>
         <CanGrow>true</CanGrow>
@@ -443,7 +443,7 @@ ORDER BY counterparty.full_name</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

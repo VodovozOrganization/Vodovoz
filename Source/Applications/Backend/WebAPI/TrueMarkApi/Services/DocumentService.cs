@@ -20,6 +20,7 @@ using TrueMarkApi.Models;
 using TrueMarkApi.Services.Authorization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
@@ -178,6 +179,15 @@ namespace TrueMarkApi.Services
 					if(!trueMarkApiDocument.IsSuccess)
 					{
 						_logger.LogError("{ErrorMessage}", trueMarkApiDocument.ErrorMessage);
+					}
+
+					var actions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == doc.Order.Id)
+						.FirstOrDefault();
+
+					if(actions != null && actions.IsNeedToCancelTrueMarkDocument)
+					{
+						actions.IsNeedToCancelTrueMarkDocument = false;
 					}
 
 					uow.Save(trueMarkApiDocument);

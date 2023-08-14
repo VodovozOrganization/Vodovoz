@@ -913,7 +913,7 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

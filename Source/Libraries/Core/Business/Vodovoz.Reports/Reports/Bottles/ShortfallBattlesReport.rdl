@@ -18,7 +18,7 @@
         <Height>20.30pt</Height>
         <Width>816.03pt</Width>
         <Value>='Отчет о недосданных бутылях за ' + Format(Cdate({?date}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -1127,7 +1127,7 @@
         <Height>17.25pt</Height>
         <Width>803.27pt</Width>
         <Value>В отчет попадают реализации, в которых фактически возвращенная тара меньше ожидаемой, находящиеся в статусах Доставлен, Выгрузка на складе или Закрыт.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>9.10pt</Left>
         <Top>5.30pt</Top>
         <Style>
@@ -1384,7 +1384,7 @@ ORDER BY reason_type_status
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

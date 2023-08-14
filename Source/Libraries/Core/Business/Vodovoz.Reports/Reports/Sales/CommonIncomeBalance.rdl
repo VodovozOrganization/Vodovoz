@@ -20,7 +20,7 @@
         <Height>23.80pt</Height>
         <Width>561.49pt</Width>
         <Value>="Отчет по приходу по кассе  с " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " по " +  Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>2.30pt</Top>
         <Style>
@@ -566,16 +566,16 @@
         <DataSourceName>DS1</DataSourceName>
         <Timeout>240</Timeout>
         <CommandText>SELECT
-    cash_income_category.name as category_name,
+    financial_categories_groups.title as category_name,
     SUM(cash_income.money) AS fact_income,
-    cash_income_category.id
+    financial_categories_groups.id
 FROM 
     cash_income
-    JOIN cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
+    JOIN financial_categories_groups ON financial_categories_groups.id = cash_income.financial_income_category_id
 WHERE
     DATE(cash_income.date) &gt;= DATE(@start_date) AND
     DATE(cash_income.date) &lt;= DATE(@end_date) AND
-    cash_income_category.id NOT IN 
+    financial_categories_groups.id NOT IN 
         (
             SELECT
                 str_value
@@ -585,7 +585,7 @@ WHERE
                 base_parameters.name = 'selfdelivery_cash_income_category' OR
                 base_parameters.name = 'route_list_cash_income_category' 
         )
-GROUP BY cash_income_category.id</CommandText>
+GROUP BY financial_categories_groups.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -699,13 +699,13 @@ FROM
     HAVING TotalOrdersSum != 0) AS Transfered ON Transfered.route_list_id = route_lists.id
     LEFT JOIN (SELECT 
             route_list_id,
-            cash_income_category.name as category,
+            financial_categories_groups.title as category,
             SUM(IFNULL(cash_income.money, 0)) AS MoneyIncome,
             GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y')
                 SEPARATOR ', ') AS CashIncomeDates
     FROM
         cash_income
-        LEFT JOIN cash_income_category ON cash_income.cash_income_category_id = cash_income_category.id
+        LEFT JOIN financial_categories_groups ON cash_income.financial_income_category_id = financial_categories_groups.id
     GROUP BY route_list_id) AS CI ON CI.route_list_id = route_lists.id
     LEFT JOIN (SELECT 
         route_list_id,
@@ -748,10 +748,10 @@ FROM
         SELECT
             SUM(cash_income.money) as fact_income,
             cash_income.order_id,
-            cash_income_category.name as category
+            financial_categories_groups.title as category
         FROM
             cash_income
-            LEFT JOIN cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
+            LEFT JOIN financial_categories_groups ON financial_categories_groups.id = cash_income.financial_income_category_id
         WHERE
             DATE(cash_income.date) &gt;= DATE(@StartDate) AND
             DATE(cash_income.date) &lt;= DATE(@EndDate)
@@ -815,7 +815,7 @@ GROUP BY
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

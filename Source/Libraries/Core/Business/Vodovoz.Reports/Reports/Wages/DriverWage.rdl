@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -21,7 +21,7 @@
         <Height>21.10pt</Height>
         <Width>563.88pt</Width>
         <Value>=First(Fields!last_name, "DriverName") + " " + First(Fields!name, "DriverName") + " "+ CDate({?start_date}) + " по " + CDate({?end_date})</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.40pt</Left>
         <Top>3.70pt</Top>
         <Style>
@@ -649,7 +649,7 @@
         <Height>17.26pt</Height>
         <Width>48.12pt</Width>
         <Value>Итого:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.80pt</Left>
         <Top>268.77pt</Top>
         <Style>
@@ -1143,7 +1143,7 @@
         <Height>12.75pt</Height>
         <Width>121.20pt</Width>
         <Value>Незакрытые авансы:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.8pt</Left>
         <Top>327.9pt</Top>
         <Style>
@@ -1156,7 +1156,7 @@
         <Height>12.75pt</Height>
         <Width>167.86pt</Width>
         <Value>Незакрытые маршрутные листы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.8pt</Left>
         <Top>372.1pt</Top>
         <Style>
@@ -1581,7 +1581,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Премии:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.8pt</Left>
         <Top>150.7pt</Top>
         <Style>
@@ -1594,7 +1594,7 @@
         <Height>11.25pt</Height>
         <Width>72.27pt</Width>
         <Value>Авансы:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.8pt</Left>
         <Top>211.3pt</Top>
         <Style>
@@ -1607,7 +1607,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Штрафы:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.8pt</Left>
         <Top>90.1pt</Top>
         <Style>
@@ -1620,7 +1620,7 @@
         <Height>20.35pt</Height>
         <Width>563.13pt</Width>
         <Value>=First({comment}, "DriverName")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.00pt</Left>
         <Top>27.10pt</Top>
         <Style>
@@ -1887,7 +1887,7 @@
         <Height>12.74pt</Height>
         <Width>176.09pt</Width>
         <Value>Штрафы за границами периода:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.5pt</Left>
         <Top>417.9pt</Top>
         <Style>
@@ -1900,7 +1900,7 @@
         <Height>18.03pt</Height>
         <Width>292.84pt</Width>
         <Value>=Sum(Fields!wage.Value, "DriverInfo") + Sum(Fields!money.Value, "DriverPremiums") - Sum(Fields!money.Value, "DriverFines") - Sum(Fields!advance.Value, "Advances")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>58.9pt</Left>
         <Top>271.0pt</Top>
         <Style>
@@ -2216,7 +2216,7 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	cash_expense.date AS uaDate,
-	cash_expense_category.name AS uaName,
+	financial_categories_groups.title AS uaName,
 	cash_expense.money AS uaCash,
 	cash_advance_closing.money AS uaClosedCash,
 	IFNULL(cash_expense.money, 0) - IFNULL(cash_advance_closing.money, 0) AS uaCashUnclosed,
@@ -2224,7 +2224,7 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
 FROM
 	cash_expense
 LEFT JOIN
-	cash_expense_category ON cash_expense.cash_expense_category_id = cash_expense_category.id
+	financial_categories_groups ON cash_expense.financial_expense_category_id = financial_categories_groups.id
 LEFT JOIN
 	cash_advance_closing ON cash_expense.id = cash_advance_closing.expense_id
 WHERE
@@ -2396,7 +2396,7 @@ GROUP BY fines.id</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

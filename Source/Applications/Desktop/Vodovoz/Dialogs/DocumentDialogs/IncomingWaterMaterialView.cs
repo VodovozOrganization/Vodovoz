@@ -96,7 +96,7 @@ namespace Vodovoz
 
 			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse;
 
-			var vm = MainClass.MainWin.NavigationManager
+			var vm = Startup.MainWin.NavigationManager
 				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
 				.ViewModel;
 			

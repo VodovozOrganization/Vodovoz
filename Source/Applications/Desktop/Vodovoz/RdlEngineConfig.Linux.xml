@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+﻿<?xml version='1.0' encoding='UTF-8' ?>
 <config>
 	<DataSources>
 		<DataSource>
@@ -28,6 +28,14 @@
 			<DataProvider>MySQL.NET</DataProvider>
 			<CodeModule>MySql.Data.dll</CodeModule>
 			<ClassName>MySql.Data.MySqlClient.MySqlConnection</ClassName>
+			<TableSelect>show tables</TableSelect>
+			<Interface>SQL</Interface>
+			<ReplaceParameters>true</ReplaceParameters>
+		</DataSource>
+		<DataSource>
+			<DataProvider>MySqlConnector</DataProvider>
+			<CodeModule>MySqlConnector.dll</CodeModule>
+			<ClassName>MySqlConnector.MySqlConnection</ClassName>
 			<TableSelect>show tables</TableSelect>
 			<Interface>SQL</Interface>
 			<ReplaceParameters>true</ReplaceParameters>

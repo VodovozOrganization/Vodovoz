@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -18,7 +18,7 @@
         <Height>23.80pt</Height>
         <Width>561.49pt</Width>
         <Value>Кассовая книга</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>2.30pt</Top>
         <Style>
@@ -660,7 +660,7 @@
         <Height>12.74pt</Height>
         <Width>40.69pt</Width>
         <Value>Кассир</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>12.5pt</Left>
         <Top>176.8pt</Top>
         <Style>
@@ -675,7 +675,7 @@
         <Height>9.75pt</Height>
         <Width>79.81pt</Width>
         <Value>(подпись)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>48.5pt</Left>
         <Top>186.8pt</Top>
         <Style>
@@ -692,7 +692,7 @@
         <Height>8.99pt</Height>
         <Width>128.61pt</Width>
         <Value>(расшифровка подписи)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>138.8pt</Left>
         <Top>186.6pt</Top>
         <Style>
@@ -709,7 +709,7 @@
         <Height>13.45pt</Height>
         <Width>264.19pt</Width>
         <Value>Записи в кассовой книге проверил и документы в количестве</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.0pt</Left>
         <Top>200.9pt</Top>
         <Style>
@@ -724,7 +724,7 @@
         <Height>10.50pt</Height>
         <Width>37.67pt</Width>
         <Value></Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>249.6pt</Left>
         <Top>211.1pt</Top>
         <Style>
@@ -741,7 +741,7 @@
         <Height>9.75pt</Height>
         <Width>216.72pt</Width>
         <Value>(прописью)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.0pt</Left>
         <Top>231.8pt</Top>
         <Style>
@@ -758,7 +758,7 @@
         <Height>14.94pt</Height>
         <Width>56.42pt</Width>
         <Value>=First(Fields!income_count,'CountIncome') + ' приходных и'</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>228.1pt</Left>
         <Top>221.5pt</Top>
         <Style>
@@ -773,7 +773,7 @@
         <Height>9.75pt</Height>
         <Width>216.72pt</Width>
         <Value>(прописью)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>7.7pt</Left>
         <Top>248.8pt</Top>
         <Style>
@@ -790,7 +790,7 @@
         <Height>14.94pt</Height>
         <Width>56.42pt</Width>
         <Value>=First({expense_count}, 'CountExpense') + ' расходных'</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>227.8pt</Left>
         <Top>239.4pt</Top>
         <Style>
@@ -805,7 +805,7 @@
         <Height>14.94pt</Height>
         <Width>56.42pt</Width>
         <Value>получил.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>6.7pt</Left>
         <Top>259.8pt</Top>
         <Style>
@@ -820,7 +820,7 @@
         <Height>12.74pt</Height>
         <Width>48.94pt</Width>
         <Value>Бухгалтер</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>6.00pt</Left>
         <Top>277.60pt</Top>
         <Style>
@@ -835,7 +835,7 @@
         <Height>9.75pt</Height>
         <Width>79.81pt</Width>
         <Value>(подпись)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>53.9pt</Left>
         <Top>285.7pt</Top>
         <Style>
@@ -852,7 +852,7 @@
         <Height>8.99pt</Height>
         <Width>128.61pt</Width>
         <Value>(расшифровка подписи)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>144.2pt</Left>
         <Top>285.5pt</Top>
         <Style>
@@ -869,7 +869,7 @@
         <Height>16.49pt</Height>
         <Width>372.43pt</Width>
         <Value>=Iif({?Cash} = -1, "Все кассы", "Касса " + First(Fields!name,'SubdivisionName'))  + " за " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " - " + Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.10pt</Left>
         <Top>9.80pt</Top>
         <Style>
@@ -884,7 +884,7 @@
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>= "Лист " + {@PageNumber}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>469.7pt</Left>
         <Top>9.0pt</Top>
         <Style>
@@ -897,7 +897,7 @@
         <Height>15.75pt</Height>
         <Width>160.17pt</Width>
         <Value>Остаток на начало периода:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>225.14pt</Left>
         <Top>30.35pt</Top>
         <Style>
@@ -912,7 +912,7 @@
         <Height>12.75pt</Height>
         <Width>148.32pt</Width>
         <Value>=First(Fields!balance,'StartBalance')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>385.2pt</Left>
         <Top>32.6pt</Top>
         <Style>
@@ -928,7 +928,7 @@
         <Height>12.00pt</Height>
         <Width>72.27pt</Width>
         <Value>=First({income_count}, "CountIncome") + First({expense_count}, "CountExpense")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>253.1pt</Left>
         <Top>198.7pt</Top>
         <Style>
@@ -983,8 +983,8 @@ SELECT this_.date as doc_date,
 FROM cash_income this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-         left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
-         left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
+         left outer join financial_categories_groups incomecate3_ on this_.financial_income_category_id=incomecate3_.id
+         left outer join financial_categories_groups expensecat4_ on this_.financial_expense_category_id=expensecat4_.id
 #если выбран пункт Все кассы
 WHERE IF(@Cash != -1,
          (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
@@ -1010,7 +1010,7 @@ SELECT this_.date as doc_date,
 FROM cash_expense this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-         left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
+         left outer join financial_categories_groups expensecat3_ on this_.financial_expense_category_id=expensecat3_.id
 WHERE IF(@Cash != -1,
     (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
     (this_.date &gt;= @StartDate and this_.date &lt; @EndDate));
@@ -1140,8 +1140,8 @@ WHERE IF(@Cash != -1, s.id IN (@Cash), 1=1);</CommandText>
 FROM cash_income this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-         left outer join cash_income_category incomecate3_ on this_.cash_income_category_id=incomecate3_.id
-         left outer join cash_expense_category expensecat4_ on this_.cash_expense_category_id=expensecat4_.id
+         left outer join financial_categories_groups incomecate3_ on this_.financial_income_category_id=incomecate3_.id
+         left outer join financial_categories_groups expensecat4_ on this_.financial_expense_category_id=expensecat4_.id
 WHERE IF(@Cash != -1,
          (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
          (this_.date &gt;= @StartDate and this_.date &lt; @EndDate));</CommandText>
@@ -1172,7 +1172,7 @@ WHERE IF(@Cash != -1,
 FROM cash_expense this_
          left outer join employees casheralia2_ on this_.casher_employee_id=casheralia2_.id
          left outer join employees employeeal1_ on this_.employee_id=employeeal1_.id
-         left outer join cash_expense_category expensecat3_ on this_.cash_expense_category_id=expensecat3_.id
+         left outer join financial_categories_groups expensecat3_ on this_.financial_expense_category_id=expensecat3_.id
 WHERE IF(@Cash != -1,
          (this_.related_to_subdivision_id = @Cash and this_.date &gt;= @StartDate and this_.date &lt; @EndDate),
          (this_.date &gt;= @StartDate and this_.date &lt; @EndDate));</CommandText>
@@ -1200,7 +1200,7 @@ WHERE IF(@Cash != -1,
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

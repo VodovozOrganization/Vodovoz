@@ -35,8 +35,8 @@ namespace Vodovoz.Representations
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<TraineeVMNode>.Create()
-			.AddColumn("Код").SetDataProperty(node => node.Id.ToString())
-			.AddColumn("Ф.И.О.").SetDataProperty(node => node.FullName)
+			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+			.AddColumn("Ф.И.О.").AddTextRenderer(node => node.FullName)
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {

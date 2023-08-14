@@ -72,6 +72,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			_timer.Start();
 
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
+
+			FilterViewModel.PropertyChanged += OnFilterViewModelPropertyChanged;
+			FilterViewModel.InitFailsReport();
+		}
+
+		private void OnFilterViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(FilterViewModel.IsNomenclatureNotInStock))
+			{
+				var isNomenclatureNotInStock = FilterViewModel.IsNomenclatureNotInStock;
+				var reportName = FastDeliveryFailsReport.GetReportName(isNomenclatureNotInStock);
+
+				FilterViewModel.FailsReportName = reportName;
+				FilterViewModel.FailsReportAction = () =>
+				{
+					var report = new FastDeliveryFailsReport(UnitOfWorkFactory, FilterViewModel, Search, _nomenclatureParametersProvider, _fileDialogService);
+					report.Export();
+				};
+			}
 		}
 
 		protected void BeforeItemsUpdated(IList items, uint start)
@@ -401,7 +420,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			CreateDefaultEditAction();
 			CreateXLExportAction();
-			CreateFailsOrdersXLExportAction();
 		}
 
 		private void CreateXLExportAction()
@@ -438,21 +456,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 			NodeActionsList.Add(xlExportAction);
 		}
 
-		private void CreateFailsOrdersXLExportAction()
-		{
-			var xlExportAction = new JournalAction("Сводный отчёт по заказам",
-				(selected) => true,
-				(selected) => true,
-				(selected) =>
-				{
-					var report = new FastDeliveryFailsReport(UnitOfWorkFactory, FilterViewModel, Search, _nomenclatureParametersProvider, _fileDialogService);
-					report.Export();
-				}
-			);
-
-			NodeActionsList.Add(xlExportAction);
-		}
-
 		protected override Func<FastDeliveryAvailabilityHistoryViewModel> CreateDialogFunction =>
 			() => throw new NotSupportedException("Не поддерживается создание из журнала");
 
@@ -465,6 +468,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		public override void Dispose()
 		{
+			FilterViewModel.PropertyChanged -= OnFilterViewModelPropertyChanged;
 			_timer?.Dispose();
 			base.Dispose();
 		}

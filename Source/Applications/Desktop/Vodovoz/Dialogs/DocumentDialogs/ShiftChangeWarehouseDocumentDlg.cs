@@ -237,9 +237,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(!CanSave)
 				return false;
 
-			var valid = new QSValidator<ShiftChangeWarehouseDocument>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;

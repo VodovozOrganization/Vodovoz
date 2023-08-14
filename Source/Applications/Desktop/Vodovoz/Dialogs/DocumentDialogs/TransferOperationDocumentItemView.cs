@@ -92,7 +92,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			var vm = MainClass.MainWin.NavigationManager
+			var vm = Startup.MainWin.NavigationManager
 				.OpenViewModel<NomenclatureStockBalanceJournalViewModel>(null)
 				.ViewModel;
 

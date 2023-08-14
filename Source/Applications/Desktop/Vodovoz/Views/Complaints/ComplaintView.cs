@@ -28,14 +28,24 @@ namespace Vodovoz.Views.Complaints
 
 		private void ConfigureDlg()
 		{
-			ylabelSubdivisions.Binding.AddBinding(ViewModel, vm => vm.SubdivisionsInWork, w => w.LabelProp).InitializeFromSource();
-			ylabelCreatedBy.Binding.AddBinding(ViewModel, e => e.CreatedByAndDate, w => w.LabelProp).InitializeFromSource();
-			ylabelChangedBy.Binding.AddBinding(ViewModel, e => e.ChangedByAndDate, w => w.LabelProp).InitializeFromSource();
+			ylabelSubdivisions.Binding
+				.AddBinding(ViewModel, vm => vm.SubdivisionsInWork, w => w.LabelProp)
+				.InitializeFromSource();
+			ylabelCreatedBy.Binding
+				.AddBinding(ViewModel, e => e.CreatedByAndDate, w => w.LabelProp)
+				.InitializeFromSource();
+			ylabelChangedBy.Binding
+				.AddBinding(ViewModel, e => e.ChangedByAndDate, w => w.LabelProp)
+				.InitializeFromSource();
 
-			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.ComplainantName, w => w.Text).InitializeFromSource();
-			yentryName.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			yentryName.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
-			labelName.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
+			yentryName.Binding
+				.AddBinding(ViewModel.Entity, e => e.ComplainantName, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+			labelName.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
 
 			yenumcomboStatus.ItemsEnum = typeof(ComplaintStatuses);
 			if (!ViewModel.CanClose)
@@ -53,18 +63,28 @@ namespace Vodovoz.Views.Complaints
 
 			entryDriver.ViewModel = ViewModel.ComplaintDriverEntryViewModel;
 
-			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date).InitializeFromSource();
-			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ydatepickerPlannedCompletionDate.Binding
+				.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
-			entryCounterparty.Changed += EntryCounterparty_Changed;
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
-			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
-			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
-			labelCounterparty.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
+			entryCounterparty.Binding
+				.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+			labelCounterparty.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+			OnCounterpartyChanged();
 
-			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
-			spLstAddress.Binding.AddBinding(ViewModel, s => s.IsClientComplaint, w => w.Visible).InitializeFromSource();
+			spLstAddress.Binding
+				.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive)
+				.AddBinding(ViewModel, s => s.IsClientComplaint, w => w.Visible)
+				.AddBinding(ViewModel.Entity, t => t.DeliveryPoint, w => w.SelectedItem)
+				.InitializeFromSource();
+
 			lblAddress.Binding.AddBinding(ViewModel, s => s.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
 			entryOrder.SetEntityAutocompleteSelectorFactory(ViewModel.OrderAutocompleteSelectorFactory);
@@ -72,14 +92,22 @@ namespace Vodovoz.Views.Complaints
 				.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject)
 				.InitializeFromSource();
 
-			entryOrder.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			entryOrder.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
+			entryOrder.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
 			entryOrder.ChangedByUser += (sender, e) => ViewModel.ChangeDeliveryPointCommand.Execute();
-			labelOrder.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
+			labelOrder.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
 
-			yentryPhone.Binding.AddBinding(ViewModel.Entity, e => e.Phone, w => w.Text).InitializeFromSource();
-			yhboxPhone.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			yhboxPhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
+			yentryPhone.Binding
+				.AddBinding(ViewModel.Entity, e => e.Phone, w => w.Text)
+				.InitializeFromSource();
+			yhboxPhone.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
 			labelNamePhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
 			cmbComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
@@ -102,26 +130,36 @@ namespace Vodovoz.Views.Complaints
 				.InitializeFromSource();
 
 			comboboxComplaintSource.SetRenderTextFunc<ComplaintSource>(x => x.Name);
-			comboboxComplaintSource.Binding.AddBinding(ViewModel, vm => vm.ComplaintSources, w => w.ItemsList).InitializeFromSource();
-			comboboxComplaintSource.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintSource, w => w.SelectedItem).InitializeFromSource();
-			comboboxComplaintSource.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			comboboxComplaintSource.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
-			labelSource.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
+			comboboxComplaintSource.Binding
+				.AddBinding(ViewModel, vm => vm.ComplaintSources, w => w.ItemsList)
+				.AddBinding(ViewModel.Entity, e => e.ComplaintSource, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+			labelSource.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
 
 			cmbComplaintResultOfCounterparty.SetRenderTextFunc<ComplaintResultOfCounterparty>(x => x.Name);
-			cmbComplaintResultOfCounterparty.Binding.AddBinding(ViewModel, vm => vm.ComplaintResultsOfCounterparty, w => w.ItemsList).InitializeFromSource();
-			cmbComplaintResultOfCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintResultOfCounterparty, w => w.SelectedItem).InitializeFromSource();
-			cmbComplaintResultOfCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			cmbComplaintResultOfCounterparty.Binding
+				.AddBinding(ViewModel, vm => vm.ComplaintResultsOfCounterparty, w => w.ItemsList)
+				.AddBinding(ViewModel.Entity, e => e.ComplaintResultOfCounterparty, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			cmbComplaintResultOfEmployees.SetRenderTextFunc<ComplaintResultOfEmployees>(x => x.Name);
-			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel, vm => vm.ComplaintResultsOfEmployees, w => w.ItemsList).InitializeFromSource();
-			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintResultOfEmployees, w => w.SelectedItem).InitializeFromSource();
-			cmbComplaintResultOfEmployees.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			cmbComplaintResultOfEmployees.Binding
+				.AddBinding(ViewModel, vm => vm.ComplaintResultsOfEmployees, w => w.ItemsList)
+				.AddBinding(ViewModel.Entity, e => e.ComplaintResultOfEmployees, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			complaintfilesview.ViewModel = ViewModel.FilesViewModel;
 
-			ytextviewComplaintText.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintText, w => w.Buffer.Text).InitializeFromSource();
-			ytextviewComplaintText.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ytextviewComplaintText.Binding
+				.AddBinding(ViewModel.Entity, e => e.ComplaintText, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			comboType.ItemsEnum = typeof(ComplaintType);
 			comboType.Binding
@@ -164,6 +202,10 @@ namespace Vodovoz.Views.Complaints
 				{
 					handsetPhone.SetPhone(ViewModel.Entity.Phone);
 				}
+				if(e.PropertyName == nameof(ViewModel.Entity.Counterparty))
+				{
+					OnCounterpartyChanged();
+				}
 			};
 
 			ytreeviewArrangement.Selection.Mode = SelectionMode.Multiple;
@@ -186,11 +228,15 @@ namespace Vodovoz.Views.Complaints
 
 			ytreeviewArrangement.ButtonReleaseEvent += OnButtonArrangementsRelease;
 
-			ytextviewNewArrangement.Binding.AddBinding(ViewModel, vm => vm.NewArrangementCommentText, w => w.Buffer.Text).InitializeFromSource();
-			ytextviewNewArrangement.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ytextviewNewArrangement.Binding
+				.AddBinding(ViewModel, vm => vm.NewArrangementCommentText, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ybuttonAddArrangement.Clicked += (sender, e) => ViewModel.AddArrangementCommentCommand.Execute();
-			ybuttonAddArrangement.Binding.AddBinding(ViewModel, vm => vm.CanAddArrangementComment, w => w.Sensitive).InitializeFromSource();
+			ybuttonAddArrangement.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddArrangementComment, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ytreeviewResult.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewResult.ColumnsConfig = FluentColumnsConfig<ComplaintResultComment>.Create()
@@ -212,11 +258,15 @@ namespace Vodovoz.Views.Complaints
 
 			ytreeviewResult.ButtonReleaseEvent += OnButtonCommentsRelease;
 
-			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.NewResultCommentText, w => w.Buffer.Text).InitializeFromSource();
-			ytextviewNewResult.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			ytextviewNewResult.Binding
+				.AddBinding(ViewModel, vm => vm.NewResultCommentText, w => w.Buffer.Text)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ybuttonAddResult.Clicked += (sender, e) => ViewModel.AddResultCommentCommand.Execute();
-			ybuttonAddResult.Binding.AddBinding(ViewModel, vm => vm.CanAddResultComment, w => w.Sensitive).InitializeFromSource();
+			ybuttonAddResult.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddResultComment, w => w.Sensitive)
+				.InitializeFromSource();
 
 			_popupCopyArrangementsMenu = new Menu();
 			MenuItem copyArrangementsMenuEntry = new MenuItem("Копировать");
@@ -306,17 +356,17 @@ namespace Vodovoz.Views.Complaints
 			_popupCopyCommentsMenu.Popup();
 		}
 
-		void EntryCounterparty_Changed(object sender, System.EventArgs e)
+		void OnCounterpartyChanged()
 		{
-			spLstAddress.Binding.CleanSources();
-			
-			if(ViewModel.Entity.Counterparty != null) {
+			if(ViewModel.Entity.Counterparty != null)
+			{
 				spLstAddress.NameForSpecialStateNot = "Самовывоз";
-				spLstAddress.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{0}: {1}", d.Id, d.ShortAddress));
-				spLstAddress.Binding.AddBinding(ViewModel.Entity.Counterparty, s => s.DeliveryPoints, w => w.ItemsList).InitializeFromSource();
-				spLstAddress.Binding.AddBinding(ViewModel.Entity, t => t.DeliveryPoint, w => w.SelectedItem).InitializeFromSource();
+				spLstAddress.SetRenderTextFunc<DeliveryPoint>(d => $"{d.Id}: {d.ShortAddress}");
+				spLstAddress.ItemsList = ViewModel.Entity.Counterparty.DeliveryPoints;
+
 				return;
 			}
+			
 			spLstAddress.NameForSpecialStateNot = null;
 			spLstAddress.SelectedItem = SpecialComboState.Not;
 			spLstAddress.ItemsList = null;

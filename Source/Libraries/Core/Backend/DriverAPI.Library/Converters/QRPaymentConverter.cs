@@ -3,8 +3,17 @@ using Vodovoz.Domain.FastPayments;
 
 namespace DriverAPI.Library.Converters
 {
+	/// <summary>
+	/// Конвертер оплаты пл QR-коду
+	/// </summary>
 	public class QRPaymentConverter
 	{
+		/// <summary>
+		/// Метод конвертации в тип оплыты Api
+		/// </summary>
+		/// <param name="fastPaymentStatus">Статус оплаты СБП</param>
+		/// <returns></returns>
+		/// <exception cref="ConverterException"></exception>
 		public QRPaymentDTOStatus? ConvertToAPIPaymentStatus(FastPaymentStatus? fastPaymentStatus)
 		{
 			if(fastPaymentStatus == null)
@@ -28,6 +37,11 @@ namespace DriverAPI.Library.Converters
 			}
 		}
 
+		/// <summary>
+		/// Метод конвертации в DTO
+		/// </summary>
+		/// <param name="qrResponseDto">DTO ответа об оплате по QR-коду</param>
+		/// <returns></returns>
 		public PayByQRResponseDTO ConvertToPayByQRResponseDto(QRResponseDTO qrResponseDto)
 		{
 			return new PayByQRResponseDTO

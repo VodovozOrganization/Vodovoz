@@ -1,5 +1,4 @@
-﻿using Autofac;
-using Gtk;
+﻿using Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
@@ -13,7 +12,6 @@ using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.SidePanel.InfoViews;
@@ -68,7 +66,7 @@ namespace Vodovoz.SidePanel
 					var edoLightsMatrixPanelViewModel = new EdoLightsMatrixPanelViewModel(edoLightsMatrixViewModel, gtkTabsOpener, tdiTab);
 					return new EdoLightsMatrixPanelView(edoLightsMatrixPanelViewModel);
 				case PanelViewType.CarsMonitoringInfoPanelView:
-					return new CarsMonitoringInfoPanelView(UnitOfWorkFactory.GetDefaultFactory, new DeliveryRulesParametersProvider(new ParametersProvider()));
+					return new CarsMonitoringInfoPanelView(UnitOfWorkFactory.GetDefaultFactory, new DeliveryRulesParametersProvider(new ParametersProvider()), Startup.MainWin.NavigationManager);
 				default:
 					throw new NotSupportedException();
 			}

@@ -1,6 +1,7 @@
 ﻿using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties;
 
 namespace Vodovoz.Filters.Views
@@ -27,6 +28,14 @@ namespace Vodovoz.Filters.Views
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.InitializeFromSource();
+			
+			entryPhoneNumber.Binding
+				.AddBinding(ViewModel, vm => vm.PhoneNumber, w => w.Text)
+				.InitializeFromSource();
+			
+			entryCounterpartyId.Binding
+				.AddBinding(ViewModel, vm => vm.CounterpartyId, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 			
 			entryPhoneNumber.KeyReleaseEvent += OnEntryKeyReleaseEvent;

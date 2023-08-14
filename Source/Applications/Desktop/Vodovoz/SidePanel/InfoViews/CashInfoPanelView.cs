@@ -8,6 +8,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModels.Cash.DocumentsJournal;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -28,7 +29,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			_uow = uowFactory?.CreateWithoutRoot("Боковая панель остатков по кассам") ?? throw new ArgumentNullException(nameof(uowFactory));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 
-			var currentUser = ServicesConfig.CommonServices.UserService.GetCurrentUser(_uow);
+			var currentUser = ServicesConfig.CommonServices.UserService.GetCurrentUser();
 			var availableSubdivisions = subdivisionRepository.GetCashSubdivisionsAvailableForUser(_uow, currentUser).ToList();
 			var settings =
 				(userRepository ?? throw new ArgumentNullException(nameof(userRepository)))
@@ -56,30 +57,35 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public void Refresh()
 		{
-			if(!(InfoProvider is ICashInfoProvider infoProvider))
+			if(InfoProvider is IDocumentsInfoProvider documentsInfoProvider)
 			{
-				return;
+				var filter = documentsInfoProvider.DocumentsFilterViewModel;
+				labelInfo.Text = $"{GetAllCashSummaryInfo(filter)}";
 			}
-
-			var filter = infoProvider.CashFilter;
-			labelInfo.Text = $"{GetAllCashSummaryInfo(filter)}";
 		}
 
-		private string GetAllCashSummaryInfo(CashDocumentsFilter filter)
+		private string GetAllCashSummaryInfo(DocumentsFilterViewModel filter)
 		{
 			if(filter == null)
 			{
 				return "";
 			}
 
+			var selectedSubdivisionsIds = filter.Subdivision != null
+				? new int[] { filter.Subdivision.Id }
+				: filter.AvailableSubdivisions
+					.Select(x => x.Id)
+					.ToArray();
+
 			decimal totalCash = 0;
 			var allCashString = "";
 			var distinctBalances = _cashRepository
-				.CurrentCashForGivenSubdivisions(_uow, filter.SelectedSubdivisions.Select(x => x.Id).ToArray()).ToList();
+				.CurrentCashForGivenSubdivisions(_uow, selectedSubdivisionsIds)
+				.ToList();
 
 			var inTransferring = _cashRepository.GetCashInTransferring(_uow);
 
-			if(filter.SelectedSubdivisions.Count() > 1)
+			if(selectedSubdivisionsIds.Count() > 1)
 			{
 				distinctBalances = distinctBalances.OrderBy(x => _sortedSubdivisionsIds.IndexOf(x.Id)).ToList();
 			}
@@ -91,7 +97,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 
 			var total = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}. ";
-			var separatedCash = filter.SelectedSubdivisions.Any() ? $"\r\n\tИз них: {allCashString}" : "";
+			var separatedCash = selectedSubdivisionsIds.Any() ? $"\r\n\tИз них: {allCashString}" : "";
 			var cashInTransferringMessage = $"\n\nВ сейфе инкассатора: {CurrencyWorks.GetShortCurrencyString(inTransferring)}";
 			return total + separatedCash + cashInTransferringMessage;
 		}

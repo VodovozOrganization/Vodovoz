@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
@@ -294,6 +293,14 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			return uow.Session.QueryOver<EdoOperator>()
 				.Where(x => x.Code == edoOperatorCode)
 				.SingleOrDefault();
+		}
+
+		public IList<EdoContainer> GetEdoContainersByCounterpartyId(IUnitOfWork uow, int counterpartyId)
+		{
+			return uow.Session.QueryOver<EdoContainer>()
+				.Where(x => x.Counterparty.Id == counterpartyId)
+				.OrderBy(x => x.Created).Desc
+				.List();
 		}
 	}
 }

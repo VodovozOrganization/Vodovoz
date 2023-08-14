@@ -1279,7 +1279,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.00pt</Height>
             <Width>28.02pt</Width>
             <Value>М.П.</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.2pt</Left>
             <Top>0.0pt</Top>
             <Style>
@@ -1293,7 +1293,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>13.50pt</Height>
             <Width>518.44pt</Width>
             <Value>Товар получен в полном объеме. К продавцу претензий не имею.     /                                      /</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>20.1pt</Top>
             <Style>
@@ -1307,7 +1307,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.00pt</Height>
             <Width>101.52pt</Width>
             <Value>Покупатель сдал</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>49.0pt</Top>
             <Style>
@@ -1321,7 +1321,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.00pt</Height>
             <Width>385.02pt</Width>
             <Value>*             (                                    ) бутылей            /                                       /</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>107.0pt</Left>
             <Top>49.7pt</Top>
             <Style>
@@ -1335,7 +1335,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.00pt</Height>
             <Width>157.77pt</Width>
             <Value>(кол. бутылей)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>107.0pt</Left>
             <Top>63.0pt</Top>
             <Style>
@@ -1355,7 +1355,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.03pt</Height>
             <Width>121.17pt</Width>
             <Value>(Подпись покупателя)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>338.7pt</Left>
             <Top>30.9pt</Top>
             <Style>
@@ -1374,7 +1374,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.03pt</Height>
             <Width>121.17pt</Width>
             <Value>(Подпись покупателя)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>338.4pt</Left>
             <Top>63.1pt</Top>
             <Style>
@@ -1393,7 +1393,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>13.51pt</Height>
             <Width>254.72pt</Width>
             <Value>Предполагаемое количеcтво возвратной тары:</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>80.5pt</Top>
             <Style>
@@ -1408,7 +1408,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.03pt</Height>
             <Width>121.17pt</Width>
             <Value>(Подпись покупателя)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>370.6pt</Left>
             <Top>113.8pt</Top>
             <Style>
@@ -1427,7 +1427,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.00pt</Height>
             <Width>126.27pt</Width>
             <Value>/                                       /</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>371.5pt</Left>
             <Top>100.6pt</Top>
             <Style>
@@ -1441,7 +1441,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.75pt</Height>
             <Width>350.35pt</Width>
             <Value>Экспедитор принял:                                        /                                        /</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>123.8pt</Top>
             <Style>
@@ -1455,7 +1455,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.00pt</Height>
             <Width>239.52pt</Width>
             <Value>(подпись)                   (расшифровка)</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>101.9pt</Left>
             <Top>135.8pt</Top>
             <Style>
@@ -1473,7 +1473,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.00pt</Height>
             <Width>197.52pt</Width>
             <Value>* Поля обязательные к заполнению</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
             <Top>167.2pt</Top>
             <Style>
@@ -1515,7 +1515,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.00pt</Height>
             <Width>42.98pt</Width>
             <Value>={bottles_return}</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>260.0pt</Left>
             <Top>80.2pt</Top>
             <Style>
@@ -1533,7 +1533,7 @@ WHERE stored_resource.id = @id21</CommandText>
             <Height>12.00pt</Height>
             <Width>72.27pt</Width>
             <Value>бутылей</Value>
-            <ZIndex>1</ZIndex>
+            <ZIndex>0</ZIndex>
             <Left>320.3pt</Left>
             <Top>81.0pt</Top>
             <Style>
@@ -1560,12 +1560,18 @@ WHERE stored_resource.id = @id21</CommandText>
           </Image>
         </ReportItems>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
       </List>
       <Image Name="Image1">
         <Height>57.44pt</Height>
@@ -1685,7 +1691,7 @@ WHERE stored_resource.id = @id21</CommandText>
         <Visibility>
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
       </Table>
       <Table Name="Table2">
         <DataSetName>Equipments</DataSetName>
@@ -1812,7 +1818,7 @@ WHERE stored_resource.id = @id21</CommandText>
         <Height>17.25pt</Height>
         <Width>320.29pt</Width>
         <Value>='Заказ № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>111.1pt</Left>
         <Top>35.8pt</Top>
         <Style>
@@ -1827,7 +1833,7 @@ WHERE stored_resource.id = @id21</CommandText>
         <Height>15.00pt</Height>
         <Width>92.59pt</Width>
         <Value>=First({daily_number}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>369.7pt</Left>
         <Top>16.6pt</Top>
         <Style>
@@ -2120,9 +2126,15 @@ WHERE stored_resource.id = @id21</CommandText>
           </Image>
         </ReportItems>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
@@ -2168,7 +2180,7 @@ WHERE stored_resource.id = @id21</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <FontSize>12pt</FontSize>
                       </Style>
-                      <ZIndex>1</ZIndex>
+                      <ZIndex>0</ZIndex>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2292,7 +2304,7 @@ WHERE stored_resource.id = @id21</CommandText>
         <Height>12.00pt</Height>
         <Width>55.00pt</Width>
         <Value>=Max({delivery_schedule}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>96.7pt</Left>
         <Top>180.9pt</Top>
         <Style>
@@ -2308,7 +2320,7 @@ WHERE stored_resource.id = @id21</CommandText>
         <Height>12.00pt</Height>
         <Width>65.51pt</Width>
         <Value>Время дост.:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>29.8pt</Left>
         <Top>180.9pt</Top>
         <Style>
@@ -2323,7 +2335,7 @@ WHERE stored_resource.id = @id21</CommandText>
         <Height>12pt</Height>
         <Width>49.28pt</Width>
         <Value>Договор:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>151.0pt</Left>
         <Top>180.9pt</Top>
         <Style>
@@ -2338,7 +2350,7 @@ WHERE stored_resource.id = @id21</CommandText>
         <Height>12pt</Height>
         <Width>36.39pt</Width>
         <Value>=Iif(Len(Max({lunch_time}, "Order")) &gt; 0, "Обед:", "")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>291.8pt</Left>
         <Top>180.9pt</Top>
         <Style>
@@ -2353,7 +2365,7 @@ WHERE stored_resource.id = @id21</CommandText>
         <Height>12.00pt</Height>
         <Width>81.28pt</Width>
         <Value>=Max({lunch_time}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>330.2pt</Left>
         <Top>180.9pt</Top>
         <Style>
@@ -2369,7 +2381,7 @@ WHERE stored_resource.id = @id21</CommandText>
         <Height>12pt</Height>
         <Width>104.58pt</Width>
         <Value>= Max({contract_number}, "Order") + ' от ' + Max({contract_date}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>195.3pt</Left>
         <Top>180.9pt</Top>
         <Style>
@@ -2935,7 +2947,7 @@ WHERE stored_resource.id = @id21</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

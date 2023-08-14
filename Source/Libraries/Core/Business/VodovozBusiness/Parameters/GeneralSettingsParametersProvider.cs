@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,6 +13,8 @@ namespace Vodovoz.Parameters
 		private const string _subdivisionsToInformComplaintHasNoDriverParameterName = "SubdivisionsToInformComplaintHasNoDriver";
 		private const string _subdivisionsForAlternativePricesName = "SubdivisionsForAlternativePricesName";
 		private const string _warehousesForPricesAndStocksIntegrationName = "warehouses_for_prices_and_stocks_integration_name";
+		private const string _driversUnclosedRouteListsHavingDebtMaxCount = "drivers_stop_list_unclosed_route_lists_max_count";
+		private const string _driversRouteListsMaxDebtSum = "drivers_stop_list_route_lists_max_debt_sum";
 
 		public GeneralSettingsParametersProvider(IParametersProvider parametersProvider)
 		{
@@ -73,28 +75,20 @@ namespace Vodovoz.Parameters
 			_parametersProvider.CreateOrUpdateParameter(parameterName, string.Join(", ", warehousesIds));
 		}
 
-		private int[] GetSubdivisionsToInformComplaintHasNoDriver()
-		{
-			return ParseIdsFromString(_subdivisionsToInformComplaintHasNoDriverParameterName);
-		}
-
-		private int[] GetSubdivisionsForAlternativePrices()
-		{
-			return ParseIdsFromString(_subdivisionsForAlternativePricesName);
-		}
-
 		private int[] GetWarehousesForPricesAndStocksIntegration()
 		{
 			return ParseIdsFromString(_subdivisionsToInformComplaintHasNoDriverParameterName);
 		}
-		
-		private int[] ParseIdsFromString(string parameterName, bool allowEmpty = true)
-		{
-			var parameterValue = _parametersProvider.GetParameterValue(parameterName, allowEmpty);
-			var splitedIds = parameterValue.Split(new string[] {", "}, StringSplitOptions.RemoveEmptyEntries);
-			return splitedIds
-				.Select(x => int.Parse(x))
-				.ToArray();
-		}
+		public string SubdivisionsAlternativePricesName => _subdivisionsForAlternativePricesName;
+
+		public int DriversUnclosedRouteListsHavingDebtMaxCount => _parametersProvider.GetValue<int>(_driversUnclosedRouteListsHavingDebtMaxCount);
+
+		public void UpdateDriversUnclosedRouteListsHavingDebtMaxCount(int value) =>
+			_parametersProvider.CreateOrUpdateParameter(_driversUnclosedRouteListsHavingDebtMaxCount, value.ToString());
+
+		public int DriversRouteListsMaxDebtSum => _parametersProvider.GetValue<int>(_driversRouteListsMaxDebtSum);
+
+		public void UpdateDriversRouteListsMaxDebtSum(decimal value) =>
+			_parametersProvider.CreateOrUpdateParameter(_driversRouteListsMaxDebtSum, value.ToString());
 	}
 }

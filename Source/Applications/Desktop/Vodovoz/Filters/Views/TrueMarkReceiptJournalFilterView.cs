@@ -1,5 +1,7 @@
-﻿using QS.Views.GtkUI;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using QS.Views.GtkUI;
+using System.Linq;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 
@@ -10,7 +12,7 @@ namespace Vodovoz.Filters.Views
 	{
 		public TrueMarkReceiptJournalFilterView(CashReceiptJournalFilterViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
@@ -21,15 +23,64 @@ namespace Vodovoz.Filters.Views
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			yenumcomboStatus.ShowSpecialStateAll = true;
-			yenumcomboStatus.ItemsEnum = typeof(CashReceiptStatus);
-			yenumcomboStatus.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.Status, w => w.SelectedItemOrNull)
-				.InitializeFromSource();
+			ConfigureEnumComboStatus();
 
 			ycheckbtnUnscannedReason.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.HasUnscannedReason, w => w.Active)
 				.InitializeFromSource();
+		}
+
+		private void ConfigureEnumComboStatus()
+		{
+			switch(ViewModel.AvailableReceiptStatuses)
+			{
+				case AvailableReceiptStatuses.OnlyCodeError:
+					yenumcomboStatus.AddEnumerableToHideList(
+						GetStatusesToHide(new[]
+						{
+							CashReceiptStatus.CodeError
+						}));
+					break;
+				case AvailableReceiptStatuses.OnlyReceiptSendError:
+					yenumcomboStatus.AddEnumerableToHideList(
+						GetStatusesToHide(new[]
+							{
+								CashReceiptStatus.ReceiptSendError
+							}));
+					break;
+				case AvailableReceiptStatuses.CodeErrorAndReceiptSendError:
+					yenumcomboStatus.AddEnumerableToHideList(
+						GetStatusesToHide(new[]
+							{
+								CashReceiptStatus.CodeError,
+								CashReceiptStatus.ReceiptSendError
+							}));
+					break;
+			}
+			
+			yenumcomboStatus.ItemsEnum = typeof(CashReceiptStatus);
+			yenumcomboStatus.Sensitive = ViewModel.CanChangeStatus;
+			yenumcomboStatus.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Status, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
+			if(ViewModel.AvailableReceiptStatuses == AvailableReceiptStatuses.OnlyCodeError
+				|| ViewModel.AvailableReceiptStatuses == AvailableReceiptStatuses.OnlyReceiptSendError)
+			{
+				yenumcomboStatus.DefaultFirst = true;
+				yenumcomboStatus.ShowSpecialStateAll = false;
+			}
+			else
+			{
+				yenumcomboStatus.ShowSpecialStateAll = true;
+			}
+		}
+
+		private IEnumerable<CashReceiptStatus> GetStatusesToHide(IEnumerable<CashReceiptStatus> statusesToExclude)
+		{
+			return Enum.GetValues(typeof(CashReceiptStatus))
+				.OfType<CashReceiptStatus>()
+				.Except(statusesToExclude);
 		}
 	}
 }

@@ -18,19 +18,19 @@ namespace Vodovoz.HibernateMapping.Cash.Transfer
 			References(x => x.Car).Column("car_id");
 
 			References(x => x.Author).Column("authtor_id");
-			Map(x => x.Status).Column("status").CustomType<CashTransferDocumentStatusesStringType>();
+			Map(x => x.Status).Column("status");
 			Map(x => x.TransferedSum).Column("transfered_sum");
 			References(x => x.CashTransferOperation).Column("cash_transfer_operation_id").Cascade.All();
 
 			References(x => x.CashSubdivisionFrom).Column("cash_subdivision_from_id");
 			References(x => x.ExpenseOperation).Column("cash_expense_id").Cascade.All();
-			References(x => x.ExpenseCategory).Column("cash_expense_category_id");
+			Map(x => x.ExpenseCategoryId).Column("financial_cash_expense_category_id");
 			Map(x => x.SendTime).Column("send_time");
 			References(x => x.CashierSender).Column("cashier_sender_id");
 
 			References(x => x.CashSubdivisionTo).Column("cash_subdivision_to_id");
 			References(x => x.IncomeOperation).Column("cash_income_id").Cascade.All();
-			References(x => x.IncomeCategory).Column("cash_income_category_id");
+			Map(x => x.IncomeCategoryId).Column("financial_cash_income_category_id");
 			Map(x => x.ReceiveTime).Column("receive_time");
 			References(x => x.CashierReceiver).Column("cashier_receiver_id");
 

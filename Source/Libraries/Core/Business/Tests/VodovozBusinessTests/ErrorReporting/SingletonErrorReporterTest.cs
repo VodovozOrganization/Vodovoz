@@ -1,9 +1,8 @@
-﻿using System;
-using NSubstitute;
+﻿using NSubstitute;
 using NUnit.Framework;
 using QS.ErrorReporting;
-using QS.Project.Domain;
 using QS.Project.Versioning;
+using System;
 using Vodovoz.Tools;
 
 namespace VodovozBusinessTests.ErrorReporting

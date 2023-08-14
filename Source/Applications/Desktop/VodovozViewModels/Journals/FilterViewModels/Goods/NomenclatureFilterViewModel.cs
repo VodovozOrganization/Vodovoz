@@ -9,7 +9,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 {
-	public class NomenclatureFilterViewModel : FilterViewModelBase<NomenclatureFilterViewModel>, IJournalFilterViewModel
+	public class NomenclatureFilterViewModel : FilterViewModelBase<NomenclatureFilterViewModel>
 	{
 		public NomenclatureFilterViewModel(Action<NomenclatureFilterViewModel> filterParams = null)
 		{
@@ -148,6 +148,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Goods
 		}
 
 		public bool IsDefectiveBottle { get; set; }
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 	}
 }

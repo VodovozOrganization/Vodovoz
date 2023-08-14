@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 			if(filterparams != null)
 			{
-				filterViewModel.SetAndRefilterAtOnce(filterparams);
+				FilterViewModel.SetAndRefilterAtOnce(filterparams);
 			}
 
 			UpdateOnChanges(typeof(Employee));

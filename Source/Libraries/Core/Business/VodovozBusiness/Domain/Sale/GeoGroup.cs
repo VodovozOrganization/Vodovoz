@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System;
@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Sale
 		NominativePlural = "Части города")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class GeoGroup : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class GeoGroup : PropertyChangedBase, IDomainObject, IValidatableObject, INamed
 	{
 		private string _name;
 		private IList<GeoGroupVersion> _versions = new List<GeoGroupVersion>();

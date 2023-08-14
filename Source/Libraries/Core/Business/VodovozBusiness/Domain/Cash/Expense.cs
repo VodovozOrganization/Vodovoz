@@ -3,11 +3,13 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Cash.CashTransfer;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -36,7 +38,7 @@ namespace Vodovoz.Domain.Cash
 		private Employee _casher;
 		private Employee _employee;
 		private Order _order;
-		private ExpenseCategory _expenseCategory;
+		private int? _expenseCategoryId;
 		private string _description;
 		private decimal _money;
 		private bool? _advanceClosed;
@@ -90,6 +92,12 @@ namespace Vodovoz.Domain.Cash
 					{
 						AdvanceClosed = null;
 					}
+
+					if(TypeOperation == ExpenseType.Salary
+						|| TypeOperation == ExpenseType.EmployeeAdvance)
+					{
+						Organisation = null;
+					}
 				}
 			}
 		}
@@ -116,10 +124,11 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		[Display(Name = "Статья расхода")]
-		public virtual ExpenseCategory ExpenseCategory
+		[HistoryIdentifier(TargetType = typeof(FinancialExpenseCategory))]
+		public virtual int? ExpenseCategoryId
 		{
-			get => _expenseCategory;
-			set => SetField(ref _expenseCategory, value);
+			get => _expenseCategoryId;
+			set => SetField(ref _expenseCategoryId, value);
 		}
 
 		[Display(Name = "Основание")]
@@ -223,6 +232,7 @@ namespace Vodovoz.Domain.Cash
 			}
 
 			var closing = new AdvanceClosing(this, income, sum);
+
 			if(AdvanceCloseItems == null)
 			{
 				AdvanceCloseItems = new List<AdvanceClosing>();
@@ -343,10 +353,16 @@ namespace Vodovoz.Domain.Cash
 					new[] { this.GetPropertyName(o => o.TypeOperation) });
 				}
 
-				if(ExpenseCategory == null || ExpenseCategory.ExpenseDocumentType != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery)
+				var financialCategoriesRepository = validationContext.GetService<IFinancialExpenseCategoriesRepository>();
+
+				var unitOfWork = validationContext.GetService<IUnitOfWork>();
+
+				var targetDocument = financialCategoriesRepository.GetExpenseCategoryTargetDocument(unitOfWork, ExpenseCategoryId);
+
+				if(ExpenseCategoryId == null || targetDocument != TargetDocument.SelfDelivery)
 				{
 					yield return new ValidationResult("Должна быть выбрана статья расхода для самовывоза.",
-					new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+					new[] { this.GetPropertyName(o => o.ExpenseCategoryId) });
 				}
 
 				if(Order == null)
@@ -380,10 +396,10 @@ namespace Vodovoz.Domain.Cash
 							new[] { this.GetPropertyName(o => o.Employee) });
 					}
 
-					if(ExpenseCategory == null)
+					if(ExpenseCategoryId == null)
 					{
 						yield return new ValidationResult("Статья расхода под которую выдаются деньги должна быть заполнена.",
-							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+							new[] { this.GetPropertyName(o => o.ExpenseCategoryId) });
 					}
 
 					if(!AdvanceClosed.HasValue)
@@ -396,17 +412,17 @@ namespace Vodovoz.Domain.Cash
 				{
 					if(AdvanceClosed.HasValue)
 					{
-						yield return new ValidationResult(string.Format("Если это не выдача под аванс {0} должно быть null.", this.GetPropertyName(o => o.AdvanceClosed)),
+						yield return new ValidationResult($"Если это не выдача под аванс {this.GetPropertyName(o => o.AdvanceClosed)} должно быть null.",
 							new[] { this.GetPropertyName(o => o.AdvanceClosed) });
 					}
 				}
 
 				if(TypeOperation == ExpenseType.Expense)
 				{
-					if(ExpenseCategory == null)
+					if(ExpenseCategoryId == null)
 					{
 						yield return new ValidationResult("Статья расхода должна быть указана.",
-							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+							new[] { this.GetPropertyName(o => o.ExpenseCategoryId) });
 					}
 				}
 

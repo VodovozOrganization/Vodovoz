@@ -23,7 +23,7 @@
         <Height>24.05pt</Height>
         <Width>568.40pt</Width>
         <Value>='Отчет по скидкам ' + Iif({?StartDate} = {?EndDate}, 'за ' + Format(CDate({?StartDate} ), "dd/MM/yyyy"), 'с ' + Format(CDate({?StartDate} ), "dd/MM/yyyy") + ' по ' + Format(CDate({?EndDate}), "dd/MM/yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -907,7 +907,7 @@
         <Height>12.05pt</Height>
         <Width>565.41pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -1069,7 +1069,7 @@ GROUP BY
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>
         </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>

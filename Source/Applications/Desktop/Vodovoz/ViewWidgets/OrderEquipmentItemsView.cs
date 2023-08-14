@@ -92,8 +92,8 @@ namespace Vodovoz.ViewWidgets
 			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
-				.AddColumn("Наименование").SetDataProperty(node => node.FullNameString)
-				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
+				.AddColumn("Наименование").AddTextRenderer(node => node.FullNameString)
+				.AddColumn("Направление").AddTextRenderer(node => node.DirectionString)
 				.AddColumn("Кол-во")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
@@ -184,8 +184,8 @@ namespace Vodovoz.ViewWidgets
 			var colorLightRed = new Gdk.Color(0xff, 0x66, 0x66);
 
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
-				.AddColumn("Наименование").SetDataProperty(node => node.FullNameString)
-				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
+				.AddColumn("Наименование").AddTextRenderer(node => node.FullNameString)
+				.AddColumn("Направление").AddTextRenderer(node => node.DirectionString)
 				.AddColumn("Кол-во(недовоз)")
 				.AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(false)

@@ -3,8 +3,16 @@ using Vodovoz.Domain.Client;
 
 namespace DriverAPI.Library.Converters
 {
+	/// <summary>
+	/// Конвертер точки доставки
+	/// </summary>
 	public class DeliveryPointConverter
 	{
+		/// <summary>
+		/// Метод конвертации в DTO
+		/// </summary>
+		/// <param name="deliveryPoint">Точка доставки из ДВ</param>
+		/// <returns></returns>
 		public AddressDto ExtractAPIAddressFromDeliveryPoint(DeliveryPoint deliveryPoint)
 		{
 			return new AddressDto()

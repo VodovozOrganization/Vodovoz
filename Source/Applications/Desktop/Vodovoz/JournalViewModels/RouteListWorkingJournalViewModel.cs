@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Data;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -8,6 +7,7 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using System;
@@ -30,9 +30,11 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
+using Vodovoz.Settings.Cash;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
@@ -45,7 +47,8 @@ namespace Vodovoz.JournalViewModels
 		private readonly IFuelRepository _fuelRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
-		private readonly IExpenseParametersProvider _expenseParametersProvider;
+		private readonly IExpenseSettings _expenseSettings;
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
@@ -59,7 +62,8 @@ namespace Vodovoz.JournalViewModels
 			IFuelRepository fuelRepository,
 			ICallTaskRepository callTaskRepository,
 			BaseParametersProvider baseParametersProvider,
-			IExpenseParametersProvider expenseParametersProvider,
+			IExpenseSettings expenseSettings,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			ISubdivisionRepository subdivisionRepository,
 			IAccountableDebtsRepository accountableDebtsRepository,
 			IGtkTabsOpener gtkTabsOpener,
@@ -72,7 +76,8 @@ namespace Vodovoz.JournalViewModels
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
-			_expenseParametersProvider = expenseParametersProvider ?? throw new ArgumentNullException(nameof(expenseParametersProvider));
+			_expenseSettings = expenseSettings ?? throw new ArgumentNullException(nameof(expenseSettings));
+			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -81,7 +86,7 @@ namespace Vodovoz.JournalViewModels
 				.GetRouteListProfitabilityIndicatorInPercents;
 			UseSlider = false;
 
-			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(Expense), typeof(Income), typeof(AdvanceReport), typeof(RouteListItem));
+			UpdateOnChanges(typeof(RouteList), typeof(RouteListProfitability), typeof(RouteListDebt));
 			InitPopupActions();
 		}
 
@@ -312,6 +317,7 @@ namespace Vodovoz.JournalViewModels
 
 		private readonly RouteListStatus[] _canReturnToOnClosing = new[]
 		{
+			RouteListStatus.MileageCheck,
 			RouteListStatus.Closed
 		};
 
@@ -431,8 +437,8 @@ namespace Vodovoz.JournalViewModels
 								_fuelRepository,
 								NavigationManagerProvider.NavigationManager,
 								new TrackRepository(),
-								new CategoryRepository(new ParametersProvider()),
 								new EmployeeJournalFactory(),
+								_financialCategoriesGroupsSettings,
 								new CarJournalFactory(NavigationManager)
 							)
 						);
@@ -492,10 +498,10 @@ namespace Vodovoz.JournalViewModels
 						var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 						var driverId = routeList.Driver.Id;
 
-						if(_accountableDebtsRepository.UnclosedAdvance(localUow,
+						if(_accountableDebtsRepository.GetUnclosedAdvances(localUow,
 							   routeList.Driver,
-							   localUow.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId),
-							   null).Count > 0)
+							   _financialCategoriesGroupsSettings.ChangeFinancialExpenseCategoryId,
+							   null).Count() > 0)
 						{
 							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
 								"Закройте сначала прошлые авансовые со статусом \"Сдача клиенту\"", "Нельзя выдать сдачу");
@@ -511,13 +517,11 @@ namespace Vodovoz.JournalViewModels
 							return;
 						}
 
-						_gtkTabsOpener.OpenRouteListChangeGiveoutExpenceDlg(this,
+						var page = NavigationManager.OpenViewModel<ExpenseViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+
+						page.ViewModel.ConfigureForRouteListChangeGiveout(
 							driverId,
-							routeList.Id,
-							changesToOrders.Sum(item => item.Value),
-							$"Сдача по МЛ №{routeList.Id}" +
-							$"\n-----" +
-							"\n" + string.Join("\n", changesToOrders.Select(pair => $"Заказ №{pair.Key} - {pair.Value}руб.")));
+							routeList.Id);
 					}
 				}
 			));
@@ -533,36 +537,9 @@ namespace Vodovoz.JournalViewModels
 						return;
 					}
 
-					using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
-					{
-						var routeList = localUow.GetById<RouteList>(selectedNode.Id);
-						var driverId = routeList.Driver.Id;
+					var page = NavigationManager.OpenViewModel<IncomeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 
-						var expenseChangeCategory =
-							localUow
-							.GetById<ExpenseCategory>(_expenseParametersProvider.ChangeCategoryId);
-
-						var unclosedExpenses = UoW.GetAll<Expense>()
-							.Where(ex =>
-								ex.AdvanceClosed == false
-								&& ex.TypeOperation == ExpenseType.Advance
-								&& ex.ExpenseCategory != null
-								&& ex.ExpenseCategory.Id == expenseChangeCategory.Id
-								&& ex.RouteListClosing != null
-								&& ex.RouteListClosing.Id == routeList.Id)
-							.ToList();
-
-						if(unclosedExpenses.Count == 0)
-						{
-							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
-								"Для данного маршрутного листа отсутствуют авансы со статусом \"Сдача клиенту\"", "Нельзя выполнить возврат сдачи");
-							return;
-						}
-
-						var dlg = new CashIncomeDlg(unclosedExpenses.First());
-
-						this.TabParent.AddTab(dlg, this);
-					}
+					page.ViewModel.ConFigureForReturnChange(selectedNode.Id);
 				}
 			));
 

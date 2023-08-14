@@ -15,14 +15,14 @@ namespace FastPaymentsAPI.Library.Managers
 		private readonly IDTOManager _dtoManager;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IFastPaymentParametersProvider _fastPaymentParametersProvider;
-		private readonly IFastPaymentAPIFactory _fastPaymentApiFactory;
+		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 		private readonly IOrderService _orderService;
 
 		public OrderRequestManager(
 			IDTOManager dtoManager,
 			ISignatureManager signatureManager,
 			IFastPaymentParametersProvider fastPaymentParametersProvider,
-			IFastPaymentAPIFactory fastPaymentApiFactory,
+			IFastPaymentFactory fastPaymentApiFactory,
 			IOrderService orderService)
 		{
 			_dtoManager = dtoManager ?? throw new ArgumentNullException(nameof(dtoManager));

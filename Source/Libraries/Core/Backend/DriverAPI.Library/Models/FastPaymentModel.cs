@@ -6,7 +6,7 @@ using Vodovoz.EntityRepositories.FastPayments;
 
 namespace DriverAPI.Library.Models
 {
-	public class FastPaymentModel : IFastPaymentModel
+	internal class FastPaymentModel : IFastPaymentModel
 	{
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IUnitOfWork _uow;

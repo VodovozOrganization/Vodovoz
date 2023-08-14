@@ -17,8 +17,6 @@ namespace Vodovoz.Views.Cash
 
 		private void Configure()
 		{
-			ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
-
 			comboRoleChooser.SetRenderTextFunc<PayoutRequestUserRole>(ur => ur.GetEnumTitle());
 			comboRoleChooser.ItemsList = ViewModel.UserRoles;
 			comboRoleChooser.Binding
@@ -71,10 +69,11 @@ namespace Vodovoz.Views.Cash
 				.InitializeFromSource();
 
 			labelExpenceCategory.Binding.AddBinding(ViewModel, vm => vm.CanSeeExpenseCategory, w => w.Visible).InitializeFromSource();
-			evmeExpenceCategory.CanEditReference = true;
-			evmeExpenceCategory.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CanSetExpenseCategory && !vm.IsSecurityServiceRole, w => w.Sensitive)
-				.AddBinding(ViewModel.Entity, vm => vm.ExpenseCategory, w => w.Subject)
+
+			entryExpenseFinancialCategory.ViewModel = ViewModel.FinancialExpenseCategoryViewModel;
+
+			entryExpenseFinancialCategory.Binding
+				.AddFuncBinding(ViewModel, vm => vm.CanSetExpenseCategory && !vm.IsSecurityServiceRole, w => w.ViewModel.IsEditable)
 				.AddBinding(ViewModel, vm => vm.CanSeeExpenseCategory, w => w.Visible)
 				.InitializeFromSource();
 
@@ -153,16 +152,6 @@ namespace Vodovoz.Views.Cash
 				.AddBinding(ViewModel, vm => vm.CanConveyForPayout, w => w.Visible)
 				.InitializeFromSource();
 			btnConveyForPayout.Clicked += (s, a) => ViewModel.ConveyForPayout();
-		}
-
-		private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(ViewModel.CanSeeExpenseCategory) && ViewModel.CanSeeExpenseCategory)
-			{
-				evmeExpenceCategory
-					.SetEntityAutocompleteSelectorFactory(
-						ViewModel.ExpenseCategoryAutocompleteSelectorFactory);
-			}
 		}
 	}
 }

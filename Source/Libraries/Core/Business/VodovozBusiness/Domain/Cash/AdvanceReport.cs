@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
@@ -15,7 +16,8 @@ namespace Vodovoz.Domain.Cash
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "авансовые отчеты",
-		Nominative = "авансовый отчет")]
+		Nominative = "авансовый отчет",
+		Accusative = "авансовый отчет")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject, ISubdivisionEntity
@@ -24,12 +26,14 @@ namespace Vodovoz.Domain.Cash
 		private Subdivision _relatedToSubdivision;
 		private Employee _casher;
 		private Employee _accountable;
-		private ExpenseCategory _expenseCategory;
+		private int? _expenseCategoryId;
 		private Income _changeReturn;
 		private string _description;
 		private decimal _money;
 		private Organization _organisation;
 		private RouteList _routeList;
+
+		public AdvanceReport() { }
 
 		#region Свойства
 
@@ -64,10 +68,11 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		[Display(Name = "Статья расхода")]
-		public virtual ExpenseCategory ExpenseCategory
+		[HistoryIdentifier(TargetType = typeof(FinancialExpenseCategory))]
+		public virtual int? ExpenseCategoryId
 		{
-			get => _expenseCategory;
-			set => SetField(ref _expenseCategory, value);
+			get => _expenseCategoryId;
+			set => SetField(ref _expenseCategoryId, value);
 		}
 
 		[Display(Name = "Возврат сдачи")]
@@ -112,8 +117,6 @@ namespace Vodovoz.Domain.Cash
 
 		#endregion
 
-		public AdvanceReport() { }
-
 		public virtual List<AdvanceClosing> CloseAdvances(
 			out Expense surcharge,
 			out Income returnChange,
@@ -122,7 +125,7 @@ namespace Vodovoz.Domain.Cash
 			surcharge = null;
 			returnChange = null;
 
-			if(advances.Any(a => a.ExpenseCategory != ExpenseCategory))
+			if(advances.Any(a => a.ExpenseCategoryId != ExpenseCategoryId))
 			{
 				throw new InvalidOperationException("Нельзя что бы авансовый отчет, закрывал авансы выданные по другим статьям.");
 			}
@@ -141,7 +144,7 @@ namespace Vodovoz.Domain.Cash
 					Employee = Accountable,
 					TypeOperation = ExpenseType.Advance,
 					Organisation = Organisation,
-					ExpenseCategory = ExpenseCategory,
+					ExpenseCategoryId = ExpenseCategoryId,
 					Money = Math.Abs(balance),
 					Description = $"Доплата денежных средств сотруднику по авансовому отчету №{Id}",
 					AdvanceClosed = true,
@@ -156,7 +159,7 @@ namespace Vodovoz.Domain.Cash
 					Casher = Casher,
 					Date = Date,
 					Employee = Accountable,
-					ExpenseCategory = ExpenseCategory,
+					ExpenseCategoryId = ExpenseCategoryId,
 					TypeOperation = IncomeType.Return,
 					Organisation = Organisation,
 					Money = Math.Abs(balance),
@@ -184,10 +187,10 @@ namespace Vodovoz.Domain.Cash
 					new[] { this.GetPropertyName(o => o.Accountable) });
 			}
 
-			if(ExpenseCategory == null)
+			if(ExpenseCategoryId == null)
 			{
 				yield return new ValidationResult("Статья расхода должна быть указана.",
-					new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+					new[] { this.GetPropertyName(o => o.ExpenseCategoryId) });
 			}
 
 			if(Money <= 0)

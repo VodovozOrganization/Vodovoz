@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using QS.HistoryLog.Domain;
 using Vodovoz.Domain.HistoryChanges;
 
 namespace Vodovoz.HibernateMapping.HistoryChanges
@@ -14,7 +13,7 @@ namespace Vodovoz.HibernateMapping.HistoryChanges
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.ChangeTime).Column("datetime");
-			Map(x => x.Operation).Column("operation").CustomType<EntityChangeOperationStringType>();
+			Map(x => x.Operation).Column("operation");
 			Map(x => x.EntityClassName).Column("entity_class");
 			Map(x => x.EntityId).Column("entity_id");
 			Map(x => x.EntityTitle).Column("entity_title");

@@ -4,10 +4,12 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
+using System.IO;
+using System.Reflection;
 
 namespace DriverAPI.Options
 {
-	public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
+	internal class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
 	{
 		private readonly IApiVersionDescriptionProvider _apiVersionDescriptionProvider;
 
@@ -22,6 +24,21 @@ namespace DriverAPI.Options
 			foreach (var desvription in _apiVersionDescriptionProvider.ApiVersionDescriptions)
 			{
 				options.SwaggerDoc(desvription.GroupName, CreateVersionInfo(desvription));
+
+				// using System.Reflection;
+				var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+				var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFilename);
+
+				options.IncludeXmlComments(xmlPath);
+				options.SchemaFilter<EnumTypesSchemaFilter>(xmlPath);
+
+				var libraryXmlFilename = $"{typeof(Library.DependencyInjection).Assembly.GetName().Name}.xml";
+				var libraryXmlPath = Path.Combine(AppContext.BaseDirectory, libraryXmlFilename);
+
+				options.IncludeXmlComments(libraryXmlPath);
+				options.SchemaFilter<EnumTypesSchemaFilter>(libraryXmlPath);
+
+				options.DocumentFilter<EnumTypesDocumentFilter>();
 			}
 		}
 

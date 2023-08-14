@@ -26,6 +26,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private bool? _isNomenclatureNotInStock;
 		private int _logisticianReactionTimeMinutes;
 		private DelegateCommand _infoCommand;
+		private string _failsReportName;
+		private DelegateCommand _failsReportCommand;
 
 		public FastDeliveryAvailabilityFilterViewModel(
 			ICounterpartyJournalFactory counterpartyJournalFactory,
@@ -111,13 +113,35 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 			set => UpdateFilterField(ref _logisticianReactionTimeMinutes, value);
 		}
 
+		public string FailsReportName
+		{
+			get => _failsReportName;
+			set => SetField(ref _failsReportName, value);
+		}
+
+		public Action FailsReportAction;
+
 		public DelegateCommand InfoCommand => _infoCommand ?? (_infoCommand = new DelegateCommand(
 			() => ServicesConfig.InteractiveService.ShowMessage(
 				ImportanceLevel.Info,
-				"В отчёте по не попавшим в доставку за час заказам отображаются заказы, которые в итоге не стали заказами с доставкой за час.\n" +
+				"Отчёт по заказам с ассортиментом из запаса доступен при установленном крестике на фильтре \"Ассортимент не в запасе\".\n"+
+				"В нём отображаются заказы, которые в итоге не стали заказами с доставкой за час.\n" +
 				"В столбце \"Не доставлено заказов\" считаются уникальные заказы.\nВ остальных столбцах кол-во проблем (по одному заказу может быть несколько проверок).\n" +
 				"Если в проверке не нашлось подходящих по расстоянию автомобилей, то в колонку \"Большое расстояние\" попадает 1, а в остальные колонки 0.\n" +
-				"В противном случае суммируются показатели проверки для автомобилей, подходящих по расстоянию, а в колонку с расстоянием попадает 0.")
+				"В противном случае суммируются показатели проверки для автомобилей подходящих по расстоянию с группировкой по адресам , а в колонку с расстоянием попадает 0.\n\n" +
+				"Отчёт по всем заказам - всё также, как и в отчёте по заказам с ассортиментом из запаса, только с выключеннымм фильтром \"Ассортимент не в запасе\"\n\n" +
+				"Отчёт \"Анализ ассортимента не в запасе\" доступен при установленной галочке в фильтре \"Ассортимент не в запасе\"\n" +
+				"В нём отображаются заказы, которые в итоге не стали заказами с доставкой за час. \n" +
+				"Отчёт показывает какие номенклатуры чаще других находились в заказе и становились причиной, по которой заказ не смогли доставить за час. \n" +
+				"Ассортимент из запаса исключаем \n\n" +
+				"Примечание: ассортимент не в запасе - истина, если есть хотя бы одна номенклатура, которая была в заказе с запросом на ДЗЧ, при этом отсутствовала в дополнительной погрузке (запасе)")
 		));
+
+		public DelegateCommand FailsReportCommand => _failsReportCommand ?? (_failsReportCommand = new DelegateCommand(
+			() => FailsReportAction?.Invoke()
+		));
+
+		public void InitFailsReport() => OnPropertyChanged(nameof(IsNomenclatureNotInStock));
+		
 	}
 }

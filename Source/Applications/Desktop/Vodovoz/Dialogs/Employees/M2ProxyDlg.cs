@@ -88,7 +88,7 @@ namespace Vodovoz.Dialogs.Employees
 			evmeEmployee.SetEntityAutocompleteSelectorFactory(employeeFactory.CreateWorkingEmployeeAutocompleteSelectorFactory());
 			evmeEmployee.Binding.AddBinding(Entity, x => x.Employee, x => x.Subject).InitializeFromSource();
 
-			var supplierFactory = new CounterpartyJournalFactory(MainClass.AppDIContainer.BeginLifetimeScope());
+			var supplierFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			evmeSupplier.SetEntityAutocompleteSelectorFactory(supplierFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			evmeSupplier.Binding.AddBinding(Entity, x => x.Supplier, x => x.Subject).InitializeFromSource();
 
@@ -105,8 +105,8 @@ namespace Vodovoz.Dialogs.Employees
 			templatewidget.BeforeOpen += Templatewidget_BeforeOpen;
 
 			yTWEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
-				.AddColumn("Наименование").SetDataProperty(node => node.FullNameString)
-				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
+				.AddColumn("Наименование").AddTextRenderer(node => node.FullNameString)
+				.AddColumn("Направление").AddTextRenderer(node => node.DirectionString)
 				.AddColumn("Кол-во").AddNumericRenderer(node => node.Count).WidthChars(10)
 				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 				.AddColumn("")
@@ -205,9 +205,11 @@ namespace Vodovoz.Dialogs.Employees
 			if(Entity.Order == null)
 				return true;
 
-			var valid = new QSValidator<M2ProxyDocument>(Entity);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			if(Entity.Order != null) {
 				List<OrderDocument> list = new List<OrderDocument> {

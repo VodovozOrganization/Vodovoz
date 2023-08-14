@@ -52,7 +52,7 @@ namespace Vodovoz.TempAdapters
 			_validationContextFactory = new ValidationContextFactory();
 			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 			_attachmentsViewModelFactory = new AttachmentsViewModelFactory();
-			_navigationManager = MainClass.MainWin.NavigationManager;
+			_navigationManager = Startup.MainWin.NavigationManager;
 		}
 
 		private void CreateNewDependencies()
@@ -76,7 +76,7 @@ namespace Vodovoz.TempAdapters
 				_authorizationServiceFactory,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory,
-				MainClass.AppDIContainer
+				Startup.AppDIContainer
 			);
 		}
 
@@ -160,7 +160,7 @@ namespace Vodovoz.TempAdapters
 						_authorizationServiceFactory,
 						ServicesConfig.CommonServices,
 						UnitOfWorkFactory.GetDefaultFactory,
-						MainClass.AppDIContainer
+						Startup.AppDIContainer
 					);
 				}
 			);

@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using AspNetCoreRateLimit;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
 using PayPageAPI.Controllers;
 using PayPageAPI.Models;
@@ -141,6 +141,7 @@ namespace PayPageAPI
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
+				.Driver<LoggedMySqlClientDriver>()
 				.ConnectionString(connectionString);
 
 			// Настройка ORM

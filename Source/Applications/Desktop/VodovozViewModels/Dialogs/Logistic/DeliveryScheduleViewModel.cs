@@ -1,6 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-using NHibernate;
-using QS.Dialog;
+﻿using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;

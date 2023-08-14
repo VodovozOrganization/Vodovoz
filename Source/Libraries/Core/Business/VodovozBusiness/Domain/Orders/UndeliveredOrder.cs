@@ -9,6 +9,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Utilities;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
@@ -28,9 +29,9 @@ namespace Vodovoz.Domain.Orders
 	public class UndeliveredOrder : BusinessObjectBase<UndeliveredOrder>, IDomainObject, IValidatableObject
 	{
 		private UndeliveryTransferAbsenceReason _undeliveryTransferAbsenceReason;
-		private List<UndeliveryTransferAbsenceReason> _undeliveryTransferAbsenceReasonItems;
 		private IList<UndeliveredOrderResultComment> _resultComments = new List<UndeliveredOrderResultComment>();
 		private GenericObservableList<UndeliveredOrderResultComment> _observableResultComments;
+		private UndeliveryDetalization _undeliveryDetalization;
 
 		#region Cвойства
 
@@ -221,6 +222,7 @@ namespace Vodovoz.Domain.Orders
 		UndeliveryStatus? InitialStatus { get; set; } = null;
 
 		List<UndeliveryProblemSource> problemSourceItems;
+
 		public virtual IEnumerable<UndeliveryProblemSource> ProblemSourceItems {
 			get {
 				if(problemSourceItems == null)
@@ -230,12 +232,6 @@ namespace Vodovoz.Domain.Orders
 
 				return problemSourceItems;
 			}
-		}
-
-		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems
-		{
-			get => _undeliveryTransferAbsenceReasonItems ?? (_undeliveryTransferAbsenceReasonItems =
-				UoW.GetAll<UndeliveryTransferAbsenceReason>().Where(u => !u.IsArchive).ToList());
 		}
 
 		[Display(Name = "Причина отсутствия переноса")]
@@ -264,6 +260,13 @@ namespace Vodovoz.Domain.Orders
 
 				return _observableResultComments;
 			}
+		}
+
+		[Display(Name = "Детализация")]
+		public virtual UndeliveryDetalization UndeliveryDetalization
+		{
+			get => _undeliveryDetalization;
+			set => SetField(ref _undeliveryDetalization, value);
 		}
 
 		#endregion

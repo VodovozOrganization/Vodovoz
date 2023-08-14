@@ -1,6 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Cash;
 using Vodovoz.ViewModels.Journals.FilterViewModels;
+using static Vodovoz.ViewModels.Journals.FilterViewModels.PayoutRequestJournalFilterViewModel;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -43,6 +44,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.Counterparty, w => w.Subject)
 				.AddBinding(vm => vm.CanSetCounterparty, w => w.Sensitive)
 				.InitializeFromSource();
+
+			yenumcomboboxSortBy.ItemsEnum = typeof(PayoutDocumentsSortOrder);
+			yenumcomboboxSortBy.Binding.AddBinding(ViewModel, vm => vm.DocumentsSortOrder, w => w.SelectedItemOrNull).InitializeFromSource();
+
 
 			PayoutRequestUserRole? userRole = ViewModel.GetUserRole();
 			//Для Роли Согласователя по-умолчанию Создана Подана,

@@ -1,4 +1,8 @@
-﻿namespace Vodovoz.Tools
+﻿using MoreLinq;
+using NHibernate.Util;
+using System.Linq;
+
+namespace Vodovoz.Tools
 {
 	public static class StringUtils
 	{

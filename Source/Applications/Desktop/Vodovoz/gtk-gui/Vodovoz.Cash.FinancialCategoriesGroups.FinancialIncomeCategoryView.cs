@@ -4,39 +4,47 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 {
 	public partial class FinancialIncomeCategoryView
 	{
-		private global::Gtk.Table tableMain;
+		private global::Gamma.GtkWidgets.yTable tableMain;
 
 		private global::QS.Views.Control.EntityEntry entryParentGroup;
 
 		private global::QS.Views.Control.EntityEntry entrySubdivision;
 
-		private global::Gtk.HBox hboxDialogButtons;
+		private global::Gamma.GtkWidgets.yHBox hboxDialogButtons;
 
 		private global::Gamma.GtkWidgets.yButton buttonSave;
 
 		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
-		private global::Gtk.HBox hboxExpander;
+		private global::Gamma.GtkWidgets.yHBox hboxExpander;
 
 		private global::Gamma.GtkWidgets.yLabel labelIdValue;
 
-		private global::Gtk.Button btnCopyEntityId1;
+		private global::Gamma.GtkWidgets.yButton btnCopyEntityId1;
 
-		private global::Gtk.Label labelId;
+		private global::Gamma.GtkWidgets.yLabel labelId;
 
-		private global::Gtk.Label labelParent;
+		private global::Gamma.GtkWidgets.yLabel labelParent;
 
-		private global::Gtk.Label labelType;
+		private global::Gamma.GtkWidgets.yLabel labelType;
 
-		private global::Gtk.Label labelType1;
+		private global::Gamma.GtkWidgets.yLabel labelType1;
 
-		private global::Gtk.Label labelType2;
+		private global::Gamma.GtkWidgets.yLabel labelType2;
 
-		private global::Gtk.Label labelType3;
+		private global::Gamma.GtkWidgets.yLabel labelType3;
 
-		private global::Gtk.Label labelType4;
+		private global::Gamma.GtkWidgets.yLabel labelType4;
+
+		private global::Gamma.GtkWidgets.yLabel lblExcludeFromCashFlowDds;
+
+		private global::Gamma.GtkWidgets.yLabel lblHideFromPublicAccess;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckArchived;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckExcludeFromCashFlowDds;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckHideFromPublicAccess;
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
@@ -47,12 +55,14 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.Cash.FinancialCategoriesGroups.FinancialIncomeCategory
+			// Widget Vodovoz.Cash.FinancialCategoriesGroups.FinancialIncomeCategoryView
 			global::Stetic.BinContainer.Attach(this);
-			this.Name = "Vodovoz.Cash.FinancialCategoriesGroups.FinancialIncomeCategory";
-			// Container child Vodovoz.Cash.FinancialCategoriesGroups.FinancialIncomeCategory.Gtk.Container+ContainerChild
-			this.tableMain = new global::Gtk.Table(((uint)(8)), ((uint)(2)), false);
+			this.Name = "Vodovoz.Cash.FinancialCategoriesGroups.FinancialIncomeCategoryView";
+			// Container child Vodovoz.Cash.FinancialCategoriesGroups.FinancialIncomeCategoryView.Gtk.Container+ContainerChild
+			this.tableMain = new global::Gamma.GtkWidgets.yTable();
 			this.tableMain.Name = "tableMain";
+			this.tableMain.NRows = ((uint)(10));
+			this.tableMain.NColumns = ((uint)(2));
 			this.tableMain.RowSpacing = ((uint)(6));
 			this.tableMain.ColumnSpacing = ((uint)(6));
 			// Container child tableMain.Gtk.Table+TableChild
@@ -73,14 +83,14 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.entrySubdivision.Name = "entrySubdivision";
 			this.tableMain.Add(this.entrySubdivision);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.tableMain[this.entrySubdivision]));
-			w2.TopAttach = ((uint)(6));
-			w2.BottomAttach = ((uint)(7));
+			w2.TopAttach = ((uint)(7));
+			w2.BottomAttach = ((uint)(8));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.hboxDialogButtons = new global::Gtk.HBox();
+			this.hboxDialogButtons = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxDialogButtons.Name = "hboxDialogButtons";
 			this.hboxDialogButtons.Spacing = 6;
 			// Container child hboxDialogButtons.Gtk.Box+BoxChild
@@ -117,7 +127,7 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.hboxExpander = new global::Gtk.HBox();
+			this.hboxExpander = new global::Gamma.GtkWidgets.yHBox();
 			this.hboxExpander.Name = "hboxExpander";
 			this.hboxExpander.Spacing = 6;
 			// Container child hboxExpander.Gtk.Box+BoxChild
@@ -130,7 +140,7 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hboxExpander.Gtk.Box+BoxChild
-			this.btnCopyEntityId1 = new global::Gtk.Button();
+			this.btnCopyEntityId1 = new global::Gamma.GtkWidgets.yButton();
 			this.btnCopyEntityId1.CanFocus = true;
 			this.btnCopyEntityId1.Name = "btnCopyEntityId1";
 			this.btnCopyEntityId1.UseUnderline = true;
@@ -151,7 +161,7 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.labelId = new global::Gtk.Label();
+			this.labelId = new global::Gamma.GtkWidgets.yLabel();
 			this.labelId.Name = "labelId";
 			this.labelId.Xalign = 0F;
 			this.labelId.LabelProp = global::Mono.Unix.Catalog.GetString("Код:");
@@ -162,7 +172,7 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.labelParent = new global::Gtk.Label();
+			this.labelParent = new global::Gamma.GtkWidgets.yLabel();
 			this.labelParent.Name = "labelParent";
 			this.labelParent.Xalign = 0F;
 			this.labelParent.LabelProp = global::Mono.Unix.Catalog.GetString("Родительская группа:");
@@ -173,7 +183,7 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.labelType = new global::Gtk.Label();
+			this.labelType = new global::Gamma.GtkWidgets.yLabel();
 			this.labelType.Name = "labelType";
 			this.labelType.Xalign = 0F;
 			this.labelType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип документа:");
@@ -184,7 +194,7 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.labelType1 = new global::Gtk.Label();
+			this.labelType1 = new global::Gamma.GtkWidgets.yLabel();
 			this.labelType1.Name = "labelType1";
 			this.labelType1.Xalign = 0F;
 			this.labelType1.LabelProp = global::Mono.Unix.Catalog.GetString("Архивировать:");
@@ -195,29 +205,29 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.labelType2 = new global::Gtk.Label();
+			this.labelType2 = new global::Gamma.GtkWidgets.yLabel();
 			this.labelType2.Name = "labelType2";
 			this.labelType2.Xalign = 0F;
 			this.labelType2.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделение:");
 			this.tableMain.Add(this.labelType2);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelType2]));
-			w16.TopAttach = ((uint)(6));
-			w16.BottomAttach = ((uint)(7));
+			w16.TopAttach = ((uint)(7));
+			w16.BottomAttach = ((uint)(8));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.labelType3 = new global::Gtk.Label();
+			this.labelType3 = new global::Gamma.GtkWidgets.yLabel();
 			this.labelType3.Name = "labelType3";
 			this.labelType3.Xalign = 0F;
 			this.labelType3.LabelProp = global::Mono.Unix.Catalog.GetString("Нумерация:");
 			this.tableMain.Add(this.labelType3);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableMain[this.labelType3]));
-			w17.TopAttach = ((uint)(7));
-			w17.BottomAttach = ((uint)(8));
+			w17.TopAttach = ((uint)(8));
+			w17.BottomAttach = ((uint)(9));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.labelType4 = new global::Gtk.Label();
+			this.labelType4 = new global::Gamma.GtkWidgets.yLabel();
 			this.labelType4.Name = "labelType4";
 			this.labelType4.Xalign = 0F;
 			this.labelType4.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
@@ -228,6 +238,28 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
+			this.lblExcludeFromCashFlowDds = new global::Gamma.GtkWidgets.yLabel();
+			this.lblExcludeFromCashFlowDds.Name = "lblExcludeFromCashFlowDds";
+			this.lblExcludeFromCashFlowDds.Xalign = 0F;
+			this.lblExcludeFromCashFlowDds.LabelProp = global::Mono.Unix.Catalog.GetString("Не включать в ДДС:");
+			this.tableMain.Add(this.lblExcludeFromCashFlowDds);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblExcludeFromCashFlowDds]));
+			w19.TopAttach = ((uint)(6));
+			w19.BottomAttach = ((uint)(7));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.lblHideFromPublicAccess = new global::Gamma.GtkWidgets.yLabel();
+			this.lblHideFromPublicAccess.Name = "lblHideFromPublicAccess";
+			this.lblHideFromPublicAccess.Xalign = 0F;
+			this.lblHideFromPublicAccess.LabelProp = global::Mono.Unix.Catalog.GetString("Скрыть статью\nиз общего доступа:");
+			this.tableMain.Add(this.lblHideFromPublicAccess);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblHideFromPublicAccess]));
+			w20.TopAttach = ((uint)(9));
+			w20.BottomAttach = ((uint)(10));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
 			this.ycheckArchived = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckArchived.CanFocus = true;
 			this.ycheckArchived.Name = "ycheckArchived";
@@ -235,13 +267,43 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.ycheckArchived.DrawIndicator = true;
 			this.ycheckArchived.UseUnderline = true;
 			this.tableMain.Add(this.ycheckArchived);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ycheckArchived]));
-			w19.TopAttach = ((uint)(5));
-			w19.BottomAttach = ((uint)(6));
-			w19.LeftAttach = ((uint)(1));
-			w19.RightAttach = ((uint)(2));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ycheckArchived]));
+			w21.TopAttach = ((uint)(5));
+			w21.BottomAttach = ((uint)(6));
+			w21.LeftAttach = ((uint)(1));
+			w21.RightAttach = ((uint)(2));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.ycheckExcludeFromCashFlowDds = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckExcludeFromCashFlowDds.CanFocus = true;
+			this.ycheckExcludeFromCashFlowDds.Name = "ycheckExcludeFromCashFlowDds";
+			this.ycheckExcludeFromCashFlowDds.Label = "";
+			this.ycheckExcludeFromCashFlowDds.DrawIndicator = true;
+			this.ycheckExcludeFromCashFlowDds.UseUnderline = true;
+			this.tableMain.Add(this.ycheckExcludeFromCashFlowDds);
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ycheckExcludeFromCashFlowDds]));
+			w22.TopAttach = ((uint)(6));
+			w22.BottomAttach = ((uint)(7));
+			w22.LeftAttach = ((uint)(1));
+			w22.RightAttach = ((uint)(2));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableMain.Gtk.Table+TableChild
+			this.ycheckHideFromPublicAccess = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckHideFromPublicAccess.CanFocus = true;
+			this.ycheckHideFromPublicAccess.Name = "ycheckHideFromPublicAccess";
+			this.ycheckHideFromPublicAccess.Label = "";
+			this.ycheckHideFromPublicAccess.DrawIndicator = true;
+			this.ycheckHideFromPublicAccess.UseUnderline = true;
+			this.tableMain.Add(this.ycheckHideFromPublicAccess);
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.tableMain[this.ycheckHideFromPublicAccess]));
+			w23.TopAttach = ((uint)(9));
+			w23.BottomAttach = ((uint)(10));
+			w23.LeftAttach = ((uint)(1));
+			w23.RightAttach = ((uint)(2));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
@@ -249,13 +311,13 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.yentryName.IsEditable = true;
 			this.yentryName.InvisibleChar = '•';
 			this.tableMain.Add(this.yentryName);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yentryName]));
-			w20.TopAttach = ((uint)(3));
-			w20.BottomAttach = ((uint)(4));
-			w20.LeftAttach = ((uint)(1));
-			w20.RightAttach = ((uint)(2));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yentryName]));
+			w24.TopAttach = ((uint)(3));
+			w24.BottomAttach = ((uint)(4));
+			w24.LeftAttach = ((uint)(1));
+			w24.RightAttach = ((uint)(2));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.yentryNumbering = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryNumbering.CanFocus = true;
@@ -263,13 +325,13 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.yentryNumbering.IsEditable = true;
 			this.yentryNumbering.InvisibleChar = '•';
 			this.tableMain.Add(this.yentryNumbering);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yentryNumbering]));
-			w21.TopAttach = ((uint)(7));
-			w21.BottomAttach = ((uint)(8));
-			w21.LeftAttach = ((uint)(1));
-			w21.RightAttach = ((uint)(2));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yentryNumbering]));
+			w25.TopAttach = ((uint)(8));
+			w25.BottomAttach = ((uint)(9));
+			w25.LeftAttach = ((uint)(1));
+			w25.RightAttach = ((uint)(2));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
+			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
 			this.yenumTypeDocument = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumTypeDocument.Name = "yenumTypeDocument";
@@ -278,13 +340,13 @@ namespace Vodovoz.Cash.FinancialCategoriesGroups
 			this.yenumTypeDocument.UseShortTitle = false;
 			this.yenumTypeDocument.DefaultFirst = false;
 			this.tableMain.Add(this.yenumTypeDocument);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yenumTypeDocument]));
-			w22.TopAttach = ((uint)(4));
-			w22.BottomAttach = ((uint)(5));
-			w22.LeftAttach = ((uint)(1));
-			w22.RightAttach = ((uint)(2));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.tableMain[this.yenumTypeDocument]));
+			w26.TopAttach = ((uint)(4));
+			w26.BottomAttach = ((uint)(5));
+			w26.LeftAttach = ((uint)(1));
+			w26.RightAttach = ((uint)(2));
+			w26.XOptions = ((global::Gtk.AttachOptions)(4));
+			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.tableMain);
 			if ((this.Child != null))
 			{

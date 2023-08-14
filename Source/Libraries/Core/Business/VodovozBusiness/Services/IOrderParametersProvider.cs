@@ -14,6 +14,7 @@
 		int GetPaymentByCardFromAvangardId { get; }
 		int GetPaymentByCardFromSiteByQrCodeId { get; }
 		int GetPaymentByCardFromMobileAppByQrCodeId { get; }
+		int GetPaymentByCardFromKulerSaleId { get; }
 		int[] PaymentsByCardFromNotToSendSalesReceipts { get; }
 		int[] PaymentsByCardFromForNorthOrganization { get; }
 		int[] PaymentsByCardFromAvangard { get; }

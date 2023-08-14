@@ -836,7 +836,7 @@ WHERE
         <Width>399.59pt</Width>
         <Value>
         </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>168.76pt</Left>
         <Top>69.80pt</Top>
         <Style>
@@ -865,7 +865,7 @@ WHERE
         <Height>13.52pt</Height>
         <Width>196.48pt</Width>
         <Value>=First({time_stamp}, 'Doc')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>372.50pt</Left>
         <Top>127.20pt</Top>
         <Style>
@@ -880,7 +880,7 @@ WHERE
         <Height>15.76pt</Height>
         <Width>259.02pt</Width>
         <Value>Комментарий ответственного:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.5pt</Left>
         <Top>319.9pt</Top>
         <Style>
@@ -895,7 +895,7 @@ WHERE
         <Height>13.56pt</Height>
         <Width>548.11pt</Width>
         <Value>=First({comment}, 'Doc')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.8pt</Left>
         <Top>335.5pt</Top>
         <Style>
@@ -909,7 +909,7 @@ WHERE
         <Height>12.75pt</Height>
         <Width>262.79pt</Width>
         <Value>Подпись передающего</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.3pt</Left>
         <Top>363.4pt</Top>
         <Style>
@@ -923,7 +923,7 @@ WHERE
         <Height>12.75pt</Height>
         <Width>277.71pt</Width>
         <Value>Подпись принимающего</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>277.9pt</Left>
         <Top>363.2pt</Top>
         <Style>
@@ -938,7 +938,7 @@ WHERE
         <Width>107.73pt</Width>
         <Value>
         </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>38.6pt</Left>
         <Top>384.6pt</Top>
         <Style>
@@ -955,7 +955,7 @@ WHERE
         <Width>107.73pt</Width>
         <Value>
         </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>153.8pt</Left>
         <Top>384.2pt</Top>
         <Style>
@@ -971,7 +971,7 @@ WHERE
         <Height>12.75pt</Height>
         <Width>9.92pt</Width>
         <Value>(</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>145.6pt</Left>
         <Top>383.9pt</Top>
         <Style>
@@ -987,7 +987,7 @@ WHERE
         <Height>12.75pt</Height>
         <Width>9.92pt</Width>
         <Value>)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>261.2pt</Left>
         <Top>383.8pt</Top>
         <Style>
@@ -1004,7 +1004,7 @@ WHERE
         <Width>107.73pt</Width>
         <Value>
         </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>304.6pt</Left>
         <Top>384.4pt</Top>
         <Style>
@@ -1021,7 +1021,7 @@ WHERE
         <Width>107.73pt</Width>
         <Value>
         </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>419.8pt</Left>
         <Top>384.0pt</Top>
         <Style>
@@ -1037,7 +1037,7 @@ WHERE
         <Height>12.75pt</Height>
         <Width>9.92pt</Width>
         <Value>(</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>411.6pt</Left>
         <Top>383.7pt</Top>
         <Style>
@@ -1053,7 +1053,7 @@ WHERE
         <Height>12.75pt</Height>
         <Width>9.92pt</Width>
         <Value>)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>527.2pt</Left>
         <Top>383.6pt</Top>
         <Style>
@@ -1557,7 +1557,7 @@ WHERE
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

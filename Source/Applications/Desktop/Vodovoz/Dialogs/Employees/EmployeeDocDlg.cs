@@ -56,14 +56,14 @@ namespace Vodovoz.Dialogs.Employees
 		
 		private bool SaveDoc()
 		{
-			var valid = new QSValidator<EmployeeDocument>(Entity);
-			valid.RunDlgIfNotValid((Gtk.Window)Toplevel);
-			if(valid.IsValid)
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			var isValid = validator.Validate(Entity);
+			if(isValid)
 			{
 				_unitOfWork.Save(Entity);
 				OnCloseTab(false);
 			}
-			return valid.IsValid;
+			return isValid;
 		}
 
 		private void ConfigureDlg()

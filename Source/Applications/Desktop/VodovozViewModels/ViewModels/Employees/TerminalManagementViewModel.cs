@@ -66,7 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				_driver.Id > 0
 				? _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, _driver)
 				: null, false);
-			_canManageTerminal = _commonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+			_canManageTerminal = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 		}
 
 		#region Свойства

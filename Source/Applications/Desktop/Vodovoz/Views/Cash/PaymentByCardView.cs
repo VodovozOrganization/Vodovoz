@@ -1,4 +1,5 @@
-﻿using QS.Navigation;
+﻿using FluentNHibernate.Data;
+using QS.Navigation;
 using QS.Views.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Domain.Client;
@@ -39,6 +40,13 @@ namespace Vodovoz.Views.Cash
 				PaymentType.DriverApplicationQR,
 				PaymentType.SmsQR);
 			enumPaymentType.SelectedItem = ViewModel.PaymentType;
+
+			yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);
+			yenumcomboboxTerminalSubtype.Binding
+				.AddSource(ViewModel.Entity)
+				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItem)
+				.AddFuncBinding(s => s.PaymentType == PaymentType.Terminal, w => w.Visible)
+				.InitializeFromSource();
 		}
 	}
 }

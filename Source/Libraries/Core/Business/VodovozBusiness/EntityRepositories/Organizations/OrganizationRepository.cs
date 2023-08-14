@@ -50,7 +50,7 @@ namespace Vodovoz.EntityRepositories.Organizations
 			Organization organizationAlias = null;
 			
 			return uow.Session.QueryOver<PaymentFrom>()
-				.Left.JoinAlias(pf => pf.OrganizationForAvangardPayments, () => organizationAlias)
+				.Left.JoinAlias(pf => pf.OrganizationForOnlinePayments, () => organizationAlias)
 				.Where(pf => pf.Id == paymentFromId)
 				.Select(Projections.Entity(() => organizationAlias))
 				.SingleOrDefault<Organization>();

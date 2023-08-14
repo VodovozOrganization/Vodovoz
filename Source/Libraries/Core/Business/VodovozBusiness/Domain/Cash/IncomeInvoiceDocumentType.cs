@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -11,6 +11,4 @@ namespace Vodovoz.Domain.Cash
 		[Display(Name = "Приходный ордер для самовывоза")]
 		IncomeInvoiceSelfDelivery,
 	}
-
 }
-

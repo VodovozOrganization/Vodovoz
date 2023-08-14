@@ -239,7 +239,7 @@ namespace Vodovoz.JournalViewers
 			switch(selectedNode)
 			{
 				case ProductGroupVMNode productGroupNode:
-					var pageProductGroup = MainClass.MainWin.NavigationManager.OpenTdiTabOnTdi<ProductGroupDlg, int>(
+					var pageProductGroup = Startup.MainWin.NavigationManager.OpenTdiTabOnTdi<ProductGroupDlg, int>(
 						this, productGroupNode.Id, OpenPageOptions.AsSlave);
 					
 					if(pageProductGroup.TdiTab is ProductGroupDlg dlg)
@@ -248,7 +248,7 @@ namespace Vodovoz.JournalViewers
 					}
 					break;
 				case NomenclatureNode nomenclatureNode:
-					var pageNomenclature = MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclatureViewModel, IEntityUoWBuilder>(
+					var pageNomenclature = Startup.MainWin.NavigationManager.OpenViewModelOnTdi<NomenclatureViewModel, IEntityUoWBuilder>(
 						this, EntityUoWBuilder.ForOpen(nomenclatureNode.Id), OpenPageOptions.AsSlave);
 					pageNomenclature.ViewModel.EntitySaved += (o, args) => UpdateData();
 					break;

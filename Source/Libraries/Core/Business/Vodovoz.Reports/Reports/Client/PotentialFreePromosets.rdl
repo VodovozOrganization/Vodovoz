@@ -20,7 +20,7 @@
         <Height>18.79pt</Height>
         <Width>804.04pt</Width>
         <Value>Отчет по потенциальным халявщикам</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>5.70pt</Left>
         <Top>6.10pt</Top>
         <Style>
@@ -36,7 +36,7 @@
         <Height>18.01pt</Height>
         <Width>392.19pt</Width>
         <Value>="с " + Format(CDate({?start_date}), "dd.MM.yyyy") + " по " + Format(CDate({?end_date}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>217.82pt</Left>
         <Top>22.90pt</Top>
         <Style>
@@ -1289,7 +1289,7 @@ ORDER BY query_group_ordering, base_order_id, first_base_order_ordering</Command
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_temp;user=enzogord;password=qwerty;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

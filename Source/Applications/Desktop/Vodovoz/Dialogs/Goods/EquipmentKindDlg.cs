@@ -2,6 +2,7 @@
 using Gamma.Utilities;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Validation;
 using Vodovoz.Domain;
 
 namespace Vodovoz
@@ -48,9 +49,11 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var valid = new QS.Validation.QSValidator<EquipmentKind> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			logger.Info ("Сохраняем вид оборудования...");
 			UoWGeneric.Save ();

@@ -1,8 +1,12 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using QS.Permissions;
+using QS.Navigation;
+using QS.Project.Domain;
+using System;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
+using Vodovoz.ViewModels.Cash;
 
 namespace Vodovoz
 {
@@ -11,6 +15,7 @@ namespace Vodovoz
 	public partial class UnclosedAdvancesView : QS.Dialog.Gtk.TdiTabBase
 	{
 		private IUnitOfWork _uow;
+		private readonly ILogger<UnclosedAdvancesView> _logger;
 
 		public IUnitOfWork UoW
 		{
@@ -34,22 +39,29 @@ namespace Vodovoz
 			}
 		}
 
+		INavigationManager NavigationManager { get; }
+
 		public bool? UseSlider => null;
 
-		public UnclosedAdvancesView(Employee accountable, ExpenseCategory expense) : this()
+		public UnclosedAdvancesView(
+			Employee accountable,
+			FinancialExpenseCategory financialExpenseCategory,
+			INavigationManager navigationManager)
+			: this(navigationManager)
 		{
 			if(accountable != null)
 			{
 				unclosedadvancesfilter1.SetAndRefilterAtOnce(x => x.RestrictAccountable = accountable);
 			}
 
-			if(expense != null)
+			if(financialExpenseCategory != null)
 			{
-				unclosedadvancesfilter1.SetAndRefilterAtOnce(x => x.RestrictExpenseCategory = expense);
+				unclosedadvancesfilter1.SetAndRefilterAtOnce(x => x.FinancialExpenseCategory = financialExpenseCategory);
 			}
 		}
 
-		public UnclosedAdvancesView()
+		public UnclosedAdvancesView(
+			INavigationManager navigationManager)
 		{
 			Build();
 			TabName = "Незакрытые авансы";
@@ -57,6 +69,8 @@ namespace Vodovoz
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			unclosedadvancesfilter1.UoW = UoW;
 			representationUnclosed.Selection.Changed += RepresentationUnclosed_Selection_Changed;
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			unclosedadvancesfilter1.JournalTab = this;
 		}
 
 		void RepresentationUnclosed_Selection_Changed(object sender, EventArgs e)
@@ -73,18 +87,16 @@ namespace Vodovoz
 
 		protected void OnButtonReturnClicked(object sender, EventArgs e)
 		{
-			var expense = UoW.GetById<Expense>(representationUnclosed.GetSelectedId());
+			var page = NavigationManager.OpenViewModel<IncomeViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 
-			var dlg = new CashIncomeDlg(expense);
-			OpenNewTab(dlg);
+			page.ViewModel.ConfigureForReturn(representationUnclosed.GetSelectedId());
 		}
 
 		protected void OnButtonCloseClicked(object sender, EventArgs e)
 		{
-			var expense = UoW.GetById<Expense>(representationUnclosed.GetSelectedId());
+			var page = NavigationManager.OpenViewModel<AdvanceReportViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
 
-			var dlg = new AdvanceReportDlg(expense);
-			OpenNewTab(dlg);
+			page.ViewModel.ConfigureForReturn(representationUnclosed.GetSelectedId());
 		}
 
 		public override void Destroy()

@@ -12,7 +12,8 @@ namespace Vodovoz.Domain.Cash
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "заявки на оплату по безналу",
-		Nominative = "заявка на оплату по безналу")]
+		Nominative = "заявка на оплату по безналу",
+		Accusative = "заявку на оплату по безналу")]
 	[HistoryTrace]
 	[EntityPermission]
 	public class CashlessRequest : PayoutRequestBase
@@ -144,9 +145,9 @@ namespace Vodovoz.Domain.Cash
 				}
 				case PayoutRequestState.Closed:
 				{
-					if(ExpenseCategory == null)
+					if(ExpenseCategoryId == null)
 					{
-						yield return new ValidationResult("Необходимо заполнить статью расхода", new[] { nameof(ExpenseCategory) });
+						yield return new ValidationResult("Необходимо заполнить статью расхода", new[] { nameof(ExpenseCategoryId) });
 					}
 
 					break;

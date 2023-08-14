@@ -803,7 +803,7 @@ ORDER BY
         <Width>399.59pt</Width>
         <Value>
         </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>168.76pt</Left>
         <Top>69.80pt</Top>
         <Style>
@@ -832,7 +832,7 @@ ORDER BY
         <Height>13.52pt</Height>
         <Width>196.48pt</Width>
         <Value>=First({time_stamp}, 'Doc')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>372.50pt</Left>
         <Top>127.20pt</Top>
         <Style>
@@ -847,7 +847,7 @@ ORDER BY
         <Height>15.76pt</Height>
         <Width>259.02pt</Width>
         <Value>Комментарий ответственного за склад:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.2pt</Left>
         <Top>301.7pt</Top>
         <Style>
@@ -862,7 +862,7 @@ ORDER BY
         <Height>13.56pt</Height>
         <Width>548.11pt</Width>
         <Value>=First({comment}, 'Doc')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.5pt</Left>
         <Top>317.3pt</Top>
         <Style>
@@ -880,7 +880,7 @@ ORDER BY
 2. ___________________________________________
 3. ___________________________________________
 4. ___________________________________________ </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>6.0pt</Left>
         <Top>338.0pt</Top>
         <Style>
@@ -897,7 +897,7 @@ ORDER BY
 1. ___________________________________________
 
 2. ___________________________________________ </Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>294.9pt</Left>
         <Top>338.6pt</Top>
         <Style>
@@ -1385,7 +1385,7 @@ ORDER BY
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

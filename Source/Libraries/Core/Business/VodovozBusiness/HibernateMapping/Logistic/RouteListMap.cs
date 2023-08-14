@@ -47,9 +47,11 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.DriverTerminalCondition).Column ("driver_terminal_condition").CustomType<DriverTerminalConditionStringType>();
 			Map(x => x.DeliveredAt).Column("delivered_at");
 
-			References(x => x.Car).Column("car_id").Access.CamelCaseField(Prefix.Underscore);
+			References(x => x.Car).Column("car_id")
+				.Access.CamelCaseField(Prefix.Underscore);
 			References(x => x.Shift).Column("delivery_shift_id");
-			References(x => x.Driver).Column("driver_id");
+			References(x => x.Driver).Column("driver_id")
+				.Access.CamelCaseField(Prefix.Underscore);
 			References(x => x.Forwarder).Column("forwarder_id");
 			References(x => x.Logistician).Column("logistican_id");
 			References(x => x.BottleFine).Column("bottles_fine_id");

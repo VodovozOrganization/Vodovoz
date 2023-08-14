@@ -6,7 +6,7 @@ using Vodovoz.Domain.Client;
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties
 {
 	public class ExternalCounterpartiesMatchingJournalFilterViewModel
-		: FilterViewModelBase<ExternalCounterpartiesMatchingJournalFilterViewModel>, IJournalFilterViewModel
+		: FilterViewModelBase<ExternalCounterpartiesMatchingJournalFilterViewModel>
 	{
 		private ExternalCounterpartyMatchingStatus? _matchingStatus;
 		private DateTime? _startDate;
@@ -53,6 +53,6 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Counterparties
 			set => SetField(ref _counterpartyId, value);
 		}
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 	}
 }

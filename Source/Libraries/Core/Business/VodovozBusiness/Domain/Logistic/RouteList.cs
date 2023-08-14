@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using NHibernate.Criterion;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -7,7 +8,7 @@ using QS.HistoryLog;
 using QS.Osrm;
 using QS.Project.Services;
 using QS.Report;
-using QS.Tools;
+using QS.Utilities.Debug;
 using QS.Utilities.Extensions;
 using QS.Validation;
 using System;
@@ -15,7 +16,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
@@ -48,6 +48,7 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Cash;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -108,17 +109,17 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref version, value, () => Version);
 		}
 
-		Employee driver;
+		Employee _driver;
 
 		[Display(Name = "Водитель")]
 		public virtual Employee Driver {
-			get => driver;
+			get => _driver;
 			set {
-				Employee oldDriver = driver;
-				if(SetField(ref driver, value, () => Driver)) {
+				Employee oldDriver = _driver;
+				if(SetField(ref _driver, value, () => Driver)) {
 					ChangeFuelDocumentsOnChangeDriver(oldDriver);
-					if(Id == 0 || oldDriver != driver)
-						Forwarder = GetDefaultForwarder(driver);
+					if(Id == 0 || oldDriver != _driver)
+						Forwarder = GetDefaultForwarder(_driver);
 				}
 			}
 		}
@@ -877,7 +878,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			var routeListAddressKeepingDocumentController = new RouteListAddressKeepingDocumentController(_employeeRepository, _nomenclatureParametersProvider);
-			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address);
+			routeListAddressKeepingDocumentController.RemoveRouteListKeepingDocument(UoW, address, true);
 
 			ObservableAddresses.Remove(address);
 			return true;
@@ -1760,6 +1761,46 @@ namespace Vodovoz.Domain.Logistic
 			return (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date ?? DateTime.Now);
 		}
 
+		public virtual bool IsDriversDebtInPermittedRangeVerification()
+		{
+			if(Driver != null)
+			{
+				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
+				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+
+				var isDriverHasActiveStopListRemoval = Driver.IsDriverHasActiveStopListRemoval(UoW);
+
+				if(isDriverHasActiveStopListRemoval)
+				{
+					return true;
+				}
+
+				var unclosedRouteListsHavingDebtsCount = _routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
+				var unclosedRouteListsDebtsSum = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
+
+				if(unclosedRouteListsHavingDebtsCount > maxDriversUnclosedRouteListsCountParameter 
+					|| unclosedRouteListsDebtsSum > maxDriversRouteListsDebtsSumParameter)
+				{
+					var messageString =
+						$"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
+						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей.";
+
+					var canEditDriversStopListParameters =
+						ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
+
+					if(canEditDriversStopListParameters)
+					{
+						messageString += "\n\nВсе равно продолжить?";
+						return ServicesConfig.InteractiveService.Question(messageString, "Требуется подтверждение");
+					}
+
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, messageString);
+					return false;
+				}
+			}
+			return true;
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
@@ -1875,7 +1916,8 @@ namespace Vodovoz.Domain.Logistic
 
 			if(GeographicGroups.Any(x => x.GetVersionOrNull(Date) == null))
 			{
-				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", new[] { nameof(GeographicGroups) });
+				yield return new ValidationResult("Выбрана часть города без актуальных данных о координатах, кассе и складе. Сохранение невозможно.", 
+					new[] { nameof(GeographicGroups) });
 			}
 		}
 
@@ -2042,7 +2084,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual string[] ManualCashOperations(
-			ref Income cashIncome, ref Expense cashExpense, decimal casheInput, ICategoryRepository categoryRepository)
+			ref Income cashIncome, ref Expense cashExpense, decimal casheInput, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
 			var messages = new List<string>();
 
@@ -2053,7 +2095,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(casheInput > 0) {
 				cashIncome = new Income {
-					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
+					IncomeCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialIncomeCategoryId,
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -2068,7 +2110,7 @@ namespace Vodovoz.Domain.Logistic
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
-					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
+					ExpenseCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId,
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -2085,14 +2127,14 @@ namespace Vodovoz.Domain.Logistic
 			return messages.ToArray();
 		}
 
-		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput, ICategoryRepository categoryRepository)
+		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
 			string message;
 			if(Cashier?.Subdivision == null)
 				return "Создающий кассовый документ пользователь - не привязан к сотруднику!";
 
 			cashExpense = new Expense {
-				ExpenseCategory = categoryRepository.EmployeeSalaryExpenseCategory(UoW),
+				ExpenseCategoryId = financialCategoriesGroupsSettings.EmployeeSalaryFinancialExpenseCategoryId,
 				TypeOperation = ExpenseType.EmployeeAdvance,
 				Date = DateTime.Now,
 				Casher = this.Cashier,
@@ -2361,7 +2403,7 @@ namespace Vodovoz.Domain.Logistic
 			return reportInfo;
 		}
 
-		public virtual IEnumerable<string> UpdateCashOperations(ICategoryRepository categoryRepository)
+		public virtual IEnumerable<string> UpdateCashOperations(IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
 			var messages = new List<string>();
 			//Закрываем наличку.
@@ -2381,7 +2423,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if(different > 0) {
 				cashIncome = new Income {
-					IncomeCategory = categoryRepository.RouteListClosingIncomeCategory(UoW),
+					IncomeCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialIncomeCategoryId,
 					TypeOperation = IncomeType.DriverReport,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -2396,7 +2438,7 @@ namespace Vodovoz.Domain.Logistic
 				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
 			} else {
 				cashExpense = new Expense {
-					ExpenseCategory = categoryRepository.RouteListClosingExpenseCategory(UoW),
+					ExpenseCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId,
 					TypeOperation = ExpenseType.Expense,
 					Date = DateTime.Now,
 					Casher = this.Cashier,
@@ -2429,9 +2471,9 @@ namespace Vodovoz.Domain.Logistic
 			return messages;
 		}
 
-		public virtual IEnumerable<string> UpdateMovementOperations(ICategoryRepository categoryRepository)
+		public virtual IEnumerable<string> UpdateMovementOperations(IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
-			var result = UpdateCashOperations(categoryRepository);
+			var result = UpdateCashOperations(financialCategoriesGroupsSettings);
 			UpdateOperations();
 			return result;
 		}
@@ -2619,15 +2661,32 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#region Вес
+
 		/// <summary>
 		/// Полный вес товаров и оборудования в маршрутном листе
 		/// </summary>
 		/// <returns>Вес в килограммах</returns>
-		public virtual decimal GetTotalWeight() =>
-			Math.Round(
-				Addresses.Where(item => item.Status != RouteListItemStatus.Transfered).Sum(item => item.Order.FullWeight())
-				+ (AdditionalLoadingDocument?.Items.Sum(x => x.Nomenclature.Weight * x.Amount) ?? 0),
-				3);
+		public virtual decimal GetTotalWeight()
+		{
+			var ordersWeight = Addresses
+				.Where(item => item.Status != RouteListItemStatus.Transfered)
+				.Sum(item => item.Order.FullWeight());
+
+			var additionalLoadingWeight = AdditionalLoadingDocument?.Items.Sum(x => x.Nomenclature.Weight * x.Amount) ?? 0;
+			return Math.Round(ordersWeight + additionalLoadingWeight, 3);
+		}
+
+		/// <summary>
+		/// Полный вес продаваемых товаров в маршрутном листе
+		/// </summary>
+		/// <returns>Вес в килограммах</returns>
+		public virtual decimal GetTotalSalesGoodsWeight()
+		{
+			var ordersWeight = Addresses
+				.Where(item => item.Status != RouteListItemStatus.Transfered)
+				.Sum(item => item.Order.GetSalesItemsWeight());
+			return Math.Round(ordersWeight, 3);
+		}
 
 		/// <summary>
 		/// Проверка на перегруз автомобиля

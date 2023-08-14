@@ -2,7 +2,6 @@
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using System;
-using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewModels.Orders

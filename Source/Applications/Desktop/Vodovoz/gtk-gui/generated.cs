@@ -60,6 +60,8 @@ namespace Stetic
 				w1.Add("car_events", w24);
 				global::Gtk.IconSet w25 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.toolbar.sales_department.png"));
 				w1.Add("sales_department", w25);
+				global::Gtk.IconSet w26 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.toolbar.undelivered_orders.png"));
+				w1.Add("undelivered_orders", w26);
 				w1.AddDefault();
 			}
 		}

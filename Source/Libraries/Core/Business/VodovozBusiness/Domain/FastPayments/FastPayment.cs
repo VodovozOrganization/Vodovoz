@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -166,12 +167,14 @@ namespace Vodovoz.Domain.FastPayments
 		{
 			FastPaymentStatus = FastPaymentStatus.Performed;
 
-			if(Order.PaymentType == PaymentType.Cash
+			var selfDeliveryOrderPaymentTypes = new PaymentType[] { PaymentType.Cash, PaymentType.SmsQR };
+
+			if(selfDeliveryOrderPaymentTypes.Contains(Order.PaymentType)
 				&& Order.SelfDelivery
 				&& Order.OrderStatus == OrderStatus.WaitForPayment
 				&& Order.PayAfterShipment)
 			{
-				Order.TryCloseSelfDeliveryOrder(
+				Order.TryCloseSelfDeliveryPayAfterShipmentOrder(
 					uow,
 					standartNomenclatures,
 					routeListItemRepository,
@@ -180,7 +183,7 @@ namespace Vodovoz.Domain.FastPayments
 				Order.IsSelfDeliveryPaid = true;
 			}
 
-			if(Order.PaymentType == PaymentType.Cash
+			if(selfDeliveryOrderPaymentTypes.Contains(Order.PaymentType)
 				&& Order.SelfDelivery
 				&& Order.OrderStatus == OrderStatus.WaitForPayment
 				&& !Order.PayAfterShipment)

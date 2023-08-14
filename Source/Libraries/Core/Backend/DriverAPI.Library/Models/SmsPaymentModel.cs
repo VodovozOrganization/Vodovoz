@@ -5,7 +5,7 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace DriverAPI.Library.Models
 {
-	public class SmsPaymentModel : ISmsPaymentModel
+	internal class SmsPaymentModel : ISmsPaymentModel
 	{
 		private readonly IOrderRepository _orderRepository;
 		private readonly IUnitOfWork _unitOfWork;
@@ -14,8 +14,8 @@ namespace DriverAPI.Library.Models
 			IOrderRepository orderRepository,
 			IUnitOfWork unitOfWork)
 		{
-			this._orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			this._unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 		}
 
 		public SmsPaymentStatus? GetOrderSmsPaymentStatus(int orderId)

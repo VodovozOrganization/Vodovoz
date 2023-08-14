@@ -1,18 +1,32 @@
-﻿using DriverAPI.Library.DTOs;
+using DriverAPI.Library.DTOs;
 using Vodovoz.Domain.Client;
 
 namespace DriverAPI.Library.Converters
 {
+	/// <summary>
+	/// Конвертер типов оплаты
+	/// </summary>
 	public class PaymentTypeConverter
 	{
-		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, bool paid)
+		/// <summary>
+		/// Метод конвертации в DTO
+		/// </summary>
+		/// <param name="paymentType">Тип оплаты</param>
+		/// <param name="paid">Оплачен ли</param>
+		/// <returns></returns>
+		/// <exception cref="ConverterException"></exception>
+		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, bool paid, PaymentByTerminalSource? paymentByTerminalSource)
 		{
 			switch(paymentType)
 			{
 				case PaymentType.Cash:
 					return PaymentDtoType.Cash;
 				case PaymentType.Terminal:
-					return PaymentDtoType.Terminal;
+					if(paymentByTerminalSource != null && paymentByTerminalSource == PaymentByTerminalSource.ByQR)
+					{
+						return PaymentDtoType.TerminalQR;
+					}
+					return PaymentDtoType.TerminalCard;
 				case PaymentType.DriverApplicationQR:
 					return PaymentDtoType.DriverApplicationQR;
 				case PaymentType.SmsQR:

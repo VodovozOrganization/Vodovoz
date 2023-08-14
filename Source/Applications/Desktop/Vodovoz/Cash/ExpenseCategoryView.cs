@@ -55,6 +55,8 @@ namespace Vodovoz.Cash
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
 
+			tableMain.Sensitive = false;
+
 			btnCopyEntityId1.Sensitive = ViewModel.Entity.Id > 0;
 			btnCopyEntityId1.Clicked += OnBtnCopyEntityIdClicked;
 		}

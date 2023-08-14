@@ -78,11 +78,11 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ContactsVMNode>.Create ()
-			.AddColumn ("Имя").SetDataProperty (node => node.FullName)
-			.AddColumn ("Должность").SetDataProperty (node => node.Post)
-			.AddColumn ("Курируемые точки").SetDataProperty (node => node.PointCurator)
-			.AddColumn ("Телефон").SetDataProperty (node => node.MainPhone)
-			.AddColumn ("Комментарий").SetDataProperty (node => node.Comment)
+			.AddColumn ("Имя").AddTextRenderer(node => node.FullName)
+			.AddColumn ("Должность").AddTextRenderer(node => node.Post)
+			.AddColumn ("Курируемые точки").AddTextRenderer(node => node.PointCurator)
+			.AddColumn ("Телефон").AddTextRenderer(node => node.MainPhone)
+			.AddColumn ("Комментарий").AddTextRenderer(node => node.Comment)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {

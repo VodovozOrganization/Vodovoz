@@ -51,8 +51,13 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CachingRepositories\Cash\FinancialIncomeCategoriesNodesInMemoryCacheRepository.cs" />
+    <Compile Include="CachingRepositories\Cash\FinancialExpenseCategoriesNodesInMemoryCacheRepository.cs" />
+    <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
+    <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
+    <Compile Include="Domain\Cash\CashTransfer\CashTransferDocumentStatuses.cs" />
     <Compile Include="Controllers\INomenclatureOnlineParametersController.cs" />
     <Compile Include="Controllers\NomenclatureOnlineParametersController.cs" />
     <Compile Include="Domain\Cash\ExpenseInvoiceDocumentType.cs" />
@@ -62,13 +67,42 @@
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialIncomeCategory.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\FinancialSubType.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\GroupType.cs" />
+    <Compile Include="Domain\Client\CargoReceiverSource.cs" />
+    <Compile Include="Domain\Client\ConsentForEdoStatus.cs" />
+    <Compile Include="Domain\Client\CounterpartySubtype.cs" />
+    <Compile Include="Domain\Client\CounterpartyType.cs" />
+    <Compile Include="Domain\Client\DefaultDocumentType.cs" />
+    <Compile Include="Domain\Client\EntranceType.cs" />
+    <Compile Include="Domain\Client\ISupplierPriceNode.cs" />
+    <Compile Include="Domain\Client\OrderStatusForSendingUpd.cs" />
+    <Compile Include="Domain\Client\PersonType.cs" />
+    <Compile Include="Domain\Client\ReasonForLeaving.cs" />
+    <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
+    <Compile Include="Domain\Client\SellingNomenclature.cs" />
+    <Compile Include="Domain\Client\TaxType.cs" />
+    <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
+    <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
+    <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
+    <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
+    <Compile Include="Domain\Orders\UndeliveryDetalization.cs" />
+    <Compile Include="Domain\Orders\UndeliveryKind.cs" />
+    <Compile Include="Domain\Orders\UndeliveryObject.cs" />
+    <Compile Include="EntityRepositories\Cash\FinancialExpenseCategoriesRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\FinancialIncomeCategoriesRepository.cs" />
     <Compile Include="Domain\Cash\FinancialCategoriesGroups\TargetDocument.cs" />
     <Compile Include="Domain\Cash\FinancialCategoryTypeEnum.cs" />
+    <Compile Include="Domain\Cash\IAdvanceCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Cash\IExpenseCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\IFinancialCategory.cs" />
+    <Compile Include="Domain\Cash\IFuelCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Cash\IIncomeCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Cash\IncomeInvoiceDocumentType.cs" />
+    <Compile Include="Domain\Cash\DocumentTypesExtensions.cs" />
     <Compile Include="Domain\Cash\IncomeType.cs" />
     <Compile Include="Domain\Cash\ISelfDeliveryCashOrganisationDistributor.cs" />
+    <Compile Include="Domain\Cash\IRouteListCashOrganisationDistributor.cs" />
     <Compile Include="Domain\Client\ExternalCounterpartyMatchingStatus.cs" />
+    <Compile Include="Domain\Client\PaymentByTerminalSource.cs" />
     <Compile Include="Domain\Documents\IncomingInvoices\AccountingType.cs" />
     <Compile Include="Domain\Documents\InventoryDocuments\InventoryDocumentStatus.cs" />
     <Compile Include="Domain\Documents\InventoryDocuments\InventoryDocumentType.cs" />
@@ -83,6 +117,8 @@
     <Compile Include="Domain\Employees\ToolbarStyleStringType.cs" />
     <Compile Include="Domain\Client\ContractType.cs" />
     <Compile Include="Domain\Client\ContractTypeStringType.cs" />
+    <Compile Include="Domain\FastPayments\FastPaymentNotification.cs" />
+    <Compile Include="Domain\FastPayments\FastPaymentNotificationType.cs" />
     <Compile Include="Domain\Goods\AlternativeNomenclaturePrice.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\KulerSaleWebSiteNomenclatureOnlineParameters.cs" />
     <Compile Include="Domain\Goods\NomenclaturesOnlineParameters\KulerSaleWebSiteNomenclatureOnlinePrice.cs" />
@@ -412,7 +448,6 @@
     <Compile Include="Domain\TrueMark\TrueMarkCashReceiptProductCode.cs" />
     <Compile Include="Domain\TrueMark\TrueMarkIdentificationCode.cs" />
     <Compile Include="Domain\Goods\VAT.cs" />
-    <Compile Include="Domain\Goods\VATStringType.cs" />
     <Compile Include="Domain\Versions\VersionEntityBase.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\IWageParameterService.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageCalculationDetails.cs" />
@@ -429,10 +464,6 @@
     <Compile Include="Domain\Logistic\Drivers\DriverDistrictPrioritySet.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWorkSchedule.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverWorkScheduleSet.cs" />
-    <Compile Include="EntityRepositories\Accounting\AccountExpenseRepository.cs" />
-    <Compile Include="EntityRepositories\Accounting\AccountIncomeRepository.cs" />
-    <Compile Include="EntityRepositories\Accounting\IAccountExpenseRepository.cs" />
-    <Compile Include="EntityRepositories\Accounting\IAccountIncomeRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\CullingCategoryRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\DeliveryScheduleRepository.cs" />
     <Compile Include="EntityRepositories\BasicHandbooks\ICullingCategoryRepository.cs" />
@@ -444,6 +475,8 @@
     <Compile Include="EntityRepositories\Cash\IAccountableDebtsRepository.cs" />
     <Compile Include="EntityRepositories\Cash\ICashReceiptRepository.cs" />
     <Compile Include="EntityRepositories\Cash\ICategoryRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\IFinancialExpenseCategoriesRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\IFinancialIncomeCategoriesRepository.cs" />
     <Compile Include="EntityRepositories\Cash\OperationNode.cs" />
     <Compile Include="EntityRepositories\Chats\ChatMessageRepository.cs" />
     <Compile Include="EntityRepositories\Chats\ChatRepository.cs" />
@@ -493,9 +526,11 @@
     <Compile Include="EntityRepositories\HistoryChanges\IArchivedHistoryChangesRepository.cs" />
     <Compile Include="EntityRepositories\HistoryChanges\ArchivedHistoryChangesRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\CarEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DriverPosition.cs" />
     <Compile Include="EntityRepositories\Logistic\ICachedDistanceRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\ICarEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IDeliveryShiftRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IArchivedTrackPointRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IRouteColumnRepository.cs" />
@@ -573,7 +608,20 @@
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrderCountNode.cs" />
     <Compile Include="EntityRepositories\Undeliveries\UndeliveredOrdersRepository.cs" />
     <Compile Include="EntityRepositories\Nodes\NomenclatureForRentNode.cs" />
+    <Compile Include="Errors\Clients\DeliveryPoint.cs" />
+    <Compile Include="Errors\Clients\DeliveryPoint.FastDelivery.cs" />
+    <Compile Include="Errors\Error.cs" />
+    <Compile Include="Errors\Logistics\District.cs" />
+    <Compile Include="Errors\Logistics\District.FastDelivery.cs" />
+    <Compile Include="Errors\Logistics\TariffZone.cs" />
+    <Compile Include="Errors\Logistics\TariffZone.FastDelivery.cs" />
+    <Compile Include="Errors\Orders\Order.Accept.cs" />
+    <Compile Include="Errors\Orders\Order.cs" />
+    <Compile Include="Errors\Orders\Order.FastDelivery.cs" />
+    <Compile Include="Errors\Result.cs" />
+    <Compile Include="Errors\ResultT.cs" />
     <Compile Include="Extensions\DriverPositionExtensions.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Factories\CashReceiptFactory.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
     <Compile Include="Factories\EmployeeRegistrationFactory.cs" />
@@ -690,6 +738,7 @@
     <Compile Include="HibernateMapping\Employees\EmployeeRegistrationMap.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeRegistrationVersionMap.cs" />
     <Compile Include="HibernateMapping\FastPayments\FastPaymentMap.cs" />
+    <Compile Include="HibernateMapping\FastPayments\FastPaymentNotificationMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictMap.cs" />
     <Compile Include="HibernateMapping\FinancialDistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Geocoder\GeocoderCoordinatesCacheMap.cs" />
@@ -713,6 +762,7 @@
     <Compile Include="HibernateMapping\Goods\VodovozWebSiteNomenclatureOnlinePriceMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\Drivers\DriverStopListRemovalMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FastDeliveryMaxDistanceParameterVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelPriceVersionMap.cs" />
     <Compile Include="HibernateMapping\Logistic\Cars\CarEventMap.cs" />
@@ -748,6 +798,10 @@
     <Compile Include="HibernateMapping\Operations\InstanceGoodsAccountingOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\WarehouseBulkGoodsAccountingOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\WarehouseInstanceGoodsAccountingOperationMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderEdoTrueMarkDocumentsActionsMap.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveryDetalizationMap.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveryKindMap.cs" />
+    <Compile Include="HibernateMapping\Order\UndeliveryObjectMap.cs" />
     <Compile Include="HibernateMapping\Order\TrueMarkApiDocumentMap.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonNomenclatureCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\EdoContainerMap.cs" />
@@ -875,6 +929,9 @@
     <Compile Include="Models\TrueMark\TrueMarkTransactionalCodesPool.cs" />
     <Compile Include="Models\TrueMark\TrueMarkWaterCode.cs" />
     <Compile Include="Models\TrueMark\TrueMarkWaterCodeParser.cs" />
+    <Compile Include="NHibernateProjections\Cash\AdvanceReportProjections.cs" />
+    <Compile Include="NHibernateProjections\Cash\ExpenseProjections.cs" />
+    <Compile Include="NHibernateProjections\Cash\IncomeProjections.cs" />
     <Compile Include="NHibernateProjections\Contacts\PhoneProjections.cs" />
     <Compile Include="NHibernateProjections\Documents\ShiftChangeDocumentProjections.cs" />
     <Compile Include="NHibernateProjections\Documents\WarehouseDocumentsProjections.cs" />
@@ -898,7 +955,6 @@
     <Compile Include="Parameters\DebtorsParameters.cs" />
     <Compile Include="Parameters\DeliveryRulesParametersProvider.cs" />
     <Compile Include="Parameters\DeliveryScheduleParametersProvider.cs" />
-    <Compile Include="Parameters\ExpenseParametersProvider.cs" />
     <Compile Include="Parameters\FastDeliveryAvailabilityHistoryParameterProvider.cs" />
     <Compile Include="Parameters\FastPaymentParametersProvider.cs" />
     <Compile Include="Parameters\GeneralSettingsParametersProvider.cs" />
@@ -909,12 +965,9 @@
     <Compile Include="Parameters\ICounterpartySettings.cs" />
     <Compile Include="Parameters\IEmailParametersProvider.cs" />
     <Compile Include="Parameters\GMapPararmetersProviders.cs" />
-    <Compile Include="Parameters\IExpenseParametersProvider.cs" />
     <Compile Include="Parameters\IGeneralSettingsParametersProvider.cs" />
     <Compile Include="Parameters\IGMapParametersProviders.cs" />
     <Compile Include="Parameters\FiasApiParametersProvider.cs" />
-    <Compile Include="Parameters\IIncomeParametersProvider.cs" />
-    <Compile Include="Parameters\IncomeParametersProvider.cs" />
     <Compile Include="Parameters\IRoboatsSettings.cs" />
     <Compile Include="Parameters\IRouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\IStoredResourcesSettings.cs" />
@@ -924,10 +977,15 @@
     <Compile Include="Parameters\RouteListProfitabilitySettings.cs" />
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
+    <Compile Include="Permissions\Cash.FinancialCategory.cs" />
+    <Compile Include="Permissions\Email.cs" />
+    <Compile Include="Permissions\Order.CashReceipt.cs" />
+    <Compile Include="Permissions\Order.cs" />
     <Compile Include="Permissions\Cash.cs" />
     <Compile Include="Permissions\Cash.Income.cs" />
     <Compile Include="Permissions\Cash.Expense.cs" />
     <Compile Include="Permissions\Logistic.cs" />
+    <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\IEmployeeService.cs" />
     <Compile Include="Services\IFastDeliveryAvailabilityHistoryParameterProvider.cs" />
@@ -957,8 +1015,6 @@
     <Compile Include="PrintableDocuments\IncomingInvoiceDocumentRDL.cs" />
     <Compile Include="PrintableDocuments\MovementDocumentRDL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Domain\Accounting\AccountExpense.cs" />
-    <Compile Include="Domain\Accounting\AccountIncome.cs" />
     <Compile Include="Domain\BasicHandbooks\CullingCategory.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentColors.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentKind.cs" />
@@ -1045,8 +1101,6 @@
     <Compile Include="Domain\Store\RegradingOfGoodsTemplateItem.cs" />
     <Compile Include="Domain\Store\Warehouse.cs" />
     <Compile Include="Domain\Wages.cs" />
-    <Compile Include="HibernateMapping\Accounting\AccountExpenseMap.cs" />
-    <Compile Include="HibernateMapping\Accounting\AccountIncomeMap.cs" />
     <Compile Include="HibernateMapping\Cash\AdvanceClosingMap.cs" />
     <Compile Include="HibernateMapping\Cash\AdvanceReportMap.cs" />
     <Compile Include="HibernateMapping\Cash\ExpenseCategoryMap.cs" />
@@ -1317,11 +1371,11 @@
     <Compile Include="Tools\TypeUtils.cs" />
     <Compile Include="Tools\Store\StoreDocumentHelper.cs" />
     <Compile Include="Tools\Validation\PasswordValidationSettingsFactory.cs" />
+    <Compile Include="Validation\FastDeliveryValidator.cs" />
+    <Compile Include="Validation\IFastDeliveryValidator.cs" />
     <Compile Include="ViewModelBased\ViewModelBase.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
     <Compile Include="ViewModelBased\ViewModelGeneric.cs" />
-    <Compile Include="Filters\IncomeFilter.cs" />
-    <Compile Include="Filters\ExpenseFilter.cs" />
     <Compile Include="Domain\Fuel\FuelIncomeInvoice.cs" />
     <Compile Include="Domain\Fuel\FuelIncomeOperation.cs" />
     <Compile Include="Domain\Fuel\FuelExpenseOperation.cs" />
@@ -1560,8 +1614,6 @@
     <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModel.cs" />
     <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorReporter.cs" />
-    <Compile Include="Tools\ErrorReporting\ILogService.cs" />
-    <Compile Include="Tools\ErrorReporting\LogService.cs" />
     <Compile Include="Tools\ErrorReporting\IErrorReporter.cs" />
     <Compile Include="Tools\ErrorReporting\IErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageModelBase.cs" />
@@ -1645,21 +1697,23 @@
     <PackageReference Include="GeoAPI" Version="1.7.5" />
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
     <PackageReference Include="GeoAPI.Core" Version="1.7.5" />
-    <PackageReference Include="Google.Protobuf" Version="3.21.7" />
-    <PackageReference Include="Iesi.Collections" Version="4.0.4" />
-    <PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
-    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.16" />
-    <PackageReference Include="K4os.Hash.xxHash" Version="1.0.7" />
+    <PackageReference Include="Google.Protobuf" Version="3.22.1" />
+    <PackageReference Include="Iesi.Collections" Version="4.0.5" />
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.3.5" />
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.3.5" />
+    <PackageReference Include="K4os.Hash.xxHash" Version="1.0.8" />
     <PackageReference Include="morelinq" Version="3.3.2" />
-    <PackageReference Include="MySql.Data" Version="8.0.28" />
     <PackageReference Include="NetTopologySuite" Version="2.4.0" />
     <PackageReference Include="NetTopologySuite.CoordinateSystems" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.Core" Version="1.15.3" />
     <PackageReference Include="NetTopologySuite.IO" Version="1.14.0.1" />
-    <PackageReference Include="NHibernate" Version="5.3.11" />
+    <PackageReference Include="NHibernate" Version="5.4.1" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
-    <PackageReference Include="NLog" Version="5.0.1" />
+    <PackageReference Include="NLog" Version="5.1.2" />
+    <PackageReference Include="NLog.Extensions.Logging">
+      <Version>5.2.2</Version>
+    </PackageReference>
     <PackageReference Include="Polylines" Version="1.0.0" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
     <PackageReference Include="Remotion.Linq.EagerFetching" Version="2.2.0" />
@@ -1711,6 +1765,10 @@
       <Project>{baba2cb7-6efe-4b1b-9324-74cbcbacf257}</Project>
       <Name>QS.ErrorReporting.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\External\QSProjects\QS.ErrorReporting\QS.ErrorReporting.csproj">
+      <Project>{7baff136-4379-4d1d-a554-7dc340caf7a2}</Project>
+      <Name>QS.ErrorReporting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
       <Project>{3d3d6700-c625-46c5-9702-5f010a8dd035}</Project>
       <Name>QS.HistoryLog</Name>
@@ -1718,6 +1776,10 @@
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Osrm\QS.Osrm.csproj">
       <Project>{84d04158-2201-407f-aac9-f4a04e84ad1e}</Project>
       <Name>QS.Osrm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Abstract\QS.Project.Abstract.csproj">
+      <Project>{e95be5dc-a197-4657-87dc-a2d677eadb76}</Project>
+      <Name>QS.Project.Abstract</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj">
       <Project>{C01AE5A4-3CFF-4C7B-884D-45B07ACDE761}</Project>
@@ -1765,6 +1827,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Domain\Common\" />
     <Folder Include="NHibernateProjections\Counterparty\" />
   </ItemGroup>
 </Project>

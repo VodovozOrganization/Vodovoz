@@ -11,7 +11,6 @@ using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Journal.Search;
 using QS.Project.Search;
-using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
@@ -45,7 +44,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private List<SelectedNomenclature> _savedNomenclatures;
 		private List<SelectedEquipmentKind> _savedEquipmentKinds;
 		private List<SelectedEquipmentType> _savedEquipmentTypes;
-		private SearchHelper _nomenclatureSearchHelper, _employeeSearchHelper, _equipmentKindSearchHelper;
 
 		private bool IsOneDay => StartDate == EndDate;
 		private IList<NomenclaturePlanReportColumn> _selectedReportColumns;
@@ -58,14 +56,26 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		private DelegateCommand<ScrollPositionNode> _loadNextCommand;
 		private const string _templatePath = @".\Reports\Orders\NomenclaturePlanReport.xlsx";
 
-		private ICriterion GetNomenclatureSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) =>
-			_nomenclatureSearchHelper.GetSearchCriterion(aliasPropertiesExpr);
+		private ICriterion GetNomenclatureSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
+		{
+			var searchCriterion = new SearchCriterion(NomenclatureSearchVM);
+			var result = searchCriterion.By(aliasPropertiesExpr).Finish();
+			return result;
+		}
 
-		private ICriterion GetEmployeeSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) =>
-			_employeeSearchHelper.GetSearchCriterion(aliasPropertiesExpr);
+		private ICriterion GetEmployeeSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
+		{
+			var searchCriterion = new SearchCriterion(EmployeeSearchVM);
+			var result = searchCriterion.By(aliasPropertiesExpr).Finish();
+			return result;
+		}
 
-		private ICriterion GetEquipmentKindSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) =>
-			_equipmentKindSearchHelper.GetSearchCriterion(aliasPropertiesExpr);
+		private ICriterion GetEquipmentKindSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
+		{
+			var searchCriterion = new SearchCriterion(EquipmentKindSearchVM);
+			var result = searchCriterion.By(aliasPropertiesExpr).Finish();
+			return result;
+		}
 
 		public NomenclaturePlanReportViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService,
 			INavigationManager navigation, ICommonServices commonServices, IProductGroupJournalFactory productGroupJournalFactory,
@@ -122,7 +132,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		{
 			NomenclatureSearchVM = new SearchViewModel();
 			NomenclatureSearchVM.OnSearch += (sender, args) => NomenclatureSearchCommand.Execute();
-			_nomenclatureSearchHelper = new SearchHelper(NomenclatureSearchVM);
 
 			//Предзагрузка. Для избежания ленивой загрузки
 			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.ChildFetch, x => x.Childs).List();
@@ -150,7 +159,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		{
 			EmployeeSearchVM = new SearchViewModel();
 			EmployeeSearchVM.OnSearch += (sender, args) => EmployeeSearchCommand.Execute();
-			_employeeSearchHelper = new SearchHelper(EmployeeSearchVM);
 
 			SubdivisionReportColumn subdivisionResultAlias = null;
 			Subdivisions = UoW.Session.QueryOver<Subdivision>()
@@ -174,7 +182,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 		{
 			EquipmentKindSearchVM = new SearchViewModel();
 			EquipmentKindSearchVM.OnSearch += (sender, args) => EquipmentKindSearchCommand.Execute();
-			_equipmentKindSearchHelper = new SearchHelper(EquipmentKindSearchVM);
 
 			_savedEquipmentKinds = UoW.Session.QueryOver<SelectedEquipmentKind>()
 				.List()

@@ -1,3 +1,6 @@
+﻿using System.Collections.Generic;
+using Vodovoz.Domain.Logistic.Cars;
+
 namespace Vodovoz.Services
 {
 	public interface IRouteListParametersProvider
@@ -10,5 +13,8 @@ namespace Vodovoz.Services
 		//Склад Бугры
 		int WarehouseBugriId { get; }
 		int SouthGeographicGroupId { get; }
+
+		decimal GetCargoDailyNorm(CarTypeOfUse carTypeOfUse);
+		void SaveCargoDailyNorms(Dictionary<CarTypeOfUse, decimal> cargoDailyNorms);
 	}
 }

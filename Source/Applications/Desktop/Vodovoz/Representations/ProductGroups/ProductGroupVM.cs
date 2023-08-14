@@ -23,8 +23,8 @@ namespace Vodovoz.Representations.ProductGroups
 {
 	public class ProductGroupVM: RepresentationModelEntityBase<ProductGroup, ProductGroupVMNode>
 	{
-		private static Pixbuf _img = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.folder16.png");
-		private static Pixbuf _emptyImg = new Pixbuf(typeof(MainClass).Assembly, "Vodovoz.icons.common.empty16.png");
+		private static Pixbuf _img = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.folder16.png");
+		private static Pixbuf _emptyImg = new Pixbuf(typeof(Startup).Assembly, "Vodovoz.icons.common.empty16.png");
 
 		public ProductGroupVM(IUnitOfWork uow)
 		{

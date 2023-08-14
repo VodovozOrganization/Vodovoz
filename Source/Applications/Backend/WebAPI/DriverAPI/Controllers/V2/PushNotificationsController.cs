@@ -9,9 +9,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Threading.Tasks;
+using IRouteListModel = DriverAPI.Library.Deprecated2.Models.IRouteListModel;
 
 namespace DriverAPI.Controllers.V2
 {
+	/// <summary>
+	/// Контроллер PUSH-сообщений
+	/// </summary>
 	[ApiVersion("2.0")]
 	[Route("api/v{version:apiVersion}")]
 	[ApiController]
@@ -25,6 +29,16 @@ namespace DriverAPI.Controllers.V2
 		private readonly IEmployeeModel _employeeData;
 		private readonly IWakeUpDriverClientService _wakeUpDriverClientService;
 
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="logger"></param>
+		/// <param name="userManager"></param>
+		/// <param name="aPIRouteListData"></param>
+		/// <param name="iFCMAPIHelper"></param>
+		/// <param name="employeeData"></param>
+		/// <param name="wakeUpDriverClientService"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public PushNotificationsController(
 			ILogger<PushNotificationsController> logger,
 			UserManager<IdentityUser> userManager,
@@ -42,7 +56,7 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт включения PUSH уведомлений
+		/// Подписка на PUSH-уведомления
 		/// </summary>
 		/// <param name="enablePushNotificationsRequest"></param>
 		[HttpPost]
@@ -61,7 +75,7 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт отключения PUSH уведомлений
+		/// Отписка от PUSH-уведомлений
 		/// </summary>
 		[HttpPost]
 		[Route("DisablePushNotifications")]
@@ -75,13 +89,13 @@ namespace DriverAPI.Controllers.V2
 			var driver = _employeeData.GetByAPILogin(user.UserName);
 			_wakeUpDriverClientService.UnSubscribe(driver);
 			_employeeData.DisablePushNotifications(driver);
-
 		}
 
 		/// <summary>
-		/// Эндпоинт уведомления о смене формы оплаты в заказе
+		/// Уведомление о смене формы оплаты в заказе
+		/// Служебный
 		/// </summary>
-		/// <param name="orderId">Id заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("NotifyOfSmsPaymentStatusChanged")]
@@ -91,6 +105,12 @@ namespace DriverAPI.Controllers.V2
 			await SendPaymentStatusChangedPushNotificationAsync(orderId);
 		}
 
+		/// <summary>
+		/// Уведомление о смене типа оплаты заказа
+		/// Служебный
+		/// </summary>
+		/// <param name="orderId">Номер заказа</param>
+		/// <returns></returns>
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("NotifyOfFastPaymentStatusChanged")]
@@ -115,9 +135,10 @@ namespace DriverAPI.Controllers.V2
 		}
 
 		/// <summary>
-		/// Эндпоинт уведомления о новом поступившем заказе с быстрой доставкой
+		/// Уведомления о новом поступившем заказе с доставкой за час
+		/// Служебный
 		/// </summary>
-		/// <param name="orderId">Id заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("NotifyOfFastDeliveryOrderAdded")]
