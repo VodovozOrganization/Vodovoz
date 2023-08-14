@@ -6,10 +6,11 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using System.ComponentModel;
 
 namespace Vodovoz.ReportsParameters
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class CardPaymentsOrdersReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public CardPaymentsOrdersReport(IUnitOfWorkFactory unitOfWorkFactory)
@@ -42,7 +43,8 @@ namespace Vodovoz.ReportsParameters
 					{
 						"geo_group_id",
 						comboGeoGroup.IsSelectedAll ? "" : ((GeoGroup)comboGeoGroup.SelectedItem).Id.ToString()
-					}
+					},
+					{ "ShowArchived", ycheckbuttonShowArchive.Active }
 				}
 			};
 		}
