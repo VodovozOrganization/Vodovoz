@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
@@ -281,6 +282,8 @@ namespace Vodovoz.Controllers
 			IList<NomenclatureAmountNode> oldGoodsToDeliverAmountNodes;
 			IList<NomenclatureAmountNode> oldEquipmentToPickupAmountNodes;
 
+			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
+
 			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot("Измениние свободных остатков на кассе"))
 			{
 				oldRouteListItem = uowLocal.GetById<RouteListItem>(changedRouteListItem.Id);
@@ -300,11 +303,10 @@ namespace Vodovoz.Controllers
 
 			if(isBottlesDiscrepancy)
 			{
-				return UpdateBottlesOperationFromDiscrepancy(uow, routeListKeepingDocument, changedRouteListItem, oldRouteListItem, oldRouteList);
+				return UpdateBottlesOperationFromDiscrepancy(uow, routeListKeepingDocument, changedRouteListItem, oldRouteListItem,
+					oldRouteList);
 			}
-
-			var newItems = new HashSet<RouteListAddressKeepingDocumentItem>();
-
+			
 			#region ToDeliver
 
 			sbyte amountSign = -1;
@@ -354,11 +356,12 @@ namespace Vodovoz.Controllers
 
 				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
-				routeListKeepingDocumentItem.Nomenclature = node.Nomenclature;
+				routeListKeepingDocumentItem.Nomenclature = uow.GetById<Nomenclature>(node.Nomenclature.Id);
 				routeListKeepingDocumentItem.Amount = count * amountSign;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
 				newItems.Add(routeListKeepingDocumentItem);
 			}
 
@@ -373,7 +376,8 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocumentItem.Amount = item.Amount * amountSign;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
 				newItems.Add(routeListKeepingDocumentItem);
 			}
 
@@ -413,11 +417,12 @@ namespace Vodovoz.Controllers
 
 				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
 				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
-				routeListKeepingDocumentItem.Nomenclature = node.Nomenclature;
+				routeListKeepingDocumentItem.Nomenclature = uow.GetById<Nomenclature>(node.Nomenclature.Id);
 				routeListKeepingDocumentItem.Amount = count;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
 				newItems.Add(routeListKeepingDocumentItem);
 			}
 
@@ -435,12 +440,12 @@ namespace Vodovoz.Controllers
 				routeListKeepingDocumentItem.Amount = item.CurrentCount;
 				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
 				routeListKeepingDocumentItem.CreateOrUpdateOperation();
-				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
 				newItems.Add(routeListKeepingDocumentItem);
 			}
 
 			#endregion
-
 
 			uow.Save(routeListKeepingDocument);
 

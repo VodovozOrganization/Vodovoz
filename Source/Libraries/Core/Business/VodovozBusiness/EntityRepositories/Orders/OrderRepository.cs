@@ -1178,24 +1178,48 @@ namespace Vodovoz.EntityRepositories.Orders
 					mainQuery
 						.Where(() => deliveryPointAlias.Latitude != null)
 						.Where(() => deliveryPointAlias.Longitude != null)
-						.Where(() => deliveryScheduleAlias.From >= orderOnDayFilters.DeliveryFromTime)
-						.Where(() => deliveryScheduleAlias.From <= orderOnDayFilters.DeliveryToTime);
+						.Where(Restrictions.Ge(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.From)),
+							orderOnDayFilters.DeliveryFromTime.ToString("hh\\:mm\\:ss"))
+						)
+						.Where(Restrictions.Le(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.From)),
+							orderOnDayFilters.DeliveryToTime.ToString("hh\\:mm\\:ss"))
+						);
 					break;
 				case DeliveryScheduleFilterType.DeliveryEnd:
 					mainQuery
 						.Where(() => deliveryPointAlias.Latitude != null)
 						.Where(() => deliveryPointAlias.Longitude != null)
-						.Where(() => deliveryScheduleAlias.To >= orderOnDayFilters.DeliveryFromTime)
-						.Where(() => deliveryScheduleAlias.To <= orderOnDayFilters.DeliveryToTime);
+						.Where(Restrictions.Ge(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.To)),
+							orderOnDayFilters.DeliveryFromTime.ToString("hh\\:mm\\:ss"))
+						)
+						.Where(Restrictions.Le(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.To)),
+							orderOnDayFilters.DeliveryToTime.ToString("hh\\:mm\\:ss"))
+						);
 					break;
 				case DeliveryScheduleFilterType.DeliveryStartAndEnd:
 					mainQuery
 						.Where(() => deliveryPointAlias.Latitude != null)
 						.Where(() => deliveryPointAlias.Longitude != null)
-						.Where(() => deliveryScheduleAlias.To >= orderOnDayFilters.DeliveryFromTime)
-						.Where(() => deliveryScheduleAlias.To <= orderOnDayFilters.DeliveryToTime)
-						.Where(() => deliveryScheduleAlias.From >= orderOnDayFilters.DeliveryFromTime)
-						.Where(() => deliveryScheduleAlias.From <= orderOnDayFilters.DeliveryToTime);
+						.Where(Restrictions.Ge(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.To)),
+							orderOnDayFilters.DeliveryFromTime.ToString("hh\\:mm\\:ss"))
+						)
+						.Where(Restrictions.Le(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.To)),
+							orderOnDayFilters.DeliveryToTime.ToString("hh\\:mm\\:ss"))
+						)
+						.Where(Restrictions.Ge(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.From)),
+							orderOnDayFilters.DeliveryFromTime.ToString("hh\\:mm\\:ss"))
+						)
+						.Where(Restrictions.Le(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.From)),
+							orderOnDayFilters.DeliveryToTime.ToString("hh\\:mm\\:ss"))
+						);
 					break;
 				case DeliveryScheduleFilterType.OrderCreateDate:
 					mainQuery
@@ -1203,11 +1227,11 @@ namespace Vodovoz.EntityRepositories.Orders
 						.Where(() => deliveryPointAlias.Longitude != null)
 						.Where(Restrictions.Ge(
 							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => orderAlias.CreateDate)),
-							orderOnDayFilters.DeliveryToTime)
+							orderOnDayFilters.DeliveryFromTime.ToString("hh\\:mm\\:ss"))
 						)
 						.Where(Restrictions.Le(
 							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => orderAlias.CreateDate)),
-							orderOnDayFilters.DeliveryToTime)
+							orderOnDayFilters.DeliveryToTime.ToString("hh\\:mm\\:ss"))
 						);
 					break;
 			}

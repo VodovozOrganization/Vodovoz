@@ -2262,7 +2262,8 @@ LIMIT 1
         (SELECT count(*) = 0 AS "Performed"
         FROM fast_payments fp
         WHERE (fp.order_id = orders.id
-        OR fp.external_id = orders.id)
+        OR fp.external_id = orders.id
+        OR fp.external_id = orders.online_order)
         AND fp.payment_status = 'Performed'))),
         (
             SELECT Round(SUM(IFNULL(actual_count, count) * price - discount_money), 2)
@@ -2329,7 +2330,8 @@ LIMIT 1
     (SELECT count(*) > 0
      FROM fast_payments fp
      WHERE (fp.order_id = orders.id
-		OR fp.external_id = orders.id)
+		OR fp.external_id = orders.id
+        OR fp.external_id = orders.online_order)
      AND fp.payment_status = 'Performed') AS fast_payment_paid
     <!--sql_select-->
 FROM route_list_addresses

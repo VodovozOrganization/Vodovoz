@@ -76,6 +76,8 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings;
+using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Edo;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -122,10 +124,10 @@ namespace Vodovoz
 		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
+		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
-		private readonly IEmailParametersProvider _emailParametersProvider = new EmailParametersProvider(new ParametersProvider());
-		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
+		private IEmailParametersProvider _emailParametersProvider;
 		private IUndeliveredOrdersJournalOpener _undeliveredOrdersJournalOpener;
 		private ISubdivisionRepository _subdivisionRepository;
 		private IRouteListItemRepository _routeListItemRepository;
@@ -248,7 +250,7 @@ namespace Vodovoz
 			get
 			{
 				_phonesViewModel.RemoveEmpty();
-				emailsView.RemoveEmpty();
+				emailsView.ViewModel.RemoveEmpty();
 				return base.HasChanges;
 			}
 			set => base.HasChanges = value;
@@ -326,6 +328,7 @@ namespace Vodovoz
 			var nomenclatureSelectorFactory = new NomenclatureJournalFactory();
 			_roboatsJournalsFactory = new RoboatsJournalsFactory(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, roboatsViewModelFactory, nomenclatureSelectorFactory);
 			_edoOperatorsJournalFactory = new EdoOperatorsJournalFactory();
+			_emailParametersProvider = _lifetimeScope.Resolve<IEmailParametersProvider>();
 
 			buttonSave.Sensitive = CanEdit;
 			btnCancel.Clicked += (sender, args) => OnCloseTab(false, CloseSource.Cancel);
@@ -379,7 +382,6 @@ namespace Vodovoz
 
 			datatable4.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 
-			UpdateCargoReceiver();
 			Entity.PropertyChanged += (sender, args) =>
 			{
 				if(args.PropertyName == nameof(Entity.SalesManager)
@@ -396,6 +398,7 @@ namespace Vodovoz
 			enumPersonType.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			enumPersonType.ItemsEnum = typeof(PersonType);
 			enumPersonType.Binding.AddBinding(Entity, s => s.PersonType, w => w.SelectedItemOrNull).InitializeFromSource();
+			enumPersonType.ChangedByUser += OnEnumPersonTypeChangedByUser;
 
 			yEnumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			yEnumCounterpartyType.Binding
@@ -690,13 +693,12 @@ namespace Vodovoz
 				};
 			phonesView.ViewModel = _phonesViewModel;
 
-			emailsView.UoW = UoWGeneric;
-			if(UoWGeneric.Root.Emails == null)
-			{
-				UoWGeneric.Root.Emails = new List<Email>();
-			}
-
-			emailsView.Emails = UoWGeneric.Root.Emails;
+			var emailsViewModel = new EmailsViewModel(
+				UoWGeneric,
+				Entity.Emails,
+				_emailParametersProvider,
+				Entity.PersonType);
+			emailsView.ViewModel = emailsViewModel;
 			emailsView.Sensitive = CanEdit;
 
 			var employeeJournalFactory = new EmployeeJournalFactory();
@@ -850,6 +852,7 @@ namespace Vodovoz
 			enumcomboCargoReceiverSource.Sensitive = CanEdit;
 
 			yentryCargoReceiver.Binding
+				.AddFuncBinding(Entity, e => e.CargoReceiverSource == CargoReceiverSource.Special, w => w.Visible)
 				.AddBinding(Entity, e => e.CargoReceiver, w => w.Text)
 				.InitializeFromSource();
 			yentryCargoReceiver.IsEditable = CanEdit;
@@ -1488,7 +1491,7 @@ namespace Vodovoz
 				Entity.UoW = UoW;
 
 				_phonesViewModel.RemoveEmpty();
-				emailsView.RemoveEmpty();
+				emailsView.ViewModel.RemoveEmpty();
 
 				if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 				{
@@ -1906,8 +1909,6 @@ namespace Vodovoz
 			{
 				Entity.CargoReceiver = _cargoReceiverBackupBuffer;
 			}
-
-			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
 		}
 
 		protected void OnButtonUnsubscribeClicked(object sender, EventArgs e)
@@ -2306,7 +2307,7 @@ namespace Vodovoz
 				{
 					if(Entity.Emails.All(x => x.Address != email))
 					{
-						emailsView.EmailsList.Add(new Email
+						emailsView.ViewModel.EmailsList.Add(new Email
 						{
 							Counterparty = Entity,
 							Address = email
@@ -2415,6 +2416,11 @@ namespace Vodovoz
 			} while(comboboxOpf.Model.IterNext(ref iter));
 
 			return false;
+		}
+		
+		private void OnEnumPersonTypeChangedByUser(object sender, EventArgs e)
+		{
+			emailsView.ViewModel.UpdatePersonType(Entity.PersonType);
 		}
 	}
 
