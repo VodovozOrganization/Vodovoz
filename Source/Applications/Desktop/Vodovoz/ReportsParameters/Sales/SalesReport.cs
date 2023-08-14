@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using NHibernate.Linq;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
@@ -146,7 +146,7 @@ namespace Vodovoz.Reports
 				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 				parameters["Employee_include"] = new[] { currentEmployee.Id.ToString() };
-				parameters["Employee_Exclude"] = new[] { "0" };
+				parameters["Employee_exclude"] = new[] { "0" };
 			}
 
 			return new ReportInfo

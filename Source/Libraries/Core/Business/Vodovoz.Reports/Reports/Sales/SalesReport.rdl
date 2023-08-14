@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -571,85 +571,63 @@ FROM
          AND delivery_date &lt;= @end_date)
        AND !orders.is_contract_closer
        AND (
-             ((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
-                 OR
-              (nomenclature.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
-             OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+             (0 IN (@Nomenclature_include) OR (nomenclature.id IN (@Nomenclature_include)))
+				AND NOT (nomenclature.id IN (@Nomenclature_exclude))
          )
        AND (
-             ((nomenclature.category IN (@NomenclatureCategory_include) AND '0' IN (@NomenclatureCategory_exclude) )
-                 OR
-              (nomenclature.category NOT IN (@NomenclatureCategory_exclude) AND '0' IN (@NomenclatureCategory_include)))
-             OR ('0' IN (@NomenclatureCategory_include) AND '0' IN (@NomenclatureCategory_exclude))
+             ('0' IN (@NomenclatureCategory_include) OR (nomenclature.category IN (@NomenclatureCategory_include)))
+				AND NOT (nomenclature.category IN (@NomenclatureCategory_exclude))
          )
        AND (
-             ((orders.client_id IN (@Counterparty_include) AND 0 IN (@Counterparty_exclude) )
-                 OR
-              (orders.client_id NOT IN (@Counterparty_exclude) AND 0 IN (@Counterparty_include)))
-             OR (0 IN (@Counterparty_include) AND 0 IN (@Counterparty_exclude))
+             (0 IN (@Counterparty_include) OR (orders.client_id IN (@Counterparty_include)))
+				AND NOT (orders.client_id IN (@Counterparty_exclude))
          )
        AND (
-             ((counterparty_contract.organization_id IN (@Organization_include) AND 0 IN (@Organization_exclude) )
-                 OR
-              (counterparty_contract.organization_id NOT IN (@Organization_exclude) AND 0 IN (@Organization_include)))
-             OR (0 IN (@Organization_include) AND 0 IN (@Organization_exclude))
+             (0 IN (@Organization_include) OR (counterparty_contract.organization_id IN (@Organization_include)))
+				AND NOT (counterparty_contract.organization_id IN (@Organization_exclude))
          )
        AND (
-             ((order_items.discount_reason_id IN (@DiscountReason_include) AND 0 IN (@DiscountReason_exclude) )
-                 OR
-              (order_items.discount_reason_id NOT IN (@DiscountReason_exclude) AND 0 IN (@DiscountReason_include)))
-             OR (0 IN (@DiscountReason_include) AND 0 IN (@DiscountReason_exclude))
+             (0 IN (@DiscountReason_include) OR (order_items.discount_reason_id IN (@DiscountReason_include)))
+				AND NOT (order_items.discount_reason_id IN (@DiscountReason_exclude))
          )
        AND (
-             ((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@Subdivision_include) AND 0 IN (@Subdivision_exclude) )
-                 OR
-              (IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@Subdivision_exclude) AND 0 IN (@Subdivision_include)))
-             OR (0 IN (@Subdivision_include) AND 0 IN (@Subdivision_exclude))
+             (0 IN (@Subdivision_include) OR (employees.subdivision_id IN (@Subdivision_include)))
+				AND NOT (employees.subdivision_id IN (@Subdivision_exclude))
          )
        AND (
-             ((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@Employee_include) AND 0 IN (@Employee_exclude) )
-                 OR
-              (IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@Employee_exclude) AND 0 IN (@Employee_include)))
-             OR (0 IN (@Employee_include) AND 0 IN (@Employee_exclude))
+             (0 IN (@Employee_include) OR (orders.author_employee_id IN (@Employee_include)))
+				AND NOT (orders.author_employee_id IN (@Employee_exclude))
          )
        AND (
-             ((IFNULL(gg.id, 0) IN (@GeoGroup_include) AND 0 IN (@GeoGroup_exclude))
-                 OR
-              (IFNULL(gg.id, 0) NOT IN (@GeoGroup_exclude) AND 0 IN (@GeoGroup_include)))
-             OR (0 IN (@GeoGroup_include) AND 0 IN (@GeoGroup_exclude))
+             (0 IN (@GeoGroup_include) OR (IFNULL(gg.id, 0) IN (@GeoGroup_include)))
+				AND NOT (IFNULL(gg.id, 0) IN (@GeoGroup_exclude))
          )
        AND
        (
-         (
          	(
-         		(orders.payment_type IN (@PaymentType_include) AND '0' IN (@PaymentType_exclude))
-         		OR 
-         		(orders.payment_type = 'Terminal' AND orders.terminal_subtype IN (@PaymentByTerminalSource_include) AND '0' IN (@PaymentByTerminalSource_exclude))
+         	   (0 IN (@PaymentType_include) OR (orders.payment_type IN (@PaymentType_include)))
+				AND NOT (orders.payment_type IN (@PaymentType_exclude))
          	)
             OR
          	(
-          		(orders.payment_type NOT IN (@PaymentType_exclude) AND '0' IN (@PaymentType_include) AND '0' IN (@PaymentByTerminalSource_include))
-          		AND 
-          		(
-          			orders.payment_type &lt;&gt; 'Terminal'
-          			OR
-          			orders.payment_type = 'Terminal' AND orders.terminal_subtype NOT IN (@PaymentByTerminalSource_exclude)
-          		)          		
+         		(orders.payment_type = 'Terminal' AND 
+         		'0' IN (@PaymentByTerminalSource_include) OR orders.terminal_subtype IN (@PaymentByTerminalSource_include))
+         		AND NOT (orders.terminal_subtype IN (@PaymentByTerminalSource_exclude)) 		
          	)
-         )
-         OR ('0' IN (@PaymentType_include) AND '0' IN (@PaymentType_exclude) AND '0' IN (@PaymentByTerminalSource_include) AND '0' IN (@PaymentByTerminalSource_exclude))
+            OR
+         	(
+         		(orders.payment_type = 'PaidOnline' AND 
+         		'0' IN (@PaymentFrom_include) OR orders.payment_from_id IN (@PaymentFrom_include))
+         		AND NOT (orders.payment_from_id IN (@PaymentFrom_exclude)) 		
+         	)
        )
        AND (
-             ((IFNULL(order_items.promotional_set_id, 0) IN (@PromotionalSet_include) AND 0 IN (@PromotionalSet_exclude))
-                 OR
-              (IFNULL(order_items.promotional_set_id, 0) NOT IN (@PromotionalSet_exclude) AND 0 IN (@PromotionalSet_include)))
-             OR (0 IN (@PromotionalSet_include) AND 0 IN (@PromotionalSet_exclude))
+             (0 IN (@PromotionalSet_include) OR (IFNULL(order_items.promotional_set_id, 0) IN (@PromotionalSet_include)))
+				AND NOT (IFNULL(order_items.promotional_set_id, 0) IN (@PromotionalSet_exclude))
          )
        AND (
-             ((IFNULL(nomenclature_groups.id , 0) IN (@ProductGroup_include) AND 0 IN (@ProductGroup_exclude))
-                 OR
-              (IFNULL(nomenclature_groups.id , 0) NOT IN (@ProductGroup_exclude) AND 0 IN (@ProductGroup_include)))
-             OR (0 IN (@ProductGroup_include) AND 0 IN (@ProductGroup_exclude))
+             (0 IN (@ProductGroup_include) OR (IFNULL(nomenclature_groups.id, 0) IN (@ProductGroup_include)))
+				AND NOT (IFNULL(nomenclature_groups.id, 0) IN (@ProductGroup_exclude))
          )
      GROUP BY order_items.id
     ) as T
@@ -662,10 +640,10 @@ GROUP BY nomenclature_id
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
-          <QueryParameter Name="nomenclature_include">
+          <QueryParameter Name="Nomenclature_include">
             <Value>=Parameters!Nomenclature_include</Value>
           </QueryParameter>
-          <QueryParameter Name="nomenclature_exclude">
+          <QueryParameter Name="Nomenclature_exclude">
             <Value>=Parameters!Nomenclature_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="NomenclatureCategory_include">
@@ -734,9 +712,15 @@ GROUP BY nomenclature_id
           <QueryParameter Name="PaymentByTerminalSource_exclude">
             <Value>={?PaymentByTerminalSource_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="PaymentFrom_include">
+            <Value>={?PaymentFrom_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="PaymentFrom_exclude">
+            <Value>={?PaymentFrom_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -858,13 +842,13 @@ GROUP BY nomenclature_id
 FROM
     (SELECT
          IF(
-                     0 NOT IN (@nomenclature_include),
-                     (SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomenclature_include)),
+                     0 NOT IN (@Nomenclature_include),
+                     (SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_include)),
                      0
              ) AS included_noms,
          IF(
-                     0 NOT IN (@nomenclature_exclude),
-                     (SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomenclature_exclude)),
+                     0 NOT IN (@Nomenclature_exclude),
+                     (SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@Nomenclature_exclude)),
                      0
              ) AS excluded_noms,
 
@@ -994,10 +978,10 @@ FROM
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
-          <QueryParameter Name="nomenclature_include">
+          <QueryParameter Name="Nomenclature_include">
             <Value>=Parameters!Nomenclature_include</Value>
           </QueryParameter>
-          <QueryParameter Name="nomenclature_exclude">
+          <QueryParameter Name="Nomenclature_exclude">
             <Value>=Parameters!Nomenclature_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="NomenclatureCategory_include">
@@ -1319,10 +1303,10 @@ WHERE
     AND delivery_date &lt;= @end_date)
   AND !orders.is_contract_closer
   AND (
-        ((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
+        ((nomenclature.id IN (@Nomenclature_include) AND 0 IN (@Nomenclature_exclude) )
             OR
-         (nomenclature.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
-        OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+         (nomenclature.id NOT IN (@Nomenclature_exclude) AND 0 IN (@Nomenclature_include)))
+        OR (0 IN (@Nomenclature_include) AND 0 IN (@Nomenclature_exclude))
     )
   AND (
         ((nomenclature.category IN (@NomenclatureCategory_include) AND '0' IN (@NomenclatureCategory_exclude) )
@@ -1406,10 +1390,10 @@ WHERE
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
-          <QueryParameter Name="nomenclature_include">
+          <QueryParameter Name="Nomenclature_include">
             <Value>=Parameters!Nomenclature_include</Value>
           </QueryParameter>
-          <QueryParameter Name="nomenclature_exclude">
+          <QueryParameter Name="Nomenclature_exclude">
             <Value>=Parameters!Nomenclature_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="NomenclatureCategory_include">
@@ -1499,7 +1483,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -1688,6 +1672,20 @@ WHERE
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PaymentFrom_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="PaymentFrom_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
