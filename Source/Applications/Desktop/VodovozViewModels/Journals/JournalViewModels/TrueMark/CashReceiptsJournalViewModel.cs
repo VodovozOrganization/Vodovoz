@@ -554,8 +554,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			var interactiveService = _commonServices.InteractiveService;
 			var dialogSettings = new DialogSettings();
 			dialogSettings.SelectMultiple = false;
-			dialogSettings.Title = "Выберите файл выгрузки кодов из 1с";
-			dialogSettings.FileFilters.Add(new DialogFileFilter("Файлы Excel (*.xlsx)", "*.xlsx"));
+			dialogSettings.Title = "Выберите файл содержащий коды";
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Файлы содержащие коды", "*.xlsx", "*.mxl", "*.csv", "*.txt"));
 			var result = _fileDialogService.RunOpenFileDialog(dialogSettings);
 			if(!result.Successful)
 			{
@@ -567,7 +567,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 				var lodingResult = _codePoolLoader.LoadFromFile(result.Path);
 
 				interactiveService.ShowMessage(ImportanceLevel.Info,
-					$"Предположительное кол-во кодов в выгрузке: {lodingResult.TotalFound}\nВсего загружено кодов: {lodingResult.SuccessfulLoaded}");
+					$"Найдено кодов: {lodingResult.TotalFound}" +
+					$"\nЗагружено: {lodingResult.SuccessfulLoaded}" +
+					$"\nУже существуют в системе: {lodingResult.TotalFound - lodingResult.SuccessfulLoaded}");
 			}
 			catch(IOException ex)
 			{
