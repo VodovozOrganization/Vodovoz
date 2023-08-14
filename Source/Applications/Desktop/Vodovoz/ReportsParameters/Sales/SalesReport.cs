@@ -18,8 +18,8 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Presentation.Gtk.Common;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.ViewWidgets.Reports;
 
 namespace Vodovoz.Reports
 {

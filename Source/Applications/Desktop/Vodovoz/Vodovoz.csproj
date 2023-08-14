@@ -1959,6 +1959,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversStopListsView.cs" />
     <Compile Include="Views\Logistic\DriverStopListRemovalView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverStopListRemovalView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.IncludeExludeFiltersView.cs" />
     <Compile Include="Views\BaseParameters\BaseParametersView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BaseParameters.BaseParametersView.cs" />
     <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportView.cs" />
