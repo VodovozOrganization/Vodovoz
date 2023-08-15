@@ -952,6 +952,8 @@
     <Compile Include="Parameters\StoredResourcesSettings.cs" />
     <Compile Include="Parameters\SubdivisionParametersProvider.cs" />
     <Compile Include="Permissions\Cash.FinancialCategory.cs" />
+    <Compile Include="Permissions\Documents.cs" />
+    <Compile Include="Permissions\Documents.MovementDocument.cs" />
     <Compile Include="Permissions\Email.cs" />
     <Compile Include="Permissions\Order.CashReceipt.cs" />
     <Compile Include="Permissions\Order.cs" />
