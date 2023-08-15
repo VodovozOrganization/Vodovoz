@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels.BaseParameters
 
 		private void AddParameter()
 		{
-			_settings.Add(new Setting { Name = "Новый параметр", StrValue = "Значение" });
+			_settings.Add(new Setting { Name = "Новый параметр", StrValue = "Значение", Description = "Описание" });
 		}
 		#endregion
 

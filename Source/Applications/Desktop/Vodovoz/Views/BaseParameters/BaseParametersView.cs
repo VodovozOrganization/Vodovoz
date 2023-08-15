@@ -1,10 +1,11 @@
 ﻿using QS.Views.Dialog;
 using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.BaseParameters;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Views.BaseParameters
 {
-	[WindowSize(600, 600)]
+	[WindowSize(800, 600)]
 	public partial class BaseParametersView : DialogViewBase<BaseParametersViewModel>
 	{
 		public BaseParametersView(BaseParametersViewModel viewModel) : base(viewModel)
@@ -20,8 +21,9 @@ namespace Vodovoz.Views.BaseParameters
 			}
 
 			treeParameters.CreateFluentColumnsConfig<Setting>()
-				.AddColumn("Название").AddTextRenderer(x => x.Name).Editable()
-				.AddColumn("Значение").AddTextRenderer(x => x.StrValue).Editable()
+				.AddColumn("Название").AddTextRenderer(x => x.Name).WrapWidth(250).WrapMode(WrapMode.WordChar).Editable()
+				.AddColumn("Значение").AddTextRenderer(x => x.StrValue).WrapWidth(250).WrapMode(WrapMode.WordChar).Editable()
+				.AddColumn("Описание").AddTextRenderer(x => x.Description).WrapWidth(250).WrapMode(WrapMode.WordChar).Editable()
 				.AddColumn("")
 			.Finish();
 
