@@ -430,12 +430,6 @@ namespace Vodovoz
 			yEnumCounterpartyType.ChangedByUser += OnEnumCounterpartyTypeChangedByUser;
 			OnEnumCounterpartyTypeChanged(this, EventArgs.Empty);
 
-			yEnumCounterpartySubtype.ItemsEnum = typeof(CounterpartySubtype);
-			yEnumCounterpartySubtype.Binding
-				.AddBinding(Entity, e => e.CounterpartySubtype, w => w.SelectedItem)
-				.InitializeFromSource();
-			yEnumCounterpartySubtype.Sensitive = CanEdit;
-
 			yhboxCounterpartySubtype.Binding
 				.AddFuncBinding<Counterparty>(
 					Entity,

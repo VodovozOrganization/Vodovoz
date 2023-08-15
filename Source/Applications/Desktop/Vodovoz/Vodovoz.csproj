@@ -1959,6 +1959,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversStopListsView.cs" />
     <Compile Include="Views\Logistic\DriverStopListRemovalView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverStopListRemovalView.cs" />
+    <Compile Include="Counterparties\SubtypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Counterparties.SubtypeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.IncludeExludeFiltersView.cs" />
     <Compile Include="Views\BaseParameters\BaseParametersView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BaseParameters.BaseParametersView.cs" />
@@ -1982,6 +1984,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Counterparties\" />
     <Folder Include="Views\BaseParameters\" />
     <Folder Include="QualityControl\" />
     <Folder Include="QualityControl\Reports\" />
