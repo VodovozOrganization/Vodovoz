@@ -23,8 +23,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 			GetReportParametersFunc = DefaultGetReportParameters;
 
-			SelectAllCommand = new DelegateCommand(SelectAll);
-			UnselectAllCommand = new DelegateCommand(UnselectAll);
+			ClearExcludesCommand = new DelegateCommand(ClearExcludes);
+			ClearIncludesCommand = new DelegateCommand(ClearIncludes);
 			RefreshFilteredElementsCommand = new DelegateCommand(RefreshFilteredElements);
 		}
 
@@ -36,9 +36,9 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public DelegateCommand RefreshFilteredElementsCommand { get; }
 
-		public DelegateCommand SelectAllCommand { get; }
+		public DelegateCommand ClearExcludesCommand { get; }
 
-		public DelegateCommand UnselectAllCommand { get; }
+		public DelegateCommand ClearIncludesCommand { get; }
 
 		public int IncludedCount => IncludedElements.Count;
 
@@ -58,7 +58,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			set => SetField(ref _title, value);
 		}
 
-		protected virtual void SelectAll()
+		protected virtual void ClearExcludes()
 		{
 			while(ExcludedCount > 0)
 			{
@@ -66,7 +66,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			}
 		}
 
-		protected virtual void UnselectAll()
+		protected virtual void ClearIncludes()
 		{
 			while(IncludedCount > 0)
 			{

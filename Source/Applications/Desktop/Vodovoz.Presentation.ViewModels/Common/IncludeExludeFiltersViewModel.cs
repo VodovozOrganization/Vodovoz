@@ -2,6 +2,7 @@
 using NHibernate.Linq;
 using NHibernate.Util;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.ViewModels;
@@ -21,7 +22,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		private const int _defaultLimit = 200;
 
 		private readonly ObservableCollection<IncludeExcludeElement> _emptyElements = new ObservableCollection<IncludeExcludeElement>();
-
+		private readonly IInteractiveService _interactiveService;
 		private string _searchString = string.Empty;
 		private string _currentSearchString = string.Empty;
 		private IncludeExcludeFilter _activeFilter;
@@ -29,11 +30,14 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public event Action<object, EventArgs> FilteredElementsChanged;
 
-		public IncludeExludeFiltersViewModel()
+		public IncludeExludeFiltersViewModel(IInteractiveService interactiveService)
 		{
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+
 			ClearSearchStringCommand = new DelegateCommand(ClearSearchString);
-			SelectAllCommand = new DelegateCommand(SelectAll);
-			UnselectAllCommand = new DelegateCommand(UnselectAll);
+			ClearAllExcludesCommand = new DelegateCommand(ClearAllExcludes);
+			ClearAllIncludesCommand = new DelegateCommand(ClearAllIncludes);
+			ShowInfoCommand = new DelegateCommand(ShowInfo);
 		}
 
 		public string SearchString
@@ -85,9 +89,11 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public DelegateCommand ClearSearchStringCommand { get; }
 
-		public DelegateCommand SelectAllCommand { get; }
+		public DelegateCommand ClearAllExcludesCommand { get; }
 
-		public DelegateCommand UnselectAllCommand { get; }
+		public DelegateCommand ClearAllIncludesCommand { get; }
+
+		public DelegateCommand ShowInfoCommand { get; }
 
 		public Dictionary<string, object> GetReportParametersSet()
 		{
@@ -313,20 +319,27 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			CurrentSearchString = string.Empty;
 		}
 
-		private void SelectAll()
+		private void ClearAllExcludes()
 		{
 			foreach(var filter in Filters)
 			{
-				filter.SelectAllCommand.Execute();
+				filter.ClearExcludesCommand.Execute();
 			}
 		}
 
-		private void UnselectAll()
+		private void ClearAllIncludes()
 		{
 			foreach(var filter in Filters)
 			{
-				filter.UnselectAllCommand.Execute();
+				filter.ClearIncludesCommand.Execute();
 			}
+		}
+
+		private void ShowInfo()
+		{
+			_interactiveService.ShowMessage(ImportanceLevel.Info,
+				"",
+				"Справка по фильтру");
 		}
 
 		private void LoadParents<TEntity, TId>(
