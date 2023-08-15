@@ -26,7 +26,6 @@ namespace VodovozBusinessTests.Deletion
 			AddIgnoredClass(typeof(Vodovoz.Domain.Store.Warehouse), "Один из основных классов программы. Удалятся не должен.");
 
 			//Технические классы пока нигде не удаляется через удаление.
-			AddIgnoredClass(typeof(Vodovoz.Domain.BaseParameter), "Технический клас пока нигде не удаляется через удаление.");
 			AddIgnoredClass(typeof(Vodovoz.Domain.Logistic.CachedDistance), "Технический клас пока нигде не удаляется через удаление.");
 		}
 
