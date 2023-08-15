@@ -4,6 +4,10 @@ using System;
 
 namespace Vodovoz.Settings.Database
 {
+	[Appellative(Gender = GrammaticalGender.Feminine,
+		NominativePlural = "настройки параметов приложения",
+		Nominative = "настройка параметров приложения"
+	)]
 	[HistoryTrace]
 	public class Setting : IDomainObject
 	{
@@ -30,5 +34,10 @@ namespace Vodovoz.Settings.Database
 				return DateTime.Now.Subtract(CachedTime.Value) > CacheTimeout;
 			}
 		}
+
+		public virtual string Title => 
+			string.IsNullOrWhiteSpace(Description)
+			? Name 
+			: Description;
 	}
 }
