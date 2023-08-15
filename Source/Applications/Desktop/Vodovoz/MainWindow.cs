@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -319,4 +319,8 @@ public partial class MainWindow : Gtk.Window
 		new DateTime(2000, 1, 1)
 			.AddDays(version.Build)
 			.AddSeconds(version.Revision * 2);
+
+	protected void OnActionCounterpartySubtypesActivated(object sender, EventArgs e)
+	{
+	}
 }
