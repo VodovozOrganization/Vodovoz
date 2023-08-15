@@ -1873,7 +1873,8 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 						if(GroupingActiveStorage)
 						{
-							query.OrderBy(e => e.Category).Asc();
+							query.OrderBy(e => e.Category).Asc()
+								.ThenBy(employeeName).Asc();
 						}
 						
 						query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
