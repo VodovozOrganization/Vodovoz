@@ -13,6 +13,7 @@ namespace Vodovoz.Settings.Database
 		public virtual string Name { get; set; }
 		public virtual string StrValue { get; set; }
 		public virtual TimeSpan CacheTimeout { get; set; }
+		public virtual string Description { get; set; }
 
 		#endregion
 
