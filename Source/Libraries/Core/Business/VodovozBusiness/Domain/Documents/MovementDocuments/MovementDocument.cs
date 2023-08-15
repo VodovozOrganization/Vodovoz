@@ -49,7 +49,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		private IList<MovementDocumentItem> _items = new List<MovementDocumentItem>();
 		private GenericObservableList<MovementDocumentItem> _observableItems;
 		private string _transporterBill;
-		private decimal _tranporterSum;
+		private decimal? _tranporterSum;
 		private Counterparty _transporterCounterparty;
 		
 		public MovementDocument()
@@ -107,7 +107,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		}
 
 		[Display(Name = "Сумма стоимости перевозки")]
-		public virtual decimal TranporterSum
+		public virtual decimal? TranporterSum
 		{
 			get => _tranporterSum;
 			set => SetField(ref _tranporterSum, value);
