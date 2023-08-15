@@ -1958,6 +1958,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversStopListsView.cs" />
     <Compile Include="Views\Logistic\DriverStopListRemovalView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverStopListRemovalView.cs" />
+    <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.UndeliveredOrdersClassificationReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2345,7 +2347,7 @@
       <Name>RdlGtkViewer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding.Core\Gamma.Binding.Core.csproj">
-      <Project>{B88C5808-8D6C-451E-9D63-E5441C7A1004}</Project>
+      <Project>{EF24C742-AC2C-477A-A632-F9920A0E1CC7}</Project>
       <Name>Gamma.Binding.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">

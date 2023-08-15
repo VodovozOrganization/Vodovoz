@@ -928,6 +928,7 @@ namespace Vodovoz
 			builder.RegisterType<EmployeesReport>().AsSelf();
 			builder.RegisterType<AddressesOverpaymentsReport>().AsSelf();
 			builder.RegisterType<StockMovementsAdvancedReport>().AsSelf();
+			builder.RegisterType<UndeliveredOrdersClassificationReport>().AsSelf();
 
 			#endregion
 
