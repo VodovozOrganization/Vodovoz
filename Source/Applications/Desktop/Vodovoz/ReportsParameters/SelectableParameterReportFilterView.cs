@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Gamma.ColumnConfig;
@@ -158,6 +158,5 @@ namespace Vodovoz.ReportsParameters
 			viewModel.CurrentParameterSet.FilterParameters(search.Text);
 			return viewModel.CurrentParameterSet.OutputParameters;
 		}
-
 	}
 }

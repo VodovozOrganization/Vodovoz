@@ -603,6 +603,8 @@
     <Compile Include="ViewModels\SidePanels\EdoLightsMatrixPanelViewModel.cs" />
     <Compile Include="ViewModels\SidePanels\FixedPricesPanelViewModel.cs" />
     <Compile Include="ViewModels\Store\MovementWagonViewModel.cs" />
+    <Compile Include="ViewModels\Suppliers\ActiveStoragesBalanceSummaryRow.cs" />
+    <Compile Include="ViewModels\Suppliers\ActiveStoragesBalanceSummaryReport.cs" />
     <Compile Include="ViewModels\Suppliers\BalanceBean.cs" />
     <Compile Include="ViewModels\Suppliers\BalanceSummaryReport.cs" />
     <Compile Include="ViewModels\Suppliers\BalanceSummaryRow.cs" />
@@ -610,6 +612,7 @@
     <Compile Include="ViewModels\Suppliers\NomenclatureStorageIds.cs" />
     <Compile Include="ViewModels\Suppliers\PriceNode.cs" />
     <Compile Include="ViewModels\Suppliers\ReservedBalance.cs" />
+    <Compile Include="ViewModels\Suppliers\WarehousesBalanceSummaryReportParameters.cs" />
     <Compile Include="ViewModels\Suppliers\WarehousesBalanceSummaryViewModel.cs" />
     <Compile Include="ViewModels\Users\UserRoleViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRateViewModel.cs" />
