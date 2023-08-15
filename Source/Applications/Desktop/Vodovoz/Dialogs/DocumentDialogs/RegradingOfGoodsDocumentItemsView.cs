@@ -251,7 +251,10 @@ namespace Vodovoz
 
 			foreach(var item in DocumentUoW.Root.Items)
 			{
-				item.AmountInStock = inStock[item.NomenclatureOld.Id];
+				if(inStock.ContainsKey(item.NomenclatureOld.Id))
+				{
+					item.AmountInStock = inStock[item.NomenclatureOld.Id];
+				}
 			}
 		}
 
