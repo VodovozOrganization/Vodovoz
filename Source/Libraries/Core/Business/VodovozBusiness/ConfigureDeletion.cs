@@ -950,11 +950,29 @@ namespace Vodovoz
 				.AddDeleteDependence<RegradingOfGoodsDocumentItem>(x => x.WarehouseWriteOffOperation)
 				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.GoodsAccountingOperation)
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.GoodsAccountingOperation);
+			
+			DeleteConfig.AddHibernateDeleteInfo<WarehouseBulkGoodsAccountingOperation>()
+				.RequiredCascadeDeletion()
+				.AddDeleteDependence<CarLoadDocumentItem>(x => x.GoodsAccountingOperation)
+				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.GoodsAccountingOperation)
+				.AddDeleteDependence<IncomingInvoiceItem>(x => x.GoodsAccountingOperation)
+				.AddDeleteDependence<IncomingWater>(x => x.ProduceOperation)
+				.AddDeleteDependence<IncomingWaterMaterial>(x => x.ConsumptionMaterialOperation)
+				.AddDeleteDependence<MovementDocumentItem>(x => x.WriteOffOperation)
+				.AddDeleteDependence<MovementDocumentItem>(x => x.IncomeOperation)
+				.AddDeleteDependence<WriteOffDocumentItem>(x => x.GoodsAccountingOperation)
+				.AddDeleteDependence<InventoryDocumentItem>(x => x.GoodsAccountingOperation)
+				.AddDeleteDependence<RegradingOfGoodsDocumentItem>(x => x.WarehouseIncomeOperation)
+				.AddDeleteDependence<RegradingOfGoodsDocumentItem>(x => x.WarehouseWriteOffOperation)
+				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.GoodsAccountingOperation)
+				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.GoodsAccountingOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyMovementOperation>()
 				.RequiredCascadeDeletion()
 				.AddDeleteDependence<OrderItem>(x => x.CounterpartyMovementOperation)
 				.AddDeleteDependence<OrderEquipment>(x => x.CounterpartyMovementOperation);
+			
+			DeleteConfig.AddHibernateDeleteInfo<EmployeeNomenclatureMovementOperation>();
 
 			DeleteConfig.AddHibernateDeleteInfo<MoneyMovementOperation>()
 				.RequiredCascadeDeletion()
