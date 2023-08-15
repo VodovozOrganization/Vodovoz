@@ -57,6 +57,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private bool _canEditRectroactively;
 		private bool _canChangeAcceptedMovementDoc;
 		private bool _canAcceptMovementDocumentDiscrepancy;
+		private bool _canEditStoreMovementDocumentTransporterData;
 		private IEntityEntryViewModel _transporterCounterpartyEntryViewModel;
 
 		private IEnumerable<Warehouse> _allowedWarehousesFrom;
@@ -343,6 +344,8 @@ namespace Vodovoz.ViewModels.Warehouses
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_employee_storage_in_warehouse_documents");
 			HasAccessToCarStorages =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_car_storage_in_warehouse_documents");
+			_canEditStoreMovementDocumentTransporterData =
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Documents.MovementDocument.CanEditStoreMovementDocumentTransporterData);
 		}
 		
 		private void SetStoragesViewModels()
@@ -432,6 +435,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		public bool CanEditNewDocument => CanEdit && Entity.NewOrSentStatus;
 		public bool HasAccessToEmployeeStorages { get; private set; }
 		public bool HasAccessToCarStorages { get; private set; }
+		public bool CanEditStoreMovementDocumentTransporterData => _canEditStoreMovementDocumentTransporterData;
 
 		public bool CanChangeWagon =>
 			Entity.MovementDocumentTypeByStorage == MovementDocumentTypeByStorage.ToWarehouse &&
