@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Dto;
@@ -27,6 +27,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.Utilities;
 using QS.Utilities.Text;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
@@ -82,6 +83,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -322,6 +324,8 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			NavigationManager = Startup.MainWin.NavigationManager;
+
 			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			_edoSettings = _lifetimeScope.Resolve<IEdoSettings>();
@@ -429,6 +433,16 @@ namespace Vodovoz
 			yEnumCounterpartyType.Changed += OnEnumCounterpartyTypeChanged;
 			yEnumCounterpartyType.ChangedByUser += OnEnumCounterpartyTypeChangedByUser;
 			OnEnumCounterpartyTypeChanged(this, EventArgs.Empty);
+
+			var vm = new LegacyEEVMBuilderFactory<Counterparty>(this, Entity, UoW, NavigationManager, _lifetimeScope)
+				.ForProperty(x => x.CounterpartySubtype)
+				.UseViewModelJournalAndAutocompleter<SubtypesJournalViewModel>()
+				.UseViewModelDialog<SubtypeViewModel>()
+				.Finish();
+
+			SubtypeEntryViewModel = vm;
+
+			entryCounterpartySubtype.ViewModel = SubtypeEntryViewModel;
 
 			yhboxCounterpartySubtype.Binding
 				.AddFuncBinding<Counterparty>(
@@ -1372,6 +1386,10 @@ namespace Vodovoz
 
 			return itemsQuery;
 		};
+
+		public IEntityEntryViewModel SubtypeEntryViewModel { get; private set; }
+
+		public INavigationManager NavigationManager { get; private set; }
 
 		private void CheckIsChainStoreOnToggled(object sender, EventArgs e)
 		{

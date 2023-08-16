@@ -4,6 +4,7 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
+using System;
 using Vodovoz.Domain.Client;
 using Vodovoz.Tools;
 
@@ -18,6 +19,11 @@ namespace Vodovoz.ViewModels.Counterparties
 			INavigationManager navigation)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
+			if(navigation is null)
+			{
+				throw new ArgumentNullException(nameof(navigation));
+			}
+
 			TabName = typeof(CounterpartySubtype).GetClassUserFriendlyName().Nominative.CapitalizeSentence();
 
 			SaveCommand = new DelegateCommand(SaveAndClose, CanSave);

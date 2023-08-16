@@ -415,6 +415,7 @@
     <Compile Include="Core\DocumentPrinter.cs" />
     <Compile Include="Core\ViewFactory.cs" />
     <Compile Include="Core\WidgetResolveException.cs" />
+    <Compile Include="Counterparties\SubtypesJournalRegistrar.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="Configuration\ApplicationConfigurator.cs" />
     <Compile Include="Dialogs\CastomMessageDlg.cs" />
@@ -466,7 +467,7 @@
     <Compile Include="JournalColumnsConfigs\ComplaintResultsOfEmployeesJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\ComplaintsWithDepartmentsReactionJournalRegistrar.cs" />
-    <Compile Include="JournalColumnsConfigs\CounterpartyJournalRegistrar.cs" />
+    <Compile Include="Counterparties\CounterpartyJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DebtorsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryPointByClientJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\DeliveryPointJournalRegistrar.cs" />

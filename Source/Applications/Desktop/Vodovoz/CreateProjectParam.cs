@@ -245,6 +245,8 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 using Vodovoz.ViewModels.Widgets;
 using static Vodovoz.Reports.CashFlow;
+using Vodovoz.ViewModels.Counterparties;
+using Vodovoz.Counterparties;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Domain.Client;
@@ -531,6 +533,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UndeliveryDetalizationJournalFilterViewModel, UndeliveryDetalizationFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrderViewModel, UndeliveredOrderView>()
 				.RegisterWidgetForWidgetViewModel<DriverStopListRemovalViewModel, DriverStopListRemovalView>()
+				.RegisterWidgetForWidgetViewModel<SubtypeViewModel, SubtypeView>()
 				.RegisterWidgetForWidgetViewModel<BaseParametersViewModel, BaseParametersView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersClassificationReportViewModel, UndeliveredOrdersClassificationReportView>()
 				.RegisterWidgetForWidgetViewModel<NumberOfComplaintsAgainstDriversReportViewModel, NumberOfComplaintsAgainstDriversReportView>()

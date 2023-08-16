@@ -18,7 +18,7 @@ namespace Vodovoz.Counterparties
 		private void Initialize()
 		{
 			ylabelIdValue.Binding
-				.AddBinding(ViewModel.Entity, e => e.Id, w => w.Text)
+				.AddFuncBinding(ViewModel.Entity, e => e.Id.ToString(), w => w.Text)
 				.InitializeFromSource();
 
 			yentryName.Binding
