@@ -418,6 +418,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 			nomenclauresFilter.Specification = null;
 
+			nomenclauresFilter.ClearIncludesCommand.Execute();
+			nomenclauresFilter.ClearExcludesCommand.Execute();
+
 			var nomenclatureCategoryFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<NomenclatureCategory>>();
 
 			if(nomenclatureCategoryFilter != null)
