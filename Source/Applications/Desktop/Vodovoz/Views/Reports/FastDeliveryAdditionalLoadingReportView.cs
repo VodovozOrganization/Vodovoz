@@ -4,6 +4,7 @@ using QS.Views.GtkUI;
 using System;
 using System.Threading.Tasks;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
+using static Vodovoz.ViewModels.ViewModels.Reports.FastDelivery.FastDeliveryAdditionalLoadingReportViewModel.FastDeliveryAdditionalLoadingReport;
 
 namespace Vodovoz.Views.Reports
 {
