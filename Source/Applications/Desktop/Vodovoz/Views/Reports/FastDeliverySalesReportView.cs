@@ -1,11 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
-using QS.Utilities;
 using QS.Views.GtkUI;
+using System;
+using System.Threading.Tasks;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
 
 namespace Vodovoz.Views.Reports
@@ -14,7 +11,7 @@ namespace Vodovoz.Views.Reports
 	{
 		public FastDeliverySalesReportView(FastDeliverySalesReportViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
