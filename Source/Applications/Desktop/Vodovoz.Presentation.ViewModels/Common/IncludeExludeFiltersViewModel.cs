@@ -167,11 +167,9 @@ namespace Vodovoz.Presentation.ViewModels.Common
 					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
 				}
 
-				if(filter.SpecificationFunc != null)
+				if(filter.Specification != null)
 				{
-					Expression<Func<TEntity, bool>> isArchiveSpec = x => filter.SpecificationFunc(x);
-
-					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
+					specificationExpression = specificationExpression.CombineWith(filter.Specification);
 				}
 
 				var elementsToAdd = repository.Get(
@@ -282,11 +280,9 @@ namespace Vodovoz.Presentation.ViewModels.Common
 					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
 				}
 
-				if(filter.SpecificationFunc != null)
+				if(filter.Specification != null)
 				{
-					Expression<Func<TEntity, bool>> isArchiveSpec = x => filter.SpecificationFunc(x);
-
-					specificationExpression = specificationExpression.CombineWith(isArchiveSpec);
+					specificationExpression = specificationExpression.CombineWith(filter.Specification);
 				}
 
 				var entitiesToAdd = repository
@@ -312,6 +308,13 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		}
 
 		#endregion Добавление фильтров
+
+		public TFilter GetFilter<TFilter>()
+			where TFilter : IncludeExcludeFilter
+		{
+			var filter = Filters.FirstOrDefault(x => x.GetType() == typeof(TFilter));
+			return (TFilter)filter;
+		}
 
 		private void ClearSearchString()
 		{

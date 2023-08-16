@@ -20,6 +20,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.ViewWidgets.Reports;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Vodovoz.Reports
 {
@@ -175,7 +176,11 @@ namespace Vodovoz.Reports
 
 		private void SetupFilter()
 		{
-			FilterViewModel.AddFilter<NomenclatureCategory>();
+			FilterViewModel.AddFilter<NomenclatureCategory>(config =>
+			{
+				config.IncludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+				config.ExcludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+			});
 
 			FilterViewModel.AddFilter(UoW, _nomenclatureRepository);
 
@@ -385,6 +390,46 @@ namespace Vodovoz.Reports
 
 			vboxParameters.Add(filterView);
 			filterView.Show();
+		}
+
+		private void UpdateNomenclaturesSpecification()
+		{
+			var nomenclauresFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Nomenclature>>();
+
+			var nomenclatureCategoryFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<NomenclatureCategory>>();
+
+			var nomenclatureCategoryIncluded = (nomenclatureCategoryFilter?.GetIncluded() ?? Enumerable.Empty<NomenclatureCategory>()).ToArray();
+
+			var nomenclatureCategoryExcluded = (nomenclatureCategoryFilter?.GetExcluded() ?? Enumerable.Empty<NomenclatureCategory>()).ToArray();
+
+			nomenclauresFilter.Specification = (nomenclature) =>
+				(!nomenclatureCategoryIncluded.Any() || nomenclatureCategoryIncluded.Contains(nomenclature.Category))
+				&& (!nomenclatureCategoryExcluded.Any() || !nomenclatureCategoryExcluded.Contains(nomenclature.Category));
+
+				//var productGroupFilter = FilterViewModel.Filters.FirstOrDefault(x => x.Type == typeof(ProductGroup));
+
+				//if(productGroupFilter != null)
+				//{
+				//	if(productGroupFilter.IncludedCount > 0)
+				//	{
+				//		var productGroupInclude = productGroupFilter.IncludedElements
+				//			.Cast<IncludeExcludeElement<int?, ProductGroup>>()
+				//			.Select(x => x.Id)
+				//			.ToArray();
+
+				//		result = result && nomenclature.ProductGroup != null && productGroupInclude.Contains(nomenclature.ProductGroup.Id);
+				//	}
+
+				//	if(productGroupFilter.ExcludedCount > 0)
+				//	{
+				//		var productGroupExclude = productGroupFilter.ExcludedElements
+				//			.Cast<IncludeExcludeElement<int?, ProductGroup>>()
+				//			.Select(x => x.Id)
+				//			.ToArray();
+
+				//		result = result && nomenclature.ProductGroup == null || !productGroupExclude.Contains(nomenclature.ProductGroup.Id);
+				//	}
+				//}
 		}
 	}
 }
