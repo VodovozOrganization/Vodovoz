@@ -518,6 +518,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 				.Where(() => orderAlias.IsFastDelivery)
 				.And(() => routeListItemAlias.RouteList.Id == routeListId)
+				.And(() => routeListItemAlias.TransferedTo == null
+				           && (!routeListItemAlias.WasTransfered || routeListItemAlias.AddressTransferType != AddressTransferType.NeedToReload))
 				.SelectList(list => list
 					.SelectGroup(() => orderItemsAlias.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.SelectSum(() => orderItemsAlias.Count).WithAlias(() => resultAlias.Amount))
@@ -527,6 +529,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)
 				.JoinEntityAlias(() => routeListItemAlias, () => routeListItemAlias.Order.Id == orderAlias.Id)
 				.Where(() => orderAlias.IsFastDelivery)
+				.And(() => routeListItemAlias.TransferedTo == null
+				           && (!routeListItemAlias.WasTransfered || routeListItemAlias.AddressTransferType != AddressTransferType.NeedToReload))
 				.And(() => routeListItemAlias.RouteList.Id == routeListId)
 				.And(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.SelectList(list => list
