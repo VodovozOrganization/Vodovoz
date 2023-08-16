@@ -38,6 +38,8 @@ namespace Vodovoz.Views.Reports
 			ybtnRunReport.Clicked += OnYbtnRunReportClicked;
 			ybtnExport.Clicked += (sender, args) => ViewModel.ExportCommand.Execute();
 
+			ybtnGenerateFastDeliveryRemainingBottlesReport.Clicked += (s, e) => ViewModel.GenerateFastDeliveryRemainingBottlesReportCommand.Execute();
+
 			ConfigureReportTreeView();
 		}
 

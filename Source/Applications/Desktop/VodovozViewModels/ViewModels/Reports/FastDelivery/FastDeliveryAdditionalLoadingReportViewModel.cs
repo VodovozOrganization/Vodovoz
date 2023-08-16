@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Tools;
 using static Vodovoz.ViewModels.ViewModels.Reports.FastDelivery.FastDeliveryAdditionalLoadingReportViewModel.FastDeliveryAdditionalLoadingReport;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -23,7 +24,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 	public partial class FastDeliveryAdditionalLoadingReportViewModel : DialogTabViewModelBase
 	{
 		private const string _templatePath = @".\Reports\Orders\FastDeliveryAdditionalLoadingReport.xlsx";
+		private const string _fastDeliveryRemainingBottlesReportPath = @".\Reports\Logistic\FastDeliveryAdditionalLoadingReport.xlsx";
 
+		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
 		private FastDeliveryAdditionalLoadingReport _report;
 		private bool _isRunning;
@@ -35,6 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			IFileDialogService fileDialogService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_interactiveService = interactiveService;
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			Title = "Отчёт по дозагрузке МЛ";
 
@@ -43,6 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			GenerateCommand = new DelegateCommand(GenerateReport);
 			ExportCommand = new DelegateCommand(ExportReport);
+			GenerateFastDeliveryRemainingBottlesReportCommand = new DelegateCommand(GenerateFastDeliveryRemainingBottlesReport);
 		}
 
 		private IList<FastDeliveryAdditionalLoadingReportRow> GenerateReportRows()
@@ -97,6 +102,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		public DelegateCommand ExportCommand { get; }
 
 		public DelegateCommand GenerateCommand { get; }
+
+		public DelegateCommand GenerateFastDeliveryRemainingBottlesReportCommand { get; }
 
 		#endregion Commands
 
@@ -176,14 +183,49 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 
-			if(result.Successful)
+			if(!result.Successful)
 			{
-				var template = new XLTemplate(_templatePath);
-
-				template.AddVariable(Report);
-				template.Generate();
-				template.SaveAs(result.Path);
+				return;
 			}
+
+			var template = new XLTemplate(_templatePath);
+
+			template.AddVariable(Report);
+			template.Generate();
+			template.SaveAs(result.Path);
+		}
+
+		private void GenerateFastDeliveryRemainingBottlesReport()
+		{
+			if(!CreateDateFrom.HasValue || !CreateDateTo.HasValue)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Не указан интервал", "Ошибка");
+				return;
+			}
+
+			var reportName = typeof(FastDeliveryRemainingBottlesReport).GetClassUserFriendlyName().Nominative.CapitalizeSentence();
+
+			var saveDialogSettings = new DialogSettings
+			{
+				Title = $"Сохранить {reportName}",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"{reportName} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			var saveDialogResult = _fileDialogService.RunSaveFileDialog(saveDialogSettings);
+
+			if(!saveDialogResult.Successful)
+			{
+				return;
+			}
+
+			var template = new XLTemplate(_fastDeliveryRemainingBottlesReportPath);
+
+			var report = FastDeliveryRemainingBottlesReport.Generate(UoW, CreateDateFrom.Value, CreateDateTo.Value);
+
+			template.AddVariable(report);
+			template.Generate();
+			template.SaveAs(saveDialogResult.Path);
 		}
 	}
 }
