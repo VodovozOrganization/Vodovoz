@@ -11,18 +11,18 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public Action<IncludeExcludeEnumFilter<TEnum>> RefreshFunc { get; set; }
 
-		private IEnumerable<IncludeExcludeElement<TEnum, TEnum>> IncludedEnumeElements => IncludedElements.Cast<IncludeExcludeElement<TEnum, TEnum>>();
+		private IEnumerable<IncludeExcludeElement<TEnum, TEnum>> IncludedEnumElements => IncludedElements.Cast<IncludeExcludeElement<TEnum, TEnum>>();
 
-		private IEnumerable<IncludeExcludeElement<TEnum, TEnum>> ExcludedEnumeElements => ExcludedElements.Cast<IncludeExcludeElement<TEnum, TEnum>>();
+		private IEnumerable<IncludeExcludeElement<TEnum, TEnum>> ExcludedEnumElements => ExcludedElements.Cast<IncludeExcludeElement<TEnum, TEnum>>();
 
 		public IEnumerable<TEnum> GetIncluded()
 		{
-			return IncludedEnumeElements.Select(x => x.Id);
+			return IncludedEnumElements.Select(x => x.Id);
 		}
 
 		public IEnumerable<TEnum> GetExcluded()
 		{
-			return ExcludedEnumeElements.Select(x => x.Id);
+			return ExcludedEnumElements.Select(x => x.Id);
 		}
 
 		public override void RefreshFilteredElements()

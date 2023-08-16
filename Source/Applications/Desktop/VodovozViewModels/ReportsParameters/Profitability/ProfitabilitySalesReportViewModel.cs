@@ -21,6 +21,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
@@ -176,11 +177,19 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 		private void SetupFilter()
 		{
-			FilterViewModel.AddFilter<NomenclatureCategory>();
+			FilterViewModel.AddFilter<NomenclatureCategory>(config =>
+			{
+				config.IncludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+				config.ExcludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+			});
 
 			FilterViewModel.AddFilter(_unitOfWork, _nomenclatureRepository);
 
-			FilterViewModel.AddFilter(_unitOfWork, _productGroupRepository);
+			FilterViewModel.AddFilter(_unitOfWork, _productGroupRepository, config =>
+			{
+				config.IncludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+				config.ExcludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+			});
 
 			FilterViewModel.AddFilter(_unitOfWork, _counterpartyRepository);
 
@@ -402,6 +411,50 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 					}
 				}
 			});
+		}
+		private void UpdateNomenclaturesSpecification()
+		{
+			var nomenclauresFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Nomenclature>>();
+
+			nomenclauresFilter.Specification = null;
+
+			var nomenclatureCategoryFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<NomenclatureCategory>>();
+
+			if(nomenclatureCategoryFilter != null)
+			{
+				var nomenclatureCategoryIncluded = nomenclatureCategoryFilter?.GetIncluded().ToArray();
+
+				var nomenclatureCategoryExcluded = nomenclatureCategoryFilter?.GetExcluded().ToArray();
+
+				if(nomenclatureCategoryIncluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => nomenclatureCategoryIncluded.Contains(nomenclature.Category));
+				}
+
+				if(nomenclatureCategoryExcluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => !nomenclatureCategoryExcluded.Contains(nomenclature.Category));
+				}
+			}
+
+			var productGroupFilter = FilterViewModel.GetFilter<IncludeExcludeEntityWithHierarchyFilter<ProductGroup>>();
+
+			if(productGroupFilter != null)
+			{
+				var productGroupIncluded = productGroupFilter.GetIncluded().ToArray();
+
+				var productGroupExcluded = productGroupFilter.GetExcluded().ToArray();
+
+				if(productGroupIncluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => productGroupIncluded.Contains(nomenclature.ProductGroup.Id));
+				}
+
+				if(productGroupExcluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => !productGroupExcluded.Contains(nomenclature.ProductGroup.Id));
+				}
+			}
 		}
 
 		public DelegateCommand LoadReportCommand

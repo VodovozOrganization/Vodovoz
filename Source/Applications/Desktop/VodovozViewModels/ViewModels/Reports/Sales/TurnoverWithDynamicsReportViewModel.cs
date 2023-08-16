@@ -32,6 +32,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Extensions;
 using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
@@ -307,11 +308,19 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void ConfigureFilter()
 		{
-			FilterViewModel.AddFilter<NomenclatureCategory>();
+			FilterViewModel.AddFilter<NomenclatureCategory>(config =>
+			{
+				config.IncludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+				config.ExcludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+			});
 
 			FilterViewModel.AddFilter(UoW, _nomenclatureRepository);
 
-			FilterViewModel.AddFilter(UoW, _productGroupRepository);
+			FilterViewModel.AddFilter(UoW, _productGroupRepository, x => x.Parent?.Id, x => x.Id, config =>
+			{
+				config.IncludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+				config.ExcludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+			});
 
 			FilterViewModel.AddFilter(UoW, _counterpartyRepository);
 
@@ -506,6 +515,51 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			});
 
 			FilterViewModel.AddFilter(UoW, _promotionalSetRepository);
+		}
+
+		private void UpdateNomenclaturesSpecification()
+		{
+			var nomenclauresFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Nomenclature>>();
+
+			nomenclauresFilter.Specification = null;
+
+			var nomenclatureCategoryFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<NomenclatureCategory>>();
+
+			if(nomenclatureCategoryFilter != null)
+			{
+				var nomenclatureCategoryIncluded = nomenclatureCategoryFilter?.GetIncluded().ToArray();
+
+				var nomenclatureCategoryExcluded = nomenclatureCategoryFilter?.GetExcluded().ToArray();
+
+				if(nomenclatureCategoryIncluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => nomenclatureCategoryIncluded.Contains(nomenclature.Category));
+				}
+
+				if(nomenclatureCategoryExcluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => !nomenclatureCategoryExcluded.Contains(nomenclature.Category));
+				}
+			}
+
+			var productGroupFilter = FilterViewModel.GetFilter<IncludeExcludeEntityWithHierarchyFilter<ProductGroup>>();
+
+			if(productGroupFilter != null)
+			{
+				var productGroupIncluded = productGroupFilter.GetIncluded().ToArray();
+
+				var productGroupExcluded = productGroupFilter.GetExcluded().ToArray();
+
+				if(productGroupIncluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => productGroupIncluded.Contains(nomenclature.ProductGroup.Id));
+				}
+
+				if(productGroupExcluded.Length > 0)
+				{
+					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => !productGroupExcluded.Contains(nomenclature.ProductGroup.Id));
+				}
+			}
 		}
 
 		private void ShowInfo()
