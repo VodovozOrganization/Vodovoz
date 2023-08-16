@@ -232,7 +232,7 @@ namespace Vodovoz.Views.Warehouse
 			w10.TopAttach = ((uint)(3));
 			w10.BottomAttach = ((uint)(4));
 			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
+			w10.RightAttach = ((uint)(3));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInfo.Gtk.Table+TableChild
@@ -250,6 +250,7 @@ namespace Vodovoz.Views.Warehouse
 			w12.BottomAttach = ((uint)(6));
 			w12.LeftAttach = ((uint)(1));
 			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInfo.Gtk.Table+TableChild
 			this.hboxAuthor = new global::Gtk.HBox();
@@ -416,8 +417,8 @@ namespace Vodovoz.Views.Warehouse
 			// Container child tableInfo.Gtk.Table+TableChild
 			this.ytableTransporter = new global::Gamma.GtkWidgets.yTable();
 			this.ytableTransporter.Name = "ytableTransporter";
-			this.ytableTransporter.NRows = ((uint)(3));
-			this.ytableTransporter.NColumns = ((uint)(2));
+			this.ytableTransporter.NRows = ((uint)(2));
+			this.ytableTransporter.NColumns = ((uint)(6));
 			this.ytableTransporter.RowSpacing = ((uint)(6));
 			this.ytableTransporter.ColumnSpacing = ((uint)(6));
 			// Container child ytableTransporter.Gtk.Table+TableChild
@@ -426,11 +427,8 @@ namespace Vodovoz.Views.Warehouse
 			this.entityentryTransporterCounterparty.Name = "entityentryTransporterCounterparty";
 			this.ytableTransporter.Add(this.entityentryTransporterCounterparty);
 			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.ytableTransporter[this.entityentryTransporterCounterparty]));
-			w28.TopAttach = ((uint)(2));
-			w28.BottomAttach = ((uint)(3));
-			w28.LeftAttach = ((uint)(1));
-			w28.RightAttach = ((uint)(2));
-			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.LeftAttach = ((uint)(5));
+			w28.RightAttach = ((uint)(6));
 			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableTransporter.Gtk.Table+TableChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
@@ -443,9 +441,9 @@ namespace Vodovoz.Views.Warehouse
 			this.GtkScrolledWindow2.Add(this.ytextviewTransporterBill);
 			this.ytableTransporter.Add(this.GtkScrolledWindow2);
 			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.ytableTransporter[this.GtkScrolledWindow2]));
+			w30.BottomAttach = ((uint)(2));
 			w30.LeftAttach = ((uint)(1));
 			w30.RightAttach = ((uint)(2));
-			w30.XOptions = ((global::Gtk.AttachOptions)(4));
 			w30.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableTransporter.Gtk.Table+TableChild
 			this.ylabelTransporterBill = new global::Gamma.GtkWidgets.yLabel();
@@ -463,8 +461,8 @@ namespace Vodovoz.Views.Warehouse
 			this.ylabelTransporterCounterparty.LabelProp = global::Mono.Unix.Catalog.GetString("Перевозчик:");
 			this.ytableTransporter.Add(this.ylabelTransporterCounterparty);
 			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.ytableTransporter[this.ylabelTransporterCounterparty]));
-			w32.TopAttach = ((uint)(2));
-			w32.BottomAttach = ((uint)(3));
+			w32.LeftAttach = ((uint)(4));
+			w32.RightAttach = ((uint)(5));
 			w32.XOptions = ((global::Gtk.AttachOptions)(4));
 			w32.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableTransporter.Gtk.Table+TableChild
@@ -474,26 +472,24 @@ namespace Vodovoz.Views.Warehouse
 			this.ylabelTransporterSum.LabelProp = global::Mono.Unix.Catalog.GetString("Сумма:");
 			this.ytableTransporter.Add(this.ylabelTransporterSum);
 			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.ytableTransporter[this.ylabelTransporterSum]));
-			w33.TopAttach = ((uint)(1));
-			w33.BottomAttach = ((uint)(2));
+			w33.LeftAttach = ((uint)(2));
+			w33.RightAttach = ((uint)(3));
 			w33.XOptions = ((global::Gtk.AttachOptions)(4));
 			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableTransporter.Gtk.Table+TableChild
-			this.yspinbuttonTransporterSum = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(0D, 100D, 1D);
+			this.yspinbuttonTransporterSum = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(0D, 1000000000D, 100D);
 			this.yspinbuttonTransporterSum.CanFocus = true;
 			this.yspinbuttonTransporterSum.Name = "yspinbuttonTransporterSum";
 			this.yspinbuttonTransporterSum.Adjustment.PageIncrement = 10D;
 			this.yspinbuttonTransporterSum.ClimbRate = 1D;
+			this.yspinbuttonTransporterSum.Digits = ((uint)(2));
 			this.yspinbuttonTransporterSum.Numeric = true;
 			this.yspinbuttonTransporterSum.ValueAsDecimal = 0m;
 			this.yspinbuttonTransporterSum.ValueAsInt = 0;
 			this.ytableTransporter.Add(this.yspinbuttonTransporterSum);
 			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.ytableTransporter[this.yspinbuttonTransporterSum]));
-			w34.TopAttach = ((uint)(1));
-			w34.BottomAttach = ((uint)(2));
-			w34.LeftAttach = ((uint)(1));
-			w34.RightAttach = ((uint)(2));
-			w34.XOptions = ((global::Gtk.AttachOptions)(4));
+			w34.LeftAttach = ((uint)(3));
+			w34.RightAttach = ((uint)(4));
 			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.tableInfo.Add(this.ytableTransporter);
 			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.tableInfo[this.ytableTransporter]));
@@ -501,7 +497,6 @@ namespace Vodovoz.Views.Warehouse
 			w35.BottomAttach = ((uint)(6));
 			w35.LeftAttach = ((uint)(2));
 			w35.RightAttach = ((uint)(4));
-			w35.XOptions = ((global::Gtk.AttachOptions)(0));
 			w35.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxView.Add(this.tableInfo);
 			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vboxView[this.tableInfo]));
