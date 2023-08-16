@@ -53,6 +53,8 @@ namespace Vodovoz.Views.Warehouse
 
 			#region Данные перевозчика
 
+			ytableTransporter.Binding.AddBinding(ViewModel, vm => vm.CanEditStoreMovementDocumentTransporterData, w => w.Sensitive).InitializeFromSource();
+
 			ytextviewTransporterBill.Binding.AddBinding(ViewModel.Entity, e => e.TransporterBill, v => v.Buffer.Text).InitializeFromSource();
 
 			yspinbuttonTransporterSum.Binding.AddBinding(ViewModel.Entity, e => e.TranporterSum, v => v.ValueAsDecimal).InitializeFromSource();
