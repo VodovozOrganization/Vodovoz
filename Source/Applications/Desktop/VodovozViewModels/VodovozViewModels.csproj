@@ -544,6 +544,7 @@
     <Compile Include="ViewModels\Reports\EdoUpdReport\EdoUpdReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAdditionalLoadingReportViewModel.FastDeliveryAdditionalLoadingReport.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAdditionalLoadingReportViewModel.FastDeliveryAdditionalLoadingReport.FastDeliveryAdditionalLoadingReportRow.cs" />
+    <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAdditionalLoadingReportViewModel.FastDeliveryRemainingBottlesReport.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryFailsReport.cs" />
     <Compile Include="ViewModels\Reports\FastDelivery\FastDeliveryAvailabilityHistoryReport.cs" />
     <Compile Include="ViewModels\Reports\CostCarExploitationReportViewModel.cs" />
