@@ -63,6 +63,7 @@
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReport.IncomesGroupLine.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.CashFlowDdsReportRenderer.cs" />
     <Compile Include="Cash\Reports\CashFlowAnalysisViewModel.cs" />
+    <Compile Include="Cash\Reports\MovementsPaymentControlViewModel.cs" />
     <Compile Include="Cash\Transfer\CommonCashTransferDocumentViewModel.cs" />
     <Compile Include="Cash\Transfer\IncomeCashTransferDocumentViewModel.cs" />
     <Compile Include="Cash\Transfer\Journal\DocumentNode.cs" />
