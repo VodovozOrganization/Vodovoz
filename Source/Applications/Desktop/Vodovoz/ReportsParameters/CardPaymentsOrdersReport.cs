@@ -21,6 +21,19 @@ namespace Vodovoz.ReportsParameters
 			ydateperiodpicker.EndDate = DateTime.Now.Date;
 			comboPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>();
 			comboGeoGroup.ItemsList = UoW.GetAll<GeoGroup>();
+
+			comboPaymentFrom.ItemSelected += (sender, e) =>
+			{
+				if(comboPaymentFrom.IsSelectedAll)
+				{
+					ycheckbuttonShowArchive.Sensitive = true;
+				}
+				else
+				{
+					ycheckbuttonShowArchive.Sensitive = false;
+					ycheckbuttonShowArchive.Active = false;
+				}
+			};
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
@@ -44,10 +57,11 @@ namespace Vodovoz.ReportsParameters
 						"geo_group_id",
 						comboGeoGroup.IsSelectedAll ? "" : ((GeoGroup)comboGeoGroup.SelectedItem).Id.ToString()
 					},
-					{ "ShowArchived", ycheckbuttonShowArchive.Active }
+					{ "ShowArchived", !ycheckbuttonShowArchive.Sensitive || ycheckbuttonShowArchive.Active }
 				}
 			};
 		}
+
 
 		private void OnButtonCreateRepotClicked(object sender, EventArgs e)
 		{
