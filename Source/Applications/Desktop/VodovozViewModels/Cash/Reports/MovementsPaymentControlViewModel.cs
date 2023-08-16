@@ -17,11 +17,11 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			) : base(rdlViewerViewModel)
 		{
 			var now = DateTime.Now;
-			StartDate = now.Date;
+			StartDate = now.Date.AddMonths(-1);
 			EndDate = now.LatestDayTime();
 
 			Title = "Контроль оплаты перемещений";
-			Identifier = "Cash.DayOfSalaryGiveout";
+			Identifier = "Cash.MovementsPaymentControlReport";
 		}
 
 		public DateTime StartDate
@@ -43,7 +43,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 				var parameters = new Dictionary<string, object>
 				{
 					{ "start_date", StartDate },
-					{ "creation_date", EndDate }
+					{ "end_date", EndDate }
 				};
 
 				return parameters;
