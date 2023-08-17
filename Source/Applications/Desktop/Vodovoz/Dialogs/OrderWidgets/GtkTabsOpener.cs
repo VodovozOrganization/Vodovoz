@@ -11,6 +11,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 
@@ -125,6 +126,13 @@ namespace Vodovoz.Dialogs.OrderWidgets
 					nameof(UndeliveriesWithCommentsPrintDlg),
 					() => new UndeliveriesWithCommentsPrintDlg(filter)
 					);
+		}
+
+		public ITdiTab OpenUndeliveredOrdersClassificationReport(ITdiTab tab, UndeliveredOrdersFilterViewModel filter, bool withTransfer)
+		{
+			return tab.TabParent.OpenTab(
+				QSReport.ReportViewDlg.GenerateHashName<UndeliveredOrdersClassificationReport>(),
+				() => new QSReport.ReportViewDlg(new UndeliveredOrdersClassificationReport(filter, withTransfer)));
 		}
 
 		public ITdiTab OpenCounterpartyDlg(ITdiTab master, int counterpartyId)

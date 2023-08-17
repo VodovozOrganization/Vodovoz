@@ -27,6 +27,7 @@ namespace Vodovoz.TempAdapters
 		ITdiTab OpenRouteListClosingDlg(ITdiTabParent master, int routelistId);
 		ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0, bool isForSalesDepartment = false);
 		ITdiTab OpenUndeliveriesWithCommentsPrintDlg(ITdiTab tab, UndeliveredOrdersFilterViewModel filter);
+		ITdiTab OpenUndeliveredOrdersClassificationReport(ITdiTab tab, UndeliveredOrdersFilterViewModel filter, bool withTransfer);
 		ITdiTab OpenCounterpartyDlg(ITdiTab master, int counterpartyId);
 		void OpenTrackOnMapWnd(int routeListId);
 		ITdiTab OpenCounterpartyEdoTab(int counterpartyId, ITdiTab master = null);
