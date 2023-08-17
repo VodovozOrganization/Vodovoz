@@ -219,9 +219,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				return;
 			}
 
-			var template = new XLTemplate(_fastDeliveryRemainingBottlesReportPath);
+			var report = FastDeliveryRemainingBottlesReport.Generate(UoW, CreateDateFrom.Value.Date, CreateDateTo.Value.LatestDayTime());
 
-			var report = FastDeliveryRemainingBottlesReport.Generate(UoW, CreateDateFrom.Value, CreateDateTo.Value);
+			var template = new XLTemplate(_fastDeliveryRemainingBottlesReportPath);
 
 			template.AddVariable(report);
 			template.Generate();
