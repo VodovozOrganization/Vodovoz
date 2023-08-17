@@ -21,7 +21,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.ViewWidgets.Reports;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Vodovoz.Reports
 {
@@ -179,16 +178,16 @@ namespace Vodovoz.Reports
 		{
 			FilterViewModel.AddFilter<NomenclatureCategory>(config =>
 			{
-				config.IncludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
-				config.ExcludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+				config.IncludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
+				config.ExcludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
 			});
 
 			FilterViewModel.AddFilter(UoW, _nomenclatureRepository);
 
 			FilterViewModel.AddFilter(UoW, _productGroupRepository, x => x.Parent?.Id, x => x.Id, config =>
 			{
-				config.IncludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
-				config.ExcludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+				config.IncludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
+				config.ExcludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
 			});
 
 			FilterViewModel.AddFilter(UoW, _counterpartyRepository);

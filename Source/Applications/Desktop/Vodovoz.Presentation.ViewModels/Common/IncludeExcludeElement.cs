@@ -1,6 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using System;
-using System.Collections.ObjectModel;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Presentation.ViewModels.Common
 {
@@ -77,6 +77,6 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		public IncludeExcludeElement Parent { get; set; } = null;
 
-		public ObservableCollection<IncludeExcludeElement> Children { get; } = new ObservableCollection<IncludeExcludeElement>();
+		public GenericObservableList<IncludeExcludeElement> Children { get; } = new GenericObservableList<IncludeExcludeElement>();
 	}
 }

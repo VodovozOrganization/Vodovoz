@@ -310,16 +310,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			FilterViewModel.AddFilter<NomenclatureCategory>(config =>
 			{
-				config.IncludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
-				config.ExcludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+				config.IncludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
+				config.ExcludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
 			});
 
 			FilterViewModel.AddFilter(UoW, _nomenclatureRepository);
 
 			FilterViewModel.AddFilter(UoW, _productGroupRepository, x => x.Parent?.Id, x => x.Id, config =>
 			{
-				config.IncludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
-				config.ExcludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+				config.IncludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
+				config.ExcludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
 			});
 
 			FilterViewModel.AddFilter(UoW, _counterpartyRepository);

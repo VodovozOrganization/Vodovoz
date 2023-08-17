@@ -2,7 +2,7 @@
 using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 
 namespace Vodovoz.Presentation.ViewModels.Common
@@ -18,8 +18,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		internal IncludeExcludeFilter()
 		{
-			IncludedElements.CollectionChanged += (s, e) => OnPropertyChanged(nameof(IncludedCount));
-			ExcludedElements.CollectionChanged += (s, e) => OnPropertyChanged(nameof(ExcludedCount));
+			IncludedElements.ListContentChanged += (s, e) => OnPropertyChanged(nameof(IncludedCount));
+			ExcludedElements.ListContentChanged += (s, e) => OnPropertyChanged(nameof(ExcludedCount));
 
 			GetReportParametersFunc = DefaultGetReportParameters;
 
@@ -28,11 +28,11 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			RefreshFilteredElementsCommand = new DelegateCommand(RefreshFilteredElements);
 		}
 
-		public virtual ObservableCollection<IncludeExcludeElement> FilteredElements { get; } = new ObservableCollection<IncludeExcludeElement>();
+		public virtual GenericObservableList<IncludeExcludeElement> FilteredElements { get; } = new GenericObservableList<IncludeExcludeElement>();
 
-		public ObservableCollection<IncludeExcludeElement> IncludedElements { get; } = new ObservableCollection<IncludeExcludeElement>();
+		public GenericObservableList<IncludeExcludeElement> IncludedElements { get; } = new GenericObservableList<IncludeExcludeElement>();
 
-		public ObservableCollection<IncludeExcludeElement> ExcludedElements { get; } = new ObservableCollection<IncludeExcludeElement>();
+		public GenericObservableList<IncludeExcludeElement> ExcludedElements { get; } = new GenericObservableList<IncludeExcludeElement>();
 
 		public DelegateCommand RefreshFilteredElementsCommand { get; }
 
@@ -62,7 +62,12 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		{
 			while(ExcludedCount > 0)
 			{
-				ExcludedElements.First().Exclude = false;
+				var currentExcludedElement = ExcludedElements.FirstOrDefault();
+
+				if(currentExcludedElement != null)
+				{
+					currentExcludedElement.Exclude = false;
+				}
 			}
 		}
 
@@ -70,7 +75,12 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		{
 			while(IncludedCount > 0)
 			{
-				IncludedElements.First().Include = false;
+				var currentIncludedElement = IncludedElements.FirstOrDefault();
+
+				if(currentIncludedElement != null)
+				{
+					currentIncludedElement.Include = false;
+				}
 			}
 		}
 
@@ -97,7 +107,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			RefreshExcludedElements(FilteredElements);
 		}
 
-		private void RefreshIncludedElements(ObservableCollection<IncludeExcludeElement> filteredElements)
+		private void RefreshIncludedElements(GenericObservableList<IncludeExcludeElement> filteredElements)
 		{
 			for(var i = 0; i < IncludedElements.Count; i++)
 			{
@@ -126,7 +136,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			}
 		}
 
-		private void RefreshExcludedElements(ObservableCollection<IncludeExcludeElement> filteredElements)
+		private void RefreshExcludedElements(GenericObservableList<IncludeExcludeElement> filteredElements)
 		{
 			for(var i = 0; i < ExcludedElements.Count; i++)
 			{
@@ -158,11 +168,13 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		private void OnElementUnExcluded(IncludeExcludeElement sender, EventArgs eventArgs)
 		{
 			ExcludedElements.Remove(sender);
+			OnPropertyChanged(nameof(ExcludedCount));
 		}
 
 		private void OnElementUnIncluded(IncludeExcludeElement sender, EventArgs eventArgs)
 		{
 			IncludedElements.Remove(sender);
+			OnPropertyChanged(nameof(IncludedCount));
 		}
 
 		private void OnElementExcluded(IncludeExcludeElement sender, EventArgs eventArgs)
@@ -170,6 +182,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			if(!ExcludedElements.Any(x => x.Number == sender.Number))
 			{
 				ExcludedElements.Add(sender);
+				OnPropertyChanged(nameof(ExcludedCount));
 			}
 		}
 
@@ -178,6 +191,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			if(!IncludedElements.Any(x => x.Number == sender.Number))
 			{
 				IncludedElements.Add(sender);
+				OnPropertyChanged(nameof(IncludedCount));
 			}
 		}
 
@@ -217,10 +231,10 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		private void UnsubscribeFromElement(IncludeExcludeElement element)
 		{
-			element.ElementIncluded += OnElementIncluded;
-			element.ElementExcluded += OnElementExcluded;
-			element.ElementUnIncluded += OnElementUnIncluded;
-			element.ElementUnExcluded += OnElementUnExcluded;
+			element.ElementIncluded -= OnElementIncluded;
+			element.ElementExcluded -= OnElementExcluded;
+			element.ElementUnIncluded -= OnElementUnIncluded;
+			element.ElementUnExcluded -= OnElementUnExcluded;
 		}
 
 		public void Dispose()

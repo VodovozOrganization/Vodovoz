@@ -22,27 +22,23 @@ namespace Vodovoz.ViewWidgets.Reports
 			ybuttonClearAllIncludes.Clicked += (s, e) =>
 			{
 				ViewModel.ClearAllIncludesCommand.Execute();
-				ytreeviewFilters.YTreeModel?.EmitModelChanged();
 			};
 
 			ybuttonClearAllExcludes.Clicked += (s, e) =>
 			{
 				ViewModel.ClearAllExcludesCommand.Execute();
-				ytreeviewFilters.YTreeModel?.EmitModelChanged();
 			};
 
 			ybuttonClearExcludes.Clicked += (s, e) =>
 			{
 				ViewModel.ActiveFilter?.ClearExcludesCommand.Execute();
-				ytreeviewElements.YTreeModel?.EmitModelChanged();
-				ytreeviewFilters.YTreeModel?.EmitModelChanged();
+				ytreeviewElements.QueueDraw();
 			};
 
 			ybuttonClearIncludes.Clicked += (s, e) =>
 			{
 				ViewModel.ActiveFilter?.ClearIncludesCommand.Execute();
-				ytreeviewElements.YTreeModel?.EmitModelChanged();
-				ytreeviewFilters.YTreeModel?.EmitModelChanged();
+				ytreeviewElements.QueueDraw();
 			};
 
 			buttonInfo.Clicked += (s, e) => ViewModel.ShowInfoCommand.Execute();
@@ -101,11 +97,6 @@ namespace Vodovoz.ViewWidgets.Reports
 
 			ytreeviewFilters.ItemsDataSource = ViewModel.Filters;
 
-			ytreeviewFilters.YTreeModel.EmitModelChanged();
-
-
-			ViewModel.Filters.CollectionChanged += (s, e) => ytreeviewFilters.YTreeModel?.EmitModelChanged();
-
 			ytreeviewFilters.Selection.Mode = Gtk.SelectionMode.Single;
 
 			ytreeviewFilters.Binding
@@ -128,8 +119,6 @@ namespace Vodovoz.ViewWidgets.Reports
 			if(e.PropertyName == nameof(ViewModel.ActiveFilter))
 			{
 				ReBindElementsList();
-
-				return;
 			}
 		}
 
@@ -163,8 +152,6 @@ namespace Vodovoz.ViewWidgets.Reports
 					})
 					.Finish();
 			}
-
-			ytreeviewElements.YTreeModel?.EmitModelChanged();
 		}
 	}
 }

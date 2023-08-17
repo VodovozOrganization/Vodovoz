@@ -8,7 +8,7 @@ using QS.DomainModel.UoW;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.EntityRepositories;
@@ -21,7 +21,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 	{
 		private const int _defaultLimit = 200;
 
-		private readonly ObservableCollection<IncludeExcludeElement> _emptyElements = new ObservableCollection<IncludeExcludeElement>();
+		private readonly GenericObservableList<IncludeExcludeElement> _emptyElements = new GenericObservableList<IncludeExcludeElement>();
 		private readonly IInteractiveService _interactiveService;
 		private string _searchString = string.Empty;
 		private string _currentSearchString = string.Empty;
@@ -70,7 +70,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			}
 		}
 
-		public ObservableCollection<IncludeExcludeFilter> Filters { get; } = new ObservableCollection<IncludeExcludeFilter>();
+		public GenericObservableList<IncludeExcludeFilter> Filters { get; } = new GenericObservableList<IncludeExcludeFilter>();
 
 		[PropertyChangedAlso(nameof(Elements))]
 		public IncludeExcludeFilter ActiveFilter
@@ -85,7 +85,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			}
 		}
 
-		public ObservableCollection<IncludeExcludeElement> Elements => ActiveFilter?.FilteredElements ?? _emptyElements;
+		public GenericObservableList<IncludeExcludeElement> Elements => ActiveFilter?.FilteredElements ?? _emptyElements;
 
 		public DelegateCommand ClearSearchStringCommand { get; }
 
@@ -291,7 +291,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 				LoadParents(unitOfWork, repository, entitiesToAdd, parentIdSelector);
 
-				var elementsInTree = RebuildTree(entitiesToAdd, new ObservableCollection<IncludeExcludeElement>(), default, parentIdSelector, idSelector);
+				var elementsInTree = RebuildTree(entitiesToAdd, new GenericObservableList<IncludeExcludeElement>(), default, parentIdSelector, idSelector);
 
 				filter.FilteredElements.Clear();
 				FilteredElementsChanged?.Invoke(this, EventArgs.Empty);
@@ -341,16 +341,13 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		private void ShowInfo()
 		{
 			_interactiveService.ShowMessage(ImportanceLevel.Info,
-				"Кнопки:" +
-				" - Снять ✔️ - снимает все галочки в соответствующей колонке\n" +
-				" - Снять X - снимает все галочки в соответствующей колонке\n" +
-				"Кнопки в правой части действуют на вбранный фильтр\n" +
-				"Кнопки в левой части действуют на все фильтры\n" +
-				"В области слева указаны фильтры и количество выбранных в них ✔️ и X\n" +
-				"При выборе хотя бы одной ✔️ в текущем фильтре - в выборку поппадут только указанные значения\n" +
-				"При выборе X - из выборки будут исключены выбранные элементы\n" +
-				"При выборе галочки показать архивные, если в отчете предусмотрена выборка по условию\n" +
-				"архивных элементов - в случае выбора в отчете будут так же добавлены архивные элементы",
+				"Кнопки \"Снять ✔️\" и \"Снять X\" снимают все галочки в соответствующих колонках.\n" +
+				"Кнопки в левой части действуют на все категории.\n" +
+				"Кнопки в правой части действуют на элементы выбранной категории.\n" +
+				"Слева от категорий отображается счетчик выбранных в ней элементов.\n" +
+				"При выборе хотя бы одной ✔️ в текущем фильтре - в выборку попадут только указанные значения.\n" +
+				"При выборе X - из выборки будут исключены выбранные элементы.\n" +
+				"При выборе галочки \"Показать архивные\" будут доступны для выбора архивные элементы." +
 				"Справка по фильтру");
 		}
 
@@ -384,15 +381,15 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			LoadParents(unitOfWork, repository, entitiesToAdd, parentIdSelector, elementsAtStartCount);
 		}
 
-		private ObservableCollection<IncludeExcludeElement> RebuildTree<TId, TEntity>(
+		private GenericObservableList<IncludeExcludeElement> RebuildTree<TId, TEntity>(
 			List<TEntity> entitiesToAdd,
-			ObservableCollection<IncludeExcludeElement> readyElements,
+			GenericObservableList<IncludeExcludeElement> readyElements,
 			TId id,
 			Func<TEntity, TId> parentSelector,
 			Func<TEntity, TId> idSelector)
 			where TEntity : class, IDomainObject
 		{
-			var result = new ObservableCollection<IncludeExcludeElement>();
+			var result = new GenericObservableList<IncludeExcludeElement>();
 
 			for(int i = 0; i < entitiesToAdd.Count; i++)
 			{

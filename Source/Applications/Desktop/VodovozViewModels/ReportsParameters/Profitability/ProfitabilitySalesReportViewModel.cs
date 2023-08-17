@@ -179,16 +179,16 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		{
 			FilterViewModel.AddFilter<NomenclatureCategory>(config =>
 			{
-				config.IncludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
-				config.ExcludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+				config.IncludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
+				config.ExcludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
 			});
 
 			FilterViewModel.AddFilter(_unitOfWork, _nomenclatureRepository);
 
 			FilterViewModel.AddFilter(_unitOfWork, _productGroupRepository, config =>
 			{
-				config.IncludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
-				config.ExcludedElements.CollectionChanged += (s, e) => UpdateNomenclaturesSpecification();
+				config.IncludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
+				config.ExcludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
 			});
 
 			FilterViewModel.AddFilter(_unitOfWork, _counterpartyRepository);
