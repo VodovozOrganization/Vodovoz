@@ -60,16 +60,16 @@
             <Width>25.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>110.3pt</Width>
+            <Width>155.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>139.0pt</Width>
+            <Width>103.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>146.0pt</Width>
+            <Width>157.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>139.4pt</Width>
+            <Width>266.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.4pt</Width>
@@ -488,7 +488,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="Undeliveries">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT count(*) as amount,
     CASE g.guilty_side
@@ -618,7 +618,7 @@ ORDER BY guilty, amount</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="amount">
           <DataField>amount</DataField>
           <TypeName>System.Int64</TypeName>
