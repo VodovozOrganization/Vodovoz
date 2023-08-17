@@ -1,14 +1,15 @@
 ﻿using QS.Views;
+using System.ComponentModel;
 using Vodovoz.ViewModels.Cash.Reports;
 
 namespace Vodovoz.ReportsParameters.Cash
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class MovementsPaymentControlView : ViewBase<MovementsPaymentControlViewModel>
 	{
 		public MovementsPaymentControlView(MovementsPaymentControlViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
