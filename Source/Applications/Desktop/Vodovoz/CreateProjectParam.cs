@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -244,6 +244,8 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 using Vodovoz.ViewModels.Widgets;
 using static Vodovoz.Reports.CashFlow;
+using Vodovoz.ViewModels.BaseParameters;
+using Vodovoz.Views.BaseParameters;
 
 namespace Vodovoz
 {
@@ -515,6 +517,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UndeliveryDetalizationJournalFilterViewModel, UndeliveryDetalizationFilterView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrderViewModel, UndeliveredOrderView>()
 				.RegisterWidgetForWidgetViewModel<DriverStopListRemovalViewModel, DriverStopListRemovalView>()
+				.RegisterWidgetForWidgetViewModel<BaseParametersViewModel, BaseParametersView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersClassificationReportViewModel, UndeliveredOrdersClassificationReportView>()
 				;
 

@@ -42,6 +42,7 @@
     <Reference Include="mscorlib" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseParameters\BaseParametersViewModel.cs" />
     <Compile Include="Cash\AdvanceReportViewModel.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentNode.cs" />
     <Compile Include="Cash\DocumentsJournal\DocumentsFilterViewModel.cs" />

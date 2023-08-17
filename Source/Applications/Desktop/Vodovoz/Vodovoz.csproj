@@ -1958,12 +1958,15 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversStopListsView.cs" />
     <Compile Include="Views\Logistic\DriverStopListRemovalView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverStopListRemovalView.cs" />
+    <Compile Include="Views\BaseParameters\BaseParametersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.BaseParameters.BaseParametersView.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.UndeliveredOrdersClassificationReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="Views\BaseParameters\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">

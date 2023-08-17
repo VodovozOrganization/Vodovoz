@@ -9,10 +9,12 @@ namespace Vodovoz.Settings.Database
 		{
 			Table("base_parameters");
 
-			Id(x => x.Name).Column("name").GeneratedBy.Assigned();
-
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			
+			Map(x => x.Name).Column("name");
 			Map(x => x.StrValue).Column("str_value");
 			Map(x => x.CacheTimeout).Column("cache_timeout").CustomType<TimeAsTimeSpanType>();
+			Map(x => x.Description).Column("description");
 		}
 	}
 }
