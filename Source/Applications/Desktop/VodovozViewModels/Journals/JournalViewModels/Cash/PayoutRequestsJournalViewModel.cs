@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
@@ -189,7 +189,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 			_canSeeCurrentSubdivisonRequests =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_see_current_subdivision_cash_requests");
 			_hasAccessToHiddenFinancialCategories = 
-				_commonServices.CurrentPermissionService.ValidatePresetPermission("Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories");
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
 		}
 
 		#region JournalActions

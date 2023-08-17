@@ -27,7 +27,7 @@ namespace Vodovoz.Views.Orders
 			chkIsArchive.Binding.AddBinding(ViewModel.Entity, vm => vm.IsArchive, w => w.Active)
 				.InitializeFromSource();
 
-			buttonSave.Clicked += OnButtonCancelClicked;
+			buttonSave.Clicked += OnButtonSaveClicked;
 			buttonCancel.Clicked += OnButtonCancelClicked;
 		}
 
