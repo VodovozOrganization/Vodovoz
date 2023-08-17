@@ -1,7 +1,10 @@
-﻿using QS.Commands;
+﻿using ClosedXML.Report;
+using QS.Commands;
 using QS.Dialog;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System;
 using Vodovoz.Tools;
@@ -10,7 +13,10 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 {
 	public partial class NumberOfComplaintsAgainstDriversReportViewModel : DialogTabViewModelBase
 	{
+		private const string _templatePath = @".\Reports\QualityControl\NumberOfComplaintsAgainstDriversReport.xlsx";
+
 		private readonly IInteractiveService _interactiveService;
+		private readonly IFileDialogService _fileDialogService;
 		private NumberOfComplaintsAgainstDriversReport _report;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -18,14 +24,16 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 		public NumberOfComplaintsAgainstDriversReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
-			INavigationManager navigation)
+			INavigationManager navigation,
+			IFileDialogService fileDialogService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-
+			_fileDialogService = fileDialogService;
 			TabName = typeof(NumberOfComplaintsAgainstDriversReport).GetClassUserFriendlyName().Nominative;
 
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
+			ExportReportCommand = new DelegateCommand(ExportReport, () => CanExportReport);
 		}
 
 		public DateTime? StartDate
@@ -40,13 +48,18 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			set => SetField(ref _endDate, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanExportReport))]
 		public NumberOfComplaintsAgainstDriversReport Report
 		{
 			get => _report;
 			private set => SetField(ref _report, value);
 		}
 
+		public bool CanExportReport => Report != null;
+
 		public DelegateCommand GenerateReportCommand { get; }
+
+		public DelegateCommand ExportReportCommand { get; }
 
 		private void GenerateReport()
 		{
@@ -57,6 +70,31 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			}
 
 			Report = NumberOfComplaintsAgainstDriversReport.Generate(UoW, StartDate.Value, EndDate.Value);
+		}
+
+		private void ExportReport()
+		{
+			var reportName = typeof(NumberOfComplaintsAgainstDriversReport).GetClassUserFriendlyName().Nominative;
+
+			var dialogSettings = new DialogSettings
+			{
+				Title = $"Сохранить {reportName}",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"{reportName} {DateTime.Now:dd-MM-yyyy-HH-mm}",
+				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+			};
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			var template = new XLTemplate(_templatePath);
+
+			template.AddVariable(Report);
+			template.SaveAs(result.Path);
 		}
 	}
 }
