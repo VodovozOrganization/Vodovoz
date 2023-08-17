@@ -14,11 +14,6 @@ namespace Vodovoz.ReportsParameters.Cash
 
 		private void Configure()
 		{
-			if(ViewModel == null)
-			{
-				return;
-			}
-
 			dateperiodpicker.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDate)
