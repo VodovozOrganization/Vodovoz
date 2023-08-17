@@ -5,15 +5,18 @@ using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
 using System.Linq;
+using Autofac;
+using QS.Navigation;
+using QS.Report.ViewModels;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.ReportsParameters.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.Dialogs.OrderWidgets
 {
@@ -128,11 +131,18 @@ namespace Vodovoz.Dialogs.OrderWidgets
 					);
 		}
 
-		public ITdiTab OpenUndeliveredOrdersClassificationReport(ITdiTab tab, UndeliveredOrdersFilterViewModel filter, bool withTransfer)
+		public void OpenUndeliveredOrdersClassificationReport(UndeliveredOrdersFilterViewModel filter, bool withTransfer)
 		{
-			return tab.TabParent.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName<UndeliveredOrdersClassificationReport>(),
-				() => new QSReport.ReportViewDlg(new UndeliveredOrdersClassificationReport(filter, withTransfer)));
+			if(filter == null)
+			{
+				throw new ArgumentNullException(nameof(filter));
+			}
+
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
+			var navigationManager = scope.Resolve<INavigationManager>();
+			var rdlViewModel = navigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(UndeliveredOrdersClassificationReportViewModel));
+			var undeliveredOrdersClassificationReportViewModel = (UndeliveredOrdersClassificationReportViewModel)rdlViewModel.ViewModel.ReportParametersViewModel;
+			undeliveredOrdersClassificationReportViewModel.Load(filter, withTransfer);
 		}
 
 		public ITdiTab OpenCounterpartyDlg(ITdiTab master, int counterpartyId)

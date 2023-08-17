@@ -555,7 +555,9 @@ AND
 AND
 	(un.author_employee_id = @undelivery_author_id OR @undelivery_author_id = 0)
 
-GROUP BY guilty, object, kind, detalization</CommandText>
+GROUP BY guilty, object, kind, detalization
+
+ORDER BY guilty, amount</CommandText>
         <QueryParameters>
           <QueryParameter Name="old_order_start_date">
             <Value>={?old_order_start_date}</Value>
@@ -640,7 +642,7 @@ GROUP BY guilty, object, kind, detalization</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="filter">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -827,7 +829,7 @@ GROUP BY guilty, object, kind, detalization</CommandText>
       <Prompt />
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySqlConnector</DataProvider>

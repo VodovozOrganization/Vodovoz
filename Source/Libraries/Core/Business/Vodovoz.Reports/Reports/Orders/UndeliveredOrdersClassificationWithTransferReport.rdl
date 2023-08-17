@@ -550,7 +550,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="Undeliveries">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT count(*) as amount,
     CASE g.guilty_side
@@ -622,7 +622,9 @@ AND
 AND
 	(un.author_employee_id = @undelivery_author_id OR @undelivery_author_id = 0)
 
-GROUP BY guilty, object, kind, detalization, transfer</CommandText>
+GROUP BY guilty, object, kind, detalization, transfer
+
+ORDER BY guilty, amount</CommandText>
         <QueryParameters>
           <QueryParameter Name="old_order_start_date">
             <Value>={?old_order_start_date}</Value>
@@ -683,7 +685,7 @@ GROUP BY guilty, object, kind, detalization, transfer</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="amount">
           <DataField>amount</DataField>
           <TypeName>System.Int64</TypeName>
@@ -898,7 +900,7 @@ GROUP BY guilty, object, kind, detalization, transfer</CommandText>
       <Prompt />
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySqlConnector</DataProvider>
