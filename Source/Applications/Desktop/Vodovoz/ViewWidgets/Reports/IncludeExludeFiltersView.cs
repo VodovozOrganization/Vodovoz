@@ -33,14 +33,14 @@ namespace Vodovoz.ViewWidgets.Reports
 
 			ybuttonClearExcludes.Clicked += (s, e) =>
 			{
-				ViewModel.ActiveFilter.ClearExcludesCommand.Execute();
+				ViewModel.ActiveFilter?.ClearExcludesCommand.Execute();
 				ytreeviewElements.YTreeModel?.EmitModelChanged();
 				ytreeviewFilters.YTreeModel?.EmitModelChanged();
 			};
 
 			ybuttonClearIncludes.Clicked += (s, e) =>
 			{
-				ViewModel.ActiveFilter.ClearIncludesCommand.Execute();
+				ViewModel.ActiveFilter?.ClearIncludesCommand.Execute();
 				ytreeviewElements.YTreeModel?.EmitModelChanged();
 				ytreeviewFilters.YTreeModel?.EmitModelChanged();
 			};
@@ -72,7 +72,7 @@ namespace Vodovoz.ViewWidgets.Reports
 				.AddNumericRenderer(x => x.IncludedCount)
 				.AddSetter((c, n) =>
 				{
-					c.Foreground = Rc.GetStyle(this).Foreground(StateType.Normal).ToString();
+					c.ForegroundGdk = Rc.GetStyle(this).Foreground(StateType.Normal);
 					if(n.IncludedCount == 0)
 					{
 						c.Text = "";
@@ -86,7 +86,7 @@ namespace Vodovoz.ViewWidgets.Reports
 				.AddNumericRenderer(x => x.ExcludedCount)
 				.AddSetter((c, n) =>
 				{
-					c.Foreground = Rc.GetStyle(this).Foreground(StateType.Normal).ToString();
+					c.ForegroundGdk = Rc.GetStyle(this).Foreground(StateType.Normal);
 					if(n.ExcludedCount == 0)
 					{
 						c.Text = "";
