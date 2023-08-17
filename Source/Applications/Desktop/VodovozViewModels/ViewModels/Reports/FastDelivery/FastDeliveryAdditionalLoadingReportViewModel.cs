@@ -24,7 +24,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 	public partial class FastDeliveryAdditionalLoadingReportViewModel : DialogTabViewModelBase
 	{
 		private const string _templatePath = @".\Reports\Orders\FastDeliveryAdditionalLoadingReport.xlsx";
-		private const string _fastDeliveryRemainingBottlesReportPath = @".\Reports\Logistic\FastDeliveryAdditionalLoadingReport.xlsx";
+		private const string _fastDeliveryRemainingBottlesReportPath = @".\Reports\Logistic\FastDeliveryRemainingBottlesReport.xlsx";
 
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
