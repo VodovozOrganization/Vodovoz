@@ -75,6 +75,8 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			set => SetField(ref _outputParameters, value);
 		}
 
+		public string SearchValue => _searchValue;
+
 		public GenericObservableList<SelectableParameter> Parameters
 		{
 			get

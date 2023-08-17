@@ -64,6 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 
 		private DateTime? _endDate = DateTime.Today;
 		private bool _showReserve;
+		private bool _showPrices;
 		private bool _isGreaterThanZeroByNomenclature;
 		private bool _isGreaterThanZeroByWarehouse;
 		private bool _groupingActiveStorage;
@@ -99,7 +100,12 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				EndDate = DateTime.Now;
 			}
 		}
-		public bool ShowPrices { get; set; }
+
+		public bool ShowPrices
+		{
+			get => _showPrices;
+			set => SetField(ref _showPrices, value);
+		}
 
 		public bool AllNomenclatures { get; set; } = true;
 
@@ -1311,26 +1317,36 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			
 			if(_groupingActiveStorage)
 			{
-				IsGreaterThanZeroByNomenclature = _groupingActiveStorage;
-				IsGreaterThanZeroByWarehouse = _groupingActiveStorage;
-
-				if(StoragesViewModel.CurrentParameterSet is null)
-				{
-					StoragesViewModel.CurrentParameterSet = StoragesViewModel.ReportFilter.ParameterSets.First();
-				}
-				else
-				{
-					UpdateStorageParameters();
-				}
-				
-				StoragesViewModel.CurrentParameterSet.SelectAll();
-				UpdateActiveSelectedStorageType(StoragesViewModel.CurrentParameterSet);
+				UpdateStateForGroupingActiveStorage();
 			}
 			else
 			{
 				UpdateStorageParameters();
 				UpdateActiveSelectedStorageType(null);
 			}
+		}
+
+		private void UpdateStateForGroupingActiveStorage()
+		{
+			IsGreaterThanZeroByNomenclature = _groupingActiveStorage;
+			IsGreaterThanZeroByWarehouse = _groupingActiveStorage;
+
+			if(!string.IsNullOrWhiteSpace(StoragesViewModel.CurrentParameterSet.SearchValue))
+			{
+				StoragesViewModel.SearchValue = string.Empty;
+			}
+			
+			if(StoragesViewModel.CurrentParameterSet is null)
+			{
+				StoragesViewModel.CurrentParameterSet = StoragesViewModel.ReportFilter.ParameterSets.First();
+			}
+			else
+			{
+				UpdateStorageParameters();
+			}
+			
+			StoragesViewModel.CurrentParameterSet.SelectAll();
+			UpdateActiveSelectedStorageType(StoragesViewModel.CurrentParameterSet);
 		}
 
 		private void UpdateActiveSelectedStorageType(SelectableParameterSet currentActiveParameterSet)
@@ -1581,7 +1597,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 				RowNumberTitle,
 				IdTitle,
 				EntityTitle,
-				InventoryNumberTitle,
+				InventoryNumberTitle.Replace('\n', ' '),
 				BalanceTitle
 			};
 		}
