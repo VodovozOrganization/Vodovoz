@@ -88,7 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 								Shift = shift,
 								CreationDate = routelist.Date,
 								RouteListId = routelist.Id,
-								DriverFullName = $"{driver.Name} {driver.LastName} {driver.Patronymic}",
+								DriverFullName = $"{driver.Name} {driver.LastName.Take(1)}.{driver.Patronymic.Take(1)}.",
 								BottlesLoadedCount = bottlesLoadedCount,
 								BottlesShippedCount = bottlesShippedCount,
 								RemainingBottlesCount = bottlesLoadedCount - bottlesShippedCount,
