@@ -752,6 +752,7 @@ namespace Vodovoz
 			entryDeliverySchedule.SetEntityAutocompleteSelectorFactory(deliveryScheduleJournalFactory);
 			entryDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			entryDeliverySchedule.CanEditReference = true;
+			entryDeliverySchedule.Changed += (s, e) => UpdateClientSecondOrderDiscount();
 
 			ybuttonFastDeliveryCheck.Clicked += OnButtonFastDeliveryCheckClicked;
 
@@ -3075,6 +3076,8 @@ namespace Vodovoz
 			UpdateProxyInfo();
 
 			SetSensitivityOfPaymentType();
+
+			UpdateClientSecondOrderDiscount();
 		}
 
 		private bool IsEnumTaxVisible() => Entity.Client != null &&
@@ -3597,6 +3600,11 @@ namespace Vodovoz
 			}
 		}
 
+		private void UpdateClientSecondOrderDiscount()
+		{
+			Entity.UpdateClientSecondOrderDiscount(_discountsController);
+		}
+
 		void Entity_UpdateClientCanChange(object aList, int[] aIdx)
 		{
 			entityVMEntryClient.IsEditable = Entity.CanChangeContractor();
@@ -3612,6 +3620,8 @@ namespace Vodovoz
 			}
 			_treeItemsNomenclatureColumnWidth = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width;
 			treeItems.ExposeEvent += TreeItemsOnExposeEvent;
+
+			UpdateClientSecondOrderDiscount();
 		}
 
 		private void TreeItemsOnExposeEvent(object o, ExposeEventArgs args)
@@ -3639,6 +3649,8 @@ namespace Vodovoz
 			}
 
 			Entity.AddFastDeliveryNomenclatureIfNeeded();
+
+			UpdateClientSecondOrderDiscount();
 		}
 
 		void ObservableOrderDocuments_ListChanged(object aList)
@@ -3726,6 +3738,8 @@ namespace Vodovoz
 					if(oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
 						ChangeEquipmentsCount(oItem, (int)oItem.Count);
 					}
+
+					UpdateClientSecondOrderDiscount();
 				}
 			}
 		}
