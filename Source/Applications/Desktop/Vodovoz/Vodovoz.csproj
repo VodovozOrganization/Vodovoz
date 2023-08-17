@@ -2480,6 +2480,10 @@
       <Project>{5a2bb01e-e124-432e-8099-d1343d3897b9}</Project>
       <Name>QSWidgetLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj">
+      <Project>{0107f13c-46e0-4008-8302-0b5cd71df14c}</Project>
+      <Name>Vodovoz.Data.NHibernate</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
       <Project>{396CC0BB-294B-44E0-8428-31677419B8BE}</Project>
       <Name>Vodovoz.Presentation.ViewModels</Name>

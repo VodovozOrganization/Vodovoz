@@ -1,7 +1,6 @@
 ﻿using Gamma.Binding;
 using Gamma.Utilities;
 using MySqlConnector;
-using NHibernate.AdoNet;
 using NLog;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
@@ -19,8 +18,8 @@ using QSProjectsLib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Vodovoz.Dialogs;
 using Vodovoz.Cash.Transfer;
+using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
