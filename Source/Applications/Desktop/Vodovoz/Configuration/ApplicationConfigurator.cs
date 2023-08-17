@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Vodovoz.Cash.Transfer;
+using Vodovoz.Data.NHibernate.HibernateMapping.Organizations;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
@@ -42,7 +44,6 @@ using Vodovoz.Domain.Retail;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.ViewModels.Dialogs.Fuel;
@@ -91,7 +92,7 @@ namespace Vodovoz.Configuration
                 dbConfig,
                 new[] {
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-                    Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
+                    Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
                     Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
                     Assembly.GetAssembly(typeof(Bank)),
                     Assembly.GetAssembly(typeof(HistoryMain)),

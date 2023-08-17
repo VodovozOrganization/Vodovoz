@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Security;
 
-namespace Vodovoz.HibernateMapping.Security
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Security
 {
 	public class RegisteredRMMap : ClassMap<RegisteredRM>
 	{

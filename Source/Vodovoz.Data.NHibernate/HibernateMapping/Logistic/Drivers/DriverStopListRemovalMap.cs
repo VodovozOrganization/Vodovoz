@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz.HibernateMapping.Logistic.Drivers
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 {
 	public class DriverStopListRemovalMap : ClassMap<DriverStopListRemoval>
 	{

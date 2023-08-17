@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Contracts
 {
 	public class FreeRentPackageMap : ClassMap<FreeRentPackage>
 	{

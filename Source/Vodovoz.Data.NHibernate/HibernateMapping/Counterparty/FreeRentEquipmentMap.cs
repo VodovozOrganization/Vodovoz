@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
 	public class FreeRentEquipmentMap : ClassMap<FreeRentEquipment>
 	{

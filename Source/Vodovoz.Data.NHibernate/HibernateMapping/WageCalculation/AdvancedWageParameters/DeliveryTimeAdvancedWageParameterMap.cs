@@ -2,7 +2,7 @@
 using NHibernate.Type;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 
-namespace Vodovoz.HibernateMapping.WageCalculation.AdvancedWageParameters
+namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation.AdvancedWageParameters
 {
 	public class DeliveryTimeAdvancedWageParameterMap : SubclassMap<DeliveryTimeAdvancedWageParameter>
 	{

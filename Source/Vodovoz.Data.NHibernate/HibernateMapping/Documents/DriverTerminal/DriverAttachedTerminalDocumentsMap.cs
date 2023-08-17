@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents.DriverTerminal;
 
-namespace Vodovoz.HibernateMapping.Documents.DriverTerminal
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents.DriverTerminal
 {
 	public class DriverAttachedTerminalDocumentsMap : ClassMap<DriverAttachedTerminalDocumentBase>
 	{

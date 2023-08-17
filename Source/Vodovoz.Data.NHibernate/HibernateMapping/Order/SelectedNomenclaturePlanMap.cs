@@ -2,7 +2,7 @@
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.HibernateMapping.Order
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
 	public class SelectedNomenclaturePlanMap : ClassMap<SelectedNomenclaturePlan>
 	{

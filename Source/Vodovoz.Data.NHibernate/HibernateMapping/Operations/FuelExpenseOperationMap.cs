@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Fuel;
 
-namespace Vodovoz.HibernateMapping.Operations
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
 {
 	public class FuelExpenseOperationMap : ClassMap<FuelExpenseOperation>
 	{

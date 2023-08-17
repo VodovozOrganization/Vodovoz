@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Geocoder;
 
-namespace Vodovoz.HibernateMapping.Geocoder
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Geocoder
 {
 	public class GeocoderAddressCacheMap : ClassMap<GeocoderAddressCache>
 	{

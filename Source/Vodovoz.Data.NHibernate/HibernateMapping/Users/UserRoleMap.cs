@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Permissions;
 
-namespace Vodovoz.HibernateMapping.Users
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Users
 {
 	public class UserRoleMap : ClassMap<UserRole>
 	{

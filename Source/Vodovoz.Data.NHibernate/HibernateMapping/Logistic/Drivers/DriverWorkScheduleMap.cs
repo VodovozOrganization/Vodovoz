@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.HibernateMapping.Logistic
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 {
 	public class DriverWorkScheduleMap : ClassMap<DriverWorkSchedule>
 	{

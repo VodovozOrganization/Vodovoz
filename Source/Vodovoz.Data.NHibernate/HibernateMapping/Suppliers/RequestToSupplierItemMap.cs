@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Suppliers;
 
-namespace Vodovoz.HibernateMapping.Suppliers
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Suppliers
 {
 	public class RequestToSupplierItemMap : ClassMap<RequestToSupplierItem>
 	{

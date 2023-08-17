@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using QS.BusinessCommon.Domain;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Handbooks
 {
 	public class MeasurementUnitsMap : ClassMap<MeasurementUnits>
 	{

@@ -20,7 +20,7 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz;
 using Vodovoz.Core.DataService;
-using Vodovoz.NhibernateExtensions;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;

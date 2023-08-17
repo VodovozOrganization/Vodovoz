@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.HibernateMapping.Employees
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 {
 	public class EmployeePostMap : ClassMap<EmployeePost>
 	{

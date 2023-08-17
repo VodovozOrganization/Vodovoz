@@ -2,7 +2,7 @@
 using NHibernate.Spatial.Type;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 {
 	public class DistrictMap : ClassMap<District>
 	{

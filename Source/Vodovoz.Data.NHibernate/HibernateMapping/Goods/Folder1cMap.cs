@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Goods;
 
-namespace Vodovoz.HibernateMapping.Goods
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 {
 	public class Folder1cMap : ClassMap<Folder1c>
 	{

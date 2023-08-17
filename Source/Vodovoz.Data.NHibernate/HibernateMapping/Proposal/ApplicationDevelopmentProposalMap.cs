@@ -1,7 +1,7 @@
 using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Proposal;
 
-namespace Vodovoz.HibernateMapping.Proposal
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Proposal
 {
 	public class ApplicationDevelopmentProposalMap : ClassMap<ApplicationDevelopmentProposal>
 	{

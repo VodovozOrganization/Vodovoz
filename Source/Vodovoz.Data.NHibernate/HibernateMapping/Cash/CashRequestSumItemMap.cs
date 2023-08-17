@@ -1,7 +1,7 @@
 using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Cash;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Cash
 {
 	public class CashRequestSumItemMap : ClassMap<CashRequestSumItem>
 	{

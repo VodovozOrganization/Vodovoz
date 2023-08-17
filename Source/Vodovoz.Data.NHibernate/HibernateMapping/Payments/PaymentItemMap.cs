@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Payments;
 
-namespace Vodovoz.HibernateMapping.Payments
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Payments
 {
 	public class PaymentItemMap : ClassMap<PaymentItem>
 	{

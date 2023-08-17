@@ -1,7 +1,7 @@
 using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Permissions.Warehouses;
 
-namespace Vodovoz.HibernateMapping.Permissions
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Permissions
 {
 	public class WarehousePermissionMap : ClassMap<WarehousePermissionBase>
 	{

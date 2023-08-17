@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Service;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Service
 {
 	public class ServiceClaimHistoryMap : ClassMap<ServiceClaimHistory>
 	{

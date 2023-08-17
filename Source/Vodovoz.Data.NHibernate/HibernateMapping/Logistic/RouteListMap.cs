@@ -2,7 +2,7 @@
 using NHibernate.Type;
 using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 {
 	public class RouteListMap : ClassMap<RouteList>
 	{

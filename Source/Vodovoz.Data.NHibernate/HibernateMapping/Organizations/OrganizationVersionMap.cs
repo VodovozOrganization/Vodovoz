@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Logistic.Organizations;
 
-namespace Vodovoz.HibernateMapping.Logistic.Organization
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 {
 	public class OrganizationVersionMap : ClassMap<OrganizationVersion>
 	{

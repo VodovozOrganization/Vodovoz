@@ -2,7 +2,7 @@
 using NHibernate.Type;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.HibernateMapping.Sale
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Sale
 {
 	public class TariffZoneMap : ClassMap<TariffZone>
 	{

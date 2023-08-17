@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Fuel;
 
-namespace Vodovoz.HibernateMapping.Fuel
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Fuel
 {
 	public class FuelTransferDocumentMap : ClassMap<FuelTransferDocument>
 	{

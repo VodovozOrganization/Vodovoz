@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Logistic.Drivers;
 
-namespace Vodovoz.HibernateMapping.Logistic.Drivers
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 {
 	public class DriverMobileAppActionRecordMap : ClassMap<DriverMobileAppActionRecord>
 	{

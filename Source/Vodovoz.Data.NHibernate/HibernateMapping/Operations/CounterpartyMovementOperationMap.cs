@@ -1,6 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 
-namespace Vodovoz
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
 {
 	public class CounterpartyMovementOperationMap : ClassMap<CounterpartyMovementOperation>
 	{

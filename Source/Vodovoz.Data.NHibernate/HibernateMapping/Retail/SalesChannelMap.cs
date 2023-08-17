@@ -1,6 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 
-namespace Vodovoz.HibernateMapping.Retail
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Retail
 {
 	public class SalesChannelMap : ClassMap<Domain.Retail.SalesChannel>
 	{

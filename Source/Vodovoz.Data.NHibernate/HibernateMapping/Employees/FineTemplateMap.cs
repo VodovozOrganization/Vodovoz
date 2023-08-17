@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain;
 
-namespace Vodovoz
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 {
 	public class FineTemplateMap : ClassMap<FineTemplate>
 	{

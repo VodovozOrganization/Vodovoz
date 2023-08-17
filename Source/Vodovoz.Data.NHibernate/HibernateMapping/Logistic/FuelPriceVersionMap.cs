@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz.HibernateMapping.Logistic.Cars
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 {
 	public class FuelPriceVersionMap : ClassMap<FuelPriceVersion>
 	{

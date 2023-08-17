@@ -1,6 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Subdivisions
 {
 	public class SubdivisionMap : ClassMap<Subdivision>
 	{

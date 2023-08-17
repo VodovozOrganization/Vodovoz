@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.HibernateMapping.Order
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Sale
 {
 	public class DeliveryPriceRuleMap : ClassMap<DeliveryPriceRule>
 	{

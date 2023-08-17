@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using NHibernate.Type;
 
-namespace Vodovoz
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 {
 	public class EmployeeWorkChartMap : ClassMap<EmployeeWorkChart>
 	{

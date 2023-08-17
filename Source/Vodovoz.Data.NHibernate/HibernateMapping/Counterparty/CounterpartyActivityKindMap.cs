@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 
-namespace Vodovoz.Hibernate.Counterparty
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
 	public class CounterpartyActivityKindMap : ClassMap<CounterpartyActivityKind>
 	{

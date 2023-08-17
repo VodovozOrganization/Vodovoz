@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.WageCalculation;
 
-namespace Vodovoz.HibernateMapping.WageCalculation
+namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
 {
 	public class WageDistrictLevelRateMap : ClassMap<WageDistrictLevelRate>
 	{

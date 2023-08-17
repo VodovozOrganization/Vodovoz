@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Cash.CashTransfer;
 
-namespace Vodovoz.HibernateMapping.Cash.Transfer
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Cash.Transfer
 {
 	public class CashTransferDocumentMap : ClassMap<CashTransferDocumentBase>
 	{

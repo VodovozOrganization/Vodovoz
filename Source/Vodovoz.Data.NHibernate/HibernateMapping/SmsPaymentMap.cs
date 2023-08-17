@@ -1,7 +1,7 @@
 using FluentNHibernate.Mapping;
 using Vodovoz.Domain;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping
 {
 	public class SmsPaymentMap : ClassMap<SmsPayment>
 	{

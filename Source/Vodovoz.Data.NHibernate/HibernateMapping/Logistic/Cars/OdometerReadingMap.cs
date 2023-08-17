@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Logistic.Cars;
 
-namespace Vodovoz.HibernateMapping.Logistic.Cars
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 {
 	public class OdometerReadingMap : ClassMap<OdometerReading>
 	{

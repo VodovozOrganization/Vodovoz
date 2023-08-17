@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Service;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Service
 {
 	public class ServiceClaimMap : ClassMap<ServiceClaim>
 	{

@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Contacts;
 
-namespace Vodovoz.HibernateMapping.Contacts
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Contacts
 {
 	public class PhoneMap : ClassMap<Phone>
 	{

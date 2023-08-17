@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.TrueMark;
 
-namespace Vodovoz.HibernateMapping.Suppliers
+namespace Vodovoz.Data.NHibernate.HibernateMapping.TrueMark
 {
 	public class TrueMarkWaterIdentificationCodeMap : ClassMap<TrueMarkWaterIdentificationCode>
 	{

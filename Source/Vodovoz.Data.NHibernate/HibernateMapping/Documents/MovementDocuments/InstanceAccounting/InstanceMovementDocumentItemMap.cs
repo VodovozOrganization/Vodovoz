@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
 
-namespace Vodovoz.HibernateMapping.Documents.MovementDocuments.InstanceAccounting
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents.MovementDocuments.InstanceAccounting
 {
 	public class InstanceMovementDocumentItemMap : SubclassMap<InstanceMovementDocumentItem>
 	{

@@ -2,7 +2,7 @@
 using NHibernate.Type;
 using Vodovoz.Domain.Logistic.FastDelivery;
 
-namespace Vodovoz.HibernateMapping.Logistic.FastDelivery
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.FastDelivery
 {
 	public class FastDeliveryAvailabilityHistoryItemMap : ClassMap<FastDeliveryAvailabilityHistoryItem>
 	{

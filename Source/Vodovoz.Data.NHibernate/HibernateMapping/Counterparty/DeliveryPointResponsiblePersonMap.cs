@@ -1,6 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 
-namespace Vodovoz.HibernateMapping.Counterparty
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 {
 	public class DeliveryPointResponsiblePersonMap : ClassMap<Domain.Client.DeliveryPointResponsiblePerson>
 	{

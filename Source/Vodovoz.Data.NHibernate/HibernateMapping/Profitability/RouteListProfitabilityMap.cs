@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Profitability;
 
-namespace Vodovoz.HibernateMapping.Profitability
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Profitability
 {
 	public class RouteListProfitabilityMap : ClassMap<RouteListProfitability>
 	{

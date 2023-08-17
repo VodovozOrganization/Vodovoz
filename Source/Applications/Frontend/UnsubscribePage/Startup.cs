@@ -15,8 +15,8 @@ using System;
 using System.Reflection;
 using QS.DomainModel.UoW;
 using Vodovoz;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
 namespace UnsubscribePage
 {

@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain;
 
-namespace Vodovoz.HibernateMapping.Service
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Service
 {
 	public class CullingCategoryMap : ClassMap<CullingCategory>
 	{

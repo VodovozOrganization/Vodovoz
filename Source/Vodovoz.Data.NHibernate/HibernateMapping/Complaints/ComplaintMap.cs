@@ -1,8 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.HibernateMapping.Complaints
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
 {
 	public class ComplaintMap : ClassMap<Complaint>
 	{
@@ -44,7 +43,7 @@ namespace Vodovoz.HibernateMapping.Complaints
 			HasMany(x => x.ArrangementComments).Cascade.All().Inverse().LazyLoad().KeyColumn("complaint_id");
 			HasMany(x => x.ResultComments).Cascade.All().Inverse().LazyLoad().KeyColumn("complaint_id");
 
-			HasManyToMany<Fine>(x => x.Fines)
+			HasManyToMany(x => x.Fines)
 				.Table("complaint_fines")
 				.ParentKeyColumn("complaint_id")
 				.ChildKeyColumn("fine_id")

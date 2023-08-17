@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Logistic.FastDelivery;
 
-namespace Vodovoz.HibernateMapping.Logistic.FastDelivery
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.FastDelivery
 {
 	public class FastDeliveryOrderItemsHistoryMap : ClassMap<FastDeliveryOrderItemHistory>
 	{

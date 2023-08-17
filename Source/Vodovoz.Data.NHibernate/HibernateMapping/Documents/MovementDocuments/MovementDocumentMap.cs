@@ -1,7 +1,7 @@
 using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents.MovementDocuments;
 
-namespace Vodovoz.HibernateMapping.Documents.MovementDocuments
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents.MovementDocuments
 {
 	public class MovementDocumentMap : ClassMap<MovementDocument>
 	{

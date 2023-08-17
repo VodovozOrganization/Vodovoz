@@ -2,7 +2,7 @@
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Vodovoz.Domain.Permissions;
 
-namespace Vodovoz.HibernateMapping.Permissions
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Permissions
 {
 	public class EntitySubdivisionPermissionExtendedMap : SubclassMap<EntitySubdivisionPermissionExtended>
 	{

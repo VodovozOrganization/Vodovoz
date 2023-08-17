@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.HistoryChanges;
 
-namespace Vodovoz.HibernateMapping.HistoryChanges
+namespace Vodovoz.Data.NHibernate.HibernateMapping.HistoryChanges
 {
 	public class ArchivedChangedEntityMap : ClassMap<ArchivedChangedEntity>
 	{

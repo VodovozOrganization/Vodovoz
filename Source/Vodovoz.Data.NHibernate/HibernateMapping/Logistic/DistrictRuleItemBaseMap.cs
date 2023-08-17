@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.HibernateMapping.Sale
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 {
 	public class DistrictRuleItemBaseMap : ClassMap<DistrictRuleItemBase>
 	{

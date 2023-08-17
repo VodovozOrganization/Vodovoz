@@ -2,7 +2,7 @@ using FluentNHibernate.Mapping;
 using NHibernate.Spatial.Type;
 using Vodovoz.Domain;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping
 {
 	public class FinancialDistrictMap : ClassMap<FinancialDistrict>
 	{

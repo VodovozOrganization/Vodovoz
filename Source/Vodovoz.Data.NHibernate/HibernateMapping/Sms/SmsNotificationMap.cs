@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Sms;
 
-namespace Vodovoz.HibernateMapping.Sms
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Sms
 {
 	public class SmsNotificationMap : ClassMap<SmsNotification>
 	{

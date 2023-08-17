@@ -1,7 +1,7 @@
 using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents;
 
-namespace Vodovoz.HibernateMapping.Documents
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 {
 	public class DeliveryDocumentItemMap : ClassMap<DeliveryDocumentItem>
 	{

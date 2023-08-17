@@ -1,6 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.BusinessTasks;
-namespace Vodovoz.HibernateMapping.BusinessTasks
+
+namespace Vodovoz.Data.NHibernate.HibernateMapping.BusinessTasks
 {
 	public class ClientTaskMap : ClassMap<ClientTask>
 	{

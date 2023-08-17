@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.FastPayments;
 
-namespace Vodovoz.HibernateMapping.FastPayments
+namespace Vodovoz.Data.NHibernate.HibernateMapping.FastPayments
 {
 	public class FastPaymentMap : ClassMap<FastPayment>
 	{

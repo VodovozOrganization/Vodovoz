@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using VodovozInfrastructure.Configuration;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping
 {
 	public class InstanceMailingConfigurationMap : ClassMap<InstanceMailingConfiguration>
 	{

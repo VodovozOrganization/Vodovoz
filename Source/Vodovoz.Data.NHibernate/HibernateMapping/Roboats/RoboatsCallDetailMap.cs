@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Roboats;
 
-namespace Vodovoz.HibernateMapping.Roboats
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Roboats
 {
 	public class RoboatsCallDetailMap : ClassMap<RoboatsCallDetail>
 	{

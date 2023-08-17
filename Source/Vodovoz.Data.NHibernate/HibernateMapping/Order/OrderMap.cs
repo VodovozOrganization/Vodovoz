@@ -2,7 +2,7 @@ using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
 	public class OrderMap : ClassMap<Domain.Orders.Order>
 	{

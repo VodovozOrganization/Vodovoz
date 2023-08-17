@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Complaints;
 
-namespace Vodovoz.HibernateMapping.Complaints
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
 {
 	public class ComplaintKindMap : ClassMap<ComplaintKind>
 	{
@@ -15,7 +15,7 @@ namespace Vodovoz.HibernateMapping.Complaints
 
 			References(x => x.ComplaintObject).Column("complaint_object_id");
 
-			HasManyToMany<Subdivision>(x => x.Subdivisions)
+			HasManyToMany(x => x.Subdivisions)
 				.Table("complaint_kind_subdivisions")
 				.ParentKeyColumn("complaint_kind_id")
 				.ChildKeyColumn("subdivision_id")

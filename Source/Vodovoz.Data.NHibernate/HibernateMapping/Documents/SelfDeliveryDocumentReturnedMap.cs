@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 {
 	public class SelfDeliveryDocumentReturnedMap : ClassMap<SelfDeliveryDocumentReturned>
 	{

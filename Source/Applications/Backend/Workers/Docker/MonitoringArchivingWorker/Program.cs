@@ -11,7 +11,6 @@ using QS.Project.Domain;
 using System.Reflection;
 using Vodovoz.EntityRepositories.HistoryChanges;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using QS.Attachments.Domain;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +18,7 @@ using Vodovoz.Tools;
 using Autofac.Extensions.DependencyInjection;
 using Autofac;
 using Vodovoz.Settings.Database;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
 namespace MonitoringArchivingWorker
 {

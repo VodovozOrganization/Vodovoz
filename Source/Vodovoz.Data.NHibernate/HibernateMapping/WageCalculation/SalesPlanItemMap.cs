@@ -2,7 +2,7 @@
 using Vodovoz.Domain;
 using Vodovoz.Domain.WageCalculation;
 
-namespace Vodovoz.HibernateMapping.WageCalculation
+namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
 {
 	public class SalesPlanItemMap : ClassMap<SalesPlanItem>
 	{

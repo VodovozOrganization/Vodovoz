@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.HibernateMapping
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 {
 	public class UserSettingsMap : ClassMap<UserSettings>
 	{

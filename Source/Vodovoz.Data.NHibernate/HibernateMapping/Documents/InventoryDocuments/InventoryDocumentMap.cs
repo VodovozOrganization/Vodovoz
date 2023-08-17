@@ -1,6 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 
-namespace Vodovoz.HibernateMapping.Documents.InventoryDocuments
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents.InventoryDocuments
 {
 	public class InventoryDocumentMap : ClassMap<Domain.Documents.InventoryDocuments.InventoryDocument>
 	{

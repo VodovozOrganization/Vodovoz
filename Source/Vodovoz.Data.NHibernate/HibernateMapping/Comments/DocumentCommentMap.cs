@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Comments;
 
-namespace Vodovoz.HibernateMapping.Comments
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Comments
 {
 	public class DocumentCommentMap : ClassMap<DocumentComment>
 	{

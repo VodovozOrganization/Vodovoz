@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain;
 
-namespace Vodovoz.HibernateMapping.Order
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
 	public class CommentTemplateMap : ClassMap<CommentTemplate>
 	{

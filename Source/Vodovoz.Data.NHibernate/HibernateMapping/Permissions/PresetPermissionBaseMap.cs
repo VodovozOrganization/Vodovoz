@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Permissions;
 
-namespace Vodovoz.HibernateMapping.Permissions
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Permissions
 {
 	public class PresetPermissionBaseMap : ClassMap<HierarchicalPresetPermissionBase>
 	{

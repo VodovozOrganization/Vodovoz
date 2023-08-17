@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
-namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Order.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForDebtMap : ClassMap<OrderWithoutShipmentForDebt>
 	{

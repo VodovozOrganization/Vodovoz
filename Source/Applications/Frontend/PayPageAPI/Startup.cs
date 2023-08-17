@@ -17,11 +17,11 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using System.Reflection;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
 namespace PayPageAPI
 {

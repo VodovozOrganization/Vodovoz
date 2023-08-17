@@ -2,7 +2,7 @@ using FluentNHibernate.Mapping;
 using NHibernate.Type;
 using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz.HibernateMapping.Logistic
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic
 {
 	public class AcceptBeforeMap : ClassMap<AcceptBefore>
 	{

@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.WageCalculation;
 
-namespace Vodovoz.HibernateMapping.WageCalculation
+namespace Vodovoz.Data.NHibernate.HibernateMapping.WageCalculation
 {
 	public class WageDistrictMap : ClassMap<WageDistrict>
 	{

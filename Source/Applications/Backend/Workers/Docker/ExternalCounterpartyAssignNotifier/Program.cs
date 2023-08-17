@@ -14,9 +14,9 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.HibernateMapping.Organizations;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 
 namespace ExternalCounterpartyAssignNotifier

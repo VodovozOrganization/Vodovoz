@@ -15,9 +15,9 @@ using QS.Project.HibernateMapping;
 using System.Reflection;
 using TrueMarkApi.Library;
 using TrueMarkCodesWorker;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 

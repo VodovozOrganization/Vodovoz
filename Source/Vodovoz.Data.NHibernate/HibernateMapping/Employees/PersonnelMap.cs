@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 
-namespace Vodovoz.HibernateMapping.Employees
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 {
 	public class PersonnelMap : ClassMap<Personnel>
 	{

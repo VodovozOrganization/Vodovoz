@@ -1,7 +1,7 @@
 using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.HibernateMapping.Order
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
 	public class OnlineStoreMap : ClassMap<OnlineStore>
 	{
