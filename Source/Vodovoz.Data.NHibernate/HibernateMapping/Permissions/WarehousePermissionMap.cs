@@ -3,7 +3,7 @@ using Vodovoz.Domain.Permissions.Warehouses;
 
 namespace Vodovoz.HibernateMapping.Permissions
 {
-	public class WarehousePermissionMap: ClassMap<WarehousePermissionBase>
+	public class WarehousePermissionMap : ClassMap<WarehousePermissionBase>
 	{
 		public WarehousePermissionMap()
 		{

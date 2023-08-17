@@ -5,8 +5,8 @@ namespace Vodovoz.HibernateMapping.Complaints
 {
 	public class DriverComplaintReasonMap : ClassMap<DriverComplaintReason>
 	{
-        public  DriverComplaintReasonMap()
-        {
+		public DriverComplaintReasonMap()
+		{
 			Table("driver_complaint_reason");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();

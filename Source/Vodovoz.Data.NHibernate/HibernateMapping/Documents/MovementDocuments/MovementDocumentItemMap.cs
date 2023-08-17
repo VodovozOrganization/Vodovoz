@@ -11,10 +11,10 @@ namespace Vodovoz.HibernateMapping.Documents.MovementDocuments
 			DiscriminateSubClassesOnColumn("movement_document_item_type");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			
+
 			Map(x => x.SentAmount).Column("sended_amount");
 			Map(x => x.ReceivedAmount).Column("received_amount");
-			
+
 			References(x => x.Document).Column("movement_document_id").Not.Nullable();
 			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
 			References(x => x.WriteOffOperation).Column("writeoff_movement_operation_id").Cascade.All();

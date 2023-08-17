@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 
 namespace Vodovoz.HibernateMapping.Documents
@@ -33,7 +32,7 @@ namespace Vodovoz.HibernateMapping.Documents
 
 				References(x => x.EmployeeNomenclatureMovementOperationFrom)
 					.Cascade.All().Column("employee_nomenclature_movement_operation_from_id");
-					
+
 				References(x => x.EmployeeNomenclatureMovementOperationTo)
 					.Cascade.All().Column("employee_nomenclature_movement_operation_to_id");
 			}

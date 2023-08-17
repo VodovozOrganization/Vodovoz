@@ -12,7 +12,7 @@ namespace Vodovoz.HibernateMapping.Goods
 			Id(x => x.Id).GeneratedBy.Native();
 
 			DiscriminateSubClassesOnColumn("type");
-			
+
 			Map(x => x.CreationDate).Column("creation_date").ReadOnly();
 			Map(x => x.PurchasePrice).Column("purchase_price");
 

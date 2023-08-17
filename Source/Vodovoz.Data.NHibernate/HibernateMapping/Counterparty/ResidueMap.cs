@@ -5,15 +5,15 @@ namespace Vodovoz.HibernateMapping
 {
 	public class ResidueMap : ClassMap<Residue>
 	{
-		public ResidueMap ()
+		public ResidueMap()
 		{
 			Table("doc_residue");
 
-			Id(x => x.Id).Column ("id").GeneratedBy.Native();
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.Date).Column ("date");
+			Map(x => x.Date).Column("date");
 			Map(x => x.LastEditTime).Column("last_edit_time");
-			Map(x => x.BottlesResidue).Column ("bottles_residue");
+			Map(x => x.BottlesResidue).Column("bottles_residue");
 			Map(x => x.BottlesDeposit).Column("deposit_residue_bottles");
 			Map(x => x.DebtResidue).Column("money_debt_residue");
 			Map(x => x.DebtPaymentType).Column("debt_payment_type").CustomType<PaymentTypeStringType>();

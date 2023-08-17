@@ -20,7 +20,7 @@ namespace Vodovoz.HibernateMapping.Users
 				.ParentKeyColumn("available_database_id")
 				.ChildKeyColumn("user_role_id")
 				.LazyLoad();
-			
+
 			HasManyToMany(x => x.UnavailableForPrivilegeNames)
 				.Schema("Vodovoz_admin_parameters")
 				.Table("unavailable_databases_for_privilege_names")

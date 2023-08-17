@@ -15,7 +15,7 @@ namespace Vodovoz.HibernateMapping.WageCalculation
 			Map(x => x.WageParameterItemType).Column("wage_parameter_item_type").CustomType<WageParameterItemTypesStringType>().Update().Not.Insert();
 		}
 	}
-	
+
 	public class FixedWageParameterMap : SubclassMap<FixedWageParameterItem>
 	{
 		public FixedWageParameterMap()

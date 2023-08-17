@@ -5,13 +5,13 @@ namespace Vodovoz.HibernateMapping
 {
 	public class FuelTypeMap : ClassMap<FuelType>
 	{
-		public FuelTypeMap ()
+		public FuelTypeMap()
 		{
 			Table("fuel_types");
-			Not.LazyLoad ();
+			Not.LazyLoad();
 
-			Id(x => x.Id).Column ("id").GeneratedBy.Native();
-			Map(x => x.Name).Column ("name");
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Map(x => x.Name).Column("name");
 
 			HasMany(x => x.FuelPriceVersions).Cascade.AllDeleteOrphan().Inverse().KeyColumn("fuel_type_id")
 				.OrderBy("start_date DESC");

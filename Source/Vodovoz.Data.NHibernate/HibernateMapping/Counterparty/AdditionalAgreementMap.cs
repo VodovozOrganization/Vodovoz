@@ -1,47 +1,47 @@
-﻿﻿using FluentNHibernate.Mapping;
- using Vodovoz.Domain.Client;
+﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Client;
 
- namespace Vodovoz.HibernateMapping
+namespace Vodovoz.HibernateMapping
 {
 	public class AdditionalAgreementMap : ClassMap<AdditionalAgreement>
 	{
-		public AdditionalAgreementMap ()
+		public AdditionalAgreementMap()
 		{
-			Table ("additional_agreements");
+			Table("additional_agreements");
 
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
-			DiscriminateSubClassesOnColumn ("type");
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			DiscriminateSubClassesOnColumn("type");
 			Map(x => x.AgreementNumber).Column("number");
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.IssueDate).Column("issue_date");
 			Map(x => x.IsCancelled).Column("is_cancelled");
 			Map(x => x.ChangedTemplateFile).Column("template_file").LazyLoad();
 
-			References (x => x.Contract).Column ("counterparty_contract_id");
-			References (x => x.DeliveryPoint).Column ("delivery_point_id");
+			References(x => x.Contract).Column("counterparty_contract_id");
+			References(x => x.DeliveryPoint).Column("delivery_point_id");
 			References(x => x.DocumentTemplate).Column("template_id");
 		}
 	}
 
 	public class NonfreeRentAgreementMap : SubclassMap<NonfreeRentAgreement>
 	{
-		public NonfreeRentAgreementMap ()
+		public NonfreeRentAgreementMap()
 		{
-			DiscriminatorValue ("NonfreeRent");
+			DiscriminatorValue("NonfreeRent");
 			Map(x => x.RentMonths).Column("rent_months");
-			HasMany (x => x.PaidRentEquipments).Cascade.AllDeleteOrphan ().LazyLoad ()
-				.KeyColumn ("additional_agreement_id");
+			HasMany(x => x.PaidRentEquipments).Cascade.AllDeleteOrphan().LazyLoad()
+				.KeyColumn("additional_agreement_id");
 		}
 	}
 
 	public class DailyRentAgreementMap : SubclassMap<DailyRentAgreement>
 	{
-		public DailyRentAgreementMap ()
+		public DailyRentAgreementMap()
 		{
-			DiscriminatorValue ("DailyRent");
+			DiscriminatorValue("DailyRent");
 			Map(x => x.RentDays).Column("rent_days");
-			HasMany (x => x.Equipment).Cascade.AllDeleteOrphan ().LazyLoad ()
-				.KeyColumn ("additional_agreement_id");
+			HasMany(x => x.Equipment).Cascade.AllDeleteOrphan().LazyLoad()
+				.KeyColumn("additional_agreement_id");
 		}
 	}
 
@@ -49,9 +49,9 @@
 	{
 		public FreeRentAgreementMap()
 		{
-			DiscriminatorValue ("FreeRent");
-			HasMany (x => x.Equipment).Cascade.AllDeleteOrphan ().LazyLoad ()
-				.KeyColumn ("additional_agreement_id");
+			DiscriminatorValue("FreeRent");
+			HasMany(x => x.Equipment).Cascade.AllDeleteOrphan().LazyLoad()
+				.KeyColumn("additional_agreement_id");
 		}
 	}
 
@@ -59,7 +59,7 @@
 	{
 		public WaterSalesAgreementMap()
 		{
-			DiscriminatorValue ("WaterSales");
+			DiscriminatorValue("WaterSales");
 		}
 	}
 
@@ -76,7 +76,7 @@
 	{
 		public RepairAgreementMap()
 		{
-			DiscriminatorValue ("Repair");
+			DiscriminatorValue("Repair");
 		}
 	}
 }

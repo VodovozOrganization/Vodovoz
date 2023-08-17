@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using NHibernate.Linq;
 using Vodovoz.Domain.Documents.DriverTerminal;
 
 namespace Vodovoz.HibernateMapping.Documents.DriverTerminal
@@ -9,7 +8,7 @@ namespace Vodovoz.HibernateMapping.Documents.DriverTerminal
 		public DriverAttachedTerminalDocumentsMap()
 		{
 			Table("driver_attached_terminal_documents");
-			
+
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			DiscriminateSubClassesOnColumn("type");
 
@@ -30,7 +29,7 @@ namespace Vodovoz.HibernateMapping.Documents.DriverTerminal
 			DiscriminatorValue(AttachedTerminalDocumentType.Return.ToString());
 		}
 	}
-	
+
 	public class DriverAttachedTerminalGiveoutDocumentMap : SubclassMap<DriverAttachedTerminalGiveoutDocument>
 	{
 		public DriverAttachedTerminalGiveoutDocumentMap()

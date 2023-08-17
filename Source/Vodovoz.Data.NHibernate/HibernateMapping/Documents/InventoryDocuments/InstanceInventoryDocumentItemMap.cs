@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping.Documents.InventoryDocuments
 			Table("store_inventory_instance_item");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			
+
 			Map(x => x.AmountInDB).Column("amount_in_db");
 			Map(x => x.IsMissing).Column("is_missing");
 			Map(x => x.Comment).Column("comment");

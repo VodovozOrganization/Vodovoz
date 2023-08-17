@@ -3,7 +3,7 @@ using Vodovoz.Domain.Logistic.FastDelivery;
 
 namespace Vodovoz.HibernateMapping.Logistic.FastDelivery
 {
-	public class FastDeliveryNomenclatureDistributionHistoryMap: ClassMap<FastDeliveryNomenclatureDistributionHistory>
+	public class FastDeliveryNomenclatureDistributionHistoryMap : ClassMap<FastDeliveryNomenclatureDistributionHistory>
 	{
 		public FastDeliveryNomenclatureDistributionHistoryMap()
 		{

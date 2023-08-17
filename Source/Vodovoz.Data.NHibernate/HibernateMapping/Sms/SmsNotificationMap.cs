@@ -5,13 +5,13 @@ namespace Vodovoz.HibernateMapping.Sms
 {
 	public class SmsNotificationMap : ClassMap<SmsNotification>
 	{
-		public SmsNotificationMap ()
+		public SmsNotificationMap()
 		{
-			Table ("sms_notifications");
-			Not.LazyLoad ();
-			
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
-			DiscriminateSubClassesOnColumn ("type");
+			Table("sms_notifications");
+			Not.LazyLoad();
+
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			DiscriminateSubClassesOnColumn("type");
 			Map(x => x.Status).Column("status").CustomType<SmsNotificationStatusStringType>();
 			Map(x => x.MobilePhone).Column("phone");
 			Map(x => x.MessageText).Column("message_text");
@@ -37,11 +37,11 @@ namespace Vodovoz.HibernateMapping.Sms
 	{
 		public LowBalanceSmsNotificationMap()
 		{
-			DiscriminatorValue (nameof(SmsNotificationType.LowBalance));
-			Map(x => x.Balance).Column ("balance");
+			DiscriminatorValue(nameof(SmsNotificationType.LowBalance));
+			Map(x => x.Balance).Column("balance");
 		}
 	}
-	
+
 	public class UndeliveryNotApprovedSmsNotificationMap : SubclassMap<UndeliveryNotApprovedSmsNotification>
 	{
 		public UndeliveryNotApprovedSmsNotificationMap()

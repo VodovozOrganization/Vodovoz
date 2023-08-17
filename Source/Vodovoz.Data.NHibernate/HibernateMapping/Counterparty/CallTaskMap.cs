@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
 	{
 		public CallTaskMap()
 		{
-			Table("call_tasks"); 
+			Table("call_tasks");
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.CreationDate).Column("date_of_task_creation");

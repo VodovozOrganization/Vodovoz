@@ -6,26 +6,26 @@ namespace Vodovoz.HibernateMapping
 {
 	public class RouteListMap : ClassMap<RouteList>
 	{
-		public RouteListMap ()
+		public RouteListMap()
 		{
-			Table ("route_lists");
+			Table("route_lists");
 
 			OptimisticLock.Version();
 			Version(x => x.Version)
 				.Column("version");
 
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.ConfirmedDistance).Column("confirmed_distance");
 			Map(x => x.Date).Column("date").Access.CamelCaseField(Prefix.Underscore);
-			Map(x => x.Status).Column ("status").CustomType<RouteListStatusStringType> ();
+			Map(x => x.Status).Column("status").CustomType<RouteListStatusStringType>();
 			Map(x => x.ClosingDate).Column("closing_date");
 			Map(x => x.FirstClosingDate).Column("first_closing_date");
 			Map(x => x.ClosingComment).Column("closing_comment");
 			Map(x => x.LogisticiansComment).Column("logisticians_comment");
 			Map(x => x.ClosingFilled).Column("closing_filled");
-			Map(x => x.LastCallTime).Column ("last_call_time");
-			Map(x => x.DifferencesConfirmed).Column ("differences_confirmed");
+			Map(x => x.LastCallTime).Column("last_call_time");
+			Map(x => x.DifferencesConfirmed).Column("differences_confirmed");
 			Map(x => x.IsManualAccounting).Column("is_manual_accounting");
 			Map(x => x.OnLoadTimeStart).Column("on_load_start").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.OnLoadTimeEnd).Column("on_load_end").CustomType<TimeAsTimeSpanType>();
@@ -44,7 +44,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.WasAcceptedByCashier).Column("was_accepted_by_cashier");
 			Map(x => x.HasFixedShippingPrice).Column("has_fixed_shipping_price");
 			Map(x => x.FixedShippingPrice).Column("fixed_shipping_price");
-			Map(x => x.DriverTerminalCondition).Column ("driver_terminal_condition").CustomType<DriverTerminalConditionStringType>();
+			Map(x => x.DriverTerminalCondition).Column("driver_terminal_condition").CustomType<DriverTerminalConditionStringType>();
 			Map(x => x.DeliveredAt).Column("delivered_at");
 
 			References(x => x.Car).Column("car_id")
@@ -65,13 +65,13 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.RouteListProfitability).Column("route_list_profitability_id").Cascade.AllDeleteOrphan();
 
 			HasMany(x => x.Addresses).Cascade.AllDeleteOrphan().Inverse()
-				.KeyColumn ("route_list_id").OrderBy("order_in_route");
+				.KeyColumn("route_list_id").OrderBy("order_in_route");
 			HasMany(x => x.FastDeliveryMaxDistanceItems).Cascade.AllDeleteOrphan().Inverse().KeyColumn("route_list_id").OrderBy("start_date");
 			HasMany(x => x.FuelDocuments).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
 			HasMany(x => x.PrintsHistory).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
 			HasMany(x => x.DeliveryFreeBalanceOperations).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
 			HasManyToMany(x => x.GeographicGroups).Table("geo_groups_to_entities")
-			                                      .ParentKeyColumn("route_list_id")
+												  .ParentKeyColumn("route_list_id")
 												  .ChildKeyColumn("geo_group_id")
 												  .LazyLoad();
 		}

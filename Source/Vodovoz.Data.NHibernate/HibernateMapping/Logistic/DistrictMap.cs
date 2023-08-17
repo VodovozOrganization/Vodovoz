@@ -17,7 +17,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.DistrictBorder).Column("district_border").CustomType<MySQL57GeometryType>();
 			Map(x => x.WaterPrice).Column("water_price");
 			Map(x => x.PriceType).Column("price_type").CustomType<DistrictWaterPriceStringType>();
-			
+
 			References(x => x.TariffZone).Column("tariff_zone_id");
 			References(x => x.WageDistrict).Column("wage_district_id");
 			References(x => x.GeographicGroup).Column("geo_group_id");
@@ -51,7 +51,7 @@ namespace Vodovoz.HibernateMapping
 			HasMany(x => x.SundayDistrictRuleItems)
 				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("district_id")
 				.Where($"week_day = '{WeekDayName.Sunday}'");
-			
+
 			HasMany(x => x.TodayDeliveryScheduleRestrictions)
 				.Cascade.AllDeleteOrphan().Inverse().KeyColumn("district_id")
 				.Where($"week_day = '{WeekDayName.Today}'");

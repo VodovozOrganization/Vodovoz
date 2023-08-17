@@ -3,7 +3,7 @@ using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.HibernateMapping
 {
-	public class TransferOperationDocumentMap: ClassMap<TransferOperationDocument>
+	public class TransferOperationDocumentMap : ClassMap<TransferOperationDocument>
 	{
 		public TransferOperationDocumentMap()
 		{

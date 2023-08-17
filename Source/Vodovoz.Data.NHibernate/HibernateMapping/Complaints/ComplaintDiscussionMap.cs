@@ -13,8 +13,8 @@ namespace Vodovoz.HibernateMapping.Complaints
 
 			References(x => x.Complaint).Column("complaint_id");
 			References(x => x.Subdivision).Column("subdivision_id");
-			Map(x => x.StartSubdivisionDate).Column("start_subdivision_date");	
-			Map(x => x.PlannedCompletionDate).Column("planned_completion_date");	
+			Map(x => x.StartSubdivisionDate).Column("start_subdivision_date");
+			Map(x => x.PlannedCompletionDate).Column("planned_completion_date");
 			Map(x => x.Status).Column("status").CustomType<ComplaintDiscussionStatusesStringType>();
 
 			HasMany(x => x.Comments).Cascade.All().Inverse().LazyLoad().KeyColumn("complaint_discussion_id");

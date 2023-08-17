@@ -5,11 +5,11 @@ namespace Vodovoz.HibernateMapping
 {
 	public class AtWorkForwarderMap : ClassMap<AtWorkForwarder>
 	{
-		public AtWorkForwarderMap ()
+		public AtWorkForwarderMap()
 		{
 			Table("at_work_forwader");
 
-			Id(x => x.Id).Column ("id").GeneratedBy.Native();
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Date).Column("date");
 
 			References(x => x.Employee).Column("employee_id");

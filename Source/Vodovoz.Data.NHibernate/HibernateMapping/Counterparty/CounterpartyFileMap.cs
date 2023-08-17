@@ -3,10 +3,10 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HibernateMapping.Counterparty
 {
-    public class CounterpartyFileMap : ClassMap<CounterpartyFile>
+	public class CounterpartyFileMap : ClassMap<CounterpartyFile>
 	{
-        public CounterpartyFileMap()
-        {
+		public CounterpartyFileMap()
+		{
 			Table("counterparty_files");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();

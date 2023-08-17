@@ -3,14 +3,14 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.HibernateMapping.Order
 {
-    public class ReturnTareReasonCategoryMap : ClassMap<ReturnTareReasonCategory>
-    {
-        public ReturnTareReasonCategoryMap()
-        {
-            Table("return_tare_reason_categories");
+	public class ReturnTareReasonCategoryMap : ClassMap<ReturnTareReasonCategory>
+	{
+		public ReturnTareReasonCategoryMap()
+		{
+			Table("return_tare_reason_categories");
 
-            Id(x => x.Id).Column("id").GeneratedBy.Native();
-            Map(x => x.Name).Column("name");
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Map(x => x.Name).Column("name");
 
 			HasManyToMany(x => x.ChildReasons)
 				.Table("return_tare_reasons_to_categories")
@@ -18,5 +18,5 @@ namespace Vodovoz.HibernateMapping.Order
 				.ChildKeyColumn("return_tare_reason_id")
 				.LazyLoad();
 		}
-    }
+	}
 }

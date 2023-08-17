@@ -1,6 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.HibernateMapping.Counterparty
 {

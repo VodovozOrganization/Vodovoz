@@ -4,7 +4,7 @@ using Vodovoz.Domain.Logistic.FastDelivery;
 
 namespace Vodovoz.HibernateMapping.Logistic.FastDelivery
 {
-	public class FastDeliveryAvailabilityHistoryMap:ClassMap<FastDeliveryAvailabilityHistory>
+	public class FastDeliveryAvailabilityHistoryMap : ClassMap<FastDeliveryAvailabilityHistory>
 	{
 		public FastDeliveryAvailabilityHistoryMap()
 		{

@@ -5,12 +5,12 @@ namespace Vodovoz.HibernateMapping
 {
 	public class EquipmentColorsMap : ClassMap<EquipmentColors>
 	{
-		public EquipmentColorsMap ()
+		public EquipmentColorsMap()
 		{
-			Table ("equipment_colors");
+			Table("equipment_colors");
 
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
-			Map (x => x.Name).Column ("name");
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Map(x => x.Name).Column("name");
 		}
 	}
 }

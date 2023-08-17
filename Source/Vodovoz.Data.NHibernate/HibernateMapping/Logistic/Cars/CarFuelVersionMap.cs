@@ -8,9 +8,9 @@ namespace Vodovoz.HibernateMapping.Logistic.Cars
 		public CarFuelVersionMap()
 		{
 			Table("car_fuel_versions");
-			
-			Id(x => x.Id).Column ("id").GeneratedBy.Native();
-			
+
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.EndDate).Column("end_date");
 			Map(x => x.FuelConsumption).Column("fuel_consumption");

@@ -9,7 +9,7 @@ namespace Vodovoz.HibernateMapping.Order
 		{
 			Table("discount_reason_nomenclature_categories");
 
-			Id (x => x.Id).Column("id").GeneratedBy.Native();
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.NomenclatureCategory).Column("nomenclature_category");
 		}
 	}

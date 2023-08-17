@@ -121,7 +121,7 @@ namespace Vodovoz.HibernateMapping
 			HasMany(x => x.Files).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("counterparty_id");
 			HasMany(x => x.CounterpartyEdoOperators).Cascade.AllDeleteOrphan().Inverse().LazyLoad()
 				.KeyColumn("counterparty_id");
-			
+
 			HasManyToMany(x => x.Tags).Table("counterparty_tags")
 									  .ParentKeyColumn("counterparty_id")
 									  .ChildKeyColumn("tag_id")

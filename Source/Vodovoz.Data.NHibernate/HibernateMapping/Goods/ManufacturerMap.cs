@@ -5,12 +5,12 @@ namespace Vodovoz.HibernateMapping
 {
 	public class ManufacturerMap : ClassMap<Manufacturer>
 	{
-		public ManufacturerMap ()
+		public ManufacturerMap()
 		{
-			Table ("manufacturers");
+			Table("manufacturers");
 
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
-			Map (x => x.Name).Column ("name");
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Map(x => x.Name).Column("name");
 		}
 	}
 }

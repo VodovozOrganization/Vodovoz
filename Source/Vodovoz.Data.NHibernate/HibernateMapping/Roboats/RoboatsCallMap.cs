@@ -15,7 +15,7 @@ namespace Vodovoz.HibernateMapping.Roboats
 			Map(x => x.Phone).Column("phone");
 			Map(x => x.Status).Column("status").CustomType<RoboatsCallStatusStringType>();
 			Map(x => x.Result).Column("result").CustomType<RoboatsCallResultStringType>();
-			
+
 			HasMany(x => x.CallDetails).KeyColumn("call_id")
 				.Cascade.AllDeleteOrphan()
 				.Inverse()

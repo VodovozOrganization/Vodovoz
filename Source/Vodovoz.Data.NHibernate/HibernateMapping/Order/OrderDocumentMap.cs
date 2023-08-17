@@ -5,15 +5,15 @@ namespace Vodovoz.HibernateMapping
 {
 	public class OrderDocumentMap : ClassMap<OrderDocument>
 	{
-		public OrderDocumentMap ()
+		public OrderDocumentMap()
 		{
-			Table ("order_documents");
-			Not.LazyLoad ();
-			
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
-			DiscriminateSubClassesOnColumn ("type");
-			References (x => x.Order).Column ("order_id");
-			References (x => x.AttachedToOrder).Column ("attached_to_order_id");
+			Table("order_documents");
+			Not.LazyLoad();
+
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			DiscriminateSubClassesOnColumn("type");
+			References(x => x.Order).Column("order_id");
+			References(x => x.AttachedToOrder).Column("attached_to_order_id");
 		}
 	}
 
@@ -28,19 +28,19 @@ namespace Vodovoz.HibernateMapping
 
 	public class OrderAgreementMap : SubclassMap<OrderAgreement>
 	{
-		public OrderAgreementMap ()
+		public OrderAgreementMap()
 		{
-			DiscriminatorValue ("AdditionalAgreement");
-			References(x => x.AdditionalAgreement).Column ("agreement_id");
+			DiscriminatorValue("AdditionalAgreement");
+			References(x => x.AdditionalAgreement).Column("agreement_id");
 		}
 	}
 
 	public class OrderContractMap : SubclassMap<OrderContract>
 	{
-		public OrderContractMap ()
+		public OrderContractMap()
 		{
-			DiscriminatorValue ("Contract");
-			References (x => x.Contract).Column ("contract_id");
+			DiscriminatorValue("Contract");
+			References(x => x.Contract).Column("contract_id");
 		}
 	}
 
@@ -48,7 +48,7 @@ namespace Vodovoz.HibernateMapping
 	{
 		public BillDocumentMap()
 		{
-			DiscriminatorValue ("Bill");
+			DiscriminatorValue("Bill");
 
 			Map(x => x.HideSignature).Column("hide_signature");
 		}
@@ -64,19 +64,19 @@ namespace Vodovoz.HibernateMapping
 		}
 	}
 
-	public class DoneWorkDocumentMap:SubclassMap<DoneWorkDocument>
+	public class DoneWorkDocumentMap : SubclassMap<DoneWorkDocument>
 	{
 		public DoneWorkDocumentMap()
 		{
-			DiscriminatorValue ("DoneWorkReport");
+			DiscriminatorValue("DoneWorkReport");
 		}
 	}
 
-	public class EquipmentTransferDocumentMap:SubclassMap<EquipmentTransferDocument>
+	public class EquipmentTransferDocumentMap : SubclassMap<EquipmentTransferDocument>
 	{
 		public EquipmentTransferDocumentMap()
 		{
-			DiscriminatorValue ("EquipmentTransfer");
+			DiscriminatorValue("EquipmentTransfer");
 		}
 	}
 
@@ -89,11 +89,11 @@ namespace Vodovoz.HibernateMapping
 	}
 
 
-	public class InvoiceBarterDocumentMap:SubclassMap<InvoiceBarterDocument>
+	public class InvoiceBarterDocumentMap : SubclassMap<InvoiceBarterDocument>
 	{
 		public InvoiceBarterDocumentMap()
 		{
-			DiscriminatorValue ("InvoiceBarter");
+			DiscriminatorValue("InvoiceBarter");
 		}
 	}
 
@@ -108,22 +108,22 @@ namespace Vodovoz.HibernateMapping
 		}
 	}
 
-	public class InvoiceDocumentMap:SubclassMap<InvoiceDocument>
+	public class InvoiceDocumentMap : SubclassMap<InvoiceDocument>
 	{
 		public InvoiceDocumentMap()
 		{
-			DiscriminatorValue ("Invoice");
+			DiscriminatorValue("Invoice");
 
 			Map(x => x.WithoutAdvertising).Column("without_advertising");
 			Map(x => x.HideSignature).Column("hide_signature");
 		}
 	}
 
-	public class UPDDocumentMap:SubclassMap<UPDDocument>
+	public class UPDDocumentMap : SubclassMap<UPDDocument>
 	{
 		public UPDDocumentMap()
 		{
-			DiscriminatorValue ("UPD");
+			DiscriminatorValue("UPD");
 		}
 	}
 
@@ -135,15 +135,15 @@ namespace Vodovoz.HibernateMapping
 		}
 	}
 
-	public class DriverTicketDocumentMap:SubclassMap<DriverTicketDocument>
+	public class DriverTicketDocumentMap : SubclassMap<DriverTicketDocument>
 	{
 		public DriverTicketDocumentMap()
 		{
-			DiscriminatorValue ("DriverTicket");
+			DiscriminatorValue("DriverTicket");
 		}
 	}
 
-	public class Torg12DocumentMap:SubclassMap<Torg12Document>
+	public class Torg12DocumentMap : SubclassMap<Torg12Document>
 	{
 		public Torg12DocumentMap()
 		{
@@ -151,7 +151,7 @@ namespace Vodovoz.HibernateMapping
 		}
 	}
 
-	public class ShetFacturaDocumentMap:SubclassMap<ShetFacturaDocument>
+	public class ShetFacturaDocumentMap : SubclassMap<ShetFacturaDocument>
 	{
 		public ShetFacturaDocumentMap()
 		{

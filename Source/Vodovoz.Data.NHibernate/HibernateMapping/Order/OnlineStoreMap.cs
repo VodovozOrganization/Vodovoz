@@ -3,16 +3,16 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.HibernateMapping.Order
 {
-    public class OnlineStoreMap : ClassMap<OnlineStore>
-    {
-        public OnlineStoreMap()
-        {
-            Table("online_stores");
-            
-            Id(x => x.Id).Column("id").GeneratedBy.Native();
+	public class OnlineStoreMap : ClassMap<OnlineStore>
+	{
+		public OnlineStoreMap()
+		{
+			Table("online_stores");
 
-            Map(x => x.Name).Column("name");
-        }
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-    }
+			Map(x => x.Name).Column("name");
+		}
+
+	}
 }

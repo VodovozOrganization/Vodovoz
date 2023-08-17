@@ -5,12 +5,12 @@ namespace Vodovoz.HibernateMapping
 {
 	public class NationalityMap : ClassMap<Nationality>
 	{
-		public NationalityMap ()
+		public NationalityMap()
 		{
-			Table ("nationality");
+			Table("nationality");
 
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
-			Map (x => x.Name).Column ("name");
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Map(x => x.Name).Column("name");
 		}
 	}
 }

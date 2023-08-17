@@ -11,7 +11,7 @@ namespace Vodovoz.HibernateMapping.Employees
 			Not.LazyLoad();
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			DiscriminateSubClassesOnColumn("type");
-			
+
 			Map(x => x.Date).Column("date");
 			Map(x => x.ExpirationDate).Column("expiration_date");
 			Map(x => x.ChangedTemplateFile).Column("doc_changed_template").LazyLoad();

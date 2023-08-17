@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using QS.HistoryLog.Domain;
 using Vodovoz.Domain.HistoryChanges;
 
 namespace Vodovoz.HibernateMapping.HistoryChanges

@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping.FastPayments
 			Table("fast_payments");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			
+
 			Map(x => x.FastPaymentStatus).Column("payment_status").CustomType<FastPaymentStatusStringType>();
 			Map(x => x.Amount).Column("amount");
 			Map(x => x.CreationDate).Column("creation_date");

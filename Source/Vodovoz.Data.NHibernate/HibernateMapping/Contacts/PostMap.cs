@@ -5,7 +5,7 @@ namespace Vodovoz.HibernateMapping.Contacts
 {
 	public class PostMap : ClassMap<Post>
 	{
-		public PostMap ()
+		public PostMap()
 		{
 			Table("post");
 

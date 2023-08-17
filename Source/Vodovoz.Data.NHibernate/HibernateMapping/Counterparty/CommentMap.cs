@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.HibernateMapping.Counterparty
+﻿namespace Vodovoz.HibernateMapping.Counterparty
 {
 	public class CommentMap
 	{

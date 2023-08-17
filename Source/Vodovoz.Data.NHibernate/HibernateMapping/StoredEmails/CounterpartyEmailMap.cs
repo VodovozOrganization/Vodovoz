@@ -1,6 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.HibernateMapping.StoredEmails

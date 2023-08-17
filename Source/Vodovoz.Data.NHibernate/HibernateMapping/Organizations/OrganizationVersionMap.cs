@@ -8,8 +8,8 @@ namespace Vodovoz.HibernateMapping.Logistic.Organization
 		public OrganizationVersionMap()
 		{
 			Table("organization_versions");
-			
-			Id(x => x.Id).Column ("id").GeneratedBy.Native();
+
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.Address).Column("address");
 			Map(x => x.JurAddress).Column("jur_address");

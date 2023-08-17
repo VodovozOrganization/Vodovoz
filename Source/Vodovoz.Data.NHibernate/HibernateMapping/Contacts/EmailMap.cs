@@ -5,7 +5,7 @@ namespace Vodovoz.HibernateMapping.Contacts
 {
 	public class EmailMap : ClassMap<Email>
 	{
-		public EmailMap ()
+		public EmailMap()
 		{
 			Table("emails");
 

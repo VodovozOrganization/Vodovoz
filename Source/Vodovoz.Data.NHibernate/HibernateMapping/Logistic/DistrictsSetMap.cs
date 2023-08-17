@@ -3,8 +3,8 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.HibernateMapping.Logistic
 {
-    public class DistrictsSetMap : ClassMap<DistrictsSet>
-    {
+	public class DistrictsSetMap : ClassMap<DistrictsSet>
+	{
 		public DistrictsSetMap()
 		{
 			Table("districts_sets");
@@ -18,10 +18,10 @@ namespace Vodovoz.HibernateMapping.Logistic
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.Status).Column("status").CustomType<DistrictsSetStatusStringType>();
 			Map(x => x.OnlineStoreOrderSumForFreeDelivery).Column("online_store_order_sum_for_free_delivery");
-			
+
 			References(x => x.Author).Column("author_id");
-			
+
 			HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse().KeyColumn("districts_set_id");
 		}
-    }
+	}
 }

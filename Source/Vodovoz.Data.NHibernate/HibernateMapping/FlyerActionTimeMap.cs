@@ -8,7 +8,7 @@ namespace Vodovoz.HibernateMapping
 		public FlyerActionTimeMap()
 		{
 			Table("flyers_action_times");
-			
+
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.StartDate).Column("start_date");

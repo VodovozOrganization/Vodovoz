@@ -5,15 +5,15 @@ namespace Vodovoz.HibernateMapping
 {
 	public class NomenclaturePriceBaseMap : ClassMap<NomenclaturePriceBase>
 	{
-		public NomenclaturePriceBaseMap ()
+		public NomenclaturePriceBaseMap()
 		{
-			Table ("nomenclature_price");
+			Table("nomenclature_price");
 
 			DiscriminateSubClassesOnColumn("type");
 
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
-			Map (x => x.MinCount).Column ("min_count");
-			Map (x => x.Price).Column ("price");
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Map(x => x.MinCount).Column("min_count");
+			Map(x => x.Price).Column("price");
 
 			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
 		}

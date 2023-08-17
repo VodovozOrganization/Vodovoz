@@ -37,7 +37,7 @@ namespace Vodovoz.HibernateMapping.Profitability
 			Map(x => x.LargusRepairCostPerKm).Column("largus_repair_cost");
 			Map(x => x.TruckRepairCostPerKm).Column("truck_repair_cost");
 			Map(x => x.CalculationSaved).Column("calculation_saved");
-			
+
 			References(x => x.CalculationAuthor).Column("calculation_author_id");
 
 			HasManyToMany(x => x.AdministrativeProductGroupsFilter)

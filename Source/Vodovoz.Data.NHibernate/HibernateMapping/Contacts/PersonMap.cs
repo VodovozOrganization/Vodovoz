@@ -5,7 +5,7 @@ namespace Vodovoz.HibernateMapping.Contacts
 {
 	public class PersonMap : ClassMap<Person>
 	{
-		public PersonMap ()
+		public PersonMap()
 		{
 			Table("persons");
 

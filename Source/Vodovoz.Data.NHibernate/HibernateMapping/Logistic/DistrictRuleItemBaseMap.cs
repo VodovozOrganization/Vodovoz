@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping.Sale
 			Table("district_rule_items");
 
 			DiscriminateSubClassesOnColumn("rule_type").AlwaysSelectWithValue();
-			
+
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Price).Column("price");
 
@@ -18,7 +18,7 @@ namespace Vodovoz.HibernateMapping.Sale
 			References(x => x.District).Column("district_id");
 		}
 	}
-	
+
 	public class CommonDistrictRuleItemMap : SubclassMap<CommonDistrictRuleItem>
 	{
 		public CommonDistrictRuleItemMap()
@@ -26,7 +26,7 @@ namespace Vodovoz.HibernateMapping.Sale
 			DiscriminatorValue("Common");
 		}
 	}
-	
+
 	public class WeekDayDistrictRuleItemMap : SubclassMap<WeekDayDistrictRuleItem>
 	{
 		public WeekDayDistrictRuleItemMap()

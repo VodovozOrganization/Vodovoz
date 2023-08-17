@@ -5,7 +5,7 @@ namespace Vodovoz.HibernateMapping.Contacts
 {
 	public class PhoneTypeMap : ClassMap<PhoneType>
 	{
-		public PhoneTypeMap ()
+		public PhoneTypeMap()
 		{
 			Table("phone_types");
 

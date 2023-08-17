@@ -29,7 +29,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
 			DiscriminatorValue(nameof(CounterpartyFrom.MobileApp));
 		}
 	}
-	
+
 	public class WebSiteCounterpartyMap : SubclassMap<WebSiteCounterparty>
 	{
 		public WebSiteCounterpartyMap()

@@ -5,14 +5,14 @@ namespace Vodovoz
 {
 	public class FineTemplateMap : ClassMap<FineTemplate>
 	{
-		public FineTemplateMap ()
+		public FineTemplateMap()
 		{
-			Table ("fine_templates");
+			Table("fine_templates");
 
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map (x => x.Reason)		.Column ("reason");
-			Map (x => x.FineMoney)	.Column ("fine_money");
+			Map(x => x.Reason).Column("reason");
+			Map(x => x.FineMoney).Column("fine_money");
 		}
 	}
 }

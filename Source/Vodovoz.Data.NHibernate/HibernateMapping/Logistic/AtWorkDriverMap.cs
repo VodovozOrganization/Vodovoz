@@ -6,11 +6,11 @@ namespace Vodovoz.HibernateMapping
 {
 	public class AtWorkDriverMap : ClassMap<AtWorkDriver>
 	{
-		public AtWorkDriverMap ()
+		public AtWorkDriverMap()
 		{
 			Table("at_work_drivers");
 
-			Id(x => x.Id).Column ("id").GeneratedBy.Native();
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Date).Column("date");
 			Map(x => x.PriorityAtDay).Column("piority_at_day");
 			Map(x => x.EndOfDay).Column("end_of_day").CustomType<TimeAsTimeSpanType>();
@@ -19,7 +19,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.RemovedDate).Column("removed_date");
 			Map(x => x.CommentLastEditedDate).Column("comment_last_edited_date");
-			
+
 
 			References(x => x.Employee).Column("employee_id");
 			References(x => x.Car).Column("car_id");

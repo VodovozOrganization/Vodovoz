@@ -10,7 +10,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
 			Table("external_counterparties_matching");
 			OptimisticLock.Version();
 			Version(x => x.Version).Column("version");
-			
+
 			Id(x => x.Id).GeneratedBy.Native();
 
 			Map(x => x.Created).Column("created").ReadOnly();

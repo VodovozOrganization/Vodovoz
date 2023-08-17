@@ -2,23 +2,23 @@
 
 namespace Vodovoz.HibernateMapping
 {
-	public class FuelOperationMap: ClassMap<FuelOperation>
+	public class FuelOperationMap : ClassMap<FuelOperation>
 	{
-		public FuelOperationMap ()
+		public FuelOperationMap()
 		{
-			Table ("fuel_operations");
+			Table("fuel_operations");
 
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map (x => x.OperationTime) 	.Column ("date");
-			Map (x => x.LitersGived)	.Column("liters_gived");
-			Map (x => x.PayedLiters)	.Column ("payed_liters");
-			Map (x => x.LitersOutlayed) .Column ("liters_outlayed");
-			Map (x => x.IsFine) 		.Column ("is_fine");
+			Map(x => x.OperationTime).Column("date");
+			Map(x => x.LitersGived).Column("liters_gived");
+			Map(x => x.PayedLiters).Column("payed_liters");
+			Map(x => x.LitersOutlayed).Column("liters_outlayed");
+			Map(x => x.IsFine).Column("is_fine");
 
-			References (x => x.Car)	  .Column ("car_id");
-			References (x => x.Driver).Column ("driver_id");
-			References (x => x.Fuel)  .Column ("fuel_type_id");
+			References(x => x.Car).Column("car_id");
+			References(x => x.Driver).Column("driver_id");
+			References(x => x.Fuel).Column("fuel_type_id");
 		}
 	}
 }

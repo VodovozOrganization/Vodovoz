@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Conventions.Instances;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.HibernateMapping
