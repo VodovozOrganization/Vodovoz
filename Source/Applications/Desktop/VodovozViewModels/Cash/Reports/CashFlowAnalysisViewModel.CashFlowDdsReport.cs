@@ -39,7 +39,11 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 			public List<object> Rows => IncomesGroupLines.Cast<object>().Concat(ExpensesGroupLines).ToList();
 
-			public static CashFlowDdsReport GenerateReport(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate)
+			public static CashFlowDdsReport GenerateReport(
+				IUnitOfWork unitOfWork,
+				DateTime startDate,
+				DateTime endDate,
+				bool hideCategoriesWithoutDocuments)
 			{
 				var incomesCategories = (from incomeCategory in unitOfWork.Session.Query<FinancialIncomeCategory>()
 										 where incomeCategory.GroupType == GroupType.Category
@@ -63,6 +67,11 @@ namespace Vodovoz.ViewModels.Cash.Reports
 											select cashIncome.Money)
 											.ToArray()
 											.Sum();
+				}
+
+				if(hideCategoriesWithoutDocuments)
+				{
+					incomesCategories.RemoveAll(x => x.Money == 0);
 				}
 
 				var expensesCategories = (from expenseCategory in unitOfWork.Session.Query<FinancialExpenseCategory>()
@@ -99,6 +108,11 @@ namespace Vodovoz.ViewModels.Cash.Reports
 					expenseCategory.Money = expensesSum;
 				}
 
+				if(hideCategoriesWithoutDocuments)
+				{
+					expensesCategories.RemoveAll(x => x.Money == 0);
+				}
+
 				var incomeGroups = (from incomeGroup in unitOfWork.Session.Query<FinancialCategoriesGroup>()
 									where incomeGroup.FinancialSubtype == FinancialSubType.Income
 									   && incomeGroup.GroupType == GroupType.Group
@@ -107,7 +121,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 									select incomeGroup)
 									.ToList();
 
-				var incomeGroupLines = ProceedIncomeGroups(null, incomeGroups, incomesCategories);
+				var incomeGroupLines = ProceedIncomeGroups(null, incomeGroups, incomesCategories, hideCategoriesWithoutDocuments);
 
 				var expenseGroups = (from expenseGroup in unitOfWork.Session.Query<FinancialCategoriesGroup>()
 									 where expenseGroup.FinancialSubtype == FinancialSubType.Expense
@@ -117,7 +131,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 									 select expenseGroup)
 									.ToList();
 
-				var expenseGroupLines = ProceedExpenseGroups(null, expenseGroups, expensesCategories);
+				var expenseGroupLines = ProceedExpenseGroups(null, expenseGroups, expensesCategories, hideCategoriesWithoutDocuments);
 
 				return new CashFlowDdsReport(
 					startDate,
@@ -129,7 +143,8 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			private static List<IncomesGroupLine> ProceedIncomeGroups(
 				int? parentId,
 				List<FinancialCategoriesGroup> groups,
-				List<FinancialIncomeCategoryLine> financialIncomeCategoryLines)
+				List<FinancialIncomeCategoryLine> financialIncomeCategoryLines,
+				bool hideCategoriesWithoutDocuments)
 			{
 				var result = new List<IncomesGroupLine>();
 
@@ -137,12 +152,19 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 				foreach(var group in groupsToProceed)
 				{
-					result.Add(IncomesGroupLine.Create(
-						group.Id,
-						group.Title,
-						group.Numbering,
-						ProceedIncomeGroups(group.Id, groups, financialIncomeCategoryLines),
-						financialIncomeCategoryLines.Where(x => x.ParentId == group.Id).ToList()));
+					var subgroups = ProceedIncomeGroups(group.Id, groups, financialIncomeCategoryLines, hideCategoriesWithoutDocuments);
+
+					var subcategories = financialIncomeCategoryLines.Where(x => x.ParentId == group.Id).ToList();
+
+					if(!hideCategoriesWithoutDocuments || subcategories.Any() || subgroups.Any())
+					{
+						result.Add(IncomesGroupLine.Create(
+							group.Id,
+							group.Title,
+							group.Numbering,
+							subgroups,
+							subcategories));
+					}
 				}
 
 				return result;
@@ -151,7 +173,8 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			private static List<ExpensesGroupLine> ProceedExpenseGroups(
 				int? parentId,
 				List<FinancialCategoriesGroup> groups,
-				List<FinancialExpenseCategoryLine> financialExpenseCategoryLines)
+				List<FinancialExpenseCategoryLine> financialExpenseCategoryLines,
+				bool hideCategoriesWithoutDocuments)
 			{
 				var result = new List<ExpensesGroupLine>();
 
@@ -159,12 +182,19 @@ namespace Vodovoz.ViewModels.Cash.Reports
 
 				foreach(var group in groupsToProceed)
 				{
-					result.Add(ExpensesGroupLine.Create(
-						group.Id,
-						group.Title,
-						group.Numbering,
-						ProceedExpenseGroups(group.Id, groups, financialExpenseCategoryLines),
-						financialExpenseCategoryLines.Where(x => x.ParentId == group.Id).ToList()));
+					var subgroups = ProceedExpenseGroups(group.Id, groups, financialExpenseCategoryLines, hideCategoriesWithoutDocuments);
+
+					var subcategories = financialExpenseCategoryLines.Where(x => x.ParentId == group.Id).ToList();
+
+					if(!hideCategoriesWithoutDocuments || subcategories.Any() || subgroups.Any())
+					{
+						result.Add(ExpensesGroupLine.Create(
+							group.Id,
+							group.Title,
+							group.Numbering,
+							subgroups,
+							subcategories));
+					}
 				}
 
 				return result;

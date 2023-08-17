@@ -25,6 +25,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		private DateTime _startDate;
 		private DateTime _endDate;
 		private CashFlowDdsReport _report;
+		private bool _hideCategoriesWithoutDocuments;
 
 		public CashFlowAnalysisViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -89,6 +90,12 @@ namespace Vodovoz.ViewModels.Cash.Reports
 			set => SetField(ref _endDate, value);
 		}
 
+		public bool HideCategoriesWithoutDocuments
+		{
+			get => _hideCategoriesWithoutDocuments;
+			set => SetField(ref _hideCategoriesWithoutDocuments, value);
+		}
+
 		public bool CanSaveReport => Report != null;
 
 		public Color AccentColor => _accentColor;
@@ -138,7 +145,7 @@ namespace Vodovoz.ViewModels.Cash.Reports
 		{
 			CanGenerateDdsReport = false;
 
-			Report = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate);
+			Report = CashFlowDdsReport.GenerateReport(UoW, StartDate, EndDate, HideCategoriesWithoutDocuments);
 
 			if(Report != null)
 			{
