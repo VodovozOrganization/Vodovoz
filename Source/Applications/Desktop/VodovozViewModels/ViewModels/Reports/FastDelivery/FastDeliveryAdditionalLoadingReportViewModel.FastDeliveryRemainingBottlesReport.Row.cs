@@ -8,7 +8,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		{
 			public class Row
 			{
-				public string Route { get; set; }
+				public string Shift { get; set; }
 
 				public DateTime CreationDate { get; set; }
 
