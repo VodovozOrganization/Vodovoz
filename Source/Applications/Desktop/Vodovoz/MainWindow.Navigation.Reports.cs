@@ -1352,9 +1352,9 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnEmployeesTaxesActionActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<EmployeesTaxesSumReport>(),
-			() => new QSReport.ReportViewDlg(new EmployeesTaxesSumReport(UnitOfWorkFactory.GetDefaultFactory)));
+		//tdiMain.OpenTab(
+		//	QSReport.ReportViewDlg.GenerateHashName<UndeliveredOrdersClassificationReport>(),
+		//	() => new QSReport.ReportViewDlg(new UndeliveredOrdersClassificationReport(true)));
 	}
 
 	/// <summary>

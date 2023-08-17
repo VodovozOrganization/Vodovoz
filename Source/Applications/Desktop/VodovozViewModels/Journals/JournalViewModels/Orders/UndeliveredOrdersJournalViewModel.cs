@@ -307,6 +307,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				query.Where(() => oldOrderAlias.DeliveryDate <= FilterViewModel.RestrictOldOrderEndDate.Value.AddDays(1).AddTicks(-1));
 			}
 
+
 			if(FilterViewModel?.RestrictNewOrderStartDate != null)
 			{
 				query.Where(() => newOrderAlias.DeliveryDate >= FilterViewModel.RestrictNewOrderStartDate);
@@ -317,6 +318,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				query.Where(() => newOrderAlias.DeliveryDate <= FilterViewModel.RestrictNewOrderEndDate.Value.AddDays(1).AddTicks(-1));
 			}
 
+	
 			if(FilterViewModel?.RestrictGuiltySide != null)
 			{
 				query.Where(() => guiltyInUndeliveryAlias.GuiltySide == FilterViewModel.RestrictGuiltySide);
@@ -353,6 +355,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					query.Where(u => u.NewOrder == null);
 				}
 			}
+
 
 			if(FilterViewModel?.RestrictUndeliveryStatus != null)
 			{
@@ -508,9 +511,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов", x => true, x => true,
 				selectedItems =>
 				{
-					var nodes = GetUndeliveredOrdersQuery(UoW).List<UndeliveredOrderJournalNode>();
-					var report = new UndeliveredOrdersClassificationSummaryReport(nodes, FilterViewModel, _fileDialogService, false);
-					report.Export();
+					//var nodes = GetUndeliveredOrdersQuery(UoW).List<UndeliveredOrderJournalNode>();
+					//var report = new UndeliveredOrdersClassificationSummaryReport(nodes, FilterViewModel, _fileDialogService, false);
+					//report.Export();
+					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport(this, FilterViewModel, false);
 				}));
 		}
 
@@ -519,9 +523,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов с переносами", x => true, x => true,
 				selectedItems =>
 				{
-					var nodes = GetUndeliveredOrdersQuery(UoW).List<UndeliveredOrderJournalNode>();
-					var report = new UndeliveredOrdersClassificationSummaryReport(nodes, FilterViewModel, _fileDialogService, true);
-					report.Export();
+					//var nodes = GetUndeliveredOrdersQuery(UoW).List<UndeliveredOrderJournalNode>();
+					//var report = new UndeliveredOrdersClassificationSummaryReport(nodes, FilterViewModel, _fileDialogService, true);
+					//report.Export();
+					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport(this, FilterViewModel, true);
 				}));
 		}
 
