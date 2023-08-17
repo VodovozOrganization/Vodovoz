@@ -28,6 +28,7 @@
     <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Report\QS.Report.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QSOrmProject\QSOrmProject.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QSProjectsLib\QSProjectsLib.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="NLog.config">

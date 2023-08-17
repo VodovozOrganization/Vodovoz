@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using NUnit.Framework;
 using QS.Project.DB;
 using Vodovoz;
 using Vodovoz.Settings.Database;
@@ -27,7 +26,7 @@ namespace VodovozBusinessTests.Deletion
 			OrmConfig.ConfigureOrm(db_config, new Assembly[]
 			{
 				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-				Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+				Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
 				Assembly.GetAssembly(typeof(QS.Banks.HMap.BankMap)),
 				Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
