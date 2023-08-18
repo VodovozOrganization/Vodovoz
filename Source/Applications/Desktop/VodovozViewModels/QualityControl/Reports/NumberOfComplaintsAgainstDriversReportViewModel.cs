@@ -1,4 +1,5 @@
-﻿using ClosedXML.Report;
+﻿using ClosedXML.Excel;
+using ClosedXML.Report;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -94,6 +95,17 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 			var template = new XLTemplate(_templatePath);
 
 			template.AddVariable(Report);
+			template.Generate();
+
+			foreach(var worksheet in template.Workbook.Worksheets)
+			{
+				foreach(var row in worksheet.Rows())
+				{
+					row.AdjustToContents(3, 3);
+					row.ClearHeight();
+				}
+			}
+
 			template.SaveAs(result.Path);
 		}
 	}

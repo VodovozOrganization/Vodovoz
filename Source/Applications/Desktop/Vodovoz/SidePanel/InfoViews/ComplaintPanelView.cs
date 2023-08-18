@@ -19,6 +19,7 @@ using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Parameters;
 using Vodovoz.SidePanel.InfoProviders;
+using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
 namespace Vodovoz.SidePanel.InfoViews
 {

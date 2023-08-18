@@ -10,7 +10,7 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 {
 	public partial class NumberOfComplaintsAgainstDriversReportViewModel
 	{
-		[Appellative(Nominative = "Jтчет по количеству рекламаций на водителей")]
+		[Appellative(Nominative = "Отчет по количеству рекламаций на водителей")]
 		public partial class NumberOfComplaintsAgainstDriversReport
 		{
 			private NumberOfComplaintsAgainstDriversReport(DateTime startDate, DateTime endDate, List<Row> rows)
@@ -35,18 +35,30 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 								  on complaint.Driver.Id equals driver.Id
 								  where complaint.CreationDate >= startDate
 									&& complaint.CreationDate <= endDate
-								  group complaint by driver.Id into complaintsGroup
-								  let driver = complaintsGroup.FirstOrDefault().Driver
 								  let driverFullName = $"{driver.Name} {driver.LastName} {driver.Patronymic}"
-								  let complaintsList = string.Join(",\n", complaintsGroup.SelectMany(x => $"{x.Id} - {x.ComplaintKind.Name}"))
-								  select new Row
+								  select new
 								  {
+									  ComplaintId = complaint.Id,
+									  DriverId = driver.Id,
 									  DriverFullName = driverFullName,
-									  ComplaintsCount = complaintsGroup.Count(),
-									  ComplaintsList = complaintsList
+									  ComplaintsKind = complaintKind.Name
 								  }).ToList();
 
-				return new NumberOfComplaintsAgainstDriversReport(startDate, endDate, complaints);
+				var groupedComplaints = complaints.GroupBy(x => x.DriverId);
+
+				var result = new List<Row>();
+
+				foreach(var group in groupedComplaints)
+				{
+					result.Add(new Row
+					{
+						DriverFullName = group.First().DriverFullName,
+						ComplaintsCount = group.Count(),
+						ComplaintsList = string.Join(",\n", group.Select(x => $"{x.ComplaintId} - {x.ComplaintsKind}"))
+					});
+				}
+
+				return new NumberOfComplaintsAgainstDriversReport(startDate, endDate, result);
 			}
 		}
 	}
