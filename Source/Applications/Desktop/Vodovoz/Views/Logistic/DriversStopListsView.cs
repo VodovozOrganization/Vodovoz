@@ -43,6 +43,11 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(vm => vm.FilterCarOwnType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
+			yenumcomboDriversSortOrder.ItemsEnum = typeof(DriversSortOrder);
+			yenumcomboDriversSortOrder.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CurrentDriversListSortOrder, w => w.SelectedItemOrNull)
+				.InitializeFromSource();
+
 			yhboxFilter.Binding.AddBinding(ViewModel, wm => wm.FilterVisibility, w => w.Visible).InitializeFromSource();
 
 			ytreeviewCurrent.ColumnsConfig = FluentColumnsConfig<DriverNode>
