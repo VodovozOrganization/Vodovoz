@@ -13,6 +13,7 @@ using QS.Utilities.Text;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -30,6 +31,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		private EmployeeStatus? _filterEmployeeStatus = EmployeeStatus.IsWorking;
 		private CarTypeOfUse? _filterCarTypeOfUse;
 		private CarOwnType? _filterCarOwnType;
+		private DriversSortOrder _currentDriversListSortOrder;
 
 		private bool _filterVisibility = true;
 		private DriverNode _selectedDriverNode;
@@ -51,13 +53,13 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			Title = "Снятие стоп-листов";
 
-			_currentUserRouteListRemovalPermissions = 
+			_currentUserRouteListRemovalPermissions =
 				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval));
 
-			_driversUnclosedRouteListsMaxCountParameter = 
+			_driversUnclosedRouteListsMaxCountParameter =
 				generalSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
 
-			_driversRouteListsDebtsMaxSumParameter = 
+			_driversRouteListsDebtsMaxSumParameter =
 				generalSettingsParametersProvider.DriversRouteListsMaxDebtSum;
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DriverStopListRemoval>((s) => UpdateCommand?.Execute());
@@ -68,7 +70,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		[PropertyChangedAlso(nameof(CurrentDriversList), nameof(StopListsRemovalHistory))]
 		public EmployeeStatus? FilterEmployeeStatus
 		{
-			get => _filterEmployeeStatus; 
+			get => _filterEmployeeStatus;
 			set => SetField(ref _filterEmployeeStatus, value);
 		}
 
@@ -86,7 +88,14 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			set => SetField(ref _filterCarOwnType, value);
 		}
 
-		public bool FilterVisibility 
+		[PropertyChangedAlso(nameof(CurrentDriversList))]
+		public DriversSortOrder CurrentDriversListSortOrder
+		{
+			get => _currentDriversListSortOrder;
+			set => SetField(ref _currentDriversListSortOrder, value);
+		}
+
+		public bool FilterVisibility
 		{
 			get => _filterVisibility;
 			set => SetField(ref _filterVisibility, value);
@@ -126,8 +135,8 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			var query = UoW.Session.QueryOver(() => driverAlias)
 				.JoinEntityAlias(
-					() => carAlias, 
-					() => carAlias.Driver.Id == driverAlias.Id, 
+					() => carAlias,
+					() => carAlias.Driver.Id == driverAlias.Id,
 					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.Where(() => driverAlias.Category == EmployeeCategory.driver);
@@ -187,9 +196,26 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 					)
 				.TransformUsing(Transformers.AliasToBean<DriverNode>())
 				.List<DriverNode>()
-				.OrderByDescending(d => d.IsDriverInStopList)
-				.ThenBy(d => d.DriverLastName)
 				.ToList();
+
+			if(CurrentDriversListSortOrder == DriversSortOrder.ByStopList)
+			{
+				drivers = drivers
+					.OrderByDescending(d => d.IsDriverInStopList)
+					.ThenBy(d => d.DriverLastName)
+					.ToList();
+			}
+			else if(CurrentDriversListSortOrder == DriversSortOrder.ByUnclosedRouteListsCount)
+			{
+				drivers = drivers
+					.OrderByDescending(d => d.UnclosedRouteListsWithDebtCount)
+					.ThenBy(d => d.DriverLastName)
+					.ToList();
+			}
+			else
+			{
+				throw new NotImplementedException("Порядок сортировки не поддерживается");
+			}
 
 			return drivers;
 		}
@@ -330,6 +356,18 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 				!IsStopListRemoved
 				&& ((DriversRouteListsDebtsMaxSum > 0 && RouteListsDebtsSum >= DriversRouteListsDebtsMaxSum)
 					|| (DriversUnclosedRouteListsMaxCount > 0 && UnclosedRouteListsWithDebtCount >= DriversUnclosedRouteListsMaxCount));
+		}
+
+		/// <summary>
+		/// Порядок сортировки водителей
+		/// </summary>
+		public enum DriversSortOrder
+		{
+			[Display(Name = "По наличию стопа")]
+			ByStopList,
+
+			[Display(Name = "По кол-ву незакрытых МЛ")]
+			ByUnclosedRouteListsCount
 		}
 	}
 }
