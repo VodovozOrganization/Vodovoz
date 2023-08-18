@@ -1331,11 +1331,6 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			IsGreaterThanZeroByNomenclature = _groupingActiveStorage;
 			IsGreaterThanZeroByWarehouse = _groupingActiveStorage;
 
-			if(!string.IsNullOrWhiteSpace(StoragesViewModel.CurrentParameterSet.SearchValue))
-			{
-				StoragesViewModel.SearchValue = string.Empty;
-			}
-			
 			if(StoragesViewModel.CurrentParameterSet is null)
 			{
 				StoragesViewModel.CurrentParameterSet = StoragesViewModel.ReportFilter.ParameterSets.First();
@@ -1343,6 +1338,11 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			else
 			{
 				UpdateStorageParameters();
+			}
+			
+			if(!string.IsNullOrWhiteSpace(StoragesViewModel.CurrentParameterSet.SearchValue))
+			{
+				StoragesViewModel.SearchValue = string.Empty;
 			}
 			
 			StoragesViewModel.CurrentParameterSet.SelectAll();
