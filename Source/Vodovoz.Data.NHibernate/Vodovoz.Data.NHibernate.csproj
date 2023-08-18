@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -16,6 +16,7 @@
     <ProjectReference Include="..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\Libraries\External\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj" />
     <ProjectReference Include="..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
+    <ProjectReference Include="..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
   </ItemGroup>
 
