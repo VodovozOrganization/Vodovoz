@@ -9,7 +9,6 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
-using QS.Utilities.Text;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -21,7 +20,7 @@ using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 {
-	public class DriversStopListsViewModel : DialogTabViewModelBase
+	public partial class DriversStopListsViewModel : DialogTabViewModelBase
 	{
 		private readonly IPermissionResult _currentUserRouteListRemovalPermissions;
 		private readonly int _driversUnclosedRouteListsMaxCountParameter;
@@ -30,6 +29,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		private EmployeeStatus? _filterEmployeeStatus = EmployeeStatus.IsWorking;
 		private CarTypeOfUse? _filterCarTypeOfUse;
 		private CarOwnType? _filterCarOwnType;
+		private DriversSortOrder _currentDriversListSortOrder;
 
 		private bool _filterVisibility = true;
 		private DriverNode _selectedDriverNode;
@@ -51,13 +51,13 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			Title = "Снятие стоп-листов";
 
-			_currentUserRouteListRemovalPermissions = 
+			_currentUserRouteListRemovalPermissions =
 				_commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval));
 
-			_driversUnclosedRouteListsMaxCountParameter = 
+			_driversUnclosedRouteListsMaxCountParameter =
 				generalSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
 
-			_driversRouteListsDebtsMaxSumParameter = 
+			_driversRouteListsDebtsMaxSumParameter =
 				generalSettingsParametersProvider.DriversRouteListsMaxDebtSum;
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<DriverStopListRemoval>((s) => UpdateCommand?.Execute());
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		[PropertyChangedAlso(nameof(CurrentDriversList), nameof(StopListsRemovalHistory))]
 		public EmployeeStatus? FilterEmployeeStatus
 		{
-			get => _filterEmployeeStatus; 
+			get => _filterEmployeeStatus;
 			set => SetField(ref _filterEmployeeStatus, value);
 		}
 
@@ -86,7 +86,14 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			set => SetField(ref _filterCarOwnType, value);
 		}
 
-		public bool FilterVisibility 
+		[PropertyChangedAlso(nameof(CurrentDriversList))]
+		public DriversSortOrder CurrentDriversListSortOrder
+		{
+			get => _currentDriversListSortOrder;
+			set => SetField(ref _currentDriversListSortOrder, value);
+		}
+
+		public bool FilterVisibility
 		{
 			get => _filterVisibility;
 			set => SetField(ref _filterVisibility, value);
@@ -126,8 +133,8 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 
 			var query = UoW.Session.QueryOver(() => driverAlias)
 				.JoinEntityAlias(
-					() => carAlias, 
-					() => carAlias.Driver.Id == driverAlias.Id, 
+					() => carAlias,
+					() => carAlias.Driver.Id == driverAlias.Id,
 					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
 				.Where(() => driverAlias.Category == EmployeeCategory.driver);
@@ -187,9 +194,26 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 					)
 				.TransformUsing(Transformers.AliasToBean<DriverNode>())
 				.List<DriverNode>()
-				.OrderByDescending(d => d.IsDriverInStopList)
-				.ThenBy(d => d.DriverLastName)
 				.ToList();
+
+			if(CurrentDriversListSortOrder == DriversSortOrder.ByStopList)
+			{
+				drivers = drivers
+					.OrderByDescending(d => d.IsDriverInStopList)
+					.ThenBy(d => d.DriverLastName)
+					.ToList();
+			}
+			else if(CurrentDriversListSortOrder == DriversSortOrder.ByUnclosedRouteListsCount)
+			{
+				drivers = drivers
+					.OrderByDescending(d => d.UnclosedRouteListsWithDebtCount)
+					.ThenBy(d => d.DriverLastName)
+					.ToList();
+			}
+			else
+			{
+				throw new NotImplementedException("Порядок сортировки не поддерживается");
+			}
 
 			return drivers;
 		}
@@ -311,25 +335,6 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			base.Dispose();
-		}
-
-		public sealed class DriverNode
-		{
-			public int DriverId { get; set; }
-			public string DriverName { get; set; }
-			public string DriverLastName { get; set; }
-			public string DriverPatronymic { get; set; }
-			public string CarRegistrationNumber { get; set; }
-			public decimal RouteListsDebtsSum { get; set; }
-			public int UnclosedRouteListsWithDebtCount { get; set; }
-			public bool IsStopListRemoved { get; set; }
-			public int DriversUnclosedRouteListsMaxCount { get; set; }
-			public int DriversRouteListsDebtsMaxSum { get; set; }
-			public string DriverFullName => PersonHelper.PersonNameWithInitials(DriverLastName, DriverName, DriverPatronymic);
-			public bool IsDriverInStopList =>
-				!IsStopListRemoved
-				&& ((DriversRouteListsDebtsMaxSum > 0 && RouteListsDebtsSum >= DriversRouteListsDebtsMaxSum)
-					|| (DriversUnclosedRouteListsMaxCount > 0 && UnclosedRouteListsWithDebtCount >= DriversUnclosedRouteListsMaxCount));
 		}
 	}
 }
