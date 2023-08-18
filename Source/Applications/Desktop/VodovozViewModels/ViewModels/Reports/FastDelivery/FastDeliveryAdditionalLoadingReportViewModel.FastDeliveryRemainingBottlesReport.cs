@@ -60,20 +60,20 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 														&& additionalLoadingDocumentItem.AdditionalLoadingDocument.Id == additionalLoadingDocument.Id
 													  select additionalLoadingDocumentItem.Amount).Sum()
 							let bottlesShippedCount = ((decimal?)(from routeListAddress in unitOfWork.Session.Query<RouteListItem>()
-													   join order in unitOfWork.Session.Query<Order>()
-													   on routeListAddress.Order.Id equals order.Id
-													   join orderItem in unitOfWork.Session.Query<OrderItem>()
-													   on order.Id equals orderItem.Order.Id
-													   join nomenclature in unitOfWork.Session.Query<Nomenclature>()
-													   on orderItem.Nomenclature.Id equals nomenclature.Id
-													   where order.IsFastDelivery
-														&& routeListAddress.Status == RouteListItemStatus.Completed
-														&& routeListAddress.RouteList.Id == routelist.Id
-														&& nomenclature.Category == NomenclatureCategory.water
-														&& nomenclature.TareVolume == TareVolume.Vol19L
-														&& order.CreateDate >= createDateFrom
-														&& order.CreateDate <= createDateTo
-													   select orderItem.ActualCount ?? orderItem.Count).Sum()) ?? 0m
+																  join order in unitOfWork.Session.Query<Order>()
+																  on routeListAddress.Order.Id equals order.Id
+																  join orderItem in unitOfWork.Session.Query<OrderItem>()
+																  on order.Id equals orderItem.Order.Id
+																  join nomenclature in unitOfWork.Session.Query<Nomenclature>()
+																  on orderItem.Nomenclature.Id equals nomenclature.Id
+																  where order.IsFastDelivery
+																   && routeListAddress.Status == RouteListItemStatus.Completed
+																   && routeListAddress.RouteList.Id == routelist.Id
+																   && nomenclature.Category == NomenclatureCategory.water
+																   && nomenclature.TareVolume == TareVolume.Vol19L
+																   && order.CreateDate >= createDateFrom
+																   && order.CreateDate <= createDateTo
+																  select orderItem.ActualCount ?? orderItem.Count).Sum()) ?? 0m
 							let addressesCount = (from order in unitOfWork.Session.Query<Order>()
 												  join routeListAddress in unitOfWork.Session.Query<RouteListItem>()
 												  on order.Id equals routeListAddress.Order.Id
@@ -83,12 +83,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 													&& order.CreateDate >= createDateFrom
 													&& order.CreateDate <= createDateTo
 												  select order.Id).Count()
+							let driverfullNameWithInitials = $"{driver.Name} " +
+								$"{driver.LastName.Substring(0, 1)}" +
+								$".{driver.Patronymic.Substring(0, 1)}."
 							select new Row
 							{
 								Shift = shift,
 								CreationDate = routelist.Date,
 								RouteListId = routelist.Id,
-								DriverFullName = $"{driver.Name} {driver.LastName.Take(1)}.{driver.Patronymic.Take(1)}.",
+								DriverFullName = driverfullNameWithInitials,
 								BottlesLoadedCount = bottlesLoadedCount,
 								BottlesShippedCount = bottlesShippedCount,
 								RemainingBottlesCount = bottlesLoadedCount - bottlesShippedCount,
