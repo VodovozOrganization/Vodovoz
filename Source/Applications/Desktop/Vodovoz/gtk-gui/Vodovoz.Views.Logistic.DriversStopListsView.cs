@@ -28,6 +28,10 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboCarOwnType;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelDriversSortOrder;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboDriversSortOrder;
+
 		private global::Gamma.GtkWidgets.yTable ytableContainers;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindowCurrent;
@@ -166,11 +170,32 @@ namespace Vodovoz.Views.Logistic
 			w11.Position = 5;
 			w11.Expand = false;
 			w11.Fill = false;
-			this.yvboxMain.Add(this.yhboxFilter);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxFilter]));
-			w12.Position = 1;
+			// Container child yhboxFilter.Gtk.Box+BoxChild
+			this.ylabelDriversSortOrder = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDriversSortOrder.Name = "ylabelDriversSortOrder";
+			this.ylabelDriversSortOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Порядок сортировки:");
+			this.yhboxFilter.Add(this.ylabelDriversSortOrder);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.ylabelDriversSortOrder]));
+			w12.Position = 6;
 			w12.Expand = false;
 			w12.Fill = false;
+			// Container child yhboxFilter.Gtk.Box+BoxChild
+			this.yenumcomboDriversSortOrder = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboDriversSortOrder.Name = "yenumcomboDriversSortOrder";
+			this.yenumcomboDriversSortOrder.ShowSpecialStateAll = false;
+			this.yenumcomboDriversSortOrder.ShowSpecialStateNot = false;
+			this.yenumcomboDriversSortOrder.UseShortTitle = false;
+			this.yenumcomboDriversSortOrder.DefaultFirst = false;
+			this.yhboxFilter.Add(this.yenumcomboDriversSortOrder);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter[this.yenumcomboDriversSortOrder]));
+			w13.Position = 7;
+			w13.Expand = false;
+			w13.Fill = false;
+			this.yvboxMain.Add(this.yhboxFilter);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxFilter]));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child yvboxMain.Gtk.Box+BoxChild
 			this.ytableContainers = new global::Gamma.GtkWidgets.yTable();
 			this.ytableContainers.Name = "ytableContainers";
@@ -188,10 +213,10 @@ namespace Vodovoz.Views.Logistic
 			this.ytreeviewCurrent.Name = "ytreeviewCurrent";
 			this.GtkScrolledWindowCurrent.Add(this.ytreeviewCurrent);
 			this.ytableContainers.Add(this.GtkScrolledWindowCurrent);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.GtkScrolledWindowCurrent]));
-			w14.TopAttach = ((uint)(1));
-			w14.BottomAttach = ((uint)(2));
-			w14.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.GtkScrolledWindowCurrent]));
+			w16.TopAttach = ((uint)(1));
+			w16.BottomAttach = ((uint)(2));
+			w16.RightAttach = ((uint)(2));
 			// Container child ytableContainers.Gtk.Table+TableChild
 			this.GtkScrolledWindowHystory = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindowHystory.Name = "GtkScrolledWindowHystory";
@@ -202,11 +227,11 @@ namespace Vodovoz.Views.Logistic
 			this.ytreeviewHystory.Name = "ytreeviewHystory";
 			this.GtkScrolledWindowHystory.Add(this.ytreeviewHystory);
 			this.ytableContainers.Add(this.GtkScrolledWindowHystory);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.GtkScrolledWindowHystory]));
-			w16.TopAttach = ((uint)(1));
-			w16.BottomAttach = ((uint)(2));
-			w16.LeftAttach = ((uint)(2));
-			w16.RightAttach = ((uint)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.GtkScrolledWindowHystory]));
+			w18.TopAttach = ((uint)(1));
+			w18.BottomAttach = ((uint)(2));
+			w18.LeftAttach = ((uint)(2));
+			w18.RightAttach = ((uint)(4));
 			// Container child ytableContainers.Gtk.Table+TableChild
 			this.ylabelCurrent = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCurrent.Name = "ylabelCurrent";
@@ -214,9 +239,9 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelCurrent.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Текущее состояние</b>");
 			this.ylabelCurrent.UseMarkup = true;
 			this.ytableContainers.Add(this.ylabelCurrent);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.ylabelCurrent]));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.ylabelCurrent]));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableContainers.Gtk.Table+TableChild
 			this.ylabelHystory = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelHystory.Name = "ylabelHystory";
@@ -224,14 +249,14 @@ namespace Vodovoz.Views.Logistic
 			this.ylabelHystory.LabelProp = global::Mono.Unix.Catalog.GetString("<b>История снятия стоп-листов</b>");
 			this.ylabelHystory.UseMarkup = true;
 			this.ytableContainers.Add(this.ylabelHystory);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.ylabelHystory]));
-			w18.LeftAttach = ((uint)(2));
-			w18.RightAttach = ((uint)(3));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytableContainers[this.ylabelHystory]));
+			w20.LeftAttach = ((uint)(2));
+			w20.RightAttach = ((uint)(3));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvboxMain.Add(this.ytableContainers);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableContainers]));
-			w19.Position = 2;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ytableContainers]));
+			w21.Position = 2;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{
