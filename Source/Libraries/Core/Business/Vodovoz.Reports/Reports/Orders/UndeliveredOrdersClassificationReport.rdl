@@ -451,6 +451,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({amount})</Value>
                     </Textbox>
