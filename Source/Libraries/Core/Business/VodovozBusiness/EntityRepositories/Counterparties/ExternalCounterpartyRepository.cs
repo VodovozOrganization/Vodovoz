@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -40,6 +41,13 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.And(ec => !ec.IsArchive)
 				.And(() => phoneAlias.DigitsNumber == phoneNumber)
 				.SingleOrDefault();
+		}
+		
+		public IList<ExternalCounterparty> GetExternalCounterpartyByEmail(IUnitOfWork uow, int emailId)
+		{
+			return uow.Session.QueryOver<ExternalCounterparty>()
+				.Where(ec => ec.Email.Id == emailId)
+				.List();
 		}
 	}
 }
