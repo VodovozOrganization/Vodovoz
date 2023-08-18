@@ -232,7 +232,7 @@ namespace Vodovoz.Views.Warehouse
 			w10.TopAttach = ((uint)(3));
 			w10.BottomAttach = ((uint)(4));
 			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(3));
+			w10.RightAttach = ((uint)(2));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInfo.Gtk.Table+TableChild
@@ -429,7 +429,7 @@ namespace Vodovoz.Views.Warehouse
 			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.ytableTransporter[this.entityentryTransporterCounterparty]));
 			w28.LeftAttach = ((uint)(5));
 			w28.RightAttach = ((uint)(6));
-			w28.YOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child ytableTransporter.Gtk.Table+TableChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
@@ -449,6 +449,7 @@ namespace Vodovoz.Views.Warehouse
 			this.ylabelTransporterBill = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelTransporterBill.Name = "ylabelTransporterBill";
 			this.ylabelTransporterBill.Xalign = 1F;
+			this.ylabelTransporterBill.Yalign = 0F;
 			this.ylabelTransporterBill.LabelProp = global::Mono.Unix.Catalog.GetString("Счет:");
 			this.ytableTransporter.Add(this.ylabelTransporterBill);
 			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.ytableTransporter[this.ylabelTransporterBill]));
