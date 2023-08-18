@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Chats;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Chat
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Chats
 {
 	public class ChatMap : ClassMap<Chat>
 	{

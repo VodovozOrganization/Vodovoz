@@ -890,9 +890,9 @@
     <Compile Include="Attributes\Value1c.cs" />
     <Compile Include="Domain\Logistic\Track.cs" />
     <Compile Include="Domain\Logistic\TrackPoint.cs" />
-    <Compile Include="Domain\Chat\Chat.cs" />
-    <Compile Include="Domain\Chat\ChatMessage.cs" />
-    <Compile Include="Domain\Chat\LastReadedMessage.cs" />
+    <Compile Include="Domain\Chats\Chat.cs" />
+    <Compile Include="Domain\Chats\ChatMessage.cs" />
+    <Compile Include="Domain\Chats\LastReadedMessage.cs" />
     <Compile Include="Domain\Orders\Documents\ShetFacturaDocument.cs" />
     <Compile Include="Domain\Orders\Documents\Torg12Document.cs" />
     <Compile Include="Domain\Employees\FineNomenclature.cs" />
