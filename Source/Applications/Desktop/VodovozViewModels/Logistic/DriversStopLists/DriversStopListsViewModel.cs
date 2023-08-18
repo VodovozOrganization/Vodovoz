@@ -9,11 +9,9 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
-using QS.Utilities.Text;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -22,7 +20,7 @@ using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 {
-	public class DriversStopListsViewModel : DialogTabViewModelBase
+	public partial class DriversStopListsViewModel : DialogTabViewModelBase
 	{
 		private readonly IPermissionResult _currentUserRouteListRemovalPermissions;
 		private readonly int _driversUnclosedRouteListsMaxCountParameter;
@@ -337,37 +335,6 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		{
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			base.Dispose();
-		}
-
-		public sealed class DriverNode
-		{
-			public int DriverId { get; set; }
-			public string DriverName { get; set; }
-			public string DriverLastName { get; set; }
-			public string DriverPatronymic { get; set; }
-			public string CarRegistrationNumber { get; set; }
-			public decimal RouteListsDebtsSum { get; set; }
-			public int UnclosedRouteListsWithDebtCount { get; set; }
-			public bool IsStopListRemoved { get; set; }
-			public int DriversUnclosedRouteListsMaxCount { get; set; }
-			public int DriversRouteListsDebtsMaxSum { get; set; }
-			public string DriverFullName => PersonHelper.PersonNameWithInitials(DriverLastName, DriverName, DriverPatronymic);
-			public bool IsDriverInStopList =>
-				!IsStopListRemoved
-				&& ((DriversRouteListsDebtsMaxSum > 0 && RouteListsDebtsSum >= DriversRouteListsDebtsMaxSum)
-					|| (DriversUnclosedRouteListsMaxCount > 0 && UnclosedRouteListsWithDebtCount >= DriversUnclosedRouteListsMaxCount));
-		}
-
-		/// <summary>
-		/// Порядок сортировки водителей
-		/// </summary>
-		public enum DriversSortOrder
-		{
-			[Display(Name = "По наличию стопа")]
-			ByStopList,
-
-			[Display(Name = "По кол-ву незакрытых МЛ")]
-			ByUnclosedRouteListsCount
 		}
 	}
 }
