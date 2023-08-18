@@ -15,6 +15,7 @@
     <ProjectReference Include="..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />
     <ProjectReference Include="..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\Libraries\External\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj" />
+    <ProjectReference Include="..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
   </ItemGroup>
 
