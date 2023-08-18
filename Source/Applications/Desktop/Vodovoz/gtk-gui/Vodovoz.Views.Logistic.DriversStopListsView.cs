@@ -182,7 +182,7 @@ namespace Vodovoz.Views.Logistic
 			// Container child yhboxFilter.Gtk.Box+BoxChild
 			this.yenumcomboDriversSortOrder = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboDriversSortOrder.Name = "yenumcomboDriversSortOrder";
-			this.yenumcomboDriversSortOrder.ShowSpecialStateAll = true;
+			this.yenumcomboDriversSortOrder.ShowSpecialStateAll = false;
 			this.yenumcomboDriversSortOrder.ShowSpecialStateNot = false;
 			this.yenumcomboDriversSortOrder.UseShortTitle = false;
 			this.yenumcomboDriversSortOrder.DefaultFirst = false;
