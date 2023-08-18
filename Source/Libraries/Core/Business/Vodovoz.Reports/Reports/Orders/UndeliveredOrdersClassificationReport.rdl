@@ -17,7 +17,7 @@
       <Textbox Name="Textbox29">
         <Height>18.03pt</Height>
         <Width>770.81pt</Width>
-        <Value>="Сводка по классификации недовозов с переносами " + {?filter}</Value>
+        <Value>="Сводка по классификации недовозов. " + {?filter}</Value>
         <ZIndex>0</ZIndex>
         <Left>1.60pt</Left>
         <Top>0.20pt</Top>

@@ -1,14 +1,15 @@
 ﻿using QS.Views;
+using System.ComponentModel;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.ReportsParameters.Orders
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class UndeliveredOrdersClassificationReportView : ViewBase<UndeliveredOrdersClassificationReportViewModel>
 	{
 		public UndeliveredOrdersClassificationReportView(UndeliveredOrdersClassificationReportViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 		}
 	}
 }
