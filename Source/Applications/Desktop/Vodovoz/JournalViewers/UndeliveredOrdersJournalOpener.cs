@@ -44,11 +44,9 @@ namespace Vodovoz.JournalViewers
 				new EmployeeJournalFactory(),
 				VodovozGtkServicesConfig.EmployeeService,
 				new UndeliveredOrdersJournalOpener(),
-				new OrderSelectorFactory(),
 				new UndeliveredOrdersRepository(),
 				new EmployeeSettings(new ParametersProvider()),
-				new SubdivisionParametersProvider(new ParametersProvider()),
-				new FileDialogService()
+				new SubdivisionParametersProvider(new ParametersProvider())
 			);
 
 			tab.TabParent.AddSlaveTab(tab, dlg);

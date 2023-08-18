@@ -7,7 +7,6 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
 using System.Collections;
@@ -28,7 +27,6 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes;
-using Vodovoz.ViewModels.ViewModels.Reports.UndeliveryJournalReport;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 {
@@ -42,14 +40,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IEmployeeSettings _employeeSettings;
-		private readonly IFileDialogService _fileDialogService;
 		private Employee _currentEmployee;
 
 		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
-			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory,
+			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository, IEmployeeSettings employeeSettings,
-			ISubdivisionParametersProvider subdivisionParametersProvider, IFileDialogService fileDialogService)
+			ISubdivisionParametersProvider subdivisionParametersProvider)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
@@ -59,7 +56,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			_canCloseUndeliveries = commonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries");
@@ -508,9 +504,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов", x => true, x => true,
 				selectedItems =>
 				{
-					var nodes = GetUndeliveredOrdersQuery(UoW).List<UndeliveredOrderJournalNode>();
-					var report = new UndeliveredOrdersClassificationSummaryReport(nodes, FilterViewModel, _fileDialogService, false);
-					report.Export();
+					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport(FilterViewModel, false);
 				}));
 		}
 
@@ -519,9 +513,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов с переносами", x => true, x => true,
 				selectedItems =>
 				{
-					var nodes = GetUndeliveredOrdersQuery(UoW).List<UndeliveredOrderJournalNode>();
-					var report = new UndeliveredOrdersClassificationSummaryReport(nodes, FilterViewModel, _fileDialogService, true);
-					report.Export();
+					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport( FilterViewModel, true);
 				}));
 		}
 
