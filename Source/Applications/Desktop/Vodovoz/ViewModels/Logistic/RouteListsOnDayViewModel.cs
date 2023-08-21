@@ -1210,7 +1210,9 @@ namespace Vodovoz.ViewModels.Logistic
 				ShowCompleted = ShowCompleted,
 				MinBottles19L = MinBottles19L,
 				FastDeliveryEnabled = OrderAddressTypes.Any(x => x.IsFastDelivery && x.Selected),
-				OrderAddressTypes = OrderAddressTypes.Where(x => !x.IsFastDelivery).Select(x => x.OrderAddressType),
+				OrderAddressTypes = OrderAddressTypes
+					.Where(x => !x.IsFastDelivery && x.Selected)
+					.Select(x => x.OrderAddressType),
 				ClosingDocumentDeliveryScheduleId = _closingDocumentDeliveryScheduleId
 			};
 
@@ -1249,9 +1251,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 
 			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
-
-
-
+			
 			RoutesOnDay = _routeListRepository.GetRoutesAtDay(UoW, DateForRouting, ShowCompleted, selectedGeographicGroupIds, selectedDeliveryShiftIds);
 
 			GetWorkDriversInfo();
