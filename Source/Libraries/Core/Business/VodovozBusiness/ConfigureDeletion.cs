@@ -581,6 +581,7 @@ namespace Vodovoz
 				.AddDeleteDependence<Track>(x => x.RouteList)
 				.AddDeleteDependence<FuelDocument>(x => x.RouteList)
 				.AddDeleteDependence<RouteListFastDeliveryMaxDistance>(x => x.RouteList)
+				.AddDeleteDependence<RouteListMaxFastDeliveryOrders>(x => x.RouteList)
 				.AddDeleteDependence<RouteListDebt>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
 				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation)

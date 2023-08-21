@@ -67,6 +67,7 @@ namespace Vodovoz.HibernateMapping
 			HasMany(x => x.Addresses).Cascade.AllDeleteOrphan().Inverse()
 				.KeyColumn ("route_list_id").OrderBy("order_in_route");
 			HasMany(x => x.FastDeliveryMaxDistanceItems).Cascade.AllDeleteOrphan().Inverse().KeyColumn("route_list_id").OrderBy("start_date");
+			HasMany(x => x.MaxFastDeliveryOrdersItems).Cascade.AllDeleteOrphan().Inverse().KeyColumn("route_list_id").OrderBy("start_date");
 			HasMany(x => x.FuelDocuments).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
 			HasMany(x => x.PrintsHistory).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");
 			HasMany(x => x.DeliveryFreeBalanceOperations).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("route_list_id");

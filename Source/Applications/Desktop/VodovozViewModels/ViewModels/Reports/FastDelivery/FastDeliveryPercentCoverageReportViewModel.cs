@@ -279,11 +279,26 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					.And(() => routeListItemAlias.CreationDate <= date)
 					.Select(Projections.Count(() => routeListItemAlias.Id));
 
+				var routeListMaxFastDeliveryOrdersSubquery = QueryOver.Of<RouteListMaxFastDeliveryOrders>()
+					.Where(
+						m => m.RouteList.Id == routeListAlias.Id
+						     && m.StartDate <= date
+							 && (m.EndDate == null || m.EndDate > date))
+					.Select(m => m.MaxOrders)
+					.OrderBy(m => m.StartDate).Desc
+					.Take(1);
+
+				var routeListMaxFastDeliveryOrdersProjection = Projections.Conditional(Restrictions.IsNull(Projections.SubQuery(routeListMaxFastDeliveryOrdersSubquery)),
+					Projections.Constant(_deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime),
+					Projections.SubQuery(routeListMaxFastDeliveryOrdersSubquery));
+
+				query.Where(Restrictions.GtProperty(routeListMaxFastDeliveryOrdersProjection, Projections.SubQuery(addressCountSubquery)));
+
 				var actualQuery = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
 				actualQuery.Where(additionalLoadingRestriction);
 				actualQuery.Where(dateRestriction);
 				actualQuery.Where(trackRestriction);
-				actualQuery.WithSubquery.WhereValue(_deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime).Gt(addressCountSubquery);
+				actualQuery.Where(Restrictions.GtProperty(routeListMaxFastDeliveryOrdersProjection, Projections.SubQuery(addressCountSubquery)));
 
 				var actualRouteListsIds = actualQuery.Select(Projections.Property(() => routeListAlias.Id)).List<int>().ToArray();
 
