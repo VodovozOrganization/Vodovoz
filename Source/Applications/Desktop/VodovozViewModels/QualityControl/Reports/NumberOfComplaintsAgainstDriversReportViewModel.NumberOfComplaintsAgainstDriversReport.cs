@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 								  on complaint.Driver.Id equals driver.Id
 								  where complaint.CreationDate >= startDate
 									&& complaint.CreationDate <= endDate
+									&& complaint.ComplaintType != ComplaintType.Driver
 								  let driverFullName = $"{driver.Name} {driver.LastName} {driver.Patronymic}"
 								  select new
 								  {
