@@ -1046,7 +1046,7 @@ namespace Vodovoz
 					case Dadata.Model.PartyStatus.ACTIVE:
 						return true;
 					default:
-						Application.Invoke((s, e) => MessageDialogHelper.RunErrorDialog($"Контрагент находится в статусе: {status.GetUserFriendlyName()}, оформление заказа невозможно!", "Ошибка"));
+						Gtk.Application.Invoke((s, e) => MessageDialogHelper.RunErrorDialog($"Контрагент находится в статусе: {status.GetUserFriendlyName()}, оформление заказа невозможно!", "Ошибка"));
 
 						var employee = unitOfWork.GetById<Employee>(_currentEmployee.Id);
 
@@ -1793,7 +1793,7 @@ namespace Vodovoz
 
 			var previousDiscountReason = orderItem.DiscountReason;
 
-			Application.Invoke((sender, eventArgs) =>
+			Gtk.Application.Invoke((sender, eventArgs) =>
 			{
 				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
 				//комбо-бокс не откроется, но событие сработает и прилетит null
@@ -3051,7 +3051,7 @@ namespace Vodovoz
 					return;
 				}
 				var renderer = column.CellRenderers.First();
-				Application.Invoke(delegate {
+				Gtk.Application.Invoke(delegate {
 					treeView.SetCursorOnCell(path, column, renderer, true);
 				});
 				treeView.GrabFocus();

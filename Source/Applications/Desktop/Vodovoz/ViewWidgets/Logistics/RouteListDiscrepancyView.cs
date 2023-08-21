@@ -78,8 +78,8 @@ namespace Vodovoz
 
 		void UseFine_Toggled(object o, ToggledArgs args)
 		{
-			//Вызываем через Application.Invoke что бы событие вызывалось уже после того как поле обновилось.
-			Application.Invoke(delegate {
+			//Вызываем через Gtk.Application.Invoke что бы событие вызывалось уже после того как поле обновилось.
+			Gtk.Application.Invoke(delegate {
 				FineChanged?.Invoke(this, EventArgs.Empty);
 			});
 		}

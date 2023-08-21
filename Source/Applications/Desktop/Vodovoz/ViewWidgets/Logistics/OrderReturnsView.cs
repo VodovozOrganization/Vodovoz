@@ -428,7 +428,7 @@ namespace Vodovoz
 
 			var previousDiscountReason = orderItemNode.OrderItem.DiscountReason;
 			
-			Application.Invoke((sender, eventArgs) =>
+			Gtk.Application.Invoke((sender, eventArgs) =>
 			{
 				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
 				//комбо-бокс не откроется, но событие сработает и прилетит null

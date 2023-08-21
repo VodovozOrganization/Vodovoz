@@ -136,13 +136,13 @@ namespace Vodovoz.Views.Users
 			switch(e.PropertyName)
 			{
 				case nameof(ViewModel.ProgressMessage):
-					Application.Invoke((s, args) =>
+					Gtk.Application.Invoke((s, args) =>
 					{
 						updateFixedPricesProgress.Text = ViewModel.ProgressMessage;
 					});
 					break;
 				case nameof(ViewModel.ProgressFraction):
-					Application.Invoke((s, args) =>
+					Gtk.Application.Invoke((s, args) =>
 					{
 						updateFixedPricesProgress.Fraction = ViewModel.ProgressFraction;
 					});
@@ -171,7 +171,7 @@ namespace Vodovoz.Views.Users
 				}
 				catch(Exception ex)
 				{
-					Application.Invoke((s, eventArgs) =>
+					Gtk.Application.Invoke((s, eventArgs) =>
 					{
 						updateFixedPricesProgress.Text = "При обновлении фиксы произошла ошибка. Попробуйте повторить позже...";
 						updateFixedPricesProgress.Fraction = 0;

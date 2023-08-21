@@ -1040,7 +1040,7 @@ namespace Vodovoz
 
 			EmailDataLoader.ItemsListUpdated += (sender, args) =>
 			{
-				Application.Invoke((s, arg) =>
+				Gtk.Application.Invoke((s, arg) =>
 				{
 					ytreeviewEmails.ItemsDataSource = EmailDataLoader.Items;
 					GtkHelper.WaitRedraw();
