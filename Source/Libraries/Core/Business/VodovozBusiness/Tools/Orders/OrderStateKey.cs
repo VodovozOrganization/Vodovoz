@@ -22,7 +22,7 @@ namespace Vodovoz.Tools.Orders
 		public OrderStateKey(Order order)
 		{
 			Order = order;
-			this.OrderStatus = Order.OrderStatus;
+			OrderStatus = Order.OrderStatus;
 			InitializeFields();
 		}
 
@@ -32,7 +32,7 @@ namespace Vodovoz.Tools.Orders
 		public OrderStateKey(Order order, OrderStatus requiredStatus)
 		{
 			Order = order;
-			this.OrderStatus = requiredStatus;
+			OrderStatus = requiredStatus;
 			InitializeFields();
 		}
 
@@ -85,7 +85,7 @@ namespace Vodovoz.Tools.Orders
 		#region для проверки цены доставки
 
 		[Display(Name = "Сколько воды многооборотной таре 19л?")]
-		public decimal Water19LCount { get; set; }
+		public decimal NotDisposableWater19LCount { get; set; }
 
 		[Display(Name = "Сколько воды одноразовой таре 19л?")]
 		public decimal DisposableWater19LCount { get; set; }
@@ -109,8 +109,8 @@ namespace Vodovoz.Tools.Orders
 		void InitializeFields()
 		{
 			//для документов
-			this.DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;
-			this.IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Domain.Client.DefaultDocumentType.torg12;
+			DefaultDocumentType = Order.DocumentType ?? Order.Client.DefaultDocumentType;
+			IsDocTypeTORG12 = DefaultDocumentType.HasValue && DefaultDocumentType == Domain.Client.DefaultDocumentType.torg12;
 
 			HasOrderEquipment = HasOrderEquipments(Order.UoW);
 
@@ -125,49 +125,51 @@ namespace Vodovoz.Tools.Orders
 				HasOrderItems = true;
 			}
 			
-			this.IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.ActualSum) <= 0m;
-			this.NeedToReturnBottles = Order.BottlesReturn > 0;
-			this.NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();
-			this.PaymentType = Order.PaymentType;
-			this.HaveSpecialFields = Order.Client.UseSpecialDocFields;
-			this.NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == Domain.Goods.NomenclatureCategory.master);
-			this.IsSelfDelivery = Order.SelfDelivery;
-			this.PayAfterShipment = Order.PayAfterShipment;
-			this.HasEShopOrder = Order.EShopOrder.HasValue;
+			IsPriceOfAllOrderItemsZero = Order.ObservableOrderItems.Sum(i => i.ActualSum) <= 0m;
+			NeedToReturnBottles = Order.BottlesReturn > 0;
+			NeedToRefundDepositToClient = Order.ObservableOrderDepositItems.Any();
+			PaymentType = Order.PaymentType;
+			HaveSpecialFields = Order.Client.UseSpecialDocFields;
+			NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == Domain.Goods.NomenclatureCategory.master);
+			IsSelfDelivery = Order.SelfDelivery;
+			PayAfterShipment = Order.PayAfterShipment;
+			HasEShopOrder = Order.EShopOrder.HasValue;
 
 			//для проверки цены доставки
-			this.Water19LCount = Order.OrderItems
-				.Where(x => x.Nomenclature != null && x.Nomenclature.IsWater19L)
-				.Sum(x => x.Count);
-			this.DisposableWater19LCount = Order.OrderItems
+			NotDisposableWater19LCount = Order.OrderItems
 				.Where(x => x.Nomenclature != null
-				&& x.Nomenclature.Category == NomenclatureCategory.water
-				&& x.Nomenclature.IsDisposableTare
-				&& x.Nomenclature.TareVolume == TareVolume.Vol19L)
+					&& !x.Nomenclature.IsDisposableTare
+					&& x.Nomenclature.IsWater19L)
 				.Sum(x => x.Count);
-			this.DisposableWater6LCount = Order.OrderItems
+			DisposableWater19LCount = Order.OrderItems
 				.Where(x => x.Nomenclature != null
-				&& x.Nomenclature.Category == NomenclatureCategory.water
-				&& x.Nomenclature.IsDisposableTare
-				&& x.Nomenclature.TareVolume == TareVolume.Vol6L)
+					&& x.Nomenclature.Category == NomenclatureCategory.water
+					&& x.Nomenclature.IsDisposableTare
+					&& x.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(x => x.Count);
-			this.DisposableWater1500mlCount = Order.OrderItems
+			DisposableWater6LCount = Order.OrderItems
 				.Where(x => x.Nomenclature != null
-				&& x.Nomenclature.Category == NomenclatureCategory.water
-				&& x.Nomenclature.IsDisposableTare
-				&& x.Nomenclature.TareVolume == TareVolume.Vol1500ml)
+					&& x.Nomenclature.Category == NomenclatureCategory.water
+					&& x.Nomenclature.IsDisposableTare
+					&& x.Nomenclature.TareVolume == TareVolume.Vol6L)
 				.Sum(x => x.Count);
-			this.DisposableWater600mlCount = Order.OrderItems
+			DisposableWater1500mlCount = Order.OrderItems
 				.Where(x => x.Nomenclature != null
-				&& x.Nomenclature.Category == NomenclatureCategory.water
-				&& x.Nomenclature.IsDisposableTare
-				&& x.Nomenclature.TareVolume == TareVolume.Vol600ml)
+					&& x.Nomenclature.Category == NomenclatureCategory.water
+					&& x.Nomenclature.IsDisposableTare
+					&& x.Nomenclature.TareVolume == TareVolume.Vol1500ml)
 				.Sum(x => x.Count);
-			this.DisposableWater500mlCount = Order.OrderItems
+			DisposableWater600mlCount = Order.OrderItems
 				.Where(x => x.Nomenclature != null
-	            && x.Nomenclature.Category == NomenclatureCategory.water
-	            && x.Nomenclature.IsDisposableTare
-	            && x.Nomenclature.TareVolume == TareVolume.Vol500ml)
+					&& x.Nomenclature.Category == NomenclatureCategory.water
+					&& x.Nomenclature.IsDisposableTare
+					&& x.Nomenclature.TareVolume == TareVolume.Vol600ml)
+				.Sum(x => x.Count);
+			DisposableWater500mlCount = Order.OrderItems
+				.Where(x => x.Nomenclature != null
+					&& x.Nomenclature.Category == NomenclatureCategory.water
+					&& x.Nomenclature.IsDisposableTare
+					&& x.Nomenclature.TareVolume == TareVolume.Vol500ml)
 				.Sum(x => x.Count);
 		}
 
@@ -200,7 +202,7 @@ namespace Vodovoz.Tools.Orders
 
 		public bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)
 		{
-			decimal totalWater19LCount = DisposableWater19LCount + Water19LCount;
+			decimal totalWater19LCount = DisposableWater19LCount + NotDisposableWater19LCount;
 			bool deliveryIsFree = 
 				(totalWater19LCount > 0 && totalWater19LCount >= rule.Water19LCount)
 				|| (DisposableWater6LCount > 0 && DisposableWater6LCount >= rule.Water6LCount)
