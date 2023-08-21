@@ -161,7 +161,7 @@ namespace Vodovoz.ViewModels.Widgets
 		{
 			if(e.PropertyName == nameof(Entity.UndeliveryStatus))
 			{
-				Entity.SetUndeliveryStatus(Entity.UndeliveryStatus);
+				Entity.AddAutoCommentByChangeStatus();
 			}
 
 			if(e.PropertyName == nameof(Entity.DriverCallType))
