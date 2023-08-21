@@ -121,6 +121,7 @@ namespace Vodovoz
 		private readonly IPhoneRepository _phoneRepository = new PhoneRepository();
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly IOrganizationRepository _organizationRepository = new OrganizationRepository();
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
 		private readonly IContactParametersProvider _contactsParameters = new ContactParametersProvider(new ParametersProvider());
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider =
 			new SubdivisionParametersProvider(new ParametersProvider());
@@ -697,6 +698,8 @@ namespace Vodovoz
 				UoWGeneric,
 				Entity.Emails,
 				_emailParametersProvider,
+				_externalCounterpartyRepository,
+				_commonServices.InteractiveService,
 				Entity.PersonType);
 			emailsView.ViewModel = emailsViewModel;
 			emailsView.Sensitive = CanEdit;

@@ -1960,6 +1960,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverStopListRemovalView.cs" />
     <Compile Include="Views\BaseParameters\BaseParametersView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BaseParameters.BaseParametersView.cs" />
+    <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.UndeliveredOrdersClassificationReportView.cs" />
+    <Compile Include="ReportsParameters\Cash\MovementsPaymentControlView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Cash.MovementsPaymentControlView.cs" />
     <Compile Include="Views\Logistic\RouteListMaxFastDeliveryOrdersView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMaxFastDeliveryOrdersView.cs" />
   </ItemGroup>
@@ -1967,6 +1971,7 @@
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\BaseParameters\" />
+    <Folder Include="ReportsParameters\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">

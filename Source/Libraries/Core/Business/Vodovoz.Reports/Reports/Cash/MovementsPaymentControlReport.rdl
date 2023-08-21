@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>139.3pt</Height>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>movements</DataSetName>
+        <NoRows>Данных нет</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>67.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>76.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>135.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>120.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>119.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>96.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>92.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>121.1pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>34.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>№ Док-та перемещ.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>Дата</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Отправитель</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Получатель</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Фура</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextDecoration>None</TextDecoration>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >10pt</FontSize>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>false</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Счет</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Сумма</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Перевозчик</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>31.8pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>={id}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft >1pt</PaddingLeft>
+                        <PaddingRight >1pt</PaddingRight>
+                        <PaddingTop >1pt</PaddingTop>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>=Format({send_date}, "dd/MM/yyyy")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft >1pt</PaddingLeft>
+                        <PaddingRight >1pt</PaddingRight>
+                        <PaddingTop >1pt</PaddingTop>
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>={sender}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft >1pt</PaddingLeft>
+                        <PaddingRight >1pt</PaddingRight>
+                        <PaddingTop >1pt</PaddingTop>
+                      </Style>
+                      <CanShrink >false</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>={receiver}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format></Format>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft >1pt</PaddingLeft>
+                        <PaddingRight >1pt</PaddingRight>
+                        <PaddingTop >1pt</PaddingTop>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>={wagon}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format></Format>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft >1pt</PaddingLeft>
+                        <PaddingRight >1pt</PaddingRight>
+                        <PaddingTop >1pt</PaddingTop>
+                      </Style>
+                      <CanShrink >false</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>={bill}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format></Format>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft >1pt</PaddingLeft>
+                        <PaddingRight >1pt</PaddingRight>
+                        <PaddingTop >1pt</PaddingTop>
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>={sum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format></Format>
+                        <WritingMode >lr-tb</WritingMode>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingTop >1pt</PaddingTop>
+                        <PaddingRight >1pt</PaddingRight>
+                        <PaddingLeft >1pt</PaddingLeft>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>={transporter_name}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format></Format>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingBottom >1pt</PaddingBottom>
+                        <PaddingLeft >1pt</PaddingLeft>
+                        <PaddingRight >1pt</PaddingRight>
+                        <PaddingTop >1pt</PaddingTop>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>53.4pt</Top>
+      </Table>
+      <Textbox Name="Textbox20">
+        <Height>22.59pt</Height>
+        <Width>815.89pt</Width>
+        <Value>="Контроль оплаты перемещений с " + Format(CDate({?start_date}), "dd/MM/yyyy") + " по " + Format(CDate({?end_date}), "dd/MM/yyyy")</Value>
+        <ZIndex>0</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>12.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=vod-srv.qsolution.ru;Allow User Variables=True</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <DataSets >
+    <DataSet Name="movements">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>60</Timeout>
+        <CommandText>SELECT
+	smd.id as id,
+	smd.send_time as send_date,
+	CASE
+		WHEN smd.storage_from = 'Warehouse' THEN w_from.name
+		WHEN smd.storage_from = 'Car' THEN
+		CONCAT_WS(
+            ' ',
+            c_from.reg_number,
+            c_from.model) 
+		WHEN smd.storage_from = 'Employee' THEN 
+		CONCAT_WS(
+            ' ',
+            e_from.last_name,
+            IF(e_from.name = '',
+               NULL,
+               e_from.name),
+            IF(e_from.patronymic = '',
+               NULL,
+               e_from.patronymic))               
+		ELSE 'Нет данных'
+	END sender,
+	CASE
+		WHEN smd.document_type_by_storage = 'ToWarehouse' THEN w_to.name
+		WHEN smd.document_type_by_storage = 'ToCar' THEN
+		CONCAT_WS(
+            ' ',
+            c_to.reg_number,
+            c_to.model) 
+		WHEN smd.document_type_by_storage = 'ToEmployee' THEN
+		CONCAT_WS(
+            ' ',
+            e_to.last_name,
+            IF(e_to.name = '',
+               NULL,
+               e_to.name),
+            IF(e_to.patronymic = '',
+               NULL,
+               e_to.patronymic)) 
+		ELSE 'Нет данных'
+	END receiver,
+	c_wagon.name as wagon,
+	smd.transporter_bill as bill,
+	FORMAT(smd.tranporter_sum, 2, 'ru_RU') as 'sum',
+	c_transporter.full_name as transporter_name
+FROM
+	store_movement_document smd
+LEFT JOIN warehouses w_from ON
+	w_from.id = smd.warehouse_from_id
+LEFT JOIN warehouses w_to ON
+	w_to.id = smd.warehouse_to_id
+LEFT JOIN cars c_from ON
+	c_from.id = smd.car_from_id
+LEFT JOIN cars c_to ON
+	c_to.id = smd.car_to_id
+LEFt JOIN employees e_from ON
+	e_from.id = smd.employee_from_id
+LEFT JOIN employees e_to ON
+	e_to.id = smd.employee_to_id
+LEFT JOIN store_movement_wagon c_wagon ON
+	c_wagon.id = smd.transportation_wagon_id
+LEFT JOIN counterparty c_transporter ON
+	c_transporter.id = smd.transporter_id
+WHERE
+	NOT ISNULL(smd.transportation_wagon_id)
+	AND smd.send_time &gt;= @start_date
+	AND smd.send_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
+ORDER BY smd.id </CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="send_date">
+          <DataField>send_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="sender">
+          <DataField>sender</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="receiver">
+          <DataField>receiver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="wagon">
+          <DataField>wagon</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bill">
+          <DataField>bill</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="sum">
+          <DataField>sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="transporter_name">
+          <DataField>transporter_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportParameters >
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

@@ -601,6 +601,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action UndeliveredOrdersAction;
 
+	private global::Gtk.Action ActionMovementsPaymentControlReport;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1568,6 +1570,9 @@ public partial class MainWindow
 		this.UndeliveredOrdersAction = new global::Gtk.Action("UndeliveredOrdersAction", global::Mono.Unix.Catalog.GetString("Недовозы"), null, "undelivered_orders");
 		this.UndeliveredOrdersAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Недовозы");
 		w1.Add(this.UndeliveredOrdersAction, null);
+		this.ActionMovementsPaymentControlReport = new global::Gtk.Action("ActionMovementsPaymentControlReport", global::Mono.Unix.Catalog.GetString("Контроль оплаты перемещений"), null, null);
+		this.ActionMovementsPaymentControlReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Контроль оплаты перемещений");
+		w1.Add(this.ActionMovementsPaymentControlReport, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.HeightRequest = 600;
@@ -1797,33 +1802,34 @@ public partial class MainWindow
 				"roductionWarehouseMovementReport\' action=\'ActionProductionWarehouseMovementRepor" +
 				"t\'/><menuitem name=\'ActionSalaryRatesReport\' action=\'ActionSalaryRatesReport\'/><" +
 				"menuitem name=\'EmployeesTaxesAction\' action=\'EmployeesTaxesAction\'/><menuitem na" +
-				"me=\'Action74\' action=\'Action74\'/></menu><menu name=\'ActionProduction\' action=\'Ac" +
-				"tionProduction\'><menuitem name=\'ActionProducedProductionReport\' action=\'ActionPr" +
-				"oducedProductionReport\'/></menu><menu name=\'ActionRetailMenubar\' action=\'ActionR" +
-				"etailMenubar\'><menuitem name=\'ActionQualityRetailReport\' action=\'ActionQualityRe" +
-				"tailReport\'/><menuitem name=\'ActionCounterpartyRetailReport\' action=\'ActionCount" +
-				"erpartyRetailReport\'/></menu><menu name=\'ActionTransportMenuBar\' action=\'ActionT" +
-				"ransportMenuBar\'><menuitem name=\'ActionCostCarExploitationReport\' action=\'Action" +
-				"CostCarExploitationReport\'/></menu></menu><menu name=\'ActionAdministration\' acti" +
-				"on=\'ActionAdministration\'><menuitem name=\'ActionTypesOfEntities\' action=\'ActionT" +
-				"ypesOfEntities\'/><menuitem name=\'ActionUsers\' action=\'ActionUsers\'/><menuitem na" +
-				"me=\'UsersRolesAction\' action=\'UsersRolesAction\'/><menuitem name=\'registeredRMAct" +
-				"ion\' action=\'registeredRMAction\'/><menuitem name=\'ActionParameters\' action=\'Acti" +
-				"onParameters\'/><menu name=\'ActionService\' action=\'ActionService\'><menuitem name=" +
-				"\'Action45\' action=\'Action45\'/><menuitem name=\'ActionAddressDuplicetes\' action=\'A" +
-				"ctionAddressDuplicetes\'/><menuitem name=\'ActionDistanceFromCenter\' action=\'Actio" +
-				"nDistanceFromCenter\'/><menuitem name=\'ActionOrdersWithoutBottlesOperation\' actio" +
-				"n=\'ActionOrdersWithoutBottlesOperation\'/><menuitem name=\'ActionLoad1cCounterpart" +
-				"yAndDeliveryPoints\' action=\'ActionLoad1cCounterpartyAndDeliveryPoints\'/><menuite" +
-				"m name=\'ActionToOnlineStore\' action=\'ActionToOnlineStore\'/><menuitem name=\'Actio" +
-				"n62\' action=\'Action62\'/><menuitem name=\'ActionRecalculateDriverWages\' action=\'Ac" +
-				"tionRecalculateDriverWages\'/></menu><separator/><menuitem name=\'ActionDocTemplat" +
-				"es\' action=\'ActionDocTemplates\'/><menuitem name=\'ActionGeographicGroups\' action=" +
-				"\'ActionGeographicGroups\'/><menuitem name=\'ActionImages\' action=\'ActionImages\'/><" +
-				"/menu><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem name=\'aboutAction\'" +
-				" action=\'aboutAction\'/></menu><menu name=\'ActionProposals\' action=\'ActionProposa" +
-				"ls\'><menuitem name=\'ActionOpenProposalsJournal\' action=\'ActionOpenProposalsJourn" +
-				"al\'/></menu></menubar></ui>");
+				"me=\'Action74\' action=\'Action74\'/><menuitem name=\'ActionMovementsPaymentControlRe" +
+				"port\' action=\'ActionMovementsPaymentControlReport\'/></menu><menu name=\'ActionPro" +
+				"duction\' action=\'ActionProduction\'><menuitem name=\'ActionProducedProductionRepor" +
+				"t\' action=\'ActionProducedProductionReport\'/></menu><menu name=\'ActionRetailMenub" +
+				"ar\' action=\'ActionRetailMenubar\'><menuitem name=\'ActionQualityRetailReport\' acti" +
+				"on=\'ActionQualityRetailReport\'/><menuitem name=\'ActionCounterpartyRetailReport\' " +
+				"action=\'ActionCounterpartyRetailReport\'/></menu><menu name=\'ActionTransportMenuB" +
+				"ar\' action=\'ActionTransportMenuBar\'><menuitem name=\'ActionCostCarExploitationRep" +
+				"ort\' action=\'ActionCostCarExploitationReport\'/></menu></menu><menu name=\'ActionA" +
+				"dministration\' action=\'ActionAdministration\'><menuitem name=\'ActionTypesOfEntiti" +
+				"es\' action=\'ActionTypesOfEntities\'/><menuitem name=\'ActionUsers\' action=\'ActionU" +
+				"sers\'/><menuitem name=\'UsersRolesAction\' action=\'UsersRolesAction\'/><menuitem na" +
+				"me=\'registeredRMAction\' action=\'registeredRMAction\'/><menuitem name=\'ActionParam" +
+				"eters\' action=\'ActionParameters\'/><menu name=\'ActionService\' action=\'ActionServi" +
+				"ce\'><menuitem name=\'Action45\' action=\'Action45\'/><menuitem name=\'ActionAddressDu" +
+				"plicetes\' action=\'ActionAddressDuplicetes\'/><menuitem name=\'ActionDistanceFromCe" +
+				"nter\' action=\'ActionDistanceFromCenter\'/><menuitem name=\'ActionOrdersWithoutBott" +
+				"lesOperation\' action=\'ActionOrdersWithoutBottlesOperation\'/><menuitem name=\'Acti" +
+				"onLoad1cCounterpartyAndDeliveryPoints\' action=\'ActionLoad1cCounterpartyAndDelive" +
+				"ryPoints\'/><menuitem name=\'ActionToOnlineStore\' action=\'ActionToOnlineStore\'/><m" +
+				"enuitem name=\'Action62\' action=\'Action62\'/><menuitem name=\'ActionRecalculateDriv" +
+				"erWages\' action=\'ActionRecalculateDriverWages\'/></menu><separator/><menuitem nam" +
+				"e=\'ActionDocTemplates\' action=\'ActionDocTemplates\'/><menuitem name=\'ActionGeogra" +
+				"phicGroups\' action=\'ActionGeographicGroups\'/><menuitem name=\'ActionImages\' actio" +
+				"n=\'ActionImages\'/></menu><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem" +
+				" name=\'aboutAction\' action=\'aboutAction\'/></menu><menu name=\'ActionProposals\' ac" +
+				"tion=\'ActionProposals\'><menuitem name=\'ActionOpenProposalsJournal\' action=\'Actio" +
+				"nOpenProposalsJournal\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -2275,6 +2281,7 @@ public partial class MainWindow
 		this.ActionUndeliveryKind.Activated += new global::System.EventHandler(this.OnActionUndeliveryKindActivated);
 		this.ActionUndeliveryDetalization.Activated += new global::System.EventHandler(this.OnActionUndeliveryDetalizationActivated);
 		this.UndeliveredOrdersAction.Activated += new global::System.EventHandler(this.OnUndeliveredOrdersActionActivated);
+		this.ActionMovementsPaymentControlReport.Activated += new global::System.EventHandler(this.OnActionMovementsPaymentControlReportActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
