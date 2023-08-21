@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -1112,11 +1112,9 @@ namespace Vodovoz.JournalViewModels
 							_employeeJournalFactory,
 							_employeeService,
 							_undeliveredOrdersJournalOpener,
-							_orderSelectorFactory,
 							_undeliveredOrdersRepository,
 							new EmployeeSettings(new ParametersProvider()),
-							_subdivisionParametersProvider,
-							_fileDialogService
+							_subdivisionParametersProvider
 						);
 
 						TabParent.AddTab(dlg, this, false);

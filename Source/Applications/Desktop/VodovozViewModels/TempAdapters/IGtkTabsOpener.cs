@@ -1,9 +1,7 @@
-﻿using QS.Dialog;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
-using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
@@ -27,6 +25,7 @@ namespace Vodovoz.TempAdapters
 		ITdiTab OpenRouteListClosingDlg(ITdiTabParent master, int routelistId);
 		ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0, bool isForSalesDepartment = false);
 		ITdiTab OpenUndeliveriesWithCommentsPrintDlg(ITdiTab tab, UndeliveredOrdersFilterViewModel filter);
+		void OpenUndeliveredOrdersClassificationReport(UndeliveredOrdersFilterViewModel filter, bool withTransfer);
 		ITdiTab OpenCounterpartyDlg(ITdiTab master, int counterpartyId);
 		void OpenTrackOnMapWnd(int routeListId);
 		ITdiTab OpenCounterpartyEdoTab(int counterpartyId, ITdiTab master = null);

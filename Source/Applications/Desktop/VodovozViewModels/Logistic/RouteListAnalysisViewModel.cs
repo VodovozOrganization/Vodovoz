@@ -189,11 +189,9 @@ namespace Vodovoz.ViewModels.Logistic
 						_employeeJournalFactory,
 						_employeeService,
 						_undeliveredOrdersJournalOpener,
-						_orderSelectorFactory,
 						UndeliveredOrdersRepository,
 						_employeeSettings,
-						_subdivisionParametersProvider,
-						_fileDialogService
+						_subdivisionParametersProvider
 					);
 
 					dlg.TabClosed += (s,e) => UpdateTreeAddresses?.Invoke();

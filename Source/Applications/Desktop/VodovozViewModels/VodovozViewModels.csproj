@@ -160,9 +160,12 @@
     <Compile Include="Journals\JournalViewModels\Organizations\OrganizationOwnershipTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\EmployeeRegistrationsJournalViewModel.cs" />
     <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.cs" />
+    <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriverNode.cs" />
+    <Compile Include="Logistic\DriversStopLists\DriversStopListsViewModel.DriversSortOrder.cs" />
     <Compile Include="Logistic\DriversStopLists\DriverStopListRemovalViewModel.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="Logistic\RouteListJournalViewModel.cs" />
+    <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportViewModel.cs" />
     <Compile Include="ViewModels\Cash\CashRequestItemViewModel.CashRequestSumItemAcceptedEventArgs.cs" />
     <Compile Include="Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="Logistic\RouteListJournalViewModel.cs" />
