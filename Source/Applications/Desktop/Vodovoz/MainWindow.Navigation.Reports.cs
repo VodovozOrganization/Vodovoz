@@ -1314,6 +1314,16 @@ public partial class MainWindow
 	}
 
 	/// <summary>
+	/// Отчет по контролю оплаты перемещений
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionMovementsPaymentControlReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(MovementsPaymentControlViewModel));
+	}
+
+	/// <summary>
 	/// Отчет по перемещениям с производств
 	/// </summary>
 	/// <param name="sender"></param>

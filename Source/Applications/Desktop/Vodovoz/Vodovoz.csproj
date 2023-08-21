@@ -1962,11 +1962,14 @@
     <Compile Include="gtk-gui\Vodovoz.Views.BaseParameters.BaseParametersView.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.UndeliveredOrdersClassificationReportView.cs" />
+    <Compile Include="ReportsParameters\Cash\MovementsPaymentControlView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Cash.MovementsPaymentControlView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\BaseParameters\" />
+    <Folder Include="ReportsParameters\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
