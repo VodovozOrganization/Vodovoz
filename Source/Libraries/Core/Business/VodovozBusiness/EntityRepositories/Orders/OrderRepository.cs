@@ -1147,13 +1147,23 @@ namespace Vodovoz.EntityRepositories.Orders
 				});
 			}
 
-			var routeListItemCriteria = QueryOver.Of<RouteListItem>().Where(x => x.Order.Id == orderAlias.Id).Select(x => x.Id).Take(1).DetachedCriteria;
-			var selfDeliveryDocumentCriteria = QueryOver.Of<SelfDeliveryDocument>().Where(x => x.Order.Id == orderAlias.Id).Select(x => x.Id).Take(1).DetachedCriteria;
+			var routeListItemCriteria = QueryOver.Of<RouteListItem>()
+				.Where(x => x.Order.Id == orderAlias.Id)
+				.Select(x => x.Id)
+				.Take(1)
+				.DetachedCriteria;
+			
+			var selfDeliveryDocumentCriteria = QueryOver.Of<SelfDeliveryDocument>()
+				.Where(x => x.Order.Id == orderAlias.Id)
+				.Select(x => x.Id)
+				.Take(1)
+				.DetachedCriteria;
 			
 			var closedWithoutDeliveryCriterion = Restrictions.Conjunction()
 				.Add(Restrictions.Where(() => orderAlias.OrderStatus != OrderStatus.Closed))
 				.Add(Subqueries.IsNotNull(routeListItemCriteria))
 				.Add(Subqueries.IsNotNull(selfDeliveryDocumentCriteria));
+			
 			//Исключаем закрытые без доставки
 			mainQuery.WhereNot(closedWithoutDeliveryCriterion);
 
@@ -1170,7 +1180,8 @@ namespace Vodovoz.EntityRepositories.Orders
 				mainQuery.Where(() => !orderAlias.IsFastDelivery);
 			}
 
-			mainQuery.WhereRestrictionOn(() => orderAlias.OrderAddressType).IsIn(orderOnDayFilters.OrderAddressTypes.ToArray());
+			mainQuery.WhereRestrictionOn(() => orderAlias.OrderAddressType)
+				.IsIn(orderOnDayFilters.OrderAddressTypes.ToArray());
 
 			switch(orderOnDayFilters.DeliveryScheduleType)
 			{
