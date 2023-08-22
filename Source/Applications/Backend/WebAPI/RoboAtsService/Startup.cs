@@ -26,11 +26,11 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz;
 using Vodovoz.Core.DataService;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure.Database;
 using Vodovoz.Models;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
@@ -183,7 +183,7 @@ namespace RoboatsService
 				new Assembly[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),

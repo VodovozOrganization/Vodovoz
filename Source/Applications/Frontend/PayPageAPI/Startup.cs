@@ -17,11 +17,11 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
 using System.Reflection;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
 namespace PayPageAPI
 {
@@ -151,7 +151,7 @@ namespace PayPageAPI
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(Attachment)),

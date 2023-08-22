@@ -44,6 +44,10 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj">
+      <Project>{0107f13c-46e0-4008-8302-0b5cd71df14c}</Project>
+      <Name>Vodovoz.Data.NHibernate</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
       <Project>{BD514659-1394-4BBA-94C5-1BEE5C72C7D6}</Project>
       <Name>System.Data.Bindings</Name>

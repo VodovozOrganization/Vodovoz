@@ -26,13 +26,13 @@ using QS.Project.DB;
 using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Core.DataService;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings;
@@ -213,7 +213,7 @@ namespace FastPaymentsAPI
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(Attachment)),

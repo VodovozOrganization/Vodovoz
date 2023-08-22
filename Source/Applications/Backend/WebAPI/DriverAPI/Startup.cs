@@ -34,6 +34,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using Vodovoz.Core.DataService;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Employees;
@@ -42,7 +43,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.Settings.Database;
@@ -259,7 +259,7 @@ namespace DriverAPI
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(Attachment)),
