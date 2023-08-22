@@ -75,6 +75,8 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			set => SetField(ref _outputParameters, value);
 		}
 
+		public string SearchValue => _searchValue;
+
 		public GenericObservableList<SelectableParameter> Parameters
 		{
 			get
@@ -262,11 +264,16 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 			FilterRelations.Add(filterCriterionFunc);
 
-			sourceParameterSet.SelectionChanged -= MasterParameterSet_SelectionChanged;
-			sourceParameterSet.SelectionChanged += MasterParameterSet_SelectionChanged;
+			sourceParameterSet.SelectionChanged -= OnMasterParameterSetSelectionChanged;
+			sourceParameterSet.SelectionChanged += OnMasterParameterSetSelectionChanged;
 		}
 
-		private void MasterParameterSet_SelectionChanged(object sender, EventArgs e)
+		private void OnMasterParameterSetSelectionChanged(object sender, EventArgs e)
+		{
+			UpdateParameters();
+		}
+		
+		public void UpdateParameters()
 		{
 			Parameters = new GenericObservableList<SelectableParameter>(_parametersFactory.GetParameters(FilterRelations));
 		}
