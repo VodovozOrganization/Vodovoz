@@ -68,7 +68,7 @@ namespace RevenueService.Client
 					OpfFull = suggestion.data.opf?.@full,
 					Emails = suggestion.data.emails?.Select(x => x.value).ToArray(),
 					Phones = suggestion.data.phones?.Select(x => x.value).ToArray(),
-					State = suggestion.data.state.status.ToString()
+					State = suggestion.data.state.status
 				};
 
 				var postalCode = suggestion.data.address?.data.postal_code;
@@ -90,6 +90,21 @@ namespace RevenueService.Client
 			{
 				CounterpartyDetailsList = suggestionList
 			};
+		}
+
+		public async Task<PartyStatus> GetCounterpartyStatus(string inn, CancellationToken cancellationToken)
+		{
+			var query = new DadataRequestDto
+			{
+				Inn = inn
+			};
+
+			var response = await GetCounterpartyInfoAsync(query, cancellationToken);
+
+			var counterpartyDetails = response.CounterpartyDetailsList.FirstOrDefault()
+				?? throw new InvalidOperationException("Нет информации по контрагенту");
+
+			return counterpartyDetails.State;
 		}
 	}
 }

@@ -251,10 +251,12 @@ using Vodovoz.Domain.Client;
 using Vodovoz.CachingRepositories.Counterparty;
 using Vodovoz.ViewModels.BaseParameters;
 using Vodovoz.Views.BaseParameters;
+using RevenueService.Client;
 using Vodovoz.ViewModels.QualityControl.Reports;
 using Vodovoz.QualityControl.Reports;
 using Vodovoz.ReportsParameters.Cash;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.Application.Services;
 
 namespace Vodovoz
 {
@@ -801,6 +803,8 @@ namespace Vodovoz
 			builder.RegisterType<WageParameterService>().As<IWageParameterService>();
 			builder.RegisterType<SelfDeliveryCashOrganisationDistributor>().As<ISelfDeliveryCashOrganisationDistributor>();
 
+			builder.RegisterType<CounterpartyService>().As<ICounterpartyService>().InstancePerLifetimeScope();
+
 			#endregion
 
 			#region Models
@@ -1074,6 +1078,13 @@ namespace Vodovoz
 			builder.RegisterType<StoreDocumentHelper>().As<IStoreDocumentHelper>();
 
 			builder.RegisterType<CashFlowDdsReportRenderer>().AsSelf();
+
+			builder.Register((context) =>
+			{
+				var counterpartySettings = context.Resolve<ICounterpartySettings>();
+
+				return new RevenueServiceClient(counterpartySettings.RevenueServiceClientAccessToken);
+			}).As<IRevenueServiceClient>().InstancePerLifetimeScope();
 
 			#endregion
 
