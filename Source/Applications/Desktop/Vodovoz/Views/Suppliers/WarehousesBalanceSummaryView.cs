@@ -32,17 +32,20 @@ namespace Vodovoz.Views.Suppliers
 		private void Configure()
 		{
 			ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
+			
 			buttonLoad.Binding.AddSource(ViewModel)
 				.AddFuncBinding(vm => !vm.IsGenerating, w => w.Visible)
 				.AddFuncBinding(vm => !vm.IsGenerating, w => w.Sensitive)
 				.InitializeFromSource();
+			
 			buttonLoad.Clicked += ButtonLoadOnClicked;
+			
 			buttonAbort.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.IsGenerating, w => w.Visible)
 				.AddBinding(vm => vm.IsGenerating, w => w.Sensitive)
 				.InitializeFromSource();
-			buttonAbort.Clicked += (sender, args) => { ViewModel.ReportGenerationCancellationTokenSource.Cancel(); };
-
+			
+			buttonAbort.Clicked += (sender, args) => ViewModel.ReportGenerationCancellationTokenSource.Cancel();
 			buttonExport.Clicked += (sender, args) => Export();
 
 			datePicker.Binding
@@ -50,6 +53,7 @@ namespace Vodovoz.Views.Suppliers
 				.AddBinding(vm => vm.EndDate, w => w.DateOrNull)
 				.AddFuncBinding(vm => vm.Sensitivity && !vm.ShowReserve, w => w.Sensitive)
 				.InitializeFromSource();
+			
 			ycheckbuttonShowReserv.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowReserve, w => w.Active)
@@ -65,26 +69,58 @@ namespace Vodovoz.Views.Suppliers
 			yhbox1.Binding
 				.AddBinding(ViewModel, vm => vm.Sensitivity, w => w.Sensitive)
 				.InitializeFromSource();
-			radioAllNoms.Binding.AddBinding(ViewModel, vm => vm.AllNomenclatures, w => w.Active).InitializeFromSource();
-			radioGtZNoms.Binding.AddBinding(ViewModel, vm => vm.IsGreaterThanZeroByNomenclature, w => w.Active).InitializeFromSource();
+			
+			radioAllNoms.Binding
+				.AddBinding(ViewModel, vm => vm.AllNomenclatures, w => w.Active)
+				.InitializeFromSource();
+			
+			radioGtZNoms.Binding
+				.AddBinding(ViewModel, vm => vm.IsGreaterThanZeroByNomenclature, w => w.Active)
+				.InitializeFromSource();
+			
 			yhbox2.Binding
 				.AddBinding(ViewModel, vm => vm.Sensitivity, w => w.Sensitive)
 				.InitializeFromSource();
-			radioLeZNoms.Binding.AddBinding(ViewModel, vm => vm.IsLessOrEqualZeroByNomenclature, w => w.Active).InitializeFromSource();
-			radioLtMinNoms.Binding.AddBinding(ViewModel, vm => vm.IsLessThanMinByNomenclature, w => w.Active).InitializeFromSource();
-			radioGeMinNoms.Binding.AddBinding(ViewModel, vm => vm.IsGreaterOrEqualThanMinByNomenclature, w => w.Active).InitializeFromSource();
+			
+			radioLeZNoms.Binding
+				.AddBinding(ViewModel, vm => vm.IsLessOrEqualZeroByNomenclature, w => w.Active)
+				.InitializeFromSource();
+			
+			radioLtMinNoms.Binding
+				.AddBinding(ViewModel, vm => vm.IsLessThanMinByNomenclature, w => w.Active)
+				.InitializeFromSource();
+			
+			radioGeMinNoms.Binding
+				.AddBinding(ViewModel, vm => vm.IsGreaterOrEqualThanMinByNomenclature, w => w.Active)
+				.InitializeFromSource();
 
 			yhbox5.Binding
 				.AddBinding(ViewModel, vm => vm.Sensitivity, w => w.Sensitive)
 				.InitializeFromSource();
-			radioAllWars.Binding.AddBinding(ViewModel, vm => vm.AllWarehouses, w => w.Active).InitializeFromSource();
-			radioGtZWars.Binding.AddBinding(ViewModel, vm => vm.IsGreaterThanZeroByWarehouse, w => w.Active).InitializeFromSource();
+			
+			radioAllWars.Binding
+				.AddBinding(ViewModel, vm => vm.AllWarehouses, w => w.Active)
+				.InitializeFromSource();
+			
+			radioGtZWars.Binding
+				.AddBinding(ViewModel, vm => vm.IsGreaterThanZeroByWarehouse, w => w.Active)
+				.InitializeFromSource();
+			
 			yhbox3.Binding
 				.AddBinding(ViewModel, vm => vm.Sensitivity, w => w.Sensitive)
 				.InitializeFromSource();
-			radioLeZWars.Binding.AddBinding(ViewModel, vm => vm.IsLessOrEqualZeroByWarehouse, w => w.Active).InitializeFromSource();
-			radioLtMinWars.Binding.AddBinding(ViewModel, vm => vm.IsLessThanMinByWarehouse, w => w.Active).InitializeFromSource();
-			radioGeMinWars.Binding.AddBinding(ViewModel, vm => vm.IsGreaterOrEqualThanMinByWarehouse, w => w.Active).InitializeFromSource();
+			
+			radioLeZWars.Binding
+				.AddBinding(ViewModel, vm => vm.IsLessOrEqualZeroByWarehouse, w => w.Active)
+				.InitializeFromSource();
+			
+			radioLtMinWars.Binding
+				.AddBinding(ViewModel, vm => vm.IsLessThanMinByWarehouse, w => w.Active)
+				.InitializeFromSource();
+			
+			radioGeMinWars.Binding
+				.AddBinding(ViewModel, vm => vm.IsGreaterOrEqualThanMinByWarehouse, w => w.Active)
+				.InitializeFromSource();
 
 			_nomenclaturesFilter = new SelectableParameterReportFilterView(ViewModel.NomsViewModel);
 			vboxNomsFilter.Add(_nomenclaturesFilter);
