@@ -250,9 +250,8 @@ namespace Vodovoz.Views.Logistic
 				}
 			}
 
-			ViewModel.CanEditRouteListFastDeliveryMaxDistance 
-				=  ViewModel.CanEditRouteListMaxFastDeliveryOrders 
-					= ViewModel.SelectedWorkingDrivers.Count == 1;
+			ViewModel.CanEditRouteListFastDeliveryMaxDistance = ViewModel.SelectedWorkingDrivers.Count == 1;
+			ViewModel.CanEditRouteListMaxFastDeliveryOrders = ViewModel.SelectedWorkingDrivers.Count == 1;
 		}
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
