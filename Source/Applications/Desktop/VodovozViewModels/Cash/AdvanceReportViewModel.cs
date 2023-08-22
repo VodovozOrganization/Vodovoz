@@ -177,29 +177,6 @@ namespace Vodovoz.ViewModels.Cash
 
 		private void OnEntityPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(Entity.RouteList))
-			{
-				if(!UoW.IsNew)
-				{
-					return;
-				}
-
-				var selectedAdvances = SelectableAdvances
-					.Where(a => a.Selected)
-					.Select(a => a.Value.RouteListClosing)
-					.ToList();
-
-				var selectedRouteListsCount = selectedAdvances?.GroupBy(rl => rl?.Id).Count();
-
-				if(selectedRouteListsCount != 1)
-				{
-					Entity.RouteList = null;
-					return;
-				}
-
-				Entity.RouteList = selectedAdvances.FirstOrDefault();
-			}
-
 			if(e.PropertyName == nameof(Entity.Organisation))
 			{
 				UpdateDebts();
@@ -565,11 +542,36 @@ namespace Vodovoz.ViewModels.Cash
 					.ForEach(selectedExpense => selectedExpense.SilentUnselect());
 			}
 
+			UpdateRouteList();
+
 			ClosingSum = SelectableAdvances
 				.Where(a => a.Selected)
 				.Sum(a => a.Value.UnclosedMoney);
 
 			Money = ClosingSum;
+		}
+
+		private void UpdateRouteList()
+		{
+			if(!UoW.IsNew)
+			{
+				return;
+			}
+
+			var selectedAdvances = SelectableAdvances
+				.Where(a => a.Selected)
+				.Select(a => a.Value.RouteListClosing)
+				.ToList();
+
+			var selectedRouteListsCount = selectedAdvances?.GroupBy(rl => rl?.Id).Count();
+
+			if(selectedRouteListsCount != 1)
+			{
+				Entity.RouteList = null;
+				return;
+			}
+
+			Entity.RouteList = selectedAdvances.FirstOrDefault();
 		}
 
 		public void ConfigureForReturn(int expenseId)
