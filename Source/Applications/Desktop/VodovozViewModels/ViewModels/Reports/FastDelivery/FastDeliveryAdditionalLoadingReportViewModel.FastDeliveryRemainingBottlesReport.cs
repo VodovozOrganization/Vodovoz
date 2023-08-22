@@ -83,8 +83,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 													&& order.CreateDate >= createDateFrom
 													&& order.CreateDate <= createDateTo
 												  select order.Id).Count()
-							let driverfullNameWithInitials = $"{driver.Name} " +
-								$"{driver.LastName.Substring(0, 1)}" +
+							let driverfullNameWithInitials = $"{driver.LastName} " +
+								$"{driver.Name.Substring(0, 1)}" +
 								$".{driver.Patronymic.Substring(0, 1)}."
 							select new Row
 							{
