@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService;
 using EdoService.Converters;
 using EdoService.Dto;
@@ -397,6 +397,10 @@ namespace Vodovoz
 
 		private void ConfigureTabInfo()
 		{
+			ycheckbuttonIsLiquidating.Binding
+				.AddBinding(Entity, e => e.IsLiquidating, w => w.Active)
+				.InitializeFromSource();
+
 			enumPersonType.Sensitive = _currentUserCanEditCounterpartyDetails && CanEdit;
 			enumPersonType.ItemsEnum = typeof(PersonType);
 			enumPersonType.Binding.AddBinding(Entity, s => s.PersonType, w => w.SelectedItemOrNull).InitializeFromSource();
