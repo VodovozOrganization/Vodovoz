@@ -44,6 +44,7 @@ namespace Vodovoz.Application.Services
 			{
 				counterparty.ToggleDeliveryOption(employee);
 				counterparty.AddCloseDeliveryComment($"Автоматическое закрытие поставок: контрагент в статусе \"{status.GetUserFriendlyName()}\". Оформление заказа невозможно", employee);
+				counterparty.IsLiquidating = true;
 			}
 		}
 

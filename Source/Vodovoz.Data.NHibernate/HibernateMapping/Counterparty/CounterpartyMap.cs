@@ -22,6 +22,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.INN).Column("inn");
 			Map(x => x.KPP).Column("kpp");
+			Map(x => x.IsLiquidating).Column("is_liquidating");
 			Map(x => x.OGRN).Column("ogrn");
 			Map(x => x.JurAddress).Column("jur_address");
 			Map(x => x.Address).Column("address");
@@ -29,7 +30,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.SignatoryPost).Column("signatory_post");
 			Map(x => x.SignatoryBaseOf).Column("signatory_base_of");
 			Map(x => x.PhoneFrom1c).Column("phone_from_1c");
-			Map(x => x.PaymentMethod).Column("payment_method").CustomType<PaymentTypeStringType>();
+			Map(x => x.PaymentMethod).Column("payment_method");
 			Map(x => x.PersonType).Column("person_type");
 			Map(x => x.NewBottlesNeeded).Column("need_new_bottles");
 			Map(x => x.DefaultDocumentType).Column("default_document_type");

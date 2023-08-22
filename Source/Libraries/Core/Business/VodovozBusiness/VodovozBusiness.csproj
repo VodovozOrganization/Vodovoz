@@ -374,7 +374,6 @@
     <Compile Include="Domain\Orders\UndeliveredOrderResultComment.cs" />
     <Compile Include="Domain\Organizations\OrganizationOwnershipType.cs" />
     <Compile Include="Domain\Organizations\OrganizationVersion.cs" />
-    <Compile Include="Domain\Client\PaymentTypeStringType.cs" />
     <Compile Include="Domain\Permissions\AvailableDatabase.cs" />
     <Compile Include="Domain\Permissions\DatabasePrivilege.cs" />
     <Compile Include="Domain\Permissions\GlobalPrivilege.cs" />

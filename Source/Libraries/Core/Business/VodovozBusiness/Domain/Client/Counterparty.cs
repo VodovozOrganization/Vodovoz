@@ -156,6 +156,7 @@ namespace Vodovoz.Domain.Client
 		private IList<ISupplierPriceNode> _priceNodes = new List<ISupplierPriceNode>();
 		private GenericObservableList<ISupplierPriceNode> _observablePriceNodes;
 		private CounterpartySubtype _counterpartySubtype;
+		private bool _isLiquidating;
 
 		#region Свойства
 
@@ -329,6 +330,13 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _kPP;
 			set => SetField(ref _kPP, value);
+		}
+
+		[Display(Name = "Контрагент в статусе ликвидации")]
+		public virtual bool IsLiquidating
+		{
+			get => _isLiquidating;
+			set => SetField(ref _isLiquidating, value);
 		}
 
 		[Display(Name = "ОГРН")]
