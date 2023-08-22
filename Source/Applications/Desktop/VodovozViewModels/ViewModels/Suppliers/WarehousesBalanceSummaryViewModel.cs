@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
+using DateTimeHelpers;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -246,7 +247,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 			//то если после формирования отчета переключить чекбокс и нажать экспорт, отчет выгрузится неправильно
 			_isCreatedWithReserveData = createReportWithReserveData;
 
-			endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59);
+			endDate = endDate.LatestDayTime();
 
 			var parameters = new WarehousesBalanceSummaryReportParameters()
 				.AddNomenclaturesSet(_nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNomenclature))
@@ -891,7 +892,7 @@ namespace Vodovoz.ViewModels.ViewModels.Suppliers
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
-			endDate = endDate.AddHours(23).AddMinutes(59).AddSeconds(59);
+			endDate = endDate.LatestDayTime();
 
 			var parameters = new WarehousesBalanceSummaryReportParameters()
 				.AddNomenclaturesSet(_nomsFilter.ParameterSets.FirstOrDefault(x => x.ParameterName == _parameterNomenclature))
