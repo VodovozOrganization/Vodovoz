@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Domain.Logistic;

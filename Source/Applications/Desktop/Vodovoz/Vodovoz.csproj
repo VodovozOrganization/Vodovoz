@@ -1964,6 +1964,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.UndeliveredOrdersClassificationReportView.cs" />
     <Compile Include="ReportsParameters\Cash\MovementsPaymentControlView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Cash.MovementsPaymentControlView.cs" />
+    <Compile Include="Views\Logistic\RouteListMaxFastDeliveryOrdersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMaxFastDeliveryOrdersView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
