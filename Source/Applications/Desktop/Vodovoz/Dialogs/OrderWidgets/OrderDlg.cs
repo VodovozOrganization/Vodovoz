@@ -27,7 +27,6 @@ using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
-using RevenueService.Client;
 using RevenueService.Client.Extensions;
 using SmsPaymentService;
 using System;
@@ -130,7 +129,7 @@ namespace Vodovoz
 	{
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static Logger logger = LogManager.GetCurrentClassLogger();
-		private CancellationTokenSource _cancelationTokenSource;
+		private CancellationTokenSource _cancellationTokenCheckLiquidationSource;
 
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
@@ -175,7 +174,7 @@ namespace Vodovoz
 		private readonly IEmailRepository _emailRepository = new EmailRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
-		private IRevenueServiceClient _revenueServiceClient;
+		private ICounterpartyService _counterpartyService;
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
 			= new RentPackagesJournalsViewModelsFactory(Startup.MainWin.NavigationManager);
@@ -536,7 +535,7 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
-			_revenueServiceClient = _lifetimeScope.Resolve<IRevenueServiceClient>();
+			_counterpartyService = _lifetimeScope.Resolve<ICounterpartyService>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -1011,12 +1010,11 @@ namespace Vodovoz
 					OnContractChanged();
 					break;
 				case nameof(Order.Client):
-					if(CheckLiquidationStatusAsync(Entity.Client.Id).GetAwaiter().GetResult())
-					{
-						UpdateAvailableEnumSignatureTypes();
-						UpdateOrderAddressTypeWithUI();
-						SetLogisticsRequirementsCheckboxes(true);
-					}
+					_cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
+					_counterpartyService.StopShipmentsIfNeeded(Entity.Client.Id, _currentEmployee.Id, _cancellationTokenCheckLiquidationSource.Token).GetAwaiter().GetResult();
+					UpdateAvailableEnumSignatureTypes();
+					UpdateOrderAddressTypeWithUI();
+					SetLogisticsRequirementsCheckboxes(true);
 					break;
 				case nameof(Entity.OrderAddressType):
 					UpdateOrderAddressTypeUI();
@@ -1024,41 +1022,6 @@ namespace Vodovoz
 				case nameof(Entity.Client.IsChainStore):
 					UpdateOrderAddressTypeWithUI();
 					break;
-			}
-		}
-
-		private async Task<bool> CheckLiquidationStatusAsync(int counterpartyId)
-		{
-			using(var unitOfWork = UnitOfWorkFactory.CreateForRoot<Counterparty>(counterpartyId, "Проверка статуса ликвидации"))
-			{
-				if(unitOfWork.Root.IsDeliveriesClosed
-					|| string.IsNullOrWhiteSpace(unitOfWork.Root.INN))
-				{
-					return false;
-				}
-
-				_cancelationTokenSource = new CancellationTokenSource();
-
-				var status = await _revenueServiceClient.GetCounterpartyStatus(unitOfWork.Root.INN, _cancelationTokenSource.Token);
-
-				switch(status)
-				{
-					case Dadata.Model.PartyStatus.ACTIVE:
-						return true;
-					default:
-						Gtk.Application.Invoke((s, e) => MessageDialogHelper.RunErrorDialog($"Контрагент находится в статусе: {status.GetUserFriendlyName()}, оформление заказа невозможно!", "Ошибка"));
-
-						var employee = unitOfWork.GetById<Employee>(_currentEmployee.Id);
-
-						if(!unitOfWork.Root.IsDeliveriesClosed)
-						{
-							unitOfWork.Root.ToggleDeliveryOption(employee);
-							unitOfWork.Root.CloseDeliveryComment = $"Автоматическое закрытие поставок. Контрагент находится в статусе: {status.GetUserFriendlyName()}, оформление заказов невозможно!";
-							unitOfWork.Commit();
-						}
-
-						return false;
-				}
 			}
 		}
 
