@@ -25,7 +25,7 @@ namespace Vodovoz.Models
 			var newPrice = new NomenclatureInnerDeliveryPrice();
 			newPrice.Nomenclature = nomenclature;
 			newPrice.StartDate = startDate;
-			nomenclature.ObservableInnerDeliveryPrices.Add(newPrice);
+			nomenclature.InnerDeliveryPrices.Add(newPrice);
 			return newPrice;
 		}
 

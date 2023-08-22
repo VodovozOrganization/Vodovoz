@@ -1,8 +1,9 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Collections;
@@ -28,7 +29,7 @@ namespace Vodovoz.Domain.Goods
 	{
 		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
 		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
-		private IList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new List<NomenclatureInnerDeliveryPrice>();
+		private IObservableList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new ObservableList<NomenclatureInnerDeliveryPrice>();
 		private IList<AlternativeNomenclaturePrice> _alternativeNomenclaturePrices = new List<AlternativeNomenclaturePrice>();
 		private GenericObservableList<NomenclaturePurchasePrice> _observablePurchasePrices;
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
@@ -513,9 +514,9 @@ namespace Vodovoz.Domain.Goods
 			set => SetField(ref productGroup, value, () => ProductGroup);
 		}
 
-		private IList<NomenclatureImage> images = new List<NomenclatureImage>();
+		private IObservableList<NomenclatureImage> images = new ObservableList<NomenclatureImage>();
 		[Display(Name = "Изображения")]
-		public virtual IList<NomenclatureImage> Images
+		public virtual IObservableList<NomenclatureImage> Images
 		{
 			get => images;
 			set => SetField(ref images, value, () => Images);
@@ -599,14 +600,11 @@ namespace Vodovoz.Domain.Goods
 
 
 		[Display(Name = "Стоимости доставки ТМЦ на склад")]
-		public virtual IList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
+		public virtual IObservableList<NomenclatureInnerDeliveryPrice> InnerDeliveryPrices
 		{
 			get => _innerDeliveryPrices;
 			set => SetField(ref _innerDeliveryPrices, value);
 		}
-
-		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
-			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
 
 		[Display(Name = "Подлежит учету в Честном Знаке")]
 		public virtual bool IsAccountableInTrueMark

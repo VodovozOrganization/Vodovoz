@@ -1,4 +1,5 @@
-﻿using GMap.NET.MapProviders;
+﻿using Gamma.GtkWidgets;
+using GMap.NET.MapProviders;
 using Gtk;
 using MySqlConnector;
 using NLog;
@@ -36,6 +37,7 @@ using Vodovoz.Domain.Security;
 using Vodovoz.Infrastructure;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.TempAdapters.TreeModels;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Validation;
 using VodovozInfrastructure.Configuration;
@@ -45,6 +47,8 @@ using UserRepository = Vodovoz.EntityRepositories.UserRepository;
 
 namespace Vodovoz
 {
+
+
 	public partial class Startup
 	{
 		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
@@ -75,6 +79,9 @@ namespace Vodovoz
 
 			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
+
+			//Требуется на момент перехода к новым IObservableList
+			yTreeView.TreeModelProvider = new CombinedTreeModelProvider();
 
 			CreateProjectParam();
 			ConfigureViewModelWidgetResolver();

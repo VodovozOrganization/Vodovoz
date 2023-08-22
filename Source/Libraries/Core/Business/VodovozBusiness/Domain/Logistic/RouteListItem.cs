@@ -793,7 +793,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string GetAllFines()
 		{
 			return ObservableFines.Any() ? 
-				string.Join("\n", ObservableFines.SelectMany(x => x.ObservableItems)
+				string.Join("\n", ObservableFines.SelectMany(x => x.Items)
 					.Select(x => x.Title)) 
 				: String.Empty;
 		}

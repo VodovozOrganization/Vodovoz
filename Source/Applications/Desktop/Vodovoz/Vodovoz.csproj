@@ -606,11 +606,14 @@
     <Compile Include="Startup.cs" />
     <Compile Include="TempAdapters\AttachmentsViewModelFactory.cs" />
     <Compile Include="TempAdapters\CarEventJournalFactory.cs" />
+    <Compile Include="TempAdapters\TreeModels\CombinedTreeModelProvider.cs" />
     <Compile Include="TempAdapters\ComplaintsJournalFactory.cs" />
     <Compile Include="TempAdapters\RouteListJournalFactory.cs" />
     <Compile Include="TempAdapters\ComplaintKindJournalFactory.cs" />
     <Compile Include="TempAdapters\NomenclatureJournalFactory.cs" />
     <Compile Include="TempAdapters\SubdivisionJournalFactory.cs" />
+    <Compile Include="TempAdapters\TreeModels\ObservableListReorderableTreeModel.cs" />
+    <Compile Include="TempAdapters\TreeModels\ObservableListTreeModel.cs" />
     <Compile Include="TreeModels\IModelConfig.cs" />
     <Compile Include="TreeModels\ModelConfig.cs" />
     <Compile Include="TreeModels\RecursiveTreeModelWithCustomModel.cs" />
@@ -2411,6 +2414,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.ErrorReporting\QS.ErrorReporting.csproj">
       <Project>{7baff136-4379-4d1d-a554-7dc340caf7a2}</Project>
       <Name>QS.ErrorReporting</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.Extensions.Observable\QS.Extensions.Observable.csproj">
+      <Project>{52e9b2b4-3f0a-4ab6-930a-2d77e807ee1d}</Project>
+      <Name>QS.Extensions.Observable</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QS.HistoryLog.Gtk\QS.HistoryLog.Gtk.csproj">
       <Project>{1c3b49fc-372c-46f7-995f-eeb44474e2de}</Project>

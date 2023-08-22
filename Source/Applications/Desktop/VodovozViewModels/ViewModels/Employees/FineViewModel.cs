@@ -9,6 +9,7 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
 using System;
+using System.Collections.Specialized;
 using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
@@ -70,12 +71,20 @@ namespace Vodovoz.ViewModels.Employees
 				x => x.FineType
 			);
 
-			Entity.ObservableItems.ListChanged += aList => OnPropertyChanged(() => CanEditFineType);
+			Entity.Items.CollectionChanged += Items_CollectionChanged; 
+		}
+
+		private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			if(e.Action == NotifyCollectionChangedAction.Reset)
+			{
+				OnPropertyChanged(() => CanEditFineType);
+			}
 		}
 
 		private void CalculateMoneyFromLiters()
 		{
-			if(Entity.ObservableItems.Count() > 1)
+			if(Entity.Items.Count() > 1)
 			{
 				throw new Exception("При типе штрафа \"Перерасход топлива\" недопустимо наличие более одного сотрудника в списке.");
 			}
@@ -84,7 +93,7 @@ namespace Vodovoz.ViewModels.Employees
 			{
 				decimal fuelCost = RouteList.Car.FuelType.Cost;
 				Entity.TotalMoney = Math.Round(Entity.LitersOverspending * fuelCost, 0, MidpointRounding.ToEven);
-				var item = Entity.ObservableItems.FirstOrDefault();
+				var item = Entity.Items.FirstOrDefault();
 				
 				if(item != null)
 				{
@@ -195,12 +204,12 @@ namespace Vodovoz.ViewModels.Employees
 			if(driver != null)
 			{
 				FineItem item = null;
-				item = Entity.ObservableItems.Where(x => x.Employee == driver).FirstOrDefault();
-				Entity.ObservableItems.Clear();
+				item = Entity.Items.Where(x => x.Employee == driver).FirstOrDefault();
+				Entity.Items.Clear();
 
 				if(item != null)
 				{
-					Entity.ObservableItems.Add(item);
+					Entity.Items.Add(item);
 				}
 				else
 				{
