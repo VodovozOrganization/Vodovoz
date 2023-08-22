@@ -1,8 +1,8 @@
-﻿using QS.DomainModel.Entity;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 
-namespace Vodovoz.Domain.Logistic
+namespace Vodovoz.Domain.Logistic.FastDelivery
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Максимальные кол-ва заказов ДЗЧ",

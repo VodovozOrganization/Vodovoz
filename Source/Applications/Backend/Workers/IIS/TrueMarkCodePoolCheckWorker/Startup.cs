@@ -15,10 +15,9 @@ using QS.Project.HibernateMapping;
 using System.Reflection;
 using TrueMarkApi.Library;
 using TrueMarkCodesWorker;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.TrueMark;
-using Vodovoz.HibernateMapping.Organizations;
 using Vodovoz.Models.TrueMark;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 using Vodovoz.Tools;
 
@@ -133,7 +132,7 @@ namespace TrueMarkCodePoolCheckWorker
 				{
 					Assembly.GetAssembly(typeof(DatabaseSettingsModule)),
 					Assembly.GetAssembly(typeof(UserBaseMap)),
-					Assembly.GetAssembly(typeof(OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
 					Assembly.GetAssembly(typeof(Attachment)),

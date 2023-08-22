@@ -1,8 +1,7 @@
-﻿using Gamma.GtkWidgets;
+using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
 using System;
-using Vodovoz.Domain.Logistic;
-
+using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic

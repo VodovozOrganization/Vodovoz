@@ -24,9 +24,9 @@ using System.Reflection;
 using System.Text;
 using TrueMarkApi.Services;
 using TrueMarkApi.Services.Authorization;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Edo;
@@ -150,7 +150,7 @@ namespace TrueMarkApi
 				{
 					Assembly.GetAssembly(typeof(SettingMap)),
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
