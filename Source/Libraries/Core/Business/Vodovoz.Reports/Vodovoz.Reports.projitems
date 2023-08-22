@@ -25,6 +25,9 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\FastDeliveryPercentCoverageReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\FastDeliveryRemainingBottlesReport.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Logistic\WayBillReportOneDayGroupPrint.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
