@@ -9,6 +9,7 @@ using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System;
 using Vodovoz.Tools;
+using DateTimeHelpers;
 
 namespace Vodovoz.ViewModels.QualityControl.Reports
 {
@@ -70,7 +71,7 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 				return;
 			}
 
-			Report = NumberOfComplaintsAgainstDriversReport.Generate(UoW, StartDate.Value, EndDate.Value);
+			Report = NumberOfComplaintsAgainstDriversReport.Generate(UoW, StartDate.Value, EndDate.Value.LatestDayTime());
 		}
 
 		private void ExportReport()
