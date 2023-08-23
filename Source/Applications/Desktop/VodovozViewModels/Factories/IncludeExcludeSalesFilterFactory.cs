@@ -22,8 +22,12 @@ namespace Vodovoz.ViewModels.Factories
 {
 	public class IncludeExcludeSalesFilterFactory : IIncludeExcludeSalesFilterFactory
 	{
+		private const string _includeString = "_include";
+		private const string _excludeString = "_exclude";
+
 		private readonly IInteractiveService _interactiveService;
 		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
+		private readonly IGenericRepository<CounterpartySubtype> _counterpartySubtypeRepository;
 		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
 		private readonly IGenericRepository<Organization> _organizationRepository;
 		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
@@ -37,6 +41,7 @@ namespace Vodovoz.ViewModels.Factories
 		public IncludeExcludeSalesFilterFactory(
 			IInteractiveService interactiveService,
 			IGenericRepository<Nomenclature> nomenclatureRepository,
+			IGenericRepository<CounterpartySubtype> counterpartySubtypeRepository,
 			IGenericRepository<Counterparty> counterpartyRepository,
 			IGenericRepository<ProductGroup> productGroupRepository,
 			IGenericRepository<Organization> organizationRepository,
@@ -49,6 +54,7 @@ namespace Vodovoz.ViewModels.Factories
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
+			_counterpartySubtypeRepository = counterpartySubtypeRepository ?? throw new ArgumentNullException(nameof(counterpartySubtypeRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
@@ -76,6 +82,126 @@ namespace Vodovoz.ViewModels.Factories
 			{
 				config.IncludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification(includeExludeFiltersViewModel);
 				config.ExcludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification(includeExludeFiltersViewModel);
+			});
+
+			includeExludeFiltersViewModel.AddFilter<CounterpartyType>(filterConfig =>
+			{
+				filterConfig.RefreshFunc = (filter) =>
+				{
+					var values = Enum.GetValues(typeof(CounterpartyType));
+
+					filter.FilteredElements.Clear();
+
+					var counterpartySubtypeValues = _counterpartySubtypeRepository.Get(unitOfWork, counterpartySubtype => (string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString))
+							|| counterpartySubtype.Name.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%"));
+
+					// Заполнение начального списка
+
+					foreach(var value in values)
+					{
+						if(value is CounterpartyType enumElement
+							&& !filter.HideElements.Contains(enumElement)
+							&& (string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString)
+								|| enumElement.GetEnumTitle().ToLower().Contains(includeExludeFiltersViewModel.CurrentSearchString.ToLower())
+								|| (enumElement == CounterpartyType.AdvertisingDepartmentClient && counterpartySubtypeValues.Any())))
+						{
+							filter.FilteredElements.Add(new IncludeExcludeElement<CounterpartyType, CounterpartyType>()
+							{
+								Id = enumElement,
+								Title = enumElement.GetEnumTitle(),
+							});
+						}
+					}
+
+					// Заполнение подтипов контрагента - клиентов рекламного отдела
+
+					var advertisingDepartmentClientNode = filter.FilteredElements
+						.Where(x => x.Number == nameof(CounterpartyType.AdvertisingDepartmentClient))
+						.FirstOrDefault();
+
+					if(counterpartySubtypeValues.Any())
+					{
+						var advertisingDepartmentClientValues = counterpartySubtypeValues
+							.Select(x => new IncludeExcludeElement<int, PaymentFrom>
+							{
+								Id = x.Id,
+								Parent = advertisingDepartmentClientNode,
+								Title = x.Name,
+							});
+
+						foreach(var element in advertisingDepartmentClientValues)
+						{
+							advertisingDepartmentClientNode.Children.Add(element);
+						}
+					}
+				};
+
+				filterConfig.GetReportParametersFunc = (filter) =>
+				{
+					var result = new Dictionary<string, object>();
+
+					// Тип контрагента
+
+					var includeCounterpartyTypeValues = filter.IncludedElements
+						.Where(x => x.GetType() == typeof(IncludeExcludeElement<CounterpartyType, CounterpartyType>))
+						.Select(x => x.Number)
+						.ToArray();
+
+					if(includeCounterpartyTypeValues.Length > 0)
+					{
+						result.Add(typeof(CounterpartyType).Name + _includeString, includeCounterpartyTypeValues);
+					}
+					else
+					{
+						result.Add(typeof(CounterpartyType).Name + _includeString, new object[] { "0" });
+					}
+
+					var excludeCounterpartyTypeValues = filter.ExcludedElements
+						.Where(x => x.GetType() == typeof(IncludeExcludeElement<CounterpartyType, CounterpartyType>))
+						.Select(x => x.Number)
+						.ToArray();
+
+					if(excludeCounterpartyTypeValues.Length > 0)
+					{
+						result.Add(typeof(CounterpartyType).Name + _excludeString, excludeCounterpartyTypeValues);
+					}
+					else
+					{
+						result.Add(typeof(CounterpartyType).Name + _excludeString, new object[] { "0" });
+					}
+
+					// Клиент Рекламного Отдела
+
+					var includeCounterpartySubtypeValues = filter.IncludedElements
+						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, CounterpartySubtype>))
+						.Select(x => x.Number)
+						.ToArray();
+
+					if(includeCounterpartySubtypeValues.Length > 0)
+					{
+						result.Add(typeof(CounterpartySubtype).Name + _includeString, includeCounterpartySubtypeValues);
+					}
+					else
+					{
+						result.Add(typeof(CounterpartySubtype).Name + _includeString, new object[] { "0" });
+					}
+
+					var excludeCounterpartySubtypeValues = filter.ExcludedElements
+						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, CounterpartySubtype>))
+						.Select(x => x.Number)
+						.ToArray();
+
+					if(excludeCounterpartySubtypeValues.Length > 0)
+					{
+						result.Add(typeof(CounterpartySubtype).Name + _excludeString, excludeCounterpartySubtypeValues);
+					}
+					else
+					{
+						result.Add(typeof(CounterpartySubtype).Name + _excludeString, new object[] { "0" });
+					}
+
+					return result;
+				};
 			});
 
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _counterpartyRepository);
@@ -221,11 +347,11 @@ namespace Vodovoz.ViewModels.Factories
 
 					if(includePaymentTypeValues.Length > 0)
 					{
-						result.Add(typeof(PaymentType).Name + "_include", includePaymentTypeValues);
+						result.Add(typeof(PaymentType).Name + _includeString, includePaymentTypeValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentType).Name + "_include", new object[] { "0" });
+						result.Add(typeof(PaymentType).Name + _includeString, new object[] { "0" });
 					}
 
 					var excludePaymentTypeValues = filter.ExcludedElements
@@ -235,11 +361,11 @@ namespace Vodovoz.ViewModels.Factories
 
 					if(excludePaymentTypeValues.Length > 0)
 					{
-						result.Add(typeof(PaymentType).Name + "_exclude", excludePaymentTypeValues);
+						result.Add(typeof(PaymentType).Name + _excludeString, excludePaymentTypeValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentType).Name + "_exclude", new object[] { "0" });
+						result.Add(typeof(PaymentType).Name + _excludeString, new object[] { "0" });
 					}
 
 					// Оплата по термииналу
@@ -251,11 +377,11 @@ namespace Vodovoz.ViewModels.Factories
 
 					if(includePaymentByTerminalSourceValues.Length > 0)
 					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_include", includePaymentByTerminalSourceValues);
+						result.Add(typeof(PaymentByTerminalSource).Name + _includeString, includePaymentByTerminalSourceValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_include", new object[] { "0" });
+						result.Add(typeof(PaymentByTerminalSource).Name + _includeString, new object[] { "0" });
 					}
 
 					var excludePaymentByTerminalSourceValues = filter.ExcludedElements
@@ -265,11 +391,11 @@ namespace Vodovoz.ViewModels.Factories
 
 					if(excludePaymentByTerminalSourceValues.Length > 0)
 					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_exclude", excludePaymentByTerminalSourceValues);
+						result.Add(typeof(PaymentByTerminalSource).Name + _excludeString, excludePaymentByTerminalSourceValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_exclude", new object[] { "0" });
+						result.Add(typeof(PaymentByTerminalSource).Name + _excludeString, new object[] { "0" });
 					}
 
 					// Оплачено онлайн
@@ -281,11 +407,11 @@ namespace Vodovoz.ViewModels.Factories
 
 					if(includePaymentFromValues.Length > 0)
 					{
-						result.Add(typeof(PaymentFrom).Name + "_include", includePaymentFromValues);
+						result.Add(typeof(PaymentFrom).Name + _includeString, includePaymentFromValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentFrom).Name + "_include", new object[] { "0" });
+						result.Add(typeof(PaymentFrom).Name + _includeString, new object[] { "0" });
 					}
 
 					var excludePaymentFromValues = filter.ExcludedElements
@@ -295,19 +421,21 @@ namespace Vodovoz.ViewModels.Factories
 
 					if(excludePaymentFromValues.Length > 0)
 					{
-						result.Add(typeof(PaymentFrom).Name + "_exclude", excludePaymentFromValues);
+						result.Add(typeof(PaymentFrom).Name + _excludeString, excludePaymentFromValues);
 					}
 					else
 					{
-						result.Add(typeof(PaymentFrom).Name + "_exclude", new object[] { "0" });
+						result.Add(typeof(PaymentFrom).Name + _excludeString, new object[] { "0" });
 					}
+
 					return result;
 				};
 			});
 
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _promotionalSetRepository);
 
-			var statusesToSelect = new[] {
+			var statusesToSelect = new[]
+			{
 				OrderStatus.Accepted,
 				OrderStatus.InTravelList,
 				OrderStatus.OnLoading,
@@ -315,7 +443,8 @@ namespace Vodovoz.ViewModels.Factories
 				OrderStatus.Shipped,
 				OrderStatus.UnloadingOnStock,
 				OrderStatus.WaitForPayment,
-				OrderStatus.Closed };
+				OrderStatus.Closed
+			};
 
 			includeExludeFiltersViewModel.AddFilter<OrderStatus>(config =>
 			{
