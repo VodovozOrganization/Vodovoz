@@ -946,11 +946,9 @@ namespace Vodovoz.JournalViewModels
 							_employeeJournalFactory,
 							_employeeService,
 							_undeliveredOrdersJournalOpener,
-							_orderSelectorFactory,
 							_undeliveredOrdersRepository,
 							new EmployeeSettings(new ParametersProvider()),
-							_subdivisionParametersProvider,
-							_fileDialogService
+							_subdivisionParametersProvider
 						);
 
 						Startup.MainWin.TdiMain.AddTab(dlg);

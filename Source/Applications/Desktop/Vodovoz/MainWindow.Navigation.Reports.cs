@@ -12,6 +12,7 @@ using Vodovoz;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
@@ -320,9 +321,11 @@ public partial class MainWindow
 	/// <param name="e"></param>
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)
 	{
+		var scope = _autofacScope.BeginLifetimeScope();
+
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.SalesReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport(new EmployeeRepository(), ServicesConfig.InteractiveService)));
+			() => new QSReport.ReportViewDlg(scope.Resolve<Vodovoz.Reports.SalesReport>()));
 	}
 
 	/// <summary>
@@ -1311,6 +1314,16 @@ public partial class MainWindow
 	protected void OnActionDayOfSalaryGiveoutReport_Activated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(DayOfSalaryGiveoutReportViewModel));
+	}
+
+	/// <summary>
+	/// Отчет по контролю оплаты перемещений
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	protected void OnActionMovementsPaymentControlReportActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(MovementsPaymentControlViewModel));
 	}
 
 	/// <summary>

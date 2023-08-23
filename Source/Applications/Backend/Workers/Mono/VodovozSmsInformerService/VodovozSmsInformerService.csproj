@@ -156,6 +156,10 @@
       <Project>{28a78143-42e3-40e7-86f5-dd7e1679be86}</Project>
       <Name>QS.Project</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj">
+      <Project>{0107f13c-46e0-4008-8302-0b5cd71df14c}</Project>
+      <Name>Vodovoz.Data.NHibernate</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

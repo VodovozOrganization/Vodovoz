@@ -38,6 +38,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Complaints;
 using Vodovoz.EntityRepositories.Complaints.ComplaintResults;
 using QS.ViewModels.Dialog;
+using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
 namespace Vodovoz.Journals.JournalViewModels
 {

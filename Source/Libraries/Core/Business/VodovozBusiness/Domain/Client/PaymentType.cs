@@ -1,7 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QS.DomainModel.Entity;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Client
 {
+	[Appellative(
+		Nominative = "Вид оплаты",
+		NominativePlural = "Виды оплаты")]
 	public enum PaymentType
 	{
 		[Display(Name = "Наличная", ShortName = "нал.")]

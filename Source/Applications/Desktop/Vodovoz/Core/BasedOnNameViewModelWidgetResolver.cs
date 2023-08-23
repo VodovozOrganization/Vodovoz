@@ -5,6 +5,7 @@ using System.Reflection;
 using QS.HistoryLog;
 using QS.Banks.Domain;
 using QS.Views.Resolve;
+using Vodovoz.Data.NHibernate.HibernateMapping.Organizations;
 
 namespace Vodovoz.Core
 {
@@ -16,7 +17,7 @@ namespace Vodovoz.Core
 		{
 			_usedAssemblies = new Assembly[] {
 				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-				Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
+				Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 				Assembly.GetAssembly(typeof(Bank)),
 				Assembly.GetAssembly(typeof(HistoryMain)),
 				Assembly.GetAssembly(typeof(MainWindow)),

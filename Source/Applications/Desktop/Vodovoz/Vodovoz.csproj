@@ -872,6 +872,7 @@
     <Compile Include="gtk-gui\Vodovoz.CarUnloadDocumentDlg.cs" />
     <Compile Include="Representations\WorkingDriversVM.cs" />
     <Compile Include="Representations\DriverRouteListAddressesVM.cs" />
+    <Compile Include="ViewWidgets\Reports\IncludeExludeFiltersView.cs" />
     <Compile Include="ViewWidgets\Store\ReturnsReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReturnsReceptionView.cs" />
     <Compile Include="Additions\Logistic\CarMarker.cs" />
@@ -1958,13 +1959,25 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriversStopListsView.cs" />
     <Compile Include="Views\Logistic\DriverStopListRemovalView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverStopListRemovalView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.IncludeExludeFiltersView.cs" />
     <Compile Include="Views\BaseParameters\BaseParametersView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BaseParameters.BaseParametersView.cs" />
+    <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.QualityControl.Reports.NumberOfComplaintsAgainstDriversReportView.cs" />
+    <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.UndeliveredOrdersClassificationReportView.cs" />
+    <Compile Include="ReportsParameters\Cash\MovementsPaymentControlView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Cash.MovementsPaymentControlView.cs" />
+    <Compile Include="Views\Logistic\RouteListMaxFastDeliveryOrdersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListMaxFastDeliveryOrdersView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\BaseParameters\" />
+    <Folder Include="QualityControl\" />
+    <Folder Include="QualityControl\Reports\" />
+    <Folder Include="ReportsParameters\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2348,7 +2361,7 @@
       <Name>RdlGtkViewer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding.Core\Gamma.Binding.Core.csproj">
-      <Project>{B88C5808-8D6C-451E-9D63-E5441C7A1004}</Project>
+      <Project>{EF24C742-AC2C-477A-A632-F9920A0E1CC7}</Project>
       <Name>Gamma.Binding.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\Binding\Gamma.Binding\Gamma.Binding.csproj">
@@ -2474,6 +2487,10 @@
     <ProjectReference Include="..\..\..\Libraries\External\QSProjects\QSWidgetLib\QSWidgetLib.csproj">
       <Project>{5a2bb01e-e124-432e-8099-d1343d3897b9}</Project>
       <Name>QSWidgetLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj">
+      <Project>{0107f13c-46e0-4008-8302-0b5cd71df14c}</Project>
+      <Name>Vodovoz.Data.NHibernate</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj">
       <Project>{396CC0BB-294B-44E0-8428-31677419B8BE}</Project>

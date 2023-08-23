@@ -112,7 +112,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return false;
 			}
 
-			var maxFastDeliveryOrdersCountInRouteList = _deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
+			var maxFastDeliveryOrdersCountInRouteList = routeListTo.GetMaxFastDeliveryOrdersValue();
 			if(GetFastDeliveryOrdersCountInRouteList(routeListTo) >= maxFastDeliveryOrdersCountInRouteList)
 			{
 				_logger.LogDebug("В выбранном маршрутном листе уже имеется максимально допустимое количество заказов с быстрой доставкой");

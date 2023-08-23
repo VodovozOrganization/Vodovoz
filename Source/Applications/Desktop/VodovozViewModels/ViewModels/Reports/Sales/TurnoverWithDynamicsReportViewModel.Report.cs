@@ -64,7 +64,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						}
 					}.Union(Rows).ToList();
 				}
-				if(GroupingBy == GroupingByEnum.Counterparty)
+				if(GroupingBy == GroupingByEnum.Counterparty || GroupingBy == GroupingByEnum.CounterpartyShowContacts)
 				{
 					return Rows;
 				}
@@ -130,7 +130,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					rows = ProcessGroups(productGroups);
 				}
-				else if(GroupingBy == GroupingByEnum.Counterparty)
+				else if(GroupingBy == GroupingByEnum.Counterparty || GroupingBy == GroupingByEnum.CounterpartyShowContacts)
 				{
 					var counterpartyGroups = ordersItemslist
 						.GroupBy(oi => oi.CounterpartyId);
@@ -472,81 +472,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							showResidueForNomenclaturesWithoutSales,
 							warehouseNomenclatureBalanceCallback,
 							dataFetchCallback);
-			}
-
-			public class TurnoverWithDynamicsReportRow
-			{
-				public string Title { get; set; }
-
-				public string Phones { get; set; } = string.Empty;
-				public string Emails { get; set; } = string.Empty;
-
-				public string Index { get; set; } = string.Empty;
-
-				public RowTypes RowType { get; set; }
-
-				public bool IsTotalsRow => RowType == RowTypes.Totals;
-
-				public bool IsSubheaderRow => RowType == RowTypes.Subheader;
-
-				public IList<decimal> SliceColumnValues { get; set; }
-
-				public IList<string> DynamicColumns { get; set; }
-
-				public decimal RowTotal => SliceColumnValues.Sum();
-
-				public TurnoverWithDynamicsReportLastSaleDetails LastSaleDetails { get; set; }
-
-				public enum RowTypes
-				{
-					Values,
-					Totals,
-					Subheader
-				}
-			}
-
-			public class TurnoverWithDynamicsReportLastSaleDetails
-			{
-				public DateTime LastSaleDate { get; set; }
-
-				public double DaysFromLastShipment { get; set; }
-
-				public decimal WarhouseResidue { get; set; }
-			}
-
-			public class OrderItemNode
-			{
-				public int Id { get; set; }
-
-				public int OrderId { get; set; }
-
-				public int CounterpartyId { get; set; }
-
-				public string CounterpartyPhones { get; set; }
-
-				public string CounterpartyEmails { get; set; }
-
-				public string CounterpartyFullName { get; set; }
-
-				public DateTime? OrderDeliveryDate { get; set; }
-
-				public int NomenclatureId { get; set; }
-
-				public string NomenclatureOfficialName { get; set; }
-
-				public int ProductGroupId { get; set; }
-
-				public string ProductGroupName { get; set; }
-
-				public decimal? ActualCount { get; set; }
-
-				public decimal Count { get; set; }
-
-				public decimal Price { get; set; }
-
-				public decimal ActualSum { get; set; }
-
-				public string OrderContactPhone { get; set; }
 			}
 		}
 	}

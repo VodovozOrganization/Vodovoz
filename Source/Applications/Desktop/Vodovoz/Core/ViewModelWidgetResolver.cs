@@ -13,6 +13,7 @@ using QS.Views.Resolve;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Vodovoz.Data.NHibernate.HibernateMapping.Organizations;
 using Vodovoz.Infrastructure.Services;
 using IJournalFilter = QS.RepresentationModel.IJournalFilter;
 
@@ -37,7 +38,7 @@ namespace Vodovoz.Core
 			var usedAssemblies = new Assembly[] {
 				Assembly.GetAssembly(typeof(DeletionView)), 
 				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-				Assembly.GetAssembly(typeof(HibernateMapping.Organizations.OrganizationMap)),
+				Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 				Assembly.GetAssembly(typeof(Bank)),
 				Assembly.GetAssembly(typeof(HistoryMain)),
 				Assembly.GetAssembly(typeof(MainWindow)),
