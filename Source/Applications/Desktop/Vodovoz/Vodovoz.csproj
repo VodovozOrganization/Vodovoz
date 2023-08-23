@@ -1960,6 +1960,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DriverStopListRemovalView.cs" />
     <Compile Include="Views\BaseParameters\BaseParametersView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BaseParameters.BaseParametersView.cs" />
+    <Compile Include="QualityControl\Reports\NumberOfComplaintsAgainstDriversReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.QualityControl.Reports.NumberOfComplaintsAgainstDriversReportView.cs" />
     <Compile Include="ReportsParameters\Orders\UndeliveredOrdersClassificationReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Orders.UndeliveredOrdersClassificationReportView.cs" />
     <Compile Include="ReportsParameters\Cash\MovementsPaymentControlView.cs" />
@@ -1971,6 +1973,8 @@
   <ItemGroup>
     <Folder Include="ViewModels\Goods\" />
     <Folder Include="Views\BaseParameters\" />
+    <Folder Include="QualityControl\" />
+    <Folder Include="QualityControl\Reports\" />
     <Folder Include="ReportsParameters\Cash\" />
   </ItemGroup>
   <ItemGroup>

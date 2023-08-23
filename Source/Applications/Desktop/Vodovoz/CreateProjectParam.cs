@@ -246,6 +246,8 @@ using Vodovoz.ViewModels.Widgets;
 using static Vodovoz.Reports.CashFlow;
 using Vodovoz.ViewModels.BaseParameters;
 using Vodovoz.Views.BaseParameters;
+using Vodovoz.ViewModels.QualityControl.Reports;
+using Vodovoz.QualityControl.Reports;
 using Vodovoz.ReportsParameters.Cash;
 
 namespace Vodovoz
@@ -521,6 +523,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DriverStopListRemovalViewModel, DriverStopListRemovalView>()
 				.RegisterWidgetForWidgetViewModel<BaseParametersViewModel, BaseParametersView>()
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersClassificationReportViewModel, UndeliveredOrdersClassificationReportView>()
+				.RegisterWidgetForWidgetViewModel<NumberOfComplaintsAgainstDriversReportViewModel, NumberOfComplaintsAgainstDriversReportView>()
 				.RegisterWidgetForWidgetViewModel<MovementsPaymentControlViewModel, MovementsPaymentControlView>()
 				;
 
