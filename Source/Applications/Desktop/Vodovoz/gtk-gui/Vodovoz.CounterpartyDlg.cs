@@ -1425,8 +1425,10 @@ namespace Vodovoz
 			this.labelIsLiquidating.LabelProp = global::Mono.Unix.Catalog.GetString("В статусе ликвидации:");
 			this.table1.Add(this.labelIsLiquidating);
 			global::Gtk.Table.TableChild w81 = ((global::Gtk.Table.TableChild)(this.table1[this.labelIsLiquidating]));
-			w81.TopAttach = ((uint)(1));
-			w81.BottomAttach = ((uint)(2));
+			w81.TopAttach = ((uint)(6));
+			w81.BottomAttach = ((uint)(7));
+			w81.LeftAttach = ((uint)(2));
+			w81.RightAttach = ((uint)(3));
 			w81.XOptions = ((global::Gtk.AttachOptions)(4));
 			w81.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -1575,10 +1577,10 @@ namespace Vodovoz
 			this.ycheckbuttonIsLiquidating.UseUnderline = true;
 			this.table1.Add(this.ycheckbuttonIsLiquidating);
 			global::Gtk.Table.TableChild w93 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckbuttonIsLiquidating]));
-			w93.TopAttach = ((uint)(1));
-			w93.BottomAttach = ((uint)(2));
-			w93.LeftAttach = ((uint)(1));
-			w93.RightAttach = ((uint)(2));
+			w93.TopAttach = ((uint)(6));
+			w93.BottomAttach = ((uint)(7));
+			w93.LeftAttach = ((uint)(3));
+			w93.RightAttach = ((uint)(4));
 			w93.XOptions = ((global::Gtk.AttachOptions)(4));
 			w93.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
