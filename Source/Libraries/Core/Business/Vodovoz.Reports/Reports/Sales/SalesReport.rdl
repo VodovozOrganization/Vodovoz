@@ -507,7 +507,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -724,7 +724,7 @@ GROUP BY nomenclature_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -1487,7 +1487,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -1682,9 +1682,51 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="PaymentFrom_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="OrderStatus_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="OrderStatus_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="CounterpartyType_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="CounterpartyType_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="CounterpartySubtype_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="CounterpartySubtype_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
