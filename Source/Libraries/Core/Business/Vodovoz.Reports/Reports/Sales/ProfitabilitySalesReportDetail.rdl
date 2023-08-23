@@ -3265,7 +3265,7 @@ WHERE
          )
        AND (
              (0 IN (@GeoGroup_include) OR (IFNULL(gg.id, 0) IN (@GeoGroup_include)))
-				AND NOT (IFNULL(gg.id, 0) IN (@GeoGroup_exclude))
+				AND (o.delivery_point_id IS NULL OR NOT (IFNULL(gg.id, 0) IN (@GeoGroup_exclude)))
          )
        AND
        (

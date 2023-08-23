@@ -179,7 +179,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 					.Select(x => new IncludeExcludeElement<int, TEntity>
 					{
 						Id = x.Id,
-						Title = x.GetTitle(),
+						Title = isNamed ? (x as INamed).Name : x.GetTitle(),
 					});
 
 				filter.FilteredElements.Clear();
