@@ -404,15 +404,19 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 			FilterViewModel.AddFilter<OrderStatus>(config =>
 			{
+				config.RefreshFilteredElements();
+
 				foreach(var element in config.FilteredElements)
 				{
-					if(statusesToSelect.Any(x => element.Number == x.GetEnumTitle()))
+					if(element is IncludeExcludeElement<OrderStatus, OrderStatus> enumElement &&
+						statusesToSelect.Contains(enumElement.Id))
 					{
-						element.Include = true;
+						enumElement.Include = true;
 					}
 				}
 			});
 		}
+
 		private void UpdateNomenclaturesSpecification()
 		{
 			var nomenclauresFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Nomenclature>>();

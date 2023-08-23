@@ -507,7 +507,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -588,7 +588,7 @@ FROM
          )
        AND (
              (0 IN (@DiscountReason_include) OR (order_items.discount_reason_id IN (@DiscountReason_include)))
-				AND NOT (order_items.discount_reason_id IN (@DiscountReason_exclude))
+				AND (order_items.discount_reason_id IS NULL OR NOT (order_items.discount_reason_id IN (@DiscountReason_exclude)))
          )
        AND (
              (0 IN (@Subdivision_include) OR (employees.subdivision_id IN (@Subdivision_include)))
@@ -623,7 +623,7 @@ FROM
        )
        AND (
              (0 IN (@PromotionalSet_include) OR (IFNULL(order_items.promotional_set_id, 0) IN (@PromotionalSet_include)))
-				AND NOT (IFNULL(order_items.promotional_set_id, 0) IN (@PromotionalSet_exclude))
+				AND (order_items.promotional_set_id IS NULL OR NOT order_items.promotional_set_id IN (@PromotionalSet_exclude))
          )
        AND (
              (0 IN (@ProductGroup_include) OR (IFNULL(nomenclature_groups.id, 0) IN (@ProductGroup_include)))

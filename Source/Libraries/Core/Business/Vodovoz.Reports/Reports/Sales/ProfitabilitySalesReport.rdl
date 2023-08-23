@@ -1548,7 +1548,7 @@ AND (
          )
        AND (
              (0 IN (@DiscountReason_include) OR (oi.discount_reason_id IN (@DiscountReason_include)))
-				AND NOT (oi.discount_reason_id IN (@DiscountReason_exclude))
+				AND (oi.discount_reason_id IS NULL OR NOT (oi.discount_reason_id IN (@DiscountReason_exclude)))
          )
        AND (
              (0 IN (@Subdivision_include) OR (e.subdivision_id IN (@Subdivision_include)))
@@ -1583,7 +1583,7 @@ AND (
        )
        AND (
              (0 IN (@PromotionalSet_include) OR (IFNULL(oi.promotional_set_id, 0) IN (@PromotionalSet_include)))
-				AND NOT (IFNULL(oi.promotional_set_id, 0) IN (@PromotionalSet_exclude))
+				AND (oi.promotional_set_id IS NULL OR NOT oi.promotional_set_id IN (@PromotionalSet_exclude))
          )
        AND (
              (0 IN (@ProductGroup_include) OR (IFNULL(ng.id, 0) IN (@ProductGroup_include)))
