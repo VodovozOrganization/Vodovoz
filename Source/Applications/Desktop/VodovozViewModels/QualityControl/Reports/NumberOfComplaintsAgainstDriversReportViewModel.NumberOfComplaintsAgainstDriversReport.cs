@@ -43,7 +43,9 @@ namespace Vodovoz.ViewModels.QualityControl.Reports
 									  DriverId = driver.Id,
 									  DriverFullName = driverFullName,
 									  ComplaintsKind = complaintKind.Name
-								  }).ToList();
+								  })
+								  .ToList()
+								  .OrderBy(x => x.DriverFullName);
 
 				var groupedComplaints = complaints.GroupBy(x => x.DriverId);
 
