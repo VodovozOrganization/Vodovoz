@@ -17,7 +17,7 @@ namespace Vodovoz.Domain.Orders
 		Nominative = "место, откуда проведена оплата")]
 	[HistoryTrace]
 	[EntityPermission]
-	public class PaymentFrom : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class PaymentFrom : PropertyChangedBase, IDomainObject, IValidatableObject, INamed, IArchivable
 	{
 		private Organization _organizationForOnlinePayments;
 		

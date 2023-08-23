@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -55,6 +55,7 @@
     <Compile Include="CachingRepositories\Cash\FinancialExpenseCategoriesNodesInMemoryCacheRepository.cs" />
     <Compile Include="CachingRepositories\Common\DomainEntityInMemoryCacheRepositoryBase.cs" />
     <Compile Include="CachingRepositories\Common\IDomainEntityInMemoryCacheRepository.cs" />
+    <Compile Include="CachingRepositories\Counterparty\CounterpartyInMemoryTitlesCacheRepository.cs" />
     <Compile Include="CommonEnums\Month.cs" />
     <Compile Include="CommonEnums\AllYesNo.cs" />
     <Compile Include="ConfigureDeletion.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
+    <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
     <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
     <Compile Include="Domain\Logistic\FastDelivery\RouteListMaxFastDeliveryOrders.cs" />
@@ -505,6 +507,7 @@
     <Compile Include="EntityRepositories\Flyers\FlyerRepository.cs" />
     <Compile Include="EntityRepositories\Flyers\IFlyerRepository.cs" />
     <Compile Include="EntityRepositories\Fuel\FuelQueryResult.cs" />
+    <Compile Include="EntityRepositories\GenericRepository.cs" />
     <Compile Include="EntityRepositories\Goods\INomenclatureInstanceRepository.cs" />
     <Compile Include="EntityRepositories\Goods\INomenclaturePricesRepository.cs" />
     <Compile Include="EntityRepositories\Goods\InstanceOnStorageData.cs" />
@@ -513,6 +516,7 @@
     <Compile Include="EntityRepositories\Goods\NomenclaturePricesRepository.cs" />
     <Compile Include="EntityRepositories\HistoryChanges\IArchivedHistoryChangesRepository.cs" />
     <Compile Include="EntityRepositories\HistoryChanges\ArchivedHistoryChangesRepository.cs" />
+    <Compile Include="EntityRepositories\IGenericRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CachedDistanceRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\CarEventRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\DeliveryShiftRepository.cs" />
@@ -609,6 +613,7 @@
     <Compile Include="Errors\ResultT.cs" />
     <Compile Include="Extensions\DriverPositionExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Factories\CashReceiptFactory.cs" />
     <Compile Include="Factories\CounterpartyContractFactory.cs" />
     <Compile Include="Factories\EmployeeRegistrationFactory.cs" />
@@ -770,6 +775,9 @@
     <Compile Include="Permissions\Cash.Expense.cs" />
     <Compile Include="Permissions\Logistic.cs" />
     <Compile Include="Permissions\Order.UndeliveredOrder.cs" />
+    <Compile Include="Permissions\Report.cs" />
+    <Compile Include="Permissions\Report.SalesReport.cs" />
+    <Compile Include="Permissions\User.cs" />
     <Compile Include="Permissions\Sales.cs" />
     <Compile Include="Services\IComplaintParametersProvider.cs" />
     <Compile Include="Services\IEmployeeService.cs" />

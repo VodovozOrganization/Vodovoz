@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using QS.DomainModel.Entity;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Orders
 {
-
+	[Appellative(
+		Nominative = "Статус заказа",
+		NominativePlural = "Статусы заказа")]
 	public enum OrderStatus
 	{
 		[Display(Name = "Отменён")]
