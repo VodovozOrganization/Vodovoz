@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using RevenueService.Client;
 using RevenueService.Client.Extensions;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
@@ -17,23 +18,16 @@ namespace Vodovoz.Application.Services
 
 		public CounterpartyService(IRevenueServiceClient revenueServiceClient, IUnitOfWorkFactory unitOfWorkFactory)
 		{
-			_revenueServiceClient = revenueServiceClient ?? throw new System.ArgumentNullException(nameof(revenueServiceClient));
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new System.ArgumentNullException(nameof(unitOfWorkFactory));
+			_revenueServiceClient = revenueServiceClient ?? throw new ArgumentNullException(nameof(revenueServiceClient));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
 		public async Task StopShipmentsIfNeeded(Counterparty counterparty, Employee employee, CancellationToken cancellationToken)
 		{
-			if(counterparty.IsDeliveriesClosed)
-			{
-				return;
-			}
-
-			if(counterparty.PersonType != PersonType.legal)
-			{
-				return;
-			}
-
-			if(string.IsNullOrWhiteSpace(counterparty.INN))
+			if(counterparty.IsLiquidating
+				|| counterparty.IsDeliveriesClosed
+				|| counterparty.PersonType != PersonType.legal
+				|| string.IsNullOrWhiteSpace(counterparty.INN))
 			{
 				return;
 			}
@@ -43,7 +37,7 @@ namespace Vodovoz.Application.Services
 			if(status != PartyStatus.ACTIVE)
 			{
 				counterparty.ToggleDeliveryOption(employee);
-				counterparty.AddCloseDeliveryComment($"Автоматическое закрытие поставок: контрагент в статусе \"{status.GetUserFriendlyName()}\". Оформление заказа невозможно", employee);
+				counterparty.AddCloseDeliveryComment($"Автоматическое закрытие поставок: контрагент в статусе \"{status.GetUserFriendlyName()}\" в ФНС. Оформление заказа невозможно", employee);
 				counterparty.IsLiquidating = true;
 			}
 		}
@@ -56,7 +50,7 @@ namespace Vodovoz.Application.Services
 
 				await StopShipmentsIfNeeded(unitOfWork.Root, employee, cancellationToken);
 
-				unitOfWork.Commit();
+				unitOfWork.Save();
 			}
 		}
 	}

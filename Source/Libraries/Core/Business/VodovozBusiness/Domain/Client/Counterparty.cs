@@ -1102,6 +1102,11 @@ namespace Vodovoz.Domain.Client
 
 		protected virtual bool OpenDelivery()
 		{
+			if(IsLiquidating)
+			{
+				return false;
+			}
+
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
 			{
 				return false;

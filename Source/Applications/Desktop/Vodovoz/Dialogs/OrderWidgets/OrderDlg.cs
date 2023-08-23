@@ -1015,6 +1015,7 @@ namespace Vodovoz
 					UpdateAvailableEnumSignatureTypes();
 					UpdateOrderAddressTypeWithUI();
 					SetLogisticsRequirementsCheckboxes(true);
+					UpdateAcceptOrderButtonsState();
 					break;
 				case nameof(Entity.OrderAddressType):
 					UpdateOrderAddressTypeUI();
@@ -1800,6 +1801,22 @@ namespace Vodovoz
 		{
 			buttonAcceptOrderWithClose.Clicked += OnButtonAcceptOrderWithCloseClicked;
 			buttonAcceptAndReturnToOrder.Clicked += OnButtonAcceptAndReturnToOrderClicked;
+		}
+
+		private void UpdateAcceptOrderButtonsState()
+		{
+			if(Entity.Client?.IsLiquidating ?? false)
+			{
+				btnForm.Sensitive = false;
+				buttonAcceptOrderWithClose.Sensitive = false;
+				buttonAcceptAndReturnToOrder.Sensitive = false;
+			}
+			else
+			{
+				btnForm.Sensitive = true;
+				buttonAcceptOrderWithClose.Sensitive = true;
+				buttonAcceptAndReturnToOrder.Sensitive = true;
+			}
 		}
 
 		MenuItem menuItemCloseOrder = null;
