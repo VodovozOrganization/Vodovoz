@@ -1010,12 +1010,21 @@ namespace Vodovoz
 					OnContractChanged();
 					break;
 				case nameof(Order.Client):
-					_cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
-					_counterpartyService.StopShipmentsIfNeeded(Entity.Client.Id, _currentEmployee.Id, _cancellationTokenCheckLiquidationSource.Token).GetAwaiter().GetResult();
+					if(Entity.Client != null)
+					{
+						try
+						{
+							_cancellationTokenCheckLiquidationSource = new CancellationTokenSource();
+							_counterpartyService.StopShipmentsIfNeeded(Entity.Client.Id, _currentEmployee.Id, _cancellationTokenCheckLiquidationSource.Token).GetAwaiter().GetResult();
+						}
+						catch(Exception e)
+						{
+							MessageDialogHelper.RunWarningDialog($"Не удалось проверить статус контрагента в ФНС: {e.Message}", "Ошибка проверки статуса контрагента в ФНС");
+						}
+					}
 					UpdateAvailableEnumSignatureTypes();
 					UpdateOrderAddressTypeWithUI();
 					SetLogisticsRequirementsCheckboxes(true);
-					UpdateAcceptOrderButtonsState();
 					break;
 				case nameof(Entity.OrderAddressType):
 					UpdateOrderAddressTypeUI();
@@ -1801,22 +1810,6 @@ namespace Vodovoz
 		{
 			buttonAcceptOrderWithClose.Clicked += OnButtonAcceptOrderWithCloseClicked;
 			buttonAcceptAndReturnToOrder.Clicked += OnButtonAcceptAndReturnToOrderClicked;
-		}
-
-		private void UpdateAcceptOrderButtonsState()
-		{
-			if(Entity.Client?.IsLiquidating ?? false)
-			{
-				btnForm.Sensitive = false;
-				buttonAcceptOrderWithClose.Sensitive = false;
-				buttonAcceptAndReturnToOrder.Sensitive = false;
-			}
-			else
-			{
-				btnForm.Sensitive = true;
-				buttonAcceptOrderWithClose.Sensitive = true;
-				buttonAcceptAndReturnToOrder.Sensitive = true;
-			}
 		}
 
 		MenuItem menuItemCloseOrder = null;

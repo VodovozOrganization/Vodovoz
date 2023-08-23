@@ -3517,7 +3517,9 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool CanSetOrderAsAccepted => EditableOrderStatuses.Contains(OrderStatus);
+		public virtual bool CanSetOrderAsAccepted =>
+			(Client is null || !Client.IsLiquidating)
+			&& EditableOrderStatuses.Contains(OrderStatus);
 
 		public virtual void EditOrder(CallTaskWorker callTaskWorker)
 		{
