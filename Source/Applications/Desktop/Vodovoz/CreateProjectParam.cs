@@ -767,6 +767,7 @@ namespace Vodovoz
 				.SingleInstance();
 
 			builder.RegisterType<IncludeExcludeSalesFilterFactory>().As<IIncludeExcludeSalesFilterFactory>().InstancePerLifetimeScope();
+			builder.RegisterType<LeftRightListViewModelFactory>().As<ILeftRightListViewModelFactory>().InstancePerLifetimeScope();
 
 			#endregion
 

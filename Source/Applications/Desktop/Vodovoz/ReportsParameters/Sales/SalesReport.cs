@@ -4,6 +4,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
+using QS.ViewModels.Widgets;
 using QSReport;
 using System;
 using Vodovoz.Domain.Logistic;
@@ -11,6 +12,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewWidgets.Reports;
 
 namespace Vodovoz.Reports
@@ -18,8 +20,10 @@ namespace Vodovoz.Reports
 	public partial class SalesReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private IncludeExludeFiltersViewModel _filterViewModel;
+		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private readonly bool _userIsSalesRepresentative;
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
+		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IInteractiveService _interactiveService;
 
@@ -28,21 +32,21 @@ namespace Vodovoz.Reports
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 		public string Title => "Отчет по продажам";
 
-		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
-
 		public SalesReport(
-			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
 			IEmployeeRepository employeeRepository,
 			IInteractiveService interactiveService,
-			IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
+			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
+			ILeftRightListViewModelFactory leftRightListViewModelFactory)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
+			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+
 			Build();
+
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			UoW.Session.DefaultReadOnly = true;
-			_filterViewModel = includeExludeFiltersViewModel ?? throw new ArgumentNullException(nameof(includeExludeFiltersViewModel));
 
 			_userIsSalesRepresentative =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Permissions.User.IsSalesRepresentative)
@@ -52,6 +56,10 @@ namespace Vodovoz.Reports
 
 			ConfigureDlg();
 		}
+
+		public virtual LeftRightListViewModel<GroupingNode> GroupingSelectViewModel => _groupViewModel;
+
+		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
 
 		private void ConfigureDlg()
 		{
@@ -64,6 +72,15 @@ namespace Vodovoz.Reports
 			};
 
 			SetupFilter();
+
+			SetupGroupings();
+
+			leftrightlistview.ViewModel = GroupingSelectViewModel;
+		}
+
+		private void SetupGroupings()
+		{
+			_groupViewModel = _leftRightListViewModelFactory.CreateSalesReportGroupingsConstructor();
 		}
 
 		private void ShowInfoWindow()

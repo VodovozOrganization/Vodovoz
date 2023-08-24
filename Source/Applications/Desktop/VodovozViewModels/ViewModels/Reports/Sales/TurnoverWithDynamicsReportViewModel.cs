@@ -13,6 +13,7 @@ using QS.Navigation;
 using QS.Project.DB;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Widgets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,13 +29,13 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Extensions;
 using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
 using Enum = System.Enum;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -44,6 +45,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 	public partial class TurnoverWithDynamicsReportViewModel : DialogTabViewModelBase
 	{
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
+		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
@@ -81,6 +83,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private bool _isGenerating;
 		private bool _canCancelGenerate;
 		private IEnumerable<string> _lastGenerationErrors;
+		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 
 		public TurnoverWithDynamicsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -88,12 +91,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			ICommonServices commonServices,
 			INavigationManager navigation,
 			IncludeExludeFiltersViewModel filterViewModel,
-			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory)
+			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
+			ILeftRightListViewModelFactory leftRightListViewModelFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_interactiveService = commonServices.InteractiveService;
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
+			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 
 			Title = "Отчет по оборачиваемости с динамикой";
 
@@ -113,6 +118,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			ConfigureFilter();
 
+			SetupGroupings();
 		}
 
 		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
@@ -256,6 +262,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
 
+		public virtual LeftRightListViewModel<GroupingNode> GroupingSelectViewModel
+		{
+			get => _groupViewModel;
+			set => SetField(ref _groupViewModel, value);
+		}
+
 		public async Task<TurnoverWithDynamicsReport> ActionGenerateReport(CancellationToken cancellationToken)
 		{
 			try
@@ -274,52 +286,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
 		}
 
-		private void UpdateNomenclaturesSpecification()
+		private void SetupGroupings()
 		{
-			var nomenclauresFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Nomenclature>>();
-
-			nomenclauresFilter.Specification = null;
-
-			nomenclauresFilter.ClearIncludesCommand.Execute();
-			nomenclauresFilter.ClearExcludesCommand.Execute();
-
-			var nomenclatureCategoryFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<NomenclatureCategory>>();
-
-			if(nomenclatureCategoryFilter != null)
-			{
-				var nomenclatureCategoryIncluded = nomenclatureCategoryFilter?.GetIncluded().ToArray();
-
-				var nomenclatureCategoryExcluded = nomenclatureCategoryFilter?.GetExcluded().ToArray();
-
-				if(nomenclatureCategoryIncluded.Length > 0)
-				{
-					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => nomenclatureCategoryIncluded.Contains(nomenclature.Category));
-				}
-
-				if(nomenclatureCategoryExcluded.Length > 0)
-				{
-					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => !nomenclatureCategoryExcluded.Contains(nomenclature.Category));
-				}
-			}
-
-			var productGroupFilter = FilterViewModel.GetFilter<IncludeExcludeEntityWithHierarchyFilter<ProductGroup>>();
-
-			if(productGroupFilter != null)
-			{
-				var productGroupIncluded = productGroupFilter.GetIncluded().ToArray();
-
-				var productGroupExcluded = productGroupFilter.GetExcluded().ToArray();
-
-				if(productGroupIncluded.Length > 0)
-				{
-					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => productGroupIncluded.Contains(nomenclature.ProductGroup.Id));
-				}
-
-				if(productGroupExcluded.Length > 0)
-				{
-					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => !productGroupExcluded.Contains(nomenclature.ProductGroup.Id));
-				}
-			}
+			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateSalesReportGroupingsConstructor();
 		}
 
 		private void ShowInfo()
@@ -379,8 +348,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var filters = string.Empty;
 
 			var sb2 = new StringBuilder();
-
-			var sb = new StringBuilder();
 
 			GetParameterValues<NomenclatureCategory>(sb2);
 			GetParameterValues<Nomenclature>(sb2);

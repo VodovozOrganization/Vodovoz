@@ -34,6 +34,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICommonServices _commonServices;
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
+		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
 		private DelegateCommand _loadReportCommand;
@@ -48,13 +49,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			RdlViewerViewModel rdlViewerViewModel,
 			IEmployeeRepository employeeRepository,
 			ICommonServices commonServices,
-			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory)
+			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
+			ILeftRightListViewModelFactory leftRightListViewModelFactory)
 			: base(rdlViewerViewModel)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
-
+			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 			_interactiveService = commonServices.InteractiveService;
 
 			Title = "Отчет по продажам с рентабельностью";
@@ -70,13 +72,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 			SetupFilter();
 
-			var groupingNodes = GetGroupingNodes();
-			LeftRightListViewModel<GroupingNode> leftRightListViewModel = new LeftRightListViewModel<GroupingNode>();
-			leftRightListViewModel.LeftLabel = "Доступные группировки";
-			leftRightListViewModel.RightLabel = "Выбранные группировки (макс. 3)";
-			leftRightListViewModel.RightItemsMaximum = 3;
-			leftRightListViewModel.SetLeftItems(groupingNodes, x => x.Name);
-			GroupingSelectViewModel = leftRightListViewModel;
+			SetupGroupings();
 		}
 
 		protected override Dictionary<string, object> Parameters => _parameters;
@@ -119,30 +115,14 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			set => SetField(ref _groupViewModel, value);
 		}
 
-		private IEnumerable<GroupingNode> GetGroupingNodes()
-		{
-			return new[] { 
-				new GroupingNode{ Name = "Заказ", GroupType = GroupingType.Order },
-				new GroupingNode{ Name = "Контрагент", GroupType = GroupingType.Counterparty },
-				new GroupingNode{ Name = "Подразделение", GroupType = GroupingType.Subdivision },
-				new GroupingNode{ Name = "Дата доставки", GroupType = GroupingType.DeliveryDate },
-				new GroupingNode{ Name = "Маршрутный лист", GroupType = GroupingType.RouteList },
-				new GroupingNode{ Name = "Номенклатура", GroupType = GroupingType.Nomenclature },
-				new GroupingNode{ Name = "Группа уровень 1", GroupType = GroupingType.NomenclatureGroup1 },
-				new GroupingNode{ Name = "Группа уровень 2", GroupType = GroupingType.NomenclatureGroup2 },
-				new GroupingNode{ Name = "Группа уровень 3", GroupType = GroupingType.NomenclatureGroup3 }
-			};
-		}
-
-		public class GroupingNode
-		{
-			public string Name { get; set; }
-			public GroupingType GroupType { get; set; }
-		}
-
 		private void SetupFilter()
 		{
 			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
+		}
+
+		private void SetupGroupings()
+		{
+			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateSalesReportGroupingsConstructor();
 		}
 
 		public DelegateCommand LoadReportCommand

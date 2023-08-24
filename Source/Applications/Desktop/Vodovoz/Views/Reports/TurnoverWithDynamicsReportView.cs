@@ -61,19 +61,19 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			yrbtnGroupingCounterpartyShowContacts.Binding
-				.AddBinding(ViewModel, vm => vm.UserCanGetContactsInSalesReports, v => v.Sensitive)
-				.InitializeFromSource();
+			//yrbtnGroupingCounterpartyShowContacts.Binding
+			//	.AddBinding(ViewModel, vm => vm.UserCanGetContactsInSalesReports, v => v.Sensitive)
+			//	.InitializeFromSource();
 
-			foreach(RadioButton radioButton in yrbtnGroupingCounterparty.Group)
-			{
-				if(radioButton.Active)
-				{
-					GroupingSelectionChanged(radioButton, EventArgs.Empty);
-				}
+			//foreach(RadioButton radioButton in yrbtnGroupingCounterparty.Group)
+			//{
+			//	if(radioButton.Active)
+			//	{
+			//		GroupingSelectionChanged(radioButton, EventArgs.Empty);
+			//	}
 
-				radioButton.Toggled += GroupingSelectionChanged;
-			}
+			//	radioButton.Toggled += GroupingSelectionChanged;
+			//}
 
 			foreach(RadioButton radioButton in yrbtnSliceDay.Group)
 			{
@@ -117,6 +117,8 @@ namespace Vodovoz.ReportsParameters.Sales
 				.InitializeFromSource();
 
 			ShowFilter();
+
+			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
 
 			ytreeReportIndicatorsRows.RowActivated += OnReportRowActivated;
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
