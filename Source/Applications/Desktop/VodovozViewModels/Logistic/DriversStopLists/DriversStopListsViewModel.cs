@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		private CarTypeOfUse? _filterCarTypeOfUse;
 		private CarOwnType? _filterCarOwnType;
 		private DriversSortOrder _currentDriversListSortOrder;
+		private bool _isExcludeVisitingMasters = true;
 
 		private bool _filterVisibility = true;
 		private DriverNode _selectedDriverNode;
@@ -84,6 +85,13 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		{
 			get => _filterCarOwnType;
 			set => SetField(ref _filterCarOwnType, value);
+		}
+
+		[PropertyChangedAlso(nameof(CurrentDriversList), nameof(StopListsRemovalHistory))]
+		public bool IsExcludeVisitingMasters
+		{
+			get => _isExcludeVisitingMasters;
+			set => SetField(ref _isExcludeVisitingMasters, value);
 		}
 
 		[PropertyChangedAlso(nameof(CurrentDriversList))]
@@ -152,6 +160,11 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			if(FilterCarOwnType != null)
 			{
 				query.Where(() => driverAlias.DriverOfCarOwnType == FilterCarOwnType);
+			}
+
+			if(IsExcludeVisitingMasters)
+			{
+				query.Where(() => !driverAlias.VisitingMaster);
 			}
 
 			var unclosedRouteListsDebtsSumSubquery = QueryOver.Of(() => routeListDebtAlias)
@@ -239,6 +252,11 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 			if(FilterCarOwnType != null)
 			{
 				query.Where(() => driverAlias.DriverOfCarOwnType == FilterCarOwnType);
+			}
+
+			if(IsExcludeVisitingMasters)
+			{
+				query.Where(() => !driverAlias.VisitingMaster);
 			}
 
 			var driversStopListsRemovals = query
