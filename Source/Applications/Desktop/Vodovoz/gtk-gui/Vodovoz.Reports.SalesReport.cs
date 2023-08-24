@@ -24,6 +24,8 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.VBox vboxParameters;
 
+		private global::QS.Widgets.GtkUI.LeftRightListView leftrightlistview;
+
 		private global::Gtk.Button buttonCreateReport;
 
 		protected virtual void Build()
@@ -129,16 +131,26 @@ namespace Vodovoz.Reports
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxParameters]));
 			w10.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.leftrightlistview = new global::QS.Widgets.GtkUI.LeftRightListView();
+			this.leftrightlistview.HeightRequest = 300;
+			this.leftrightlistview.Events = ((global::Gdk.EventMask)(256));
+			this.leftrightlistview.Name = "leftrightlistview";
+			this.vbox2.Add(this.leftrightlistview);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.leftrightlistview]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox2.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateReport]));
-			w11.Position = 3;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateReport]));
+			w12.Position = 3;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
