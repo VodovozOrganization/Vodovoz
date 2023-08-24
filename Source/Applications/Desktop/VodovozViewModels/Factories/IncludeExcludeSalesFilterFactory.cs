@@ -15,6 +15,8 @@ using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using QS.Dialog;
 using Vodovoz.ViewModels.ViewModels.Flyers;
+using System.Linq.Expressions;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.Factories
 {
@@ -89,6 +91,36 @@ namespace Vodovoz.ViewModels.Factories
 				includeExludeFiltersViewModel.AddFilter(unitOfWork, _employeeRepository, config =>
 				{
 					config.Title = "Авторы заказов";
+
+					config.RefreshFunc = (IncludeExcludeEntityFilter<Employee> filter) =>
+					{
+						Expression<Func<Employee, bool>> specificationExpression = null;
+
+						Expression<Func<Employee, bool>> searchInFullNameSpec = employee =>
+							string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString)
+							|| employee.Name.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%")
+							|| employee.LastName.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%")
+							|| employee.Patronymic.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%");
+
+						specificationExpression = specificationExpression.CombineWith(searchInFullNameSpec);
+
+						var elementsToAdd = _employeeRepository.Get(
+								unitOfWork,
+								specificationExpression,
+								limit: IncludeExludeFiltersViewModel.DefaultLimit)
+							.Select(x => new IncludeExcludeElement<int, Employee>
+							{
+								Id = x.Id,
+								Title = $"{x.LastName} {x.Name} {x.Patronymic}",
+							});
+
+						filter.FilteredElements.Clear();
+
+						foreach(var element in elementsToAdd)
+						{
+							filter.FilteredElements.Add(element);
+						}
+					};
 				});
 			}
 
