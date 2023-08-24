@@ -1,5 +1,4 @@
 ﻿using Gamma.Utilities;
-using NHibernate.Linq;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -13,18 +12,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Controllers;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 {
@@ -36,21 +29,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 	public class ProfitabilitySalesReportViewModel : ReportParametersViewModelBase
 	{
 		private Dictionary<string, object> _parameters = new Dictionary<string, object>();
-		private readonly IncludeExludeFiltersViewModel _filterViewModel;
-		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
-		private readonly IGenericRepository<ProductGroup> _productGroupRepository;
-		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
-		private readonly IGenericRepository<Organization> _organizationRepository;
-		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
-		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
-		private readonly IGenericRepository<PaymentFrom> _paymentFromRepository;
-		private readonly IGenericRepository<Employee> _employeeGenericRepository;
-		private readonly IGenericRepository<GeoGroup> _geographicalGroupRepository;
-		private readonly IGenericRepository<PromotionalSet> _promotionalSetRepository;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private readonly bool _userIsSalesRepresentative;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICommonServices _commonServices;
+		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
 		private DelegateCommand _loadReportCommand;
@@ -59,37 +42,18 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private DateTime? _endDate;
 		private bool _isDetailed;
 		private string _source;
+		private IncludeExludeFiltersViewModel _filterViewModel;
 
 		public ProfitabilitySalesReportViewModel(
 			RdlViewerViewModel rdlViewerViewModel,
 			IEmployeeRepository employeeRepository,
 			ICommonServices commonServices,
-			IncludeExludeFiltersViewModel includeExludeFiltersViewModel,
-			IGenericRepository<Nomenclature> nomenclatureRepository,
-			IGenericRepository<ProductGroup> productGroupRepository,
-			IGenericRepository<Counterparty> counterpartyRepository,
-			IGenericRepository<Organization> organizationRepository,
-			IGenericRepository<DiscountReason> discountReasonRepository,
-			IGenericRepository<Subdivision> subdivisionRepository,
-			IGenericRepository<PaymentFrom> paymentFromRepository,
-			IGenericRepository<Employee> employeeGenericRepository,
-			IGenericRepository<GeoGroup> geographicalGroupRepository,
-			IGenericRepository<PromotionalSet> promotionalSetRepository)
+			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory)
 			: base(rdlViewerViewModel)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_filterViewModel = includeExludeFiltersViewModel ?? throw new ArgumentNullException(nameof(includeExludeFiltersViewModel));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_productGroupRepository = productGroupRepository ?? throw new ArgumentNullException(nameof(productGroupRepository));
-			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
-			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
-			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			_paymentFromRepository = paymentFromRepository ?? throw new ArgumentNullException(nameof(paymentFromRepository));
-			_employeeGenericRepository = employeeGenericRepository ?? throw new ArgumentNullException(nameof(employeeGenericRepository));
-			_geographicalGroupRepository = geographicalGroupRepository ?? throw new ArgumentNullException(nameof(geographicalGroupRepository));
-			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
+			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 
 			_interactiveService = commonServices.InteractiveService;
 
@@ -178,291 +142,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 		private void SetupFilter()
 		{
-			FilterViewModel.AddFilter<NomenclatureCategory>(config =>
-			{
-				config.IncludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
-				config.ExcludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
-			});
-
-			FilterViewModel.AddFilter(_unitOfWork, _nomenclatureRepository);
-
-			FilterViewModel.AddFilter(_unitOfWork, _productGroupRepository, config =>
-			{
-				config.IncludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
-				config.ExcludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
-			});
-
-			FilterViewModel.AddFilter(_unitOfWork, _counterpartyRepository);
-
-			FilterViewModel.AddFilter(_unitOfWork, _organizationRepository);
-
-			FilterViewModel.AddFilter(_unitOfWork, _discountReasonRepository);
-
-			FilterViewModel.AddFilter(_unitOfWork, _subdivisionRepository);
-
-			if(!_userIsSalesRepresentative)
-			{
-				FilterViewModel.AddFilter(_unitOfWork, _employeeGenericRepository, config =>
-				{
-					config.Title = "Авторы заказов";
-				});
-			}
-
-			FilterViewModel.AddFilter(_unitOfWork, _geographicalGroupRepository);
-
-			FilterViewModel.AddFilter<PaymentType>(filterConfig =>
-			{
-				filterConfig.RefreshFunc = (filter) =>
-				{
-					var values = Enum.GetValues(typeof(PaymentType));
-
-					filter.FilteredElements.Clear();
-
-					var terminalValues = Enum.GetValues(typeof(PaymentByTerminalSource))
-						.Cast<PaymentByTerminalSource>()
-						.Where(x => string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString)
-							|| x.GetEnumTitle().ToLower().Contains(FilterViewModel.CurrentSearchString.ToLower()));
-
-					var paymentValues = _paymentFromRepository.Get(_unitOfWork, paymentFrom =>
-						(FilterViewModel.ShowArchived || !paymentFrom.IsArchive)
-						&& (string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString))
-							|| paymentFrom.Name.ToLower().Like($"%{FilterViewModel.CurrentSearchString.ToLower()}%"));
-
-					// Заполнение начального списка
-
-					foreach(var value in values)
-					{
-						if(value is PaymentType enumElement
-							&& !filter.HideElements.Contains(enumElement)
-							&& (string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString)
-								|| enumElement.GetEnumTitle().ToLower().Contains(FilterViewModel.CurrentSearchString.ToLower())
-								|| (enumElement == PaymentType.Terminal && terminalValues.Any())
-								|| (enumElement == PaymentType.PaidOnline && paymentValues.Any())))
-						{
-							filter.FilteredElements.Add(new IncludeExcludeElement<PaymentType, PaymentType>()
-							{
-								Id = enumElement,
-								Title = enumElement.GetEnumTitle(),
-							});
-						}
-					}
-
-					// Заполнение группы Терминал
-
-					var terminalNode = filter.FilteredElements
-						.Where(x => x.Number == nameof(PaymentType.Terminal))
-						.FirstOrDefault();
-
-					if(terminalValues.Any())
-					{
-						foreach(var value in terminalValues)
-						{
-							if(value is PaymentByTerminalSource enumElement)
-							{
-								terminalNode.Children.Add(new IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>()
-								{
-									Id = enumElement,
-									Parent = terminalNode,
-									Title = enumElement.GetEnumTitle(),
-								});
-							}
-						}
-					}
-
-					// Заполнение подгруппы Оплачено онлайн
-
-					var paidOnlineNode = filter.FilteredElements
-						.Where(x => x.Number == nameof(PaymentType.PaidOnline))
-						.FirstOrDefault();
-
-					if(paymentValues.Any())
-					{
-						var paymentFromValues = paymentValues
-							.Select(x => new IncludeExcludeElement<int, PaymentFrom>
-							{
-								Id = x.Id,
-								Parent = paidOnlineNode,
-								Title = x.Name,
-							});
-
-						foreach(var element in paymentFromValues)
-						{
-							paidOnlineNode.Children.Add(element);
-						}
-					}
-				};
-
-				filterConfig.GetReportParametersFunc = (filter) =>
-				{
-					var result = new Dictionary<string, object>();
-
-					// Тип оплаты
-
-					var includePaymentTypeValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includePaymentTypeValues.Length > 0)
-					{
-						result.Add(typeof(PaymentType).Name + "_include", includePaymentTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentType).Name + "_include", new object[] { "0" });
-					}
-
-					var excludePaymentTypeValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludePaymentTypeValues.Length > 0)
-					{
-						result.Add(typeof(PaymentType).Name + "_exclude", excludePaymentTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentType).Name + "_exclude", new object[] { "0" });
-					}
-
-					// Оплата по термииналу
-
-					var includePaymentByTerminalSourceValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includePaymentByTerminalSourceValues.Length > 0)
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_include", includePaymentByTerminalSourceValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_include", new object[] { "0" });
-					}
-
-					var excludePaymentByTerminalSourceValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludePaymentByTerminalSourceValues.Length > 0)
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_exclude", excludePaymentByTerminalSourceValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + "_exclude", new object[] { "0" });
-					}
-
-					// Оплачено онлайн
-
-					var includePaymentFromValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includePaymentFromValues.Length > 0)
-					{
-						result.Add(typeof(PaymentFrom).Name + "_include", includePaymentFromValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentFrom).Name + "_include", new object[] { "0" });
-					}
-
-					var excludePaymentFromValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludePaymentFromValues.Length > 0)
-					{
-						result.Add(typeof(PaymentFrom).Name + "_exclude", excludePaymentFromValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentFrom).Name + "_exclude", new object[] { "0" });
-					}
-
-					return result;
-				};
-			});
-
-			FilterViewModel.AddFilter(_unitOfWork, _promotionalSetRepository);
-
-			var statusesToSelect = new[] {
-				OrderStatus.Accepted,
-				OrderStatus.InTravelList,
-				OrderStatus.OnLoading,
-				OrderStatus.OnTheWay,
-				OrderStatus.Shipped,
-				OrderStatus.UnloadingOnStock,
-				OrderStatus.WaitForPayment,
-				OrderStatus.Closed };
-
-			FilterViewModel.AddFilter<OrderStatus>(config =>
-			{
-				config.RefreshFilteredElements();
-
-				foreach(var element in config.FilteredElements)
-				{
-					if(element is IncludeExcludeElement<OrderStatus, OrderStatus> enumElement &&
-						statusesToSelect.Contains(enumElement.Id))
-					{
-						enumElement.Include = true;
-					}
-				}
-			});
-		}
-
-		private void UpdateNomenclaturesSpecification()
-		{
-			var nomenclauresFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Nomenclature>>();
-
-			nomenclauresFilter.Specification = null;
-
-			nomenclauresFilter.ClearIncludesCommand.Execute();
-			nomenclauresFilter.ClearExcludesCommand.Execute();
-
-			var nomenclatureCategoryFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<NomenclatureCategory>>();
-
-			if(nomenclatureCategoryFilter != null)
-			{
-				var nomenclatureCategoryIncluded = nomenclatureCategoryFilter?.GetIncluded().ToArray();
-
-				var nomenclatureCategoryExcluded = nomenclatureCategoryFilter?.GetExcluded().ToArray();
-
-				if(nomenclatureCategoryIncluded.Length > 0)
-				{
-					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => nomenclatureCategoryIncluded.Contains(nomenclature.Category));
-				}
-
-				if(nomenclatureCategoryExcluded.Length > 0)
-				{
-					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => !nomenclatureCategoryExcluded.Contains(nomenclature.Category));
-				}
-			}
-
-			var productGroupFilter = FilterViewModel.GetFilter<IncludeExcludeEntityWithHierarchyFilter<ProductGroup>>();
-
-			if(productGroupFilter != null)
-			{
-				var productGroupIncluded = productGroupFilter.GetIncluded().ToArray();
-
-				var productGroupExcluded = productGroupFilter.GetExcluded().ToArray();
-
-				if(productGroupIncluded.Length > 0)
-				{
-					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => productGroupIncluded.Contains(nomenclature.ProductGroup.Id));
-				}
-
-				if(productGroupExcluded.Length > 0)
-				{
-					nomenclauresFilter.Specification = nomenclauresFilter.Specification.CombineWith(nomenclature => !productGroupExcluded.Contains(nomenclature.ProductGroup.Id));
-				}
-			}
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
 		}
 
 		public DelegateCommand LoadReportCommand

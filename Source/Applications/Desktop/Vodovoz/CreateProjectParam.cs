@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using CashReceiptApi.Client.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -253,6 +253,7 @@ using Vodovoz.Views.BaseParameters;
 using Vodovoz.ViewModels.QualityControl.Reports;
 using Vodovoz.QualityControl.Reports;
 using Vodovoz.ReportsParameters.Cash;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz
 {
@@ -754,6 +755,8 @@ namespace Vodovoz
 					.Where(i => i.Name == $"I{s.Name}")
 					.First())
 				.SingleInstance();
+
+			builder.RegisterType<IncludeExcludeSalesFilterFactory>().As<IIncludeExcludeSalesFilterFactory>().InstancePerLifetimeScope();
 
 			#endregion
 
