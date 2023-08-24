@@ -342,12 +342,10 @@ namespace Vodovoz
 				new EmployeeJournalFactory(),
 				VodovozGtkServicesConfig.EmployeeService,
 				new UndeliveredOrdersJournalOpener(),
-				new OrderSelectorFactory(),
 				new UndeliveredOrdersRepository(),
 				new EmployeeSettings(new ParametersProvider()),
-				new SubdivisionParametersProvider(new ParametersProvider()),
-				new FileDialogService()
-				);
+				new SubdivisionParametersProvider(new ParametersProvider())
+			);
 
 			TabParent.AddSlaveTab(this, dlg);
 		}

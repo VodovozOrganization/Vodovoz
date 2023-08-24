@@ -42,6 +42,10 @@ namespace Vodovoz.Cash.Reports
 				.AddBinding(ViewModel, vm => vm.EndDate, w => w.Date)
 				.InitializeFromSource();
 
+			ycheckbuttonHideCategoriesWithoutDocuments.Binding
+				.AddBinding(ViewModel, vm => vm.HideCategoriesWithoutDocuments, w => w.Active)
+				.InitializeFromSource();
+
 			ybuttonCreateReport.Binding
 				.AddBinding(ViewModel, vm => vm.CanGenerateDdsReport, w => w.Sensitive)
 				.InitializeFromSource();

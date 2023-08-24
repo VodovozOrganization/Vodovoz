@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Report;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -14,28 +15,39 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Tools;
+using static Vodovoz.ViewModels.ViewModels.Reports.FastDelivery.FastDeliveryAdditionalLoadingReportViewModel.FastDeliveryAdditionalLoadingReport;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 {
-	public class FastDeliveryAdditionalLoadingReportViewModel : DialogTabViewModelBase
+	public partial class FastDeliveryAdditionalLoadingReportViewModel : DialogTabViewModelBase
 	{
 		private const string _templatePath = @".\Reports\Orders\FastDeliveryAdditionalLoadingReport.xlsx";
+		private const string _fastDeliveryRemainingBottlesReportPath = @".\Reports\Logistic\FastDeliveryRemainingBottlesReport.xlsx";
+
+		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
-		private DelegateCommand _generateCommand;
-		private DelegateCommand _exportCommand;
 		private FastDeliveryAdditionalLoadingReport _report;
 		private bool _isRunning;
 
-		public FastDeliveryAdditionalLoadingReportViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService,
-			INavigationManager navigation, IFileDialogService fileDialogService)
+		public FastDeliveryAdditionalLoadingReportViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IInteractiveService interactiveService,
+			INavigationManager navigation,
+			IFileDialogService fileDialogService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			_interactiveService = interactiveService;
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			Title = "Отчёт по дозагрузке МЛ";
 
 			CreateDateFrom = DateTime.Now.Date;
-			CreateDateTo = DateTime.Now.Date.Add(new TimeSpan(0, 23, 59, 59));
+			CreateDateTo = DateTime.Now.LatestDayTime();
+
+			GenerateCommand = new DelegateCommand(GenerateReport);
+			ExportCommand = new DelegateCommand(ExportReport);
+			GenerateFastDeliveryRemainingBottlesReportCommand = new DelegateCommand(GenerateFastDeliveryRemainingBottlesReport);
 		}
 
 		private IList<FastDeliveryAdditionalLoadingReportRow> GenerateReportRows()
@@ -58,7 +70,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				.JoinEntityAlias(() => routeListAlias, () => routeListAlias.AdditionalLoadingDocument.Id == additionalLoadingDocumentAlias.Id)
 				.JoinAlias(() => additionalLoadingDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => routeListAlias.Date >= CreateDateFrom.Value.Date
-									   && routeListAlias.Date <= CreateDateTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
+					&& routeListAlias.Date <= CreateDateTo.Value.Date.LatestDayTime());
 
 			var ownOrdersAmountSubquery = QueryOver.Of(() => routeListItemAlias)
 				.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
@@ -78,8 +90,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListId)
 					.SelectSubQuery(ownOrdersAmountSubquery).WithAlias(() => resultAlias.OwnOrdersCount)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.AdditionaLoadingNomenclature)
-					.Select(() => additionalLoadingDocumentItemAlias.Amount).WithAlias(() => resultAlias.AdditionaLoadingAmount)
-				).OrderBy(() => routeListAlias.Date).Desc
+					.Select(() => additionalLoadingDocumentItemAlias.Amount).WithAlias(() => resultAlias.AdditionaLoadingAmount))
+				.OrderBy(() => routeListAlias.Date).Desc
 				.ThenBy(() => routeListAlias.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<FastDeliveryAdditionalLoadingReportRow>())
 				.List<FastDeliveryAdditionalLoadingReportRow>();
@@ -87,46 +99,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 		#region Commands
 
-		public DelegateCommand ExportCommand => _exportCommand ?? (_exportCommand = new DelegateCommand(
-				() =>
-				{
-					var dialogSettings = new DialogSettings();
-					dialogSettings.Title = "Сохранить";
-					dialogSettings.DefaultFileExtention = ".xlsx";
-					dialogSettings.FileName = $"Отчёт по дозагрузке МЛ {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+		public DelegateCommand ExportCommand { get; }
 
-					var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
-					if(result.Successful)
-					{
-						var template = new XLTemplate(_templatePath);
-						template.AddVariable(Report);
-						template.Generate();
-						template.SaveAs(result.Path);
-					}
-				},
-				() => true)
-			);
+		public DelegateCommand GenerateCommand { get; }
 
-		public DelegateCommand GenerateCommand => _generateCommand ?? (_generateCommand = new DelegateCommand(
-				() =>
-				{
-					Report = null;
-					IsRunning = true;
+		public DelegateCommand GenerateFastDeliveryRemainingBottlesReportCommand { get; }
 
-					Report = new FastDeliveryAdditionalLoadingReport
-					{
-						Rows = GenerateReportRows()
-					};
-
-					IsRunning = false;
-					UoW.Session.Clear();
-				},
-				() => true)
-			);
-
-		#endregion
+		#endregion Commands
 
 		public DateTime? CreateDateFrom { get; set; }
+
 		public DateTime? CreateDateTo { get; set; }
 
 		[PropertyChangedAlso(nameof(IsHasRows))]
@@ -175,21 +157,75 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 		public bool IsHasRows => Report != null && Report.Rows != null && Report.Rows.Any();
 
 		public bool IsHasDates => CreateDateFrom != null && CreateDateTo != null;
-	}
 
-	public class FastDeliveryAdditionalLoadingReport
-	{
-		public IList<FastDeliveryAdditionalLoadingReportRow> Rows { get; set; }
-	}
+		private void GenerateReport()
+		{
+			Report = null;
+			IsRunning = true;
 
-	public class FastDeliveryAdditionalLoadingReportRow
-	{
-		public DateTime RouteListDate { get; set; }
-		public int RouteListId { get; set; }
-		public int OwnOrdersCount { get; set; }
-		public string AdditionaLoadingNomenclature { get; set; }
-		public decimal AdditionaLoadingAmount { get; set; }
-		public string RouteListDateString => RouteListDate.ToShortDateString();
+			Report = new FastDeliveryAdditionalLoadingReport
+			{
+				Rows = GenerateReportRows()
+			};
+
+			IsRunning = false;
+			UoW.Session.Clear();
+		}
+
+		private void ExportReport()
+		{
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"Отчёт по дозагрузке МЛ {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+
+			if(!result.Successful)
+			{
+				return;
+			}
+
+			var template = new XLTemplate(_templatePath);
+
+			template.AddVariable(Report);
+			template.Generate();
+			template.SaveAs(result.Path);
+		}
+
+		private void GenerateFastDeliveryRemainingBottlesReport()
+		{
+			if(!CreateDateFrom.HasValue || !CreateDateTo.HasValue)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Не указан интервал", "Ошибка");
+				return;
+			}
+
+			var reportName = typeof(FastDeliveryRemainingBottlesReport).GetClassUserFriendlyName().Nominative.CapitalizeSentence();
+
+			var saveDialogSettings = new DialogSettings
+			{
+				Title = $"Сохранить {reportName}",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"{reportName} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
+			};
+
+			var saveDialogResult = _fileDialogService.RunSaveFileDialog(saveDialogSettings);
+
+			if(!saveDialogResult.Successful)
+			{
+				return;
+			}
+
+			var report = FastDeliveryRemainingBottlesReport.Generate(UoW, CreateDateFrom.Value.Date, CreateDateTo.Value.LatestDayTime());
+
+			var template = new XLTemplate(_fastDeliveryRemainingBottlesReportPath);
+
+			template.AddVariable(report);
+			template.Generate();
+			template.SaveAs(saveDialogResult.Path);
+		}
 	}
 }
-

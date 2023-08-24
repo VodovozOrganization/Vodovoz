@@ -11,15 +11,14 @@ using QS.Project.Domain;
 using System.Reflection;
 using Vodovoz.EntityRepositories.HistoryChanges;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using QS.Attachments.Domain;
 using Microsoft.Extensions.Configuration;
-using Vodovoz.HibernateMapping.Organizations;
 using Vodovoz.Tools;
 using Autofac.Extensions.DependencyInjection;
 using Autofac;
 using Vodovoz.Settings.Database;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
 namespace MonitoringArchivingWorker
 {
@@ -83,7 +82,7 @@ namespace MonitoringArchivingWorker
 				new Assembly[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),

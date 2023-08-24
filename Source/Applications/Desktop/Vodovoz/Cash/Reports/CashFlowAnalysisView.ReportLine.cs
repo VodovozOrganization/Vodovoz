@@ -35,8 +35,8 @@ namespace Vodovoz.Cash.Reports
 			{
 				var result = new List<ReportLine>
 				{
-					Map(report.IncomesGroupLines.First()),
-					Map(report.ExpensesGroupLines.First()),
+					Map(report.IncomesGroupLines.FirstOrDefault()),
+					Map(report.ExpensesGroupLines.FirstOrDefault()),
 					new ReportLine()
 					{
 						FirstColumn = "Прибыль",
@@ -54,15 +54,18 @@ namespace Vodovoz.Cash.Reports
 				var result = new ReportLine
 				{
 					FirstColumn = "Доходы",
-					ThirdColumn = incomesGroupLine.Money,
+					ThirdColumn = incomesGroupLine?.Money ?? 0m,
 					Bold = true,
 					IsAccented = true
 				};
 
-				result.ChildLines.AddRange(Map(
+				if(incomesGroupLine != null)
+				{
+					result.ChildLines.AddRange(Map(
 						result,
 						incomesGroupLine.Groups,
 						incomesGroupLine.IncomeCategories));
+				}
 
 				return result;
 			}
@@ -72,15 +75,18 @@ namespace Vodovoz.Cash.Reports
 				var result = new ReportLine
 				{
 					FirstColumn = "Расходы",
-					ThirdColumn = expensesGroupLine.Money,
+					ThirdColumn = expensesGroupLine?.Money ?? 0m,
 					Bold = true,
 					IsAccented = true
 				};
 
-				result.ChildLines.AddRange(Map(
-					result,
-					expensesGroupLine.Groups,
-					expensesGroupLine.ExpenseCategories));
+				if(expensesGroupLine != null)
+				{
+					result.ChildLines.AddRange(Map(
+						result,
+						expensesGroupLine.Groups,
+						expensesGroupLine.ExpenseCategories));
+				}
 
 				return result;
 			}

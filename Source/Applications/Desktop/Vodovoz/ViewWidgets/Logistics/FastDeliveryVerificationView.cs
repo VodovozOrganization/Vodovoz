@@ -51,9 +51,8 @@ namespace Vodovoz.ViewWidgets.Logistics
 				.AddSetter((c, n) =>
 					c.CellBackgroundGdk = n.IsGoodsEnough.IsValidParameter ? _colorWhite : _colorLightRed)
 				.AddColumn("Незакрытые\nэкспресс-доставки\nв МЛ")
-				.AddNumericRenderer(n => n.UnClosedFastDeliveries.ParameterValue)
-				.AddSetter((c, n) =>
-					c.CellBackgroundGdk = n.UnClosedFastDeliveries.IsValidParameter ? _colorWhite : _colorLightRed)
+				.AddTextRenderer(n => $"{n.UnClosedFastDeliveries.ParameterValue}/{n.RouteListMaxFastDeliveryOrders}").XAlign(0.5f)
+				.AddSetter((c, n) => c.CellBackgroundGdk = n.UnClosedFastDeliveries.IsValidParameter ? _colorWhite : _colorLightRed)
 				.AddColumn("Остаток времени\nна отгрузку\nнового заказа")
 				.AddTextRenderer(n => n.RemainingTimeForShipmentNewOrder.ParameterValue.ToString())
 				.AddSetter((c, n) =>

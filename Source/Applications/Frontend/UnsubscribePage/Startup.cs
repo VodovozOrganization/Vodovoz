@@ -15,8 +15,8 @@ using System;
 using System.Reflection;
 using QS.DomainModel.UoW;
 using Vodovoz;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
 namespace UnsubscribePage
 {
@@ -129,7 +129,7 @@ namespace UnsubscribePage
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(Attachment)),

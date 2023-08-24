@@ -1,0 +1,13 @@
+﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Complaints;
+
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Complaints
+{
+	public class ComplaintResultOfCounterpartyMap : SubclassMap<ComplaintResultOfCounterparty>
+	{
+		public ComplaintResultOfCounterpartyMap()
+		{
+			DiscriminatorValue("Counterparty");
+		}
+	}
+}

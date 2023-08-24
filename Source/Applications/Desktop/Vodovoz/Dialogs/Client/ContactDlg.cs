@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using Autofac;
 using NLog;
+using QS.Dialog;
 using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 
@@ -14,6 +17,8 @@ namespace Vodovoz
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository = new ExternalCounterpartyRepository();
 
 		public ContactDlg (Counterparty counterparty)
 		{
@@ -52,6 +57,8 @@ namespace Vodovoz
 					UoWGeneric,
 					Entity.Emails,
 					_lifetimeScope.Resolve<IEmailParametersProvider>(),
+					_externalCounterpartyRepository,
+					_interactiveService,
 					Entity.Counterparty.PersonType);
 			emailsView.ViewModel = emailsViewModel;
 			phonesView.UoW = UoWGeneric;

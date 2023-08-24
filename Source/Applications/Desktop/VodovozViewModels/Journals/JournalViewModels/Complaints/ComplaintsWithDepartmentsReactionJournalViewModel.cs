@@ -37,6 +37,7 @@ using QS.Tdi;
 using Vodovoz.Journals.JournalViewModels;
 using QS.ViewModels.Dialog;
 using Vodovoz.NHibernateProjections.Employees;
+using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 {

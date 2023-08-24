@@ -280,6 +280,7 @@ namespace Vodovoz.ViewModels.Goods
 			_deliveryRulesParametersProvider.UpdateFlyerForNewCounterpartyBottlesCountParameter(FlyerForNewCounterpartyBottlesCount.ToString());
 
 			_deliveryRulesParametersProvider.UpdateMaxFastOrdersPerSpecificTimeParameter(MaxFastOrdersPerSpecificTime.ToString());
+			UpdateMaxFastDeliveryOrdersValueInAllNotClosedRouteLists(MaxFastOrdersPerSpecificTime);
 
 			UoW.Commit();
 			return true;
@@ -292,6 +293,18 @@ namespace Vodovoz.ViewModels.Goods
 			foreach(var routeList in notClosedRouteLists)
 			{
 				routeList.UpdateFastDeliveryMaxDistanceValue(distanceToSet);
+			}
+		}
+		private void UpdateMaxFastDeliveryOrdersValueInAllNotClosedRouteLists(int maxFastDeliveryOrders)
+		{
+			var notClosedFastDeliveryRouteLists = UoW.GetAll<RouteList>()
+				.Where(r => r.Status != RouteListStatus.Closed 
+				            && r.AdditionalLoadingDocument != null)
+				.ToList();
+
+			foreach(var routeList in notClosedFastDeliveryRouteLists)
+			{
+				routeList.UpdateMaxFastDeliveryOrdersValue(maxFastDeliveryOrders);
 			}
 		}
 

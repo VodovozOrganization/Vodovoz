@@ -25,6 +25,7 @@ using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Profitability;
@@ -419,6 +420,15 @@ namespace Vodovoz.Domain.Logistic
 				SetField(ref _fastDeliveryMaxDistanceItems, value);
 			}
 		}
+
+		IList<RouteListMaxFastDeliveryOrders> _maxFastDeliveryOrdersItems = new List<RouteListMaxFastDeliveryOrders>();
+
+		[Display(Name = "Значения макс. кол-ва заказов ДЗЧ")]
+		public virtual IList<RouteListMaxFastDeliveryOrders> MaxFastDeliveryOrdersItems
+		{
+			get => _maxFastDeliveryOrdersItems;
+			set => SetField(ref _maxFastDeliveryOrdersItems, value);
+	}
 
 		IList<DeliveryFreeBalanceOperation> _deliveryFreeBalanceOperations = new List<DeliveryFreeBalanceOperation>();
 
@@ -1742,6 +1752,35 @@ namespace Vodovoz.Domain.Logistic
 			FastDeliveryMaxDistanceItems.Add(routeListFastDeliveryMaxDistance);
 		}
 
+		public virtual void UpdateMaxFastDeliveryOrdersValue(int maxFastDeliveryOrdersValue)
+		{
+			if(MaxFastDeliveryOrdersItems.Count > 0)
+			{
+				var currentMaxFastDeliveryOrders = MaxFastDeliveryOrdersItems.Where(f => f.EndDate == null).FirstOrDefault();
+
+				if(currentMaxFastDeliveryOrders != null)
+				{
+					if(currentMaxFastDeliveryOrders.MaxOrders != maxFastDeliveryOrdersValue)
+					{
+						currentMaxFastDeliveryOrders.EndDate = DateTime.Now;
+					}
+					else
+					{
+						return;
+					}
+				}
+			}
+
+			var maxFastDeliveryOrders = new RouteListMaxFastDeliveryOrders
+			{
+				RouteList = this,
+				MaxOrders = maxFastDeliveryOrdersValue,
+				StartDate = DateTime.Now
+			};
+
+			MaxFastDeliveryOrdersItems.Add(maxFastDeliveryOrders);
+		}
+
 		public virtual decimal GetFastDeliveryMaxDistanceValue(DateTime? date = null)
 		{
 			if(date == null)
@@ -1759,6 +1798,25 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			return (decimal)_deliveryRulesParametersProvider.GetMaxDistanceToLatestTrackPointKmFor(date ?? DateTime.Now);
+		}
+
+		public virtual int GetMaxFastDeliveryOrdersValue(DateTime? date = null)
+		{
+			if(date == null)
+			{
+				date = DateTime.Now;
+			}
+
+			var maxFastDeliveryOrdersItem = UoW.GetAll<RouteListMaxFastDeliveryOrders>()
+				.Where(d => d.RouteList.Id == Id && d.StartDate <= date && (d.EndDate == null || d.EndDate > date))
+				.FirstOrDefault();
+
+			if(maxFastDeliveryOrdersItem != null)
+			{
+				return maxFastDeliveryOrdersItem.MaxOrders;
+			}
+
+			return _deliveryRulesParametersProvider.MaxFastOrdersPerSpecificTime;
 		}
 
 		public virtual bool IsDriversDebtInPermittedRangeVerification()

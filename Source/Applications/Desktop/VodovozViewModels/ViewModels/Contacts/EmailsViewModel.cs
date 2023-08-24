@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
@@ -15,19 +17,27 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 	{
 		private IUnitOfWork _uow;
 		private readonly IEmailParametersProvider _emailParametersProvider;
-		
+		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
+
 		private PersonType _personType;
 		private DelegateCommand _addEmailCommand;
 		private DelegateCommand<Email> _removeEmailCommand;
+		private DelegateCommand<Email> _removeEmailWithAllReferencesCommand;
+		private IList<ExternalCounterparty> _externalCounterparties;
 
 		public EmailsViewModel(
 			IUnitOfWork uow,
 			IList<Email> emailList,
 			IEmailParametersProvider emailParametersProvider,
+			IExternalCounterpartyRepository externalCounterpartyRepository,
+			IInteractiveService interactiveService,
 			PersonType personType)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+			_externalCounterpartyRepository =
+				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
+			InteractiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_personType = personType;
 			EmailTypes = _uow.GetAll<EmailType>();
 
@@ -39,6 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			EmailsList = new GenericObservableList<Email>(emailList);
 		}
 		
+		public IInteractiveService InteractiveService { get; }
 		public GenericObservableList<Email> EmailsList { get; }
 		public IEnumerable<EmailType> EmailTypes { get; }
 
@@ -71,6 +82,19 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 				EmailsList.Remove(email);
 			}));
 		
+		public DelegateCommand<Email> RemoveEmailWithAllReferencesCommand => _removeEmailWithAllReferencesCommand ?? (
+			_removeEmailWithAllReferencesCommand = new DelegateCommand<Email>(
+				email =>
+				{
+					foreach(var externalCounterparty in _externalCounterparties)
+					{
+						externalCounterparty.Email = null;
+						_uow.Save(externalCounterparty);
+					}
+					EmailsList.Remove(email);
+					_externalCounterparties.Clear();
+				}));
+		
 		/// <summary>
 		/// Необходимо выполнить перед сохранением или в геттере HasChanges
 		/// </summary>
@@ -84,6 +108,12 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		public void UpdatePersonType(PersonType newPersonType)
 		{
 			_personType = newPersonType;
+		}
+
+		public bool HasExternalCounterpartiesWithEmail(int emailId)
+		{
+			_externalCounterparties = _externalCounterpartyRepository.GetExternalCounterpartyByEmail(_uow, emailId);
+			return _externalCounterparties.Any();
 		}
 		
 		private void AddEmptyEmail()

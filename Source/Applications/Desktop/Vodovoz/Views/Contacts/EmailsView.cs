@@ -86,7 +86,21 @@ namespace Vodovoz.Views.Contacts
 				_logger.Warn("Не найден виджет ассоциированный с удаленной электронкой");
 				return;
 			}
-			ViewModel.RemoveEmailCommand.Execute((Email)foundWidget.Tag);
+
+			var email = (Email)foundWidget.Tag;
+			
+			if(ViewModel.HasExternalCounterpartiesWithEmail(email.Id))
+			{
+				if(ViewModel.InteractiveService.Question(
+					"Данная почта привязана к пользователю МП или сайта. Вы действительно хотите ее удалить?"))
+				{
+					ViewModel.RemoveEmailWithAllReferencesCommand.Execute(email);
+				}
+			}
+			else
+			{
+				ViewModel.RemoveEmailCommand.Execute(email);
+			}
 		}
 
 		private void RemoveRow(uint Row)
