@@ -85,6 +85,8 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			}
 		}
 
+		public static int DefaultLimit => _defaultLimit;
+
 		public GenericObservableList<IncludeExcludeElement> Elements => ActiveFilter?.FilteredElements ?? _emptyElements;
 
 		public DelegateCommand ClearSearchStringCommand { get; }
@@ -348,6 +350,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				"При выборе хотя бы одной ✔️ в текущем фильтре - в выборку попадут только указанные значения.\n" +
 				"При выборе X - из выборки будут исключены выбранные элементы.\n" +
 				"При выборе галочки \"Показать архивные\" будут доступны для выбора архивные элементы." +
+				"!Фильтр по статусу заказов сейчас работает только в отчете по рентабельности!" + //Todo: убрать при релизе 4445
 				"Справка по фильтру");
 		}
 

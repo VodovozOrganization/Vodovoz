@@ -1,10 +1,8 @@
 ﻿using ClosedXML.Report;
 using DateTimeHelpers;
-using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Commands;
@@ -29,8 +27,6 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Extensions;
 using Vodovoz.NHibernateProjections.Contacts;
@@ -38,6 +34,7 @@ using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Tools;
+using Vodovoz.ViewModels.Factories;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
 using Enum = System.Enum;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -46,26 +43,12 @@ namespace Vodovoz.ViewModels.Reports.Sales
 {
 	public partial class TurnoverWithDynamicsReportViewModel : DialogTabViewModelBase
 	{
-		private const string _includeSuffix = "_include";
-		private const string _excludeSuffix = "_exclude";
-
-		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IUnitOfWork _unitOfWork;
 
-		private readonly IGenericRepository<Nomenclature> _nomenclatureRepository;
-		private readonly IGenericRepository<ProductGroup> _productGroupRepository;
-		private readonly IGenericRepository<PaymentFrom> _paymentFromRepository;
-		private readonly IGenericRepository<Counterparty> _counterpartyRepository;
-		private readonly IGenericRepository<Organization> _organizationRepository;
-		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
-		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
-		private readonly IGenericRepository<Employee> _employeeGenericRepository;
-		private readonly IGenericRepository<GeoGroup> _geographicalGroupRepository;
-		private readonly IGenericRepository<PromotionalSet> _promotionalSetRepository;
-
-		private readonly IncludeExludeFiltersViewModel _filterViewModel;
+		private IncludeExludeFiltersViewModel _filterViewModel;
 
 		private readonly string _templatePath = @".\Reports\Sales\TurnoverReport.xlsx";
 		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
@@ -104,34 +87,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			IInteractiveService interactiveService,
 			ICommonServices commonServices,
 			INavigationManager navigation,
-			IEmployeeRepository employeeRepository,
 			IncludeExludeFiltersViewModel filterViewModel,
-			IGenericRepository<Nomenclature> nomenclatureRepository,
-			IGenericRepository<ProductGroup> productGroupRepository,
-			IGenericRepository<PaymentFrom> paymentFromRepository,
-			IGenericRepository<Counterparty> counterpartyRepository,
-			IGenericRepository<Organization> organizationRepository,
-			IGenericRepository<DiscountReason> discountReasonRepository,
-			IGenericRepository<Subdivision> subdivisionRepository,
-			IGenericRepository<Employee> employeeGenericRepository,
-			IGenericRepository<GeoGroup> geographicalGroupRepository,
-			IGenericRepository<PromotionalSet> promotionalSetRepository)
+			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_interactiveService = commonServices.InteractiveService;
-			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
-			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_productGroupRepository = productGroupRepository ?? throw new ArgumentNullException(nameof(productGroupRepository));
-			_paymentFromRepository = paymentFromRepository ?? throw new ArgumentNullException(nameof(paymentFromRepository));
-			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
-			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
-			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			_employeeGenericRepository = employeeGenericRepository ?? throw new ArgumentNullException(nameof(employeeGenericRepository));
-			_geographicalGroupRepository = geographicalGroupRepository ?? throw new ArgumentNullException(nameof(geographicalGroupRepository));
-			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
+			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 
 			Title = "Отчет по оборачиваемости с динамикой";
 
@@ -141,7 +103,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.User.IsSalesRepresentative)
 				&& !_commonServices.UserService.GetCurrentUser().IsAdmin;
 
-			_userCanGetContactsInSalesReports = 
+			_userCanGetContactsInSalesReports =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Sales.CanGetContactsInSalesReports);
 
 			StartDate = DateTime.Now.Date.AddDays(-6);
@@ -150,6 +112,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			_lastGenerationErrors = Enumerable.Empty<string>();
 
 			ConfigureFilter();
+
 		}
 
 		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
@@ -308,213 +271,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void ConfigureFilter()
 		{
-			FilterViewModel.AddFilter<NomenclatureCategory>(config =>
-			{
-				config.IncludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
-				config.ExcludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
-			});
-
-			FilterViewModel.AddFilter(UoW, _nomenclatureRepository);
-
-			FilterViewModel.AddFilter(UoW, _productGroupRepository, x => x.Parent?.Id, x => x.Id, config =>
-			{
-				config.IncludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
-				config.ExcludedElements.ListChanged += (_) => UpdateNomenclaturesSpecification();
-			});
-
-			FilterViewModel.AddFilter(UoW, _counterpartyRepository);
-
-			FilterViewModel.AddFilter(UoW, _organizationRepository);
-
-			FilterViewModel.AddFilter(UoW, _discountReasonRepository);
-
-			FilterViewModel.AddFilter(UoW, _subdivisionRepository);
-			
-			FilterViewModel.AddFilter(UoW, _employeeGenericRepository);
-
-			FilterViewModel.AddFilter(UoW, _geographicalGroupRepository);
-
-			FilterViewModel.AddFilter<PaymentType>(filterConfig =>
-			{
-				filterConfig.RefreshFunc = (filter) =>
-				{
-					var values = Enum.GetValues(typeof(PaymentType));
-
-					filter.FilteredElements.Clear();
-
-					var terminalValues = Enum.GetValues(typeof(PaymentByTerminalSource))
-						.Cast<PaymentByTerminalSource>()
-						.Where(x => string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString)
-							|| x.GetEnumTitle().ToLower().Contains(FilterViewModel.CurrentSearchString.ToLower()));
-
-					var paymentValues = _paymentFromRepository.Get(UoW, paymentFrom =>
-						(FilterViewModel.ShowArchived || !paymentFrom.IsArchive)
-						&& (string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString))
-							|| paymentFrom.Name.ToLower().Like($"%{FilterViewModel.CurrentSearchString.ToLower()}%"));
-
-					// Заполнение начального списка
-
-					foreach(var value in values)
-					{
-						if(value is PaymentType enumElement
-							&& !filter.HideElements.Contains(enumElement)
-							&& (string.IsNullOrWhiteSpace(FilterViewModel.CurrentSearchString)
-								|| enumElement.GetEnumTitle().ToLower().Contains(FilterViewModel.CurrentSearchString.ToLower())
-								|| (enumElement == PaymentType.Terminal && terminalValues.Any())
-								|| (enumElement == PaymentType.PaidOnline && paymentValues.Any())))
-						{
-							filter.FilteredElements.Add(new IncludeExcludeElement<PaymentType, PaymentType>()
-							{
-								Id = enumElement,
-								Title = enumElement.GetEnumTitle(),
-							});
-						}
-					}
-
-					// Заполнение группы Терминал
-
-					var terminalNode = filter.FilteredElements
-						.Where(x => x.Number == nameof(PaymentType.Terminal))
-						.FirstOrDefault();
-
-					if(terminalValues.Any())
-					{
-						foreach(var value in terminalValues)
-						{
-							if(value is PaymentByTerminalSource enumElement)
-							{
-								terminalNode.Children.Add(new IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>()
-								{
-									Id = enumElement,
-									Parent = terminalNode,
-									Title = enumElement.GetEnumTitle(),
-								});
-							}
-						}
-					}
-
-					// Заполнение подгруппы Оплачено онлайн
-
-					var paidOnlineNode = filter.FilteredElements
-						.Where(x => x.Number == nameof(PaymentType.PaidOnline))
-						.FirstOrDefault();
-
-					if(paymentValues.Any())
-					{
-						var paymentFromValues = paymentValues
-							.Select(x => new IncludeExcludeElement<int, PaymentFrom>
-							{
-								Id = x.Id,
-								Parent = paidOnlineNode,
-								Title = x.Name,
-							});
-
-						foreach(var element in paymentFromValues)
-						{
-							paidOnlineNode.Children.Add(element);
-						}
-					}
-				};
-
-				filterConfig.GetReportParametersFunc = (filter) =>
-				{
-					var result = new Dictionary<string, object>();
-
-					// Тип оплаты
-
-					var includePaymentTypeValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
-						.Select(x => int.Parse(x.Number))
-						.ToArray();
-
-					if(includePaymentTypeValues.Length > 0)
-					{
-						result.Add(typeof(PaymentType).Name + _includeSuffix, includePaymentTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentType).Name + _includeSuffix, new object[] { "0" });
-					}
-
-					var excludePaymentTypeValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
-						.Select(x => int.Parse(x.Number))
-						.ToArray();
-
-					if(excludePaymentTypeValues.Length > 0)
-					{
-						result.Add(typeof(PaymentType).Name + _excludeSuffix, excludePaymentTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentType).Name + _excludeSuffix, new object[] { "0" });
-					}
-
-					// Оплата по термииналу
-
-					var includePaymentByTerminalSourceValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
-						.Select(x => int.Parse(x.Number))
-						.ToArray();
-
-					if(includePaymentByTerminalSourceValues.Length > 0)
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _includeSuffix, includePaymentByTerminalSourceValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _includeSuffix, new object[] { "0" });
-					}
-
-					var excludePaymentByTerminalSourceValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
-						.Select(x => int.Parse(x.Number))
-						.ToArray();
-
-					if(excludePaymentByTerminalSourceValues.Length > 0)
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _excludeSuffix, excludePaymentByTerminalSourceValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _excludeSuffix, new object[] { "0" });
-					}
-
-					// Оплачено онлайн
-
-					var includePaymentFromValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
-						.Select(x => int.Parse(x.Number))
-						.ToArray();
-
-					if(includePaymentFromValues.Length > 0)
-					{
-						result.Add(typeof(PaymentFrom).Name + _includeSuffix, includePaymentFromValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentFrom).Name + _includeSuffix, new object[] { "0" });
-					}
-
-					var excludePaymentFromValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
-						.Select(x => int.Parse(x.Number))
-						.ToArray();
-
-					if(excludePaymentFromValues.Length > 0)
-					{
-						result.Add(typeof(PaymentFrom).Name + _excludeSuffix, excludePaymentFromValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentFrom).Name + _excludeSuffix, new object[] { "0" });
-					}
-
-					return result;
-				};
-			});
-
-			FilterViewModel.AddFilter(UoW, _promotionalSetRepository);
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, _userIsSalesRepresentative);
 		}
 
 		private void UpdateNomenclaturesSpecification()
