@@ -48,7 +48,13 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(vm => vm.CurrentDriversListSortOrder, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
-			yhboxFilter.Binding.AddBinding(ViewModel, wm => wm.FilterVisibility, w => w.Visible).InitializeFromSource();
+			ycheckbuttonExcludeVisitingMasters.Binding
+				.AddBinding(ViewModel, vm => vm.IsExcludeVisitingMasters, w => w.Active)
+				.InitializeFromSource();
+
+			yhboxFilter.Binding
+				.AddBinding(ViewModel, wm => wm.FilterVisibility, w => w.Visible)
+				.InitializeFromSource();
 
 			ytreeviewCurrent.ColumnsConfig = FluentColumnsConfig<DriverNode>
 				.Create()

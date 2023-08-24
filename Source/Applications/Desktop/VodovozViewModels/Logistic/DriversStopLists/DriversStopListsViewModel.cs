@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModels.Logistic.DriversStopLists
 		private CarTypeOfUse? _filterCarTypeOfUse;
 		private CarOwnType? _filterCarOwnType;
 		private DriversSortOrder _currentDriversListSortOrder;
-		private bool _isExcludeVisitingMasters = true;
+		private bool _isExcludeVisitingMasters;
 
 		private bool _filterVisibility = true;
 		private DriverNode _selectedDriverNode;
