@@ -262,14 +262,21 @@ namespace Vodovoz.SidePanel.InfoViews
 			{
 				Application.Invoke((s, ea) =>
 				{
-					bool isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
+					if(_counterparty.Id == 0)
+					{
+						_counterparty.Comment = textviewComment.Buffer.Text;
+						_textviewcommentBufferChanged = false;
+						return;
+					}
+					
+					var isRequiredToSaveComment = MessageDialogHelper.RunQuestionDialog("Сохранить изменения в комментарии?");
 					if(isRequiredToSaveComment)
 					{
 						SaveComment();
 					}
 					else
 					{
-						textviewComment.Buffer.Text = _counterparty.Comment ?? String.Empty;
+						textviewComment.Buffer.Text = _counterparty.Comment ?? string.Empty;
 						_textviewcommentBufferChanged = false;
 					}
 				});
