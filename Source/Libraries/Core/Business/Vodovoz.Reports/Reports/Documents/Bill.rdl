@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>11.69in</PageHeight>
   <PageWidth>8.27in</PageWidth>
   <Width>.1pt</Width>
@@ -532,7 +530,7 @@ WHERE o.id = @order_id
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>785.5pt</Height>
+    <Height>847.4pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Image Name="Image1">
@@ -852,15 +850,15 @@ WHERE o.id = @order_id
           </Textbox>
         </ReportItems>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <DataSetName>Organization</DataSetName>
       </List>
@@ -1446,14 +1444,14 @@ WHERE o.id = @order_id
           </TableRows>
         </Footer>
         <Left>31.0pt</Left>
-        <Top>306.3pt</Top>
+        <Top>375.9pt</Top>
         <ZIndex>0</ZIndex>
       </Table>
       <List Name="List3">
-        <Height>122.72pt</Height>
+        <Height>120.47pt</Height>
         <Width>535.30pt</Width>
-        <Left>31.2pt</Left>
-        <Top>432.8pt</Top>
+        <Left>31.4pt</Left>
+        <Top>502.0pt</Top>
         <ReportItems>
           <Textbox Name="Textbox24">
             <Height>16.50pt</Height>
@@ -1570,15 +1568,15 @@ WHERE o.id = @order_id
           </Image>
         </ReportItems>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <DataSetName>Organization</DataSetName>
       </List>
@@ -1589,7 +1587,7 @@ WHERE o.id = @order_id
 номер и дату составления счета. СПАСИБО.</Value>
         <ZIndex>0</ZIndex>
         <Left>136.1pt</Left>
-        <Top>746.5pt</Top>
+        <Top>804.9pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1619,15 +1617,15 @@ WHERE o.id = @order_id
         <Left>120.3pt</Left>
         <Top>8.9pt</Top>
         <Style>
-            <BorderStyle>
-                <Default>None</Default>
-                <Left>None</Left>
-                <Right>None</Right>
-                <Top>None</Top>
-                <Bottom>None</Bottom>
-            </BorderStyle>
-            <BorderColor />
-            <BorderWidth />
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <ReportItems>
           <Textbox Name="Textbox39">
@@ -1640,9 +1638,9 @@ WHERE o.id = @order_id
             <Style>
               <TextAlign>Right</TextAlign>
               <FontFamily>Calibri</FontFamily>
-              <BorderStyle/>
-              <BorderColor/>
-              <BorderWidth/>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
             </Style>
           </Textbox>
         </ReportItems>
@@ -1690,7 +1688,7 @@ WHERE o.id = @order_id
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>78.6pt</Width>
+            <Width>81.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>432.7pt</Width>
@@ -1803,6 +1801,135 @@ Iif(
                 </TableCell>
               </TableCells>
             </TableRow>
+            <TableRow>
+              <Height>21.4pt</Height>
+              <Visibility>
+                <Hidden>={use_special_doc_fields} = 0 or {?special} = false or String.IsNullOrWhiteSpace({special_contract_number})</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>Основание:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>={special_contract_number}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>23.8pt</Height>
+              <Visibility>
+                <Hidden>={use_special_doc_fields} = 0 or {?special} = false or String.IsNullOrWhiteSpace({special_cargo_receiver})</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>Грузополучатель:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>={special_cargo_receiver}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>24.5pt</Height>
+              <Visibility>
+                <Hidden>={use_special_doc_fields} = 0 or {?special} = false or String.IsNullOrWhiteSpace({special_gov_contract})</Hidden>
+              </Visibility>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>ИГК:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>={special_gov_contract}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
           </TableRows>
         </Details>
         <Left>28.9pt</Left>
@@ -1811,8 +1938,8 @@ Iif(
       <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>145.13pt</Height>
         <Width>250.77pt</Width>
-        <Left>175.20pt</Left>
-        <Top>533.20pt</Top>
+        <Left>175.2pt</Left>
+        <Top>591.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1824,15 +1951,14 @@ Iif(
         <Value>=First( {IM1} , "Images" )</Value>
         <Sizing>FitProportional</Sizing>
         <ZIndex>0</ZIndex>
-        <Visibility>
-        </Visibility>
+        <Visibility></Visibility>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
       <Image Name="Image7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>102.39pt</Height>
         <Width>112.93pt</Width>
-        <Left>318.5pt</Left>
-        <Top>427.9pt</Top>
+        <Left>321.7pt</Left>
+        <Top>490.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1853,7 +1979,7 @@ Iif(
         <Value>ВНИМАНИЕ! Срок действия счета на все товары, кроме бутилированной воды объемом 19 литров, три рабочих дня с момента выставления.</Value>
         <ZIndex>0</ZIndex>
         <Left>136.1pt</Left>
-        <Top>684.9pt</Top>
+        <Top>743.3pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -2316,8 +2442,7 @@ Iif(
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">
       <DataType>Boolean</DataType>
@@ -2329,24 +2454,21 @@ Iif(
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="special">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="without_vat">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="special_contract_number">
       <DataType>String</DataType>
