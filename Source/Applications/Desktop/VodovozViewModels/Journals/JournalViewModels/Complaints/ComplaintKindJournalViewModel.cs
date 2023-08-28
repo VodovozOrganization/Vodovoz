@@ -88,6 +88,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Complaints
 
 		protected override void CreateNodeActions()
 		{
+			NodeActionsList.Clear();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
 			CreateDefaultSelectAction();
