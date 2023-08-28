@@ -31,11 +31,11 @@ namespace Vodovoz.Parameters
 		public string OrderAutoComment => _parametersProvider.GetStringValue(_orderAutoComment);
 		
 		public string SubdivisionsToInformComplaintHasNoDriverParameterName => _subdivisionsToInformComplaintHasNoDriverParameterName;
-		public string SubdivisionsAlternativePricesName => _subdivisionsForAlternativePricesName;
+		
 		public string WarehousesForPricesAndStocksIntegrationName => _warehousesForPricesAndStocksIntegrationName;
 
-		public int[] SubdivisionsToInformComplaintHasNoDriver => GetSubdivisionsToInformComplaintHasNoDriver();
-		public int[] SubdivisionsForAlternativePrices => GetSubdivisionsForAlternativePrices();
+		public int[] SubdivisionsToInformComplaintHasNoDriver => ParseIdsFromString(_subdivisionsToInformComplaintHasNoDriverParameterName);
+		public int[] SubdivisionsForAlternativePrices => ParseIdsFromString(_subdivisionsForAlternativePricesName);
 		public int[] WarehousesForPricesAndStocksIntegration => GetWarehousesForPricesAndStocksIntegration();
 
 		public void UpdateOrderAutoComment(string value) =>
@@ -90,5 +90,14 @@ namespace Vodovoz.Parameters
 
 		public void UpdateDriversRouteListsMaxDebtSum(decimal value) =>
 			_parametersProvider.CreateOrUpdateParameter(_driversRouteListsMaxDebtSum, value.ToString());
+
+		private int[] ParseIdsFromString(string parameterName, bool allowEmpty = true)
+		{
+			var parameterValue = _parametersProvider.GetParameterValue(parameterName, allowEmpty);
+			var splitedIds = parameterValue.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+			return splitedIds
+				.Select(x => int.Parse(x))
+				.ToArray();
+		}
 	}
 }

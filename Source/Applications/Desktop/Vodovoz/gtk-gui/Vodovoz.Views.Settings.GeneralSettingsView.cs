@@ -439,22 +439,22 @@ namespace Vodovoz.Views.Settings
 			this.alternativePriceSubdivisionsView.Events = ((global::Gdk.EventMask)(256));
 			this.alternativePriceSubdivisionsView.Name = "alternativePriceSubdivisionsView";
 			this.vbox1.Add(this.alternativePriceSubdivisionsView);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.alternativePriceSubdivisionsView]));
-			w27.Position = 0;
-			w27.Expand = false;
-			w27.Fill = false;
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.alternativePriceSubdivisionsView]));
+			w38.Position = 0;
+			w38.Expand = false;
+			w38.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.warehousesForPricesAndStocksIntegrationsView = new global::Vodovoz.Views.Settings.NamedDomainEntitiesSettingsView();
 			this.warehousesForPricesAndStocksIntegrationsView.Events = ((global::Gdk.EventMask)(256));
 			this.warehousesForPricesAndStocksIntegrationsView.Name = "warehousesForPricesAndStocksIntegrationsView";
 			this.vbox1.Add(this.warehousesForPricesAndStocksIntegrationsView);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.warehousesForPricesAndStocksIntegrationsView]));
-			w28.Position = 1;
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.warehousesForPricesAndStocksIntegrationsView]));
+			w39.Position = 1;
 			this.hboxMain.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
-			w29.Position = 1;
-			w29.Expand = false;
-			w29.Fill = false;
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vbox1]));
+			w40.Position = 1;
+			w40.Expand = false;
+			w40.Fill = false;
 			this.Add(this.hboxMain);
 			if ((this.Child != null))
 			{
