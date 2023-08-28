@@ -143,7 +143,7 @@ namespace Vodovoz.FilterViewModels
 
 		public IEntityAutocompleteSelectorFactory InWorkSubdivisionSelectorFactory { get; }
 
-		public IEntityAutocompleteSelectorFactory ComplaintKindSelectorFactory { get; set; }
+		public IEntityAutocompleteSelectorFactory ComplaintKindSelectorFactory { get; private set; }
 
 		public IEntityEntryViewModel ComplaintDetalizationEntiryEntryViewModel { get; private set; }
 
