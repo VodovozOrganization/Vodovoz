@@ -170,7 +170,6 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 			UseSlider = false;
-			SetParameters();
 		}
 
 		private ITdiTab _parrentTab;
@@ -183,6 +182,16 @@ namespace Vodovoz.Journals.JournalViewModels
 				FilterViewModel.JournalViewModel = (DialogViewModelBase)_parrentTab;
 			}
 		}
+
+		private string SubdivisionQualityServiceShortName =>
+			_subdivisionQualityServiceShortName ??
+				(_subdivisionQualityServiceShortName =
+					UoW.GetById<Subdivision>(_subdivisionParametersProvider.QualityServiceSubdivisionId).ShortName ?? "?"); // СК
+		
+		private string SubdivisionAuditDepartmentShortName =>
+			_subdivisionAuditDepartmentShortName ??
+				(_subdivisionAuditDepartmentShortName =
+					UoW.GetById<Subdivision>(_subdivisionParametersProvider.AuditDepartmentSubdivisionId).ShortName ?? "?"); // КРО
 
 		private IQueryOver<Complaint> GetComplaintQuery(IUnitOfWork uow)
 		{
@@ -239,7 +248,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				NHibernateUtil.String,
 				subdivisionsSubqueryProjection,
 				Projections.Property(() => complaintAlias.Status),
-				Projections.Constant(_subdivisionQualityServiceShortName)
+				Projections.Constant(SubdivisionQualityServiceShortName)
 			);
 
 			var workInSubdivisionsWaitingForReactionProjection = Projections.SqlFunction(
@@ -247,7 +256,7 @@ namespace Vodovoz.Journals.JournalViewModels
 				NHibernateUtil.String,
 				subdivisionsSubqueryProjection,
 				Projections.Property(() => complaintAlias.Status),
-				Projections.Constant(_subdivisionAuditDepartmentShortName)
+				Projections.Constant(SubdivisionAuditDepartmentShortName)
 			);
 
 			var workInSubdivisionProjection = Projections.Conditional(
@@ -907,14 +916,6 @@ namespace Vodovoz.Journals.JournalViewModels
 		}
 
 		public Action<Type> ChangeView { get; set; }
-		
-		private void SetParameters()
-		{
-			_subdivisionQualityServiceShortName =
-				UoW.GetById<Subdivision>(_subdivisionParametersProvider.QualityServiceSubdivisionId).ShortName ?? "?"; // СК
-			_subdivisionAuditDepartmentShortName =
-				UoW.GetById<Subdivision>(_subdivisionParametersProvider.AuditDepartmentSubdivisionId).ShortName ?? "?"; // КРО
-		}
 		
 		private void OpenWithDepartmentsReacrionViewAction()
 		{
