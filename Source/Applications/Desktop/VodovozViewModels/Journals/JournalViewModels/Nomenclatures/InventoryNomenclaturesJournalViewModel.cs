@@ -3,12 +3,14 @@ using System.Linq;
 using Autofac;
 using NHibernate;
 using NHibernate.Transform;
-using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Services;
 using Vodovoz.Domain.Goods;
+using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 
@@ -16,16 +18,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 {
 	public class InventoryNomenclaturesJournalViewModel : JournalViewModelBase
 	{
+		private readonly ICommonServices _commonServices;
 		private readonly ILifetimeScope _scope;
 		private NomenclatureFilterViewModel _filterViewModel;
 
 		public InventoryNomenclaturesJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IInteractiveService interactiveService,
+			ICommonServices commonServices,
 			INavigationManager navigation,
 			ILifetimeScope scope,
-			Action<NomenclatureFilterViewModel> filterParams = null) : base(unitOfWorkFactory, interactiveService, navigation)
+			Action<NomenclatureFilterViewModel> filterParams = null)
+			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigation)
 		{
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_scope = scope ?? throw new ArgumentNullException(nameof(scope));
 			var dataLoader = new ThreadDataLoader<NomenclatureJournalNode>(unitOfWorkFactory);
 			dataLoader.AddQuery(ItemsQuery);
@@ -36,20 +41,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 			CreateNodeActions();
 		}
 
-		private void CreateFilter(Action<NomenclatureFilterViewModel> filterParams)
+		protected override void CreateNodeActions()
 		{
-			Autofac.Core.Parameter[] parameters = {
-				new TypedParameter(typeof(Action<NomenclatureFilterViewModel>), filterParams)
-			};
-
-			_filterViewModel = _scope.Resolve<NomenclatureFilterViewModel>(parameters);
-			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
-			JournalFilter = _filterViewModel;
-		}
-		
-		private void OnFilterViewModelFiltered(object sender, EventArgs e)
-		{
-			Refresh();
+			base.CreateNodeActions();
+			CreateDefaultEditAction();
 		}
 
 		public IQueryOver<Nomenclature> ItemsQuery(IUnitOfWork uow)
@@ -118,6 +113,57 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures
 				.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>());
 
 			return itemsQuery;
+		}
+		
+		private void CreateFilter(Action<NomenclatureFilterViewModel> filterParams)
+		{
+			Autofac.Core.Parameter[] parameters = {
+				new TypedParameter(typeof(Action<NomenclatureFilterViewModel>), filterParams)
+			};
+
+			_filterViewModel = _scope.Resolve<NomenclatureFilterViewModel>(parameters);
+			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
+			JournalFilter = _filterViewModel;
+		}
+		
+		private void OnFilterViewModelFiltered(object sender, EventArgs e)
+		{
+			Refresh();
+		}
+		
+		private void CreateDefaultEditAction()
+		{
+			var permissionResult = _commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Nomenclature));
+			var editAction = new JournalAction("Изменить",
+				selected =>
+				{
+					var selectedNodes = selected.OfType<NomenclatureJournalNode>();
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return false;
+					}
+					
+					return permissionResult.CanRead;
+				},
+				selected => true,
+				selected =>
+				{
+					var selectedNodes = selected.OfType<NomenclatureJournalNode>();
+					
+					if(selectedNodes == null || selectedNodes.Count() != 1)
+					{
+						return;
+					}
+
+					var selectedNode = selectedNodes.First();
+					NavigationManager.OpenViewModel<NomenclatureViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForOpen(selectedNode.Id));
+				}
+			);
+			if(SelectionMode == JournalSelectionMode.None) {
+				RowActivatedAction = editAction;
+			}
+			NodeActionsList.Add(editAction);
 		}
 	}
 }
