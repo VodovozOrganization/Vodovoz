@@ -683,19 +683,19 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			if(newStatus == ComplaintStatuses.Closed)
 			{
-				var interserctedSubdivisionsToInformIds = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver
-					.Intersect(Entity.Guilties.Select(cgi => cgi.Subdivision.Id));
+				var subdivisionsToInformComplaintHasNoDriver = _generalSettingsParametersProvider.SubdivisionsToInformComplaintHasNoDriver;
 
-				var intersectedSubdivisionsNames = Entity.Guilties
-					.Select(g => g.Subdivision)
-					.Where(s => interserctedSubdivisionsToInformIds.Contains(s.Id))
-					.Select(s => s.Name);
+				var subdivisionNamesToInform =
+					(from guilty in Entity.Guilties.Where(x => x.Subdivision != null)
+						where subdivisionsToInformComplaintHasNoDriver.Contains(guilty.Subdivision.Id)
+						select guilty.Subdivision.Name)
+					.ToArray();
 
 				if(Entity.ComplaintResultOfEmployees?.Id == _complaintParametersProvider.ComplaintResultOfEmployeesIsGuiltyId
-					&& interserctedSubdivisionsToInformIds.Any()
+					&& subdivisionNamesToInform.Any()
 					&& Entity.Driver is null
-					&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", intersectedSubdivisionsNames)} без указания водителя?",
-					"Вы уверены?"))
+					&& !AskQuestion($"Вы хотите закрыть рекламацию на отдел {string.Join(", ", subdivisionNamesToInform)} без указания водителя?",
+						"Вы уверены?"))
 				{
 					Entity.SetStatus(oldStatus);
 					return;
