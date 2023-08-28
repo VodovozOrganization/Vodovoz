@@ -13,7 +13,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 {
 	public partial class FastDeliveryAdditionalLoadingReportViewModel
 	{
-		[Appellative(Nominative = "Отчёт по продажам с доставкой за час")]
+		[Appellative(Nominative = "Отчёт по остатку бутылей от доставки за час")]
 		public partial class FastDeliveryRemainingBottlesReport
 		{
 			private FastDeliveryRemainingBottlesReport(DateTime createDateFrom, DateTime createDateTo, List<Row> rows)
