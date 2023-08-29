@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Text.Json.Serialization;
 
-namespace Firebase.Client.Requests
+namespace FirebaseCloudMessaging.Client.Requests
 {
 	[Serializable]
 	public class Notification
 	{
-		[JsonProperty ("title")]
+		[JsonPropertyName("title")]
 		public string Title { get; set; }
 
-		[JsonProperty("body")]
+		[JsonPropertyName("body")]
 		public string Body { get; set; }
 	}
 }

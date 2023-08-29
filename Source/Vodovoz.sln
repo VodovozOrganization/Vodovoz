@@ -329,9 +329,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastPaymentsNotificationWor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Data.NHibernate", "Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj", "{0107F13C-46E0-4008-8302-0B5CD71DF14C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PushNotificationsWorker", "Applications\Backend\Workers\Docker\PushNotificationsWorker\PushNotificationsWorker.csproj", "{BBC814D4-88D4-45A3-AEA5-106ECD097410}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PushNotificationsWorker", "Applications\Backend\Workers\Docker\PushNotificationsWorker\PushNotificationsWorker.csproj", "{BBC814D4-88D4-45A3-AEA5-106ECD097410}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Firebase.Client", "Libraries\Core\Backend\Firebase.Client\Firebase.Client.csproj", "{61FC160E-69A8-4738-B333-106D5E3449DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirebaseCloudMessaging.Client", "Libraries\Core\Backend\Firebase.Client\FirebaseCloudMessaging.Client.csproj", "{61FC160E-69A8-4738-B333-106D5E3449DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,4 @@
-﻿using Firebase.Client;
+﻿using FirebaseCloudMessaging.Client;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,7 +18,7 @@ namespace PushNotificationsWorker
 	internal sealed class TransferedFastDeliveryNotificationWorker : BackgroundService
 	{
 		private readonly ILogger<TransferedFastDeliveryNotificationWorker> _logger;
-		private readonly IFirebaseService _firebaseService;
+		private readonly IFirebaseCloudMessagingService _firebaseService;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly TimeSpan _interval;
 
@@ -26,7 +26,7 @@ namespace PushNotificationsWorker
 			ILogger<TransferedFastDeliveryNotificationWorker> logger,
 			IOptions<TransferedFastDeliveryNotificationWorkerSettings> settings,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IFirebaseService firebaseService)
+			IFirebaseCloudMessagingService firebaseService)
 		{
 			if(settings is null)
 			{

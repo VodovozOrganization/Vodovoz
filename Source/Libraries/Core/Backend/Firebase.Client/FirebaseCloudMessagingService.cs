@@ -1,20 +1,20 @@
 ﻿using Firebase.Client.Exceptions;
-using Firebase.Client.Options;
-using Firebase.Client.Requests;
+using FirebaseCloudMessaging.Client.Options;
+using FirebaseCloudMessaging.Client.Requests;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Firebase.Client
+namespace FirebaseCloudMessaging.Client
 {
-	internal class FirebaseService : IFirebaseService
+	internal class FirebaseCloudMessagingService : IFirebaseCloudMessagingService
 	{
-		private readonly IOptions<FirebaseSettings> _settings;
+		private readonly IOptions<FirebaseCloudMessagingSettings> _settings;
 		private readonly HttpClient _httpClient;
 
-		public FirebaseService(
-			IOptions<FirebaseSettings> settings,
+		public FirebaseCloudMessagingService(
+			IOptions<FirebaseCloudMessagingSettings> settings,
 			HttpClient httpClient)
 		{
 			_settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -23,7 +23,7 @@ namespace Firebase.Client
 
 		public async Task SendPushNotification(string pushNotificationClientToken, string title, string body)
 		{
-			var request = new SendPushNotificationRequest
+			var request = new SendCloudMessageRequest
 			{
 				To = pushNotificationClientToken,
 				Notification = new Notification
@@ -49,11 +49,11 @@ namespace Firebase.Client
 			throw new NotImplementedException();
 		}
 
-		internal async Task SendPushNotification(SendPushNotificationRequest request)
+		internal async Task SendPushNotification(SendCloudMessageRequest request)
 		{
 			try
 			{
-				var result = await _httpClient.PostAsJsonAsync(_settings.Value.SendPushNotificationEndpointURI, request);
+				var result = await _httpClient.PostAsJsonAsync(_settings.Value.SendMessageEndpointURI, request);
 
 				if(result.IsSuccessStatusCode)
 				{
@@ -64,7 +64,7 @@ namespace Firebase.Client
 					throw new FirebaseServiceException(result.StatusCode, result.ReasonPhrase);
 				}
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				throw new FirebaseServiceException("Ошибка при отправке запроса в Firebase", ex);
 			}

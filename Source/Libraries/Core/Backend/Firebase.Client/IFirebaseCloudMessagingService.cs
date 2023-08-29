@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace Firebase.Client
+namespace FirebaseCloudMessaging.Client
 {
-	public interface IFirebaseService
+	public interface IFirebaseCloudMessagingService
 	{
 		Task SendFastDeliveryAddressCanceledNotification(string pushNotificationClientToken, int orderId);
 		Task SendPushNotification(string pushNotificationClientToken, string title, string body);

@@ -1,14 +1,14 @@
-﻿namespace Firebase.Client.Options
+﻿namespace FirebaseCloudMessaging.Client.Options
 {
 	/// <summary>
 	/// Firebase client settings
 	/// </summary>
-	public class FirebaseSettings
+	public class FirebaseCloudMessagingSettings
 	{
 		/// <summary>
 		/// Send push notifications api url-path
 		/// </summary>
-		public string SendPushNotificationEndpointURI { get; set; }
+		public string SendMessageEndpointURI { get; set; }
 
 		/// <summary>
 		/// Firebase api base

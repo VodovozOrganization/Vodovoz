@@ -1,4 +1,4 @@
-﻿using Firebase.Client.Options;
+﻿using FirebaseCloudMessaging.Client.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -6,21 +6,21 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace Firebase.Client
+namespace FirebaseCloudMessaging.Client
 {
 	public static class DependencyInjection
 	{
 		public static IServiceCollection AddFirebaseClient(this IServiceCollection serviceCollection, IConfiguration configuration)
 		{
-			serviceCollection.Configure<FirebaseSettings>((options) =>
+			serviceCollection.Configure<FirebaseCloudMessagingSettings>((options) =>
 			{
-				configuration.GetSection(nameof(FirebaseSettings)).Bind(options);
+				configuration.GetSection(nameof(FirebaseCloudMessagingSettings)).Bind(options);
 			});
 
 			serviceCollection
-				.AddHttpClient<IFirebaseService, FirebaseService>((serviceProvider, httpClient) =>
+				.AddHttpClient<IFirebaseCloudMessagingService, FirebaseCloudMessagingService>((serviceProvider, httpClient) =>
 				{
-					var serttings = serviceProvider.GetService<IOptions<FirebaseSettings>>().Value;
+					var serttings = serviceProvider.GetService<IOptions<FirebaseCloudMessagingSettings>>().Value;
 
 					httpClient.BaseAddress = new Uri(serttings.ApiBase);
 					httpClient.DefaultRequestHeaders.Accept.Clear();
