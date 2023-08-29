@@ -66,7 +66,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				_driver.Id > 0
 				? _routeListRepository.GetLastTerminalDocumentForEmployee(UoW, _driver)
 				: null, false);
-			_canManageTerminal = _commonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+			_canManageTerminal = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 		}
 
 		#region Свойства
@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 			else
 			{
-				var income = _entity.WarehouseMovementOperation.WriteoffWarehouse;
+				var income = _entity.GoodsAccountingOperation.Warehouse;
 				var returnDocument = new DriverAttachedTerminalReturnDocument
 				{
 					CreationDate = DateTime.Now,

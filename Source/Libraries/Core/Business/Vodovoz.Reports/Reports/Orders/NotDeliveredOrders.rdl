@@ -20,7 +20,7 @@
         <Height>19.57pt</Height>
         <Width>814.05pt</Width>
         <Value>Отчет по недовозам</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>13.40pt</Top>
         <Style>
@@ -419,7 +419,7 @@ WHERE
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_test;user=enzogord;password=qwerty;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

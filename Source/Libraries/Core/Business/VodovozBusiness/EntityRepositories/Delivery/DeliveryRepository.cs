@@ -291,18 +291,13 @@ namespace Vodovoz.EntityRepositories.Delivery
 				.OrderBy(x => isGetClosestByRoute ? x.DistanceByRoadToClient.ParameterValue : x.DistanceByLineToClient.ParameterValue)
 				.ToList();
 
-			//Не более определённого кол-ва заказов с быстрой доставкой в определённый промежуток времени
+			//Не более определённого кол-ва заказов с быстрой доставкой
+
 			var addressCountSubquery = QueryOver.Of(() => rla)
 				.Inner.JoinAlias(() => rla.Order, () => o)
 				.Where(() => rla.RouteList.Id == rl.Id)
 				.And(() => rla.Status == RouteListItemStatus.EnRoute)
 				.And(() => o.IsFastDelivery)
-				.And(Restrictions.GtProperty(
-					Projections.Property(() => rla.CreationDate),
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.DateTime,
-							$"TIMESTAMPADD(MINUTE, -{specificTimeForFastOrdersCount}, CURRENT_TIMESTAMP)"),
-						NHibernateUtil.DateTime)))
 				.Select(Projections.Count(() => rla.Id));
 
 			var routeListsWithCountUnclosedFastDeliveries = uow.Session.QueryOver(() => rl)
@@ -315,11 +310,17 @@ namespace Vodovoz.EntityRepositories.Delivery
 
 			var rlsWithCountUnclosedFastDeliveries =
 				routeListsWithCountUnclosedFastDeliveries.ToDictionary(x => x.RouteListId, x => x.UnclosedFastDeliveryAddresses);
+
 			foreach(var node in routeListNodes)
 			{
 				var countUnclosedFastDeliveryAddresses = rlsWithCountUnclosedFastDeliveries[node.RouteList.Id];
 				node.UnClosedFastDeliveries.ParameterValue = countUnclosedFastDeliveryAddresses;
-				if(countUnclosedFastDeliveryAddresses < maxFastOrdersPerSpecificTime)
+
+				var nodeRouteList = uow.GetById<RouteList>(node.RouteList.Id);
+
+				var routeListMaxFastDeliveryOrders = nodeRouteList.GetMaxFastDeliveryOrdersValue();
+
+				if(countUnclosedFastDeliveryAddresses < routeListMaxFastDeliveryOrders)
 				{
 					node.UnClosedFastDeliveries.IsValidParameter = true;
 				}
@@ -511,6 +512,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 		public double Longitude { get; set; }
 		public RouteList RouteList { get; set; }
 		public double RouteListFastDeliveryRadius { get; set; }
+		public int RouteListMaxFastDeliveryOrders { get; set; }
 	}
 
 	public class FastDeliveryVerificationParameter<T>

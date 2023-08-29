@@ -72,8 +72,7 @@ namespace Vodovoz.Views
             ytextviewPaymentPurpose.Buffer.Text = ViewModel.Entity.PaymentPurpose;
             ytextviewComments.Binding.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text).InitializeFromSource();
 
-            entryCounterparty.SetEntityAutocompleteSelectorFactory(
-                new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
+            entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory());
 
             entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
             entryCounterparty.ChangedByUser += (sender, e) =>

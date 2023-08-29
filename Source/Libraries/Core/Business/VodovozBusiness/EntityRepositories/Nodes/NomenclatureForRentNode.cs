@@ -6,11 +6,9 @@ namespace Vodovoz.EntityRepositories.Nodes
 		public string NomenclatureName { get; set; }
 		public int TypeId { get; set; }
 		public string EquipmentKindName { get; set; }
-		public decimal InStock => Added - Removed;
+		public decimal InStock { get; set; }
 		public int? Reserved { get; set; }
 		public decimal Available => InStock - Reserved.GetValueOrDefault();
-		public decimal Added { get; set; }
-		public decimal Removed { get; set; }
 		public string UnitName { get; set; }
 		public short UnitDigits { get; set; }
 		private string Format(decimal value)

@@ -9,7 +9,7 @@ using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Mono.Unix;
 using Mono.Unix.Native;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog;
 using QS.Project.DB;
 using SmsPaymentService;
@@ -95,7 +95,7 @@ namespace VodovozSmsPaymentService
 				OrmConfig.ConfigureOrm(dbConfig,
 					new[]
 					{
-						Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+						Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 						Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
 						Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
 						Assembly.GetAssembly(typeof(QS.Project.Domain.UserBase)),
@@ -104,7 +104,7 @@ namespace VodovozSmsPaymentService
 						Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 					});
 
-				QS.HistoryLog.HistoryMain.Enable();
+				QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 
 				var driverApiSection = configuration.GetSection("DriverAPI");
 

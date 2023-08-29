@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Gamma.ColumnConfig;
@@ -11,19 +11,19 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SelectableParameterReportFilterView : Gtk.Bin
 	{
-		private readonly SelectableParameterReportFilterViewModel viewModel;
+		private readonly SelectableParameterReportFilterViewModel _viewModel;
 
 		public SelectableParameterReportFilterView(SelectableParameterReportFilterViewModel viewModel)
 		{
-			this.Build();
-			this.viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
-			viewModel.PropertyChanged += ViewModel_PropertyChanged;
+			Build();
+			_viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+			_viewModel.PropertyChanged += ViewModel_PropertyChanged;
 			ytreeviewParameterSets.Selection.Changed += Selection_Changed;
 			search.TextChanged += Search_TextChanged;
 
 			ConfigureBindings();
 
-			ytreeviewParameterSets.ItemsDataSource = viewModel.ReportFilter.ParameterSets;
+			ytreeviewParameterSets.ItemsDataSource = _viewModel.ReportFilter.ParameterSets;
 			ytreeviewParameterSets.ColumnsConfig = FluentColumnsConfig<SelectableParameterSet>.Create()
 				.AddColumn("Параметр").AddTextRenderer(x => x.Name)
 				.Finish();
@@ -39,29 +39,32 @@ namespace Vodovoz.ReportsParameters
 
 		private void ConfigureBindings()
 		{
-			buttonInclude.Clicked += (sender, e) => viewModel.SwitchToIncludeCommand.Execute();
-			viewModel.SwitchToIncludeCommand.CanExecuteChanged += (sender, e) => buttonInclude.Sensitive = viewModel.SwitchToIncludeCommand.CanExecute();
+			buttonInclude.Clicked += (sender, e) => _viewModel.SwitchToIncludeCommand.Execute();
+			_viewModel.SwitchToIncludeCommand.CanExecuteChanged += (sender, e) => buttonInclude.Sensitive = _viewModel.SwitchToIncludeCommand.CanExecute();
 
-			buttonExclude.Clicked += (sender, e) => viewModel.SwitchToExcludeCommand.Execute();
-			viewModel.SwitchToExcludeCommand.CanExecuteChanged += (sender, e) => buttonExclude.Sensitive = viewModel.SwitchToExcludeCommand.CanExecute();
+			buttonExclude.Clicked += (sender, e) => _viewModel.SwitchToExcludeCommand.Execute();
+			_viewModel.SwitchToExcludeCommand.CanExecuteChanged += (sender, e) => buttonExclude.Sensitive = _viewModel.SwitchToExcludeCommand.CanExecute();
 
-			ytreeviewParameters.Binding.AddBinding(viewModel, vm => vm.HasSelectedSet, w => w.Sensitive).InitializeFromSource();
+			ytreeviewParameters.Binding.AddBinding(_viewModel, vm => vm.HasSelectedSet, w => w.Sensitive).InitializeFromSource();
 
-			buttonSelectAll.Clicked += (sender, e) => viewModel.SelectAllParametersCommand.Execute();
-			viewModel.SelectAllParametersCommand.CanExecuteChanged += (sender, e) => buttonSelectAll.Sensitive = viewModel.SelectAllParametersCommand.CanExecute();
+			buttonSelectAll.Clicked += (sender, e) => _viewModel.SelectAllParametersCommand.Execute();
+			_viewModel.SelectAllParametersCommand.CanExecuteChanged += (sender, e) => buttonSelectAll.Sensitive = _viewModel.SelectAllParametersCommand.CanExecute();
 
-			buttonUnselect.Clicked += (sender, e) => viewModel.UnselectAllParametersCommand.Execute();
-			viewModel.UnselectAllParametersCommand.CanExecuteChanged += (sender, e) => buttonUnselect.Sensitive = viewModel.UnselectAllParametersCommand.CanExecute();
+			buttonUnselect.Clicked += (sender, e) => _viewModel.UnselectAllParametersCommand.Execute();
+			_viewModel.UnselectAllParametersCommand.CanExecuteChanged += (sender, e) => buttonUnselect.Sensitive = _viewModel.UnselectAllParametersCommand.CanExecute();
 		}
 
 		void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			switch(e.PropertyName) {
-				case nameof(viewModel.CurrentParameterSet):
+				case nameof(_viewModel.CurrentParameterSet):
 					UpdateCurrentParameterSetFromSource();
 					break;
-				case nameof(viewModel.HasSelectedSet):
+				case nameof(_viewModel.HasSelectedSet):
 					UpdateSearchSensitivity();
+					break;
+				case nameof(_viewModel.SearchValue):
+					UpdateSearchText();
 					break;
 				default:
 					break;
@@ -76,14 +79,14 @@ namespace Vodovoz.ReportsParameters
 		private void UpdateCurrentParameterSetToSource()
 		{
 			SelectableParameterSet selectedParameterSet = ytreeviewParameterSets.GetSelectedObject() as SelectableParameterSet;
-			if(selectedParameterSet != null && selectedParameterSet == viewModel.CurrentParameterSet) {
+			if(selectedParameterSet != null && selectedParameterSet == _viewModel.CurrentParameterSet) {
 				return;
 			}
 
-			viewModel.CurrentParameterSet = selectedParameterSet;
-			if(viewModel.CurrentParameterSet != null) {
-				viewModel.CurrentParameterSet.Parameters.ListContentChanged -= CurrentParameterSet_ListContentChanged;
-				viewModel.CurrentParameterSet.Parameters.ListContentChanged += CurrentParameterSet_ListContentChanged;
+			_viewModel.CurrentParameterSet = selectedParameterSet;
+			if(_viewModel.CurrentParameterSet != null) {
+				_viewModel.CurrentParameterSet.Parameters.ListContentChanged -= CurrentParameterSet_ListContentChanged;
+				_viewModel.CurrentParameterSet.Parameters.ListContentChanged += CurrentParameterSet_ListContentChanged;
 			}
 		}
 
@@ -98,11 +101,15 @@ namespace Vodovoz.ReportsParameters
 			RefreshButtons();
 
 			SelectableParameterSet selectedParameterSet = ytreeviewParameterSets.GetSelectedObject() as SelectableParameterSet;
-			if(selectedParameterSet != null && selectedParameterSet == viewModel.CurrentParameterSet) {
+			if(selectedParameterSet != null && selectedParameterSet == _viewModel.CurrentParameterSet) {
 				return;
 			}
 
-			var selectedIter = ytreeviewParameterSets.YTreeModel.IterFromNode(viewModel.CurrentParameterSet);
+			if(_viewModel.CurrentParameterSet == null)
+			{
+				return;
+			}
+			var selectedIter = ytreeviewParameterSets.YTreeModel.IterFromNode(_viewModel.CurrentParameterSet);
 			if(selectedIter.UserData == IntPtr.Zero) {
 				return;
 			}
@@ -111,23 +118,29 @@ namespace Vodovoz.ReportsParameters
 
 		private void RefreshButtons()
 		{
-			if(viewModel.CurrentParameterSet?.FilterType == SelectableFilterType.Exclude) {
+			if(_viewModel.CurrentParameterSet?.FilterType == SelectableFilterType.Exclude) {
 				buttonExclude.Active = true;
 			} else {
 				buttonInclude.Active = true;
 			}
 		}
+		
+		private void UpdateSearchText()
+		{
+			search.Text = _viewModel.SearchValue;
+			RefreshParametersSource();
+		}
 
 		private void RefreshParametersSource()
 		{
-			if(viewModel?.CurrentParameterSet == null) {
+			if(_viewModel?.CurrentParameterSet == null) {
 				ytreeviewParameters.ItemsDataSource = null;
 				return;
 			}
 
 			var source = GetCurrentParameters();
 
-			if(viewModel.CurrentParameterSet.Parameters.Any(x => x.Children.Any())) {
+			if(_viewModel.CurrentParameterSet.Parameters.Any(x => x.Children.Any())) {
 				var recursiveModel = new RecursiveTreeModel<SelectableParameter>(source, x => x.Parent, x => x.Children);
 				ytreeviewParameters.YTreeModel = recursiveModel;
 			} else {
@@ -137,23 +150,23 @@ namespace Vodovoz.ReportsParameters
 
 		private void UpdateSearchSensitivity()
 		{
-			search.Sensitive = viewModel.HasSelectedSet;
+			search.Sensitive = _viewModel.HasSelectedSet;
 		}
 
 		void Search_TextChanged(object sender, EventArgs e)
 		{
+			_viewModel.SilentUpdateSearchValue(search.Text);
 			RefreshParametersSource();
 		}
 
 		private IList<SelectableParameter> GetCurrentParameters()
 		{
-			if(viewModel?.CurrentParameterSet?.Parameters == null) {
+			if(_viewModel?.CurrentParameterSet?.Parameters == null) {
 				return new List<SelectableParameter>();
 			}
 
-			viewModel.CurrentParameterSet.FilterParameters(search.Text);
-			return viewModel.CurrentParameterSet.OutputParameters;
+			_viewModel.CurrentParameterSet.FilterParameters(search.Text);
+			return _viewModel.CurrentParameterSet.OutputParameters;
 		}
-
 	}
 }

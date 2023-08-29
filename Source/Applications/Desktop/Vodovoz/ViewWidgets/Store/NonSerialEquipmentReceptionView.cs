@@ -14,6 +14,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.ViewWidgets.Store
@@ -108,7 +109,7 @@ namespace Vodovoz.ViewWidgets.Store
 				_userHasOnlyAccessToWarehouseAndComplaints =
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
 						"user_have_access_only_to_warehouse_and_complaints")
-					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 
 			if(_userHasOnlyAccessToWarehouseAndComplaints.Value)

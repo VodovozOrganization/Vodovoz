@@ -9,6 +9,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Utilities;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
@@ -28,17 +29,26 @@ namespace Vodovoz.Domain.Orders
 	public class UndeliveredOrder : BusinessObjectBase<UndeliveredOrder>, IDomainObject, IValidatableObject
 	{
 		private UndeliveryTransferAbsenceReason _undeliveryTransferAbsenceReason;
-		private List<UndeliveryTransferAbsenceReason> _undeliveryTransferAbsenceReasonItems;
+		private IList<UndeliveredOrderResultComment> _resultComments = new List<UndeliveredOrderResultComment>();
+		private GenericObservableList<UndeliveredOrderResultComment> _observableResultComments;
+		private UndeliveryDetalization _undeliveryDetalization;
+		private UndeliveryStatus? _oldUndeliveryStatus;
+		private UndeliveryStatus _undeliveryStatus;
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
 
-		UndeliveryStatus undeliveryStatus;
 
 		[Display(Name = "Статус недовоза")]
-		public virtual UndeliveryStatus UndeliveryStatus {
-			get => undeliveryStatus;
-			protected set { SetField(ref undeliveryStatus, value, () => UndeliveryStatus); }
+		public virtual UndeliveryStatus UndeliveryStatus
+		{
+			get => _undeliveryStatus;
+			protected set
+			{
+				_oldUndeliveryStatus = _undeliveryStatus;
+				SetField(ref _undeliveryStatus, value);
+			}
 		}
 
 		Order oldOrder;
@@ -215,9 +225,8 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		UndeliveryStatus? InitialStatus { get; set; } = null;
-
 		List<UndeliveryProblemSource> problemSourceItems;
+
 		public virtual IEnumerable<UndeliveryProblemSource> ProblemSourceItems {
 			get {
 				if(problemSourceItems == null)
@@ -229,17 +238,39 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual IEnumerable<UndeliveryTransferAbsenceReason> UndeliveryTransferAbsenceReasonItems
-		{
-			get => _undeliveryTransferAbsenceReasonItems ?? (_undeliveryTransferAbsenceReasonItems =
-				UoW.GetAll<UndeliveryTransferAbsenceReason>().Where(u => !u.IsArchive).ToList());
-		}
-
 		[Display(Name = "Причина отсутствия переноса")]
 		public virtual UndeliveryTransferAbsenceReason UndeliveryTransferAbsenceReason
 		{
 			get => _undeliveryTransferAbsenceReason;
 			set => SetField(ref _undeliveryTransferAbsenceReason, value);
+		}
+
+		[Display(Name = "Комментарии - результаты")]
+		public virtual IList<UndeliveredOrderResultComment> ResultComments
+		{
+			get => _resultComments;
+			set => SetField(ref _resultComments, value);
+		}
+
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<UndeliveredOrderResultComment> ObservableResultComments
+		{
+			get
+			{
+				if(_observableResultComments == null)
+				{
+					_observableResultComments = new GenericObservableList<UndeliveredOrderResultComment>(ResultComments);
+				}
+
+				return _observableResultComments;
+			}
+		}
+
+		[Display(Name = "Детализация")]
+		public virtual UndeliveryDetalization UndeliveryDetalization
+		{
+			get => _undeliveryDetalization;
+			set => SetField(ref _undeliveryDetalization, value);
 		}
 
 		#endregion
@@ -265,14 +296,8 @@ namespace Vodovoz.Domain.Orders
 			ObservableGuilty.Add(guilty);
 		}
 
-		/// <summary>
-		/// Смена статуса недовоза
-		/// </summary>
-		/// <param name="status">Status.</param>
-		public virtual void SetUndeliveryStatus(UndeliveryStatus status)
+		public virtual void AddAutoCommentByChangeStatus()
 		{
-			InitialStatus = UndeliveryStatus;
-			UndeliveryStatus = status;
 			AddAutoComment(CommentedFields.Reason);
 		}
 
@@ -296,7 +321,8 @@ namespace Vodovoz.Domain.Orders
 		
 		public virtual void Close(Employee currentEmployee)
 		{
-			SetUndeliveryStatus(UndeliveryStatus.Closed);
+			UndeliveryStatus = UndeliveryStatus.Closed;
+			AddAutoCommentByChangeStatus();
 			LastEditor = currentEmployee;
 			LastEditedTime = DateTime.Now;
 		}
@@ -307,21 +333,23 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="field">Комментируемое поле</param>
 		void AddAutoComment(CommentedFields field)
 		{
-			string text = string.Empty;
+			var text = string.Empty;
 			switch(field) {
 				case CommentedFields.Reason:
-					if(InitialStatus != null && InitialStatus != UndeliveryStatus && Id > 0)
-						text = string.Format(
-							"сменил(а) статус недовоза\nс \"{0}\" на \"{1}\"",
-							InitialStatus.GetEnumTitle(),
-							UndeliveryStatus.GetEnumTitle()
-						);
+					if(_oldUndeliveryStatus.HasValue && _oldUndeliveryStatus != UndeliveryStatus && Id > 0)
+					{
+						text =
+							$"сменил(а) статус недовоза\nс \"{_oldUndeliveryStatus.GetEnumTitle()}\" на \"{UndeliveryStatus.GetEnumTitle()}\"";
+					}
+
 					break;
 				default:
 					break;
 			}
 			if(string.IsNullOrEmpty(text))
+			{
 				return;
+			}
 
 			AddCommentToTheField(UoW, field, text);
 		}

@@ -1,8 +1,8 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Utilities;
-using Gdk;
 using Gtk;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 
@@ -10,9 +10,6 @@ namespace Vodovoz.JournalColumnsConfigs
 {
 	internal sealed class FinancialDistrictsSetsJournalRegistrar : ColumnsConfigRegistrarBase<FinancialDistrictsSetsJournalViewModel, FinancialDistrictsSetsJournalNode>
 	{
-		private static readonly Color _colorBlack = new Color(0, 0, 0);
-		private static readonly Color _colorDarkGray = new Color(0x80, 0x80, 0x80);
-
 		public override IColumnsConfig Configure(FluentColumnsConfig<FinancialDistrictsSetsJournalNode> config) =>
 			config.AddColumn("Код")
 					.AddTextRenderer(node => node.Id.ToString())
@@ -34,7 +31,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("")
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) =>
-						c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? _colorDarkGray : _colorBlack)
+						c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? GdkColors.DarkGrayColor : GdkColors.BlackColor)
 				.Finish();
 	}
 }

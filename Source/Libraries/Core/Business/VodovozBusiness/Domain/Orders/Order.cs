@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Data;
-using fyiReporting.RDL;
+﻿using fyiReporting.RDL;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Exceptions;
@@ -76,6 +75,12 @@ namespace Vodovoz.Domain.Orders
 		private static readonly IGeneralSettingsParametersProvider _generalSettingsParameters =
 			new GeneralSettingsParametersProvider(new ParametersProvider());
 
+		private static readonly IOrderParametersProvider _orderParametersProvider =
+			new OrderParametersProvider(new ParametersProvider());
+
+		private static readonly IDeliveryScheduleParametersProvider _deliveryScheduleParametersProvider =
+			new DeliveryScheduleParametersProvider(new ParametersProvider());
+
 		private readonly OrderItemComparerForCopyingFromUndelivery _itemComparerForCopyingFromUndelivery =
 			new OrderItemComparerForCopyingFromUndelivery();
 		private readonly double _futureDeliveryDaysLimit = 30;
@@ -111,25 +116,33 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IInteractiveService InteractiveService { get; set; }
 
-		DateTime version;
+		private DateTime version;
 		[Display(Name = "Версия")]
 		public virtual DateTime Version {
 			get => version;
 			set => SetField(ref version, value, () => Version);
 		}
 
-		DateTime? createDate;
+		private DateTime? createDate;
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate {
 			get => createDate;
 			set => SetField(ref createDate, value, () => CreateDate);
 		}
 
-		bool isFirstOrder;
+		private bool isFirstOrder;
 		[Display(Name = "Первый заказ")]
 		public virtual bool IsFirstOrder {
 			get => isFirstOrder;
 			set => SetField(ref isFirstOrder, value, () => IsFirstOrder);
+		}
+
+		bool _isSecondOrder;
+		[Display(Name = "Второй заказ клиента")]
+		public virtual bool IsSecondOrder
+		{
+			get => _isSecondOrder;
+			set => SetField(ref _isSecondOrder, value);
 		}
 
 		private bool _isFastDelivery;
@@ -140,7 +153,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _isFastDelivery, value);
 		}
 
-		OrderStatus orderStatus;
+		private OrderStatus orderStatus;
 
 		[Display(Name = "Статус заказа")]
 		public virtual OrderStatus OrderStatus {
@@ -148,7 +161,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderStatus, value, () => OrderStatus);
 		}
 
-		OrderPaymentStatus orderPaymentStatus;
+		private OrderPaymentStatus orderPaymentStatus;
 		[Display(Name = "Статус оплаты заказа")]
 		public virtual OrderPaymentStatus OrderPaymentStatus {
 			get => orderPaymentStatus;
@@ -163,7 +176,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _orderAddressType, value);
 		}
 
-		Employee author;
+		private Employee author;
 
 		[Display(Name = "Создатель заказа")]
 		[IgnoreHistoryTrace]
@@ -179,7 +192,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref acceptedOrderEmployee, value);
 		}
 
-		Counterparty client;
+		private Counterparty client;
 		[Display(Name = "Клиент")]
 		public virtual Counterparty Client {
 			get => client;
@@ -208,11 +221,13 @@ namespace Vodovoz.Domain.Orders
 					}
 
 					RefreshContactPhone();
+
+					IsSecondOrderSetter();
 				}
 			}
 		}
 
-		DeliveryPoint deliveryPoint;
+		private DeliveryPoint deliveryPoint;
 
 		[Display(Name = "Точка доставки")]
 		public virtual DeliveryPoint DeliveryPoint {
@@ -237,7 +252,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		DateTime? timeDelivered;
+		private DateTime? timeDelivered;
 
 		[Display(Name = "Время доставки")]
 		public virtual DateTime? TimeDelivered {
@@ -245,17 +260,16 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref timeDelivered, value, () => TimeDelivered);
 		}
 
-
-		DateTime? deliveryDate;
+		private DateTime? _deliveryDate;
 
 		[Display(Name = "Дата доставки")]
 		[HistoryDateOnly]
 		public virtual DateTime? DeliveryDate {
-			get => deliveryDate;
+			get => _deliveryDate;
 			set
 			{
-				var lastDate = deliveryDate;
-				if(SetField(ref deliveryDate, value) &&
+				var lastDate = _deliveryDate;
+				if(SetField(ref _deliveryDate, value) &&
 				   Contract != null && Contract.Id == 0)
 				{
 					UpdateContract();
@@ -273,7 +287,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		DateTime billDate = DateTime.Now;
+		private DateTime billDate = DateTime.Now;
 
 		[Display(Name = "Дата счета")]
 		[HistoryDateOnly]
@@ -288,7 +302,15 @@ namespace Vodovoz.Domain.Orders
 		public virtual DeliverySchedule DeliverySchedule
 		{
 			get => _deliverySchedule;
-			set => SetField(ref _deliverySchedule, value);
+			set 
+			{
+				SetField(ref _deliverySchedule, value);
+
+				if(_deliverySchedule != null)
+				{
+					IsSecondOrderSetter();
+				}
+			}
 		}
 
 		private string deliverySchedule1c;
@@ -301,7 +323,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref deliverySchedule1c, value, () => DeliverySchedule1c);
 		}
 
-		bool selfDelivery;
+		private bool selfDelivery;
 
 		[Display(Name = "Самовывоз")]
 		public virtual bool SelfDelivery {
@@ -312,7 +334,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		bool payAfterShipment;
+		private bool payAfterShipment;
 
 		[Display(Name = "Оплата после отгрузки")]
 		public virtual bool PayAfterShipment {
@@ -320,7 +342,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref payAfterShipment, value, () => PayAfterShipment);
 		}
 
-		Employee loadAllowedBy;
+		private Employee loadAllowedBy;
 
 		[Display(Name = "Отгрузку разрешил")]
 		public virtual Employee LoadAllowedBy {
@@ -328,7 +350,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref loadAllowedBy, value, () => LoadAllowedBy);
 		}
 
-		Order previousOrder;
+		private Order previousOrder;
 
 		[Display(Name = "Предыдущий заказ")]
 		public virtual Order PreviousOrder {
@@ -375,7 +397,7 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		int? bottlesReturn;
+		private int? bottlesReturn;
 
 		[Display(Name = "Бутылей на возврат")]
 		public virtual int? BottlesReturn {
@@ -383,7 +405,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref bottlesReturn, value, () => BottlesReturn);
 		}
 
-		string comment;
+		private string comment;
 
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
@@ -391,7 +413,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref comment, value, () => Comment);
 		}
 
-		string commentLogist;
+		private string commentLogist;
 
 		[Display(Name = "Комментарий логиста")]
 		public virtual string CommentLogist {
@@ -399,7 +421,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref commentLogist, value, () => CommentLogist);
 		}
 
-		string clientPhone;
+		private string clientPhone;
 
 		[Display(Name = "Номер телефона")]
 		public virtual string ClientPhone {
@@ -407,7 +429,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref clientPhone, value, () => ClientPhone);
 		}
 
-		OrderSignatureType? signatureType;
+		private OrderSignatureType? signatureType;
 
 		[Display(Name = "Подписание документов")]
 		public virtual OrderSignatureType? SignatureType {
@@ -424,7 +446,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref extraMoney, value, () => ExtraMoney);
 		}
 
-		string sumDifferenceReason;
+		private string sumDifferenceReason;
 
 		[Display(Name = "Причина переплаты/недоплаты")]
 		public virtual string SumDifferenceReason {
@@ -432,7 +454,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref sumDifferenceReason, value, () => SumDifferenceReason);
 		}
 
-		bool shipped;
+		private bool shipped;
 
 		[Display(Name = "Отгружено по платежке")]
 		public virtual bool Shipped {
@@ -440,23 +462,27 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref shipped, value, () => Shipped);
 		}
 
-		PaymentType _paymentType;
+		private PaymentType _paymentType;
 
 		[Display(Name = "Форма оплаты")]
 		public virtual PaymentType PaymentType {
 			get => _paymentType;
 			set {
-				if(value != _paymentType && SetField(ref _paymentType, value)) {
-					switch(PaymentType) {
-						case PaymentType.cash:
-						case PaymentType.barter:
-						case PaymentType.cashless:
-						case PaymentType.ContractDoc:
-						case PaymentType.Terminal:
-							PaymentByCardFrom = null;
-							break;
-						case PaymentType.ByCard:
-							break;
+				if(value != _paymentType && SetField(ref _paymentType, value)) 
+				{
+					if(PaymentType != PaymentType.PaidOnline)
+					{
+						PaymentByCardFrom = null;
+					}
+
+					if(PaymentType != PaymentType.Terminal)
+					{
+						PaymentByTerminalSource = null;
+					}
+
+					if(PaymentType == PaymentType.Terminal && PaymentByTerminalSource == null)
+					{
+						PaymentByTerminalSource = Domain.Client.PaymentByTerminalSource.ByCard;
 					}
 
 					UpdateContractOnPaymentTypeChanged();
@@ -464,7 +490,16 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		CounterpartyContract contract;
+		private PaymentByTerminalSource? _paymentByTerminalSource;
+
+		[Display(Name = "Подтип оплаты по терминалу")]
+		public virtual PaymentByTerminalSource? PaymentByTerminalSource
+		{
+			get => _paymentByTerminalSource;
+			set => SetField(ref _paymentByTerminalSource, value);
+		}
+
+		private CounterpartyContract contract;
 
 		[Display(Name = "Договор")]
 		public virtual CounterpartyContract Contract {
@@ -479,35 +514,35 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _contactPhone, value);
 		}
 
-		MoneyMovementOperation moneyMovementOperation;
+		private MoneyMovementOperation moneyMovementOperation;
 		[IgnoreHistoryTrace]
 		public virtual MoneyMovementOperation MoneyMovementOperation {
 			get => moneyMovementOperation;
 			set => SetField(ref moneyMovementOperation, value, () => MoneyMovementOperation);
 		}
 
-		BottlesMovementOperation bottlesMovementOperation;
+		private BottlesMovementOperation bottlesMovementOperation;
 		[IgnoreHistoryTrace]
 		public virtual BottlesMovementOperation BottlesMovementOperation {
 			get => bottlesMovementOperation;
 			set => SetField(ref bottlesMovementOperation, value, () => BottlesMovementOperation);
 		}
 
-		IList<DepositOperation> depositOperations;
+		private IList<DepositOperation> depositOperations;
 
 		public virtual IList<DepositOperation> DepositOperations {
 			get => depositOperations;
 			set => SetField(ref depositOperations, value, () => DepositOperations);
 		}
 
-		bool collectBottles;
+		private bool collectBottles;
 
 		public virtual bool CollectBottles {
 			get => collectBottles;
 			set => SetField(ref collectBottles, value, () => CollectBottles);
 		}
 
-		DefaultDocumentType? documentType;
+		private DefaultDocumentType? documentType;
 
 		[Display(Name = "Тип безналичных документов")]
 		public virtual DefaultDocumentType? DocumentType {
@@ -555,14 +590,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref fromClientText, value, () => FromClientText);
 		}
 
-		NonReturnReason tareNonReturnReason;
+		private NonReturnReason tareNonReturnReason;
 		[Display(Name = "Причина несдачи тары")]
 		public virtual NonReturnReason TareNonReturnReason {
 			get => tareNonReturnReason;
 			set => SetField(ref tareNonReturnReason, value, () => TareNonReturnReason);
 		}
 
-		PaymentFrom _paymentByCardFrom;
+		private PaymentFrom _paymentByCardFrom;
 
 		[Display(Name = "Место, откуда проведена оплата")]
 		public virtual PaymentFrom PaymentByCardFrom
@@ -620,7 +655,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref dailyNumber, value, () => DailyNumber);
 		}
 
-		Employee lastEditor;
+		private Employee lastEditor;
 
 		[Display(Name = "Последний редактор")]
 		[IgnoreHistoryTrace]
@@ -629,7 +664,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref lastEditor, value, () => LastEditor);
 		}
 
-		DateTime lastEditedTime;
+		private DateTime lastEditedTime;
 
 		[Display(Name = "Последние изменения")]
 		[IgnoreHistoryTrace]
@@ -638,7 +673,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref lastEditedTime, value, () => LastEditedTime);
 		}
 
-		string commentManager;
+		private string commentManager;
 		/// <summary>
 		/// Комментарий менеджера ответственного за водительский телефон
 		/// </summary>
@@ -664,7 +699,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _driverMobileAppCommentTime, value);
 		}
 
-		int? returnedTare;
+		private int? returnedTare;
 
 		[Display(Name = "Возвратная тара")]
 		public virtual int? ReturnedTare {
@@ -672,7 +707,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref returnedTare, value, () => ReturnedTare);
 		}
 
-		string informationOnTara;
+		private string informationOnTara;
 
 		[Display(Name = "Информация о таре")]
 		public virtual string InformationOnTara {
@@ -717,7 +752,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref bottlesByStockActualCount, value, () => BottlesByStockActualCount);
 		}
 
-		string onRouteEditReason;
+		private string onRouteEditReason;
 
 		[Display(Name = "Причина редактирования заказа")]
 		[Obsolete("Кусок выпиленного функционала от I-1060. Даша сказала пока не удалять, но скрыть зачем-то.")]
@@ -726,7 +761,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref onRouteEditReason, value, () => OnRouteEditReason);
 		}
 
-		DriverCallType driverCallType;
+		private DriverCallType driverCallType;
 
 		[Display(Name = "Водитель отзвонился")]
 		public virtual DriverCallType DriverCallType {
@@ -734,7 +769,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref driverCallType, value, () => DriverCallType);
 		}
 
-		int? driverCallId;
+		private int? driverCallId;
 
 		[Display(Name = "Номер звонка водителя")]
 		public virtual int? DriverCallId {
@@ -774,7 +809,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isContractCloser, value, () => IsContractCloser);
 		}
 
-		bool isTareNonReturnReasonChangedByUser;
+		private bool isTareNonReturnReasonChangedByUser;
 		[Display(Name = "Причина невозврата тары указана пользователем")]
 		[IgnoreHistoryTrace]
 		public virtual bool IsTareNonReturnReasonChangedByUser {
@@ -782,7 +817,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isTareNonReturnReasonChangedByUser, value, () => IsTareNonReturnReasonChangedByUser);
 		}
 
-		bool hasCommentForDriver;
+		private bool hasCommentForDriver;
 		[Display(Name = "Есть комментарий для водителя?")]
 		[IgnoreHistoryTrace]
 		public virtual bool HasCommentForDriver {
@@ -798,43 +833,28 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderSource, value);
 		}
 
-		bool addCertificates;
+		private bool addCertificates;
 		[Display(Name = "Добавить сертификаты продукции")]
 		public virtual bool AddCertificates {
 			get => addCertificates;
 			set => SetField(ref addCertificates, value, () => AddCertificates);
 		}
 
-		bool contactlessDelivery;
+		private bool contactlessDelivery;
 		[Display(Name = "Бесконтактная доставка")]
 		public virtual bool ContactlessDelivery {
 			get => contactlessDelivery;
 			set => SetField(ref contactlessDelivery, value, () => ContactlessDelivery);
 		}
 
-		bool paymentBySms;
-		[Display(Name = "Оплата по SMS")]
-		public virtual bool PaymentBySms {
-			get => paymentBySms;
-			set => SetField(ref paymentBySms, value, () => PaymentBySms);
-		}
-		
-		bool _paymentByQr;
-		[Display(Name = "Оплата по QR")]
-		public virtual bool PaymentByQr
-		{
-			get => _paymentByQr;
-			set => SetField(ref _paymentByQr, value);
-		}
-
-		ReturnTareReason returnTareReason;
+		private ReturnTareReason returnTareReason;
 		[Display(Name = "Причина забора тары")]
 		public virtual ReturnTareReason ReturnTareReason {
 			get => returnTareReason;
 			set => SetField(ref returnTareReason, value);
 		}
 
-		ReturnTareReasonCategory returnTareReasonCategory;
+		private ReturnTareReasonCategory returnTareReasonCategory;
 		[Display(Name = "Категория причины забора тары")]
 		public virtual ReturnTareReasonCategory ReturnTareReasonCategory {
 			get => returnTareReasonCategory;
@@ -858,6 +878,144 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
+		#region SecondOrderDiscount
+		private void IsSecondOrderSetter()
+		{
+			if(!_generalSettingsParameters.GetIsClientsSecondOrderDiscountActive)
+			{
+				return;
+			}
+
+			var closingDocumentDeliveryScheduleId = _deliveryScheduleParametersProvider.ClosingDocumentDeliveryScheduleId;
+
+			if(IsFirstOrder || DeliverySchedule?.Id == closingDocumentDeliveryScheduleId)
+			{
+				IsSecondOrder = false;
+				return;
+			}
+
+			if(Id > 0 || IsSecondOrder)
+			{
+				return;
+			}
+
+			var firstOrderAvailableStatuses = new OrderStatus[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+
+			var firstOrder = UoW.GetAll<Order>()
+				.Where(o =>
+					o.Client == Client
+					&& o.IsFirstOrder
+					&& firstOrderAvailableStatuses.Contains(o.OrderStatus))
+				.ToList();
+
+			bool hasFirstOrder = firstOrder.Count() > 0;
+
+			if(!hasFirstOrder)
+			{
+				return;
+			}
+
+			bool isFirstOrderIsClosingDocuments = false;
+
+			if(firstOrder[0].DeliverySchedule?.Id == closingDocumentDeliveryScheduleId)
+			{
+				isFirstOrderIsClosingDocuments = true;
+			}
+
+			var nextOrdersAvailableStatuses = new OrderStatus[] { OrderStatus.Canceled, OrderStatus.NotDelivered };
+
+			var nextOrders = UoW.GetAll<Order>()
+				.Where(o =>
+					o.Client == Client
+					&& !o.IsFirstOrder
+					&& o.Id != Id
+					&& o.DeliverySchedule.Id != closingDocumentDeliveryScheduleId
+					&& !nextOrdersAvailableStatuses.Contains(o.OrderStatus))
+				.ToList();
+
+			IsSecondOrder =
+				isFirstOrderIsClosingDocuments
+				? nextOrders.Count() == 1
+				: nextOrders.Count() == 0;
+		}
+
+		public virtual void UpdateClientSecondOrderDiscount(IOrderDiscountsController discountsController)
+		{
+			if(!_generalSettingsParameters.GetIsClientsSecondOrderDiscountActive)
+			{
+				return;
+			}
+
+			int discountReasonId = _orderParametersProvider.GetClientsSecondOrderDiscountReasonId;
+
+			if(IsSecondOrder)
+			{
+				SetClientSecondOrderDiscount(discountsController, discountReasonId);
+				return;
+			}
+
+			ResetClientSecondOrderDiscount(discountsController, discountReasonId);
+		}
+
+		private void SetClientSecondOrderDiscount(IOrderDiscountsController discountsController, int discountReasonId)
+		{
+			if(IsSecondOrder)
+			{
+				foreach(var item in ObservableOrderItems)
+				{
+					if(item.DiscountReason?.Id != discountReasonId)
+					{
+						SetClientSecondOrderDiscount(discountsController, item, discountReasonId);
+					}
+				}
+			}
+		}
+
+		private void ResetClientSecondOrderDiscount(IOrderDiscountsController discountsController, int discountReasonId)
+		{
+			if(!IsSecondOrder)
+			{
+				var orderItemsHavingClientsSecondOrderDiscount = new List<OrderItem>();
+
+				foreach(var item in ObservableOrderItems)
+				{
+					if(item.DiscountReason?.Id == discountReasonId)
+					{
+						orderItemsHavingClientsSecondOrderDiscount.Add(item);
+					}
+				}
+				discountsController.RemoveDiscountFromOrder(orderItemsHavingClientsSecondOrderDiscount);
+			}
+		}
+
+		private void SetClientSecondOrderDiscount(IOrderDiscountsController discountsController, OrderItem orderItem, int discountReasonId)
+		{
+			if(!IsSecondOrder)
+			{
+				return;
+			}
+
+			if(orderItem.DiscountReason != null
+				|| orderItem.PromoSet != null)
+			{
+				return;
+			}
+
+			var discountReason = UoW.GetById<DiscountReason>(discountReasonId);
+
+			if(discountReason != null)
+			{
+				discountsController.SetDiscountFromDiscountReasonForOrderItem(discountReason, orderItem, true, out string message);
+
+				if(message != null)
+				{
+					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+						$"Не удалось применить скидку для второго заказа клиента!");
+				}
+			}
+		}
+		#endregion
+
 		public virtual bool CanChangeContractor()
 		{
 			return (!NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) || !OrderDocuments.Any())
@@ -865,7 +1023,7 @@ namespace Vodovoz.Domain.Orders
 				&& (!NHibernate.NHibernateUtil.IsInitialized(FinalOrderService) || !FinalOrderService.Any());
 		}
 
-		IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
+		private IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
 
 		[Display(Name = "Залоги заказа")]
 		public virtual IList<OrderDepositItem> OrderDepositItems {
@@ -873,7 +1031,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderDepositItems, value, () => OrderDepositItems);
 		}
 
-		GenericObservableList<OrderDepositItem> observableOrderDepositItems;
+		private GenericObservableList<OrderDepositItem> observableOrderDepositItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<OrderDepositItem> ObservableOrderDepositItems {
 			get {
@@ -885,7 +1043,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		IList<OrderDocument> orderDocuments = new List<OrderDocument>();
+		private IList<OrderDocument> orderDocuments = new List<OrderDocument>();
 
 		[Display(Name = "Документы заказа")]
 		public virtual IList<OrderDocument> OrderDocuments {
@@ -893,12 +1051,12 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderDocuments, value, () => OrderDocuments);
 		}
 
-		GenericObservableList<OrderDocument> _observableOrderDocuments;
+		private GenericObservableList<OrderDocument> _observableOrderDocuments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments => 
 			_observableOrderDocuments?.ReconnectToObject(OrderDocuments) ?? (_observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments));
 
-		IList<OrderItem> orderItems = new List<OrderItem>();
+		private IList<OrderItem> orderItems = new List<OrderItem>();
 
 		[Display(Name = "Строки заказа")]
 		public virtual IList<OrderItem> OrderItems {
@@ -906,7 +1064,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderItems, value, () => OrderItems);
 		}
 
-		GenericObservableList<OrderItem> observableOrderItems;
+		private GenericObservableList<OrderItem> observableOrderItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<OrderItem> ObservableOrderItems {
 			get {
@@ -919,7 +1077,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		IList<OrderEquipment> orderEquipments = new List<OrderEquipment>();
+		private IList<OrderEquipment> orderEquipments = new List<OrderEquipment>();
 
 		[Display(Name = "Список оборудования")]
 		public virtual IList<OrderEquipment> OrderEquipments {
@@ -927,7 +1085,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderEquipments, value, () => OrderEquipments);
 		}
 
-		GenericObservableList<OrderEquipment> observableOrderEquipments;
+		private GenericObservableList<OrderEquipment> observableOrderEquipments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<OrderEquipment> ObservableOrderEquipments {
 			get {
@@ -937,7 +1095,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		IList<ServiceClaim> initialOrderService = new List<ServiceClaim>();
+		private IList<ServiceClaim> initialOrderService = new List<ServiceClaim>();
 
 		[Display(Name = "Список заявок на сервис")]
 		public virtual IList<ServiceClaim> InitialOrderService {
@@ -945,7 +1103,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref initialOrderService, value, () => InitialOrderService);
 		}
 
-		GenericObservableList<ServiceClaim> observableInitialOrderService;
+		private GenericObservableList<ServiceClaim> observableInitialOrderService;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<ServiceClaim> ObservableInitialOrderService {
 			get {
@@ -955,7 +1113,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		IList<ServiceClaim> finalOrderService = new List<ServiceClaim>();
+		private IList<ServiceClaim> finalOrderService = new List<ServiceClaim>();
 
 		[Display(Name = "Список заявок на сервис")]
 		public virtual IList<ServiceClaim> FinalOrderService {
@@ -963,7 +1121,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref finalOrderService, value, () => FinalOrderService);
 		}
 
-		GenericObservableList<ServiceClaim> observableFinalOrderService;
+		private GenericObservableList<ServiceClaim> observableFinalOrderService;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<ServiceClaim> ObservableFinalOrderService {
 			get {
@@ -973,14 +1131,14 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		IList<PromotionalSet> promotionalSets = new List<PromotionalSet>();
+		private IList<PromotionalSet> promotionalSets = new List<PromotionalSet>();
 		[Display(Name = "Промонаборы заказа")]
 		public virtual IList<PromotionalSet> PromotionalSets {
 			get => promotionalSets;
 			set => SetField(ref promotionalSets, value, () => PromotionalSets);
 		}
 
-		GenericObservableList<PromotionalSet> observablePromotionalSets;
+		private GenericObservableList<PromotionalSet> observablePromotionalSets;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<PromotionalSet> ObservablePromotionalSets {
 			get {
@@ -1047,7 +1205,7 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("В заказе не указано время доставки.",
 							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
 
-					if(!IsLoadedFrom1C && PaymentType == PaymentType.cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
+					if(!IsLoadedFrom1C && PaymentType == PaymentType.Cashless && Client.TypeOfOwnership != "ИП" && !SignatureType.HasValue)
 						yield return new ValidationResult("В заказе не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName(o => o.SignatureType) });
 
@@ -1061,7 +1219,7 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult("Необходимо указать категорию причины забора тары.",
 							new[] { nameof(ReturnTareReasonCategory) });
 
-					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.cash) && this.OrderSum > 0m)
+					if(!IsLoadedFrom1C && _trifle == null && (PaymentType == PaymentType.Cash) && this.OrderSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
 					if(ObservableOrderItems.Any(x => x.Count <= 0) || ObservableOrderEquipments.Any(x => x.Count <= 0))
@@ -1142,8 +1300,8 @@ namespace Vodovoz.Domain.Orders
 					}
 
 					if(Client.IsDeliveriesClosed
-						&& PaymentType != PaymentType.cash
-						&& PaymentType != PaymentType.ByCard
+						&& PaymentType != PaymentType.Cash
+						&& PaymentType != PaymentType.PaidOnline
 						&& PaymentType != PaymentType.Terminal)
 						yield return new ValidationResult(
 							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
@@ -1179,7 +1337,7 @@ namespace Vodovoz.Domain.Orders
 					}
 				}
 
-				if(OrderAddressType == OrderAddressType.Service && PaymentType == PaymentType.cashless
+				if(OrderAddressType == OrderAddressType.Service && PaymentType == PaymentType.Cashless
 				   && newStatus == OrderStatus.Accepted
 				   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders"))
 				   {
@@ -1224,11 +1382,11 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName(o => o.Client) });
 
-			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
+			if(PaymentType == PaymentType.PaidOnline && OnlineOrder == null)
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 
-			if(PaymentType == PaymentType.ByCard && PaymentByCardFrom == null)
+			if(PaymentType == PaymentType.PaidOnline && PaymentByCardFrom == null)
 				yield return new ValidationResult(
 					"Выбран тип оплаты по карте. Необходимо указать откуда произведена оплата.",
 					new[] { this.GetPropertyName(o => o.PaymentByCardFrom) }
@@ -1275,9 +1433,17 @@ namespace Vodovoz.Domain.Orders
 				);
 			}
 
-			if(SelfDelivery && PaymentType == PaymentType.ContractDoc) {
+			if(SelfDelivery && PaymentType == PaymentType.ContractDocumentation) {
 				yield return new ValidationResult(
 					"Тип оплаты - контрактная документация невозможен для самовывоза",
+					new[] { this.GetPropertyName(o => o.PaymentType) }
+				);
+			}
+
+			if(SelfDelivery && PaymentType == PaymentType.DriverApplicationQR)
+			{
+				yield return new ValidationResult(
+					"Тип оплаты - Qr-код МП водителя невозможен для самовывоза",
 					new[] { this.GetPropertyName(o => o.PaymentType) }
 				);
 			}
@@ -1309,7 +1475,7 @@ namespace Vodovoz.Domain.Orders
 
 			var orderParametersProvider = validationContext.GetService(typeof(IOrderParametersProvider)) as IOrderParametersProvider;
 
-			if(SelfDelivery && PaymentType == PaymentType.ByCard && PaymentByCardFrom != null && OnlineOrder == null)
+			if(SelfDelivery && PaymentType == PaymentType.PaidOnline && PaymentByCardFrom != null && OnlineOrder == null)
 			{
 				if(orderParametersProvider == null)
 				{
@@ -1321,8 +1487,8 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			if((new[] { PaymentType.cash, PaymentType.Terminal }.Contains(PaymentType)
-				   || (PaymentType == PaymentType.ByCard
+			if((new[] { PaymentType.Cash, PaymentType.Terminal }.Contains(PaymentType)
+				   || (PaymentType == PaymentType.PaidOnline
 					   && PaymentByCardFrom != null
 					   && !(orderParametersProvider ?? throw new ArgumentNullException(nameof(IOrderParametersProvider)))
 						   .PaymentsByCardFromNotToSendSalesReceipts.Contains(PaymentByCardFrom.Id)))
@@ -1467,7 +1633,7 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Наличных к получению")]
 		public virtual decimal OrderCashSum
 		{
-			get => PaymentType == PaymentType.cash ? OrderSum : 0;
+			get => PaymentType == PaymentType.Cash ? OrderSum : 0;
 			protected set {; }
 		}
 
@@ -1539,7 +1705,7 @@ namespace Vodovoz.Domain.Orders
 			|| ObservableOrderEquipments.Any(orderEquipment =>
 				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderEquipment.Nomenclature.Category) && !orderEquipment.Nomenclature.NoDelivery);
 
-		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.cashless
+		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless
 			&& (Contract?.Organization?.WithoutVAT ?? false);
 
 		public virtual void RefreshContactPhone()
@@ -1774,7 +1940,7 @@ namespace Vodovoz.Domain.Orders
 			var notSendedByEmail = !emailRepository.HaveSendedEmailForBill(Id);
 			var notSended = notSendedByEdo && notSendedByEmail;
 			if((OrderStatus == OrderStatus.NewOrder || OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
-			   && PaymentType == PaymentType.cashless
+			   && PaymentType == PaymentType.Cashless
 			   && notSended)
 			{
 				//Проверка должен ли формироваться счет для текущего заказа
@@ -1879,7 +2045,7 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			var counterpartyContract = organization != null
-				? contractRepository.GetCounterpartyContract(uow, this, organization)
+				? contractRepository.GetCounterpartyContractByOrganization(uow, this, organization)
 				: contractRepository.GetCounterpartyContract(uow, this, ErrorReporter.Instance);
 			
 			if(counterpartyContract == null)
@@ -2181,7 +2347,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			if(!DeliveryDate.HasValue)
 				return;
-			if(Client.PersonType != PersonType.legal && PaymentType != PaymentType.cashless)
+			if(Client.PersonType != PersonType.legal && PaymentType != PaymentType.Cashless)
 				return;
 
 			bool existProxies = Client.Proxies
@@ -2342,7 +2508,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		void ObservablePromotionalSets_ElementRemoved(object aList, int[] aIdx, object aObject)
+		private void ObservablePromotionalSets_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			if(aObject is PromotionalSet proSet) {
 				foreach(OrderItem item in ObservableOrderItems)
@@ -2359,7 +2525,7 @@ namespace Vodovoz.Domain.Orders
 		/// Чистка списка промо-наборов заказа, если вручную удалили, изменили
 		/// причину скидки или что-то ещё.
 		/// </summary>
-		void ClearPromotionSets()
+		private void ClearPromotionSets()
 		{
 			var oigrp = OrderItems.GroupBy(x => x.PromoSet);
 			var rem = PromotionalSets.Where(s => !oigrp.Select(g => g.Key).Contains(s)).ToArray();
@@ -2907,7 +3073,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.DeliveryCanceled:
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Canceled:
-					if(PaymentType == PaymentType.cashless)
+					if(PaymentType == PaymentType.Cashless)
 					{
 						_paymentFromBankClientController.ReturnAllocatedSumToClientBalance(UoW, this);
 					}
@@ -3018,7 +3184,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(!SelfDelivery)
 				return;
-			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard)
+			if(PaymentType != PaymentType.Cashless && PaymentType != PaymentType.PaidOnline)
 				return;
 			if(OrderStatus != OrderStatus.WaitForPayment)
 				return;
@@ -3033,21 +3199,21 @@ namespace Vodovoz.Domain.Orders
 		/// Проверяется соответствие суммы заказа с суммой оплаченной в кассе.
 		/// Если проверка пройдена заказ закрывается или переводится на погрузку.
 		/// </summary>
-		public virtual void SelfDeliveryAcceptCashPaid(CallTaskWorker callTaskWorker)
+		public virtual void SelfDeliveryAcceptCashPaid(ICallTaskWorker callTaskWorker)
 		{
 			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
 			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
 			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn, callTaskWorker);
 		}
 
-		public virtual void AcceptSelfDeliveryIncomeCash(decimal incomeCash, CallTaskWorker callTaskWorker, int? incomeExcludedDoc = null)
+		public virtual void AcceptSelfDeliveryIncomeCash(decimal incomeCash, ICallTaskWorker callTaskWorker, int? incomeExcludedDoc = null)
 		{
 			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id, incomeExcludedDoc) + incomeCash;
 			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
 			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn, callTaskWorker);
 		}
 
-		public virtual void AcceptSelfDeliveryExpenseCash(decimal expenseCash, CallTaskWorker callTaskWorker, int? expenseExcludedDoc = null)
+		public virtual void AcceptSelfDeliveryExpenseCash(decimal expenseCash, ICallTaskWorker callTaskWorker, int? expenseExcludedDoc = null)
 		{
 			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
 			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id, expenseExcludedDoc) + expenseCash;
@@ -3061,11 +3227,11 @@ namespace Vodovoz.Domain.Orders
 		/// <paramref name="expenseCash">Сумма по открытому расходному ордеру, добавляемая к ранее сохранным расходным ордерам</paramref>
 		/// <paramref name="incomeCash">Сумма по открытому приходному ордеру, добавляемая к ранее сохранным приходным ордерам</paramref>
 		/// </summary>
-		private void SelfDeliveryAcceptCashPaid(decimal incomeCash, decimal expenseCash, CallTaskWorker callTaskWorker)
+		private void SelfDeliveryAcceptCashPaid(decimal incomeCash, decimal expenseCash, ICallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery)
 				return;
-			if(PaymentType != PaymentType.cash)
+			if(PaymentType != PaymentType.Cash)
 				return;
 			if((incomeCash - expenseCash) != OrderCashSum)
 				return;
@@ -3402,16 +3568,25 @@ namespace Vodovoz.Domain.Orders
 
 			switch(PaymentType)
 			{
-				case PaymentType.cash:
+				case PaymentType.Cash:
 					ChangeStatusAndCreateTasks(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
 					break;
-				case PaymentType.cashless:
-				case PaymentType.ByCard:
+				case PaymentType.Cashless:
+				case PaymentType.PaidOnline:
 				case PaymentType.Terminal:
 					ChangeStatusAndCreateTasks(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
 					break;
-				case PaymentType.barter:
-				case PaymentType.ContractDoc:
+				case PaymentType.SmsQR:
+					ChangeStatusAndCreateTasks(
+						PayAfterShipment 
+						? OnlineOrder != null 
+							? OrderStatus.Closed 
+							: OrderStatus.WaitForPayment
+						: OrderStatus.Closed, 
+						callTaskWorker);
+					break;
+				case PaymentType.Barter:
+				case PaymentType.ContractDocumentation:
 					ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);
 					break;
 			}
@@ -3425,7 +3600,7 @@ namespace Vodovoz.Domain.Orders
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
 		/// склада все отгружено, и произведена оплата
 		/// </summary>
-		public virtual bool TryCloseSelfDeliveryOrder(
+		public virtual bool TryCloseSelfDeliveryPayAfterShipmentOrder(
 			IUnitOfWork uow,
 			IStandartNomenclatures standartNomenclatures,
 			IRouteListItemRepository routeListItemRepository,
@@ -3447,29 +3622,35 @@ namespace Vodovoz.Domain.Orders
 			else
 				return false;
 
-			if(OrderStatus != OrderStatus.OnLoading)
-				return false;
-
-			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
-
-			switch(PaymentType)
+			if(OrderStatus == OrderStatus.WaitForPayment && PayAfterShipment)
 			{
-				case PaymentType.cash:
-					ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
-					break;
-				case PaymentType.cashless:
-				case PaymentType.ByCard:
-					ChangeStatus(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed);
-					break;
-				case PaymentType.barter:
-				case PaymentType.ContractDoc:
-					ChangeStatus(OrderStatus.Closed);
-					break;
+				bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
+
+				switch(PaymentType)
+				{
+					case PaymentType.Cash:
+						ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
+						break;
+					case PaymentType.Cashless:
+					case PaymentType.PaidOnline:
+						ChangeStatus(OrderStatus.Closed);
+						break;
+					case PaymentType.SmsQR:
+						ChangeStatus(OrderStatus.Closed);
+						break;
+					case PaymentType.Barter:
+					case PaymentType.ContractDocumentation:
+						ChangeStatus(OrderStatus.Closed);
+						break;
+				}
+				//обновление актуальных кол-в из документов самовывоза, включая не сохранённый
+				//документ, откуда был вызов метода
+				UpdateSelfDeliveryActualCounts(closingDocument);
+				return true;
+
 			}
-			//обновление актуальных кол-в из документов самовывоза, включая не сохранённый
-			//документ, откуда был вызов метода
-			UpdateSelfDeliveryActualCounts(closingDocument);
-			return true;
+
+			return false;
 		}
 
 
@@ -3564,7 +3745,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ChangePaymentTypeToOnline(CallTaskWorker callTaskWorker)
 		{
-			PaymentType = PaymentType.ByCard;
+			PaymentType = PaymentType.PaidOnline;
 			ChangeStatusAndCreateTasks(!PayAfterShipment ? OrderStatus.Accepted : OrderStatus.Closed, callTaskWorker);
 		}
 
@@ -3754,26 +3935,31 @@ namespace Vodovoz.Domain.Orders
 
 		/// <summary>
 		/// Возврат первого попавшегося контакта из цепочки:<br/>
-		///0. Телефон для чеков точки доставки;<br/>
-		///1. Телефон для чеков контрагента;<br/>
-		///2. Эл.почта для чеков контрагентов;<br/>
-		///3. Мобильный телефон точки доставки;<br/>
-		///4. Мобильный телефон контрагента;<br/>
-		///5. Эл.почта для счетов контрагента;<br/>
-		///6. Иная эл. почта (не для чеков или счетов);<br/>
-		///7. Городской телефон точки доставки;<br/>
-		///8. Городской телефон контрагента.<br/>
+		/// 0. Почта для чеков в контрагенте<br/>
+		/// 1. Почта для счетов в контрагенте<br/>
+		/// 2. Телефон для чеков в точке доставки<br/>
+		/// 3. Телефон для чеков в контрагенте<br/>
+		/// 4. Телефон личный в ТД<br/>
+		/// 5. Телефон личный в контрагенте<br/>
+		/// 6. Иная почта в контрагенте<br/>
+		/// 7. Городской телефон в ТД<br/>
+		/// 8. Городской телефон в контрагенте<br/>
 		/// </summary>
 		/// <returns>Контакт с минимальным весом.<br/>Телефоны возвращает в формате +7</returns>
 		public virtual string GetContact()
 		{
 			if(Client == null)
+			{
 				return null;
+			}
+
 			//Dictionary<вес контакта, контакт>
 			Dictionary<int, string> contacts = new Dictionary<int, string>();
-			try {
-				if(!SelfDelivery && DeliveryPoint != null && DeliveryPoint.Phones.Any()) {
 
+			try
+			{
+				if(!SelfDelivery && DeliveryPoint != null && DeliveryPoint.Phones.Any())
+				{
 					var deliveryPointReceiptPhone = DeliveryPoint.Phones.FirstOrDefault(
 						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
 							&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts
@@ -3781,7 +3967,7 @@ namespace Vodovoz.Domain.Orders
 					
 					if(deliveryPointReceiptPhone != null)
 					{
-						contacts[0] = "+7" + deliveryPointReceiptPhone.DigitsNumber;
+						contacts[2] = "+7" + deliveryPointReceiptPhone.DigitsNumber;
 					}
 
 					var phone = DeliveryPoint.Phones.FirstOrDefault(
@@ -3791,7 +3977,7 @@ namespace Vodovoz.Domain.Orders
 					
 					if(phone != null)
 					{
-						contacts[3] = "+7" + phone.DigitsNumber;
+						contacts[4] = "+7" + phone.DigitsNumber;
 					}
 					else if(DeliveryPoint.Phones.Any(
 						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
@@ -3802,12 +3988,16 @@ namespace Vodovoz.Domain.Orders
 								&& !p.IsArchive).DigitsNumber;
 					}
 				}
-			} catch(GenericADOException ex) {
+			}
+			catch(GenericADOException ex)
+			{
 				logger.Error(ex.Message);
 			}
-			try {
-				if(Client.Phones.Any()) {
 
+			try
+			{
+				if(Client.Phones.Any())
+				{
 					var clientReceiptPhone = Client.Phones.FirstOrDefault(
 						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
 							&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts
@@ -3815,7 +4005,7 @@ namespace Vodovoz.Domain.Orders
 					
 					if(clientReceiptPhone != null)
 					{
-						contacts[1] = "+7" + clientReceiptPhone.DigitsNumber;
+						contacts[3] = "+7" + clientReceiptPhone.DigitsNumber;
 					}
 
 					var phone = Client.Phones.FirstOrDefault(
@@ -3825,7 +4015,7 @@ namespace Vodovoz.Domain.Orders
 					
 					if(phone != null)
 					{
-						contacts[4] = "+7" + phone.DigitsNumber;
+						contacts[5] = "+7" + phone.DigitsNumber;
 					}
 					else if(Client.Phones.Any(
 						p => !string.IsNullOrWhiteSpace(p.DigitsNumber)
@@ -3836,29 +4026,34 @@ namespace Vodovoz.Domain.Orders
 								&& !p.IsArchive).DigitsNumber;
 					}
 				}
-			} catch(GenericADOException ex) {
+			}
+			catch(GenericADOException ex)
+			{
 				logger.Error(ex.Message);
 			}
-			try {
-				if(Client.Emails.Any()) {
-					var receiptEmail = Client.Emails.FirstOrDefault(e => !String.IsNullOrWhiteSpace(e.Address)
+			try
+			{
+				if(Client.Emails.Any())
+				{
+					var receiptEmail = Client.Emails.FirstOrDefault(e => !string.IsNullOrWhiteSpace(e.Address)
 						 && e.EmailType?.EmailPurpose == EmailPurpose.ForReceipts)?.Address;
+
 					if(receiptEmail != null)
 					{
-						contacts[2] = receiptEmail;
+						contacts[0] = receiptEmail;
 					}
 
 					var billsEmail = Client.Emails.FirstOrDefault(
-						e => !String.IsNullOrWhiteSpace(e.Address)
+						e => !string.IsNullOrWhiteSpace(e.Address)
 							&& e.EmailType?.EmailPurpose == EmailPurpose.ForBills)?.Address;
 					
 					if(billsEmail != null)
 					{
-						contacts[5] = billsEmail;
+						contacts[1] = billsEmail;
 					}
 
 					var email = Client.Emails.FirstOrDefault(e =>
-						!String.IsNullOrWhiteSpace(e.Address)
+						!string.IsNullOrWhiteSpace(e.Address)
 						&& e.EmailType?.EmailPurpose != EmailPurpose.ForBills
 						&& e.EmailType?.EmailPurpose != EmailPurpose.ForReceipts)
 						?.Address;
@@ -3868,17 +4063,21 @@ namespace Vodovoz.Domain.Orders
 						contacts[6] = email;
 					}
 				}
-			} catch(GenericADOException ex) {
+			}
+			catch(GenericADOException ex)
+			{
 				logger.Error(ex.Message);
 			}
+
 			if(!contacts.Any())
+			{
 				return null;
+			}
 
 			var onlyWithValidPhones = contacts.Where(x =>
-				(x.Value.StartsWith("+7") &&
-				x.Value.Length == 12)
-				|| !x.Value.StartsWith("+7")
-			);
+				(x.Value.StartsWith("+7")
+					&& x.Value.Length == 12)
+				|| !x.Value.StartsWith("+7"));
 
 			if(!onlyWithValidPhones.Any())
 			{
@@ -4020,6 +4219,55 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 			return result;
+		}
+
+		public virtual void SetNeedToRecendEdoUpd()
+		{
+			var userCanResendUpd = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			if(!userCanResendUpd)
+			{
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "Текущий пользователь не имеет права повторной отправки УПД");
+				return;
+			}
+
+			if(OrderPaymentStatus == OrderPaymentStatus.Paid)
+			{
+				if(!ServicesConfig.InteractiveService.Question(
+					$"Счет по заказу №{Id} оплачен.\r\nПроверьте, пожалуйста, статус УПД в ЭДО перед повторной отправкой на предмет аннулирован/не аннулирован, подписан/не подписан.\r\n\r\n" +
+					$"Вы уверены, что хотите отправить повторно?"))
+				{
+					return;
+				}
+			}
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var edoDocumentsActions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+					.Where(x => x.Order.Id == Id)
+					.FirstOrDefault();
+
+				if(edoDocumentsActions == null)
+				{
+					edoDocumentsActions = new OrderEdoTrueMarkDocumentsActions();
+					edoDocumentsActions.Order = this;
+				}
+
+				edoDocumentsActions.IsNeedToResendEdoUpd = true;
+
+				var orderLastTrueMarkDocument = uow.GetAll<TrueMarkApiDocument>()
+					.Where(x => x.Order.Id == Id)
+					.OrderByDescending(x => x.CreationDate)
+					.FirstOrDefault();
+
+				if(orderLastTrueMarkDocument != null 
+					&& orderLastTrueMarkDocument.Type != TrueMarkApiDocument.TrueMarkApiDocumentType.WithdrawalCancellation)
+				{
+					edoDocumentsActions.IsNeedToCancelTrueMarkDocument = true;
+				}
+
+				uow.Save(edoDocumentsActions);
+				uow.Commit();
+			}				
 		}
 
 		#endregion
@@ -4335,10 +4583,10 @@ namespace Vodovoz.Domain.Orders
 
 			return hasMarkedOrderItem && hasUnmarkedOrderItem;
 		}
-		
-		decimal GetFixedPrice(OrderItem item) => item.GetWaterFixedPrice() ?? default(decimal);
 
-		decimal GetNomenclaturePrice(OrderItem item, bool useAlternativePrice)
+		private decimal GetFixedPrice(OrderItem item) => item.GetWaterFixedPrice() ?? default(decimal);
+
+		private decimal GetNomenclaturePrice(OrderItem item, bool useAlternativePrice)
 		{
 			decimal nomenclaturePrice = 0M;
 			if(item.Nomenclature.IsWater19L) {
@@ -4349,7 +4597,7 @@ namespace Vodovoz.Domain.Orders
 			return nomenclaturePrice;
 		}
 
-		void ObservableOrderDepositItems_ListContentChanged(object sender, EventArgs e)
+		private void ObservableOrderDepositItems_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(OrderSum));
 		}
@@ -4385,7 +4633,7 @@ namespace Vodovoz.Domain.Orders
 			return byFormula < 5 * 60 ? 5 * 60 : byFormula;
 		}
 
-		int CalculateGoDoorCount(int bottles, int atTime) => bottles / atTime + (bottles % atTime > 0 ? 1 : 0);
+		private int CalculateGoDoorCount(int bottles, int atTime) => bottles / atTime + (bottles % atTime > 0 ? 1 : 0);
 
 		/// <summary>
 		/// Расчёт веса товаров и оборудования к клиенту для этого заказа
@@ -4401,6 +4649,12 @@ namespace Vodovoz.Domain.Orders
 			if(includeEquipment)
 				weight += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Weight * x.Count);
+			return weight;
+		}
+
+		public virtual decimal GetSalesItemsWeight(bool includeGoods = true, bool includeEquipment = true)
+		{
+			decimal weight = OrderItems.Sum(x => x.Nomenclature.Weight * (x.ActualCount ?? x.Count));
 			return weight;
 		}
 
@@ -4463,10 +4717,12 @@ namespace Vodovoz.Domain.Orders
 
 		public static PaymentType[] PaymentTypesFastDeliveryAvailableFor => new[]
 		{
-			PaymentType.cash,
-			PaymentType.ByCard,
+			PaymentType.Cash,
+			PaymentType.PaidOnline,
 			PaymentType.Terminal,
-			PaymentType.cashless
+			PaymentType.DriverApplicationQR,
+			PaymentType.SmsQR,
+			PaymentType.Cashless
 		};
 
 		#endregion

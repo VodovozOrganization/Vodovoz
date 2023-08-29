@@ -3,31 +3,31 @@ using Mailjet.Api.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Report;
+using QSOrmProject;
 using QSProjectsLib;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using RabbitMQ.MailSending;
 using RdlEngine;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using QSOrmProject;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
-using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
-using System.Reflection;
 using Vodovoz.Settings.Database;
+using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker
 {
@@ -47,8 +47,12 @@ namespace EmailPrepareWorker
 		private readonly TimeSpan _workDelay = TimeSpan.FromSeconds(5);
 		private readonly int _instanceId;
 
-		public EmailPrepareWorker(ILogger<EmailPrepareWorker> logger, IConfiguration configuration, IModel channel, IEmailRepository emailRepository,
-				IEmailParametersProvider emailParametersProvider)
+		public EmailPrepareWorker(
+			ILogger<EmailPrepareWorker> logger,
+			IConfiguration configuration,
+			IModel channel,
+			IEmailRepository emailRepository,
+			IEmailParametersProvider emailParametersProvider)
 		{
 			if(configuration is null)
 			{
@@ -59,6 +63,9 @@ namespace EmailPrepareWorker
 			_channel = channel ?? throw new ArgumentNullException(nameof(channel));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailParametersProvider = emailParametersProvider ?? throw new ArgumentNullException(nameof(emailParametersProvider));
+
+			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
+
 			_emailSendKey = configuration.GetSection(_queuesConfigurationSection)
 				.GetValue<string>(_emailSendKeyParameter);
 			_emailSendExchange = configuration.GetSection(_queuesConfigurationSection)
@@ -85,7 +92,7 @@ namespace EmailPrepareWorker
 
 			OrmConfig.ConfigureOrm(db_config,
 				new Assembly[] {
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(QS.Banks.Domain.Bank)),
 					Assembly.GetAssembly(typeof(QS.HistoryLog.HistoryMain)),
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
@@ -94,7 +101,7 @@ namespace EmailPrepareWorker
 					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 			});
 
-			QS.HistoryLog.HistoryMain.Enable();
+			QS.HistoryLog.HistoryMain.Enable(conStrBuilder);
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Email prepare worker"))
 			{

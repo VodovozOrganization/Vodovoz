@@ -23,6 +23,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using QS.Project.Journal.DataLoader;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using QS.Project.Domain;
+using QS.Project.Services.FileDialog;
 using Vodovoz.Controllers;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.DiscountReasons;
@@ -48,7 +49,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly INomenclatureJournalFactory _nomenclatureSelectorFactory;
-		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
@@ -60,6 +60,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IOrderDiscountsController _discountsController;
 		private readonly ISubdivisionParametersProvider _subdivisionParametersProvider;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly int _closingDocumentDeliveryScheduleId;
 
 		public RetailOrderJournalViewModel(
@@ -81,9 +82,11 @@ namespace Vodovoz.JournalViewModels
 			IOrderDiscountsController discountsController,
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
-			IRDLPreviewOpener rdlPreviewOpener) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IRDLPreviewOpener rdlPreviewOpener,
+			IFileDialogService fileDialogService) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService)); ;
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -97,7 +100,6 @@ namespace Vodovoz.JournalViewModels
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 
 			_nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
-			_counterpartySelectorFactory = counterpartyJournalFactory;
 			_undeliveredOrdersJournalOpener =
 				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
 			_undeliveredOrdersRepository =
@@ -532,7 +534,8 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -540,7 +543,8 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
 					"Счет без отгрузки на долг",
@@ -684,7 +688,8 @@ namespace Vodovoz.JournalViewModels
 						_employeeService,
 						new ParametersProvider(),
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция диалога открытия документа
 					(RetailOrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -693,7 +698,8 @@ namespace Vodovoz.JournalViewModels
 						_employeeService,
 						new ParametersProvider(),
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция идентификации документа 
 					(RetailOrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
 					"Счет без отгрузки на постоплату",
@@ -826,7 +832,7 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						_nomenclatureSelectorFactory,
-						_counterpartySelectorFactory,
+						_counterpartyJournalFactory,
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
@@ -841,7 +847,7 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						_nomenclatureSelectorFactory,
-						_counterpartySelectorFactory,
+						_counterpartyJournalFactory,
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
@@ -896,7 +902,7 @@ namespace Vodovoz.JournalViewModels
 
 						var routes = addresses.GroupBy(x => x.RouteList.Id);
 
-						var tdiMain = MainClass.MainWin.TdiMain;
+						var tdiMain = Startup.MainWin.TdiMain;
 
 						foreach(var route in routes) {
 							tdiMain.OpenTab(
@@ -940,13 +946,12 @@ namespace Vodovoz.JournalViewModels
 							_employeeJournalFactory,
 							_employeeService,
 							_undeliveredOrdersJournalOpener,
-							_orderSelectorFactory,
 							_undeliveredOrdersRepository,
 							new EmployeeSettings(new ParametersProvider()),
 							_subdivisionParametersProvider
-							);
+						);
 
-						MainClass.MainWin.TdiMain.AddTab(dlg);
+						Startup.MainWin.TdiMain.AddTab(dlg);
 					}
 				)
 			);
@@ -963,7 +968,7 @@ namespace Vodovoz.JournalViewModels
 							.Where(x => x.Order.Id.IsIn(routeListIds)).List();
 
 						var routes = addresses.GroupBy(x => x.RouteList.Id);
-						var tdiMain = MainClass.MainWin.TdiMain;
+						var tdiMain = Startup.MainWin.TdiMain;
 
 						foreach(var rl in routes) {
 							tdiMain.OpenTab(
@@ -1051,7 +1056,7 @@ namespace Vodovoz.JournalViewModels
 					
 						var dlg = new OrderDlg();
 						dlg.CopyLesserOrderFrom(order.Id);
-						var tdiMain = MainClass.MainWin.TdiMain;
+						var tdiMain = Startup.MainWin.TdiMain;
 						tdiMain.OpenTab(
 							DialogHelper.GenerateDialogHashName<Domain.Orders.Order>(65656),
 							() => dlg

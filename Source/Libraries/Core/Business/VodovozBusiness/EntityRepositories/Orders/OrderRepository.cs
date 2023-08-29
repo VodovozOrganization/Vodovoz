@@ -3,6 +3,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using NetTopologySuite.Geometries;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
@@ -41,7 +43,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(o => o.DeliveryDate == date.Date && !o.SelfDelivery)
 				.Where(o => o.DeliverySchedule != null)
 				.Where(o => o.DeliveryPoint != null);
-				
+
 			if(!showShipped)
 				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
 			else
@@ -52,7 +54,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, int districtId)
 		{
 			DeliveryPoint deliveryPointAlias = null;
-			
+
 			return uow.Session.QueryOver<VodovozOrder>()
 				.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Where(o => o.DeliveryDate == date.Date)
@@ -96,7 +98,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public IList<VodovozOrder> GetOrdersToExport1c8(
 			IUnitOfWork uow,
-			IOrderParametersProvider orderParametersProvider, 
+			IOrderParametersProvider orderParametersProvider,
 			Export1cMode mode,
 			DateTime startDate,
 			DateTime endDate,
@@ -143,7 +145,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				case Export1cMode.BuhgalteriaOOO:
 					query
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
-						.Where(o => o.PaymentType == PaymentType.cashless)
+						.Where(o => o.PaymentType == PaymentType.Cashless)
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
 				case Export1cMode.BuhgalteriaOOONew:
@@ -177,7 +179,7 @@ namespace Vodovoz.EntityRepositories.Orders
 							)
 						)
 						.Where(Restrictions.Disjunction()
-							.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+							.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 							.Add(Restrictions.Where(() => cashReceiptAlias.Status == CashReceiptStatus.Sended))
 							//Включение в выгрузку старых заказов, на которых нет чеков
 							//(с 26.04.2023 16:10 заказы с этими источниками оплаты имеют чеки сформированные через ДВ)
@@ -190,7 +192,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				case Export1cMode.IPForTinkoff:
 					query
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
-						.Where(o => o.PaymentType == PaymentType.ByCard)
+						.Where(o => o.PaymentType == PaymentType.PaidOnline)
 						.Where(o => o.OnlineOrder != null)
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
@@ -223,15 +225,15 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <returns>Первый заказ</returns>
 		/// <param name="uow">UoW</param>
 		/// <param name="counterparty">Контрагент</param>
-		public VodovozOrder GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, VodovozOrder order,Counterparty counterparty)
+		public VodovozOrder GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, VodovozOrder order, Counterparty counterparty)
 		{
-			if(uow == null) 
+			if(uow == null)
 				throw new ArgumentNullException(nameof(uow));
-			if(order == null) 
+			if(order == null)
 				throw new ArgumentNullException(nameof(order));
-			if(counterparty == null) 
+			if(counterparty == null)
 				throw new ArgumentNullException(nameof(counterparty));
-			
+
 
 			if(counterparty?.FirstOrder != null && GetValidStatusesToUseActionBottle().Contains(counterparty.FirstOrder.OrderStatus))
 				return counterparty.FirstOrder;
@@ -356,7 +358,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			else
 				return queryResult.List();
 		}
-		
+
 		/// <summary>
 		/// Проверка возможности изменения даты контракта при изменении даты доставки заказа.
 		/// Если дата первого заказа меньше newDeliveryDate и это - текущий изменяемый заказ - возвращает True.
@@ -370,7 +372,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		public bool CanChangeContractDate(IUnitOfWork uow, Counterparty client, DateTime newDeliveryDate, int orderId)
 		{
 			VodovozOrder orderAlias = null;
-			
+
 			var result = uow.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.Client == client)
 				.OrderBy(() => orderAlias.DeliveryDate).Asc
@@ -452,7 +454,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					  .Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
 					  .List().FirstOrDefault();
 		}
-		
+
 		public IList<Domain.Orders.Order> GetSameOrderForDateAndDeliveryPoint(
 			IUnitOfWorkFactory uowFactory,
 			DateTime date,
@@ -529,32 +531,6 @@ namespace Vodovoz.EntityRepositories.Orders
 			};
 		}
 
-		public bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order)
-		{
-			if(uow == null) 
-				throw new ArgumentNullException(nameof(uow));
-			if(order == null)
-				throw new ArgumentNullException(nameof(order));
-
-			if(order.OrderStatus != OrderStatus.Closed)
-				return false;
-
-
-			var routeListItem = uow.Session.QueryOver<RouteListItem>()
-					.Where(x => x.Order.Id == order.Id)
-					.Take(1).List()?.FirstOrDefault();
-			if(routeListItem != null)
-				return false;
-
-			var selfDeliveryDocument = uow.Session.QueryOver<SelfDeliveryDocument>()
-					.Where(x => x.Order.Id == order.Id)
-					.Take(1).List()?.FirstOrDefault();
-			if(selfDeliveryDocument != null)
-				return false;
-
-			return true;
-		}
-
 		public OrderStatus[] GetStatusesForOrderCancelation()
 		{
 			return new OrderStatus[] {
@@ -617,10 +593,10 @@ namespace Vodovoz.EntityRepositories.Orders
 					OrderStatus.Canceled
 				};
 		}
-		
+
 		public static OrderStatus[] GetUndeliveryAndNewStatuses()
 		{
-			return new []
+			return new[]
 			{
 				OrderStatus.NewOrder,
 				OrderStatus.NotDelivered,
@@ -658,23 +634,23 @@ namespace Vodovoz.EntityRepositories.Orders
 			Counterparty counterpartyAlias = null;
 			PaymentItem paymentItemAlias = null;
 			CashlessMovementOperation cashlessMovOperationAlias = null;
-			
+
 			var total = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.Select(OrderProjections.GetOrderSumProjection())
 				.SingleOrDefault<decimal>();
-			
+
 			var totalPayPartiallyPaidOrders = uow.Session.QueryOver(() => paymentItemAlias)
 				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovOperationAlias)
 				.Left.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.Where(() => counterpartyAlias.Id == counterpartyId)
-				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.AndRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(OrderRepository.GetUndeliveryAndNewStatuses())
 				.And(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
 				.And(() => paymentItemAlias.PaymentItemStatus != AllocationStatus.Cancelled)
@@ -708,32 +684,23 @@ namespace Vodovoz.EntityRepositories.Orders
 		public bool HasFlyersOnStock(
 			IUnitOfWork uow, IRouteListParametersProvider routeListParametersProvider, int flyerId, int geographicGroupId)
 		{
-			WarehouseMovementOperation operationAddAlias = null;
-			WarehouseMovementOperation operationRemoveAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 			VodovozOrder orderAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 
 			var warehouseId = geographicGroupId == routeListParametersProvider.SouthGeographicGroupId
-				? routeListParametersProvider.WarehouseSofiiskayaId 
+				? routeListParametersProvider.WarehouseSofiiskayaId
 				: routeListParametersProvider.WarehouseBugriId;
 
-			var subqueryAdded = uow.Session.QueryOver(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == flyerId)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
-				.Where(o => o.IncomingWarehouse.Id == warehouseId)
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
+			var subQueryBalance = uow.Session.QueryOver(() => operationAlias)
+				.Where(() => operationAlias.Nomenclature.Id == flyerId)
+				.Where(o => o.Warehouse.Id == warehouseId)
+				.Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(o => o.Amount))
 				.SingleOrDefault<decimal>();
 
-			var subqueryRemoved = uow.Session.QueryOver(() => operationRemoveAlias)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == flyerId)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
-				.Where(o => o.WriteoffWarehouse.Id == warehouseId)
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount))
-				.SingleOrDefault<decimal>();
-
-			var subqueryReserved = uow.Session.QueryOver(() => orderAlias)
+			var subQueryReserved = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
@@ -746,7 +713,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Select(Projections.Sum(() => orderEquipmentAlias.Count))
 				.SingleOrDefault<int>();
 
-			return subqueryAdded - subqueryRemoved - subqueryReserved > 0;
+			return subQueryBalance - subQueryReserved > 0;
 		}
 
 		public bool IsMovedToTheNewOrder(IUnitOfWork uow, OrderItem orderItem)
@@ -792,11 +759,11 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return dailyNumber;
 		}
-		
+
 		public DateTime? GetOrderDeliveryDate(IUnitOfWorkFactory uowFactory, int orderId)
 		{
 			DateTime? deliveryDate;
-			
+
 			using(var uow = uowFactory.CreateWithoutRoot($"Получение даты доставки заказа №{orderId}"))
 			{
 				deliveryDate = uow.Session.QueryOver<VodovozOrder>()
@@ -819,7 +786,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			DeliverySchedule deliveryScheduleAlias = null;
 			CashlessMovementOperation cashlessMovementOperationAlias = null;
 			NotFullyPaidOrderNode resultAlias = null;
-			
+
 			var orderSumProjection = OrderProjections.GetOrderSumProjection();
 			var allocatedSumProjection = QueryOver.Of(() => paymentItemAlias)
 				.JoinAlias(pi => pi.CashlessMovementOperation, () => cashlessMovementOperationAlias)
@@ -829,7 +796,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					NHibernateUtil.Decimal,
 						Projections.Sum(() => cashlessMovementOperationAlias.Expense),
 						Projections.Constant(0)));
-			
+
 			return uow.Session.QueryOver(() => orderAlias)
 				.Inner.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.Inner.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
@@ -840,10 +807,10 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(() => orderAlias.OrderStatus == OrderStatus.Shipped
 							|| orderAlias.OrderStatus == OrderStatus.UnloadingOnStock
 							|| orderAlias.OrderStatus == OrderStatus.Closed)
-				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.And(() => deliveryScheduleAlias.Id != closingDocumentDeliveryScheduleId)
-				.SelectList(list => 
+				.SelectList(list =>
 					list.SelectGroup(o => o.Id).WithAlias(() => resultAlias.Id)
 						.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
 						.Select(o => o.CreateDate).WithAlias(() => resultAlias.OrderCreationDate)
@@ -864,30 +831,35 @@ namespace Vodovoz.EntityRepositories.Orders
 				.SingleOrDefault<PaymentType>();
 		}
 
-		public IList<VodovozOrder> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime? startDate, int organizationId)
+		public IList<VodovozOrder> GetCashlessOrdersForEdoSend(IUnitOfWork uow, DateTime startDate, int organizationId)
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 			VodovozOrder orderAlias = null;
 			EdoContainer edoContainerAlias = null;
+			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+			var manualResendUpdStartDate = DateTime.Parse("2022-11-15");
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
 				.JoinEntityAlias(() => edoContainerAlias,
-				() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin);
+				() => orderAlias.Id == edoContainerAlias.Order.Id && edoContainerAlias.Type == Type.Upd, JoinType.LeftOuterJoin)
+				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
+				() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin);
 
-			if(startDate.HasValue)
-			{
-				query.Where(() => orderAlias.DeliveryDate >= startDate);
-			}
+			query.Where(() => orderAlias.DeliveryDate >= startDate
+					|| (orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoUpd && orderAlias.DeliveryDate >= manualResendUpdStartDate));
 
 			var result = query.Where(() => counterpartyAlias.PersonType == PersonType.legal)
-				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
-				.And(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
+				.And(Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
+					.Add(Restrictions.Eq(Projections.Property(() => orderEdoTrueMarkDocumentsActionsAlias.IsNeedToResendEdoUpd), true))
+				)
 				.And(Restrictions.Disjunction()
 					.Add(() => (counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
 								|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
@@ -895,12 +867,12 @@ namespace Vodovoz.EntityRepositories.Orders
 					.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 						&& counterpartyAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
-				.TransformUsing(Transformers.RootEntity)
+				.TransformUsing(Transformers.DistinctRootEntity)
 				.List();
 
 			return result;
 		}
-		
+
 		public IList<EdoContainer> GetPreparingToSendEdoContainers(IUnitOfWork uow, DateTime startDate, int organizationId)
 		{
 			EdoContainer edoContainerAlias = null;
@@ -924,14 +896,14 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(x => x.MainDocumentId == mainDocId)
 				.SingleOrDefault();
 		}
-		
+
 		public EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId)
 		{
 			if(docFlowId is null)
 			{
 				return null;
 			}
-			
+
 			return uow.Session.QueryOver<EdoContainer>()
 				.Where(x => x.DocFlowId == docFlowId)
 				.SingleOrDefault();
@@ -943,7 +915,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Where(x => x.Order.Id == orderId)
 				.List();
 		}
-		
+
 		public IList<VodovozOrder> GetOrdersForTrueMarkApi(IUnitOfWork uow, DateTime? startDate, int organizationId)
 		{
 			Counterparty counterpartyAlias = null;
@@ -979,19 +951,19 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
-						.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
 							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
-						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
 						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
 					)
 				)
-				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc)
-				.TransformUsing(Transformers.RootEntity) 
+				.And(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
+				.TransformUsing(Transformers.RootEntity)
 				.List();
 
 			return result;
@@ -1033,18 +1005,18 @@ namespace Vodovoz.EntityRepositories.Orders
 				.And(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
-						.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
 							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
-						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
 						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
 					)
 				)
-				.And(() => orderAlias.PaymentType != PaymentType.ContractDoc)
+				.And(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
 				.TransformUsing(Transformers.RootEntity)
 				.List();
 
@@ -1055,7 +1027,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			
+
 			return uow.Session.QueryOver<VodovozOrder>()
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
@@ -1073,6 +1045,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			TrueMarkApiDocument trueMarkApiDocumentAlias = null;
+			OrderEdoTrueMarkDocumentsActions orderEdoTrueMarkDocumentsActionsAlias = null;
 
 			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
@@ -1091,13 +1064,15 @@ namespace Vodovoz.EntityRepositories.Orders
 			var correctSubquery = QueryOver.Of(() => orderAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.JoinAlias(o => o.Contract, () => counterpartyContractAlias)
+				.JoinEntityAlias(() => orderEdoTrueMarkDocumentsActionsAlias,
+					() => orderAlias.Id == orderEdoTrueMarkDocumentsActionsAlias.Order.Id, JoinType.LeftOuterJoin)
 				.Where(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(orderStatuses)
 				.WithSubquery.WhereExists(hasGtinNomenclaturesSubQuery)
 				.Where(Restrictions.Disjunction()
 					.Add(Restrictions.Conjunction()
 						.Add(() => counterpartyAlias.PersonType == PersonType.legal)
-						.Add(() => orderAlias.PaymentType == PaymentType.cashless)
+						.Add(() => orderAlias.PaymentType == PaymentType.Cashless)
 						.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds)
 						.Add(Restrictions.Disjunction()
 							.Add(() => counterpartyAlias.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
@@ -1106,13 +1081,14 @@ namespace Vodovoz.EntityRepositories.Orders
 							)
 						)
 					.Add(Restrictions.Conjunction()
-						.Add(() => orderAlias.PaymentType == PaymentType.barter)
+						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
 						.Add(Restrictions.Gt(Projections.Property(() => counterpartyAlias.INN), 0))
 					)
 				)
-				.Where(() => orderAlias.PaymentType != PaymentType.ContractDoc)
+				.Where(() => orderAlias.PaymentType != PaymentType.ContractDocumentation)
 				.Where(() => orderAlias.Id == trueMarkApiDocumentAlias.Order.Id)
 				.Where(() => orderAlias.DeliveryDate > startDate)
+				.Where(() => orderEdoTrueMarkDocumentsActionsAlias.IsNeedToCancelTrueMarkDocument == null || !orderEdoTrueMarkDocumentsActionsAlias.IsNeedToCancelTrueMarkDocument)
 				.Select(o => o.Id);
 
 			var result = uow.Session.QueryOver(() => trueMarkApiDocumentAlias)
@@ -1127,14 +1103,288 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return result;
 		}
+
+		public IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters)
+		{
+			//Подзапрос со всем фильтрами заказов, будет использоваться для фильтрации
+			//необходимых сущностей, при их загрузке, по требуемым заказам
+
+			//Такое выделение в подазпрос необходимо, потому что загрузка один ко многим
+			//сразу по нескольким таблицам невозможна в одном запросе, например
+			//нельзя одним запросом получить все OrderItems и OrderEquipmets
+			//Это так же относиться просто к join, если хотим получить OrderItems, нельзя
+			//джойнить другие таблицы один ко многим
+
+			DeliveryPoint deliveryPointAlias = null;
+			DeliverySchedule deliveryScheduleAlias = null;
+			District districtAlias = null;
+			GeoGroup geographicGroupAlias = null;
+			VodovozOrder orderAlias = null;
+
+			var mainQuery = QueryOver.Of(() => orderAlias)
+				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => orderAlias.DeliverySchedule, () => deliveryScheduleAlias)
+				.Where(() => orderAlias.DeliveryDate == orderOnDayFilters.DateForRouting.Date)
+				.Where(() => !orderAlias.SelfDelivery)
+				.Where(() => orderAlias.DeliveryPoint != null)
+				.Where(() => orderAlias.DeliverySchedule != null)
+				.Where(() => !orderAlias.IsContractCloser)
+				.Where(() => orderAlias.DeliverySchedule.Id != orderOnDayFilters.ClosingDocumentDeliveryScheduleId);
+
+			if(!orderOnDayFilters.ShowCompleted)
+			{
+				mainQuery.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(new[] {
+					OrderStatus.Accepted,
+					OrderStatus.InTravelList
+				});
+			}
+			else
+			{
+				mainQuery.WhereRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(new[] {
+					OrderStatus.Canceled,
+					OrderStatus.NewOrder,
+					OrderStatus.WaitForPayment
+				});
+			}
+
+			var routeListItemCriteria = QueryOver.Of<RouteListItem>()
+				.Where(x => x.Order.Id == orderAlias.Id)
+				.Select(x => x.Id)
+				.Take(1)
+				.DetachedCriteria;
+			
+			var selfDeliveryDocumentCriteria = QueryOver.Of<SelfDeliveryDocument>()
+				.Where(x => x.Order.Id == orderAlias.Id)
+				.Select(x => x.Id)
+				.Take(1)
+				.DetachedCriteria;
+			
+			var closedWithoutDeliveryCriterion = Restrictions.Conjunction()
+				.Add(Restrictions.Where(() => orderAlias.OrderStatus != OrderStatus.Closed))
+				.Add(Subqueries.IsNotNull(routeListItemCriteria))
+				.Add(Subqueries.IsNotNull(selfDeliveryDocumentCriteria));
+			
+			//Исключаем закрытые без доставки
+			mainQuery.WhereNot(closedWithoutDeliveryCriterion);
+
+			if(orderOnDayFilters.GeographicGroupIds.Any())
+			{
+				mainQuery
+					.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+					.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
+					.WhereRestrictionOn(() => districtAlias.GeographicGroup.Id).IsIn(orderOnDayFilters.GeographicGroupIds);
+			}
+
+			if(!orderOnDayFilters.FastDeliveryEnabled)
+			{
+				mainQuery.Where(() => !orderAlias.IsFastDelivery);
+			}
+
+			mainQuery.WhereRestrictionOn(() => orderAlias.OrderAddressType)
+				.IsIn(orderOnDayFilters.OrderAddressTypes.ToArray());
+
+			switch(orderOnDayFilters.DeliveryScheduleType)
+			{
+				case DeliveryScheduleFilterType.DeliveryStart:
+					mainQuery
+						.Where(() => deliveryPointAlias.Latitude != null)
+						.Where(() => deliveryPointAlias.Longitude != null)
+						.Where(Restrictions.Ge(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.From)),
+							orderOnDayFilters.DeliveryFromTime.ToString("hh\\:mm\\:ss"))
+						)
+						.Where(Restrictions.Le(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.From)),
+							orderOnDayFilters.DeliveryToTime.ToString("hh\\:mm\\:ss"))
+						);
+					break;
+				case DeliveryScheduleFilterType.DeliveryEnd:
+					mainQuery
+						.Where(() => deliveryPointAlias.Latitude != null)
+						.Where(() => deliveryPointAlias.Longitude != null)
+						.Where(Restrictions.Ge(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.To)),
+							orderOnDayFilters.DeliveryFromTime.ToString("hh\\:mm\\:ss"))
+						)
+						.Where(Restrictions.Le(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.To)),
+							orderOnDayFilters.DeliveryToTime.ToString("hh\\:mm\\:ss"))
+						);
+					break;
+				case DeliveryScheduleFilterType.DeliveryStartAndEnd:
+					mainQuery
+						.Where(() => deliveryPointAlias.Latitude != null)
+						.Where(() => deliveryPointAlias.Longitude != null)
+						.Where(Restrictions.Ge(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.To)),
+							orderOnDayFilters.DeliveryFromTime.ToString("hh\\:mm\\:ss"))
+						)
+						.Where(Restrictions.Le(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.To)),
+							orderOnDayFilters.DeliveryToTime.ToString("hh\\:mm\\:ss"))
+						)
+						.Where(Restrictions.Ge(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.From)),
+							orderOnDayFilters.DeliveryFromTime.ToString("hh\\:mm\\:ss"))
+						)
+						.Where(Restrictions.Le(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => deliveryScheduleAlias.From)),
+							orderOnDayFilters.DeliveryToTime.ToString("hh\\:mm\\:ss"))
+						);
+					break;
+				case DeliveryScheduleFilterType.OrderCreateDate:
+					mainQuery
+						.Where(() => deliveryPointAlias.Latitude != null)
+						.Where(() => deliveryPointAlias.Longitude != null)
+						.Where(Restrictions.Ge(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => orderAlias.CreateDate)),
+							orderOnDayFilters.DeliveryFromTime.ToString("hh\\:mm\\:ss"))
+						)
+						.Where(Restrictions.Le(
+							Projections.SqlFunction("TIME", NHibernateUtil.Time, Projections.Property(() => orderAlias.CreateDate)),
+							orderOnDayFilters.DeliveryToTime.ToString("hh\\:mm\\:ss"))
+						);
+					break;
+			}
+
+			mainQuery.Select(Projections.Id());
+
+			//Запросы загрузки необходмых сущностей для работы диалога в части работы с заказами
+
+			VodovozOrder order2Alias = null;
+			OrderItem orderItem2Alias = null;
+			OrderItem copiedFromUndeliveryOrderItem2Alias = null;
+
+			// 1 
+			// Просто сразу грузим все части города, потому что их мало
+			uow.Session.QueryOver<GeoGroup>()
+				.Future();
+
+			// 2
+			// Загружаем заказы и одиночные сущности связанные с заказом
+			var ordersQuery = uow.Session.QueryOver(() => order2Alias)
+				.WithSubquery.WhereProperty(() => order2Alias.Id).In(mainQuery)
+				.Fetch(SelectMode.Fetch, () => order2Alias.DeliveryPoint)
+				.Fetch(SelectMode.Fetch, () => order2Alias.DeliveryPoint.District)
+				.Fetch(SelectMode.Fetch, () => order2Alias.Contract)
+				.Fetch(SelectMode.Fetch, () => order2Alias.Contract.Organization)
+				.Fetch(SelectMode.Fetch, () => order2Alias.DeliverySchedule)
+				.Fetch(SelectMode.Fetch, () => order2Alias.LogisticsRequirements)
+				.Future();
+
+			// 3
+			//Загружаем все номенклатуры которые используются в требуемых заказах отдельным запросом,
+			//чтобы потом в запросе номер 4 они подставились в OrderItem.Nomenclature,
+			//так как ChildFetch по orderItem2Alias загрузит только id номенклатуры
+			uow.Session.QueryOver(() => orderItem2Alias)
+				.WithSubquery.WhereProperty(() => orderItem2Alias.Order.Id).In(mainQuery)
+				.Fetch(SelectMode.Fetch, () => orderItem2Alias.Nomenclature)
+				.Fetch(SelectMode.Fetch, () => orderItem2Alias.CopiedFromUndelivery)
+				.Future();
+
+			// 4
+			//Загружаем все OrderItems для требуемых заказов
+			uow.Session.QueryOver(() => order2Alias)
+				.Left.JoinAlias(() => order2Alias.OrderItems, () => orderItem2Alias)
+				.WithSubquery.WhereProperty(() => order2Alias.Id).In(mainQuery)
+				.Fetch(SelectMode.ChildFetch, () => order2Alias)
+				.Fetch(SelectMode.ChildFetch, () => orderItem2Alias)
+				.Fetch(SelectMode.Fetch, () => order2Alias.OrderItems)
+				.Future();
+
+			//Конец запроса
+
+			var orderList = ordersQuery.ToList();
+			var result = orderList
+				.Where(x => x.Total19LBottlesToDeliver >= orderOnDayFilters.MinBottles19L)
+				.Distinct()
+				.Select(o => new OrderOnDayNode
+					{
+						OrderId = o.Id,
+						OrderStatus = o.OrderStatus,
+						DeliveryPointLatitude = o.DeliveryPoint.Latitude,
+						DeliveryPointLongitude = o.DeliveryPoint.Longitude,
+						DeliveryPointShortAddress = o.DeliveryPoint.ShortAddress,
+						DeliveryPointCompiledAddress = o.DeliveryPoint.CompiledAddress,
+						DeliveryPointNetTopologyPoint = o.DeliveryPoint.NetTopologyPoint,
+						DeliveryPointDistrictId = o.DeliveryPoint.District.Id,
+						LogisticsRequirements = o.LogisticsRequirements,
+						OrderAddressType = o.OrderAddressType,
+						DeliverySchedule = o.DeliverySchedule,
+						Total19LBottlesToDeliver = o.Total19LBottlesToDeliver,
+						Total6LBottlesToDeliver = o.Total6LBottlesToDeliver,
+						Total600mlBottlesToDeliver = o.Total600mlBottlesToDeliver,
+						BottlesReturn = o.BottlesReturn,
+						OrderComment = o.Comment,
+						DeliveryPointComment = o.DeliveryPoint.Comment,
+						CommentManager = o.CommentManager,
+						ODZComment = o.ODZComment,
+						OPComment = o.OPComment,
+						DriverMobileAppComment = o.DriverMobileAppComment
+					})
+				.ToList();
+
+			return result;
+		}
+
+		public class NotFullyPaidOrderNode
+		{
+			public int Id { get; set; }
+			public DateTime? OrderDeliveryDate { get; set; }
+			public DateTime? OrderCreationDate { get; set; }
+			public decimal OrderSum { get; set; }
+			public decimal AllocatedSum { get; set; }
+		}
+
+		public class OrderOnDayNode
+		{
+			public int OrderId { get; set; }
+			public OrderStatus OrderStatus { get; set; }
+			public decimal? DeliveryPointLatitude { get; set; }
+			public decimal? DeliveryPointLongitude { get; set; }
+			public string DeliveryPointShortAddress { get; set; }
+			public string DeliveryPointCompiledAddress { get; set; }
+			public Point DeliveryPointNetTopologyPoint { get; set; }
+			public int DeliveryPointDistrictId { get; set; }
+			public LogisticsRequirements LogisticsRequirements { get; set; }
+			public OrderAddressType OrderAddressType { get; set; }
+			public DeliverySchedule DeliverySchedule { get; set; }
+			public int Total19LBottlesToDeliver { get; set; }
+			public int Total6LBottlesToDeliver { get; set; }
+			public int Total600mlBottlesToDeliver { get; set; }
+			public int? BottlesReturn { get; set; }
+			public string OrderComment { get; set; }
+			public string DeliveryPointComment { get; set; }
+			public string CommentManager { get; set; }
+			public string ODZComment { get; set; }
+			public string OPComment { get; set; }
+			public string DriverMobileAppComment { get; set; }
+		}
 	}
 
-	public class NotFullyPaidOrderNode
+	public class OrderOnDayFilters
 	{
-		public int Id { get; set; }
-		public DateTime? OrderDeliveryDate { get; set; }
-		public DateTime? OrderCreationDate { get; set; }
-		public decimal OrderSum { get; set; }
-		public decimal AllocatedSum { get; set; }
+		public DateTime DateForRouting { get; set; }
+		public bool ShowCompleted { get; set; }
+		public bool FastDeliveryEnabled { get; set; }
+		public IEnumerable<OrderAddressType>  OrderAddressTypes { get; set; }
+		public int ClosingDocumentDeliveryScheduleId { get; set; }
+		public int[] GeographicGroupIds  { get; set; }
+		public DeliveryScheduleFilterType DeliveryScheduleType { get; set; }
+		public TimeSpan DeliveryFromTime { get; set; }
+		public TimeSpan DeliveryToTime { get; set; }
+		public int MinBottles19L { get; set; }
+	}
+
+	public enum DeliveryScheduleFilterType
+	{
+		[Display(Name = "Начало доставки")]
+		DeliveryStart = 0,
+		[Display(Name = "Окончание доставки")]
+		DeliveryEnd = 1,
+		[Display(Name = "Строгое попадание")]
+		DeliveryStartAndEnd = 2,
+		[Display(Name = "Время создания заказа")]
+		OrderCreateDate = 3
 	}
 }

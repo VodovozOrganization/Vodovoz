@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog;
@@ -21,6 +21,7 @@ using Vodovoz.Services;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango;
 
@@ -242,9 +243,7 @@ namespace Vodovoz.ViewModels.Mango.Talks
 
 		public void StockBalanceCommand()
 		{
-			var warehouseJournalFactory = new WarehouseJournalFactory();
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(warehouseJournalFactory);
-			NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel, NomenclatureStockFilterViewModel>(null, filter);
+			NavigationManager.OpenViewModel<NomenclatureStockBalanceJournalViewModel>(null);
 		}
 
 		public void CostAndDeliveryIntervalCommand(DeliveryPoint point)

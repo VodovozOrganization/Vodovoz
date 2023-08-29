@@ -106,9 +106,11 @@ namespace Vodovoz
 				return false;
 			}
 
-			var valid = new QSValidator<CounterpartyContract> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			UoWGeneric.Save ();
 			ContractSaved?.Invoke(this, new ContractSavedEventArgs (UoWGeneric.Root));

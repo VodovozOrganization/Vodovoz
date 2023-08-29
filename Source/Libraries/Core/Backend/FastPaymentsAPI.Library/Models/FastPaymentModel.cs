@@ -8,6 +8,7 @@ using FastPaymentsAPI.Library.Managers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -26,7 +27,7 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IOrderRepository _orderRepository;
 		private readonly ISignatureManager _signatureManager;
 		private readonly FastPaymentFileCache _fastPaymentFileCache;
-		private readonly IFastPaymentAPIFactory _fastPaymentApiFactory;
+		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 		private readonly IFastPaymentManager _fastPaymentManager;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationParametersProvider _organizationParametersProvider;
@@ -39,7 +40,7 @@ namespace FastPaymentsAPI.Library.Models
 			IOrderRepository orderRepository,
 			ISignatureManager signatureManager,
 			FastPaymentFileCache fastPaymentFileCache,
-			IFastPaymentAPIFactory fastPaymentApiFactory,
+			IFastPaymentFactory fastPaymentApiFactory,
 			IFastPaymentManager fastPaymentManager,
 			IOrganizationRepository organizationRepository,
 			IOrganizationParametersProvider organizationParametersProvider,
@@ -87,6 +88,7 @@ namespace FastPaymentsAPI.Library.Models
 			FastPaymentPayType payType,
 			Organization organization,
 			RequestFromType requestFromType,
+			PaymentType paymentType,
 			string phoneNumber = null)
 		{
 			Order order;
@@ -114,6 +116,7 @@ namespace FastPaymentsAPI.Library.Models
 				payType,
 				organization,
 				paymentByCardFrom,
+				paymentType,
 				order,
 				phoneNumber);
 			fastPayment.SetProcessingStatus();
@@ -152,6 +155,7 @@ namespace FastPaymentsAPI.Library.Models
 				payType,
 				organization,
 				paymentByCardFrom,
+				PaymentType.PaidOnline,
 				null,
 				null,
 				onlineOrderId,

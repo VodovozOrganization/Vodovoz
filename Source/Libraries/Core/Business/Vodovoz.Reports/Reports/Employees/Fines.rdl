@@ -9,7 +9,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
       </ConnectionProperties>
     </DataSource>
@@ -45,7 +45,7 @@
             store_writeoff_document_items.id IS NOT NULL
         THEN
             CONCAT('Акт списания №',
-                    store_writeoff_document_items.writeoff_document_id)
+                    store_writeoff_document_items.write_off_document_id)
         WHEN
             store_regrading_of_goods_items.id IS NOT NULL
         THEN

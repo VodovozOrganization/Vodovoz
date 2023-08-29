@@ -2,9 +2,9 @@
 using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Models;
-using VodovozInfrastructure.Observable;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
@@ -12,8 +12,6 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 	{
 		private readonly Nomenclature _entity;
 		private readonly INomenclaturePurchasePriceModel _nomenclaturePurchasePriceModel;
-		private readonly IReadyObservableListBinding _pricesBinding;
-		private GenericObservableList<NomenclaturePurchasePriceViewModel> _priceViewModels = new GenericObservableList<NomenclaturePurchasePriceViewModel>();
 		private NomenclaturePurchasePriceViewModel _selectedPrice;
 
 
@@ -26,8 +24,21 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			_entity = entity ?? throw new ArgumentNullException(nameof(entity));
 			_nomenclaturePurchasePriceModel = nomenclaturePurchasePriceModel ?? throw new ArgumentNullException(nameof(nomenclaturePurchasePriceModel));
 
-			_pricesBinding = ObservableListBinder.Bind(entity.ObservablePurchasePrices).To(PriceViewModels, CreatePriceViewModel);
-			PriceViewModels.ListContentChanged += PriceViewModels_ListContentChanged;
+			entity.ObservablePurchasePrices.ElementAdded += OnObservablePurchasePricesElementAdded;
+
+			if(entity.ObservablePurchasePrices.Any())
+			{
+				var sortedList = entity.ObservablePurchasePrices.OrderByDescending(x => x.StartDate);
+				foreach(var item in sortedList)
+				{
+					PriceViewModels.Add(CreatePriceViewModel(item));
+				}
+			}
+		}
+
+		private void OnObservablePurchasePricesElementAdded(object aList, int[] aIdx)
+		{
+			PriceViewModels.Insert(0, CreatePriceViewModel(_entity.ObservablePurchasePrices.Last()));
 		}
 
 		private NomenclaturePurchasePriceViewModel CreatePriceViewModel(NomenclaturePurchasePrice price)
@@ -35,17 +46,8 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			return new NomenclaturePurchasePriceViewModel(price);
 		}
 
-		private void PriceViewModels_ListContentChanged(object sender, EventArgs e)
-		{
-			CreatePriceCommand.RaiseCanExecuteChanged();
-			ChangeDateCommand.RaiseCanExecuteChanged();
-		}
-
-		public virtual GenericObservableList<NomenclaturePurchasePriceViewModel> PriceViewModels
-		{
-			get => _priceViewModels;
-			private set => SetField(ref _priceViewModels, value);
-		}
+		public virtual GenericObservableList<NomenclaturePurchasePriceViewModel> PriceViewModels { get;} =
+			new GenericObservableList<NomenclaturePurchasePriceViewModel>();
 
 		public virtual NomenclaturePurchasePriceViewModel SelectedPrice
 		{

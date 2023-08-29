@@ -5,11 +5,12 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Gamma.Utilities;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NHibernate;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Utilities.Text;
@@ -323,14 +324,14 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref organisationForSalary, value);
 		}
 
-        private string email;
+		private string email;
 
 		[Display(Name = "Электронная почта пользователя")]
-        public virtual string Email
-        {
-            get => email;
-            set => SetField(ref email, value);
-        }
+		public virtual string Email
+		{
+			get => email;
+			set => SetField(ref email, value);
+		}
 		
 		[Display(Name = "Комментарий по сотруднику")]
 		public virtual string Comment {
@@ -338,7 +339,6 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref _comment, value);
 		}
 		
-		//TODO добавить в маппинг
 		[Display(Name = "Версии видов оформлений")]
 		public virtual IList<EmployeeRegistrationVersion> EmployeeRegistrationVersions
 		{
@@ -351,9 +351,9 @@ namespace Vodovoz.Domain.Employees
 			_observableEmployeeRegistrationVersions ?? (_observableEmployeeRegistrationVersions =
 				new GenericObservableList<EmployeeRegistrationVersion>(EmployeeRegistrationVersions));
 
-        #endregion
+		#endregion
 
-        public Employee()
+		public Employee()
 		{
 			Name = String.Empty;
 			LastName = String.Empty;
@@ -404,11 +404,13 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult($"Сотрудник уже привязан к пользователю",
 					new[] { nameof(LoginForNewUser) });
 			}
-			var regex = new Regex(@"^[a-zA-Z0-9].{3,25}$");
-			if(!String.IsNullOrEmpty(LoginForNewUser) && !regex.IsMatch(LoginForNewUser)) {
-				yield return new ValidationResult($"Логин пользователя должен иметь длину от 3 до 25 символов и состоять из латинских букв и цифр",
-					new[] { nameof(LoginForNewUser) });
+
+			var regex = new Regex(@"^[A-Za-z\d.,_-]+\Z");
+			if(!string.IsNullOrEmpty(LoginForNewUser) && !regex.IsMatch(LoginForNewUser))
+			{
+				yield return new ValidationResult("Логин может состоять только из букв английского алфавита, нижнего подчеркивания, дефиса, точки и запятой", new[] { nameof(LoginForNewUser) });
 			}
+
 			if(!String.IsNullOrEmpty(LoginForNewUser)) {
 				User exist = userRepository.GetUserByLogin(UoW, LoginForNewUser);
 				if(exist != null && exist.Id != Id)
@@ -501,6 +503,18 @@ namespace Vodovoz.Domain.Employees
 			{
 				yield return new ValidationResult($"Длина комментария превышена на {Comment.Length - _commentLimit}",
 					new[] { nameof(Comment) });
+			}
+
+			if(FirstWorkDay == null)
+			{
+				yield return new ValidationResult($"Не указана дата первого рабочего дня сотрудника",
+					new[] { nameof(FirstWorkDay) });
+			}
+
+			if(DateHired == null)
+			{
+				yield return new ValidationResult($"Не указана дата приема сотрудника",
+					new[] { nameof(DateHired) });
 			}
 		}
 
@@ -725,6 +739,16 @@ namespace Vodovoz.Domain.Employees
 			else {
 				ObservableDriverWorkScheduleSets.Add(activeDriverWorkScheduleSet);
 			}
+		}
+
+		public virtual bool IsDriverHasActiveStopListRemoval(IUnitOfWork unitOfWork)
+		{
+			return unitOfWork.GetAll<DriverStopListRemoval>()
+				.Where(r =>
+					r.Driver.Id == Id
+					&& r.DateFrom <= DateTime.Now
+					&& r.DateTo > DateTime.Now)
+				.Any();
 		}
 
 		#endregion

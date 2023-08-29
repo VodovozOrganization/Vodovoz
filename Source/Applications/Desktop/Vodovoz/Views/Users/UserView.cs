@@ -99,7 +99,10 @@ namespace Vodovoz.Views.Users
 				vboxSpecialDocumentPrivileges.Add(_specialDocumentPermissionWidget);
 				_specialDocumentPermissionWidget.Show();
 				ybuttonSpecialDocumentPrivileges.Sensitive = true;
-				_specialDocumentPermissionWidget.ViewModel.ObservablePermissionsList.ListContentChanged += ViewModel.UpdateChanges;
+				if(_specialDocumentPermissionWidget.ViewModel != null)
+				{
+					_specialDocumentPermissionWidget.ViewModel.ObservablePermissionsList.ListContentChanged += ViewModel.UpdateChanges;
+				}
 			}
 			
 			ViewModel.UpdateEntityUserPermissionsAction += OnUpdateEntityUserPermissionsAction;
@@ -212,7 +215,10 @@ namespace Vodovoz.Views.Users
 			ViewModel.AddUserRoleToUserCommand.CanExecuteChanged -= AddUserRoleToUserCommandOnCanExecuteChanged;
 			ViewModel.RemoveUserRoleCommand.CanExecuteChanged -= RemoveUserRoleCommandOnCanExecuteChanged;
 			_documentPermissionWidget.Model.PermissionListViewModel.PermissionsList.ListContentChanged -= ViewModel.UpdateChanges;
-			_specialDocumentPermissionWidget.ViewModel.ObservablePermissionsList.ListContentChanged -= ViewModel.UpdateChanges;
+			if(_specialDocumentPermissionWidget.ViewModel != null)
+			{
+				_specialDocumentPermissionWidget.ViewModel.ObservablePermissionsList.ListContentChanged -= ViewModel.UpdateChanges;
+			}
 		}
 	}
 }

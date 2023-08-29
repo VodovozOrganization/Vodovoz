@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vodovoz.Services;
 
 namespace Vodovoz.Parameters
@@ -19,6 +19,7 @@ namespace Vodovoz.Parameters
 		public int PaymentFromTerminalId => _parametersProvider.GetIntValue("paymentfrom_terminal_id");
 		public int OldInternalOnlineStoreId => _parametersProvider.GetIntValue("OldInternalOnlineStoreId");
 		public int GetPaymentByCardFromMarketplaceId => _parametersProvider.GetIntValue("payment_by_card_from_marketplace_id");
+		public int PaymentFromSmsYuKassaId => _parametersProvider.GetIntValue("payment_by_card_from_sms_yukassa_id");
 		public int GetPaymentByCardFromFastPaymentServiceId =>
 			_parametersProvider.GetIntValue("payment_by_card_from_fast_payment_service_id");
 		public int GetPaymentByCardFromAvangardId =>
@@ -27,10 +28,14 @@ namespace Vodovoz.Parameters
 			_parametersProvider.GetIntValue("payment_by_card_from_site_by_qr_code_id");
 		public int GetPaymentByCardFromMobileAppByQrCodeId =>
 			_parametersProvider.GetIntValue("payment_by_card_from_mobile_app_by_qr_code_id");
+		public int GetPaymentByCardFromKulerSaleId =>
+			_parametersProvider.GetIntValue("payment_by_card_from_kuler_sale_id");
 		public int GetDiscountReasonStockBottle10PercentsId =>
 			_parametersProvider.GetIntValue("discount_reason_stock_bottle_10_percents");
 		public int GetDiscountReasonStockBottle20PercentsId =>
 			_parametersProvider.GetIntValue("discount_reason_stock_bottle_20_percents");
+		public int GetClientsSecondOrderDiscountReasonId => 
+			_parametersProvider.GetIntValue("clients_second_order_discount_reason_id");
 
 		public int[] PaymentsByCardFromAvangard =>
 			new[]
@@ -58,5 +63,6 @@ namespace Vodovoz.Parameters
 				PaymentByCardFromOnlineStoreId,
 				PaymentByCardFromSiteId
 			};
+
 	}
 }

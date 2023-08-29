@@ -4,7 +4,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
-using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Documents;
 using Vodovoz.PermissionExtensions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
@@ -26,6 +25,8 @@ using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.TempAdapters;
 using Vodovoz.Domain.Permissions.Warehouses;
+using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -52,7 +53,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			if(UoW.IsNew)
 				Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.ShiftChangeCreate);
 			if(!UoW.IsNew)
@@ -66,7 +67,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
 			
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			ConfigureDlg(storeDocument);
 		}
 
@@ -108,7 +109,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				buttonFillItems.Sensitive = 
 				buttonAdd.Sensitive = canEdit || canCreate;
 
-			ytreeviewNomenclatures.ItemsDataSource = Entity.ObservableItems;
+			ytreeviewNomenclatures.ItemsDataSource = Entity.ObservableNomenclatureItems;
 			ytreeviewNomenclatures.YTreeModel?.EmitModelChanged();
 
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
@@ -123,7 +124,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			string errorMessage = "Не установлены единицы измерения у следующих номенклатур :" + Environment.NewLine;
 			int wrongNomenclatures = 0;
-			foreach(var item in Entity.Items) {
+			foreach(var item in Entity.NomenclatureItems) {
 				if(item.Nomenclature.Unit == null) {
 					errorMessage += string.Format("Номер: {0}. Название: {1}{2}",
 						item.Nomenclature.Id, item.Nomenclature.Name, Environment.NewLine);
@@ -140,7 +141,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			var nomenclatureParam = filter.CreateParameterSet(
 				"Номенклатуры",
-				"nomenclature",
+				nameof(Nomenclature),
 				new ParametersFactory(UoW, (filters) => {
 					SelectableEntityParameter<Nomenclature> resultAlias = null;
 					var query = UoW.Session.QueryOver<Nomenclature>()
@@ -165,7 +166,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			var nomenclatureTypeParam = filter.CreateParameterSet(
 				"Типы номенклатур",
-				"nomenclature_type",
+				nameof(NomenclatureCategory),
 				new ParametersEnumFactory<NomenclatureCategory>()
 			);
 
@@ -190,7 +191,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			filter.CreateParameterSet(
 				"Группы товаров",
-				"product_group",
+				nameof(ProductGroup),
 				new RecursiveParametersFactory<ProductGroup>(UoW,
 				(filters) => {
 					var query = UoW.Session.QueryOver<ProductGroup>()
@@ -236,9 +237,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(!CanSave)
 				return false;
 
-			var valid = new QSValidator<ShiftChangeWarehouseDocument>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
@@ -274,9 +277,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		protected void OnYentryrefWarehouseBeforeChangeByUser(object sender, EntryReferenceBeforeChangeEventArgs e)
 		{
-			if(Entity.Warehouse != null && Entity.Items.Count > 0) {
+			if(Entity.Warehouse != null && Entity.NomenclatureItems.Count > 0) {
 				if(MessageDialogHelper.RunQuestionDialog("При изменении склада табличная часть документа будет очищена. Продолжить?"))
-					Entity.ObservableItems.Clear();
+					Entity.ObservableNomenclatureItems.Clear();
 				else
 					e.CanChange = false;
 			}
@@ -289,14 +292,14 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			// Костыль для передачи из фильтра предназначенного только для отчетов данных в подходящем виде
 			List<int> nomenclaturesToInclude = new List<int>();
 			List<int> nomenclaturesToExclude = new List<int>();
-			List<string> nomenclatureCategoryToInclude = new List<string>();
-			List<string> nomenclatureCategoryToExclude = new List<string>();
+			var nomenclatureCategoryToInclude = new List<NomenclatureCategory>();
+			var nomenclatureCategoryToExclude = new List<NomenclatureCategory>();
 			List<int> productGroupToInclude = new List<int>();
 			List<int> productGroupToExclude = new List<int>();
 
 			foreach (SelectableParameterSet parameterSet in filter.ParameterSets) {
 				switch(parameterSet.ParameterName) {
-					case "nomenclature":
+					case nameof(Nomenclature):
 						if (parameterSet.FilterType == SelectableFilterType.Include) {
 							foreach (SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
 								nomenclaturesToInclude.Add(value.EntityId);
@@ -307,18 +310,22 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 							}
 						}
 						break;
-					case "nomenclature_type":
+					case nameof(NomenclatureCategory):
 						if(parameterSet.FilterType == SelectableFilterType.Include) {
-							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
-								nomenclatureCategoryToInclude.Add(value.Value.ToString());
+							foreach(var selectableParameter in parameterSet.OutputParameters.Where(x => x.Selected))
+							{
+								var value = (SelectableEnumParameter<NomenclatureCategory>)selectableParameter;
+								nomenclatureCategoryToInclude.Add((NomenclatureCategory)value.Value);
 							}
 						} else {
-							foreach(SelectableEnumParameter<NomenclatureCategory> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
-								nomenclatureCategoryToExclude.Add(value.Value.ToString());
+							foreach(var selectableParameter in parameterSet.OutputParameters.Where(x => x.Selected))
+							{
+								var value = (SelectableEnumParameter<NomenclatureCategory>)selectableParameter;
+								nomenclatureCategoryToExclude.Add((NomenclatureCategory)value.Value);
 							}
 						}
 						break;
-					case "product_group":
+					case nameof(ProductGroup):
 						if(parameterSet.FilterType == SelectableFilterType.Include) {
 							foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
 								productGroupToInclude.Add(value.EntityId);
@@ -332,9 +339,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				}
 			}
 
-			if(Entity.Items.Count == 0)
+			if(Entity.NomenclatureItems.Count == 0)
 			{
-				Entity.FillItemsFromStock(
+				Entity.FillNomenclatureItemsFromStock(
 					UoW,
 					_stockRepository,
 					nomenclaturesToInclude: nomenclaturesToInclude.ToArray(),
@@ -381,7 +388,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			}
 
 			var selectedNomenclature = UoW.GetById<Nomenclature>(selectedNode.Id);
-			if(Entity.Items.Any(x => x.Nomenclature.Id == selectedNomenclature.Id))
+			if(Entity.NomenclatureItems.Any(x => x.Nomenclature.Id == selectedNomenclature.Id))
 				return;
 
 			Entity.AddItem(selectedNomenclature, 0, 0);
@@ -390,7 +397,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		private void UpdateButtonState()
 		{
 			buttonFillItems.Sensitive = Entity.Warehouse != null;
-			if(Entity.Items.Count == 0)
+			if(Entity.NomenclatureItems.Count == 0)
 				buttonFillItems.Label = "Заполнить по складу";
 			else
 				buttonFillItems.Label = "Обновить остатки";

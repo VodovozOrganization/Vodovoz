@@ -6,10 +6,11 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using System.ComponentModel;
 
 namespace Vodovoz.ReportsParameters
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class CardPaymentsOrdersReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public CardPaymentsOrdersReport(IUnitOfWorkFactory unitOfWorkFactory)
@@ -20,6 +21,19 @@ namespace Vodovoz.ReportsParameters
 			ydateperiodpicker.EndDate = DateTime.Now.Date;
 			comboPaymentFrom.ItemsList = UoW.GetAll<PaymentFrom>();
 			comboGeoGroup.ItemsList = UoW.GetAll<GeoGroup>();
+
+			comboPaymentFrom.ItemSelected += (sender, e) =>
+			{
+				if(comboPaymentFrom.IsSelectedAll)
+				{
+					ycheckbuttonShowArchive.Sensitive = true;
+				}
+				else
+				{
+					ycheckbuttonShowArchive.Sensitive = false;
+					ycheckbuttonShowArchive.Active = false;
+				}
+			};
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
@@ -42,10 +56,12 @@ namespace Vodovoz.ReportsParameters
 					{
 						"geo_group_id",
 						comboGeoGroup.IsSelectedAll ? "" : ((GeoGroup)comboGeoGroup.SelectedItem).Id.ToString()
-					}
+					},
+					{ "ShowArchived", !ycheckbuttonShowArchive.Sensitive || ycheckbuttonShowArchive.Active }
 				}
 			};
 		}
+
 
 		private void OnButtonCreateRepotClicked(object sender, EventArgs e)
 		{

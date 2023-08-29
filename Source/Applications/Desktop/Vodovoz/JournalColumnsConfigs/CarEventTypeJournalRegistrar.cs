@@ -18,6 +18,10 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddToggleRenderer(node => node.IsArchive)
 					.Editing(false)
 					.XAlign(0f)
+				.AddColumn("Не отображать в эксплуатации ТС")
+				.AddToggleRenderer(node => node.IsDoNotShowInOperation)
+					.Editing(false)
+					.XAlign(0f)
 				.Finish();
 	}
 }

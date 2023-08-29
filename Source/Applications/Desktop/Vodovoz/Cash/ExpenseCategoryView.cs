@@ -33,7 +33,7 @@ namespace Vodovoz.Cash
 				.InitializeFromSource();
 
 			entryParentGroup.ViewModel = ViewModel.ParentFinancialCategoriesGroupViewModel;
-			
+
 			#region ParentEntityviewmodelentry
 			ParentEntityviewmodelentry.SetEntityAutocompleteSelectorFactory(ViewModel.ExpenseCategoryAutocompleteSelectorFactory);
 			ParentEntityviewmodelentry.Binding.AddBinding(ViewModel.Entity, s => s.Parent, w => w.Subject).InitializeFromSource();
@@ -54,6 +54,8 @@ namespace Vodovoz.Cash
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(true, QS.Navigation.CloseSource.Cancel); };
+
+			tableMain.Sensitive = false;
 
 			btnCopyEntityId1.Sensitive = ViewModel.Entity.Id > 0;
 			btnCopyEntityId1.Clicked += OnBtnCopyEntityIdClicked;

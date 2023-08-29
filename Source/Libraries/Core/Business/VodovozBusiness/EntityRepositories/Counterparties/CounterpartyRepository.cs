@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
@@ -233,9 +232,9 @@ namespace Vodovoz.EntityRepositories.Counterparties
 				.List<string>();
 		}
 
-		public PaymentType[] GetPaymentTypesForCash() => new PaymentType[] { PaymentType.cash };
+		public PaymentType[] GetPaymentTypesForCash() => new PaymentType[] { PaymentType.Cash };
 
-		public PaymentType[] GetPaymentTypesForCashless() => new PaymentType[] { PaymentType.cashless, PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
+		public PaymentType[] GetPaymentTypesForCashless() => new PaymentType[] { PaymentType.Cashless, PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 
 		public bool IsCashPayment(PaymentType payment) => GetPaymentTypesForCash().Contains(payment);
 
@@ -294,6 +293,14 @@ namespace Vodovoz.EntityRepositories.Counterparties
 			return uow.Session.QueryOver<EdoOperator>()
 				.Where(x => x.Code == edoOperatorCode)
 				.SingleOrDefault();
+		}
+
+		public IList<EdoContainer> GetEdoContainersByCounterpartyId(IUnitOfWork uow, int counterpartyId)
+		{
+			return uow.Session.QueryOver<EdoContainer>()
+				.Where(x => x.Counterparty.Id == counterpartyId)
+				.OrderBy(x => x.Created).Desc
+				.List();
 		}
 	}
 }

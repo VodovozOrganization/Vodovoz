@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
@@ -16,15 +16,17 @@ using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using QS.Project.Services;
+using QS.Services;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using TrueMarkApi.Services;
 using TrueMarkApi.Services.Authorization;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Edo;
@@ -138,7 +140,8 @@ namespace TrueMarkApi
 
 			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString);
+				.ConnectionString(connectionString)
+				.Driver<LoggedMySqlClientDriver>();
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
@@ -147,7 +150,7 @@ namespace TrueMarkApi
 				{
 					Assembly.GetAssembly(typeof(SettingMap)),
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
@@ -160,14 +163,17 @@ namespace TrueMarkApi
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+				var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
 					.Where(u => u.Login == userLogin)
-					.Select(u => u.Id)
 					.FirstOrDefault();
+
+				serviceUserId = serviceUser.Id;
+
+				ServicesConfig.UserService = new UserService(serviceUser);
 			}
 
 			UserRepository.GetCurrentUserId = () => serviceUserId;
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

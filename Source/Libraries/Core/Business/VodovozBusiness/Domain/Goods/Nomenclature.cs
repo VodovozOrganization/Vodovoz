@@ -1,11 +1,10 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -24,7 +23,7 @@ namespace Vodovoz.Domain.Goods
 		Nominative = "номенклатура")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
+	public class Nomenclature : BusinessObjectBase<Nomenclature>, INamedDomainObject, INamed, IArchivable, IValidatableObject
 	{
 		private IList<NomenclaturePurchasePrice> _purchasePrices = new List<NomenclaturePurchasePrice>();
 		private IList<NomenclatureCostPrice> _costPrices = new List<NomenclatureCostPrice>();
@@ -36,6 +35,9 @@ namespace Vodovoz.Domain.Goods
 		private GenericObservableList<NomenclaturePrice> _observableNomenclaturePrices;
 		private GenericObservableList<AlternativeNomenclaturePrice> _observableAlternativeNomenclaturePrices;
 		private bool _usingInGroupPriceSet;
+		private bool _hasInventoryAccounting;
+		
+		private int _id;
 
 		private decimal _length;
 		private decimal _width;
@@ -51,7 +53,11 @@ namespace Vodovoz.Domain.Goods
 
 		#region Свойства
 
-		public virtual int Id { get; set; }
+		public virtual int Id
+		{
+			get => _id;
+			set => SetField(ref _id, value);
+		}
 
 		private DateTime? createDate;
 		[Display(Name = "Дата создания")]
@@ -614,7 +620,13 @@ namespace Vodovoz.Domain.Goods
 			get => _gtin;
 			set => SetField(ref _gtin, value);
 		}
-
+		
+		[Display(Name = "Инвентарный учет")]
+		public virtual bool HasInventoryAccounting
+		{
+			get => _hasInventoryAccounting;
+			set => SetField(ref _hasInventoryAccounting, value);
+		}
 		#endregion
 
 		#region Свойства товаров для магазина
@@ -885,7 +897,7 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		public bool IsFromOnlineShopGroup(int idOfOnlineShopGroup)
+		public virtual bool IsFromOnlineShopGroup(int idOfOnlineShopGroup)
 		{
 			ProductGroup parent = ProductGroup;
 			while(parent != null)
@@ -1157,7 +1169,8 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.OfficeEquipment,
 				NomenclatureCategory.PromotionalProducts,
 				NomenclatureCategory.Overalls,
-				NomenclatureCategory.HouseholdInventory
+				NomenclatureCategory.HouseholdInventory,
+				NomenclatureCategory.Tools
 			};
 		}
 
@@ -1242,52 +1255,6 @@ namespace Vodovoz.Domain.Goods
 		#endregion
 	}
 
-	public enum NomenclatureCategory
-	{
-		[Display(Name = "Вода")]
-		water,
-		[Display(Name = "Залог")]
-		deposit,
-		[Display(Name = "Запчасти")]
-		spare_parts,
-		[Display(Name = "Оборудование")]
-		equipment,
-		[Display(Name = "Товары")]
-		additional,
-		[Display(Name = "Услуга")]
-		service,
-		[Display(Name = "Тара")]
-		bottle,
-		[Display(Name = "Сырьё")]
-		material,
-		[Display(Name = "Выезд мастера")]
-		master,
-		[Display(Name = "Топливо")]
-		fuel,
-		[Display(Name = "Кассовое оборудование")]
-		CashEquipment,
-		[Display(Name = "Автомобильные запчасти")]
-		CarParts,
-		[Display(Name = "Инструменты")]
-		Tools,
-		[Display(Name = "Канцелярия")]
-		Stationery,
-		[Display(Name = "Оборудование для внутреннего использования")]
-		EquipmentForIndoorUse,
-		[Display(Name = "Орг.техника")]
-		OfficeEquipment,
-		[Display(Name = "Производственное оборудование")]
-		ProductionEquipment,
-		[Display(Name = "Рекламная продукция")]
-		PromotionalProducts,
-		[Display(Name = "Спецодежда")]
-		Overalls,
-		[Display(Name = "Транспортное средство")]
-		Vehicle,
-		[Display(Name = "Хоз.инвентарь")]
-		HouseholdInventory
-	}
-
 	public enum TareVolume
 	{
 		[Display(Name = "19 л.")]
@@ -1322,34 +1289,6 @@ namespace Vodovoz.Domain.Goods
 		BottleDeposit,
 		[Display(Name = "Залог за оборудование")]
 		EquipmentDeposit
-	}
-
-	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType
-	{
-		public NomenclatureCategoryStringType() : base(typeof(NomenclatureCategory))
-		{
-		}
-	}
-
-	public class SaleCategoryStringType : NHibernate.Type.EnumStringType
-	{
-		public SaleCategoryStringType() : base(typeof(SaleCategory))
-		{
-		}
-	}
-
-	public class TypeOfDepositCategoryStringType : NHibernate.Type.EnumStringType
-	{
-		public TypeOfDepositCategoryStringType() : base(typeof(TypeOfDepositCategory))
-		{
-		}
-	}
-
-	public class TareVolumeStringType : NHibernate.Type.EnumStringType
-	{
-		public TareVolumeStringType() : base(typeof(TareVolume))
-		{
-		}
 	}
 }
 

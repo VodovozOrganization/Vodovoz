@@ -11,6 +11,7 @@ using QS.Tdi;
 using QS.ViewModels;
 using System;
 using System.Data.Bindings.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using QS.Dialog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -23,6 +24,9 @@ using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.ViewModels.Dialogs.Email;
 using VodOrder = Vodovoz.Domain.Orders.Order;
+using QS.DomainModel.Entity;
+using Vodovoz.Settings.Database;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
@@ -30,6 +34,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 	{
 		private readonly CommonMessages _commonMessages;
 		private readonly IRDLPreviewOpener _rdlPreviewOpener;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private DateTime? startDate = DateTime.Now.AddMonths(-1);
 		public DateTime? StartDate {
 			get => startDate;
@@ -57,7 +62,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEmployeeService employeeService,
 			IParametersProvider parametersProvider,
 			CommonMessages commonMessages,
-			IRDLPreviewOpener rdlPreviewOpener) : base(uowBuilder, uowFactory, commonServices)
+			IRDLPreviewOpener rdlPreviewOpener,
+			ICounterpartyJournalFactory counterpartyJournalFactory) : base(uowBuilder, uowFactory, commonServices)
 		{
 			if(parametersProvider == null)
 			{
@@ -66,7 +72,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			_commonMessages = commonMessages ?? throw new ArgumentNullException(nameof(commonMessages));
 			_rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
-
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 			
@@ -91,12 +97,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			
 			TabName = "Счет без отгрузки на постоплату";
 			
-			SendDocViewModel = new SendDocumentByEmailViewModel(
-				new EmailRepository(),
-				new EmailParametersProvider(parametersProvider),
-				currentEmployee,
-				commonServices.InteractiveService,
-				UoW);
+			var loggerFactory = new LoggerFactory();
+			var settingsController = new SettingsController(UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
+			SendDocViewModel =
+				new SendDocumentByEmailViewModel(
+					new EmailRepository(),
+					new EmailParametersProvider(settingsController),
+					currentEmployee,
+					commonServices.InteractiveService,
+					UoW);
 			
 			ObservableAvailableOrders = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
 		}
@@ -130,7 +139,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			},
 			() => true
 		));
-		
+
+		public ICounterpartyJournalFactory CounterpartyJournalFactory => _counterpartyJournalFactory;
+
 		#endregion
 
 		public void UpdateAvailableOrders()
@@ -152,7 +163,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
 					.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 					.Where(x => x.OrderStatus == OrderStatus.Closed)
-					.Where(x => x.PaymentType == PaymentType.cashless);
+					.Where(x => x.PaymentType == PaymentType.Cashless);
 
 			if(Entity.Client != null)
 			{
@@ -231,6 +242,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 	public class OrderWithoutShipmentForPaymentNode : JournalEntityNodeBase<VodOrder>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public bool IsSelected { get; set; }
 		public int OrderId { get; set; }
 		public DateTime OrderDate { get; set; }

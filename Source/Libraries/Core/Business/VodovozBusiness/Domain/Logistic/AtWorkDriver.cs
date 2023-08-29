@@ -7,6 +7,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 using Gamma.Utilities;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Logistic
 {

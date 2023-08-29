@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -20,7 +20,7 @@
         <Height>19.57pt</Height>
         <Width>828.59pt</Width>
         <Value>="Статистика заказов по дням недели за период с " +  Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " +   Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>7.20pt</Left>
         <Top>13.40pt</Top>
         <Style>
@@ -2513,7 +2513,7 @@
         <Height>12pt</Height>
         <Width>5in</Width>
         <Value>=Parameters!selected_filters</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>7pt</Left>
         <Top>1.0pt</Top>
         <Style>
@@ -2765,7 +2765,7 @@ WHERE
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=;user=;password=;port=;server=</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

@@ -29,64 +29,78 @@
     IFNULL((SELECT
                 SUM(amount)
             FROM
-                warehouse_movement_operations
+                goods_accounting_operations
             WHERE
-                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-              AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-              AND warehouse_movement_operations.operation_time &lt; @startDate),
+                goods_accounting_operations.warehouse_id = @warehouse_id
+                    AND goods_accounting_operations.amount &gt; 0
+                    AND goods_accounting_operations.nomenclature_id = nomenclature.id
+                    AND goods_accounting_operations.operation_time &lt; @startDate),
            0) AS before_added,
     IFNULL((SELECT
-                SUM(amount)
+                -SUM(amount)
             FROM
-                warehouse_movement_operations
+                goods_accounting_operations
             WHERE
-                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-              AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-              AND warehouse_movement_operations.operation_time &lt; @startDate),
+                goods_accounting_operations.warehouse_id = @warehouse_id
+                    AND goods_accounting_operations.amount &lt; 0
+                    AND goods_accounting_operations.nomenclature_id = nomenclature.id
+                    AND goods_accounting_operations.operation_time &lt; @startDate),
            0) AS before_removed
 FROM
     nomenclature
         LEFT JOIN
     (SELECT
-         warehouse_movement_operations.nomenclature_id,
-         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id, warehouse_movement_operations.amount, 0)) AS all_added,
-         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id, warehouse_movement_operations.amount, 0)) AS all_removed,
-         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                    AND store_incoming_water.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS prodution_added,
-         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                    AND store_incoming_water_material.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS prodution_removed,
-         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                    AND smd_income.transportation_wagon_id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS wagons_added,
-         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                    AND smd_writeoff.transportation_wagon_id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS wagons_removed,
-         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                    AND store_incoming_invoice_items.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS warehouse_added,
-         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                    AND store_incoming_invoice_items.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS warehouse_removed,
-         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                    AND srgi_income.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS regrading_added,
-         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                    AND srgi_writeoff.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS regrading_removed,
-         SUM(IF(warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-                    AND store_inventory_item.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS inventory_added,
-         SUM(IF(warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-                    AND store_inventory_item.id IS NOT NULL, warehouse_movement_operations.amount, 0)) AS inventory_removed
+         goods_accounting_operations.nomenclature_id,
+         SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &gt; 0, goods_accounting_operations.amount, 0)) AS all_added,
+         -SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &lt; 0, goods_accounting_operations.amount, 0)) AS all_removed,
+         SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &gt; 0
+            AND store_incoming_water.id IS NOT NULL, goods_accounting_operations.amount, 0)) AS prodution_added,
+         -SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &lt; 0
+            AND store_incoming_water_material.id IS NOT NULL, goods_accounting_operations.amount, 0)) AS prodution_removed,
+         SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &gt; 0
+            AND smd_income.transportation_wagon_id IS NOT NULL, goods_accounting_operations.amount, 0)) AS wagons_added,
+         -SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &lt; 0
+            AND smd_writeoff.transportation_wagon_id IS NOT NULL, goods_accounting_operations.amount, 0)) AS wagons_removed,
+         SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &gt; 0
+            AND store_incoming_invoice_items.id IS NOT NULL, goods_accounting_operations.amount, 0)) AS warehouse_added,
+         -SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &lt; 0
+            AND store_incoming_invoice_items.id IS NOT NULL, goods_accounting_operations.amount, 0)) AS warehouse_removed,
+         SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &gt; 0
+            AND srgi_income.id IS NOT NULL, goods_accounting_operations.amount, 0)) AS regrading_added,
+         -SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &lt; 0
+            AND srgi_writeoff.id IS NOT NULL, goods_accounting_operations.amount, 0)) AS regrading_removed,
+         SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &gt; 0
+            AND store_inventory_item.id IS NOT NULL, goods_accounting_operations.amount, 0)) AS inventory_added,
+         -SUM(IF(goods_accounting_operations.warehouse_id = @warehouse_id
+            AND goods_accounting_operations.amount &lt; 0
+            AND store_inventory_item.id IS NOT NULL, goods_accounting_operations.amount, 0)) AS inventory_removed
      FROM
-         warehouse_movement_operations
-             LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = warehouse_movement_operations.id
-             LEFT JOIN store_incoming_water_material ON store_incoming_water_material.consumption_material_id = warehouse_movement_operations.id
-             LEFT JOIN store_movement_document_items smdi_writeoff ON smdi_writeoff.writeoff_movement_operation_id = warehouse_movement_operations.id
-             LEFT JOIN store_movement_document_items smdi_income ON smdi_income.income_movement_operation_id = warehouse_movement_operations.id
+         goods_accounting_operations
+             LEFT JOIN store_incoming_water ON store_incoming_water.produce_operation_id = goods_accounting_operations.id
+             LEFT JOIN store_incoming_water_material ON store_incoming_water_material.consumption_material_id = goods_accounting_operations.id
+             LEFT JOIN store_movement_document_items smdi_writeoff ON smdi_writeoff.writeoff_movement_operation_id = goods_accounting_operations.id
+             LEFT JOIN store_movement_document_items smdi_income ON smdi_income.income_movement_operation_id = goods_accounting_operations.id
              LEFT JOIN store_movement_document smd_income ON smd_income.id = smdi_income.movement_document_id
              LEFT JOIN store_movement_document smd_writeoff ON smd_writeoff.id = smdi_writeoff.movement_document_id
-             LEFT JOIN store_incoming_invoice_items ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
-             LEFT JOIN store_regrading_of_goods_items srgi_income ON srgi_income.warehouse_income_operation_id = warehouse_movement_operations.id
-             LEFT JOIN store_regrading_of_goods_items srgi_writeoff ON srgi_writeoff.warehouse_writeoff_operation_id = warehouse_movement_operations.id
-             LEFT JOIN store_inventory_item ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
+             LEFT JOIN store_incoming_invoice_items ON store_incoming_invoice_items.good_move_operation_id = goods_accounting_operations.id
+             LEFT JOIN store_regrading_of_goods_items srgi_income ON srgi_income.warehouse_income_operation_id = goods_accounting_operations.id
+             LEFT JOIN store_regrading_of_goods_items srgi_writeoff ON srgi_writeoff.warehouse_writeoff_operation_id = goods_accounting_operations.id
+             LEFT JOIN store_inventory_item ON store_inventory_item.warehouse_movement_operation_id = goods_accounting_operations.id
      WHERE
-             warehouse_movement_operations.operation_time &gt;= @startDate
-       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-     GROUP BY warehouse_movement_operations.nomenclature_id) movements ON movements.nomenclature_id = nomenclature.id
+             goods_accounting_operations.operation_time &gt;= @startDate
+       AND goods_accounting_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+     GROUP BY goods_accounting_operations.nomenclature_id) movements ON movements.nomenclature_id = nomenclature.id
         LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
         LEFT JOIN
@@ -1166,7 +1180,7 @@ ORDER BY
         <Height>15.80pt</Height>
         <Width>599.91pt</Width>
         <Value>Фуры</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.8pt</Left>
         <Top>86.5pt</Top>
         <Style>
@@ -1231,7 +1245,7 @@ ORDER BY
         <Height>14.25pt</Height>
         <Width>205.43pt</Width>
         <Value>="Сформировано: " + Format( {?creationDate}, "dd-MM-yyyy HH:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>600.74pt</Left>
         <Top>2.00pt</Top>
         <Style>
@@ -1271,7 +1285,7 @@ ORDER BY
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

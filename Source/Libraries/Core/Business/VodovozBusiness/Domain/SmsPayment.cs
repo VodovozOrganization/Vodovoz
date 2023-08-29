@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -89,12 +89,12 @@ namespace Vodovoz.Domain
         {
             SmsPaymentStatus = SmsPaymentStatus.Paid;
             
-            if (Order.PaymentType == PaymentType.cash
+            if (Order.PaymentType == PaymentType.Cash
                 && Order.SelfDelivery
                 && Order.OrderStatus == OrderStatus.WaitForPayment
                 && Order.PayAfterShipment)
             {
-                Order.TryCloseSelfDeliveryOrder(
+                Order.TryCloseSelfDeliveryPayAfterShipmentOrder(
                     uow,
                     new BaseParametersProvider(new ParametersProvider()),
                     new RouteListItemRepository(),
@@ -103,7 +103,7 @@ namespace Vodovoz.Domain
                 Order.IsSelfDeliveryPaid = true;
             }
 
-            if (Order.PaymentType == PaymentType.cash
+            if (Order.PaymentType == PaymentType.Cash
                 && Order.SelfDelivery
                 && Order.OrderStatus == OrderStatus.WaitForPayment
                 && !Order.PayAfterShipment)
@@ -114,7 +114,7 @@ namespace Vodovoz.Domain
             
             PaidDate = datePaid;
             Order.OnlineOrder = ExternalId;
-            Order.PaymentType = PaymentType.ByCard;    
+            Order.PaymentType = PaymentType.PaidOnline;    
             Order.PaymentByCardFrom = paymentFrom;
             Order.ForceUpdateContract();
 

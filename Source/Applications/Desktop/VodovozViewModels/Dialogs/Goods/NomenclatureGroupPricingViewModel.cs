@@ -10,13 +10,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Models;
-using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.Dialogs.Goods
 {
 	public class NomenclatureGroupPricingViewModel : DialogViewModelBase
 	{
-		private readonly NomenclatureGroupPricingModel _nomenclatureGroupPricingModel;
+		private readonly INomenclatureGroupPricingModel _nomenclatureGroupPricingModel;
 		private readonly IValidator _validator;
 		private readonly IInteractiveMessage _interactiveMessage;
 		private readonly Dictionary<int, NomenclatureGroupPricingProductGroupViewModel> _productGroupViewModels;
@@ -28,7 +27,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private DateTime _date;
 
 		public NomenclatureGroupPricingViewModel(
-			NomenclatureGroupPricingModel nomenclatureGroupPricingModel,
+			INomenclatureGroupPricingModel nomenclatureGroupPricingModel,
 			IValidator validator,
 			IInteractiveMessage interactiveMessage,
 			INavigationManager navigation) : base(navigation)

@@ -1,7 +1,7 @@
 ﻿using Gamma.ColumnConfig;
-using Gdk;
 using Gtk;
 using Vodovoz.Domain.Payments;
+using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Payments;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using WrapMode = Pango.WrapMode;
@@ -10,11 +10,6 @@ namespace Vodovoz.JournalColumnsConfigs
 {
 	internal sealed class PaymentsJournalRegistrar : ColumnsConfigRegistrarBase<PaymentsJournalViewModel, PaymentJournalNode>
 	{
-		private static readonly Color _colorPink = new Color(0xff, 0xc0, 0xc0);
-		private static readonly Color _colorWhite = new Color(0xff, 0xff, 0xff);
-		private static readonly Color _colorLightGreen = new Color(0xc0, 0xff, 0xc0);
-		private static readonly Color _colorLightGray = new Color(0xcc, 0xcc, 0xcc);
-
 		public override IColumnsConfig Configure(FluentColumnsConfig<PaymentJournalNode> config) =>
 			config.AddColumn("№")
 					.AddTextRenderer(x => x.PaymentNum.ToString())
@@ -51,19 +46,19 @@ namespace Vodovoz.JournalColumnsConfigs
 				.RowCells().AddSetter<CellRenderer>(
 					(c, n) =>
 					{
-						var color = _colorWhite;
+						var color = GdkColors.WhiteColor;
 
 						if(n.Status == PaymentState.undistributed)
 						{
-							color = _colorPink;
+							color = GdkColors.PinkColor;
 						}
 						if(n.Status == PaymentState.distributed)
 						{
-							color = _colorLightGreen;
+							color = GdkColors.LightGreenColor;
 						}
 						if(n.Status == PaymentState.Cancelled)
 						{
-							color = _colorLightGray;
+							color = GdkColors.LightGrayColor;
 						}
 
 						c.CellBackgroundGdk = color;

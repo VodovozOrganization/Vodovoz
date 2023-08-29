@@ -4,6 +4,7 @@ using QS.Views.GtkUI;
 using System;
 using System.Threading.Tasks;
 using Vodovoz.ViewModels.ViewModels.Reports.FastDelivery;
+using static Vodovoz.ViewModels.ViewModels.Reports.FastDelivery.FastDeliveryAdditionalLoadingReportViewModel.FastDeliveryAdditionalLoadingReport;
 
 namespace Vodovoz.Views.Reports
 {
@@ -36,6 +37,11 @@ namespace Vodovoz.Views.Reports
 
 			ybtnRunReport.Clicked += OnYbtnRunReportClicked;
 			ybtnExport.Clicked += (sender, args) => ViewModel.ExportCommand.Execute();
+
+			ybtnGenerateFastDeliveryRemainingBottlesReport.Clicked += (s, e) => ViewModel.GenerateFastDeliveryRemainingBottlesReportCommand.Execute();
+			ybtnGenerateFastDeliveryRemainingBottlesReport.Binding
+				.AddBinding(ViewModel, vm => vm.IsHasRows, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ConfigureReportTreeView();
 		}

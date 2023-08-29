@@ -1,4 +1,5 @@
-﻿using DriverAPI.DTOs;
+﻿using DriverAPI.DTOs.V2;
+using DriverAPI.Library.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DriverAPI.Middleware
 {
-	public class JsonExceptionMiddleware
+	internal class JsonExceptionMiddleware
 	{
 		private readonly ILogger<JsonExceptionMiddleware> _logger;
 		private readonly RequestDelegate _next;
@@ -26,21 +27,29 @@ namespace DriverAPI.Middleware
 			{
 				await _next(context);
 			}
+			catch(DataNotFoundException dataNotFoundException)
+			{
+				await MapException(context, dataNotFoundException, StatusCodes.Status400BadRequest);
+			}
+			catch(AccessViolationException accessViolationException)
+			{
+				await MapException(context, accessViolationException, StatusCodes.Status400BadRequest);
+			}
 			catch(UnauthorizedAccessException exception)
 			{
 				await MapException(context, exception, StatusCodes.Status401Unauthorized);
 			}
-			catch(ArgumentOutOfRangeException exception) when (exception.ParamName == "orderId" && exception.Message.StartsWith("Нельзя завершить заказ"))
+			catch(ArgumentOutOfRangeException exception)
 			{
-				await MapException(context, exception, StatusCodes.Status200OK);
+				await MapException(context, exception, StatusCodes.Status400BadRequest);
 			}
-			catch(InvalidOperationException exception) when (exception.Message == "Таймаут запроса операции")
+			catch(InvalidOperationException exception)
 			{
-				await MapException(context, exception, StatusCodes.Status200OK);
+				await MapException(context, exception, StatusCodes.Status400BadRequest);
 			}
 			catch(InvalidTimeZoneException exception)
 			{
-				await MapException(context, exception, StatusCodes.Status202Accepted);
+				await MapException(context, exception, StatusCodes.Status400BadRequest);
 			}
 			catch(Exception exception)
 			{

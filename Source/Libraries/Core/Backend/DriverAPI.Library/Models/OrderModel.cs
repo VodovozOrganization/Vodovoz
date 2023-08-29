@@ -1,6 +1,6 @@
-﻿using DriverAPI.Library.Converters;
-using DriverAPI.Library.DTOs;
+﻿using DriverAPI.Library.DTOs;
 using DriverAPI.Library.Helpers;
+using DriverAPI.Library.Converters;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -22,7 +22,7 @@ using Vodovoz.Services;
 
 namespace DriverAPI.Library.Models
 {
-	public class OrderModel : IOrderModel
+	internal class OrderModel : IOrderModel
 	{
 		private readonly ILogger<OrderModel> _logger;
 		private readonly IOrderRepository _orderRepository;
@@ -39,7 +39,7 @@ namespace DriverAPI.Library.Models
 		private readonly QRPaymentConverter _qrPaymentConverter;
 		private readonly IFastPaymentModel _fastPaymentModel;
 		private readonly int _maxClosingRating = 5;
-		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.ByCard, PaymentType.barter, PaymentType.ContractDoc };
+		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 		private readonly IOrderParametersProvider _orderParametersProvider;
 
 		public OrderModel(
@@ -79,19 +79,19 @@ namespace DriverAPI.Library.Models
 		/// <summary>
 		/// Получение заказа в требуемом формате из заказа программы ДВ (использует функцию ниже)
 		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		/// <returns>APIOrder</returns>
 		public OrderDto Get(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
 
 			var order = _orderConverter.ConvertToAPIOrder(
 				vodovozOrder,
 				routeListItem.CreationDate,
 				_aPISmsPaymentModel.GetOrderSmsPaymentStatus(orderId),
-				_fastPaymentModel.GetOrderFastPaymentStatus(orderId));
+				_fastPaymentModel.GetOrderFastPaymentStatus(orderId, vodovozOrder.OnlineOrder));
 			order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
 
 			return order;
@@ -110,7 +110,7 @@ namespace DriverAPI.Library.Models
 			foreach(var vodovozOrder in vodovozOrders)
 			{
 				var smsPaymentStatus = _aPISmsPaymentModel.GetOrderSmsPaymentStatus(vodovozOrder.Id);
-				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id);
+				var qrPaymentStatus = _fastPaymentModel.GetOrderFastPaymentStatus(vodovozOrder.Id, vodovozOrder.OnlineOrder);
 				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
 				var order = _orderConverter.ConvertToAPIOrder(vodovozOrder, routeListItem.CreationDate, smsPaymentStatus, qrPaymentStatus);
 				order.OrderAdditionalInfo = GetAdditionalInfo(vodovozOrder);
@@ -123,12 +123,12 @@ namespace DriverAPI.Library.Models
 		/// <summary>
 		/// Получение типов оплаты на которые можно изменить тип оплаты заказа переданного в аргументе
 		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		/// <returns>IEnumerable APIPaymentType</returns>
 		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			return GetAvailableToChangePaymentTypes(vodovozOrder);
 		}
@@ -137,19 +137,41 @@ namespace DriverAPI.Library.Models
 		/// Получение типов оплаты на которые можно изменить тип оплаты заказа переданного в аргументе
 		/// </summary>
 		/// <param name="order">Заказ программы ДВ</param>
-		/// <returns>IEnumerable APIPaymentType</returns>
+		/// <returns>IEnumerable<see cref="PaymentDtoType"/></returns>
 		public IEnumerable<PaymentDtoType> GetAvailableToChangePaymentTypes(Order order)
 		{
 			var availablePaymentTypes = new List<PaymentDtoType>();
 
-			if(order.PaymentType == PaymentType.cash)
+			bool paid = _fastPaymentModel.GetOrderFastPaymentStatus(order.Id) == Vodovoz.Domain.FastPayments.FastPaymentStatus.Performed;
+
+			if(order.PaymentType == PaymentType.Cash)
 			{
-				availablePaymentTypes.Add(PaymentDtoType.Terminal);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalCard);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
+				availablePaymentTypes.Add(PaymentDtoType.DriverApplicationQR);
 			}
 
 			if(order.PaymentType == PaymentType.Terminal)
 			{
+				if(order.PaymentByTerminalSource == PaymentByTerminalSource.ByQR)
+				{
+					availablePaymentTypes.Add(PaymentDtoType.TerminalCard);
+				}
+				else
+				{
+					availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
+				}
+
 				availablePaymentTypes.Add(PaymentDtoType.Cash);
+				availablePaymentTypes.Add(PaymentDtoType.DriverApplicationQR);
+			}
+
+			if(order.PaymentType == PaymentType.DriverApplicationQR
+				|| order.PaymentType == PaymentType.SmsQR && !paid)
+			{
+				availablePaymentTypes.Add(PaymentDtoType.Cash);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalCard);
+				availablePaymentTypes.Add(PaymentDtoType.TerminalQR);
 			}
 
 			return availablePaymentTypes;
@@ -158,12 +180,12 @@ namespace DriverAPI.Library.Models
 		/// <summary>
 		/// Получение дополнительной информации для заказа по идентификатору
 		/// </summary>
-		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="orderId">Номер заказа</param>
 		/// <returns>APIOrderAdditionalInfo</returns>
 		public OrderAdditionalInfoDto GetAdditionalInfo(int orderId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			return GetAdditionalInfo(vodovozOrder);
 		}
@@ -193,7 +215,7 @@ namespace DriverAPI.Library.Models
 		{
 			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
-		
+
 		/// <summary>
 		/// Проверка возможности отправки QR-кода для оплаты
 		/// </summary>
@@ -204,7 +226,7 @@ namespace DriverAPI.Library.Models
 			return !_smsAndQRNotPayable.Contains(order.PaymentType) && order.OrderSum > 0;
 		}
 
-		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver)
+		public void ChangeOrderPaymentType(int orderId, PaymentType paymentType, Employee driver, PaymentByTerminalSource? paymentByTerminalSource)
 		{
 			if(driver is null)
 			{
@@ -212,7 +234,7 @@ namespace DriverAPI.Library.Models
 			}
 
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId)
-				?? throw new DataNotFoundException(nameof(orderId), $"Заказ { orderId } не найден");
+				?? throw new DataNotFoundException(nameof(orderId), $"Заказ {orderId} не найден");
 
 			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)
 			{
@@ -231,6 +253,7 @@ namespace DriverAPI.Library.Models
 			}
 
 			vodovozOrder.PaymentType = paymentType;
+			vodovozOrder.PaymentByTerminalSource = paymentByTerminalSource;
 			_uow.Save(vodovozOrder);
 			_uow.Commit();
 		}
@@ -244,23 +267,20 @@ namespace DriverAPI.Library.Models
 
 			if(vodovozOrder is null)
 			{
-				var errorFormat = "Заказ не найден: {OrderId}";
-				_logger.LogWarning(errorFormat, orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Заказ не найден: {orderId}");
 			}
 
 			if(routeList is null)
 			{
-				var errorFormat = "МЛ для заказа: {OrderId} не найден";
-				_logger.LogWarning(errorFormat, orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"МЛ для заказа: {orderId} не найден");
 			}
 
 			if(routeListAddress is null)
 			{
-				var errorFormat = "Адрес МЛ для заказа: {OrderId} не найден";
-				_logger.LogWarning(errorFormat, orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Адрес МЛ для заказа: {orderId} не найден");
 			}
 
 			if(routeList.Driver.Id != driver.Id)
@@ -272,16 +292,14 @@ namespace DriverAPI.Library.Models
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				var errorFormat = "Нельзя завершить заказ: {OrderId}, МЛ не в пути";
-				_logger.LogWarning(errorFormat);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Нельзя завершить заказ: {orderId}, МЛ не в пути");
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				var errorFormat = "Нельзя завершить заказ: {OrderId}, адрес МЛ не в пути";
-				_logger.LogWarning(errorFormat);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ не в пути", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Нельзя завершить заказ: {orderId}, адрес МЛ не в пути");
 			}
 
 			SaveScannedCodes(actionTime, completeOrderInfo);
@@ -290,7 +308,7 @@ namespace DriverAPI.Library.Models
 
 			routeList.ChangeAddressStatus(_uow, routeListAddress.Id, RouteListItemStatus.Completed);
 
-			if (completeOrderInfo.Rating < _maxClosingRating)
+			if(completeOrderInfo.Rating < _maxClosingRating)
 			{
 				var complaintReason = _complaintsRepository.GetDriverComplaintReasonById(_uow, completeOrderInfo.DriverComplaintReasonId);
 				var complaintSource = _complaintsRepository.GetComplaintSourceById(_uow, _webApiParametersProvider.ComplaintSourceId);
@@ -390,7 +408,7 @@ namespace DriverAPI.Library.Models
 		private void CreateCashReceipt(ITrueMarkOrderScannedInfo completeOrderInfo, int orderId, DateTime actionTime)
 		{
 			var trueMarkCashReceiptOrder = GetNewCashReceipt(completeOrderInfo, orderId, actionTime);
-			
+
 			FillCashReceiptByScannedCodes(completeOrderInfo.ScannedItems, trueMarkCashReceiptOrder);
 
 			_uow.Save(trueMarkCashReceiptOrder);
@@ -484,7 +502,7 @@ namespace DriverAPI.Library.Models
 				foreach(var code in scannedItem.BottleCodes)
 				{
 					var orderCode = CreateCashReceiptProductCode(code, cashReceipt, orderItem);
-					
+
 					cashReceipt.ScannedCodes.Add(orderCode);
 				}
 			}
@@ -528,7 +546,7 @@ namespace DriverAPI.Library.Models
 
 			_smsPaymentServiceAPIHelper.SendPayment(orderId, phoneNumber).Wait();
 		}
-		
+
 		public async Task<PayByQRResponseDTO> SendQRPaymentRequestAsync(int orderId, int driverId)
 		{
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
@@ -575,9 +593,8 @@ namespace DriverAPI.Library.Models
 
 			if(vodovozOrder is null)
 			{
-				var errorFormat = "Заказ не найден: {OrderId}";
-				_logger.LogWarning(errorFormat, orderId);
-				throw new ArgumentOutOfRangeException(nameof(orderId), string.Format(errorFormat, orderId));
+				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
+				throw new ArgumentOutOfRangeException(nameof(orderId), $"Заказ не найден: {orderId}");
 			}
 
 			if(!vodovozOrder.IsBottleStock

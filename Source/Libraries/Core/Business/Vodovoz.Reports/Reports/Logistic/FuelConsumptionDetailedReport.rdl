@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -28,7 +28,7 @@
 ((!String.IsNullOrWhiteSpace({?start_date})) AND String.IsNullOrWhiteSpace({?end_date})), "с " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy"),
 (String.IsNullOrWhiteSpace({?start_date}) AND (!String.IsNullOrWhiteSpace({?end_date}))), "по " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"),
 ((!String.IsNullOrWhiteSpace({?start_date})) AND (!String.IsNullOrWhiteSpace({?end_date}))),  "с " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -668,7 +668,7 @@
         <Height>12.05pt</Height>
         <Width>565.41pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -806,7 +806,7 @@ ORDER BY ft_name DESC
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

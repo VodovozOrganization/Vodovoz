@@ -175,6 +175,7 @@ namespace Vodovoz
 			config
 				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.BottlesReturned)
+				.AddSetter((cell, node) => cell.Editable = (node.IsDelivered()))
 				.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
 						.AddSetter(EmptyBottleCellSetter)
 				.AddColumn("Бутылей по\n акции").HeaderAlignment(0.5f).EnterToNextCell()
@@ -189,7 +190,7 @@ namespace Vodovoz
 				.AddColumn("№ оплаты")
 					.AddTextRenderer(node => node.Order.OnlineOrder.ToString())
 						.AddSetter((cell, node) => cell.Editable = 
-							(node.Order.PaymentType == PaymentType.Terminal || node.Order.PaymentType == PaymentType.ByCard) &&
+							(node.Order.PaymentType == PaymentType.Terminal || node.Order.PaymentType == PaymentType.PaidOnline) &&
 							node.Status != RouteListItemStatus.Transfered &&
 							node.Status != RouteListItemStatus.Canceled &&
 							node.Status != RouteListItemStatus.Overdue)

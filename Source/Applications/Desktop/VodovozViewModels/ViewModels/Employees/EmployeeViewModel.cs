@@ -1,23 +1,23 @@
 ﻿using NLog;
+using QS.Attachments.ViewModels.Widgets;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Permissions;
-using QS.Project.Services;
+using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using QS.Attachments.ViewModels.Widgets;
-using QS.Project.Journal;
-using QS.ViewModels.Extension;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Contacts;
@@ -41,7 +41,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using VodovozInfrastructure.Endpoints;
-using QS.Project.Domain;
+using EmployeeSettings = Vodovoz.Settings.Employee;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
@@ -59,6 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		private readonly UserSettings _userSettings;
 		private readonly IUserRepository _userRepository;
 		private readonly BaseParametersProvider _baseParametersProvider;
+		private readonly EmployeeSettings.IEmployeeSettings _employeeSettings;
 		private readonly IEmployeeRegistrationVersionController _employeeRegistrationVersionController;
 		private IPermissionResult _employeeDocumentsPermissionsSet;
 		private readonly IPermissionResult _employeePermissionSet;
@@ -115,6 +116,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			BaseParametersProvider baseParametersProvider,
 			IAttachmentsViewModelFactory attachmentsViewModelFactory,
 			INavigationManager navigationManager,
+			EmployeeSettings.IEmployeeSettings employeeSettings,
 			bool traineeToEmployee = false) : base(commonServices?.InteractiveService, navigationManager)
 		{
 			if(unitOfWorkFactory is null)
@@ -135,13 +137,13 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			_driverApiUserRegisterEndpoint =
-				driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
+			_driverApiUserRegisterEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_userSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
 			UoWGeneric = entityUoWBuilder.CreateUoW<Employee>(unitOfWorkFactory, TabName);
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_baseParametersProvider = baseParametersProvider ?? throw new ArgumentNullException(nameof(baseParametersProvider));
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_employeeRegistrationVersionController = new EmployeeRegistrationVersionController(Entity, new EmployeeRegistrationVersionFactory());
 
 			if(commonOrganisationProvider == null)
@@ -691,12 +693,9 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						}
 
 						var employeeRegistration = UoW.GetById<EmployeeRegistration>(selectedResult.Id);
-						var error =
-							_employeeRegistrationVersionController.AddNewRegistrationVersion(SelectedRegistrationDate, employeeRegistration);
-						
-						if(!string.IsNullOrWhiteSpace(error))
+
+						if(!AddEmployeeRegistrationVersion(SelectedRegistrationDate, employeeRegistration))
 						{
-							_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, error);
 							return;
 						}
 
@@ -704,7 +703,37 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						OnPropertyChanged(nameof(CanChangeRegistrationVersionDate));
 					};
 				}));
-		
+
+		private bool AddEmployeeRegistrationVersion(DateTime? registrationDate, EmployeeRegistration employeeRegistration)
+		{
+			var error =
+				_employeeRegistrationVersionController.AddNewRegistrationVersion(registrationDate, employeeRegistration);
+
+			if(!string.IsNullOrWhiteSpace(error))
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, error);
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool AddDefaultEmployeeRegistrationVersion(DateTime? registrationDate)
+		{
+			var employeeRegistration = UoW.GetById<EmployeeRegistration>(_employeeSettings.DefaultEmployeeRegistrationVersionId);
+
+			if(employeeRegistration == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning, 
+					"Версия вида оформления по умолчанию не найдена");
+
+				return false;
+			}
+
+			return AddEmployeeRegistrationVersion(registrationDate, employeeRegistration);
+		}
+
 		public DelegateCommand ChangeEmployeeRegistrationVersionStartDateCommand =>
 			_changeEmployeeRegistrationVersionStartDateCommand ?? (_changeEmployeeRegistrationVersionStartDateCommand = new DelegateCommand(
 				() =>
@@ -766,7 +795,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 
 		private void UpdateDocumentsPermissions()
 		{
-			var isAdmin = _commonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+			var isAdmin = _commonServices.UserService.GetCurrentUser().IsAdmin;
 			var canWorkWithOnlyDriverDocuments = _commonServices.CurrentPermissionService.ValidatePresetPermission("work_with_only_driver_documents");
 			var canWorkWithDocuments = ((Entity.Category == EmployeeCategory.driver || Entity.Category == EmployeeCategory.forwarder) && canWorkWithOnlyDriverDocuments) || !canWorkWithOnlyDriverDocuments || isAdmin;
 			CanReadEmployeeDocuments = _employeeDocumentsPermissionsSet.CanRead && canWorkWithDocuments;
@@ -863,6 +892,14 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			if(!Validate())
 			{
 				return false;
+			}
+
+			if(!Entity.EmployeeRegistrationVersions.Any())
+			{
+				if(!AddDefaultEmployeeRegistrationVersion(Entity.FirstWorkDay))
+				{
+					return false;
+				}
 			}
 
 			if(Entity.User != null)

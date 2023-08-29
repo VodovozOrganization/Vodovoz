@@ -3,13 +3,14 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
-using Vodovoz.Additions.Store;
+using QS.Validation;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
+using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz
@@ -19,7 +20,7 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private readonly IEmployeeRepository _employeeRepository = new EmployeeRepository();
 		private readonly IUserRepository _userRepository = new UserRepository();
-		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper();
+		private readonly StoreDocumentHelper _storeDocumentHelper = new StoreDocumentHelper(new UserSettingsGetter());
 
 		public RegradingOfGoodsDocumentDlg()
 		{
@@ -64,7 +65,7 @@ namespace Vodovoz
 			
 			var userHasOnlyAccessToWarehouseAndComplaints =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			if(userHasOnlyAccessToWarehouseAndComplaints)
 			{
@@ -77,14 +78,11 @@ namespace Vodovoz
 
 			var availableWarehousesIds =
 				_storeDocumentHelper.GetRestrictedWarehousesIds(UoW, WarehousePermissionsType.RegradingOfGoodsEdit);
-			var warehouseFilter = new WarehouseJournalFilterViewModel
-			{
-				IncludeWarehouseIds = availableWarehousesIds
-			};
+			Action<WarehouseJournalFilterViewModel> filterParams = f => f.IncludeWarehouseIds = availableWarehousesIds;
 
 			var warehouseJournalFactory = new WarehouseJournalFactory();
 
-			warehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(warehouseFilter));
+			warehouseEntry.SetEntityAutocompleteSelectorFactory(warehouseJournalFactory.CreateSelectorFactory(filterParams));
 			warehouseEntry.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
@@ -110,9 +108,11 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 
-			var valid = new QS.Validation.QSValidator<RegradingOfGoodsDocument> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser (UoW);
 			Entity.LastEditedTime = DateTime.Now;

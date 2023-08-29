@@ -55,7 +55,7 @@ namespace TaxcomEdoApi.Services
 			EdoBillFactory edoBillFactory,
 			EdoContainerMainDocumentIdParser edoContainerMainDocumentIdParser,
 			X509Certificate2 certificate,
-            PrintableDocumentSaver printableDocumentSaver)
+			PrintableDocumentSaver printableDocumentSaver)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomApi = taxcomApi ?? throw new ArgumentNullException(nameof(taxcomApi));
@@ -86,11 +86,7 @@ namespace TaxcomEdoApi.Services
 			{
 				await DelayAsync(stoppingToken);
 
-				//Хардкодим дату начала выборки, т.к. еще не все согласия получены,
-				//чтобы отстающим формировались документы начиная с 1 ноября 22 года
-				var startDate = DateTime.Now < new DateTime(2023, 6, 1)
-					? new DateTime(2022, 11, 1)
-					: DateTime.Today.AddDays(-8);
+				var startDate = DateTime.Today.AddMonths(-1);
 
 				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 				{
@@ -162,6 +158,15 @@ namespace TaxcomEdoApi.Services
 							MainDocumentId = $"{upd.FileIdentifier}.xml",
 							EdoDocFlowStatus = EdoDocFlowStatus.NotStarted
 						};
+
+						var actions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+							.Where(x => x.Order.Id == edoContainer.Order.Id)
+							.FirstOrDefault();
+
+						if(actions != null && actions.IsNeedToResendEdoUpd)
+						{
+							actions.IsNeedToResendEdoUpd = false;
+						}
 
 						_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId}", order.Id);
 						uow.Save(edoContainer);
@@ -270,7 +275,12 @@ namespace TaxcomEdoApi.Services
 					_logger.LogInformation("Обрабатываем полученные контейнеры {DocFlowUpdatesCount}", docFlowUpdates.Updates.Count);
 					foreach(var item in docFlowUpdates.Updates)
 					{
-						var container = _orderRepository.GetEdoContainerByMainDocumentId(uow, item.Documents[0].ExternalIdentifier);
+						EdoContainer container = null;
+
+						if(item.Documents.Count > 0)
+						{
+							container = _orderRepository.GetEdoContainerByMainDocumentId(uow, item.Documents[0].ExternalIdentifier);
+						}
 
 						if(container != null)
 						{

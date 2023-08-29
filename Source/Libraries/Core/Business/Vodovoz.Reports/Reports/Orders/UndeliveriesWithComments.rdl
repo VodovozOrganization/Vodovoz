@@ -18,7 +18,7 @@
         <Height>18.03pt</Height>
         <Width>757.30pt</Width>
         <Value>="Недовозы и комментарии " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + Iif({?start_date}={?end_date}, "", " – " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>10.60pt</Top>
         <Style>
@@ -53,10 +53,10 @@
             <Width>18.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37pt</Width>
+            <Width>25.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>30.6pt</Width>
+            <Width>26.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>32.3pt</Width>
@@ -68,25 +68,37 @@
             <Width>89.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.2pt</Width>
+            <Width>37.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.1pt</Width>
+            <Width>31.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>239.8pt</Width>
+            <Width>211.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.3pt</Width>
+            <Width>34.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.9pt</Width>
+            <Width>33.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.4pt</Width>
+            <Width>34.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.8pt</Width>
+            <Width>36.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>35.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>29.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>29.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>34.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -258,6 +270,60 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>Объект недовоза</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>Вид недовоза</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>Детализация недовоза</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox31">
                       <Value>Водитель</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -328,6 +394,24 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>Отработано ОКС</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -370,6 +454,7 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -409,6 +494,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -430,6 +516,7 @@
                         <PaddingLeft>1pt</PaddingLeft>
                         <PaddingRight>1pt</PaddingRight>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -524,6 +611,72 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>={undelivery_object}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingRight>1pt</PaddingRight>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>={undelivery_kind}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingRight>1pt</PaddingRight>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>={undelivery_detalization}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingLeft>1pt</PaddingLeft>
+                        <PaddingRight>1pt</PaddingRight>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox34">
                       <Value>=Fields!driver_name.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -596,6 +749,25 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>={last_result_author}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -757,7 +929,11 @@
             un_ord_subqry.at_work_sub,
             un_ord_subqry.transfer_type,
             un_ord_subqry.problem_source,
-            un_ord_subqry.reason
+            un_ord_subqry.reason,
+            un_ord_subqry.last_result_author,
+            un_ord_subqry.undelivery_object,
+            un_ord_subqry.undelivery_kind,
+            un_ord_subqry.undelivery_detalization
             FROM
             #поля недовоза
             (
@@ -797,7 +973,7 @@
             WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
             WHEN 'ServiceMan' THEN 'Мастер СЦ'
             WHEN 'ForceMajor' THEN 'Форс-мажор'
-            WHEN 'DirectorLO' THEN 'Директор ЛО (Доставка за час)'
+            WHEN 'DirectorLO' THEN 'Доставка за час'
             WHEN 'DirectorLOCurrentDayDelivery' THEN 'Директор ЛО (Доставка в тот же день)'
             WHEN 'None' THEN 'Нет (не недовоз)'
             WHEN 'Unknown' THEN 'Неизвестно'
@@ -819,8 +995,17 @@
             GROUP_CONCAT(CONCAT_WS(': ',fine_employee.last_name, fines_items.money) SEPARATOR '\n') AS fines,
             IF(in_work_sub.short_name IS NULL OR in_work_sub.short_name = '', in_work_sub.name, in_work_sub.short_name) as at_work_sub,
             ups.name as problem_source,
-            un.reason as reason
-
+            un.reason as reason,
+            (SELECT CONCAT( e.`last_name`, ' ', SUBSTRING(e.`name`, 1, 1), '. ', SUBSTRING(e.`patronymic`, 1, 1), '.')
+            FROM undelivered_orders_result_comments uorc
+            JOIN employees e ON uorc.author_id = e.id 
+            WHERE uorc.undelivered_order_id = un.id
+            ORDER BY uorc.creation_time  DESC 
+            LIMIT 1
+            ) as last_result_author,
+            uo.name as undelivery_object,
+            uk.name as undelivery_kind,
+            ud.name as undelivery_detalization
             FROM undelivered_orders un
             LEFT JOIN undelivery_problem_sources ups ON ups.id = un.undelivery_problem_source_id
             LEFT JOIN fines ON fines.undelivery_id = un.id
@@ -840,6 +1025,9 @@
             LEFT JOIN subdivisions dep ON dep.id = g.guilty_department_id
             LEFT JOIN route_list_addresses rla ON rla.order_id = oldo.id
             LEFT JOIN route_lists rl ON rla.route_list_id = rl.id
+            LEFT JOIN undelivery_detalizations ud on ud.id = un.undelivery_detalization_id
+            LEFT JOIN undelivery_kinds uk on uk.id = ud.undelivery_kind_id
+            LEFT JOIN undelivery_objects uo on uo.id = uk.undelivery_object_id 
             WHERE
             oldo.delivery_date &gt;= @start_date AND oldo.delivery_date &lt;= @end_date
 	AND
@@ -966,6 +1154,22 @@ ORDER BY order_by_column ASC
         <Field Name="undelivery_creation_time">
           <DataField>undelivery_creation_time</DataField>
         </Field>
+        <Field Name="last_result_author">
+          <DataField>last_result_author</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="undelivery_object">
+          <DataField>undelivery_object</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="undelivery_kind">
+          <DataField>undelivery_kind</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="undelivery_detalization">
+          <DataField>undelivery_detalization</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Guilty">
@@ -983,7 +1187,7 @@ FROM
 				WHEN 'Client' THEN 'Клиент'
 				WHEN 'Driver' THEN 'Водитель'
 				WHEN 'ServiceMan' THEN 'Мастер СЦ'
-				WHEN 'DirectorLO' THEN 'Директор ЛО (Доставка за час)'
+				WHEN 'DirectorLO' THEN 'Доставка за час'
 				WHEN 'DirectorLOCurrentDayDelivery' THEN 'Директор ЛО (Доставка в тот же день)'
 				WHEN 'None' THEN 'Нет (не недовоз)'
 				WHEN 'Unknown' THEN 'Неизвестно'
@@ -1032,7 +1236,7 @@ GROUP BY
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=sql.vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

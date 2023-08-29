@@ -11,6 +11,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.Dialogs
@@ -66,9 +67,11 @@ namespace Vodovoz.Dialogs
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<Certificate>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 			UoWGeneric.Save();
 			return true;
 		}

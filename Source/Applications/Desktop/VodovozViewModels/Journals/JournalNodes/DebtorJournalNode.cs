@@ -7,6 +7,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 {
 	public class DebtorJournalNode : JournalEntityNodeBase<Order>
 	{
+		public override string Title => ClientName;
+
 		public int AddressId { get; set; }
 
 		public string AddressName { get; set; }
@@ -40,5 +42,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string Phones { get; set; }
 
 		public string Emails { get; set; }
+
 	}
 }

@@ -1,4 +1,4 @@
-﻿using QS.Commands;
+using QS.Commands;
 using QS.ViewModels;
 using System;
 using System.Linq;
@@ -9,6 +9,7 @@ namespace Vodovoz.ViewModels.Reports
 	public class SelectableParameterReportFilterViewModel : WidgetViewModelBase
 	{
 		private SelectableParameterSet _currentParameterSet;
+		private string _searchValue;
 
 		private DelegateCommand _switchToIncludeCommand;
 		private DelegateCommand _switchToExcludeCommand;
@@ -54,6 +55,12 @@ namespace Vodovoz.ViewModels.Reports
 					}
 				}
 			}
+		}
+
+		public string SearchValue
+		{
+			get => _searchValue;
+			set => SetField(ref _searchValue, value);
 		}
 
 		public bool HasSelectedSet => CurrentParameterSet != null;
@@ -165,6 +172,11 @@ namespace Vodovoz.ViewModels.Reports
 				}
 				return _unselectAllParametersCommand;
 			}
+		}
+
+		public void SilentUpdateSearchValue(string value)
+		{
+			_searchValue = value;
 		}
 	}
 }

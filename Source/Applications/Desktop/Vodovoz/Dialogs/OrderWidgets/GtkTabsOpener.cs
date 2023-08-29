@@ -1,21 +1,33 @@
 ﻿using Dialogs.Logistic;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
+using System.Linq;
+using Autofac;
+using QS.Navigation;
+using QS.Report.ViewModels;
 using Vodovoz.Dialogs.DocumentDialogs;
-using Vodovoz.Domain.Cash;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
+using Vodovoz.ViewModels.ReportsParameters.Orders;
 
 namespace Vodovoz.Dialogs.OrderWidgets
 {
 	public class GtkTabsOpener : IGtkTabsOpener
 	{
+		private ITdiTab FindTabByTag(string tag) =>
+			TDIMain.MainNotebook.Tabs.FirstOrDefault(x => x.TdiTab is TdiTabBase tab && tab.Tag?.ToString() == tag)?.TdiTab;
+
+		public string GenerateDialogHashName<T>(int id)
+			where T : IDomainObject => DialogHelper.GenerateDialogHashName<T>(id);
+
 		public ITdiTab CreateOrderDlg(bool? isForRetail, bool? isForSalesDepartment) =>
 			new OrderDlg { IsForRetail = isForRetail, IsForSalesDepartment = isForSalesDepartment};
 		
@@ -29,7 +41,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 		
-		public void OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
+		public void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId)
 		{
 			var dlg = new OrderDlg();
 			dlg.CopyLesserOrderFrom(copiedOrderId);
@@ -40,37 +52,68 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			);
 		}
 
-		public void OpenRouteListCreateDlg(ITdiTab tab, int id)
+		public ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
 		{
-			tab.TabParent.OpenTab(
+			var tag = $"NewCopyFromOrder_{copiedOrderId}_Dlg";
+
+			var existsTab = FindTabByTag(tag);
+
+			if(existsTab == null)
+			{
+				var dlg = new OrderDlg();
+				dlg.CopyOrderFrom(copiedOrderId);
+				dlg.Tag = tag;
+				tab.TabParent.OpenTab(() => dlg, tab);
+				return FindTabByTag(tag);
+			}
+			else
+			{
+				TDIMain.MainNotebook.CurrentPage = TDIMain.MainNotebook.PageNum(existsTab as OrderDlg);
+				return existsTab;
+			}
+		}
+
+		public ITdiTab OpenRouteListCreateDlg(ITdiTab tab) =>
+			OpenRouteListCreateDlg(tab.TabParent);
+
+		public ITdiTab OpenRouteListCreateDlg(ITdiTab tab, int id) =>
+			OpenRouteListCreateDlg(tab.TabParent, id);
+
+		public ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab, int id) =>
+			tab.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(id),
-				() => new RouteListCreateDlg(id)
-			);
-		}
+				() => CreateRouteListCreateDlg(id));
 
-		public void OpenRouteListKeepingDlg(ITdiTab tab, int routeListId)
-		{
-			tab.TabParent.OpenTab(
+		public ITdiTab OpenRouteListCreateDlg(ITdiTabParent tab) =>
+			tab.OpenTab(CreateRouteListCreateDlg);
+
+		public ITdiTab CreateRouteListCreateDlg() => new RouteListCreateDlg();
+
+		public ITdiTab CreateRouteListCreateDlg(int id) => new RouteListCreateDlg(id);
+
+		public ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId) =>
+			tab.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
-				() => new RouteListKeepingDlg(routeListId)
-			);
-		}
+				() => new RouteListKeepingDlg(routeListId));
 
-		public void OpenRouteListKeepingDlg(ITdiTab tab, int routeListId, int[] selectedOrdersIds)
-		{
-			tab.TabParent.OpenTab(
+		public ITdiTab OpenRouteListKeepingDlg(ITdiTabParent tab, int routeListId, int[] selectedOrdersIds) =>
+			tab.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
-				() => new RouteListKeepingDlg(routeListId, selectedOrdersIds)
-			);
-		}
+				() => new RouteListKeepingDlg(routeListId, selectedOrdersIds));
 
-		public ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId)
-		{
-			return master.TabParent.OpenTab(
+		public ITdiTab OpenRouteListKeepingDlg(ITdiTab tab, int routeListId, int[] selectedOrdersIds) =>
+			OpenRouteListKeepingDlg(tab.TabParent, routeListId, selectedOrdersIds);
+
+		public ITdiTab OpenRouteListKeepingDlg(ITdiTab tab, int routeListId) =>
+			OpenRouteListKeepingDlg(tab.TabParent, routeListId);
+
+		public ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId) =>
+			OpenRouteListClosingDlg(master.TabParent, routelistId);
+
+		public ITdiTab OpenRouteListClosingDlg(ITdiTabParent tab, int routelistId) =>
+			tab.OpenTab(
 				DialogHelper.GenerateDialogHashName<RouteList>(routelistId),
-				() => new RouteListClosingDlg(routelistId)
-			);
-		}
+				() => new RouteListClosingDlg(routelistId));
 
 		public ITdiTab OpenUndeliveredOrderDlg(ITdiTab tab, int id = 0, bool isForSalesDepartment = false)
 		{
@@ -88,35 +131,25 @@ namespace Vodovoz.Dialogs.OrderWidgets
 					);
 		}
 
+		public void OpenUndeliveredOrdersClassificationReport(UndeliveredOrdersFilterViewModel filter, bool withTransfer)
+		{
+			if(filter == null)
+			{
+				throw new ArgumentNullException(nameof(filter));
+			}
+
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
+			var navigationManager = scope.Resolve<INavigationManager>();
+			var rdlViewModel = navigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(UndeliveredOrdersClassificationReportViewModel));
+			var undeliveredOrdersClassificationReportViewModel = (UndeliveredOrdersClassificationReportViewModel)rdlViewModel.ViewModel.ReportParametersViewModel;
+			undeliveredOrdersClassificationReportViewModel.Load(filter, withTransfer);
+		}
+
 		public ITdiTab OpenCounterpartyDlg(ITdiTab master, int counterpartyId)
 		{
 			return master.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Counterparty>(counterpartyId),
 				() => new CounterpartyDlg(counterpartyId));
-		}
-
-		public void OpenCashExpenseDlg(ITdiTab master, int employeeId, decimal balance, bool canChangeEmployee, ExpenseType expenseType)
-		{
-			var dlg = new CashExpenseDlg();
-			if(dlg.FailInitialize)
-			{
-				return;
-			}
-
-			dlg.ConfigureForSalaryGiveout(employeeId, balance, canChangeEmployee, expenseType);
-			master.TabParent.AddTab(dlg, master);
-		}
-
-		public void OpenRouteListChangeGiveoutExpenceDlg(ITdiTab master, int employeeId, decimal balance, string description)
-		{
-			var dlg = new CashExpenseDlg();
-			if(dlg.FailInitialize)
-			{
-				return;
-			}
-
-			dlg.ConfigureForRouteListChangeGiveout(employeeId, balance, description);
-			master.TabParent.AddTab(dlg, master);
 		}
 
 		public void OpenTrackOnMapWnd(int routeListId)
@@ -144,9 +177,6 @@ namespace Vodovoz.Dialogs.OrderWidgets
 
 		public ITdiTab OpenIncomingWaterDlg(int incomingWaterId, ITdiTab master = null) =>
 			OpenDialogTabFor<IncomingWaterDlg, IncomingWater>(incomingWaterId, master);
-
-		public ITdiTab OpenWriteoffDocumentDlg(int writeoffDocumentId, ITdiTab master = null) =>
-			OpenDialogTabFor<WriteoffDocumentDlg, WriteoffDocument>(writeoffDocumentId, master);
 
 		public ITdiTab OpenSelfDeliveryDocumentDlg(int selfDeliveryDocumentId, ITdiTab master = null) =>
 			OpenDialogTabFor<SelfDeliveryDocumentDlg, SelfDeliveryDocument>(selfDeliveryDocumentId, master);
@@ -193,6 +223,35 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			TDIMain.MainNotebook.AddTab(entityDlg);
 
 			return entityDlg;
+		}
+
+		public ITdiTab OpenRouteListControlDlg(ITdiTabParent tabParent, int id) =>
+			tabParent.OpenTab(
+				DialogHelper.GenerateDialogHashName<RouteList>(id),
+				() => new RouteListControlDlg(id));
+
+		public void OpenCarLoadDocumentDlg(ITdiTabParent tabParent, Action<CarLoadDocument, IUnitOfWork, int, int> fillCarLoadDocumentFunc, int routeListId, int warehouseId)
+		{
+			var dlg = new CarLoadDocumentDlg();
+			fillCarLoadDocumentFunc(dlg.Entity, dlg.UoW, routeListId, warehouseId);
+			tabParent.OpenTab(() => dlg);
+		}
+
+		public void ShowTrackWindow(int id)
+		{
+			var track = new TrackOnMapWnd(id);
+			track.Show();
+		}
+
+		public void OpenOrderDlgAsSlave(ITdiTab tab, Order order)
+		{
+			var dlg = new OrderDlg(order)
+			{
+				HasChanges = false
+			};
+
+			dlg.SetDlgToReadOnly();
+			tab.TabParent.AddSlaveTab(tab, dlg);
 		}
 	}
 }

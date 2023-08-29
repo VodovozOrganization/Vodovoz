@@ -85,6 +85,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 			if(!FilterViewModel.ShowArchive)
 				query.Where(x => !x.IsArchive);
+
+			if(FilterViewModel.OnlyWithoutNewCategoryLink)
+			{
+				query.Where(x => x.FinancialIncomeCategoryId == null);
+			}
+
 			switch(FilterViewModel.Level)
 			{
 				case LevelsFilter.Level1:
@@ -196,10 +202,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
-			CreateDefaultSelectAction();
-			CreateAddActions();
 			CreateEditAction();
-			CreateDefaultDeleteAction();
 		}
 
 		protected void CreateAddActions()

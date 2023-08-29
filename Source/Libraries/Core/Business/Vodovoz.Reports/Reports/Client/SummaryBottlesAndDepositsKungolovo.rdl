@@ -203,16 +203,16 @@ LEFT JOIN
 	FROM (
 		SELECT 
 			route_list_addresses.order_id AS order_id,
-			warehouse_movement_operations.amount AS amount,
-			warehouse_movement_operations.nomenclature_id AS nomenclature_id
+			goods_accounting_operations.amount AS amount,
+			goods_accounting_operations.nomenclature_id AS nomenclature_id
 		FROM store_car_unload_document_items
-		LEFT JOIN store_car_unload_documents
-		ON store_car_unload_documents.id=store_car_unload_document_items.car_unload_document_id
-		LEFT JOIN warehouse_movement_operations
-		ON warehouse_movement_operations.id=store_car_unload_document_items.warehouse_movement_operation_id
-		LEFT JOIN route_list_addresses
-		ON route_list_addresses.route_list_id=store_car_unload_documents.route_list_id
-		WHERE warehouse_movement_operations.nomenclature_id IN(38,72,295,580)
+        LEFT JOIN store_car_unload_documents
+		    ON store_car_unload_documents.id = store_car_unload_document_items.car_unload_document_id
+        LEFT JOIN goods_accounting_operations
+		    ON goods_accounting_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+        LEFT JOIN route_list_addresses
+		    ON route_list_addresses.route_list_id = store_car_unload_documents.route_list_id
+		WHERE goods_accounting_operations.nomenclature_id IN(38,72,295,580)
 	) AS intl_unld_doc
     GROUP BY order_id
 ) AS unload_documents ON docs.doc_id=unload_documents.order_id
@@ -1721,7 +1721,7 @@ WHERE
         <Height>13.52pt</Height>
         <Width>538.42pt</Width>
         <Value>="Реестр документов с " + Format(CDate({?startDate}), "d") + " по "+ Format(CDate({?endDate}), "d")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.50pt</Left>
         <Top>45.47pt</Top>
         <Style>
@@ -1737,7 +1737,7 @@ WHERE
 
 ____________(                        )
      м.п.</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>24.0pt</Left>
         <Top>210pt</Top>
         <Style>
@@ -1755,7 +1755,7 @@ ____________(                        )
 
 ___________(                   )
       м.п.'</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>300pt</Left>
         <Top>210pt</Top>
         <Style>
@@ -1769,7 +1769,7 @@ ___________(                   )
         <Height>14.25pt</Height>
         <Width>210.73pt</Width>
         <Value>Забрать бутылей:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>12.00pt</Left>
         <Top>148.70pt</Top>
         <Style>
@@ -1784,7 +1784,7 @@ ___________(                   )
         <Height>12.75pt</Height>
         <Width>118.90pt</Width>
         <Value>=Sum(Fields!delivered.Value, 'Data') - Sum(Fields!returned.Value, 'Data') - Sum(Fields!forfeitCount.Value, 'Data')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>220pt</Left>
         <Top>149.0pt</Top>
         <Style>
@@ -1803,7 +1803,7 @@ ___________(                   )
         <Height>13.50pt</Height>
         <Width>222.50pt</Width>
         <Value>Вернуть залогов за бутыли:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>163.0pt</Top>
         <Style>
@@ -1818,7 +1818,7 @@ ___________(                   )
         <Height>13.50pt</Height>
         <Width>130.88pt</Width>
         <Value>=Sum({bottles_deposit}, 'Data')</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>220pt</Left>
         <Top>163pt</Top>
         <Style>
@@ -1863,7 +1863,7 @@ ___________(                   )
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_test;user=OO;password=1;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

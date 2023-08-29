@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -20,7 +20,7 @@
         <Height>23.34pt</Height>
         <Width>581.25pt</Width>
         <Value>= "Качественный отчет по рознице с " + (Format(Convert.ToDateTime(IIF({?create_date} = '', {?shipping_start_date}, {?create_date})), "dd.MM.yyyy")) + " по " + (Format(Convert.ToDateTime(IIF({?end_date} = '', {?shipping_end_date}, {?end_date})), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>102.30pt</Left>
         <Top>5.60pt</Top>
         <Style>
@@ -36,7 +36,7 @@
         <Width>801.63pt</Width>
         <Value>В отчет попадают заказы для "Розницы"
 Сортировка: по дате заказа и по номеру заказа</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>2.40pt</Left>
         <Top>33.34pt</Top>
         <Style>
@@ -815,14 +815,15 @@
 	delivery_points.compiled_address AS address,
 	sales_channels.name AS channel_name,
 	CASE
-		WHEN orders.payment_type = 'cash' THEN 'Наличная'
-		WHEN orders.payment_type = 'cashless' THEN 'Безналичная'
-		WHEN orders.payment_type = 'barter' THEN 'Бартер'
-		WHEN orders.payment_type = 'ByCard' THEN 'По карте'
-		WHEN orders.payment_type = 'ContractDoc' THEN 'Контрактная документация'	
-		WHEN orders.payment_type = 'Terminal' THEN 'Терминал'
-		WHEN orders.payment_type = 'BeveragesWorld' THEN 'Мир напитков'
-		
+		WHEN orders.payment_type = 'Cash' THEN 'Наличная'
+		WHEN orders.payment_type = 'Terminal' THEN 'Терминал (QR-код терминал)'
+		WHEN orders.payment_type = 'DriverApplicationQR' THEN 'МП водителя (QR-код)'
+		WHEN orders.payment_type = 'SmsQR' THEN 'SMS (QR-код)'
+		WHEN orders.payment_type = 'PaidOnline' THEN 'Оплачено онлайн'
+		WHEN orders.payment_type = 'Barter' THEN 'Бартер'	
+		WHEN orders.payment_type = 'ContractDocumentation' THEN 'Контрактная документация'
+		WHEN orders.payment_type = 'Cashless' THEN 'Безналичная'
+
 		ELSE 'Неизвестная форма оплаты'
 	END AS payment_type,
     if(orders.order_status in ('Shipped','Closed'), date(orders.delivery_date), '') AS delivery_date,
@@ -938,7 +939,7 @@ ORDER BY orderdate DESC, orders.id DESC;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>
         </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>

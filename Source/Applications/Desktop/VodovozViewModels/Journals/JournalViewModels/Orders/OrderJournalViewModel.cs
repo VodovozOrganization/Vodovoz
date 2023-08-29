@@ -1,47 +1,49 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
+using QS.Project.Services.FileDialog;
 using QS.Services;
+using System;
+using System.Globalization;
+using System.Linq;
+using Vodovoz.Controllers;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Sale;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalNodes;
-using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using QS.Project.Journal.DataLoader;
-using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
-using QS.Project.Domain;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Controllers;
-using Vodovoz.Domain;
-using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories.DiscountReasons;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Print;
+using Vodovoz.JournalNodes;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.ViewModels.TempAdapters;
-using Vodovoz.ViewModels.Complaints;
-using Vodovoz.EntityRepositories.Subdivisions;
-using QS.Project.Services.FileDialog;
-using Vodovoz.Infrastructure.Print;
-using Vodovoz.Services;
-using Vodovoz.EntityRepositories.Logistic;
+using Type = Vodovoz.Domain.Orders.Documents.Type;
+using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -53,7 +55,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService _employeeService;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IUserRepository _userRepository;
-		private readonly ICounterpartyJournalFactory _counterpartySelectorFactory;
 		private readonly bool _userHasAccessToRetail = false;
 		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
@@ -93,7 +94,8 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionParametersProvider subdivisionParametersProvider,
 			IDeliveryScheduleParametersProvider deliveryScheduleParametersProvider,
 			IRDLPreviewOpener rdlPreviewOpener,
-			IRouteListItemRepository routeListItemRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IRouteListItemRepository routeListItemRepository,
+			Action<OrderJournalFilterViewModel> filterConfiguration = null) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -106,8 +108,6 @@ namespace Vodovoz.JournalViewModels
 			_subdivisionJournalFactory = subdivisionJournalFactory ?? throw new ArgumentNullException(nameof(subdivisionJournalFactory));
 			_gtkDialogsOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-
-			_counterpartySelectorFactory = _counterpartyJournalFactory;
 
 			_undeliveredOrdersJournalOpener =
 				undeliveredOrdersJournalOpener ?? throw new ArgumentNullException(nameof(undeliveredOrdersJournalOpener));
@@ -126,7 +126,7 @@ namespace Vodovoz.JournalViewModels
 			_userHasAccessToRetail = commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_to_retail");
 			_userHasOnlyAccessToWarehouseAndComplaints =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !commonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+				&& !commonServices.UserService.GetCurrentUser().IsAdmin;
 
 			SearchEnabled = false;
 
@@ -149,6 +149,11 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderWithoutShipmentForAdvancePaymentItem),
 				typeof(OrderItem)
 			);
+
+			if(filterConfiguration != null)
+			{
+				FilterViewModel.SetAndRefilterAtOnce(filterConfiguration);
+			}
 		}
 
 		protected override void CreateNodeActions()
@@ -225,6 +230,7 @@ namespace Vodovoz.JournalViewModels
 			CounterpartyContract contractAlias = null;
 			PaymentFrom paymentFromAlias = null;
 			GeoGroup geographicalGroupAlias = null;
+			EdoContainer edoContainerAlias = null;
 
 			var sanitizationNomenclatureIds = _nomenclatureRepository.GetSanitisationNomenclature(uow);
 
@@ -440,6 +446,14 @@ namespace Vodovoz.JournalViewModels
 													)
 												)
 											);
+
+			var edoDocFlowStatusSubquery = QueryOver.Of(() => edoContainerAlias)
+				.Where(() => orderAlias.Id == edoContainerAlias.Order.Id)
+				.And(() => edoContainerAlias.Type == Type.Upd)
+				.OrderBy(() => edoContainerAlias.Created).Desc
+				.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus))
+				.Take(1);
+
 			query.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 					.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 					.Left.JoinAlias(o => o.Author, () => authorAlias)
@@ -496,6 +510,7 @@ namespace Vodovoz.JournalViewModels
 					.SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
 					.SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 					.SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
+					.SelectSubQuery(edoDocFlowStatusSubquery).WithAlias(() => resultAlias.EdoDocFlowStatus)
 				)
 				.OrderBy(x => x.CreateDate).Desc
 				.SetTimeout(60)
@@ -647,7 +662,8 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -655,7 +671,8 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
 					"Счет без отгрузки на долг",
@@ -821,7 +838,8 @@ namespace Vodovoz.JournalViewModels
 						_employeeService,
 						new ParametersProvider(),
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
 						EntityUoWBuilder.ForOpen(node.Id),
@@ -830,7 +848,8 @@ namespace Vodovoz.JournalViewModels
 						_employeeService,
 						new ParametersProvider(),
 						new CommonMessages(_commonServices.InteractiveService),
-						_rdlPreviewOpener),
+						_rdlPreviewOpener,
+						_counterpartyJournalFactory),
 					//функция идентификации документа 
 					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
 					"Счет без отгрузки на постоплату",
@@ -985,7 +1004,7 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						_nomenclatureSelectorFactory,
-						_counterpartySelectorFactory,
+						_counterpartyJournalFactory,
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
@@ -1001,7 +1020,7 @@ namespace Vodovoz.JournalViewModels
 						_commonServices,
 						_employeeService,
 						_nomenclatureSelectorFactory,
-						_counterpartySelectorFactory,
+						_counterpartyJournalFactory,
 						_nomenclatureRepository,
 						_userRepository,
 						new DiscountReasonRepository(),
@@ -1093,7 +1112,6 @@ namespace Vodovoz.JournalViewModels
 							_employeeJournalFactory,
 							_employeeService,
 							_undeliveredOrdersJournalOpener,
-							_orderSelectorFactory,
 							_undeliveredOrdersRepository,
 							new EmployeeSettings(new ParametersProvider()),
 							_subdivisionParametersProvider
@@ -1199,7 +1217,7 @@ namespace Vodovoz.JournalViewModels
 					{
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
 						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
-						_gtkDialogsOpener.OpenCopyOrderDlg(this, order.Id);
+						_gtkDialogsOpener.OpenCopyLesserOrderDlg(this, order.Id);
 					}
 				)
 			);

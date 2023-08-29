@@ -25,7 +25,7 @@
         <Width>341.62pt</Width>
         <Value>="ДОКУМЕНТ ПЕРЕМЕЩЕНИЯ ТОВАРОВ
 №" + {?documentId}  +  " от "  + {?date}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>119.3pt</Left>
         <Top>6.4pt</Top>
         <Style>
@@ -36,21 +36,6 @@
           <FontSize>14pt</FontSize>
           <VerticalAlign>Middle</VerticalAlign>
           <TextAlign>Center</TextAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox6">
-        <Height>17.32pt</Height>
-        <Width>191.97pt</Width>
-        <Value>Отгружаемые товары:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>36.70pt</Left>
-        <Top>159.80pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <FontSize>14pt</FontSize>
         </Style>
       </Textbox>
       <Table Name="Table1">
@@ -67,14 +52,17 @@
           <TableColumn>
             <Width>24.5pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>235.5pt</Width>
+            <Width>181.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>121.7pt</Width>
+            <Width>151.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>73.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>56.2pt</Width>
@@ -82,6 +70,252 @@
         </TableColumns>
         <Header>
           <TableRows>
+            <TableRow>
+              <Height>32.5pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox66">
+                      <Value>Траспортное стредство, осуществляющее перевозку :</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>3</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox68">
+                      <Value>={WagonName}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan >3</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>17.3pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>Откуда:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>={storage_from}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan >4</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>17.3pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Куда:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>={storage_to}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan >4</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>26.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>Отгружаемые товары:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                        <VerticalAlign>Bottom</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>3</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>11pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>11pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
             <TableRow>
               <Height>26.1pt</Height>
               <TableCells>
@@ -102,7 +336,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
                       <Value>№ тмц</Value>
@@ -115,7 +349,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>11pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -133,7 +367,26 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>11pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>Инвентарный
+номер</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -151,7 +404,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>11pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -169,7 +422,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>11pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -182,7 +435,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>24.1pt</Height>
+              <Height>16.1pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -198,7 +451,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
                       <Value>={nomenclature_id}</Value>
@@ -223,6 +476,21 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>={inventory_number}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -259,8 +527,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>30.8pt</Left>
-        <Top>188.5pt</Top>
+        <Left>25.6pt</Left>
+        <Top>62.7pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -285,7 +553,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox43">
                       <Value>
@@ -325,6 +593,27 @@
                         <TextAlign>Right</TextAlign>
                       </Style>
                       <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>11pt</FontSize>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -395,10 +684,10 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>Траспортное стредство, осуществляющее перевозку :</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                    <Textbox Name="Textbox5" >
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -418,9 +707,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>=First({WagonName}, "DocumentInfo")</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -440,13 +729,14 @@
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>22.2pt</Height>
+              <Height>23.0pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>Откуда:</Value>
-                      <Style>
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -465,8 +755,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>=First({WareFrom}, "DocumentInfo")</Value>
-                      <Style>
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -486,8 +777,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>26.1pt</Left>
-        <Top>71.4pt</Top>
+        <Left>129.3pt</Left>
+        <Top>344.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -496,7 +787,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Style>
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -509,14 +802,15 @@
                         <FontWeight>Bold</FontWeight>
                         <FontSize>12pt</FontSize>
                       </Style>
-                      <Value>Куда:</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Style>
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -529,7 +823,6 @@
                         <FontSize>12pt</FontSize>
                         <TextDecoration>Underline</TextDecoration>
                       </Style>
-                      <Value>=First({WareTo}, "DocumentInfo")</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -829,8 +1122,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>34.6pt</Left>
-        <Top>271.1pt</Top>
+        <Left>25.8pt</Left>
+        <Top>227.9pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1105,26 +1398,50 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-store_movement_document.id ,
-store_movement_document.time_stamp AS Date ,
-IFNULL(store_movement_document_items.received_amount, store_movement_document_items.sended_amount) AS Count ,
-WarehouseFrom.Name AS WarehouseFromName,
-WarehouseTo.Name AS WarehouseToName ,
-store_movement_wagon.name AS WagonName ,
-nomenclature.Name AS NomName ,
-nomenclature.id AS nomenclature_id, 
-measurement_units.name 
-	FROM store_movement_document
-		LEFT JOIN store_movement_document_items ON store_movement_document_items.movement_document_id = store_movement_document.id
-		LEFT JOIN warehouses AS WarehouseFrom ON WarehouseFrom.id = store_movement_document.warehouse_from_id
-		LEFT JOIN warehouses AS WarehouseTo ON WarehouseTo.id = store_movement_document.warehouse_to_id
-		LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_wagon.id
-		LEFT JOIN nomenclature ON nomenclature.id = store_movement_document_items.nomenclature_id
-		LEFT JOIN measurement_units ON measurement_units.id = nomenclature.unit_id
-	WHERE store_movement_document.id = @ documentId
+    store_movement_document.id,
+    store_movement_document.time_stamp AS Date,
+    IFNULL( store_movement_wagon.name , 'Внутреннее перемещение') AS WagonName,
+    IFNULL(
+        store_movement_document_items.received_amount,
+        store_movement_document_items.sended_amount) AS Count,
+    (
+        case
+            when warehouse_from.id is not null then CONCAT('Склад: ', warehouse_from.name)
+            when employee_from.id is not null
+                then CONCAT('Сотрудник: ', employee_from.last_name, ' ', employee_from.name, ' ', employee_from.patronymic)
+            when car_from.id is not null then CONCAT('Автомобиль: ', car_model_from.name, ' ', car_from.reg_number)
+            end
+    ) AS storage_from,
+    (
+        case
+            when warehouse_to.id is not null then CONCAT('Склад: ', warehouse_to.name)
+            when employee_to.id is not null
+                then CONCAT('Сотрудник: ', employee_to.last_name, ' ', employee_to.name, ' ', employee_to.patronymic)
+            when car_to.id is not null then CONCAT('Автомобиль: ', car_model_to.name, ' ', car_to.reg_number)
+            end
+    ) AS storage_to,
+    nomenclature.Name AS NomName,
+    nomenclature.id AS nomenclature_id,
+    IFNULL(ni.inventory_number, '-') AS inventory_number,
+    measurement_units.name
+FROM store_movement_document
+    LEFT JOIN store_movement_document_items ON store_movement_document_items.movement_document_id = store_movement_document.id
+    LEFT JOIN nomenclature_instances ni ON store_movement_document_items.nomenclature_instance_id = ni.id
+    LEFT JOIN warehouses AS warehouse_from ON warehouse_from.id = store_movement_document.warehouse_from_id
+    LEFT JOIN warehouses AS warehouse_to ON warehouse_to.id = store_movement_document.warehouse_to_id
+    LEFT JOIN employees AS employee_from ON employee_from.id = store_movement_document.employee_from_id
+    LEFT JOIN employees AS employee_to ON employee_to.id = store_movement_document.employee_to_id
+    LEFT JOIN cars AS car_from ON car_from.id = store_movement_document.car_from_id
+    LEFT JOIN car_models AS car_model_from ON car_from.model_id = car_model_from.id
+    LEFT JOIN cars AS car_to ON car_to.id = store_movement_document.car_to_id
+    LEFT JOIN car_models AS car_model_to ON car_to.model_id = car_model_to.id
+    LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
+    LEFT JOIN nomenclature ON nomenclature.id = store_movement_document_items.nomenclature_id
+    LEFT JOIN measurement_units ON measurement_units.id = nomenclature.unit_id
+WHERE store_movement_document.id = @documentId
 GROUP BY store_movement_document_items.id</CommandText>
         <QueryParameters>
-          <QueryParameter Name=" documentId">
+          <QueryParameter Name="documentId">
             <Value>=Parameters!documentId</Value>
           </QueryParameter>
         </QueryParameters>
@@ -1142,12 +1459,12 @@ GROUP BY store_movement_document_items.id</CommandText>
           <DataField>Count</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="WarehouseFromName">
-          <DataField>WarehouseFromName</DataField>
+        <Field Name="storage_from">
+          <DataField>storage_from</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="WarehouseToName">
-          <DataField>WarehouseToName</DataField>
+        <Field Name="storage_to">
+          <DataField>storage_to</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="WagonName">
@@ -1166,37 +1483,8 @@ GROUP BY store_movement_document_items.id</CommandText>
           <DataField>nomenclature_id</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="DocumentInfo">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-IFNULL( store_movement_wagon.name , "Внутреннее перемещение") AS WagonName,
-wareFrom.name AS WareFrom,
-wareTo.name AS WareTo
-FROM store_movement_document
-LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
-LEFT JOIN warehouses AS wareFrom ON wareFrom.id = store_movement_document.warehouse_from_id
-LEFT JOIN warehouses AS wareTo ON wareTo.id = store_movement_document.warehouse_to_id
-WHERE store_movement_document.id = @documentId</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="documentId">
-            <Value>={?documentId}</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="WagonName">
-          <DataField>WagonName</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="WareFrom">
-          <DataField>WareFrom</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="WareTo">
-          <DataField>WareTo</DataField>
+        <Field Name="inventory_number">
+          <DataField>inventory_number</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1205,7 +1493,7 @@ WHERE store_movement_document.id = @documentId</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -9,13 +10,17 @@ using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
+using Vodovoz.ViewModels.Extensions;
 using Vodovoz.ViewModels.TempAdapters;
 
 namespace Vodovoz.ViewModels.ViewModels.Cash
@@ -24,27 +29,26 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 	{
 		private PayoutRequestUserRole _userRole;
 		private readonly Employee _currentEmployee;
-		private readonly IExpenseCategorySelectorFactory _expenseCategoryJournalFactory;
-		private IEntityAutocompleteSelectorFactory _expenseCategoryAutocompleteSelectorFactory;
+		private readonly ILifetimeScope _lifetimeScope;
+		private FinancialExpenseCategory _financialExpenseCategory;
 
 		public CashlessRequestViewModel(
 			IFileDialogService fileDialogService,
-			IExpenseCategorySelectorFactory expenseCategoryJournalFactory,
 			IUserRepository userRepository,
 			ICounterpartyJournalFactory counterpartyJournalFactory,
 			IEmployeeRepository employeeRepository,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigation = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
+			INavigationManager navigation,
+			ILifetimeScope lifetimeScope)
+			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			TabName = base.TabName;
 			CounterpartyAutocompleteSelector =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory();
-			_expenseCategoryJournalFactory =
-				expenseCategoryJournalFactory ?? throw new ArgumentNullException(nameof(expenseCategoryJournalFactory));
-
+			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_currentEmployee =
 				(employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)))
 				.GetEmployeeForCurrentUser(UoW);
@@ -68,6 +72,25 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 			};
 			CashlessRequestFilesViewModel = filesViewModel;
 
+			var expenseCategoryEntryViewModelBuilder = new CommonEEVMBuilderFactory<CashlessRequestViewModel>(this, this, UoW, NavigationManager, _lifetimeScope);
+
+			FinancialExpenseCategoryViewModel = expenseCategoryEntryViewModelBuilder
+				.ForProperty(x => x.FinancialExpenseCategory)
+				.UseViewModelDialog<FinancialExpenseCategoryViewModel>()
+				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
+					filter =>
+					{
+						filter.RestrictFinancialSubtype = FinancialSubType.Expense;
+						filter.RestrictNodeSelectTypes.Add(typeof(FinancialExpenseCategory));
+					})
+				.Finish();
+
+			FinancialExpenseCategoryViewModel.IsEditable = false;
+
+			SetPropertyChangeRelation(
+				e => e.ExpenseCategoryId,
+				() => FinancialExpenseCategory);
+
 			ConfigureEntityChangingRelations();
 		}
 
@@ -76,12 +99,16 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		public CashlessRequestFilesViewModel CashlessRequestFilesViewModel { get; }
 		public IEnumerable<Organization> OurOrganisations { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelector { get; }
-		public IEntityAutocompleteSelectorFactory ExpenseCategoryAutocompleteSelectorFactory =>
-			_expenseCategoryAutocompleteSelectorFactory
-		    ?? (_expenseCategoryAutocompleteSelectorFactory =
-				_expenseCategoryJournalFactory.CreateDefaultExpenseCategoryAutocompleteSelectorFactory());
 
 		public IEnumerable<PayoutRequestUserRole> UserRoles { get; }
+
+		public IEntityEntryViewModel FinancialExpenseCategoryViewModel { get; }
+
+		public FinancialExpenseCategory FinancialExpenseCategory
+		{
+			get => this.GetIdRefField(ref _financialExpenseCategory, Entity.ExpenseCategoryId);
+			set => this.SetIdRefField(SetField, ref _financialExpenseCategory, () => Entity.ExpenseCategoryId, value);
+		}
 
 		#endregion
 
@@ -126,8 +153,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 		                                 || Entity.PayoutRequestState == PayoutRequestState.Agreed
 		                                 || Entity.PayoutRequestState == PayoutRequestState.GivenForTake;
 
-		public bool CanSeeExpenseCategory => UserRole == PayoutRequestUserRole.Accountant
-		                                     || UserRole == PayoutRequestUserRole.Financier;
+		public bool CanSeeExpenseCategory => true;
 
 		public bool CanSetExpenseCategory => Entity.PayoutRequestState == PayoutRequestState.New
 		                                     || Entity.PayoutRequestState == PayoutRequestState.Agreed

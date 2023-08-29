@@ -5,9 +5,9 @@ namespace Vodovoz.Journal
 {
 	public class JournalSelectedNodesNodesEventArgs : EventArgs
 	{
-		public JournalNodeBase[] SelectedNodes { get; }
+		public IJournalNode[] SelectedNodes { get; }
 
-		public JournalSelectedNodesNodesEventArgs(JournalNodeBase[] selectedNodes)
+		public JournalSelectedNodesNodesEventArgs(IJournalNode[] selectedNodes)
 		{
 			SelectedNodes = selectedNodes;
 		}

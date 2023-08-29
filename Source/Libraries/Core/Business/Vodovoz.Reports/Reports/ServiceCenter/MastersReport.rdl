@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -20,7 +20,7 @@
         <Height>21.04pt</Height>
         <Width>758.81pt</Width>
         <Value>Отчёт по выездному мастеру</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>4.40pt</Top>
         <Style>
@@ -430,7 +430,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
-                      <Value>=Iif({entry_payment_type} = "cashless", {entry_sum}, 0)</Value>
+                      <Value>=Iif({entry_payment_type} = "Cashless", {entry_sum}, 0)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -448,7 +448,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>=Iif({entry_payment_type} = "cash", {entry_sum}, 0)</Value>
+                      <Value>=Iif({entry_payment_type} = "Cash", {entry_sum}, 0)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -685,7 +685,7 @@
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
-                          <Value>=Sum(Iif({entry_payment_type} = "cashless", {entry_sum}, 0))</Value>
+                          <Value>=Sum(Iif({entry_payment_type} = "Cashless", {entry_sum}, 0))</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -702,7 +702,7 @@
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
-                          <Value>=Sum(Iif({entry_payment_type} = "cash", {entry_sum}, 0))</Value>
+                          <Value>=Sum(Iif({entry_payment_type} = "Cash", {entry_sum}, 0))</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1075,7 +1075,7 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>=Sum(Iif({entry_payment_type} = "cashless", {entry_sum}, 0))</Value>
+                      <Value>=Sum(Iif({entry_payment_type} = "Cashless", {entry_sum}, 0))</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1092,7 +1092,7 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>=Sum(Iif({entry_payment_type} = "cash", {entry_sum}, 0))</Value>
+                      <Value>=Sum(Iif({entry_payment_type} = "Cash", {entry_sum}, 0))</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1330,7 +1330,7 @@
  + Iif({?start_date} = {?end_date},
 	" за " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy"),
 	" с " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>7.50pt</Top>
         <Style>
@@ -1659,7 +1659,7 @@ and wmo.operation_time &lt; DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_test;user=OO;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

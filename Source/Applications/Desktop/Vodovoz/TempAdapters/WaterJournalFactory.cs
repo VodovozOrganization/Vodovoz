@@ -9,6 +9,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 
 namespace Vodovoz.TempAdapters
@@ -29,7 +30,7 @@ namespace Vodovoz.TempAdapters
 
             var nomenclatureRepository = new NomenclatureRepository(new NomenclatureParametersProvider(new ParametersProvider()));
             var userRepository = new UserRepository();
-            var counterpartyJournalFactory = new CounterpartyJournalFactory();
+            var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 			WaterJournalViewModel waterJournal = new WaterJournalViewModel(
                 UnitOfWorkFactory.GetDefaultFactory,

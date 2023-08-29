@@ -1,9 +1,9 @@
 ﻿using Autofac;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.TempAdapters
 {

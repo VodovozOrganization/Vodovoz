@@ -1,15 +1,15 @@
-using System;
-using System.Security;
-using MySql.Data.MySqlClient;
+﻿using MySqlConnector;
 using QS.Project.DB;
 using QS.Project.DB.Passwords;
 using QS.Project.Repositories;
 using QS.Utilities.Text;
+using System;
+using System.Security;
 using VodovozInfrastructure.Configuration;
 
 namespace VodovozInfrastructure.Passwords
 {
-    public class MysqlChangePasswordModelExtended : MySqlChangePasswordModel
+	public class MysqlChangePasswordModelExtended : MySqlChangePasswordModel
     {
         public MysqlChangePasswordModelExtended(
             IApplicationConfigurator applicationConfigurator,

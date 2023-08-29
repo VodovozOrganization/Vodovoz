@@ -1,20 +1,55 @@
-﻿using System;
+﻿using NHibernate.Criterion;
+using QS.DomainModel.Entity;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NHibernate.Criterion;
-using QS.DomainModel.Entity;
 
 namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 {
 	public class SelectableParameterSet : PropertyChangedBase
 	{
-		private readonly IParametersFactory parametersFactory;
-		private readonly string includeSuffix;
-		private readonly string excludeSuffix;
 		private const string _emptyIncludeParameter = "Все";
 		private const string _emptyExcludeParameter = "Нет";
+
+		private GenericObservableList<SelectableParameter> _outputParameters = new GenericObservableList<SelectableParameter>();
+		private GenericObservableList<SelectableParameter> _parameters;
+
+		private readonly IParametersFactory _parametersFactory;
+
+		private readonly string _includeSuffix;
+		private readonly string _excludeSuffix;
+
+		private SelectableFilterType _filterType;
+
+		private string _searchValue;
+
+		private bool _isVisible = true;
+		private bool _suppressSelectionChangedEvent;
+
+		public SelectableParameterSet(string name, IParametersFactory parametersFactory, string parameterName, string includeSuffix = "_include", string excludeSuffix = "_exclude")
+		{
+			if(string.IsNullOrWhiteSpace(name))
+			{
+				throw new ArgumentNullException(nameof(name));
+			}
+
+			_parametersFactory = parametersFactory ?? throw new ArgumentNullException(nameof(parametersFactory));
+
+			if(string.IsNullOrWhiteSpace(parameterName))
+			{
+				throw new ArgumentNullException(nameof(parameterName));
+			}
+
+			_includeSuffix = includeSuffix;
+			_excludeSuffix = excludeSuffix;
+
+			Name = name;
+			ParameterName = parameterName;
+		}
+
+		public event EventHandler<SelectableParameterSetSelectionChanged> SelectionChanged;
 
 		protected List<Func<ICriterion>> FilterRelations { get; } = new List<Func<ICriterion>>();
 
@@ -22,41 +57,61 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		public virtual object[] EmptyValue { get; set; } = new object[] { "0" };
 
-		private SelectableFilterType filterType;
-		public virtual SelectableFilterType FilterType {
-			get => filterType;
-			set => SetField(ref filterType, value);
+		public virtual SelectableFilterType FilterType
+		{
+			get => _filterType;
+			set => SetField(ref _filterType, value);
 		}
 
-		private GenericObservableList<SelectableParameter> outputParameters = new GenericObservableList<SelectableParameter>();
-		public virtual GenericObservableList<SelectableParameter> OutputParameters {
-			get => outputParameters;
-			set => SetField(ref outputParameters, value, () => OutputParameters);
+		public bool IsVisible
+		{
+			get => _isVisible;
+			set => SetField(ref _isVisible, value);
 		}
 
-		private GenericObservableList<SelectableParameter> parameters;
-		public GenericObservableList<SelectableParameter> Parameters {
-			get {
-				if(parameters == null) {
-					parameters = new GenericObservableList<SelectableParameter>(parametersFactory.GetParameters(FilterRelations));
-					foreach(SelectableParameter parameter in parameters) {
+		public virtual GenericObservableList<SelectableParameter> OutputParameters
+		{
+			get => _outputParameters;
+			set => SetField(ref _outputParameters, value);
+		}
+
+		public string SearchValue => _searchValue;
+
+		public GenericObservableList<SelectableParameter> Parameters
+		{
+			get
+			{
+				if(_parameters == null)
+				{
+					_parameters = new GenericObservableList<SelectableParameter>(_parametersFactory.GetParameters(FilterRelations));
+
+					foreach(SelectableParameter parameter in _parameters)
+					{
 						parameter.AnySelectedChanged += Parameter_AnySelectedChanged;
 					}
 				}
-				return parameters;
-			}
 
-			set {
-				var oldParameters = parameters;
-				if(oldParameters != null) {
-					foreach(SelectableParameter oldParameter in oldParameters) {
+				return _parameters;
+			}
+			set
+			{
+				var oldParameters = _parameters;
+
+				if(oldParameters != null)
+				{
+					foreach(SelectableParameter oldParameter in oldParameters)
+					{
 						oldParameter.AnySelectedChanged -= Parameter_AnySelectedChanged;
 					}
 				}
-				if(SetField(ref parameters, value) && parameters != null) {
-					foreach(SelectableParameter parameter in Parameters) {
+
+				if(SetField(ref _parameters, value) && _parameters != null)
+				{
+					foreach(SelectableParameter parameter in Parameters)
+					{
 						parameter.AnySelectedChanged += Parameter_AnySelectedChanged;
 					}
+
 					UpdateOutputParameters();
 				}
 			}
@@ -64,88 +119,84 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		public string ParameterName { get; }
 
-		public event EventHandler<SelectableParameterSetSelectionChanged> SelectionChanged;
-
-		public SelectableParameterSet(string name, IParametersFactory parametersFactory, string parameterName, string includeSuffix = "_include", string excludeSuffix = "_exclude")
-		{
-			if(string.IsNullOrWhiteSpace(name)) {
-				throw new ArgumentNullException(nameof(name));
-			}
-
-			if(string.IsNullOrWhiteSpace(parameterName)) {
-				throw new ArgumentNullException(nameof(parameterName));
-			}
-
-			this.includeSuffix = includeSuffix;
-			this.excludeSuffix = excludeSuffix;
-
-			Name = name;
-			this.parametersFactory = parametersFactory ?? throw new ArgumentNullException(nameof(parametersFactory));
-			ParameterName = parameterName;
-		}
-
-		void Parameter_AnySelectedChanged(object sender, SelectableParameterSelectionChangedEventArgs e)
+		private void Parameter_AnySelectedChanged(object sender, SelectableParameterSelectionChangedEventArgs e)
 		{
 			RaiseSelectionChanged(e);
 		}
 
-		private bool suppressSelectionChangedEvent;
-
 		private void RaiseSelectionChanged(params SelectableParameterSelectionChangedEventArgs[] changes)
 		{
-			if(suppressSelectionChangedEvent) {
+			if(_suppressSelectionChangedEvent)
+			{
 				return;
 			}
+
 			SelectionChanged?.Invoke(this, new SelectableParameterSetSelectionChanged(ParameterName, changes));
 		}
 
-		private string searchValue;
 		public void FilterParameters(string searchValue)
 		{
-			this.searchValue = searchValue;
+			_searchValue = searchValue;
 			UpdateOutputParameters();
 		}
 
 		public void UpdateOutputParameters()
 		{
-			if(Parameters.Any(x => x.Children.Any())) {
-				foreach(SelectableParameter sp in Parameters) {
-					sp.FilterChilds(searchValue);
-				}
-				OutputParameters = new GenericObservableList<SelectableParameter>(Parameters.Where(x => x.Children.Any() || x.Title.ToLower().Contains(searchValue == null ? "" : searchValue.ToLower())).ToList());
-			} else {
-				OutputParameters = new GenericObservableList<SelectableParameter>(Parameters.Where(x => x.Title.ToLower().Contains(searchValue == null ? "" : searchValue.ToLower())).ToList());
+			foreach(SelectableParameter sp in Parameters)
+			{
+				sp.FilterChilds(_searchValue);
+			}
+
+			if(Parameters.Any(x => x.Children.Any()))
+			{
+				OutputParameters = new GenericObservableList<SelectableParameter>(
+					Parameters
+						.Where(x => x.Children.Any()
+							|| x.Title.ToLower().Contains(_searchValue == null ? "" : _searchValue.ToLower()))
+						.ToList());
+			}
+			else
+			{
+				OutputParameters = new GenericObservableList<SelectableParameter>(
+					Parameters
+						.Where(x => x.Title.ToLower().Contains(_searchValue == null ? "" : _searchValue.ToLower()))
+						.ToList());
 			}
 		}
 
 		public void SelectAll()
 		{
-			suppressSelectionChangedEvent = true;
-			List<SelectableParameterSelectionChangedEventArgs> changes = new List<SelectableParameterSelectionChangedEventArgs>();
-			foreach(SelectableParameter value in OutputParameters) {
+			_suppressSelectionChangedEvent = true;
+			var changes = new List<SelectableParameterSelectionChangedEventArgs>();
+
+			foreach(SelectableParameter value in OutputParameters)
+			{
 				value.Selected = true;
 				changes.Add(new SelectableParameterSelectionChangedEventArgs(value.Value, value.Title, true));
 			}
-			suppressSelectionChangedEvent = false;
+
+			_suppressSelectionChangedEvent = false;
 			RaiseSelectionChanged(changes.ToArray());
 		}
 
 		public void UnselectAll()
 		{
-			suppressSelectionChangedEvent = true;
-			List<SelectableParameterSelectionChangedEventArgs> changes = new List<SelectableParameterSelectionChangedEventArgs>();
-			foreach(SelectableParameter value in OutputParameters) {
+			_suppressSelectionChangedEvent = true;
+			var changes = new List<SelectableParameterSelectionChangedEventArgs>();
+
+			foreach(SelectableParameter value in OutputParameters)
+			{
 				value.Selected = false;
 				changes.Add(new SelectableParameterSelectionChangedEventArgs(value.Value, value.Title, false));
 			}
-			suppressSelectionChangedEvent = false;
+
+			_suppressSelectionChangedEvent = false;
 			RaiseSelectionChanged(changes.ToArray());
 		}
 
 		public IEnumerable<object> GetSelectedValues()
 		{
-			var selectedValues = OutputParameters.SelectMany(x => x.GetAllSelected().Select(y => y.Value));
-			return selectedValues;
+			return OutputParameters.SelectMany(x => x.GetAllSelected().Select(y => y.Value));
 		}
 
 		/// <summary>
@@ -156,8 +207,10 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		public IEnumerable<SelectableParameter> GetIncludedParameters()
 		{
 			var selectedValues = OutputParameters.SelectMany(x => x.GetAllSelected()).ToList();
+
 			IEnumerable<SelectableParameter> includedValues;
-			switch (FilterType)
+
+			switch(FilterType)
 			{
 				case SelectableFilterType.Include:
 					includedValues = selectedValues;
@@ -174,45 +227,57 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		public Dictionary<string, object> GetParameters()
 		{
-			Dictionary<string, object> result = new Dictionary<string, object>();
+			var result = new Dictionary<string, object>();
 
-			var selectedValues = GetSelectedValues();
+			if(IsVisible)
+			{
+				var selectedValues = GetSelectedValues();
 
-			result.Add($"{ParameterName}{includeSuffix}", FilterType == SelectableFilterType.Include ? GetValidSelectedValues(selectedValues) : EmptyValue);
-			result.Add($"{ParameterName}{excludeSuffix}", FilterType == SelectableFilterType.Exclude ? GetValidSelectedValues(selectedValues) : EmptyValue);
+				result.Add($"{ParameterName}{_includeSuffix}", FilterType == SelectableFilterType.Include ? GetValidSelectedValues(selectedValues) : EmptyValue);
+				result.Add($"{ParameterName}{_excludeSuffix}", FilterType == SelectableFilterType.Exclude ? GetValidSelectedValues(selectedValues) : EmptyValue);
+			}
 
 			return result;
 		}
 
 		private object[] GetValidSelectedValues(IEnumerable<object> selectedValues)
 		{
-			if(!selectedValues.Any()) {
+			if(!selectedValues.Any())
+			{
 				return EmptyValue;
 			}
+
 			return selectedValues.ToArray();
 		}
 
 		public void AddFilterOnSourceSelectionChanged(SelectableParameterSet sourceParameterSet, Func<ICriterion> filterCriterionFunc)
 		{
-			if(sourceParameterSet == null) {
+			if(sourceParameterSet == null)
+			{
 				throw new ArgumentNullException(nameof(sourceParameterSet));
 			}
 
-			if(filterCriterionFunc == null) {
+			if(filterCriterionFunc == null)
+			{
 				throw new ArgumentNullException(nameof(filterCriterionFunc));
 			}
 
 			FilterRelations.Add(filterCriterionFunc);
 
-			sourceParameterSet.SelectionChanged -= MasterParameterSet_SelectionChanged;
-			sourceParameterSet.SelectionChanged += MasterParameterSet_SelectionChanged;
+			sourceParameterSet.SelectionChanged -= OnMasterParameterSetSelectionChanged;
+			sourceParameterSet.SelectionChanged += OnMasterParameterSetSelectionChanged;
 		}
 
-		void MasterParameterSet_SelectionChanged(object sender, EventArgs e)
+		private void OnMasterParameterSetSelectionChanged(object sender, EventArgs e)
 		{
-			Parameters = new GenericObservableList<SelectableParameter>(parametersFactory.GetParameters(FilterRelations));
+			UpdateParameters();
 		}
 		
+		public void UpdateParameters()
+		{
+			Parameters = new GenericObservableList<SelectableParameter>(_parametersFactory.GetParameters(FilterRelations));
+		}
+
 		public Dictionary<string, string> GetSelectedParametersTitles()
 		{
 			var result = new Dictionary<string, string>();
@@ -223,6 +288,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 				FilterType == SelectableFilterType.Include
 					? GetValidSelectedValuesTitles(sb, selectedValuesTitles, true)
 					: _emptyIncludeParameter);
+
 			result.Add($"{Name} исключая: ",
 				FilterType == SelectableFilterType.Exclude
 					? GetValidSelectedValuesTitles(sb, selectedValuesTitles, false)
@@ -230,17 +296,16 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 			return result;
 		}
-		
+
 		private IEnumerable<string> GetSelectedValuesTitles()
 		{
-			var selectedValues =
-				OutputParameters.SelectMany(x => x.GetAllSelected().Select(y => y.Title)).ToArray();
-			return selectedValues;
+			return OutputParameters.SelectMany(x => x.GetAllSelected().Select(y => y.Title)).ToArray();
 		}
 
 		private string GetValidSelectedValuesTitles(StringBuilder sb, IEnumerable<string> selectedValuesTitles, bool include)
 		{
 			sb.Clear();
+
 			if(!selectedValuesTitles.Any())
 			{
 				if(include)
@@ -251,6 +316,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			}
 
 			var count = selectedValuesTitles.Count();
+
 			if(count < 5)
 			{
 				foreach(var item in selectedValuesTitles)

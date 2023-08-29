@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Validation;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.Cash.CashTransfer;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -20,193 +22,200 @@ using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Domain.Cash
 {
-	[Appellative (Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "расходные одера",
-		Nominative = "расходный ордер")]
+		Nominative = "расходный ордер",
+		Accusative = "расходный ордер",
+		Genitive = "расходного ордера")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class Expense : PropertyChangedBase, IDomainObject, IValidatableObject, ISubdivisionEntity
 	{
-		#region Свойства
+		private DateTime _date;
+		private Subdivision _relatedToSubdivision;
+		private ExpenseInvoiceDocumentType _typeDocument;
+		private ExpenseType _typeOperation;
+		private Employee _casher;
+		private Employee _employee;
+		private Order _order;
+		private int? _expenseCategoryId;
+		private string _description;
+		private decimal _money;
+		private bool? _advanceClosed;
+		private IList<AdvanceClosing> _advanceCloseItems;
+		private RouteList _routeListClosing;
+		private WagesMovementOperations _wagesOperation;
+		private ExpenseCashTransferedItem _transferedBy;
+		private CashTransferDocumentBase _cashTransferDocument;
+		private Organization _organisation;
+		private CashRequestSumItem _cashRequestSumItem;
+
+		public Expense() { }
 
 		public virtual int Id { get; set; }
 
-		private DateTime date;
-
-		[Display (Name = "Дата")]
-		public virtual DateTime Date {
-			get => date;
-			set => SetField (ref date, value);
+		[Display(Name = "Дата")]
+		public virtual DateTime Date
+		{
+			get => _date;
+			set => SetField(ref _date, value);
 		}
-
-		private Subdivision relatedToSubdivision;
 
 		[Display(Name = "Относится к подразделению")]
-		public virtual Subdivision RelatedToSubdivision {
-			get { return relatedToSubdivision; }
-			set { SetField(ref relatedToSubdivision, value, () => RelatedToSubdivision); }
+		public virtual Subdivision RelatedToSubdivision
+		{
+			get => _relatedToSubdivision;
+			set => SetField(ref _relatedToSubdivision, value);
 		}
-
-		private ExpenseInvoiceDocumentType typeDocument;
 
 		[Display(Name = "Тип документа")]
-		public virtual ExpenseInvoiceDocumentType TypeDocument {
-			get { return typeDocument; }
-			set { SetField(ref typeDocument, value, () => TypeDocument); }
+		public virtual ExpenseInvoiceDocumentType TypeDocument
+		{
+			get => _typeDocument;
+			set => SetField(ref _typeDocument, value);
 		}
 
-		private ExpenseType typeOperation;
-
-		[Display (Name = "Тип операции")]
-		public virtual ExpenseType TypeOperation {
-			get { return typeOperation; }
-			set {
-				if(SetField (ref typeOperation, value, () => TypeOperation))
+		[Display(Name = "Тип операции")]
+		public virtual ExpenseType TypeOperation
+		{
+			get => _typeOperation;
+			set
+			{
+				if(SetField(ref _typeOperation, value))
 				{
-					if (TypeOperation == ExpenseType.Advance && AdvanceClosed == null)
+					if(TypeOperation == ExpenseType.Advance && AdvanceClosed == null)
+					{
 						AdvanceClosed = false;
-					if (TypeOperation != ExpenseType.Advance && AdvanceClosed.HasValue)
+					}
+
+					if(TypeOperation != ExpenseType.Advance && AdvanceClosed.HasValue)
+					{
 						AdvanceClosed = null;
+					}
+
+					if(TypeOperation == ExpenseType.Salary
+						|| TypeOperation == ExpenseType.EmployeeAdvance)
+					{
+						Organisation = null;
+					}
 				}
 			}
 		}
 
-		Employee casher;
-
-		[Display (Name = "Кассир")]
-		public virtual Employee Casher {
-			get { return casher; }
-			set { SetField (ref casher, value, () => Casher); }
+		[Display(Name = "Кассир")]
+		public virtual Employee Casher
+		{
+			get => _casher;
+			set => SetField(ref _casher, value);
 		}
 
-		Employee employee;
-
-		[Display (Name = "Сотрудник")]
-		public virtual Employee Employee {
-			get { return employee; }
-			set { SetField (ref employee, value, () => Employee); }
+		[Display(Name = "Сотрудник")]
+		public virtual Employee Employee
+		{
+			get => _employee;
+			set => SetField(ref _employee, value);
 		}
-
-		Order order;
 
 		[Display(Name = "Заказ")]
-		public virtual Order Order {
-			get { return order; }
-			set { SetField(ref order, value, () => Order); }
+		public virtual Order Order
+		{
+			get => _order;
+			set => SetField(ref _order, value);
 		}
 
-		ExpenseCategory expenseCategory;
-
-		[Display (Name = "Статья расхода")]
-		public virtual ExpenseCategory ExpenseCategory {
-			get { return expenseCategory; }
-			set { SetField (ref expenseCategory, value, () => ExpenseCategory); }
+		[Display(Name = "Статья расхода")]
+		[HistoryIdentifier(TargetType = typeof(FinancialExpenseCategory))]
+		public virtual int? ExpenseCategoryId
+		{
+			get => _expenseCategoryId;
+			set => SetField(ref _expenseCategoryId, value);
 		}
 
-		string description;
-
-		[Display (Name = "Основание")]
+		[Display(Name = "Основание")]
 		public virtual string Description
 		{
-			get => description;
-			set => SetField (ref description, value);
+			get => _description;
+			set => SetField(ref _description, value);
 		}
 
-		decimal money;
-
-		[Display (Name = "Сумма")]
-		public virtual decimal Money {
-			get { return money; }
-			set {
-				SetField (ref money, value, () => Money); 
-			}
+		[Display(Name = "Сумма")]
+		public virtual decimal Money
+		{
+			get => _money;
+			set => SetField(ref _money, value);
 		}
 
-		bool? advanceClosed;
-
-		[Display (Name = "Аванс закрыт")]
-		public virtual bool? AdvanceClosed {
-			get { return advanceClosed; }
-			set { SetField (ref advanceClosed, value, () => AdvanceClosed); }
+		[Display(Name = "Аванс закрыт")]
+		public virtual bool? AdvanceClosed
+		{
+			get => _advanceClosed;
+			set => SetField(ref _advanceClosed, value);
 		}
 
-		IList<AdvanceClosing> advanceCloseItems;
-
-		[Display (Name = "Документы закрытия аванса")]
-		public virtual IList<AdvanceClosing> AdvanceCloseItems {
-			get { return advanceCloseItems; }
-			set { SetField (ref advanceCloseItems, value, () => AdvanceCloseItems); }
+		[Display(Name = "Документы закрытия аванса")]
+		public virtual IList<AdvanceClosing> AdvanceCloseItems
+		{
+			get => _advanceCloseItems;
+			set => SetField(ref _advanceCloseItems, value);
 		}
-
-		RouteList routeListClosing;
 
 		public virtual RouteList RouteListClosing
 		{
-			get{ return routeListClosing; }
-			set
-			{
-				SetField(ref routeListClosing, value, () => RouteListClosing);
-			}
+			get => _routeListClosing;
+			set => SetField(ref _routeListClosing, value);
 		}
-
-		private WagesMovementOperations wagesOperation;
 
 		[Display(Name = "Операция с зарплатой")]
 		public virtual WagesMovementOperations WagesOperation
 		{
-			get { return wagesOperation; }
-			set { SetField(ref wagesOperation, value, () => WagesOperation); }
+			get => _wagesOperation;
+			set => SetField(ref _wagesOperation, value);
 		}
 
-		private ExpenseCashTransferedItem transferedBy;
 		[Display(Name = "Перемещен")]
-		public virtual ExpenseCashTransferedItem TransferedBy {
-			get => transferedBy;
-			set => SetField(ref transferedBy, value, () => TransferedBy);
+		public virtual ExpenseCashTransferedItem TransferedBy
+		{
+			get => _transferedBy;
+			set => SetField(ref _transferedBy, value);
 		}
 
-		private CashTransferDocumentBase cashTransferDocument;
 		[Display(Name = "Документ перемещения")]
-		public virtual CashTransferDocumentBase CashTransferDocument {
-			get => cashTransferDocument;
-			set => SetField(ref cashTransferDocument, value, () => CashTransferDocument);
+		public virtual CashTransferDocumentBase CashTransferDocument
+		{
+			get => _cashTransferDocument;
+			set => SetField(ref _cashTransferDocument, value);
 		}
 
-		private Organization organisation;
 		[Display(Name = "Организация")]
-		public virtual Organization Organisation {
-			get => organisation;
-			set => SetField(ref organisation, value);
+		public virtual Organization Organisation
+		{
+			get => _organisation;
+			set => SetField(ref _organisation, value);
 		}
 
-		private CashRequestSumItem cashRequestSumItem;
 		[Display(Name = "Сумма заявки на выдачу ДС")]
 		public virtual CashRequestSumItem CashRequestSumItem
 		{
-			get { return cashRequestSumItem; }
-			set { SetField(ref cashRequestSumItem, value); }
+			get => _cashRequestSumItem;
+			set => SetField(ref _cashRequestSumItem, value);
 		}
 
-		#endregion
-
-		#region Вычисляемые
-
-		public virtual string Title => String.Format("Расходный ордер №{0} от {1:d}", Id, Date);
+		public virtual string Title => $"Расходный ордер №{Id} от {Date:d}";
 
 		public virtual decimal ClosedMoney => AdvanceCloseItems == null ? 0 : AdvanceCloseItems.Sum(x => x.Money);
 
 		public virtual decimal UnclosedMoney => Money - ClosedMoney;
 
-		#endregion
-
 		#region Функции
 
 		public virtual void CalculateCloseState()
 		{
-			if (TypeOperation != ExpenseType.Advance)
+			if(TypeOperation != ExpenseType.Advance)
+			{
 				throw new InvalidOperationException("Метод CalculateCloseState() можно вызываться только для выдачи аванса.");
+			}
 
-			if (AdvanceCloseItems == null)
+			if(AdvanceCloseItems == null)
 			{
 				AdvanceClosed = false;
 				return;
@@ -217,12 +226,18 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual AdvanceClosing AddAdvanceCloseItem(Income income, decimal sum)
 		{
-			if (TypeOperation != ExpenseType.Advance)
+			if(TypeOperation != ExpenseType.Advance)
+			{
 				throw new InvalidOperationException("Метод AddAdvanceCloseItem() может вызываться только для выдачи аванса.");
-			
+			}
+
 			var closing = new AdvanceClosing(this, income, sum);
-			if (AdvanceCloseItems == null)
+
+			if(AdvanceCloseItems == null)
+			{
 				AdvanceCloseItems = new List<AdvanceClosing>();
+			}
+
 			AdvanceCloseItems.Add(closing);
 			CalculateCloseState();
 			return closing;
@@ -230,23 +245,29 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual AdvanceClosing AddAdvanceCloseItem(AdvanceReport report, decimal sum)
 		{
-			if (TypeOperation != ExpenseType.Advance)
+			if(TypeOperation != ExpenseType.Advance)
+			{
 				throw new InvalidOperationException("Метод AddAdvanceCloseItem() может вызываться только для выдачи аванса.");
+			}
 
 			var closing = new AdvanceClosing(this, report, sum);
-			if (AdvanceCloseItems == null)
+
+			if(AdvanceCloseItems == null)
+			{
 				AdvanceCloseItems = new List<AdvanceClosing>();
+			}
+
 			AdvanceCloseItems.Add(closing);
 			CalculateCloseState();
 			return closing;
 		}
 
-		public virtual void UpdateWagesOperations (IUnitOfWork uow)
+		public virtual void UpdateWagesOperations(IUnitOfWork uow)
 		{
-			if (TypeOperation == ExpenseType.EmployeeAdvance || TypeOperation == ExpenseType.Salary)
+			if(TypeOperation == ExpenseType.EmployeeAdvance || TypeOperation == ExpenseType.Salary)
 			{
 				WagesType operationType = WagesType.GivedAdvance;
-				switch (TypeOperation)
+				switch(TypeOperation)
 				{
 					case ExpenseType.EmployeeAdvance:
 						operationType = WagesType.GivedAdvance;
@@ -255,24 +276,28 @@ namespace Vodovoz.Domain.Cash
 						operationType = WagesType.GivedWage;
 						break;
 				}
-				if (WagesOperation == null)
+				if(WagesOperation == null)
 				{
 					//Умножаем на -1, так как операция выдачи
 					WagesOperation = new WagesMovementOperations
 					{
 						OperationType = operationType,
-						Employee 	  = this.Employee,
-						Money 		  = this.Money * (-1),
+						Employee = this.Employee,
+						Money = this.Money * (-1),
 						OperationTime = DateTime.Now
 					};
-				} else {
+				}
+				else
+				{
 					WagesOperation.OperationType = operationType;
-					WagesOperation.Employee 	 = this.Employee;
-					WagesOperation.Money 		 = this.Money * (-1);
+					WagesOperation.Employee = this.Employee;
+					WagesOperation.Money = this.Money * (-1);
 				}
 				uow.Save(WagesOperation);
-			} else {
-				if (WagesOperation != null)
+			}
+			else
+			{
+				if(WagesOperation != null)
 				{
 					uow.Delete(WagesOperation);
 				}
@@ -282,9 +307,11 @@ namespace Vodovoz.Domain.Cash
 		public virtual void FillFromOrder(IUnitOfWork uow, ICashRepository cashRepository)
 		{
 			var existsExpense = cashRepository.GetExpenseReturnSumForOrder(uow, Order.Id);
-			if(Id == 0) {
+			if(Id == 0)
+			{
 				decimal orderCash = 0m;
-				if(Order.PaymentType == PaymentType.cash) {
+				if(Order.PaymentType == PaymentType.Cash)
+				{
 					orderCash = Math.Abs(Order.OrderNegativeSum);
 				}
 				var result = orderCash - existsExpense;
@@ -296,136 +323,138 @@ namespace Vodovoz.Domain.Cash
 
 		public virtual void AcceptSelfDeliveryPaid(CallTaskWorker callTaskWorker)
 		{
-			if(Id == 0) {
+			if(Id == 0)
+			{
 				Order.AcceptSelfDeliveryExpenseCash(Money, callTaskWorker);
-			} else {
+			}
+			else
+			{
 				Order.AcceptSelfDeliveryExpenseCash(Money, callTaskWorker, Id);
 			}
 		}
 
 		#endregion
 
-		public Expense() { }
-
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(validationContext.Items.ContainsKey("IsSelfDelivery") && (bool)validationContext.Items["IsSelfDelivery"]) {
-				if(TypeDocument != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery) {
-					yield return new ValidationResult($"Тип документа должен быть { ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery.GetEnumTitle() }.",
+			if(validationContext.Items.ContainsKey("IsSelfDelivery") && (bool)validationContext.Items["IsSelfDelivery"])
+			{
+				if(TypeDocument != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery)
+				{
+					yield return new ValidationResult($"Тип документа должен быть {ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery.GetEnumTitle()}.",
 					new[] { this.GetPropertyName(o => o.TypeDocument) });
 				}
-				if(TypeOperation != ExpenseType.ExpenseSelfDelivery) {
-					yield return new ValidationResult($"Тип операции должен быть { ExpenseType.ExpenseSelfDelivery.GetEnumTitle() }.",
+
+				if(TypeOperation != ExpenseType.ExpenseSelfDelivery)
+				{
+					yield return new ValidationResult($"Тип операции должен быть {ExpenseType.ExpenseSelfDelivery.GetEnumTitle()}.",
 					new[] { this.GetPropertyName(o => o.TypeOperation) });
 				}
-				if(ExpenseCategory == null || ExpenseCategory.ExpenseDocumentType != ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery) {
+
+				var financialCategoriesRepository = validationContext.GetService<IFinancialExpenseCategoriesRepository>();
+
+				var unitOfWork = validationContext.GetService<IUnitOfWork>();
+
+				var targetDocument = financialCategoriesRepository.GetExpenseCategoryTargetDocument(unitOfWork, ExpenseCategoryId);
+
+				if(ExpenseCategoryId == null || targetDocument != TargetDocument.SelfDelivery)
+				{
 					yield return new ValidationResult("Должна быть выбрана статья расхода для самовывоза.",
-					new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+					new[] { this.GetPropertyName(o => o.ExpenseCategoryId) });
 				}
-				if(Order == null) {
+
+				if(Order == null)
+				{
 					yield return new ValidationResult("Должен быть выбран заказ.",
 					new[] { this.GetPropertyName(o => o.Order) });
-				} else {
-					if(Order.PaymentType != PaymentType.cash) {
+				}
+				else
+				{
+					if(Order.PaymentType != PaymentType.Cash)
+					{
 						yield return new ValidationResult("Должен быть выбран наличный заказ");
 					}
-					if(!Order.SelfDelivery) {
+					if(!Order.SelfDelivery)
+					{
 						yield return new ValidationResult("Должен быть выбран заказ с самовывозом");
 					}
-					if(Math.Abs(Order.OrderNegativeSum) < Money) {
+					if(Math.Abs(Order.OrderNegativeSum) < Money)
+					{
 						yield return new ValidationResult("Сумма к возврату не может быть больше чем сумма в заказе");
 					}
 				}
-			} else {
-				if(TypeOperation == ExpenseType.Advance) {
+			}
+			else
+			{
+				if(TypeOperation == ExpenseType.Advance)
+				{
 					if(Employee == null)
+					{
 						yield return new ValidationResult("Подотчетное лицо должно быть указано.",
 							new[] { this.GetPropertyName(o => o.Employee) });
-					if(ExpenseCategory == null)
+					}
+
+					if(ExpenseCategoryId == null)
+					{
 						yield return new ValidationResult("Статья расхода под которую выдаются деньги должна быть заполнена.",
-							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+							new[] { this.GetPropertyName(o => o.ExpenseCategoryId) });
+					}
 
 					if(!AdvanceClosed.HasValue)
+					{
 						yield return new ValidationResult("Отсутствует иформация поле Закрытия аванса. Поле не может быть null.",
 							new[] { this.GetPropertyName(o => o.AdvanceClosed) });
-
-				} else {
+					}
+				}
+				else
+				{
 					if(AdvanceClosed.HasValue)
-						yield return new ValidationResult(String.Format("Если это не выдача под аванс {0} должно быть null.", this.GetPropertyName(o => o.AdvanceClosed)),
+					{
+						yield return new ValidationResult($"Если это не выдача под аванс {this.GetPropertyName(o => o.AdvanceClosed)} должно быть null.",
 							new[] { this.GetPropertyName(o => o.AdvanceClosed) });
+					}
 				}
 
-				if(TypeOperation == ExpenseType.Expense) {
-					if(ExpenseCategory == null)
+				if(TypeOperation == ExpenseType.Expense)
+				{
+					if(ExpenseCategoryId == null)
+					{
 						yield return new ValidationResult("Статья расхода должна быть указана.",
-							new[] { this.GetPropertyName(o => o.ExpenseCategory) });
+							new[] { this.GetPropertyName(o => o.ExpenseCategoryId) });
+					}
 				}
 
-				if (TypeOperation != ExpenseType.Salary && TypeOperation != ExpenseType.EmployeeAdvance) {
-					if (Id == 0 && Organisation == null) {
+				if(TypeOperation != ExpenseType.Salary && TypeOperation != ExpenseType.EmployeeAdvance)
+				{
+					if(Id == 0 && Organisation == null)
+					{
 						yield return new ValidationResult("Организация должна быть заполнена",
-							new[] {nameof(Organisation)});
+							new[] { nameof(Organisation) });
 					}
 				}
 			}
 
-			if(RelatedToSubdivision == null) {
+			if(RelatedToSubdivision == null)
+			{
 				yield return new ValidationResult("Должно быть выбрано подразделение",
 					new[] { this.GetPropertyName(o => o.RelatedToSubdivision) });
 			}
 
 			if(Money <= 0)
-				yield return new ValidationResult ("Сумма должна больше нуля",
-					new[] { this.GetPropertyName (o => o.Money) });
+			{
+				yield return new ValidationResult("Сумма должна больше нуля",
+					new[] { this.GetPropertyName(o => o.Money) });
+			}
 
-			if(String.IsNullOrWhiteSpace (Description))
-				yield return new ValidationResult ("Основание должно быть заполнено.",
-					new[] { this.GetPropertyName (o => o.Description) });
-								
+			if(string.IsNullOrWhiteSpace(Description))
+			{
+				yield return new ValidationResult("Основание должно быть заполнено.",
+					new[] { this.GetPropertyName(o => o.Description) });
+			}
 		}
 
 		#endregion
 	}
-
-	public enum ExpenseType
-	{
-		[Display (Name = "Прочий расход")]
-		Expense,
-		[Display(Name = "Возврат по самовывозу")]
-		ExpenseSelfDelivery,
-		[Display (Name = "Аванс подотчетному лицу")]
-		Advance,
-		[Display (Name = "Аванс сотруднику")]
-		EmployeeAdvance,
-		[Display (Name = "Выдача зарплаты")]
-		Salary
-	}
-
-	public class ExpenseTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public ExpenseTypeStringType () : base (typeof(ExpenseType))
-		{
-		}
-	}
-
-	public enum ExpenseInvoiceDocumentType
-	{
-		[Display(Name = "Расходный ордер")]
-		ExpenseInvoice,
-		[Display(Name = "Расходный ордер для документа перемещения ДС")]
-		ExpenseTransferDocument,
-		[Display(Name = "Расходный ордер для самовывоза")]
-		ExpenseInvoiceSelfDelivery,
-	}
-
-	public class ExpenseInvoiceDocumentTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public ExpenseInvoiceDocumentTypeStringType() : base(typeof(ExpenseInvoiceDocumentType))
-		{
-		}
-	}
-
 }
-

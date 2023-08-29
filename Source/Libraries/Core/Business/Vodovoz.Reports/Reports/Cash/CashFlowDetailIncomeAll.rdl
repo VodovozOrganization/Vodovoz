@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -15,13 +15,13 @@
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT 
-    if(cash_income.cash_income_category_id,
+    if(cash_income.financial_income_category_id,
         1,
         0) as CategoryType,
     cash_income.id as id,
     cash_income.date as Date,
-    cash_income_category.name as Category,
-    cash_income.cash_income_category_id as CategoryId,
+    financial_categories_groups.title as Category,
+    cash_income.financial_income_category_id as CategoryId,
     cash_income.money as sum,
     cash_income.description,
     CONCAT_WS('',
@@ -35,13 +35,13 @@
 FROM
     cash_income
         LEFT JOIN
-    cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
+    financial_categories_groups ON financial_categories_groups.id = cash_income.financial_income_category_id
         LEFT JOIN
     employees ON employees.id = cash_income.employee_id
 WHERE
 cash_income.type_operation &lt;&gt; 'Return' AND 
 cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
- AND (@incomeCategory = -1 OR cash_income_category.id = @incomeCategory)
+ AND (@incomeCategory = -1 OR financial_categories_groups.id = @incomeCategory)
 AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_income.employee_id = @Employee)
 AND cash_income.related_to_subdivision_id in (@cash_subdivisions)
@@ -153,26 +153,8 @@ GROUP BY route_lists.date</CommandText>
         <CommandText>SELECT 
     cash_income.id as id,
     cash_income.date as Date,
-        IF(cat1.parent_id IS NULL,
-        cat1.name,
-        CONCAT((SELECT 
-                        IF(cat2.parent_id IS NULL,
-                                cat2.name,
-                                CONCAT((SELECT 
-                                                CONCAT(IF(parent_id IS NULL, '', '... '), name)
-                                            FROM
-                                                cash_expense_category AS cat3
-                                            WHERE
-                                                id = cat2.parent_id),
-                                        ' - ',
-                                        cat2.name))
-                    FROM
-                        cash_expense_category AS cat2
-                    WHERE
-                        id = cat1.parent_id),
-                ' - ',
-                cat1.name)) AS Category,
-    cash_income.cash_expense_category_id as CategoryId,
+    category.title AS Category,
+    cash_income.financial_expense_category_id as CategoryId,
     cash_income.money as sum,
     cash_income.description,
     CONCAT_WS('',
@@ -186,12 +168,12 @@ GROUP BY route_lists.date</CommandText>
 FROM
     cash_income
         LEFT JOIN
-    cash_expense_category AS cat1 ON cat1.id = cash_income.cash_expense_category_id
+    financial_categories_groups AS category ON category.id = cash_income.financial_expense_category_id
         LEFT JOIN
     employees ON employees.id = cash_income.employee_id
 WHERE
     cash_income.type_operation = 'Return' AND cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
-AND IF(@expenseCategoryUsed, cash_income.cash_expense_category_id IN (@expenseCategory), 1)
+AND IF(@expenseCategoryUsed, cash_income.financial_expense_category_id IN (@expenseCategory), 1)
 AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_income.employee_id = @Employee)
 AND cash_income.related_to_subdivision_id in (@cash_subdivisions)
@@ -261,7 +243,7 @@ ORDER BY Category;</CommandText>
         <Height>18.03pt</Height>
         <Width>560.17pt</Width>
         <Value>="Доходы и расходы за период " + Format(CDate({?StartDate}), "dd.MM H:mm") + " - " + Format(CDate({?EndDate}), "dd.MM H:mm")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
         <Style>
@@ -276,7 +258,7 @@ ORDER BY Category;</CommandText>
         <Height>16.52pt</Height>
         <Width>558.58pt</Width>
         <Value>="Выбранные фильтры:"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.3pt</Left>
         <Top>24.1pt</Top>
         <Style>
@@ -291,7 +273,7 @@ ORDER BY Category;</CommandText>
         <Height>14.29pt</Height>
         <Width>548.87pt</Width>
         <Value>= {?cash_subdivisions_name}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.0pt</Left>
         <Top>41.2pt</Top>
         <Style>
@@ -305,7 +287,7 @@ ORDER BY Category;</CommandText>
         <Height>14.99pt</Height>
         <Width>555.56pt</Width>
         <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>4.4pt</Left>
         <Top>57.1pt</Top>
         <Style>
@@ -323,7 +305,7 @@ ORDER BY Category;</CommandText>
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Приход (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>6.7pt</Top>
         <Style>
@@ -338,7 +320,7 @@ ORDER BY Category;</CommandText>
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
         <Value>Сдача (наличка)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>170.2pt</Top>
         <Style>
@@ -1259,7 +1241,7 @@ ORDER BY Category;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

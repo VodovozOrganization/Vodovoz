@@ -123,7 +123,7 @@ namespace Vodovoz.Models.TrueMark
 
 		private async Task PrepareForReceiptNotNeeded(CashReceipt receipt, CancellationToken cancellationToken)
 		{
-			if(receipt.Order.PaymentType == PaymentType.cash)
+			if(receipt.Order.PaymentType == PaymentType.Cash)
 			{
 				await PrepareForFirstReceiptIfReceiptNotNeeded(receipt, cancellationToken);
 				return;
@@ -152,7 +152,7 @@ namespace Vodovoz.Models.TrueMark
 
 		private async Task PrepareForFirstReceipt(CashReceipt receipt, CancellationToken cancellationToken)
 		{
-			if(receipt.Order.PaymentType == PaymentType.cash && !receipt.Order.Client.AlwaysSendReceipts)
+			if(receipt.Order.PaymentType == PaymentType.Cash && !receipt.Order.Client.AlwaysSendReceipts)
 			{
 				var orderSum = receipt.Order.OrderPositiveOriginalSum;
 				//не проверяем дубли по сумме у чеков под заказы  с 128+ позиций

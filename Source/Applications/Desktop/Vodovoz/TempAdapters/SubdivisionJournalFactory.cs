@@ -4,6 +4,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 
 namespace Vodovoz.TempAdapters
@@ -41,7 +42,7 @@ namespace Vodovoz.TempAdapters
 					_employeeJournalFactory,
 					_salesPlanJournalFactory,
 					_nomenclatureSelectorFactory,
-					MainClass.AppDIContainer.BeginLifetimeScope()));
+					Startup.AppDIContainer.BeginLifetimeScope()));
 		}
 
 		public IEntityAutocompleteSelectorFactory CreateDefaultSubdivisionAutocompleteSelectorFactory(
@@ -102,7 +103,7 @@ namespace Vodovoz.TempAdapters
 				_employeeJournalFactory,
 				_salesPlanJournalFactory,
 				_nomenclatureSelectorFactory,
-				MainClass.AppDIContainer.BeginLifetimeScope()
+				Startup.AppDIContainer.BeginLifetimeScope()
 			);
 		}
 	}

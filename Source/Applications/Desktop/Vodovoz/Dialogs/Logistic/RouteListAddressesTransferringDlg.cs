@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -44,6 +44,7 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Cash;
 
 namespace Vodovoz
 {
@@ -60,7 +61,7 @@ namespace Vodovoz
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IEmployeeService _employeeService;
 		private readonly ICommonServices _commonServices;
-		private readonly ICategoryRepository _categoryRepository;
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly INomenclatureParametersProvider _nomenclatureParametersProvider;
 		private readonly IEmployeeRepository _employeeRepository;
 
@@ -89,7 +90,7 @@ namespace Vodovoz
 			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			ICategoryRepository categoryRepository,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IEmployeeRepository employeeRepository,
 			INomenclatureParametersProvider nomenclatureParametersProvider
 			)
@@ -103,7 +104,7 @@ namespace Vodovoz
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
+			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_nomenclatureParametersProvider = nomenclatureParametersProvider ?? throw new ArgumentNullException(nameof(nomenclatureParametersProvider));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 
@@ -120,7 +121,7 @@ namespace Vodovoz
 			IRouteListItemRepository routeListItemRepository,
 			IEmployeeService employeeService,
 			ICommonServices commonServices,
-			ICategoryRepository categoryRepository,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IEmployeeRepository employeeRepository,
 			INomenclatureParametersProvider nomenclatureParametersProvider
 			)
@@ -131,7 +132,7 @@ namespace Vodovoz
 				routeListItemRepository,
 				employeeService,
 				commonServices,
-				categoryRepository,
+				financialCategoriesGroupsSettings,
 				employeeRepository,
 				nomenclatureParametersProvider)
 		{
@@ -166,7 +167,7 @@ namespace Vodovoz
 			
 
 			IRouteListJournalFactory routeListJournalFactory = new RouteListJournalFactory();
-			var scope = MainClass.AppDIContainer.BeginLifetimeScope();
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
 
 			_routeListJournalFilterViewModelFrom = new RouteListJournalFilterViewModel()
 			{
@@ -507,6 +508,12 @@ namespace Vodovoz
 					}
 				}
 
+				if(HasAddressChanges(item))
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Статус {item.Title} был изменён другим пользователем, для его переноса переоткройте диалог.");
+					continue;
+				}
+
 				var transferredAddressFromRouteListTo =
 					_routeListItemRepository.GetTransferredRouteListItemFromRouteListForOrder(UoW, routeListTo.Id, item.Order.Id);
 
@@ -538,6 +545,18 @@ namespace Vodovoz
 					routeListFrom.TransferAddressTo(UoW, item, newItem);
 				}
 
+				if(routeListTo.Status == RouteListStatus.New)
+				{
+					if(item.AddressTransferType == AddressTransferType.NeedToReload)
+					{
+						item.Order.ChangeStatus(OrderStatus.InTravelList);
+					}
+					if(item.AddressTransferType == AddressTransferType.FromHandToHand)
+					{
+						item.Order.ChangeStatus(OrderStatus.OnLoading);
+					}
+				}
+
 				//Пересчёт зарплаты после изменения МЛ
 				routeListFrom.CalculateWages(_wageParameterService);
 				_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, routeListFrom);
@@ -563,12 +582,12 @@ namespace Vodovoz
 
 			if(routeListFrom.Status == RouteListStatus.Closed)
 			{
-				messages.AddRange(routeListFrom.UpdateMovementOperations(_categoryRepository));
+				messages.AddRange(routeListFrom.UpdateMovementOperations(_financialCategoriesGroupsSettings));
 			}
 
 			if(routeListTo.Status == RouteListStatus.Closed)
 			{
-				messages.AddRange(routeListTo.UpdateMovementOperations(_categoryRepository));
+				messages.AddRange(routeListTo.UpdateMovementOperations(_financialCategoriesGroupsSettings));
 			}
 
 			UoW.Save(routeListTo);
@@ -726,6 +745,12 @@ namespace Vodovoz
 					continue;
 				}
 
+				if(HasAddressChanges(address))
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Адрес {address.Title} был изменён другим пользователем, переоткройте диалог.");
+					continue;
+				}
+
 				RouteListItem pastPlace = 
 					(evmeRouteListFrom.Subject as RouteList)
 						?.Addresses
@@ -772,6 +797,22 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Для следующих адресов у водителя не хватает остатков, поэтому они не были перенесены:\n * " +
 				                                     string.Join("\n * ", deliveryNotEnoughQuantityAddresses));
 			}
+		}
+
+		private bool HasAddressChanges(RouteListItem address)
+		{
+			RouteListItemStatus actualStatus;
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение статуса адреса"))
+			{
+				actualStatus = uow.GetById<RouteListItem>(address.Id).Status;
+			}
+			
+			if(actualStatus == address.Status)
+			{
+				return false;
+			}
+
+			return true;
 		}
 
 		private void UpdateTranferDocuments(RouteListItem from, RouteListItem to)
@@ -955,7 +996,7 @@ namespace Vodovoz
 	        var routeListToItems = routeListItemsTo?.Addresses.Select(t => t.Order.Id) ?? new List<int>();
 
 	        var filter = new OrderJournalFilterViewModel(
-                new CounterpartyJournalFactory(),
+                new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
                 new DeliveryPointJournalFactory(),
                 new EmployeeJournalFactory())
             {
@@ -973,7 +1014,7 @@ namespace Vodovoz
                 x => x.ExcludeClosingDocumentDeliverySchedule = true
             );
 
-            var orderPage = MainClass.MainWin.NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, OrderJournalFilterViewModel>(null, filter);
+            var orderPage = Startup.MainWin.NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, OrderJournalFilterViewModel>(null, filter);
             orderPage.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
             orderPage.ViewModel.OnEntitySelectedResult += OnOrderSelectedResult;
         }
@@ -1019,7 +1060,7 @@ namespace Vodovoz
 
             UoW.Save(newRouteListItem);
 
-            _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, newRouteListItem, DeliveryFreeBalanceType.Decrease);
+            _routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, newRouteListItem, DeliveryFreeBalanceType.Decrease, needRouteListUpdate: true);
 
             UoW.Commit();
         }

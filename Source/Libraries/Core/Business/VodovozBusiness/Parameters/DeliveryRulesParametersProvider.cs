@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Domain.Logistic;
@@ -64,6 +64,9 @@ namespace Vodovoz.Parameters
 
 		public void UpdateFlyerForNewCounterpartyEnabledParameter(string value) =>
 			_parametersProvider.CreateOrUpdateParameter(_additionalLoadingFlyerForNewCounterpartyEnabledParameter, value);
+
+		public void UpdateMaxFastOrdersPerSpecificTimeParameter(string value) =>
+			_parametersProvider.CreateOrUpdateParameter(_maxFastOrdersPerSpecificTimeParameter, value);
 
 		#region FastDelivery
 

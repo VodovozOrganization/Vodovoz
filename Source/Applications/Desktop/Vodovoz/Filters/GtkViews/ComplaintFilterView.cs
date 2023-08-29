@@ -1,6 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels;
+using static Vodovoz.FilterViewModels.ComplaintFilterViewModel;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -71,6 +72,8 @@ namespace Vodovoz.Filters.GtkViews
 			ybuttonMyComplaint.Clicked += (sender, e) => ViewModel.SelectMyComplaint();
 
 			guiltyItemView.ViewModel = ViewModel.GuiltyItemVM;
+
+			ybtnNumberOfComplaintsAgainstDriversReport.Clicked += (s, e) => ViewModel.OpenNumberOfComplaintsAgainstDriversReportTabCommand.Execute();
 		}
 
 		public override void Destroy()

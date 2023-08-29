@@ -1,12 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
@@ -28,81 +30,58 @@ namespace Vodovoz.EntityRepositories.Store
 					  .List<Warehouse>();
 		}
 
-		public IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId, IEnumerable<int> nomenclatureIds)
+		public IEnumerable<NomenclatureStockNode> GetWarehouseNomenclatureStock(
+			IUnitOfWork uow, OperationType operationType, int storageId, IEnumerable<int> nomenclatureIds)
 		{
-			NomanclatureStockNode resultAlias = null;
+			NomenclatureStockNode resultAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			WarehouseMovementOperation warehouseOperation = null;
+			WarehouseBulkGoodsAccountingOperation warehouseBulkOperationAlias = null;
+			EmployeeBulkGoodsAccountingOperation employeeBulkOperationAlias = null;
+			CarBulkGoodsAccountingOperation carBulkOperationAlias = null;
+			
+			var query = uow.Session.QueryOver(() => nomenclatureAlias);
+			IProjection nomenclatureBalance = null;
 
-			IProjection incomeAmount = Projections.Sum(
-				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => warehouseOperation.IncomingWarehouse.Id), warehouseId),
-					Projections.Property(() => warehouseOperation.Amount),
-					Projections.Constant(0M)
-				)
-			);
+			if(operationType == OperationType.WarehouseBulkGoodsAccountingOperation)
+			{
+				query.JoinEntityAlias(() => warehouseBulkOperationAlias,
+						() => warehouseBulkOperationAlias.Nomenclature.Id == nomenclatureAlias.Id,
+						JoinType.LeftOuterJoin)
+					.Where(() => warehouseBulkOperationAlias.Warehouse.Id == storageId);
 
-			IProjection writeoffAmount = Projections.Sum(
-				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => warehouseOperation.WriteoffWarehouse.Id), warehouseId),
-					Projections.Property(() => warehouseOperation.Amount),
-					Projections.Constant(0M)
-				)
-			);
-
-			IProjection stockProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
-					NHibernateUtil.Int32,
-					incomeAmount,
-					writeoffAmount
-			);
-
-			return uow.Session.QueryOver(() => warehouseOperation)
-				.Left.JoinAlias(() => warehouseOperation.Nomenclature, () => nomenclatureAlias)
-				.Where(Restrictions.In(Projections.Property(() => warehouseOperation.Nomenclature.Id), nomenclatureIds.ToArray()))
+				nomenclatureBalance = Projections.Sum(() => warehouseBulkOperationAlias.Amount);
+			}
+			else if(operationType == OperationType.EmployeeBulkGoodsAccountingOperation)
+			{
+				query.JoinEntityAlias(() => employeeBulkOperationAlias,
+					() => employeeBulkOperationAlias.Nomenclature.Id == nomenclatureAlias.Id,
+					JoinType.LeftOuterJoin)
+					.Where(() => employeeBulkOperationAlias.Employee.Id == storageId);
+				
+				nomenclatureBalance = Projections.Sum(() => employeeBulkOperationAlias.Amount);
+			}
+			else if(operationType == OperationType.CarBulkGoodsAccountingOperation)
+			{
+				query.JoinEntityAlias(() => carBulkOperationAlias,
+					() => carBulkOperationAlias.Nomenclature.Id == nomenclatureAlias.Id,
+					JoinType.LeftOuterJoin)
+					.Where(() => carBulkOperationAlias.Car.Id == storageId);
+				
+				nomenclatureBalance = Projections.Sum(() => carBulkOperationAlias.Amount);
+			}
+			
+			var stockProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0)"),
+				NHibernateUtil.Decimal,
+				nomenclatureBalance);
+			
+			return query.AndRestrictionOn(() => nomenclatureAlias.Id).IsIn(nomenclatureIds.ToArray())
+				.And(() => !nomenclatureAlias.HasInventoryAccounting)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(stockProjection).WithAlias(() => resultAlias.Stock)
-				)
-				.TransformUsing(Transformers.AliasToBean<NomanclatureStockNode>())
-				.List<NomanclatureStockNode>();
-		}
-
-		public IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId)
-		{
-			NomanclatureStockNode resultAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			WarehouseMovementOperation warehouseOperation = null;
-
-			IProjection incomeAmount = Projections.Sum(
-				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => warehouseOperation.IncomingWarehouse.Id), warehouseId),
-					Projections.Property(() => warehouseOperation.Amount),
-					Projections.Constant(0M)
-				)
-			);
-
-			IProjection writeoffAmount = Projections.Sum(
-				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => warehouseOperation.WriteoffWarehouse.Id), warehouseId),
-					Projections.Property(() => warehouseOperation.Amount),
-					Projections.Constant(0M)
-				)
-			);
-
-			IProjection stockProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
-					NHibernateUtil.Int32,
-					incomeAmount,
-					writeoffAmount
-			);
-
-			return uow.Session.QueryOver(() => warehouseOperation)
-				.Left.JoinAlias(() => warehouseOperation.Nomenclature, () => nomenclatureAlias)
-				.SelectList(list => list
-					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(stockProjection).WithAlias(() => resultAlias.Stock)
-				)
-				.TransformUsing(Transformers.AliasToBean<NomanclatureStockNode>())
-				.List<NomanclatureStockNode>();
+					.Select(stockProjection).WithAlias(() => resultAlias.Stock))
+				.TransformUsing(Transformers.AliasToBean<NomenclatureStockNode>())
+				.List<NomenclatureStockNode>();
 		}
 
 		public IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId)
@@ -120,7 +99,7 @@ namespace Vodovoz.EntityRepositories.Store
 				.Left.JoinAlias(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
 				.Where(() => movementDocumentAlias.Status == MovementDocumentStatus.Discrepancy)
 				.Where(() => movementDocumentAlias.FromWarehouse.Id == warehouseId)
-				.Where(() => movementDocumentItemAlias.SendedAmount != movementDocumentItemAlias.ReceivedAmount)
+				.Where(() => movementDocumentItemAlias.SentAmount != movementDocumentItemAlias.ReceivedAmount)
 				.Select(Projections.Entity(() => nomenclatureAlias))
 				.List<Nomenclature>();
 		}
@@ -140,19 +119,19 @@ namespace Vodovoz.EntityRepositories.Store
 			Warehouse warehouseAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			var result = uow.Session.QueryOver<WarehouseMovementOperation>()
-				.JoinAlias(wmo => wmo.WriteoffWarehouse, () => warehouseAlias)
+			var result = uow.Session.QueryOver<WarehouseBulkGoodsAccountingOperation>()
+				.JoinAlias(wmo => wmo.Warehouse, () => warehouseAlias)
 				.JoinAlias(wmo => wmo.Nomenclature, () => nomenclatureAlias)
 				.WhereRestrictionOn(() => nomenclatureAlias.ProductGroup.Id).IsInG(productGroupsIds)
 				.AndRestrictionOn(() => warehouseAlias.Id).IsInG(warehousesIds)
 				.And(wmo => wmo.OperationTime >= dateFrom && wmo.OperationTime < dateTo)
-				.And(wmo => wmo.IncomingWarehouse == null)
+				.And(wmo => wmo.Amount < 0)
 				.SelectList(list => list
 					.SelectGroup(x => x.Nomenclature.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.Select(Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.Int32, "?1 * ?2"),
+						new SQLFunctionTemplate(NHibernateUtil.Int32, "-?1 * ?2"),
 						NHibernateUtil.Int32,
-						Projections.Sum<WarehouseMovementOperation>(wmo => wmo.Amount),
+						Projections.Sum<WarehouseBulkGoodsAccountingOperation>(wmo => wmo.Amount),
 						Projections.Property(() => nomenclatureAlias.Weight))).WithAlias(() => resultAlias.TotalShippedKg))
 				.TransformUsing(Transformers.AliasToBean<NomenclatureTotalShippedKg>())
 				.List<NomenclatureTotalShippedKg>();

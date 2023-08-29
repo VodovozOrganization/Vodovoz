@@ -1,4 +1,4 @@
-﻿using CsvHelper;
+using CsvHelper;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
@@ -279,8 +280,8 @@ namespace Vodovoz.ViewModels.Reports
 					&& (x.Document.TimeStamp >= _startDate && x.Document.TimeStamp <= (_endDate ?? DateTime.MaxValue))
 					&& x.Nomenclature.Category == NomenclatureCategory.water
 					&& x.ReceivedAmount > 0)
-				.Fetch(x => x.WarehouseIncomeOperation)
-				.Fetch(x => x.WarehouseWriteoffOperation)
+				.Fetch(x => x.IncomeOperation)
+				.Fetch(x => x.WriteOffOperation)
 				.Fetch(x => x.Nomenclature)
 				.ThenFetch(x => x.Unit)
 				.Select(x => new ProductionWarehouseMovementReportDataBaseNode

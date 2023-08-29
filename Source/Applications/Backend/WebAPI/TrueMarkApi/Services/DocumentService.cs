@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -20,6 +20,7 @@ using TrueMarkApi.Models;
 using TrueMarkApi.Services.Authorization;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
@@ -180,6 +181,15 @@ namespace TrueMarkApi.Services
 						_logger.LogError("{ErrorMessage}", trueMarkApiDocument.ErrorMessage);
 					}
 
+					var actions = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == doc.Order.Id)
+						.FirstOrDefault();
+
+					if(actions != null && actions.IsNeedToCancelTrueMarkDocument)
+					{
+						actions.IsNeedToCancelTrueMarkDocument = false;
+					}
+
 					uow.Save(trueMarkApiDocument);
 					uow.Commit();
 
@@ -279,7 +289,7 @@ namespace TrueMarkApi.Services
 						continue;
 					}
 
-					IDocumentFactory productDocumentFactory = order.PaymentType == PaymentType.barter
+					IDocumentFactory productDocumentFactory = order.PaymentType == PaymentType.Barter
 						? new ProductDocumentForDonationFactory(organization.INN, order)
 						: new ProductDocumentForOwnUseFactory(organization.INN, order);
 
@@ -303,7 +313,7 @@ namespace TrueMarkApi.Services
 			}
 		}
 
-		private IDocumentFactory CreateProductDocumentFactory(string inn, Order order) => order.PaymentType == PaymentType.barter 
+		private IDocumentFactory CreateProductDocumentFactory(string inn, Order order) => order.PaymentType == PaymentType.Barter 
 			? new ProductDocumentForDonationFactory(inn, order) 
 			: new ProductDocumentForOwnUseFactory(inn, order);
 

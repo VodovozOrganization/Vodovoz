@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using QS.DomainModel.Entity;
 using QS.Navigation;
 using QS.Project.Filter;
 using QS.Project.Journal;
@@ -7,7 +8,7 @@ using QS.ViewModels.Dialog;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Organizations;
@@ -15,7 +16,7 @@ using Vodovoz.ViewModels.ViewModels.Organizations;
 namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 {
 	public partial class FinancialCategoriesJournalFilterViewModel
-		: FilterViewModelBase<FinancialCategoriesJournalFilterViewModel>, IJournalFilterViewModel
+		: FilterViewModelBase<FinancialCategoriesJournalFilterViewModel>
 	{
 		private readonly INavigationManager _navigationManager;
 		private readonly ILifetimeScope _scope;
@@ -24,8 +25,9 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 		private FinancialCategoriesGroup _parentFinancialGroup;
 		private DialogViewModelBase _journalViewModel;
 		private Subdivision _subdivision;
-		private ExpenseInvoiceDocumentType? _expenseDocumentType;
-		private IncomeInvoiceDocumentType? _incomeDocumentType;
+		private TargetDocument? _targetDocument;
+		private TargetDocument? _restrictTargetDocument;
+		private FinancialSubType? _restrictFinancialSubtype;
 
 		public FinancialCategoriesJournalFilterViewModel(
 			INavigationManager navigationManager,
@@ -34,11 +36,11 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			ExcludeFinancialGroupsIds.CollectionChanged += OnExcludeIdCollectionChanged;
 			RestrictNodeTypes.CollectionChanged += OnRestrictNodeTypesCollectionChanged;
 			RestrictNodeSelectTypes.CollectionChanged += OnRestrictNodeSelectTypesCollectionChanged;
-			_navigationManager = navigationManager;
-			_scope = lifetimeScope;
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			_scope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 		}
 
-		public bool IsShow { get; set; }
+		public override bool IsShow { get; set; } = true;
 
 		public ObservableCollection<Type> RestrictNodeTypes { get; } = new ObservableCollection<Type>();
 
@@ -46,10 +48,16 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 
 		public ObservableCollection<Type> RestrictNodeSelectTypes { get; } = new ObservableCollection<Type>();
 
+		public FinancialSubType? RestrictFinancialSubtype
+		{
+			get => _restrictFinancialSubtype;
+			set => UpdateFilterField(ref _restrictFinancialSubtype, value);
+		}
+
 		public string SearchString
 		{
 			get => _serachString;
-			set => UpdateFilterField(ref _serachString, value);
+			set => SetField(ref _serachString, value);
 		}
 
 		public bool ShowArchive
@@ -70,17 +78,29 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			set => UpdateFilterField(ref _subdivision, value);
 		}
 
-		public ExpenseInvoiceDocumentType? ExpenseDocumentType
+		public TargetDocument? TargetDocument
 		{
-			get => _expenseDocumentType;
-			set => UpdateFilterField(ref _expenseDocumentType, value);
+			get => _targetDocument;
+			set => UpdateFilterField(ref _targetDocument, value);
 		}
 
-		public IncomeInvoiceDocumentType? IncomeDocumentType
+		[PropertyChangedAlso(nameof(TargetDocumentRestricted))]
+		public TargetDocument? RestrictTargetDocument
 		{
-			get => _incomeDocumentType;
-			set => UpdateFilterField(ref _incomeDocumentType, value);
+			get => _restrictTargetDocument;
+			set
+			{
+				if(SetField(ref _restrictTargetDocument, value))
+				{
+					TargetDocument = value;
+				}
+			}
 		}
+
+		[PropertyChangedAlso(nameof(TargetDocumentNotRestricted))]
+		public bool TargetDocumentRestricted => RestrictTargetDocument != null;
+
+		public bool TargetDocumentNotRestricted => !TargetDocumentRestricted;
 
 		public IEntityEntryViewModel ParentGroupViewModel { get; private set; }
 
@@ -102,8 +122,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 						filter =>
 						{
 							filter.RestrictNodeTypes.Add(typeof(FinancialCategoriesGroup));
-						}
-					)
+						})
 					.Finish();
 
 				var subdivisionViewModelEntryViewModelBuilder = new CommonEEVMBuilderFactory<FinancialCategoriesJournalFilterViewModel>(value, this, UoW, _navigationManager, _scope);
@@ -114,8 +133,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 					.UseViewModelJournalAndAutocompleter<SubdivisionsJournalViewModel, SubdivisionFilterViewModel>(
 						filter =>
 						{
-						}
-					)
+						})
 					.Finish();
 			}
 		}

@@ -1,66 +1,72 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
+using QS.Project.Services;
+using QS.Tools;
+using QS.Utilities.Extensions;
+using QS.Validation;
+using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
-using Vodovoz.Parameters;
-using QS.Validation;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using Vodovoz.Controllers;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.ViewModels.FuelDocuments;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Fuel;
-using Vodovoz.EntityRepositories.Employees;
-using QS.Project.Services;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.Core.DataService;
-using Vodovoz.EntityRepositories.WageCalculation;
-using QS.Tools;
-using QS.Utilities.Extensions;
-using QS.ViewModels.Extension;
-using Vodovoz.Controllers;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Infrastructure;
-using Vodovoz.Tools.CallTasks;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
-using Vodovoz.Tools;
-using Vodovoz.Services;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.TempAdapters;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.Models;
+using Vodovoz.Parameters;
+using Vodovoz.Services;
+using Vodovoz.Settings.Cash;
+using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.FuelDocuments;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
+using QS.DomainModel.NotifyChange;
+using QS.Utilities.Debug;
 
 namespace Vodovoz
 {
 	public partial class RouteListClosingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, IAskSaveOnCloseViewModel
 	{
 		#region поля
-
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
@@ -78,6 +84,7 @@ namespace Vodovoz
 		private readonly IDeliveryShiftRepository _deliveryShiftRepository = new DeliveryShiftRepository();
 		private readonly ICashRepository _cashRepository = new CashRepository();
 		private readonly ICategoryRepository _categoryRepository = new CategoryRepository(_parametersProvider);
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings = Startup.AppDIContainer.Resolve<IFinancialCategoriesGroupsSettings>();
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository = new AccountableDebtsRepository();
 		private readonly ISubdivisionRepository _subdivisionRepository = new SubdivisionRepository(_parametersProvider);
 		private readonly ITrackRepository _trackRepository = new TrackRepository();
@@ -94,7 +101,7 @@ namespace Vodovoz
 				_nomenclatureRepository);
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly bool _isOpenFromCash;
-		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("role_сashier");
+		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Cash.RoleCashier);
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
@@ -102,7 +109,6 @@ namespace Vodovoz
 		private Employee previousForwarder = null;
 		private bool _canEdit;
 		private bool? _canEditFuelCardNumber;
-		private List<int> _hasActualCountsChangesItemIds = new List<int>();
 
 		WageParameterService wageParameterService = new WageParameterService(new WageCalculationRepository(), _baseParametersProvider);
 		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
@@ -117,6 +123,9 @@ namespace Vodovoz
 		int defectiveBottlesReturnedToWarehouse;
 
 		private Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>> _addressKeepingDocumentItemsCacheList =
+			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
+
+		private Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>> _addressKeepingDocumentBottlesCacheList =
 			new Dictionary<int, HashSet<RouteListAddressKeepingDocumentItem>>();
 
 		private CallTaskWorker callTaskWorker;
@@ -137,31 +146,6 @@ namespace Vodovoz
 			set { callTaskWorker = value; }
 		}
 
-		enum RouteListActions
-		{
-			[Display(Name = "Новый штраф")]
-			CreateNewFine,
-			[Display(Name = "Перенести разгрузку в другой МЛ")]
-			TransferReceptionToAnotherRL,
-			[Display(Name = "Перенести разгрузку в этот МЛ")]
-			TransferReceptionToThisRL,
-			[Display(Name = "Перенести адреса в этот МЛ")]
-			TransferAddressesToThisRL,
-			[Display(Name = "Перенести адреса из этого МЛ")]
-			TransferAddressesToAnotherRL
-
-		}
-
-		public enum RouteListPrintDocuments
-		{
-			[Display(Name = "Все")]
-			All,
-			[Display(Name = "Маршрутный лист")]
-			RouteList,
-			[Display(Name = "Штрафы")]
-			Fines
-		}
-
 		#endregion
 
 		#region Конструкторы и конфигурирование диалога
@@ -171,7 +155,7 @@ namespace Vodovoz
 		public RouteListClosingDlg(int routeListId, bool isOpenFromCash = false)
 		{
 			_isOpenFromCash = isOpenFromCash;
-			this.Build();
+			Build();
 
 			PerformanceHelper.StartMeasurement();
 
@@ -186,7 +170,15 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			_canEdit = _isRoleCashier && permissionResult.CanUpdate;
+			var availableStatusesForAccepting = new RouteListStatus[]
+			{
+				RouteListStatus.Delivered,
+				RouteListStatus.OnClosing
+			};
+
+			_canEdit = _isRoleCashier
+				&& permissionResult.CanUpdate
+				&& (!Entity.WasAcceptedByCashier || availableStatusesForAccepting.Contains(Entity.Status));
 			_paymentFromBankClientController =
 				new PaymentFromBankClientController(new PaymentItemsRepository(), new OrderRepository(), new PaymentsRepository());
 			if(Entity.AddressesOrderWasChangedAfterPrinted) {
@@ -204,11 +196,11 @@ namespace Vodovoz
 			};
 
 			canCloseRoutelist = new PermissionRepository()
-				.HasAccessToClosingRoutelist(UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService);
+				.HasAccessToClosingRoutelist(UoW, _subdivisionRepository, _employeeRepository, ServicesConfig.UserService) && _canEdit;
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
-			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(MainClass.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(new CarJournalFactory(Startup.MainWin.NavigationManager).CreateCarAutocompleteSelectorFactory());
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
@@ -219,6 +211,7 @@ namespace Vodovoz
 			var driverFactory = new EmployeeJournalFactory(driverFilter);
 			evmeDriver.SetEntityAutocompleteSelectorFactory(driverFactory.CreateEmployeeAutocompleteSelectorFactory());
 			evmeDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
+			evmeDriver.Changed += OnEvmeDriverChanged;
 
 			previousForwarder = Entity.Forwarder;
 			var forwarderFilter = new EmployeeFilterViewModel();
@@ -244,12 +237,8 @@ namespace Vodovoz
 
 			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
 
-			decimal unclosedAdvanceMoney = _accountableDebtsRepository.EmployeeDebt(UoW, Entity.Driver);
-			ylabelUnclosedAdvancesMoney.LabelProp =
-				string.Format(unclosedAdvanceMoney > 0m ? "<span foreground='red'><b>Долг: {0}</b></span>" : "", unclosedAdvanceMoney);
-
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
-			labelOrderEarly.Text = "Сдано ранее:" + GetCashOrder().ToString();
+			labelOrderEarly.Text = "Сдано ранее: " + GetCashOrder().ToShortCurrencyString();
 			spinCashOrder.Value = 0;
 			advanceSpinbutton.Value = 0;
 			advanceSpinbutton.Visible = false;
@@ -327,6 +316,9 @@ namespace Vodovoz
 			//Подписки на обновления
 			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric += OnCalUnloadUpdated;
 
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Expense>(s => CalculateTotal());
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Income>(s => CalculateTotal());
+
 			enumPrint.ItemsEnum = typeof(RouteListPrintDocuments);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintDocuments)e.ItemEnum);
 
@@ -357,6 +349,63 @@ namespace Vodovoz
 				.InitializeFromSource();
 			deliveryfreebalanceview.ShowAll();
 			yhboxDeliveryFreeBalance.PackStart(deliveryfreebalanceview, true, true, 0);
+
+			routeListAddressesView.Items.PropertyOfElementChanged += OnRouteListItemPropertyOfElementChanged;
+
+			ybuttonCashChangeReturn.Clicked += OnYbuttonCashChangeReturnClicked;
+
+			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+		}
+
+		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)
+		{
+			if(Entity.Id > 0)
+			{
+				GetClipboard(Gdk.Selection.Clipboard).Text = Entity.Id.ToString();
+			}
+		}
+
+		private void OnEvmeDriverChanged(object sender, EventArgs e)
+		{
+			if(Entity.Driver != null)
+			{
+				if(!Entity.IsDriversDebtInPermittedRangeVerification())
+				{
+					Entity.Driver = null;
+				}
+			}
+		}
+
+		private void OnYbuttonCashChangeReturnClicked(object sender, EventArgs e)
+		{
+			var page = Startup.MainWin.NavigationManager.OpenViewModel<IncomeViewModel, IEntityUoWBuilder>(null, EntityUoWBuilder.ForCreate());
+			page.ViewModel.ConFigureForReturnChange(Entity.Id);
+		}
+
+		private void UpdateYbuttonCashChangeReturnSensitivity()
+		{
+			var hasUnclosedAdvances = GetRouteListCashExpenses() > GetRouteListCashReturn();
+			var routeListStatusesForCloseAdvance = 
+				new[] { RouteListStatus.Delivered, RouteListStatus.OnClosing, RouteListStatus.MileageCheck };
+			var hasStatusForCloseAdvance = routeListStatusesForCloseAdvance.Contains(Entity.Status);
+
+			ybuttonCashChangeReturn.Sensitive = hasUnclosedAdvances && hasStatusForCloseAdvance;
+		}
+
+		private void OnRouteListItemPropertyOfElementChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(RouteListItem.BottlesReturned))
+			{
+				var node = routeListAddressesView.GetSelectedRouteListItem();
+
+				if(!_addressKeepingDocumentBottlesCacheList.ContainsKey(node.Id))
+				{
+					_addressKeepingDocumentBottlesCacheList.Add(node.Id, new HashSet<RouteListAddressKeepingDocumentItem>());
+				}
+
+				_addressKeepingDocumentBottlesCacheList[node.Id] = _routeListAddressKeepingDocumentController
+					.CreateOrUpdateRouteListKeepingDocumentByDiscrepancy(UoW, node, _addressKeepingDocumentBottlesCacheList[node.Id], true);
+			}
 		}
 
 		private void UpdateSensitivity()
@@ -377,9 +426,9 @@ namespace Vodovoz
 				routelistdiscrepancyview.Sensitive = false;
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
+				hbxStatistics3.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
-				toggleWageDetails.Sensitive = _canEdit;
-				permissioncommentview.Sensitive = _canEdit;
+				permissioncommentview.Sensitive = _isRoleCashier && permissionResult.CanUpdate;
 				buttonSave.Sensitive = _canEdit;
 
 				HasChanges = false;
@@ -409,8 +458,8 @@ namespace Vodovoz
 			spinCashOrder.Sensitive = buttonCreateCashOrder.Sensitive = _canEdit;
 			buttonCalculateCash.Sensitive = _canEdit;
 			labelWage1.Visible = _canEdit;
-			toggleWageDetails.Sensitive = _canEdit;
-			permissioncommentview.Sensitive = _canEdit;
+			toggleWageDetails.Sensitive = true;
+			permissioncommentview.Sensitive = _isRoleCashier && permissionResult.CanUpdate;
 			buttonSave.Sensitive = _canEdit;
 			UpdateButtonState();
 		}
@@ -450,6 +499,35 @@ namespace Vodovoz
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
+			if(e.PropertyName == nameof(Entity.Car) 
+				&& Entity.Car != null 
+				&& Entity.GetCarVersion == null)
+			{
+				MessageDialogHelper.RunErrorDialog(
+					$"Ошибка при выборе автомобиля с гос. номером \"{Entity.Car.RegistrationNumber}\". " +
+					$"Нет данных о версии автомобиля на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
+				
+				Entity.Car = null;
+			}
+
+			if(e.PropertyName == nameof(Entity.Driver))
+			{
+				if(Entity.Driver == null)
+				{
+					Entity.Forwarder = null;
+				}
+
+				if(Entity.Driver != null && Entity.Driver.GetActualWageParameter(Entity.Date) == null)
+				{
+					MessageDialogHelper.RunErrorDialog(
+						$"Нет данных о параметрах расчета зарплаты водителя \"{Entity.Driver.FullName}\" " +
+						$"на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
+
+					Entity.Driver = null;
+					Entity.Forwarder = null;
+				}
+			}
+
 			switch(e.PropertyName)
 			{
 				case nameof(Entity.NormalWage):
@@ -483,11 +561,25 @@ namespace Vodovoz
 			?? (_canEditFuelCardNumber =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number")).Value;
 
-		private decimal GetCashOrder() => _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
+		private decimal GetCashOrder() => _cashRepository.GetRouteListBalanceExceptAccountableCash(UoW, Entity.Id);
+		private decimal GetRouteListCashExpenses() => _cashRepository.GetRouteListCashExpensesSum(UoW, Entity.Id);
+		private decimal GetRouteListCashReturn() => _cashRepository.GetRouteListCashReturnSum(UoW, Entity.Id);
+		private decimal GetRouteListAdvanceReport() => _cashRepository.GetRouteListAdvancsReportsSum(UoW, Entity.Id);
 
 		private decimal GetTerminalOrdersSum()
 		{
 			var result = Entity.Addresses.Where(x => x.Order.PaymentType == PaymentType.Terminal
+					&& x.Status != RouteListItemStatus.Transfered)
+				.Sum(x => x.Order.OrderSum);
+
+			return result;
+		}
+
+		private decimal GetTerminalSbpOrdersSum()
+		{
+			var result = Entity.Addresses.Where(x => 
+					x.Order.PaymentType == PaymentType.Terminal
+					&& x.Order.PaymentByTerminalSource == PaymentByTerminalSource.ByQR
 					&& x.Status != RouteListItemStatus.Transfered)
 				.Sum(x => x.Order.OrderSum);
 
@@ -508,12 +600,32 @@ namespace Vodovoz
 		{
 			var newForwarder = Entity.Forwarder;
 
-			if((previousForwarder == null && newForwarder != null)
-			 || (previousForwarder != null && newForwarder == null))
-				Entity.RecalculateAllWages(wageParameterService);
+			if(NoActualWageParameterForSelectedForwarder)
+			{
+				MessageDialogHelper.RunErrorDialog(
+					$"Нет данных о параметрах расчета зарплаты экспедитора \"{Entity.Forwarder.FullName}\" " +
+					$"на выбранную дату доставки {Entity.Date:dd.MM.yyyy}.");
+
+				Entity.Forwarder = null;
+				newForwarder = null;
+			}
+
+			if(Entity.Driver != null)
+			{
+				if((previousForwarder == null && newForwarder != null)
+						|| (previousForwarder != null && newForwarder == null))
+				{
+					Entity.RecalculateAllWages(wageParameterService);
+				}
+			}
 
 			previousForwarder = Entity.Forwarder;
+			OnItemsUpdated();
 		}
+
+		private bool NoActualWageParameterForSelectedForwarder =>
+			Entity.Forwarder != null
+			&& Entity.Forwarder.GetActualWageParameter(Entity.Date) == null;
 
 		void EnummenuRLActions_EnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
@@ -555,7 +667,7 @@ namespace Vodovoz
 							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
-							_categoryRepository,
+							_financialCategoriesGroupsSettings,
 							_employeeRepository,
 							_nomenclatureParametersProvider
 						)
@@ -579,7 +691,7 @@ namespace Vodovoz
 							_routeListItemRepository,
 							new EmployeeService(),
 							ServicesConfig.CommonServices,
-							_categoryRepository,
+							_financialCategoriesGroupsSettings,
 							_employeeRepository,
 							_nomenclatureParametersProvider
 						)
@@ -604,7 +716,6 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
-
 		private void OnOrderReturnsViewTabClosed(object sender, EventArgs e)
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
@@ -626,7 +737,16 @@ namespace Vodovoz
 		{
 			var item = routeListAddressesView.Items[aIdx[0]];
 
-			Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
+			if(NoActualWageParameterForSelectedForwarder)
+			{
+				Entity.Forwarder = null;
+			}
+			
+			if(Entity.Driver != null)
+			{
+				Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
+			}
+
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered() && item.Status != RouteListItemStatus.Transfered)
 				foreach(var itm in item.Order.OrderItems)
@@ -672,7 +792,7 @@ namespace Vodovoz
 		{
 			buttonAccept.Sensitive = 
 				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck
-				                                            || Entity.Status == RouteListStatus.Delivered) 
+															|| Entity.Status == RouteListStatus.Delivered) 
 				&& canCloseRoutelist;
 		}
 
@@ -706,6 +826,20 @@ namespace Vodovoz
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
 
+			var totalCachAmount = totalCollected - Entity.PhoneSum;
+			var routeListRevenue = GetCashOrder() - (decimal)advanceSpinbutton.Value;
+			var routeListCashAdvance = GetRouteListCashExpenses();
+			var routeListCashReturn = GetRouteListCashReturn();
+			var routeListAdvancesReturn = GetRouteListAdvanceReport();
+
+			var routeListDebt = Entity.RouteListDebt;
+			decimal unclosedAdvanceMoney = default(decimal);
+
+			if(Entity.Driver != null)
+			{
+				unclosedAdvanceMoney = _routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Entity.Driver.Id);
+			}
+
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = string.Format(
 				"Сот. связь: {0} {1}",
@@ -715,25 +849,22 @@ namespace Vodovoz
 			labelFullBottles.Text = string.Format("Полных бут.: {0}", fullBottlesTotal);
 			labelEmptyBottles.Text = string.Format("Пустых бут.: {0}", bottlesReturnedTotal);
 			labelDeposits.Text = string.Format(
-				"Залогов: {0} {1}",
-				depositsCollectedTotal + equipmentDepositsCollectedTotal,
-				CurrencyWorks.CurrencyShortName
+				"Из них возврат залогов (информационно): {0}",
+				(depositsCollectedTotal + equipmentDepositsCollectedTotal).ToShortCurrencyString()
 			);
 			labelCash.Text = string.Format(
-				"Сдано по накладным: {0} {1}",
-				totalCollected,
-				CurrencyWorks.CurrencyShortName
+				"Нал по заказам: {0}",
+				totalCollected.ToShortCurrencyString()
 			);
 			labelTotalCollected.Text = string.Format(
-				"Итоговая сумма(нал.): {0} {1}",
-				totalCollected - Entity.PhoneSum,
-				CurrencyWorks.CurrencyShortName
+				"Итоговая сумма(нал.): {0}",
+				totalCachAmount.ToShortCurrencyString()
 			);
-			labelTerminalSum.Text = $"По терминалу: {GetTerminalOrdersSum()} {CurrencyWorks.CurrencyShortName}";
+			labelTerminalSum.Text = $"По терминалу: {GetTerminalOrdersSum().ToShortCurrencyString()}";
+			labelTerminalIncludedSBP.Text = $"В том числе по СБП: {GetTerminalSbpOrdersSum().ToShortCurrencyString()}";
 			labelTotal.Markup = string.Format(
-				"Итого сдано: <b>{0:F2}</b> {1}",
-				GetCashOrder() - (decimal)advanceSpinbutton.Value,
-				CurrencyWorks.CurrencyShortName
+				"Сдано выручка по МЛ: {0}",
+				routeListRevenue.ToShortCurrencyString()
 			);
 			labelWage1.Markup = string.Format(
 				"ЗП вод.: <b>{0}</b> {2}" + "  " + "ЗП эксп.: <b>{1}</b> {2}",
@@ -745,6 +876,14 @@ namespace Vodovoz
 				bottlesReturnedToWarehouse,
 				bottlesReturnedTotal
 			);
+			labelGivenChange.Markup = $"Выдано по МЛ (сдача): {routeListCashAdvance.ToShortCurrencyString()}";
+			labelReceivedChange.Markup = $"Сдано сдача по МЛ: {(routeListCashReturn + routeListAdvancesReturn).ToShortCurrencyString()}";
+			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{routeListDebt.ToShortCurrencyString()}</b>";			
+
+			ylabelUnclosedAdvancesMoney.Markup =
+				unclosedAdvanceMoney > 0m
+				? $"<span foreground='red'><b>Общий долг водителя: {unclosedAdvanceMoney.ToShortCurrencyString()}</b></span>"
+				: "";
 
 			if(defectiveBottlesReturnedToWarehouse > 0) {
 				lblQtyOfDefectiveGoods.Visible = true;
@@ -789,6 +928,8 @@ namespace Vodovoz
 				);
 				buttonFineEditState = Entity.BottleFine != null;
 			}
+
+			UpdateYbuttonCashChangeReturnSensitivity();
 		}
 
 		protected bool IsConsistentWithUnloadDocument()
@@ -802,18 +943,25 @@ namespace Vodovoz
 		}
 
 		public override bool Save() {
-			
-			var valid = new QSValidator<RouteList>(Entity,
-				new Dictionary<object, object>
+
+			if(TabParent != null && TabParent.CheckClosingSlaveTabs(this))
+			{
+				return false;
+			}
+			var contextItems = new Dictionary<object, object>
 				{
 					{nameof(IRouteListItemRepository), _routeListItemRepository},
 					{nameof(DriverTerminalCondition), _needToSelectTerminalCondition && Entity.Status == RouteListStatus.Closed}
-				});
-			
+				};
+			var context = new ValidationContext(Entity, null, contextItems);
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+
 			permissioncommentview.Save();
 
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+			if(!validator.Validate(Entity, context))
+			{
 				return false;
+			}
 
 			if(!ValidateOrders()) {
 				return false;
@@ -935,7 +1083,7 @@ namespace Vodovoz
 					if(driverWage > 0)
 					{
 						var newDriverAdvanceSum = driverWage > newDriverAdvanceSumParameter ? newDriverAdvanceSumParameter : driverWage * 0.5m;
-						newDriverAdvanceModel.CreateNewDriverAdvance(UoW, _categoryRepository, newDriverAdvanceSum);
+						newDriverAdvanceModel.CreateNewDriverAdvance(UoW, _financialCategoriesGroupsSettings, newDriverAdvanceSum);
 					}
 				}
 			}
@@ -956,7 +1104,7 @@ namespace Vodovoz
 				Entity.RecountMileage();
 			}
 
-			Entity.UpdateMovementOperations(_categoryRepository);
+			Entity.UpdateMovementOperations(_financialCategoriesGroupsSettings);
 
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
 
@@ -1271,6 +1419,7 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric -= OnCalUnloadUpdated;
 			base.Destroy();
 		}
@@ -1289,7 +1438,7 @@ namespace Vodovoz
 			var inputCashOrder = (decimal)spinCashOrder.Value;
 			try
 			{
-				messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _categoryRepository));
+				messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _financialCategoriesGroupsSettings));
 			}
 			catch(MissingOrdersWithCashlessPaymentTypeException ex)
 			{
@@ -1298,6 +1447,8 @@ namespace Vodovoz
 
 			if (cashIncome != null) UoW.Save(cashIncome);
 			if (cashExpense != null) UoW.Save(cashExpense);
+
+			Entity.UpdateRouteListDebt();
 
 			UoW.Save();
 
@@ -1320,7 +1471,7 @@ namespace Vodovoz
 				return;
 			}
 
-			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput, _categoryRepository);
+			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput, _financialCategoriesGroupsSettings);
 
 			if(cashExpense != null)
 				UoW.Save(cashExpense);
@@ -1378,10 +1529,10 @@ namespace Vodovoz
 					  new FuelRepository(),
 					  NavigationManagerProvider.NavigationManager,
 					  _trackRepository,
-					  _categoryRepository,
 					  new EmployeeJournalFactory(),
-					  new CarJournalFactory(MainClass.MainWin.NavigationManager)
-  			);
+					  _financialCategoriesGroupsSettings,
+					  new CarJournalFactory(Startup.MainWin.NavigationManager)
+			);
 			TabParent.AddSlaveTab(this, tab);
 		}
 
@@ -1396,10 +1547,10 @@ namespace Vodovoz
 				  new FuelRepository(),
 				  NavigationManagerProvider.NavigationManager,
 				  _trackRepository,
-				  _categoryRepository,
 				  new EmployeeJournalFactory(),
-				  new CarJournalFactory(MainClass.MainWin.NavigationManager)
-		  	);
+				  _financialCategoriesGroupsSettings,
+				  new CarJournalFactory(Startup.MainWin.NavigationManager)
+			);
 			TabParent.AddSlaveTab(this, tab);
 		}
 
@@ -1417,7 +1568,7 @@ namespace Vodovoz
 				}
 			}
 
-			var operationsResultMessage = Entity.UpdateCashOperations(_categoryRepository);
+			var operationsResultMessage = Entity.UpdateCashOperations(_financialCategoriesGroupsSettings);
 			messages.AddRange(operationsResultMessage);
 
 			CalculateTotal();

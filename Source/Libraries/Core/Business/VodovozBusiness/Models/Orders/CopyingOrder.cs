@@ -84,6 +84,7 @@ namespace Vodovoz.Models.Orders
 				_resultOrder.ReturnTareReason = _copiedOrder.ReturnTareReason;
 				_resultOrder.ContactPhone = _copiedOrder.ContactPhone;
 				_resultOrder.LogisticsRequirements = _copiedOrder.LogisticsRequirements;
+				_resultOrder.IsSecondOrder = _copiedOrder.IsSecondOrder;
 			}
 
 			return this;
@@ -234,13 +235,29 @@ namespace Vodovoz.Models.Orders
 		/// </summary>
 		public CopyingOrder CopyPaymentByCardDataIfPossible()
 		{
-			if(_copiedOrder.PaymentType != PaymentType.ByCard)
+			if(_copiedOrder.PaymentType != PaymentType.PaidOnline)
 			{
 				return this;
 			}
 
 			_resultOrder.OnlineOrder = _copiedOrder.OnlineOrder;
 			_resultOrder.PaymentByCardFrom = _copiedOrder.PaymentByCardFrom;
+
+			return this;
+		}
+
+		/// <summary>
+		/// Копирование данных об оплате по QR коду из приложения водителя или СМС
+		/// </summary>
+		public CopyingOrder CopyPaymentByQrDataIfPossible()
+		{
+			if(_copiedOrder.PaymentType != PaymentType.DriverApplicationQR
+				&& _copiedOrder.PaymentType != PaymentType.SmsQR)
+			{
+				return this;
+			}
+
+			_resultOrder.OnlineOrder = _copiedOrder.OnlineOrder;
 
 			return this;
 		}

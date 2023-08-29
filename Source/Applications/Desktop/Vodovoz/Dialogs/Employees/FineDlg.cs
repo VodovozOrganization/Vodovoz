@@ -2,6 +2,7 @@
 using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Dialogs;
@@ -22,6 +23,8 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Parameters;
+using Vodovoz.ViewModels.Factories;
+using QS.Validation;
 
 namespace Vodovoz
 {
@@ -180,9 +183,11 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var valid = new QS.Validation.QSValidator<Fine> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			Entity.UpdateWageOperations(UoW);
 			Entity.UpdateFuelOperations(UoW);
@@ -318,7 +323,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices,
 				new OrderSelectorFactory(),
 				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(),
+				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
 				new SubdivisionJournalFactory())
 			{
@@ -337,11 +342,10 @@ namespace Vodovoz
 				new EmployeeJournalFactory(),
 				VodovozGtkServicesConfig.EmployeeService,
 				new UndeliveredOrdersJournalOpener(),
-				new OrderSelectorFactory(),
 				new UndeliveredOrdersRepository(),
 				new EmployeeSettings(new ParametersProvider()),
 				new SubdivisionParametersProvider(new ParametersProvider())
-				);
+			);
 
 			TabParent.AddSlaveTab(this, dlg);
 		}

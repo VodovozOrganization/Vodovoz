@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 			if(filterparams != null)
 			{
-				filterViewModel.SetAndRefilterAtOnce(filterparams);
+				FilterViewModel.SetAndRefilterAtOnce(filterparams);
 			}
 
 			UpdateOnChanges(typeof(Employee));

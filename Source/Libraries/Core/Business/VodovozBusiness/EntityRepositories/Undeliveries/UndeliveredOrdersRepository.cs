@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -148,34 +149,34 @@ namespace Vodovoz.EntityRepositories.Undeliveries
 
 			int i = 0;
 			var result = query.SelectList(list => list
-										  .SelectGroup(u => u.Id)
-										  .Select(
-											  Projections.SqlFunction(
-												  new SQLFunctionTemplate(
-													  NHibernateUtil.String,
-													  "GROUP_CONCAT(" +
-													  "CASE ?1 " +
-													  $"WHEN '{nameof(GuiltyTypes.Department)}' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') " +
-													  $"WHEN '{nameof(GuiltyTypes.Client)}' THEN 'Клиент' " +
-													  $"WHEN '{nameof(GuiltyTypes.Driver)}' THEN 'Водитель' " +
-													  $"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN 'Мастер СЦ' " +
-													  $"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN 'Форс-мажор' " +
-													  $"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN 'Директор ЛО (Доставка за час)' " +
-													  $"WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN 'Директор ЛО (Доставка в тот же день)' " +
-													  $"WHEN '{nameof(GuiltyTypes.None)}' THEN 'Нет (не недовоз)' " +
-													  "ELSE ?1 " +
-													  "END ORDER BY ?1 ASC SEPARATOR '\n')"
-													 ),
-												  NHibernateUtil.String,
-												  Projections.Property(() => guiltyInUndeliveryAlias.GuiltySide),
-												  Projections.Property(() => subdivisionAlias.ShortName)
-												 )
-											 )
-										 )
-							  .List<object[]>()
-							  .GroupBy(x => x[1])
-							  .Select(r => new[] { r.Key, r.Count(), i++ })
-			                  .ToList();
+				  .SelectGroup(u => u.Id)
+				  .Select(
+					  Projections.SqlFunction(
+						  new SQLFunctionTemplate(
+							  NHibernateUtil.String,
+							  "GROUP_CONCAT(" +
+							  "CASE ?1 " +
+							  $"WHEN '{nameof(GuiltyTypes.Department)}' THEN IFNULL(CONCAT('Отд: ', ?2), '{GuiltyTypes.Department.GetEnumTitle()}') " +
+							  $"WHEN '{nameof(GuiltyTypes.Client)}' THEN '{GuiltyTypes.Client.GetEnumTitle()}' " +
+							  $"WHEN '{nameof(GuiltyTypes.Driver)}' THEN '{GuiltyTypes.Driver.GetEnumTitle()}' " +
+							  $"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN '{GuiltyTypes.ServiceMan.GetEnumTitle()}' " +
+							  $"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN '{GuiltyTypes.ForceMajor.GetEnumTitle()}' " +
+							  $"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN '{GuiltyTypes.DirectorLO.GetEnumTitle()}' " +
+							  $"WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN '{GuiltyTypes.DirectorLOCurrentDayDelivery.GetEnumTitle()}' " +
+							  $"WHEN '{nameof(GuiltyTypes.None)}' THEN '{GuiltyTypes.None.GetEnumTitle()}' " +
+							  "ELSE ?1 " +
+							  "END ORDER BY ?1 ASC SEPARATOR '\n')"
+							 ),
+						  NHibernateUtil.String,
+						  Projections.Property(() => guiltyInUndeliveryAlias.GuiltySide),
+						  Projections.Property(() => subdivisionAlias.ShortName)
+						 )
+					 )
+				 )
+		  .List<object[]>()
+		  .GroupBy(x => x[1])
+		  .Select(r => new[] { r.Key, r.Count(), i++ })
+	      .ToList();
 
 			return result;
 		}

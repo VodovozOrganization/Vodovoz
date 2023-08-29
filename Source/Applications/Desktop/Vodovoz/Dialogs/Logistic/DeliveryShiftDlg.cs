@@ -51,9 +51,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<DeliveryShift>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			logger.Info("Сохраняем смену...");
 			UoWGeneric.Save();

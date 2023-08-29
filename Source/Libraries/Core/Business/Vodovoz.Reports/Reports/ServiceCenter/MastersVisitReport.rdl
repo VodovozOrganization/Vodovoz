@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -20,7 +20,7 @@
         <Height>24.06pt</Height>
         <Width>578.14pt</Width>
         <Value>="Отчёт по выездам мастера за " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + Iif({?start_date} = {?end_date}, "", " - " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>5.80pt</Top>
         <Style>
@@ -357,7 +357,7 @@
         <Height>12.75pt</Height>
         <Width>221.33pt</Width>
         <Value>="Мастер: " + First(Fields!employee_name, "route_lists")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>6.70pt</Top>
         <Style>
@@ -409,7 +409,7 @@
                 nomenclature on nomenclature.id = order_items.nomenclature_id
             where
                     nomenclature.category = 'master'
-              and orders.payment_type = 'cash'
+              and orders.payment_type = 'Cash'
               and route_list_addresses.route_list_id = route_lists.id),0) as profit_cash,
     concat_ws('',
               concat(employees.last_name, ' '),
@@ -534,7 +534,7 @@ where
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>
         </ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>

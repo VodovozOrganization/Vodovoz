@@ -57,7 +57,7 @@ namespace Vodovoz.TempAdapters
 			_userRepository = new UserRepository();
 			_orderSelectorFactory = new OrderSelectorFactory();
 			_employeeJournalFactory = new EmployeeJournalFactory();
-			_counterpartyJournalFactory = new CounterpartyJournalFactory();
+			_counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			_deliveryPointJournalFactory = new DeliveryPointJournalFactory();
 			_complaintParametersProvider = new ComplaintParametersProvider(new ParametersProvider());
 			_generalSettingsParametersProvider = new GeneralSettingsParametersProvider(new ParametersProvider());
@@ -84,7 +84,7 @@ namespace Vodovoz.TempAdapters
 				_deliveryPointJournalFactory,
 				_complaintParametersProvider,
 				_generalSettingsParametersProvider,
-				MainClass.AppDIContainer.BeginLifetimeScope()
+				Startup.AppDIContainer.BeginLifetimeScope()
 				);
 		}
 
@@ -109,7 +109,7 @@ namespace Vodovoz.TempAdapters
 				_deliveryPointJournalFactory,
 				_complaintParametersProvider,
 				_generalSettingsParametersProvider,
-				MainClass.AppDIContainer.BeginLifetimeScope()
+				Startup.AppDIContainer.BeginLifetimeScope()
 				);
 		}
 	}

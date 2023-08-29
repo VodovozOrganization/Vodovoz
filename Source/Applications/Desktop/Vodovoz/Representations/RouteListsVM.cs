@@ -43,11 +43,13 @@ using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.JournalViewers;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.Settings.Cash;
 
 namespace Vodovoz.ViewModel
 {
@@ -55,6 +57,7 @@ namespace Vodovoz.ViewModel
 	{
 		private readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private bool _userHasOnlyAccessToWarehouseAndComplaints;
+		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings = Startup.AppDIContainer.Resolve<IFinancialCategoriesGroupsSettings>();
 
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
@@ -268,7 +271,7 @@ namespace Vodovoz.ViewModel
 			
 			_userHasOnlyAccessToWarehouseAndComplaints =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("user_have_access_only_to_warehouse_and_complaints")
-				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser(UoW).IsAdmin;
+				&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			Filter.SelectedStatuses = new[]{
 					RouteListStatus.New,
@@ -398,7 +401,7 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null)
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListCreateDlg(selectedNode.Id)
 							);
@@ -410,7 +413,7 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && ControlDlgStatuses.Contains(selectedNode.StatusEnum))
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListControlDlg(selectedNode.Id)
 							);
@@ -446,14 +449,18 @@ namespace Vodovoz.ViewModel
 									warehouseId = geoGroupVersion.Warehouse.Id;
 								}
 
-								if (warehouseId > 0)
+								if(warehouseId > 0)
 								{
 									var onlineOrders = routeList.Addresses
 										.SelectMany(adressItem => adressItem.Order.OrderItems)
 										.Where(orderItem => orderItem.Nomenclature.OnlineStore != null);
 
 									var warehouseStocks = warehouseRepository
-										.GetWarehouseNomenclatureStock(UoW, warehouseId, onlineOrders.Select(o=>o.Nomenclature.Id).Distinct());
+										.GetWarehouseNomenclatureStock(
+											UoW,
+											OperationType.WarehouseBulkGoodsAccountingOperation,
+											warehouseId,
+											onlineOrders.Select(o => o.Nomenclature.Id).Distinct());
 									
 									var lackWarehouseStocks = onlineOrders
 										.Join(warehouseStocks,
@@ -534,7 +541,7 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && KeepingDlgStatuses.Contains(selectedNode.StatusEnum))
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListKeepingDlg(selectedNode.Id)
 							);
@@ -578,7 +585,7 @@ namespace Vodovoz.ViewModel
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && ClosingDlgStatuses.Contains(selectedNode.StatusEnum))
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
 								() => new RouteListClosingDlg(selectedNode.Id)
 							);
@@ -592,7 +599,7 @@ namespace Vodovoz.ViewModel
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null && AnalysisViewModelStatuses.Contains(selectedNode.StatusEnum))
 						{
-							MainClass.MainWin.NavigationManager.OpenViewModel<RouteListAnalysisViewModel, IEntityUoWBuilder>(
+							Startup.MainWin.NavigationManager.OpenViewModel<RouteListAnalysisViewModel, IEntityUoWBuilder>(
 								null, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.IgnoreHash);
 						}
 					},
@@ -607,7 +614,7 @@ namespace Vodovoz.ViewModel
 							&& MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum)
 							&& selectedNode.CarTypeOfUse != CarTypeOfUse.Truck)
 						{
-							MainClass.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(
+							Startup.MainWin.NavigationManager.OpenViewModel<RouteListMileageCheckViewModel, IEntityUoWBuilder>(
 								null, EntityUoWBuilder.ForOpen(selectedNode.Id), OpenPageOptions.AsSlave);
 						}
 					},
@@ -661,7 +668,7 @@ namespace Vodovoz.ViewModel
 						if(selectedNode != null) {
 							var routeListId = selectedNode.Id;
 							var RouteList = UoW.GetById<RouteList>(routeListId);
-							MainClass.MainWin.TdiMain.OpenTab(
+							Startup.MainWin.TdiMain.OpenTab(
 									DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
 									() => new FuelDocumentViewModel(
 														RouteList, 
@@ -671,9 +678,9 @@ namespace Vodovoz.ViewModel
 														new FuelRepository(),
 														NavigationManagerProvider.NavigationManager,
 														new TrackRepository(),
-														new CategoryRepository(_parametersProvider),
 														new EmployeeJournalFactory(),
-														new CarJournalFactory(MainClass.MainWin.NavigationManager)
+														_financialCategoriesGroupsSettings,
+														new CarJournalFactory(Startup.MainWin.NavigationManager)
 									)
 								);
 						}

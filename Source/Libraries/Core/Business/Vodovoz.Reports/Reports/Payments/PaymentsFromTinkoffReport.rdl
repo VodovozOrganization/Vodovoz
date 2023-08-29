@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>209.804mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>285mm</Width>
@@ -20,7 +18,7 @@
         <Height>19.57pt</Height>
         <Width>814.05pt</Width>
         <Value>='Отчет по оплатам Online c '+Format(CDATE({?startDate}), "dd.MM.yyyy") + ' по ' + Format(CDATE({?endDate}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.8pt</Left>
         <Top>0.6pt</Top>
         <Style>
@@ -33,8 +31,7 @@
           <PaddingBottom>0mm</PaddingBottom>
           <PaddingRight>0mm</PaddingRight>
           <TextAlign>Center</TextAlign>
-          <BackgroundColor>
-          </BackgroundColor>
+          <BackgroundColor></BackgroundColor>
         </Style>
       </Textbox>
     </ReportItems>
@@ -581,8 +578,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -590,8 +586,7 @@
                         <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor></BackgroundColor>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
                       </Style>
@@ -1050,15 +1045,14 @@
         <Left>0.0pt</Left>
         <Top>133.8pt</Top>
         <Visibility>
-          <Hidden>
-          </Hidden>
+          <Hidden></Hidden>
         </Visibility>
       </Table>
       <Textbox Name="Textbox36">
         <Height>21.06pt</Height>
         <Width>816.10pt</Width>
         <Value>Оплаты без заказов</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>108.96pt</Top>
         <Style>
@@ -1094,9 +1088,9 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>120</Timeout>
+        <Timeout>240</Timeout>
         <CommandText>SELECT
     o.delivery_date AS order_date,
     o.id AS order_id,
@@ -1182,8 +1176,8 @@ FROM
             p_online.*
         From orders o_online
         JOIN payments_by_card_online p_online on p_online.number = o_online.online_order
-            AND p_online.date_and_time &gt; DATE_ADD(o_online.create_date, INTERVAL -10 DAY)
-            AND p_online.date_and_time &lt; DATE_ADD(o_online.create_date, INTERVAL 10 DAY)
+            AND p_online.date_and_time &gt; DATE_ADD(o_online.create_date, INTERVAL -45 DAY)
+            AND p_online.date_and_time &lt; DATE_ADD(o_online.create_date, INTERVAL 45 DAY)
             AND p_online.payment_by_card_from != 'FromSMS'
 
         UNION
@@ -1193,8 +1187,8 @@ FROM
             p_sms.*
         From orders o_sms
         JOIN payments_by_card_online p_sms on p_sms.number = o_sms.id
-            AND p_sms.date_and_time &gt; DATE_ADD(o_sms.create_date, INTERVAL -10 DAY)
-            AND p_sms.date_and_time &lt; DATE_ADD(o_sms.create_date, INTERVAL 10 DAY)
+            AND p_sms.date_and_time &gt; DATE_ADD(o_sms.create_date, INTERVAL -45 DAY)
+            AND p_sms.date_and_time &lt; DATE_ADD(o_sms.create_date, INTERVAL 45 DAY)
             AND p_sms.payment_by_card_from = 'FromSMS'
     ) as p on p.order_id = o.id
         LEFT JOIN
@@ -1214,7 +1208,7 @@ FROM
             i.order_id
     ) o_sum ON o_sum.id = o.id
 WHERE
-  o.payment_type = 'ByCard'
+  o.payment_type = 'PaidOnline'
   AND o.online_order IS NOT NULL
   AND o.payment_from_id not in (10, 11, 12, 13) #убираем платежи из авангарда
   AND o.delivery_date &gt;= @startDate
@@ -1234,7 +1228,7 @@ ORDER BY order_satus_numbered DESC
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1302,9 +1296,9 @@ ORDER BY order_satus_numbered DESC
       </Fields>
     </DataSet>
     <DataSet Name="PaymentsWithoutOrders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>120</Timeout>
+        <Timeout>240</Timeout>
         <CommandText>SELECT *
 FROM payments_by_card_online pbco
 WHERE
@@ -1348,7 +1342,7 @@ ORDER BY pbco.date_and_time DESC
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1389,7 +1383,7 @@ ORDER BY pbco.date_and_time DESC
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
@@ -1406,8 +1400,7 @@ ORDER BY pbco.date_and_time DESC
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="endDate">
       <DataType>String</DataType>
@@ -1421,8 +1414,7 @@ ORDER BY pbco.date_and_time DESC
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

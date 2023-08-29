@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -9,7 +9,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
       </ConnectionProperties>
     </DataSource>
@@ -112,31 +112,15 @@ FROM
         (
             SELECT
                 nomenclature_id AS nom_id,
-                writeoff_warehouse_id AS wh,
-                -SUM(amount) AS quantity
-            FROM warehouse_movement_operations
-                     LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.writeoff_warehouse_id
-                     LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
-            WHERE
-                    writeoff_warehouse_id IS NOT NULL
-                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
-                    AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
-            GROUP BY nomenclature_id
-
-            UNION ALL
-
-            SELECT
-                nomenclature_id AS nom_id,
-                incoming_warehouse_id AS wh,
+                warehouse_id AS wh,
                 SUM(amount) AS quantity
-            FROM warehouse_movement_operations
-                     LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.incoming_warehouse_id
+            FROM goods_accounting_operations
+                     LEFT JOIN warehouses ON warehouses.id = goods_accounting_operations.warehouse_id
                      LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
             WHERE
-                    incoming_warehouse_id IS NOT NULL
                     #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
                     AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
-            GROUP BY nomenclature_id
+            GROUP BY nomenclature_id   
         ) AS StockBalance ON StockBalance.nom_id = nomenclature.id
 
         LEFT JOIN #Отправлено на другой склад
@@ -309,31 +293,15 @@ FROM
         (
             SELECT
                 nomenclature_id AS nom_id,
-                writeoff_warehouse_id AS wh,
-                -SUM(amount) AS quantity
-            FROM warehouse_movement_operations
-                     LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.writeoff_warehouse_id
-                     LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
-            WHERE
-                    writeoff_warehouse_id IS NOT NULL
-                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
-                    AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
-            GROUP BY nomenclature_id
-
-            UNION ALL
-
-            SELECT
-                nomenclature_id AS nom_id,
-                incoming_warehouse_id AS wh,
+                warehouse_id AS wh,
                 SUM(amount) AS quantity
-            FROM warehouse_movement_operations
-                     LEFT JOIN warehouses ON warehouses.id = warehouse_movement_operations.incoming_warehouse_id
-                     LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
+            FROM goods_accounting_operations
+                LEFT JOIN warehouses ON warehouses.id = goods_accounting_operations.warehouse_id
+                LEFT JOIN subdivisions On subdivisions.id = warehouses.owning_subdivision
             WHERE
-                    incoming_warehouse_id IS NOT NULL
-                    #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
-                    AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
-            GROUP BY nomenclature_id
+                #AND geo_groups_to_entities.geo_group_id = @district После обновления раскоментить 
+                AND subdivisions.id = @subdivision OR subdivisions.parent_subdivision_id = @subdivision #До обновления 
+            GROUP BY nomenclature_id          
         ) AS StockBalance ON StockBalance.nom_id = nomenclature.id
 
         LEFT JOIN #Отправлено на другой склад
@@ -1124,7 +1092,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         <Height>18.02pt</Height>
         <Width>93.30pt</Width>
         <Value>СЕВЕР:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>10.4pt</Left>
         <Top>206.1pt</Top>
         <Style>
@@ -1142,7 +1110,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         <Height>18.02pt</Height>
         <Width>93.30pt</Width>
         <Value>ЮГ:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>13.6pt</Left>
         <Top>31.8pt</Top>
         <Style>
@@ -1160,7 +1128,7 @@ ORDER BY (NomenclatureSumForShipping) DESC</CommandText>
         <Height>21.04pt</Height>
         <Width>463.01pt</Width>
         <Value>="Отчет по необходимым товарам для отгрузки на " +  Format(Convert.ToDateTime({?date}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>108.0pt</Left>
         <Top>6.7pt</Top>
         <Style>

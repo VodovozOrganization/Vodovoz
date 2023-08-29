@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -16,7 +16,6 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
-using QS.Services;
 using QS.Tdi;
 using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
@@ -32,9 +31,7 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
@@ -43,13 +40,14 @@ using Vodovoz.ViewModels.Dialogs.Logistic;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -58,7 +56,6 @@ namespace Vodovoz.Dialogs.Logistic
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(new ParametersProvider());
 		
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
-		private readonly DriverApiUserRegisterEndpoint _driverApiRegistrationEndpoint;
 		private readonly IAuthorizationService _authorizationService = new AuthorizationServiceFactory().CreateNewAuthorizationService();
 		private readonly IEmployeeWageParametersFactory _employeeWageParametersFactory = new EmployeeWageParametersFactory();
 		private readonly ISubdivisionJournalFactory _subdivisionJournalFactory = new SubdivisionJournalFactory();
@@ -84,8 +81,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public AtWorksDlg(
 			IDefaultDeliveryDayScheduleSettings defaultDeliveryDayScheduleSettings,
-			IEmployeeJournalFactory employeeJournalFactory,
-			DriverApiUserRegisterEndpoint driverApiUserRegisterEndpoint)
+			IEmployeeJournalFactory employeeJournalFactory)
 		{
 			if(defaultDeliveryDayScheduleSettings == null)
 			{
@@ -93,7 +89,6 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
-			_driverApiRegistrationEndpoint = driverApiUserRegisterEndpoint ?? throw new ArgumentNullException(nameof(driverApiUserRegisterEndpoint));
 			_filterViewModel = new AtWorkFilterViewModel(UoW, _geographicGroupRepository, CheckAndSaveBeforeСontinue);
 
 			Build();
@@ -455,7 +450,11 @@ namespace Vodovoz.Dialogs.Logistic
 				x => x.Archive = false,
 				x => x.RestrictedCarOwnTypes = new List<CarOwnType> { CarOwnType.Company }
 			);
-			var journal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+			var journal = new CarJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				Startup.AppDIContainer.BeginLifetimeScope());
 			journal.SelectionMode = JournalSelectionMode.Single;
 			journal.OnEntitySelectedResult += (o, args) =>
 			{
@@ -554,7 +553,7 @@ namespace Vodovoz.Dialogs.Logistic
 					new RouteListsWageController(new WageParameterService(new WageCalculationRepository(),
 						new BaseParametersProvider(new ParametersProvider()))),
 					geoGroupJournalFactory,
-					MainClass.MainWin.NavigationManager
+					Startup.MainWin.NavigationManager
 				)
 			);
 		}
@@ -570,7 +569,8 @@ namespace Vodovoz.Dialogs.Logistic
 			
 			foreach(var one in selected) 
 			{
-				MainClass.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(one.Employee.Id));
+				Startup.MainWin.NavigationManager.OpenViewModelOnTdi<EmployeeViewModel, IEntityUoWBuilder>(
+					this, EntityUoWBuilder.ForOpen(one.Employee.Id));
 			}
 		}
 		

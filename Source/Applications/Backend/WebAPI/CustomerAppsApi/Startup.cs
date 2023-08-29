@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Reflection;
-using CustomerAppsApi.Converters;
+﻿using CustomerAppsApi.Converters;
 using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Models;
@@ -13,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
@@ -21,15 +19,19 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
+using QS.Project.Services;
+using QS.Services;
 using QS.Utilities.Numeric;
+using System.Linq;
+using System.Reflection;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
@@ -134,6 +136,7 @@ namespace CustomerAppsApi
 			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
 				.ConnectionString(connectionString)
+				.Driver<LoggedMySqlClientDriver>()
 				.AdoNetBatchSize(100);
 
 			// Настройка ORM
@@ -142,7 +145,7 @@ namespace CustomerAppsApi
 				new Assembly[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
@@ -156,14 +159,17 @@ namespace CustomerAppsApi
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+				var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
 					.Where(u => u.Login == userLogin)
-					.Select(u => u.Id)
 					.FirstOrDefault();
+
+				serviceUserId = serviceUser.Id;
+
+				ServicesConfig.UserService = new UserService(serviceUser);
 			}
 
 			UserRepository.GetCurrentUserId = () => serviceUserId;
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

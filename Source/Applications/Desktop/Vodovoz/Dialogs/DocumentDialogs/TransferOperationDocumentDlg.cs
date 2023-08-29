@@ -52,7 +52,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			datepickerDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 
-			var clientFactory = new CounterpartyJournalFactory();
+			var clientFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			referenceCounterpartyFrom.SetEntitySelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
 
@@ -73,9 +73,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			var messages = new List<string>();
 
-			var valid = new QSValidator<TransferOperationDocument>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.LastEditor == null) {

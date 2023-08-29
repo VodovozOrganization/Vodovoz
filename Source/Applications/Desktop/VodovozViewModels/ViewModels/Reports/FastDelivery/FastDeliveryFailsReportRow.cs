@@ -14,6 +14,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 			public bool? IsValidUnclosedFastDeliveries { get; set; }
 			public bool? IsValidIsGoodsEnough { get; set; }
 			public int Id { get; set; }
+			public string Nomenclature { get; set; }
 		}
 	}
 }

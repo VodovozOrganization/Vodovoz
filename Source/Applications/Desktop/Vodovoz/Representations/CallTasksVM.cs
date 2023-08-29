@@ -359,18 +359,22 @@ namespace Vodovoz.Representations
 			}
 		}
 
-		public void ChangeEnitity(Action<CallTask> action, CallTaskVMNode[] tasks, bool NeedUpdate = true)
+		public void ChangeEnitity(Action<CallTask> action, CallTaskVMNode[] taskNodes, bool NeedUpdate = true)
 		{
 			if(action == null)
 				return;
 
-			tasks.ToList().ForEach((taskNode) =>
+			var ids = taskNodes.Select(x => x.Id).ToArray();
+			var tasks = UoW.GetById<CallTask>(ids);
+
+			tasks.ToList().ForEach(task =>
 			{
-				CallTask task = UoW.GetById<CallTask>(taskNode.Id);
 				action(task);
 				UoW.Save(task);
-				UoW.Commit();
 			});
+
+			UoW.Commit();
+
 			if(NeedUpdate)
 				UpdateNodes();
 		}

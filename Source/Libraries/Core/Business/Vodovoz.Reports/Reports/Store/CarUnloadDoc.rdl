@@ -7,7 +7,7 @@
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
       </ConnectionProperties>
     </DataSource>
@@ -26,18 +26,18 @@
     nomenclature.category as category,
     measurement_units.name as unit,
     equipment.id as serial_number,
-    warehouse_movement_operations.amount,
+    goods_accounting_operations.amount,
     measurement_units.digits as digits
 FROM
     store_car_unload_document_items
         LEFT JOIN
-    warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+    goods_accounting_operations ON store_car_unload_document_items.warehouse_movement_operation_id = goods_accounting_operations.id
         LEFT JOIN
-    nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+    nomenclature ON goods_accounting_operations.nomenclature_id = nomenclature.id
         LEFT JOIN
     measurement_units ON measurement_units.id = nomenclature.unit_id
         LEFT JOIN
-    equipment ON equipment.id = warehouse_movement_operations.equipment_id
+    equipment ON equipment.id = goods_accounting_operations.equipment_id
 WHERE
         store_car_unload_document_items.car_unload_document_id = @id
 ORDER BY nomenclature, serial_number, category;</CommandText>
@@ -702,7 +702,7 @@ FROM			cte;</CommandText>
         <Height>21.01pt</Height>
         <Width>104.61pt</Width>
         <Value>Разгрузка:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>8.1pt</Left>
         <Top>105.3pt</Top>
         <Style>
@@ -716,7 +716,7 @@ FROM			cte;</CommandText>
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Водитель</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>66.2pt</Left>
         <Top>178.0pt</Top>
         <Style>
@@ -730,7 +730,7 @@ FROM			cte;</CommandText>
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Кладовщик</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>66.2pt</Left>
         <Top>207.0pt</Top>
         <Style>
@@ -744,7 +744,7 @@ FROM			cte;</CommandText>
         <Height>14.24pt</Height>
         <Width>261.19pt</Width>
         <Value>= "____________________ (" + First({driver}, "Doc") + ")"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>133.7pt</Left>
         <Top>178.0pt</Top>
         <Style>
@@ -758,7 +758,7 @@ FROM			cte;</CommandText>
         <Height>14.24pt</Height>
         <Width>261.19pt</Width>
         <Value>= "____________________ (" + First({storekeeper}, "Doc") + ")"</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>133.70pt</Left>
         <Top>207.00pt</Top>
         <Style>
@@ -772,7 +772,7 @@ FROM			cte;</CommandText>
         <Height>21.00pt</Height>
         <Width>537.20pt</Width>
         <Value>=First({self_transfers}, "SelfTerminalTransfer")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>7.30pt</Left>
         <Top>249.30pt</Top>
         <CanGrow>true</CanGrow>

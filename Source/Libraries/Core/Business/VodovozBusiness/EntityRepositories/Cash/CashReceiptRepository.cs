@@ -51,9 +51,11 @@ namespace Vodovoz.EntityRepositories.Cash
 		{
 			var restriction = Restrictions.Disjunction()
 				.Add(() => _orderAlias.PaymentType == PaymentType.Terminal)
-				.Add(() => _orderAlias.PaymentType == PaymentType.cash)
+				.Add(() => _orderAlias.PaymentType == PaymentType.Cash)
+				.Add(() => _orderAlias.PaymentType == PaymentType.DriverApplicationQR)
+				.Add(() => _orderAlias.PaymentType == PaymentType.SmsQR)
 				.Add(Restrictions.Conjunction()
-					.Add(() => _orderAlias.PaymentType == PaymentType.ByCard)
+					.Add(() => _orderAlias.PaymentType == PaymentType.PaidOnline)
 					.Add(Restrictions.Disjunction()
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromTerminalId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromFastPaymentServiceId)
@@ -62,6 +64,8 @@ namespace Vodovoz.EntityRepositories.Cash
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromMobileAppByQrCodeId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromMobileAppId)
 						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSiteId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.PaymentFromSmsYuKassaId)
+						.Add(() => _orderAlias.PaymentByCardFrom.Id == _orderParametersProvider.GetPaymentByCardFromKulerSaleId)
 						)
 					);
 			return restriction;
@@ -126,7 +130,10 @@ namespace Vodovoz.EntityRepositories.Cash
 					.Where(GetDeliveryDateRestriction())
 					;
 
-				var result = query.Select(Projections.Id()).List<int>();
+				var result = 
+					query.SelectList(list => list
+							.SelectGroup(() => _orderAlias.Id))
+						.List<int>();
 				return result;
 			}
 		}
@@ -151,21 +158,36 @@ namespace Vodovoz.EntityRepositories.Cash
 					.And(GetOrderStatusRestriction())
 					.And(() => !_orderAlias.SelfDelivery);
 
-				var result = query.Select(Projections.Id()).List<int>();
+				var result = 
+					query.SelectList(list => list
+							.SelectGroup(() => _orderAlias.Id))
+						.List<int>();
 				return result;
 			}
 		}
 
 		public IEnumerable<CashReceipt> GetCashReceiptsForSend(IUnitOfWork uow, int count)
 		{
-			var statusesForSend = new[] { CashReceiptStatus.ReadyToSend, CashReceiptStatus.ReceiptSendError };
-			var query = uow.Session.QueryOver(() => _cashReceiptAlias)
-				.WhereRestrictionOn(() => _cashReceiptAlias.Status).IsIn(statusesForSend)
+			var queryReady = uow.Session.QueryOver(() => _cashReceiptAlias)
+				.Where(() => _cashReceiptAlias.Status == CashReceiptStatus.ReadyToSend)
 				.Select(Projections.Id())
 				.OrderBy(() => _cashReceiptAlias.CreateDate).Asc
 				.Take(count);
 
-			var receiptIds = query.List<int>();
+			var queryError = uow.Session.QueryOver(() => _cashReceiptAlias)
+				.Where(() => _cashReceiptAlias.Status == CashReceiptStatus.ReceiptSendError)
+				.Select(Projections.Id())
+				.OrderBy(() => _cashReceiptAlias.CreateDate).Asc
+				.Take(count);
+
+			var readyReceiptIds = queryReady.List<int>();
+			IEnumerable<int> receiptIds = readyReceiptIds;
+
+			if(readyReceiptIds.Count < count)
+			{
+				var receiptIdsWithError = queryError.List<int>();
+				receiptIds = readyReceiptIds.Union(receiptIdsWithError);
+			}
 
 			var result = LoadReceipts(uow, receiptIds);
 			return result;
@@ -178,6 +200,7 @@ namespace Vodovoz.EntityRepositories.Cash
 				.Left.JoinAlias(() => _orderAlias.OrderItems, () => _orderItemAlias)
 				.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
 				.Where(() => _orderAlias.Id == orderId)
+				//Эта проверка нужна для проверки смены договора
 				.Where(GetCashReceiptExistRestriction())
 				.Where(GetPaymentTypeRestriction())
 				.Where(GetPositiveSumRestriction())
@@ -199,7 +222,7 @@ namespace Vodovoz.EntityRepositories.Cash
 				.JoinEntityAlias(() => _cashReceiptAlias, () => _cashReceiptAlias.Order.Id == _orderAlias.Id, JoinType.LeftOuterJoin)
 				.Where(() => _orderAlias.Id == orderId)
 				.Where(GetCashReceiptExistRestriction())
-				.Where(() => _orderAlias.PaymentType == PaymentType.cash)
+				.Where(() => _orderAlias.PaymentType == PaymentType.Cash)
 				.Where(GetPositiveSumRestriction())
 				.Where(GetDeliveryDateRestriction())
 				.Where(Restrictions.Disjunction()
@@ -209,6 +232,17 @@ namespace Vodovoz.EntityRepositories.Cash
 
 			var id = query.Select(Projections.Id()).SingleOrDefault<int>();
 			return id == orderId;
+		}
+
+		public IEnumerable<CashReceipt> GetReceiptsForOrder(IUnitOfWork uow, int orderId)
+		{
+			CashReceipt receiptAlias = null;
+
+			var result =uow.Session.QueryOver(() => receiptAlias)
+				.Where(() => receiptAlias.Order.Id == orderId)
+				.List();
+
+			return result;
 		}
 
 		public CashReceipt LoadReceipt(IUnitOfWork uow, int receiptId)
@@ -323,16 +357,26 @@ namespace Vodovoz.EntityRepositories.Cash
 			}
 		}
 
-		public bool HasReceipt(int orderId)
+		public bool HasNeededReceipt(int orderId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var query = uow.Session.QueryOver(() => _cashReceiptAlias)
 					.Where(() => _cashReceiptAlias.Order.Id == orderId)
-					.Where(() => _cashReceiptAlias.Status == CashReceiptStatus.Sended)
+					.Where(() => _cashReceiptAlias.Status != CashReceiptStatus.ReceiptNotNeeded)
 					.Select(Projections.Id());
 				var result = query.List<int>();
-				return result.Any();
+				var hasNeededReceipts = result.Any();
+
+				if(hasNeededReceipts)
+				{
+					return hasNeededReceipts;
+				}
+				else
+				{
+					var receiptNeeded = CashReceiptNeeded(uow, orderId);
+					return receiptNeeded;
+				}
 			}
 		}
 

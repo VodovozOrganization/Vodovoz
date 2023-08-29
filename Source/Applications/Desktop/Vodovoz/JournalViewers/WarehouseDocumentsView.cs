@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Gamma.Utilities;
 using Gtk;
@@ -7,7 +7,6 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
-using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Domain.Documents;
@@ -19,6 +18,7 @@ using QS.Project.Services;
 using Vodovoz.PermissionExtensions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Vodovoz.Domain.Documents.DriverTerminal;
+using Vodovoz.Domain.Documents.InventoryDocuments;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
@@ -32,6 +32,10 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Views.Warehouse.Documents;
 using Vodovoz.ViewModels.ViewModels.Warehouses.Documents;
 using Vodovoz.ViewWidgets;
+using Vodovoz.Tools.Store;
+using Vodovoz.ViewModels.Factories;
+using Vodovoz.Views.Warehouse;
+using Vodovoz.ViewModels.ViewModels.Warehouses;
 
 namespace Vodovoz
 {
@@ -44,7 +48,7 @@ namespace Vodovoz
 		public WarehouseDocumentsView ()
 		{
 			this.Build ();
-			this.TabName = "Журнал документов";
+			this.TabName = "Журнал складских документов";
 			tableDocuments.RepresentationModel = new DocumentsVM ();
 			hboxFilter.Add (tableDocuments.RepresentationModel.RepresentationFilter as Widget);
 			(tableDocuments.RepresentationModel.RepresentationFilter as Widget).Show ();
@@ -78,7 +82,7 @@ namespace Vodovoz
 			buttonDelete.Sensitive = false;
 
 			bool isSelected = tableDocuments.Selection.CountSelectedRows() > 0;
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			if(isSelected) {
 				var node = tableDocuments.GetSelectedObject<DocumentVMNode>();
 				if(node.DocTypeEnum == DocumentType.ShiftChangeDocument) {
@@ -99,76 +103,29 @@ namespace Vodovoz
 			DocumentType type = (DocumentType)e.ItemEnum;
 			switch(type) {
 				case DocumentType.MovementDocument:
-					TabParent.OpenTab(
-						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
-						() => {
-							return new MovementDocumentViewModel(
-								EntityUoWBuilder.ForCreate(),
-								UnitOfWorkFactory.GetDefaultFactory,
-								new WarehousePermissionService(),
-								VodovozGtkServicesConfig.EmployeeService,
-								new EntityExtendedPermissionValidator(
-									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-								new NomenclatureJournalFactory(),
-								new OrderSelectorFactory(),
-								new WarehouseRepository(),
-								new UserRepository(),
-								new RdlPreviewOpener(),
-								ServicesConfig.CommonServices,
-								new StockRepository()
-							);
-						},
-						this
-					);
+					Startup.MainWin.NavigationManager
+						.OpenViewModelOnTdi<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.IncomingInvoice:
-					TabParent.OpenTab(
-						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
-						() => {
-							return new IncomingInvoiceViewModel(
-								EntityUoWBuilder.ForCreate(),
-								UnitOfWorkFactory.GetDefaultFactory,
-								new WarehousePermissionService(),
-								VodovozGtkServicesConfig.EmployeeService,
-								new EntityExtendedPermissionValidator(
-									PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-								new NomenclatureJournalFactory(),
-								new OrderSelectorFactory(),
-								new WarehouseRepository(),
-								new RdlPreviewOpener(),
-								ServicesConfig.CommonServices,
-								new NomenclaturePurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
-								new StockRepository()
-							);
-						},
-						this
-					);
+					Startup.MainWin.NavigationManager
+						.OpenViewModelOnTdi<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForCreate());
+					break;
+				case DocumentType.WriteoffDocument:
+					Startup.MainWin.NavigationManager.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.InventoryDocument:
-					var employeeRepository = new EmployeeRepository();
-
-					TabParent.OpenTab(
-						DialogHelper.GenerateDialogHashName<InventoryDocument>(0),
-						() => new InventoryDocumentViewModel(
-							EntityUoWBuilder.ForCreate(),
-							UnitOfWorkFactory.GetDefaultFactory,
-							ServicesConfig.CommonServices,
-							employeeRepository,
-							new WarehouseRepository(),
-							new StoreDocumentHelper(),
-							new StockRepository(),
-							new NomenclatureJournalFactory(),
-							new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), employeeRepository),
-							new GtkReportViewOpener(),
-							MainClass.MainWin.NavigationManager),
-						this);
+					Startup.MainWin.NavigationManager.OpenViewModelOnTdi<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForCreate());
+					break;
+				case DocumentType.ShiftChangeDocument:
+					Startup.MainWin.NavigationManager.OpenViewModelOnTdi<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(
+						this, EntityUoWBuilder.ForCreate());
 					break;
 				case DocumentType.IncomingWater:
-				case DocumentType.WriteoffDocument:
 				case DocumentType.SelfDeliveryDocument:
 				case DocumentType.CarLoadDocument:
 				case DocumentType.CarUnloadDocument:
-				case DocumentType.ShiftChangeDocument:
 				case DocumentType.RegradingOfGoodsDocument:
 				default:
 					TabParent.OpenTab(
@@ -194,28 +151,8 @@ namespace Vodovoz
 
 				switch (DocType) {
 					case DocumentType.IncomingInvoice:
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<IncomingInvoice>(id),
-							() => {
-								return new IncomingInvoiceViewModel(
-									EntityUoWBuilder.ForOpen(id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									new WarehousePermissionService(),
-									VodovozGtkServicesConfig.EmployeeService,
-									new EntityExtendedPermissionValidator(
-										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-									new NomenclatureJournalFactory(),
-									new OrderSelectorFactory(),
-									new WarehouseRepository(),
-									new RdlPreviewOpener(),
-									ServicesConfig.CommonServices,
-									new NomenclaturePurchasePriceModel(ServicesConfig.CommonServices.CurrentPermissionService),
-									new StockRepository()
-								);
-							},
-							this
-						);
-
+						Startup.MainWin.NavigationManager
+							.OpenViewModelOnTdi<IncomingInvoiceViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.IncomingWater:
 						TabParent.OpenTab(
@@ -224,27 +161,8 @@ namespace Vodovoz
 							this);
 						break;
 					case DocumentType.MovementDocument:
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<MovementDocument>(id),
-							() => {
-								return new MovementDocumentViewModel(
-									EntityUoWBuilder.ForOpen(id),
-									UnitOfWorkFactory.GetDefaultFactory,
-									new WarehousePermissionService(),
-									VodovozGtkServicesConfig.EmployeeService,
-									new EntityExtendedPermissionValidator(
-										PermissionExtensionSingletonStore.GetInstance(), new EmployeeRepository()),
-									new NomenclatureJournalFactory(),
-									new OrderSelectorFactory(),
-									new WarehouseRepository(),
-									new UserRepository(),
-									new RdlPreviewOpener(),
-									ServicesConfig.CommonServices,
-									new StockRepository()
-								);
-							},
-							this
-						);
+						Startup.MainWin.NavigationManager
+							.OpenViewModelOnTdi<MovementDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.DriverTerminalGiveout:
 						TabParent.OpenTab(
@@ -269,35 +187,16 @@ namespace Vodovoz
 						);
 						break;
 					case DocumentType.WriteoffDocument:
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<WriteoffDocument>(id),
-							() => new WriteoffDocumentDlg (id),
-							this);
+						Startup.MainWin.NavigationManager
+							.OpenViewModelOnTdi<WriteOffDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.InventoryDocument:
-						var employeeRepository = new EmployeeRepository();
-
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<InventoryDocument>(id),
-							() => new InventoryDocumentViewModel(
-								EntityUoWBuilder.ForOpen(id),
-								UnitOfWorkFactory.GetDefaultFactory,
-								ServicesConfig.CommonServices,
-								employeeRepository,
-								new WarehouseRepository(),
-								new StoreDocumentHelper(),
-								new StockRepository(),
-								new NomenclatureJournalFactory(),
-								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), employeeRepository),
-								new GtkReportViewOpener(),
-								MainClass.MainWin.NavigationManager),
-							this);
+						Startup.MainWin.NavigationManager.OpenViewModelOnTdi<Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel, IEntityUoWBuilder>(
+							this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.ShiftChangeDocument:
-						TabParent.OpenTab(
-							DialogHelper.GenerateDialogHashName<ShiftChangeWarehouseDocument>(id),
-							() => new ShiftChangeWarehouseDocumentDlg(id),
-							this);
+						Startup.MainWin.NavigationManager
+							.OpenViewModelOnTdi<ShiftChangeResidueDocumentViewModel, IEntityUoWBuilder>(this, EntityUoWBuilder.ForOpen(id));
 						break;
 					case DocumentType.RegradingOfGoodsDocument:
 						TabParent.OpenTab(

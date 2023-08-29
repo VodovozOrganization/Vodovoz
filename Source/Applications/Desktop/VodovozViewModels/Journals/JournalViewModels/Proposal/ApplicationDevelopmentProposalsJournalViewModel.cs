@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Proposal
 				.SelectList(list => list
 				   .Select(() => proposalAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => proposalAlias.CreationDate).WithAlias(() => resultAlias.CreationDate)
-				   .Select(() => proposalAlias.Title).WithAlias(() => resultAlias.Title)
+				   .Select(() => proposalAlias.Title).WithAlias(() => resultAlias.Subject)
 				   .Select(() => proposalAlias.Status).WithAlias(() => resultAlias.Status)
 				)
 				.TransformUsing(Transformers.AliasToBean<ApplicationDevelopmentProposalsJournalNode>());

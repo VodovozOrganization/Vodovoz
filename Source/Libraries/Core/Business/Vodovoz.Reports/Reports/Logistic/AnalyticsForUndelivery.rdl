@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -18,7 +18,7 @@
         <Height>21.80pt</Height>
         <Width>476.16pt</Width>
         <Value>="Аналитика недовозов на " + {?title_date}</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>60.4pt</Left>
         <Top>22.9pt</Top>
         <Style>
@@ -1771,7 +1771,7 @@ LightGreen
                    when guilty.guilty_side = 'Driver' then 'Водитель'
                    when guilty.guilty_side = 'ServiceMan' then 'Мастер СЦ'
                    when guilty.guilty_side = 'ForceMajor' then 'Форс-мажор'
-                   when guilty.guilty_side = 'DirectorLO' then 'Директор ЛО (Доставка за час)'
+                   when guilty.guilty_side = 'DirectorLO' then 'Доставка за час'
                    when guilty.guilty_side = 'DirectorLOCurrentDayDelivery' then 'Директор ЛО (Доставка в тот же день)' 
                    when guilty.guilty_side = 'None' then 'Нет (не недовоз)'
                    else guilty.guilty_side
@@ -2147,7 +2147,7 @@ FROM
                    when guilty.guilty_side = 'Driver' then 'Водитель'
                    when guilty.guilty_side = 'ServiceMan' then 'Мастер СЦ'
                    when guilty.guilty_side = 'ForceMajor' then 'Форс-мажор'
-                   when guilty.guilty_side = 'DirectorLO' then 'Директор ЛО (Доставка за час)'
+                   when guilty.guilty_side = 'DirectorLO' then 'Доставка за час'
                    when guilty.guilty_side = 'DirectorLOCurrentDayDelivery' then 'Директор ЛО (Доставка в тот же день)' 
                    when guilty.guilty_side = 'None' then 'Нет (не недовоз)'
                    else guilty.guilty_side
@@ -2427,7 +2427,7 @@ group by a.geo_group_id</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_test;user=enzogord;password=qwerty;port=3306;server=vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

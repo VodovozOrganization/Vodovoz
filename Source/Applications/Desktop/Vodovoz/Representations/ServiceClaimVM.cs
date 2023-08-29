@@ -61,12 +61,12 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ServiceClaimVMNode>.Create ()
-			.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString ())
-			.AddColumn ("Дата").SetDataProperty (node => node.StartDate.ToString ("d"))
-			.AddColumn ("Тип заявки").SetDataProperty (node => node.Type.GetEnumTitle ())
-			.AddColumn ("Статус").SetDataProperty (node => node.Status.GetEnumTitle ())
-			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
-			.AddColumn ("Оборудование").SetDataProperty (node => node.Nomenclature)
+			.AddColumn ("Номер").AddTextRenderer(node => node.Id.ToString ())
+			.AddColumn ("Дата").AddTextRenderer(node => node.StartDate.ToString ("d"))
+			.AddColumn ("Тип заявки").AddTextRenderer(node => node.Type.GetEnumTitle ())
+			.AddColumn ("Статус").AddTextRenderer(node => node.Status.GetEnumTitle ())
+			.AddColumn ("Клиент").AddTextRenderer(node => node.Counterparty)
+			.AddColumn ("Оборудование").AddTextRenderer(node => node.Nomenclature)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {

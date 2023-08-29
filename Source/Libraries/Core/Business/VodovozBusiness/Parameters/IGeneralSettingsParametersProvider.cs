@@ -18,5 +18,15 @@ namespace Vodovoz.Parameters
 		string SubdivisionsToInformComplaintHasNoDriverParameterName { get; }
 		string SubdivisionsAlternativePricesName { get; }
 		void UpdateSubdivisionsForParameter(List<int> subdivisionsToAdd, List<int> subdivisionsToRemoves, string parameterName);
+		
+		int DriversUnclosedRouteListsHavingDebtMaxCount { get; }
+
+		void UpdateDriversUnclosedRouteListsHavingDebtMaxCount(int value);
+
+		int DriversRouteListsMaxDebtSum { get; }
+
+		void UpdateDriversRouteListsMaxDebtSum(decimal value);
+		bool GetIsClientsSecondOrderDiscountActive { get; }
+		void UpdateIsClientsSecondOrderDiscountActive(bool value);
 	}
 }

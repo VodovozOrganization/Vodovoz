@@ -1,3 +1,4 @@
+﻿using Autofac;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
@@ -5,7 +6,6 @@ using QS.Project.Services.FileDialog;
 using System;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
-using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -15,14 +15,16 @@ namespace Vodovoz.Factories
 {
 	public class PhonesViewModelFactory : IPhonesViewModelFactory
 	{
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IPhoneRepository _phoneRepository;
 		private readonly RoboatsJournalsFactory _roboatsJournalsFactory;
 
 		public PhonesViewModelFactory(IPhoneRepository phoneRepository)
 		{
+
 			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 
-			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			IFileDialogService fileDialogService = new FileDialogService();
 			var roboatsViewModelFactory = new RoboatsViewModelFactory(roboatsFileStorageFactory, fileDialogService, ServicesConfig.CommonServices.CurrentPermissionService);

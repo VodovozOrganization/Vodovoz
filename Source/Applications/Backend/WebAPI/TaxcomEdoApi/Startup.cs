@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
@@ -26,9 +26,12 @@ using TaxcomEdoApi.Services;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Tools.Orders;
+using QS.Services;
+using QS.Project.Services;
+using Vodovoz.Settings.Database;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
 namespace TaxcomEdoApi
 {
@@ -136,19 +139,21 @@ namespace TaxcomEdoApi
 
 			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 					.Dialect<MySQL57SpatialExtendedDialect>()
-					.ConnectionString(connectionString);
+					.ConnectionString(connectionString)
+					.Driver<LoggedMySqlClientDriver>();
 
 			// Настройка ORM
-            OrmConfig.ConfigureOrm(
+			OrmConfig.ConfigureOrm(
 				dbConfig,
 				new[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),
-					Assembly.GetAssembly(typeof(Attachment))
+					Assembly.GetAssembly(typeof(Attachment)),
+					Assembly.GetAssembly(typeof(VodovozSettingsDatabaseAssemblyFinder))
 				}
 			);
 
@@ -157,14 +162,17 @@ namespace TaxcomEdoApi
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+				var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
 					.Where(u => u.Login == userLogin)
-					.Select(u => u.Id)
 					.FirstOrDefault();
+
+				serviceUserId = serviceUser.Id;
+
+				ServicesConfig.UserService = new UserService(serviceUser);
 			}
 
 			UserRepository.GetCurrentUserId = () => serviceUserId;
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

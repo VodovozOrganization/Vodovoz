@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -250,7 +251,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 			}
 		}
 
-		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(_haveAccessOnlyToWarehouseAndComplaintsPermissionName) || _userService.GetCurrentUser(UoW).IsAdmin;
+		public bool CanReadWarehouse => !_currentPermissionService.ValidatePresetPermission(_haveAccessOnlyToWarehouseAndComplaintsPermissionName) || _userService.GetCurrentUser().IsAdmin;
 
 		public bool CanUpdateWarehouse => CanReadWarehouse;
 

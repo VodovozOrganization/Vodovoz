@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -558,7 +558,7 @@
         <Height>15.77pt</Height>
         <Width>545.79pt</Width>
         <Value>=First({category_name}, "Nomenclatures")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>7.5pt</Top>
         <Style>
@@ -634,18 +634,9 @@ FROM
 			(
 				SELECT
 					nomenclature_id AS nom_id,
-					writeoff_warehouse_id AS wh,
-					-SUM(amount) AS quantity
-				FROM warehouse_movement_operations
-				WHERE writeoff_warehouse_id IS NOT NULL
-				GROUP BY nomenclature_id, wh
-				UNION ALL
-				SELECT
-					nomenclature_id AS nom_id,
-					incoming_warehouse_id AS wh,
+					warehouse_id AS wh,
 					SUM(amount) AS quantity
-				FROM warehouse_movement_operations
-				WHERE incoming_warehouse_id IS NOT NULL
+				FROM goods_accounting_operations
 				GROUP BY nomenclature_id, wh
 			) AS TableAmount
 		LEFT JOIN nomenclature nom ON nom.id = TableAmount.nom_id
@@ -720,7 +711,7 @@ ORDER BY q.type, q.manufacturer</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

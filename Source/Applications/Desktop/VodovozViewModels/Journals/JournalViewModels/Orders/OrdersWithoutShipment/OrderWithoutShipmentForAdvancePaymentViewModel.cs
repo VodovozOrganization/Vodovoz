@@ -12,6 +12,7 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Controllers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -23,6 +24,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -115,13 +117,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 
-			SendDocViewModel = new SendDocumentByEmailViewModel(
-				new EmailRepository(),
-				new EmailParametersProvider(parametersProvider),
-				currentEmployee,
-				commonServices.InteractiveService,
-				UoW);
-
+			var loggerFactory = new LoggerFactory();
+			var settingsController = new SettingsController(UnitOfWorkFactory, new Logger<SettingsController>(loggerFactory));
+			SendDocViewModel =
+				new SendDocumentByEmailViewModel(
+					new EmailRepository(),
+					new EmailParametersProvider(settingsController),
+					currentEmployee,
+					commonServices.InteractiveService,
+					UoW);
 
 			FillDiscountReasons(discountReasonRepository);
 		}
@@ -165,7 +169,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					ServicesConfig.CommonServices,
 					_employeeService,
 					_nomenclatureSelectorFactory,
-					_counterpartySelectorFactory,
+					CounterpartySelectorFactory,
 					_nomenclatureRepository,
 					_userRepository
 				) {
@@ -221,7 +225,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			},
 			() => true
 		));
-		
+
+		public ICounterpartyJournalFactory CounterpartySelectorFactory => _counterpartySelectorFactory;
+
 		#endregion Commands
 
 		public void OnTabAdded()

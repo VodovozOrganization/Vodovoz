@@ -233,19 +233,12 @@ namespace Vodovoz.EntityRepositories.Goods
 		public QueryOver<Nomenclature, Nomenclature> QueryAvailableNonSerialEquipmentForRent(EquipmentKind kind)
 		{
 			Nomenclature nomenclatureAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
+			WarehouseBulkGoodsAccountingOperation operationAlias = null;
 
-			//Подзапрос выбирающий по номенклатуре количество добавленное на склад
-			var subqueryAdded = QueryOver.Of(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse)))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
-			
-			//Подзапрос выбирающий по номенклатуре количество отгруженное со склада
-			var subqueryRemoved = QueryOver.Of(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse)))
-				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
+			var subqueryBalance = QueryOver.Of(() => operationAlias)
+				.Where(() => operationAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.Where(Restrictions.IsNotNull(Projections.Property<WarehouseBulkGoodsAccountingOperation>(o => o.Warehouse)))
+				.Select(Projections.Sum<WarehouseBulkGoodsAccountingOperation>(o => o.Amount));
 
 			//Подзапрос выбирающий по номенклатуре количество зарезервированное в заказах до отгрузки со склада
 			Vodovoz.Domain.Orders.Order localOrderAlias = null;
@@ -285,8 +278,7 @@ namespace Vodovoz.EntityRepositories.Goods
 		            .Select(() => equipmentKindAlias.Name).WithAlias(() => resultAlias.EquipmentKindName)
 					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
-					.SelectSubQuery(subqueryAdded).WithAlias(() => resultAlias.Added)
-					.SelectSubQuery(subqueryRemoved).WithAlias(() => resultAlias.Removed)
+					.SelectSubQuery(subqueryBalance).WithAlias(() => resultAlias.InStock)
 					.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved))
 				.OrderBy(x => x.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<NomenclatureForRentNode>());
@@ -363,180 +355,7 @@ namespace Vodovoz.EntityRepositories.Goods
 
 		public int GetIdentifierOfOnlineShopGroup() => nomenclatureParametersProvider.GetIdentifierOfOnlineShopGroup();
 
-		public decimal GetPurchasePrice(IUnitOfWork uow, int routeListId, DateTime date)
-		{
-			Order orderAlias = null;
-			OrderItem orderItemAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			NomenclaturePurchasePrice nomenclaturePurchasePriceAlias = null;
-			NomenclatureCostPrice nomenclatureCostPriceAlias = null;
-
-			var purchasePrice = QueryOver.Of(() => nomenclaturePurchasePriceAlias)
-				.Where(() => nomenclaturePurchasePriceAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And(() => nomenclaturePurchasePriceAlias.StartDate <= date)
-				.And(() => nomenclaturePurchasePriceAlias.EndDate == null || nomenclaturePurchasePriceAlias.EndDate > date)
-				.Select(Projections.SqlFunction(
-						new SQLFunctionTemplate(
-							NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3), 2)"),
-						NHibernateUtil.Decimal,
-						Projections.Property(() => nomenclaturePurchasePriceAlias.PurchasePrice),
-						Projections.Property(() => orderItemAlias.ActualCount),
-						Projections.Property(() => orderItemAlias.Count)));
-			
-			var costPrice = QueryOver.Of(() => nomenclatureCostPriceAlias)
-				.Where(() => nomenclatureCostPriceAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And(() => nomenclatureCostPriceAlias.StartDate <= date)
-				.And(() => nomenclatureCostPriceAlias.EndDate == null || nomenclatureCostPriceAlias.EndDate > date)
-				.Select(
-					Projections.SqlFunction(
-						new SQLFunctionTemplate(
-							NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3), 2)"),
-						NHibernateUtil.Decimal,
-						Projections.Property(() => nomenclatureCostPriceAlias.CostPrice),
-						Projections.Property(() => orderItemAlias.ActualCount),
-						Projections.Property(() => orderItemAlias.Count)));
-			
-			return uow.Session.QueryOver<RouteListItem>()
-				.JoinAlias(rla => rla.Order, () => orderAlias)
-				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(rla => rla.RouteList.Id == routeListId)
-				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
-				.Select(
-					Projections.Sum(
-						Projections.Conditional(
-							Restrictions.Where(() => nomenclatureAlias.UsingInGroupPriceSet),
-								Projections.SubQuery(costPrice),
-								Projections.SubQuery(purchasePrice)))
-				)
-				.SingleOrDefault<decimal>();
-		}
-		
-		public decimal GetInnerDeliveryPrice(IUnitOfWork uow, int routeListId, DateTime date)
-		{
-			Order orderAlias = null;
-			OrderItem orderItemAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			NomenclatureInnerDeliveryPrice innerDeliveryPriceAlias = null;
-			CarLoadDocument carLoadDocumentAlias = null;
-			Warehouse warehouseAlias = null;
-
-			var innerDeliveryPriceProjection =
-				Projections.SqlFunction(
-					new SQLFunctionTemplate(
-						NHibernateUtil.Decimal, "ROUND(?1 * IFNULL(?2, ?3), 2)"),
-					NHibernateUtil.Decimal,
-					Projections.Property(() => innerDeliveryPriceAlias.Price),
-					Projections.Property(() => orderItemAlias.ActualCount),
-					Projections.Property(() => orderItemAlias.Count));
-			
-			var query = uow.Session.QueryOver<RouteListItem>()
-				.JoinAlias(rla => rla.Order, () => orderAlias)
-				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.JoinAlias(() => nomenclatureAlias.InnerDeliveryPrices, () => innerDeliveryPriceAlias)
-				.JoinEntityAlias(() => carLoadDocumentAlias,
-					() => carLoadDocumentAlias.RouteList.Id == routeListId, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => warehouseAlias,
-					() => carLoadDocumentAlias.Warehouse.Id == warehouseAlias.Id, JoinType.LeftOuterJoin)
-				.Where(rla => rla.RouteList.Id == routeListId)
-				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
-				.And(() => innerDeliveryPriceAlias.StartDate <= date)
-				.And(() => innerDeliveryPriceAlias.EndDate == null || innerDeliveryPriceAlias.EndDate > date)
-				.SelectList(list => list
-					.SelectGroup(() => orderItemAlias.Id)
-					.Select(Projections.Sum(
-						Projections.Conditional(
-							Restrictions.Where(() => warehouseAlias.TypeOfUse == WarehouseUsing.Production),
-							Projections.Constant(0m),
-							innerDeliveryPriceProjection
-						))))
-				.TransformUsing(Transformers.AliasToBean<(int Id, decimal InnerDeliveryPriceSum)>())
-				.List<(int OrderItemId, decimal InnerDeliveryPriceSum)>();
-
-			return query.Sum(x => x.InnerDeliveryPriceSum);
-		}
-
-		public RouteExpensesNode GetOtherRouteExpenses(
-			IUnitOfWork uow, int routeListId, decimal administrativeExpenses, decimal routeExpenses)
-		{
-			Order orderAlias = null;
-			OrderItem orderItemAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			RouteExpensesNode resultAlias = null;
-
-			return uow.Session.QueryOver<RouteListItem>()
-				.JoinAlias(rla => rla.Order, () => orderAlias)
-				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(rla => rla.RouteList.Id == routeListId)
-				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
-				.SelectList(list => list
-					.Select(Projections.Sum(
-						Projections.SqlFunction(
-							new SQLFunctionTemplate(
-								NHibernateUtil.Decimal, "ROUND(?1 * ?2 * IFNULL(?3, ?4), 2)"),
-							NHibernateUtil.Decimal,
-							Projections.Constant(administrativeExpenses),
-							Projections.Property(() => nomenclatureAlias.Weight),
-							Projections.Property(() => orderItemAlias.ActualCount),
-							Projections.Property(() => orderItemAlias.Count)))
-					.WithAlias(() => resultAlias.AdministrativeExpenses))
-					.Select(Projections.Sum(
-						Projections.SqlFunction(
-							new SQLFunctionTemplate(
-								NHibernateUtil.Decimal, "ROUND(?1 * ?2 * IFNULL(?3, ?4), 2)"),
-							NHibernateUtil.Decimal,
-							Projections.Constant(routeExpenses),
-							Projections.Property(() => nomenclatureAlias.Weight),
-							Projections.Property(() => orderItemAlias.ActualCount),
-							Projections.Property(() => orderItemAlias.Count)))
-					.WithAlias(() => resultAlias.RouteListExpenses)
-					))
-				.TransformUsing(Transformers.AliasToBean<RouteExpensesNode>())
-				.SingleOrDefault<RouteExpensesNode>();
-		}
-		
-		public decimal GetWarehouseExpensesForRoute(IUnitOfWork uow, int routeListId, decimal warehouseExpenses)
-		{
-			Order orderAlias = null;
-			OrderItem orderItemAlias = null;
-			RouteListItem routeListItemAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			CarLoadDocument carLoadDocumentAlias = null;
-			Warehouse warehouseAlias = null;
-
-			var warehouseExpensesProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(
-					NHibernateUtil.Decimal, "ROUND(?1 * ?2 * IFNULL(?3, ?4), 2)"),
-				NHibernateUtil.Decimal,
-				Projections.Constant(warehouseExpenses),
-				Projections.Property(() => nomenclatureAlias.Weight),
-				Projections.Property(() => orderItemAlias.ActualCount),
-				Projections.Property(() => orderItemAlias.Count));
-
-			var query = uow.Session.QueryOver(() => routeListItemAlias)
-				.JoinAlias(rla => rla.Order, () => orderAlias)
-				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-				.JoinEntityAlias(() => carLoadDocumentAlias,
-					() => carLoadDocumentAlias.RouteList.Id == routeListId, JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => warehouseAlias,
-					() => carLoadDocumentAlias.Warehouse.Id == warehouseAlias.Id, JoinType.LeftOuterJoin)
-				.Where(rla => rla.RouteList.Id == routeListId)
-				.AndRestrictionOn(rla => rla.Status).Not.IsInG(RouteListItem.GetNotDeliveredStatuses())
-				.SelectList(list => list
-					.SelectGroup(() => orderItemAlias.Id))
-					.Select(Projections.Sum(
-						Projections.Conditional(
-							Restrictions.Where(() => warehouseAlias.TypeOfUse == WarehouseUsing.Production),
-							Projections.Constant(0m),
-							warehouseExpensesProjection)))
-				.TransformUsing(Transformers.AliasToBean<(int Id, decimal warehouseExpensesSum)>())
-				.List<(int OrderItemId, decimal WarehouseExpensesSum)>();
-
-			return query.Sum(x => x.WarehouseExpensesSum);
-		}
+		public Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId) => uow.GetById<Nomenclature>(nomenclatureId);
 
 		public bool Has19LWater(IUnitOfWork uow, int[] siteNomenclaturesIds)
 		{

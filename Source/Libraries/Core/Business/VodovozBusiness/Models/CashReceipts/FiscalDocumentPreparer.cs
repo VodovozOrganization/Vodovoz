@@ -110,12 +110,20 @@ namespace Vodovoz.Models.CashReceipts
 				//i == 1 чтобы пропуcтить последний элемент, у него расчет происходит из остатков
 				for(int i = 1; i <= orderItem.Count - 1; i++)
 				{
-					var partDiscount = Math.Round(orderItem.DiscountMoney / orderItem.Count, 1);
-					wholeDiscount += partDiscount;
-
 					var inventPosition = CreateInventPosition(orderItem);
+
+					if(wholeDiscount < orderItem.DiscountMoney)
+					{
+						var partDiscount = Math.Round(orderItem.DiscountMoney / orderItem.Count, 1);
+						wholeDiscount += partDiscount;
+						inventPosition.DiscSum = partDiscount;
+					}
+					else
+					{
+						inventPosition.DiscSum = 0;
+					}
+
 					inventPosition.Quantity = 1;
-					inventPosition.DiscSum = partDiscount;
 					inventPosition.ProductMark = _codeParser.GetProductCodeForCashReceipt(orderItemsCodes[i - 1].ResultCode);
 					fiscalDocument.InventPositions.Add(inventPosition);
 				}
@@ -124,6 +132,11 @@ namespace Vodovoz.Models.CashReceipts
 				var orderItemCode = orderItemsCodes[(int)orderItem.Count - 1];
 
 				var residueDiscount = orderItem.DiscountMoney - wholeDiscount;
+				if(residueDiscount < 0)
+				{
+					residueDiscount = 0;
+				}
+
 				var lastInventPosition = CreateInventPosition(orderItem);
 				lastInventPosition.Quantity = 1;
 				lastInventPosition.DiscSum = residueDiscount;
@@ -283,7 +296,9 @@ namespace Vodovoz.Models.CashReceipts
 			switch(orderPaymentType)
 			{
 				case PaymentType.Terminal:
-				case PaymentType.ByCard:
+				case PaymentType.DriverApplicationQR:
+				case PaymentType.SmsQR:
+				case PaymentType.PaidOnline:
 					return "CARD";
 				default:
 					return "CASH";

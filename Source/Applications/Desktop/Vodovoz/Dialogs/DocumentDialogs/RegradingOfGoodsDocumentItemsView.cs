@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QSOrmProject;
 using QSProjectsLib;
 using QS.Tdi;
@@ -27,6 +28,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalFactories;
@@ -167,15 +169,12 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseJournalFactory());
-			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
+			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
-			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			);
-
+			var vm = Startup.MainWin.NavigationManager
+				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
+				.ViewModel;
+			
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.TabName = "Выберите номенклатуру на замену";
 			vm.OnEntitySelectedResult += (s, ea) => {
@@ -196,7 +195,7 @@ namespace Vodovoz
 
 				var employeeService = VodovozGtkServicesConfig.EmployeeService;
 
-				var counterpartySelectorFactory = new CounterpartyJournalFactory();
+				var counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 				var nomenclatureAutoCompleteSelectorFactory =
 					new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(
@@ -224,7 +223,6 @@ namespace Vodovoz
 
 				MyTab.TabParent.AddSlaveTab(MyTab, nomenclaturesJournalViewModel);
 			};
-			MyTab.TabParent.AddSlaveTab(MyTab, vm);
 		}
 
         void SelectNewNomenclature_ObjectSelected (object sender, JournalSelectedNodesEventArgs e)
@@ -253,20 +251,20 @@ namespace Vodovoz
 
 			foreach(var item in DocumentUoW.Root.Items)
 			{
-				item.AmountInStock = inStock[item.NomenclatureOld.Id];
+				if(inStock.ContainsKey(item.NomenclatureOld.Id))
+				{
+					item.AmountInStock = inStock[item.NomenclatureOld.Id];
+				}
 			}
 		}
 
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
 		{
-			var filter = new NomenclatureStockFilterViewModel(new WarehouseJournalFactory());
-			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
+			Action<NomenclatureStockFilterViewModel> filterParams = f => f.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
-			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			);
+			var vm = Startup.MainWin.NavigationManager
+				.OpenViewModel<NomenclatureStockBalanceJournalViewModel, Action<NomenclatureStockFilterViewModel>>(null, filterParams)
+				.ViewModel;
 
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.TabName = "Изменить старую номенклатуру";
@@ -280,7 +278,6 @@ namespace Vodovoz
 				row.NomenclatureOld = nomenclature;
 				row.AmountInStock = selectedNode.StockAmount;
 			};
-			MyTab.TabParent.AddSlaveTab(MyTab, vm);
 		}
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
@@ -290,7 +287,7 @@ namespace Vodovoz
 			var userRepository = new UserRepository();
 
 			var employeeService = VodovozGtkServicesConfig.EmployeeService;
-			var counterpartyJournalFactory = new CounterpartyJournalFactory();
+			var counterpartyJournalFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 
 			var nomenclatureAutoCompleteSelectorFactory = 
 				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(

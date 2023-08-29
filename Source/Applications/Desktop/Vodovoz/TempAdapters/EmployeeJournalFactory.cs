@@ -1,10 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Memory;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
-using System.Collections.Generic;
 using QS.Navigation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -21,13 +18,11 @@ using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalSelectors;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.TempAdapters;
-using VodovozInfrastructure.Endpoints;
 
 namespace Vodovoz.TempAdapters
 {
 	public class EmployeeJournalFactory : IEmployeeJournalFactory
 	{
-		private readonly DriverApiUserRegisterEndpoint _driverApiUserRegisterEndpoint;
 		private readonly INavigationManager _navigationManager;
 		private EmployeeFilterViewModel _employeeJournalFilter;
 		private IAuthorizationServiceFactory _authorizationServiceFactory;
@@ -47,15 +42,6 @@ namespace Vodovoz.TempAdapters
 
 		public EmployeeJournalFactory(EmployeeFilterViewModel employeeJournalFilter = null)
 		{
-			var cs = new ConfigurationSection(new ConfigurationRoot(new List<IConfigurationProvider> { new MemoryConfigurationProvider(new MemoryConfigurationSource()) }), "");
-
-			cs["BaseUri"] = "https://driverapi.vod.qsolution.ru:7090/api/";
-
-			var apiHelper = new ApiClientProvider.ApiClientProvider(cs);
-
-			var driverApiRegisterEndpoint = new DriverApiUserRegisterEndpoint(apiHelper);
-
-			_driverApiUserRegisterEndpoint = driverApiRegisterEndpoint;
 			_employeeJournalFilter = employeeJournalFilter;
 
 			_authorizationServiceFactory = new AuthorizationServiceFactory();
@@ -66,7 +52,7 @@ namespace Vodovoz.TempAdapters
 			_validationContextFactory = new ValidationContextFactory();
 			_phonesViewModelFactory = new PhonesViewModelFactory(new PhoneRepository());
 			_attachmentsViewModelFactory = new AttachmentsViewModelFactory();
-			_navigationManager = MainClass.MainWin.NavigationManager;
+			_navigationManager = Startup.MainWin.NavigationManager;
 		}
 
 		private void CreateNewDependencies()
@@ -90,7 +76,7 @@ namespace Vodovoz.TempAdapters
 				_authorizationServiceFactory,
 				ServicesConfig.CommonServices,
 				UnitOfWorkFactory.GetDefaultFactory,
-				MainClass.AppDIContainer
+				Startup.AppDIContainer
 			);
 		}
 
@@ -174,7 +160,7 @@ namespace Vodovoz.TempAdapters
 						_authorizationServiceFactory,
 						ServicesConfig.CommonServices,
 						UnitOfWorkFactory.GetDefaultFactory,
-						MainClass.AppDIContainer
+						Startup.AppDIContainer
 					);
 				}
 			);

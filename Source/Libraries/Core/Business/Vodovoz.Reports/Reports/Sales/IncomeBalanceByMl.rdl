@@ -18,7 +18,7 @@
         <Height>23.82pt</Height>
         <Width>815.99pt</Width>
         <Value>="Отчет по приходу по кассе  с " + Format(CDate({?StartDate}), "dd.MM.yyyy") + " по " +  Format(CDate({?EndDate}), "dd.MM.yyyy")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>2.30pt</Top>
         <Style>
@@ -2381,7 +2381,7 @@
         <Height>12.00pt</Height>
         <Width>91.80pt</Width>
         <Value>Прочие статусы</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>3.2pt</Left>
         <Top>163.1pt</Top>
         <Style>
@@ -2397,7 +2397,7 @@
         <Height>12.00pt</Height>
         <Width>63.24pt</Width>
         <Value>Закрытые</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>4.60pt</Top>
         <Style>
@@ -2434,7 +2434,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>WITH orders_route_list_ids as 
@@ -2483,7 +2483,7 @@ FROM
                          LEFT JOIN order_items ON order_items.order_id = orders.id
                          JOIN route_list_addresses ON route_list_addresses.order_id = orders.id
                  WHERE
-                         orders.payment_type IN ('cash','BeveragesWorld')
+                         orders.payment_type = 'Cash'
                    		AND route_list_addresses.was_transfered = 0
                    		AND orders.id  IN (SELECT DISTINCT order_id FROM orders_route_list_ids)
                  GROUP BY route_list_addresses.route_list_id
@@ -2496,7 +2496,7 @@ FROM
                          LEFT JOIN order_deposit_items ON order_deposit_items.order_id = orders.id
                          JOIN route_list_addresses ON route_list_addresses.order_id = orders.id
                  WHERE
-                         orders.payment_type IN ('cash','BeveragesWorld')
+                         orders.payment_type = 'Cash'
                    AND route_list_addresses.was_transfered = 0
                    		AND orders.id  IN (SELECT DISTINCT order_id FROM orders_route_list_ids)
                  GROUP BY route_list_addresses.route_list_id
@@ -2518,6 +2518,7 @@ FROM
                     LEFT JOIN employees ON employees.id = cash_income.casher_employee_id
             WHERE 
             		route_list_id IN (SELECT DISTINCT route_list_id FROM orders_route_list_ids)
+            		AND NOT type_operation = 'Return'
             GROUP BY
                 route_list_id
         ) AS CashIncomeDocument ON CashIncomeDocument.route_list_id = route_lists.id
@@ -2549,7 +2550,7 @@ FROM
             WHERE
                     ord.order_status IN ('Canceled' , 'NotDelivered', 'DeliveryCanceled')
               AND route_list_addresses.transfered_to_id IS NULL
-              AND ord.payment_type IN ('cash','BeveragesWorld')
+              AND ord.payment_type = 'Cash'
             GROUP BY
                 route_list_addresses.route_list_id
 
@@ -2565,7 +2566,7 @@ FROM
             WHERE
                   ord.order_status IN ('Canceled' , 'NotDelivered', 'DeliveryCanceled')
               AND route_list_addresses.transfered_to_id IS NULL
-              AND ord.payment_type IN ('cash','BeveragesWorld')
+              AND ord.payment_type = 'Cash'
             GROUP BY route_list_addresses.route_list_id
             ) AS nedovoz_sum
             GROUP BY route_list_id
@@ -2590,7 +2591,7 @@ FROM
                             OR
                             (was_transfered = TRUE AND status != 'Transfered')
                         )
-                      AND ord.payment_type IN ('cash','BeveragesWorld')
+                      AND ord.payment_type = 'Cash'
                 ) AS internal_trans
             GROUP BY
                 internal_trans.route_list_id
@@ -2610,7 +2611,7 @@ FROM
                     LEFT JOIN route_list_addresses AS tranfer_to_route_list ON tranfer_to_route_list.id = route_list_addresses.transfered_to_id
                     LEFT JOIN route_list_addresses AS tranfer_from_route_list ON tranfer_from_route_list.transfered_to_id = route_list_addresses.id
             WHERE
-                    ord.payment_type IN ('cash','BeveragesWorld')
+                    ord.payment_type = 'Cash'
             GROUP BY
                 route_list_addresses.route_list_id
         ) AS transferML ON transferML.route_list_id = route_lists.id
@@ -2630,7 +2631,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2692,7 +2693,7 @@ GROUP BY route_lists.id
       </Fields>
     </DataSet>
     <DataSet Name="IncomeAllStatus">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>WITH orders_route_list_ids as 
@@ -2751,7 +2752,7 @@ FROM
                 LEFT JOIN route_list_addresses AS tranfer_to_route_list ON tranfer_to_route_list.id = route_list_addresses.transfered_to_id
                 LEFT JOIN route_list_addresses AS tranfer_from_route_list ON tranfer_from_route_list.transfered_to_id = route_list_addresses.id
         WHERE
-                orders.payment_type = 'cash'
+                orders.payment_type = 'Cash'
         		AND orders.id IN (SELECT order_id FROM orders_route_list_ids)            
         GROUP BY
             tranfer_to_route_list.route_list_id , tranfer_from_route_list.route_list_id
@@ -2763,7 +2764,7 @@ FROM
             orders.id as order_id,
             IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))),2),0) as TotalOrdersSum
         FROM orders
-                 LEFT JOIN order_items ON order_items.order_id = orders.id AND orders.payment_type = 'cash'
+                 LEFT JOIN order_items ON order_items.order_id = orders.id AND orders.payment_type = 'Cash'
         WHERE order_id IN (SELECT order_id FROM orders_route_list_ids)
         GROUP BY orders.id
     ) as Orders ON Orders.order_id = route_list_addresses.order_id
@@ -2780,7 +2781,7 @@ FROM
                 LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
                 LEFT JOIN order_equipment ON order_equipment.order_id = orders.id
         WHERE
-                orders.payment_type = 'cash'
+                orders.payment_type = 'Cash'
           AND order_items.price &gt; 0
           AND    (
             #Полностью недовезенные заказы без перенесенных адресов (чтобы не засчиталось дважды)
@@ -2812,7 +2813,7 @@ FROM
              FROM
                  route_list_addresses
                      LEFT JOIN orders On orders.id = route_list_addresses.order_id
-                     LEFT JOIN order_items ON order_items.order_id = orders.id AND orders.payment_type = 'cash'
+                     LEFT JOIN order_items ON order_items.order_id = orders.id AND orders.payment_type = 'Cash'
              WHERE
                  	(status = 'transfered' OR was_transfered = true)
   					AND route_list_addresses.id IN (SELECT rla_id FROM orders_route_list_ids)
@@ -2868,7 +2869,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.Int32</TypeName>
@@ -2941,7 +2942,7 @@ GROUP BY route_lists.id
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_temp;user=enzogord;password=qwerty;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

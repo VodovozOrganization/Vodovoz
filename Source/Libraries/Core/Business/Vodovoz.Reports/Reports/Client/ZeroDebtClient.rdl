@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -20,7 +20,7 @@
         <Height>19.57pt</Height>
         <Width>560.84pt</Width>
         <Value>Отчет по нулевому долгу клиента</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
         <Top>13.4pt</Top>
         <Style>
@@ -43,7 +43,7 @@
 2. По каждому адресу есть или не требуется ввод остатков;
 3. В последнем заказе у которых:
 ТОЛЬКО забор бутылей И (больше ничего ИЛИ в продаже только Неустойка ИЛИ только Возврат залогов)</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.75pt</Left>
         <Top>35.20pt</Top>
         <Style>
@@ -676,7 +676,7 @@ ORDER BY orderDates.del_date</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz;user=;password=;port=3306;server=sql.vod.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

@@ -1,46 +1,49 @@
-﻿using System;
+﻿using Autofac;
+using Gamma.GtkWidgets;
+using Gtk;
+using QS.Dialog;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.Navigation;
+using QS.Project.Journal;
+using QS.Project.Services;
+using QS.Tdi;
+using QS.Utilities.Extensions;
+using QS.ViewModels.Control.EEVM;
+using QSProjectsLib;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Gamma.GtkWidgets;
-using Gtk;
-using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
-using QS.Tdi;
-using QSProjectsLib;
+using Vodovoz.Controllers;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.EntityFactories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.JournalFilters;
-using Vodovoz.Services;
-using QS.Dialog;
-using QS.Project.Journal;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.WageCalculation;
-using QS.Project.Services;
-using QS.Utilities.Extensions;
-using Vodovoz.Controllers;
-using Vodovoz.Domain;
-using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Tools;
-using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Parameters;
+using Vodovoz.Services;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
@@ -211,7 +214,7 @@ namespace Vodovoz
 				ServicesConfig.CommonServices,
 				new EmployeeService(),
 				new NomenclatureJournalFactory(),
-				new CounterpartyJournalFactory(),
+				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				_nomenclatureRepository,
 				new UserRepository()
 			) {
@@ -281,11 +284,18 @@ namespace Vodovoz
 			_canEditPrices =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
 			_orderNode = new OrderNode(_routeListItem.Order);
-			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
-			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
-			referenceClient.Binding.AddBinding(_orderNode, s => s.Client, w => w.Subject).InitializeFromSource();
-			referenceClient.CanEditReference = false;
+
+			var scope = Startup.AppDIContainer.BeginLifetimeScope();
+			var navigationManager =  scope.Resolve<INavigationManager>();
+			var builder = new LegacyEEVMBuilderFactory<OrderNode>(this, _orderNode, UoW, navigationManager, scope);
+
+			clientEntry.ViewModel = builder.ForProperty(x => x.Client)
+				.UseTdiEntityDialog()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+				.Finish();
+			clientEntry.ViewModel.Changed += OnClientEntryViewModelChanged;
+			clientEntry.ViewModel.ChangedByUser += OnClientEntryViewModelChangedByUser;
+
 			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, new FlyerRepository());
 			ConfigureDeliveryPointRefference(_orderNode.Client);
 			
@@ -304,7 +314,6 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.ActualCount, false)
 						.AddSetter((cell, node) => cell.Editable = node.Nomenclature.Category != NomenclatureCategory.deposit)
 						.Adjustment(new Adjustment(0, 0, 9999, 1, 1, 0))
-						.AddSetter((cell, node) => cell.Adjustment = new Adjustment(0, 0, GetMaxCount(node), 1, 1, 0))
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Цена")
@@ -349,7 +358,7 @@ namespace Vodovoz
 						)
 						.AddSetter((c, n) =>
 							{
-								if(n.OrderItem?.PromoSet != null)
+								if(n.OrderItem?.PromoSet != null && n.DiscountReason == null && n.Discount > 0)
 								{
 									c.Text = n.OrderItem.PromoSet.DiscountReasonInfo;
 								}
@@ -363,7 +372,7 @@ namespace Vodovoz
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 
-			if (_routeListItem.Order.PaymentType == PaymentType.ByCard)
+			if (_routeListItem.Order.PaymentType == PaymentType.PaidOnline)
 			{
 				ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>()
 					.Where(
@@ -377,7 +386,14 @@ namespace Vodovoz
 			}				
 			
 			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
-			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.ByCard, w => w.Visible)
+			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.PaidOnline, w => w.Visible)
+				.InitializeFromSource();
+
+			yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);
+			yenumcomboboxTerminalSubtype.Binding
+				.AddSource(_routeListItem.Order)
+				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItemOrNull)
+				.AddFuncBinding(s => s.PaymentType == PaymentType.Terminal, w => w.Visible)
 				.InitializeFromSource();
 
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -397,13 +413,8 @@ namespace Vodovoz
 			yspinbuttonBottlesByStockActualCount.ValueChanged += OnYspinbuttonBottlesByStockActualCountChanged;
 			hboxBottlesByStock.Visible = _routeListItem.Order.IsBottleStock;
 
-			yspinbuttonEmptyBottlesCount.Binding.AddBinding(_routeListItem.Order, e => e.BottlesReturn, w => w.ValueAsInt)
-				.InitializeFromSource();
-			yspinbuttonEmptyBottlesActualCount.Binding
-				.AddBinding(_routeListItem, e => e.BottlesReturned, w => w.ValueAsInt).InitializeFromSource();
-			hboxEmptyBottles.Visible = _routeListItem.IsDelivered();
-
 			OnlineOrderVisible();
+			OnClientEntryViewModelChanged(null, null);
 		}
 
 		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
@@ -471,14 +482,6 @@ namespace Vodovoz
 				if(item.ActualCount == null)
 					item.ActualCount = 0;
 			}
-		}
-
-		int GetMaxCount(OrderItemReturnsNode node)
-		{
-			var count = node.Nomenclature.Category == NomenclatureCategory.deposit
-				? 1
-				: 9999;
-			return count;
 		}
 
 		private void ConfigureDeliveryPointRefference(Counterparty client = null)
@@ -569,22 +572,27 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
+		protected void OnClientEntryViewModelChangedByUser(object sender, EventArgs e)
 		{
-			ConfigureDeliveryPointRefference(_orderNode.Client);
-			entityVMEntryDeliveryPoint.OpenSelectDialog();
+			ConfigureDeliveryPointRefference(clientEntry.ViewModel.Entity as Counterparty);
+			_orderNode.DeliveryPoint = null;
+
+			if(clientEntry.ViewModel.Entity != null)
+			{
+				entityVMEntryDeliveryPoint.OpenSelectDialog();
+			}
 		}
 
-		protected void OnReferenceClientChanged(object sender, EventArgs e)
+		protected void OnClientEntryViewModelChanged(object sender, EventArgs e)
 		{
-			if(referenceClient.Subject == null)
+			if(clientEntry.ViewModel.Entity == null)
 			{
 				return;
 			}
-			
+
 			PaymentType? previousPaymentType = yenumcomboOrderPayment.SelectedItem as PaymentType?;
-			Enum[] hideEnums = {PaymentType.cashless};
-			PersonType personType = (referenceClient.Subject as Counterparty).PersonType;
+			Enum[] hideEnums = { PaymentType.Cashless };
+			PersonType personType = (clientEntry.ViewModel.Entity as Counterparty).PersonType;
 			if(personType == PersonType.natural)
 				yenumcomboOrderPayment.AddEnumToHideList(hideEnums);
 			else
@@ -593,7 +601,7 @@ namespace Vodovoz
 			if(previousPaymentType.HasValue)
 			{
 				if(personType == PersonType.natural && hideEnums.Contains(previousPaymentType.Value))
-					yenumcomboOrderPayment.SelectedItem = PaymentType.cash;
+					yenumcomboOrderPayment.SelectedItem = PaymentType.Cash;
 				else
 					yenumcomboOrderPayment.SelectedItem = previousPaymentType;
 			}
@@ -647,7 +655,7 @@ namespace Vodovoz
 		private void OnlineOrderVisible()
 		{
 			labelOnlineOrder.Visible = entryOnlineOrder.Visible =
-				(_routeListItem.Order.PaymentType == PaymentType.ByCard
+				(_routeListItem.Order.PaymentType == PaymentType.PaidOnline
 				 || _routeListItem.Order.PaymentType == PaymentType.Terminal);
 		}
 

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Extensions.Logging;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
@@ -14,9 +14,8 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
 using QS.Project.Domain;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.HibernateMapping.Organizations;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Settings.Database;
 
 namespace ExternalCounterpartyAssignNotifier
@@ -74,6 +73,7 @@ namespace ExternalCounterpartyAssignNotifier
 
 			var dbConfig = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
+				.Driver<LoggedMySqlClientDriver>()
 				.ConnectionString(connectionString);
 
 			// Настройка ORM
@@ -82,7 +82,7 @@ namespace ExternalCounterpartyAssignNotifier
 				new[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),

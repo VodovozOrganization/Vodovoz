@@ -1,11 +1,12 @@
+﻿using Autofac;
+using Fias.Client;
+using Fias.Client.Loaders;
 using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using System;
-using Fias.Client;
-using Fias.Client.Loaders;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -13,9 +14,7 @@ using Vodovoz.Domain.EntityFactories;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Counterparties;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Parameters;
-using Vodovoz.Settings.Database;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
@@ -26,6 +25,7 @@ namespace Vodovoz.Factories
 {
 	public class DeliveryPointViewModelFactory : IDeliveryPointViewModelFactory
 	{
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		private readonly IFiasApiClient _fiasApiClient;
 		private readonly IParametersProvider _parametersProvider;
 		private readonly IDeliveryScheduleJournalFactory _deliveryScheduleSelectorFactory;
@@ -36,7 +36,7 @@ namespace Vodovoz.Factories
 			_fiasApiClient = fiasApiClient ?? throw new ArgumentNullException(nameof(fiasApiClient));
 			//Необходимо исправить получение всех этих зависимостей из скоупа
 			_parametersProvider = new ParametersProvider();
-			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			var roboatsFileStorageFactory =
 				new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			IDeliveryScheduleRepository deliveryScheduleRepository = new DeliveryScheduleRepository();

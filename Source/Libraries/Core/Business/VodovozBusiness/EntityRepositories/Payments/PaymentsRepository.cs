@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Services;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -225,7 +223,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(() => orderAlias.OrderStatus == OrderStatus.Shipped
 					|| orderAlias.OrderStatus == OrderStatus.UnloadingOnStock
 					|| orderAlias.OrderStatus == OrderStatus.Closed)
-				.And(() => orderAlias.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.And(() => deliveryScheduleAlias.Id != closingDocumentDeliveryScheduleId)
 				.Select(orderSumProjection)
@@ -243,7 +241,7 @@ namespace Vodovoz.EntityRepositories.Payments
 				.And(() => orderAlias2.OrderStatus == OrderStatus.Shipped
 					|| orderAlias2.OrderStatus == OrderStatus.UnloadingOnStock
 					|| orderAlias2.OrderStatus == OrderStatus.Closed)
-				.And(() => orderAlias2.PaymentType == PaymentType.cashless)
+				.And(() => orderAlias2.PaymentType == PaymentType.Cashless)
 				.And(() => orderAlias2.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
 				.And(() => deliveryScheduleAlias2.Id != closingDocumentDeliveryScheduleId)
 				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));

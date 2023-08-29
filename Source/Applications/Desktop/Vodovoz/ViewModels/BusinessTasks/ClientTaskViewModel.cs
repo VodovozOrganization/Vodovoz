@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 
 		public bool TaskButtonVisibility { get; set; } = true;
 
-		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; private set; }
+		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; private set; }
 		public IEntityAutocompleteSelectorFactory DeliveryPointFactory { get; private set; }
 
@@ -73,6 +73,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private readonly ICounterpartyContractRepository counterpartyContractRepository;
 		private readonly CounterpartyContractFactory counterpartyContractFactory;
 		private readonly RoboatsJournalsFactory _roboAtsCounterpartyJournalFactory;
+		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly IContactParametersProvider _contactsParameters;
 
 		public ClientTaskViewModel(
@@ -87,7 +88,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			CounterpartyContractFactory counterpartyContractFactory,
 			IContactParametersProvider contactsParameters,
 			ICommonServices commonServices,
-			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory) : base (uowBuilder, unitOfWorkFactory, commonServices)
+			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
+			ICounterpartyJournalFactory counterpartyJournalFactory) : base (uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.bottleRepository = bottleRepository ?? throw new ArgumentNullException(nameof(bottleRepository));
@@ -98,7 +100,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			this.counterpartyContractFactory = counterpartyContractFactory ?? throw new ArgumentNullException(nameof(counterpartyContractFactory));
 			_contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
 			_roboAtsCounterpartyJournalFactory = roboAtsCounterpartyJournalFactory ?? throw new ArgumentNullException(nameof(roboAtsCounterpartyJournalFactory));
-
+			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			if(uowBuilder.IsNewEntity) {
 				TabName = "Новая задача";
 				Entity.CreationDate = DateTime.Now;
@@ -109,6 +111,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			} else {
 				TabName = Entity.Counterparty?.Name;
 			}
+
+			CounterpartySelectorFactory = _counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 
 			Initialize();
 			CreateCommands();
@@ -128,6 +132,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 			CounterpartyContractFactory counterpartyContractFactory,
 			RoboatsJournalsFactory roboAtsCounterpartyJournalFactory,
 			IContactParametersProvider contactsParameters,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
 			int counterpartyId,
 			int deliveryPointId)
 			: this(employeeRepository,
@@ -141,8 +146,8 @@ namespace Vodovoz.ViewModels.BusinessTasks
 					counterpartyContractFactory,
 					contactsParameters,
 					commonServices,
-					roboAtsCounterpartyJournalFactory
-					)
+					roboAtsCounterpartyJournalFactory,
+					counterpartyJournalFactory)
 		{
 			Entity.Counterparty = UoW.GetById<Counterparty>(counterpartyId);
 			Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(deliveryPointId);
@@ -152,10 +157,6 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		{
 			ClientPhonesVM = CreatePhonesViewModel();
 			DeliveryPointPhonesVM = CreatePhonesViewModel();
-
-			CounterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty,
-																						CounterpartyJournalViewModel,
-																						CounterpartyJournalFilterViewModel>(CommonServices);
 
 			EmployeeSelectorFactory = new EmployeeJournalFactory().CreateWorkingOfficeEmployeeAutocompleteSelectorFactory();
 

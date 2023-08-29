@@ -129,7 +129,7 @@ namespace Vodovoz
 			textKit.Binding.AddBinding(Entity, e => e.Kit, w => w.Buffer.Text).InitializeFromSource();
 			textDiagnosticsResult.Binding.AddBinding(Entity, e => e.DiagnosticsResult, w => w.Buffer.Text).InitializeFromSource();
 
-			var clientFactory = new CounterpartyJournalFactory();
+			var clientFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope());
 			evmeClient.SetEntityAutocompleteSelectorFactory(clientFactory.CreateCounterpartyAutocompleteSelectorFactory());
 			evmeClient.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			evmeClient.Changed += OnReferenceCounterpartyChanged;
@@ -166,7 +166,7 @@ namespace Vodovoz
 			treeHistory.ItemsDataSource = UoWGeneric.Root.ObservableServiceClaimHistory;
 
 			treePartsAndServices.ColumnsConfig = FluentColumnsConfig <ServiceClaimItem>.Create ()
-				.AddColumn ("Номенклатура").SetDataProperty (node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
+				.AddColumn ("Номенклатура").AddTextRenderer (node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
 				.AddColumn ("Кол-во").AddNumericRenderer (node => node.Count)
 				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 				.AddSetter ((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
@@ -179,11 +179,11 @@ namespace Vodovoz
 				.Finish ();
 
 			treeHistory.ColumnsConfig = FluentColumnsConfig <ServiceClaimHistory>.Create ()
-				.AddColumn ("Дата").SetDataProperty (node => node.Date.ToShortDateString ())
-				.AddColumn ("Время").SetDataProperty (node => node.Date.ToString ("HH:mm"))
-				.AddColumn ("Статус").SetDataProperty (node => node.Status.GetEnumTitle ())
-				.AddColumn ("Сотрудник").SetDataProperty (node => node.Employee == null ? " - " : node.Employee.FullName)
-				.AddColumn ("Комментарий").SetDataProperty (node => node.Comment)
+				.AddColumn ("Дата").AddTextRenderer (node => node.Date.ToShortDateString ())
+				.AddColumn ("Время").AddTextRenderer(node => node.Date.ToString ("HH:mm"))
+				.AddColumn ("Статус").AddTextRenderer(node => node.Status.GetEnumTitle ())
+				.AddColumn ("Сотрудник").AddTextRenderer(node => node.Employee == null ? " - " : node.Employee.FullName)
+				.AddColumn ("Комментарий").AddTextRenderer(node => node.Comment)
 				.Finish ();
 
 			UoWGeneric.Root.ObservableServiceClaimItems.ElementChanged += (aList, aIdx) => FixPrice (aIdx [0]);
@@ -235,10 +235,12 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			var valid = new QSValidator<ServiceClaim> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
-			
+			}
+
 			throw new NotImplementedException();
 
 			CounterpartyContract contract;
@@ -297,13 +299,13 @@ namespace Vodovoz
 			ITdiTab dlg;
 			string paymentTypeString="";
 			switch (UoWGeneric.Root.Payment) {
-			case PaymentType.cash:
+			case PaymentType.Cash:
 				paymentTypeString = "наличной";
 				break;
-			case PaymentType.cashless:
+			case PaymentType.Cashless:
 				paymentTypeString = "безналичной";
 				break;
-			case PaymentType.barter:
+			case PaymentType.Barter:
 				paymentTypeString = "бартерной";
 				break;
 			}

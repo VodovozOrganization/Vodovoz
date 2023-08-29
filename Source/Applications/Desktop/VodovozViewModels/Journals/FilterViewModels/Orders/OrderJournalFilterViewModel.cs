@@ -11,6 +11,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Employees;
+using QS.Project.Journal;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -154,8 +155,8 @@ namespace Vodovoz.Filters.ViewModels
 				if(UpdateFilterField(ref _restrictPaymentType, value))
 				{
 					CanChangePaymentType = false;
-					PaymentsFromVisibility = _restrictPaymentType == PaymentType.ByCard;
-					if(_restrictPaymentType != PaymentType.ByCard && PaymentByCardFrom != null)
+					PaymentsFromVisibility = _restrictPaymentType == PaymentType.PaidOnline;
+					if(_restrictPaymentType != PaymentType.PaidOnline && PaymentByCardFrom != null)
 					{
 						PaymentByCardFrom = null;
 					}
@@ -478,6 +479,7 @@ namespace Vodovoz.Filters.ViewModels
 			get => _excludeClosingDocumentDeliverySchedule;
 			set => UpdateFilterField(ref _excludeClosingDocumentDeliverySchedule, value);
 		}
+		public override bool IsShow { get; set; } = true;
 	}
 
 	public enum PaymentOrder

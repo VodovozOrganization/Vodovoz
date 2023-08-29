@@ -8,23 +8,25 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gtk.Table table2;
 
-		private global::Gtk.HBox hbox2;
-
-		private global::QS.Widgets.GtkUI.DateRangePicker ydateperiodpicker;
-
-		private global::Gtk.HBox hbox3;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox comboGeoGroup;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox comboPaymentFrom;
 
-		private global::Gtk.HBox hbox4;
+		private global::Gtk.HBox hbox2;
 
-		private global::QS.Widgets.GtkUI.SpecialListComboBox comboGeoGroup;
+		private global::Gtk.HBox hbox3;
+
+		private global::Gtk.HBox hbox4;
 
 		private global::Gtk.Label label2;
 
 		private global::Gtk.Label labelGeoGroup;
 
 		private global::Gtk.Label labelPaymentFrom;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowArchive;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker ydateperiodpicker;
 
 		private global::Gtk.Button buttonCreateRepot;
 
@@ -39,115 +41,133 @@ namespace Vodovoz.ReportsParameters
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.table2 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
+			this.table2 = new global::Gtk.Table(((uint)(3)), ((uint)(4)), false);
 			this.table2.Name = "table2";
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
 			// Container child table2.Gtk.Table+TableChild
-			this.hbox2 = new global::Gtk.HBox();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.ydateperiodpicker = new global::QS.Widgets.GtkUI.DateRangePicker();
-			this.ydateperiodpicker.Events = ((global::Gdk.EventMask)(256));
-			this.ydateperiodpicker.Name = "ydateperiodpicker";
-			this.ydateperiodpicker.StartDate = new global::System.DateTime(0);
-			this.ydateperiodpicker.EndDate = new global::System.DateTime(0);
-			this.hbox2.Add(this.ydateperiodpicker);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.ydateperiodpicker]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
-			this.table2.Add(this.hbox2);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table2[this.hbox2]));
-			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(2));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.comboPaymentFrom = new global::QS.Widgets.GtkUI.SpecialListComboBox();
-			this.comboPaymentFrom.Name = "comboPaymentFrom";
-			this.comboPaymentFrom.AddIfNotExist = false;
-			this.comboPaymentFrom.DefaultFirst = false;
-			this.comboPaymentFrom.ShowSpecialStateAll = true;
-			this.comboPaymentFrom.ShowSpecialStateNot = false;
-			this.hbox3.Add(this.comboPaymentFrom);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.comboPaymentFrom]));
-			w3.Position = 0;
-			w3.Expand = false;
-			w3.Fill = false;
-			this.table2.Add(this.hbox3);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table2[this.hbox3]));
-			w4.TopAttach = ((uint)(1));
-			w4.BottomAttach = ((uint)(2));
-			w4.LeftAttach = ((uint)(1));
-			w4.RightAttach = ((uint)(2));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.hbox4 = new global::Gtk.HBox();
-			this.hbox4.Name = "hbox4";
-			this.hbox4.Spacing = 6;
-			// Container child hbox4.Gtk.Box+BoxChild
 			this.comboGeoGroup = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.comboGeoGroup.Name = "comboGeoGroup";
 			this.comboGeoGroup.AddIfNotExist = false;
 			this.comboGeoGroup.DefaultFirst = false;
 			this.comboGeoGroup.ShowSpecialStateAll = true;
 			this.comboGeoGroup.ShowSpecialStateNot = false;
-			this.hbox4.Add(this.comboGeoGroup);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.comboGeoGroup]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			this.table2.Add(this.comboGeoGroup);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table2[this.comboGeoGroup]));
+			w1.TopAttach = ((uint)(2));
+			w1.BottomAttach = ((uint)(3));
+			w1.LeftAttach = ((uint)(1));
+			w1.RightAttach = ((uint)(2));
+			w1.XOptions = ((global::Gtk.AttachOptions)(4));
+			w1.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.comboPaymentFrom = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.comboPaymentFrom.Name = "comboPaymentFrom";
+			this.comboPaymentFrom.AddIfNotExist = false;
+			this.comboPaymentFrom.DefaultFirst = false;
+			this.comboPaymentFrom.ShowSpecialStateAll = true;
+			this.comboPaymentFrom.ShowSpecialStateNot = false;
+			this.table2.Add(this.comboPaymentFrom);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table2[this.comboPaymentFrom]));
+			w2.TopAttach = ((uint)(1));
+			w2.BottomAttach = ((uint)(2));
+			w2.LeftAttach = ((uint)(1));
+			w2.RightAttach = ((uint)(2));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			this.table2.Add(this.hbox2);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table2[this.hbox2]));
+			w3.LeftAttach = ((uint)(3));
+			w3.RightAttach = ((uint)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.hbox3 = new global::Gtk.HBox();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			this.table2.Add(this.hbox3);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table2[this.hbox3]));
+			w4.TopAttach = ((uint)(1));
+			w4.BottomAttach = ((uint)(2));
+			w4.LeftAttach = ((uint)(3));
+			w4.RightAttach = ((uint)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.hbox4 = new global::Gtk.HBox();
+			this.hbox4.Name = "hbox4";
+			this.hbox4.Spacing = 6;
 			this.table2.Add(this.hbox4);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table2[this.hbox4]));
-			w6.TopAttach = ((uint)(2));
-			w6.BottomAttach = ((uint)(3));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table2[this.hbox4]));
+			w5.TopAttach = ((uint)(2));
+			w5.BottomAttach = ((uint)(3));
+			w5.LeftAttach = ((uint)(3));
+			w5.RightAttach = ((uint)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
 			this.table2.Add(this.label2);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table2[this.label2]));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table2[this.label2]));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.labelGeoGroup = new global::Gtk.Label();
 			this.labelGeoGroup.Name = "labelGeoGroup";
 			this.labelGeoGroup.Xalign = 1F;
 			this.labelGeoGroup.LabelProp = global::Mono.Unix.Catalog.GetString("Часть города:");
 			this.table2.Add(this.labelGeoGroup);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.labelGeoGroup]));
-			w8.TopAttach = ((uint)(2));
-			w8.BottomAttach = ((uint)(3));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table2[this.labelGeoGroup]));
+			w7.TopAttach = ((uint)(2));
+			w7.BottomAttach = ((uint)(3));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.labelPaymentFrom = new global::Gtk.Label();
 			this.labelPaymentFrom.Name = "labelPaymentFrom";
 			this.labelPaymentFrom.Xalign = 1F;
 			this.labelPaymentFrom.LabelProp = global::Mono.Unix.Catalog.GetString("Источник оплаты:");
 			this.table2.Add(this.labelPaymentFrom);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table2[this.labelPaymentFrom]));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.labelPaymentFrom]));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.ycheckbuttonShowArchive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowArchive.CanFocus = true;
+			this.ycheckbuttonShowArchive.Name = "ycheckbuttonShowArchive";
+			this.ycheckbuttonShowArchive.Label = global::Mono.Unix.Catalog.GetString("Показать\nархивные");
+			this.ycheckbuttonShowArchive.DrawIndicator = true;
+			this.ycheckbuttonShowArchive.UseUnderline = true;
+			this.table2.Add(this.ycheckbuttonShowArchive);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table2[this.ycheckbuttonShowArchive]));
 			w9.TopAttach = ((uint)(1));
 			w9.BottomAttach = ((uint)(2));
+			w9.LeftAttach = ((uint)(2));
+			w9.RightAttach = ((uint)(3));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
+			this.ydateperiodpicker = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.ydateperiodpicker.Events = ((global::Gdk.EventMask)(256));
+			this.ydateperiodpicker.Name = "ydateperiodpicker";
+			this.ydateperiodpicker.StartDate = new global::System.DateTime(0);
+			this.ydateperiodpicker.EndDate = new global::System.DateTime(0);
+			this.table2.Add(this.ydateperiodpicker);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table2[this.ydateperiodpicker]));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(3));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add(this.table2);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table2]));
-			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table2]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.buttonCreateRepot = new global::Gtk.Button();
 			this.buttonCreateRepot.CanFocus = true;
@@ -155,11 +175,11 @@ namespace Vodovoz.ReportsParameters
 			this.buttonCreateRepot.UseUnderline = true;
 			this.buttonCreateRepot.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox2.Add(this.buttonCreateRepot);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateRepot]));
-			w11.PackType = ((global::Gtk.PackType)(1));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateRepot]));
+			w12.PackType = ((global::Gtk.PackType)(1));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

@@ -18,7 +18,7 @@
         <Height>23.34pt</Height>
         <Width>581.25pt</Width>
         <Value>= "Отчет по оплатам по картам с " + (Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")) + " по " + (Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>102.3pt</Left>
         <Top>6.4pt</Top>
         <Style>
@@ -717,7 +717,9 @@ LEFT JOIN employees e
 ON e.id = o.author_employee_id
 LEFT JOIN order_items oi
 ON oi.order_id = o.id
-WHERE o.payment_type = 'ByCard'
+INNER JOIN payments_from pf
+ON o.payment_from_id = pf.id
+WHERE o.payment_type = 'PaidOnline'
 	AND o.delivery_date &gt;= @start_date
 	AND o.delivery_date &lt;= @end_date
 	AND (
@@ -726,7 +728,8 @@ WHERE o.payment_type = 'ByCard'
 		)
 	AND NOT o.is_contract_closer 
 	AND (@payment_from_id = ''
-		OR o.payment_from_id = @payment_from_id)
+		OR pf.id = @payment_from_id)
+    AND (@ShowArchived OR NOT pf.is_archive)
 	AND (@geo_group_id = ''
 		OR d.geo_group_id = @geo_group_id)
 GROUP BY o.id;</CommandText>
@@ -742,6 +745,9 @@ GROUP BY o.id;</CommandText>
           </QueryParameter>
           <QueryParameter Name="geo_group_id">
             <Value>={?geo_group_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="ShowArchived">
+            <Value>={?ShowArchived}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -790,13 +796,13 @@ GROUP BY o.id;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString></ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -826,12 +832,19 @@ GROUP BY o.id;</CommandText>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="geo_group_id">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ShowArchived">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>

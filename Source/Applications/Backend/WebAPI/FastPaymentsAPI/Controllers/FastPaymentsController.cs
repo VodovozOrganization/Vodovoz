@@ -7,9 +7,11 @@ using FastPaymentsAPI.Library.DTO_s.Requests;
 using FastPaymentsAPI.Library.DTO_s.Responses;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Models;
+using FastPaymentsAPI.Library.Notifications;
 using FastPaymentsAPI.Library.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 
 namespace FastPaymentsAPI.Controllers
@@ -24,7 +26,8 @@ namespace FastPaymentsAPI.Controllers
 		private readonly IDriverAPIService _driverApiService;
 		private readonly IResponseCodeConverter _responseCodeConverter;
 		private readonly IErrorHandler _errorHandler;
-		private readonly IFastPaymentStatusChangeNotifier _fastPaymentStatusChangeNotifier;
+		private readonly SiteNotifier _siteNotifier;
+		private readonly MobileAppNotifier _mobileAppNotifier;
 
 		public FastPaymentsController(
 			ILogger<FastPaymentsController> logger,
@@ -33,7 +36,8 @@ namespace FastPaymentsAPI.Controllers
 			IDriverAPIService driverApiService,
 			IResponseCodeConverter responseCodeConverter,
 			IErrorHandler errorHandler,
-			IFastPaymentStatusChangeNotifier fastPaymentStatusChangeNotifier)
+			SiteNotifier siteNotifier,
+			MobileAppNotifier mobileAppNotifier)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fastPaymentOrderModel = fastPaymentOrderModel ?? throw new ArgumentNullException(nameof(fastPaymentOrderModel));
@@ -41,8 +45,8 @@ namespace FastPaymentsAPI.Controllers
 			_driverApiService = driverApiService ?? throw new ArgumentNullException(nameof(driverApiService));
 			_responseCodeConverter = responseCodeConverter ?? throw new ArgumentNullException(nameof(responseCodeConverter));
 			_errorHandler = errorHandler ?? throw new ArgumentNullException(nameof(errorHandler));
-			_fastPaymentStatusChangeNotifier =
-				fastPaymentStatusChangeNotifier ?? throw new ArgumentNullException(nameof(fastPaymentStatusChangeNotifier));
+			_siteNotifier = siteNotifier ?? throw new ArgumentNullException(nameof(siteNotifier));
+			_mobileAppNotifier = mobileAppNotifier ?? throw new ArgumentNullException(nameof(mobileAppNotifier));
 		}
 
 		/// <summary>
@@ -152,7 +156,13 @@ namespace FastPaymentsAPI.Controllers
 
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
 				_fastPaymentModel.SaveNewTicketForOrder(
-					orderRegistrationResponseDto, orderId, fastPaymentGuid, FastPaymentPayType.ByQrCode, organization, requestType);
+					orderRegistrationResponseDto,
+					orderId,
+					fastPaymentGuid,
+					FastPaymentPayType.ByQrCode,
+					organization,
+					requestType,
+					PaymentType.DriverApplicationQR);
 
 				response.QRCode = orderRegistrationResponseDto.QRPngBase64;
 				response.FastPaymentStatus = FastPaymentStatus.Processing;
@@ -262,8 +272,16 @@ namespace FastPaymentsAPI.Controllers
 
 				_logger.LogInformation("Сохраняем новую сессию оплаты");
 				var payType = isQr ? FastPaymentPayType.ByQrCode : FastPaymentPayType.ByCard;
+				var paymentType = isQr ? PaymentType.SmsQR : PaymentType.PaidOnline;
 				_fastPaymentModel.SaveNewTicketForOrder(
-					orderRegistrationResponseDto, orderId, fastPaymentGuid, payType, organization, requestType, phoneNumber);
+					orderRegistrationResponseDto,
+					orderId,
+					fastPaymentGuid,
+					payType,
+					organization,
+					requestType,
+					paymentType,
+					phoneNumber);
 
 				response.Ticket = orderRegistrationResponseDto.Ticket;
 				response.FastPaymentGuid = fastPaymentGuid;
@@ -381,11 +399,9 @@ namespace FastPaymentsAPI.Controllers
 							{
 								_logger.LogInformation($"Отменяем платеж с сессией {ticket}");
 								_fastPaymentModel.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
-								_fastPaymentStatusChangeNotifier.NotifyVodovozSite(
-									fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, fastPayment.Amount, false);
-								_fastPaymentStatusChangeNotifier.NotifyMobileApp(
-									fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, fastPayment.Amount, false,
-									fastPayment.CallbackUrlForMobileApp);
+
+								await _siteNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
+								await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
 							}
 						}
 						catch(Exception e)
@@ -466,7 +482,7 @@ namespace FastPaymentsAPI.Controllers
 		[HttpPost]
 		[Route("/api/ReceivePayment")]
 		[Consumes("application/x-www-form-urlencoded")]
-		public IActionResult ReceivePayment([FromForm] PaidOrderDTO paidOrderDto)
+		public async Task<IActionResult> ReceivePayment([FromForm] PaidOrderDTO paidOrderDto)
 		{
 			_logger.LogInformation("Пришел ответ об успешной оплате");
 			PaidOrderInfoDTO paidOrderInfoDto = null;
@@ -530,11 +546,8 @@ namespace FastPaymentsAPI.Controllers
 			
 			if(fastPaymentUpdated)
 			{
-				_fastPaymentStatusChangeNotifier.NotifyVodovozSite(
-					fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true);
-				_fastPaymentStatusChangeNotifier.NotifyMobileApp(
-					fastPayment.OnlineOrderId, fastPayment.PaymentByCardFrom.Id, paidOrderInfoDto.Amount, true,
-					fastPayment.CallbackUrlForMobileApp);
+				await _siteNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
+				await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
 			}
 			
 			return new AcceptedResult();

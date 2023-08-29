@@ -1,6 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.FilterViewModels.Goods;
-using QS.Widgets.GtkUI;
+
 namespace Vodovoz.Filters.GtkViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
@@ -8,24 +8,41 @@ namespace Vodovoz.Filters.GtkViews
 	{
 		public NomenclatureStockFilterView(NomenclatureStockFilterViewModel filterViewModel) : base(filterViewModel)
 		{
-			this.Build();
+			Build();
 			Configure();
 		}
 
 		private void Configure()
 		{
-			var warehouseEntry = new EntityViewModelEntry();
-			warehouseEntry.SetEntityAutocompleteSelectorFactory(ViewModel.WarehouseSelectorFactory);
-			warehouseEntry.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.Warehouse, w => w.Subject)
+			warehouseEntry.ViewModel = ViewModel.WarehouseEntryViewModel;
+			warehouseEntry.WidthRequest = 300;
+			warehouseEntry.Binding
+				.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeWarehouse, w => w.Sensitive)
 				.InitializeFromSource();
+			employeeStorageEntry.ViewModel = ViewModel.EmployeeStorageEntryViewModel;
+			employeeStorageEntry.WidthRequest = 300;
+			employeeStorageEntry.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangeEmployeeStorage, w => w.Sensitive)
+				.InitializeFromSource();
+			сarStorageEntry.ViewModel = ViewModel.CarStorageEntryViewModel;
+			сarStorageEntry.WidthRequest = 300;
+			сarStorageEntry.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanChangeCarStorage, w => w.Sensitive)
+				.InitializeFromSource();
 
-			warehouseEntry.Show();
-			yhboxWarehouse.Add(warehouseEntry);
-
-			checkShowArchive.Binding.AddBinding(ViewModel, vm => vm.ShowArchive, w => w.Active).InitializeFromSource();
-			checkShowArchive.Binding.AddBinding(ViewModel, vm => vm.CanChangeShowArchive, w => w.Sensitive).InitializeFromSource();
+			checkShowArchive.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowArchive, w => w.Active)
+				.AddBinding(vm => vm.CanChangeShowArchive, w => w.Sensitive)
+				.InitializeFromSource();
+			chkShowNomenclatureInstance.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.ShowNomenclatureInstance, w => w.Active)
+				.AddBinding(vm => vm.CanChangeShowNomenclatureInstance, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 	}
 }

@@ -10,14 +10,12 @@
 	  <TreatAsUsed>true</TreatAsUsed>
 	</PackageReference>
 	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.17" />
-	<PackageReference Include="MySql.Data" Version="8.0.28">
-	  <TreatAsUsed>true</TreatAsUsed>
-	</PackageReference>
+	<PackageReference Include="MySqlConnector" Version="2.2.6" />
 	<PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0">
 	  <TreatAsUsed>true</TreatAsUsed>
 	</PackageReference>
-    <PackageReference Include="NLog.Web.AspNetCore" Version="5.1.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.0" />
   </ItemGroup>
 
@@ -30,6 +28,7 @@
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
+    <ProjectReference Include="..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -199,7 +199,7 @@ ORDER BY d_name;</CommandText>
         <Height>14pt</Height>
         <Width>400pt</Width>
         <Value>=Iif(Len({?geographic_group_name})&gt;0, "Часть города: " + {?geographic_group_name}, "")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0pt</Left>
         <Top>19pt</Top>
         <Style>
@@ -212,7 +212,7 @@ ORDER BY d_name;</CommandText>
         <Height>14pt</Height>
         <Width>400pt</Width>
         <Value>=Iif(Len({?tariff_zone_name})&gt;0, "Тарифная зона: " + {?tariff_zone_name}, "")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>407.1pt</Left>
         <Top>19pt</Top>
         <Style>
@@ -1312,7 +1312,7 @@ ORDER BY d_name;</CommandText>
         <Width>761.28pt</Width>
         <Value>В отчет не попадают заказы в статусах: Отменён, Новый, Ожидание оплаты
 Интервал заказа определяется по последнему времени в расписании доставки</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>104.70pt</Top>
         <Style>
@@ -1351,7 +1351,7 @@ ORDER BY d_name;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=;user=;password=;port=3306;server=;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

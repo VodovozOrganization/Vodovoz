@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using NHibernate.Driver;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -24,6 +25,15 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private DelegateCommand _saveOrderAutoCommentCommand;
 		private DelegateCommand _showAutoCommentInfoCommand;
 		private string _orderAutoComment;
+
+		private DelegateCommand _saveDriversStopListPropertiesCommand;
+		private readonly bool _canEditDriversStopListSettings;
+		private int _driversUnclosedRouteListsHavingDebtCount;
+		private decimal _driversRouteListsDebtMaxSum;
+
+		private DelegateCommand _saveSecondOrderDiscountAvailabilityCommand;
+		private readonly bool _canActivateClientsSecondOrderDiscount;
+		private bool _isClientsSecondOrderDiscountActive;
 
 		public GeneralSettingsViewModel(
 			IGeneralSettingsParametersProvider generalSettingsParametersProvider,
@@ -97,7 +107,15 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					AlternativePricesSubdivisionSettingsViewModel.ObservableSubdivisions.Add(subdivision);
 				}
 			}
-		}
+
+			_canEditDriversStopListSettings = _commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
+			_driversUnclosedRouteListsHavingDebtCount = _generalSettingsParametersProvider.DriversUnclosedRouteListsHavingDebtMaxCount;
+			_driversRouteListsDebtMaxSum = _generalSettingsParametersProvider.DriversRouteListsMaxDebtSum;
+
+			_canActivateClientsSecondOrderDiscount = 
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Permissions.Order.CanActivateClientsSecondOrderDiscount);
+			_isClientsSecondOrderDiscountActive = _generalSettingsParametersProvider.GetIsClientsSecondOrderDiscountActive;
+	}
 
 		#region RouteListPrintedFormPhones
 
@@ -196,6 +214,74 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					"то в начало комментария к заказу добавляется текст из настройки."
 					);
 			}));
+
+		#endregion
+
+		#region Drivers Stop-list settings
+
+		public int DriversUnclosedRouteListsHavingDebtCount
+		{
+			get => _driversUnclosedRouteListsHavingDebtCount;
+			set => SetField(ref _driversUnclosedRouteListsHavingDebtCount, value);
+		}
+
+		public decimal DriversRouteListsDebtMaxSum
+		{
+			get => _driversRouteListsDebtMaxSum;
+			set => SetField(ref _driversRouteListsDebtMaxSum, value);
+		}
+
+		public DelegateCommand SaveDriversStopListPropertiesCommand
+		{
+			get
+			{
+				if(_saveDriversStopListPropertiesCommand == null)
+				{
+					_saveDriversStopListPropertiesCommand = new DelegateCommand(SaveDriversStopListProperties, () => CanSaveDriversStopListProperties);
+					_saveDriversStopListPropertiesCommand.CanExecuteChangedWith(this, x => x.CanSaveDriversStopListProperties);
+				}
+				return _saveDriversStopListPropertiesCommand;
+			}
+		}
+
+		public bool CanSaveDriversStopListProperties => _canEditDriversStopListSettings;
+
+		private void SaveDriversStopListProperties()
+		{
+			_generalSettingsParametersProvider.UpdateDriversUnclosedRouteListsHavingDebtMaxCount(DriversUnclosedRouteListsHavingDebtCount);
+			_generalSettingsParametersProvider.UpdateDriversRouteListsMaxDebtSum(DriversRouteListsDebtMaxSum);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+		#endregion
+
+		#region ClientsSecondOrderDiscount
+
+		public bool IsClientsSecondOrderDiscountActive
+		{
+			get => _isClientsSecondOrderDiscountActive;
+			set => SetField(ref _isClientsSecondOrderDiscountActive, value);
+		}
+
+		public DelegateCommand SaveSecondOrderDiscountAvailabilityCommand
+		{
+			get
+			{
+				if(_saveSecondOrderDiscountAvailabilityCommand == null)
+				{
+					_saveSecondOrderDiscountAvailabilityCommand = new DelegateCommand(SaveSecondOrderDiscountAvailability, () => CanSaveSecondOrderDiscountAvailability);
+					_saveSecondOrderDiscountAvailabilityCommand.CanExecuteChangedWith(this, x => x.CanSaveSecondOrderDiscountAvailability);
+				}
+				return _saveSecondOrderDiscountAvailabilityCommand;
+			}
+		}
+
+		public bool CanSaveSecondOrderDiscountAvailability => _canActivateClientsSecondOrderDiscount;
+
+		private void SaveSecondOrderDiscountAvailability()
+		{
+			_generalSettingsParametersProvider.UpdateIsClientsSecondOrderDiscountActive(IsClientsSecondOrderDiscountActive);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
 
 		#endregion
 	}

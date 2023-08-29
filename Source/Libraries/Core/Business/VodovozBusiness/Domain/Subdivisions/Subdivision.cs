@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,6 @@ using QS.HistoryLog;
 using QS.Project.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -22,7 +21,7 @@ namespace Vodovoz
 		Nominative = "подразделение")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject, INamed
 	{
 		private SalesPlan _defaultSalesPlan;
 

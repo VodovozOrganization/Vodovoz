@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.Dialog.GtkUI.FileDialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Tdi;
@@ -8,6 +9,7 @@ using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Parameters;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
@@ -24,7 +26,7 @@ namespace Vodovoz.JournalViewers
 				ServicesConfig.CommonServices,
 				new OrderSelectorFactory(),
 				new EmployeeJournalFactory(),
-				new CounterpartyJournalFactory(),
+				new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()),
 				new DeliveryPointJournalFactory(),
 				new SubdivisionJournalFactory())
 			{
@@ -42,7 +44,6 @@ namespace Vodovoz.JournalViewers
 				new EmployeeJournalFactory(),
 				VodovozGtkServicesConfig.EmployeeService,
 				new UndeliveredOrdersJournalOpener(),
-				new OrderSelectorFactory(),
 				new UndeliveredOrdersRepository(),
 				new EmployeeSettings(new ParametersProvider()),
 				new SubdivisionParametersProvider(new ParametersProvider())

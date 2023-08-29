@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -19,6 +19,12 @@
 	orders.delivery_date AS order_date,
 	delivery_points.organization as organization,
 	orders.order_status AS order_status,
+    (SELECT count(*) > 0
+     FROM fast_payments fp
+     WHERE (fp.order_id = orders.id
+         OR fp.external_id = orders.id
+         OR fp.external_id = orders.online_order)
+     AND fp.payment_status = 'Performed') AS fast_payment_paid,
 	IF(is_bottle_stock, 
 		orders.bottles_by_stock_count,
 		orders.bottles_return
@@ -47,10 +53,20 @@
 		ELSE orders.signature_type
 	END AS order_signature_type,
 	CASE orders.payment_type 
-		WHEN 'cash' THEN 'НАЛ'
-		WHEN 'cashless' THEN 'БЕЗНАЛ'
-		WHEN 'ByCard' THEN 'ПО КАРТЕ'
-		WHEN 'Terminal' THEN 'ТЕРМИНАЛ'
+		WHEN 'Cash' THEN 'Наличные'
+		WHEN 'Terminal' THEN 'По терминалу (QR-код терминал)'
+		WHEN 'DriverApplicationQR' THEN 'По QR-коду (приложение водителя)'
+		WHEN 'SmsQR' THEN IF(
+        (SELECT count(*) &gt; 0
+         FROM fast_payments fp
+         WHERE (fp.order_id = orders.id
+             OR fp.external_id = orders.id
+             OR fp.external_id = orders.online_order)
+         AND fp.payment_status = 'Performed'), 'СМС (QR-код)', 'По QR-коду (приложение водителя)')
+		WHEN 'PaidOnline' THEN 'Оплачено онлайн'
+		WHEN 'Barter' THEN 'Безденежно'
+		WHEN 'ContractDocumentation' THEN ''
+		WHEN 'Cashless' THEN 'Безналичная'
 		ELSE orders.payment_type
 	END AS pay_type,
 	orders.payment_type AS order_payment_type,
@@ -243,6 +259,10 @@ WHERE
         <Field Name="lunch_time">
           <DataField>lunch_time</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="fast_payment_paid">
+          <DataField>fast_payment_paid</DataField>
+          <TypeName>System.Boolean</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -581,7 +601,7 @@ FROM
     ON proxy_persons.counterparty_proxy_id = counterparty_proxies.id
 WHERE 
 	orders.id = @order_id
-    AND orders.payment_type = 'cash'
+    AND orders.payment_type = 'Cash'
     AND orders.signature_type = 'ByProxy'</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -1644,7 +1664,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>19.50pt</Height>
         <Width>345.87pt</Width>
         <Value>='Заказ № ' + Max({order_id}, "Order") + iif(First({e_shop_order}, "Order") != "", "/" + First({e_shop_order}, "Order"), "") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy") + " " + First({pay_type}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>111.10pt</Left>
         <Top>35.80pt</Top>
         <Style>
@@ -1660,7 +1680,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>15.00pt</Height>
         <Width>92.59pt</Width>
         <Value>=First({daily_number}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>369.7pt</Left>
         <Top>16.6pt</Top>
         <Style>
@@ -1959,9 +1979,15 @@ WHERE stored_resource.id = @id1</CommandText>
           </Image>
         </ReportItems>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
@@ -2085,7 +2111,7 @@ WHERE stored_resource.id = @id1</CommandText>
                       <Value>=Iif(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund') &gt;= 0,
    "Всего получить от клиента: " +Code.SummaString_Val(
         Convert.ToString(
-            Iif(First({order_payment_type}, "Order")!='ByCard',
+            Iif(First({order_payment_type}, "Order")!='PaidOnline',
                 Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
                 0
             )
@@ -2093,7 +2119,7 @@ WHERE stored_resource.id = @id1</CommandText>
     )
     +"    ("+
     Format(
-        Iif(First({order_payment_type}, "Order")!='ByCard',
+        Iif(First({order_payment_type}, "Order")!='PaidOnline',
             Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
             0
         )
@@ -2102,7 +2128,7 @@ WHERE stored_resource.id = @id1</CommandText>
     + "р.)",
    "Всего вернуть клиенту: "+Code.SummaString_Val(
         Convert.ToString(
-            Iif(First({order_payment_type}, "Order")!='ByCard',
+            Iif(First({order_payment_type}, "Order")!='PaidOnline',
                 -Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
                 0
             )
@@ -2110,7 +2136,7 @@ WHERE stored_resource.id = @id1</CommandText>
     )
     +"    ("+
     Format(
-        Iif(First({order_payment_type}, "Order")!='ByCard',
+        Iif(First({order_payment_type}, "Order")!='PaidOnline',
             -Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'),
             0
         )
@@ -3244,15 +3270,21 @@ WHERE stored_resource.id = @id1</CommandText>
               <BorderWidth />
             </Style>
             <Source>Database</Source>
-            <Value>=iif({?payment_by_sms}, First( {IM10}, "Image" ), iif({?need_terminal}, First( {IM11}, "Image" ), NULL))</Value>
+            <Value>=iif({?need_terminal}, First( {IM11}, "Image" ), NULL)</Value>
             <Sizing>FitProportional</Sizing>
             <MIMEType>image/jpeg</MIMEType>
           </Image>
         </ReportItems>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
+            <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+            </BorderStyle>
+            <BorderColor />
+            <BorderWidth />
         </Style>
         <DataSetName>Image</DataSetName>
       </List>
@@ -3260,7 +3292,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>55.00pt</Width>
         <Value>=Max({delivery_schedule}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>82.3pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3276,7 +3308,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>65.51pt</Width>
         <Value>Время дост.:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>17.0pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3291,7 +3323,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12pt</Height>
         <Width>49.28pt</Width>
         <Value>Договор:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>136.6pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3306,7 +3338,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12pt</Height>
         <Width>36.39pt</Width>
         <Value>=Iif(Len(Max({lunch_time}, "Order")) &gt; 0, "Обед:", "")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>277.4pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3321,7 +3353,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12.00pt</Height>
         <Width>81.28pt</Width>
         <Value>=Max({lunch_time}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>315.8pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3337,7 +3369,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>12pt</Height>
         <Width>104.58pt</Width>
         <Value>= Max({contract_number}, "Order") + ' от ' + Max({contract_date}, "Order")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>180.9pt</Left>
         <Top>222.8pt</Top>
         <Style>
@@ -3369,9 +3401,7 @@ WHERE stored_resource.id = @id1</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox62">
                       <Value>= Switch(
-    First({order_payment_type}, "Order")='ByCard', "ОПЛАЧЕНО",
-    First({order_payment_type}, "Order")='cash',
-    Iif({?payment_by_sms} = false AND {?payment_by_qr} = false, 
+    First({order_payment_type}, "Order") = 'Cash',
         "К оплате: НАЛИЧНЫМИ " +
         Convert.ToString
         (
@@ -3380,28 +3410,31 @@ WHERE stored_resource.id = @id1</CommandText>
         + "\n" +
         Iif(First({trifle},'Order')&gt;0,
             "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
-            " "
-        ),
-        Iif({?payment_by_sms} = true AND {?payment_by_qr} = false,
-            "К оплате: НАЛИЧНЫМИ ИЛИ ПО SMS \n" +
-            Iif(First({trifle},'Order') &gt; 0,
-                "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
-                " "
-            ),
-            "К оплате: НАЛИЧНЫМИ ИЛИ ПО QR \n" +
-            Iif(First({trifle},'Order') &gt; 0,
-                "СДАЧА: " + (First({trifle},'Order') - Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count},  'DepositRefund')) + " р.",
-                " "
-            )
-        )
-    ),
+            " "),
     First({order_payment_type}, "Order") = "Terminal",
-    "К оплате: \nПО ТЕРМИНАЛУ "+
-    Convert.ToString
-    (
-        (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
-    ),
-    First({order_payment_type}, "Order") = "cashless", "БЕЗНАЛ"
+        "К оплате: \nПО ТЕРМИНАЛУ (QR-КОД) "+
+        Convert.ToString
+        (
+            (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
+        ),
+    First({order_payment_type}, "Order") = 'DriverApplicationQR',
+        "К оплате: \nПО QR-КОДУ МП "+
+        Convert.ToString
+        (
+            (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
+        ),
+    First({order_payment_type}, "Order") = 'SmsQR',
+        Iif(First({fast_payment_paid},'Order'),
+        "ОПЛАЧЕНО",
+        "К оплате: \nПО QR-КОДУ МП "+
+        Convert.ToString
+        (
+            (Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund')) + " р."
+        )),
+    First({order_payment_type}, "Order") = 'PaidOnline', "ОПЛАЧЕНО",
+    First({order_payment_type}, "Order") = 'Barter', "ОПЛАЧЕНО",
+    First({order_payment_type}, "Order") = 'ContractDocumentation', "ОПЛАЧЕНО",
+    First({order_payment_type}, "Order") = "Cashless", "БЕЗНАЛ"
 )</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -3845,7 +3878,7 @@ WHERE stored_resource.id = @id1</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
@@ -3895,26 +3928,12 @@ WHERE stored_resource.id = @id1</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="payment_by_sms">
-      <DataType>Boolean</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
     <ReportParameter Name="need_terminal">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="payment_by_qr">
-      <DataType>Boolean</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

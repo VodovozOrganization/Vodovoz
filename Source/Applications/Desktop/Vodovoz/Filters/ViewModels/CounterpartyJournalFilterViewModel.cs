@@ -1,16 +1,16 @@
-﻿using System.ComponentModel;
-using System.Data.Bindings.Collections.Generic;
-using NHibernate.Transform;
+﻿using NHibernate.Transform;
 using QS.Project.Filter;
 using QS.Project.Journal;
 using QS.RepresentationModel.GtkUI;
+using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Retail;
 using Vodovoz.Representations;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class CounterpartyJournalFilterViewModel : FilterViewModelBase<CounterpartyJournalFilterViewModel>, IJournalFilter
+	public class CounterpartyJournalFilterViewModel : FilterViewModelBase<CounterpartyJournalFilterViewModel>
 	{
 		private string _counterpartyName;
 		private string _deliveryPointPhone;
@@ -18,6 +18,7 @@ namespace Vodovoz.Filters.ViewModels
 		private GenericObservableList<SalesChannelSelectableNode> _salesChannels;
 		private bool? _isForSalesDepartment;
 		private ReasonForLeaving? _reasonForLeaving;
+		private bool _isNeedToSendBillByEdo;
 
 		public CounterpartyJournalFilterViewModel()
 		{
@@ -25,7 +26,8 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.CounterpartyType,
 				x => x.ReasonForLeaving,
 				x => x.RestrictIncludeArchive,
-				x => x.Tag
+				x => x.Tag,
+				x => x.IsNeedToSendBillByEdo
 			);
 		}
 
@@ -115,6 +117,13 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _reasonForLeaving;
 			set => SetField(ref _reasonForLeaving, value);
+		}
+		public override bool IsShow { get; set; } = true;
+
+		public bool IsNeedToSendBillByEdo
+		{
+			get => _isNeedToSendBillByEdo;
+			set => SetField(ref _isNeedToSendBillByEdo, value);
 		}
 
 		private void UnsubscribeOnCheckChanged()

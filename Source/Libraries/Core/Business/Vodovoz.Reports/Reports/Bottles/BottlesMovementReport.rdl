@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -27,7 +27,7 @@
 true,
     'с ' + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") + ' по ' +    Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy")
 )</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.07pt</Top>
         <Style>
@@ -1199,7 +1199,7 @@ true,
         <Height>12.75pt</Height>
         <Width>105.89pt</Width>
         <Value>Зависло бутылей:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.6pt</Left>
         <Top>126.9pt</Top>
         <Style>
@@ -1213,7 +1213,7 @@ true,
         <Height>12.75pt</Height>
         <Width>105.89pt</Width>
         <Value>1. По плану</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.6pt</Left>
         <Top>142.0pt</Top>
         <Style>
@@ -1227,7 +1227,7 @@ true,
         <Height>12.75pt</Height>
         <Width>105.89pt</Width>
         <Value>1.1. Закрытые МЛ:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.6pt</Left>
         <Top>156.4pt</Top>
         <Style>
@@ -1241,7 +1241,7 @@ true,
         <Height>13.50pt</Height>
         <Width>105.89pt</Width>
         <Value>1.2. Незакрытые МЛ:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.6pt</Left>
         <Top>170.5pt</Top>
         <Style>
@@ -1255,7 +1255,7 @@ true,
         <Height>12.75pt</Height>
         <Width>105.89pt</Width>
         <Value>Итого:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>1.6pt</Left>
         <Top>183.7pt</Top>
         <Style>
@@ -1283,7 +1283,7 @@ true,
     ),
     "Route_lists"
 )</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>108.1pt</Left>
         <Top>156.4pt</Top>
         <Style>
@@ -1312,7 +1312,7 @@ true,
     ),
     "Route_lists"
 )</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>108.1pt</Left>
         <Top>170.5pt</Top>
         <Style>
@@ -1328,7 +1328,7 @@ true,
         <Width>105.89pt</Width>
         <Value>=
 Sum(Fields!bottles_to_return.Value, "Route_lists") - Sum(Fields!actual_count.Value, "Route_lists")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>108.1pt</Left>
         <Top>183.7pt</Top>
         <Style>
@@ -1344,7 +1344,7 @@ Sum(Fields!bottles_to_return.Value, "Route_lists") - Sum(Fields!actual_count.Val
         <Height>12.75pt</Height>
         <Width>105.89pt</Width>
         <Value>2. По факту</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>269.4pt</Left>
         <Top>142.1pt</Top>
         <Style>
@@ -1358,7 +1358,7 @@ Sum(Fields!bottles_to_return.Value, "Route_lists") - Sum(Fields!actual_count.Val
         <Height>12.75pt</Height>
         <Width>105.89pt</Width>
         <Value>2.1. Закрытые МЛ:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>269.4pt</Left>
         <Top>156.5pt</Top>
         <Style>
@@ -1372,7 +1372,7 @@ Sum(Fields!bottles_to_return.Value, "Route_lists") - Sum(Fields!actual_count.Val
         <Height>13.50pt</Height>
         <Width>105.89pt</Width>
         <Value>2.2. Незакрытые МЛ:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>269.4pt</Left>
         <Top>170.6pt</Top>
         <Style>
@@ -1386,7 +1386,7 @@ Sum(Fields!bottles_to_return.Value, "Route_lists") - Sum(Fields!actual_count.Val
         <Height>12.75pt</Height>
         <Width>105.89pt</Width>
         <Value>Итого:</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>269.4pt</Left>
         <Top>183.8pt</Top>
         <Style>
@@ -1414,7 +1414,7 @@ Sum(Fields!bottles_to_return.Value, "Route_lists") - Sum(Fields!actual_count.Val
     ),
     "Route_lists"
 )</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>371.2pt</Left>
         <Top>156.5pt</Top>
         <Style>
@@ -1443,7 +1443,7 @@ Sum(Fields!bottles_to_return.Value, "Route_lists") - Sum(Fields!actual_count.Val
     ),
     "Route_lists"
 )</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>371.2pt</Left>
         <Top>170.6pt</Top>
         <Style>
@@ -1459,7 +1459,7 @@ Sum(Fields!bottles_to_return.Value, "Route_lists") - Sum(Fields!actual_count.Val
         <Width>105.89pt</Width>
         <Value>=
 Sum(Fields!amount_unloaded_empty.Value, "Route_lists") - Sum(Fields!actual_count.Value, "Route_lists")</Value>
-        <ZIndex>1</ZIndex>
+        <ZIndex>0</ZIndex>
         <Left>371.2pt</Left>
         <Top>183.8pt</Top>
         <Style>
@@ -1564,12 +1564,12 @@ FROM
         LEFT JOIN
     (SELECT
          store_car_unload_documents.route_list_id AS route_list_id,
-         SUM(IFNULL(warehouse_movement_operations.amount, 0)) AS amount
+         SUM(IFNULL(goods_accounting_operations.amount, 0)) AS amount
      FROM
          store_car_unload_documents
              LEFT JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-             LEFT JOIN warehouse_movement_operations ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
-             LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+             LEFT JOIN goods_accounting_operations ON goods_accounting_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+             LEFT JOIN nomenclature ON nomenclature.id = goods_accounting_operations.nomenclature_id
              LEFT JOIN route_lists ON store_car_unload_documents.route_list_id = route_lists.id
      WHERE
              nomenclature.category = 'water'
@@ -1581,12 +1581,12 @@ FROM
         LEFT JOIN
     (SELECT
          store_car_unload_documents.route_list_id AS route_list_id,
-         SUM(IFNULL(warehouse_movement_operations.amount, 0)) AS amount
+         SUM(IFNULL(goods_accounting_operations.amount, 0)) AS amount
      FROM
          store_car_unload_documents
              LEFT JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-             LEFT JOIN warehouse_movement_operations ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
-             LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+             LEFT JOIN goods_accounting_operations ON goods_accounting_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+             LEFT JOIN nomenclature ON nomenclature.id = goods_accounting_operations.nomenclature_id
              LEFT JOIN route_lists ON store_car_unload_documents.route_list_id = route_lists.id
      WHERE
              nomenclature.category = 'bottle'
@@ -1597,12 +1597,12 @@ FROM
         LEFT JOIN
     (SELECT
          store_car_unload_documents.route_list_id AS route_list_id,
-         SUM(IFNULL(warehouse_movement_operations.amount, 0)) AS amount
+         SUM(IFNULL(goods_accounting_operations.amount, 0)) AS amount
      FROM
          store_car_unload_documents
              LEFT JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
-             LEFT JOIN warehouse_movement_operations ON warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
-             LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+             LEFT JOIN goods_accounting_operations ON goods_accounting_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+             LEFT JOIN nomenclature ON nomenclature.id = goods_accounting_operations.nomenclature_id
              LEFT JOIN route_lists ON store_car_unload_documents.route_list_id = route_lists.id
      WHERE
          nomenclature.is_defective_bottle
@@ -1690,7 +1690,7 @@ GROUP BY route_lists.id;</CommandText>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
+        <DataProvider>MySqlConnector</DataProvider>
         <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>

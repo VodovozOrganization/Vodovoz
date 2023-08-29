@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -84,37 +84,38 @@ WHERE doc.id = @document_id
       </Fields>
     </DataSet>
     <DataSet Name="DocItems">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	i.nomenclature_id AS nom_id,
-	IFNULL(n.short_name, n.name) AS nomenclature,
-	'-' AS sn,
-	(CASE i.vat 
-		WHEN 'No' THEN '0%'
-		WHEN 'Vat10' THEN '10%'
-		WHEN 'Vat18' THEN '18%'
-		WHEN 'Vat20' THEN '20%'
-		ELSE i.vat
-	END
-	) AS vat,
-	op.amount AS qty,
-	u.name AS unit,
-	op.prime_cost AS prime_cost,
-	op.prime_cost * op.amount AS summ
+    i.nomenclature_id AS nom_id,
+    IFNULL(n.short_name, n.name) AS nomenclature,
+    IFNULL(ni.inventory_number, '-') AS inventory_number,
+    '-' AS sn,
+    (CASE i.vat
+         WHEN 'No' THEN '0%'
+         WHEN 'Vat10' THEN '10%'
+         WHEN 'Vat18' THEN '18%'
+         WHEN 'Vat20' THEN '20%'
+         ELSE i.vat
+        END
+        ) AS vat,
+    op.amount AS qty,
+    u.name AS unit,
+    i.price AS prime_cost,
+    i.price * op.amount AS summ
 FROM store_incoming_invoice_items i
-LEFT JOIN warehouse_movement_operations op ON op.id = i.good_move_operation_id
-LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
-LEFT JOIN measurement_units u ON u.id = n.unit_id
-WHERE i.incoming_invoice_id = @document_id
-;</CommandText>
+         LEFT JOIN goods_accounting_operations op ON op.id = i.good_move_operation_id
+         LEFT JOIN nomenclature_instances ni ON ni.id = i.nomenclature_instance_id
+         LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
+         LEFT JOIN measurement_units u ON u.id = n.unit_id
+WHERE i.incoming_invoice_id = @document_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="@document_id">
             <Value>={?document_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nom_id">
           <DataField>nom_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -147,6 +148,10 @@ WHERE i.incoming_invoice_id = @document_id
           <DataField>summ</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="inventory_number">
+          <DataField>inventory_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -175,7 +180,7 @@ WHERE i.incoming_invoice_id = @document_id
             <Width>159.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>303.3pt</Width>
+            <Width>457.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -598,8 +603,8 @@ WHERE i.incoming_invoice_id = @document_id
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -612,10 +617,10 @@ WHERE i.incoming_invoice_id = @document_id
             <Width>164.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>28.3pt</Width>
+            <Width>47.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.1pt</Width>
+            <Width>182.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>38.2pt</Width>
@@ -630,7 +635,7 @@ WHERE i.incoming_invoice_id = @document_id
             <Width>66.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>69.7pt</Width>
+            <Width>75.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -784,7 +789,8 @@ WHERE i.incoming_invoice_id = @document_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>с/н</Value>
+                      <Value>Инвентарный
+номер</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -963,7 +969,7 @@ WHERE i.incoming_invoice_id = @document_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>=Fields!sn.Value</Value>
+                      <Value>={inventory_number}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1069,7 +1075,7 @@ WHERE i.incoming_invoice_id = @document_id
         </Details>
         <Left>0.0pt</Left>
         <Top>152.7pt</Top>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -1280,6 +1286,15 @@ WHERE i.incoming_invoice_id = @document_id
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="document_id">
       <DataType>Integer</DataType>
@@ -1308,13 +1323,4 @@ WHERE i.incoming_invoice_id = @document_id
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

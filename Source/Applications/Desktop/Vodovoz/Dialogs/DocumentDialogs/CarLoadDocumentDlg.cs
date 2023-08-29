@@ -6,7 +6,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
@@ -25,6 +24,8 @@ using Vodovoz.Parameters;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Models;
 using Vodovoz.Tools;
+using Vodovoz.Tools.Store;
+using QS.Validation;
 
 namespace Vodovoz
 {
@@ -96,14 +97,14 @@ namespace Vodovoz
 				return;
 			}
 
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			Entity.Warehouse = storeDocument.GetDefaultWarehouse(UoW, WarehousePermissionsType.CarLoadEdit);
 		}
 
 		void ConfigureDlg()
 		{
 			
-			var storeDocument = new StoreDocumentHelper();
+			var storeDocument = new StoreDocumentHelper(new UserSettingsGetter());
 			if(storeDocument.CheckAllPermissions(UoW.IsNew, WarehousePermissionsType.CarLoadEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
@@ -169,9 +170,11 @@ namespace Vodovoz
 				return false;
 			
 			Entity.UpdateAlreadyLoaded(UoW, _routeListRepository);
-			var valid = new QS.Validation.QSValidator<CarLoadDocument> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			Entity.LastEditor = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;

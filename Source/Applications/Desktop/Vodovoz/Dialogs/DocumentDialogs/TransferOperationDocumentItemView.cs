@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gtk;
@@ -12,6 +12,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
@@ -22,6 +23,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -46,14 +48,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				if(documentUoW == value)
 					return;
 				documentUoW = value;
-		//		if(DocumentUoW.Root.Items == null)
-		//			DocumentUoW.Root.Items = new List<TransferOperationDocument>();
-		//		items = DocumentUoW.Root.ObservableItems;
 
 				treeItemsList.ColumnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<MovementDocumentItem>.Create()
 					.AddColumn("Наименование").AddTextRenderer(i => i.Name)
 					.AddColumn("Количество")
-					.AddNumericRenderer(i => i.SendedAmount).Editing().WidthChars(10)
+					.AddNumericRenderer(i => i.SentAmount).Editing().WidthChars(10)
 					.AddSetter((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
 					.AddSetter((c, i) => c.Editable = i.CanEditAmount)
 					.AddSetter((c, i) => c.Adjustment = new Adjustment(0, 0, (double)i.AmountOnSource, 1, 100, 0))
@@ -93,13 +92,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(new WarehouseJournalFactory());
-
-			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
-				filter,
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
-			);
+			var vm = Startup.MainWin.NavigationManager
+				.OpenViewModel<NomenclatureStockBalanceJournalViewModel>(null)
+				.ViewModel;
 
 			vm.SelectionMode = JournalSelectionMode.Single;
 			vm.OnEntitySelectedResult += (s, ea) => {
@@ -110,8 +105,6 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
 				throw new NotSupportedException("На данный момент не поддерживается добавление номенклатур");
 			};
-
-			mytab.TabParent.AddSlaveTab(mytab, vm);
 		}
 	}
 }

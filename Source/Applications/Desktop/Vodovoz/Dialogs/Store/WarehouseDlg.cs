@@ -7,6 +7,8 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Parameters;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Factories;
+using QS.Validation;
 
 namespace Vodovoz
 {
@@ -86,9 +88,11 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			var valid = new QS.Validation.QSValidator<Warehouse>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			var validator = new ObjectValidator(new GtkValidationViewFactory());
+			if(!validator.Validate(Entity))
+			{
 				return false;
+			}
 
 			_logger.Info("Сохраняем склад...");
 			UoWGeneric.Save();

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Extensions.Logging;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
@@ -11,15 +11,14 @@ using QS.Project.Domain;
 using System.Reflection;
 using Vodovoz.EntityRepositories.HistoryChanges;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using QS.Attachments.Domain;
 using Microsoft.Extensions.Configuration;
-using Vodovoz.HibernateMapping.Organizations;
 using Vodovoz.Tools;
 using Autofac.Extensions.DependencyInjection;
 using Autofac;
 using Vodovoz.Settings.Database;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
 namespace MonitoringArchivingWorker
 {
@@ -74,6 +73,7 @@ namespace MonitoringArchivingWorker
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
+				.Driver<LoggedMySqlClientDriver>()
 				.ConnectionString(connectionString);
 
 			// Настройка ORM
@@ -82,7 +82,7 @@ namespace MonitoringArchivingWorker
 				new Assembly[]
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
-					Assembly.GetAssembly(typeof(OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(TypeOfEntity)),

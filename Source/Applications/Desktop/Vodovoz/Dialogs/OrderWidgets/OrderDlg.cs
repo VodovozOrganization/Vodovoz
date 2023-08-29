@@ -34,6 +34,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Controllers;
@@ -72,6 +73,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.ServiceClaims;
 using Vodovoz.EntityRepositories.Stock;
+using Vodovoz.Errors;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
@@ -89,6 +91,7 @@ using Vodovoz.SidePanel.InfoViews;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Validation;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Orders;
 using Vodovoz.ViewModels.Infrastructure.Print;
@@ -99,18 +102,11 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using QS.Dialog.GtkUI.FileDialog;
-using Vodovoz.Settings.Database;
-using Vodovoz.SidePanel.InfoViews;
-using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
-using VodovozInfrastructure.Configuration;
 using CounterpartyContractFactory = Vodovoz.Factories.CounterpartyContractFactory;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using IOrganizationProvider = Vodovoz.Models.IOrganizationProvider;
-using System.Reflection;
-using System.ComponentModel;
 using Type = Vodovoz.Domain.Orders.Documents.Type;
 
 namespace Vodovoz
@@ -128,10 +124,13 @@ namespace Vodovoz
 		IAskSaveOnCloseViewModel,
 		IEdoLightsMatrixInfoProvider
 	{
+		private readonly ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		private static readonly IParametersProvider _parametersProvider = new ParametersProvider();
 		private static readonly INomenclatureParametersProvider _nomenclatureParametersProvider = new NomenclatureParametersProvider(_parametersProvider);
 		private static readonly BaseParametersProvider _baseParametersProvider = new BaseParametersProvider(_parametersProvider);
+
+		private readonly IFastDeliveryValidator _fastDeliveryValidator = new FastDeliveryValidator();
 
 		private static readonly IDeliveryRulesParametersProvider _deliveryRulesParametersProvider =
 			new DeliveryRulesParametersProvider(_parametersProvider);
@@ -172,7 +171,7 @@ namespace Vodovoz
 		private readonly IPromotionalSetRepository _promotionalSetRepository = new PromotionalSetRepository();
 
 		private readonly IRentPackagesJournalsViewModelsFactory _rentPackagesJournalsViewModelsFactory
-			= new RentPackagesJournalsViewModelsFactory(MainClass.MainWin.NavigationManager);
+			= new RentPackagesJournalsViewModelsFactory(Startup.MainWin.NavigationManager);
 
 		private readonly INonSerialEquipmentsForRentJournalViewModelFactory _nonSerialEquipmentsForRentJournalViewModelFactory
 			= new NonSerialEquipmentsForRentJournalViewModelFactory();
@@ -211,6 +210,7 @@ namespace Vodovoz
 		private GenericObservableList<EdoContainer> _edoContainers = new GenericObservableList<EdoContainer>();
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
+		private EdoContainer _selectedEdoContainer;
 
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
@@ -258,7 +258,7 @@ namespace Vodovoz
 		private ICounterpartyJournalFactory counterpartySelectorFactory;
 
 		public virtual ICounterpartyJournalFactory CounterpartySelectorFactory =>
-			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory());
+			counterpartySelectorFactory ?? (counterpartySelectorFactory = new CounterpartyJournalFactory(Startup.AppDIContainer.BeginLifetimeScope()));
 
 		private IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory;
 
@@ -468,7 +468,7 @@ namespace Vodovoz
 				.CopyAttachedDocuments();
 
 			Entity.IsCopiedFromUndelivery = true;
-			if(copying.GetCopiedOrder.PaymentType == PaymentType.ByCard)
+			if(copying.GetCopiedOrder.PaymentType == PaymentType.PaidOnline)
 			{
 				var currentPaymentFromTypes = ySpecPaymentFrom.ItemsList.Cast<PaymentFrom>().ToList();
 
@@ -482,6 +482,13 @@ namespace Vodovoz
 				}
 
 				copying.CopyPaymentByCardDataIfPossible();
+			}
+
+			if(copying.GetCopiedOrder.PaymentType == PaymentType.DriverApplicationQR 
+				|| copying.GetCopiedOrder.PaymentType == PaymentType.SmsQR)
+			{
+				copying.CopyPaymentByQrDataIfPossible();
+				hbxOnlineOrder.Visible = UpdateVisibilityHboxOnlineOrder();
 			}
 
 			Entity.UpdateDocuments();
@@ -639,7 +646,7 @@ namespace Vodovoz
 			pickerDeliveryDate.Binding.AddBinding(Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource();
 			pickerDeliveryDate.DateChanged += PickerDeliveryDate_DateChanged;
 
-			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
+			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.Cashless;
 			pickerBillDate.Binding.AddBinding(Entity, s => s.BillDate, w => w.DateOrNull).InitializeFromSource();
 
 			textComments.Binding.AddBinding(Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
@@ -704,6 +711,14 @@ namespace Vodovoz
 			ySpecPaymentFrom.ItemsList = paymentFromItemsQuery.List();
 			ySpecPaymentFrom.Binding.AddBinding(Entity, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 
+			yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);
+			yenumcomboboxTerminalSubtype.Sensitive = false;
+			yenumcomboboxTerminalSubtype.Binding
+				.AddSource(Entity)
+				.AddBinding(s => s.PaymentByTerminalSource, w => w.SelectedItemOrNull)
+				.AddFuncBinding(s => s.PaymentType == PaymentType.Terminal, w => w.Visible)
+				.InitializeFromSource();
+
 			enumTax.ItemsEnum = typeof(TaxType);
 			Enum[] hideTaxTypeEnums = { TaxType.None };
 			enumTax.AddEnumToHideList(hideTaxTypeEnums);
@@ -725,7 +740,7 @@ namespace Vodovoz
 				.AddFuncBinding(e => e.Client != null, w => w.Sensitive)
 				.InitializeFromSource();
 
-			var roboatsSettings = new RoboatsSettings(new SettingsController(UnitOfWorkFactory.GetDefaultFactory));
+			var roboatsSettings = _lifetimeScope.Resolve<IRoboatsSettings>();
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var deliveryScheduleRepository = new DeliveryScheduleRepository();
 			var fileDialogService = new FileDialogService();
@@ -737,6 +752,7 @@ namespace Vodovoz
 			entryDeliverySchedule.SetEntityAutocompleteSelectorFactory(deliveryScheduleJournalFactory);
 			entryDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			entryDeliverySchedule.CanEditReference = true;
+			entryDeliverySchedule.Changed += (s, e) => UpdateClientSecondOrderDiscount();
 
 			ybuttonFastDeliveryCheck.Clicked += OnButtonFastDeliveryCheckClicked;
 
@@ -794,6 +810,31 @@ namespace Vodovoz
 
 			checkSelfDelivery.Toggled += (sender, e) =>
 			{
+				if(checkSelfDelivery.Active)
+				{
+					if(!enumPaymentType.HiddenItems.Contains(PaymentType.DriverApplicationQR))
+					{
+						enumPaymentType.AddEnumToHideList(PaymentType.DriverApplicationQR);
+					}
+
+					if(Entity.PaymentType == PaymentType.DriverApplicationQR)
+					{
+						if(Entity.Client?.PaymentMethod != PaymentType.DriverApplicationQR)
+						{
+							Entity.PaymentType = Entity.Client.PaymentMethod;
+						}
+						else
+						{
+							MessageDialogHelper.RunWarningDialog("Не возможно определить тип оплаты автоматически", "Тип оплаты был сброшен!");
+							Entity.PaymentType = PaymentType.Cash;
+						}
+					}
+				}
+				else
+				{
+					enumPaymentType.RemoveEnumFromHideList(PaymentType.DriverApplicationQR);
+				}
+
 				entryDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
 				ybuttonFastDeliveryCheck.Sensitive =
 					ycheckFastDelivery.Sensitive = !checkSelfDelivery.Active && Entity.CanChangeFastDelivery;
@@ -909,12 +950,6 @@ namespace Vodovoz
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 
-			ycheckPaymentBySms.Toggled += OnCheckPaymentBySmsToggled;
-			chkPaymentByQr.Toggled += OnCheckPaymentByQrToggled;
-
-			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
-			chkPaymentByQr.Binding.AddBinding(Entity, e => e.PaymentByQr, w => w.Active).InitializeFromSource();
-
 			UpdateOrderAddressTypeUI();
 
 			Entity.InteractiveService = new CastomInteractiveService();
@@ -960,7 +995,15 @@ namespace Vodovoz
 
 			UpdateAvailableEnumSignatureTypes();
 
-			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) => UpdateEdoContainers();
+			btnUpdateEdoDocFlowStatus.Clicked += (sender, args) =>
+			{
+				UpdateEdoContainers();
+				CustomizeSendDocumentAgainButton();
+			};
+
+			ybuttonSendDocumentAgain.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_resend_upd_documents");
+			ybuttonSendDocumentAgain.Clicked += OnButtonSendDocumentAgainClicked;
+			CustomizeSendDocumentAgainButton();
 
 			btnCopyEntityId.Sensitive = Entity.Id > 0;
 			btnCopySummaryInfo.Clicked += OnBtnCopySummaryInfoClicked;
@@ -968,6 +1011,92 @@ namespace Vodovoz
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? GetLogisticsRequirements(), ServicesConfig.CommonServices);
 			UpdateEntityLogisticsRequirements();
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+		}
+
+		private List<EdoContainer> GetOutgoingUpdDocuments()
+		{
+			var orderUpdDocuments = new List<EdoContainer>();
+
+			if(Entity.Id == 0)
+			{
+				return orderUpdDocuments;
+			}
+
+			orderUpdDocuments = _edoContainers
+				.Where(c =>
+					!c.IsIncoming
+					&& c.Type == Type.Upd)
+				.ToList();
+
+			return orderUpdDocuments;
+		}
+
+		private bool IsOrderHasUpdStatus(EdoDocFlowStatus status)
+		{
+			var orderUpdDocuments = GetOutgoingUpdDocuments();
+
+			var orderUpdSentSuccessfully = orderUpdDocuments
+				.Any(c =>
+					c.Type == Type.Upd
+					&& !c.IsIncoming
+					&& c.EdoDocFlowStatus == status);
+
+			return orderUpdSentSuccessfully;
+		}
+
+		private void CustomizeSendDocumentAgainButton()
+		{
+			var orderHasUpdDocuments = GetOutgoingUpdDocuments().Count > 0;
+
+			if(Entity.Id == 0 || !orderHasUpdDocuments)
+			{
+				ybuttonSendDocumentAgain.Sensitive = false;
+				ybuttonSendDocumentAgain.Label = "Отправить повторно";
+				return;
+			}
+
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			{
+				var resendUpdAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == Entity.Id)
+						.FirstOrDefault();
+
+				if(resendUpdAction != null && resendUpdAction.IsNeedToResendEdoUpd)
+				{
+					ybuttonSendDocumentAgain.Sensitive = false;
+					ybuttonSendDocumentAgain.Label = "Идет подготовка УПД";
+					return;
+				}
+			}
+
+			ybuttonSendDocumentAgain.Sensitive = orderHasUpdDocuments;
+			ybuttonSendDocumentAgain.Label = "Отправить повторно";
+		}
+
+		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
+		{
+			if(IsOrderHasUpdStatus(EdoDocFlowStatus.Succeed))
+			{
+				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"Документооборот завершен успешно\".\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+			else if(IsOrderHasUpdStatus(EdoDocFlowStatus.InProgress))
+			{
+				if(!ServicesConfig.InteractiveService.Question("Для данного заказа имеется УПД со статусом \"В процессе\".\nВы уверены, что хотите отправить дубль?"))
+				{
+					return;
+				}
+			}
+			
+			ResendUpd();
+			CustomizeSendDocumentAgainButton();
+		}
+
+		private void ResendUpd()
+		{
+			Entity.SetNeedToRecendEdoUpd();
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
@@ -1127,30 +1256,6 @@ namespace Vodovoz
 			}
 		}
 
-		private void OnCheckPaymentBySmsToggled(object sender, EventArgs e)
-		{
-			if(Entity.PaymentBySms)
-			{
-				chkPaymentByQr.Visible = chkPaymentByQr.Active = false;
-			}
-			else
-			{
-				chkPaymentByQr.Visible = true;
-			}
-		}
-
-		private void OnCheckPaymentByQrToggled(object sender, EventArgs e)
-		{
-			if(Entity.PaymentByQr)
-			{
-				ycheckPaymentBySms.Visible = ycheckPaymentBySms.Active = false;
-			}
-			else
-			{
-				ycheckPaymentBySms.Visible = true;
-			}
-		}
-
 		private void UpdateAvailableEnumSignatureTypes()
 		{
 			var signatureTranscriptType = new object[] { OrderSignatureType.SignatureTranscript };
@@ -1195,8 +1300,11 @@ namespace Vodovoz
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
 		{
-			if(!ValidateFastDeliveryOrder())
+			var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity);
+
+			if(fastDeliveryValidationResult.IsFailure)
 			{
+				ShowErrorsWindow(fastDeliveryValidationResult.Errors);
 				return;
 			}
 
@@ -1214,65 +1322,8 @@ namespace Vodovoz
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
 
 			var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
-			MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
+			Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, FastDeliveryVerificationViewModel>(
 				null, fastDeliveryVerificationViewModel);
-		}
-
-		private bool ValidateFastDeliveryOrder()
-		{
-			if(!Entity.DeliveryDate.HasValue || Entity.DeliveryDate.Value.Date != DateTime.Now.Date)
-			{
-				MessageDialogHelper.RunWarningDialog("Доставка за час возможна только на текущую дату");
-				return false;
-			}
-
-			if(!Order.PaymentTypesFastDeliveryAvailableFor.Contains(Entity.PaymentType))
-			{
-				MessageDialogHelper.RunWarningDialog(
-					$"Нельзя выбрать доставку за час для заказа с формой оплаты '{Entity.PaymentType.GetEnumTitle()}'");
-				return false;
-			}
-
-			if(Entity.DeliveryPoint == null)
-			{
-				MessageDialogHelper.RunWarningDialog("Перед выбором доставки за час необходимо выбрать точку доставки");
-				return false;
-			}
-
-			if(Entity.DeliveryPoint.Longitude == null || Entity.DeliveryPoint.Latitude == null)
-			{
-				MessageDialogHelper.RunWarningDialog("Для выбора доставки за час необходимо корректно заполнить координаты точки доставки");
-				return false;
-			}
-
-			var district = Entity.DeliveryPoint.District;
-
-			if(district == null)
-			{
-				MessageDialogHelper.RunWarningDialog("Для точки доставки не указан район");
-				return false;
-			}
-
-			if(district.TariffZone == null)
-			{
-				MessageDialogHelper.RunWarningDialog("Для района точки доставки не указана тарифная зона");
-				return false;
-			}
-
-			if(!district.TariffZone.IsFastDeliveryAvailableAtCurrentTime)
-			{
-				MessageDialogHelper.RunWarningDialog(
-					$"По данной тарифной зоне не работает доставка за час либо закончилось время работы - попробуйте в {district.TariffZone.FastDeliveryTimeFrom:hh\\:mm}");
-				return false;
-			}
-
-			if(Entity.Total19LBottlesToDeliver == 0)
-			{
-				MessageDialogHelper.RunWarningDialog("В заказе с доставкой за час обязательно должна быть 19л вода");
-				return false;
-			}
-
-			return true;
 		}
 
 		private void OnOurOrganisationsItemSelected(object sender, ItemSelectedEventArgs e)
@@ -1536,7 +1587,7 @@ namespace Vodovoz
 				.AddColumn("В т.ч. НДС")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.IncludeNDS ?? 0))
-					.AddSetter((c, n) => c.Visible = Entity.PaymentType == PaymentType.cashless)
+					.AddSetter((c, n) => c.Visible = Entity.PaymentType == PaymentType.Cashless)
 				.AddColumn("Сумма")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.ActualSum))
@@ -1659,15 +1710,16 @@ namespace Vodovoz
 			if(Entity.Id != 0)
 			{
 				UpdateEdoContainers();
+				CustomizeSendDocumentAgainButton();
 			}
 
 			treeViewEdoContainers.ItemsDataSource = _edoContainers;
 
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
-				.AddColumn("Статус заявки").SetDataProperty(node => node.Status.GetEnumTitle())
-				.AddColumn("Номенклатура оборудования").SetDataProperty(node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
-				.AddColumn("Серийный номер").SetDataProperty(node => node.Equipment != null && node.Equipment.Nomenclature.IsSerial ? node.Equipment.Serial : "-")
-				.AddColumn("Причина").SetDataProperty(node => node.Reason)
+				.AddColumn("Статус заявки").AddTextRenderer(node => node.Status.GetEnumTitle())
+				.AddColumn("Номенклатура оборудования").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
+				.AddColumn("Серийный номер").AddTextRenderer(node => node.Equipment != null && node.Equipment.Nomenclature.IsSerial ? node.Equipment.Serial : "-")
+				.AddColumn("Причина").AddTextRenderer(node => node.Reason)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 				.Finish();
 
@@ -1724,9 +1776,12 @@ namespace Vodovoz
 		{
 			_edoContainers.Clear();
 
-			foreach(var item in _orderRepository.GetEdoContainersByOrderId(UoW, Entity.Id))
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
 			{
-				_edoContainers.Add(item);
+				foreach(var item in _orderRepository.GetEdoContainersByOrderId(uow, Entity.Id))
+				{
+					_edoContainers.Add(item);
+				}
 			}
 		}
 
@@ -1774,7 +1829,11 @@ namespace Vodovoz
 		private void ConfigureSendDocumentByEmailWidget()
 		{
 			SendDocumentByEmailViewModel =
-				new SendDocumentByEmailViewModel(_emailRepository, new EmailParametersProvider(new ParametersProvider()), _currentEmployee, ServicesConfig.InteractiveService);
+				new SendDocumentByEmailViewModel(
+					_emailRepository,
+					_lifetimeScope.Resolve<IEmailParametersProvider>(),
+					_currentEmployee,
+					ServicesConfig.InteractiveService);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
 			hbox20.Add(sendEmailView);
 			sendEmailView.Show();
@@ -1884,7 +1943,7 @@ namespace Vodovoz
 				}
 
 				if(Entity.Id == 0 &&
-					Entity.PaymentType == PaymentType.cashless) {
+					Entity.PaymentType == PaymentType.Cashless) {
 					Entity.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
 				}
 
@@ -1931,23 +1990,30 @@ namespace Vodovoz
 			UpdateUIState();
 		}
 
-		private bool AcceptOrder()
+		private Result AcceptOrder()
 		{
 			if(!Entity.CanSetOrderAsAccepted)
 			{
-				return false;
+				return Result.Failure(Errors.Orders.Order.CantEdit);
 			}
 
 			var canContinue = Entity.DefaultWaterCheck(ServicesConfig.InteractiveService);
 			if(canContinue.HasValue && !canContinue.Value)
 			{
 				toggleGoods.Activate();
-				return false;
+				return Result.Failure(Errors.Orders.Order.Accept.HasNoDefaultWater);
 			}
 
-			if(!ValidateAndFormOrder() || !CheckCertificates(canSaveFromHere: true))
+			var validationResult = ValidateAndFormOrder();
+
+			if(validationResult.IsFailure)
 			{
-				return false;
+				return Result.Failure(validationResult.Errors);
+			}
+
+			if(!CheckCertificates(canSaveFromHere: true))
+			{
+				return Result.Failure(Errors.Orders.Order.HasNoValidCertificates);
 			}
 
 			PromosetDuplicateFinder promosetDuplicateFinder = new PromosetDuplicateFinder(new CastomInteractiveService());
@@ -1964,17 +2030,14 @@ namespace Vodovoz
 			{
 				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones))
 				{
-					return false;
+					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
 			}
 			if(hasPromoInOrders
 				&& !canBeReorderedWithoutRestriction
 				&& Entity.CanUsedPromo(_promotionalSetRepository))
 			{
-				string message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.\n" +
-								 "Пожалуйста удалите промо набор или поменяйте адрес доставки.";
-				MessageDialogHelper.RunWarningDialog(message);
-				return false;
+				return Result.Failure(Errors.Orders.Order.UnableToShipPromoSet);
 			}
 
 			PrepareSendBillInformation();
@@ -1984,16 +2047,18 @@ namespace Vodovoz
 			   && (!Counterparty.NeedSendBillByEdo || Counterparty.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			   && !MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?"))
 			{
-				return false;
+				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 			}
 
 			RouteList routeListToAddFastDeliveryOrder = null;
 
 			if(Entity.IsFastDelivery)
 			{
-				if(!ValidateFastDeliveryOrder())
+				var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity);
+
+				if(fastDeliveryValidationResult.IsFailure)
 				{
-					return false;
+					return Result.Failure(fastDeliveryValidationResult.Errors);
 				}
 				
 				var fastDeliveryAvailabilityHistory = _deliveryRepository.GetRouteListsForFastDelivery(
@@ -2016,18 +2081,20 @@ namespace Vodovoz
 				if(routeListToAddFastDeliveryOrder == null)
 				{
 					var fastDeliveryVerificationViewModel = new FastDeliveryVerificationViewModel(fastDeliveryAvailabilityHistory);
-					MainClass.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
+					Startup.MainWin.NavigationManager.OpenViewModel<FastDeliveryVerificationDetailsViewModel, IUnitOfWork, FastDeliveryVerificationViewModel>(
 						null, UoW, fastDeliveryVerificationViewModel);
 
-					return false;
+					return Result.Failure(Errors.Orders.Order.FastDelivery.RouteListForFastDeliveryIsMissing);
 				}
 			}
 
-			var edoLightsMatrixPanelView = MainClass.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
-			var edoLightsMatrixViewModel = edoLightsMatrixPanelView?.ViewModel.EdoLightsMatrixViewModel;
+			var edoLightsMatrixPanelView = Startup.MainWin.InfoPanel.GetWidget(typeof(EdoLightsMatrixPanelView)) as EdoLightsMatrixPanelView;
+			var edoLightsMatrixViewModel = edoLightsMatrixPanelView is null
+				? new EdoLightsMatrixViewModel()
+				: edoLightsMatrixPanelView.ViewModel.EdoLightsMatrixViewModel;
 			edoLightsMatrixViewModel.RefreshLightsMatrix(Entity.Client);
 
-			var edoLightsMatrixPaymentType = Entity.PaymentType == PaymentType.cashless
+			var edoLightsMatrixPaymentType = Entity.PaymentType == PaymentType.Cashless
 				? EdoLightsMatrixPaymentType.Cashless
 				: EdoLightsMatrixPaymentType.Receipt;
 
@@ -2040,13 +2107,18 @@ namespace Vodovoz
 				if(ServicesConfig.InteractiveService.Question($"Данному контрагенту запрещено отгружать товары по выбранному типу оплаты\n" +
 															  $"Оставить черновик заказа в статусе \"Новый\"?"))
 				{
-					return Save();
+					if(Save())
+					{
+						return Result.Success();
+					}
+
+					return Result.Failure(Errors.Orders.Order.Save);
 				}
 
-				return false;
+				return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 			}
 
-			if(Entity.PaymentType == PaymentType.cashless)
+			if(Entity.PaymentType == PaymentType.Cashless)
 			{
 				var hasUnknownEdoLightsType = edoLightsMatrixViewModel.HasUnknown();
 
@@ -2054,9 +2126,8 @@ namespace Vodovoz
 				   && !ServicesConfig.InteractiveService.Question(
 					   $"Вы уверены, что клиент не работает с ЭДО и хотите отправить заказ без формирования электронной УПД?\nПродолжить?"))
 				{
-					return false;
+					return Result.Failure(Errors.Orders.Order.AcceptAbortedByUser);
 				}
-
 			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
@@ -2076,15 +2147,26 @@ namespace Vodovoz
 				Entity.UpdateDocuments();
 			}
 
-			if(!Save())
+			try
 			{
-				return false;
-			}
+				if(!Save())
+				{
+					return Result.Failure(Errors.Orders.Order.Save);
+				}
 
-			if(fastDeliveryAddress != null)
+				if(fastDeliveryAddress != null)
+				{
+					_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
+						UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
+
+					UoW.Commit();
+				}
+			}
+			catch(Exception e)
 			{
-				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(UoW, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
-				UoW.Commit();
+				logger.Log(LogLevel.Error, e.Message);
+
+				return Result.Failure(Errors.Orders.Order.Save);
 			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
@@ -2096,7 +2178,7 @@ namespace Vodovoz
 			ProcessSmsNotification();
 			UpdateUIState();
 
-			return true;
+			return Result.Success();
 		}
 
 		private void NotifyDriver()
@@ -2128,21 +2210,43 @@ namespace Vodovoz
 			}
 		}
 
-		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e)
+		private void OnButtonAcceptOrderWithCloseClicked(object sender, EventArgs e) =>
+			AcceptOrder()
+				.Match(
+					() =>
+					{
+						if(!NeedToCreateOrderForDailyRentEquipmentReturn)
+						{
+							OnCloseTab(false, CloseSource.Save);
+						}
+					},
+					ReturnToNew);
+
+		private void OnButtonAcceptAndReturnToOrderClicked(object sender, EventArgs e) =>
+			AcceptOrder()
+				.Match(
+					ReturnToEditTab,
+					ReturnToNew);
+
+		private void ReturnToNew(IEnumerable<Error> errors)
 		{
-			if(AcceptOrder() && !NeedToCreateOrderForDailyRentEquipmentReturn)
-			{
-				OnCloseTab(false, CloseSource.Save);
-			}
+			EditOrder();
+			ShowErrorsWindow(errors);
 		}
 
-		private void OnButtonAcceptAndReturnToOrderClicked(object sender, EventArgs e)
+		private void ShowErrorsWindow(IEnumerable<Error> errors)
 		{
-			if(!AcceptOrder())
+			if(errors.All(x => x == Errors.Orders.Order.Validation
+				|| x == Errors.Orders.Order.AcceptAbortedByUser))
 			{
-				MessageDialogHelper.RunWarningDialog("Произошла ошибка при подтверждении заказа", "Ошибка подтверждения заказа");
+				return;
 			}
-			ReturnToEditTab();
+
+			var errorsStrings = errors.Select(x => $"{x.Message} : {x.Code}");
+
+			MessageDialogHelper.RunErrorDialog(
+				string.Join("\n", errorsStrings),
+				"Ошибка подтверждения заказа");
 		}
 
 		private void ProcessSmsNotification()
@@ -2151,11 +2255,11 @@ namespace Vodovoz
 			smsNotifier.NotifyIfNewClient(Entity);
 		}
 
-		private bool ValidateAndFormOrder()
+		private Result ValidateAndFormOrder()
 		{
 			Entity.CheckAndSetOrderIsService();
 
-			ILifetimeScope autofacScope = MainClass.AppDIContainer.BeginLifetimeScope();
+			ILifetimeScope autofacScope = Startup.AppDIContainer.BeginLifetimeScope();
 			var uowFactory = autofacScope.Resolve<IUnitOfWorkFactory>();
 
 			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object>
@@ -2167,15 +2271,17 @@ namespace Vodovoz
 			if(!Validate(validationContext))
 			{
 				autofacScope.Dispose();
-				return false;
+				return Result.Failure(Errors.Orders.Order.Validation);
 			}
 
 			if(Entity.DeliveryPoint != null && !Entity.DeliveryPoint.CalculateDistricts(UoW).Any())
+			{
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
-
+			}
+				
 			OnFormOrderActions();
 			autofacScope.Dispose();
-			return true;
+			return Result.Success();
 		}
 
 		/// <summary>
@@ -2941,10 +3047,10 @@ namespace Vodovoz
 				if(Entity.Client.PersonType == PersonType.natural) {
 					chkContractCloser.Active = false;
 					chkContractCloser.Visible = false;
-					enumPaymentType.AddEnumToHideList(PaymentType.cashless);
+					enumPaymentType.AddEnumToHideList(PaymentType.Cashless);
 				} else {
 					chkContractCloser.Visible = true;
-					enumPaymentType.RemoveEnumFromHideList(PaymentType.cashless);
+					enumPaymentType.RemoveEnumFromHideList(PaymentType.Cashless);
 				}
 
 				var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
@@ -2953,7 +3059,7 @@ namespace Vodovoz
 				if(previousPaymentType.HasValue) {
 					if(previousPaymentType.Value == Entity.PaymentType) {
 						enumPaymentType.SelectedItem = previousPaymentType.Value;
-					} else if(Entity.Id == 0 || Entity.PaymentType == PaymentType.cashless) {
+					} else if(Entity.Id == 0 || Entity.PaymentType == PaymentType.Cashless) {
 						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
 						OnEnumPaymentTypeChanged(null, e);
 					} else {
@@ -2970,6 +3076,8 @@ namespace Vodovoz
 			UpdateProxyInfo();
 
 			SetSensitivityOfPaymentType();
+
+			UpdateClientSecondOrderDiscount();
 		}
 
 		private bool IsEnumTaxVisible() => Entity.Client != null &&
@@ -3118,7 +3226,7 @@ namespace Vodovoz
 				TabParent.AddSlaveTab(this, new DocumentsPrinterViewModel(
 					_entityDocumentsPrinterFactory,
 					ServicesConfig.InteractiveService,
-					MainClass.MainWin.NavigationManager,
+					Startup.MainWin.NavigationManager,
 					Entity));
 			}
 		}
@@ -3133,27 +3241,21 @@ namespace Vodovoz
 
 			checkDelivered.Visible = enumDocumentType.Visible = labelDocumentType.Visible = IsPaymentTypeCashless();
 
-			if(Entity.PaymentType != PaymentType.cash) {
-				ycheckPaymentBySms.Visible = ycheckPaymentBySms.Active = false;
-				chkPaymentByQr.Visible = chkPaymentByQr.Active = false;
-			}
-			else {
-				ycheckPaymentBySms.Visible = true;
-				chkPaymentByQr.Visible = true;
-			}
-
 			enumSignatureType.Visible = labelSignatureType.Visible =
-				Entity.Client != null && (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless);
+				Entity.Client != null && (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.Cashless);
 
 			hbxOnlineOrder.Visible = UpdateVisibilityHboxOnlineOrder();
-			ySpecPaymentFrom.Visible = Entity.PaymentType == PaymentType.ByCard;
+			ySpecPaymentFrom.Visible = Entity.PaymentType == PaymentType.PaidOnline;
 
 			if(treeItems.Columns.Any())
-				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
+			{
+				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.Cashless;
+			}
+
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
-				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash);
+				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.Cash);
 			spinSumDifference.Visible = spinSumDifference.Visible && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_order_extra_cash");
-			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
+			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.Cashless;
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 			UpdateUIState();
@@ -3161,9 +3263,11 @@ namespace Vodovoz
 
 		private bool UpdateVisibilityHboxOnlineOrder() {
 			switch(Entity.PaymentType) {
-				case PaymentType.ByCard:
+				case PaymentType.PaidOnline:
 					return true;
 				case PaymentType.Terminal:
+				case PaymentType.SmsQR:
+				case PaymentType.DriverApplicationQR:
 					return Entity.OnlineOrder != null;
 				default:
 					return false;
@@ -3222,9 +3326,9 @@ namespace Vodovoz
 				string message = "Стоп отгрузки!!!" + Environment.NewLine + "Комментарий от фин.отдела: " + Entity.Client?.CloseDeliveryComment;
 				MessageDialogHelper.RunInfoDialog(message);
 				Enum[] hideEnums = {
-					PaymentType.barter,
-					PaymentType.ContractDoc,
-					PaymentType.cashless
+					PaymentType.Barter,
+					PaymentType.ContractDocumentation,
+					PaymentType.Cashless
 				};
 				enumPaymentType.AddEnumToHideList(hideEnums);
 			}
@@ -3293,8 +3397,10 @@ namespace Vodovoz
 
 		private void UpdateOnlineOrderText()
 		{
-			if(Entity.PaymentType != PaymentType.ByCard)
+			if(Entity.PaymentType != PaymentType.PaidOnline)
+			{
 				entOnlineOrder.Text = string.Empty; //костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
+			}
 		}
 
 		protected void OnButtonWaitForPaymentClicked(object sender, EventArgs e)
@@ -3462,12 +3568,12 @@ namespace Vodovoz
 		/// <summary>
 		/// Is the payment type barter or cashless?
 		/// </summary>
-		private bool IsPaymentTypeBarterOrCashless() => Entity.PaymentType == PaymentType.barter || Entity.PaymentType == PaymentType.cashless;
+		private bool IsPaymentTypeBarterOrCashless() => Entity.PaymentType == PaymentType.Barter || Entity.PaymentType == PaymentType.Cashless;
 
 		/// <summary>
 		/// Is the payment type cashless?
 		/// </summary>
-		private bool IsPaymentTypeCashless() => Entity.PaymentType == PaymentType.cashless;
+		private bool IsPaymentTypeCashless() => Entity.PaymentType == PaymentType.Cashless;
 		#endregion
 
 		//реализация метода интерфейса ITdiTabAddedNotifier
@@ -3494,6 +3600,11 @@ namespace Vodovoz
 			}
 		}
 
+		private void UpdateClientSecondOrderDiscount()
+		{
+			Entity.UpdateClientSecondOrderDiscount(_discountsController);
+		}
+
 		void Entity_UpdateClientCanChange(object aList, int[] aIdx)
 		{
 			entityVMEntryClient.IsEditable = Entity.CanChangeContractor();
@@ -3509,6 +3620,8 @@ namespace Vodovoz
 			}
 			_treeItemsNomenclatureColumnWidth = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width;
 			treeItems.ExposeEvent += TreeItemsOnExposeEvent;
+
+			UpdateClientSecondOrderDiscount();
 		}
 
 		private void TreeItemsOnExposeEvent(object o, ExposeEventArgs args)
@@ -3536,6 +3649,8 @@ namespace Vodovoz
 			}
 
 			Entity.AddFastDeliveryNomenclatureIfNeeded();
+
+			UpdateClientSecondOrderDiscount();
 		}
 
 		void ObservableOrderDocuments_ListChanged(object aList)
@@ -3623,6 +3738,8 @@ namespace Vodovoz
 					if(oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
 						ChangeEquipmentsCount(oItem, (int)oItem.Count);
 					}
+
+					UpdateClientSecondOrderDiscount();
 				}
 			}
 		}
@@ -3699,8 +3816,6 @@ namespace Vodovoz
 			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
 			dataSumDifferenceReason.Sensitive = val;
 			ycheckContactlessDelivery.Sensitive = val;
-			ycheckPaymentBySms.Sensitive = val;
-			chkPaymentByQr.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_payment_after_load") && checkSelfDelivery.Active && val;
@@ -3771,7 +3886,7 @@ namespace Vodovoz
 		void SetSensitivityOfPaymentType()
 		{
 			if(chkContractCloser.Active) {
-				Entity.PaymentType = PaymentType.cashless;
+				Entity.PaymentType = PaymentType.Cashless;
 				UpdateUIState();
 			} else {
 				UpdateUIState();
@@ -3821,7 +3936,7 @@ namespace Vodovoz
 				&& Entity.OrderStatus == OrderStatus.Accepted
 				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 			menuItemSelfDeliveryPaid.Sensitive = Entity.SelfDelivery
-				&& (Entity.PaymentType == PaymentType.cashless || Entity.PaymentType == PaymentType.ByCard)
+				&& (Entity.PaymentType == PaymentType.Cashless || Entity.PaymentType == PaymentType.PaidOnline)
 				&& Entity.OrderStatus == OrderStatus.WaitForPayment
 				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
 
@@ -3832,7 +3947,7 @@ namespace Vodovoz
 		void UpdateProxyInfo()
 		{
 			bool canShow = Entity.Client != null && Entity.DeliveryDate.HasValue &&
-								 (Entity.Client?.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless);
+								 (Entity.Client?.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.Cashless);
 
 			labelProxyInfo.Visible = canShow;
 
@@ -3939,7 +4054,7 @@ namespace Vodovoz
 				{
 					if(Counterparty.NeedSendBillByEdo && Counterparty.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 					{
-						SendBillByEdo(uow, document);
+						SendBillByEdo(uow);
 					}
 					else
 					{
@@ -3954,7 +4069,7 @@ namespace Vodovoz
 			}
 		}
 
-		private void SendBillByEdo(IUnitOfWork uow, OrderDocument document)
+		private void SendBillByEdo(IUnitOfWork uow)
 		{
 			var edoContainer = _edoContainers.SingleOrDefault(x => x.Type == Type.Bill)
 							   ?? new EdoContainer
@@ -4121,7 +4236,7 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblDeliveryInterval.Text} {deliveryTime}").AppendLine();
 
-			var isPaymentTypeCashless = Entity.PaymentType == PaymentType.cashless;
+			var isPaymentTypeCashless = Entity.PaymentType == PaymentType.Cashless;
 			var documentSigning = isPaymentTypeCashless
 				? Entity.SignatureType?.GetEnumTitle().ToUpper() ?? ""
 				: "";
@@ -4189,18 +4304,15 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblBottlesPlannedToReturn.Text} {bottlesToReturn}").AppendLine();
 
-			var isPaymentTypeCash = Entity.PaymentType == PaymentType.cash;
-			var paymentType = !isPaymentTypeCash
-				? Entity.PaymentType.GetEnumTitle().ToUpper()
-				: Entity.PaymentByQr
-					? "Оплата по QR"
-					: Entity.PaymentType.GetEnumTitle().ToUpper();
+			var isPaymentTypeCash = Entity.PaymentType == PaymentType.Cash;
+			var paymentType = Entity.PaymentType.GetEnumTitle().ToUpper();
 			var isIncorrectLegalClientPaymentType =
-				Entity.Client.PersonType == PersonType.legal && Entity.PaymentType != Entity.Client.PaymentMethod;
+				Entity.Client.PersonType == PersonType.legal
+					&& Entity.PaymentType != Entity.Client.PaymentMethod;
+
 			ylblPaymentType.LabelProp = isIncorrectLegalClientPaymentType
 				? $"<span foreground='red'>{paymentType}</span>"
 				: paymentType;
-			;
 
 			_summaryInfoBuilder.AppendLine($"{lblPaymentType.Text} {paymentType}").AppendLine();
 
@@ -4209,10 +4321,13 @@ namespace Vodovoz
 
 			_summaryInfoBuilder.AppendLine($"{lblPlannedSum.Text} {plannedSum}").AppendLine();
 
+			lblTrifleFrom.Visible = isPaymentTypeCash;
+			ylblTrifleFrom.Visible = isPaymentTypeCash;
+
 			var trifle = isPaymentTypeCash
 				? $"{Entity.Trifle ?? 0} руб."
 				: "";
-			lblTrifleFrom.Visible = ylblTrifleFrom.Visible = isPaymentTypeCash;
+
 			ylblTrifleFrom.Text = trifle;
 
 			if(lblTrifleFrom.Visible)

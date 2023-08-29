@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using FastPaymentsAPI.Library.ApiClients;
 using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Models;
+using FastPaymentsAPI.Library.Notifications;
 using FastPaymentsAPI.Library.Services;
 using FastPaymentsAPI.Library.Validators;
 using Microsoft.AspNetCore.Builder;
@@ -14,30 +16,36 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using NLog.Web;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.DB;
+using QS.Project.Services;
+using QS.Services;
 using Vodovoz.Core.DataService;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.NhibernateExtensions;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
+using Vodovoz.Settings;
 using Vodovoz.Settings.Database;
+using Vodovoz.Settings.FastPayments;
 using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI
 {
 	public class Startup
 	{
+		private const string _nLogSectionName = "NLog";
+
 		private ILogger<Startup> _logger;
 
 		public Startup(IConfiguration configuration)
@@ -50,19 +58,18 @@ namespace FastPaymentsAPI
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddHttpClient()
-				.AddControllers()
-				.AddXmlSerializerFormatters();
-
+			var nlogConfig = Configuration.GetSection(_nLogSectionName);
 			services.AddLogging(
 				logging =>
 				{
 					logging.ClearProviders();
 					logging.AddNLogWeb();
+					logging.AddConfiguration(nlogConfig);
 				});
 
-			_logger = new Logger<Startup>(LoggerFactory.Create(logging =>
-				logging.AddNLogWeb(NLogBuilder.ConfigureNLog("NLog.config").Configuration)));
+			services.AddHttpClient()
+				.AddControllers()
+				.AddXmlSerializerFormatters();
 
 			// Подключение к БД
 			services.AddScoped(_ => UnitOfWorkFactory.CreateWithoutRoot("Сервис быстрых платежей"));
@@ -91,17 +98,17 @@ namespace FastPaymentsAPI
 				c.BaseAddress = new Uri(Configuration.GetSection("DriverAPIService").GetValue<string>("ApiBase"));
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
 			});
+
+			services.AddScoped<ISiteSettings, SiteSettings>();
+			services.AddScoped<SiteClient>();
+			services.AddScoped<MobileAppClient>();
+			services.AddScoped<SiteNotifier>();
+			services.AddScoped<MobileAppNotifier>();
+			services.AddScoped<NotificationModel>();
 			
-			services.AddHttpClient<IVodovozSiteNotificationService, VodovozSiteNotificationService>(c =>
-			{
-				c.BaseAddress = new Uri(Configuration.GetSection("VodovozSiteNotificationService").GetValue<string>("BaseUrl"));
-				c.DefaultRequestHeaders.Add("Accept", "application/json");
-			});
-			
-			services.AddHttpClient<IMobileAppNotificationService, MobileAppNotificationService>(c =>
-			{
-				c.DefaultRequestHeaders.Add("Accept", "application/json");
-			});
+
+			// Unit Of Work
+			services.AddScoped<IUnitOfWorkFactory>((sp) => UnitOfWorkFactory.GetDefaultFactory);
 
 			//backgroundServices
 			services.AddHostedService<FastPaymentStatusUpdater>();
@@ -118,13 +125,14 @@ namespace FastPaymentsAPI
 
 			//providers
 			services.AddSingleton<IParametersProvider, ParametersProvider>();
+			services.AddScoped<ISettingsController, SettingsController>();
 			services.AddSingleton<IOrderParametersProvider, OrderParametersProvider>();
 			services.AddSingleton<IFastPaymentParametersProvider, FastPaymentParametersProvider>();
 			services.AddSingleton<IOrganizationParametersProvider, OrganizationParametersProvider>();
-			services.AddSingleton<IEmailParametersProvider, EmailParametersProvider>();
+			services.AddScoped<IEmailParametersProvider, EmailParametersProvider>();
 
 			//factories
-			services.AddSingleton<IFastPaymentAPIFactory, FastPaymentAPIFactory>();
+			services.AddSingleton<IFastPaymentFactory, FastPaymentFactory>();
 
 			//converters
 			services.AddSingleton<IOrderSumConverter, OrderSumConverter>();
@@ -146,17 +154,16 @@ namespace FastPaymentsAPI
 			services.AddSingleton<IErrorHandler, ErrorHandler>();
 			services.AddSingleton(_ => new FastPaymentFileCache("/tmp/VodovozFastPaymentServiceTemp.txt"));
 			services.AddScoped<IOrderRequestManager, OrderRequestManager>();
-			services.AddScoped<IFastPaymentStatusChangeNotifier, FastPaymentStatusChangeNotifier>();
 		}
 		
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			// Configure the HTTP request pipeline.
+			app.UseSwagger();
+
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				app.UseSwagger();
 				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FastPaymentsAPI v1"));
 			}
 			else
@@ -181,8 +188,6 @@ namespace FastPaymentsAPI
 
 		private void CreateBaseConfig()
 		{
-			_logger.LogInformation("Настройка параметров Nhibernate...");
-
 			var conStrBuilder = new MySqlConnectionStringBuilder();
 
 			var domainDBConfig = Configuration.GetSection("DomainDB");
@@ -198,7 +203,8 @@ namespace FastPaymentsAPI
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 				.Dialect<MySQL57SpatialExtendedDialect>()
-				.ConnectionString(connectionString);
+				.ConnectionString(connectionString)
+				.Driver<LoggedMySqlClientDriver>();
 
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(
@@ -207,7 +213,7 @@ namespace FastPaymentsAPI
 				{
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 					Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.TypeOfEntityMap)),
-					Assembly.GetAssembly(typeof(Vodovoz.HibernateMapping.Organizations.OrganizationMap)),
+					Assembly.GetAssembly(typeof(Vodovoz.Data.NHibernate.AssemblyFinder)),
 					Assembly.GetAssembly(typeof(Bank)),
 					Assembly.GetAssembly(typeof(HistoryMain)),
 					Assembly.GetAssembly(typeof(Attachment)),
@@ -219,14 +225,17 @@ namespace FastPaymentsAPI
 
 			using(var unitOfWork = UnitOfWorkFactory.CreateWithoutRoot("Получение пользователя"))
 			{
-				serviceUserId = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
+				var serviceUser = unitOfWork.Session.Query<Vodovoz.Domain.Employees.User>()
 					.Where(u => u.Login == domainDBConfig.GetValue<string>("UserID"))
-					.Select(u => u.Id)
 					.FirstOrDefault();
+
+				serviceUserId = serviceUser.Id;
+
+				ServicesConfig.UserService = new UserService(serviceUser);
 			}
 
 			QS.Project.Repositories.UserRepository.GetCurrentUserId = () => serviceUserId;
-			HistoryMain.Enable();
+			HistoryMain.Enable(conStrBuilder);
 		}
 	}
 }

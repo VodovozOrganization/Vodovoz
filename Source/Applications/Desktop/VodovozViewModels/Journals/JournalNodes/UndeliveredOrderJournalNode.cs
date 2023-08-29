@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using System;
@@ -8,6 +9,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 {
 	public class UndeliveredOrderJournalNode : JournalEntityNodeBase<UndeliveredOrder>
 	{
+		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
 		public int NumberInList { get; set; }
 		public string Address { get; set; }
 		public string Client { get; set; }
@@ -88,6 +90,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public string Fined { get; set; }
 		public OrderStatus StatusOnOldOrderCancel { get; set; }
 		public string InProcessAt { get; set; }
+		public string LastResultCommentAuthor { get; set; }
 
 		//старый заказ
 		public int OldOrderId { get; set; }
@@ -105,6 +108,11 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public int NewOrderId { get; set; }
 		public DateTime? NewOrderDeliveryDate { get; set; }
 		public string NewOrderDeliverySchedule { get; set; }
+
+		public string UndeliveryObject { get; set; }
+		public string UndeliveryKind { get; set; }
+		public string UndeliveryDetalization { get; set; }
+		public TransferType? OrderTransferType { get; set; }
 	}
 }
 

@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using Gamma.Utilities;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -17,7 +18,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Undeliveries;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Parameters;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
@@ -37,7 +37,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly IEmployeeJournalFactory _driverEmployeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUndeliveredOrdersJournalOpener _undeliveryViewOpener;
-		private readonly IOrderSelectorFactory _orderSelectorFactory;
 		private readonly ICommonServices _commonServices;
 		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
 		private readonly IEmployeeSettings _employeeSettings;
@@ -45,7 +44,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 		public UndeliveredOrdersJournalViewModel(UndeliveredOrdersFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices, IGtkTabsOpener gtkDialogsOpener, IEmployeeJournalFactory driverEmployeeJournalFactory,
-			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener, IOrderSelectorFactory orderSelectorFactory,
+			IEmployeeService employeeService, IUndeliveredOrdersJournalOpener undeliveryViewOpener,
 			IUndeliveredOrdersRepository undeliveredOrdersRepository, IEmployeeSettings employeeSettings,
 			ISubdivisionParametersProvider subdivisionParametersProvider)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
@@ -54,7 +53,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			_driverEmployeeJournalFactory = driverEmployeeJournalFactory ?? throw new ArgumentNullException(nameof(driverEmployeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
-			_orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			_undeliveredOrdersRepository =
 				undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
@@ -130,6 +128,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			Subdivision inProcessAtSubdivisionAlias = null;
 			Subdivision authorSubdivisionAlias = null;
 			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
+			UndeliveredOrderResultComment undeliveredOrderResultCommentAlias = null;
+			Employee lastResultCommentAuthorAlias = null;
+			UndeliveryDetalization undeliveryDetalizationAlias = null;
+			UndeliveryKind undeliveryKindAlias = null;
+			UndeliveryObject undeliveryObjectAlias = null;
 
 			var subqueryDrivers = QueryOver.Of<RouteListItem>(() => routeListItemAlias)
 				.Where(() => routeListItemAlias.Order.Id == oldOrderAlias.Id)
@@ -193,14 +196,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 						new SQLFunctionTemplate(NHibernateUtil.String,
 							"GROUP_CONCAT(CONCAT(" +
 							"CASE ?1 " +
-							$"WHEN '{nameof(GuiltyTypes.Client)}' THEN 'Клиент' " +
-							$"WHEN '{nameof(GuiltyTypes.Driver)}' THEN 'Водитель' " +
+							$"WHEN '{nameof(GuiltyTypes.Client)}' THEN '{GuiltyTypes.Client.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.Driver)}' THEN '{GuiltyTypes.Driver.GetEnumTitle()}' " +
 							$"WHEN '{nameof(GuiltyTypes.Department)}' THEN 'Отд' " +
-							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN 'Мастер СЦ' " +
-							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN 'Форс-мажор' " +
-							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN 'Директор ЛО (Доставка за час)' " +
-							$"WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN 'Директор ЛО (Доставка в тот же день)' " +
-							$"WHEN '{nameof(GuiltyTypes.None)}' THEN 'Нет (не недовоз)' " +
+							$"WHEN '{nameof(GuiltyTypes.ServiceMan)}' THEN '{GuiltyTypes.ServiceMan.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.ForceMajor)}' THEN '{GuiltyTypes.ForceMajor.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.DirectorLO)}' THEN '{GuiltyTypes.DirectorLO.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.DirectorLOCurrentDayDelivery)}' THEN '{GuiltyTypes.DirectorLOCurrentDayDelivery.GetEnumTitle()}' " +
+							$"WHEN '{nameof(GuiltyTypes.None)}' THEN '{GuiltyTypes.None.GetEnumTitle()})' " +
 							"ELSE 'Неизвестно' " +
 							"END, " +
 							"IF(?1 = 'Department' AND ?2 = '', ':Неизвестно', " +
@@ -211,6 +214,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 						Projections.Property(() => subdivisionAlias.ShortName)
 					)
 				);
+
+			var subqueryLastResultCommentAuthor = QueryOver.Of<UndeliveredOrderResultComment>(() => undeliveredOrderResultCommentAlias)
+				.Where(() => undeliveredOrderAlias.Id == undeliveredOrderResultCommentAlias.UndeliveredOrder.Id)
+				.Left.JoinAlias(() => undeliveredOrderResultCommentAlias.Author, () => lastResultCommentAuthorAlias)
+				.OrderBy(() => undeliveredOrderResultCommentAlias.CreationTime).Desc
+				.Select(
+					Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT( ?1, ' ', SUBSTRING(?2, 1, 1), '. ', SUBSTRING(?3, 1, 1), '.')"),
+							NHibernateUtil.String,
+							Projections.Property(() => lastResultCommentAuthorAlias.LastName),
+							Projections.Property(() => lastResultCommentAuthorAlias.Name),
+							Projections.Property(() => lastResultCommentAuthorAlias.Patronymic)
+					))
+				.Take(1);
 
 			var subqueryFined = QueryOver.Of<Fine>(() => fineAlias)
 				.Where(() => fineAlias.UndeliveredOrder.Id == undeliveredOrderAlias.Id)
@@ -239,7 +256,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				.Left.JoinAlias(u => u.InProcessAtDepartment, () => inProcessAtSubdivisionAlias)
 				.Left.JoinAlias(u => u.Author.Subdivision, () => authorSubdivisionAlias)
 				.Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
-				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias);
+				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
+				.Left.JoinAlias(() => undeliveredOrderAlias.UndeliveryDetalization, () => undeliveryDetalizationAlias)
+				.Left.JoinAlias(() => undeliveryDetalizationAlias.UndeliveryKind, () => undeliveryKindAlias)
+				.Left.JoinAlias(() => undeliveryKindAlias.UndeliveryObject, () => undeliveryObjectAlias)
+				;
 
 			if(FilterViewModel?.RestrictDriver != null)
 			{
@@ -394,6 +415,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(() => editorAlias.Name).WithAlias(() => resultAlias.EditorFirstName)
 					.Select(() => editorAlias.Patronymic).WithAlias(() => resultAlias.EditorMiddleName)
 					.Select(() => undeliveredOrderAlias.Reason).WithAlias(() => resultAlias.Reason)
+					.Select(() => undeliveredOrderAlias.OrderTransferType).WithAlias(() => resultAlias.OrderTransferType)
+					.Select(() => undeliveryDetalizationAlias.Name).WithAlias(() => resultAlias.UndeliveryDetalization)
+					.Select(() => undeliveryKindAlias.Name).WithAlias(() => resultAlias.UndeliveryKind)
+					.Select(() => undeliveryObjectAlias.Name).WithAlias(() => resultAlias.UndeliveryObject)
 					.Select(() => undeliveredOrderAlias.UndeliveryStatus).WithAlias(() => resultAlias.UndeliveryStatus)
 					.Select(() => undeliveredOrderAlias.OldOrderStatus).WithAlias(() => resultAlias.StatusOnOldOrderCancel)
 					.Select(() => oldOrderAlias.OrderStatus).WithAlias(() => resultAlias.OldOrderCurStatus)
@@ -405,8 +430,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.SelectSubQuery(subqueryFined).WithAlias(() => resultAlias.Fined)
 					.SelectSubQuery(subqueryGuilty).WithAlias(() => resultAlias.Guilty)
 					.Select(addressProjection).WithAlias(() => resultAlias.Address)
+					.SelectSubQuery(subqueryLastResultCommentAuthor).WithAlias(() => resultAlias.LastResultCommentAuthor)
 				).OrderBy(() => oldOrderAlias.DeliveryDate).Asc
-				.TransformUsing(Transformers.AliasToBean<UndeliveredOrderJournalNode>());
+				.TransformUsing(Transformers.AliasToBean<UndeliveredOrderJournalNode>())
+				.SetTimeout(60);
 
 			return itemsQuery;
 		}
@@ -470,6 +497,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			}
 
 			NodeActionsList.Add(editAction);
+		}
+
+		private void CreateUndeliveredOrderClassificationSummaryAction()
+		{
+			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов", x => true, x => true,
+				selectedItems =>
+				{
+					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport(FilterViewModel, false);
+				}));
+		}
+
+		private void CreateUndeliveredOrderWithTransfersClassificationSummaryAction()
+		{
+			NodeActionsList.Add(new JournalAction("Сводка по классификации недовозов с переносами", x => true, x => true,
+				selectedItems =>
+				{
+					_gtkDlgOpener.OpenUndeliveredOrdersClassificationReport( FilterViewModel, true);
+				}));
 		}
 
 		protected void BeforeItemsUpdated(IList items, uint start)
@@ -594,6 +639,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			CreateCustomAddActions();
 			CreateCustomEditAction();
 			CreatePrintAction();
+			CreateUndeliveredOrderClassificationSummaryAction();
+			CreateUndeliveredOrderWithTransfersClassificationSummaryAction();
 		}
 
 		private void CreatePrintAction()

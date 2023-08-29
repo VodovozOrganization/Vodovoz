@@ -1,44 +1,51 @@
-﻿using DriverAPI.Library.DTOs;
-using System;
+using DriverAPI.Library.DTOs;
 using Vodovoz.Domain.Client;
-using Vodovoz.Services;
 
 namespace DriverAPI.Library.Converters
 {
+	/// <summary>
+	/// Конвертер типов оплаты
+	/// </summary>
 	public class PaymentTypeConverter
 	{
-		private readonly IOrderParametersProvider _orderParametersProvider;
-
-		public PaymentTypeConverter(IOrderParametersProvider orderParametersProvider)
+		/// <summary>
+		/// Метод конвертации в DTO
+		/// </summary>
+		/// <param name="paymentType">Тип оплаты</param>
+		/// <param name="paid">Оплачен ли</param>
+		/// <returns></returns>
+		/// <exception cref="ConverterException"></exception>
+		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, bool paid, PaymentByTerminalSource? paymentByTerminalSource)
 		{
-			_orderParametersProvider = orderParametersProvider ?? throw new ArgumentNullException(nameof(orderParametersProvider));
-		}
-
-		public PaymentDtoType ConvertToAPIPaymentType(PaymentType paymentType, Vodovoz.Domain.Orders.PaymentFrom paymentByCardFrom)
-		{
-			switch (paymentType)
+			switch(paymentType)
 			{
-				case PaymentType.cash:
+				case PaymentType.Cash:
 					return PaymentDtoType.Cash;
-				case PaymentType.cashless:
-					return PaymentDtoType.Cashless;
-				case PaymentType.ByCard:
-					if (paymentByCardFrom.Id == _orderParametersProvider.PaymentByCardFromSmsId)
+				case PaymentType.Terminal:
+					if(paymentByTerminalSource != null && paymentByTerminalSource == PaymentByTerminalSource.ByQR)
 					{
-						return PaymentDtoType.ByCardFromSms;
+						return PaymentDtoType.TerminalQR;
+					}
+					return PaymentDtoType.TerminalCard;
+				case PaymentType.DriverApplicationQR:
+					return PaymentDtoType.DriverApplicationQR;
+				case PaymentType.SmsQR:
+					if(paid)
+					{
+						return PaymentDtoType.Paid;
 					}
 					else
 					{
-						return PaymentDtoType.ByCard;
+						return PaymentDtoType.DriverApplicationQR;
 					}
-				case PaymentType.Terminal:
-					return PaymentDtoType.Terminal;
-				case PaymentType.barter:
-					return PaymentDtoType.Barter;
-				case PaymentType.ContractDoc:
-					return PaymentDtoType.ContractDocumentation;
+				case PaymentType.PaidOnline:
+				case PaymentType.Barter:
+				case PaymentType.ContractDocumentation:
+					return PaymentDtoType.Paid;
+				case PaymentType.Cashless:
+					return PaymentDtoType.Cashless;
 				default:
-					throw new ConverterException(nameof(paymentType), paymentType, $"Значение { paymentType } не поддерживается");
+					throw new ConverterException(nameof(paymentType), paymentType, $"Значение {paymentType} не поддерживается");
 			}
 		}
 	}

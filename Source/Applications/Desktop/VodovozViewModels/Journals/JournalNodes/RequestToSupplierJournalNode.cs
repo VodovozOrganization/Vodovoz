@@ -6,6 +6,7 @@ namespace Vodovoz.Journals.JournalNodes
 {
 	public class RequestToSupplierJournalNode : JournalEntityNodeBase<RequestToSupplier>
 	{
+		public override string Title => Name;
 		public string Name { get; set; }
 		public DateTime Created { get; set; }
 		public string Author { get; set; }
