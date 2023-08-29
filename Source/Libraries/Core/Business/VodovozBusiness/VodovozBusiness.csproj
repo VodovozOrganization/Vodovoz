@@ -80,7 +80,11 @@
     <Compile Include="Domain\Client\RegistrationInChestnyZnakStatus.cs" />
     <Compile Include="Domain\Client\SellingNomenclature.cs" />
     <Compile Include="Domain\Client\TaxType.cs" />
+    <Compile Include="Domain\Goods\KulerSaleWebSiteNomenclatureOnlineCatalog.cs" />
+    <Compile Include="Domain\Goods\MobileAppNomenclatureOnlineCatalog.cs" />
     <Compile Include="Domain\Goods\NomenclatureCategory.cs" />
+    <Compile Include="Domain\Goods\NomenclatureOnlineCatalog.cs" />
+    <Compile Include="Domain\Goods\VodovozWebSiteNomenclatureOnlineCatalog.cs" />
     <Compile Include="Domain\Logistic\Drivers\DriverStopListRemoval.cs" />
     <Compile Include="Domain\Payments\CombinedPaymentNode.cs" />
     <Compile Include="Domain\Orders\OrderEdoTrueMarkDocumentsActions.cs" />
@@ -745,8 +749,10 @@
     <Compile Include="HibernateMapping\Geocoder\GeocoderAddressCacheMap.cs" />
     <Compile Include="HibernateMapping\Goods\AdditionalLoadingNomenclatureDistributionMap.cs" />
     <Compile Include="HibernateMapping\Goods\InventoryNomenclatureInstanceMap.cs" />
+    <Compile Include="HibernateMapping\Goods\KulerSaleWebSiteNomenclatureOnlineCatalogMap.cs" />
     <Compile Include="HibernateMapping\Goods\KulerSaleWebSiteNomenclatureOnlineParametersMap.cs" />
     <Compile Include="HibernateMapping\Goods\KulerSaleWebSiteNomenclatureOnlinePriceMap.cs" />
+    <Compile Include="HibernateMapping\Goods\MobileAppNomenclatureOnlineCatalogMap.cs" />
     <Compile Include="HibernateMapping\Goods\MobileAppNomenclatureOnlineParametersMap.cs" />
     <Compile Include="HibernateMapping\Goods\MobileAppNomenclatureOnlinePriceMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureCostPriceMap.cs" />
@@ -754,10 +760,12 @@
     <Compile Include="HibernateMapping\FlyerActionTimeMap.cs" />
     <Compile Include="HibernateMapping\FlyerMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureInstanceMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclatureOnlineCatalogMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureOnlineParametersMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureOnlinePriceMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclaturePurchasePriceMap.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureInnerDeliveryPriceMap.cs" />
+    <Compile Include="HibernateMapping\Goods\VodovozWebSiteNomenclatureOnlineCatalogMap.cs" />
     <Compile Include="HibernateMapping\Goods\VodovozWebSiteNomenclatureOnlineParametersMap.cs" />
     <Compile Include="HibernateMapping\Goods\VodovozWebSiteNomenclatureOnlinePriceMap.cs" />
     <Compile Include="HibernateMapping\InstanceMailingConfigurationMap.cs" />
