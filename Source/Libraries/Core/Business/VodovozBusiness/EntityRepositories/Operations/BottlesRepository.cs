@@ -3,7 +3,6 @@ using System.Linq;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -12,16 +11,20 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Operations
 {
-	public class BottlesRepository : IBottlesRepository
+	public partial class BottlesRepository : IBottlesRepository
 	{
-		public int GetBottlesDebtAtCounterparty(IUnitOfWork UoW, Counterparty counterparty, DateTime? before = null)
+		public int GetBottlesDebtAtCounterparty(IUnitOfWork uow, int counterpartyId, DateTime? before = null)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
-			var queryResult = UoW.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
-				.Where(() => operationAlias.Counterparty.Id == counterparty.Id);
+			
+			var queryResult = uow.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
+				.Where(() => operationAlias.Counterparty.Id == counterpartyId);
+			
 			if(before.HasValue)
+			{
 				queryResult.Where(() => operationAlias.OperationTime < before);
+			}
 
 			var bottles = queryResult.SelectList(list => list
 				   .SelectSum(() => operationAlias.Delivered).WithAlias(() => result.Delivered)
@@ -31,14 +34,18 @@ namespace Vodovoz.EntityRepositories.Operations
 			return bottles;
 		}
 
-		public int GetBottlesDebtAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, DateTime? before = null)
+		public int GetBottlesDebtAtDeliveryPoint(IUnitOfWork uow, int deliveryPointId, DateTime? before = null)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
-			var queryResult = UoW.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
-										 .Where(() => operationAlias.DeliveryPoint == deliveryPoint);
+			
+			var queryResult = uow.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
+				.Where(() => operationAlias.DeliveryPoint.Id == deliveryPointId);
+			
 			if(before.HasValue)
+			{
 				queryResult.Where(() => operationAlias.OperationTime < before);
+			}
 
 			var bottles = queryResult.SelectList(list => list
 				   .SelectSum(() => operationAlias.Delivered).WithAlias(() => result.Delivered)
@@ -49,15 +56,23 @@ namespace Vodovoz.EntityRepositories.Operations
 			return bottles;
 		}
 
-		public int GetBottlesDebtAtCouterpartyAndDeliveryPoint(IUnitOfWork UoW, Counterparty counterparty, DeliveryPoint deliveryPoint, DateTime? before = null)
+		public int GetBottlesDebtAtCounterpartyAndDeliveryPoint(
+			IUnitOfWork uow,
+			int counterpartyId,
+			int deliveryPointId,
+			DateTime? before = null)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
-			var queryResult = UoW.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
-										 .Where(() => operationAlias.Counterparty == counterparty)
-										 .Where(() => operationAlias.DeliveryPoint == deliveryPoint);
+			
+			var queryResult = uow.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
+				 .Where(() => operationAlias.Counterparty.Id == counterpartyId)
+				 .Where(() => operationAlias.DeliveryPoint.Id == deliveryPointId);
+			
 			if(before.HasValue)
+			{
 				queryResult.Where(() => operationAlias.OperationTime < before);
+			}
 
 			var bottles = queryResult.SelectList(list => list
 				   .SelectSum(() => operationAlias.Delivered).WithAlias(() => result.Delivered)
@@ -69,16 +84,16 @@ namespace Vodovoz.EntityRepositories.Operations
 			return bottles;
 		}
 
-		public int GetBottleDebtBySelfDelivery(IUnitOfWork UoW, Counterparty counterparty)
+		public int GetBottleDebtBySelfDelivery(IUnitOfWork uow, int counterpartyId)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
 			Order orderAlias = null;
 
-			var queryResult = UoW.Session.QueryOver(() => operationAlias)
-								 .JoinAlias(() => operationAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.RightOuterJoin)
-								 .Where(() => operationAlias.Counterparty == counterparty)
-								 .And(() => orderAlias.SelfDelivery);
+			var queryResult = uow.Session.QueryOver(() => operationAlias)
+				 .JoinAlias(() => operationAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.RightOuterJoin)
+				 .Where(() => operationAlias.Counterparty.Id == counterpartyId)
+				 .And(() => orderAlias.SelfDelivery);
 
 			var bottles = queryResult.SelectList(list => list
 				   .SelectSum(() => operationAlias.Delivered).WithAlias(() => result.Delivered)
@@ -115,13 +130,6 @@ namespace Vodovoz.EntityRepositories.Operations
 			var bttls = query.Select(Projections.Sum<SelfDeliveryDocumentReturned>(s => s.Amount))
 							 .SingleOrDefault<decimal>();
 			return (int)bttls;
-		}
-
-		class BottlesBalanceQueryResult
-		{
-			public int Delivered { get; set; }
-			public int Returned { get; set; }
-			public int BottlesDebt => Delivered - Returned;
 		}
 	}
 }

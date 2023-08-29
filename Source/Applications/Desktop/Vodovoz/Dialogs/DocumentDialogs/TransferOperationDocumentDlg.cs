@@ -132,7 +132,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(bottlesRepository == null)
 				throw new ArgumentNullException(nameof(bottlesRepository));
 
-			int bottlesMax = bottlesRepository.GetBottlesDebtAtCouterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, Entity.TimeStamp);
+			int bottlesMax = bottlesRepository.GetBottlesDebtAtCounterpartyAndDeliveryPoint(
+				UoWGeneric,
+				Entity.FromClient.Id,
+				Entity.FromDeliveryPoint.Id,
+				Entity.TimeStamp);
 			decimal depositsBottlesMax = depositRepository.GetDepositsAtCounterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, DepositType.Bottles, Entity.TimeStamp);
 			decimal depositsEquipmentMax = depositRepository.GetDepositsAtCounterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, DepositType.Equipment, Entity.TimeStamp);
 

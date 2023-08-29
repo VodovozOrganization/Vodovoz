@@ -296,7 +296,7 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private void UpdateAddressFields()
 		{
 			if(Entity.DeliveryPoint != null) {
-				DebtByAddress = bottleRepository.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint).ToString();
+				DebtByAddress = bottleRepository.GetBottlesDebtAtDeliveryPoint(UoW, Entity.DeliveryPoint.Id).ToString();
 				BottleReserve = Entity.DeliveryPoint.BottleReserv.ToString();
 				DeliveryPointPhonesVM.PhonesList = Entity.DeliveryPoint.ObservablePhones;
 				//OldComments = callTaskRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
@@ -319,10 +319,12 @@ namespace Vodovoz.ViewModels.BusinessTasks
 		private void UpdateClienInfoFields()
 		{
 			if(Entity.Counterparty != null) {
-				DebtByClient = bottleRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Counterparty).ToString();
+				DebtByClient = bottleRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Counterparty.Id).ToString();
 				ClientPhonesVM.PhonesList = Entity.Counterparty?.ObservablePhones;
 				if(Entity.DeliveryPoint == null)
-					DebtByAddress = bottleRepository.GetBottleDebtBySelfDelivery(UoW, Entity.Counterparty).ToString();
+				{
+					DebtByAddress = bottleRepository.GetBottleDebtBySelfDelivery(UoW, Entity.Counterparty.Id).ToString();
+				}
 			} else {
 				DebtByClient = string.Empty;
 				ClientPhonesVM.PhonesList = null;
