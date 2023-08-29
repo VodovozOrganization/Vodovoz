@@ -34,7 +34,9 @@ namespace CustomerAppsApi.Repositories
 			}
 			catch
 			{
-				_logger.LogError("Не удалось получить данные из кэша, отправляем данные из БД");
+				_logger.LogError(
+					"Не удалось получить данные из кэша по клиенту {CounterpartyId}, отправляем данные из БД",
+					counterpartyId);
 				return _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterpartyId);
 			}
 			
@@ -42,10 +44,10 @@ namespace CustomerAppsApi.Repositories
 			
 			if(string.IsNullOrWhiteSpace(bottlesDebt))
 			{
-				_logger.LogInformation("Получаем данные из БД");
+				_logger.LogInformation("Получаем данные по клиенту {CounterpartyId} из БД", counterpartyId);
 				result = _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterpartyId);
 
-				_logger.LogInformation("Обновляем кэш");
+				_logger.LogInformation("Обновляем кэш по клиенту {CounterpartyId}", counterpartyId);
 				await _distributedCache.SetStringAsync(
 					counterpartyId.ToString(),
 					result.ToString(),
@@ -58,7 +60,7 @@ namespace CustomerAppsApi.Repositories
 			}
 			else
 			{
-				_logger.LogInformation("Получаем данные из кэша");
+				_logger.LogInformation("Получаем данные из кэша по клиенту {CounterpartyId}", counterpartyId);
 				result = int.Parse(bottlesDebt);
 			}
 			
