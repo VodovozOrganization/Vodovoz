@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentNHibernate" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
     <PackageReference Include="NHibernate.Spatial" Version="6.0.0" />
     <PackageReference Include="NHibernate.Spatial.MySQL" Version="6.0.0" />
   </ItemGroup>
