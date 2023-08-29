@@ -536,6 +536,7 @@
     <Compile Include="EntityRepositories\Cash\RouteListItemCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\ISelfDeliveryCashDistributionDocumentRepository.cs" />
     <Compile Include="EntityRepositories\Documents\SelfDeliveryCashDistributionDocumentRepository.cs" />
+    <Compile Include="EntityRepositories\Operations\BottlesBalanceQueryResult.cs" />
     <Compile Include="EntityRepositories\Operations\CounterpartyDebtQueryResult.cs" />
     <Compile Include="EntityRepositories\Operations\GoodsAccountingOperationRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IWagesMovementRepository.cs" />

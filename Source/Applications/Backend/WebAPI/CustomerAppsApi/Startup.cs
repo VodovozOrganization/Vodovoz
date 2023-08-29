@@ -2,6 +2,7 @@
 using CustomerAppsApi.Factories;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Models;
+using CustomerAppsApi.Repositories;
 using CustomerAppsApi.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,6 +29,7 @@ using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Factories;
 using Vodovoz.Parameters;
@@ -65,6 +67,12 @@ namespace CustomerAppsApi
 
 		private void RegisterDependencies(IServiceCollection services)
 		{
+			services.AddStackExchangeRedisCache(redisOptions =>
+			{
+				var connection = Configuration.GetConnectionString("Redis");
+				redisOptions.Configuration = connection;
+			});
+			
 			services.AddSingleton<IPhoneRepository, PhoneRepository>();
 			services.AddSingleton<IEmailRepository, EmailRepository>();
 			services.AddSingleton<ISettingsController, SettingsController>();
@@ -72,6 +80,8 @@ namespace CustomerAppsApi
 			services.AddSingleton<IUnitOfWorkFactory, DefaultUnitOfWorkFactory>();
 			services.AddSingleton<IRoboatsSettings, RoboatsSettings>();
 			services.AddSingleton<IRoboatsRepository, RoboatsRepository>();
+			services.AddSingleton<IBottlesRepository, BottlesRepository>();
+			services.AddSingleton<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>();
 			services.AddSingleton<IExternalCounterpartyRepository, ExternalCounterpartyRepository>();
 			services.AddSingleton<IExternalCounterpartyMatchingRepository, ExternalCounterpartyMatchingRepository>();
 			services.AddSingleton<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>();
