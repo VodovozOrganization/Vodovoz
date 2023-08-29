@@ -21,7 +21,7 @@ namespace FirebaseCloudMessaging.Client
 			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 		}
 
-		public async Task SendPushNotification(string pushNotificationClientToken, string title, string body)
+		public async Task SendMessage(string pushNotificationClientToken, string title, string body)
 		{
 			var request = new SendCloudMessageRequest
 			{
@@ -33,23 +33,23 @@ namespace FirebaseCloudMessaging.Client
 				}
 			};
 
-			await SendPushNotification(request);
+			await SendMessage(request);
 		}
 
-		public async Task SendFastDeliveryAddressCanceledNotification(string pushNotificationClientToken, int orderId)
+		public async Task SendFastDeliveryAddressCanceledMessage(string pushNotificationClientToken, int orderId)
 		{
-			await SendPushNotification(
+			await SendMessage(
 				pushNotificationClientToken,
 				"Отмена заказа с доставкой за час",
 				$"Заказ №{orderId} с доставкой за час отменен");
 		}
 
-		public Task SendWakeUpNotification(string pushNotificationClientToken)
+		public Task SendWakeUpMessage(string pushNotificationClientToken)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal async Task SendPushNotification(SendCloudMessageRequest request)
+		internal async Task SendMessage(SendCloudMessageRequest request)
 		{
 			try
 			{
