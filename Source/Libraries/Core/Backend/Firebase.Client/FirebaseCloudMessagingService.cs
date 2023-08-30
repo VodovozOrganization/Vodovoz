@@ -1,6 +1,5 @@
 ﻿using Firebase.Client.Exceptions;
 using FirebaseCloudMessaging.Client.Options;
-using FirebaseCloudMessaging.Client.Requests;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net.Http;
@@ -23,13 +22,13 @@ namespace FirebaseCloudMessaging.Client
 
 		public async Task SendMessage(string pushNotificationClientToken, string title, string body)
 		{
-			var request = new SendCloudMessageRequest
+			var request = new
 			{
-				To = pushNotificationClientToken,
-				Notification = new Notification
+				to = pushNotificationClientToken,
+				notification = new
 				{
-					Title = title,
-					Body = body
+					title,
+					body
 				}
 			};
 
@@ -49,7 +48,7 @@ namespace FirebaseCloudMessaging.Client
 			throw new NotImplementedException();
 		}
 
-		internal async Task SendMessage(SendCloudMessageRequest request)
+		internal async Task SendMessage<T>(T request)
 		{
 			try
 			{
