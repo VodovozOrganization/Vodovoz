@@ -8,8 +8,12 @@
 		DeliveryDate,
 		RouteList,
 		Nomenclature,
+		NomenclatureType,
 		NomenclatureGroup1,
 		NomenclatureGroup2,
-		NomenclatureGroup3
+		NomenclatureGroup3,
+		CounterpartyType,
+		PaymentType,
+		Organization
 	}
 }

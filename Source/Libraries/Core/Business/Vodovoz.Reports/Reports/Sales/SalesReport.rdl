@@ -32,7 +32,7 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Table Name="Table1">
+      <Table Name="TableSales">
         <DataSetName>Sales</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -60,8 +60,89 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox2">
-                      <Value>Номенклатура</Value>
+                    <Textbox Name="TextboxItemHeader">
+                      <Value>=
+Iif(
+    {?groups_count} = 3, 
+    Switch(
+        {?group1} = 'Order', 'Заказ',
+        {?group1} = 'Counterparty', 'Контрагент',
+        {?group1} = 'Subdivision', 'Отдел',
+        {?group1} = 'DeliveryDate', 'Дата доставки',
+        {?group1} = 'RouteList', 'МЛ',
+        {?group1} = 'Nomenclature', 'Номенклатура',
+        {?group1} = 'NomenclatureType', 'Тип номенклатуры',
+        {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    )
+    + '  |  ' +
+    Switch(
+        {?group2} = 'Order', 'Заказ',
+        {?group2} = 'Counterparty', 'Контрагент',
+        {?group2} = 'Subdivision', 'Отдел',
+        {?group2} = 'DeliveryDate', 'Дата доставки',
+        {?group2} = 'RouteList', 'МЛ',
+        {?group2} = 'Nomenclature', 'Номенклатура',
+        {?group1} = 'NomenclatureType', 'Тип номенклатуры',
+        {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    )
+    + '  |  ' +
+    Switch(
+        {?group3} = 'Order', 'Заказ',
+        {?group3} = 'Counterparty', 'Контрагент',
+        {?group3} = 'Subdivision', 'Отдел',
+        {?group3} = 'DeliveryDate', 'Дата доставки',
+        {?group3} = 'RouteList', 'МЛ',
+        {?group3} = 'Nomenclature', 'Номенклатура',
+        {?group1} = 'NomenclatureType', 'Тип номенклатуры',
+        {?group3} = 'NomenclatureGroup1', 'Группа 1 уровень',
+        {?group3} = 'NomenclatureGroup2', 'Группа 2 уровень',
+        {?group3} = 'NomenclatureGroup3', 'Группа 3 уровень'
+    ), 
+    Iif(
+        {?groups_count} = 2, 
+        Switch(
+            {?group1} = 'Order', 'Заказ',
+            {?group1} = 'Counterparty', 'Контрагент',
+            {?group1} = 'Subdivision', 'Отдел',
+            {?group1} = 'DeliveryDate', 'Дата доставки',
+            {?group1} = 'RouteList', 'МЛ',
+            {?group1} = 'Nomenclature', 'Номенклатура',
+            {?group1} = 'NomenclatureType', 'Тип номенклатуры',
+            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+        )
+        + '  |  ' +
+        Switch(
+            {?group2} = 'Order', 'Заказ',
+            {?group2} = 'Counterparty', 'Контрагент',
+            {?group2} = 'Subdivision', 'Отдел',
+            {?group2} = 'DeliveryDate', 'Дата доставки',
+            {?group2} = 'RouteList', 'МЛ',
+            {?group2} = 'Nomenclature', 'Номенклатура',
+            {?group1} = 'NomenclatureType', 'Тип номенклатуры',
+            {?group2} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group2} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group2} = 'NomenclatureGroup3', 'Группа 3 уровень'        
+        ), 
+        Switch(
+            {?group1} = 'Order', 'Заказ',
+            {?group1} = 'Counterparty', 'Контрагент',
+            {?group1} = 'Subdivision', 'Отдел',
+            {?group1} = 'DeliveryDate', 'Дата доставки',
+            {?group1} = 'RouteList', 'МЛ',
+            {?group1} = 'Nomenclature', 'Номенклатура',
+            {?group1} = 'NomenclatureType', 'Тип номенклатуры',
+            {?group1} = 'NomenclatureGroup1', 'Группа 1 уровень',
+            {?group1} = 'NomenclatureGroup2', 'Группа 2 уровень',
+            {?group1} = 'NomenclatureGroup3', 'Группа 3 уровень'
+        )
+    )
+)</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -108,6 +189,89 @@
                 </TableCell>
               </TableCells>
             </TableRow>
+            <TableRow>
+              <Height>11.3pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
@@ -118,13 +282,15 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>=Fields!name.Value</Value>
+                    <Textbox Name="TextboxItemData">
+                      <Value>={order_item_id}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -223,118 +389,6 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <TableGroups>
-          <TableGroup>
-            <Grouping Name="CategoryGroup">
-              <PageBreakAtStart>false</PageBreakAtStart>
-              <PageBreakAtEnd>false</PageBreakAtEnd>
-              <GroupExpressions>
-                <GroupExpression>={is_disposable_tare}</GroupExpression>
-                <GroupExpression>=Fields!category.Value</GroupExpression>
-              </GroupExpressions>
-            </Grouping>
-            <Header>
-              <RepeatOnNewPage>true</RepeatOnNewPage>
-              <TableRows>
-                <TableRow>
-                  <Height>.2in</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox23">
-                          <Value>=Switch(
-    Fields!category.Value = 'rent', 'Аренда кулеров',
-    Fields!category.Value = 'water' AND Fields!is_disposable_tare.Value = true, 'Вода в одноразовой таре',
-    Fields!category.Value = 'water' AND Fields!is_disposable_tare.Value = false, 'Вода в многооборотной таре',
-    Fields!category.Value = 'deposit', 'Залог',
-    Fields!category.Value = 'spare_parts', 'Запчасти',
-    Fields!category.Value = 'equipment', 'Оборудование',
-    Fields!category.Value = 'additional', 'Товары',
-    Fields!category.Value = 'service', 'Услуга',
-    Fields!category.Value = 'bottle', 'Тара',
-    Fields!category.Value = 'material', 'Сырьё',
-    Fields!category.Value = 'master', 'Выезд мастера',
-    true, Fields!category.Value
-)</Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                            <FontSize>11pt</FontSize>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                      <ColSpan>3</ColSpan>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Header>
-            <Footer>
-              <RepeatOnNewPage>false</RepeatOnNewPage>
-              <TableRows>
-                <TableRow>
-                  <Height>.2in</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox14">
-                          <Style>
-                            <BorderStyle>
-                              <Default>None</Default>
-                              <Left>None</Left>
-                              <Right>None</Right>
-                              <Top>None</Top>
-                              <Bottom>None</Bottom>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Right</TextAlign>
-                            <FontWeight>Bold</FontWeight>
-                          </Style>
-                          <Value>Всего по виду:</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox15">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                          </Style>
-                          <Value>=Sum(Fields!total_count.Value)</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox16">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                          </Style>
-                          <Value>=Sum(Fields!total_sum.Value)</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Footer>
-          </TableGroup>
-        </TableGroups>
       </Table>
       <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>13.51pt</Height>
@@ -507,38 +561,93 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
     T.counterparty,
+    T.counterparty_type,
+    T.organization,
     T.delivery_point,
     T.order_id,
+    T.payment_type,
+    T.delivery_date,
+    T.route_list,
+    T.order_items_id,
     COUNT(DISTINCT T.order_id) as orders_count,
-    T.name,
+    T.nomenclature_name,
+    T.nomenclature_category,
     SUM(T.total_count) AS total_count,
     SUM(T.total_sum) AS total_sum,
-    T.category,
     T.is_disposable_tare,
     T.nomenclature_id as nomenclature_id,
-    T.digits
+    T.author_subdivision,
+    T.author_subdivision_id,
+    T.digits,
+    T.nomen_group_level_1_name,
+    T.nomen_group_level_2_name,
+    T.nomen_group_level_3_name,
+    T.nomen_group_level_1_id,
+    T.nomen_group_level_2_id,
+    T.nomen_group_level_3_id
 FROM
     (SELECT
          counterparty.name as counterparty,
+         CASE WHEN counterparty.counterparty_type = 'Buyer' THEN "Покупатель"
+              WHEN counterparty.counterparty_type = 'Supplier' THEN "Поставщик"
+              WHEN counterparty.counterparty_type = 'Dealer' THEN "Дилер"
+              WHEN counterparty.counterparty_type = 'AdvertisingDepartmentClient' THEN "Клиент РО"
+         	  ELSE ""
+         	  END as counterparty_type,
+         org.name AS organization,
          delivery_points.compiled_address as delivery_point,
          orders.id as order_id,
-         nomenclature.official_name AS name,
+         CASE WHEN orders.payment_type = 'Cash' THEN "Наличная"
+              WHEN orders.payment_type = 'Terminal' THEN "Терминал"
+              WHEN orders.payment_type = 'DriverApplicationQR' THEN "МП водителя (QR-код)"
+              WHEN orders.payment_type = 'SmsQR' THEN "SMS (QR-код)"
+              WHEN orders.payment_type = 'PaidOnline' THEN "Оплачено онлайн"
+              WHEN orders.payment_type = 'Barter' THEN "Бартер"
+              WHEN orders.payment_type = 'ContractDocumentation' THEN "Контрактная документация"
+              WHEN orders.payment_type = 'Cashless' THEN "Безналичная"
+			  ELSE ""
+			  END as payment_type,
+         orders.delivery_date as delivery_date,
+         rla.route_list_id AS route_list,
+         order_items.id as order_items_id,
+         nomenclature.official_name AS nomenclature_name,
          IFNULL(order_items.actual_count, order_items.count) AS total_count,
          truncate(IFNULL(order_items.actual_count, order_items.count) * order_items.price - order_items.discount_money, 2) AS total_sum,
-         nomenclature.category,
+         CASE WHEN nomenclature.category = 'rent' THEN "Аренда кулеров"
+         	  WHEN nomenclature.category = 'water' THEN IF(nomenclature.is_disposable_tare, "Вода в одноразовой таре", "Вода в многооборотной таре")
+         	  WHEN nomenclature.category = 'deposit' THEN "Залог"
+         	  WHEN nomenclature.category = 'spare_parts' THEN "Запчасти"
+         	  WHEN nomenclature.category = 'equipment' THEN "Оборудование"
+         	  WHEN nomenclature.category = 'additional' THEN "Товары"
+         	  WHEN nomenclature.category = 'service' THEN "Услуга"
+         	  WHEN nomenclature.category = 'bottle' THEN "Тара"
+         	  WHEN nomenclature.category = 'material' THEN "Сырьё"
+         	  WHEN nomenclature.category = 'master' THEN "Выезд мастера"
+         	  ELSE nomenclature.category
+         	  END AS nomenclature_category,
          nomenclature.is_disposable_tare,
          nomenclature.id as nomenclature_id,
          measurement_units.digits as digits,
-         gg.id
+         s.name as author_subdivision,
+         s.id as author_subdivision_id,
+         gg.id,
+         IFNULL(group_levels.level_1_id, 0) as nomen_group_level_1_id,
+         IFNULL(group_levels.level_1_name, 'Без группы') as nomen_group_level_1_name,
+         IFNULL(group_levels.level_2_id, 0) as nomen_group_level_2_id,
+         IFNULL(group_levels.level_2_name, 'Без группы') as nomen_group_level_2_name,
+         IFNULL(group_levels.level_3_id, 0) as nomen_group_level_3_id,
+         IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name
      FROM
          order_items
              LEFT JOIN
          orders ON order_id = orders.id
+             LEFT JOIN
+         route_list_addresses rla ON orders.id = rla.order_id AND rla.status not in ('Transfered', 'Canceled', 'Overdue')
              LEFT JOIN
          nomenclature ON order_items.nomenclature_id = nomenclature.id
              LEFT JOIN 
@@ -552,11 +661,58 @@ FROM
              LEFT JOIN
          counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
              LEFT JOIN
+         organizations org ON counterparty_contract.organization_id = org.id
+             LEFT JOIN
          employees ON orders.author_employee_id = employees.id
+         	 LEFT JOIN
+         subdivisions s ON employees.subdivision_id = s.id       	 
              LEFT JOIN
          districts distr ON delivery_points.district_id = distr.id
              LEFT JOIN
          geo_groups gg ON gg.id = distr.geo_group_id
+         	LEFT JOIN
+		    (
+			    SELECT 
+					groups_with_levels.depth AS depth,
+					groups_with_levels.id AS group_id,
+					groups_with_levels.name AS group_name,
+					groups_with_levels.level_1_id AS level_1_id,
+					name_source_1.name AS level_1_name,
+					groups_with_levels.level_2_id AS level_2_id,
+					name_source_2.name AS level_2_name,
+					groups_with_levels.level_3_id AS level_3_id,
+					name_source_3.name AS level_3_name
+				FROM
+					(
+						WITH RECURSIVE groups_source (depth, id, parent_id, name, level_1_id, level_2_id, level_3_id) AS (
+							SELECT 
+								1 AS depth,
+								ng.id AS id,
+								0 AS parent_id,
+								ng.name,
+								ng.id AS level_1_id, 
+								0 AS level_2_id,
+								0 AS level_3_id
+						  	FROM nomenclature_groups ng
+						  	WHERE ng.parent_id IS NULL
+						  UNION
+						  	SELECT 
+								groups_source.depth + 1 AS depth,
+								ng.id AS id,
+								groups_source.id AS parent_id,
+								ng.name,
+								groups_source.level_1_id AS level_1_id,
+								IF(groups_source.depth = 1, ng.id, groups_source.level_2_id) AS level_2_id, 
+								IF(groups_source.depth = 2, ng.id, groups_source.level_3_id) AS level_3_id
+						  	FROM nomenclature_groups ng, groups_source
+						  	WHERE ng.parent_id = groups_source.id
+						)
+						SELECT * FROM groups_source
+					) AS groups_with_levels
+					LEFT JOIN nomenclature_groups name_source_1 ON name_source_1.id = groups_with_levels.level_1_id
+					LEFT JOIN nomenclature_groups name_source_2 ON name_source_2.id = groups_with_levels.level_2_id
+					LEFT JOIN nomenclature_groups name_source_3 ON name_source_3.id = groups_with_levels.level_3_id
+		    ) group_levels ON group_levels.group_id = nomenclature.group_id    
      WHERE
          (order_status = 'Accepted'
              OR order_status = 'InTravelList'
@@ -570,7 +726,7 @@ FROM
        AND (delivery_date &gt;= @start_date
          AND delivery_date &lt;= @end_date)
        AND !orders.is_contract_closer
-       AND (
+  AND (
              (0 IN (@Nomenclature_include) OR (nomenclature.id IN (@Nomenclature_include)))
 				AND NOT (nomenclature.id IN (@Nomenclature_exclude))
          )
@@ -581,6 +737,14 @@ FROM
        AND (
              (0 IN (@Counterparty_include) OR (orders.client_id IN (@Counterparty_include)))
 				AND NOT (orders.client_id IN (@Counterparty_exclude))
+         )
+       AND (
+             ('0' IN (@CounterpartyType_include) OR (counterparty.counterparty_type IN (@CounterpartyType_include)))
+				AND NOT (counterparty.counterparty_type IN (@CounterpartyType_exclude))
+         )
+       AND (
+             (0 IN (@CounterpartySubtype_include) OR (counterparty.counterparty_subtype_id IN (@CounterpartySubtype_include)))
+				AND (counterparty.counterparty_subtype_id IS NULL OR NOT (counterparty.counterparty_subtype_id IN (@CounterpartySubtype_exclude)))
          )
        AND (
              (0 IN (@Organization_include) OR (counterparty_contract.organization_id IN (@Organization_include)))
@@ -632,6 +796,34 @@ FROM
        AND (
              (0 IN (@ProductGroup_include) OR (IFNULL(nomenclature_groups.id, 0) IN (@ProductGroup_include)))
 				AND NOT (IFNULL(nomenclature_groups.id, 0) IN (@ProductGroup_exclude))
+         )
+       AND (
+	        (
+            (
+              (
+                (
+                  orders.order_status IN (@OrderStatus_include)
+                  AND
+                  orders.order_status != 'WaitForPayment'
+                )
+                OR
+                (
+                  orders.order_status = 'WaitForPayment' 
+                  AND 'WaitForPayment' IN (@OrderStatus_include) 
+                  AND self_delivery 
+                  AND pay_after_shipment
+                )
+              )
+              AND '0' IN (@OrderStatus_exclude) 
+            )
+            OR
+            (orders.order_status NOT IN (@OrderStatus_exclude) AND '0' IN (@OrderStatus_include))
+          )
+	        OR ('0' IN (@OrderStatus_include) AND '0' IN (@OrderStatus_exclude))
+	    )
+       AND (
+       	     ('0' IN (@OrderStatus_include) OR (orders.order_status IN (@OrderStatus_include)))
+       	     	AND NOT (orders.order_status IN (@OrderStatus_exclude))
          )
      GROUP BY order_items.id
     ) as T
@@ -722,11 +914,29 @@ GROUP BY nomenclature_id
           <QueryParameter Name="PaymentFrom_exclude">
             <Value>={?PaymentFrom_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="OrderStatus_include">
+            <Value>={?OrderStatus_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="OrderStatus_exclude">
+            <Value>={?OrderStatus_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyType_include">
+            <Value>={?CounterpartyType_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartyType_exclude">
+            <Value>={?CounterpartyType_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_include">
+            <Value>={?CounterpartySubtype_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="CounterpartySubtype_exclude">
+            <Value>={?CounterpartySubtype_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
-        <Field Name="name">
-          <DataField>name</DataField>
+      <Fields >
+        <Field Name="nomenclature_name">
+          <DataField>nomenclature_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="total_count">
@@ -737,8 +947,8 @@ GROUP BY nomenclature_id
           <DataField>total_sum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="category">
-          <DataField>category</DataField>
+        <Field Name="nomenclature_category">
+          <DataField>nomenclature_category</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="counterparty">
@@ -764,6 +974,62 @@ GROUP BY nomenclature_id
         <Field Name="digits">
           <DataField>digits</DataField>
           <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="nomenclature_id">
+          <DataField>nomenclature_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="route_list">
+          <DataField>route_list</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="author_subdivision">
+          <DataField>author_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_1_name">
+          <DataField>nomen_group_level_1_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_2_name">
+          <DataField>nomen_group_level_2_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_3_name">
+          <DataField>nomen_group_level_3_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="counterparty_type">
+          <DataField>counterparty_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="payment_type">
+          <DataField>payment_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="organization">
+          <DataField>organization</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="author_subdivision_id">
+          <DataField>author_subdivision_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_1_id">
+          <DataField>nomen_group_level_1_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_2_id">
+          <DataField>nomen_group_level_2_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nomen_group_level_3_id">
+          <DataField>nomen_group_level_3_id</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1487,7 +1753,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -1497,6 +1763,13 @@ WHERE
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="creation_date">
+      <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1642,13 +1915,6 @@ WHERE
       <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="creation_date">
-      <DataType>DateTime</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
     <ReportParameter Name="ProductGroup_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
@@ -1696,41 +1962,69 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="OrderStatus_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyType_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyType_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartySubtype_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartySubtype_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="group1">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="group2">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="group3">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="groups_count">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
   </ReportParameters>

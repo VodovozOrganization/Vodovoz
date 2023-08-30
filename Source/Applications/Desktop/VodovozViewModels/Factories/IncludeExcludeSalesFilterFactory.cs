@@ -1,6 +1,11 @@
-﻿using System;
+﻿using Gamma.Utilities;
+using NHibernate.Linq;
+using QS.Dialog;
+using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -8,15 +13,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Presentation.ViewModels.Common;
-using Gamma.Utilities;
 using Vodovoz.Extensions;
-using NHibernate.Linq;
-using QS.DomainModel.UoW;
-using QS.Dialog;
-using Vodovoz.ViewModels.ViewModels.Flyers;
-using System.Linq.Expressions;
-using QS.DomainModel.Entity;
+using Vodovoz.Presentation.ViewModels.Common;
 
 namespace Vodovoz.ViewModels.Factories
 {
@@ -122,7 +120,7 @@ namespace Vodovoz.ViewModels.Factories
 					if(counterpartySubtypeValues.Any())
 					{
 						var advertisingDepartmentClientValues = counterpartySubtypeValues
-							.Select(x => new IncludeExcludeElement<int, PaymentFrom>
+							.Select(x => new IncludeExcludeElement<int, CounterpartySubtype>
 							{
 								Id = x.Id,
 								Parent = advertisingDepartmentClientNode,

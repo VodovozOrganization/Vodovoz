@@ -33,7 +33,7 @@
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
-      <Table Name="TableProfitability">
+      <Table Name="TableSales">
         <DataSetName>Sales</DataSetName>
         <NoRows>Нет данных</NoRows>
         <Style>
@@ -3024,13 +3024,20 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>180</Timeout>
         <CommandText>
 # При изменении этого запроса, необходимо внести соответствующие изменения в RouteListRepository.GetRouteListSpendings
 SELECT
     c.name AS counterparty,
+    CASE WHEN c.counterparty_type = 'Buyer' THEN "Покупатель"
+         WHEN c.counterparty_type = 'Supplier' THEN "Поставщик"
+         WHEN c.counterparty_type = 'Dealer' THEN "Дилер"
+         WHEN c.counterparty_type = 'AdvertisingDepartmentClient' THEN "Клиент РО"
+         ELSE ""
+         END as counterparty_type,
+    org.name AS organization,
     dp.compiled_address_short AS delivery_point,
     rla.route_list_id AS route_list,
     o.delivery_date AS delivery_date,
@@ -3039,7 +3046,29 @@ SELECT
     s.id AS author_subdivision_id,
     s.name AS author_subdivision,
     o.id AS order_id,
+    CASE WHEN o.payment_type = 'Cash' THEN "Наличная"
+         WHEN o.payment_type = 'Terminal' THEN "Терминал"
+         WHEN o.payment_type = 'DriverApplicationQR' THEN "МП водителя (QR-код)"
+         WHEN o.payment_type = 'SmsQR' THEN "SMS (QR-код)"
+         WHEN o.payment_type = 'PaidOnline' THEN "Оплачено онлайн"
+         WHEN o.payment_type = 'Barter' THEN "Бартер"
+         WHEN o.payment_type = 'ContractDocumentation' THEN "Контрактная документация"
+         WHEN o.payment_type = 'Cashless' THEN "Безналичная"
+         ELSE ""
+         END as payment_type,
     oi.id AS order_item_id,
+    CASE WHEN n.category = 'rent' THEN "Аренда кулеров"
+         WHEN n.category = 'water' THEN IF(n.is_disposable_tare, "Вода в одноразовой таре", "Вода в многооборотной таре")
+         WHEN n.category = 'deposit' THEN "Залог"
+         WHEN n.category = 'spare_parts' THEN "Запчасти"
+         WHEN n.category = 'equipment' THEN "Оборудование"
+         WHEN n.category = 'additional' THEN "Товары"
+         WHEN n.category = 'service' THEN "Услуга"
+         WHEN n.category = 'bottle' THEN "Тара"
+         WHEN n.category = 'material' THEN "Сырьё"
+         WHEN n.category = 'master' THEN "Выезд мастера"
+         ELSE n.category
+         END AS nomenclature_category,
     n.id AS nomenclature_id,
     n.official_name AS nomenclature_name,
     n.weight AS weight,
@@ -3175,6 +3204,8 @@ FROM
     delivery_points dp ON o.delivery_point_id = dp.id
     LEFT JOIN
     counterparty_contract cc ON o.counterparty_contract_id = cc.id
+    LEFT JOIN
+    organizations org ON cc.organization_id = org.id
     LEFT JOIN
     employees e ON o.author_employee_id = e.id
     LEFT JOIN
@@ -3429,7 +3460,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="counterparty">
           <DataField>counterparty</DataField>
           <TypeName>System.String</TypeName>
@@ -3589,6 +3620,22 @@ WHERE
         <Field Name="missing_administrative_expenses_per_kg_on_date">
           <DataField>missing_administrative_expenses_per_kg_on_date</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="counterparty_type">
+          <DataField>counterparty_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="payment_type">
+          <DataField>payment_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="organization">
+          <DataField>organization</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nomenclature_category">
+          <DataField>nomenclature_category</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -3922,7 +3969,7 @@ FROM
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>

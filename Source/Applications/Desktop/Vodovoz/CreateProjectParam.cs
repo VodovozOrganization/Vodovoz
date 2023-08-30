@@ -258,6 +258,7 @@ using Vodovoz.ViewModels.QualityControl.Reports;
 using Vodovoz.QualityControl.Reports;
 using Vodovoz.ReportsParameters.Cash;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.Application.Services;
 using Vodovoz.ViewModels.AdministrationTools;
 using Vodovoz.AdministrationTools;
@@ -538,6 +539,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<UndeliveredOrdersClassificationReportViewModel, UndeliveredOrdersClassificationReportView>()
 				.RegisterWidgetForWidgetViewModel<NumberOfComplaintsAgainstDriversReportViewModel, NumberOfComplaintsAgainstDriversReportView>()
 				.RegisterWidgetForWidgetViewModel<MovementsPaymentControlViewModel, MovementsPaymentControlView>()
+				.RegisterWidgetForWidgetViewModel<SalesReportViewModel, SalesReportView>()
 				.RegisterWidgetForWidgetViewModel<RevenueServiceMassCounterpartyUpdateToolViewModel, RevenueServiceMassCounterpartyUpdateToolView>()
 				.RegisterWidgetForWidgetViewModel<WarehousesSettingsViewModel, NamedDomainEntitiesSettingsView>()
 				;
@@ -889,7 +891,7 @@ namespace Vodovoz
 			builder.RegisterType<PaymentsFromAvangardReport>().AsSelf();
 			builder.RegisterType<EmployeesTaxesSumReport>().AsSelf();
 			builder.RegisterType<EmployeesFines>().AsSelf();
-			builder.RegisterType<SalesReport>().AsSelf();
+			builder.RegisterType<SalesReportView>().AsSelf();
 			builder.RegisterType<SalesByDiscountReport>().AsSelf();
 			builder.RegisterType<DriverWagesReport>().AsSelf();
 			builder.RegisterType<FuelReport>().AsSelf();

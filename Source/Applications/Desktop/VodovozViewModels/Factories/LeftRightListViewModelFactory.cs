@@ -17,9 +17,13 @@ namespace Vodovoz.ViewModels.Factories
 				new GroupingNode { Name = "Дата доставки", GroupType = GroupingType.DeliveryDate },
 				new GroupingNode { Name = "Маршрутный лист", GroupType = GroupingType.RouteList },
 				new GroupingNode { Name = "Номенклатура", GroupType = GroupingType.Nomenclature },
+				new GroupingNode { Name = "Тип номенклатуры", GroupType = GroupingType.NomenclatureType },
 				new GroupingNode { Name = "Группа уровень 1", GroupType = GroupingType.NomenclatureGroup1 },
 				new GroupingNode { Name = "Группа уровень 2", GroupType = GroupingType.NomenclatureGroup2 },
-				new GroupingNode { Name = "Группа уровень 3", GroupType = GroupingType.NomenclatureGroup3 }
+				new GroupingNode { Name = "Группа уровень 3", GroupType = GroupingType.NomenclatureGroup3 },
+				new GroupingNode { Name = "Тип контрагента", GroupType = GroupingType.CounterpartyType },
+				new GroupingNode { Name = "Тип оплаты", GroupType = GroupingType.PaymentType },
+				new GroupingNode { Name = "Организация", GroupType = GroupingType.Organization },
 			}.AsReadOnly();
 
 		public LeftRightListViewModel<GroupingNode> CreateSalesReportGroupingsConstructor()

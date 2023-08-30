@@ -63,7 +63,6 @@ namespace Vodovoz.ViewWidgets.Reports
 				.InitializeFromSource();
 
 			ytreeviewFilters.CreateFluentColumnsConfig<IncludeExcludeFilter>()
-				.AddColumn("")
 				.AddColumn("✔️")
 				.AddNumericRenderer(x => x.IncludedCount)
 				.AddSetter((c, n) =>
@@ -134,8 +133,8 @@ namespace Vodovoz.ViewWidgets.Reports
 				ytreeviewElements.YTreeModel = recursiveModel;
 
 				ytreeviewElements.CreateFluentColumnsConfig<IncludeExcludeElement>()
-					.AddColumn("")
-					.AddColumn("✔️").AddToggleRenderer(x => x.Include)
+					.AddColumn("\t✔️")
+					.AddToggleRenderer(x => x.Include)
 					.AddColumn("X").AddToggleRenderer(x => x.Exclude)
 					.AddColumn("").AddTextRenderer(x => x.Title ?? "")
 					.AddSetter((cell, node) =>
