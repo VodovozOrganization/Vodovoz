@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Operations;
 
 namespace CustomerAppsApi.Repositories
@@ -27,6 +28,10 @@ namespace CustomerAppsApi.Repositories
 		public async Task<int> GetCounterpartyBottlesDebt(IUnitOfWork uow, int counterpartyId, CancellationToken cancellationToken = default)
 		{
 			string bottlesDebt = null;
+			var counterparty = new Counterparty
+			{
+				Id = counterpartyId
+			};
 
 			try
 			{
@@ -37,7 +42,7 @@ namespace CustomerAppsApi.Repositories
 				_logger.LogError(
 					"Не удалось получить данные из кэша по клиенту {CounterpartyId}, отправляем данные из БД",
 					counterpartyId);
-				return _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterpartyId);
+				return _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterparty);
 			}
 			
 			var result = default(int);
@@ -45,7 +50,7 @@ namespace CustomerAppsApi.Repositories
 			if(string.IsNullOrWhiteSpace(bottlesDebt))
 			{
 				_logger.LogInformation("Получаем данные по клиенту {CounterpartyId} из БД", counterpartyId);
-				result = _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterpartyId);
+				result = _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterparty);
 
 				_logger.LogInformation("Обновляем кэш по клиенту {CounterpartyId}", counterpartyId);
 				await _distributedCache.SetStringAsync(
