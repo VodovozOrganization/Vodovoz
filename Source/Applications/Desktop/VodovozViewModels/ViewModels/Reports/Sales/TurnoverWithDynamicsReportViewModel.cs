@@ -518,48 +518,86 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			#region Сбор параметров
 
-			var includedNomenclatureCategories = FilterViewModel.GetIncludedElements<NomenclatureCategory>().Select(x => Enum.Parse(typeof(NomenclatureCategory), x.Number)).Cast<NomenclatureCategory>().ToArray();
-			var excludedNomenclatureCategories = FilterViewModel.GetExcludedElements<NomenclatureCategory>().Select(x => Enum.Parse(typeof(NomenclatureCategory), x.Number)).Cast<NomenclatureCategory>().ToArray();
-			var includedNomenclatures = FilterViewModel.GetIncludedElements<Nomenclature>().Select(x => int.Parse(x.Number)).ToArray();
-			var excludedNomenclatures = FilterViewModel.GetExcludedElements<Nomenclature>().Select(x => int.Parse(x.Number)).ToArray();
-			var includedProductGroups = FilterViewModel.GetIncludedElements<ProductGroup>().Select(x => int.Parse(x.Number)).ToArray();
-			var excludedProductGroups = FilterViewModel.GetExcludedElements<ProductGroup>().Select(x => int.Parse(x.Number)).ToArray();
-			var includedCounterparties = FilterViewModel.GetIncludedElements<Counterparty>().Select(x => int.Parse(x.Number)).ToArray();
-			var excludedCounterparties = FilterViewModel.GetExcludedElements<Counterparty>().Select(x => int.Parse(x.Number)).ToArray();
-			var includedOrganizations = FilterViewModel.GetIncludedElements<Organization>().Select(x => int.Parse(x.Number)).ToArray();
-			var excludedOrganizations = FilterViewModel.GetExcludedElements<Organization>().Select(x => int.Parse(x.Number)).ToArray();
-			var includedDiscountReasons = FilterViewModel.GetIncludedElements<DiscountReason>().Select(x => int.Parse(x.Number)).ToArray();
-			var excludedDiscountReasons = FilterViewModel.GetExcludedElements<DiscountReason>().Select(x => int.Parse(x.Number)).ToArray();
-			var includedSubdivisions = FilterViewModel.GetIncludedElements<Subdivision>().Select(x => int.Parse(x.Number)).ToArray();
-			var excludedSubdivisions = FilterViewModel.GetExcludedElements<Subdivision>().Select(x => int.Parse(x.Number)).ToArray();
-			var includedEmployees = FilterViewModel.GetIncludedElements<Employee>().Select(x => int.Parse(x.Number)).ToArray();
-			var excludedEmployees = FilterViewModel.GetExcludedElements<Employee>().Select(x => int.Parse(x.Number)).ToArray();
-			var includedGeoGroups = FilterViewModel.GetIncludedElements<GeoGroup>().Select(x => int.Parse(x.Number)).ToArray();
-			var excludedGeoGroups = FilterViewModel.GetExcludedElements<GeoGroup>().Select(x => int.Parse(x.Number)).ToArray();
+			var nomenclaturesCategoriesFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<NomenclatureCategory>>();
+			var includedNomenclatureCategories = nomenclaturesCategoriesFilter.GetIncluded().ToArray();
+			var excludedNomenclatureCategories = nomenclaturesCategoriesFilter.GetExcluded().ToArray();
+
+			var nomenclaturesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Nomenclature>>();
+			var includedNomenclatures = nomenclaturesFilter.GetIncluded().ToArray();
+			var excludedNomenclatures = nomenclaturesFilter.GetExcluded().ToArray();
+
+			var productGroupsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityWithHierarchyFilter<ProductGroup>>();
+			var includedProductGroups = productGroupsFilter.GetIncluded().ToArray();
+			var excludedProductGroups = productGroupsFilter.GetExcluded().ToArray();
+
+			var counterpartiesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Counterparty>>();
+			var includedCounterparties = counterpartiesFilter.GetIncluded().ToArray();
+			var excludedCounterparties = counterpartiesFilter.GetExcluded().ToArray();
+
+			var counterpartyTypesFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<CounterpartyType>>();
+			var includedCounterpartyTypes = counterpartyTypesFilter.GetIncluded().ToArray();
+			var excludedCounterpartyTypes = counterpartyTypesFilter.GetExcluded().ToArray();
+
+			var counterpartySubtypesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<CounterpartySubtype>>();
+			var includedCounterpartySubtypes = counterpartyTypesFilter.GetIncluded().ToArray();
+			var excludedCounterpartySubtypes = counterpartyTypesFilter.GetExcluded().ToArray();
+
+			var organizationsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Organization>>();
+			var includedOrganizations = organizationsFilter.GetIncluded().ToArray();
+			var excludedOrganizations = organizationsFilter.GetExcluded().ToArray();
+
+			var discountReasonsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<DiscountReason>>();
+			var includedDiscountReasons = discountReasonsFilter.GetIncluded().ToArray();
+			var excludedDiscountReasons = discountReasonsFilter.GetExcluded().ToArray();
+
+			var subdivisionsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Subdivision>>();
+			var includedSubdivisions = subdivisionsFilter.GetIncluded().ToArray();
+			var excludedSubdivisions = subdivisionsFilter.GetExcluded().ToArray();
+
+			var employeesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Employee>>();
+			var includedEmployees = employeesFilter.GetIncluded().ToArray();
+			var excludedEmployees = employeesFilter.GetExcluded().ToArray();
+
+			var geoGroupsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<GeoGroup>>();
+			var includedGeoGroups = geoGroupsFilter.GetIncluded().ToArray();
+			var excludedGeoGroups = geoGroupsFilter.GetExcluded().ToArray();
 
 			var includedPaymentTypeElements = FilterViewModel.GetIncludedElements<PaymentType>();
 			var excludedPaymentTypeElements = FilterViewModel.GetExcludedElements<PaymentType>();
 
-			var includedPaymentTypes = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>).Select(x => Enum.Parse(typeof(PaymentType), x.Number)).Cast<PaymentType>().ToArray();
-			var excludedPaymentTypes = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>).Select(x => Enum.Parse(typeof(PaymentType), x.Number)).Cast<PaymentType>().ToArray();
+			var includedPaymentTypes = includedPaymentTypeElements
+				.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>)
+				.Select(x => (x as IncludeExcludeElement<PaymentType, PaymentType>).Id)
+				.ToArray();
 
-			var includedPaymentFroms = includedPaymentTypeElements.Where(x => x is IncludeExcludeElement<int, PaymentFrom>).Select(x => int.Parse(x.Number)).ToArray();
-			var excludedPaymentFroms = excludedPaymentTypeElements.Where(x => x is IncludeExcludeElement<int, PaymentFrom>).Select(x => int.Parse(x.Number)).ToArray();
+			var excludedPaymentTypes = excludedPaymentTypeElements
+				.Where(x => x is IncludeExcludeElement<PaymentType, PaymentType>)
+				.Select(x => (x as IncludeExcludeElement<PaymentType, PaymentType>).Id)
+				.ToArray();
+
+			var includedPaymentFroms = includedPaymentTypeElements
+				.Where(x => x is IncludeExcludeElement<int, PaymentFrom>)
+				.Select(x => (x as IncludeExcludeElement<int, PaymentFrom>).Id)
+				.ToArray();
+
+			var excludedPaymentFroms = excludedPaymentTypeElements
+				.Where(x => x is IncludeExcludeElement<int, PaymentFrom>)
+				.Select(x => (x as IncludeExcludeElement<int, PaymentFrom>).Id)
+				.ToArray();
 
 			var includedPaymentByTerminalSources = includedPaymentTypeElements
 				.Where(x => x is IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>)
-				.Select(x => Enum.Parse(typeof(PaymentByTerminalSource), x.Number))
-				.Cast<PaymentByTerminalSource>()
+				.Select(x => (x as IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>).Id)
 				.ToArray();
 
 			var excludedPaymentByTerminalSources = excludedPaymentTypeElements
 				.Where(x => x is IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>)
-				.Select(x => Enum.Parse(typeof(PaymentByTerminalSource), x.Number))
-				.Cast<PaymentByTerminalSource>()
+				.Select(x => (x as IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>).Id)
 				.ToArray();
 
-			var includedPromotionalSets = FilterViewModel.GetIncludedElements<PromotionalSet>().Select(x => int.Parse(x.Number)).ToArray();
-			var excludedPromotionalSets = FilterViewModel.GetExcludedElements<PromotionalSet>().Select(x => int.Parse(x.Number)).ToArray();
+			var promotionalSetsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<PromotionalSet>>();
+			var includedPromotionalSets = promotionalSetsFilter.GetIncluded().ToArray();
+			var excludedPromotionalSets = promotionalSetsFilter.GetExcluded().ToArray();
 
 			#endregion Сбор параметров
 
@@ -640,18 +678,19 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Add(Restrictions.IsNull(Projections.Property(() => productGroupAlias.Id))));
 				}
 
-				nomenclaturesEmptyNodes = nomenclaturesEmptyQuery.SelectList(list => list.SelectGroup(() => nomenclatureAlias.Id)
-							.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.Id))
-							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.Price))
-							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.ActualSum))
-							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.Count))
-							.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.ActualCount))
-							.Select(Projections.Property(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId))
-							.Select(Projections.Property(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName))
-							.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.OrderId))
-							.Select(Projections.Max(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
-							.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
-							.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.ProductGroupName)))
+				nomenclaturesEmptyNodes = nomenclaturesEmptyQuery
+					.SelectList(list => list.SelectGroup(() => nomenclatureAlias.Id)
+						.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.Id))
+						.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.Price))
+						.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.ActualSum))
+						.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.Count))
+						.Select(Projections.Constant(0m).WithAlias(() => resultNodeAlias.ActualCount))
+						.Select(Projections.Property(() => nomenclatureAlias.Id).WithAlias(() => resultNodeAlias.NomenclatureId))
+						.Select(Projections.Property(() => nomenclatureAlias.OfficialName).WithAlias(() => resultNodeAlias.NomenclatureOfficialName))
+						.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.OrderId))
+						.Select(Projections.Max(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
+						.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
+						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.ProductGroupName)))
 					.SetTimeout(0)
 					.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).ReadOnly().List<OrderItemNode>();
 			}
@@ -782,6 +821,36 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				query.Where(Restrictions.Not(Restrictions.In(
 					Projections.Property(() => orderAlias.Client.Id),
 					excludedCounterparties)));
+			}
+
+			if(includedCounterpartyTypes.Any())
+			{
+				query.Where(Restrictions.In(
+					Projections.Property(() => counterpartyAlias.CounterpartyType),
+					includedCounterpartyTypes));
+			}
+
+			if(excludedCounterpartyTypes.Any())
+			{
+				query.Where(Restrictions.Not(Restrictions.In(
+					Projections.Property(() => counterpartyAlias.CounterpartyType),
+					excludedCounterpartyTypes)));
+			}
+
+			if(includedCounterpartySubtypes.Any())
+			{
+				query.Where(Restrictions.In(
+					Projections.Property(() => counterpartyAlias.CounterpartySubtype.Id),
+					includedCounterpartySubtypes));
+			}
+
+			if(excludedCounterpartySubtypes.Any())
+			{
+				query.Where(Restrictions.Disjunction()
+					.Add(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => counterpartyAlias.CounterpartySubtype.Id),
+						excludedCounterpartySubtypes)))
+					.Add(Restrictions.IsNull(Projections.Property(() => counterpartyAlias.CounterpartySubtype.Id))));
 			}
 
 			if(includedOrganizations.Any())
