@@ -114,6 +114,7 @@ namespace Vodovoz.Views.Client
 			ViewModel.CityBeforeChange = entryCity.CityName;
 			ViewModel.StreetBeforeChange = entryStreet.StreetName;
 			ViewModel.BuildingBeforeChange = entryBuilding.BuildingName;
+			ViewModel.EntranceBeforeChange = entryEntrance.Text;
 
 			#endregion
 
@@ -174,6 +175,7 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel.Entity, e => e.Entrance, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+			entryEntrance.FocusOutEvent += EntryBuildingOnFocusOutEvent;
 			spinMinutesToUnload.Binding
 				.AddBinding(ViewModel.Entity, e => e.MinutesToUnload, w => w.ValueAsInt)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
@@ -298,7 +300,7 @@ namespace Vodovoz.Views.Client
 
 			sidePanelMap.Panel = _vboxMap;
 			sidePanelMap.IsHided = false;
-			ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
+			ViewModel.Entity.PropertyChanged += ViewModelOnPropertyChanged;
 			UpdateAddressOnMap();
 
 			if(ViewModel.DeliveryPoint.Counterparty.IsForRetail)
@@ -452,8 +454,12 @@ namespace Vodovoz.Views.Client
 			ViewModel.ResetAddressChanges();
 			ViewModel.Entity.FoundOnOsm = entryBuilding.FiasCompletion != null && entryBuilding.FiasCompletion.Value;
 			entryBuilding.GetCoordinates(out var longitude, out var latitude);
-			DeliveryPointViewModel.Coordinate coordinate = new DeliveryPointViewModel.Coordinate();
-			if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName) && (longitude == null || latitude == null))
+			DeliveryPointViewModel.Coordinate coordinate = new DeliveryPointViewModel.Coordinate
+			{
+				Latitude = latitude, 
+				Longitude = longitude
+			};
+			if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName) && (!string.IsNullOrWhiteSpace(ViewModel.Entity.Entrance) || longitude == null || latitude == null))
 			{
 				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
 			}

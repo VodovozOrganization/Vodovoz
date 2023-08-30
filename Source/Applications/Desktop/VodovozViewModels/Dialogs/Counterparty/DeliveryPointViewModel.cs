@@ -356,11 +356,13 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 		public string CityBeforeChange { get; set; }
 		public string StreetBeforeChange { get; set; }
 		public string BuildingBeforeChange { get; set; }
+		public string EntranceBeforeChange { get; set; }
 
 		public bool IsAddressChanged =>
 			Entity.City != CityBeforeChange
 			|| Entity.Street != StreetBeforeChange
-			|| Entity.Building != BuildingBeforeChange;
+			|| Entity.Building != BuildingBeforeChange
+			|| Entity.Entrance != EntranceBeforeChange;
 
 
 		#region ITDICloseControlTab
@@ -417,6 +419,7 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			CityBeforeChange = Entity.City;
 			StreetBeforeChange = Entity.Street;
 			BuildingBeforeChange = Entity.Building;
+			EntranceBeforeChange = Entity.Entrance;
 		}
 
 		public async Task<Coordinate> UpdateCoordinatesFromGeoCoderAsync(IHousesDataLoader entryBuildingHousesDataLoader)
@@ -426,7 +429,11 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 			{
 				_isBuildingsInLoadingProcess = true;
 
-				var address = $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}";
+				var address =
+					string.IsNullOrWhiteSpace(Entity.Entrance)
+					? $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}"
+					: $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}, вход {Entity.Entrance}";
+
 				var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
 				if(findedByGeoCoder != null)
 				{
