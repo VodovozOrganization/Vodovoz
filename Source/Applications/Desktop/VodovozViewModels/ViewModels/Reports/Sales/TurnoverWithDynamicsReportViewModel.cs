@@ -55,10 +55,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private readonly string _templatePath = @".\Reports\Sales\TurnoverReport.xlsx";
 		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
-		private readonly string _templateByCounterpartyPath = @".\Reports\Sales\TurnoverByCounterpartyReport.xlsx";
-		private readonly string _templateByCounterpartyWithDynamicsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsReport.xlsx";
-		private readonly string _templateByCounterpartyWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsReport.xlsx";
-		private readonly string _templateByCounterpartyWithDynamicsWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsWithDynamicsReport.xlsx";
 
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _userCanGetContactsInSalesReports;
@@ -430,6 +426,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			var cellFormat = string.Empty;
 
+			if(!Report.ShowContacts)
+			{
+				sheet.Column(3).Delete();
+
+				if(!Report.ShowDynamics)
+				{
+					sheet.Column(4).Delete();
+				}
+			}
+
 			if(Report?.MeasurementUnit == MeasurementUnitEnum.Amount)
 			{
 				cellFormat = "# ### ### ### ##0";
@@ -454,37 +460,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			var reportLastGrouping = Report.GroupingBy.LastOrDefault();
 
-			if(reportLastGrouping == GroupingType.Nomenclature)
+			if(Report.ShowDynamics)
 			{
-				if(Report.ShowDynamics)
-				{
-					return _templateWithDynamicsPath;
-				}
-				else
-				{
-					return _templatePath;
-				}
+				return _templateWithDynamicsPath;
 			}
-			else if(reportLastGrouping == GroupingType.Counterparty)
+			else
 			{
-				if(Report.ShowDynamics)
-				{
-					if(ShowContacts)
-					{
-						return _templateByCounterpartyWithDynamicsWithContactsPath;
-					}
-
-					return _templateByCounterpartyWithDynamicsPath;
-				}
-				else
-				{
-					if(ShowContacts)
-					{
-						return _templateByCounterpartyWithContactsPath;
-					}
-
-					return _templateByCounterpartyPath;
-				}
+				return _templatePath;
 			}
 
 			throw new InvalidOperationException("Что-то пошло не так. Не достижимая ветка ветвления");

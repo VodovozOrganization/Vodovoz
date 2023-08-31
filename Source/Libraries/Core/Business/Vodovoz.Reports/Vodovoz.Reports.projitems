@@ -64,12 +64,6 @@
     <None Include="$(MSBuildThisFileDirectory)Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="$(MSBuildThisFileDirectory)Reports\Sales\TurnoverByCounterpartyReport.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)Reports\Sales\TurnoverByCounterpartyWithDynamicsReport.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="$(MSBuildThisFileDirectory)Reports\Sales\TurnoverReport.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
