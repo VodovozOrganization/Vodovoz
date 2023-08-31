@@ -1,3 +1,4 @@
+using ClosedXML.Excel;
 using ClosedXML.Report;
 using DateTimeHelpers;
 using NHibernate;
@@ -54,8 +55,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private readonly string _templatePath = @".\Reports\Sales\TurnoverReport.xlsx";
 		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
-		private readonly string _templateFinancePath = @".\Reports\Sales\TurnoverFinanceReport.xlsx";
-		private readonly string _templateWithDynamicsFinancePath = @".\Reports\Sales\TurnoverWithDynamicsFinanceReport.xlsx";
 		private readonly string _templateByCounterpartyPath = @".\Reports\Sales\TurnoverByCounterpartyReport.xlsx";
 		private readonly string _templateByCounterpartyWithDynamicsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsReport.xlsx";
 		private readonly string _templateByCounterpartyFinancePath = @".\Reports\Sales\TurnoverByCounterpartyFinanceReport.xlsx";
@@ -408,12 +407,51 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			string templatePath = GetTrmplatePath();
 
-			var template = new XLTemplate(templatePath);
+			var template = GetTemplate(templatePath);
 
 			template.AddVariable(Report);
 			template.Generate();
 
 			template.SaveAs(path);
+		}
+
+		private XLTemplate GetTemplate(string templatePath)
+		{
+			var workbook = new XLWorkbook(templatePath);
+
+			var sheet = workbook.Worksheets.FirstOrDefault();
+
+			var namedRange = workbook.NamedRanges.Where(x => x.Name == "Rows_SliceColumnValues").FirstOrDefault();
+
+			var totalsRow = workbook.NamedRanges.Where(x => x.Name == "ReportTotal_SliceColumnValues").FirstOrDefault().Ranges.FirstOrDefault().RangeAddress.FirstAddress.RowNumber;
+
+			var slicesRange = namedRange?.Ranges.FirstOrDefault();
+
+			var firstRow = slicesRange.RangeAddress.FirstAddress.RowNumber;
+
+			var firstColumn = slicesRange.RangeAddress.FirstAddress.ColumnNumber;
+			var firstColumnTotal = slicesRange.RangeAddress.LastAddress.ColumnNumber + 1;
+
+			var cellFormat = string.Empty;
+
+			if(Report?.MeasurementUnit == MeasurementUnitEnum.Amount)
+			{
+				cellFormat = "# ### ### ### ##0";
+			}
+			else if(Report?.MeasurementUnit == MeasurementUnitEnum.Price)
+			{
+				cellFormat = "# ### ### ##0,00 ₽";
+			}
+
+			sheet.Cell(firstRow, firstColumnTotal).Style.NumberFormat.SetFormat(cellFormat);
+			sheet.Cell(firstRow, firstColumn).Style.NumberFormat.SetFormat(cellFormat);
+
+			sheet.Cell(totalsRow, firstColumnTotal).Style.NumberFormat.SetFormat(cellFormat);
+			sheet.Cell(totalsRow, firstColumn).Style.NumberFormat.SetFormat(cellFormat);
+
+			var result = new XLTemplate(workbook);
+
+			return result;
 		}
 
 		private string GetTrmplatePath()
@@ -424,25 +462,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				if(Report.ShowDynamics)
 				{
-					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
-					{
-						return _templateWithDynamicsPath;
-					}
-					else
-					{
-						return _templateWithDynamicsFinancePath;
-					}
+					return _templateWithDynamicsPath;
 				}
 				else
 				{
-					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
-					{
-						return _templatePath;
-					}
-					else
-					{
-						return _templateFinancePath;
-					}
+					return _templatePath;
 				}
 			}
 			else if(reportLastGrouping == GroupingType.Counterparty)
