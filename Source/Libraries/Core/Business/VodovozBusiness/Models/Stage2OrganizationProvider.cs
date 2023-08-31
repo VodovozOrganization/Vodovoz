@@ -133,7 +133,7 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
 					break;
 				case PaymentType.Terminal:
-					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
+					organizationId = _organizationParametersProvider.VodovozEastOrganizationId;
 					break;
 				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:
@@ -179,7 +179,7 @@ namespace Vodovoz.Models
 					organizationId = _organizationParametersProvider.VodovozNorthOrganizationId;
 					break;
 				case PaymentType.Terminal:
-					organizationId = _organizationParametersProvider.VodovozSouthOrganizationId;
+					organizationId = _organizationParametersProvider.VodovozEastOrganizationId;
 					break;
 				case PaymentType.DriverApplicationQR:
 				case PaymentType.SmsQR:
