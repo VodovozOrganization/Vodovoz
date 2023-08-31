@@ -370,7 +370,6 @@ namespace Vodovoz.Filters.GtkViews
 			w27.Fill = false;
 			// Container child yhboxSearchFields2.Gtk.Box+BoxChild
 			this.entryCounterpartyId = new global::QS.Widgets.ValidatedEntry();
-			this.entryCounterpartyId.TooltipMarkup = "Формат телефона: Без +7 и 8 в начале";
 			this.entryCounterpartyId.CanFocus = true;
 			this.entryCounterpartyId.Name = "entryCounterpartyId";
 			this.entryCounterpartyId.IsEditable = true;
@@ -391,7 +390,6 @@ namespace Vodovoz.Filters.GtkViews
 			w29.Fill = false;
 			// Container child yhboxSearchFields2.Gtk.Box+BoxChild
 			this.entryCounterpartyVodovozInternalId = new global::QS.Widgets.ValidatedEntry();
-			this.entryCounterpartyVodovozInternalId.TooltipMarkup = "Формат телефона: Без +7 и 8 в начале";
 			this.entryCounterpartyVodovozInternalId.CanFocus = true;
 			this.entryCounterpartyVodovozInternalId.Name = "entryCounterpartyVodovozInternalId";
 			this.entryCounterpartyVodovozInternalId.IsEditable = true;
@@ -412,7 +410,6 @@ namespace Vodovoz.Filters.GtkViews
 			w31.Fill = false;
 			// Container child yhboxSearchFields2.Gtk.Box+BoxChild
 			this.entryCounterpartyInn = new global::QS.Widgets.ValidatedEntry();
-			this.entryCounterpartyInn.TooltipMarkup = "Формат телефона: Без +7 и 8 в начале";
 			this.entryCounterpartyInn.CanFocus = true;
 			this.entryCounterpartyInn.Name = "entryCounterpartyInn";
 			this.entryCounterpartyInn.IsEditable = true;
@@ -433,7 +430,6 @@ namespace Vodovoz.Filters.GtkViews
 			w33.Fill = false;
 			// Container child yhboxSearchFields2.Gtk.Box+BoxChild
 			this.entryDeliveryPointAddressLike = new global::QS.Widgets.ValidatedEntry();
-			this.entryDeliveryPointAddressLike.TooltipMarkup = "Формат телефона: Без +7 и 8 в начале";
 			this.entryDeliveryPointAddressLike.CanFocus = true;
 			this.entryDeliveryPointAddressLike.Name = "entryDeliveryPointAddressLike";
 			this.entryDeliveryPointAddressLike.IsEditable = true;
@@ -448,6 +444,7 @@ namespace Vodovoz.Filters.GtkViews
 			w35.LeftAttach = ((uint)(3));
 			w35.RightAttach = ((uint)(8));
 			w35.XOptions = ((global::Gtk.AttachOptions)(4));
+			w35.YOptions = ((global::Gtk.AttachOptions)(0));
 			w1.Add(this.table1);
 			this.filterScrolledWindow.Add(w1);
 			this.vboxMain.Add(this.filterScrolledWindow);
