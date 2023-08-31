@@ -44,6 +44,8 @@ namespace Vodovoz.JournalViewModels
 				typeof(Tag),
 				typeof(DeliveryPoint)
 			);
+
+			SearchEnabled = false;
 		}
 
 		protected override void CreateNodeActions()
@@ -210,7 +212,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
 			}
 
-			if(!String.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointPhone))
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointPhone))
 			{
 				query.Where(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone);
 			}
@@ -224,9 +226,30 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
 			}
 
-			if(FilterViewModel.IsNeedToSendBillByEdo)
+			if(FilterViewModel?.IsNeedToSendBillByEdo == true)
 			{
 				query.Where(c => c.NeedSendBillByEdo);
+			}
+
+			if(FilterViewModel?.CounterpartyId != null)
+			{
+				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
+			}
+
+			if(FilterViewModel?.CounterpartyVodovozInternalId != null)
+			{
+				query.Where(c => c.VodovozInternalId == FilterViewModel.CounterpartyVodovozInternalId);
+			}
+
+			if(FilterViewModel?.CounterpartyInn != null)
+			{
+				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointAddressLike))
+			{
+				query.Where(Restrictions.InsensitiveLike(Projections.Property(() => deliveryPointAlias.CompiledAddress),
+					$"%{FilterViewModel.DeliveryPointAddressLike}%"));
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
@@ -382,9 +405,30 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.ReasonForLeaving == FilterViewModel.ReasonForLeaving);
 			}
 
-			if(FilterViewModel.IsNeedToSendBillByEdo)
+			if(FilterViewModel?.IsNeedToSendBillByEdo == true)
 			{
 				query.Where(c => c.NeedSendBillByEdo);
+			}
+
+			if(FilterViewModel?.CounterpartyId != null)
+			{
+				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
+			}
+
+			if(FilterViewModel?.CounterpartyVodovozInternalId != null)
+			{
+				query.Where(c => c.VodovozInternalId == FilterViewModel.CounterpartyVodovozInternalId);
+			}
+
+			if(FilterViewModel?.CounterpartyInn != null)
+			{
+				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointAddressLike))
+			{
+				query.Where(Restrictions.InsensitiveLike(Projections.Property(() => deliveryPointAlias.CompiledAddress),
+					$"%{FilterViewModel.DeliveryPointAddressLike}%"));
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
