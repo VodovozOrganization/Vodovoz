@@ -2319,6 +2319,10 @@
       <Project>{ca429421-2cce-4f9f-8dce-379583ab297c}</Project>
       <Name>SmsPaymentService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Reports.Editing\Vodovoz.Reports.Editing.csproj">
+      <Project>{EC80100E-0125-48C6-8D66-50EEBF26E320}</Project>
+      <Name>Vodovoz.Reports.Editing</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj">
       <Project>{15a5975c-1f75-4023-a2e3-1d9b297b008f}</Project>
       <Name>Vodovoz.Application</Name>

@@ -617,7 +617,6 @@
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.SubTotalRow.cs" />
     <Compile Include="ViewModels\Reports\Sales\SalesBySubdivisionsAnalitycsWithDynamicsReport.TotalRow.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.cs" />
-    <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.GroupingBy.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.MeasurementUnit.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.Report.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.DynamicsInEnum.cs" />

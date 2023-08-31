@@ -93,12 +93,20 @@ namespace Vodovoz.ReportsParameters.Sales
 			ychkbtnShowDynamics.Binding
 				.AddBinding(ViewModel, vm => vm.ShowDynamics, w => w.Active)
 				.InitializeFromSource();
+			
 			ychkbtnShowLastSale.Binding
 				.AddBinding(ViewModel, vm => vm.ShowLastSale, w => w.Active)
 				.InitializeFromSource();
+			
 			ychkbtnShowResidueForNomenclaturesWithoutSales.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.ShowResidueForNomenclaturesWithoutSales, w => w.Active)
 				.AddBinding(vm => vm.CanShowResidueForNomenclaturesWithoutSales, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ycheckbuttonShowContacts.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanShowContacts, w => w.Sensitive)
+				.AddBinding(vm => vm.ShowContacts, w => w.Active)
 				.InitializeFromSource();
 
 			ShowFilter();
@@ -181,7 +189,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddTextRenderer(row => row.IsSubheaderRow ? "<b>№</b>" : row.Index, useMarkup: true);
 
 			var firstColumnTitle = 
-				(ViewModel.Report.GroupingBy == GroupingByEnum.Counterparty || ViewModel.Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts) 
+				(ViewModel.Report.GroupingBy.LastOrDefault() == Reports.Editing.Modifiers.GroupingType.Counterparty) 
 				? "Контрагент" 
 				: "Периоды продаж";
 
@@ -190,7 +198,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				.WrapWidth(350)
 				.WrapMode(Pango.WrapMode.Word);
 
-			if(ViewModel.Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts)
+			if(ViewModel.Report.GroupingBy.LastOrDefault() == Reports.Editing.Modifiers.GroupingType.Counterparty && ViewModel.Report.ShowContacts)
 			{
 				columnsConfig.AddColumn("Телефоны").AddTextRenderer(row => row.Phones);
 				columnsConfig.AddColumn("E-mail").AddTextRenderer(row => row.Emails);
@@ -244,13 +252,16 @@ namespace Vodovoz.ReportsParameters.Sales
 			{
 				columnsConfig.AddColumn("Дата последней продажи")
 					.AddTextRenderer(row =>
-						row.IsSubheaderRow ? "" :
-						row.IsTotalsRow && row.LastSaleDetails.LastSaleDate == DateTime.MinValue ? "" : row.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"));
+						row.IsSubheaderRow
+						? ""
+						: row.IsTotalsRow && row.LastSaleDetails.LastSaleDate == DateTime.MinValue
+							? ""
+							: row.LastSaleDetails.LastSaleDate.ToString("dd.MM.yyyy"));
 				columnsConfig.AddColumn("Кол-во дней с момента последней отгрузки")
 					.AddTextRenderer(row => row.IsSubheaderRow ? "" :
 						row.LastSaleDetails.DaysFromLastShipment.ToString("0"));
 
-				if(ViewModel.Report.GroupingBy == GroupingByEnum.Nomenclature)
+				if(ViewModel.Report.GroupingBy.LastOrDefault() == Reports.Editing.Modifiers.GroupingType.Nomenclature)
 				{
 					columnsConfig
 						.AddColumn($"Остатки по всем складам на {ViewModel.Report.CreatedAt:dd.MM.yyyy HH:mm}")

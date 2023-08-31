@@ -4,6 +4,7 @@ using MoreLinq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Reports.Editing.Modifiers;
 
 namespace Vodovoz.ViewModels.Reports.Sales
 {
@@ -17,13 +18,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				DateTime startDate,
 				DateTime endDate,
 				string filters,
-				GroupingByEnum groupingBy,
+				IEnumerable<GroupingType> groupingBy,
 				DateTimeSliceType slicingType,
 				MeasurementUnitEnum measurementUnit,
 				bool showDynamics,
 				DynamicsInEnum dynamicsIn,
 				bool showLastSale,
 				bool showResidueForNomenclaturesWithoutSales,
+				bool showContacts,
 				Func<int, decimal> warehouseNomenclatureBalanceCallback,
 				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
 			{
@@ -37,6 +39,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				DynamicsIn = dynamicsIn;
 				ShowLastSale = showLastSale;
 				ShowResidueForNomenclaturesWithoutSales = showResidueForNomenclaturesWithoutSales;
+				ShowContacts = showContacts;
 				_warehouseNomenclatureBalanceCallback = warehouseNomenclatureBalanceCallback;
 				Slices = DateTimeSliceFactory.CreateSlices(slicingType, startDate, endDate).ToList();
 				CreatedAt = DateTime.Now;
@@ -46,7 +49,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			private IList<TurnoverWithDynamicsReportRow> ProcessTreeViewDisplay()
 			{
-				if(GroupingBy == GroupingByEnum.Nomenclature)
+				if(GroupingBy.LastOrDefault() == GroupingType.Nomenclature)
 				{
 					return new List<TurnoverWithDynamicsReportRow>
 					{
@@ -64,10 +67,11 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						}
 					}.Union(Rows).ToList();
 				}
-				if(GroupingBy == GroupingByEnum.Counterparty || GroupingBy == GroupingByEnum.CounterpartyShowContacts)
+				if(GroupingBy.LastOrDefault() == GroupingType.Counterparty)
 				{
 					return Rows;
 				}
+
 				throw new InvalidOperationException($"Unsupported value {GroupingBy} of {nameof(GroupingBy)}");
 			}
 
@@ -78,7 +82,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			public string Filters { get; }
 
-			public GroupingByEnum GroupingBy { get; }
+			public IEnumerable<GroupingType> GroupingBy { get; }
 
 			public DateTimeSliceType SliceType { get; }
 
@@ -91,7 +95,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			public bool ShowLastSale { get; }
 
 			public bool ShowResidueForNomenclaturesWithoutSales { get; }
-
+			public bool ShowContacts { get; }
 			public DateTime CreatedAt { get; }
 			#endregion
 
@@ -122,7 +126,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				IList<TurnoverWithDynamicsReportRow> rows = new List<TurnoverWithDynamicsReportRow>();
 
-				if(GroupingBy == GroupingByEnum.Nomenclature)
+				if(GroupingBy.LastOrDefault() == GroupingType.Nomenclature)
 				{
 					var productGroups = ordersItemslist
 						.GroupBy(oi => oi.NomenclatureId)
@@ -130,7 +134,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					rows = ProcessGroups(productGroups);
 				}
-				else if(GroupingBy == GroupingByEnum.Counterparty || GroupingBy == GroupingByEnum.CounterpartyShowContacts)
+				else if(GroupingBy.LastOrDefault() == GroupingType.Counterparty)
 				{
 					var counterpartyGroups = ordersItemslist
 						.GroupBy(oi => oi.CounterpartyId);
@@ -316,7 +320,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					{
 						LastSaleDate = lastDelivery,
 						DaysFromLastShipment = Math.Floor((CreatedAt - lastDelivery).TotalDays),
-						WarhouseResidue = GroupingBy == GroupingByEnum.Nomenclature
+						WarhouseResidue = GroupingBy.LastOrDefault() == GroupingType.Nomenclature
 							? _warehouseNomenclatureBalanceCallback(nomenclatureGroup.Key)
 							: 0
 					};
@@ -449,13 +453,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				DateTime startDate,
 				DateTime endDate,
 				string filters,
-				GroupingByEnum groupingBy,
+				IEnumerable<GroupingType> groupingBy,
 				DateTimeSliceType slicingType,
 				MeasurementUnitEnum measurementUnit,
 				bool showDynamics,
 				DynamicsInEnum dynamicsIn,
 				bool showLastSale,
 				bool showResidueForNomenclaturesWithoutSales,
+				bool showContacts,
 				Func<int, decimal> warehouseNomenclatureBalanceCallback,
 				Func<TurnoverWithDynamicsReport, IList<OrderItemNode>> dataFetchCallback)
 			{
@@ -470,6 +475,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							dynamicsIn,
 							showLastSale,
 							showResidueForNomenclaturesWithoutSales,
+							showContacts,
 							warehouseNomenclatureBalanceCallback,
 							dataFetchCallback);
 			}

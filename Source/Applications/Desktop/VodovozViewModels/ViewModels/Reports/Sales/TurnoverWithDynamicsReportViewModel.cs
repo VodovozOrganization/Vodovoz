@@ -33,11 +33,11 @@ using Vodovoz.NHibernateProjections.Contacts;
 using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Presentation.ViewModels.Common;
+using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using static Vodovoz.ViewModels.Reports.Sales.TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport;
-using Enum = System.Enum;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Reports.Sales
@@ -70,7 +70,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private DelegateCommand _showInfoCommand;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
-		private GroupingByEnum _groupingBy;
 		private DateTimeSliceType _slice;
 		private MeasurementUnitEnum _measurementUnit;
 		private DynamicsInEnum _dynamicsIn;
@@ -84,6 +83,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private bool _canCancelGenerate;
 		private IEnumerable<string> _lastGenerationErrors;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
+		private bool _showContacts;
 
 		public TurnoverWithDynamicsReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -123,7 +123,14 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		public CancellationTokenSource ReportGenerationCancelationTokenSource { get; set; }
 
-		public bool UserCanGetContactsInSalesReports => _userCanGetContactsInSalesReports;
+		public bool ShowContacts
+		{
+			get => _showContacts;
+			set => SetField(ref _showContacts, value);
+		}
+
+		public bool CanShowContacts => _userCanGetContactsInSalesReports
+			&& SelectedGroupings.LastOrDefault() == GroupingType.Counterparty;
 
 		public virtual DateTime? StartDate
 		{
@@ -141,20 +148,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			get => _showDynamics;
 			set => SetField(ref _showDynamics, value);
-		}
-
-		[PropertyChangedAlso(nameof(CanShowResidueForNomenclaturesWithoutSales))]
-		public GroupingByEnum GroupingBy
-		{
-			get => _groupingBy;
-			set
-			{
-				if(SetField(ref _groupingBy, value)
-					&& (value == GroupingByEnum.Counterparty || value == GroupingByEnum.CounterpartyShowContacts))
-				{
-					ShowResidueForNomenclaturesWithoutSales = false;
-				}
-			}
 		}
 
 		public MeasurementUnitEnum MeasurementUnit
@@ -189,7 +182,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		}
 
 		public bool CanShowResidueForNomenclaturesWithoutSales =>
-			ShowLastSale && GroupingBy == GroupingByEnum.Nomenclature;
+			ShowLastSale
+			&& SelectedGroupings.LastOrDefault() == GroupingType.Nomenclature;
 
 		public bool ShowResidueForNomenclaturesWithoutSales
 		{
@@ -268,6 +262,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			set => SetField(ref _groupViewModel, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanShowContacts))]
+		[PropertyChangedAlso(nameof(CanShowResidueForNomenclaturesWithoutSales))]
+		public IEnumerable<GroupingType> SelectedGroupings => GroupingSelectViewModel.GetRightItems().Select(x => x.GroupType);
+
 		public async Task<TurnoverWithDynamicsReport> ActionGenerateReport(CancellationToken cancellationToken)
 		{
 			try
@@ -289,6 +287,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private void SetupGroupings()
 		{
 			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateSalesReportGroupingsConstructor();
+
+			GroupingSelectViewModel.RightItems.ListContentChanged += OnGroupingsRightItemsListContentChanged;
+		}
+
+		private void OnGroupingsRightItemsListContentChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(SelectedGroupings));
 		}
 
 		private void ShowInfo()
@@ -363,19 +368,27 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			filters = sb2.ToString().Trim('\n');
 
+			var selectedGroupings = SelectedGroupings;
+
+			if(!selectedGroupings.Any())
+			{
+				selectedGroupings = new List<GroupingType>() { GroupingType.Nomenclature };
+			}
+
 			return await Task.Run(() =>
 			{
 				return TurnoverWithDynamicsReport.Create(
 					StartDate.Value,
 					EndDate.Value,
 					filters,
-					GroupingBy,
+					selectedGroupings,
 					SlicingType,
 					MeasurementUnit,
 					ShowDynamics,
 					DynamicsIn,
 					ShowLastSale,
 					ShowResidueForNomenclaturesWithoutSales,
+					ShowContacts,
 					GetWarehouseBalance,
 					GetData);
 			}, cancellationToken);
@@ -395,7 +408,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private string GetTrmplatePath()
 		{
-			if(Report.GroupingBy == GroupingByEnum.Nomenclature)
+			var reportLastGrouping = Report.GroupingBy.LastOrDefault();
+
+			if(reportLastGrouping == GroupingType.Nomenclature)
 			{
 				if(Report.ShowDynamics)
 				{
@@ -420,16 +435,26 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					}
 				}
 			}
-			else if(Report.GroupingBy == GroupingByEnum.Counterparty)
+			else if(reportLastGrouping == GroupingType.Counterparty)
 			{
 				if(Report.ShowDynamics)
 				{
 					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
 					{
+						if(ShowContacts)
+						{
+							return _templateByCounterpartyWithDynamicsWithContactsPath;
+						}
+
 						return _templateByCounterpartyWithDynamicsPath;
 					}
 					else
 					{
+						if(ShowContacts)
+						{
+							return _templateByCounterpartyWithDynamicsFinanceWithContactsPath;
+						}
+
 						return _templateByCounterpartyWithDynamicsFinancePath;
 					}
 				}
@@ -437,39 +462,25 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				{
 					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
 					{
+						if(ShowContacts)
+						{
+							return _templateByCounterpartyWithContactsPath;
+						}
+
 						return _templateByCounterpartyPath;
 					}
 					else
 					{
+						if(ShowContacts)
+						{
+							return _templateByCounterpartyFinanceWithContactsPath;
+						}
+
 						return _templateByCounterpartyFinancePath;
 					}
 				}
 			}
-			else if(Report.GroupingBy == GroupingByEnum.CounterpartyShowContacts)
-			{
-				if(Report.ShowDynamics)
-				{
-					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
-					{
-						return _templateByCounterpartyWithDynamicsWithContactsPath;
-					}
-					else
-					{
-						return _templateByCounterpartyWithDynamicsFinanceWithContactsPath;
-					}
-				}
-				else
-				{
-					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
-					{
-						return _templateByCounterpartyWithContactsPath;
-					}
-					else
-					{
-						return _templateByCounterpartyFinanceWithContactsPath;
-					}
-				}
-			}
+
 			throw new InvalidOperationException("Что-то пошло не так. Не достижимая ветка ветвления");
 		}
 
@@ -534,13 +545,32 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var includedCounterparties = counterpartiesFilter.GetIncluded().ToArray();
 			var excludedCounterparties = counterpartiesFilter.GetExcluded().ToArray();
 
-			var counterpartyTypesFilter = FilterViewModel.GetFilter<IncludeExcludeEnumFilter<CounterpartyType>>();
-			var includedCounterpartyTypes = counterpartyTypesFilter.GetIncluded().ToArray();
-			var excludedCounterpartyTypes = counterpartyTypesFilter.GetExcluded().ToArray();
+			#region CounterpartyTypes
 
-			var counterpartySubtypesFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<CounterpartySubtype>>();
-			var includedCounterpartySubtypes = counterpartyTypesFilter.GetIncluded().ToArray();
-			var excludedCounterpartySubtypes = counterpartyTypesFilter.GetExcluded().ToArray();
+			var includedCounterpartyTypeElements = FilterViewModel.GetIncludedElements<CounterpartyType>();
+			var excludedCounterpartyTypeElements = FilterViewModel.GetExcludedElements<CounterpartyType>();
+
+			var includedCounterpartyTypes = includedCounterpartyTypeElements
+				.Where(x => x is IncludeExcludeElement<CounterpartyType, CounterpartyType>)
+				.Select(x => (x as IncludeExcludeElement<CounterpartyType, CounterpartyType>).Id)
+				.ToArray();
+
+			var excludedCounterpartyTypes = excludedCounterpartyTypeElements
+				.Where(x => x is IncludeExcludeElement<CounterpartyType, CounterpartyType>)
+				.Select(x => (x as IncludeExcludeElement<CounterpartyType, CounterpartyType>).Id)
+				.ToArray();
+
+			var includedCounterpartySubtypes = includedCounterpartyTypeElements
+				.Where(x => x is IncludeExcludeElement<int, CounterpartySubtype>)
+				.Select(x => (x as IncludeExcludeElement<int, CounterpartySubtype>).Id)
+				.ToArray();
+
+			var excludedCounterpartySubtypes = excludedCounterpartyTypeElements
+				.Where(x => x is IncludeExcludeElement<int, CounterpartySubtype>)
+				.Select(x => (x as IncludeExcludeElement<int, CounterpartySubtype>).Id)
+				.ToArray();
+
+			#endregion CounterpartyTypes
 
 			var organizationsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<Organization>>();
 			var includedOrganizations = organizationsFilter.GetIncluded().ToArray();
@@ -561,6 +591,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			var geoGroupsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<GeoGroup>>();
 			var includedGeoGroups = geoGroupsFilter.GetIncluded().ToArray();
 			var excludedGeoGroups = geoGroupsFilter.GetExcluded().ToArray();
+
+			#region PaymentTypes
 
 			var includedPaymentTypeElements = FilterViewModel.GetIncludedElements<PaymentType>();
 			var excludedPaymentTypeElements = FilterViewModel.GetExcludedElements<PaymentType>();
@@ -594,6 +626,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				.Where(x => x is IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>)
 				.Select(x => (x as IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>).Id)
 				.ToArray();
+
+			#endregion PaymentTypes
 
 			var promotionalSetsFilter = FilterViewModel.GetFilter<IncludeExcludeEntityFilter<PromotionalSet>>();
 			var includedPromotionalSets = promotionalSetsFilter.GetIncluded().ToArray();
