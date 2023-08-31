@@ -35,11 +35,7 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.ReasonForLeaving,
 				x => x.RestrictIncludeArchive,
 				x => x.Tag,
-				x => x.IsNeedToSendBillByEdo,
-				x => x.CounterpartyId,
-				x => x.CounterpartyVodovozInternalId,
-				x => x.CounterpartyInn,
-				x => x.DeliveryPointAddressLike
+				x => x.IsNeedToSendBillByEdo
 			);
 		}
 

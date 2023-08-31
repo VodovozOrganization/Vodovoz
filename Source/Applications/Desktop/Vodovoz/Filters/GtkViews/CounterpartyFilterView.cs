@@ -4,6 +4,7 @@ using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Converters;
 using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
@@ -42,6 +43,30 @@ namespace Vodovoz.Filters.GtkViews
 			checkIncludeArhive.Binding.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active).InitializeFromSource();
 
 			checkNeedSendEdo.Binding.AddBinding(ViewModel, vm => vm.IsNeedToSendBillByEdo, w => w.Active).InitializeFromSource();
+
+			entryCounterpartyId.ValidationMode = ValidationType.Numeric;
+			entryCounterpartyId.KeyReleaseEvent += OnKeyReleased;
+			entryCounterpartyId.Binding
+				.AddBinding(ViewModel,
+				vm => vm.CounterpartyId,
+				w => w.Text,
+				new NullableIntToStringConverter())
+				.InitializeFromSource();
+
+			entryCounterpartyVodovozInternalId.ValidationMode = ValidationType.Numeric;
+			entryCounterpartyVodovozInternalId.KeyReleaseEvent += OnKeyReleased;
+			entryCounterpartyVodovozInternalId.Binding
+				.AddBinding(ViewModel,
+				vm => vm.CounterpartyVodovozInternalId,
+				w => w.Text,
+				new NullableIntToStringConverter())
+				.InitializeFromSource();
+
+			entryCounterpartyInn.KeyReleaseEvent += OnKeyReleased;
+			entryCounterpartyInn.Binding.AddBinding(ViewModel, vm => vm.CounterpartyInn, w => w.Text).InitializeFromSource();
+
+			entryDeliveryPointAddressLike.KeyReleaseEvent += OnKeyReleased;
+			entryDeliveryPointAddressLike.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointAddressLike, w => w.Text).InitializeFromSource();
 
 			if (ViewModel?.IsForRetail ?? false)
 			{
