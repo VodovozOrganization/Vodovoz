@@ -334,10 +334,20 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		{
 			var title = typeof(T).GetClassUserFriendlyName().NominativePlural.CapitalizeSentence();
 
-			stringBuilder.Append(title + " включены " +
-				string.Join("\n\t", FilterViewModel.GetIncludedElements<T>().Select(x => x.Title.Trim('\n'))));
-			stringBuilder.Append(title + " исключены " +
-				string.Join("\n\t", FilterViewModel.GetExcludedElements<T>().Select(x => x.Title.Trim('\n'))));
+			var includedTitles = FilterViewModel.GetIncludedElements<T>().Select(x => x.Title.Trim('\n'));
+			var excludedTitles = FilterViewModel.GetExcludedElements<T>().Select(x => x.Title.Trim('\n'));
+
+			if(includedTitles.Any())
+			{
+				stringBuilder.Append(title + " включены " +
+					string.Join("\n\t", includedTitles));
+			}
+
+			if(excludedTitles.Any())
+			{
+				stringBuilder.Append(title + " исключены " +
+					string.Join("\n\t", excludedTitles));
+			}
 		}
 
 		public async Task<TurnoverWithDynamicsReport> Generate(CancellationToken cancellationToken)
