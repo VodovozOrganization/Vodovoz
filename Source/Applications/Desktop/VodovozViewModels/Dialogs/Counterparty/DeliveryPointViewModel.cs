@@ -432,7 +432,8 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparty
 				var address =
 					string.IsNullOrWhiteSpace(Entity.Entrance)
 					? $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}"
-					: $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}, вход {Entity.Entrance}";
+					: $"{Entity.LocalityType} {Entity.City}, {Entity.StreetDistrict}, {Entity.Street} {Entity.StreetType}, {Entity.Building}" +
+						$", {(Entity.EntranceType == EntranceType.Entrance ? "парадная" : "вход")} {Entity.Entrance}";
 
 				var findedByGeoCoder = await entryBuildingHousesDataLoader.GetCoordinatesByGeocoderAsync(address, _cancellationTokenSource.Token);
 				if(findedByGeoCoder != null)

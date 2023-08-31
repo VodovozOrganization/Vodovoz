@@ -9,6 +9,7 @@ using QS.Navigation;
 using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.Dialogs.Counterparty;
@@ -175,7 +176,7 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel.Entity, e => e.Entrance, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-			entryEntrance.FocusOutEvent += EntryBuildingOnFocusOutEvent;
+			entryEntrance.FocusOutEvent += EntryEntranceOnFocusOutEvent;
 			spinMinutesToUnload.Binding
 				.AddBinding(ViewModel.Entity, e => e.MinutesToUnload, w => w.ValueAsInt)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
@@ -446,6 +447,16 @@ namespace Vodovoz.Views.Client
 
 		private async void EntryBuildingOnFocusOutEvent(object sender, EventArgs e)
 		{
+			await UpdateCoordinates();
+		}
+
+		private async void EntryEntranceOnFocusOutEvent(object sender, EventArgs e)
+		{
+			await UpdateCoordinates();
+		}
+
+		private async Task UpdateCoordinates()
+		{
 			if(!ViewModel.IsAddressChanged)
 			{
 				return;
@@ -456,14 +467,14 @@ namespace Vodovoz.Views.Client
 			entryBuilding.GetCoordinates(out var longitude, out var latitude);
 			DeliveryPointViewModel.Coordinate coordinate = new DeliveryPointViewModel.Coordinate
 			{
-				Latitude = latitude, 
+				Latitude = latitude,
 				Longitude = longitude
 			};
 			if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName) && (!string.IsNullOrWhiteSpace(ViewModel.Entity.Entrance) || longitude == null || latitude == null))
 			{
 				coordinate = await ViewModel.UpdateCoordinatesFromGeoCoderAsync(entryBuilding.HousesDataLoader);
 			}
-			
+
 			Application.Invoke((o, args) =>
 			{
 				if(!ViewModel.IsDisposed)
@@ -472,7 +483,6 @@ namespace Vodovoz.Views.Client
 				}
 			});
 		}
-
 
 		private void EntryStreetOnStreetSelected(object sender, EventArgs e)
 		{
