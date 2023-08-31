@@ -8,6 +8,8 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private global::Gtk.HBox hboxMain;
 
+		private global::Gtk.ScrolledWindow scrolledwindow2;
+
 		private global::Gtk.VBox vboxTurnoverWithDynamicsReportFilterContainer;
 
 		private global::Gtk.HBox hboxPeriodAndInfoButtonContainer;
@@ -70,6 +72,8 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private global::Gtk.VBox vboxParameters;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonShowContacts;
+
 		private global::QS.Widgets.GtkUI.LeftRightListView leftrightlistview;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonCreateReport;
@@ -90,7 +94,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private global::Gtk.VSeparator vseparator2;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeReportIndicatorsRows;
 
@@ -109,6 +113,15 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.hboxMain.Name = "hboxMain";
 			this.hboxMain.Spacing = 6;
 			// Container child hboxMain.Gtk.Box+BoxChild
+			this.scrolledwindow2 = new global::Gtk.ScrolledWindow();
+			this.scrolledwindow2.CanFocus = true;
+			this.scrolledwindow2.Name = "scrolledwindow2";
+			this.scrolledwindow2.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.scrolledwindow2.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledwindow2.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
+			w1.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport.Gtk.Container+ContainerChild
 			this.vboxTurnoverWithDynamicsReportFilterContainer = new global::Gtk.VBox();
 			this.vboxTurnoverWithDynamicsReportFilterContainer.Name = "vboxTurnoverWithDynamicsReportFilterContainer";
 			this.vboxTurnoverWithDynamicsReportFilterContainer.Spacing = 6;
@@ -123,24 +136,24 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.btnReportInfo.Name = "btnReportInfo";
 			this.btnReportInfo.UseUnderline = true;
 			this.btnReportInfo.Relief = ((global::Gtk.ReliefStyle)(1));
-			global::Gtk.Image w1 = new global::Gtk.Image();
-			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
-			this.btnReportInfo.Image = w1;
+			global::Gtk.Image w2 = new global::Gtk.Image();
+			w2.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.btnReportInfo.Image = w2;
 			this.hboxPeriodAndInfoButtonContainer.Add(this.btnReportInfo);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.btnReportInfo]));
-			w2.Position = 0;
-			w2.Expand = false;
-			w2.Fill = false;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.btnReportInfo]));
+			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
 			// Container child hboxPeriodAndInfoButtonContainer.Gtk.Box+BoxChild
 			this.lblPeriod = new global::Gtk.Label();
 			this.lblPeriod.Name = "lblPeriod";
 			this.lblPeriod.Xalign = 0F;
 			this.lblPeriod.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
 			this.hboxPeriodAndInfoButtonContainer.Add(this.lblPeriod);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.lblPeriod]));
-			w3.Position = 1;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.lblPeriod]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child hboxPeriodAndInfoButtonContainer.Gtk.Box+BoxChild
 			this.datePeriodPicker = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.datePeriodPicker.Events = ((global::Gdk.EventMask)(256));
@@ -148,25 +161,25 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.datePeriodPicker.StartDate = new global::System.DateTime(0);
 			this.datePeriodPicker.EndDate = new global::System.DateTime(0);
 			this.hboxPeriodAndInfoButtonContainer.Add(this.datePeriodPicker);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.datePeriodPicker]));
-			w4.Position = 2;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.datePeriodPicker]));
+			w5.Position = 2;
 			// Container child hboxPeriodAndInfoButtonContainer.Gtk.Box+BoxChild
 			this.sepNextToPeriod = new global::Gtk.VSeparator();
 			this.sepNextToPeriod.Name = "sepNextToPeriod";
 			this.hboxPeriodAndInfoButtonContainer.Add(this.sepNextToPeriod);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.sepNextToPeriod]));
-			w5.Position = 3;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.sepNextToPeriod]));
+			w6.Position = 3;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child hboxPeriodAndInfoButtonContainer.Gtk.Box+BoxChild
 			this.lblMeasurementUnit = new global::Gtk.Label();
 			this.lblMeasurementUnit.Name = "lblMeasurementUnit";
 			this.lblMeasurementUnit.LabelProp = global::Mono.Unix.Catalog.GetString("Единица измерения:");
 			this.hboxPeriodAndInfoButtonContainer.Add(this.lblMeasurementUnit);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.lblMeasurementUnit]));
-			w6.Position = 4;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.lblMeasurementUnit]));
+			w7.Position = 4;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hboxPeriodAndInfoButtonContainer.Gtk.Box+BoxChild
 			this.yrbtnMeasurementUnitAmount = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnMeasurementUnitAmount.CanFocus = true;
@@ -176,10 +189,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.yrbtnMeasurementUnitAmount.UseUnderline = true;
 			this.yrbtnMeasurementUnitAmount.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.hboxPeriodAndInfoButtonContainer.Add(this.yrbtnMeasurementUnitAmount);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.yrbtnMeasurementUnitAmount]));
-			w7.Position = 5;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.yrbtnMeasurementUnitAmount]));
+			w8.Position = 5;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child hboxPeriodAndInfoButtonContainer.Gtk.Box+BoxChild
 			this.yrbtnMeasurementUnitPrice = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnMeasurementUnitPrice.CanFocus = true;
@@ -189,15 +202,15 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.yrbtnMeasurementUnitPrice.UseUnderline = true;
 			this.yrbtnMeasurementUnitPrice.Group = this.yrbtnMeasurementUnitAmount.Group;
 			this.hboxPeriodAndInfoButtonContainer.Add(this.yrbtnMeasurementUnitPrice);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.yrbtnMeasurementUnitPrice]));
-			w8.Position = 6;
-			w8.Expand = false;
-			w8.Fill = false;
-			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.hboxPeriodAndInfoButtonContainer);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.hboxPeriodAndInfoButtonContainer]));
-			w9.Position = 0;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxPeriodAndInfoButtonContainer[this.yrbtnMeasurementUnitPrice]));
+			w9.Position = 6;
 			w9.Expand = false;
 			w9.Fill = false;
+			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.hboxPeriodAndInfoButtonContainer);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.hboxPeriodAndInfoButtonContainer]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child vboxTurnoverWithDynamicsReportFilterContainer.Gtk.Box+BoxChild
 			this.hboxSecondFiltersGroup = new global::Gtk.HBox();
 			this.hboxSecondFiltersGroup.Name = "hboxSecondFiltersGroup";
@@ -224,10 +237,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.yrbtnSliceDay.UseUnderline = true;
 			this.yrbtnSliceDay.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.vboxSlicingFilterContainer.Add(this.yrbtnSliceDay);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxSlicingFilterContainer[this.yrbtnSliceDay]));
-			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxSlicingFilterContainer[this.yrbtnSliceDay]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child vboxSlicingFilterContainer.Gtk.Box+BoxChild
 			this.yrbtnSliceWeek = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnSliceWeek.CanFocus = true;
@@ -237,10 +250,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.yrbtnSliceWeek.UseUnderline = true;
 			this.yrbtnSliceWeek.Group = this.yrbtnSliceDay.Group;
 			this.vboxSlicingFilterContainer.Add(this.yrbtnSliceWeek);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxSlicingFilterContainer[this.yrbtnSliceWeek]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxSlicingFilterContainer[this.yrbtnSliceWeek]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vboxSlicingFilterContainer.Gtk.Box+BoxChild
 			this.yrbtnSliceMonth = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnSliceMonth.CanFocus = true;
@@ -250,10 +263,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.yrbtnSliceMonth.UseUnderline = true;
 			this.yrbtnSliceMonth.Group = this.yrbtnSliceDay.Group;
 			this.vboxSlicingFilterContainer.Add(this.yrbtnSliceMonth);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxSlicingFilterContainer[this.yrbtnSliceMonth]));
-			w12.Position = 2;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxSlicingFilterContainer[this.yrbtnSliceMonth]));
+			w13.Position = 2;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child vboxSlicingFilterContainer.Gtk.Box+BoxChild
 			this.yrbtnSliceQuarter = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnSliceQuarter.CanFocus = true;
@@ -263,10 +276,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.yrbtnSliceQuarter.UseUnderline = true;
 			this.yrbtnSliceQuarter.Group = this.yrbtnSliceDay.Group;
 			this.vboxSlicingFilterContainer.Add(this.yrbtnSliceQuarter);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxSlicingFilterContainer[this.yrbtnSliceQuarter]));
-			w13.Position = 3;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxSlicingFilterContainer[this.yrbtnSliceQuarter]));
+			w14.Position = 3;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child vboxSlicingFilterContainer.Gtk.Box+BoxChild
 			this.yrbtnSliceYear = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnSliceYear.CanFocus = true;
@@ -276,10 +289,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.yrbtnSliceYear.UseUnderline = true;
 			this.yrbtnSliceYear.Group = this.yrbtnSliceDay.Group;
 			this.vboxSlicingFilterContainer.Add(this.yrbtnSliceYear);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxSlicingFilterContainer[this.yrbtnSliceYear]));
-			w14.Position = 4;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxSlicingFilterContainer[this.yrbtnSliceYear]));
+			w15.Position = 4;
+			w15.Expand = false;
+			w15.Fill = false;
 			this.GtkAlignment2.Add(this.vboxSlicingFilterContainer);
 			this.frame1.Add(this.GtkAlignment2);
 			this.GtkLabel16 = new global::Gtk.Label();
@@ -288,8 +301,8 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.GtkLabel16.UseMarkup = true;
 			this.frame1.LabelWidget = this.GtkLabel16;
 			this.hboxSecondFiltersGroup.Add(this.frame1);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxSecondFiltersGroup[this.frame1]));
-			w17.Position = 0;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxSecondFiltersGroup[this.frame1]));
+			w18.Position = 0;
 			// Container child hboxSecondFiltersGroup.Gtk.Box+BoxChild
 			this.frame2 = new global::Gtk.Frame();
 			this.frame2.Name = "frame2";
@@ -311,10 +324,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.ychkbtnShowDynamics.DrawIndicator = true;
 			this.ychkbtnShowDynamics.UseUnderline = true;
 			this.vboxDynamicsSettings.Add(this.ychkbtnShowDynamics);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxDynamicsSettings[this.ychkbtnShowDynamics]));
-			w18.Position = 0;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxDynamicsSettings[this.ychkbtnShowDynamics]));
+			w19.Position = 0;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child vboxDynamicsSettings.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
@@ -324,10 +337,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.lblDynamicsMeasurementUnit.Name = "lblDynamicsMeasurementUnit";
 			this.lblDynamicsMeasurementUnit.LabelProp = global::Mono.Unix.Catalog.GetString("Динамика в:");
 			this.hbox4.Add(this.lblDynamicsMeasurementUnit);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblDynamicsMeasurementUnit]));
-			w19.Position = 0;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblDynamicsMeasurementUnit]));
+			w20.Position = 0;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.yrbtnDynamicsInPercents = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnDynamicsInPercents.CanFocus = true;
@@ -337,10 +350,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.yrbtnDynamicsInPercents.UseUnderline = true;
 			this.yrbtnDynamicsInPercents.Group = new global::GLib.SList(global::System.IntPtr.Zero);
 			this.hbox4.Add(this.yrbtnDynamicsInPercents);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yrbtnDynamicsInPercents]));
-			w20.Position = 1;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yrbtnDynamicsInPercents]));
+			w21.Position = 1;
+			w21.Expand = false;
+			w21.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.yrbtnDynamicsInMeasurementUnit = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yrbtnDynamicsInMeasurementUnit.CanFocus = true;
@@ -350,15 +363,15 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.yrbtnDynamicsInMeasurementUnit.UseUnderline = true;
 			this.yrbtnDynamicsInMeasurementUnit.Group = this.yrbtnDynamicsInPercents.Group;
 			this.hbox4.Add(this.yrbtnDynamicsInMeasurementUnit);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yrbtnDynamicsInMeasurementUnit]));
-			w21.Position = 2;
-			w21.Expand = false;
-			w21.Fill = false;
-			this.vboxDynamicsSettings.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxDynamicsSettings[this.hbox4]));
-			w22.Position = 1;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yrbtnDynamicsInMeasurementUnit]));
+			w22.Position = 2;
 			w22.Expand = false;
 			w22.Fill = false;
+			this.vboxDynamicsSettings.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxDynamicsSettings[this.hbox4]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
 			// Container child vboxDynamicsSettings.Gtk.Box+BoxChild
 			this.ychkbtnShowLastSale = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ychkbtnShowLastSale.CanFocus = true;
@@ -367,10 +380,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.ychkbtnShowLastSale.DrawIndicator = true;
 			this.ychkbtnShowLastSale.UseUnderline = true;
 			this.vboxDynamicsSettings.Add(this.ychkbtnShowLastSale);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxDynamicsSettings[this.ychkbtnShowLastSale]));
-			w23.Position = 2;
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxDynamicsSettings[this.ychkbtnShowLastSale]));
+			w24.Position = 2;
+			w24.Expand = false;
+			w24.Fill = false;
 			// Container child vboxDynamicsSettings.Gtk.Box+BoxChild
 			this.ychkbtnShowResidueForNomenclaturesWithoutSales = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ychkbtnShowResidueForNomenclaturesWithoutSales.CanFocus = true;
@@ -379,10 +392,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.ychkbtnShowResidueForNomenclaturesWithoutSales.DrawIndicator = true;
 			this.ychkbtnShowResidueForNomenclaturesWithoutSales.UseUnderline = true;
 			this.vboxDynamicsSettings.Add(this.ychkbtnShowResidueForNomenclaturesWithoutSales);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxDynamicsSettings[this.ychkbtnShowResidueForNomenclaturesWithoutSales]));
-			w24.Position = 3;
-			w24.Expand = false;
-			w24.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vboxDynamicsSettings[this.ychkbtnShowResidueForNomenclaturesWithoutSales]));
+			w25.Position = 3;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.GtkAlignment3.Add(this.vboxDynamicsSettings);
 			this.frame2.Add(this.GtkAlignment3);
 			this.GtkLabel17 = new global::Gtk.Label();
@@ -391,31 +404,43 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.GtkLabel17.UseMarkup = true;
 			this.frame2.LabelWidget = this.GtkLabel17;
 			this.hboxSecondFiltersGroup.Add(this.frame2);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hboxSecondFiltersGroup[this.frame2]));
-			w27.PackType = ((global::Gtk.PackType)(1));
-			w27.Position = 1;
-			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.hboxSecondFiltersGroup);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.hboxSecondFiltersGroup]));
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hboxSecondFiltersGroup[this.frame2]));
+			w28.PackType = ((global::Gtk.PackType)(1));
 			w28.Position = 1;
-			w28.Expand = false;
-			w28.Fill = false;
+			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.hboxSecondFiltersGroup);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.hboxSecondFiltersGroup]));
+			w29.Position = 1;
+			w29.Expand = false;
+			w29.Fill = false;
 			// Container child vboxTurnoverWithDynamicsReportFilterContainer.Gtk.Box+BoxChild
 			this.vboxParameters = new global::Gtk.VBox();
 			this.vboxParameters.Name = "vboxParameters";
 			this.vboxParameters.Spacing = 6;
+			// Container child vboxParameters.Gtk.Box+BoxChild
+			this.ycheckbuttonShowContacts = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonShowContacts.CanFocus = true;
+			this.ycheckbuttonShowContacts.Name = "ycheckbuttonShowContacts";
+			this.ycheckbuttonShowContacts.Label = global::Mono.Unix.Catalog.GetString("Показать контакты контрагента");
+			this.ycheckbuttonShowContacts.DrawIndicator = true;
+			this.ycheckbuttonShowContacts.UseUnderline = true;
+			this.vboxParameters.Add(this.ycheckbuttonShowContacts);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxParameters[this.ycheckbuttonShowContacts]));
+			w30.Position = 0;
+			w30.Expand = false;
+			w30.Fill = false;
 			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.vboxParameters);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.vboxParameters]));
-			w29.Position = 2;
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.vboxParameters]));
+			w31.Position = 2;
 			// Container child vboxTurnoverWithDynamicsReportFilterContainer.Gtk.Box+BoxChild
 			this.leftrightlistview = new global::QS.Widgets.GtkUI.LeftRightListView();
 			this.leftrightlistview.HeightRequest = 300;
 			this.leftrightlistview.Events = ((global::Gdk.EventMask)(256));
 			this.leftrightlistview.Name = "leftrightlistview";
 			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.leftrightlistview);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.leftrightlistview]));
-			w30.Position = 3;
-			w30.Expand = false;
-			w30.Fill = false;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.leftrightlistview]));
+			w32.Position = 3;
+			w32.Expand = false;
+			w32.Fill = false;
 			// Container child vboxTurnoverWithDynamicsReportFilterContainer.Gtk.Box+BoxChild
 			this.ybuttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCreateReport.CanFocus = true;
@@ -423,10 +448,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.ybuttonCreateReport.UseUnderline = true;
 			this.ybuttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.ybuttonCreateReport);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.ybuttonCreateReport]));
-			w31.Position = 4;
-			w31.Expand = false;
-			w31.Fill = false;
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.ybuttonCreateReport]));
+			w33.Position = 4;
+			w33.Expand = false;
+			w33.Fill = false;
 			// Container child vboxTurnoverWithDynamicsReportFilterContainer.Gtk.Box+BoxChild
 			this.ybuttonAbortCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonAbortCreateReport.CanFocus = true;
@@ -434,10 +459,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.ybuttonAbortCreateReport.UseUnderline = true;
 			this.ybuttonAbortCreateReport.Label = global::Mono.Unix.Catalog.GetString("Отчет в процессе формирования... (Отменить)");
 			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.ybuttonAbortCreateReport);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.ybuttonAbortCreateReport]));
-			w32.Position = 5;
-			w32.Expand = false;
-			w32.Fill = false;
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.ybuttonAbortCreateReport]));
+			w34.Position = 5;
+			w34.Expand = false;
+			w34.Fill = false;
 			// Container child vboxTurnoverWithDynamicsReportFilterContainer.Gtk.Box+BoxChild
 			this.ybuttonSave = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonSave.CanFocus = true;
@@ -445,15 +470,15 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.ybuttonSave.UseUnderline = true;
 			this.ybuttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
 			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.ybuttonSave);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.ybuttonSave]));
-			w33.Position = 6;
-			w33.Expand = false;
-			w33.Fill = false;
-			this.hboxMain.Add(this.vboxTurnoverWithDynamicsReportFilterContainer);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.vboxTurnoverWithDynamicsReportFilterContainer]));
-			w34.Position = 0;
-			w34.Expand = false;
-			w34.Fill = false;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.ybuttonSave]));
+			w35.Position = 6;
+			w35.Expand = false;
+			w35.Fill = false;
+			w1.Add(this.vboxTurnoverWithDynamicsReportFilterContainer);
+			this.scrolledwindow2.Add(w1);
+			this.hboxMain.Add(this.scrolledwindow2);
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.scrolledwindow2]));
+			w38.Position = 0;
 			// Container child hboxMain.Gtk.Box+BoxChild
 			this.eventboxArrow = new global::Gtk.EventBox();
 			this.eventboxArrow.Name = "eventboxArrow";
@@ -465,16 +490,16 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.vseparator1 = new global::Gtk.VSeparator();
 			this.vseparator1.Name = "vseparator1";
 			this.vbox4.Add(this.vseparator1);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator1]));
-			w35.Position = 0;
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator1]));
+			w39.Position = 0;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.arrowSlider = new global::Gtk.Arrow(((global::Gtk.ArrowType)(3)), ((global::Gtk.ShadowType)(2)));
 			this.arrowSlider.Name = "arrowSlider";
 			this.vbox4.Add(this.arrowSlider);
-			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.arrowSlider]));
-			w36.Position = 1;
-			w36.Expand = false;
-			w36.Fill = false;
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.arrowSlider]));
+			w40.Position = 1;
+			w40.Expand = false;
+			w40.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.labelTitle = new global::Gtk.Label();
 			this.labelTitle.Name = "labelTitle";
@@ -482,39 +507,37 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.labelTitle.SingleLineMode = true;
 			this.labelTitle.Angle = 90D;
 			this.vbox4.Add(this.labelTitle);
-			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.labelTitle]));
-			w37.Position = 2;
-			w37.Expand = false;
-			w37.Fill = false;
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.labelTitle]));
+			w41.Position = 2;
+			w41.Expand = false;
+			w41.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.vseparator2 = new global::Gtk.VSeparator();
 			this.vseparator2.Name = "vseparator2";
 			this.vbox4.Add(this.vseparator2);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator2]));
-			w38.Position = 3;
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.vseparator2]));
+			w42.Position = 3;
 			this.eventboxArrow.Add(this.vbox4);
 			this.hboxMain.Add(this.eventboxArrow);
-			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.eventboxArrow]));
-			w40.Position = 1;
-			w40.Expand = false;
-			w40.Fill = false;
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hboxMain[this.eventboxArrow]));
+			w44.Position = 1;
+			w44.Expand = false;
+			w44.Fill = false;
 			this.hbox1.Add(this.hboxMain);
-			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hboxMain]));
-			w41.Position = 0;
-			w41.Expand = false;
-			w41.Fill = false;
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hboxMain]));
+			w45.Position = 0;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
+			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
 			this.ytreeReportIndicatorsRows = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeReportIndicatorsRows.CanFocus = true;
 			this.ytreeReportIndicatorsRows.Name = "ytreeReportIndicatorsRows";
-			this.GtkScrolledWindow.Add(this.ytreeReportIndicatorsRows);
-			this.hbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow]));
-			w43.Position = 1;
+			this.GtkScrolledWindow2.Add(this.ytreeReportIndicatorsRows);
+			this.hbox1.Add(this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow2]));
+			w47.Position = 1;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
