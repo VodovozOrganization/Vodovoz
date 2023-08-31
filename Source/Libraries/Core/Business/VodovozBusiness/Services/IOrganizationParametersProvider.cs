@@ -11,6 +11,7 @@ namespace Vodovoz.Services
         int VodovozOrganizationId { get; }
         int VodovozSouthOrganizationId { get; }
         int VodovozNorthOrganizationId { get; }
+		int VodovozEastOrganizationId { get; }
         int VodovozDeshitsOrganizationId { get; }
         int CommonCashDistributionOrganisationId { get; }
         TimeSpan LatestCreateTimeForSouthOrganizationInByCardOrder { get; }
