@@ -57,12 +57,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 		private readonly string _templateWithDynamicsPath = @".\Reports\Sales\TurnoverWithDynamicsReport.xlsx";
 		private readonly string _templateByCounterpartyPath = @".\Reports\Sales\TurnoverByCounterpartyReport.xlsx";
 		private readonly string _templateByCounterpartyWithDynamicsPath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsReport.xlsx";
-		private readonly string _templateByCounterpartyFinancePath = @".\Reports\Sales\TurnoverByCounterpartyFinanceReport.xlsx";
-		private readonly string _templateByCounterpartyWithDynamicsFinancePath = @".\Reports\Sales\TurnoverByCounterpartyWithDynamicsFinanceReport.xlsx";
 		private readonly string _templateByCounterpartyWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsReport.xlsx";
 		private readonly string _templateByCounterpartyWithDynamicsWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsWithDynamicsReport.xlsx";
-		private readonly string _templateByCounterpartyFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsFinanceReport.xlsx";
-		private readonly string _templateByCounterpartyWithDynamicsFinanceWithContactsPath = @".\Reports\Sales\TurnoverByCounterpartyWithContactsWithDynamicsFinanceReport.xlsx";
 
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _userCanGetContactsInSalesReports;
@@ -473,45 +469,21 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			{
 				if(Report.ShowDynamics)
 				{
-					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					if(ShowContacts)
 					{
-						if(ShowContacts)
-						{
-							return _templateByCounterpartyWithDynamicsWithContactsPath;
-						}
-
-						return _templateByCounterpartyWithDynamicsPath;
+						return _templateByCounterpartyWithDynamicsWithContactsPath;
 					}
-					else
-					{
-						if(ShowContacts)
-						{
-							return _templateByCounterpartyWithDynamicsFinanceWithContactsPath;
-						}
 
-						return _templateByCounterpartyWithDynamicsFinancePath;
-					}
+					return _templateByCounterpartyWithDynamicsPath;
 				}
 				else
 				{
-					if(Report.MeasurementUnit == MeasurementUnitEnum.Amount)
+					if(ShowContacts)
 					{
-						if(ShowContacts)
-						{
-							return _templateByCounterpartyWithContactsPath;
-						}
-
-						return _templateByCounterpartyPath;
+						return _templateByCounterpartyWithContactsPath;
 					}
-					else
-					{
-						if(ShowContacts)
-						{
-							return _templateByCounterpartyFinanceWithContactsPath;
-						}
 
-						return _templateByCounterpartyFinancePath;
-					}
+					return _templateByCounterpartyPath;
 				}
 			}
 
