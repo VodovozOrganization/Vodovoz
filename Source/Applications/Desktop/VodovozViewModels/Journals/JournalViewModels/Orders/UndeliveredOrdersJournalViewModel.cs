@@ -10,7 +10,9 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using DateTimeHelpers;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -101,7 +103,192 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			undeliveredrdersConfig.FinishConfiguration();
 		}
 
-		private IQueryOver<UndeliveredOrder> GetUndeliveredOrdersQuery(IUnitOfWork uow)
+		private IList<int> GetUndeliveredOrderIds(IUnitOfWork uow, int? skipCount = null, int? takeCount = null)
+		{
+			UndeliveredOrder undeliveredOrderAlias = null;
+			Domain.Orders.Order oldOrderAlias = null;
+			Domain.Orders.Order newOrderAlias = null;
+			Employee oldOrderAuthorAlias = null;
+			Employee authorAlias = null;
+			Employee editorAlias = null;
+			Employee registratorAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint undeliveredOrderDeliveryPointAlias = null;
+			DeliverySchedule undeliveredOrderDeliveryScheduleAlias = null;
+			DeliverySchedule newOrderDeliveryScheduleAlias = null;
+			Subdivision subdivisionAlias = null;
+			Subdivision inProcessAtSubdivisionAlias = null;
+			Subdivision authorSubdivisionAlias = null;
+			GuiltyInUndelivery guiltyInUndeliveryAlias = null;
+			UndeliveryDetalization undeliveryDetalizationAlias = null;
+			UndeliveryKind undeliveryKindAlias = null;
+			UndeliveryObject undeliveryObjectAlias = null;
+
+			var query = uow.Session.QueryOver<UndeliveredOrder>(() => undeliveredOrderAlias)
+				.Left.JoinAlias(u => u.OldOrder, () => oldOrderAlias)
+				.Left.JoinAlias(u => u.NewOrder, () => newOrderAlias)
+				.Left.JoinAlias(() => oldOrderAlias.Client, () => counterpartyAlias)
+				.Left.JoinAlias(() => newOrderAlias.DeliverySchedule, () => newOrderDeliveryScheduleAlias)
+				.Left.JoinAlias(() => oldOrderAlias.Author, () => oldOrderAuthorAlias)
+				.Left.JoinAlias(() => oldOrderAlias.DeliveryPoint, () => undeliveredOrderDeliveryPointAlias)
+				.Left.JoinAlias(() => oldOrderAlias.DeliverySchedule, () => undeliveredOrderDeliveryScheduleAlias)
+				.Left.JoinAlias(u => u.Author, () => authorAlias)
+				.Left.JoinAlias(u => u.LastEditor, () => editorAlias)
+				.Left.JoinAlias(u => u.EmployeeRegistrator, () => registratorAlias)
+				.Left.JoinAlias(u => u.InProcessAtDepartment, () => inProcessAtSubdivisionAlias)
+				.Left.JoinAlias(u => u.Author.Subdivision, () => authorSubdivisionAlias)
+				.Left.JoinAlias(() => undeliveredOrderAlias.GuiltyInUndelivery, () => guiltyInUndeliveryAlias)
+				.Left.JoinAlias(() => guiltyInUndeliveryAlias.GuiltyDepartment, () => subdivisionAlias)
+				.Left.JoinAlias(() => undeliveredOrderAlias.UndeliveryDetalization, () => undeliveryDetalizationAlias)
+				.Left.JoinAlias(() => undeliveryDetalizationAlias.UndeliveryKind, () => undeliveryKindAlias)
+				.Left.JoinAlias(() => undeliveryKindAlias.UndeliveryObject, () => undeliveryObjectAlias)
+				;
+
+			if(FilterViewModel?.RestrictDriver != null)
+			{
+				var oldOrderIds = _undeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(UoW, FilterViewModel.RestrictDriver);
+				query.Where(() => oldOrderAlias.Id.IsIn(oldOrderIds.ToArray()));
+			}
+
+			if(FilterViewModel?.RestrictOldOrder != null)
+			{
+				query.Where(() => oldOrderAlias.Id == FilterViewModel.RestrictOldOrder.Id);
+			}
+
+			if(FilterViewModel?.RestrictClient != null)
+			{
+				query.Where(() => counterpartyAlias.Id == FilterViewModel.RestrictClient.Id);
+			}
+
+			if(FilterViewModel?.RestrictAddress != null)
+			{
+				query.Where(() => undeliveredOrderDeliveryPointAlias.Id == FilterViewModel.RestrictAddress.Id);
+			}
+
+			if(FilterViewModel?.RestrictAuthorSubdivision != null)
+			{
+				query.Where(() => authorAlias.Subdivision.Id == FilterViewModel.RestrictAuthorSubdivision.Id);
+			}
+
+			if(FilterViewModel?.RestrictOldOrderAuthor != null)
+			{
+				query.Where(() => oldOrderAuthorAlias.Id == FilterViewModel.RestrictOldOrderAuthor.Id);
+			}
+
+			if(FilterViewModel?.RestrictOldOrderStartDate != null)
+			{
+				query.Where(() => oldOrderAlias.DeliveryDate >= FilterViewModel.RestrictOldOrderStartDate);
+			}
+
+			if(FilterViewModel?.RestrictOldOrderEndDate != null)
+			{
+				query.Where(() => oldOrderAlias.DeliveryDate <= FilterViewModel.RestrictOldOrderEndDate.Value.LatestDayTime());
+			}
+
+			if(FilterViewModel?.RestrictNewOrderStartDate != null)
+			{
+				query.Where(() => newOrderAlias.DeliveryDate >= FilterViewModel.RestrictNewOrderStartDate);
+			}
+
+			if(FilterViewModel?.RestrictNewOrderEndDate != null)
+			{
+				query.Where(() => newOrderAlias.DeliveryDate <= FilterViewModel.RestrictNewOrderEndDate.Value.AddDays(1).AddTicks(-1));
+			}
+
+			if(FilterViewModel?.RestrictGuiltySide != null)
+			{
+				query.Where(() => guiltyInUndeliveryAlias.GuiltySide == FilterViewModel.RestrictGuiltySide);
+			}
+
+			if(FilterViewModel?.OldOrderStatus != null)
+			{
+				query.Where(() => undeliveredOrderAlias.OldOrderStatus == FilterViewModel.OldOrderStatus);
+			}
+
+			if(FilterViewModel != null && FilterViewModel.RestrictIsProblematicCases)
+			{
+				query.Where(() => !guiltyInUndeliveryAlias.GuiltySide.IsIn(FilterViewModel.ExcludingGuiltiesForProblematicCases));
+			}
+
+			if(FilterViewModel?.RestrictGuiltyDepartment != null)
+			{
+				query.Where(() => subdivisionAlias.Id == FilterViewModel.RestrictGuiltyDepartment.Id);
+			}
+
+			if(FilterViewModel?.RestrictInProcessAtDepartment != null)
+			{
+				query.Where(u => u.InProcessAtDepartment.Id == FilterViewModel.RestrictInProcessAtDepartment.Id);
+			}
+
+			if(FilterViewModel?.NewInvoiceCreated != null)
+			{
+				if(FilterViewModel.NewInvoiceCreated.Value)
+				{
+					query.Where(u => u.NewOrder != null);
+				}
+				else
+				{
+					query.Where(u => u.NewOrder == null);
+				}
+			}
+
+			if(FilterViewModel?.RestrictUndeliveryStatus != null)
+			{
+				query.Where(u => u.UndeliveryStatus == FilterViewModel.RestrictUndeliveryStatus);
+			}
+
+			if(FilterViewModel?.RestrictUndeliveryAuthor != null)
+			{
+				query.Where(u => u.Author == FilterViewModel.RestrictUndeliveryAuthor);
+			}
+
+			var addressProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String,
+					"CONCAT_WS(', ', ?1, CONCAT('д.', ?2), CONCAT('лит.', ?3), CONCAT('кв/оф ', ?4))"),
+				NHibernateUtil.String,
+				Projections.Property(() => undeliveredOrderDeliveryPointAlias.Street),
+				Projections.Property(() => undeliveredOrderDeliveryPointAlias.Building),
+				Projections.Property(() => undeliveredOrderDeliveryPointAlias.Letter),
+				Projections.Property(() => undeliveredOrderDeliveryPointAlias.Room));
+
+			var oldOrderAuthorProjection = CustomProjections.Concat_WS(" ",
+				() => oldOrderAuthorAlias.LastName, () => oldOrderAuthorAlias.Name, () => oldOrderAuthorAlias.Patronymic);
+
+			var registratorProjection = CustomProjections.Concat_WS(" ",
+				() => registratorAlias.LastName, () => registratorAlias.Name, () => registratorAlias.Patronymic);
+
+			var authorProjection = CustomProjections.Concat_WS(" ",
+				() => authorAlias.LastName, () => authorAlias.Name, () => authorAlias.Patronymic);
+			
+			query.Where(GetSearchCriterion(
+				() => undeliveredOrderAlias.Id,
+				() => addressProjection,
+				() => counterpartyAlias.Name,
+				() => undeliveredOrderAlias.Reason,
+				() => oldOrderAuthorProjection,
+				() => registratorProjection,
+				() => authorProjection)
+			);
+
+			var itemsQuery = query.SelectList(list => list
+					.SelectGroup(() => undeliveredOrderAlias.Id)
+				)
+				.OrderBy(() => oldOrderAlias.DeliveryDate).Asc;
+
+			if(skipCount.HasValue)
+			{
+				itemsQuery.Skip(skipCount.Value);
+			}
+			
+			if(takeCount.HasValue)
+			{
+				itemsQuery.Take(takeCount.Value);
+			}
+
+			return itemsQuery.List<int>();
+		}
+		
+		private IQueryOver<UndeliveredOrder> GetUndeliveredOrdersQuery(IUnitOfWork uow, int? skipCount = null, int? takeCount = null)
 		{
 			UndeliveredOrderJournalNode resultAlias = null;
 			UndeliveredOrder undeliveredOrderAlias = null;
@@ -262,104 +449,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				.Left.JoinAlias(() => undeliveryKindAlias.UndeliveryObject, () => undeliveryObjectAlias)
 				;
 
-			if(FilterViewModel?.RestrictDriver != null)
-			{
-				var oldOrderIds = _undeliveredOrdersRepository.GetListOfUndeliveryIdsForDriver(UoW, FilterViewModel.RestrictDriver);
-				query.Where(() => oldOrderAlias.Id.IsIn(oldOrderIds.ToArray()));
-			}
-
-			if(FilterViewModel?.RestrictOldOrder != null)
-			{
-				query.Where(() => oldOrderAlias.Id == FilterViewModel.RestrictOldOrder.Id);
-			}
-
-			if(FilterViewModel?.RestrictClient != null)
-			{
-				query.Where(() => counterpartyAlias.Id == FilterViewModel.RestrictClient.Id);
-			}
-
-			if(FilterViewModel?.RestrictAddress != null)
-			{
-				query.Where(() => undeliveredOrderDeliveryPointAlias.Id == FilterViewModel.RestrictAddress.Id);
-			}
-
-			if(FilterViewModel?.RestrictAuthorSubdivision != null)
-			{
-				query.Where(() => authorAlias.Subdivision.Id == FilterViewModel.RestrictAuthorSubdivision.Id);
-			}
-
-			if(FilterViewModel?.RestrictOldOrderAuthor != null)
-			{
-				query.Where(() => oldOrderAuthorAlias.Id == FilterViewModel.RestrictOldOrderAuthor.Id);
-			}
-
-			if(FilterViewModel?.RestrictOldOrderStartDate != null)
-			{
-				query.Where(() => oldOrderAlias.DeliveryDate >= FilterViewModel.RestrictOldOrderStartDate);
-			}
-
-			if(FilterViewModel?.RestrictOldOrderEndDate != null)
-			{
-				query.Where(() => oldOrderAlias.DeliveryDate <= FilterViewModel.RestrictOldOrderEndDate.Value.AddDays(1).AddTicks(-1));
-			}
-
-			if(FilterViewModel?.RestrictNewOrderStartDate != null)
-			{
-				query.Where(() => newOrderAlias.DeliveryDate >= FilterViewModel.RestrictNewOrderStartDate);
-			}
-
-			if(FilterViewModel?.RestrictNewOrderEndDate != null)
-			{
-				query.Where(() => newOrderAlias.DeliveryDate <= FilterViewModel.RestrictNewOrderEndDate.Value.AddDays(1).AddTicks(-1));
-			}
-
-			if(FilterViewModel?.RestrictGuiltySide != null)
-			{
-				query.Where(() => guiltyInUndeliveryAlias.GuiltySide == FilterViewModel.RestrictGuiltySide);
-			}
-
-			if(FilterViewModel?.OldOrderStatus != null)
-			{
-				query.Where(() => undeliveredOrderAlias.OldOrderStatus == FilterViewModel.OldOrderStatus);
-			}
-
-			if(FilterViewModel != null && FilterViewModel.RestrictIsProblematicCases)
-			{
-				query.Where(() => !guiltyInUndeliveryAlias.GuiltySide.IsIn(FilterViewModel.ExcludingGuiltiesForProblematicCases));
-			}
-
-			if(FilterViewModel?.RestrictGuiltyDepartment != null)
-			{
-				query.Where(() => subdivisionAlias.Id == FilterViewModel.RestrictGuiltyDepartment.Id);
-			}
-
-			if(FilterViewModel?.RestrictInProcessAtDepartment != null)
-			{
-				query.Where(u => u.InProcessAtDepartment.Id == FilterViewModel.RestrictInProcessAtDepartment.Id);
-			}
-
-			if(FilterViewModel?.NewInvoiceCreated != null)
-			{
-				if(FilterViewModel.NewInvoiceCreated.Value)
-				{
-					query.Where(u => u.NewOrder != null);
-				}
-				else
-				{
-					query.Where(u => u.NewOrder == null);
-				}
-			}
-
-			if(FilterViewModel?.RestrictUndeliveryStatus != null)
-			{
-				query.Where(u => u.UndeliveryStatus == FilterViewModel.RestrictUndeliveryStatus);
-			}
-
-			if(FilterViewModel?.RestrictUndeliveryAuthor != null)
-			{
-				query.Where(u => u.Author == FilterViewModel.RestrictUndeliveryAuthor);
-			}
-
 			var addressProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String,
 					"CONCAT_WS(', ', ?1, CONCAT('д.', ?2), CONCAT('лит.', ?3), CONCAT('кв/оф ', ?4))"),
@@ -369,25 +458,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				Projections.Property(() => undeliveredOrderDeliveryPointAlias.Letter),
 				Projections.Property(() => undeliveredOrderDeliveryPointAlias.Room));
 
-			var oldOrderAuthorProjection = CustomProjections.Concat_WS(" ",
-				() => oldOrderAuthorAlias.LastName, () => oldOrderAuthorAlias.Name, () => oldOrderAuthorAlias.Patronymic);
-
-			var registratorProjection = CustomProjections.Concat_WS(" ",
-				() => registratorAlias.LastName, () => registratorAlias.Name, () => registratorAlias.Patronymic);
-
-			var authorProjection = CustomProjections.Concat_WS(" ",
-				() => authorAlias.LastName, () => authorAlias.Name, () => authorAlias.Patronymic);
-
-
-			query.Where(GetSearchCriterion(
-				() => undeliveredOrderAlias.Id,
-				() => addressProjection,
-				() => counterpartyAlias.Name,
-				() => undeliveredOrderAlias.Reason,
-				() => oldOrderAuthorProjection,
-				() => registratorProjection,
-				() => authorProjection)
-			);
+			query.WhereRestrictionOn(u => u.Id).IsInG(GetUndeliveredOrderIds(uow, skipCount, takeCount));
 
 			var itemsQuery = query.SelectList(list => list
 					.SelectGroup(() => undeliveredOrderAlias.Id).WithAlias(() => resultAlias.Id)
@@ -431,9 +502,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.SelectSubQuery(subqueryGuilty).WithAlias(() => resultAlias.Guilty)
 					.Select(addressProjection).WithAlias(() => resultAlias.Address)
 					.SelectSubQuery(subqueryLastResultCommentAuthor).WithAlias(() => resultAlias.LastResultCommentAuthor)
-				).OrderBy(() => oldOrderAlias.DeliveryDate).Asc
-				.TransformUsing(Transformers.AliasToBean<UndeliveredOrderJournalNode>())
-				.SetTimeout(60);
+					)
+				.OrderBy(() => oldOrderAlias.DeliveryDate).Asc
+				.TransformUsing(Transformers.AliasToBean<UndeliveredOrderJournalNode>());
 
 			return itemsQuery;
 		}
