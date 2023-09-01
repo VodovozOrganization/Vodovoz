@@ -414,9 +414,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			var sheet = workbook.Worksheets.FirstOrDefault();
 
-			var namedRange = workbook.NamedRanges.Where(x => x.Name == "Rows_SliceColumnValues").FirstOrDefault();
+			var namedRange = Report.ShowDynamics ?
+				workbook.NamedRanges.Where(x => x.Name == "Rows_DynamicColumns").FirstOrDefault()
+				: workbook.NamedRanges.Where(x => x.Name == "Rows_SliceColumnValues").FirstOrDefault();
 
-			var totalsRow = workbook.NamedRanges.Where(x => x.Name == "ReportTotal_SliceColumnValues").FirstOrDefault().Ranges.FirstOrDefault().RangeAddress.FirstAddress.RowNumber;
+			var totalsRow = Report.ShowDynamics ?
+				workbook.NamedRanges.Where(x => x.Name == "ReportTotal_DynamicColumns").FirstOrDefault().Ranges.FirstOrDefault().RangeAddress.FirstAddress.RowNumber
+				: workbook.NamedRanges.Where(x => x.Name == "ReportTotal_SliceColumnValues").FirstOrDefault().Ranges.FirstOrDefault().RangeAddress.FirstAddress.RowNumber;
 
 			var slicesRange = namedRange?.Ranges.FirstOrDefault();
 

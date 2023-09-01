@@ -82,6 +82,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			public IEnumerable<GroupingType> GroupingBy { get; }
 
+			public string GroupingTitle => string.Join(" | ", GroupingBy.Select(x => x.GetEnumTitle()));
+
 			public DateTimeSliceType SliceType { get; }
 
 			public MeasurementUnitEnum MeasurementUnit { get; }
@@ -140,8 +142,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 						var group3Total = AddGroupTotals("Сводные данные по отчету", result3.Totals);
 
-						result3.Rows.Insert(0, group3Total);
-
 						ReportTotal = group3Total;
 
 						return result3.Rows;
@@ -156,8 +156,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 						var group2Total = AddGroupTotals("Сводные данные по отчету", result2nd.Totals);
 
-						result2nd.Rows.Insert(0, group2Total);
-
 						ReportTotal = group2Total;
 
 						return result2nd.Rows;
@@ -170,8 +168,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							GetGroupTitle(GroupingBy.ElementAt(0)));
 
 						result.TotalRow.Title = "Сводные данные по отчету";
-
-						result.Rows.Insert(0, result.TotalRow);
 
 						ReportTotal = result.TotalRow;
 
