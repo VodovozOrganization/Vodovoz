@@ -154,7 +154,7 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child ytable1.Gtk.Table+TableChild
 			this.ylabelCounterpartyNameLike = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCounterpartyNameLike.Name = "ylabelCounterpartyNameLike";
-			this.ylabelCounterpartyNameLike.LabelProp = global::Mono.Unix.Catalog.GetString("Нименование клиента:");
+			this.ylabelCounterpartyNameLike.LabelProp = global::Mono.Unix.Catalog.GetString("Наименование клиента:");
 			this.ytable1.Add(this.ylabelCounterpartyNameLike);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytable1[this.ylabelCounterpartyNameLike]));
 			w10.LeftAttach = ((uint)(2));
