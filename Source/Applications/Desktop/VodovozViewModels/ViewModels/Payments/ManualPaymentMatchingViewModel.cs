@@ -749,7 +749,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			else
 			{
 				Entity.CurrentEditorUser = CurrentUser;
-				Save();
+				UoW.Save();
 			}
 		}
 
