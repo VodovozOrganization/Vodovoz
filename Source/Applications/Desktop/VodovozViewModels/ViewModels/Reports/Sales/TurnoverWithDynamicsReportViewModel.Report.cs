@@ -1,6 +1,7 @@
 ﻿using DateTimeHelpers;
 using Gamma.Utilities;
 using MoreLinq;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -131,19 +132,35 @@ namespace Vodovoz.ViewModels.Reports.Sales
 							.GroupBy(g => GetSelector(GroupingBy.ElementAt(1)).Invoke(g.First()))
 							.GroupBy(g => GetSelector(GroupingBy.ElementAt(0)).Invoke(g.First().First()));
 
-						return Process3rdLevelGroups(
+						var result3 = Process3rdLevelGroups(
 							thirdLevelGroup,
 							GetGroupTitle(GroupingBy.ElementAt(2)),
 							GetGroupTitle(GroupingBy.ElementAt(1)),
 							GetGroupTitle(GroupingBy.ElementAt(0)));
+
+						var group3Total = AddGroupTotals("Сводные данные по отчету", result3.Totals);
+
+						result3.Rows.Insert(0, group3Total);
+
+						ReportTotal = group3Total;
+
+						return result3.Rows;
 					case 2:
 						var secondLevelGroup = ordersItemslist
 							.GroupBy(GetSelector(GroupingBy.ElementAt(1)))
 							.GroupBy(g => GetSelector(GroupingBy.ElementAt(0)).Invoke(g.First()));
 
-						return Process2ndLevelGroups(secondLevelGroup,
+						var result2nd = Process2ndLevelGroups(secondLevelGroup,
 							GetGroupTitle(GroupingBy.ElementAt(1)),
 							GetGroupTitle(GroupingBy.ElementAt(0)));
+
+						var group2Total = AddGroupTotals("Сводные данные по отчету", result2nd.Totals);
+
+						result2nd.Rows.Insert(0, group2Total);
+
+						ReportTotal = group2Total;
+
+						return result2nd.Rows;
 					default:
 						var firstLevelGroup = ordersItemslist
 							.GroupBy(GetSelector(GroupingBy.ElementAt(0)));
@@ -152,9 +169,13 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						 Process1stLevelGroups(firstLevelGroup,
 							GetGroupTitle(GroupingBy.ElementAt(0)));
 
-						ReportTotal = result.First();
+						result.TotalRow.Title = "Сводные данные по отчету";
 
-						return result;
+						result.Rows.Insert(0, result.TotalRow);
+
+						ReportTotal = result.TotalRow;
+
+						return result.Rows;
 				}
 
 				//if(GroupingBy.LastOrDefault() == GroupingType.Nomenclature)
@@ -178,29 +199,34 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				//return rows;
 			}
 
-			private IList<TurnoverWithDynamicsReportRow> Process1stLevelGroups(
+			private (IList<TurnoverWithDynamicsReportRow> Rows, TurnoverWithDynamicsReportRow TotalRow) Process1stLevelGroups(
 				IEnumerable<IGrouping<object, OrderItemNode>> firstLevelGroup,
 				Func<OrderItemNode, string> func)
 			{
 				var result = new List<TurnoverWithDynamicsReportRow>();
 
-				IList<TurnoverWithDynamicsReportRow> totalsRows = new List<TurnoverWithDynamicsReportRow>();
-
-				var groupTitle = func.Invoke(firstLevelGroup.First().First());
-
 				foreach(var group in firstLevelGroup)
 				{
-					result.Add(NodeGroup(group, x => x.NomenclatureOfficialName));
+					var row = new TurnoverWithDynamicsReportRow
+					{
+						RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
+						Title = func.Invoke(group.First()),
+					};
+
+					row.SliceColumnValues = CalculateValuesRow(group);
+
+					ProcessDynamics(row);
+					ProcessLastSale(group, row);
+
+					result.Add(row);
 				}
 
-				var groupTotal = AddGroupTotals(groupTitle, result);
+				var groupTotal = AddGroupTotals("", result);
 
-				result.Insert(0, groupTotal);
-
-				return result;
+				return (result, groupTotal);
 			}
 
-			private IList<TurnoverWithDynamicsReportRow> Process2ndLevelGroups(
+			private (IList<TurnoverWithDynamicsReportRow> Rows, IList<TurnoverWithDynamicsReportRow> Totals) Process2ndLevelGroups(
 				IEnumerable<IGrouping<object, IGrouping<object, OrderItemNode>>> secondLevelGroup,
 				Func<OrderItemNode, string> func1,
 				Func<OrderItemNode, string> func2)
@@ -215,19 +241,17 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 					var groupRows = Process1stLevelGroups(group, func1);
 
-					var groupTotal = AddGroupTotals(groupTitle, groupRows);
+					groupRows.TotalRow.Title = groupTitle;
 
-					totalsRows.Add(groupTotal);
-					groupRows.Insert(0, groupTotal);
-					result = result.Union(groupRows).ToList();
+					totalsRows.Add(groupRows.TotalRow);
+					groupRows.Rows.Insert(0, groupRows.TotalRow);
+					result = result.Union(groupRows.Rows).ToList();
 				}
 
-				ReportTotal = AddGroupTotals("Сводные данные по отчету", totalsRows);
-
-				return result;
+				return (result, totalsRows);
 			}
 
-			private IList<TurnoverWithDynamicsReportRow> Process3rdLevelGroups(
+			private (IList<TurnoverWithDynamicsReportRow> Rows, IList<TurnoverWithDynamicsReportRow> Totals) Process3rdLevelGroups(
 				IEnumerable<IGrouping<object, IGrouping<object, IGrouping<object, OrderItemNode>>>> thirdLevelGroup,
 				Func<OrderItemNode, string> func1,
 				Func<OrderItemNode, string> func2,
@@ -241,34 +265,16 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				{
 					var groupTitle = func3.Invoke(group.First().First().First());
 
-					var groupRows = Process2ndLevelGroups(group, func2, func1);
+					var groupRows = Process2ndLevelGroups(group, func1, func2);
 
-					var groupTotal = AddGroupTotals(groupTitle, groupRows);
+					var groupTotal = AddGroupTotals(groupTitle, groupRows.Totals);
 
 					totalsRows.Add(groupTotal);
-					groupRows.Insert(0, groupTotal);
-					result = result.Union(groupRows).ToList();
+					groupRows.Rows.Insert(0, groupTotal);
+					result = result.Union(groupRows.Rows).ToList();
 				}
 
-				ReportTotal = AddGroupTotals("Сводные данные по отчету", totalsRows);
-
-				return result;
-			}
-
-			private TurnoverWithDynamicsReportRow NodeGroup(IGrouping<object, OrderItemNode> group, Func<OrderItemNode, string> titleFunc)
-			{
-				var row = new TurnoverWithDynamicsReportRow
-				{
-					RowType = TurnoverWithDynamicsReportRow.RowTypes.Values,
-					Title = titleFunc.Invoke(group.First()),
-				};
-
-				row.SliceColumnValues = CalculateValuesRow(group);
-
-				ProcessDynamics(row);
-				ProcessLastSale(group, row);
-
-				return row;
+				return (result, totalsRows);
 			}
 
 			private Func<OrderItemNode, object> GetSelector(GroupingType groupingType)
