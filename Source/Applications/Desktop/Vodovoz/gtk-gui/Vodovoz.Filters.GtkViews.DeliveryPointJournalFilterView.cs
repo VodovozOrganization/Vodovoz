@@ -94,6 +94,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.yhboxFilter1.Add(this.entityVMentryCounterparty);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxFilter1[this.entityVMentryCounterparty]));
 			w4.Position = 3;
+			w4.Expand = false;
 			this.yvboxMain.Add(this.yhboxFilter1);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxFilter1]));
 			w5.Position = 0;
