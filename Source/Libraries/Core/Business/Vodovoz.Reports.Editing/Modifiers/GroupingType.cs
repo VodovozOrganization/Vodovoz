@@ -18,6 +18,8 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		Nomenclature,
 		[Display(Name = "Тип номенклатуры")]
 		NomenclatureType,
+		[Display(Name = "Группа номенклатур")]
+		NomenclatureGroup,
 		[Display(Name = "Группа номенклатур 1")]
 		NomenclatureGroup1,
 		[Display(Name = "Группа номенклатур 2")]

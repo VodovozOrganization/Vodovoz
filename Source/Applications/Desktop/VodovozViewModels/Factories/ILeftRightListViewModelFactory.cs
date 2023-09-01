@@ -6,5 +6,6 @@ namespace Vodovoz.ViewModels.Factories
 	public interface ILeftRightListViewModelFactory
 	{
 		LeftRightListViewModel<GroupingNode> CreateSalesReportGroupingsConstructor();
+		LeftRightListViewModel<GroupingNode> CreateSalesWithDynamicsReportGroupingsConstructor();
 	}
 }

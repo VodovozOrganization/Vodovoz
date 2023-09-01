@@ -283,11 +283,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						return x => x.NomenclatureId;
 					case GroupingType.NomenclatureType:
 						return x => x.NomenclatureCategory;
-					case GroupingType.NomenclatureGroup1:
-						return x => x.ProductGroupId;
-					case GroupingType.NomenclatureGroup2:
-						return x => x.ProductGroupId;
-					case GroupingType.NomenclatureGroup3:
+					case GroupingType.NomenclatureGroup:
 						return x => x.ProductGroupId;
 					case GroupingType.CounterpartyType:
 						return x => x.CounterpartyType;
@@ -318,12 +314,8 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						return x => x.NomenclatureOfficialName;
 					case GroupingType.NomenclatureType:
 						return x => x.NomenclatureCategory.GetEnumTitle();
-					case GroupingType.NomenclatureGroup1:
-						return x => x.ProductGroupId.ToString();
-					case GroupingType.NomenclatureGroup2:
-						return x => x.ProductGroupId.ToString();
-					case GroupingType.NomenclatureGroup3:
-						return x => x.ProductGroupId.ToString();
+					case GroupingType.NomenclatureGroup:
+						return x => x.ProductGroupName;
 					case GroupingType.CounterpartyType:
 						return x => x.CounterpartyType.GetEnumTitle();
 					case GroupingType.PaymentType:

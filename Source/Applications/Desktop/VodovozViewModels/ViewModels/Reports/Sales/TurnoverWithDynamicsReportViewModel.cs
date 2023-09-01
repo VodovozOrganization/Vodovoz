@@ -278,7 +278,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private void SetupGroupings()
 		{
-			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateSalesReportGroupingsConstructor();
+			GroupingSelectViewModel = _leftRightListViewModelFactory.CreateSalesWithDynamicsReportGroupingsConstructor();
 
 			GroupingSelectViewModel.RightItems.ListContentChanged += OnGroupingsRightItemsListContentChanged;
 		}
@@ -720,7 +720,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(Projections.Constant(0).WithAlias(() => resultNodeAlias.OrderId))
 						.Select(Projections.Max(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate))
 						.Select(Projections.Property(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId))
-						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.GroupName)))
+						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection().WithAlias(() => resultNodeAlias.ProductGroupName)))
 					.SetTimeout(0)
 					.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).ReadOnly().List<OrderItemNode>();
 			}
@@ -1014,7 +1014,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultNodeAlias.OrderDeliveryDate)
 						.SelectSubQuery(routeListIdSubquery).WithAlias(() => resultNodeAlias.RouteListId)
 						.Select(() => productGroupAlias.Id).WithAlias(() => resultNodeAlias.ProductGroupId)
-						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.GroupName))
+						.Select(ProductGroupProjections.GetProductGroupNameWithEnclosureProjection()).WithAlias(() => resultNodeAlias.ProductGroupName))
 				.SetTimeout(0)
 				.TransformUsing(Transformers.AliasToBean<OrderItemNode>()).List<OrderItemNode>();
 

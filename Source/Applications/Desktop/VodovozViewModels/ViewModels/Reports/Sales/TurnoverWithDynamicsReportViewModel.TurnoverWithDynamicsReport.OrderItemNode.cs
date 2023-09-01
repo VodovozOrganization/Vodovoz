@@ -46,7 +46,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 				public int ProductGroupId { get; set; }
 
-				public string GroupName { get; set; }
+				public string ProductGroupName { get; set; }
 
 				public decimal? ActualCount { get; set; }
 
