@@ -286,6 +286,10 @@ namespace Vodovoz.Views.Suppliers
 			var storageTitle = ViewModel.GetActiveSelectedStorageTypeTitle();
 			
 			treeData.ColumnsConfig = FluentColumnsConfig<ActiveStoragesBalanceSummaryRow>.Create()
+				.AddColumn(WarehousesBalanceSummaryViewModel.RowNumberTitle)
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(row => row.RowNumberStorage)
+					.XAlign(0.5f)
 				.AddColumn(storageTitle)
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(row => row.Storage)
