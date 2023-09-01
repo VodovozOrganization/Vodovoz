@@ -95,7 +95,9 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			public bool ShowLastSale { get; }
 
 			public bool ShowResidueForNomenclaturesWithoutSales { get; }
+
 			public bool ShowContacts { get; }
+
 			public DateTime CreatedAt { get; }
 			#endregion
 
