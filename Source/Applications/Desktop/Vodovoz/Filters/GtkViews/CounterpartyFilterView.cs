@@ -47,19 +47,13 @@ namespace Vodovoz.Filters.GtkViews
 			entryCounterpartyId.ValidationMode = ValidationType.Numeric;
 			entryCounterpartyId.KeyReleaseEvent += OnKeyReleased;
 			entryCounterpartyId.Binding
-				.AddBinding(ViewModel,
-				vm => vm.CounterpartyId,
-				w => w.Text,
-				new NullableIntToStringConverter())
+				.AddBinding(ViewModel, vm => vm.CounterpartyId, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
 			entryCounterpartyVodovozInternalId.ValidationMode = ValidationType.Numeric;
 			entryCounterpartyVodovozInternalId.KeyReleaseEvent += OnKeyReleased;
 			entryCounterpartyVodovozInternalId.Binding
-				.AddBinding(ViewModel,
-				vm => vm.CounterpartyVodovozInternalId,
-				w => w.Text,
-				new NullableIntToStringConverter())
+				.AddBinding(ViewModel, vm => vm.CounterpartyVodovozInternalId, w => w.Text, new NullableIntToStringConverter())
 				.InitializeFromSource();
 
 			entryCounterpartyInn.KeyReleaseEvent += OnKeyReleased;
