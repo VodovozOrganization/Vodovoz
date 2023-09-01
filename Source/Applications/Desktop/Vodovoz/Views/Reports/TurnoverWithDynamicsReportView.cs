@@ -1,4 +1,5 @@
 ﻿using DateTimeHelpers;
+using Gamma.Utilities;
 using Gtk;
 using NHibernate.Util;
 using QS.Views.GtkUI;
@@ -188,10 +189,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			columnsConfig.AddColumn("")
 				.AddTextRenderer(row => row.IsSubheaderRow ? "<b>№</b>" : row.Index, useMarkup: true);
 
-			var firstColumnTitle = 
-				(ViewModel.Report.GroupingBy.LastOrDefault() == Reports.Editing.Modifiers.GroupingType.Counterparty) 
-				? "Контрагент" 
-				: "Периоды продаж";
+			var firstColumnTitle = string.Join(" | ", ViewModel.Report.GroupingBy.Select(x => x.GetEnumTitle()));
 
 			columnsConfig.AddColumn(firstColumnTitle).AddTextRenderer(row =>
 				(row.IsSubheaderRow || row.IsTotalsRow) ? $"<b>{row.Title}</b>" : row.Title, useMarkup: true)
@@ -397,13 +395,14 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
 		{
-			vboxTurnoverWithDynamicsReportFilterContainer.Visible = !vboxTurnoverWithDynamicsReportFilterContainer.Visible;
+			scrolledwindow2.Visible = !scrolledwindow2.Visible;
+
 			UpdateSliderArrow();
 		}
 
 		private void UpdateSliderArrow()
 		{
-			arrowSlider.ArrowType = vboxTurnoverWithDynamicsReportFilterContainer.Visible ? ArrowType.Left : ArrowType.Right;
+			arrowSlider.ArrowType = scrolledwindow2.Visible ? ArrowType.Left : ArrowType.Right;
 		}
 
 		public override void Dispose()
