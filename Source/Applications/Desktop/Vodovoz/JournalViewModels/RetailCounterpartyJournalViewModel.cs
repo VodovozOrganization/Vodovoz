@@ -33,6 +33,8 @@ namespace Vodovoz.JournalViewModels
 				typeof(Tag),
 				typeof(DeliveryPoint)
 			);
+
+			SearchEnabled = false;
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
@@ -101,6 +103,29 @@ namespace Vodovoz.JournalViewModels
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointPhone))
 			{
 				query.Where(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone);
+			}
+
+			if(FilterViewModel?.CounterpartyId != null)
+			{
+				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
+			}
+
+			if(FilterViewModel?.CounterpartyVodovozInternalId != null)
+			{
+				query.Where(c => c.VodovozInternalId == FilterViewModel.CounterpartyVodovozInternalId);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
+			{
+				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointAddressLike))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					Projections.Property(() => deliveryPointAlias.CompiledAddress),
+					$"%{FilterViewModel.DeliveryPointAddressLike}%"
+					));
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
@@ -251,6 +276,29 @@ namespace Vodovoz.JournalViewModels
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointPhone))
 			{
 				query.Where(() => deliveryPointPhoneAlias.DigitsNumber == FilterViewModel.DeliveryPointPhone);
+			}
+
+			if(FilterViewModel?.CounterpartyId != null)
+			{
+				query.Where(c => c.Id == FilterViewModel.CounterpartyId);
+			}
+
+			if(FilterViewModel?.CounterpartyVodovozInternalId != null)
+			{
+				query.Where(c => c.VodovozInternalId == FilterViewModel.CounterpartyVodovozInternalId);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
+			{
+				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
+			}
+
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointAddressLike))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					Projections.Property(() => deliveryPointAlias.CompiledAddress),
+					$"%{FilterViewModel.DeliveryPointAddressLike}%"
+					));
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
