@@ -81,7 +81,7 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.Filters.GtkViews.CounterpartyFilterView
 			global::Stetic.BinContainer.Attach(this);
-			this.HeightRequest = 140;
+			this.HeightRequest = 125;
 			this.Name = "Vodovoz.Filters.GtkViews.CounterpartyFilterView";
 			// Container child Vodovoz.Filters.GtkViews.CounterpartyFilterView.Gtk.Container+ContainerChild
 			this.vboxMain = new global::Gamma.GtkWidgets.yVBox();
@@ -89,7 +89,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.vboxMain.Spacing = 6;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.filterScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.filterScrolledWindow.HeightRequest = 140;
+			this.filterScrolledWindow.HeightRequest = 125;
 			this.filterScrolledWindow.CanFocus = true;
 			this.filterScrolledWindow.Name = "filterScrolledWindow";
 			this.filterScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
