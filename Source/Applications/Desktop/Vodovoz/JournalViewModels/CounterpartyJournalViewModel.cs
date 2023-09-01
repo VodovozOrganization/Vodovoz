@@ -248,8 +248,10 @@ namespace Vodovoz.JournalViewModels
 
 			if(!string.IsNullOrWhiteSpace(FilterViewModel?.DeliveryPointAddressLike))
 			{
-				query.Where(Restrictions.InsensitiveLike(Projections.Property(() => deliveryPointAlias.CompiledAddress),
-					$"%{FilterViewModel.DeliveryPointAddressLike}%"));
+				query.Where(Restrictions.InsensitiveLike(
+					Projections.Property(() => deliveryPointAlias.CompiledAddress),
+					$"%{FilterViewModel.DeliveryPointAddressLike}%"
+					));
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
