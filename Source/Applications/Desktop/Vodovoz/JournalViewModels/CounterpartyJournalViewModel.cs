@@ -241,7 +241,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => c.VodovozInternalId == FilterViewModel.CounterpartyVodovozInternalId);
 			}
 
-			if(FilterViewModel?.CounterpartyInn != null)
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.CounterpartyInn))
 			{
 				query.Where(c => c.INN == FilterViewModel.CounterpartyInn);
 			}
