@@ -292,6 +292,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			_filterView?.Destroy();
 			_filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);
 			vboxParameters.Add(_filterView);
+			_filterView.HeightRequest = ViewModel.FilterViewModel.Filters.Count * 21 + 70;
 			_filterView.Show();
 		}
 
