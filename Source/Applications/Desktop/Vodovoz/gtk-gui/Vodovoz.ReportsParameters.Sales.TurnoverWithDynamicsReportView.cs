@@ -4,7 +4,7 @@ namespace Vodovoz.ReportsParameters.Sales
 {
 	public partial class TurnoverWithDynamicsReportView
 	{
-		private global::Gtk.HBox hbox1;
+		private global::Gtk.HPaned hpaned1;
 
 		private global::Gtk.HBox hboxMain;
 
@@ -105,10 +105,11 @@ namespace Vodovoz.ReportsParameters.Sales
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ReportsParameters.Sales.TurnoverWithDynamicsReportView";
 			// Container child Vodovoz.ReportsParameters.Sales.TurnoverWithDynamicsReportView.Gtk.Container+ContainerChild
-			this.hbox1 = new global::Gtk.HBox();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.hpaned1 = new global::Gtk.HPaned();
+			this.hpaned1.CanFocus = true;
+			this.hpaned1.Name = "hpaned1";
+			this.hpaned1.Position = 587;
+			// Container child hpaned1.Gtk.Paned+PanedChild
 			this.hboxMain = new global::Gtk.HBox();
 			this.hboxMain.Name = "hboxMain";
 			this.hboxMain.Spacing = 6;
@@ -303,6 +304,8 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.hboxSecondFiltersGroup.Add(this.frame1);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxSecondFiltersGroup[this.frame1]));
 			w18.Position = 0;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child hboxSecondFiltersGroup.Gtk.Box+BoxChild
 			this.frame2 = new global::Gtk.Frame();
 			this.frame2.Name = "frame2";
@@ -407,6 +410,8 @@ namespace Vodovoz.ReportsParameters.Sales
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hboxSecondFiltersGroup[this.frame2]));
 			w28.PackType = ((global::Gtk.PackType)(1));
 			w28.Position = 1;
+			w28.Expand = false;
+			w28.Fill = false;
 			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.hboxSecondFiltersGroup);
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.hboxSecondFiltersGroup]));
 			w29.Position = 1;
@@ -431,6 +436,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.vboxParameters);
 			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxTurnoverWithDynamicsReportFilterContainer[this.vboxParameters]));
 			w31.Position = 2;
+			w31.Expand = false;
 			// Container child vboxTurnoverWithDynamicsReportFilterContainer.Gtk.Box+BoxChild
 			this.leftrightlistview = new global::QS.Widgets.GtkUI.LeftRightListView();
 			this.leftrightlistview.HeightRequest = 300;
@@ -523,10 +529,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			w44.Position = 1;
 			w44.Expand = false;
 			w44.Fill = false;
-			this.hbox1.Add(this.hboxMain);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hboxMain]));
-			w45.Position = 0;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.hpaned1.Add(this.hboxMain);
+			global::Gtk.Paned.PanedChild w45 = ((global::Gtk.Paned.PanedChild)(this.hpaned1[this.hboxMain]));
+			w45.Resize = false;
+			// Container child hpaned1.Gtk.Paned+PanedChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -535,10 +541,8 @@ namespace Vodovoz.ReportsParameters.Sales
 			this.ytreeReportIndicatorsRows.CanFocus = true;
 			this.ytreeReportIndicatorsRows.Name = "ytreeReportIndicatorsRows";
 			this.GtkScrolledWindow2.Add(this.ytreeReportIndicatorsRows);
-			this.hbox1.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow2]));
-			w47.Position = 1;
-			this.Add(this.hbox1);
+			this.hpaned1.Add(this.GtkScrolledWindow2);
+			this.Add(this.hpaned1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

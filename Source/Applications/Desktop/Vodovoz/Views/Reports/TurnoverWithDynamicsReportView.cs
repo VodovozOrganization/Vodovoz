@@ -397,6 +397,8 @@ namespace Vodovoz.ReportsParameters.Sales
 		{
 			scrolledwindow2.Visible = !scrolledwindow2.Visible;
 
+			hpaned1.PositionSet = false;
+
 			UpdateSliderArrow();
 		}
 
