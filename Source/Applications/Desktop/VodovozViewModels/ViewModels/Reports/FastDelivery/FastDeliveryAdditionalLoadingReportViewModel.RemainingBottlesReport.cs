@@ -15,9 +15,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 	public partial class FastDeliveryAdditionalLoadingReportViewModel
 	{
 		[Appellative(Nominative = "Отчёт по остатку бутылей")]
-		public partial class FastDeliveryRemainingBottlesReport
+		public partial class RemainingBottlesReport
 		{
-			private FastDeliveryRemainingBottlesReport(DateTime createDateFrom, DateTime createDateTo, List<Row> rows)
+			private RemainingBottlesReport(DateTime createDateFrom, DateTime createDateTo, List<Row> rows)
 			{
 				CreateDateFrom = createDateFrom;
 				CreateDateTo = createDateTo;
@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 				ReportCreatedAt = DateTime.Now;
 			}
 
-			public string Title => typeof(FastDeliveryRemainingBottlesReport).GetClassUserFriendlyName().Nominative;
+			public string Title => typeof(RemainingBottlesReport).GetClassUserFriendlyName().Nominative;
 
 			public DateTime CreateDateFrom { get; }
 
@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 			public List<Row> Rows { get; set; }
 
-			public static FastDeliveryRemainingBottlesReport Generate(IUnitOfWork unitOfWork, DateTime createDateFrom, DateTime createDateTo)
+			public static RemainingBottlesReport Generate(IUnitOfWork unitOfWork, DateTime createDateFrom, DateTime createDateTo)
 			{
 				var notActualRouteListStatuses = new RouteListItemStatus[] {
 					RouteListItemStatus.Canceled,
@@ -146,7 +146,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 								AddressesCount = addressesCount
 							}).ToList();
 
-				return new FastDeliveryRemainingBottlesReport(createDateFrom, createDateTo, rows);
+				return new RemainingBottlesReport(createDateFrom, createDateTo, rows);
 			}
 		}
 	}
