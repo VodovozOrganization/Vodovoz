@@ -249,7 +249,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 			style.BorderStyle.Top = "Solid";
 			style.BorderStyle.Bottom = "Solid";
 			style.FontWeight = "Bold";
-			style.FontSize = "6pt";
+			style.FontSize = "10pt";
 			style.VerticalAlign = "Middle";
 			return style;
 		}
