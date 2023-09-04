@@ -19,6 +19,7 @@ using QS.Commands;
 using System.Reflection;
 using System.IO;
 using Vodovoz.Reports.Editing;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -107,6 +108,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			set => SetField(ref _showPhones, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanShowPhones))]
 		public bool IsDetailed
 		{
 			get => _isDetailed;
