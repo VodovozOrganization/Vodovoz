@@ -16,9 +16,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.FastDelivery
 
 				public string DriverFullName { get; set; }
 
-				public decimal BottlesLoadedCount { get; set; }
+				public decimal BottlesLoadedAdditionallyCount { get; set; }
+				public decimal BottlesLoadedPlanCount { get; set; }
+				public decimal BottlesLoadedFromOtherDriversCount { get; set; }
 
-				public decimal BottlesShippedCount { get; set; }
+				public decimal BottlesShippedFastDeliveryCount { get; set; }
+				public decimal BottlesShippedPlanCount { get; set; }
+				public decimal BottlesTransferedToOtherDriversCount { get; set; }
 
 				public decimal RemainingBottlesCount { get; set; }
 
