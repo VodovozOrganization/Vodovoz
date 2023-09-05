@@ -112,7 +112,14 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		public bool IsDetailed
 		{
 			get => _isDetailed;
-			set => SetField(ref _isDetailed, value);
+			set
+			{
+				if(SetField(ref _isDetailed, value)
+					&& !value)
+				{
+					ShowPhones = false;
+				}
+			}
 		}
 
 		public bool CanShowPhones => IsDetailed && _canSeePhones;

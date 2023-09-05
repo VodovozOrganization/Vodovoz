@@ -34,6 +34,7 @@ namespace Vodovoz.Reports
 
 			ycheckbuttonPhones.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowPhones, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.ShowPhones, w => w.Active)
 				.InitializeFromSource();
 
 			var filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);
