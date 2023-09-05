@@ -38,7 +38,6 @@ namespace Vodovoz.Reports
 			this.scrolledwindow2 = new global::Gtk.ScrolledWindow();
 			this.scrolledwindow2.CanFocus = true;
 			this.scrolledwindow2.Name = "scrolledwindow2";
-			this.scrolledwindow2.VscrollbarPolicy = ((global::Gtk.PolicyType)(0));
 			this.scrolledwindow2.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.scrolledwindow2.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child scrolledwindow2.Gtk.Container+ContainerChild
