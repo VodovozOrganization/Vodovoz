@@ -53,6 +53,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			INavigationManager navigation = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
+			if(filter is null)
+			{
+				throw new ArgumentNullException(nameof(filter));
+			}
+
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_cashReceiptRepository = cashReceiptRepository ?? throw new ArgumentNullException(nameof(cashReceiptRepository));
 			_receiptManualController = receiptManualController ?? throw new ArgumentNullException(nameof(receiptManualController));
@@ -78,7 +83,17 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 
 			_canResendDuplicateReceipts = permissionService.ValidatePresetPermission(CashReceiptPermissions.CanResendDuplicateReceipts);
 
-			Filter = filter ?? throw new ArgumentNullException(nameof(filter));
+			if(!filter.StartDate.HasValue)
+			{
+				filter.StartDate = DateTime.Now.Date.AddMonths(-1);
+			}
+
+			if(!filter.EndDate.HasValue)
+			{
+				filter.EndDate = DateTime.Now.Date;
+			}
+
+			Filter = filter;
 
 			_autoRefreshInterval = 30;
 
