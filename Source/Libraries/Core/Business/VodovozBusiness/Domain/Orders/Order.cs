@@ -1657,6 +1657,20 @@ namespace Vodovoz.Domain.Orders
 				incorrectReceiptItems.Add($"Нельзя удалять номенклатуры, по которым сформирован чек: {string.Join(", ", missingNames)}.");
 			}
 
+			var missingInOldOrderIds = newOrderItems
+				.Select(x => x.Key)
+				.Except(oldOrderItems.Select(x => x.Key))
+				.ToArray();
+
+			if(missingInOldOrderIds.Any())
+			{
+				var newNames = newOrderItems
+					.Where(x => missingInOldOrderIds.Contains(x.Key))
+					.Select(x => x.First().Nomenclature.Name);
+
+				incorrectReceiptItems.Add($"Нельзя добавлять новые номенклатуры в заказ, по которому сформирован чек: {string.Join(", ", newNames)}.");
+			}
+
 			foreach(var oldItem in oldOrderItems)
 			{
 				var newItem = newOrderItems
