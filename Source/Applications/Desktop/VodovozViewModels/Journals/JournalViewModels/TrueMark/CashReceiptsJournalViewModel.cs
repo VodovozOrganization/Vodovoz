@@ -149,6 +149,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 			CreateNodeManualSendAction();
 			CreateNodeRefreshFiscalDocAction();
 			CreateLoadCodesToPoolAction();
+			CreateProductCodesScanningReportAction();
 		}
 
 		protected override void CreatePopupActions()
@@ -578,5 +579,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 		}
 
 		#endregion Load codes to pool
+
+		#region CreateProductCodesScanningReportAction
+		private void CreateProductCodesScanningReportAction()
+		{
+			var createProductCodesScanningReportAction = new JournalAction("Отчет о сканировании маркировки",
+				(selected) => _filter.StartDate.HasValue && _filter.EndDate.HasValue && _filter.EndDate.Value >= _filter.StartDate.Value,
+				(selected) => true,
+				(selected) => GenerateProductCodesScanningReport()
+			);
+			NodeActionsList.Add(createProductCodesScanningReportAction);
+		}
+
+		private void GenerateProductCodesScanningReport()
+		{
+
+		}
+		#endregion
 	}
 }
