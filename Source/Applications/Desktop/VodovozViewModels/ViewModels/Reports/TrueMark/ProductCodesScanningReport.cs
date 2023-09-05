@@ -3,7 +3,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Tools;
-using static Vodovoz.ViewModels.ViewModels.Reports.FastDelivery.FastDeliveryAdditionalLoadingReportViewModel;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 {
@@ -18,7 +17,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 			ReportCreatedAt = DateTime.Now;
 		}
 
-		public string Title => typeof(FastDeliveryRemainingBottlesReport).GetClassUserFriendlyName().Nominative;
+		public string Title => typeof(ProductCodesScanningReport).GetClassUserFriendlyName().Nominative;
 
 		public DateTime CreateDateFrom { get; }
 
@@ -36,7 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.TrueMark
 		public class Row
 		{
 			public int RowNumber { get; set; }
-			public string DriversName { get; set; }
+			public string DriverFIO { get; set; }
 			public int TotalCodesCount { get; set; }
 			public int SuccessfullyScannedCodesCount { get; set; }
 			public decimal SuccessfullyScannedCodesPercent { get; set; }
