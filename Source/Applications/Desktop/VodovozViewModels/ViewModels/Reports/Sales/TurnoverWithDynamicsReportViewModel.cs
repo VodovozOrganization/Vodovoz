@@ -463,8 +463,6 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 		private string GetTrmplatePath()
 		{
-			var reportLastGrouping = Report.GroupingBy.LastOrDefault();
-
 			if(Report.ShowDynamics)
 			{
 				return _templateWithDynamicsPath;

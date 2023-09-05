@@ -19,9 +19,7 @@ namespace Vodovoz.ReportsParameters.Sales
 	{
 		private IncludeExludeFiltersView _filterView;
 		private const string _radioButtonPrefix = "yrbtn";
-		private const string _sliceRadioButtonGroupPrefix = "Slice";
 		private const string _measurementUnitRadioButtonGroupPrefix = "MeasurementUnit";
-		private const string _dynamicsInRadioButtonGroupPrefix = "DynamicsIn";
 		private Task _generationTask;
 
 		public TurnoverWithDynamicsReportView(TurnoverWithDynamicsReportViewModel viewModel) : base(viewModel)
@@ -61,15 +59,11 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			//foreach(RadioButton radioButton in yrbtnSliceDay.Group)
-			//{
-			//	if(radioButton.Active)
-			//	{
-			//		SliceGroupSelectionChanged(radioButton, EventArgs.Empty);
-			//	}
-
-			//	radioButton.Toggled += SliceGroupSelectionChanged;
-			//}
+			yenumSlice.ItemsEnum = typeof(DateTimeSliceType);
+			yenumSlice.ShowSpecialStateAll = false;
+			yenumSlice.Binding
+				.AddBinding(ViewModel, vm => vm.SlicingType, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			foreach(RadioButton radioButton in yrbtnMeasurementUnitAmount.Group)
 			{
@@ -81,15 +75,11 @@ namespace Vodovoz.ReportsParameters.Sales
 				radioButton.Toggled += MeasurementUnitGroupSelectionChanged;
 			}
 
-			//foreach(RadioButton radioButton in yrbtnDynamicsInPercents.Group)
-			//{
-			//	if(radioButton.Active)
-			//	{
-			//		DynamicsInGroupSelectionChanged(radioButton, EventArgs.Empty);
-			//	}
-
-			//	radioButton.Toggled += DynamicsInGroupSelectionChanged;
-			//}
+			yenumDynamicsMeasurementUnit.ItemsEnum = typeof(DynamicsInEnum);
+			yenumDynamicsMeasurementUnit.ShowSpecialStateAll = false;
+			yenumDynamicsMeasurementUnit.Binding
+				.AddBinding(ViewModel, vm => vm.DynamicsIn, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			ychkbtnShowDynamics.Binding
 				.AddBinding(ViewModel, vm => vm.ShowDynamics, w => w.Active)
@@ -117,23 +107,13 @@ namespace Vodovoz.ReportsParameters.Sales
 			ytreeReportIndicatorsRows.RowActivated += OnReportRowActivated;
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
+
+			hpaned1.Position = 680;
 		}
 
 		private void OnButtonAbortCreateReportClicked(object sender, EventArgs e)
 		{
 			ViewModel.ReportGenerationCancelationTokenSource.Cancel();
-		}
-
-		private void DynamicsInGroupSelectionChanged(object sender, EventArgs e)
-		{
-			if(sender is RadioButton rbtn && rbtn.Active)
-			{
-				var trimmedName = rbtn.Name
-					.Replace(_radioButtonPrefix, string.Empty)
-					.Replace(_dynamicsInRadioButtonGroupPrefix, string.Empty);
-
-				ViewModel.DynamicsIn = (DynamicsInEnum)Enum.Parse(typeof(DynamicsInEnum), trimmedName);
-			}
 		}
 
 		private void MeasurementUnitGroupSelectionChanged(object s, EventArgs e)
@@ -145,18 +125,6 @@ namespace Vodovoz.ReportsParameters.Sales
 					.Replace(_measurementUnitRadioButtonGroupPrefix, string.Empty);
 
 				ViewModel.MeasurementUnit = (MeasurementUnitEnum)Enum.Parse(typeof(MeasurementUnitEnum), trimmedName);
-			}
-		}
-
-		private void SliceGroupSelectionChanged(object s, EventArgs e)
-		{
-			if(s is RadioButton rbtn && rbtn.Active)
-			{
-				var trimmedName = rbtn.Name
-					.Replace(_radioButtonPrefix, string.Empty)
-					.Replace(_sliceRadioButtonGroupPrefix, string.Empty);
-
-				ViewModel.SlicingType = (DateTimeSliceType)Enum.Parse(typeof(DateTimeSliceType), trimmedName);
 			}
 		}
 
@@ -414,20 +382,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			ybuttonCreateReport.Clicked -= OnButtonCreateReportClicked;
 			ybuttonAbortCreateReport.Clicked -= OnButtonAbortCreateReportClicked;
 
-			//foreach(RadioButton radioButton in yrbtnSliceDay.Group)
-			//{
-			//	radioButton.Toggled -= SliceGroupSelectionChanged;
-			//}
-
 			foreach(RadioButton radioButton in yrbtnMeasurementUnitAmount.Group)
 			{
 				radioButton.Toggled -= MeasurementUnitGroupSelectionChanged;
 			}
-
-			//foreach(RadioButton radioButton in yrbtnDynamicsInPercents.Group)
-			//{
-			//	radioButton.Toggled -= DynamicsInGroupSelectionChanged;
-			//}
 
 			ViewModel.PropertyChanged -= ViewModelPropertyChanged;
 			eventboxArrow.ButtonPressEvent -= OnEventboxArrowButtonPressEvent;
