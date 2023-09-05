@@ -327,7 +327,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			w21.Position = 1;
 			// Container child vboxTurnoverWithDynamicsReportFilterContainer.Gtk.Box+BoxChild
 			this.leftrightlistview = new global::QS.Widgets.GtkUI.LeftRightListView();
-			this.leftrightlistview.HeightRequest = 300;
+			this.leftrightlistview.HeightRequest = 200;
 			this.leftrightlistview.Events = ((global::Gdk.EventMask)(256));
 			this.leftrightlistview.Name = "leftrightlistview";
 			this.vboxTurnoverWithDynamicsReportFilterContainer.Add(this.leftrightlistview);
