@@ -1171,7 +1171,7 @@ FROM
        AND
        (
          	(
-         	   (0 IN (@PaymentType_include) OR (orders.payment_type IN (@PaymentType_include)))
+         	   ('0' IN (@PaymentType_include) OR (orders.payment_type IN (@PaymentType_include)))
 				AND NOT (orders.payment_type IN (@PaymentType_exclude))
          	)
             OR
@@ -1183,7 +1183,7 @@ FROM
             OR
          	(
          		(orders.payment_type = 'PaidOnline' AND 
-         		'0' IN (@PaymentFrom_include) OR orders.payment_from_id IN (@PaymentFrom_include))
+         		0 IN (@PaymentFrom_include) OR orders.payment_from_id IN (@PaymentFrom_include))
          		AND NOT (orders.payment_from_id IN (@PaymentFrom_exclude)) 		
          	)
        )
