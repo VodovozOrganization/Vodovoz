@@ -3270,7 +3270,7 @@ WHERE
        AND
        (
          	(
-         	   (0 IN (@PaymentType_include) OR (o.payment_type IN (@PaymentType_include)))
+         	   ('0' IN (@PaymentType_include) OR (o.payment_type IN (@PaymentType_include)))
 				AND NOT (o.payment_type IN (@PaymentType_exclude))
          	)
             OR
@@ -3282,7 +3282,7 @@ WHERE
             OR
          	(
          		(o.payment_type = 'PaidOnline' AND 
-         		'0' IN (@PaymentFrom_include) OR o.payment_from_id IN (@PaymentFrom_include))
+         		0 IN (@PaymentFrom_include) OR o.payment_from_id IN (@PaymentFrom_include))
          		AND NOT (o.payment_from_id IN (@PaymentFrom_exclude)) 		
          	)
        )
